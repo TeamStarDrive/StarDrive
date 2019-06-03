@@ -46,10 +46,10 @@ namespace Ship_Game.AI
                         angerDiplomaticConflict.Anger_DiplomaticConflict + amount;
                 })
             };
+
             if (ally == Empire.Universe.PlayerEmpire)
             {
-                Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                    Empire.Universe.PlayerEmpire, dialogue, ourOffer, offer, enemy));
+                DiplomacyScreen.Show(OwnerEmpire, dialogue, ourOffer, offer, enemy);
             }
         }
 
@@ -104,54 +104,44 @@ namespace Ship_Game.AI
                     case WarType.BorderConflict:
                         if (ourRelations.contestedSystemGuid != Guid.Empty)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War BC TarSys", ourRelations.GetContestedSystem()));
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War BC TarSys", ourRelations.GetContestedSystem());
                             break;
                         }
                         else
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War BC"));
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War BC", ourRelations.GetContestedSystem());
                             break;
                         }
                     case WarType.ImperialistWar:
                         if (ourRelations.Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Imperialism Break NA"));
-                            using (var enumerator = OwnerEmpire.AllRelations.GetEnumerator())
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Imperialism Break NA");
+                            foreach (var kv in OwnerEmpire.AllRelations)
                             {
-                                while (enumerator.MoveNext())
+                                if (kv.Key != them)
                                 {
-                                    var kv = enumerator.Current;
-                                    if (kv.Key != them)
-                                    {
-                                        kv.Value.Trust                    -= 50f;
-                                        kv.Value.Anger_DiplomaticConflict += 20f;
-                                    }
+                                    kv.Value.Trust -= 50f;
+                                    kv.Value.Anger_DiplomaticConflict += 20f;
                                 }
-                                break;
                             }
+                            break;
                         }
                         else
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Imperialism"));
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Imperialism");
                             break;
                         }
                     case WarType.DefensiveWar:
                         if (!ourRelations.Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Defense"));
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Defense");
                             ourRelations.Anger_DiplomaticConflict += 25f;
                             ourRelations.Trust                    -= 25f;
                             break;
                         }
                         else if (ourRelations.Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Defense BrokenNA"));
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Defense BrokenNA");
                             ourRelations.Treaty_NAPact = false;
                             foreach (var kv in OwnerEmpire.AllRelations)
                             {
@@ -217,52 +207,47 @@ namespace Ship_Game.AI
                 {
                     case WarType.BorderConflict:
                     {
-                        if (OwnerEmpire.GetRelations(them).contestedSystemGuid == Guid.Empty)
+                        Relationship r = OwnerEmpire.GetRelations(them);
+                        if (r.contestedSystemGuid == Guid.Empty)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War BC"));
-                            break;
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War BC");
                         }
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                            "Declare War BC Tarsys", OwnerEmpire.GetRelations(them).GetContestedSystem()));
+                        else
+                        {
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War BC Tarsys", r.GetContestedSystem());
+                        }
                         break;
                     }
                     case WarType.ImperialistWar:
                     {
-                        if (!OwnerEmpire.GetRelations(them).Treaty_NAPact)
+                        if (OwnerEmpire.GetRelations(them).Treaty_NAPact)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Imperialism"));
-                            break;
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Imperialism Break NA");
                         }
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                            "Declare War Imperialism Break NA"));
+                        else
+                        {
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Imperialism");
+                        }
                         break;
                     }
                     case WarType.DefensiveWar:
                     {
                         if (OwnerEmpire.GetRelations(them).Treaty_NAPact)
                         {
-                            if (!OwnerEmpire.GetRelations(them).Treaty_NAPact)
+                            if (OwnerEmpire.GetRelations(them).Treaty_NAPact)
                             {
-                                break;
+                                DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Defense BrokenNA");
+                                OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
+                                OwnerEmpire.GetRelations(them).Trust -= 50f;
+                                OwnerEmpire.GetRelations(them).Anger_DiplomaticConflict += 50f;
                             }
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                                "Declare War Defense BrokenNA"));
-                            OwnerEmpire.GetRelations(them).Treaty_NAPact = false;
-                            Relationship trust                           = OwnerEmpire.GetRelations(them);
-                            trust.Trust                                  = trust.Trust - 50f;
-                            Relationship relationship                    = OwnerEmpire.GetRelations(them);
-                            relationship.Anger_DiplomaticConflict        = relationship.Anger_DiplomaticConflict + 50f;
-                            break;
                         }
-
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, them,
-                            "Declare War Defense"));
-                        Relationship item1             = OwnerEmpire.GetRelations(them);
-                        item1.Anger_DiplomaticConflict = item1.Anger_DiplomaticConflict + 25f;
-                        Relationship trust1            = OwnerEmpire.GetRelations(them);
-                        trust1.Trust                   = trust1.Trust - 25f;
+                        else
+                        {
+                            DiplomacyScreen.Show(OwnerEmpire, them, "Declare War Defense");
+                            OwnerEmpire.GetRelations(them).Anger_DiplomaticConflict += 25f;
+                            OwnerEmpire.GetRelations(them).Trust -= 25f;
+                        }
                         break;
                     }
                     case WarType.GenocidalWar:
@@ -499,14 +484,16 @@ namespace Ship_Game.AI
             Relationship value = relationship.Value;
             offerPeace.ValueToModify = new Ref<bool>(() => false, x => value.SetImperialistWar());
             string dialogue = whichPeace;
-            if (relationship.Key != Empire.Universe.PlayerEmpire)
+            var ourOffer = new Offer { PeaceTreaty = true };
+            if (relationship.Key == Empire.Universe.PlayerEmpire)
             {
-                var ourOffer = new Offer {PeaceTreaty = true};
-                relationship.Key.GetEmpireAI().AnalyzeOffer(ourOffer, offerPeace, OwnerEmpire, Offer.Attitude.Respectful);
-                return;
+                DiplomacyScreen.Show(OwnerEmpire, dialogue, ourOffer, offerPeace);
             }
-            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                Empire.Universe.PlayerEmpire, dialogue, new Offer(), offerPeace));
+            else
+            {
+                relationship.Key.GetEmpireAI()
+                    .AnalyzeOffer(ourOffer, offerPeace, OwnerEmpire, Offer.Attitude.Respectful);
+            }
         }
 
         private IEnumerable<KeyValuePair<Empire, Relationship>> EmpireAttackWeights()

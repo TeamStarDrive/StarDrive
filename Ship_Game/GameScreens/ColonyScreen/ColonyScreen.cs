@@ -1095,7 +1095,7 @@ namespace Ship_Game
                                     "? Half of the building's construction cost will be recovered to your storage.");
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
                                 messageBox.Accepted += ScrapAccepted;
-                                ScreenManager.AddScreen(messageBox);
+                                ScreenManager.AddScreenDeferred(messageBox);
                             }
 
                             ClickedTroop = true;

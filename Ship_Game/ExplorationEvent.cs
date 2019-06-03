@@ -42,7 +42,7 @@ namespace Ship_Game
                 triggeredOutcome.CheckOutComes(p, eventLocation, triggeredBy,popup);
                 if (popup != null)
                 {
-                    screen.ScreenManager.AddScreen(popup);
+                    screen.ScreenManager.AddScreenDeferred(popup);
                     GameAudio.PlaySfxAsync("sd_notify_alert");
                 }
             }

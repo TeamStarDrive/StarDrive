@@ -125,11 +125,9 @@ namespace Ship_Game
             playerEmpire = us;
             whichDialogue = which;
             IsPopup = true;
-            string str = which;
-            string str1 = str;
-            if (str != null)
+            if (which != null)
             {
-                switch (str1)
+                switch (which)
                 {
                     case "Conquered_Player":
                     {
@@ -217,7 +215,7 @@ namespace Ship_Game
             TransitionOnTime = 1.0f;
         }
 
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, bool EndOnly) : base(parent)
+        DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, bool EndOnly) : base(parent)
         {
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
@@ -229,7 +227,8 @@ namespace Ship_Game
             TransitionOnTime = 1.0f;
         }
 
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer ourOffer, Offer theirOffer) : base(parent)
+        DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, 
+            Offer ourOffer, Offer theirOffer, Empire targetEmpire = null) : base(parent)
         {
             e.GetRelations(us).turnsSinceLastContact = 0;
             them = e;
@@ -241,24 +240,11 @@ namespace Ship_Game
             OurOffer = ourOffer;
             TheirOffer = theirOffer;
             TransitionOnTime = 1.0f;
+
+            empToDiscuss = targetEmpire;
         }
 
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Offer ourOffer, Offer theirOffer, Empire taremp) : base(parent)
-        {
-            e.GetRelations(us).turnsSinceLastContact = 0;
-            them = e;
-            playerEmpire = us;
-            empToDiscuss = taremp;
-            whichDialogue = which;
-            IsPopup = true;
-            dState = DialogState.TheirOffer;
-            TheirText = GetDialogueByName(which);
-            OurOffer = ourOffer;
-            TheirOffer = theirOffer;
-            TransitionOnTime = 1.0f;
-        }
-
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Planet p) : base(parent)
+        DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, Planet p) : base(parent)
         {
             float TheirOpinionOfUs;
             e.GetRelations(us).turnsSinceLastContact = 0;
@@ -307,7 +293,7 @@ namespace Ship_Game
             TheirText = GetDialogue(TheirOpinionOfUs);
         }
 
-        public DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, SolarSystem s) : base(parent)
+        DiplomacyScreen(GameScreen parent, Empire e, Empire us, string which, SolarSystem s) : base(parent)
         {
             float TheirOpinionOfUs;
             e.GetRelations(us).turnsSinceLastContact = 0;
@@ -396,19 +382,65 @@ namespace Ship_Game
             }
         }
 
+        public static void Show(Empire them, Empire us, string which)
+        {
+            var ds = new DiplomacyScreen(Empire.Universe, them, us, which);
+            ScreenManager.Instance.AddScreenDeferred(ds);
+        }
+
+        public static void Show(Empire them, string which)
+        {
+            Show(them, Empire.Universe.PlayerEmpire, which);
+        }
+
+        public static DiplomacyScreen Show(Empire e, Empire us, string which, bool EndOnly)
+        {
+            var ds = new DiplomacyScreen(Empire.Universe, e, us, which, EndOnly);
+            ScreenManager.Instance.AddScreenDeferred(ds);
+            return ds;
+        }
+
+        public static void Show(Empire them, string which, Offer ourOffer, Offer theirOffer)
+        {
+            var ds = new DiplomacyScreen(Empire.Universe, them, Empire.Universe.PlayerEmpire, which, ourOffer, theirOffer);
+            ScreenManager.Instance.AddScreenDeferred(ds);
+        }
+
+        public static void Show(Empire them, string which, Offer ourOffer, Offer theirOffer, Empire taremp)
+        {
+            var ds = new DiplomacyScreen(Empire.Universe, them, Empire.Universe.PlayerEmpire, which, ourOffer, theirOffer, taremp);
+            ScreenManager.Instance.AddScreenDeferred(ds);
+        }
+
+        public static void Show(Empire them, Empire us, string which, Planet planet)
+        {
+            ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(Empire.Universe, them, us, which, planet));
+        }
+
+        public static void Show(Empire them, Empire us, string which, SolarSystem s)
+        {
+            ScreenManager.Instance.AddScreenDeferred(new DiplomacyScreen(Empire.Universe, them, us, which, s));
+        }
+
+        public static void Show(Empire them, string which, SolarSystem s)
+        {
+            Show(them, Empire.Universe.PlayerEmpire, which, s);
+        }
+
+
+
         public static void Stole1stColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim");
         public static void Stole2ndColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim 2");
         public static void Stole3rdColonyClaim(Planet claimedPlanet, Empire victim) => StoleColonyClaim(claimedPlanet, victim, "Stole Claim 3");
 
-        private static void StoleColonyClaim(Planet claimedPlanet, Empire victim, string type)
+        static void StoleColonyClaim(Planet claimedPlanet, Empire victim, string type)
         {
-            var dipScreen =  new DiplomacyScreen(Empire.Universe, victim, Empire.Universe.PlayerEmpire, type, claimedPlanet.ParentSystem);
-
-            Empire.Universe.ScreenManager.AddScreen(dipScreen);
+            var ds = new DiplomacyScreen(Empire.Universe, victim, Empire.Universe.PlayerEmpire, type, claimedPlanet.ParentSystem);
+            Empire.Universe.ScreenManager.AddScreenDeferred(ds);
         }
 
 
-        private void DoNegotiationResponse(string answer)
+        void DoNegotiationResponse(string answer)
         {
             StatementsSL.Reset();
             TheirText = "";
