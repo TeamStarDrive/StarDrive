@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -47,11 +48,10 @@ namespace Ship_Game.Data.Mesh
             }
         }
 
-        unsafe void CreateBones(SdMesh* mesh, Model model, 
-                                SkinnedModelBoneCollection animBones,
-                                AnimationClipDictionary animClips)
+        static unsafe void CreateBones(SdMesh* mesh, Model model, 
+                                       SkinnedModelBoneCollection animBones,
+                                       AnimationClipDictionary animClips)
         {
-            
             int allBones = model.Bones.Count;
             for (int i = 0; i < allBones; ++i)
             {
@@ -75,12 +75,37 @@ namespace Ship_Game.Data.Mesh
             }
 
             AnimationClip[] clips = animClips.Values.Sorted(clip => clip.Name);
-            foreach (AnimationClip c in clips)
+            foreach (AnimationClip animClip in clips)
             {
-                SdAnimationClip* clip = SDMeshCreateAnimationClip(
-                    mesh, c.Name, (float)c.Duration.TotalSeconds);
+                SdAnimationClip* clip = SDMeshCreateAnimationClip(mesh, 
+                    animClip.Name, (float)animClip.Duration.TotalSeconds);
 
-                AnimationChannelDictionary channels = c.Channels;
+                foreach (KeyValuePair<string, AnimationChannel> ch in animClip.Channels)
+                {
+                    int skinnedIndex = animBones.IndexOf(b => b.Name == ch.Key);
+                    if (skinnedIndex == -1)
+                    {
+                        Log.Error($"Invalid AnimationChannel {ch.Key} does not reference a valid SkinnedBone");
+                        continue;
+                    }
+
+                    SdBoneAnimation* anim = SDMeshAddBoneAnimation(clip, skinnedIndex);
+                    foreach (AnimationChannelKeyframe kf in ch.Value)
+                    {
+                        Pose pose = kf.Pose;
+                        var keyFrame = new SdAnimationKeyFrame
+                        {
+                            Time = (float)kf.Time.TotalSeconds,
+                            Pose = new SdBonePose
+                            {
+                                Translation = pose.Translation,
+                                Orientation = pose.Orientation,
+                                Scale = pose.Scale
+                            }
+                        };
+                        SDMeshAddAnimationKeyFrame(anim, keyFrame);
+                    }
+                }
             }
         }
 
