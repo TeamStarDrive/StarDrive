@@ -31,6 +31,10 @@ namespace Ship_Game.Data.Mesh
             public readonly int NumGroups;
             public readonly int NumFaces;
             public readonly int NumMaterials;
+
+            public readonly int NumModelBones;
+            public readonly int NumSkinnedBones;
+            public readonly int NumAnimClips;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -175,37 +179,48 @@ namespace Ship_Game.Data.Mesh
             public Quaternion Orientation;
             public Vector3 Scale;
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
         protected struct SdModelBone
         {
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string Name;
+            public CStrView Name;
             public int BoneIndex;
             public int ParentBone;
             public Matrix Transform;
         }
-        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4, CharSet = CharSet.Ansi)]
         protected struct SdSkinnedBone
         {
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string Name;
+            public CStrView Name;
             public int BoneIndex;
             public int ParentBone;
             public SdBonePose BindPose;
             public Matrix InverseBindPoseTransform;
         }
+
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected struct SdBoneAnimation
+        protected struct SdAnimationKeyFrame
         {
-            [MarshalAs(UnmanagedType.LPStr)]
-            public string BoneName;
-            public int FrameCount;
+            public float Time;
+            public SdBonePose Pose;
         };
+
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected struct SdAnimationClip
+        protected unsafe struct SdBoneAnimation
+        {
+            public readonly int BoneIndex;
+            public readonly int NumKeyFrames;
+            public readonly SdAnimationKeyFrame* KeyFrames;
+        };
+
+        [StructLayout(LayoutKind.Sequential, Pack = 4)]
+        protected unsafe struct SdAnimationClip
         {
             public CStrView Name;
             public float Duration;
+            public readonly int NumAnimations;
+            public readonly SdBoneAnimation* Animations;
         };
 
         [DllImport("SDNative.dll")] protected static extern unsafe
@@ -227,8 +242,22 @@ namespace Ship_Game.Data.Mesh
 
         [DllImport("SDNative.dll")] protected static extern unsafe
             SdAnimationClip* SDMeshCreateAnimationClip(SdMesh* mesh,
-                [MarshalAs(UnmanagedType.LPWStr)] string name, float duration);
-        
+                [MarshalAs(UnmanagedType.LPWStr)] string name,
+                float duration
+            );
+
+        [DllImport("SDNative.dll")]
+        protected static extern unsafe
+            SdBoneAnimation* SDMeshAddBoneAnimation(SdAnimationClip* clip,
+                int skinnedBoneIndex
+            );
+
+        [DllImport("SDNative.dll")]
+        protected static extern unsafe
+            void SDMeshAddAnimationKeyFrame(SdBoneAnimation* anim, 
+                in SdAnimationKeyFrame keyFrame
+            );
+
         /////////////////////////////////////////////////////////////////////////////
 
         protected static SdVertexElement[] CreateVertexElements(VertexDeclaration vd)
