@@ -768,6 +768,9 @@ namespace Ship_Game
 
         void DrawShipUI(GameTime gameTime)
         {
+            if (DefiningAO || DefiningTradeRoutes)
+                return; // FB dont show fleet list when selected AOs and Trade Routes
+
             lock (GlobalStats.FleetButtonLocker)
             {
                 foreach (FleetButton fleetButton in FleetButtons)
