@@ -379,7 +379,7 @@ namespace Ship_Game
             foreach (var ship in Ships)
             {
                 if (ship.AI.State != AIState.Orbit && ship.Center.InRadius(ship.Center, radius))
-                    ship.DoOrbit(planet);
+                    ship.OrderToOrbit(planet);
             }
         }
 

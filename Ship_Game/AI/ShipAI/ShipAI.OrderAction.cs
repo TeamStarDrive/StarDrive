@@ -470,7 +470,6 @@ namespace Ship_Game.AI
             if (Owner.shipData.ShipCategory == ShipData.Category.Civilian)
                 OrderMoveTowardsPosition(toOrbit.Center, Vectors.Up, false, toOrbit);
 
-            SetPriorityOrder(clearOrders: false);
             AddOrbitPlanetGoal(toOrbit);
         }
 
