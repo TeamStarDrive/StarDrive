@@ -80,40 +80,36 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             string singular;
-            Color TextColor = new Color(255, 239, 208);
+            var TextColor = new Color(255, 239, 208);
             string sysname = planet.ParentSystem.Name;
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
             {
-                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
+                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial20Bold, sysname, SysNameCursor, TextColor);
             }
             else
             {
-                Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
+                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
 
-            double totalSeconds = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
             if (planet.ParentSystem.HostileForcesPresent(EmpireManager.Player))
             {
-                float f = (float)Math.Sin(totalSeconds);
-                f = Math.Abs(f) * 255f;
-                Color flashColor = new Color(255, 255, 255, (byte)f);
-                Rectangle flashRect = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, ResourceManager.Texture("Ground_UI/Ground_Attack").Width, ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                batch.Draw(ResourceManager.Texture("Ground_UI/EnemyHere"), flashRect, flashColor);
+                var flashRect = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, ResourceManager.Texture("Ground_UI/Ground_Attack").Width, ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
+                batch.Draw(ResourceManager.Texture("Ground_UI/EnemyHere"), flashRect, screen.CurrentFlashColor);
                 if (flashRect.HitTest(screen.Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(123);
                 }
             }
-            Rectangle planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
+            var planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
             batch.Draw(planet.PlanetTexture, planetIconRect, Color.White);
             if (planet.Owner != null)
             {
                 batch.Draw(ResourceManager.Flag(planet.Owner), planetIconRect, planet.Owner.EmpireColor);
             }
             int i = 0;
-            Vector2 StatusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIconRect.Y + 10);
+            var StatusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIconRect.Y + 10);
             if (planet.RecentCombat)
             {
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X - 18, (int)StatusIcons.Y, 16, 16);
@@ -122,90 +118,65 @@ namespace Ship_Game
                 {
                     ToolTip.CreateTooltip(119);
                 }
-                //i++;
             }
             if (EmpireManager.Player.data.MoleList.Count > 0)
             {
                 foreach (Mole m in EmpireManager.Player.data.MoleList)
                 {
-                    if (m.PlanetGuid != planet.guid)
+                    if (m.PlanetGuid == planet.guid)
                     {
-                        continue;
-                    }
-                    StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
-                    Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                    batch.Draw(ResourceManager.Texture("UI/icon_spy_small"), statusRect, Color.White);
-                    //i++;
-                    if (!statusRect.HitTest(screen.Input.CursorPosition))
-                    {
+                        StatusIcons.X -= 20f;
+                        var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
+                        batch.Draw(ResourceManager.Texture("UI/icon_spy_small"), statusRect, Color.White);
+                        if (statusRect.HitTest(screen.Input.CursorPosition))
+                        {
+                            ToolTip.CreateTooltip(120);
+                        }
                         break;
                     }
-                    ToolTip.CreateTooltip(120);
-                    break;
                 }
             }
             //Building lastBuilding;
             foreach (Building b in planet.BuildingList)
             {
-                if (!b.EventHere || (planet.Owner != null && planet.Owner.GetBDict()[b.Name]))
+                if (b.EventHere && (planet.Owner == null || !planet.Owner.GetBDict()[b.Name]))
                 {
-                    continue;
+                    StatusIcons.X -= 20f;
+                    var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
+                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
+                    i++;
+                    if (statusRect.HitTest(screen.Input.CursorPosition))
+                        ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 }
-                StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
-                Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
-                i++;
-                if (!statusRect.HitTest(screen.Input.CursorPosition))
-                {
-                    continue;
-                }
-                ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
             }
 
             foreach (Building b in planet.BuildingList)
             {
-                if (!b.IsCommodity)
+                if (b.IsCommodity)
                 {
-                    continue;
-                }
-                StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
-
-                Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
-                i++;
-                if (!statusRect.HitTest(screen.Input.CursorPosition))
-                {
-                    continue;
-                }
-                ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
-            }
-            int troops = 0;
-            using (planet.TroopsHere.AcquireReadLock())
-            foreach (Troop troop in planet.TroopsHere)
-            {
-                if (troop.Loyalty.isPlayer)
-                {
-                    troops++;
-
+                    StatusIcons.X -= 20f;
+                    var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
+                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
+                    i++;
+                    if (statusRect.HitTest(screen.Input.CursorPosition))
+                        ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 }
             }
+
+            int troops = planet.TroopsHere.Count(t => t.Loyalty.isPlayer);
             if (troops > 0)
             {
-                //TimeSpan totalGameTime = gameTime.TotalGameTime;
-                //float f = (float)Math.Sin((double)totalGameTime.TotalSeconds);
-                //f = Math.Abs(f) * 255f;
-                StatusIcons.X = StatusIcons.X - 20f;// (float)(18 * i);
+                StatusIcons.X -= 20f;// (float)(18 * i);
 
-                Rectangle statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
+                var statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), statusRect, new Color(255, 255, 255, 255));//Color..White);
-                //i++;
                 if (statusRect.HitTest(screen.Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip($"{Localizer.Token(336)}: {troops}");
                 }
             }
             
-            Vector2 rpos = new Vector2
+            var rpos = new Vector2
             {
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y - 10

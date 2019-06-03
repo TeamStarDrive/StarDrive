@@ -7,15 +7,14 @@ namespace Ship_Game
 {
     public sealed class PieMenu
     {
-        private Transition t;
+        Transition t;
 
-        private int selectionIndex = -1;
+        int HoveredIndex = -1;
 
-        private Action hideDelegate;
+        readonly Action hideDelegate;
+        readonly Action newMenuDelegate;
 
-        private Action newMenuDelegate;
-
-        private PieMenuNode newMenuNode;
+        PieMenuNode newMenuNode;
 
         public Vector2 Position { get; set; }
 
@@ -47,111 +46,87 @@ namespace Ship_Game
             t.Reset(Direction.Descending);
         }
 
-        private void ComputeSelected(Vector2 selectionVector)
+        float SectorRadians => RadMath.TwoPI / RootNode.Children.Count;
+
+        void UpdateHoverIndex(InputState input)
         {
-            selectionIndex = -1;
-            if (selectionVector.Length() > 3f)
+            HoveredIndex = -1; // no selection
+
+            Vector2 selectionOffset = (input.CursorPosition - Position) / Radius;
+            float distance = selectionOffset.Length();
+
+            if (distance > 3f)
             {
-                selectionIndex = -2;
+                HoveredIndex = -2; // way out of range!
                 return;
             }
-            if (selectionVector.Length() > 1.5f)
+
+            if (0.3f <= distance && distance <= 1.5f)
             {
-                return;
-            }
-            if (selectionVector.Length() > 0.3f)
-            {
-                float angleDivision = 1f / RootNode.Children.Count;
-                float angle = (float)Math.Atan2(selectionVector.Y, selectionVector.X);
-                if (angle < 0f)
-                {
-                    angle = angle + 6.28318548f;
-                }
-                angle = angle / 6.28318548f;
-                angle = 1f - angle;
-                float rotationBegins = 0.75f - angleDivision / 2f;
-                if (angle <= rotationBegins)
-                {
-                    angle = angle + 1f;
-                }
-                angle = angle - rotationBegins;
-                selectionIndex = 0;
-                while (selectionIndex * angleDivision < angle)
-                {
-                    PieMenu pieMenu = this;
-                    pieMenu.selectionIndex = pieMenu.selectionIndex + 1;
-                }
-                PieMenu pieMenu1 = this;
-                pieMenu1.selectionIndex = pieMenu1.selectionIndex - 1;
+                float angle = selectionOffset.Normalized().ToRadians() + SectorRadians*0.5f;
+                float relativeAngle = (angle.ToNormalizedRadians() / RadMath.TwoPI);
+                HoveredIndex = (int)(relativeAngle * RootNode.Children.Count);
             }
         }
 
         public void Draw(SpriteBatch spriteBatch, SpriteFont font)
         {
             if (!Visible)
-            {
                 return;
-            }
-            Vector2 center = Position;
+
             float scale = t.CurrentPosition * ScaleFactor;
-            float currentAngle = 1.57079637f;
-            float angleIncrement = 6.28318548f / RootNode.Children.Count;
             for (int i = 0; i < RootNode.Children.Count; i++)
             {
-                Vector2 imagePos = center + (scale * Radius * new Vector2((float)Math.Cos(currentAngle), -(float)Math.Sin(currentAngle)));
+                float relativeAngle = (float)i / RootNode.Children.Count;
+                float angle = relativeAngle * RadMath.TwoPI;
+                Vector2 imagePos = Position + (scale * Radius * angle.RadiansToDirection());
                 int imageSize = (int)(scale * 30f);
-                Color drawColor = Color.White;
-                if (currentAngle <= 0f)
+
+                Color drawColor = (i == HoveredIndex) ? Color.Red : Color.White;
+
+                spriteBatch.Draw(RootNode.Children[i].Icon, imagePos, drawColor, 0f, 
+                        RootNode.Children[i].Icon.CenterF, scale, SpriteEffects.None, 1f);
+
+                if (i == HoveredIndex)
                 {
-                    currentAngle = currentAngle + 6.28318548f;
+                    spriteBatch.DrawString(font, RootNode.Children[i].Text, 
+                        imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), 
+                        Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
                 }
-                if (i == selectionIndex)
-                {
-                    drawColor = Color.Red;
-                }
-                spriteBatch.Draw(RootNode.Children[i].Icon,
-                    new Vector2(imagePos.X, imagePos.Y), drawColor, 0f, 
-                    new Vector2(RootNode.Children[i].Icon.Width / 2, RootNode.Children[i].Icon.Height / 2),
-                    scale, SpriteEffects.None, 1f);
-                if (i == selectionIndex)
-                {
-                    spriteBatch.DrawString(font, RootNode.Children[i].Text, imagePos + new Vector2(-font.MeasureString(RootNode.Children[i].Text).X / 2f, imageSize), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
-                }
-                currentAngle = currentAngle - angleIncrement;
             }
         }
 
-        public bool HandleInput(InputState input, Vector2 selectionVector)
+        public bool HandleInput(InputState input)
         {
             if (!Visible)
-            {
                 return false;
-            }
-            ComputeSelected(selectionVector);
-            if (input.InGameSelect)
+
+            UpdateHoverIndex(input);
+
+            if (input.InGameSelect) // click!
             {
-                if (selectionIndex >= 0)
+                if (HoveredIndex >= 0)
                 {
-                    if (!RootNode.Children[selectionIndex].IsLeaf)
+                    if (!RootNode.Children[HoveredIndex].IsLeaf)
                     {
-                        ChangeTo(RootNode.Children[selectionIndex]);
+                        ChangeTo(RootNode.Children[HoveredIndex]);
                         GameAudio.SubBassWhoosh();
                     }
                     else
                     {
-                        RootNode.Children[selectionIndex].Select();
+                        RootNode.Children[HoveredIndex].Select();
                         ChangeTo(null);
                         GameAudio.SubBassWhoosh();
                     }
                 }
-                else if (selectionIndex != -2)
+                else if (HoveredIndex == -2)
                 {
-                    ChangeTo(RootNode.parent);
+                    ChangeTo(null);
                     GameAudio.SubBassWhoosh();
                 }
                 else
                 {
-                    ChangeTo(null);
+                    ChangeTo(RootNode.parent);
                     GameAudio.SubBassWhoosh();
                 }
             }
@@ -163,19 +138,14 @@ namespace Ship_Game
             return true;
         }
 
-        public bool HandleInput(InputState input)
-        {
-            return HandleInput(input, input.GamepadCurr.ThumbSticks.Left);
-        }
-
-        private void NewMenu()
+        void NewMenu()
         {
             RootNode = newMenuNode;
             t.Reset(Direction.Ascending);
             t.OnTransitionEnd = null;
         }
 
-        private void OnHide()
+        void OnHide()
         {
             Visible = false;
             t.OnTransitionEnd = null;

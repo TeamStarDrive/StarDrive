@@ -340,12 +340,9 @@ namespace Ship_Game
                     if (flag)
                     {
                         vector2.Y -= 2f;
-                        Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte) (Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) *
-                                    byte.MaxValue));
                         Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, color);
+                            ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
                             ToolTip.CreateTooltip(138);
                         ++num3;
@@ -355,15 +352,11 @@ namespace Ship_Game
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
-                        TimeSpan totalGameTime = gameTime.TotalGameTime;
-                        Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte)(Math.Abs((float)Math.Sin(totalGameTime.TotalSeconds)) *
-                                    byte.MaxValue));
                         Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle2, color);
+                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
                             ToolTip.CreateTooltip(123);
                         ++num3;
@@ -376,7 +369,7 @@ namespace Ship_Game
                                 ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                                 ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
                             ScreenManager.SpriteBatch.Draw(
-                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle3, color);
+                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle3, CurrentFlashColor);
                             if (rectangle3.HitTest(pos))
                                 ToolTip.CreateTooltip(122);
                         }
@@ -440,12 +433,9 @@ namespace Ship_Game
                     if (flag)
                     {
                         vector2.Y -= 2f;
-                        Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte) (Math.Abs((float) Math.Sin(gameTime.TotalGameTime.TotalSeconds)) *
-                                    byte.MaxValue));
                         Rectangle rectangle2 = new Rectangle((int) vector2.X, (int) vector2.Y, 15, 15);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, color);
+                            ResourceManager.Texture("UI/icon_anomaly_small"), rectangle2, CurrentFlashColor);
                         if (rectangle2.HitTest(pos))
                             ToolTip.CreateTooltip(138);
                         ++num3;
@@ -455,15 +445,11 @@ namespace Ship_Game
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
-                        TimeSpan totalGameTime = gameTime.TotalGameTime;
-                        Color color = new Color(byte.MaxValue, byte.MaxValue, byte.MaxValue,
-                            (byte)(Math.Abs((float)Math.Sin(totalGameTime.TotalSeconds)) *
-                                    byte.MaxValue));
                         Rectangle rectangle3 = new Rectangle((int)vector2.X, (int)vector2.Y,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                             ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
                         ScreenManager.SpriteBatch.Draw(
-                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle3, color);
+                            ResourceManager.Texture("Ground_UI/EnemyHere"), rectangle3, CurrentFlashColor);
                         if (rectangle3.HitTest(pos))
                             ToolTip.CreateTooltip(123);
                         ++num3;
@@ -473,12 +459,11 @@ namespace Ship_Game
                         {
                             if (num3 == 1 || num3 == 2)
                                 vector2.X += 20f;
-                            totalGameTime = gameTime.TotalGameTime;
-                            Rectangle rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
+                            var rectangle2 = new Rectangle((int)vector2.X, (int)vector2.Y,
                                 ResourceManager.Texture("Ground_UI/Ground_Attack").Width,
                                 ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
                             ScreenManager.SpriteBatch.Draw(
-                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle2, color);
+                                ResourceManager.Texture("Ground_UI/Ground_Attack"), rectangle2, CurrentFlashColor);
                             if (rectangle2.HitTest(pos))
                                 ToolTip.CreateTooltip(122);
                         }

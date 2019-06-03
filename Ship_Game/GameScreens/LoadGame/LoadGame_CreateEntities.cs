@@ -301,7 +301,7 @@ namespace Ship_Game
                     Ship shipTemplate  = ResourceManager.GetShipTemplate(qisave.UID);
                     qi.sData           = shipTemplate.shipData;
                     qi.DisplayName     = qisave.DisplayName;
-                    qi.Cost            = shipTemplate.GetCost(p.Owner);
+                    qi.Cost            = qisave.Cost;
                     qi.TradeRoutes     = qisave.TradeRoutes;
                     qi.TransportingColonists  = qisave.TransportingColonists;
                     qi.TransportingFood       = qisave.TransportingFood;
@@ -312,17 +312,6 @@ namespace Ship_Game
                     {
                         foreach (Rectangle aoRect in qisave.AreaOfOperation)
                             qi.AreaOfOperation.Add(aoRect);
-                    }
-
-                    if (qi.sData.HasFixedCost)
-                    {
-                        qi.Cost = qi.sData.FixedCost;
-                    }
-
-                    if (qisave.IsRefit)
-                    {
-                        qi.isRefit = true;
-                        qi.Cost = qisave.RefitCost;
                     }
                 }
 

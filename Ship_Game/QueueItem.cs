@@ -23,9 +23,7 @@ namespace Ship_Game
         public Rectangle rect;
         public Rectangle removeRect;
         public int QueueNumber;
-        public bool isRefit;
         public int ShipLevel;
-        public string RefitName = "";
         public PlanetGridSquare pgs;
         public string DisplayName;
         public float Cost;
@@ -95,7 +93,7 @@ namespace Ship_Game
             var qi = new SavedGame.QueueItemSave
             {
                 isBuilding  = isBuilding,
-                IsRefit     = isRefit,
+                Cost        = Cost,
                 isShip      = isShip,
                 DisplayName = DisplayName,
                 isTroop     = isTroop,
@@ -108,7 +106,6 @@ namespace Ship_Game
                 TransportingProduction = TransportingProduction,
                 AllowInterEmpireTrade  = AllowInterEmpireTrade
         };
-            if (qi.IsRefit)    qi.RefitCost = Cost;
             if (qi.isBuilding) qi.UID = Building.Name;
             if (qi.isShip)     qi.UID = sData.Name;
             if (qi.isTroop)    qi.UID = TroopType;

@@ -193,12 +193,8 @@ namespace Ship_Game
                         if (hasAnamoly)
                         {
                             sideSpacing += 4;
-                            TimeSpan totalGameTime = gameTime.TotalGameTime;
-                            float f = (float)Math.Sin(totalGameTime.TotalSeconds);
-                            f = Math.Abs(f) * 255f;
-                            Color flashColor = new Color(255, 255, 255, (byte)f);
-                            Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_anomaly_small"), flashRect, flashColor);
+                            var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_anomaly_small"), flashRect, screen.CurrentFlashColor);
                             if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
@@ -207,14 +203,9 @@ namespace Ship_Game
                         }
                         if (hasCommodities)
                         {
-                            
-                                sideSpacing += 4;
-                            TimeSpan totalGameTime = gameTime.TotalGameTime;
-                            float f = (float)Math.Sin(totalGameTime.TotalSeconds);
-                            f = Math.Abs(f) * 255f;
-                            Color flashColor = new Color(255, 255, 255, (byte)f);
-                            Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/marketIcon"), flashRect, flashColor);
+                            sideSpacing += 4;
+                            var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/marketIcon"), flashRect, screen.CurrentFlashColor);
                             if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
@@ -223,14 +214,9 @@ namespace Ship_Game
                         }
                         if (hastroops)
                         {
-
                             sideSpacing += 4;
-                            TimeSpan totalGameTime = gameTime.TotalGameTime;
-                            float f = (float)Math.Sin(totalGameTime.TotalSeconds);
-                            f = Math.Abs(f) * 255f;
-                            Color flashColor = new Color(255, 255, 255, (byte)f);
-                            Rectangle flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
-                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), flashRect, flashColor);
+                            var flashRect = new Rectangle(PlanetRect.X + PlanetRect.Width + sideSpacing, PlanetRect.Y + PlanetRect.Height / 2 - 7, 14, 14);
+                            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop"), flashRect, screen.CurrentFlashColor);
                             if (flashRect.HitTest(new Vector2(Mouse.GetState().X, Mouse.GetState().Y)))
                             {
                                 ToolTip.CreateTooltip(121);
