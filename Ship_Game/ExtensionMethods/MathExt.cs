@@ -55,6 +55,9 @@ namespace Ship_Game
     //   +Z is out of the screen
     public static class MathExt
     {
+        // PI/2, 90 degrees
+        public const double HalfPI = 3.14159265358979 * 0.5;
+
         // clamp a value between [min, max]: min <= value <= max
         public static float Clamped(this float value, float min, float max)
         {
@@ -206,72 +209,12 @@ namespace Ship_Game
 
         public static bool IsDiagonalTo(this Point a, Point b) => Abs(b.X - a.X) > 0 && Abs(b.Y - a.Y) > 0;
 
-
-        // Converts a radian float to degrees
-        public static float ToDegrees(this float radians)
-        {
-            return radians * (180.0f / (float)PI);
-        }
-
-        // Converts a degree float to radians
-        public static float ToRadians(this float degrees)
-        {
-            return degrees * ((float)PI / 180.0f);
-        }
-
-        // Converts a direction vector to radians
-        public static float ToRadians(this Vector2 direction)
-        {
-            if (direction.X == 0f && direction.Y == 0f)
-                return 0f; // Up
-            return (float)(PI - Atan2(direction.X, direction.Y));
-        }
-
-        
-        public static float RadiansUp    = 0f;
-        public static float RadiansRight = (float)PI*0.5f;
-        public static float RadiansDown  = (float)PI;
-        public static float RadiansLeft  = (float)PI + (float)PI*0.5f;
-
-        // Converts a direction vector to degrees
-        public static float ToDegrees(this Vector2 direction)
-        {
-            if (direction.X == 0f && direction.Y == 0f)
-                return 0f; // Up
-            return (float)(180 - Atan2(direction.X, direction.Y) * 180.0 / PI);
-        }
-
-        // Converts a Vector3 with XYZ degrees into Vector3 XYZ radians
-        public static Vector3 DegsToRad(this Vector3 degrees)
-        {
-            return degrees * ((float)PI / 180.0f);
-        }
-
-        // Converts rotation radians into a 2D direction vector
-        public static Vector2 RadiansToDirection(this float radians)
-        {
-            return new Vector2((float)Sin(radians), -(float)Cos(radians));
-        }
-
-        // Converts rotation radians into a 3D direction vector, with Z = 0
-        public static Vector3 RadiansToDirection3D(this float radians)
-        {
-            return new Vector3((float)Sin(radians), -(float)Cos(radians), 0f);
-        }
-
         // Rotates an existing direction vector by another direction vector
         // For this we convert to radians, yielding:
         // newAngle = angle1 + angle2
         public static Vector2 RotateDirection(this Vector2 direction, Vector2 relativeDirection)
         {
             return (direction.ToRadians() + relativeDirection.ToRadians()).RadiansToDirection();
-        }
-
-        // Converts an angle value to a 2D direction vector
-        public static Vector2 AngleToDirection(this float degrees)
-        {
-            double rads = degrees * (PI / 180.0);
-            return new Vector2((float)Sin(rads), -(float)Cos(rads));
         }
 
         public static Vector2 FindStrafeVectorFromTarget(this GameplayObject ship, float distance, Vector2 direction)
@@ -301,8 +244,6 @@ namespace Ship_Game
                 return Vectors.Up; // UP
             return new Vector2(dx / len, dy / len);
         }
-
-        
 
         public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
         {
@@ -355,7 +296,7 @@ namespace Ship_Game
             float r2 = radius + rayRadius;
             float dx = center.X - closest.X;
             float dy = center.Y - closest.Y;
-            return dx*dx + dy*dy <= r2*r2;
+            return (dx*dx + dy*dy) <= r2*r2;
         }
 
         // @return TRUE and out distance from rayStart to the point of intersection,
@@ -551,23 +492,20 @@ namespace Ship_Game
         // Input angle is given in degrees
         public static Vector2 PointFromAngle(this Vector2 center, float degrees, float circleRadius)
         {
-            double rads = degrees * (PI / 180.0);
-            return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+            return center + degrees.AngleToDirection() * circleRadius;
         }
 
         // Generates a new point on a circular radius from position
         // Input angle is given in radians
         public static Vector2 PointFromRadians(this Vector2 center, float radians, float circleRadius)
         {
-            return center + new Vector2((float)Sin(radians), (float)-Cos(radians)) * circleRadius;
+            return center + radians.RadiansToDirection() * circleRadius;
         }
 
         // @todo This is just an alias for PointFromAngle... which one to keep?
         public static Vector2 PointOnCircle(this Vector2 center, float degrees, float circleRadius)
         {
-            // @note manual inlining instead of calling PointFromAngle
-            double rads = degrees * (PI / 180.0);
-            return center + new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+            return center + degrees.AngleToDirection() * circleRadius;
         }
 
         public static Vector2 GenerateRandomPointOnCircle(this Vector2 center, float radius)
@@ -578,20 +516,8 @@ namespace Ship_Game
 
         public static Vector2 PointOnCircle(float degrees, float circleRadius)
         {
-            double rads = degrees * (PI / 180.0);
-            return new Vector2((float)Sin(rads), (float)-Cos(rads)) * circleRadius;
+            return degrees.AngleToDirection() * circleRadius;
         }
-
-
-        // takes self and rotates it around the center pivot by some radians
-        public static Vector2 RotateAroundPoint(this Vector2 self, Vector2 center, float radians)
-        {
-            float s = (float)Sin(radians);
-            float c = (float)Cos(radians);
-            return new Vector2(c * (self.X - center.X) - s * (self.Y - center.Y) + center.X,
-                               s * (self.X - center.X) + c * (self.Y - center.Y) + center.Y);
-        }
-
 
         // Returns true if a is almost equal to b, within float epsilon error margin
         public static bool AlmostEqual(this float a, float b)

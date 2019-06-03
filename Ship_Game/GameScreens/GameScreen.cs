@@ -60,12 +60,6 @@ namespace Ship_Game
         // This should not be used for simulation!
         public float FrameDeltaTime { get; protected set; }
 
-        //video player
-        protected AudioHandle MusicPlaying = AudioHandle.Dummy;
-        protected Video VideoFile;
-        protected VideoPlayer VideoPlaying;
-        protected Texture2D VideoTexture;
-
         public Matrix View, Projection;
 
         protected GameScreen(GameScreen parent, bool pause = true) 
@@ -97,25 +91,6 @@ namespace Ship_Game
 
         protected virtual void Destroy()
         {
-            if (MusicPlaying.IsPlaying)
-            {
-                MusicPlaying.Stop();
-                GameAudio.SwitchBackToGenericMusic();
-            }            
-            
-            if (VideoFile != null)
-            {
-                VideoPlaying.Stop();
-            }
-            if (VideoPlaying != null)
-            {
-                VideoFile = null;
-                while (!VideoPlaying.IsDisposed)
-                {
-                    VideoPlaying.Dispose();
-                }
-            }
-            VideoPlaying = null;
             TransientContent?.Dispose(ref TransientContent);
         }
 
@@ -221,6 +196,17 @@ namespace Ship_Game
 
             TransitionPosition = TransitionPosition.Clamped(0, 1);
             return false;
+        }
+
+        // Gets the current cursor blinking mask color [255,255,255,a]
+        public Color CurrentFlashColor
+        {
+            get
+            {
+                double totalGameTime = StarDriveGame.Instance.GameTime.TotalGameTime.TotalSeconds;
+                float f = Math.Abs(RadMath.Sin(totalGameTime)) * 255f;
+                return new Color(255, 255, 255, (byte)f);
+            }
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -484,40 +470,6 @@ namespace Ship_Game
         {
             DrawModelMesh(model, Matrix.CreateScale(scale) * world, View, Vector3.One, Projection, projTex);
             Device.RenderState.DepthBufferWriteEnable = true;
-        }
-
-
-        public void PlayVideo(string videoPath, GameContentManager content = null)
-        {
-            content = content ?? TransientContent;
-            if (videoPath.IsEmpty()) return;
-
-            VideoFile = ResourceManager.LoadVideo(content, videoPath);
-            VideoPlaying = new VideoPlayer
-            {
-                Volume = GlobalStats.MusicVolume,
-                IsLooped = true
-            };
-            try
-            {
-                VideoPlaying.Play(VideoFile);
-            }
-            catch
-            {
-                Log.Error($"Video '{videoPath}' failed.");
-            }
-        }
-
-        public void PlayEmpireMusic(Empire empire, bool warMusic)
-        {
-            if (!empire.data.ModRace)
-            {
-                if (empire.data.MusicCue != null)
-                    if (warMusic)
-                        MusicPlaying = GameAudio.PlayMusic("Stardrive_Combat 1c_114BPM");
-                    else
-                        MusicPlaying = GameAudio.PlayMusic(empire.data.MusicCue);
-            }
         }
 
         // this does some magic to convert a game position/coordinate to a drawable screen position

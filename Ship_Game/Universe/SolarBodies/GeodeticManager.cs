@@ -53,9 +53,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 bomb.SurfaceImpactEffects();
                 var orbitalDrop = new OrbitalDrop
                 {
-                    Target = RandomMath.RandItem(TilesList),
+                    Target = SelectTargetTile(bomb),
                     Surface = P
                 };
+
                 orbitalDrop.DamageColonySurface(bomb);
                 bomb.PlayCombatScreenEffects(P, orbitalDrop);
                 if (Population <= 0f)
@@ -66,6 +67,16 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
                 bomb.ResolveSpecialBombActions(P);
             }
+        }
+
+        private PlanetGridSquare SelectTargetTile(Bomb bomb)
+        {
+            var priorityTargets = TilesList.Filter(t => t.CombatBuildingOnTile 
+                                                        || t.TroopsAreOnTile && t.SingleTroop.Loyalty != bomb.Owner);
+
+            // If there are priority targets, choose one of them.
+            return priorityTargets.Length > 0 ? priorityTargets.RandItem() 
+                                              : TilesList.RandItem();
         }
 
         private void DeclareWarOnBombingEmpire(Bomb bomb)

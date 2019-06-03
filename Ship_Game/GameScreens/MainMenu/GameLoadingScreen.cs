@@ -3,8 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
-using Ship_Game.Data;
+using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -12,50 +11,21 @@ namespace Ship_Game
 {
 	public sealed class GameLoadingScreen : GameScreen
 	{
-        VideoPlayer2 LoadingPlayer;
-        VideoPlayer2 SplashPlayer;
+        readonly ScreenMediaPlayer LoadingPlayer;
+        readonly ScreenMediaPlayer SplashPlayer;
         Rectangle BridgeRect;
         Texture2D BridgeTexture;
         TaskResult LoadResult;
 
         public GameLoadingScreen() : base(null/*no parent*/)
         {
+            LoadingPlayer = new ScreenMediaPlayer(TransientContent);
+            SplashPlayer = new ScreenMediaPlayer(TransientContent);
         }
+        
+        bool SkipSplashVideo => Debugger.IsAttached;
 
-        class VideoPlayer2 : IDisposable
-        {
-            Video Video;
-            readonly VideoPlayer Player;
-            readonly Rectangle Rect;
-            public VideoPlayer2(GameContentManager content, string video, bool looping, Rectangle rect)
-            {
-                Video = content.Load<Video>(video);
-                Player = new VideoPlayer
-                {
-                    IsLooped = looping,
-                    Volume = GlobalStats.MusicVolume
-                };
-                Rect = rect;
-            }
-            public void Play() => Player.Play(Video);
-            public bool IsPlaying => Player.State == MediaState.Playing;
-            public void Dispose()
-            {
-                Video = null;
-                Player.Stop();
-                Player.Dispose();
-            }
-            public void Draw(SpriteBatch batch)
-            {
-                if (Player.State == MediaState.Stopped)
-                    return;
-
-                Texture2D texture = Player.GetTexture();
-                if (texture != null) batch.Draw(texture, Rect, Color.White);;
-            }
-        }
-
-		public override void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch)
 		{
             // NOTE: by throttling LoadingScreen rendering, we get ~4x faster loading
             // this is because video player Decode+Draw is very expensive.
@@ -68,20 +38,27 @@ namespace Ship_Game
             else
                 Thread.Sleep(10); // smoother intro video
 
-            if (LoadingFinished())
-				return;
-			Device.Clear(Color.Black);
-            batch.Begin();
-            LoadingPlayer?.Draw(batch);
-            SplashPlayer?.Draw(batch);
-            if (BridgeTexture != null) 
-                batch.Draw(BridgeTexture, BridgeRect, Color.White);
-            batch.End();
-		}
+            if (!LoadingFinished())
+            {
+                Device.Clear(Color.Black);
 
-        bool SkipSplashVideo => Debugger.IsAttached;
+                batch.Begin();
+                LoadingPlayer.Draw(batch);
+                SplashPlayer.Draw(batch);
+                if (BridgeTexture != null)
+                    batch.Draw(BridgeTexture, BridgeRect, Color.White);
+                batch.End();
+            }
+        }
 
-		public override bool HandleInput(InputState input)
+        public override void Update(float deltaTime)
+        {
+            LoadingPlayer.Update(this);
+            SplashPlayer.Update(this);
+            base.Update(deltaTime);
+        }
+
+        public override bool HandleInput(InputState input)
 		{
 		    if (IsExiting || !IsActive)
                 return false;
@@ -114,18 +91,16 @@ namespace Ship_Game
             BridgeRect = new Rectangle(screenCx - bridgeW/2, screenCy - bridgeH/2, bridgeW, bridgeH);
 
             // little loading icon
-            LoadingPlayer = new VideoPlayer2(TransientContent, "Video/Loading 2", true,
-                                new Rectangle(screenCx - 64, screenCy - 64, 128, 128));
-            LoadingPlayer.Play();
+            LoadingPlayer.PlayVideo("Loading 2", looping:true);
+            LoadingPlayer.Rect = new Rectangle(screenCx - 64, screenCy - 64, 128, 128);
 
             if (!SkipSplashVideo)
             {
                 // "Play it cool"
                 int videoW = (int)(1280 * ratio);
                 int videoH = (int)(720 * ratio);
-                SplashPlayer = new VideoPlayer2(TransientContent, "Video/zerosplash", false,
-                                    new Rectangle(screenCx - videoW/2, screenCy - videoH/2, videoW, videoH));
-                SplashPlayer.Play();
+                SplashPlayer.PlayVideo("zerosplash", looping:false);
+                SplashPlayer.Rect = new Rectangle(screenCx - videoW/2, screenCy - videoH/2, videoW, videoH);
             }
 
             // Initialize all game resources in background
@@ -149,15 +124,15 @@ namespace Ship_Game
 
         public override void ExitScreen()
         {
-            LoadingPlayer?.Dispose(ref LoadingPlayer);
-            SplashPlayer?.Dispose(ref SplashPlayer);
+            LoadingPlayer.Dispose();
+            SplashPlayer.Dispose();
             base.ExitScreen();
         }
 
         protected override void Destroy()
         {
-            LoadingPlayer?.Dispose(ref LoadingPlayer);
-            SplashPlayer?.Dispose(ref SplashPlayer);
+            LoadingPlayer.Dispose();
+            SplashPlayer.Dispose();
             base.Destroy();
         }
 	}

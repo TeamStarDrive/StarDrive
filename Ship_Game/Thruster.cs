@@ -34,13 +34,7 @@ namespace Ship_Game
         public Matrix scale;
         public Matrix[] matrices_combined = new Matrix[3];
 
-        public Vector3 Up;
-        public Vector3 Right;
-        public Vector3 dir_to_camera;
-
-        float distanceToParentCenter;
-        float offsetAngle;
-        Vector2 ThrusterCenter;
+        Vector2 OffsetFromShipCenter;
 
         public Thruster()
         {
@@ -71,15 +65,8 @@ namespace Ship_Game
 
         public void InitializeForViewing()
         {
-            var relativeShipCenter = new Vector2(512f, 512f);
-            ThrusterCenter = new Vector2
-            {
-                X = XMLPos.X + 256f,
-                Y = XMLPos.Y + 256f
-            };
-            distanceToParentCenter = ThrusterCenter.Distance(relativeShipCenter);
-            offsetAngle            = relativeShipCenter.AngleToTarget(ThrusterCenter);
-            SetPosition();
+            OffsetFromShipCenter = new Vector2(256, 256) - XMLPos;
+            UpdatePosition();
         }
 
         static int ContentId;
@@ -122,32 +109,31 @@ namespace Ship_Game
             world_matrix    = Matrix.Identity;
         }
 
-        public void SetPosition()
+        public void UpdatePosition()
         {
-            double angle = (offsetAngle.ToRadians() + Parent.Rotation + 1.57079637f);
-            float distance = distanceToParentCenter;
-            ThrusterCenter.Y = Parent.Center.Y + distance * -(float)Math.Sin(angle);
-            ThrusterCenter.X = Parent.Center.X + distance * -(float)Math.Cos(angle);
-            float xDistance = 256f - XMLPos.X;
-            float zPos = (float)Math.Sin(Parent.yRotation) * xDistance + 15f;
-            WorldPos = new Vector3(ThrusterCenter, zPos);
+            Vector2 dir = Parent.Direction;
+            Vector2 thrusterOffset = dir * OffsetFromShipCenter.Y + dir.LeftVector() * OffsetFromShipCenter.X;
+            Vector2 thrusterPos = Parent.Center + thrusterOffset;
+            float zPos = (float)Math.Sin(Parent.yRotation) * OffsetFromShipCenter.X + 15f;
+            WorldPos = new Vector3(thrusterPos, zPos);
         }
 
         public void Update(Vector3 direction, float thrustSize, float thrustSpeed, Vector3 cameraPosition, Color thrust0, Color thrust1)
         {
-            var scaleFactors     = new Vector3(tscale);
-            heat                 = thrustSize.Clamped(0f, 1f);
-            tick                 = tick + thrustSpeed;
-            colors[0]            = thrust0;
-            colors[1]            = thrust1;
+            heat = thrustSize.Clamped(0f, 1f);
+            tick += thrustSpeed;
+            colors[0] = thrust0;
+            colors[1] = thrust1;
+
+            Vector3 camToWorldPos = WorldPos - cameraPosition;
+            Vector3 up = direction.Cross(camToWorldPos).Normalized();
+
             world_matrix = Matrix.Identity;
             world_matrix.Forward = direction;
-            dir_to_camera        = WorldPos - cameraPosition;
-            Vector3.Cross(ref direction, ref dir_to_camera, out Up);
-            Up.Normalize();
-            Vector3.Cross(ref direction, ref Up, out Right);
-            world_matrix.Right = Right;
-            world_matrix.Up    = Up;
+            world_matrix.Right = direction.Cross(up);
+            world_matrix.Up    = up;
+
+            var scaleFactors = new Vector3(tscale);
             Matrix.CreateScale(ref scaleFactors, out scale);
             Matrix.Multiply(ref world_matrix, ref scale, out world_matrix);
             inverse_scale_transpose  = Matrix.Transpose(Matrix.Invert(world_matrix));
