@@ -630,9 +630,11 @@ namespace Ship_Game.AI
         void ScanForThreat(float elapsedTime)
         {
             ScanForThreatTimer -= elapsedTime;
-            if (!(ScanForThreatTimer < 0f)) return;
-            SetCombatStatus(elapsedTime);
-            ScanForThreatTimer = 2f;
+            if (ScanForThreatTimer <= 0f)
+            {
+                SetCombatStatus();
+                ScanForThreatTimer = 2f;
+            }
         }
 
         void ResetStateFlee()
