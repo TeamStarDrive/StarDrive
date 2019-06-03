@@ -437,7 +437,7 @@ namespace Ship_Game
                 return CombatStatus.ClearSpace;
 
             if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
-                ship.AI.HasPriorityOrder = false;
+                ship.AI.ClearPriorityOrder();
 
             if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;

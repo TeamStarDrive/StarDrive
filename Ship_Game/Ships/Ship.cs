@@ -685,15 +685,6 @@ namespace Ship_Game.Ships
             AI.HasPriorityOrder = true;
         }
 
-        public void AttackShip(Ship target)
-        {
-            AI.State = AIState.AttackTarget;
-            AI.Target = target;
-            AI.HasPriorityOrder = false;
-            AI.HasPriorityTarget = true;
-            InCombatTimer = 15f;
-        }
-
         /// <summary>
         /// forces the ship to be in combat without a target.
         /// </summary>
