@@ -959,7 +959,7 @@ namespace Ship_Game.Ships
             AI.SystemToDefend = toDefend;
         }
 
-        public void DoOrbit(Planet orbit)
+        public void OrderToOrbit(Planet orbit)
         {
             AI.OrderToOrbit(orbit);
         }

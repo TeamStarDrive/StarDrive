@@ -254,7 +254,7 @@ namespace Ship_Game.Ships
         {
             Ship ship = CreateShipAtPoint(shipName, owner, p.Center + deltaPos);
             if (doOrbit)
-                ship.DoOrbit(p);
+                ship.OrderToOrbit(p);
             //ship.SetSystem(p.ParentSystem);
             return ship;
         }

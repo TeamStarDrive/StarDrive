@@ -144,7 +144,8 @@ namespace Ship_Game.AI
         void AddBombPlanetGoal(Planet target)  => AddPlanetGoal(Plan.Bombard, target, AIState.Bombard, priority: true);
         void AddExterminateGoal(Planet target) => AddPlanetGoal(Plan.Exterminate, target, AIState.Exterminate);
 
-        void AddOrbitPlanetGoal(Planet planet, AIState newState = AIState.Orbit) => AddPlanetGoal(Plan.Orbit, planet, newState);
+        void AddOrbitPlanetGoal(Planet planet, AIState newState = AIState.Orbit)
+            => AddPlanetGoal(Plan.Orbit, planet, newState);
 
         public class ShipGoal : IDisposable
         {
