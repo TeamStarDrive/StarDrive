@@ -940,10 +940,10 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            //showExecuteButton = false;
+
             if (SelectedEmpire != EmpireManager.Player && !SelectedEmpire.data.Defeated && Contact.HandleInput(input))
             {
-                ScreenManager.AddScreenDeferred(new DiplomacyScreen(this, SelectedEmpire, EmpireManager.Player, "Greeting"));
+                DiplomacyScreen.Show(SelectedEmpire, "Greeting", parent: this);
             }
 
             foreach (RaceEntry race in Races)

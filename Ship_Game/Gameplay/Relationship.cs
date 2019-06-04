@@ -209,14 +209,14 @@ namespace Ship_Game.Gameplay
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_Ally_1", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_Ally_1");
                             }
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_Ally_2", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_Ally_2");
                             }
                             Treaty_Alliance = false;
                             Treaty_NAPact = false;
@@ -231,21 +231,21 @@ namespace Ship_Game.Gameplay
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_1", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_1");
                             }
                         }
                         else if (SpiesDetected == 2)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_2", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_2");
                             }
                         }
                         else if (SpiesDetected >= 3)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_3", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_3");
                             }
                             Treaty_Alliance = false;
                             Treaty_NAPact = false;
@@ -282,14 +282,14 @@ namespace Ship_Game.Gameplay
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_Ally_1", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_Ally_1");
                             }
                         }
                         else if (TimesSpiedOnAlly > 1)
                         {
                             if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                             {
-                                DiplomacyScreen.Show(Us, Them, "Caught_Spying_Ally_2", EndOnly: true);
+                                DiplomacyScreen.ShowEndOnly(Us, Them, "Caught_Spying_Ally_2");
                             }
                             Treaty_Alliance = false;
                             Treaty_NAPact = false;
@@ -300,7 +300,7 @@ namespace Ship_Game.Gameplay
                     }
                     else if (Empire.Universe.PlayerEmpire == Them && !Us.isFaction)
                     {
-                        DiplomacyScreen.Show(Us, Them, "Killed_Spy_1", EndOnly: true);
+                        DiplomacyScreen.ShowEndOnly(Us, Them, "Killed_Spy_1");
                     }
                 }
                 else if (str1 == "Insulted")
@@ -503,8 +503,7 @@ namespace Ship_Game.Gameplay
                 var enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
                 if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
                 {
-                    var ds = DiplomacyScreen.Show(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", true);
-                    ds.empToDiscuss = enemyEmpire;
+                    DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
                     Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                     FedQuest = null;
                     return;
@@ -517,8 +516,8 @@ namespace Ship_Game.Gameplay
                     }
                     else if (Empire.Universe.PlayerEmpire.GetRelations(enemyEmpire).Treaty_Alliance)
                     {
-                        var ds = DiplomacyScreen.Show(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend", true);
-                        ds.empToDiscuss = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
+                        DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend", 
+                                             EmpireManager.GetEmpireByName(FedQuest.EnemyName));
                         Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                         FedQuest = null;
                         return;
