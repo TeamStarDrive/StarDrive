@@ -380,7 +380,7 @@ namespace Ship_Game
             {
                 if (NotificationList.Count >= MaxEntriesToDisplay)  //fbedard: remove excess notifications
                 {
-                    for (int i = NotificationList.Count - 1; i >= 0; i--)
+                    for (int i = 0; i < NotificationList.Count; i++)
                     {
                         Notification n = NotificationList[i];
                         if (n.Action == "LoadEvent" || n.Pause) continue;
