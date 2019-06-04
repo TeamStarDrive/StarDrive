@@ -1126,62 +1126,46 @@ namespace Ship_Game
                         break;
                     if (!Us.GetRelations(EmpireToDiscuss).AtWar)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_YouAreNotAtWar");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_YouAreNotAtWar");
                         break;
                     }
                     else if (Us.GetRelations(Them).AtWar)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_WeAreAtWar");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_WeAreAtWar");
                         break;
                     }
                     else if (Them.GetRelations(Us).Treaty_Alliance)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_Allied_OK");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_Allied_OK");
                         Them.GetEmpireAI().DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
                         EmpireToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
                         break;
                     }
                     else if (Them.GetRelations(Us).GetStrength() < 30.0)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_Reject_PoorRelations");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_Reject_PoorRelations");
                         break;
                     }
                     else if (Them.data.DiplomaticPersonality.Name == "Pacifist" || Them.data.DiplomaticPersonality.Name == "Honorable")
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_Reject_Pacifist");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_Reject_Pacifist");
                         break;
                     }
                     else if (Us.GetRelations(Them).GetStrength() > 60.0)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_Allied_DECLINE");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_Allied_DECLINE");
                         break;
                     }
                     else if (Them.GetRelations(Us).GetStrength() > 60.0 && EmpireToDiscuss.MilitaryScore < (double)Them.MilitaryScore)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_OK");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_OK");
                         Them.GetEmpireAI().DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
                         EmpireToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
                         break;
                     }
                     else
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("JoinWar_Reject_TooDangerous");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("JoinWar_Reject_TooDangerous");
                         break;
                     }
                 case "Hardcoded_Federation_Analysis":
@@ -1192,32 +1176,24 @@ namespace Ship_Game
                     {
                         if (Them.GetRelations(Us).TurnsKnown < 50)
                         {
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_JustMet");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_JustMet");
                             break;
                         }
 
                         if (Them.GetRelations(Us).GetStrength() >= 75.0)
                         {
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_NoAlliance");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_NoAlliance");
                             break;
                         }
                         else
                         {
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_RelationsPoor");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_RelationsPoor");
                             break;
                         }
                     }
                     else if (Them.GetRelations(Us).TurnsAllied < 100)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_AllianceTooYoung");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("Federation_AllianceTooYoung");
                         break;
                     }
                     else
@@ -1226,9 +1202,7 @@ namespace Ship_Game
                             break;
                         if (Them.TotalScore > Us.TotalScore * 0.800000011920929 && Them.GetRelations(Us).Threat < 0.0)
                         {
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_WeAreTooStrong");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_WeAreTooStrong");
                             break;
                         }
 
@@ -1249,9 +1223,7 @@ namespace Ship_Game
                             if (orderedEnumerable.Count() <= 0)
                                 break;
                             EmpireToDiscuss = orderedEnumerable.First();
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_Quest_DestroyEnemy");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_Quest_DestroyEnemy");
                             Them.GetRelations(Us).FedQuest = new FederationQuest
                             {
                                 EnemyName = EmpireToDiscuss.data.Traits.Name
@@ -1265,9 +1237,7 @@ namespace Ship_Game
                             if (!orderedEnumerable.Any())
                                 break;
                             EmpireToDiscuss = orderedEnumerable.First();
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_Quest_AllyFriend");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_Quest_AllyFriend");
                             Them.GetRelations(Us).FedQuest = new FederationQuest
                             {
                                 type = QuestType.AllyFriend,
@@ -1277,9 +1247,7 @@ namespace Ship_Game
                         }
                         else
                         {
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Federation_Accept");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Federation_Accept");
                             Us.AbsorbEmpire(Them);
                             break;
                         }
@@ -1292,80 +1260,52 @@ namespace Ship_Game
                         num = 0.0f;
                     if (Them.GetRelations(Us).TurnsKnown < 20)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("Opinion_JustMetUs");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("Opinion_JustMetUs");
                     }
                     else if (num > 60.0)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("Opinion_NoProblems");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("Opinion_NoProblems");
                     }
                     else if (Them.GetRelations(Us).WarHistory.Count > 0 && Them.GetRelations(Us).WarHistory[Them.GetRelations(Us).WarHistory.Count - 1].EndStarDate - (double)Them.GetRelations(Us).WarHistory[Them.GetRelations(Us).WarHistory.Count - 1].StartDate < 50.0)
                     {
-                        DiplomacyScreen diplomacyScreen = this;
-                        string str = diplomacyScreen.TheirText + GetDialogueByName("PROBLEM_RECENTWAR");
-                        diplomacyScreen.TheirText = str;
+                        TheirText += GetDialogueByName("PROBLEM_RECENTWAR");
                     }
                     else if (num >= 0.0)
                     {
                         bool flag = false;
                         if (Them.GetRelations(Us).Anger_TerritorialConflict + (double)Them.GetRelations(Us).Anger_FromShipsInOurBorders > Them.data.DiplomaticPersonality.Territorialism / 2)
                         {
-                            DiplomacyScreen diplomacyScreen1 = this;
-                            string str1 = diplomacyScreen1.TheirText + GetDialogueByName("Opinion_Problems");
-                            diplomacyScreen1.TheirText = str1;
+                            TheirText += GetDialogueByName("Opinion_Problems");
                             flag = true;
                             if (Them.GetRelations(Us).Threat > 75.0)
                             {
-                                DiplomacyScreen diplomacyScreen2 = this;
-                                string str2 = diplomacyScreen2.TheirText + GetDialogueByName("Problem_Territorial");
-                                diplomacyScreen2.TheirText = str2;
-                                DiplomacyScreen diplomacyScreen3 = this;
-                                string str3 = diplomacyScreen3.TheirText + GetDialogueByName("Problem_AlsoMilitary");
-                                diplomacyScreen3.TheirText = str3;
+                                TheirText += GetDialogueByName("Problem_Territorial");
+                                TheirText += GetDialogueByName("Problem_AlsoMilitary");
                             }
                             else if (Them.GetRelations(Us).Threat < -20.0 && (Them.data.DiplomaticPersonality.Name == "Ruthless" || Them.data.DiplomaticPersonality.Name == "Aggressive"))
                             {
-                                DiplomacyScreen diplomacyScreen2 = this;
-                                string str2 = diplomacyScreen2.TheirText + GetDialogueByName("Problem_Territorial");
-                                diplomacyScreen2.TheirText = str2;
-                                DiplomacyScreen diplomacyScreen3 = this;
-                                string str3 = diplomacyScreen3.TheirText + GetDialogueByName("Problem_AlsoMilitaryWeak");
-                                diplomacyScreen3.TheirText = str3;
+                                TheirText += GetDialogueByName("Problem_Territorial");
+                                TheirText += GetDialogueByName("Problem_AlsoMilitaryWeak");
                             }
                             else
                             {
-                                DiplomacyScreen diplomacyScreen2 = this;
-                                string str2 = diplomacyScreen2.TheirText + GetDialogueByName("Problem_JustTerritorial");
-                                diplomacyScreen2.TheirText = str2;
+                                TheirText += GetDialogueByName("Problem_JustTerritorial");
                             }
                         }
                         else if (Them.GetRelations(Us).Threat > 75.0)
                         {
                             flag = true;
-                            DiplomacyScreen diplomacyScreen1 = this;
-                            string str1 = diplomacyScreen1.TheirText + GetDialogueByName("Opinion_Problems");
-                            diplomacyScreen1.TheirText = str1;
-                            DiplomacyScreen diplomacyScreen2 = this;
-                            string str2 = diplomacyScreen2.TheirText + GetDialogueByName("Problem_PrimaryMilitary");
-                            diplomacyScreen2.TheirText = str2;
+                            TheirText += GetDialogueByName("Opinion_Problems");
+                            TheirText += GetDialogueByName("Problem_PrimaryMilitary");
                         }
                         else if (Them.GetRelations(Us).Threat < -20.0 && (Them.data.DiplomaticPersonality.Name == "Ruthless" || Them.data.DiplomaticPersonality.Name == "Aggressive"))
                         {
-                            DiplomacyScreen diplomacyScreen1 = this;
-                            string str1 = diplomacyScreen1.TheirText + GetDialogueByName("Opinion_Problems");
-                            diplomacyScreen1.TheirText = str1;
-                            DiplomacyScreen diplomacyScreen2 = this;
-                            string str2 = diplomacyScreen2.TheirText + GetDialogueByName("Problem_MilitaryWeak");
-                            diplomacyScreen2.TheirText = str2;
+                            TheirText += GetDialogueByName("Opinion_Problems");
+                            TheirText += GetDialogueByName("Problem_MilitaryWeak");
                         }
                         if (!flag)
                         {
-                            DiplomacyScreen diplomacyScreen = this;
-                            string str = diplomacyScreen.TheirText + GetDialogueByName("Opinion_NothingMajor");
-                            diplomacyScreen.TheirText = str;
+                            TheirText += GetDialogueByName("Opinion_NothingMajor");
                         }
                     }
                     dState = DialogState.Them;
