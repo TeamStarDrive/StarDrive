@@ -615,7 +615,7 @@ namespace Ship_Game
             bool repair          = w.isRepairBeam;
             bool isBeam          = repair || w.isBeam;
             bool isBallistic     = w.explodes && w.OrdinanceRequiredToFire > 0f;
-            float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -90f : +90f) : 0f;
+            float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
 
             float rawDamage       = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
