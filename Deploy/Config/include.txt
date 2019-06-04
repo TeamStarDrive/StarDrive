@@ -12,4 +12,5 @@
 "..\..\StarDrive\SharpRaven.pdb"
 "..\..\StarDrive\SharpRaven.xml"
 "..\..\StarDrive\SharpRaven.dll"
-"..\..\StarDrive\libfbxsdk.dll""
+"..\..\StarDrive\libfbxsdk.dll"
+"..\..\StarDrive\System.ValueTuple.dll"
