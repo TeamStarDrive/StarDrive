@@ -267,8 +267,6 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            Vector2 position;
-            Vector2 drawCurs;
             if (!IsActive)
                 return;
 
@@ -318,7 +316,7 @@ namespace Ship_Game
                 case DialogState.Them:
                 {
                     string text = ParseDiplomacyText(TheirText, (DialogRect.Width - 25), Fonts.Consolas18);
-                    position = new Vector2((ScreenWidth / 2f) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    var position = new Vector2((ScreenWidth / 2f) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     goto case DialogState.Choosing;
@@ -366,7 +364,7 @@ namespace Ship_Game
                 {
                     var selector1 = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     StatementsSL.Draw(batch);
-                    drawCurs = TextCursor;
+                    var drawCurs = TextCursor;
                     foreach (ScrollList.Entry e in StatementsSL.VisibleEntries)
                     {
                         if (!e.Hovered && e.item is DialogOption option)
@@ -380,7 +378,7 @@ namespace Ship_Game
                 }
                 case DialogState.Negotiate:
                 {
-                    drawCurs = new Vector2((R.X + 15), (R.Y + 10));
+                    var drawCurs = new Vector2((R.X + 15), (R.Y + 10));
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
                     OfferTextSL.Reset();
@@ -415,7 +413,7 @@ namespace Ship_Game
                 {
                     batch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
                     string text = ParseDiplomacyText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
-                    position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
                     Reject.DrawWithShadow(batch);
@@ -424,7 +422,7 @@ namespace Ship_Game
                 case DialogState.End:
                 {
                     string text = ParseDiplomacyText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
-                    position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     goto case DialogState.Choosing;
