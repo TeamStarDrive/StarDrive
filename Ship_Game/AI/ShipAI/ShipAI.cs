@@ -648,10 +648,15 @@ namespace Ship_Game.AI
         void PrioritizePlayerCommands()
         {
             if (Owner.loyalty == Empire.Universe.player &&
-                (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f || State == AIState.Orbit ||
-                 State == AIState.Bombard || State == AIState.AssaultPlanet || State == AIState.BombardTroops ||
-                 State == AIState.Rebase || State == AIState.Scrap || State == AIState.Resupply || State == AIState.Refit ||
-                 State == AIState.FormationWarp))
+                (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f 
+				|| State == AIState.Bombard 
+				|| State == AIState.AssaultPlanet 
+				|| State == AIState.BombardTroops 
+				|| State == AIState.Rebase 
+				|| State == AIState.Scrap 
+				|| State == AIState.Resupply 
+				|| State == AIState.Refit 
+				|| State == AIState.FormationWarp))
             {
                 HasPriorityOrder = true;
                 HadPO = false;
