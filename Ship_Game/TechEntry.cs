@@ -346,7 +346,12 @@ namespace Ship_Game
             TriggerAnyEvents(us);
             return true;
         }
-
+        public void UnlockWithNoBonusOption(Empire us, Empire them, bool unlockBonus)
+        {
+            them = them ?? us;
+            unlockBonus = unlockBonus && TrySetUnlocked();
+            UnlockTechContentOnly(us, them, unlockBonus);
+        }
         public void UnlockByConquest(Empire us, Empire them)
         {
             ConqueredSource.Add(them.data.Traits.ShipType);
@@ -449,10 +454,8 @@ namespace Ship_Game
             }
         }
 
-        public bool IsUnlockedAtGameStart(Empire empire)
-        {
-            return InRaceRequirementsArray(empire, Tech.UnlockedAtGameStart);
-        }
+        public bool IsUnlockedAtGameStart(Empire empire) 
+            => InRaceRequirementsArray(empire, Tech.UnlockedAtGameStart);
 
         private static bool InRaceRequirementsArray(Empire empire, IEnumerable<Technology.RaceRequirements> requiredRace)
         {
