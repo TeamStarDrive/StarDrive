@@ -15,7 +15,6 @@ namespace Ship_Game
     {
         Rectangle Portrait;
         Vector2 TextCursor;
-        SolarSystem SysToDiscuss;
         DialogState dState;
         Menu2 PlayerMenu;
 
@@ -67,6 +66,8 @@ namespace Ship_Game
 
         Empire Them;
         Empire Us;
+        Relationship ThemAndUs; // relationships between Them and Us
+        Relationship UsAndThem; // between Us and Them
         string WhichDialog;
         bool WarDeclared;
         string TheirText;
@@ -75,14 +76,17 @@ namespace Ship_Game
         Offer OurOffer = new Offer();
         Offer TheirOffer = new Offer();
         Empire EmpireToDiscuss;
+        SolarSystem SysToDiscuss;
 
 
         // BASE constructor
         DiplomacyScreen(GameScreen parent, Empire them, Empire us, string whichDialog) : base(parent)
         {
-            them.GetRelations(us).turnsSinceLastContact = 0;
             Them = them;
             Us = us;
+            ThemAndUs = them.GetRelations(us);
+            ThemAndUs.turnsSinceLastContact = 0;
+            UsAndThem = us.GetRelations(them);
             WhichDialog = whichDialog;
             IsPopup = true;
             TransitionOnTime = 1.0f;
@@ -249,11 +253,11 @@ namespace Ship_Game
         {
             StatementsSL.Reset();
             TheirText = "";
-            if (TheirOffer.NAPact && Them.GetRelations(Us).HaveRejectedNapact)
+            if (TheirOffer.NAPact && ThemAndUs.HaveRejectedNapact)
             {
                 TheirText = string.Concat(GetDialogueByName("ComeAround_NAPACT"), "\n\n");
             }
-            else if (TheirOffer.TradeTreaty && Them.GetRelations(Us).HaveRejected_TRADE)
+            else if (TheirOffer.TradeTreaty && ThemAndUs.HaveRejected_TRADE)
             {
                 TheirText = string.Concat(GetDialogueByName("ComeAround_TRADE"), "\n\n");
             }
@@ -275,7 +279,7 @@ namespace Ship_Game
             if (RacialVideo.IsPlaying)
             {
                 Color color = Color.White;
-                if (WarDeclared || Us.GetRelations(Them).AtWar)
+                if (WarDeclared || UsAndThem.AtWar)
                 {
                     color.B = 100;
                     color.G = 100;
@@ -284,30 +288,30 @@ namespace Ship_Game
             }
             else
             {
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Portraits/", Them.PortraitName)), Portrait, Color.White);
+                batch.Draw(ResourceManager.Texture(string.Concat("Portraits/", Them.PortraitName)), Portrait, Color.White);
             }
             HelperFunctions.DrawDropShadowText(batch, Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
             if (dState == DialogState.Negotiate)
             {
                 Rectangle stripe = new Rectangle(0, R.Y, 1920, R.Height);
-                ScreenManager.SpriteBatch.FillRectangle(stripe, new Color(0, 0, 0, 150));
+                batch.FillRectangle(stripe, new Color(0, 0, 0, 150));
             }
             else
             {
                 Rectangle stripe = new Rectangle(0, DialogRect.Y, 1920, R.Height);
-                ScreenManager.SpriteBatch.FillRectangle(stripe, new Color(0, 0, 0, 150));
+                batch.FillRectangle(stripe, new Color(0, 0, 0, 150));
             }
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
+            batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
             foreach (GenericButton taf in TAFButtons)
             {
                 taf.DrawWithShadowCaps(batch);
-                TrustRect.Width = (int)Them.GetRelations(Us).Trust;
+                TrustRect.Width = (int)ThemAndUs.Trust;
                 if (TrustRect.Width < 1)
                 {
                     TrustRect.Width = 1;
                 }
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), TrustRect, Color.Green);
-                AngerRect.Width = (int)Them.GetRelations(Us).TotalAnger;
+                batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), TrustRect, Color.Green);
+                AngerRect.Width = (int)ThemAndUs.TotalAnger;
                 if (AngerRect.Width > 100)
                 {
                     AngerRect.Width = 100;
@@ -316,13 +320,13 @@ namespace Ship_Game
                 {
                     AngerRect.Width = 1;
                 }
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), AngerRect, Color.Yellow);
-                FearRect.Width = (int)Them.GetRelations(Us).Threat;
+                batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), AngerRect, Color.Yellow);
+                FearRect.Width = (int)ThemAndUs.Threat;
                 if (FearRect.Width < 1)
                 {
                     FearRect.Width = 1;
                 }
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
+                batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
             }
             switch (dState)
             {
@@ -330,7 +334,7 @@ namespace Ship_Game
                 {
                     var selector = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     text = ParseDiplomacyText(TheirText, (DialogRect.Width - 25), Fonts.Consolas18);
-                    position = new Vector2((ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    position = new Vector2((ScreenWidth / 2f) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     goto case DialogState.Choosing;
@@ -352,26 +356,24 @@ namespace Ship_Game
                             k--;
                             if (ScreenState != ScreenState.TransitionOn)
                             {
-                                r.X = r.X + (int)transitionOffset * 512;
+                                r.X += (int)transitionOffset * 512;
                             }
                             else
                             {
-                                r.X = r.X + (int)(transitionOffset * 512f);
+                                r.X += (int)(transitionOffset * 512f);
                             }
                             b.TransitionCaps(r);
                             b.DrawWithShadowCaps(batch);
                         }
                     }
-                    Vector2 pos = new Vector2((Portrait.X + 200), (Portrait.Y + 200));
-                    //{ no idea how this managed to compile in the first place
-                        pos.Y = pos.Y + (Fonts.Pirulen16.LineSpacing + 15);
-                        pos.X = pos.X - 8f;
-                    //};*/
+                    var pos = new Vector2((Portrait.X + 200), (Portrait.Y + 200));
+                    pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
+                    pos.X -= 8f;
+                    pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
+                    pos.X -= 8f;
+                    pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
+                    pos.X -= 8f;
 
-                    pos.Y = pos.Y + (Fonts.Pirulen16.LineSpacing + 15);
-                    pos.X = pos.X - 8f;
-                    pos.Y = pos.Y + (Fonts.Pirulen16.LineSpacing + 15);
-                    pos.X = pos.X - 8f;
                     ToolTip.Draw(ScreenManager.SpriteBatch);
                     ScreenManager.SpriteBatch.End();
                     return;
@@ -429,7 +431,7 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
                     text = ParseDiplomacyText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
-                    position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
                     Reject.DrawWithShadow(batch);
@@ -437,9 +439,9 @@ namespace Ship_Game
                 }
                 case DialogState.End:
                 {
-                    Selector selector2 = new Selector(DialogRect, new Color(0, 0, 0, 220));
+                    var selector2 = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     text = ParseDiplomacyText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
-                    position = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     goto case DialogState.Choosing;
@@ -453,7 +455,7 @@ namespace Ship_Game
 
         void DrawDropShadowText(string Text, Vector2 Pos, SpriteFont Font)
         {
-            Vector2 offset = new Vector2(2f, 2f);
+            var offset = new Vector2(2f, 2f);
             ScreenManager.SpriteBatch.DrawString(Font, Text, Pos + offset, Color.Black);
             ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, Color.White);
         }
@@ -468,16 +470,9 @@ namespace Ship_Game
                 {
                     item.Update(drawCurs);
                     item.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold);
-                    drawCurs.Y = drawCurs.Y + (Fonts.Arial12Bold.LineSpacing + 5);
+                    drawCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
                 }
             }
-        }
-
-        void DrawSpecialText1612(string Text, Vector2 Pos)
-        {
-            Vector2 offset = new Vector2(2f, 2f);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Text, Pos + offset, Color.Black);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen16, Text, Pos, Color.White);
         }
 
         void DrawTheirItems()
@@ -490,31 +485,13 @@ namespace Ship_Game
                 {
                     item.Update(drawCurs);
                     item.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold);
-                    drawCurs.Y = drawCurs.Y + (Fonts.Arial12Bold.LineSpacing + 5);
+                    drawCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
                 }
             }
         }
 
         public override void ExitScreen()
         {
-            //if (!them.data.ModRace)
-            //{
-            //    MusicPlaying.Stop();
-            //}
-            //GameAudio.SwitchBackToGenericMusic();
-            //if (VideoFile != null)
-            //{
-            //    VideoPlaying.Stop();
-            //}
-            //if (VideoPlaying != null)
-            //{
-            //    VideoFile = null;
-            //    while (!VideoPlaying.IsDisposed)
-            //    {
-            //        VideoPlaying.Dispose();
-            //    }
-            //}
-            //VideoPlaying = null;
             base.ExitScreen();
             Dispose();
         }
@@ -621,15 +598,15 @@ namespace Ship_Game
 
         string GetDialogueFromAttitude()
         {
-            float theirOpinionOfUs = Math.Max(0, Them.GetRelations(Us).GetStrength());
+            float theirOpinionOfUs = Math.Max(0, ThemAndUs.GetStrength());
             return GetDialogue(theirOpinionOfUs);
         }
 
         string GetDialogue(float attitude)
         {
-            if (Us.GetRelations(Them).AtWar)
+            if (UsAndThem.AtWar)
             {
-                switch (Them.GetRelations(Us).ActiveWar.GetWarScoreState())
+                switch (ThemAndUs.ActiveWar.GetWarScoreState())
                 {
                     case WarState.ColdWar:         return GetDialogueByName("Greeting_AtWar");
                     case WarState.LosingBadly:     return GetDialogueByName("AtWar_Losing");
@@ -706,13 +683,13 @@ namespace Ship_Game
 
             if (dState != DialogState.TheirOffer)
             {
-                if (!Us.GetRelations(Them).Treaty_Peace)
+                if (!UsAndThem.Treaty_Peace)
                 {
                     if (DeclareWar != null && DeclareWar.HandleInput(input))
                     {
                         StatementsSL.Reset();
                         dState = DialogState.End;
-                        if (Us.GetRelations(Them).Treaty_NAPact)
+                        if (UsAndThem.Treaty_NAPact)
                         {
                             TheirText = GetDialogueByName("WarDeclared_FeelsBetrayed");
                             Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
@@ -743,10 +720,10 @@ namespace Ship_Game
                             foreach (DialogOption opt1 in statementSet.DialogOptions)
                             {
                                 string str = opt1.SpecialInquiry.NotEmpty() ? GetDialogueByName(opt1.SpecialInquiry) : opt1.Words;
-                                var o2 = new DialogOption(n++, str, cursor, Fonts.Consolas18);
-                                o2.Words = ParseDiplomacyText(str, (DialogRect.Width - 20), Fonts.Consolas18);
-                                o2.Response = opt1.Response;
-                                StatementsSL.AddItem(o2);
+                                var opt2 = new DialogOption(n++, str, cursor, Fonts.Consolas18);
+                                opt2.Words = ParseDiplomacyText(str, (DialogRect.Width - 20), Fonts.Consolas18);
+                                opt2.Response = opt1.Response;
+                                StatementsSL.AddItem(opt2);
                                 cursor.Y += (Fonts.Consolas18.LineSpacing + 5);
                             }
                         }
@@ -898,95 +875,91 @@ namespace Ship_Game
             }
         }
 
+        GenericButton Button(ref Vector2 cursor, int locId)
+        {
+            var button = new GenericButton(cursor, Localizer.Token(locId), Fonts.Pirulen20, Fonts.Pirulen16);
+            GenericButtons.Add(button);
+            cursor.Y += 25f;
+            return button;
+        }
+
+        GenericButton TAFButton(ref Vector2 cursor, int locId, bool toggleOn = false)
+        {
+            var button = new GenericButton(cursor, Localizer.Token(locId), Fonts.Pirulen16, Fonts.Pirulen12) { ToggleOn = toggleOn };
+            TAFButtons.Add(button);
+            cursor.Y += 25f;
+            return button;
+        }
+
         public override void LoadContent()
         {
-            var prect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 659, 0, 1318, 757);
-            BridgeRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
-            PlayerMenu = new Menu2(prect);
-            Portrait = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 640, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 360, 1280, 720);
-            Vector2 Cursor = new Vector2(Portrait.X + Portrait.Width - 85, Portrait.Y + 140);
-            EmpireNamePos = new Vector2(Cursor.X - Fonts.Pirulen20.MeasureString(Them.data.Traits.Name).X, Portrait.Y + 40);
-            if (!Us.GetRelations(Them).AtWar)
+            BridgeRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
+            PlayerMenu = new Menu2(new Rectangle(ScreenWidth / 2 - 659, 0, 1318, 757));
+            Portrait = new Rectangle(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
+            
+            var cursor = new Vector2(Portrait.X + Portrait.Width - 85, Portrait.Y + 140);
+            EmpireNamePos = new Vector2(cursor.X - Fonts.Pirulen20.MeasureString(Them.data.Traits.Name).X, Portrait.Y + 40);
+            if (!UsAndThem.AtWar)
             {
-                DeclareWar = new GenericButton(Cursor, Localizer.Token(1200), Fonts.Pirulen20, Fonts.Pirulen16);
-                GenericButtons.Add(DeclareWar);
-                Cursor.Y = Cursor.Y + 25f;
-                Discuss = new GenericButton(Cursor, Localizer.Token(1201), Fonts.Pirulen20, Fonts.Pirulen16);
-                GenericButtons.Add(Discuss);
-                Cursor.Y = Cursor.Y + 25f;
+                DeclareWar = Button(ref cursor, locId: 1200);
+                Discuss    = Button(ref cursor, locId: 1201);
             }
-            Negotiate = new GenericButton(Cursor, Localizer.Token(1202), Fonts.Pirulen20, Fonts.Pirulen16);
-            GenericButtons.Add(Negotiate);
-            Cursor.Y = Cursor.Y + 25f;
-            Exit = new GenericButton(Cursor, Localizer.Token(1203), Fonts.Pirulen20, Fonts.Pirulen16);
-            GenericButtons.Add(Exit);
-            Cursor = new Vector2(Portrait.X + 115, Portrait.Y + 160);
-            Trust = new GenericButton(Cursor, Localizer.Token(1204), Fonts.Pirulen16, Fonts.Pirulen12)
-            {
-                ToggleOn = true
-            };
-            TAFButtons.Add(Trust);
+
+            Negotiate = Button(ref cursor, locId: 1202);
+            Exit      = Button(ref cursor, locId: 1203);
+
+            cursor = new Vector2(Portrait.X + 115, Portrait.Y + 160);
+
+            Trust = TAFButton(ref cursor, locId: 1204, toggleOn: true);
+            Anger = TAFButton(ref cursor, locId: 1205, toggleOn: true);
+            Fear  = TAFButton(ref cursor, locId: 1206, toggleOn: true);
+
             TrustRect = new Rectangle(Portrait.X + 125, Trust.R.Y + 2, 100, Trust.R.Height);
-            Cursor.Y = Cursor.Y + 25f;
-            Anger = new GenericButton(Cursor, Localizer.Token(1205), Fonts.Pirulen16, Fonts.Pirulen12)
-            {
-                ToggleOn = true
-            };
             AngerRect = new Rectangle(Portrait.X + 125, Anger.R.Y + 2, 100, Anger.R.Height);
-            TAFButtons.Add(Anger);
-            Cursor.Y = Cursor.Y + 25f;
-            Fear = new GenericButton(Cursor, Localizer.Token(1206), Fonts.Pirulen16, Fonts.Pirulen12)
-            {
-                ToggleOn = true
-            };
-            TAFButtons.Add(Fear);
             FearRect = new Rectangle(Portrait.X + 125, Fear.R.Y + 2, 100, Fear.R.Height);
-            Cursor.Y = Cursor.Y + 25f;
-            DialogRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 350, Portrait.Y + Portrait.Height - 110, 700, 55);
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 820)
+            DialogRect = new Rectangle(ScreenWidth / 2 - 350, Portrait.Y + Portrait.Height - 110, 700, 55);
+
+            if (ScreenHeight < 820)
             {
                 DialogRect.Y = Portrait.Y + Portrait.Height - 100;
             }
             R = DialogRect;
-            R.Height = R.Height + 75;
-            if (R.Y + R.Height > ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+            R.Height += 75;
+            if (R.Y + R.Height > ScreenHeight)
             {
-                R.Y = R.Y - (R.Y + R.Height - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight + 2);
+                R.Y -= (R.Y + R.Height - ScreenHeight + 2);
             }
+
             Rectangle blerdybloo = R;
-            blerdybloo.Height = blerdybloo.Height - 40;
-            Submenu ot = new Submenu(blerdybloo);
+            blerdybloo.Height -= 40;
+            var ot = new Submenu(blerdybloo);
+
             OfferTextSL = new ScrollList(ot, Fonts.Consolas18.LineSpacing + 2, true);
-            Attitude_Pleading_Rect = new Rectangle(R.X + 45, R.Y + R.Height - 48, 180, 48);
-            Attitude_Respectful_Rect = new Rectangle(R.X + 250 + 5, R.Y + R.Height - 48, 180, 48);
-            Attitude_Threaten_Rect = new Rectangle(R.X + 450 + 15, R.Y + R.Height - 48, 180, 48);
-            ToneContainerRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 324, Attitude_Pleading_Rect.Y, 648, 48);
-            ap = new GenericButton(Attitude_Pleading_Rect, Localizer.Token(1207), Fonts.Pirulen12);
-            ar = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12)
-            {
-                ToggleOn = true
-            };
-            at = new GenericButton(Attitude_Threaten_Rect, Localizer.Token(1208), Fonts.Pirulen12);
+            Attitude_Pleading_Rect   = new Rectangle(R.X + 45,       R.Y + R.Height - 48, 180, 48);
+            Attitude_Respectful_Rect = new Rectangle(R.X + 250 + 5,  R.Y + R.Height - 48, 180, 48);
+            Attitude_Threaten_Rect   = new Rectangle(R.X + 450 + 15, R.Y + R.Height - 48, 180, 48);
+            ToneContainerRect = new Rectangle(ScreenWidth / 2 - 324, Attitude_Pleading_Rect.Y, 648, 48);
+            ap = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(1207), Fonts.Pirulen12);
+            ar = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12) { ToggleOn = true };
+            at = new GenericButton(Attitude_Threaten_Rect,   Localizer.Token(1208), Fonts.Pirulen12);
             AccRejRect = new Rectangle(R.X + R.Width / 2 - 220, R.Y + R.Height - 48, 440, 48);
             Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
             Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
-            //Negotiate_Right = new Rectangle(base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 192, base.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
-            Negotiate_Right = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 242, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
-            Negotiate_Left = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 280, 192, 280);
+            
+            Negotiate_Right = new Rectangle(ScreenWidth - 242, ScreenHeight - 280, 192, 280);
+            Negotiate_Left = new Rectangle(0, ScreenHeight - 280, 192, 280);
             BigTradeRect = new Rectangle(DialogRect.X + 75, DialogRect.Y - 202, DialogRect.Width - 150, 200);
+            
             UsRect = new Rectangle(Negotiate_Right.X + 20, Negotiate_Right.Y + 35, BigTradeRect.Width / 2 - 9, 300);
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
-            var themsub = new Submenu(ThemRect);
-            TheirItemsSL = new ScrollList(themsub, Fonts.Consolas18.LineSpacing + 5, true);
-            var ussub = new Submenu(UsRect);
-            OurItemsSL = new ScrollList(ussub, Fonts.Consolas18.LineSpacing + 5, true);
-            var sub = new Submenu(blerdybloo);
-            StatementsSL = new ScrollList(sub, Fonts.Consolas18.LineSpacing + 2, true);
+            
+            TheirItemsSL = new ScrollList(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5, true);
+            OurItemsSL   = new ScrollList(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5, true);
+            StatementsSL = new ScrollList(new Submenu(blerdybloo), Fonts.Consolas18.LineSpacing + 2, true);
+            TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
 
             PlayRaceVideoAndMusic();
-
-            TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
         }
 
         string ParseDiplomacyText(string text, float width, SpriteFont font)
@@ -997,25 +970,40 @@ namespace Ship_Game
             }
 
             width -= 5f;
-            string[] wordArray = text.Split(' ');
+            string[] words = text.Split(' ');
 
-            for (int i = 0; i < wordArray.Length; i++)
-                wordArray[i] = ConvertDiplomacyKeyword(wordArray[i]);
+            for (int i = 0; i < words.Length; i++)
+                words[i] = ConvertDiplomacyKeyword(words[i]);
 
             var completeText = new StringBuilder();
             string line = string.Empty;
-            for (int i = 0; i < wordArray.Length; i++)
+            for (int i = 0; i < words.Length; i++)
             {
-                if (font.TextWidth(line + wordArray[i]) > width)
+                if (font.TextWidth(line + words[i]) > width)
                 {
                     completeText.Append(line).Append('\n');
                     line = string.Empty;
                 }
-                line = line + wordArray[i] + ' ';
+                line = line + words[i] + ' ';
             }
-
             completeText.Append(line);
             return completeText.ToString();
+        }
+
+        string UsSingular          => Us?.data.Traits.Singular ?? "HUMAN";
+        string UsPlural            => Us?.data.Traits.Plural   ?? "HUMANS";
+        string EmpireToDiscussName => EmpireToDiscuss?.data.Traits.Name ?? "EMPIRE";
+        string SysToDiscussName    => SysToDiscuss?.Name ?? "SYSTEM";
+        string TechDemanded
+        {
+            get
+            {
+                string offered = OurOffer?.TechnologiesOffered.Count > 0
+                               ? OurOffer.TechnologiesOffered[0] : "TECH";
+                if (ResourceManager.TryGetTech(offered, out Technology tech))
+                    return Localizer.Token(tech.NameIndex);
+                return offered;
+            }
         }
 
         string ConvertDiplomacyKeyword(string keyword)
@@ -1023,50 +1011,51 @@ namespace Ship_Game
             switch (keyword)
             {
                 default: return keyword; // it wasn't a keyword
-                case "SING":   return Us.data.Traits.Singular;
-                case "SING.":  return Us.data.Traits.Singular + ".";
-                case "SING,":  return Us.data.Traits.Singular + ",";
-                case "SING?":  return Us.data.Traits.Singular + "?";
-                case "SING!":  return Us.data.Traits.Singular + "!";
+                case "SING":   return UsSingular;
+                case "SING.":  return UsSingular + ".";
+                case "SING,":  return UsSingular + ",";
+                case "SING?":  return UsSingular + "?";
+                case "SING!":  return UsSingular + "!";
 
-                case "PLURAL":  return Us.data.Traits.Plural;
-                case "PLURAL.": return Us.data.Traits.Plural + ".";
-                case "PLURAL,": return Us.data.Traits.Plural + ",";
-                case "PLURAL?": return Us.data.Traits.Plural + "?";
-                case "PLURAL!": return Us.data.Traits.Plural + "!";
+                case "PLURAL":  return UsPlural;
+                case "PLURAL.": return UsPlural + ".";
+                case "PLURAL,": return UsPlural + ",";
+                case "PLURAL?": return UsPlural + "?";
+                case "PLURAL!": return UsPlural + "!";
 
-                case "TARSYS":  return SysToDiscuss.Name;
-                case "TARSYS.": return SysToDiscuss.Name + ".";
-                case "TARSYS,": return SysToDiscuss.Name + ",";
-                case "TARSYS?": return SysToDiscuss.Name + "?";
-                case "TARSYS!": return SysToDiscuss.Name + "!";
+                case "TARSYS":  return SysToDiscussName;
+                case "TARSYS.": return SysToDiscussName + ".";
+                case "TARSYS,": return SysToDiscussName + ",";
+                case "TARSYS?": return SysToDiscussName + "?";
+                case "TARSYS!": return SysToDiscussName + "!";
 
-                case "TAREMP":  return EmpireToDiscuss.data.Traits.Name;
-                case "TAREMP.": return EmpireToDiscuss.data.Traits.Name + ".";
-                case "TAREMP,": return EmpireToDiscuss.data.Traits.Name + ",";
-                case "TAREMP?": return EmpireToDiscuss.data.Traits.Name + "?";
-                case "TAREMP!": return EmpireToDiscuss.data.Traits.Name + "!";
+                case "TAREMP":  return EmpireToDiscussName;
+                case "TAREMP.": return EmpireToDiscussName + ".";
+                case "TAREMP,": return EmpireToDiscussName + ",";
+                case "TAREMP?": return EmpireToDiscussName + "?";
+                case "TAREMP!": return EmpireToDiscussName + "!";
 
-                case "TECH_DEMAND":  return Localizer.Token(ResourceManager.TechTree[OurOffer.TechnologiesOffered[0]].NameIndex);
-                case "TECH_DEMAND.": return Localizer.Token(ResourceManager.TechTree[OurOffer.TechnologiesOffered[0]].NameIndex) + ".";
-                case "TECH_DEMAND,": return Localizer.Token(ResourceManager.TechTree[OurOffer.TechnologiesOffered[0]].NameIndex) + ",";
-                case "TECH_DEMAND?": return Localizer.Token(ResourceManager.TechTree[OurOffer.TechnologiesOffered[0]].NameIndex) + "?";
-                case "TECH_DEMAND!": return Localizer.Token(ResourceManager.TechTree[OurOffer.TechnologiesOffered[0]].NameIndex) + "!";
+                case "TECH_DEMAND":  return TechDemanded;
+                case "TECH_DEMAND.": return TechDemanded + ".";
+                case "TECH_DEMAND,": return TechDemanded + ",";
+                case "TECH_DEMAND?": return TechDemanded + "?";
+                case "TECH_DEMAND!": return TechDemanded + "!";
             }
         }
 
         void Respond(DialogOption resp)
         {
-            string Name = resp.Response;
-            if (resp.Target is Empire)
-                EmpireToDiscuss = resp.Target as Empire;
-            switch (Name)
+            string responseName = resp.Response;
+            if (resp.Target is Empire empire)
+                EmpireToDiscuss = empire;
+
+            switch (responseName)
             {
                 case "Target_Opinion":
                     if (EmpireToDiscuss == null)
                         break;
                     StatementsSL.Reset();
-                    float strength = Us.GetRelations(Them).GetStrength();
+                    float strength = UsAndThem.GetStrength();
                     if (strength >= 65.0)
                         TheirText = GetDialogueByName("Opinion_Positive_" + EmpireToDiscuss.data.Traits.ShipType);
                     else if (strength < 65.0 && strength >= 40.0)
@@ -1083,13 +1072,13 @@ namespace Ship_Game
                             StatementsSL.Reset();
                             int n = 1;
                             Vector2 Cursor = TextCursor;
-                            foreach (DialogOption dialogOption1 in set.DialogOptions)
+                            foreach (DialogOption option1 in set.DialogOptions)
                             {
-                                DialogOption dialogOption2 = new DialogOption(n, dialogOption1.Words, Cursor, Fonts.Consolas18);
-                                dialogOption2.Words = ParseDiplomacyText(dialogOption1.Words, DialogRect.Width - 20, Fonts.Consolas18);
-                                StatementsSL.AddItem(dialogOption2);
-                                dialogOption2.Response = dialogOption1.Response;
-                                dialogOption2.Target = EmpireToDiscuss;
+                                var option2 = new DialogOption(n, option1.Words, Cursor, Fonts.Consolas18);
+                                option2.Words = ParseDiplomacyText(option1.Words, DialogRect.Width - 20, Fonts.Consolas18);
+                                StatementsSL.AddItem(option2);
+                                option2.Response = option1.Response;
+                                option2.Target = EmpireToDiscuss;
                                 Cursor.Y += Fonts.Consolas18.LineSpacing + 5;
                                 ++n;
                             }
@@ -1100,189 +1089,177 @@ namespace Ship_Game
                     StatementsSL.Reset();
                     Vector2 cursor1 = TextCursor;
                     int n1 = 1;
-                    foreach (KeyValuePair<Empire, Relationship> keyValuePair in Them.AllRelations)
+                    foreach (KeyValuePair<Empire, Relationship> rel in Them.AllRelations)
                     {
-                        if (keyValuePair.Value.Known && !keyValuePair.Key.isFaction && (keyValuePair.Key != Us && !keyValuePair.Key.data.Defeated) && Us.GetRelations(keyValuePair.Key).Known)
+                        if (rel.Value.Known && !rel.Key.isFaction && (rel.Key != Us && !rel.Key.data.Defeated) && Us.GetRelations(rel.Key).Known)
                         {
-                            DialogOption dialogOption = new DialogOption(n1, Localizer.Token(2220) + " " + keyValuePair.Key.data.Traits.Name, cursor1, Fonts.Consolas18);
-                            dialogOption.Target = keyValuePair.Key;
-                            dialogOption.Words = ParseDiplomacyText(dialogOption.Words, DialogRect.Width - 20, Fonts.Consolas18);
-                            dialogOption.Response = "EmpireDiscuss";
+                            var option = new DialogOption(n1, Localizer.Token(2220) + " " + rel.Key.data.Traits.Name, cursor1, Fonts.Consolas18);
+                            option.Target = rel.Key;
+                            option.Words = ParseDiplomacyText(option.Words, DialogRect.Width - 20, Fonts.Consolas18);
+                            option.Response = "EmpireDiscuss";
                             cursor1.Y += Fonts.Consolas18.LineSpacing + 5;
-                            StatementsSL.AddItem(dialogOption);
+                            StatementsSL.AddItem(option);
                             ++n1;
                         }
                     }
-                    if (StatementsSL.NumEntries != 0)
-                        break;
-                    StatementsSL.Reset();
-                    TheirText = GetDialogueByName("Dunno_Anybody");
-                    dState = DialogState.Them;
+                    if (StatementsSL.NumEntries == 0)
+                    {
+                        StatementsSL.Reset();
+                        TheirText = GetDialogueByName("Dunno_Anybody");
+                        dState = DialogState.Them;
+                    }
                     break;
                 case "Hardcoded_War_Analysis":
                     TheirText = "";
                     dState = DialogState.Them;
                     if (EmpireToDiscuss == null)
                         break;
+
                     if (!Us.GetRelations(EmpireToDiscuss).AtWar)
                     {
                         TheirText += GetDialogueByName("JoinWar_YouAreNotAtWar");
-                        break;
                     }
-                    else if (Us.GetRelations(Them).AtWar)
+                    else if (UsAndThem.AtWar)
                     {
                         TheirText += GetDialogueByName("JoinWar_WeAreAtWar");
-                        break;
                     }
-                    else if (Them.GetRelations(Us).Treaty_Alliance)
+                    else if (ThemAndUs.Treaty_Alliance)
                     {
                         TheirText += GetDialogueByName("JoinWar_Allied_OK");
                         Them.GetEmpireAI().DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
                         EmpireToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
-                        break;
                     }
-                    else if (Them.GetRelations(Us).GetStrength() < 30.0)
+                    else if (ThemAndUs.GetStrength() < 30f)
                     {
                         TheirText += GetDialogueByName("JoinWar_Reject_PoorRelations");
-                        break;
                     }
                     else if (Them.data.DiplomaticPersonality.Name == "Pacifist" || Them.data.DiplomaticPersonality.Name == "Honorable")
                     {
                         TheirText += GetDialogueByName("JoinWar_Reject_Pacifist");
-                        break;
                     }
-                    else if (Us.GetRelations(Them).GetStrength() > 60.0)
+                    else if (UsAndThem.GetStrength() > 60f)
                     {
                         TheirText += GetDialogueByName("JoinWar_Allied_DECLINE");
-                        break;
                     }
-                    else if (Them.GetRelations(Us).GetStrength() > 60.0 && EmpireToDiscuss.MilitaryScore < (double)Them.MilitaryScore)
+                    else if (ThemAndUs.GetStrength() > 60f && EmpireToDiscuss.MilitaryScore < (double)Them.MilitaryScore)
                     {
                         TheirText += GetDialogueByName("JoinWar_OK");
                         Them.GetEmpireAI().DeclareWarOn(EmpireToDiscuss, WarType.ImperialistWar);
                         EmpireToDiscuss.GetEmpireAI().GetWarDeclaredOnUs(Them, WarType.ImperialistWar);
-                        break;
                     }
                     else
                     {
                         TheirText += GetDialogueByName("JoinWar_Reject_TooDangerous");
-                        break;
                     }
+                    break;
                 case "Hardcoded_Federation_Analysis":
                     StatementsSL.Reset();
                     TheirText = "";
                     dState = DialogState.Them;
-                    if (!Them.GetRelations(Us).Treaty_Alliance)
+                    if (!ThemAndUs.Treaty_Alliance)
                     {
-                        if (Them.GetRelations(Us).TurnsKnown < 50)
-                        {
+                        if (ThemAndUs.TurnsKnown < 50)
                             TheirText += GetDialogueByName("Federation_JustMet");
-                            break;
-                        }
-
-                        if (Them.GetRelations(Us).GetStrength() >= 75.0)
-                        {
+                        else if (ThemAndUs.GetStrength() >= 75f)
                             TheirText += GetDialogueByName("Federation_NoAlliance");
-                            break;
-                        }
                         else
-                        {
                             TheirText += GetDialogueByName("Federation_RelationsPoor");
-                            break;
-                        }
+                        break;
                     }
-                    else if (Them.GetRelations(Us).TurnsAllied < 100)
+                    else if (ThemAndUs.TurnsAllied < 100)
                     {
                         TheirText += GetDialogueByName("Federation_AllianceTooYoung");
                         break;
                     }
                     else
                     {
-                        if (Them.GetRelations(Us).TurnsAllied < 100)
+                        if (ThemAndUs.TurnsAllied < 100)
                             break;
-                        if (Them.TotalScore > Us.TotalScore * 0.800000011920929 && Them.GetRelations(Us).Threat < 0.0)
+
+                        if (Them.TotalScore > Us.TotalScore * 0.8f && ThemAndUs.Threat < 0f)
                         {
                             TheirText += GetDialogueByName("Federation_WeAreTooStrong");
                             break;
                         }
 
-                        Array<Empire> warTargets = new Array<Empire>();
-                        Array<Empire> list2 = new Array<Empire>();
+                        var theirWarTargets = new Array<Empire>();
+                        var ourWarTargets = new Array<Empire>();
                         foreach (KeyValuePair<Empire, Relationship> keyValuePair in Them.AllRelations)
                         {
                             if (!keyValuePair.Key.isFaction && keyValuePair.Value.AtWar)
-                                warTargets.Add(keyValuePair.Key);
+                                theirWarTargets.Add(keyValuePair.Key);
 
-                            if (!keyValuePair.Key.isFaction && keyValuePair.Value.GetStrength() > 75.0 &&
+                            if (!keyValuePair.Key.isFaction && keyValuePair.Value.GetStrength() > 75f &&
                                 Us.TryGetRelations(keyValuePair.Key, out Relationship relations) && relations.AtWar)
-                                list2.Add(keyValuePair.Key);
-                        }
-                        if (warTargets.Count > 0)
-                        {
-                            IOrderedEnumerable<Empire> orderedEnumerable = warTargets.OrderByDescending(emp => emp.TotalScore);
-                            if (orderedEnumerable.Count() <= 0)
-                                break;
-                            EmpireToDiscuss = orderedEnumerable.First();
-                            TheirText += GetDialogueByName("Federation_Quest_DestroyEnemy");
-                            Them.GetRelations(Us).FedQuest = new FederationQuest
                             {
-                                EnemyName = EmpireToDiscuss.data.Traits.Name
-                            };
-                            break;
+                                ourWarTargets.Add(keyValuePair.Key);
+                            }
                         }
 
-                        if (list2.Count > 0)
+                        if (theirWarTargets.Count > 0)
                         {
-                            var orderedEnumerable = list2.OrderByDescending(emp => Them.GetRelations(emp).GetStrength());
-                            if (!orderedEnumerable.Any())
-                                break;
-                            EmpireToDiscuss = orderedEnumerable.First();
-                            TheirText += GetDialogueByName("Federation_Quest_AllyFriend");
-                            Them.GetRelations(Us).FedQuest = new FederationQuest
+                            // enemy of my enemy is a friend
+                            EmpireToDiscuss = theirWarTargets.FindMax(e => e.TotalScore);
+                            if (EmpireToDiscuss != null)
                             {
-                                type = QuestType.AllyFriend,
-                                EnemyName = EmpireToDiscuss.data.Traits.Name
-                            };
-                            break;
+                                TheirText += GetDialogueByName("Federation_Quest_DestroyEnemy");
+                                ThemAndUs.FedQuest = new FederationQuest
+                                {
+                                    EnemyName = EmpireToDiscuss.data.Traits.Name
+                                };
+                            }
+                        }
+                        else if (ourWarTargets.Count > 0)
+                        {
+                            EmpireToDiscuss = ourWarTargets.FindMax(e => Them.GetRelations(e).GetStrength());
+                            if (EmpireToDiscuss != null)
+                            {
+                                TheirText += GetDialogueByName("Federation_Quest_AllyFriend");
+                                ThemAndUs.FedQuest = new FederationQuest
+                                {
+                                    type = QuestType.AllyFriend,
+                                    EnemyName = EmpireToDiscuss.data.Traits.Name
+                                };
+                            }
                         }
                         else
                         {
                             TheirText += GetDialogueByName("Federation_Accept");
                             Us.AbsorbEmpire(Them);
-                            break;
                         }
+                        break;
                     }
                 case "Hardcoded_Grievances":
                     StatementsSL.Reset();
                     TheirText = "";
-                    float num = Them.GetRelations(Us).GetStrength();
-                    if (num < 0.0)
-                        num = 0.0f;
-                    if (Them.GetRelations(Us).TurnsKnown < 20)
+                    float num = Math.Max(0, ThemAndUs.GetStrength());
+                    if (ThemAndUs.TurnsKnown < 20)
                     {
                         TheirText += GetDialogueByName("Opinion_JustMetUs");
                     }
-                    else if (num > 60.0)
+                    else if (num > 60f)
                     {
                         TheirText += GetDialogueByName("Opinion_NoProblems");
                     }
-                    else if (Them.GetRelations(Us).WarHistory.Count > 0 && Them.GetRelations(Us).WarHistory[Them.GetRelations(Us).WarHistory.Count - 1].EndStarDate - (double)Them.GetRelations(Us).WarHistory[Them.GetRelations(Us).WarHistory.Count - 1].StartDate < 50.0)
+                    else if (ThemAndUs.WarHistory.Count > 0 &&
+                             ThemAndUs.WarHistory[ThemAndUs.WarHistory.Count - 1].EndStarDate - 
+                             ThemAndUs.WarHistory[ThemAndUs.WarHistory.Count - 1].StartDate < 50f)
                     {
                         TheirText += GetDialogueByName("PROBLEM_RECENTWAR");
                     }
                     else if (num >= 0.0)
                     {
                         bool flag = false;
-                        if (Them.GetRelations(Us).Anger_TerritorialConflict + (double)Them.GetRelations(Us).Anger_FromShipsInOurBorders > Them.data.DiplomaticPersonality.Territorialism / 2)
+                        if (ThemAndUs.Anger_TerritorialConflict + ThemAndUs.Anger_FromShipsInOurBorders > Them.data.DiplomaticPersonality.Territorialism / 2f)
                         {
                             TheirText += GetDialogueByName("Opinion_Problems");
                             flag = true;
-                            if (Them.GetRelations(Us).Threat > 75.0)
+                            if (ThemAndUs.Threat > 75f)
                             {
                                 TheirText += GetDialogueByName("Problem_Territorial");
                                 TheirText += GetDialogueByName("Problem_AlsoMilitary");
                             }
-                            else if (Them.GetRelations(Us).Threat < -20.0 && (Them.data.DiplomaticPersonality.Name == "Ruthless" || Them.data.DiplomaticPersonality.Name == "Aggressive"))
+                            else if (ThemAndUs.Threat < -20f && (Them.data.DiplomaticPersonality.Name == "Ruthless" || Them.data.DiplomaticPersonality.Name == "Aggressive"))
                             {
                                 TheirText += GetDialogueByName("Problem_Territorial");
                                 TheirText += GetDialogueByName("Problem_AlsoMilitaryWeak");
@@ -1292,13 +1269,13 @@ namespace Ship_Game
                                 TheirText += GetDialogueByName("Problem_JustTerritorial");
                             }
                         }
-                        else if (Them.GetRelations(Us).Threat > 75.0)
+                        else if (ThemAndUs.Threat > 75f)
                         {
                             flag = true;
                             TheirText += GetDialogueByName("Opinion_Problems");
                             TheirText += GetDialogueByName("Problem_PrimaryMilitary");
                         }
-                        else if (Them.GetRelations(Us).Threat < -20.0 && (Them.data.DiplomaticPersonality.Name == "Ruthless" || Them.data.DiplomaticPersonality.Name == "Aggressive"))
+                        else if (ThemAndUs.Threat < -20f && (Them.data.DiplomaticPersonality.Name == "Ruthless" || Them.data.DiplomaticPersonality.Name == "Aggressive"))
                         {
                             TheirText += GetDialogueByName("Opinion_Problems");
                             TheirText += GetDialogueByName("Problem_MilitaryWeak");
@@ -1312,7 +1289,7 @@ namespace Ship_Game
                     break;
                 default:
                     StatementsSL.Reset();
-                    TheirText = GetDialogueByName(Name);
+                    TheirText = GetDialogueByName(responseName);
                     dState = DialogState.Them;
                     break;
             }
@@ -1350,14 +1327,6 @@ namespace Ship_Game
             Negotiate,
             TheirOffer,
             End
-        }
-
-        enum TradeProposals
-        {
-            TradePact,
-            NAPact,
-            Peace,
-            OpenBorders
         }
     }
 }
