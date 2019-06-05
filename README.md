@@ -25,9 +25,9 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 ### How do I get set up for Development? ###
 
 * Install [Visual Studio 2019 Community](https://visualstudio.microsoft.com/vs/community/).
-  * Workloads Module: .NET desktop development
-  * Workloads Module: Desktop development with C++
-  * Workloads Module: Game development with C++
+    * Workloads Module: .NET desktop development
+    * Workloads Module: Desktop development with C++
+    * Workloads Module: Game development with C++
 * Install [Windows 8.1 SDK](https://go.microsoft.com/fwlink/p/?LinkId=323507) from Windows SDK [Archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive).
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other Mercurial client. 
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
@@ -35,7 +35,7 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * Copy the original StarDrive game files to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
 * Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
-  * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then Visual Studio did not detect Windows 8.1 SDK correctly.
+    * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then Visual Studio did not detect Windows 8.1 SDK correctly.
 
 * Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) to enjoy enhanced refactoring capabilities.
 * Please join the [discord discussion](https://discord.gg/dfvnfH4).
