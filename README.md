@@ -30,6 +30,7 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
     * Workloads Module: Game development with C++
 * Install [Windows 8.1 SDK](https://go.microsoft.com/fwlink/p/?LinkId=323507) from Windows SDK [Archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive).
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other Mercurial client. 
+    * Configure SourceTree: Tools->Options->Mercurial: [v] Allow Git Subrepositories
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
 * Switch to DEVELOP branch, which is our main branch for latest ongoing development.
 * Copy the original StarDrive game files to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
