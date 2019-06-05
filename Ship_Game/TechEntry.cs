@@ -307,33 +307,41 @@ namespace Ship_Game
             Progress = 0;
             Unlocked = false;
         }
-
-        bool TrySetUnlocked()
+        /// <summary>
+        /// return <see langword="true"/> if <see langword="unlocked"/>  here.
+        /// MultiLevel tech can have unlock flag <see langword="true"/> and then set <see langword="false"/>
+        /// on level up. 
+        /// </summary>
+        /// <returns></returns>
+        bool SetMultiLevelUnlockFlag()
         {
-            bool unlockedHere = false;
-            if (Tech.MaxLevel > 1)
+            if (Level >= Tech.MaxLevel) return false;
+
+            Level++;
+            if (Level == Tech.MaxLevel)
             {
-                Level++;
-                if (Level == Tech.MaxLevel)
-                {
-                    Progress = TechCost;
-                    Unlocked = true;
-                    unlockedHere = true;
-                }
-                else
-                {
-                    Unlocked    = false;
-                    Progress    = 0;
-                    unlockedHere = true;
-                }
+                Progress = TechCost;
+                Unlocked = true;
             }
-            else if (!Unlocked)
+            else
             {
-                Progress    = Tech.ActualCost;
-                Unlocked    = true;
-                unlockedHere = true;
+                Unlocked = false;
+                Progress = 0;
             }
-            return unlockedHere;
+            return true;
+        }
+        /// <summary>
+        /// Return <see langword="true"/> if tech was unlocked by this method.
+        /// </summary>
+        /// <returns></returns>
+        bool SetUnlockFlag()
+        {
+            if (Tech.MaxLevel > 1) return SetMultiLevelUnlockFlag();
+            if (Unlocked) return false;
+
+            Progress    = Tech.ActualCost;
+            Unlocked    = true;
+            return true;
         }
 
         public bool Unlock(Empire us, Empire them = null)
@@ -342,14 +350,15 @@ namespace Ship_Game
                 return false;
 
             them = them ?? us;
-            UnlockTechContentOnly(us, them, TrySetUnlocked());
+            bool techWasUnlocked = SetUnlockFlag();
+            UnlockTechContentOnly(us, them, techWasUnlocked);
             TriggerAnyEvents(us);
             return true;
         }
         public void UnlockWithNoBonusOption(Empire us, Empire them, bool unlockBonus)
         {
             them = them ?? us;
-            unlockBonus = unlockBonus && TrySetUnlocked();
+            unlockBonus = SetUnlockFlag() && unlockBonus;
             UnlockTechContentOnly(us, them, unlockBonus);
         }
         public void UnlockByConquest(Empire us, Empire them)
@@ -363,8 +372,18 @@ namespace Ship_Game
                 UnlockTechContentOnly(us, them);
             }
         }
-
-        bool UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
+        /// <summary>
+        /// This will unlock the content of the tech. Hulls/modules/buildings etc.
+        /// "us" is the empire the tech is being unlocked for.
+        /// "them" is the racial specific tech of a different Empire.
+        /// "bonusUnlock" sets if bonuses will unlock too.
+        /// be careful bonuses currently stack and should only be unlocked once. 
+        /// </summary>
+        /// <param name="us"></param>
+        /// <param name="them"></param>
+        /// <param name="bonusUnlock"></param>
+        /// <returns></returns>
+        void UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
         {
             DoRevealedTechs(us);
             if (bonusUnlock) UnlockBonus(us, them);
@@ -372,7 +391,6 @@ namespace Ship_Game
             UnlockTroops(us, them);
             UnLockHulls(us, them);
             UnlockBuildings(us, them);
-            return true;
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)

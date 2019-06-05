@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -193,32 +192,6 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddMolePlantedNotification(Planet wasConquered, Empire us)
-        {
-            AddNotification(new Notification
-            {
-                Pause           = false,
-                RelevantEmpire  = us,
-                Message         = Localizer.Token(1510) + wasConquered.Name,
-                ReferencedItem1 = wasConquered,
-                IconPath        = wasConquered.IconPath,
-                Action          = "SnapToPlanet"
-            }, "sd_troop_march_01");
-        }
-
-        public void AddMoleRemovedNotification(Planet wasConquered, Empire us, Empire them)
-        {
-            AddNotification(new Notification
-            {
-                Pause           = false,
-                RelevantEmpire  = us,
-                Message         = "Removed " + them.data.Traits.Singular + " agent from " + wasConquered.Name,
-                ReferencedItem1 = wasConquered,
-                IconPath        = wasConquered.IconPath,
-                Action          = "SnapToPlanet"
-            }, "sd_troop_march_01");
-        }
-
         public void AddMoneyWarning()
         {
             AddNotification(new Notification
@@ -227,17 +200,6 @@ namespace Ship_Game
                 Message  = Localizer.Token(2296),
                 IconPath = "UI/icon_warning_money"
             }, "sd_ui_notification_warning", "sd_trade_01");
-        }
-
-        public void AddNoMolesNotification(Empire us, Empire them)
-        {
-            AddNotification(new Notification
-            {
-                Pause          = false,
-                RelevantEmpire = us,
-                Message        = Localizer.Token(1508) + them.data.Traits.Singular + Localizer.Token(1509),
-                IconPath       = "NewUI/icon_planet_terran_01_mid"
-            }, "sd_troop_march_01");
         }
 
         public void AddPeacefulMergerNotification(Empire absorber, Empire target)
@@ -364,10 +326,10 @@ namespace Ship_Game
 
         private void UpdateAllPositions(bool resetTransitionTime)
         {
-            var sortedNotification = NotificationList;//.Sorted(n => -n.DestinationRect.Y);
+            Array<Notification> notifications = NotificationList;
             for (int i = 0; i < NotificationList.Count; i++)
             {
-                Notification n          = sortedNotification[i];
+                Notification n          = notifications[i];
                 n.DestinationRect       = GetNotificationRect(i);
                 n.ClickRect.X           = NotificationArea.X;
                 n.transitionElapsedTime = resetTransitionTime ? 0f : n.transitionElapsedTime;
@@ -419,7 +381,8 @@ namespace Ship_Game
                     }
                     if (n.RelevantEmpire != null)
                     {
-                        batch.Draw(ResourceManager.Flag(n.RelevantEmpire.data.Traits.FlagIndex), n.ClickRect, n.RelevantEmpire.EmpireColor);
+                        var flag = n.RelevantEmpire.data.Traits.FlagIndex;
+                        batch.Draw(ResourceManager.Flag(flag), n.ClickRect, n.RelevantEmpire.EmpireColor);
                     }
                     if (n.ShowMessage)
                     {
@@ -432,7 +395,6 @@ namespace Ship_Game
 
             }
         }
-
         public bool HandleInput(InputState input)
         {
             bool retValue = false;
@@ -502,11 +464,6 @@ namespace Ship_Game
                 UpdateAllPositions(true);
         }
 
-        public void SnapToTechScreen()
-        {
-
-        }
-
         public void SnapToCombat(Planet p)
         {
             GameAudio.SubBassWhoosh();
@@ -533,7 +490,6 @@ namespace Ship_Game
             GameAudio.SubBassWhoosh();
             if (p != null) Screen.SelectedPlanet = p;
             Screen.SelectedSystem = system;
-           // Screen.mouseWorldPos = p == null ? system.Position : p.Position;
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView);
         }
 
@@ -588,14 +544,11 @@ namespace Ship_Game
             {
                 foreach (Notification n in NotificationList)
                 {
-                    //if (n.ClickRect.Y != n.DestinationRect.Y)
-                    {
-                        n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
-                        float amount = (float)Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
-                        n.ClickRect.Y = (int)Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
-                    }
+                    n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
+                    float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
+                    n.ClickRect.Y =
+                        (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
-                    //if (GlobalStats.PauseOnNotification && this.Screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         Screen.Paused = true;
