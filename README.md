@@ -1,6 +1,6 @@
 ![banner_bb2.jpg](https://bitbucket.org/repo/4AAMq9/images/765859828-banner_bb2.jpg)
 
-# Stardrive BlackBox#
+# Stardrive BlackBox #
 This is the 15b version of the stardrive.exe decompiled from CIL into a C# project. The code decompilation errors preventing compilation were fixed and released as BlackBox gravity. Features were added much of the bugs were fixed and released as BlackBox RadicalElements. The current version in development is BlackBox Texas.
 
 Notice: We have the stardrive devs publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions. Do not use this for immoral or personal financial gain, donations requests are ok but can not be demanded or required. Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
@@ -9,9 +9,10 @@ http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c36516368
 http://store.steampowered.com/eula/eula_39190
 
 Feel free to drop in for questions, bug reports, requests and what not. 
+
 [For general mod information, installation instructions, and download please go to the ModDB page.](http://www.moddb.com/mods/deveks-mod)
 
-# Goals#
+# Goals #
 The current goal of BlackBox Texas is code refactoring and stability improvements.
 
 * 5000 ships in game
@@ -24,6 +25,9 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 ### How do I get set up for Development? ###
 
 * Install [Visual Studio 2019 Community](https://visualstudio.microsoft.com/vs/community/).
+  * Workloads Module: .NET desktop development
+  * Workloads Module: Desktop development with C++
+  * Workloads Module: Game development with C++
 * Install [Windows 8.1 SDK](https://go.microsoft.com/fwlink/p/?LinkId=323507) from Windows SDK [Archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive).
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other Mercurial client. 
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
@@ -31,7 +35,7 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * Copy the original StarDrive game files to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
 * Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
-** If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then Visual Studio did not detect Windows 8.1 SDK correctly.
+  * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then Visual Studio did not detect Windows 8.1 SDK correctly.
 
 * Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) to enjoy enhanced refactoring capabilities.
 * Please join the [discord discussion](https://discord.gg/dfvnfH4).
@@ -56,21 +60,21 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * For other feature ideas, you can join our Discord chat and talk with the team!
 
 ### Development Cycle.
-# For new features, refactors, old bug fixes  (feature)
+# For new features, refactors, old bug fixes  (feature) #
 * Create a new branch from develop.
 * When change is completed sanity test the changes.
 * For new utilities, always add NEW unit tests.
 * Changes should not crash and should be functional in a basic sense.
 * Create a pull request and wait for review. Be ready to make a few tweaks! It is easy to make a bug in this legacy codebase.
 * The pull request review should indicate what areas need further testing.
-# If no release branch exists after pull is accepted to develop (release)
+# If no release branch exists after pull is accepted to develop (release)#
 * Create a new branch based off of develop named Release.
 * Sanity test. should not crash and changed area should be functional.
 * Bug fixes should be pull requested back to develop.
 * Create a delopyment and upload to bitbucket.
 * Indicate in discord testing channel what needs to be looked at.
 * If no new issues are found create a pull request to default and check the delete branch option.
-# If bugs are found in the default branch (hot fix)
+# If bugs are found in the default branch (hot fix) #
 * Create an issue or mark existing issue as a "Blocker" for current release.
 * Post the issue in the dev channel of discord. 
 * Create a hotfix branch based on default.
