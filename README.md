@@ -27,8 +27,12 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * Install [Visual Studio 2019 Community](https://visualstudio.microsoft.com/vs/community/).
     * Workloads Module: .NET desktop development
     * Workloads Module: Desktop development with C++
+        * Component: MSVC v141 - VS 2017 C++ x64/x86 build tools (required to compile our accelerated SDNative code)
     * Workloads Module: Game development with C++
 * Install [Windows 8.1 SDK](https://go.microsoft.com/fwlink/p/?LinkId=323507) from Windows SDK [Archive](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive).
+    * Feature: Windows Software Development Kit
+    * Debugging Tools for Windows
+    * (everything else can be unticked)
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other Mercurial client. 
     * Configure SourceTree: Tools->Options->Mercurial: [v] Allow Git Subrepositories
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
@@ -36,7 +40,8 @@ Once Texas refactor has been complete, improvements to combat, smarter AI and a 
 * Copy the original StarDrive game files to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
 * Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
-    * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then Visual Studio did not detect Windows 8.1 SDK correctly.
+    * If you get this build error: "Windows 8.1 SDK is not installed", then you need to properly install Windows 8.1 SDK
+    * If you get this build error: ".. Cannot open include file: 'corecrt.h': No such file or directory ..", then you are missing MSVC v141 C++ toolchain
 
 * Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) to enjoy enhanced refactoring capabilities.
 * Please join the [discord discussion](https://discord.gg/dfvnfH4).
