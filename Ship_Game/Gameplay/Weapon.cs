@@ -376,7 +376,7 @@ namespace Ship_Game.Gameplay
         {
             if (target != null)
             {
-                if (ProjectedImpactPoint(target, out Vector2 pip) && CheckFireArc(pip))
+                if (ProjectedImpactPoint(target, out Vector2 pip) && Owner.IsInsideFiringArc(this, pip))
                 {
                     firePos = pip;
                     return true;
@@ -384,7 +384,7 @@ namespace Ship_Game.Gameplay
             }
 
             // if no target OR pip was not in arc, check if targetPos itself is in arc
-            if (CheckFireArc(targetPos))
+            if (Owner.IsInsideFiringArc(this, targetPos))
             {
                 firePos = targetPos;
                 return true;
@@ -656,13 +656,6 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        bool CheckFireArc(Vector2 targetPos, GameplayObject maybeTarget = null)
-        {
-            return maybeTarget != null
-                ? Owner.IsTargetInFireArcRange(this, maybeTarget)
-                : Owner.IsInsideFiringArc(this, targetPos);
-        }
-
         public Vector2 ProjectedBeamPoint(Vector2 source, Vector2 destination, GameplayObject target = null)
         {
             if (DamageAmount < 1)
@@ -891,7 +884,7 @@ namespace Ship_Game.Gameplay
             float off = 0f;
             if (isBeam)
             {
-                off += DamageAmount * 90 * BeamDuration * (1f / NetFireDelay);
+                off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
                 off += MassDamage * 30 * (1f / NetFireDelay);
                 off += PowerDamage * 45 * (1f / NetFireDelay);
                 off += RepulsionDamage * 45 * (1f / NetFireDelay);
@@ -950,7 +943,7 @@ namespace Ship_Game.Gameplay
             off *= m.ModuleType == ShipModuleType.Turret ? 1.25f : 1f;
 
             // FB: Field of Fire is also important
-            off *= m.FieldOfFire > 60 ? m.FieldOfFire / 60f : 1f;
+            off *= (m.FieldOfFire > RadMath.PI/3) ? (m.FieldOfFire/3) : 1f;
 
             //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             return off * OffPowerMod;

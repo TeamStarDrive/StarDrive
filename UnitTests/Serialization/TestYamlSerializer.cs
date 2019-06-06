@@ -13,11 +13,6 @@ namespace UnitTests.Serialization
     [TestClass]
     public class TestYamlSerializer
     {
-        static TestYamlSerializer()
-        {
-            Directory.SetCurrentDirectory("/Projects/BlackBox");
-        }
-
         void ParserDump(YamlParser parser)
         {
             Console.WriteLine(parser.Root.SerializedText());

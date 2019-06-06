@@ -379,7 +379,7 @@ namespace Ship_Game
             foreach (var ship in Ships)
             {
                 if (ship.AI.State != AIState.Orbit && ship.Center.InRadius(ship.Center, radius))
-                    ship.DoOrbit(planet);
+                    ship.OrderToOrbit(planet);
             }
         }
 
@@ -437,7 +437,7 @@ namespace Ship_Game
                 return CombatStatus.ClearSpace;
 
             if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
-                ship.AI.HasPriorityOrder = false;
+                ship.AI.ClearPriorityOrder();
 
             if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;

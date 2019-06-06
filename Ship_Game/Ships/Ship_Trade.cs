@@ -62,7 +62,7 @@ namespace Ship_Game.Ships
 
         public bool IsValidTradeRoute(Planet planet)
         {
-            if (TradeRoutes.Count < 2)
+            if (TradeRoutes.IsEmpty)
                 return true; // need at least 2 routes or AO for it to filter
 
             foreach (Guid g in TradeRoutes)

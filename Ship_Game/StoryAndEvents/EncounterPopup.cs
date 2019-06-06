@@ -16,13 +16,13 @@ namespace Ship_Game
 
 		public Encounter encounter;
 
-		public EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, SolarSystem tarSys, Encounter e) : base(s, 600, 600)
+		EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, Encounter e) : base(s, 600, 600)
 		{
 			screen = s;
 			encounter = e;
 			encounter.CurrentMessage = 0;
 			encounter.SetPlayerEmpire(playerEmpire);
-			encounter.SetSys(tarSys);
+			encounter.SetSys(null);
 			encounter.SetTarEmp(targetEmp);
 			fade = true;
 			IsPopup = true;
@@ -30,6 +30,12 @@ namespace Ship_Game
 			TransitionOnTime = 0.25f;
 			TransitionOffTime = 0f;
 		}
+
+        public static void Show(UniverseScreen s, Empire player, Empire them, Encounter e)
+        {
+            var screen = new EncounterPopup(s, player, them, e);
+            ScreenManager.Instance.AddScreenDeferred(screen);
+        }
 
 		public override void Draw(SpriteBatch batch)
 		{

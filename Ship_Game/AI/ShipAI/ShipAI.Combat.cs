@@ -62,7 +62,10 @@ namespace Ship_Game.AI
             TrackProjectiles.Clear();
             if (Owner.Mothership != null)
                 TrackProjectiles.AddRange(Owner.Mothership.AI.TrackProjectiles);
-            if (Owner.TrackingPower <= 0 || !hasPointDefense) return;
+            
+            if (Owner.TrackingPower <= 0 || !hasPointDefense)
+                return;
+
             // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
             foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.maxWeaponsRange))
             {
@@ -103,7 +106,9 @@ namespace Ship_Game.AI
                     }
                 }
             }
+
             UpdateTrackedProjectiles();
+
             if (Target is Ship target)
             {
                 if (target.loyalty == Owner.loyalty)
@@ -177,6 +182,7 @@ namespace Ship_Game.AI
 
                 NearByShips.Add(sw);
             }
+
             if (Target is Ship shipTarget)
             {
                 if (Owner.fleet != null && !HasPriorityOrder && !HasPriorityTarget)
@@ -217,8 +223,8 @@ namespace Ship_Game.AI
             }
 
             Ship targetShip = null;
-            if (sortedList2.Any())
-                targetShip = sortedList2.ElementAt(0).Ship;
+            if (sortedList2.Length > 0)
+                targetShip = sortedList2[0].Ship;
 
             if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars)
                 return targetShip;
@@ -359,10 +365,9 @@ namespace Ship_Game.AI
             }
         }
 
-        private void SetCombatStatus(float elapsedTime)
+        void SetCombatStatus()
         {
             float radius = GetSensorRadius(out Ship sensorShip);
-            //Vector2 senseCenter = sensorShip.Center;
             if (Owner.fleet != null)
             {
                 if (!HasPriorityTarget)
@@ -372,21 +377,10 @@ namespace Ship_Game.AI
             }
             else if (!HasPriorityTarget)
             {
-                //#if DEBUG
-                //                if (this.State == AIState.Intercept && this.Target != null)
-                //                    Log.Info(this.Target); 
-                //#endif
                 if (Owner.Mothership != null)
-                {
-                    Target = ScanForCombatTargets(sensorShip, radius);
-
-                    if (Target == null)
-                        Target = Owner.Mothership.AI.Target;
-                }
+                    Target = ScanForCombatTargets(sensorShip, radius) ?? Owner.Mothership.AI.Target;
                 else
-                {
                     Target = ScanForCombatTargets(sensorShip, radius);
-                }
             }
             else
             {
@@ -395,72 +389,54 @@ namespace Ship_Game.AI
                 else
                     ScanForCombatTargets(sensorShip, radius);
             }
-            if (State == AIState.Resupply)
+
+            if (State == AIState.Resupply || DoNotEnterCombat)
                 return;
-            if (DoNotEnterCombat) return;
+
             if (Owner.fleet != null && State == AIState.FormationWarp)
             {
                 bool doreturn = !(Owner.fleet != null && State == AIState.FormationWarp &&
-                                  Vector2.Distance(Owner.Center, Owner.fleet.Position + Owner.FleetOffset) < 15000f);
+                                  Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 15000f));
                 if (doreturn)
                     return;
             }
-            //@TODO Investigate why datanodes can be null here.
-            //Also investigate why this is here at all. 
-            //it seems to be setting the ships FleetNode value... why?? looks like a bug workaround. 
-            //if (Owner.fleet?.DataNodes != null)  
-            //    using (Owner.fleet.DataNodes.AcquireReadLock())
-            //        foreach (FleetDataNode datanode in Owner.fleet.DataNodes)
-            //        {
-            //            if (datanode?.Ship != Owner)
-            //                continue;
-            //            FleetNode = datanode;
-            //            break;
-                    //}
-            
-            if (Target == null || Owner.InCombat) return;
-            Owner.InCombatTimer = 15f;
-            if (!HasPriorityOrder && OrderQueue.NotEmpty && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
-                EnterCombat();
 
-            else if (!HasPriorityOrder)
-                EnterCombat();
-
-            else if ((Owner.IsPlatform || Owner.shipData.Role == ShipData.RoleName.station) 
-                     && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
-                EnterCombat();
-            else
+            // we have a combat target, but we're not in combat state?
+            if (Target != null && State != AIState.Combat)
             {
-                if (CombatState == CombatState.HoldPosition || OrderQueue.NotEmpty)
-                    return;
-                EnterCombat();
+                Owner.InCombatTimer = 15f;
+                if (!HasPriorityOrder)
+                    EnterCombat();
+                else if ((Owner.IsPlatform || Owner.shipData.Role == ShipData.RoleName.station)
+                         && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
+                    EnterCombat();
+                else if (CombatState != CombatState.HoldPosition && !OrderQueue.NotEmpty)
+                    EnterCombat();
             }
         }
 
-        private void EnterCombat()
+        void EnterCombat()
         {
             State = AIState.Combat;
             AddShipGoal(Plan.DoCombat);
         }
 
-        public float GetSensorRadius() => GetSensorRadius(out Ship sensorShip);
+        public float GetSensorRadius() => GetSensorRadius(out Ship _);
 
         public float GetSensorRadius(out Ship sensorShip)
         {
-            if (!UseSensorsForTargets) //this is obsolete and not needed anymore. 
+            if (!UseSensorsForTargets) // this is obsolete and not needed anymore. 
             {
-                var radius = 30000f;
                 sensorShip = Owner.Mothership ?? Owner;
-                return radius;
+                return 30000f;
             }
-
 
             if (Owner.Mothership != null)
             {
-                //get the motherships sensor status. 
+                // get the motherships sensor status. 
                 float motherRange = Owner.Mothership.AI.GetSensorRadius(out sensorShip);
 
-                //in radius of the motherships sensors then use that.
+                // in radius of the motherships sensors then use that.
                 if (Owner.Center.InRadius(sensorShip.Center, motherRange - Owner.SensorRange))
                     return motherRange;               
             }
@@ -471,7 +447,7 @@ namespace Ship_Game.AI
             
         }
 
-        private bool DoNotEnterCombat
+        bool DoNotEnterCombat
         {
             get
             {
@@ -486,7 +462,6 @@ namespace Ship_Game.AI
                 {
                     return true;
                 }
-
                 return false;
             }
         }

@@ -295,7 +295,6 @@ namespace Ship_Game
 
             if (data.FindPlanet(ship.AI.OrbitTargetGuid, out Planet toOrbit))
             {
-                ship.AI.OrbitTarget = toOrbit;
                 if (ship.AI.State == AIState.Orbit)
                     ship.AI.OrderToOrbit(toOrbit);
             }

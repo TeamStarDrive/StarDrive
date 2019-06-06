@@ -502,12 +502,6 @@ namespace Ship_Game
             return center + radians.RadiansToDirection() * circleRadius;
         }
 
-        // @todo This is just an alias for PointFromAngle... which one to keep?
-        public static Vector2 PointOnCircle(this Vector2 center, float degrees, float circleRadius)
-        {
-            return center + degrees.AngleToDirection() * circleRadius;
-        }
-
         public static Vector2 GenerateRandomPointOnCircle(this Vector2 center, float radius)
         {
             float randomAngle = RandomMath.RandomBetween(0f, 360f);

@@ -17,6 +17,7 @@ namespace Ship_Game.GameScreens
         Video Video;
         readonly VideoPlayer Player;
         readonly GameContentManager Content;
+        Texture2D Frame; // last good frame, used for looping video transition delay
 
         /// <summary>
         /// Default display rectangle. Reset to video dimensions every time `PlayVideo` is called.
@@ -52,6 +53,10 @@ namespace Ship_Game.GameScreens
                 Video = ResourceManager.LoadVideo(Content, videoPath);
                 Rect = new Rectangle(0, 0, Video.Width, Video.Height);
                 Player.IsLooped = looping;
+
+                if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
+                    Player.Volume = GlobalStats.MusicVolume;
+
                 Player.Play(Video);
             }
             catch (Exception ex)
@@ -78,6 +83,8 @@ namespace Ship_Game.GameScreens
 
         public void Stop()
         {
+            Frame = null;
+
             if (Video != null)
             {
                 Player.Stop();
@@ -94,12 +101,6 @@ namespace Ship_Game.GameScreens
         {
             if (Video != null && Player.State != MediaState.Stopped)
             {
-                // update player volume, because this object can have long lifetime
-                if (Music.IsStopped && Player.Volume.NotEqual(GlobalStats.MusicVolume))
-                {
-                    Player.Volume = GlobalStats.MusicVolume;
-                }
-
                 // pause video when game screen goes inactive
                 if (screen.IsActive && Player.State == MediaState.Paused)
                     Player.Resume();
@@ -124,10 +125,14 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, Color color)
         {
-            if (Video != null && (Player.State == MediaState.Playing || Player.State == MediaState.Paused))
+            if (Video != null && Player.State != MediaState.Stopped)
             {
-                Texture2D texture = Player.GetTexture();
-                if (texture != null) batch.Draw(texture, Rect, color);
+                // don't grab lo-fi default video thumbnail while video is looping around
+                if (Player.PlayPosition.TotalMilliseconds > 0)
+                    Frame = Player.GetTexture();
+
+                if (Frame != null)
+                    batch.Draw(Frame, Rect, color);
             }
         }
     }

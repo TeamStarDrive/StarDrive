@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
 using SynapseGaming.LightingSystem.Lights;
@@ -27,6 +29,9 @@ namespace Ship_Game
         public AudioHandle Music = new AudioHandle();
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
+
+        // Thread safe screen queue
+        SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
 
         public float exitScreenTimer
         {
@@ -74,8 +79,16 @@ namespace Ship_Game
                 GameScreens[i].UpdateViewport();
         }
 
+        // @warning This is not thread safe!
         public void AddScreen(GameScreen screen)
         {
+            if (StarDriveGame.Instance.MainThreadId != Thread.CurrentThread.ManagedThreadId)
+            {
+                Log.Error("GameScreens can only be added on the main thread! Use AddScreenDeferred!");
+                AddScreenDeferred(screen);
+                return;
+            }
+
             // @todo What is this hack doing here?
             foreach (GameScreen gs in GameScreens)
                 if (gs is DiplomacyScreen)
@@ -84,9 +97,21 @@ namespace Ship_Game
             GameScreens.Add(screen);
 
             // @note LoadContent is allowed to remove current screen as well
-            if (GraphicsDeviceService?.GraphicsDevice != null)
-                screen.LoadContent();
+            screen.LoadContent();
         }
+
+        // @note This is thread safe. Screen is added during next update of ScreenManager
+        public void AddScreenDeferred(GameScreen screen)
+        {
+            PendingScreens.PushToFront(screen);
+        }
+
+        void AddPendingScreens()
+        {
+            while (PendingScreens.TryDequeue(out GameScreen screen))
+                AddScreen(screen);
+        }
+
 
         // exits all other screens and goes to specified screen
         public void GoToScreen(GameScreen screen, bool clear3DObjects)
@@ -97,10 +122,6 @@ namespace Ship_Game
 
         public void AddScreenNoLoad(GameScreen screen)
         {
-            // @todo What is this hack doing here?
-            foreach (GameScreen gs in GameScreens)
-                if (gs is DiplomacyScreen)
-                    return;
             GameScreens.Add(screen);
         }
 
@@ -377,8 +398,8 @@ namespace Ship_Game
         public void Update(GameTime gameTime)
         {
             PerformHotLoadTasks();
-
             input.Update(gameTime);
+            AddPendingScreens();
 
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
             bool coveredByOtherScreen = false;
