@@ -472,20 +472,34 @@ namespace Ship_Game.Ships
             TroopCapacity            = 0;
             ECMValue                 = 0f;
             FTLSpoolTime             = 0f;
-            RangeForOverlay          = 0f;
             SurfaceArea              = shipData.ModuleSlots.Length;
             Mass                     = SurfaceArea;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
-            foreach (Weapon w in Weapons)
+            // @todo RangeForOverlay is already same as MaxWeaponRange!?
+            RangeForOverlay    = 0f;
+            MaxWeaponRange     = 0f;
+            AvgWeaponRange     = 0f;
+            float avgProjSpeed = 0f;
+
+            for (int i = 0; i < Weapons.Count; ++i)
             {
+                Weapon w = Weapons[i];
                 float weaponRange = w.GetModifiedRange();
                 if (weaponRange > RangeForOverlay)
                     RangeForOverlay = weaponRange;
+
+                avgProjSpeed += w.isBeam ? weaponRange * 1.5f : w.ProjectileSpeed;
             }
-            Carrier                  = CarrierBays.Create(this, ModuleSlotList);
-            Supply                   = new ShipResupply(this);
+
+            // @todo Fix range calculation
+            AvgProjectileSpeed = Weapons.IsEmpty ? 800f : avgProjSpeed / Weapons.Count;
+            MaxWeaponRange = Weapons.Count > 0 ? Weapons.FindMax(w => w.Range).Range : 0;
+            AvgWeaponRange = Weapons.Count > 0 ? Weapons.Sum(w => w.Range) / Weapons.Count : 0;
+
+            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
+            Supply  = new ShipResupply(this);
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
             ActiveInternalSlotCount  = InternalSlotCount;

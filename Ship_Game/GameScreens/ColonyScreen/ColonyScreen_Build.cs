@@ -231,7 +231,7 @@ namespace Ship_Game
                         ship.RecalculatePower();
                         ship.ShipStatusChange();
                         MaxWeaponRange = ship.MaxWeaponRange;
-                        AverageWeaponRange = ship.AverageWeaponRange;
+                        AverageWeaponRange = ship.AvgWeaponRange;
                         SelectedShip = ship;
                     }
                     topLeft.Y = entry.Y;
