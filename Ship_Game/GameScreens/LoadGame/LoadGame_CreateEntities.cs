@@ -197,7 +197,7 @@ namespace Ship_Game
                 else
                 {
                     Planet p = CreatePlanetFromPlanetSaveData(system, ring.Planet);
-                    p.Center = system.Position.PointOnCircle(p.OrbitalAngle, p.OrbitalRadius);
+                    p.Center = system.Position.PointFromAngle(p.OrbitalAngle, p.OrbitalRadius);
                     
                     foreach (Building b in p.BuildingList)
                     {

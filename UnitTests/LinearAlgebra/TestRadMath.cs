@@ -161,9 +161,9 @@ namespace UnitTests.LinearAlgebra
             Assert.AreEqual(64f % RadMath.TwoPI, (-64f).ToNormalizedRadians(), Tolerance);
         }
 
-        static Vector2 OriginalOrbitPos(Vector2 orbitAround, float orbitalAngle, float orbitRadius)
+        static Vector2 OriginalOrbitPos(Vector2 orbitAround, float orbitalRadians, float orbitRadius)
         {
-            return orbitAround.PointOnCircle(orbitalAngle, orbitRadius);
+            return orbitAround.PointFromRadians(orbitalRadians, orbitRadius);
         }
 
         [TestMethod]
@@ -172,12 +172,17 @@ namespace UnitTests.LinearAlgebra
             var pos = new Vector2(0, -100);
             float step = 5f.ToRadians();
 
+            Console.WriteLine("OrbitalOffsetRotate Basics");
+            Assert.That.Equal(0.1f, new Vector2(0,-100), RadMath.OrbitalOffsetRotate(pos, 100, 0f));
+            Assert.That.Equal(0.1f, new Vector2(0,+100), RadMath.OrbitalOffsetRotate(pos, 100, RadMath.PI));
+            Assert.That.Equal(0.1f, new Vector2(+100,0), RadMath.OrbitalOffsetRotate(pos, 100, RadMath.PI*0.5f));
+            Assert.That.Equal(0.1f, new Vector2(-100,0), RadMath.OrbitalOffsetRotate(pos, 100, RadMath.PI*1.5f));
+
             Console.WriteLine("OrbitalOffsetRotate: [-4PI to 4PI]");
             for (float a = RadMath.PI*-4; a < RadMath.PI*4; a += step)
             {
-                Console.WriteLine($"a={a:0.000}");
                 Assert.That.Equal(0.1f, OriginalOrbitPos(Vector2.Zero, a, 100),
-                    RadMath.OrbitalOffsetRotate(pos, 100, a));
+                                RadMath.OrbitalOffsetRotate(pos, 100, a));
             }
 
             Console.WriteLine("OrbitalOffsetRotate: integrate [0 to 4PI]");
