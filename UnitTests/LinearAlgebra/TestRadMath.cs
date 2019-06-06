@@ -175,7 +175,9 @@ namespace UnitTests.LinearAlgebra
             Console.WriteLine("OrbitalOffsetRotate: [-4PI to 4PI]");
             for (float a = RadMath.PI*-4; a < RadMath.PI*4; a += step)
             {
-                Assert.That.Equal(0.1f, OriginalOrbitPos(Vector2.Zero, a, 100), RadMath.OrbitalOffsetRotate(pos, 100, a));
+                Console.WriteLine($"a={a:0.000}");
+                Assert.That.Equal(0.1f, OriginalOrbitPos(Vector2.Zero, a, 100),
+                    RadMath.OrbitalOffsetRotate(pos, 100, a));
             }
 
             Console.WriteLine("OrbitalOffsetRotate: integrate [0 to 4PI]");

@@ -6,8 +6,8 @@ namespace Ship_Game
 {
     public static class Dir
     {
-        private static readonly FileInfo[]      NoFiles = new FileInfo[0];
-        private static readonly DirectoryInfo[] NoDirs  = new DirectoryInfo[0];
+        static readonly FileInfo[]      NoFiles = new FileInfo[0];
+        static readonly DirectoryInfo[] NoDirs  = new DirectoryInfo[0];
 
         // Added by RedFox - this is a safe wrapper to DirectoryInfo.GetFiles which assumes 
         //                   dir is optional and if it doesn't exist, returns empty file list
@@ -69,7 +69,7 @@ namespace Ship_Game
                 CopyDir(subdir.FullName, Path.Combine(destDirName, subdir.Name), true);
         }
 
-        private static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+        static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                                          .Replace('\\', '/');
 
         // {AppData}/StarDrive/
@@ -79,7 +79,7 @@ namespace Ship_Game
 
     public static class FileSystemExtensions
     {
-        private static readonly string AppRoot = Path.GetFullPath(".");
+        static readonly string AppRoot = Directory.GetCurrentDirectory();
 
         public static T Deserialize<T>(this FileInfo info)
         {
@@ -89,7 +89,7 @@ namespace Ship_Game
         public static T Deserialize<T>(this XmlSerializer serializer, FileInfo info)
         {
             if (!info.Exists)
-                return default(T);
+                return default;
             using (Stream stream = info.OpenRead())
                 return (T)serializer.Deserialize(stream);
         }
@@ -109,13 +109,6 @@ namespace Ship_Game
         public static string RelPath(this FileInfo info)
         {
             return info.FullName.Substring(AppRoot.Length + 1);
-        }
-
-        public static string RelPathNoExt(this FileInfo info)
-        {
-            string filePath = info.FullName.Substring(AppRoot.Length + 1);
-            int i = filePath.LastIndexOf('.');
-            return i == -1 ? filePath : filePath.Substring(0, i);
         }
 
         // Creates a clean relative file path, useful for resource loading
