@@ -298,7 +298,7 @@ namespace Ship_Game
                 OrbitalAngle += (float) Math.Asin(15.0 / OrbitalRadius);
                 if (OrbitalAngle >= 360.0f)
                     OrbitalAngle -= 360f;
-                Center = ParentSystem.Position.PointOnCircle(OrbitalAngle, OrbitalRadius);
+                Center = ParentSystem.Position.PointFromAngle(OrbitalAngle, OrbitalRadius);
             }
 
             if (ParentSystem.isVisible)
