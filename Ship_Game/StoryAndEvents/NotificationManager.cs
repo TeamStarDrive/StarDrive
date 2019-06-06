@@ -324,15 +324,16 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        private void UpdateAllPositions(bool resetTransitionTime)
+        private void UpdateAllPositions()
         {
             Array<Notification> notifications = NotificationList;
             for (int i = 0; i < NotificationList.Count; i++)
             {
-                Notification n          = notifications[i];
-                n.DestinationRect       = GetNotificationRect(i);
-                n.ClickRect.X           = NotificationArea.X;
-                n.transitionElapsedTime = resetTransitionTime ? 0f : n.transitionElapsedTime;
+                Notification n           = notifications[i];
+                n.DestinationRect        = GetNotificationRect(i);
+                n.ClickRect.X            = NotificationArea.X;
+                bool resetTransitionTime = n.transitionElapsedTime > n.transDuration;
+                n.transitionElapsedTime  = resetTransitionTime ? 0f : n.transitionElapsedTime;
             }
         }
 
@@ -340,19 +341,6 @@ namespace Ship_Game
         {
             lock (NotificationLocker)
             {
-                if (NotificationList.Count >= MaxEntriesToDisplay)  //fbedard: remove excess notifications
-                {
-                    for (int i = 0; i < NotificationList.Count; i++)
-                    {
-                        Notification n = NotificationList[i];
-                        if (n.Action == "LoadEvent" || n.Pause) continue;
-                        NotificationList.QueuePendingRemoval(n);
-                        break;
-                    }
-                    NotificationList.ApplyPendingRemovals();
-                    UpdateAllPositions(false);
-                }
-
                 for (int i = 0; i < NotificationList.Count && i <= MaxEntriesToDisplay; i++)
                 {
                     Notification n = NotificationList[i];
@@ -441,7 +429,7 @@ namespace Ship_Game
                             GameAudio.SubBassWhoosh();
                             NotificationList.QueuePendingRemoval(n);
                             recalculate = true;
-                            retValue = true;
+                            retValue    = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
                             if (GlobalStats.PauseOnNotification && n.Pause)
                                 Screen.Paused = false;
@@ -451,7 +439,7 @@ namespace Ship_Game
                 }
                 NotificationList.ApplyPendingRemovals();
                 if (recalculate)
-                    UpdateAllPositions(true);
+                    UpdateAllPositions();
             }
             return retValue;
         }
@@ -461,7 +449,7 @@ namespace Ship_Game
             NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70,
                                              ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
             lock (NotificationLocker)
-                UpdateAllPositions(true);
+                UpdateAllPositions();
         }
 
         public void SnapToCombat(Planet p)
@@ -553,6 +541,21 @@ namespace Ship_Game
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         Screen.Paused = true;
 
+                }
+                if (NotificationList.Count > MaxEntriesToDisplay)  //fbedard: remove excess notifications
+                {
+                    for (int i = 0; i < NotificationList.Count; i++)
+                    {
+                        Notification n = NotificationList[i];
+                        if (n.DestinationRect.Y != n.ClickRect.Y) break;
+                        if (n.Action == "LoadEvent"
+                            || n.Pause && GlobalStats.PauseOnNotification)
+                            continue;
+                        NotificationList.QueuePendingRemoval(n);
+                        break;
+                    }
+                    NotificationList.ApplyPendingRemovals();
+                    UpdateAllPositions();
                 }
             }
         }
