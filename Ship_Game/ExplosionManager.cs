@@ -190,7 +190,7 @@ namespace Ship_Game
             Vector3 expOnScreen = vp.Project(e.Pos.ToVec3(), projection, view, Matrix.Identity);
 
             // edge of the explosion in screen coords
-            Vector3 edgeOnScreen = vp.Project(e.Pos.PointOnCircle(90f, e.Radius).ToVec3(), projection, view, Matrix.Identity);
+            Vector3 edgeOnScreen = vp.Project(e.Pos.PointFromAngle(90f, e.Radius).ToVec3(), projection, view, Matrix.Identity);
 
             float size = edgeOnScreen.X - expOnScreen.X;
             if (size < 0.5f) return; // don't draw sub-pixel explosion

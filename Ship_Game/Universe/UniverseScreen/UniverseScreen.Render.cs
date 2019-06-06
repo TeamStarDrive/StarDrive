@@ -261,7 +261,7 @@ namespace Ship_Game
             Vector2 position = new Vector2(vector3_4.X, vector3_4.Y);
             Vector3 vector3_5 =
                 Viewport.Project(
-                    new Vector3(solarSystem.Position.PointOnCircle(90f, 25000f), 0.0f), Projection,
+                    new Vector3(solarSystem.Position.PointFromAngle(90f, 25000f), 0.0f), Projection,
                     View, Matrix.Identity);
             float num2 = Vector2.Distance(new Vector2(vector3_5.X, vector3_5.Y), position);
             Vector2 vector2 = new Vector2(position.X, position.Y);

@@ -171,7 +171,7 @@ namespace Ship_Game
                 Vector3 screenSpacePosition = viewport.Project(new Vector3(SelectedNodeList[0].FleetOffset.X
                     , SelectedNodeList[0].FleetOffset.Y, 0f), Projection, View, Matrix.Identity);
                 var screenPos = new Vector2(screenSpacePosition.X, screenSpacePosition.Y);
-                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointOnCircle(90f, (SelectedNodeList[0].Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue);
+                Vector2 radialPos = SelectedNodeList[0].FleetOffset.PointFromAngle(90f, (SelectedNodeList[0].Ship?.SensorRange ?? 500000) * OperationalRadius.RelativeValue);
                 viewport = Viewport;
                 Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                 Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -189,7 +189,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -210,7 +210,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     var insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -235,7 +235,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -257,7 +257,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -285,7 +285,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -307,7 +307,7 @@ namespace Ship_Game
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos = viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
                     Vector2 insetRadialSS = new Vector2(insetRadialPos.X, insetRadialPos.Y);
@@ -439,7 +439,7 @@ namespace Ship_Game
                     Vector3 pScreenSpace = viewport.Project(new Vector3(node.FleetOffset, 0f), Projection, View,
                         Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = node.FleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = node.FleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
@@ -484,7 +484,7 @@ namespace Ship_Game
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
                         Matrix.Identity);
                     Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    Vector2 radialPos = ship.RelativeFleetOffset.PointOnCircle(90f, radius);
+                    Vector2 radialPos = ship.RelativeFleetOffset.PointFromAngle(90f, radius);
                     viewport = Viewport;
                     Vector3 insetRadialPos =
                         viewport.Project(new Vector3(radialPos, 0f), Projection, View, Matrix.Identity);
