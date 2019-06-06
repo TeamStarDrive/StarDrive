@@ -55,25 +55,18 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    Vector2 center = new Vector2();
+                    var center = new Vector2();
                     foreach (Ship ship in OwnerEmpire.GetShips())
-                    {
-                        center = center + ship.Center;
-                    }
+                        center += ship.Center;
+                    center /= OwnerEmpire.GetShips().Count;
 
-                    center = center / OwnerEmpire.GetShips().Count;
-                    IOrderedEnumerable<Planet> sortedList =
-                        from planet in r.Key.GetPlanets()
-                        orderby Vector2.Distance(planet.Center, center)
-                        select planet;
                     var task = new MilitaryTask(OwnerEmpire);
-                    task.SetTargetPlanet(sortedList.First());
+                    task.SetTargetPlanet(r.Key.GetPlanets().FindMin(p => p.Center.SqDist(center)));
                     task.TaskTimer = 300f;
                     task.type = MilitaryTask.TaskType.CorsairRaid;
                     TaskList.Add(task);
                 }
             }
-
             return false;
         }
 
