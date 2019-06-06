@@ -11,6 +11,7 @@ else
     $zip = "C:\Projects\BlackBox\StarDrive.zip"
     $out = "C:\Projects\BlackBox\StarDrive"
 	$start_time = Get-Date
+    Write-Output "Downloading StarDrive.zip ... 2-3 minutes for 710MB"
 	#Start-FileDownload $url
     Start-BitsTransfer -Source $url -Destination $zip
 	Write-Output "Time taken: $((Get-Date).Subtract($start_time).TotalSeconds) second(s)"
