@@ -4,7 +4,7 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 # image: docker-image:tag
-image: mcr.microsoft.com/dotnet/framework/sdk
+image: microsoft/dotnet/framework
 pipelines:
   default:
     - step:
