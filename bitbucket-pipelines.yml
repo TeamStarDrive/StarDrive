@@ -4,17 +4,18 @@
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
 # image: docker-image:tag
-
+image: microsoft/dotnet:sdk
 pipelines:
   default:
     - step:
-        name: Staging
+        name: Build and Test
         deployment: Test
         script:
-        - ls
-        - echo Start
+        - dotnet restore
+        - dotnet build StarDrive.sln
+        - dotnet test UnitTests/SDUnitTests.csproj
     - step:
-        name: Manual step
+        name: Manual deploy to Sentry
         trigger: manual
         script: 
           - curl -sL https://sentry.io/get-cli/ | bash
