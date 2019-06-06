@@ -586,25 +586,9 @@ namespace Ship_Game.Ships
             return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
 
-        public float AvgProjectileSpeed
-        {
-            get
-            {
-                if (Weapons.IsEmpty)
-                    return 800f;
-                int count = 0;
-                float speed = 0f;
-                foreach (Weapon weapon in Weapons)
-                {
-                    speed += weapon.isBeam ? weapon.Range * 1.5f : weapon.ProjectileSpeed;
-                    ++count;
-                }
-                return speed / count;
-            }
-        }
-
-        public float MaxWeaponRange     => Weapons.Count > 0 ? Weapons.FindMax(w => w.Range).Range : 0;
-        public float AverageWeaponRange => Weapons.Count > 0 ? Weapons.Sum(w => w.Range) / Weapons.Count : 0;
+        public float MaxWeaponRange { get; private set; }
+        public float AvgWeaponRange { get; private set; }
+        public float AvgProjectileSpeed { get; private set; }
 
         public void SetmaxFTLSpeed()
         {
@@ -1944,25 +1928,25 @@ namespace Ship_Game.Ships
                     if (module.FixedTracking > 0 && module.FixedTracking > FixedTrackingPower)
                         FixedTrackingPower = module.FixedTracking;
 
-                    TrackingPower         += Math.Max(0, module.TargetTracking);
-                    OrdinanceMax          += module.OrdinanceCapacity;
-                    CargoSpaceMax         += module.Cargo_Capacity;
-                    InhibitionRadius      += module.InhibitionRadius;
-                    BonusEMP_Protection   += module.EMP_Protection;
-                    SensorRange            = Math.Max(SensorRange, module.SensorRange);
-                    sensorBonus            = Math.Max(sensorBonus, module.SensorBonus);
+                    TrackingPower       += Math.Max(0, module.TargetTracking);
+                    OrdinanceMax        += module.OrdinanceCapacity;
+                    CargoSpaceMax       += module.Cargo_Capacity;
+                    InhibitionRadius    += module.InhibitionRadius;
+                    BonusEMP_Protection += module.EMP_Protection;
+                    SensorRange          = Math.Max(SensorRange, module.SensorRange);
+                    sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
                     if (module.Is(ShipModuleType.Shield))
                         shield_max += module.ActualShieldPowerMax;
 
-                    Thrust              += module.thrust;
-                    WarpThrust          += module.WarpThrust;
-                    TurnThrust          += module.TurnThrust;
-                    OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
-                    HealPerTurn         += module.HealPerTurn;
-                    ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
-                    PowerStoreMax       += module.ActualPowerStoreMax;
-                    PowerFlowMax        += module.ActualPowerFlowMax;
-                    FTLSpoolTime         = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
+                    Thrust            += module.thrust;
+                    WarpThrust        += module.WarpThrust;
+                    TurnThrust        += module.TurnThrust;
+                    OrdAddedPerSecond += module.OrdnanceAddedPerSecond;
+                    HealPerTurn       += module.HealPerTurn;
+                    ECMValue           = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
+                    PowerStoreMax     += module.ActualPowerStoreMax;
+                    PowerFlowMax      += module.ActualPowerFlowMax;
+                    FTLSpoolTime       = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
