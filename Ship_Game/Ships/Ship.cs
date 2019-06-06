@@ -16,6 +16,10 @@ namespace Ship_Game.Ships
 
     public partial class Ship : GameplayObject, IDisposable
     {
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
+
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
         public Array<Troop> TroopList           = new Array<Troop>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
@@ -31,11 +35,11 @@ namespace Ship_Game.Ships
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
 
-        public Array<Weapon> Weapons          = new Array<Weapon>();
-        private float JumpTimer               = 3f;
-        public AudioEmitter SoundEmitter      = new AudioEmitter();
-        public Vector2 ScreenPosition         = new Vector2();
-        public float ScuttleTimer             = -1f;
+        public Array<Weapon> Weapons = new Array<Weapon>();
+        private float JumpTimer = 3f;
+        public AudioEmitter SoundEmitter = new AudioEmitter();
+        public Vector2 ScreenPosition;
+        public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
@@ -107,7 +111,6 @@ namespace Ship_Game.Ships
         public float ShipMass;
         public int TroopCapacity;
         public float OrdAddedPerSecond;
-        public AudioHandle DroneSfx = new AudioHandle();
         public float ShieldRechargeTimer;
         public bool InCombat;
         public float xRotation;
@@ -544,7 +547,7 @@ namespace Ship_Game.Ships
         public bool DoingRefit
         {
             get => AI.State == AIState.Refit;
-            set => Empire.Universe.ScreenManager.AddScreen(new RefitToWindow(Empire.Universe, this));
+            set => Empire.Universe.ScreenManager.AddScreenDeferred(new RefitToWindow(Empire.Universe, this));
         }
 
         public bool IsWithinPlanetaryGravityWell
@@ -686,19 +689,7 @@ namespace Ship_Game.Ships
             AI.HasPriorityOrder = true;
         }
 
-        public void AttackShip(Ship target)
-        {
-            AI.State = AIState.AttackTarget;
-            AI.Target = target;
-            AI.HasPriorityOrder = false;
-            AI.HasPriorityTarget = true;
-            InCombatTimer = 15f;
-        }
-
-        /// <summary>
-        /// forces the ship to be in combat without a target.
-        /// </summary>
-        /// <param name="timer"></param>
+        /// <summary>Forces the ship to be in combat without a target.</summary>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
         public bool InRadius(Vector2 worldPos, float radius)
@@ -738,17 +729,12 @@ namespace Ship_Game.Ships
             return target.Center.InRadius(w.Module.Center, range);
         }
 
-
         bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
-            float halfArc = w.Module.FieldOfFire / 2f;
-            float angleToTarget = (pos - w.Center).ToDegrees();
-            float facing = w.Module.Facing + Rotation.ToDegrees();
-            if (facing > 360f)
-                facing -= 360f;
-
-            float difference = Math.Abs(angleToTarget - facing);
-            return difference < halfArc;
+            float angleToTarget = w.Center.RadiansToTarget(pos);
+            float facing = w.Module.Facing.ToRadians() + Rotation;
+            float difference = Math.Abs(facing - angleToTarget);
+            return difference < (w.Module.FieldOfFire * 0.5f);
         }
 
         // Added by McShooterz
@@ -774,34 +760,6 @@ namespace Ship_Game.Ships
             return IsPosInsideArc(w, target.Center);
         }
 
-        // Added by McShooterz
-        public bool IsShipInFireArcRange(Weapon w, Ship ship)
-        {
-            ++GlobalStats.WeaponArcChecks;
-
-            Vector2 pickedPos = ship.Center;
-            float modifyRangeAr = 50f;
-            float distance = w.Module.Center.Distance(pickedPos);
-
-            if (w.MassDamage > 0 || w.RepulsionDamage > 0)
-            {
-                if (ship.EnginesKnockedOut || ship.IsTethered)
-                    return false;
-            }
-
-            if (!w.isBeam && AI.CombatState == CombatState.AttackRuns
-                && w.SalvoTimer > 0
-                && distance / w.SalvoTimer < w.Owner.Speed)
-            {
-                modifyRangeAr = Math.Max(Speed * w.SalvoTimer, 50f);
-            }
-
-            if (distance > w.GetModifiedRange() + modifyRangeAr + ship.Radius)
-                return false;
-
-            return IsPosInsideArc(w, pickedPos);
-        }
-
         // This is used by Beam weapons
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
@@ -814,21 +772,13 @@ namespace Ship_Game.Ships
             return ShipSO;
         }
 
-        public void ReturnToHangar()
-        {
-            if (Mothership == null || !Mothership.Active)
-                return;
-            AI.OrderReturnToHangar();
-        }
-
         public void ReturnHome()
         {
             AI.OrderReturnHome();
         }
 
         // ModInfo activation option for Maintenance Costs:
-
-        private bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
+        bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire)
         {
             return shipData.ShipStyle == "Remnant"
                 || empire?.data == null
@@ -911,31 +861,6 @@ namespace Ship_Game.Ships
             return GetMaintenanceCost(this, empire, numShipYards: numShipYards);
         }
 
-        public int GetTechScore(out int[] techScores) // FB: move this to ship init if possible - its a constant thing which can be calculated one time.
-        {
-            int [] scores = new int[4];
-            scores[0] = 0;
-            scores[1] = 0;
-            scores[2] = 0;
-            scores[3] = 0;
-            foreach (ShipModule module in ModuleSlotList)
-            {
-                switch (module.ModuleType) // FB: using main module type since we want the main module funcion here
-                {
-                    case ShipModuleType.Turret:
-                    case ShipModuleType.MainGun:
-                    case ShipModuleType.MissileLauncher:
-                    case ShipModuleType.Bomb:       scores[2] = Math.Max(scores[2], module.TechLevel); continue;
-                    case ShipModuleType.PowerPlant: scores[3] = Math.Max(scores[3], module.TechLevel); continue;
-                    case ShipModuleType.Engine:     scores[1] = Math.Max(scores[1], module.TechLevel); continue;
-                    case ShipModuleType.Armor:
-                    case ShipModuleType.Shield:     scores[0] = Math.Max(scores[0], module.TechLevel); continue;
-                }
-            }
-            techScores = scores;
-            return scores[0] + scores[1] + scores[3] + scores[2];
-        }
-
         public void DoEscort(Ship escortTarget)
         {
             AI.ClearOrders();
@@ -948,19 +873,7 @@ namespace Ship_Game.Ships
             AI.State = AIState.SystemDefender;
         }
 
-        public void DoDefense(SolarSystem toDefend)
-        {
-            AI.SystemToDefend = toDefend;
-            AI.State = AIState.SystemDefender;
-        }
-
-        public void DefendSystem(SolarSystem toDefend)
-        {
-            AI.State = AIState.SystemDefender;
-            AI.SystemToDefend = toDefend;
-        }
-
-        public void DoOrbit(Planet orbit)
+        public void OrderToOrbit(Planet orbit)
         {
             AI.OrderToOrbit(orbit);
         }
@@ -2240,8 +2153,6 @@ namespace Ship_Game.Ships
                     case ShipData.RoleName.capital:
                     case ShipData.RoleName.cruiser:
                     case ShipData.RoleName.station:   ExplodeShip(size * 8, true);         break;
-                    case ShipData.RoleName.freighter:
-                    case ShipData.RoleName.platform:
                     default:                          ExplodeShip(size * 8, cleanupOnly);  break;
                 }
 
@@ -2265,7 +2176,8 @@ namespace Ship_Game.Ships
             if (BaseHull.EventOnDeath != null)
             {
                 var evt = ResourceManager.EventsDict[BaseHull.EventOnDeath];
-                Empire.Universe.ScreenManager.AddScreen(new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
+                Empire.Universe.ScreenManager.AddScreenDeferred(
+                    new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
             QueueTotalRemoval();
 
@@ -2372,7 +2284,7 @@ namespace Ship_Game.Ships
 
         ~Ship() { Dispose(false); }
 
-        private void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             supplyLock?.Dispose(ref supplyLock);
             AI?.Dispose();
@@ -2395,7 +2307,7 @@ namespace Ship_Game.Ships
             Warp
         }
 
-        private float RecalculateMaxHealth()
+        float RecalculateMaxHealth()
         {
             #if DEBUG
                 bool maxHealthDebug = VanityName == "MerCraft";
@@ -2410,11 +2322,6 @@ namespace Ship_Game.Ships
                 if (maxHealthDebug) Log.Info($"Health is  {Health} / {HealthMax}");
             #endif
             return healthMax;
-        }
-
-        public float SurfaceAreaPercentOf(ShipModuleType moduleType)
-        {
-            return ModuleSlotList.SurfaceArea(moduleType) / (float)SurfaceArea;
         }
 
         public bool AnyModulesOf(ShipModuleType moduleType)
@@ -2432,7 +2339,7 @@ namespace Ship_Game.Ships
             return ModuleSlotList.Count(m => m.DeployBuildingOnColonize.NotEmpty());
         }
 
-        private ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
+        ShipData.RoleName GetDesignRole() => new RoleData(this, ModuleSlotList).DesignRole;
 
         public void MarkShipRolesUsableForEmpire(Empire empire)
         {
@@ -2548,7 +2455,8 @@ namespace Ship_Game.Ships
         // prefers VanityName, otherwise uses Name
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
-        public override string ToString() => $"Ship Id={Id} '{ShipName}' Pos {Position}  Loyalty {loyalty} Role {DesignRole}" ;
+        public override string ToString() =>
+            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {loyalty} Role {DesignRole}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
@@ -2562,6 +2470,7 @@ namespace Ship_Game.Ships
             {
                 powerTime = PowerStoreMax / -goodPowerSupply * maxFTLSpeed;
             }
+
             bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
 
             bool goodPower = shipData.BaseCanWarp && warpTimeGood ;
@@ -2595,25 +2504,26 @@ namespace Ship_Game.Ships
 
         public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
         {
-            if (maxValue <= 0)  return ShipStatus.NotApplicable;
+            if (maxValue <= 0) return ShipStatus.NotApplicable;
             if (valueToCheck > maxValue)
             {
-                Log.Info($"MaxValue of check as greater than value to check");
+                Log.Info("MaxValue of check as greater than value to check");
                 return ShipStatus.NotApplicable;
             }
 
-            var ratio = .5f + ShipStatusCount * valueToCheck / maxValue;
+            float ratio = 0.5f + ShipStatusCount * valueToCheck / maxValue;
             ratio = ratio.Clamped(1, ShipStatusCount);
             return (ShipStatus)(int)ratio;
         }
-        //if the shipstatus enum is added to then "5" will need to be changed.
-        //it should count all but "NotApplicable"
-        private const int ShipStatusCount = 6;
+
+        // if the shipstatus enum is added to then "5" will need to be changed.
+        // it should count all but "NotApplicable"
+        const int ShipStatusCount = 6;
     }
 
     public enum ShipStatus
     {
-        Critical =1,
+        Critical = 1,
         Poor,
         Average,
         Good,

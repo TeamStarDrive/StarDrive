@@ -14,11 +14,6 @@ namespace UnitTests.Serialization
     [SuppressMessage("ReSharper", "UnassignedReadonlyField")]
     public class TestYamlParser
     {
-        static TestYamlParser()
-        {
-            Directory.SetCurrentDirectory("/Projects/BlackBox");
-        }
-
         void ParserDump(YamlParser parser)
         {
             Console.WriteLine(parser.Root.SerializedText());

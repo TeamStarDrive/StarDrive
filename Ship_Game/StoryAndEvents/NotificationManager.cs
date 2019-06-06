@@ -514,7 +514,7 @@ namespace Ship_Game
             Outcome triggeredOutcome = GetRandomOutcome(evt);
 
             Empire empire = EmpireManager.Player;
-            Screen.ScreenManager.AddScreen(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
+            Screen.ScreenManager.AddScreenDeferred(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
             evt.TriggerOutcome(empire, triggeredOutcome);
         }
 

@@ -154,7 +154,7 @@ namespace Ship_Game
                 new Vector3(SelectedPlanet.Center, 2500f), Projection, View, Matrix.Identity);
             Vector2 Position1 = new Vector2(vector3_3.X, vector3_3.Y);
             Vector3 vector3_4 = Viewport.Project(
-                new Vector3(SelectedPlanet.Center.PointOnCircle(90f, radius), 2500f), Projection, View,
+                new Vector3(SelectedPlanet.Center.PointFromAngle(90f, radius), 2500f), Projection, View,
                 Matrix.Identity);
             float Radius1 = Vector2.Distance(new Vector2(vector3_4.X, vector3_4.Y), Position1);
             if (Radius1 < 8.0)
@@ -177,7 +177,7 @@ namespace Ship_Game
                     Matrix.Identity);
                 Vector2 vector2 = vector3_1.ToVec2();
                 Vector3 vector3_2 = viewport.Project(
-                    new Vector3(fogOfWarNode.Position.PointOnCircle(90f, fogOfWarNode.Radius * 1.5f), 0.0f),
+                    new Vector3(fogOfWarNode.Position.PointFromAngle(90f, fogOfWarNode.Radius * 1.5f), 0.0f),
                     Projection, View, Matrix.Identity);
                 float num = Math.Abs(new Vector2(vector3_2.X, vector3_2.Y).X - vector2.X);
                 Rectangle destinationRectangle =
@@ -199,7 +199,7 @@ namespace Ship_Game
                     //Vector2 unProject = ProjectToScreenPosition(influ.Position);
                     Vector2 screenPos = ProjectToScreenPosition(influ.Position);  //local_1.ToVec2();
                     Vector3 local_4 = viewport.Project(
-                        new Vector3(influ.Position.PointOnCircle(90f, influ.Radius * 1.5f), 0.0f), Projection,
+                        new Vector3(influ.Position.PointFromAngle(90f, influ.Radius * 1.5f), 0.0f), Projection,
                         View, Matrix.Identity);
 
                     float local_6 = Math.Abs(new Vector2(local_4.X, local_4.Y).X - screenPos.X) * 2.59999990463257f;
@@ -242,7 +242,7 @@ namespace Ship_Game
                             continue;
                         Vector2 nodePos = ProjectToScreenPosition(influ.Position);
                         int size = (int)Math.Abs(
-                            ProjectToScreenPosition(influ.Position.PointOnCircle(90f, influ.Radius)).X - nodePos.X);
+                            ProjectToScreenPosition(influ.Position.PointFromAngle(90f, influ.Radius)).X - nodePos.X);
 
                         Rectangle rect = new Rectangle((int)nodePos.X, (int)nodePos.Y, size * 5, size * 5);
                         spriteBatch.Draw(nodeCorrected, rect, empireColor, 0.0f, nodeCorrected.CenterF,
@@ -768,6 +768,9 @@ namespace Ship_Game
 
         void DrawShipUI(GameTime gameTime)
         {
+            if (DefiningAO || DefiningTradeRoutes)
+                return; // FB dont show fleet list when selected AOs and Trade Routes
+
             lock (GlobalStats.FleetButtonLocker)
             {
                 foreach (FleetButton fleetButton in FleetButtons)
@@ -950,44 +953,28 @@ namespace Ship_Game
                 if (!ship.Active)
                     continue;
 
-                var symbol = ship.GetTacticalIcon();
+                SubTexture symbol = ship.GetTacticalIcon();
 
                 float num = ship.SurfaceArea / (30f + symbol.Width);
                 float scale = num * 4000f / CamHeight;
                 if (scale > 1.0f) scale = 1f;
                 else if (scale <= 0.1f)
                     scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView
-                        ? 0.15f
-                        : 0.08f;
+                        ? 0.15f : 0.08f;
 
                 DrawTextureProjected(symbol, ship.projectedPosition, scale, CurrentGroup.ProjectedDirection.ToRadians(),
                     new Color(0, 255, 0, 100));
             }
         }
 
-        public void DrawWeaponArc(ShipModule module, Vector2 posOnScreen, float rotation)
-        {
-            Color color = GetWeaponArcColor(module.InstalledWeapon);
-            SubTexture arc = GetArcTexture(module.FieldOfFire);
-            float arcLength = ProjectToScreenSize(module.InstalledWeapon.Range);
-            DrawTextureSized(arc, posOnScreen, rotation, arcLength, arcLength, color);
-        }
-
-        public void DrawWeaponArc(Ship parent, ShipModule module)
-        {
-            float rotation = parent.Rotation + module.Facing.ToRadians();
-            Vector2 posOnScreen = ProjectToScreenPosition(module.Center);
-            DrawWeaponArc(module, posOnScreen, rotation);
-        }
-
-        private void DrawOverlay(Ship ship)
+        void DrawOverlay(Ship ship)
         {
             if (ship.InFrustum && !ship.dying && !LookingAtPlanet && ShowShipNames &&
                 viewState <= UnivScreenState.SystemView)
                 ship.DrawModulesOverlay(this);
         }
 
-        private void DrawTacticalIcon(Ship ship)
+        void DrawTacticalIcon(Ship ship)
         {
             if (!LookingAtPlanet && (!ship.IsPlatform ||
                                      ((showingFTLOverlay || viewState != UnivScreenState.GalaxyView) &&

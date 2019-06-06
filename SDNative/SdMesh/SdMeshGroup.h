@@ -43,7 +43,7 @@ namespace SdMesh
         const ushort*     IndexData;
         const rpp::byte*  VertexData;
 
-        template<class T> const T* GetOffset(SDElementUsage usage) const
+        template<class T> [[nodiscard]] const T* GetOffset(SDElementUsage usage) const
         {
             for (int i = 0; i < LayoutCount; ++i)
                 if (Layout[i].Usage == usage)

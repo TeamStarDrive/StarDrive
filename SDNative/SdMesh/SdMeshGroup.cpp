@@ -68,7 +68,7 @@ namespace SdMesh
     SDMeshGroup::SDMeshGroup(SDMesh& mesh, int groupId)
         : GroupId{ groupId }, TheMesh{ mesh }
     {
-        Name = mesh.Data[groupId].Name;
+        Name = mesh.TheMesh[groupId].Name;
         Nano::MeshGroup& group = GetGroup();
         Mat = mesh.GetOrCreateMat(group.Mat);
         if (!group.IsEmpty())
@@ -266,8 +266,8 @@ namespace SdMesh
         stride += element.Size;
     }
 
-    Nano::Mesh&      SDMeshGroup::GetMesh()  const { return TheMesh.Data; }
-    Nano::MeshGroup& SDMeshGroup::GetGroup() const { return TheMesh.Data[GroupId]; }
+    Nano::Mesh&      SDMeshGroup::GetMesh()  const { return TheMesh.TheMesh; }
+    Nano::MeshGroup& SDMeshGroup::GetGroup() const { return TheMesh.TheMesh[GroupId]; }
 
     ////////////////////////////////////////////////////////////////////////////////////
 

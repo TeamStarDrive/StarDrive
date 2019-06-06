@@ -1015,13 +1015,14 @@ namespace Ship_Game
             }
 
             if (Input.IsShiftKeyDown) // Always order orbit if shift is down when right clicking on a planet
+            {
                 ship.AI.OrderToOrbit(planet);
+            }
             else
             {
                 if (audio)
                     GameAudio.AffirmativeClick();
 
-                ship.AI.HasPriorityOrder = true;
                 if      (ship.isColonyShip)                   PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
                 else if (ship.Carrier.AnyAssaultOpsAvailable) PlanetRightClickTroopShip(ship, planet);  // This ship can assault planets
                 else if (ship.HasBombs)                       PlanetRightClickBomber(ship, planet);     // This ship can bomb planets
@@ -1082,7 +1083,7 @@ namespace Ship_Game
                     continue;
                 const float radius = 100f;
                 Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
-                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointOnCircle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
+                Vector3 buildOffSet = Viewport.Project(new Vector3(goal.BuildPosition.PointFromAngle(90f, radius), 0.0f), Projection, View, Matrix.Identity);
                 float num = Vector2.Distance(new Vector2(buildOffSet.X, buildOffSet.Y), buildPos) + 10f;
                 var underConstruction = new ClickableItemUnderConstruction
                 {

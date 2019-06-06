@@ -244,7 +244,7 @@ namespace Ship_Game
 
         void DrawArc(SpriteBatch batch, Weapon w, SlotStruct slot, Color color)
         {
-            SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire);
+            SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire.ToDegrees());
 
             var texOrigin  = new Vector2(250f, 250f);
             var size       = new Vector2(500f, 500f);
