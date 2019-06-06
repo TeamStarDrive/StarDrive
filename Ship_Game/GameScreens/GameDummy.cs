@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -28,9 +29,10 @@ namespace Ship_Game
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
 
-        public GameDummy(int width=800, int height=600, bool show=false)
+        public GameDummy(int width=800, int height=600, bool show = false)
         {
-            base.Content = Content = new GameContentManager(Services, "Game");
+            string contentDir = Path.Combine(Directory.GetCurrentDirectory(), "Content");
+            base.Content = Content = new GameContentManager(Services, "Game", contentDir);
 
             Graphics = new GraphicsDeviceManager(this)
             {
@@ -47,7 +49,7 @@ namespace Ship_Game
                 Graphics.ToggleFullScreen();
             Graphics.ApplyChanges();
 
-            Show();
+            if (show) Show();
         }
 
         public void Show()

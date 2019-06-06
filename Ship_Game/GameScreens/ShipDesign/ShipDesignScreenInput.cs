@@ -491,8 +491,8 @@ namespace Ship_Game
 
         static bool IsArcTurret(ShipModule module)
         {
-            return module.FieldOfFire > 0f
-                && module.ModuleType == ShipModuleType.Turret;
+            return module.ModuleType == ShipModuleType.Turret
+                && module.FieldOfFire > 0f;
         }
 
         bool HandleInputMoveArcs(InputState input, ShipModule highlighted)

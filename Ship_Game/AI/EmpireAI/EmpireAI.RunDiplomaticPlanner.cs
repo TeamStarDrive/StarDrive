@@ -73,11 +73,14 @@ namespace Ship_Game.AI {
                                 Offer offer2 = new Offer();
                                 offer2.TradeTreaty = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                        Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
+                                {
+                                    DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", offer2, offer1);
+                                }
                                 else
+                                {
                                     Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                }
                             }
                             AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust);
                             if (Relationship.Value.TurnsAbove95 > 100 &&
@@ -100,14 +103,14 @@ namespace Ship_Game.AI {
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(
-                                        Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2,
-                                        offer1));
-                                    continue;
+                                    DiplomacyScreen.Show(OwnerEmpire, "OFFER_ALLIANCE", offer2, offer1);
+                                }
+                                else
+                                {
+                                    Relationship.Key.GetEmpireAI()
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                                 }
 
-                                Relationship.Key.GetEmpireAI()
-                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
                                 continue;
                             }
                             else
@@ -126,11 +129,14 @@ namespace Ship_Game.AI {
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                        Empire.Universe.PlayerEmpire, "Offer NAPact", offer2, offer1));
+                                {
+                                    DiplomacyScreen.Show(OwnerEmpire, "Offer NAPact", offer2, offer1);
+                                }
                                 else
+                                {
                                     Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                }
                             }
                             if (Relationship.Value.TurnsKnown > FirstDemand && Relationship.Value.Treaty_NAPact)
                                 Relationship.Value.Posture = Posture.Friendly;
@@ -300,8 +306,7 @@ namespace Ship_Game.AI {
                     !Relationship.Value.HaveInsulted_Military && Relationship.Value.TurnsKnown > FirstDemand)
                 {
                     Relationship.Value.HaveInsulted_Military = true;
-                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                        Empire.Universe.PlayerEmpire, "Insult Military"));
+                    DiplomacyScreen.Show(OwnerEmpire, "Insult Military");
                 }
                 if (Relationship.Value.Threat > 0f || Relationship.Value.TurnsKnown <= SecondDemand ||
                     Relationship.Value.Treaty_Alliance)
@@ -401,15 +406,15 @@ namespace Ship_Game.AI {
                         {
                             TradeTreaty = true
                         };
-                        if (Relationship.Key != Empire.Universe.PlayerEmpire)
+                        if (Relationship.Key == Empire.Universe.PlayerEmpire)
+                        {
+                            DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", OurOffer, NAPactOffer);
+                        }
+                        else
                         {
                             Relationship.Key.GetEmpireAI()
                                 .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
-                            continue;
                         }
-
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                            Empire.Universe.PlayerEmpire, "Offer Trade", new Offer(), NAPactOffer));
                         continue;
                     }
                     case Posture.Neutral:
@@ -438,15 +443,15 @@ namespace Ship_Game.AI {
                                 TheirDemand.ValueToModify = new Ref<bool>(() => relationship.HaveRejectedDemandTech,
                                     x => relationship.HaveRejectedDemandTech = x);
                                 Relationship.Value.turnsSinceLastContact = 0;
-                                if (Relationship.Key != Empire.Universe.PlayerEmpire)
+
+                                if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Relationship.Key.GetEmpireAI()
-                                        .AnalyzeOffer(DemandTech, TheirDemand, OwnerEmpire, Offer.Attitude.Threaten);
+                                    DiplomacyScreen.Show(OwnerEmpire, "Xeno Demand Tech", DemandTech, TheirDemand);
                                 }
                                 else
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                        Empire.Universe.PlayerEmpire, "Xeno Demand Tech", DemandTech, TheirDemand));
+                                    Relationship.Key.GetEmpireAI()
+                                        .AnalyzeOffer(DemandTech, TheirDemand, OwnerEmpire, Offer.Attitude.Threaten);
                                 }
                             }
                         }
@@ -533,8 +538,7 @@ namespace Ship_Game.AI {
                         Relationship.Value.HaveInsulted_Military = true;
                         if (Relationship.Key == Empire.Universe.PlayerEmpire)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                Empire.Universe.PlayerEmpire, "Insult Military"));
+                            DiplomacyScreen.Show(OwnerEmpire, "Insult Military");
                         }
                     }
                     Relationship.Value.Posture = Posture.Hostile;
@@ -549,13 +553,11 @@ namespace Ship_Game.AI {
                         if (!Relationship.Value.HaveInsulted_Military ||
                             Relationship.Value.TurnsKnown <= SecondDemand)
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                Empire.Universe.PlayerEmpire, "Compliment Military"));
+                            DiplomacyScreen.Show(OwnerEmpire, "Compliment Military");
                         }
                         else
                         {
-                            Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                Empire.Universe.PlayerEmpire, "Compliment Military Better"));
+                            DiplomacyScreen.Show(OwnerEmpire, "Compliment Military Better");
                         }
                     }
                     Relationship.Value.Posture = Posture.Friendly;
@@ -582,15 +584,14 @@ namespace Ship_Game.AI {
                             {
                                 TradeTreaty = true
                             };
-                            if (Relationship.Key != Empire.Universe.PlayerEmpire)
+                            if (Relationship.Key == Empire.Universe.PlayerEmpire)
                             {
-                                Relationship.Key.GetEmpireAI()
-                                    .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
+                                DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", OurOffer, NAPactOffer);
                             }
                             else
                             {
-                                Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                    Empire.Universe.PlayerEmpire, "Offer Trade", OurOffer, NAPactOffer));
+                                Relationship.Key.GetEmpireAI()
+                                    .AnalyzeOffer(OurOffer, NAPactOffer, OwnerEmpire, Offer.Attitude.Respectful);
                             }
                         }
                         AssessAngerAggressive(Relationship, Relationship.Value.Posture, usedTrust);
@@ -614,15 +615,16 @@ namespace Ship_Game.AI {
                             SetAlliance(!value1.HaveRejected_Alliance);
                         });
                         Offer OurOffer0 = new Offer();
-                        if (Relationship.Key != Empire.Universe.PlayerEmpire)
+                        if (Relationship.Key == Empire.Universe.PlayerEmpire)
+                        {
+                            DiplomacyScreen.Show(OwnerEmpire, "OFFER_ALLIANCE", OurOffer0, OfferAlliance);
+                        }
+                        else
                         {
                             Relationship.Key.GetEmpireAI()
                                 .AnalyzeOffer(OurOffer0, OfferAlliance, OwnerEmpire, Offer.Attitude.Respectful);
-                            continue;
                         }
 
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                            Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", OurOffer0, OfferAlliance));
                         continue;
                     }
                     case Posture.Neutral:
@@ -715,11 +717,14 @@ namespace Ship_Game.AI {
                                 Offer offer2 = new Offer();
                                 offer2.TradeTreaty = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire,
-                                        Empire.Universe.PlayerEmpire, "Offer Trade", offer2, offer1));
+                                {
+                                    DiplomacyScreen.Show(OwnerEmpire, "Offer Trade", offer2, offer1);
+                                }
                                 else
+                                {
                                     Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                }
                             }
                             AssessAngerPacifist(Relationship, Posture.Friendly, usedTrust1);
                             if (Relationship.Value.TurnsAbove95 > 100 &&
@@ -742,14 +747,13 @@ namespace Ship_Game.AI {
                                 Offer offer2 = new Offer();
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
                                 {
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(
-                                        Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "OFFER_ALLIANCE", offer2,
-                                        offer1));
-                                    continue;
+                                    DiplomacyScreen.Show(OwnerEmpire, "OFFER_ALLIANCE", offer2, offer1);
                                 }
-
-                                Relationship.Key.GetEmpireAI()
-                                    .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                else
+                                {
+                                    Relationship.Key.GetEmpireAI()
+                                        .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                }
                                 continue;
                             }
                             else
@@ -768,12 +772,14 @@ namespace Ship_Game.AI {
                                 Offer offer2 = new Offer();
                                 offer2.NAPact = true;
                                 if (Relationship.Key == Empire.Universe.PlayerEmpire)
-                                    Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(
-                                        Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "Offer NAPact", offer2,
-                                        offer1));
+                                {
+                                    DiplomacyScreen.Show(OwnerEmpire, "Offer NAPact", offer2, offer1);
+                                }
                                 else
+                                {
                                     Relationship.Key.GetEmpireAI()
                                         .AnalyzeOffer(offer2, offer1, OwnerEmpire, Offer.Attitude.Respectful);
+                                }
                             }
                             if (Relationship.Value.TurnsKnown > FirstDemand && Relationship.Value.Treaty_NAPact)
                                 Relationship.Value.Posture = Posture.Friendly;

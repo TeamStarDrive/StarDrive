@@ -1131,18 +1131,19 @@ namespace Ship_Game
                 return;
             try
             {
-
                 if (Universe.PlayerEmpire == this && !e.isFaction)
                 {
-                    Universe.ScreenManager.AddScreen(new DiplomacyScreen(Universe, e, Universe.PlayerEmpire, "First Contact"));
+                    DiplomacyScreen.Show(e, "First Contact");
                 }
-                else
+                else if (Universe.PlayerEmpire == this && e.isFaction)
                 {
-                    if (Universe.PlayerEmpire != this || !e.isFaction)
-                        return;
                     foreach (Encounter e1 in ResourceManager.Encounters)
+                    {
                         if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                            Universe.ScreenManager.AddScreen(new EncounterPopup(Universe, Universe.PlayerEmpire, e, null, e1));
+                        {
+                            EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
+                        }
+                    }
                 }
             }
             catch (ArgumentException error)
@@ -2088,7 +2089,7 @@ namespace Ship_Game
                     }
                     if (allEmpiresDead)
                     {
-                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe));
+                        Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe));
                         return;
                     }
                 }
@@ -2099,7 +2100,7 @@ namespace Ship_Game
                         StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                     if (planet.HasWinBuilding)
                     {
-                        Universe.ScreenManager.AddScreen(new YouWinScreen(Universe, Localizer.Token(5085)));
+                        Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe, Localizer.Token(5085)));
                         return;
                     }
                 }
@@ -2223,7 +2224,7 @@ namespace Ship_Game
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
             StarDriveGame.Instance.EndingGame(false);
-            Universe.ScreenManager.AddScreen(new YouLoseScreen(Universe));
+            Universe.ScreenManager.AddScreenDeferred(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;
 

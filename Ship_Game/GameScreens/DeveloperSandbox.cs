@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 0;
+        const int NumOpponents = 1;
         const bool PlayerIsCybernetic = false;
         string PlayerPreference = "Kulrathi";
         DeveloperUniverse Universe;

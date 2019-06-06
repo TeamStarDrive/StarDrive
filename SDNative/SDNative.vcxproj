@@ -14,22 +14,22 @@
     <ProjectGuid>{6EFFF2A1-1BBD-4B27-B2A6-E246C7A74680}</ProjectGuid>
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>SDNative</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
     <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
     <CLRSupport>false</CLRSupport>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -48,14 +48,14 @@
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(SolutionDir)obj\$(ProjectName)$(Configuration)\</IntDir>
     <OutDir>..\StarDrive\</OutDir>
     <IncludePath>$(ProjectDir)ReCpp;$(ProjectDir)3rdparty;$(ProjectDir)3rdparty/fbxsdk;$(ProjectDir)NanoMesh/include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
+    <LibraryPath>$(ProjectDir)3rdparty/fbxsdk;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

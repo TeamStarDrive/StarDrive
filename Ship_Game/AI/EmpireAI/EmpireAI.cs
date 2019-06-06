@@ -271,15 +271,15 @@ namespace Ship_Game.AI
                 bool theyAreThereAlready = false;
                 foreach (Planet p in sharedSystem.PlanetList)
                 {
-                    if (p.Owner == null || p.Owner != Empire.Universe.PlayerEmpire)                    
-                        continue;                    
-                    theyAreThereAlready = true;
+                    if (p.Owner != null && p.Owner == Empire.Universe.PlayerEmpire)
+                        theyAreThereAlready = true;
                 }
                 if (!theyAreThereAlready)
                 {
-                    if (them.Key == Empire.Universe.PlayerEmpire)                    
-                        Empire.Universe.ScreenManager.AddScreen(new DiplomacyScreen(Empire.Universe, OwnerEmpire, Empire.Universe.PlayerEmpire, "Claim System", sharedSystem));
-                    
+                    if (them.Key == Empire.Universe.PlayerEmpire)
+                    {
+                        DiplomacyScreen.Show(OwnerEmpire, "Claim System", sharedSystem);
+                    }
                     them.Value.WarnedSystemsList.Add(sharedSystem.guid);
                 }
             }

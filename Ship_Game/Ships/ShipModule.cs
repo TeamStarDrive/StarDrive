@@ -257,7 +257,7 @@ namespace Ship_Game.Ships
             YSIZE                 = template.YSIZE;
             Mass                  = template.Mass;
             Powered               = template.Powered;
-            FieldOfFire           = template.FieldOfFire;
+            FieldOfFire           = template.FieldOfFire.ToRadians(); // @note Convert to radians for higher PERF
             Facing                = template.facing;
             XMLPosition           = template.XMLPosition;
             NameIndex             = template.NameIndex;
