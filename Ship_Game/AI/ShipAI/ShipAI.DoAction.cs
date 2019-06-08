@@ -102,7 +102,7 @@ namespace Ship_Game.AI
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange*3f))
+                && Owner.Center.OutsideRadius(Target.Center, Owner.desiredCombatRange * 3f))
             {
                 ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
                 return;
