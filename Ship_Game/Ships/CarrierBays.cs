@@ -550,7 +550,8 @@ namespace Ship_Game.Ships
 
                 if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
                 {
-                    if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
+                    // does that rangecheck even make sense or is it to stop shuttlespam from 30k+
+                    if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.desiredCombatRange))
                         ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
 
                     for (int i = 0; i < AllTroopBays.Length; i++)

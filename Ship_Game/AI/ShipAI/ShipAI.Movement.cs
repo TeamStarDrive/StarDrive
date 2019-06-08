@@ -283,7 +283,7 @@ namespace Ship_Game.AI
                 return; // WayPoint short-cut
 
             // if chasing something, and within weapons range
-            if (HasPriorityTarget && distance < Owner.maxWeaponsRange * 0.85f)
+            if (HasPriorityTarget && distance < Owner.desiredCombatRange * 0.85f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
