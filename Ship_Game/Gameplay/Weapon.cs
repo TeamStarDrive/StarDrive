@@ -49,9 +49,10 @@ namespace Ship_Game.Gameplay
 
         public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
 
-        public IEnumerable<WeaponTag> GetActiveWeaponTags()
-            => TagValues.Where(tag => (TagBits & tag) != 0);
+        [XmlIgnore][JsonIgnore] 
+        public WeaponTag[] ActiveWeaponTags;
 
+        // @note These are initialized from XML during serialization
         public bool Tag_Kinetic   { get => this[WeaponTag.Kinetic];   set => this[WeaponTag.Kinetic]   = value; }
         public bool Tag_Energy    { get => this[WeaponTag.Energy];    set => this[WeaponTag.Energy]    = value; }
         public bool Tag_Guided    { get => this[WeaponTag.Guided];    set => this[WeaponTag.Guided]    = value; }
@@ -113,8 +114,17 @@ namespace Ship_Game.Gameplay
         public float DamageAmount;
         public float ProjectileSpeed;
         public int ProjectileCount = 1;
-        public int FireArc; // misleading; this is the FireDispersionArc for cannons that do salvo fire
-        public int FireCone; // this is the fire imprecision cone, direction spread is randomized [-FireCone,+FireCone]
+
+        // for cannons that have ProjectileCount > 1, this spreads projectiles out in an arc
+        // this spreading out has a very strict pattern
+        [XmlElement(ElementName = "FireArc")]
+        public int FireDispersionArc;
+        
+        // this is the fire imprecision angle, direction spread is randomized [-FireCone,+FireCone]
+        // the cannon simply has random variability in its shots
+        [XmlElement(ElementName = "FireCone")]
+        public int FireImprecisionAngle; 
+        
         public string ProjectileTexturePath;
         public string ModelPath;
         public string WeaponType;
@@ -150,12 +160,12 @@ namespace Ship_Game.Gameplay
         public string SecondaryFire;
         public bool AltFireMode;
         public bool AltFireTriggerFighter;
-        private Weapon AltFireWeapon;
+        Weapon AltFireWeapon;
         public float OffPowerMod = 1f;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
         [XmlIgnore][JsonIgnore] public GameplayObject FireTarget { get; private set; }
-        private float TargetChangeTimer;
+        float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
@@ -163,18 +173,22 @@ namespace Ship_Game.Gameplay
         public float SalvoTimer;
 
         [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
-        private float SalvoDirection;
-        private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
-        private GameplayObject SalvoTarget;
+        float SalvoDirection;
+        float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
+        GameplayObject SalvoTarget;
         public float ECM = 0;
 
         public void InitializeTemplate()
         {
+            ActiveWeaponTags = TagValues.Where(tag => (TagBits & tag) != 0).ToArray();
+
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             fireDelay = Math.Max(0.016f, fireDelay);
             SalvoTimer = Math.Max(0, SalvoTimer);
+
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
                 SalvoSoundInterval = 9999;
+
             if (Tag_Missile)
             {
                 if (WeaponType.IsEmpty()) WeaponType = "Missile";
@@ -253,11 +267,11 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        Vector2 GetFireConeSpread(Vector2 direction)
+        Vector2 ApplyFireImprecisionAngle(Vector2 direction)
         {
-            if (FireCone <= 0)
+            if (FireImprecisionAngle <= 0)
                 return direction;
-            float spread = RandomMath2.RandomBetween(-FireCone, FireCone) * 0.5f;
+            float spread = RandomMath2.RandomBetween(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
@@ -274,22 +288,27 @@ namespace Ship_Game.Gameplay
 
         IEnumerable<FireSource> EnumFireSources(Vector2 origin, Vector2 direction)
         {
-            if (FireArc != 0)
+            if (ProjectileCount == 1) // most common case
             {
-                float degreesBetweenShots = FireArc / (float)ProjectileCount;
-                float angleToTarget = direction.ToDegrees() - FireArc * 0.5f;
+                yield return new FireSource(origin, ApplyFireImprecisionAngle(direction));
+            }
+
+            if (FireDispersionArc != 0)
+            {
+                float degreesBetweenShots = FireDispersionArc / (float)ProjectileCount;
+                float angleToTarget = direction.ToDegrees() - FireDispersionArc * 0.5f;
                 for (int i = 0; i < ProjectileCount; ++i)
                 {
                     Vector2 dir = angleToTarget.AngleToDirection();
                     angleToTarget += degreesBetweenShots;
-                    yield return new FireSource(origin, GetFireConeSpread(dir));
+                    yield return new FireSource(origin, ApplyFireImprecisionAngle(dir));
                 }
             }
             else
             {
                 for (int i = 0; i < ProjectileCount; ++i)
                 {
-                    yield return new FireSource(origin, GetFireConeSpread(direction));
+                    yield return new FireSource(origin, ApplyFireImprecisionAngle(direction));
                 }
             }
         }
@@ -726,41 +745,21 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        // @todo This requires optimization
-        public void ModifyProjectile(Projectile projectile)
+        public void ApplyDamageModifiers(Projectile projectile)
         {
             if (Owner == null)
                 return;
+
             if (Owner.loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
-            //    return;
-
             float actualShieldPenChance = 0;
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
+            }
 
-            if (Tag_Missile)   AddModifiers(WeaponTag.Missile, projectile, ref actualShieldPenChance);
-            if (Tag_Energy)    AddModifiers(WeaponTag.Energy,  projectile, ref actualShieldPenChance);
-            if (Tag_Torpedo)   AddModifiers(WeaponTag.Torpedo, projectile, ref actualShieldPenChance);
-            if (Tag_Kinetic)   AddModifiers(WeaponTag.Kinetic, projectile, ref actualShieldPenChance);
-            if (Tag_Hybrid)    AddModifiers(WeaponTag.Hybrid,  projectile, ref actualShieldPenChance);
-            if (Tag_Railgun)   AddModifiers(WeaponTag.Railgun, projectile, ref actualShieldPenChance);
-            if (Tag_Explosive) AddModifiers(WeaponTag.Explosive, projectile, ref actualShieldPenChance);
-            if (Tag_Guided)    AddModifiers(WeaponTag.Guided,    projectile, ref actualShieldPenChance);
-            if (Tag_Intercept) AddModifiers(WeaponTag.Intercept, projectile, ref actualShieldPenChance);
-            if (Tag_PD)        AddModifiers(WeaponTag.PD,        projectile, ref actualShieldPenChance);
-            if (Tag_SpaceBomb) AddModifiers(WeaponTag.SpaceBomb, projectile, ref actualShieldPenChance);
-            if (Tag_BioWeapon) AddModifiers(WeaponTag.BioWeapon, projectile, ref actualShieldPenChance);
-            if (Tag_Drone)     AddModifiers(WeaponTag.Drone,     projectile, ref actualShieldPenChance);
-            if (Tag_Subspace)  AddModifiers(WeaponTag.Subspace,  projectile, ref actualShieldPenChance);
-            if (Tag_Warp)      AddModifiers(WeaponTag.Warp,    projectile, ref actualShieldPenChance);
-            if (Tag_Cannon)    AddModifiers(WeaponTag.Cannon,  projectile, ref actualShieldPenChance);
-            if (Tag_Beam)      AddModifiers(WeaponTag.Beam,    projectile, ref actualShieldPenChance);
-            if (Tag_Bomb)      AddModifiers(WeaponTag.Bomb,    projectile, ref actualShieldPenChance);
-            if (Tag_Array)     AddModifiers(WeaponTag.Array,   projectile, ref actualShieldPenChance);
-            if (Tag_Flak)      AddModifiers(WeaponTag.Flak,    projectile, ref actualShieldPenChance);
-            if (Tag_Tractor)   AddModifiers(WeaponTag.Tractor, projectile, ref actualShieldPenChance);
-
+            // @note This is a random chance, so it cannot be pre calculated
             projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance;
         }
 

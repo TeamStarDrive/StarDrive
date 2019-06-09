@@ -48,20 +48,19 @@ namespace Ship_Game
         // Dictionaries set to ignore case actively replace the xml UID settings, if there, to the filename.
         // the dictionary uses the file name as the key for the item. Case in these cases is not useful
         static readonly Map<string, SubTexture> Textures = new Map<string, SubTexture>();
-        public static Map<string, Ship> ShipsDict                = new Map<string, Ship>();
-        public static Map<string, Technology> TechTree           = new Map<string, Technology>(GlobalStats.CaseControl);
-        static readonly Array<ToolTip> ToolTips          = new Array<ToolTip>();
-        public static Array<Encounter> Encounters                = new Array<Encounter>();
-        public static Map<string, Building> BuildingsDict        = new Map<string, Building>();
-        public static Map<string, Good> GoodsDict                = new Map<string, Good>();
-        public static Map<string, Weapon> WeaponsDict            = new Map<string, Weapon>();
+        public static Map<string, Ship> ShipsDict               = new Map<string, Ship>();
+        public static Map<string, Technology> TechTree          = new Map<string, Technology>(GlobalStats.CaseControl);
+        static readonly Array<ToolTip> ToolTips                 = new Array<ToolTip>();
+        public static Array<Encounter> Encounters               = new Array<Encounter>();
+        public static Map<string, Building> BuildingsDict       = new Map<string, Building>();
+        public static Map<string, Good> GoodsDict               = new Map<string, Good>();
         static readonly Map<string, ShipModule> ModuleTemplates = new Map<string, ShipModule>(GlobalStats.CaseControl);
-        public static Map<string, Texture2D> ProjTextDict               = new Map<string, Texture2D>();
+        public static Map<string, Texture2D> ProjTextDict       = new Map<string, Texture2D>();
 
-        public static Array<RandomItem> RandomItemsList       = new Array<RandomItem>();
+        public static Array<RandomItem> RandomItemsList = new Array<RandomItem>();
         static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
         static Array<string> TroopsDictKeys           = new Array<string>();
-        public static IReadOnlyList<string> TroopTypes        => TroopsDictKeys;
+        public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
         public static Map<string, Artifact> ArtifactsDict      = new Map<string, Artifact>();
         public static Map<string, ExplorationEvent> EventsDict = new Map<string, ExplorationEvent>(GlobalStats.CaseControl);
@@ -90,9 +89,10 @@ namespace Ship_Game
 
         public static bool TryGetTech(string techUid, out Technology tech) => TechTree.TryGetValue(techUid, out tech);
 
-        public static ExplorationEvent Event(string eventName, string defaultEvent = "default")
+        public static ExplorationEvent Event(string eventName)
         {
-            if (EventsDict.TryGetValue(eventName, out ExplorationEvent events)) return events;
+            if (EventsDict.TryGetValue(eventName, out ExplorationEvent events))
+                return events;
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
             return EventsDict["default"];
         }
@@ -212,7 +212,6 @@ namespace Ship_Game
         public static void Reset(ScreenManager manager)
         {
             manager.ResetHotLoadTargets();
-            WeaponsDict.Clear();
             TroopsDict.Clear();
             TroopsDictKeys.Clear();
             BuildingsDict.Clear();
@@ -227,8 +226,6 @@ namespace Ship_Game
             Encounters.Clear();
             EventsDict.Clear();
             RandomItemsList.Clear();
-            ProjectileMeshDict.Clear();
-            ProjTextDict.Clear();
 
             HostileFleets.Fleets.Clear();
             ShipNames.Clear();
@@ -1124,8 +1121,10 @@ namespace Ship_Game
             }
         }
 
-        static void LoadProjectileMeshes()
+        public static void LoadProjectileMeshes()
         {
+            ProjectileMeshDict.Clear();
+            ProjectileModelDict.Clear();
             const string projectileDir = "Model/Projectiles/";
             LoadProjectileMesh(projectileDir, "projLong");
             LoadProjectileMesh(projectileDir, "projTear");
@@ -1161,6 +1160,7 @@ namespace Ship_Game
 
         static void LoadProjTexts()
         {
+            ProjTextDict.Clear();
             foreach (FileInfo info in GatherFilesUnified("Model/Projectiles/textures", "xnb"))
             {
                 var tex = RootContent.Load<Texture2D>(info.CleanResPath());
@@ -1431,6 +1431,8 @@ namespace Ship_Game
             return ToolTips[tipId - 1];
         }
 
+        static readonly Map<string, Weapon> WeaponsDict = new Map<string, Weapon>();
+
         // Refactored by RedFox, gets a new weapon instance based on weapon UID
         public static Weapon CreateWeapon(string uid)
         {
@@ -1444,13 +1446,14 @@ namespace Ship_Game
             return WeaponsDict[uid];
         }
 
-        static void LoadWeapons() // Refactored by RedFox
+        public static void LoadWeapons() // Refactored by RedFox
         {
+            WeaponsDict.Clear();
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;
             foreach (var pair in LoadEntitiesWithInfo<Weapon>("Weapons", "LoadWeapons", modTechsOnly))
             {
-                Weapon wep           = pair.Entity;
-                wep.UID              = string.Intern(pair.Info.NameNoExt());
+                Weapon wep = pair.Entity;
+                wep.UID = string.Intern(pair.Info.NameNoExt());
                 WeaponsDict[wep.UID] = wep;
                 wep.InitializeTemplate();
             }
