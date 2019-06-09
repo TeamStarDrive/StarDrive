@@ -2,6 +2,7 @@ using System;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -18,6 +19,12 @@ namespace Ship_Game
         [Serialize(8)] public float ShieldPenetration;
         [Serialize(9)] public float HitPoints;
         [Serialize(10)] public float ArmourPenetration;
+    }
+
+    // @todo Find a better place for this enum
+    public enum WeaponStat
+    {
+        Damage, Range, Speed, FireDelay, Armor, Shield
     }
 
     public sealed class DTrait
@@ -82,135 +89,117 @@ namespace Ship_Game
 
     public sealed class EmpireData : IEmpireData
     {
-        public WeaponTagModifier GetWeaponTag(string weaponTag)
-        {
-            WeaponTags.TryGetValue(weaponTag, out WeaponTagModifier tag);
-            if (tag != null) return tag;
-
-            //@HACK issue. if a module has not weapon type defined it will not have a tag. 
-            //this appears to crash here with no tags. So its not absolutely a fatal error i dont think.
-            //its just a baddly defined weapon. BUT! from here we cant give a good error message.
-            //We dont know the weapon and neither does the caller. So how do we make this give a good error message?
-            tag = new WeaponTagModifier();
-            Log.Warning("Selected Module Weapon had no weapon type defined.");
-            return tag;
-        }
-
         [Serialize(0)] public SerializableDictionary<string, WeaponTagModifier> WeaponTags = new SerializableDictionary<string, WeaponTagModifier>();
         [Serialize(1)] public string WarpStart;
         [Serialize(2)] public string WarpEnd;
         [Serialize(3)] public Difficulty difficulty;
-        [Serialize(4)] public bool ModRace;
-        [Serialize(5)] public string CurrentAutoFreighter = "";
-        [Serialize(6)] public string CurrentAutoColony    = "";
-        [Serialize(7)] public string CurrentAutoScout     = "";
-        [Serialize(8)] public string CurrentConstructor   = "";
-        [Serialize(9)] public string DiplomacyDialogPath;
-        [Serialize(10)] public DTrait DiplomaticPersonality;
-        [Serialize(11)] public ETrait EconomicPersonality;
-        [Serialize(12)] public float TaxRate = 0.25f; // player modified tax rate
-        [Serialize(13)] public Array<string> ExcludedDTraits = new Array<string>();
-        [Serialize(14)] public Array<string> ExcludedETraits = new Array<string>();
-        [Serialize(15)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
-        [Serialize(16)] public string AbsorbedBy;
-        [Serialize(17)] public string StartingShip;
-        [Serialize(18)] public string StartingScout;
-        [Serialize(19)] public string PrototypeShip;
-        [Serialize(20)] public string DefaultColonyShip;
-        [Serialize(21)] public string DefaultSmallTransport;
-        [Serialize(22)] public string DefaultTroopShip;
-        [Serialize(23)] public string DefaultConstructor;
-        [Serialize(24)] public string DefaultShipyard = "Shipyard";
-        [Serialize(25)] public bool Defeated;
-        [Serialize(26)] public bool HasSecretTech;
-        [Serialize(27)] public bool RebellionLaunched;
-        [Serialize(28)] public float MilitaryScoreTotal;
-        [Serialize(29)] public int ScoreAverage;
-        [Serialize(30)] public string MusicCue;
-        [Serialize(31)] public Array<string> ResearchQueue = new Array<string>();
-        [Serialize(32)] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
-        [Serialize(33)] public float CounterIntelligenceBudget;
-        [Serialize(34)] public string PortraitName;
-        [Serialize(35)] public string RebelSing;
-        [Serialize(36)] public string RebelPlur;
-        [Serialize(37)] public int TroopNameIndex;
-        [Serialize(38)] public int TroopDescriptionIndex;
-        [Serialize(39)] public string RebelName;
-        [Serialize(40)] public bool IsRebelFaction;
-        [Serialize(41)] public RacialTrait Traits { get; set; }
-        [Serialize(42)] public byte Faction;
-        [Serialize(43)] public bool MinorRace; // @todo This is deprecated
-        [Serialize(44)] public short TurnsBelowZero;
-        [Serialize(45)] public bool Privatization;
-        [Serialize(46)] public float CivMaintMod = 1f;
-        [Serialize(47)] public float FuelCellModifier;
-        [Serialize(48)] public float FlatMoneyBonus;
-        [Serialize(49)] public float EmpireWideProductionPercentageModifier = 1f; // @todo wtf??
-        [Serialize(50)] public float FTLModifier        = 35f;
-        [Serialize(51)] public float MassModifier       = 1f;
-        [Serialize(52)] public float ArmourMassModifier = 1f;
-        [Serialize(53)] public float SubLightModifier   = 1f;
-        [Serialize(54)] public float EmpireFertilityBonus;
-        [Serialize(55)] public float SensorModifier     = 1f;
-        [Serialize(56)] public float OrdnanceEffectivenessBonus;
-        [Serialize(57)] public int ArmorPiercingBonus;
-        [Serialize(58)] public float SpoolTimeModifier        = 1.0f;
-        [Serialize(59)] public float ExplosiveRadiusReduction = 0f;
-        [Serialize(60)] public float ShieldPenBonusChance;
-        [Serialize(61)] public float SpyModifier;
-        [Serialize(62)] public float DefensiveSpyBonus;
-        [Serialize(63)] public float OffensiveSpyBonus;
-        [Serialize(64)] public float FTLPowerDrainModifier = 2f;
-        [Serialize(65)] public Array<Artifact> OwnedArtifacts = new Array<Artifact>();
-        [Serialize(66)] public int BonusFighterLevels;
-        [Serialize(67)] public float MissileDodgeChance;
-        [Serialize(68)] public float MissileHPModifier = 1f;
-        [Serialize(69)] public bool Inhibitors;
-        [Serialize(70)] public float BaseReproductiveRate = 0.01f;
+        [Serialize(4)] public string CurrentAutoFreighter = "";
+        [Serialize(5)] public string CurrentAutoColony    = "";
+        [Serialize(6)] public string CurrentAutoScout     = "";
+        [Serialize(7)] public string CurrentConstructor   = "";
+        [Serialize(8)] public string DiplomacyDialogPath;
+        [Serialize(9)] public DTrait DiplomaticPersonality;
+        [Serialize(10)] public ETrait EconomicPersonality;
+        [Serialize(11)] public float TaxRate = 0.25f; // player modified tax rate
+        [Serialize(12)] public Array<string> ExcludedDTraits = new Array<string>();
+        [Serialize(13)] public Array<string> ExcludedETraits = new Array<string>();
+        [Serialize(14)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();
+        [Serialize(15)] public string AbsorbedBy;
+        [Serialize(16)] public string StartingShip;
+        [Serialize(17)] public string StartingScout;
+        [Serialize(18)] public string PrototypeShip;
+        [Serialize(19)] public string DefaultColonyShip;
+        [Serialize(20)] public string DefaultSmallTransport;
+        [Serialize(21)] public string DefaultTroopShip;
+        [Serialize(22)] public string DefaultConstructor;
+        [Serialize(23)] public string DefaultShipyard = "Shipyard";
+        [Serialize(24)] public bool Defeated;
+        [Serialize(25)] public bool RebellionLaunched;
+        [Serialize(26)] public float MilitaryScoreTotal;
+        [Serialize(27)] public int ScoreAverage;
+        [Serialize(28)] public string MusicCue;
+        [Serialize(29)] public Array<string> ResearchQueue = new Array<string>();
+        [Serialize(30)] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
+        [Serialize(31)] public float CounterIntelligenceBudget;
+        [Serialize(32)] public string PortraitName;
+        [Serialize(33)] public string RebelSing;
+        [Serialize(34)] public string RebelPlur;
+        [Serialize(35)] public int TroopNameIndex;
+        [Serialize(36)] public int TroopDescriptionIndex;
+        [Serialize(37)] public string RebelName;
+        [Serialize(38)] public bool IsRebelFaction;
+        [Serialize(39)] public RacialTrait Traits { get; set; }
+        [Serialize(40)] public byte Faction;
+        [Serialize(41)] public bool MinorRace; // @todo This is deprecated
+        [Serialize(42)] public short TurnsBelowZero;
+        [Serialize(43)] public bool Privatization;
+        [Serialize(44)] public float CivMaintMod = 1f;
+        [Serialize(45)] public float FuelCellModifier;
+        [Serialize(46)] public float FlatMoneyBonus;
+        [Serialize(47)] public float FTLModifier        = 35f;
+        [Serialize(48)] public float MassModifier       = 1f;
+        [Serialize(49)] public float ArmourMassModifier = 1f;
+        [Serialize(50)] public float SubLightModifier   = 1f;
+        [Serialize(51)] public float EmpireFertilityBonus;
+        [Serialize(52)] public float SensorModifier     = 1f;
+        [Serialize(53)] public float OrdnanceEffectivenessBonus;
+        [Serialize(54)] public int ArmorPiercingBonus;
+        [Serialize(55)] public float SpoolTimeModifier        = 1.0f;
+        [Serialize(56)] public float ExplosiveRadiusReduction = 0f;
+        [Serialize(57)] public float ShieldPenBonusChance;
+        [Serialize(58)] public float SpyModifier;
+        [Serialize(59)] public float DefensiveSpyBonus;
+        [Serialize(60)] public float OffensiveSpyBonus;
+        [Serialize(61)] public float FTLPowerDrainModifier = 2f;
+        [Serialize(62)] public Array<Artifact> OwnedArtifacts = new Array<Artifact>();
+        [Serialize(63)] public int BonusFighterLevels;
+        [Serialize(64)] public float MissileDodgeChance;
+        [Serialize(65)] public float MissileHPModifier = 1f;
+        [Serialize(66)] public bool Inhibitors;
+        [Serialize(67)] public float BaseReproductiveRate = 0.01f;
 
-        //Added by McShooterz: power bonus
-        [Serialize(71)] public float PowerFlowMod   = 0f;
-        [Serialize(72)] public float ShieldPowerMod = 0f;
-        [Serialize(73)] public float ExperienceMod  = 0f;
+        // Added by McShooterz: power bonus
+        [Serialize(68)] public float PowerFlowMod   = 0f;
+        [Serialize(69)] public float ShieldPowerMod = 0f;
+        [Serialize(70)] public float ExperienceMod  = 0f;
 
-        //economy
-        [Serialize(74)] public float SSPBudget     = 0;
-        [Serialize(75)] public float SpyBudget     = 0;
-        [Serialize(76)] public float ShipBudget    = 0;
-        [Serialize(77)] public float ColonyBudget  = 0;
-        [Serialize(78)] public float DefenseBudget = 0;
+        // economy
+        [Serialize(71)] public float SSPBudget     = 0;
+        [Serialize(72)] public float SpyBudget     = 0;
+        [Serialize(73)] public float ShipBudget    = 0;
+        [Serialize(74)] public float ColonyBudget  = 0;
+        [Serialize(75)] public float DefenseBudget = 0;
 
-        //unlock at start
-        [Serialize(79)] public Array<string> unlockBuilding = new Array<string>();
-        [Serialize(80)] public Array<string> unlockShips    = new Array<string>();
+        // unlock at start
+        [Serialize(76)] public Array<string> unlockBuilding = new Array<string>();
+        [Serialize(77)] public Array<string> unlockShips    = new Array<string>();
 
-        //designsWeHave our techTree has techs for.
-        //sortsaves
-        [Serialize(81)] public SortButton PLSort = new SortButton();
-        [Serialize(82)] public SortButton ESSort = new SortButton();
-        [Serialize(83)] public SortButton SLSort = new SortButton();
+        // designsWeHave our techTree has techs for.
+        // sortsaves
+        [Serialize(78)] public SortButton PLSort = new SortButton();
+        [Serialize(79)] public SortButton ESSort = new SortButton();
+        [Serialize(80)] public SortButton SLSort = new SortButton();
 
-        //techTimers
-        [Serialize(84)] public short TechDelayTime    = 0;
-        [Serialize(85)] public bool  SpyMute          = false;
-        [Serialize(86)] public bool  SpyMissionRepeat = false;
-        [Serialize(87)] public float treasuryGoal     = 0.20f;
-        [Serialize(88)] public bool  AutoTaxes        = false;
-        [Serialize(89)] public float BorderTolerance  = 40f;
-        [Serialize(90)] public int   BaseShipLevel    = 0;
-        [Serialize(91)] public float PlayerTaxGoal    = .2f;
+        // techTimers
+        [Serialize(81)] public short TechDelayTime    = 0;
+        [Serialize(82)] public bool  SpyMute          = false;
+        [Serialize(83)] public bool  SpyMissionRepeat = false;
+        [Serialize(84)] public float treasuryGoal     = 0.20f;
+        [Serialize(85)] public bool  AutoTaxes        = false;
+        [Serialize(86)] public float BorderTolerance  = 40f;
+        [Serialize(87)] public int   BaseShipLevel    = 0;
 
         //FB: default assault and supply shuttles - it is not mandatory since we have a default boarding / supply shuttles in the game
-        [Serialize(92)] public string DefaultAssaultShuttle;
-        [Serialize(93)] public string DefaultSupplyShuttle;
+        [Serialize(88)] public string DefaultAssaultShuttle;
+        [Serialize(89)] public string DefaultSupplyShuttle;
 
         // FB - Thruster Colors
-        [Serialize(94)] public byte ThrustColor0R;
-        [Serialize(95)] public byte ThrustColor0G;
-        [Serialize(96)] public byte ThrustColor0B;
-        [Serialize(97)] public byte ThrustColor1R;
-        [Serialize(98)] public byte ThrustColor1G;
-        [Serialize(99)] public byte ThrustColor1B;
+        [Serialize(90)] public byte ThrustColor0R;
+        [Serialize(91)] public byte ThrustColor0G;
+        [Serialize(92)] public byte ThrustColor0B;
+        [Serialize(93)] public byte ThrustColor1R;
+        [Serialize(94)] public byte ThrustColor1G;
+        [Serialize(95)] public byte ThrustColor1B;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
 
@@ -313,5 +302,35 @@ namespace Ship_Game
 
             return data;
         }
+        
+        public float GetStatBonusForWeaponTag(WeaponStat stat, string weaponTag)
+        {
+            if (!WeaponTags.TryGetValue(weaponTag, out WeaponTagModifier tag))
+            {
+                Log.Error($"Empire '{Name}' has no WeaponTag '{weaponTag}' entry!");
+                return 0f;
+            }
+            switch (stat)
+            {
+                case WeaponStat.Damage:    return tag.Damage;
+                case WeaponStat.Range:     return tag.Range;
+                case WeaponStat.Speed:     return tag.Speed;
+                case WeaponStat.FireDelay: return tag.Rate;
+                case WeaponStat.Armor:     return tag.ArmorDamage;
+                case WeaponStat.Shield:    return tag.ShieldDamage;
+                default: return 0f;
+            }
+        }
+
+        public WeaponTagModifier TagMod(WeaponTag tag)
+        {
+            return WeaponTags[tag.ToString()];
+        }
+
+        public float GetRangeMod(WeaponTag tag)
+        {
+            return WeaponTags[tag.ToString()].Range;
+        }
+
     }
 } 
