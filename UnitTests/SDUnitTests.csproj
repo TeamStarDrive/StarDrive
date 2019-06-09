@@ -77,7 +77,8 @@
     <Compile Include="Collections\TestCollectionExt.cs" />
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
-    <Compile Include="Ship\TestWeaponTargeting.cs" />
+    <Compile Include="Ships\TestWeaponTargeting.cs" />
+    <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />

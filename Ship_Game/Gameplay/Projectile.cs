@@ -145,7 +145,7 @@ namespace Ship_Game.Gameplay
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
             ArmorPiercing         = (int)Weapon.ArmourPen;
 
-            Weapon.ModifyProjectile(this); // apply all buffs before initializing
+            Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
                 Range *= RandomMath.RandomBetween(0.9f, 1.1f);
 

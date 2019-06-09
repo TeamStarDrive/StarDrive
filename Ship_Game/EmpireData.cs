@@ -262,23 +262,21 @@ namespace Ship_Game
                 data.Traits = Traits.GetClone();
             }
 
-            // @todo This is so borked, I don't even...
-            //       Reset stuff to defaults:
+            // Reset stuff to defaults:
             data.OwnedArtifacts.Clear();
-            data.MoleList.Clear();
             data.ResearchQueue.Clear();
             data.AgentList.Clear();
+            data.MoleList.Clear();
 
             data.CounterIntelligenceBudget = 0.0f;
-            data.FlatMoneyBonus  = 0.0f;
-            data.TaxRate = 0.25f;
+            data.FlatMoneyBonus = 0.0f;
             data.TurnsBelowZero = 0;
+            data.TaxRate = 0.25f;
 
             if (data.DefaultTroopShip.IsEmpty())
             {
-                data.DefaultTroopShip = data.PortraitName + " " + "Troop";
+                data.DefaultTroopShip = data.PortraitName + " Troop";
             }
-
             return data;
         }
 

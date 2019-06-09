@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests.Ship
+namespace UnitTests.Ships
 {
     [TestClass]
     public class TestWeaponTargeting

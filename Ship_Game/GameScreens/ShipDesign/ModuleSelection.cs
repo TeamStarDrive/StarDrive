@@ -738,7 +738,7 @@ namespace Ship_Game
         static float ModifiedWeaponStat(Weapon weapon, WeaponStat stat)
         {
             float value = GetStatForWeapon(stat, weapon);
-            foreach (WeaponTag tag in weapon.GetActiveWeaponTags())
+            foreach (WeaponTag tag in weapon.ActiveWeaponTags)
                 value += value * EmpireManager.Player.data.GetStatBonusForWeaponTag(stat, tag);
             return value;
         }
