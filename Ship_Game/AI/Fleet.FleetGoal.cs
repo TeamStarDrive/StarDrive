@@ -49,24 +49,14 @@ namespace Ship_Game.AI
 
             private void DoMove(float elapsedTime)
             {
-                Vector2 vector2 = Fleet.Position.DirectionToTarget(MovePosition);
-                float num1 = 0.0f;
-                int num2 = 0;
-                foreach (Ship ship in Fleet.Ships)
-                {
-                    if (ship.FleetCombatStatus != FleetCombatStatus.Free && !ship.EnginesKnockedOut)
-                    {
-                        float num3 = Vector2.Distance(Fleet.Position + ship.FleetOffset, ship.Center);
-                        num1 += num3;
-                        ++num2;
-                    }
-                }
-                Fleet.Position += vector2 * (Fleet.Speed + 75f) * elapsedTime;
+                Vector2 dir = Fleet.Position.DirectionToTarget(MovePosition);
+                Fleet.Position += dir * (Fleet.Speed + 75f) * elapsedTime;
                 Fleet.AssembleFleet(FinalFacing.RadiansToDirection());
-                if (Vector2.Distance(Fleet.Position, MovePosition) >= 100.0f)
-                    return;
-                Fleet.Position = MovePosition;
-                Fleet.PopGoalStack();
+                if (Fleet.Position.InRadius(MovePosition, 100f))
+                {
+                    Fleet.Position = MovePosition;
+                    Fleet.PopGoalStack();
+                }
             }
         }
     }
