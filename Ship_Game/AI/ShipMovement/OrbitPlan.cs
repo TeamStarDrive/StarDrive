@@ -64,7 +64,7 @@ namespace Ship_Game.AI.ShipMovement
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
                 AI.ThrustOrWarpToPosCorrected(orbitTarget.Center, elapsedTime);
-                OrbitPos = orbitTarget.Center;
+                OrbitPos = orbitTarget.Center + OrbitOffset;
                 OrbitUpdateTimer = 0f;
                 return;
             }
@@ -82,6 +82,8 @@ namespace Ship_Game.AI.ShipMovement
                 {
                     // MAGIC STOP ships when orbiting off screen
                     Owner.Velocity = Vector2.Zero;
+                    OrbitPos = orbitTarget.Center + OrbitOffset;
+                    Owner.Center = Owner.Position = OrbitPos;
                     return;
                 }
             }
