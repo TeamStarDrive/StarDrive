@@ -92,6 +92,6 @@ namespace Ship_Game
         public TValue[] AtomicValuesArray()
         {
             lock (this) return Values.ToArray();
-        }    
+        }
     }
 }
