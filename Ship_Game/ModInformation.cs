@@ -25,7 +25,6 @@ namespace Ship_Game
         //added by McShooterz
         public bool useAlternateTech;
         public bool useHullBonuses;
-        public bool useWeaponModifiers;
         public bool removeRemnantStory;
         public bool useCombatRepair;
         public bool clearVanillaTechs;

@@ -480,7 +480,7 @@ namespace Ship_Game.Ships
 
             foreach (Weapon w in Weapons)
             {
-                float weaponRange = w.GetModifiedRange();
+                float weaponRange = w.Range;
                 if (weaponRange > RangeForOverlay)
                     RangeForOverlay = weaponRange;
             }
