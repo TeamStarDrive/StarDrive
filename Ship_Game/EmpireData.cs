@@ -89,7 +89,8 @@ namespace Ship_Game
 
     public sealed class EmpireData : IEmpireData
     {
-        [Serialize(0)] public SerializableDictionary<string, WeaponTagModifier> WeaponTags = new SerializableDictionary<string, WeaponTagModifier>();
+        [Serialize(0)] public SerializableDictionary<WeaponTag, WeaponTagModifier> WeaponTags
+                        = new SerializableDictionary<WeaponTag, WeaponTagModifier>();
         [Serialize(1)] public string WarpStart;
         [Serialize(2)] public string WarpEnd;
         [Serialize(3)] public Difficulty difficulty;
@@ -244,30 +245,8 @@ namespace Ship_Game
 
         public EmpireData()
         {
-            // @todo Mapping these by string is a bad idea. Consider using an Enum
-            WeaponTags.Add("Kinetic",   new WeaponTagModifier());
-            WeaponTags.Add("Energy",    new WeaponTagModifier());
-            WeaponTags.Add("Beam",      new WeaponTagModifier());
-            WeaponTags.Add("Hybrid",    new WeaponTagModifier());
-            WeaponTags.Add("Railgun",   new WeaponTagModifier());
-            WeaponTags.Add("Missile",   new WeaponTagModifier());
-            WeaponTags.Add("Explosive", new WeaponTagModifier());
-            WeaponTags.Add("Guided",    new WeaponTagModifier());
-            WeaponTags.Add("Intercept", new WeaponTagModifier());
-            WeaponTags.Add("PD",        new WeaponTagModifier());
-            WeaponTags.Add("Spacebomb", new WeaponTagModifier());
-            WeaponTags.Add("BioWeapon", new WeaponTagModifier());
-            WeaponTags.Add("Drone",     new WeaponTagModifier());
-            WeaponTags.Add("Torpedo",   new WeaponTagModifier());
-            WeaponTags.Add("Subspace",  new WeaponTagModifier());
-            WeaponTags.Add("Warp",      new WeaponTagModifier());
-            //added by McShooterz: added missing tags
-            WeaponTags.Add("Cannon",    new WeaponTagModifier());
-            WeaponTags.Add("Bomb",      new WeaponTagModifier());
-            //added by The Doctor: New tags
-            WeaponTags.Add("Array",     new WeaponTagModifier());
-            WeaponTags.Add("Flak",      new WeaponTagModifier());
-            WeaponTags.Add("Tractor",   new WeaponTagModifier());
+            for (int i = 0; i < Weapon.TagValues.Length; ++i)
+                WeaponTags.Add(Weapon.TagValues[i], new WeaponTagModifier());
         }
 
         public EmpireData GetClone()
@@ -302,8 +281,8 @@ namespace Ship_Game
 
             return data;
         }
-        
-        public float GetStatBonusForWeaponTag(WeaponStat stat, string weaponTag)
+
+        public float GetStatBonusForWeaponTag(WeaponStat stat, WeaponTag weaponTag)
         {
             if (!WeaponTags.TryGetValue(weaponTag, out WeaponTagModifier tag))
             {
@@ -321,16 +300,5 @@ namespace Ship_Game
                 default: return 0f;
             }
         }
-
-        public WeaponTagModifier TagMod(WeaponTag tag)
-        {
-            return WeaponTags[tag.ToString()];
-        }
-
-        public float GetRangeMod(WeaponTag tag)
-        {
-            return WeaponTags[tag.ToString()].Range;
-        }
-
     }
 } 
