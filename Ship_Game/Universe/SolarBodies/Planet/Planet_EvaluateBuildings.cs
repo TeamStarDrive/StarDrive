@@ -549,8 +549,8 @@ namespace Ship_Game
             float dps         = 0;
             if (b.isWeapon && b.Weapon.NotEmpty())
             {
-                Weapon w = ResourceManager.WeaponsDict[b.Weapon];
-                dps      = (w.DamageAmount * w.ProjectileCount  / w.fireDelay) / 500;
+                Weapon w = ResourceManager.GetWeaponTemplate(b.Weapon);
+                dps = (w.DamageAmount * w.ProjectileCount  / w.fireDelay) / 500;
                 // FB: Fortunately, salvos and beams dont work for building weapons,
                 // otherwise it would be more complicated to calc this
             }

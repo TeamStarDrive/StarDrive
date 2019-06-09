@@ -2411,10 +2411,9 @@ namespace Ship_Game.Ships
             return moduleToRepair.Repair(repairAmount);
         }
 
-        public void ApplyPackDamageModifier()
+        public void UpdatePackDamageModifier()
         {
-            float modifier     = -0.25f;
-            modifier          += 0.05f * AI.FriendliesNearby.Count;
+            float modifier = -0.25f + 0.05f * AI.FriendliesNearby.Count;
             PackDamageModifier = modifier.Clamped(-0.25f, 0.5f);
         }
 
