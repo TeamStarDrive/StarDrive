@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -641,9 +642,16 @@ namespace Ship_Game
 
         static void ApplyWeaponTagBonusToEmpire(EmpireData data, string tag, Technology.UnlockedBonus unlocked)
         {
-            WeaponTagModifier mod = data.WeaponTags[tag];
+            if (!Enum.TryParse(tag, out WeaponTag weaponTag))
+            {
+                Log.Error($"No such weapon tag type: '{tag}'");
+                return;
+            }
+
+            WeaponTagModifier mod = data.WeaponTags[weaponTag];
             switch (unlocked.BonusType)
             {
+                default: return;
                 case "Weapon_Speed"            : mod.Speed             += unlocked.Bonus; break;
                 case "Weapon_Damage"           : mod.Damage            += unlocked.Bonus; break;
                 case "Weapon_ExplosionRadius"  : mod.ExplosionRadius   += unlocked.Bonus; break;
