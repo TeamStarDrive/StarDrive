@@ -259,7 +259,7 @@ namespace Ship_Game
             WriteToConsole(ConsoleColor.Red, text);
 
             // Error triggered while in Debug mode. Check the error message for what went wrong
-             Debugger.Break();
+            Debugger.Break();
         }
 
         // write an Exception to logfile, sentry.io and debug console with an error message

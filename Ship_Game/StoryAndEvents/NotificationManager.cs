@@ -17,7 +17,7 @@ namespace Ship_Game
         private static readonly object NotificationLocker = new object();
         private BatchRemovalCollection<Notification> NotificationList =
             new BatchRemovalCollection<Notification>();
-        private float Timer;
+        private float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
         // i think we should refactor this into base and parent classes. I think it would be better to use the new goal system
         // style. More flexible i think.
@@ -170,14 +170,11 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddNotify(Technology.TriggeredEvent techEvent, string message)
-        {
+        public void AddNotify(Technology.TriggeredEvent techEvent, string message) => 
             AddNotify(ResourceManager.EventsDict[techEvent.EventUID], message);
-        }
-        public void AddNotify(Technology.TriggeredEvent techEvent)
-        {
+
+        public void AddNotify(Technology.TriggeredEvent techEvent) => 
             AddNotify(ResourceManager.EventsDict[techEvent.EventUID]);
-        }
 
         public void AddFoundSomethingInteresting(Planet p)
         {
@@ -360,7 +357,7 @@ namespace Ship_Game
                             rect.X = n.ClickRect.X + n.ClickRect.Width / 2 - iconTex.Width / 2;
                             rect.Y = n.ClickRect.Y + n.ClickRect.Height / 2 - iconTex.Height / 2;
 
-                            rect.Width = iconTex.Width;
+                            rect.Width  = iconTex.Width;
                             rect.Height = iconTex.Height;
                             batch.Draw(ResourceManager.Texture("TechIcons/techbg"), rect, Color.White);
                             batch.Draw(iconTex, rect, Color.White);
@@ -413,7 +410,7 @@ namespace Ship_Game
                                     SnapToCombat(n.ReferencedItem1 as Planet);
                                     break;
                                 case "LoadEvent":
-                                    TriggerExplorationEvent(n.ReferencedItem1 as ExplorationEvent);
+                                    ((ExplorationEvent) n.ReferencedItem1)?.TriggerExplorationEvent(Screen);
                                     break;
                                 case "ResearchScreen":
                                     ScreenManager.AddScreen(new ResearchPopup(Screen, n.ReferencedItem1 as string));
@@ -446,8 +443,9 @@ namespace Ship_Game
 
         public void ReSize()
         {
-            NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70,
-                                             ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
+            int screenWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+
+            NotificationArea = new Rectangle(screenWidth - 70, 70, 70,screenWidth - 70 - 250);
             lock (NotificationLocker)
                 UpdateAllPositions();
         }
@@ -473,6 +471,7 @@ namespace Ship_Game
             }
             Screen.SnapViewPlanet(p);
         }
+
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
         {
             GameAudio.SubBassWhoosh();
@@ -487,47 +486,14 @@ namespace Ship_Game
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 
-        public Outcome GetRandomOutcome(ExplorationEvent e)
-        {
-            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
-                .Sum(outcome => outcome.Chance);
-
-            int random = (int)RandomMath.RandomBetween(0, ranMax);
-            Outcome triggeredOutcome = new Outcome();
-            int cursor = 0;
-            foreach (Outcome outcome in e.PotentialOutcomes)
-            {
-                if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
-                    continue;
-                cursor = cursor + outcome.Chance;
-                if (random > cursor)
-                    continue;
-                triggeredOutcome = outcome;
-                outcome.AlreadyTriggered = true;
-                break;
-            }
-            return triggeredOutcome;
-        }
-
-        private void TriggerExplorationEvent(ExplorationEvent evt)
-        {
-            Outcome triggeredOutcome = GetRandomOutcome(evt);
-
-            Empire empire = EmpireManager.Player;
-            Screen.ScreenManager.AddScreenDeferred(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
-            evt.TriggerOutcome(empire, triggeredOutcome);
-        }
-
         public void Update(float elapsedTime)
         {
-            float date = Screen.StarDate;
-            string dateString = date.ToString(CultureInfo.InvariantCulture);
-            if (Timer < date && ResourceManager.EventsDict.ContainsKey(dateString))
+            if (LastStarDate < Screen.StarDate)
             {
-                Timer = date;
-                TriggerExplorationEvent(ResourceManager.EventsDict[dateString]);
+                LastStarDate = Screen.StarDate;
+                ResourceManager.EventByDate(Screen.StarDate)?.TriggerExplorationEvent(Screen);
             }
-
+            
             lock (NotificationLocker)
             {
                 foreach (Notification n in NotificationList)
@@ -548,11 +514,11 @@ namespace Ship_Game
                     {
                         Notification n = NotificationList[i];
                         if (n.DestinationRect.Y != n.ClickRect.Y) break;
-                        if (n.Action == "LoadEvent"
-                            || n.Pause && GlobalStats.PauseOnNotification)
-                            continue;
-                        NotificationList.QueuePendingRemoval(n);
-                        break;
+                        if (n.Action != "LoadEvent" && !(GlobalStats.PauseOnNotification && n.Pause))
+                        {
+                            NotificationList.QueuePendingRemoval(n);
+                            break;
+                        }
                     }
                     NotificationList.ApplyPendingRemovals();
                     UpdateAllPositions();

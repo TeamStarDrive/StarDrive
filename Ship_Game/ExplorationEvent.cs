@@ -47,5 +47,37 @@ namespace Ship_Game
                 }
             }
         }
+
+        public Outcome GetRandomOutcome()
+        {
+            int ranMax = PotentialOutcomes.Filter(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
+                .Sum(outcome => outcome.Chance);
+
+            int random = (int)RandomMath.RandomBetween(0, ranMax);
+            Outcome triggeredOutcome = new Outcome();
+            int cursor = 0;
+
+            foreach (Outcome outcome in PotentialOutcomes)
+            {
+                if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
+                    continue;
+                cursor = cursor + outcome.Chance;
+                if (random <= cursor)
+                {
+                    triggeredOutcome = outcome;
+                    outcome.AlreadyTriggered = true;
+                    break;
+                }
+            }
+            return triggeredOutcome;
+        }
+        public void TriggerExplorationEvent(UniverseScreen screen)
+        {
+            Outcome triggeredOutcome = GetRandomOutcome();
+
+            Empire empire = EmpireManager.Player;
+            screen.ScreenManager.AddScreenDeferred(new EventPopup(screen, empire, this, triggeredOutcome, false));
+            TriggerOutcome(empire, triggeredOutcome);
+        }
     }
 }

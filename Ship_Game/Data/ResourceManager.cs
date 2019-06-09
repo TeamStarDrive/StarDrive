@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -96,6 +97,14 @@ namespace Ship_Game
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
             return EventsDict["default"];
         }
+        /// <summary>
+        /// No Error logging on eventDates. returns an event named for the dateString passed.
+        /// Else returns null.
+        /// </summary>
+        /// <param name="eventDate"></param>
+        /// <returns></returns>
+        public static ExplorationEvent EventByDate(float starDate) =>
+            EventsDict.TryGetValue(starDate.ToString(CultureInfo.InvariantCulture), out ExplorationEvent events) ? events : null;
 
         // This is used for lazy-loading content triggers
         public static int ContentId { get; private set; }
