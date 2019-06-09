@@ -129,7 +129,6 @@ namespace Ship_Game.Ships
         private float updateTimer;
         public float WarpThrust;
         public float TurnThrust;
-        public float maxWeaponsRange;
         public float MoveModulesTimer;
         public float HealPerTurn;
         private bool UpdatedModulesOnce;
@@ -585,8 +584,6 @@ namespace Ship_Game.Ships
             float travelFTL   = distanceFTL / GetmaxFTLSpeed;
             return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
-
-        // public float MaxWeaponRange { get; private set; }
 
         public void SetmaxFTLSpeed()
         {
@@ -1239,35 +1236,30 @@ namespace Ship_Game.Ships
 
         struct Ranger
         {
-            private int count;
-            private float rangeBase;
-            private float damageBase;
+            private int Count;
+            private float BaseRange;
+            private float BaseDamage;
 
             public float AverageDPS; // renamed from AverageDamage, name was misleading.
             public float AverageRange;
 
             public void AddRange(Weapon w)
             {
-                count++;
+                Count++;
                 if (w.isBeam)
-                    // out of date dps calc, commented out.
-                    //damageBase += w.DamageAmount * w.BeamDuration / Math.Max(w.fireDelay - w.BeamDuration, 1);
-                    damageBase += w.DamageAmount * w.BeamDuration / w.NetFireDelay;
+                    BaseDamage += w.DamageAmount * w.BeamDuration / w.NetFireDelay;
                 else
-                    // out of date dps calc, commented out.
-                    // damageBase += w.DamageAmount * w.SalvoCount * w.ProjectileCount / w.fireDelay;
-                    damageBase += w.DamageAmount * w.SalvoCount * w.ProjectileCount / w.NetFireDelay;
-                rangeBase += w.Range;
-                AverageDPS = damageBase / count; // but this stuff does not matter, nothing is using averagedps.
-                AverageRange = rangeBase / count;
+                    BaseDamage += w.DamageAmount * w.SalvoCount * w.ProjectileCount / w.NetFireDelay;
+                BaseRange += w.Range;
+                AverageDPS = BaseDamage / (float)Count;
+                AverageRange = BaseRange / (float)Count;
             }
         }
 
-        public float WeaponsMaxRange;
-        public float WeaponsMinRange;
-        public float WeaponsAvgRange;
+        public float WeaponsMaxRange { get; private set; }
+        public float WeaponsMinRange { get; private set; }
+        public float WeaponsAvgRange { get; private set; }
 
-        public float WeaponAvgRange { get; private set; }
         public float AvgProjectileSpeed { get; private set; }
 
         // set the min and max weaponranges based on "real" damagedealing weapons installed. Not utility/repair/truePD
@@ -1290,9 +1282,10 @@ namespace Ship_Game.Ships
             float sum = 0f;
             int filteredCount = 0; // count things that are not truepd and not utility.
             Weapon w; float wr;
-            for (int i = 0; i < Weapons.Count; i++)
+            for (int i=0; i < Weapons.Count; i++)
             {
-                w = Weapons[i]; wr = w.Range;
+                w = Weapons[i];
+                wr = w.Range; // one: it is shorter, two: don't know the compiler/optimizer capabilities.
                 // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
                 if (w.DamageAmount < 0.1f || w.TruePD) continue;
                 if (wr > longestWeaponRange) longestWeaponRange = wr;
@@ -1305,7 +1298,7 @@ namespace Ship_Game.Ships
             WeaponsAvgRange = sum / (float)filteredCount;
         }
 
-        public float desiredCombatRange;
+        public float desiredCombatRange; // replaces the role of maxWeaponsRange.
         /*
          * A word of warning. Distances are often measured between owning ship center and target (a specific module on another ship).
          * For the purposes of having a good shipglobal "maxWeaponsRange" for purposes of desired combat range, rough
@@ -1315,21 +1308,21 @@ namespace Ship_Game.Ships
          * */
         private float CalcDesiredDesiredCombatRange()
         {
-            float unarmedRange = 10000f; // also used as evaderange
+            const float unarmedRange = 10000f; // also used as evaderange
             if (Weapons.Count == 0) return unarmedRange;
 
             float almostMaxRange = WeaponsMaxRange * 0.85f;
 
             float rangeAverage = 0f, highrangeAverage = 0f, lowrangeAverage = 0f;
             float lowestHigh = WeaponsMaxRange;
-            int count=0, longrangeCount = 0, lowrangeCount=0;
-            Weapon w; float wr;
-            for (int i=0; i<Weapons.Count;i++)
+            int nonUtilityCount=0, longrangeCount = 0, lowrangeCount=0;
+            for (int i=0; i < Weapons.Count; i++)
             {
-                w = Weapons[i]; wr = w.Range;
+                Weapon w=Weapons[i];
+                float wr = w.Range;
                 // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
-                if (w.DamageAmount < 0.1f || w.TruePD) continue;
-                if (Weapons[i].Range>=almostMaxRange)
+                if (w.DamageAmount < 0.1f || w.TruePD) continue; 
+                if (wr >= almostMaxRange)
                 {
                     highrangeAverage += wr;
                     if (wr < lowestHigh) lowestHigh = wr;
@@ -1339,10 +1332,10 @@ namespace Ship_Game.Ships
                     lowrangeAverage += wr;
                     lowrangeCount++;
                 }
-                count++;
+                nonUtilityCount++;
                 rangeAverage += wr;
             }
-            rangeAverage /= (float)count; // unweighted average range of every actual weapon. This is too crude to be useful.
+            rangeAverage /= (float)nonUtilityCount; // unweighted average range of every actual weapon.
             highrangeAverage /= (float)longrangeCount; 
             lowrangeAverage /= (float)lowrangeCount;
 
@@ -1354,7 +1347,7 @@ namespace Ship_Game.Ships
                 case CombatState.Artillery:
                     return highrangeAverage; // maybe use 'lowestHigh'. design issue what to pick: Max OR average of the top x% OR lowest of the top x%.
                 case CombatState.ShortRange:
-                    return (WeaponsMinRange + lowrangeAverage) * 0.5f; // design choice again. Estimate vs the absolute minimum.
+                    return (WeaponsMinRange + lowrangeAverage) * 0.5f; // choice again. Best depends hugely on weapon mix. Real minimum, or estimate.
                 case CombatState.Evade:
                     return unarmedRange;
                 case CombatState.HoldPosition:
@@ -1364,78 +1357,12 @@ namespace Ship_Game.Ships
             return lowestHigh; // not happy with it, but it is here as catchall.
         }
 
-        private float Old_CalculateMaxWeaponsRange()
-        {
-            if (Weapons.Count == 0)
-                return 7500f;
-
-            float minRange = float.MaxValue;
-            float maxRange = 0;
-            float avgRange = 0;
-            int noDamage   = 0;
-            foreach (Weapon w in Weapons)
-            {
-                maxRange = Math.Max(w.Range, maxRange);
-                minRange = Math.Min(w.Range, minRange);
-                if (w.DamageAmount < 1 || w.TruePD)
-                    ++noDamage;
-
-                avgRange += w.Range;
-            }
-
-            avgRange /= Weapons.Count;
-
-            // FB - return the range of most weapons, if they are close to the max range of the ship, good for player ships as well as AI ships
-            if (avgRange > maxRange * 0.85f)
-                return avgRange;
-
-            if (loyalty.isPlayer) // FB - Don't mess with player ships)
-                return AI?.CombatState == CombatState.Artillery ? maxRange * 0.9f : minRange * 0.9f;
-
-            bool ignoreDamage = noDamage / (Weapons.Count + 1f) > 0.75f; // see if most weapons are PD or do not do damage
-            Ranger shortRange = new Ranger();
-            Ranger longRange  = new Ranger();
-            Ranger utility    = new Ranger();
-
-            foreach (var w in Weapons)
-            {
-                if (w.DamageAmount < 1)
-                {
-                    utility.AddRange(w);
-                    if (ignoreDamage)
-                        continue;
-                }
-
-                if (w.Range < avgRange)
-                    shortRange.AddRange(w);
-                else
-                    longRange.AddRange(w);
-            }
-
-            if (ignoreDamage)
-                return utility.AverageRange;
-
-            float avgLongRangeDamage = longRange.AverageDPS;
-            float avgShotRangeDamage = shortRange.AverageDPS;
-
-            // FB- If the ship is set to artillery - give the best range which its most of its long range weapons can fire
-            // If the ship can do more damage in longer range, let it fire from longer range - good for AI empires
-            if (AI?.CombatState == CombatState.Artillery
-                || AI?.CombatState != CombatState.ShortRange && avgLongRangeDamage > avgShotRangeDamage)
-            {
-                return longRange.AverageRange;
-            }
-
-            return shortRange.AverageRange;
-        }
-
         public void UpdateShipStatus(float deltaTime)
         {
-            if (!Empire.Universe.Paused 
-                && velocityMaximum <= 0f
-                && !shipData.IsShipyard 
-                && shipData.Role <= ShipData.RoleName.station)
-                Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f); // why in hell is the rotation random??
+            if (!Empire.Universe.Paused && velocityMaximum <= 0f && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
+            {
+                Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f); // change random to constant, what good does random do here?
+            }
 
             MoveModulesTimer -= deltaTime;
             updateTimer -= deltaTime;
@@ -1446,8 +1373,10 @@ namespace Ship_Game.Ships
 
                 EMPdisabled = EMPDamage > EmpTolerance;
             }
+
+            // keep rotation in 0 < angle < 2 pi. Radians of course. Perhaps move into the shipyard rotater at the top?
             if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
-            if (Rotation < 0f) Rotation += 6.28318548202515f;
+            else if (Rotation < 0f) Rotation += 6.28318548202515f; // added else. Only need to check the other condition if the first fails.
 
             if (!EMPdisabled && hasCommand)
             {
@@ -1977,27 +1906,6 @@ namespace Ship_Game.Ships
 
         public void AddShipHealth(float addHealth) => Health = (Health + addHealth).Clamped(0, HealthMax);
 
-        /* this has to change. It is a full, unconditional recalc, iterating over every module
-         * and at the end doing a strength and range recalc both of which are also quite espensive. 
-         * 
-         * Really need smaller and conditional updaters and only call this as a last resort / failsafe.
-         * 
-         * Current call chain: here <- UpdateAlive(float) <- Update(float) ...
-         * It does too much work for how much it gets called (many things call Ship_Game.Ships.Ship.Update(float))
-         * 
-         * Module status changes should trigger a call to this. 
-         *      module death, 
-         *      module ressed by repair, 
-         *      module losing power coverage
-         *      module gaining power coverage
-         *      NOT
-         *          module health changes.
-         * 
-         * Die might need to call this.
-         * 
-         * Most other things do not need a recalc that is this heavy.
-         * I came in looking for who writes to weaponsMaxRange...
-         */
         public void ShipStatusChange()
         {
             shipStatusChanged = false;
@@ -2026,9 +1934,7 @@ namespace Ship_Game.Ships
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
 
-            bool hasLoyalty = loyalty != null; // reused a lot and it module independent -> moved outside loop.
-            // long story short do not count on compiler to optimize - you can not rely on it to have the analytical capacity
-            // to know that a public like loyalty won't change during this. But we can.
+            bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
             foreach (ShipModule module in ModuleSlotList)
             {
@@ -2074,15 +1980,15 @@ namespace Ship_Game.Ships
                     if (module.Is(ShipModuleType.Shield))
                         shield_max += module.ActualShieldPowerMax;
 
-                    Thrust            += module.thrust;
-                    WarpThrust        += module.WarpThrust;
-                    TurnThrust        += module.TurnThrust;
-                    OrdAddedPerSecond += module.OrdnanceAddedPerSecond;
-                    HealPerTurn       += module.HealPerTurn;
-                    ECMValue           = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
-                    PowerStoreMax     += module.ActualPowerStoreMax;
-                    PowerFlowMax      += module.ActualPowerFlowMax;
-                    FTLSpoolTime       = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
+                    Thrust              += module.thrust;
+                    WarpThrust          += module.WarpThrust;
+                    TurnThrust          += module.TurnThrust;
+                    OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
+                    HealPerTurn         += module.HealPerTurn;
+                    ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
+                    PowerStoreMax       += module.ActualPowerStoreMax;
+                    PowerFlowMax        += module.ActualPowerFlowMax;
+                    FTLSpoolTime         = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
@@ -2118,7 +2024,6 @@ namespace Ship_Game.Ships
             }
             CurrentStrength = CalculateShipStrength();
             desiredCombatRange = CalcDesiredDesiredCombatRange();
-//            maxWeaponsRange = Old_CalculateMaxWeaponsRange();
         }
 
         public bool IsTethered => TetheredTo != null;

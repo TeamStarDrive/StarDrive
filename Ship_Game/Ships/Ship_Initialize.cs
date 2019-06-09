@@ -488,15 +488,15 @@ namespace Ship_Game.Ships
             RangeForOverlay = WeaponsMaxRange;
 
             // projectile average speed sanitized a bit. Does not see much use. Must get wierd if you mix projectile/missile and longrange beam.
-            int wc = 0;
+            int nonUtilityCount = 0;
             for (int i = 0; i < Weapons.Count; ++i)
             {
                 Weapon w = Weapons[i];
                 if (w.DamageAmount < 0.1f) continue; // skip the nondamaging ones since this is for prediction against enemies.
-                wc++;
+                nonUtilityCount++;
                 avgProjSpeed += w.isBeam ? w.Range : w.ProjectileSpeed;
             }
-            AvgProjectileSpeed = Weapons.IsEmpty ? 800f : avgProjSpeed / (float)wc;
+            AvgProjectileSpeed = Weapons.IsEmpty ? 800f : avgProjSpeed / (float)nonUtilityCount;
 
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
