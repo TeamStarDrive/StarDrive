@@ -40,9 +40,8 @@ namespace Ship_Game
                 
                 foreach (string key in e.data.WeaponTags.Keys)
                 {
-                    if (sdata.empireData.WeaponTags.ContainsKey(key))
-                        continue;
-                    sdata.empireData.WeaponTags.Add(key, new WeaponTagModifier());
+                    if (!sdata.empireData.WeaponTags.ContainsKey(key))
+                        sdata.empireData.WeaponTags.Add(key, new WeaponTagModifier());
                 }
                 e.data = sdata.empireData;
                 

@@ -10,6 +10,10 @@ namespace Ship_Game.Ships
 {
     public sealed class ShipModule : GameplayObject
     {
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! ShipModule must not be serialized! Add [XmlIgnore][JsonIgnore] to `public ShipModule XXX;` PROPERTIES/FIELDS. {this}");
+
         //private static int TotalModules = 0;
         //public int ID = ++TotalModules;
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
@@ -1243,7 +1247,7 @@ namespace Ship_Game.Ships
 
         public float CalculateModuleOffense()
         {
-            float off = InstalledWeapon?.UpdateOffense(this) ?? 0f;
+            float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 
             off += IsTroopBay ? 50 : 0;
             if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty()

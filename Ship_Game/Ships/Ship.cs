@@ -725,7 +725,7 @@ namespace Ship_Game.Ships
                     attackRunRange = 50f;
             }
 
-            float range = attackRunRange + w.GetModifiedRange();
+            float range = attackRunRange + w.Range;
             return target.Center.InRadius(w.Module.Center, range);
         }
 
@@ -1392,45 +1392,11 @@ namespace Ship_Game.Ships
 
                     foreach (Weapon weapon in Weapons)
                     {
-                        //Edited by Gretman
-                        //This fixes ships with only 'other' damage types thinking it has 0 range, causing them to fly through targets even when set to attack at max/min range
-                        //if (!flag && (weapon.DamageAmount > 0.0 || weapon.EMPDamage > 0.0 || weapon.SiphonDamage > 0.0 || weapon.MassDamage > 0.0 || weapon.PowerDamage > 0.0 || weapon.RepulsionDamage > 0.0))
-                        //{
-                        //    maxWeaponsRange = weapon.GetModifiedRange();
-                        //    if (!weapon.Tag_PD) flag = true;
-                        //}
-
                         if (GlobalStats.HasMod)
                         {
                             Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
                             weapon.fireDelay = weaponTemplate.fireDelay;
 
-                            //Added by McShooterz: weapon tag modifiers with check if mod uses them
-                            if (GlobalStats.ActiveModInfo.useWeaponModifiers)
-                            {
-                                var tags = loyalty.data.WeaponTags;
-                                if (weapon.Tag_Beam)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Beam"].Rate;
-                                if (weapon.Tag_Energy)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Energy"].Rate;
-                                if (weapon.Tag_Explosive) weapon.fireDelay -= weaponTemplate.fireDelay * tags["Explosive"].Rate;
-                                if (weapon.Tag_Guided)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Guided"].Rate;
-                                if (weapon.Tag_Hybrid)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Hybrid"].Rate;
-                                if (weapon.Tag_Intercept) weapon.fireDelay -= weaponTemplate.fireDelay * tags["Intercept"].Rate;
-                                if (weapon.Tag_Kinetic)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Kinetic"].Rate;
-                                if (weapon.Tag_Missile)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Missile"].Rate;
-                                if (weapon.Tag_Railgun)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Railgun"].Rate;
-                                if (weapon.Tag_Torpedo)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Torpedo"].Rate;
-                                if (weapon.Tag_Cannon)    weapon.fireDelay -= weaponTemplate.fireDelay * tags["Cannon"].Rate;
-                                if (weapon.Tag_Subspace)  weapon.fireDelay -= weaponTemplate.fireDelay * tags["Subspace"].Rate;
-                                if (weapon.Tag_PD)        weapon.fireDelay -= weaponTemplate.fireDelay * tags["PD"].Rate;
-                                if (weapon.Tag_Bomb)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Bomb"].Rate;
-                                if (weapon.Tag_SpaceBomb) weapon.fireDelay -= weaponTemplate.fireDelay * tags["Spacebomb"].Rate;
-                                if (weapon.Tag_BioWeapon) weapon.fireDelay -= weaponTemplate.fireDelay * tags["BioWeapon"].Rate;
-                                if (weapon.Tag_Drone)     weapon.fireDelay -= weaponTemplate.fireDelay * tags["Drone"].Rate;
-                                if (weapon.Tag_Warp)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Warp"].Rate;
-                                if (weapon.Tag_Array)     weapon.fireDelay -= weaponTemplate.fireDelay * tags["Array"].Rate;
-                                if (weapon.Tag_Flak)      weapon.fireDelay -= weaponTemplate.fireDelay * tags["Flak"].Rate;
-                                if (weapon.Tag_Tractor)   weapon.fireDelay -= weaponTemplate.fireDelay * tags["Tractor"].Rate;
-                            }
                             //Added by McShooterz: Hull bonus Fire Rate
                             if (GlobalStats.ActiveModInfo.useHullBonuses)
                             {
