@@ -4,6 +4,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
@@ -737,8 +738,7 @@ namespace Ship_Game
         static float ModifiedWeaponStat(Weapon weapon, WeaponStat stat)
         {
             float value = GetStatForWeapon(stat, weapon);
-            string[] activeTags = weapon.GetActiveTagIds();
-            foreach (string tag in activeTags)
+            foreach (WeaponTag tag in weapon.GetActiveWeaponTags())
                 value += value * EmpireManager.Player.data.GetStatBonusForWeaponTag(stat, tag);
             return value;
         }

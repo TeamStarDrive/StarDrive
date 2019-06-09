@@ -5,6 +5,7 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -45,12 +46,11 @@ namespace Ship_Game.Gameplay
             get => (TagBits & tag) != 0;
             set => TagBits = value ? TagBits|tag : TagBits & ~tag;
         }
-        static readonly char[] TagBitsSeparator = {',', ' '};
-        public string[] GetActiveTagIds()
-        {
-            string[] ids = TagBits.ToString().Split(TagBitsSeparator, StringSplitOptions.RemoveEmptyEntries);
-            return ids;
-        }
+
+        public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
+
+        public IEnumerable<WeaponTag> GetActiveWeaponTags()
+            => TagValues.Where(tag => (TagBits & tag) != 0);
 
         public bool Tag_Kinetic   { get => this[WeaponTag.Kinetic];   set => this[WeaponTag.Kinetic]   = value; }
         public bool Tag_Energy    { get => this[WeaponTag.Energy];    set => this[WeaponTag.Energy]    = value; }
@@ -737,34 +737,34 @@ namespace Ship_Game.Gameplay
             //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
             //    return;
 
-            float actualshieldpenchance = 0;
+            float actualShieldPenChance = 0;
 
-            if (Tag_Missile)   AddModifiers("Missile", projectile, ref actualshieldpenchance);
-            if (Tag_Energy)    AddModifiers("Energy",  projectile, ref actualshieldpenchance);
-            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile, ref actualshieldpenchance);
-            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile, ref actualshieldpenchance);
-            if (Tag_Hybrid)    AddModifiers("Hybrid",  projectile, ref actualshieldpenchance);
-            if (Tag_Railgun)   AddModifiers("Railgun", projectile, ref actualshieldpenchance);
-            if (Tag_Explosive) AddModifiers("Explosive", projectile, ref actualshieldpenchance);
-            if (Tag_Guided)    AddModifiers("Guided",    projectile, ref actualshieldpenchance);
-            if (Tag_Intercept) AddModifiers("Intercept", projectile, ref actualshieldpenchance);
-            if (Tag_PD)        AddModifiers("PD",        projectile, ref actualshieldpenchance);
-            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile, ref actualshieldpenchance);
-            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile, ref actualshieldpenchance);
-            if (Tag_Drone)     AddModifiers("Drone",     projectile, ref actualshieldpenchance);
-            if (Tag_Subspace)  AddModifiers("Subspace",  projectile, ref actualshieldpenchance);
-            if (Tag_Warp)      AddModifiers("Warp",    projectile, ref actualshieldpenchance);
-            if (Tag_Cannon)    AddModifiers("Cannon",  projectile, ref actualshieldpenchance);
-            if (Tag_Beam)      AddModifiers("Beam",    projectile, ref actualshieldpenchance);
-            if (Tag_Bomb)      AddModifiers("Bomb",    projectile, ref actualshieldpenchance);
-            if (Tag_Array)     AddModifiers("Array",   projectile, ref actualshieldpenchance);
-            if (Tag_Flak)      AddModifiers("Flak",    projectile, ref actualshieldpenchance);
-            if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualshieldpenchance);
+            if (Tag_Missile)   AddModifiers(WeaponTag.Missile, projectile, ref actualShieldPenChance);
+            if (Tag_Energy)    AddModifiers(WeaponTag.Energy,  projectile, ref actualShieldPenChance);
+            if (Tag_Torpedo)   AddModifiers(WeaponTag.Torpedo, projectile, ref actualShieldPenChance);
+            if (Tag_Kinetic)   AddModifiers(WeaponTag.Kinetic, projectile, ref actualShieldPenChance);
+            if (Tag_Hybrid)    AddModifiers(WeaponTag.Hybrid,  projectile, ref actualShieldPenChance);
+            if (Tag_Railgun)   AddModifiers(WeaponTag.Railgun, projectile, ref actualShieldPenChance);
+            if (Tag_Explosive) AddModifiers(WeaponTag.Explosive, projectile, ref actualShieldPenChance);
+            if (Tag_Guided)    AddModifiers(WeaponTag.Guided,    projectile, ref actualShieldPenChance);
+            if (Tag_Intercept) AddModifiers(WeaponTag.Intercept, projectile, ref actualShieldPenChance);
+            if (Tag_PD)        AddModifiers(WeaponTag.PD,        projectile, ref actualShieldPenChance);
+            if (Tag_SpaceBomb) AddModifiers(WeaponTag.SpaceBomb, projectile, ref actualShieldPenChance);
+            if (Tag_BioWeapon) AddModifiers(WeaponTag.BioWeapon, projectile, ref actualShieldPenChance);
+            if (Tag_Drone)     AddModifiers(WeaponTag.Drone,     projectile, ref actualShieldPenChance);
+            if (Tag_Subspace)  AddModifiers(WeaponTag.Subspace,  projectile, ref actualShieldPenChance);
+            if (Tag_Warp)      AddModifiers(WeaponTag.Warp,    projectile, ref actualShieldPenChance);
+            if (Tag_Cannon)    AddModifiers(WeaponTag.Cannon,  projectile, ref actualShieldPenChance);
+            if (Tag_Beam)      AddModifiers(WeaponTag.Beam,    projectile, ref actualShieldPenChance);
+            if (Tag_Bomb)      AddModifiers(WeaponTag.Bomb,    projectile, ref actualShieldPenChance);
+            if (Tag_Array)     AddModifiers(WeaponTag.Array,   projectile, ref actualShieldPenChance);
+            if (Tag_Flak)      AddModifiers(WeaponTag.Flak,    projectile, ref actualShieldPenChance);
+            if (Tag_Tractor)   AddModifiers(WeaponTag.Tractor, projectile, ref actualShieldPenChance);
 
-            projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance;
+            projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance;
         }
 
-        void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
+        void AddModifiers(WeaponTag tag, Projectile projectile, ref float actualShieldPenChance)
         {
             WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[tag];
             projectile.DamageAmount      += mod.Damage * projectile.DamageAmount;
