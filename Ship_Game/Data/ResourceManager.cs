@@ -58,7 +58,6 @@ namespace Ship_Game
         public static Map<string, Texture2D> ProjTextDict       = new Map<string, Texture2D>();
 
         public static Array<RandomItem> RandomItemsList = new Array<RandomItem>();
-        static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
         static Array<string> TroopsDictKeys           = new Array<string>();
         public static IReadOnlyList<string> TroopTypes => TroopsDictKeys;
 
@@ -212,7 +211,6 @@ namespace Ship_Game
         public static void Reset(ScreenManager manager)
         {
             manager.ResetHotLoadTargets();
-            TroopsDict.Clear();
             TroopsDictKeys.Clear();
             BuildingsDict.Clear();
             BuildingsById.Clear();
@@ -476,14 +474,22 @@ namespace Ship_Game
             return list;
         }
 
+        static readonly Map<string, Troop> TroopsDict = new Map<string, Troop>();
+        static readonly Array<Troop> TroopsList = new Array<Troop>();
+
+        public static Troop[] GetTroopTemplatesFor(Empire e)
+            => TroopsList.Filter(t => e.WeCanBuildTroop(t.Name)).Sorted(t => t.ActualCost);
+
         public static float GetTroopCost(string troopType) => TroopsDict[troopType].ActualCost;
         public static Troop GetTroopTemplate(string troopType)
         {
-            if (TroopsDict.TryGetValue(troopType, out Troop troopO)) return troopO;
+            if (TroopsDict.TryGetValue(troopType, out Troop troop))
+                return troop;
+
             Log.WarningWithCallStack($"Troop {troopType} Template Not found");
-            return TroopsDict.First().Value;
+            return TroopsList.First;
         }
-        public static Array<Troop> GetTroopTemplates() => new Array<Troop>(TroopsDict.Values);
+
 
         public static Troop CreateTroop(string troopType, Empire forOwner)
         {
@@ -503,12 +509,15 @@ namespace Ship_Game
 
         static void LoadTroops()
         {
+            TroopsDict.Clear();
+            TroopsList.Clear();
             foreach (var pair in LoadEntitiesWithInfo<Troop>("Troops", "LoadTroops"))
             {
                 Troop troop = pair.Entity;
                 troop.Name = pair.Info.NameNoExt();
                 troop.Type = pair.Info.NameNoExt();
                 TroopsDict[troop.Name] = troop;
+                TroopsList.Add(troop);
 
                 if (troop.StrengthMax <= 0)
                     troop.StrengthMax = troop.Strength;
@@ -1320,6 +1329,20 @@ namespace Ship_Game
             LoadShipTemplates(designs.Values.ToArray());
         }
 
+        // @note This is used for Unit Tests and is not part of the core game
+        public static void LoadStarterShipsForTesting()
+        {
+            LoadWeapons();
+            LoadHullData();
+            LoadShipModules();
+            LoadTroops();
+
+            ShipsDict.Clear();
+            var designs = new Map<string, ShipDesignInfo>();
+            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
+            LoadShipTemplates(designs.Values.ToArray());
+        }
+
         static void TechValidator()
         {
             Array<Technology> techs = TechTree.Values.ToArrayList();
@@ -1446,7 +1469,7 @@ namespace Ship_Game
             return WeaponsDict[uid];
         }
 
-        public static void LoadWeapons() // Refactored by RedFox
+        static void LoadWeapons() // Refactored by RedFox
         {
             WeaponsDict.Clear();
             bool modTechsOnly = GlobalStats.HasMod && GlobalStats.ActiveModInfo.clearVanillaWeapons;

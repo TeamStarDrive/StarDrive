@@ -235,6 +235,9 @@ namespace Ship_Game.Ships
             if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
                 return;
 
+            if (StarDriveGame.Instance == null) // allows creating ship templates in Unit Tests
+                return;
+
             GameContentManager content = ResourceManager.RootContent;
             foreach (Thruster t in ThrusterList)
             {
@@ -353,6 +356,9 @@ namespace Ship_Game.Ships
 
         public void CreateSceneObject()
         {
+            if (StarDriveGame.Instance == null)
+                return; // allow creating invisible ships in Unit Tests
+
             shipData.LoadModel(out ShipSO, Empire.Universe);
 
             Radius            = ShipSO.WorldBoundingSphere.Radius;
