@@ -936,7 +936,6 @@ namespace Ship_Game.Ships
             InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
-
         }
 
         public void SetHangarShip(Ship ship)
