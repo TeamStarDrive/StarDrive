@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -41,11 +42,11 @@ namespace Ship_Game.Gameplay
     public sealed class Weapon : IDisposable, IDamageModifier
     {
         WeaponTag TagBits;
-        public bool this[WeaponTag tag]
-        {
-            get => (TagBits & tag) != 0;
-            set => TagBits = value ? TagBits|tag : TagBits & ~tag;
-        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Tag(WeaponTag tag, bool value) => TagBits = value ? TagBits|tag : TagBits & ~tag;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool Tag(WeaponTag tag) => (TagBits & tag) != 0;
 
         public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
 
@@ -53,27 +54,27 @@ namespace Ship_Game.Gameplay
         public WeaponTag[] ActiveWeaponTags;
 
         // @note These are initialized from XML during serialization
-        public bool Tag_Kinetic   { get => this[WeaponTag.Kinetic];   set => this[WeaponTag.Kinetic]   = value; }
-        public bool Tag_Energy    { get => this[WeaponTag.Energy];    set => this[WeaponTag.Energy]    = value; }
-        public bool Tag_Guided    { get => this[WeaponTag.Guided];    set => this[WeaponTag.Guided]    = value; }
-        public bool Tag_Missile   { get => this[WeaponTag.Missile];   set => this[WeaponTag.Missile]   = value; }
-        public bool Tag_Hybrid    { get => this[WeaponTag.Hybrid];    set => this[WeaponTag.Hybrid]    = value; }
-        public bool Tag_Beam      { get => this[WeaponTag.Beam];      set => this[WeaponTag.Beam]      = value; }
-        public bool Tag_Explosive { get => this[WeaponTag.Explosive]; set => this[WeaponTag.Explosive] = value; }
-        public bool Tag_Intercept { get => this[WeaponTag.Intercept]; set => this[WeaponTag.Intercept] = value; }
-        public bool Tag_Railgun   { get => this[WeaponTag.Railgun];   set => this[WeaponTag.Railgun]   = value; }
-        public bool Tag_Bomb      { get => this[WeaponTag.Bomb];      set => this[WeaponTag.Bomb]      = value; }
-        public bool Tag_SpaceBomb { get => this[WeaponTag.SpaceBomb]; set => this[WeaponTag.SpaceBomb] = value; }
-        public bool Tag_BioWeapon { get => this[WeaponTag.BioWeapon]; set => this[WeaponTag.BioWeapon] = value; }
-        public bool Tag_Drone     { get => this[WeaponTag.Drone];     set => this[WeaponTag.Drone]     = value; }
-        public bool Tag_Warp      { get => this[WeaponTag.Warp];      set => this[WeaponTag.Warp]      = value; }
-        public bool Tag_Torpedo   { get => this[WeaponTag.Torpedo];   set => this[WeaponTag.Torpedo]   = value; }
-        public bool Tag_Cannon    { get => this[WeaponTag.Cannon];    set => this[WeaponTag.Cannon]    = value; }
-        public bool Tag_Subspace  { get => this[WeaponTag.Subspace];  set => this[WeaponTag.Subspace]  = value; }
-        public bool Tag_PD        { get => this[WeaponTag.PD];        set => this[WeaponTag.PD]        = value; }
-        public bool Tag_Flak      { get => this[WeaponTag.Flak];      set => this[WeaponTag.Flak]      = value; }
-        public bool Tag_Array     { get => this[WeaponTag.Array];     set => this[WeaponTag.Array]     = value; }
-        public bool Tag_Tractor   { get => this[WeaponTag.Tractor];   set => this[WeaponTag.Tractor]   = value; }
+        public bool Tag_Kinetic   { get => Tag(WeaponTag.Kinetic);   set => Tag(WeaponTag.Kinetic, value);   }
+        public bool Tag_Energy    { get => Tag(WeaponTag.Energy);    set => Tag(WeaponTag.Energy, value);    }
+        public bool Tag_Guided    { get => Tag(WeaponTag.Guided);    set => Tag(WeaponTag.Guided, value);    }
+        public bool Tag_Missile   { get => Tag(WeaponTag.Missile);   set => Tag(WeaponTag.Missile, value);   }
+        public bool Tag_Hybrid    { get => Tag(WeaponTag.Hybrid);    set => Tag(WeaponTag.Hybrid, value);    }
+        public bool Tag_Beam      { get => Tag(WeaponTag.Beam);      set => Tag(WeaponTag.Beam, value);      }
+        public bool Tag_Explosive { get => Tag(WeaponTag.Explosive); set => Tag(WeaponTag.Explosive, value); }
+        public bool Tag_Intercept { get => Tag(WeaponTag.Intercept); set => Tag(WeaponTag.Intercept, value); }
+        public bool Tag_Railgun   { get => Tag(WeaponTag.Railgun);   set => Tag(WeaponTag.Railgun, value);   }
+        public bool Tag_Bomb      { get => Tag(WeaponTag.Bomb);      set => Tag(WeaponTag.Bomb, value);      }
+        public bool Tag_SpaceBomb { get => Tag(WeaponTag.SpaceBomb); set => Tag(WeaponTag.SpaceBomb, value); }
+        public bool Tag_BioWeapon { get => Tag(WeaponTag.BioWeapon); set => Tag(WeaponTag.BioWeapon, value); }
+        public bool Tag_Drone     { get => Tag(WeaponTag.Drone);     set => Tag(WeaponTag.Drone, value);     }
+        public bool Tag_Warp      { get => Tag(WeaponTag.Warp);      set => Tag(WeaponTag.Warp, value);      }
+        public bool Tag_Torpedo   { get => Tag(WeaponTag.Torpedo);   set => Tag(WeaponTag.Torpedo, value);   }
+        public bool Tag_Cannon    { get => Tag(WeaponTag.Cannon);    set => Tag(WeaponTag.Cannon, value);    }
+        public bool Tag_Subspace  { get => Tag(WeaponTag.Subspace);  set => Tag(WeaponTag.Subspace, value);  }
+        public bool Tag_PD        { get => Tag(WeaponTag.PD);        set => Tag(WeaponTag.PD, value);        }
+        public bool Tag_Flak      { get => Tag(WeaponTag.Flak);      set => Tag(WeaponTag.Flak, value);      }
+        public bool Tag_Array     { get => Tag(WeaponTag.Array);     set => Tag(WeaponTag.Array, value);     }
+        public bool Tag_Tractor   { get => Tag(WeaponTag.Tractor);   set => Tag(WeaponTag.Tractor, value);   }
 
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
         public float HitPoints;
@@ -222,7 +223,7 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay =>  isBeam ? fireDelay + BeamDuration : fireDelay + SalvoTimer;
+        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoTimer;
 
         [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
@@ -230,19 +231,22 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
-        // modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
+        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
         {
             float damageAmount = DamageAmount;
-            if (owner?.loyalty?.data != null && OrdinanceRequiredToFire > 0)
+            if (owner?.loyalty.data != null && OrdinanceRequiredToFire > 0)
                 damageAmount += damageAmount * owner.loyalty.data.OrdnanceEffectivenessBonus;
 
             if (owner?.Level > 0)
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses) // Hull bonus damage increase
-                if (ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
-                    damageAmount += damageAmount * mod.DamageBonus;
+            // Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses && owner != null &&
+                ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
+            {
+                damageAmount += damageAmount * mod.DamageBonus;
+            }
 
             return damageAmount;
         }
