@@ -8,17 +8,17 @@ namespace Ship_Game
 {
     public sealed class WeaponTagModifier
     {
-        [Serialize(0)] public float Speed;
-        [Serialize(1)] public float Range;
-        [Serialize(2)] public float Rate;
-        [Serialize(3)] public float Turn;
-        [Serialize(4)] public float Damage;
-        [Serialize(5)] public float ExplosionRadius;
-        [Serialize(6)] public float ShieldDamage;
-        [Serialize(7)] public float ArmorDamage;
-        [Serialize(8)] public float ShieldPenetration;
-        [Serialize(9)] public float HitPoints;
-        [Serialize(10)] public float ArmourPenetration;
+        [Serialize(0)] public float Speed;           // % bonus
+        [Serialize(1)] public float Range;           // % bonus
+        [Serialize(2)] public float Rate;            // % bonus
+        [Serialize(3)] public float Turn;            // % bonus
+        [Serialize(4)] public float Damage;          // % bonus
+        [Serialize(5)] public float ExplosionRadius; // % bonus
+        [Serialize(6)] public float ShieldDamage;    // % bonus
+        [Serialize(7)] public float ArmorDamage;        // FLAT bonus
+        [Serialize(8)] public float ShieldPenetration;  // FLAT bonus
+        [Serialize(9)] public float HitPoints;          // % bonus
+        [Serialize(10)] public float ArmourPenetration; // FLAT bonus
     }
 
     // @todo Find a better place for this enum
