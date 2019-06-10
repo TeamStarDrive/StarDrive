@@ -478,12 +478,9 @@ namespace Ship_Game.Ships
             MaxBank                  = GetMaxBank(MaxBank);
 
             // @todo RangeForOverlay is already same as MaxWeaponRange!?
-            RangeForOverlay    = 0f;
-//            MaxWeaponRange     = 0f;
-            WeaponsAvgRange     = 0f;
             float avgProjSpeed = 0f;
 
-            CalculateWeaponsRanges();
+            CalculateWeaponsRanges(); // set Weapons***Range variables.
 
             RangeForOverlay = WeaponsMaxRange;
 

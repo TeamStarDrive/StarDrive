@@ -11,7 +11,7 @@ namespace Ship_Game.AI.CombatTactics
         
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
-            float radius = AI.Owner.desiredCombatRange * 0.8f - AI.Owner.Radius - AI.Target.Radius;
+            float radius = AI.Owner.DesiredCombatRange * 0.8f - AI.Owner.Radius - AI.Target.Radius;
 
             Vector2 predictedTarget = AI.Owner.PredictImpact(AI.Target);
             UpdateOrbitPos(predictedTarget, radius, elapsedTime);
