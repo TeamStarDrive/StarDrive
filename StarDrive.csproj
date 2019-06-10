@@ -30,12 +30,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;STEAM </DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM xPERF xAUTOTIME</DefineConstants>
     <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>true</Prefer32Bit>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
@@ -46,12 +46,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>false</DebugSymbols>
-    <DefineConstants>STEAM</DefineConstants>
+    <DefineConstants>STEAM xPERF xAUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>pdbonly</DebugType>
     <ErrorReport>prompt</ErrorReport>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <Prefer32Bit>true</Prefer32Bit>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -73,7 +73,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
@@ -88,7 +88,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>BasicCorrectnessRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>true</UseVSHostingProcess>
@@ -101,7 +101,7 @@
     <OutputPath>StarDrive\</OutputPath>
     <DefineConstants>STEAM PERF  AUTOTIME</DefineConstants>
     <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -128,19 +128,6 @@
   <PropertyGroup />
   <PropertyGroup>
     <SignManifests>false</SignManifests>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>3270</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
