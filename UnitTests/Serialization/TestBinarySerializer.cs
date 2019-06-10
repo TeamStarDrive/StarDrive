@@ -8,7 +8,7 @@ using Ship_Game.Data.Serialization;
 namespace UnitTests.Serialization
 {
     [TestClass]
-    public class TestBinarySerializer
+    public class TestBinarySerializer : StarDriveTest
     {
 
         [StarDataType]

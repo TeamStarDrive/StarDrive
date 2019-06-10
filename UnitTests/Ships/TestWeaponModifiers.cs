@@ -9,11 +9,10 @@ using Ship_Game.Ships;
 namespace UnitTests.Ships
 {
     [TestClass]
-    public class TestWeaponModifiers
+    public class TestWeaponModifiers : StarDriveTest
     {
         public TestWeaponModifiers()
         {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
             ResourceManager.LoadStarterShipsForTesting();
         }
 
@@ -64,6 +63,16 @@ namespace UnitTests.Ships
             Assert.That.Equal(10, p2.ShieldDamageBonus);
             Assert.AreEqual(true, p2.IgnoresShields);
             Assert.That.Equal(0.96f, p2.Duration);
+        }
+
+        [TestMethod]
+        public void ApplyModsToWeapon()
+        {
+            Empire empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
+            Ship ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
+            Weapon v = ship.Weapons.Find(w => w.UID == "VulcanCannon");
+
+
         }
     }
 }
