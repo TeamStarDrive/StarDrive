@@ -46,8 +46,6 @@ namespace Ship_Game.AI.CombatTactics
                 }
                 else
                 {
-                    // for the last 1500f move straight towards, this helps narrow arc weapons to be on target.
-                    // and skips the expensive prediction.
                     AI.SubLightMoveTowardsPosition(predictedImpact, elapsedTime);
                 }
             }
