@@ -9,7 +9,7 @@ using Ship_Game.Ships;
 namespace UnitTests.Serialization
 {
     [TestClass]
-    public class TestSerialization
+    public class TestSerialization : StarDriveTest
     {
         public class DataToSerialize
         {
