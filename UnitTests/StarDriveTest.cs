@@ -15,17 +15,21 @@ namespace UnitTests
     {
         static StarDriveTest()
         {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
-
             try
             {
-                Assembly xna = Assembly.Load("Microsoft.Xna.Framework");
+                var xna2 = Assembly.LoadFile(
+                    "C:/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
+                //Assembly xna = Assembly.LoadFrom(
+                //    "/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
+                Console.WriteLine($"XNA Path: {xna2.Location}");
             }
             catch (Exception e)
             {
+                Console.WriteLine("XNA Load Failed");
                 Console.WriteLine(e.Message);
                 Console.WriteLine(e.InnerException?.Message ?? "");
                 Console.WriteLine(e.InnerException?.InnerException?.Message ?? "");
+                throw;
             }
         }
 
