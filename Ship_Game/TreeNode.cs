@@ -283,7 +283,10 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("ResearchMenu/tech_progress_bgactive"), destinationRectangle3, Color.White);
                     break;
             }
-            batch.DrawString(TitleFont, ((float)(int)EmpireManager.Player.TechCost(Entry)).String(1), CostPos, Color.White);
+            var techCost = Entry.TechCost;
+            if (!Entry.Unlocked) techCost -= Entry.Progress;
+            batch.DrawString(TitleFont, ((float)(int)techCost)
+                .String(1), CostPos, Color.White);
         }
 
         public void DrawGlow(ScreenManager ScreenManager)

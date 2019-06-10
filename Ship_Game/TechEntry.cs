@@ -20,6 +20,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
+        public float TechCostRemaining => (TechCost - Progress).Clamped(0, TechCost);
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
@@ -395,9 +396,9 @@ namespace Ship_Game
 
         public bool UnlockFromSpy(Empire us, Empire them)
         {
-            if (!Unlocked && RandomMath.RollDice(50))
+            if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
             {
-                AddToProgress(Tech.ActualCost * 0.25f, us);
+                AddToProgress(TechCost * 0.25f, us);
                 return false;
             }
             if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
