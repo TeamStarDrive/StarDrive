@@ -598,15 +598,16 @@ namespace Ship_Game
 
         void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
-            float range          = ModifiedWeaponStat(w, WeaponStat.Range);
-            float delay          = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
-            float speed          = ModifiedWeaponStat(w, WeaponStat.Speed);
-            bool repair          = w.isRepairBeam;
-            bool isBeam          = repair || w.isBeam;
-            bool isBallistic     = w.explodes && w.OrdinanceRequiredToFire > 0f;
+            float range = ModifiedWeaponStat(w, WeaponStat.Range);
+            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
+            
+            bool repair = w.isRepairBeam;
+            bool isBeam = repair || w.isBeam;
+            bool isBallistic = w.explodes && w.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
 
-            float rawDamage       = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
+            float rawDamage = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
             float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
@@ -620,7 +621,6 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
-
 
             if (isBeam)
             {
