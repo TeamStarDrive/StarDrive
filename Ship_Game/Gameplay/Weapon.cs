@@ -763,25 +763,24 @@ namespace Ship_Game.Gameplay
             projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance;
         }
 
-        void AddModifiers(WeaponTag tag, Projectile projectile, ref float actualShieldPenChance)
+        void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)
         {
             WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[tag];
-            projectile.DamageAmount      += mod.Damage * projectile.DamageAmount;
-            projectile.ShieldDamageBonus += mod.ShieldDamage;
-            projectile.ArmorDamageBonus  += mod.ArmorDamage;
-            // Shield Penetration
+            p.RotationRadsPerSecond += mod.Turn * RotationRadsPerSecond;
+            p.DamageAmount          += mod.Damage * p.DamageAmount;
+            p.Range                 += mod.Range * Range;
+            p.Speed                 += mod.Speed * ProjectileSpeed;
+            p.Health                += mod.HitPoints * HitPoints;
+            p.DamageRadius          += mod.ExplosionRadius * DamageRadius;
+            p.ArmorPiercing         += (int)mod.ArmourPenetration;
+            p.ArmorDamageBonus      += mod.ArmorDamage;
+            p.ShieldDamageBonus     += mod.ShieldDamage;
+            
+            // Shield Penetration TODO
             float shieldPenChance = Module.GetParent().loyalty.data.ShieldPenBonusChance;
             shieldPenChance      += mod.ShieldPenetration * 100;
             shieldPenChance      += ShieldPenChance;
             actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
-            if (isBeam)
-            {
-                projectile.ArmorPiercing         += (int)mod.ArmourPenetration;
-                projectile.Health                += HitPoints * mod.HitPoints;
-                projectile.RotationRadsPerSecond += mod.Turn * RotationRadsPerSecond;
-                projectile.Speed                 += mod.Speed * ProjectileSpeed;
-                projectile.DamageRadius          += mod.ExplosionRadius * DamageRadius;
-            }
         }
 
         public void ResetToggleSound()
