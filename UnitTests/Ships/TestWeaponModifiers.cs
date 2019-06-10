@@ -24,6 +24,7 @@ namespace UnitTests.Ships
             Ship ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
             Weapon vulcan = ship.Weapons.Find(w => w.UID == "VulcanCannon");
             vulcan.HitPoints = 100;
+            vulcan.DamageRadius = 10;
 
             Projectile p1 = Projectile.Create(vulcan, new Vector2(), Vectors.Up, null, false);
             Assert.That.Equal(2, p1.RotationRadsPerSecond);
@@ -31,7 +32,7 @@ namespace UnitTests.Ships
             Assert.That.Equal(1000, p1.Range);
             Assert.That.Equal(1250, p1.Speed);
             Assert.That.Equal(100, p1.Health);
-            Assert.That.Equal(0, p1.DamageRadius);
+            Assert.That.Equal(10, p1.DamageRadius);
             Assert.That.Equal(0, p1.ArmorPiercing);
             Assert.That.Equal(0, p1.ArmorDamageBonus);
             Assert.That.Equal(0, p1.ShieldDamageBonus);
@@ -57,7 +58,7 @@ namespace UnitTests.Ships
             Assert.That.Equal(2000, p2.Range);
             Assert.That.Equal(2500, p2.Speed);
             Assert.That.Equal(200, p2.Health);
-            Assert.That.Equal(0, p2.DamageRadius);
+            Assert.That.Equal(20, p2.DamageRadius);
             Assert.That.Equal(10, p2.ArmorPiercing);
             Assert.That.Equal(10, p2.ArmorDamageBonus);
             Assert.That.Equal(10, p2.ShieldDamageBonus);
