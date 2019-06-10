@@ -11,7 +11,7 @@ using Ship_Game.Universe.SolarBodies;
 namespace UnitTests.Serialization
 {
     [TestClass]
-    public class TestYamlSerializer
+    public class TestYamlSerializer : StarDriveTest
     {
         void ParserDump(YamlParser parser)
         {

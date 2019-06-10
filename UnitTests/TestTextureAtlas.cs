@@ -7,13 +7,12 @@ using Ship_Game.SpriteSystem;
 namespace UnitTests
 {
     [TestClass]
-    public class TestTextureAtlas : IDisposable
+    public class TestTextureAtlas : StarDriveTest, IDisposable
     {
         readonly GameDummy Game;
 
         public TestTextureAtlas()
         {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
             Game = new GameDummy();
             Game.Create();
         }
