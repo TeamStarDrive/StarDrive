@@ -160,7 +160,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             if (!HasSpacePort || ship.Health.AlmostEqual(ship.HealthMax))
                 return;
 
-            if (ship.InCombat)
+            if (ship.AI.BadGuysNear)
                 repairPool /= 10; // allow minimal repair for ships near space port even in combat, per turn (good for ships which lost command modules)
 
             int repairLevel = Level + NumShipYards;
