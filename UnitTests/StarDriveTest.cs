@@ -23,12 +23,14 @@ namespace UnitTests
                 //    "/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
                 Console.WriteLine($"XNA Path: {xna2.Location}");
             }
+            catch (FileNotFoundException e)
+            {
+                Console.WriteLine($"XNA Load Failed: {e.Message}\n{e.FileName}\n{e.FusionLog}");
+                throw;
+            }
             catch (Exception e)
             {
-                Console.WriteLine("XNA Load Failed");
-                Console.WriteLine(e.Message);
-                Console.WriteLine(e.InnerException?.Message ?? "");
-                Console.WriteLine(e.InnerException?.InnerException?.Message ?? "");
+                Console.WriteLine($"XNA Load Failed: {e.Message}\n");
                 throw;
             }
         }
