@@ -110,15 +110,15 @@ namespace Ship_Game.Ships
                 m.TransporterOrdnance > 0
                 || m.IsSupplyBay
                 || m.InhibitionRadius > 0
-                || m.InstalledWeapon != null && m.InstalledWeapon.DamageAmount < 1 &&
-                (m.InstalledWeapon.MassDamage > 0
+                || m.InstalledWeapon.DamageAmount < 1 &&
+                (  m.InstalledWeapon.MassDamage > 0
                  || m.InstalledWeapon.EMPDamage > 0
                  || m.InstalledWeapon.RepulsionDamage > 0
                  || m.InstalledWeapon.SiphonDamage > 0
                  || m.InstalledWeapon.TroopDamageChance > 0
-                 || m.InstalledWeapon.isRepairBeam || m.InstalledWeapon.IsRepairDrone)
+                 || m.InstalledWeapon.isRepairBeam 
+                 || m.InstalledWeapon.IsRepairDrone)
             );
-            pSpecial += SurfaceAreaPercentOf(m => m.InstalledWeapon?.IsRepairDrone == true);
 
             if (pSpecial > 0.10f)
                 return ShipData.RoleName.support;
