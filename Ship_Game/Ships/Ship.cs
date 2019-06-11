@@ -1234,28 +1234,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        struct Ranger
-        {
-            private int Count;
-            private float BaseRange;
-            private float BaseDamage;
-
-            public float AverageDPS; // renamed from AverageDamage, name was misleading.
-            public float AverageRange;
-
-            public void AddRange(Weapon w)
-            {
-                Count++;
-                if (w.isBeam)
-                    BaseDamage += w.DamageAmount * w.BeamDuration / w.NetFireDelay;
-                else
-                    BaseDamage += w.DamageAmount * w.SalvoCount * w.ProjectileCount / w.NetFireDelay;
-                BaseRange += w.Range;
-                AverageDPS = BaseDamage / (float)Count;
-                AverageRange = BaseRange / (float)Count;
-            }
-        }
-
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
@@ -1284,9 +1262,10 @@ namespace Ship_Game.Ships
             for (int i=0; i < Weapons.Count; i++)
             {
                 Weapon w = Weapons[i];
-                float weaponRange = w.Range; 
+                float weaponRange = w.Range;
                 // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
-                if (w.DamageAmount < 0.1f || w.TruePD) continue;
+                if (w.DamageAmount < 0.1f || w.TruePD)
+                    continue;
                 if (weaponRange > longestWeaponRange) longestWeaponRange = weaponRange;
                 if (weaponRange < shortestWeaponRange) shortestWeaponRange = weaponRange;
                 sum += weaponRange;
@@ -1317,14 +1296,14 @@ namespace Ship_Game.Ships
             {
                 Weapon w=Weapons[i];
                 float weaponRange = w.Range;
-                
+
                 // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
                 if (w.DamageAmount < 0.1f || w.TruePD) continue;
 
                 if (weaponRange >= almostMaxRange)
                 {
                     highrangeAverage += weaponRange;
-                    if (weaponRange < lowestHigh) lowestHigh = weaponRange;
+                    if (weaponRange < lowestHigh) lowestHigh = weaponRange; // WeaponsMaxRange >= lowestHigh >= almostMaxrange
                     longrangeCount++;
                 }
                 else
@@ -1339,8 +1318,10 @@ namespace Ship_Game.Ships
             highrangeAverage /= (float)longrangeCount; 
             lowrangeAverage /= (float)lowrangeCount;
 
-            /* Cleaned ordertype dependent returns. 
-             * We can argue where it should be placed, the attack orders already do some scaling of their own. */
+            // in order of size: 
+            // WeaponsMaxRange >= highrangeAverage >= lowestHigh >= WeaponsAvgRange >= lowrangeAverage >= WeaponsMinRange.
+
+            /* ordertype dependent returns. */
             switch (AI?.CombatState)
             {
                 case CombatState.Artillery:
@@ -1373,9 +1354,8 @@ namespace Ship_Game.Ships
                 EMPdisabled = EMPDamage > EmpTolerance;
             }
 
-            // keep rotation in 0 < angle < 2 pi. Radians of course. Perhaps move into the shipyard rotater at the top?
-            if (Rotation > 6.28318548202515f) Rotation -= 6.28318548202515f;
-            else if (Rotation < 0f) Rotation += 6.28318548202515f; // added else. Only need to check the other condition if the first fails.
+            if (Rotation > RadMath.TwoPI) Rotation -= RadMath.TwoPI;
+            else if (Rotation < 0f) Rotation += RadMath.TwoPI;
 
             if (!EMPdisabled && hasCommand)
             {
