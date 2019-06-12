@@ -34,7 +34,7 @@ namespace Ship_Game
             Ship repulsor = Ship.CreateShipAtPoint(PlatformName, EmpireManager.Unknown, repulsorPos);
             var beam = new Beam(repulsor, PlaformCenter, 75)
             {
-                Weapon = ResourceManager.WeaponsDict["AncientRepulsor"]
+                Weapon = ResourceManager.GetWeaponTemplate("AncientRepulsor")
             };
             repulsor.AddBeam(beam);
             beam.Infinite     = true;

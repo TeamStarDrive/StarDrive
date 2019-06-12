@@ -145,7 +145,7 @@ namespace Ship_Game
         private void UpdateOffense()
         {
             if (isWeapon)
-                Offense = TheWeapon.UpdateOffense() * 3; //360 degree angle
+                Offense = TheWeapon.CalculateOffense() * 3; // 360 degree angle
         }
 
         private void UpdateOffense(Empire empire)

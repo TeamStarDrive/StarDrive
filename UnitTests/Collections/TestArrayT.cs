@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace UnitTests.Collections
 {
     [TestClass]
-    public class TestArrayT
+    public class TestArrayT : StarDriveTest
     {
         [TestMethod]
         public void TestArrayAdd()

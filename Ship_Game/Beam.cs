@@ -49,8 +49,9 @@ namespace Ship_Game
             ActualHitDestination = Destination;
             BeamCollidedThisFrame = true; //
 
+            weapon.ApplyDamageModifiers(this);
+
             Initialize();
-            weapon.ModifyProjectile(this);
 
             if (Owner != null && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
             {
