@@ -333,7 +333,7 @@ namespace Ship_Game
 
             int last = --Count;
             Items[i]    = Items[last];
-            Items[last] = default(T);
+            Items[last] = default;
             return true;
         }
 
@@ -385,7 +385,7 @@ namespace Ship_Game
                 ThrowIndexOutOfBounds(index);
             int last = --Count;
             Items[index] = Items[last];
-            Items[last]  = default(T);
+            Items[last]  = default;
         }
 
         public T PopLast()
@@ -402,11 +402,11 @@ namespace Ship_Game
         {
             if (Count == 0)
             {
-                item = default(T);
+                item = default;
                 return false;
             }
             item         = Items[--Count];
-            Items[Count] = default(T);
+            Items[Count] = default;
             return true;
         }
 
@@ -426,7 +426,7 @@ namespace Ship_Game
                     int last = --count; // RemoveAtSwapLast():
                     Count    = last;
                     Items[j]    = Items[last];
-                    Items[last] = default(T);
+                    Items[last] = default;
                     ++removed;
                 }
             }
@@ -468,7 +468,7 @@ namespace Ship_Game
                 Index = 0;
                 Count = arr.Count;
                 Items = arr.Items;
-                Current = default(T);
+                Current = default;
             }
             public void Dispose()
             {
@@ -857,7 +857,7 @@ namespace Ship_Game
                 Index = start;
                 End   = end;
                 Items = arr;
-                Current = default(T);
+                Current = default;
             }
             public void Dispose()
             {
