@@ -114,6 +114,7 @@ namespace Ship_Game
         public Ship BestStationWeCanBuild    { get; private set; }
         public int ColonyRankModifier        { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
+
         //added by gremlin
         private float LeftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
@@ -225,6 +226,8 @@ namespace Ship_Game
             UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
         }
 
+        public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
+
         public Empire(Empire parentEmpire) => TechnologyDict = parentEmpire.TechnologyDict;
 
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
@@ -237,7 +240,7 @@ namespace Ship_Game
 
         public Fleet FirstFleet
         {
-            get { return FleetsDict[1]; }
+            get => FleetsDict[1];
             set
             {
                 for (int index = 0; index < FleetsDict[1].Ships.Count; index++)

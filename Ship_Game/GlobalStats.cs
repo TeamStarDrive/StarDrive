@@ -198,7 +198,7 @@ namespace Ship_Game
             VerboseLogging = true;
         #endif
 
-        #if PERF
+        #if AUTOFAST
             RestrictAIPlayerInteraction = true;
         #endif
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;

@@ -369,11 +369,11 @@ namespace Ship_Game
                 int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
 
                 if (troopsWeHave < troopsWeWant)
-                    BuildTroop();
+                    BuildSingleMilitiaTroop();
             }
         }
 
-        private int TroopsWeWant()
+        int TroopsWeWant()
         {
             switch (colonyType)
             {
@@ -384,13 +384,13 @@ namespace Ship_Game
             }
         }
 
-        private void BuildTroop()
+        void BuildSingleMilitiaTroop()
         {
             if (TroopsInTheWorks)
                 return;  // Build one militia at a time
 
-            Troop template = ResourceManager.GetTroopTemplates().FindMinFiltered(t => Owner.WeCanBuildTroop(t.Name), t => t.ActualCost);
-            Construction.AddTroop(template);
+            Troop cheapestTroop = ResourceManager.GetTroopTemplatesFor(Owner).First();
+            Construction.AddTroop(cheapestTroop);
         }
 
         // returns the amount of production to spend in the build queue based on import/export state

@@ -14,9 +14,7 @@ namespace Ship_Game.AI
             if (troopGoal.Count > 2)
                 return;
 
-            Troop[] troops = ResourceManager.GetTroopTemplates()
-                            .Filter(t => OwnerEmpire.WeCanBuildTroop(t.Name))
-                            .Sorted(t => t.ActualCost);
+            Troop[] troops = ResourceManager.GetTroopTemplatesFor(OwnerEmpire);
             if (troops.Length == 0)
             {
                 Log.Warning($"EmpireAI GroundPlanner no Troops for {EmpireName}");

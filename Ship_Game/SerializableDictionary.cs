@@ -13,8 +13,8 @@ namespace Ship_Game
         {
             return null;
         }
-
-        public void ReadXml(XmlReader reader)
+        
+        public void ReadXml(XmlReader reader) // IXmlSerializable
         {
             var keySerializer   = new XmlSerializer(typeof(TKey));
             var valueSerializer = new XmlSerializer(typeof(TValue));
@@ -40,7 +40,7 @@ namespace Ship_Game
             reader.ReadEndElement();
         }
 
-        public void WriteXml(XmlWriter writer)
+        public void WriteXml(XmlWriter writer) // IXmlSerializable
         {
             var keySerializer = new XmlSerializer(typeof(TKey));
             var valueSerializer = new XmlSerializer(typeof(TValue));
