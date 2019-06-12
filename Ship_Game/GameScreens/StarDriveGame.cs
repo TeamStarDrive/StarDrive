@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime;
 using System.Threading;
 using System.Windows.Forms;
 using Ship_Game.Audio;
@@ -45,6 +46,17 @@ namespace Ship_Game
         public StarDriveGame()
         {
             MainThreadId = Thread.CurrentThread.ManagedThreadId;
+
+            // Configure and display the GC mode
+            // LatencyMode is only available if ServerGC=False
+            if (!GCSettings.IsServerGC)
+            {
+                // Batch : non-concurrent, block until all GC is done
+                // Interactive : concurrent, most of the work is done in a background thread
+                //GCSettings.LatencyMode = GCLatencyMode.Batch;
+            }
+            Log.Write(ConsoleColor.Yellow, 
+                $"GC Server={GCSettings.IsServerGC} LatencyMode={GCSettings.LatencyMode}");
 
             // need to set base Content, to ensure proper content disposal
             base.Content = Content = new GameContentManager(Services, "Game");
