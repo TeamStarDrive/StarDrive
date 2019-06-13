@@ -452,6 +452,20 @@ namespace Ship_Game.Ships
             }
         }
 
+        public float CalcProjAvgSpeed()
+        {
+            int nonUtilityCount = 0;
+            float avgProjSpeed = 0f;
+            for (int i = 0; i < Weapons.Count; ++i)
+            {
+                Weapon w = Weapons[i];
+                if (w.DamageAmount < 0.1f) continue;
+                nonUtilityCount++;
+                avgProjSpeed += w.isBeam ? w.Range : w.ProjectileSpeed; 
+            }
+            avgProjSpeed /= (float)nonUtilityCount;
+            return (avgProjSpeed > 0) ? avgProjSpeed : 800f;
+        }
 
         public void InitializeStatus(bool fromSave)
         {
@@ -477,24 +491,10 @@ namespace Ship_Game.Ships
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
-            // @todo RangeForOverlay is already same as MaxWeaponRange!?
-            float avgProjSpeed = 0f;
-
             CalculateWeaponsRanges(); // set Weapons***Range variables.
-
-            RangeForOverlay = WeaponsMaxRange;
-
-            // projectile average speed sanitized a bit. Does not see much use. Must get wierd if you mix projectile/missile and longrange beam.
-            int nonUtilityCount = 0;
-            for (int i = 0; i < Weapons.Count; ++i)
-            {
-                Weapon w = Weapons[i];
-                if (w.DamageAmount < 0.1f) continue; // skip the nondamaging ones since this is for prediction against enemies.
-                nonUtilityCount++;
-                avgProjSpeed += w.isBeam ? w.Range : w.ProjectileSpeed;
-            }
-            AvgProjectileSpeed = Weapons.IsEmpty ? 800f : avgProjSpeed / (float)nonUtilityCount;
-
+            RangeForOverlay = WeaponsMaxRange; // setting once. Some might argue that in theory it can change, so maybe add update in ship.updateshipstatus.
+            AvgProjectileSpeed = CalcProjAvgSpeed();
+            
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
             InitializeStatusFromModules(fromSave);
