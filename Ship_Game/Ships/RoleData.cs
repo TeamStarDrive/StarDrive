@@ -110,7 +110,7 @@ namespace Ship_Game.Ships
                 m.TransporterOrdnance > 0
                 || m.IsSupplyBay
                 || m.InhibitionRadius > 0
-                || m.InstalledWeapon.DamageAmount < 1 &&
+                || m.InstalledWeapon?.DamageAmount < 1  &&
                 (  m.InstalledWeapon.MassDamage > 0
                  || m.InstalledWeapon.EMPDamage > 0
                  || m.InstalledWeapon.RepulsionDamage > 0
