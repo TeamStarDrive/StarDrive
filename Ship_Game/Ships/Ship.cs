@@ -1240,10 +1240,10 @@ namespace Ship_Game.Ships
 
         public float AvgProjectileSpeed { get; private set; }
 
-        // set the min and max weaponranges based on "real" damagedealing weapons installed. Not utility/repair/truePD
-        // only meant to be called once, in InitializeStatus.
-        /* will have to expand on this to accomodate 'support' ships.
-         * Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle) */
+        /* set the min and max weaponranges based on "real" damagedealing weapons installed. Not utility/repair/truePD
+         * only meant to be called once, in InitializeStatus.
+         * Todo: have to expand on this to accomodate 'support' ships.
+         *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle) */
         public void CalculateWeaponsRanges()
         {
             // TODO: these defaults for no weapons needs to be checked practical use. +what happens if only utility or truePD "weapons".
@@ -1339,10 +1339,9 @@ namespace Ship_Game.Ships
 
         public void UpdateShipStatus(float deltaTime)
         {
-            if (!Empire.Universe.Paused && velocityMaximum <= 0f && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
-            {
+            if (!Empire.Universe.Paused && velocityMaximum <= 0f
+                && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
-            }
 
             MoveModulesTimer -= deltaTime;
             updateTimer -= deltaTime;
@@ -1921,14 +1920,14 @@ namespace Ship_Game.Ships
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
 
-                 RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
+                RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
 
                 // Mass addition
-                if (module.Is(ShipModuleType.Armor) && hasLoyalty)
+                if (module.Is(ShipModuleType.Armor) && hasLoyalty) // handle armor mass reduction
                     Mass += module.Mass * loyalty.data.ArmourMassModifier;
-                else if (module.Mass >= 0)
+                else if (module.Mass >= 0) // handle other positive mass modules
                     Mass += module.Mass;
-                else if (module.Powered || module.PowerDraw <= 0f) // power check for negative mass module
+                else if (module.Powered || module.PowerDraw <= 0f) // handle negative mass modules. Only benefit if requirements are met.
                     Mass += module.Mass;
 
                 if (module.Active && (module.Powered || module.PowerDraw <= 0f))
