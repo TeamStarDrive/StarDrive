@@ -7,8 +7,6 @@
   <HasFixedCost>true</HasFixedCost>
   <FixedCost>300</FixedCost>
   <Name>Shipyard</Name>
-  <HasFixedCost>false</HasFixedCost>
-  <FixedCost>0</FixedCost>
   <IsShipyard>true</IsShipyard>
   <IsOrbitalDefense>false</IsOrbitalDefense>
   <IconPath>ShipIcons/station_blue</IconPath>
