@@ -146,9 +146,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private float CalcRepairPool()
         {
-            float repairPool = Level * RepairPerTurn * 10 * (2 - P.ShipBuildingModifier);
-            foreach (Ship station in Stations.Values)
-                repairPool += station.RepairRate;
+            float repairPool = RepairPerTurn * (0.1f + P.ShipBuildingModifier);
 
             return repairPool;
         }

@@ -2432,6 +2432,7 @@ namespace Ship_Game.Ships
 
             ShipModule moduleToRepair = ModuleSlotList.FindMax(module =>
             {
+                if (module.HealthPercent.AlmostEqual(1)) return 0;
                 // fully damaged modules get priority 1.0
                 float damagePriority =  module.Health.Less(module.ActualMaxHealth * repairSkill)
                                     ? 1.0f
