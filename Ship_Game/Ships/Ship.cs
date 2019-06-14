@@ -1280,24 +1280,24 @@ namespace Ship_Game.Ships
                 return unarmedRange;
 
             float almostMaxRange = WeaponsMaxRange * 0.85f;
-            float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
-            float[] loRanges = ranges.Filter(range => range < almostMaxRange);
-            float hiRangeAvg = hiRanges.Avg();
-            float loRangeAvg = loRanges.Avg();
 
-            // in order of size: 
-            // WeaponsMaxRange >= highrangeAverage >= lowestHigh >= WeaponsAvgRange >= lowrangeAverage >= WeaponsMinRange.
             switch (AI?.CombatState)
             {
-                // maybe use 'lowestHigh'. design issue what to pick: Max OR average of the top x% OR lowest of the top x%.
-                case CombatState.Artillery:    return hiRangeAvg;
-                // choice again. Best depends hugely on weapon mix. Real minimum, or estimate.
-                case CombatState.ShortRange:   return (WeaponsMinRange + loRangeAvg) * 0.5f;
                 case CombatState.Evade:        return unarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
+                case CombatState.ShortRange:
+                    float[] loRanges = ranges.Filter(range => range < almostMaxRange);
+                    return (WeaponsMinRange + loRanges.Avg()) * 0.5f;
+
                 default:
-                    // not happy with it, but it is here as catchall.
-                    return hiRanges.Length == 0 ? WeaponsMaxRange : hiRanges.Min();
+                    float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
+                    if (hiRanges.Length == 0)
+                        return WeaponsMaxRange;
+
+                    if (AI?.CombatState == CombatState.Artillery)
+                        return hiRanges.Avg();
+
+                    return hiRanges.Min();
             }
         }
 
