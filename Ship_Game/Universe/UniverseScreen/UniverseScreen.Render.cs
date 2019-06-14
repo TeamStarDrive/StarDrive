@@ -29,14 +29,7 @@ namespace Ship_Game
             neb_particles           .SetCamera(View, Projection);
         }
 
-        Map<PlanetGlow, SubTexture> Glows = new Map<PlanetGlow, SubTexture>(new []
-        {
-            (PlanetGlow.Terran, ResourceManager.Texture("PlanetGlows/Glow_Terran")),
-            (PlanetGlow.Red,    ResourceManager.Texture("PlanetGlows/Glow_Red")),
-            (PlanetGlow.White,  ResourceManager.Texture("PlanetGlows/Glow_White")),
-            (PlanetGlow.Aqua,   ResourceManager.Texture("PlanetGlows/Glow_Aqua")),
-            (PlanetGlow.Orange, ResourceManager.Texture("PlanetGlows/Glow_Orange"))
-        });
+        Map<PlanetGlow, SubTexture> Glows;
 
         private void RenderBackdrop()
         {

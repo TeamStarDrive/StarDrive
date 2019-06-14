@@ -396,7 +396,7 @@ namespace Ship_Game.AI
         void DoRepairBeamLogic(Weapon w)
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),
+                    filter: ship => ShipNeedsRepair(ship, w.BaseRange + 500f, Owner),
                     selector: ship => ship.InternalSlotsHealthPercent);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);

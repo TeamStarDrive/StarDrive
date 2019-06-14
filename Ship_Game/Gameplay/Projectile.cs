@@ -132,7 +132,7 @@ namespace Ship_Game.Gameplay
             Center   = origin;
             Emitter.Position = new Vector3(origin, 0f);
 
-            Range                 = Weapon.Range;
+            Range                 = Weapon.BaseRange;
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.explodes;
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
