@@ -1104,7 +1104,7 @@ namespace Ship_Game.Ships
             float actualRepair    = maxRepairAmount.Clamped(0, repairAmount);
             actualRepair          = actualRepair.Clamped(0, neededRepair);
             float repairLeft      = (repairAmount - actualRepair).Clamped(0, repairAmount);
-            SetHealth(Health + repairAmount );
+            SetHealth(Health + actualRepair);
             VisualizeRepair();
 
             return repairLeft;
