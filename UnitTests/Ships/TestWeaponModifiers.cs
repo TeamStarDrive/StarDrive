@@ -13,15 +13,34 @@ namespace UnitTests.Ships
     {
         public TestWeaponModifiers()
         {
-            ResourceManager.LoadStarterShipsForTesting();
+            ResourceManager.LoadStarterShipsForTesting(new[]{ "Vulcan Scout" });
+        }
+
+        void CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon)
+        {
+            empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
+            ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
+            weapon = ship.Weapons.Find(w => w.UID == "VulcanCannon");
+        }
+        
+        [TestMethod]
+        public void GetActualWeaponRange()
+        {
+            CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon);
+            Assert.That.Equal(1000, weapon.GetActualRange());
+
+            WeaponTagModifier m = empire.WeaponBonuses(WeaponTag.Kinetic);
+            m.Range = 1; // +100% increase
+            Assert.That.Equal(2000, weapon.GetActualRange());
+
+            m.Range = 0.5f; // revert to +50%
+            Assert.That.Equal(1500, weapon.GetActualRange());
         }
 
         [TestMethod]
         public void ApplyModsToProjectile()
         {
-            Empire empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
-            Ship ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
-            Weapon vulcan = ship.Weapons.Find(w => w.UID == "VulcanCannon");
+            CreateTestEnv(out Empire empire, out Ship ship, out Weapon vulcan);
             vulcan.HitPoints = 100;
             vulcan.DamageRadius = 10;
 
@@ -68,10 +87,7 @@ namespace UnitTests.Ships
         [TestMethod]
         public void ApplyModsToWeapon()
         {
-            Empire empire = EmpireManager.CreateNewEmpire("ModifierEmpire");
-            Ship ship = Ship.CreateShipAtPoint("Vulcan Scout", empire, Vector2.Zero);
-            Weapon v = ship.Weapons.Find(w => w.UID == "VulcanCannon");
-
+            CreateTestEnv(out Empire empire, out Ship ship, out Weapon v);
 
         }
     }

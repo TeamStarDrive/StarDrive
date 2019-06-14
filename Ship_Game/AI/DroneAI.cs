@@ -29,7 +29,7 @@ namespace Ship_Game.AI
                 {
                     var ownerCenter      = Drone.Owner.Center;
                     var distance         = ship.Center.Distance(ownerCenter);
-                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.Range);
+                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.BaseRange);
                     var repairWeight     = (int)ship.HealthStatus;
                     float weight         = distanceWieght * repairWeight ;
                     return weight;
@@ -83,7 +83,7 @@ namespace Ship_Game.AI
         {
             if (Beams.Count == 0 && DroneTarget.Health < DroneTarget.HealthMax
                                  && DroneWeapon.CooldownTimer <= 0f
-                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.Range)
+                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
             {
                 DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);
                 Beams.Add(droneBeam);

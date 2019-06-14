@@ -36,7 +36,7 @@ namespace Ship_Game.Ships
         public Vector3 GetCenter3D => Center3D;
         const float OnFireThreshold = 0.15f;
         ShipModuleDamageVisualization DamageVisualizer;
-        EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
+        public EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
         Ship Parent;
         public string WeaponType;
         public ushort NameIndex;
