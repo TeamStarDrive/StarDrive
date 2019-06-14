@@ -35,7 +35,7 @@ namespace Ship_Game
             Module                  = weapon.Module;
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
-            Range                   = weapon.Range;
+            Range                   = weapon.BaseRange;
             Duration                = weapon.BeamDuration;
             Thickness               = weapon.BeamThickness;
             WeaponEffectType        = weapon.WeaponEffectType;

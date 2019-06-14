@@ -306,7 +306,7 @@ namespace Ship_Game
                     if (building.WeaponTimer.Greater(0))
                         continue;
 
-                    previousD = building.TheWeapon.Range + 1000f;
+                    previousD = building.TheWeapon.BaseRange + 1000f;
                     previousT = previousD;
                 }
                 else if (building.DefenseShipsCapacity > 0 && Owner.Money > 0)

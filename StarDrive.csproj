@@ -266,6 +266,7 @@
     <Compile Include="Ship_Game\Debug\Page\PlanetDebug.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFilter.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionFindAvg.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMax.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMin.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionReduce.cs" />
@@ -291,6 +292,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
+    <Compile Include="Ship_Game\GameScreens\GameBase.cs" />
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />

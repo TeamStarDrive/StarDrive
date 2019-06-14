@@ -364,17 +364,10 @@ namespace Ship_Game
                     if (input.InGameSelect)
                     {
                         GameAudio.AcceptClick();
-                        SetRestrictionFromText(button.Action);
+                        DesignState = (Restrictions)button.State;
                     }
                 }
-                if (GetRestrictionFromText(button.Action) != DesignState)
-                {
-                    button.Active = false;
-                }
-                else
-                {
-                    button.Active = true;
-                }
+                button.Active = ((Restrictions)button.State == DesignState);
             }
             if (input.C)
             {
@@ -464,16 +457,16 @@ namespace Ship_Game
             what = border.Rect;
 
             var designPos = new Vector2(what.X - 32f, what.Y + 5f);
-            void AddDesignBtn(string icon)
+            void AddDesignBtn(string icon, Restrictions r)
             {
-                var button = new ToggleButton(designPos, ToggleButtonStyle.Formation, icon) {Action = icon};
+                var button = new ToggleButton(designPos, ToggleButtonStyle.Formation, icon) { State = r };
                 DesignStateButtons.Add(button);
                 designPos.Y += 29f;
             }
-            AddDesignBtn("I");
-            AddDesignBtn("IO");
-            AddDesignBtn("O");
-            AddDesignBtn("E");
+            AddDesignBtn("I", Restrictions.I);
+            AddDesignBtn("IO", Restrictions.IO);
+            AddDesignBtn("O", Restrictions.O);
+            AddDesignBtn("E", Restrictions.E);
 
             LoadModelButton = new DanButton(new Vector2(20f, (screenHeight - 50)), "Load Model");
             SaveHullButton = new DanButton(new Vector2((screenWidth - 200), (screenHeight - 50)), "Save Hull");

@@ -34,7 +34,7 @@ namespace Ship_Game.AI.CombatTactics
                 return;
 
             float spacerDistance = Owner.Radius + AI.Target.Radius;
-            float adjustedWeaponRange = Owner.maxWeaponsRange * 0.8f;
+            float adjustedWeaponRange = Owner.WeaponsMaxRange * 0.8f; // maybe change to desiredCombatRange.
             if (spacerDistance > adjustedWeaponRange)
                 spacerDistance = adjustedWeaponRange;
 
@@ -197,7 +197,7 @@ namespace Ship_Game.AI.CombatTactics
                 if (dot > -0.25f) // they are trying to escape us
                 {
                     // we can't catch these bastards, so we need some jump drive assistance
-                    if (targetSpeed > Owner.velocityMaximum && distance > Owner.maxWeaponsRange)
+                    if (targetSpeed > Owner.velocityMaximum && distance > Owner.DesiredCombatRange)
                     {
                         cantCatchUp = true;
                         debugStatus = "";
@@ -205,7 +205,7 @@ namespace Ship_Game.AI.CombatTactics
                     }
                     
                     debugStatus = "Chase";
-                    return (distance - Owner.maxWeaponsRange*0.6f)
+                    return (distance - Owner.DesiredCombatRange*0.6f)
                         .Clamped(targetSpeed + Owner.velocityMaximum*0.05f, Owner.velocityMaximum);
                 }
                 
