@@ -125,7 +125,7 @@ namespace Ship_Game
 
             GameAudio.Update();
             ScreenManager.Update(gameTime);
-            base.Update(gameTime);
+            base.Update(gameTime); // Update XNA components
 
             if (ScreenManager.NumScreens == 0)
                 Instance.Exit();

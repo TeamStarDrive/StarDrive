@@ -666,7 +666,6 @@ namespace Ship_Game
 
         public override void UnloadContent()
         {
-            StarField?.UnloadContent();
             ScreenManager.UnloadSceneObjects();
             base.UnloadContent();
         }
@@ -728,19 +727,21 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUI.empire = null;
             EmpireUI = null;
 
             //SpaceManager.Destroy();
             ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;
-            bg3d.Dispose(ref bg3d);
+            bg3d?.Dispose(ref bg3d);
+            StarField?.Dispose();
+
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
                 ship?.RemoveFromUniverseUnsafe();
             MasterShipList.ApplyPendingRemovals();
             MasterShipList.Clear();
+
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 solarSystem.FiveClosestSystems.Clear();
@@ -774,12 +775,14 @@ namespace Ship_Game
                 }
                 solarSystem.MoonList.Clear();
             }
+
             foreach (Empire empire in EmpireManager.Empires)
                 empire.CleanOut();
             JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
                 spaceJunk.DestroySceneObject();
             JunkList.Clear();
+
 
             SelectedShip   = null;
             SelectedFleet  = null;
@@ -793,29 +796,30 @@ namespace Ship_Game
             ClickableSystems.Clear();
             SpaceManager.Destroy();
             SolarSystemList.Clear();
-            StarField.UnloadContent();
-            StarField.Dispose();
             SolarSystemList.Clear();
-            beamflashes.UnloadContent();
-            explosionParticles.UnloadContent();
-            photonExplosionParticles.UnloadContent();
-            explosionSmokeParticles.UnloadContent();
-            projectileTrailParticles.UnloadContent();
-            fireTrailParticles.UnloadContent();
-            smokePlumeParticles.UnloadContent();
-            fireParticles.UnloadContent();
-            engineTrailParticles.UnloadContent();
-            flameParticles.UnloadContent();
-            SmallflameParticles.UnloadContent();
-            sparks.UnloadContent();
-            lightning.UnloadContent();
-            flash.UnloadContent();
-            star_particles.UnloadContent();
-            neb_particles.UnloadContent();
             SolarSystemDict.Clear();
+
+            beamflashes?.UnloadContent();
+            explosionParticles?.UnloadContent();
+            photonExplosionParticles?.UnloadContent();
+            explosionSmokeParticles?.UnloadContent();
+            projectileTrailParticles?.UnloadContent();
+            fireTrailParticles?.UnloadContent();
+            smokePlumeParticles?.UnloadContent();
+            fireParticles?.UnloadContent();
+            engineTrailParticles?.UnloadContent();
+            flameParticles?.UnloadContent();
+            SmallflameParticles?.UnloadContent();
+            sparks?.UnloadContent();
+            lightning?.UnloadContent();
+            flash?.UnloadContent();
+            star_particles?.UnloadContent();
+            neb_particles?.UnloadContent();
+
             Empire.Universe = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();
+
             HelperFunctions.CollectMemory();
             base.ExitScreen();
             Dispose();
