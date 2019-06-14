@@ -1236,8 +1236,11 @@ namespace Ship_Game.Ships
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
-        public float InterceptSpeed { get; private set; }
         public float DesiredCombatRange { get; private set; }
+        public float InterceptSpeed { get; private set; }
+
+        // @return Filtered list of purely offensive weapons
+        public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
 
         /**
          * Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
@@ -1247,8 +1250,7 @@ namespace Ship_Game.Ships
          */
         void UpdateWeaponRanges()
         {
-            // @return Filtered list of purely offensive weapons
-            Weapon[] offensive = Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
+            Weapon[] offensive = OffensiveWeapons;
             float[] ranges = offensive.Select(w => w.GetActualRange());
             WeaponsMinRange = ranges.Min();
             WeaponsMaxRange = ranges.Max();
@@ -1273,48 +1275,29 @@ namespace Ship_Game.Ships
 
         float CalcDesiredDesiredCombatRange(float[] ranges)
         {
-            const float unarmedRange = 10000f; // also used as evade range
+            const float unarmedRange = 10000; // also used as evade range
             if (ranges.Length == 0)
                 return unarmedRange;
 
             float almostMaxRange = WeaponsMaxRange * 0.85f;
-
-            float highrangeAverage = 0f;
-            float lowrangeAverage = 0f;
-            float lowestHigh = WeaponsMaxRange;
-            int longrangeCount = 0;
-            int lowrangeCount = 0;
-
-            for (int i = 0; i < ranges.Length; i++)
-            {
-                float weaponRange = ranges[i];
-                if (weaponRange >= almostMaxRange)
-                {
-                    highrangeAverage += weaponRange;
-                    if (lowestHigh > weaponRange)
-                        lowestHigh = weaponRange; // WeaponsMaxRange >= lowestHigh >= almostMaxrange
-                    longrangeCount++;
-                }
-                else
-                {
-                    lowrangeAverage += weaponRange;
-                    lowrangeCount++;
-                }
-            }
-            highrangeAverage /= longrangeCount; 
-            lowrangeAverage /= lowrangeCount;
+            float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
+            float[] loRanges = ranges.Filter(range => range < almostMaxRange);
+            float hiRangeAvg = hiRanges.Avg();
+            float loRangeAvg = loRanges.Avg();
 
             // in order of size: 
             // WeaponsMaxRange >= highrangeAverage >= lowestHigh >= WeaponsAvgRange >= lowrangeAverage >= WeaponsMinRange.
             switch (AI?.CombatState)
             {
                 // maybe use 'lowestHigh'. design issue what to pick: Max OR average of the top x% OR lowest of the top x%.
-                case CombatState.Artillery:    return highrangeAverage;
+                case CombatState.Artillery:    return hiRangeAvg;
                 // choice again. Best depends hugely on weapon mix. Real minimum, or estimate.
-                case CombatState.ShortRange:   return (WeaponsMinRange + lowrangeAverage) * 0.5f;
+                case CombatState.ShortRange:   return (WeaponsMinRange + loRangeAvg) * 0.5f;
                 case CombatState.Evade:        return unarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
-                default:                       return lowestHigh; // not happy with it, but it is here as catchall.
+                default:
+                    // not happy with it, but it is here as catchall.
+                    return hiRanges.Length == 0 ? WeaponsMaxRange : hiRanges.Min();
             }
         }
 
