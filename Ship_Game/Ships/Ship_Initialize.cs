@@ -498,7 +498,6 @@ namespace Ship_Game.Ships
             MaxBank                  = GetMaxBank(MaxBank);
 
             CalculateWeaponsRanges(); // set Weapons***Range variables.
-            RangeForOverlay = WeaponsMaxRange; // setting once. Some might argue that in theory it can change, so maybe add update in ship.updateshipstatus.
             AvgProjectileSpeed = CalcProjAvgSpeed();
             
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
