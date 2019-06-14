@@ -1239,31 +1239,29 @@ namespace Ship_Game.Ships
         public float InterceptSpeed { get; private set; }
         public float DesiredCombatRange { get; private set; }
 
-        // @return Filtered list of purely offensive weapons
-        Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
-
         /**
-         * Sets the min and max weapon ranges based on "real" damage dealing
+         * Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
          * weapons installed, Not utility/repair/truePD
-         * Only meant to be called once, in InitializeStatus.
          * TODO: have to expand on this to accomodate 'support' ships.
          *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle)
          */
-        void InitializeWeaponsRanges()
+        void UpdateWeaponRanges()
         {
-            float[] ranges = OffensiveWeapons.Select(w => w.GetActualRange());
+            // @return Filtered list of purely offensive weapons
+            Weapon[] offensive = Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
+            float[] ranges = offensive.Select(w => w.GetActualRange());
             WeaponsMinRange = ranges.Min();
             WeaponsMaxRange = ranges.Max();
             WeaponsAvgRange = (int)ranges.Avg();
+            DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges);
+            InterceptSpeed = CalcInterceptSpeed(offensive);
         }
 
         // This calculates our Ship's interception speed
         //   If we have weapons, then let the weapons do the talking
         //   If no weapons, give max ship speed instead
-        float CalcInterceptSpeed()
+        float CalcInterceptSpeed(Weapon[] offensive)
         {
-            Weapon[] offensive = OffensiveWeapons;
-
             // if no offensive weapons, default to ship speed
             if (offensive.Length == 0)
                 return GetSTLSpeed();
@@ -1273,15 +1271,9 @@ namespace Ship_Game.Ships
             return speeds.Avg();
         }
 
-        /**
-         * This will have to be expanded to better accommodates support ships. 
-         * Right now the workaround is to have at least 1 non-TruePD weapon to set range, 
-         * or have no damaging non-truePD weapons so you get the default unarmed range.
-         */
-        float CalcDesiredDesiredCombatRange()
+        float CalcDesiredDesiredCombatRange(float[] ranges)
         {
             const float unarmedRange = 10000f; // also used as evade range
-            float[] ranges = OffensiveWeapons.Select(w => w.GetActualRange());
             if (ranges.Length == 0)
                 return unarmedRange;
 
@@ -1314,19 +1306,15 @@ namespace Ship_Game.Ships
 
             // in order of size: 
             // WeaponsMaxRange >= highrangeAverage >= lowestHigh >= WeaponsAvgRange >= lowrangeAverage >= WeaponsMinRange.
-
             switch (AI?.CombatState)
             {
-                case CombatState.Artillery:
-                    return highrangeAverage; // maybe use 'lowestHigh'. design issue what to pick: Max OR average of the top x% OR lowest of the top x%.
-                case CombatState.ShortRange:
-                    return (WeaponsMinRange + lowrangeAverage) * 0.5f; // choice again. Best depends hugely on weapon mix. Real minimum, or estimate.
-                case CombatState.Evade:
-                    return unarmedRange;
-                case CombatState.HoldPosition:
-                    return WeaponsMaxRange;
-                default:
-                    return lowestHigh; // not happy with it, but it is here as catchall.
+                // maybe use 'lowestHigh'. design issue what to pick: Max OR average of the top x% OR lowest of the top x%.
+                case CombatState.Artillery:    return highrangeAverage;
+                // choice again. Best depends hugely on weapon mix. Real minimum, or estimate.
+                case CombatState.ShortRange:   return (WeaponsMinRange + lowrangeAverage) * 0.5f;
+                case CombatState.Evade:        return unarmedRange;
+                case CombatState.HoldPosition: return WeaponsMaxRange;
+                default:                       return lowestHigh; // not happy with it, but it is here as catchall.
             }
         }
 
@@ -1371,128 +1359,9 @@ namespace Ship_Game.Ships
             if (updateTimer <= 0)
             {
                 updateTimer = 1f; // update the ship only once per second
-
-                TroopBoardingDefense = 0f;
-                for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I moved it here so it would be every second, instead.   -Gretman
-                {
-                    TroopList[i].SetShip(this);
-                    if (TroopList[i].Loyalty == loyalty)
-                        TroopBoardingDefense += TroopList[i].Strength;
-                }
-
-                if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
-                {
-                    AI.CombatAI.UpdateTargetPriorities(this);
-
-                    foreach (Weapon weapon in Weapons)
-                    {
-                        if (GlobalStats.HasMod)
-                        {
-                            Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
-                            weapon.fireDelay = weaponTemplate.fireDelay;
-
-                            //Added by McShooterz: Hull bonus Fire Rate
-                            if (GlobalStats.ActiveModInfo.useHullBonuses)
-                            {
-                                if (ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
-                                    weapon.fireDelay *= 1f - mod.FireRateBonus;
-                            }
-                        }
-                    }
-                }
-
-                if (InhibitedTimer < 2f)
-                {
-                    foreach (Empire e in EmpireManager.Empires)
-                    {
-                        if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
-                        {
-                            for (int i = 0; i < e.Inhibitors.Count; ++i)
-                            {
-                                Ship ship = e.Inhibitors[i];
-                                if (ship != null && Center.InRadius(ship.Position, ship.InhibitionRadius))
-                                {
-                                    Inhibited = true;
-                                    InhibitedTimer = 5f;
-                                    break;
-                                }
-                            }
-                            if (Inhibited)
-                                break;
-                        }
-                    }
-                }
-
-                SetShipsVisibleByPlayer();
-                foreach (ShipModule slot in ModuleSlotList)
-                      slot.Update(1);
-
-                if (NeedRecalculate) // must be before ShipStatusChange
-                {
-                    RecalculatePower();
-                    NeedRecalculate = false;
-                }
-
-                if (shipStatusChanged)
-                {
-                    ShipStatusChange();
-                }
-
-                //Power draw based on warp
-                if (!inborders && engineState == MoveState.Warp)
-                    PowerDraw = NetPower.NetWarpPowerDraw;
-                else if (engineState != MoveState.Warp)
-                    PowerDraw = NetPower.NetSubLightPowerDraw;
-                else
-                    PowerDraw = NetPower.NetWarpPowerDraw;
-
-                if (InCombat
-                    || shield_power < shield_max
-                    || engineState == MoveState.Warp
-                    || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
-                {
-                    shield_power = 0.0f;
-                    for (int x = 0; x < Shields.Length; x++)
-                    {
-                        ShipModule shield = Shields[x];
-                        shield_power = (shield_power + shield.ShieldPower).Clamped(0, shield_max);
-                    }
-                }
-
-                // Add ordnance
-                if (Ordinance < OrdinanceMax)
-                {
-                    Ordinance += OrdAddedPerSecond;
-                    if (Ordinance > OrdinanceMax)
-                        Ordinance = OrdinanceMax;
-                }
-                else Ordinance = OrdinanceMax;
-
-                // Update max health if needed
-                int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
-                if (MaxHealthRevision != latestRevision)
-                {
-                    MaxHealthRevision = latestRevision;
-                    HealthMax = RecalculateMaxHealth();
-                }
-
-                // return home if it is a defense ship
-                if (!InCombat && HomePlanet != null)
-                    ReturnHome();
-
-                // Repair
-                if (Health.Less(HealthMax))
-                {
-                    if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
-                    {
-                        // Added by McShooterz: Priority repair
-                        float repair = InCombat ? RepairRate * 0.1f : RepairRate;
-                        ApplyAllRepair(repair, Level);
-                    }
-                }
-                UpdateResupply();
-                UpdateTroops();
+                UpdateModulesAndStatus();
             }
+
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
             if (MoveModulesTimer > 0.0f || AI.BadGuysNear
                 || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
@@ -1539,6 +1408,133 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
 
             UpdateEnginesAndVelocity(deltaTime);
+        }
+
+        void UpdateModulesAndStatus()
+        {
+            TroopBoardingDefense = 0f;
+            for (int i = 0;
+                i < TroopList.Count;
+                i++) //Do we need to update this every frame? I moved it here so it would be every second, instead.   -Gretman
+            {
+                TroopList[i].SetShip(this);
+                if (TroopList[i].Loyalty == loyalty)
+                    TroopBoardingDefense += TroopList[i].Strength;
+            }
+
+            if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
+            {
+                AI.CombatAI.UpdateTargetPriorities(this);
+
+                foreach (Weapon weapon in Weapons)
+                {
+                    if (GlobalStats.HasMod)
+                    {
+                        Weapon weaponTemplate = ResourceManager.GetWeaponTemplate(weapon.UID);
+                        weapon.fireDelay = weaponTemplate.fireDelay;
+
+                        //Added by McShooterz: Hull bonus Fire Rate
+                        if (GlobalStats.ActiveModInfo.useHullBonuses)
+                        {
+                            weapon.fireDelay *= 1f - shipData.Bonuses.FireRateBonus;
+                        }
+                    }
+                }
+            }
+
+            if (InhibitedTimer < 2f)
+            {
+                foreach (Empire e in EmpireManager.Empires)
+                {
+                    if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
+                    {
+                        for (int i = 0; i < e.Inhibitors.Count; ++i)
+                        {
+                            Ship ship = e.Inhibitors[i];
+                            if (ship != null && Center.InRadius(ship.Position, ship.InhibitionRadius))
+                            {
+                                Inhibited = true;
+                                InhibitedTimer = 5f;
+                                break;
+                            }
+                        }
+
+                        if (Inhibited)
+                            break;
+                    }
+                }
+            }
+
+            SetShipsVisibleByPlayer();
+            foreach (ShipModule slot in ModuleSlotList)
+                slot.Update(1);
+
+            if (NeedRecalculate) // must be before ShipStatusChange
+            {
+                RecalculatePower();
+                NeedRecalculate = false;
+            }
+
+            if (shipStatusChanged)
+            {
+                ShipStatusChange();
+            }
+
+            //Power draw based on warp
+            if (!inborders && engineState == MoveState.Warp)
+                PowerDraw = NetPower.NetWarpPowerDraw;
+            else if (engineState != MoveState.Warp)
+                PowerDraw = NetPower.NetSubLightPowerDraw;
+            else
+                PowerDraw = NetPower.NetWarpPowerDraw;
+
+            if (InCombat
+                || shield_power < shield_max
+                || engineState == MoveState.Warp
+                || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
+            {
+                shield_power = 0.0f;
+                for (int x = 0; x < Shields.Length; x++)
+                {
+                    ShipModule shield = Shields[x];
+                    shield_power = (shield_power + shield.ShieldPower).Clamped(0, shield_max);
+                }
+            }
+
+            // Add ordnance
+            if (Ordinance < OrdinanceMax)
+            {
+                Ordinance += OrdAddedPerSecond;
+                if (Ordinance > OrdinanceMax)
+                    Ordinance = OrdinanceMax;
+            }
+            else Ordinance = OrdinanceMax;
+
+            // Update max health if needed
+            int latestRevision = EmpireShipBonuses.GetBonusRevisionId(loyalty);
+            if (MaxHealthRevision != latestRevision)
+            {
+                MaxHealthRevision = latestRevision;
+                HealthMax = RecalculateMaxHealth();
+            }
+
+            // return home if it is a defense ship
+            if (!InCombat && HomePlanet != null)
+                ReturnHome();
+
+            // Repair
+            if (Health.Less(HealthMax))
+            {
+                if (!InCombat || (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useCombatRepair))
+                {
+                    // Added by McShooterz: Priority repair
+                    float repair = InCombat ? RepairRate * 0.1f : RepairRate;
+                    ApplyAllRepair(repair, Level);
+                }
+            }
+
+            UpdateResupply();
+            UpdateTroops();
         }
 
         public void UpdateResupply()
@@ -1930,6 +1926,7 @@ namespace Ship_Game.Ships
             TrackingPower += FixedTrackingPower;
             shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
             SensorRange += sensorBonus;
+
             //Apply modifiers to stats
             if (hasLoyalty)
             {
@@ -1942,18 +1939,17 @@ namespace Ship_Game.Ships
 
                 SensorRange   *= loyalty.data.SensorModifier;
             }
+
             if (FTLSpoolTime <= 0)
                 FTLSpoolTime = 3f;
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(shipData.Hull, out HullBonus mod))
-            {
-                CargoSpaceMax  += CargoSpaceMax * mod.CargoBonus;
-                SensorRange    += SensorRange * mod.SensorBonus;
-                WarpThrust     += WarpThrust * mod.SpeedBonus;
-                Thrust         += Thrust * mod.SpeedBonus;
-            }
+
+            CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
+            SensorRange    *= shipData.Bonuses.SensorModifier;
+            WarpThrust     *= shipData.Bonuses.SpeedModifier;
+            Thrust         *= shipData.Bonuses.SpeedModifier;
+
             CurrentStrength = CalculateShipStrength();
-            DesiredCombatRange = CalcDesiredDesiredCombatRange();
+            UpdateWeaponRanges();
         }
 
         public bool IsTethered => TetheredTo != null;
