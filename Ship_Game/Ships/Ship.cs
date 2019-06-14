@@ -1286,8 +1286,7 @@ namespace Ship_Game.Ships
                 case CombatState.Evade:        return unarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
                 case CombatState.ShortRange:
-                    float[] loRanges = ranges.Filter(range => range < almostMaxRange);
-                    return (WeaponsMinRange + loRanges.Avg()) * 0.5f;
+                    return WeaponsMinRange;
 
                 default:
                     float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
