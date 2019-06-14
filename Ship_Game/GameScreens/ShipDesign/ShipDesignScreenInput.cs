@@ -626,15 +626,10 @@ namespace Ship_Game
             BtnSymmetricDesign.Style = IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
         }
 
-        static CombatState CombatStateFromAction(ToggleButton button)
-        {
-            return (CombatState)Enum.Parse(typeof(CombatState), button.Action);
-        }
-
         void UpdateActiveCombatButton()
         {
             foreach (ToggleButton button in CombatStatusButtons)
-                button.Active = (ActiveHull.CombatState == CombatStateFromAction(button));
+                button.Active = (ActiveHull.CombatState == (CombatState)button.State);
         }
 
         void OnCombatButtonPressed(ToggleButton button)
@@ -642,7 +637,7 @@ namespace Ship_Game
             if (ActiveHull == null)
                 return;
             GameAudio.AcceptClick();
-            ActiveHull.CombatState = CombatStateFromAction(button);
+            ActiveHull.CombatState = (CombatState)button.State;
             UpdateActiveCombatButton();
         }
 
@@ -771,7 +766,7 @@ namespace Ship_Game
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
                 {
-                    Action       = state.ToString(),
+                    State        = state,
                     HasToolTip   = true,
                     WhichToolTip = toolTip
                 };
