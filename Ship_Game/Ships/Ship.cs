@@ -1255,10 +1255,43 @@ namespace Ship_Game.Ships
             WeaponsMinRange = ranges.Min();
             WeaponsMaxRange = ranges.Max();
             WeaponsAvgRange = (int)ranges.Avg();
-            DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges);
+            DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
             InterceptSpeed = CalcInterceptSpeed(offensive);
         }
 
+        public float GetDesiredCombatRangeForState(CombatState state)
+        {
+            float[] ranges = OffensiveWeapons.Select(w => w.GetActualRange());
+            return CalcDesiredDesiredCombatRange(ranges, state);
+        }
+
+        float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
+        {
+            const float unarmedRange = 10000; // also used as evade range
+            if (ranges.Length == 0)
+                return unarmedRange;
+
+            float almostMaxRange = WeaponsMaxRange * 0.85f;
+
+            switch (state)
+            {
+                case CombatState.Evade:        return unarmedRange;
+                case CombatState.HoldPosition: return WeaponsMaxRange;
+                case CombatState.ShortRange:
+                    return WeaponsMinRange;
+
+                default:
+                    float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
+                    if (hiRanges.Length == 0)
+                        return WeaponsMaxRange;
+
+                    if (state == CombatState.Artillery)
+                        return hiRanges.Avg();
+
+                    return hiRanges.Min();
+            }
+        }
+        
         // This calculates our Ship's interception speed
         //   If we have weapons, then let the weapons do the talking
         //   If no weapons, give max ship speed instead
@@ -1273,32 +1306,6 @@ namespace Ship_Game.Ships
             return speeds.Avg();
         }
 
-        float CalcDesiredDesiredCombatRange(float[] ranges)
-        {
-            const float unarmedRange = 10000; // also used as evade range
-            if (ranges.Length == 0)
-                return unarmedRange;
-
-            float almostMaxRange = WeaponsMaxRange * 0.85f;
-
-            switch (AI?.CombatState)
-            {
-                case CombatState.Evade:        return unarmedRange;
-                case CombatState.HoldPosition: return WeaponsMaxRange;
-                case CombatState.ShortRange:
-                    return WeaponsMinRange;
-
-                default:
-                    float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
-                    if (hiRanges.Length == 0)
-                        return WeaponsMaxRange;
-
-                    if (AI?.CombatState == CombatState.Artillery)
-                        return hiRanges.Avg();
-
-                    return hiRanges.Min();
-            }
-        }
 
         public void UpdateShipStatus(float deltaTime)
         {
