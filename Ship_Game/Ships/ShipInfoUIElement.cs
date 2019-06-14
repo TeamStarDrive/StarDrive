@@ -117,82 +117,71 @@ namespace Ship_Game.Ships
         {
             float startX = pOrderRect.X - 15;
             var ordersBarPos = new Vector2(startX, (Ordnance.Y + Ordnance.Height + spacing + 3));
-            void AddOrderBtn(string action, string icon, int toolTip)
+            void AddOrderBtn(string icon, CombatState state, int toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
-                    Action       = action,
+                    State        = state,
                     HasToolTip   = true,
-                    WhichToolTip = toolTip
+                    WhichToolTip = toolTip,
                 };
+                button.OnClick += OnOrderButtonClicked;
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 25f;
             }
 
-            AddOrderBtn("attack", "SelectionBox/icon_formation_headon", toolTip: 1);
-            AddOrderBtn("short",  "SelectionBox/icon_grid",          toolTip: 228);
-            AddOrderBtn("arty",   "SelectionBox/icon_formation_aft", toolTip: 2);
-            AddOrderBtn("hold",   "SelectionBox/icon_formation_x",   toolTip: 65);
-            AddOrderBtn("orbit_left",  "SelectionBox/icon_formation_left",  toolTip: 3);
-            AddOrderBtn("orbit_right", "SelectionBox/icon_formation_right", toolTip: 4);
-            AddOrderBtn("evade",       "SelectionBox/icon_formation_stop",  toolTip: 6);
+            AddOrderBtn("SelectionBox/icon_formation_headon", CombatState.AttackRuns, toolTip: 1);
+            AddOrderBtn("SelectionBox/icon_grid", CombatState.ShortRange,          toolTip: 228);
+            AddOrderBtn("SelectionBox/icon_formation_aft", CombatState.Artillery, toolTip: 2);
+            AddOrderBtn("SelectionBox/icon_formation_x", CombatState.HoldPosition, toolTip: 65);
+            AddOrderBtn("SelectionBox/icon_formation_left", CombatState.OrbitLeft,  toolTip: 3);
+            AddOrderBtn("SelectionBox/icon_formation_right", CombatState.OrbitRight, toolTip: 4);
+            AddOrderBtn("SelectionBox/icon_formation_stop", CombatState.Evade,  toolTip: 6);
 
             ordersBarPos = new Vector2(startX + 4*25f, ordersBarPos.Y + 25f);
-            AddOrderBtn("broadside_left",  "SelectionBox/icon_formation_bleft",  toolTip: 159);
-            AddOrderBtn("broadside_right", "SelectionBox/icon_formation_bright", toolTip: 160);
+            AddOrderBtn("SelectionBox/icon_formation_bleft", CombatState.BroadsideLeft,  toolTip: 159);
+            AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: 160);
         }
 
-        private void DrawOrderButtons(float transitionOffset)
+        void OnOrderButtonClicked(ToggleButton button)
+        {
+            var state = (CombatState)button.State;
+            Ship.AI.CombatState = state;
+            if (state == CombatState.HoldPosition)
+                Ship.AI.OrderAllStop();
+
+            // @todo Is this some sort of bug fix?
+            if (state != CombatState.HoldPosition && Ship.AI.State == AIState.HoldPosition)
+                Ship.AI.State = AIState.AwaitingOrders;
+
+            Ship.shipStatusChanged = true;
+        }
+
+        void DrawOrderButtons(float transitionOffset)
         {
             foreach (OrdersButton ob in Orders)
             {
                 Rectangle r = ob.ClickRect;
-                r.X = r.X - (int)(transitionOffset * 300f);
+                r.X -= (int)(transitionOffset * 300f);
                 ob.Draw(ScreenManager, r);
             }
         }
 
-        private void OrderButtonInput(InputState input)
+        void UpdateOrderButtonToggles()
         {
-            if (Ship.loyalty != EmpireManager.Player || Ship.IsConstructor) return;
             foreach (ToggleButton toggleButton in CombatStatusButtons)
-            {
-                if (toggleButton.HandleInput(input))
-                {                    
-                    GameAudio.AcceptClick();
-                    switch (toggleButton.Action)
-                    {
-                        case "attack":          Ship.AI.CombatState = CombatState.AttackRuns;                           break;
-                        case "arty":            Ship.AI.CombatState = CombatState.Artillery;                            break;
-                        case "orbit_left":      Ship.AI.CombatState = CombatState.OrbitLeft;                            break;
-                        case "broadside_left":  Ship.AI.CombatState = CombatState.BroadsideLeft;                        break;
-                        case "orbit_right":     Ship.AI.CombatState = CombatState.OrbitRight;                           break;
-                        case "broadside_right": Ship.AI.CombatState = CombatState.BroadsideRight;                       break;
-                        case "evade":           Ship.AI.CombatState = CombatState.Evade;                                break;
-                        case "short":           Ship.AI.CombatState = CombatState.ShortRange;                           break;
-                        case "hold":            Ship.AI.CombatState = CombatState.HoldPosition; Ship.AI.OrderAllStop(); break;
-                    }
-                    if (toggleButton.Action != "hold" && Ship.AI.State == AIState.HoldPosition)
-                        Ship.AI.State = AIState.AwaitingOrders;
-                    Ship.shipStatusChanged = true;
-                }            
-
-                switch (toggleButton.Action)
-                {
-                    case "attack":          toggleButton.Active = Ship.AI.CombatState == CombatState.AttackRuns;     continue;
-                    case "arty":            toggleButton.Active = Ship.AI.CombatState == CombatState.Artillery;      continue;
-                    case "hold":            toggleButton.Active = Ship.AI.CombatState == CombatState.HoldPosition;   continue;
-                    case "orbit_left":      toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitLeft;      continue;
-                    case "broadside_left":  toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideLeft;  continue;
-                    case "orbit_right":     toggleButton.Active = Ship.AI.CombatState == CombatState.OrbitRight;     continue;
-                    case "broadside_right": toggleButton.Active = Ship.AI.CombatState == CombatState.BroadsideRight; continue;
-                    case "evade":           toggleButton.Active = Ship.AI.CombatState == CombatState.Evade;          continue;
-                    case "short":           toggleButton.Active = Ship.AI.CombatState == CombatState.ShortRange;     continue;
-                    default:                                                                                         continue;
-                }
-            }
+                toggleButton.Active = (Ship.AI.CombatState == (CombatState)toggleButton.State);
         }
 
+        bool OrderButtonInput(InputState input)
+        {
+            if (Ship.loyalty != EmpireManager.Player || Ship.IsConstructor)
+                return false;
+
+            bool inputCaptured = CombatStatusButtons.Any(b => b.HandleInput(input));
+            UpdateOrderButtonToggles();
+            return inputCaptured;
+        }
 
         public override void Draw(GameTime gameTime)
         {
@@ -577,7 +566,8 @@ namespace Ship_Game.Ships
                     Empire.Universe.CamDestination.Z = Empire.Universe.GetZfromScreenState(UniverseScreen.UnivScreenState.SystemView);
             }
 
-            OrderButtonInput(input);
+            if (OrderButtonInput(input))
+                return true;
 
             foreach (TippedItem tippedItem in ToolTipItems)
             {
@@ -636,22 +626,10 @@ namespace Ship_Game.Ships
                 };
                 Orders.Add(resupply);
             }
-            /* Moving AO only to freighter since i dont see it working right now for anything else. Relevant method is not even used.
-            if (Ship.shipData.Role != ShipData.RoleName.troop && Ship.AI.State != AIState.Colonize && Ship.shipData.Role != ShipData.RoleName.station && Ship.Mothership == null)
-            {
-                OrdersButton ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
-                {
-                    ValueToModify = new Ref<bool>(() => Screen.DefiningAO, x => {
-                        Screen.DefiningAO = x;
-                        Screen.AORect = Rectangle.Empty;
-                    })
-                };
-                Orders.Add(ao);
-            }
-            */
+
             if (Ship.IsFreighter)
             {
-                OrdersButton ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
+                var ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
                 {
                     ValueToModify = new Ref<bool>(() => Screen.DefiningAO, x => {
                         Screen.DefiningAO = x;
@@ -659,27 +637,27 @@ namespace Ship_Game.Ships
                     })
                 };
                 Orders.Add(ao);
-                OrdersButton tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
+                var tradeFood = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeFood, 16)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingFood),
                 };
                 Orders.Add(tradeFood);
-                OrdersButton tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
+                var tradeProduction = new OrdersButton(Ship, Vector2.Zero, OrderType.TradeProduction, 17)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingProduction)
                 };
                 Orders.Add(tradeProduction);
-                OrdersButton transportColonists = new OrdersButton(Ship, Vector2.Zero, OrderType.TransportColonists, 137)
+                var transportColonists = new OrdersButton(Ship, Vector2.Zero, OrderType.TransportColonists, 137)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TransportingColonists)
                 };
                 Orders.Add(transportColonists);
-                OrdersButton allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterTrade, 252)
+                var allowInterEmpireTrade = new OrdersButton(Ship, Vector2.Zero, OrderType.AllowInterTrade, 252)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.AllowInterEmpireTrade)
                 };
                 Orders.Add(allowInterEmpireTrade);
-                OrdersButton tradeRoutes = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineTradeRoutes, 253)
+                var tradeRoutes = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineTradeRoutes, 253)
                 {
                     ValueToModify = new Ref<bool>(() => Screen.DefiningTradeRoutes, x => { Screen.DefiningTradeRoutes = x; })
                 };
@@ -687,13 +665,13 @@ namespace Ship_Game.Ships
             }
             if (Ship.Carrier.HasTroopBays)
             {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
+                var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.SendTroops, 18)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.Carrier.SendTroopsToShip)
                 };
                 Orders.Add(ob);
 
-                OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
+                var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.TroopsOut, x => {
                         Ship.TroopsOut = !Ship.TroopsOut;
@@ -704,7 +682,7 @@ namespace Ship_Game.Ships
             
             if (Ship.Carrier.HasFighterBays)
             {
-                OrdersButton ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
+                var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.FightersOut, x =>
                     {
@@ -716,7 +694,7 @@ namespace Ship_Game.Ships
 
             if (Ship.shipData.Role != ShipData.RoleName.station && (Ship.Carrier.HasTroopBays || Ship.Carrier.HasFighterBays))
             {
-                OrdersButton ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
+                var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, x =>
                         {
@@ -735,14 +713,6 @@ namespace Ship_Game.Ships
                     ValueToModify = new Ref<bool>(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
                 };
                 Orders.Add(exp);
-                /* FB: does not do anything useful from what i've seen. Disabling it for now
-                var systemDefense = new OrdersButton(Ship, Vector2.Zero, OrderType.EmpireDefense, 150)
-                {
-                    ValueToModify = new Ref<bool>(() => Ship.DoingSystemDefense, x => Ship.DoingSystemDefense = x),
-                    Active = false
-                };
-                Orders.Add(systemDefense);
-                */
             }
             if (Ship.Mothership == null)
             {
@@ -752,7 +722,6 @@ namespace Ship_Game.Ships
                     Active = false
                 };
                 Orders.Add(rf);
-                //Added by McShooterz: scrap order
                 var sc = new OrdersButton(Ship, Vector2.Zero, OrderType.Scrap, 157)
                 {
                     ValueToModify = new Ref<bool>(() => Ship.DoingScrap, x => Ship.DoingScrap = x),
@@ -780,7 +749,6 @@ namespace Ship_Game.Ships
         private struct TippedItem
         {
             public Rectangle r;
-
             public int TipId;
         }
     }
