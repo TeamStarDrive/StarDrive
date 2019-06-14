@@ -497,7 +497,7 @@ namespace Ship_Game.Ships
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
-            CalculateWeaponsRanges(); // set Weapons***Range variables.
+            InitializeWeaponsRanges();
             AvgProjectileSpeed = CalcProjAvgSpeed();
             
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
