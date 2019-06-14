@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         float RandomDirectionTimer;
         float RandomNozzleDirection;
 
-        float InitialPhaseDirection;
+        readonly float InitialPhaseDirection;
         float InitialPhaseTimer = 0.5f;
 
 
