@@ -1236,68 +1236,55 @@ namespace Ship_Game.Ships
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
-
         public float AvgProjectileSpeed { get; private set; }
+        public float DesiredCombatRange { get; private set; }
 
-        /* set the min and max weaponranges based on "real" damagedealing weapons installed. Not utility/repair/truePD
-         * only meant to be called once, in InitializeStatus.
-         * Todo: have to expand on this to accomodate 'support' ships.
-         *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle) */
-        public void CalculateWeaponsRanges()
+        // @return Filtered list of purely offensive weapons
+        public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
+
+        /**
+         * Sets the min and max weapon ranges based on "real" damage dealing
+         * weapons installed, Not utility/repair/truePD
+         * Only meant to be called once, in InitializeStatus.
+         * TODO: have to expand on this to accomodate 'support' ships.
+         *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle)
+         */
+        public void InitializeWeaponsRanges()
         {
-            // TODO: these defaults for no weapons needs to be checked practical use. +what happens if only utility or truePD "weapons".
-            if (Weapons.Count == 0)
-            {
-                WeaponsMaxRange = 0f;
-                WeaponsMinRange = 0f;
-                WeaponsAvgRange = 0f;
-            }
-
-            // for getting absolute max and min.
-            float longestWeaponRange = 0f;
-            float shortestWeaponRange = float.MaxValue;
-            float sum = 0f;
-            int filteredCount = 0; // count things that are not truepd and not utility.
-            for (int i=0; i < Weapons.Count; i++)
-            {
-                Weapon w = Weapons[i];
-                float weaponRange = w.Range;
-                // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
-                if (w.DamageAmount < 0.1f || w.TruePD)
-                    continue;
-                if (weaponRange > longestWeaponRange) longestWeaponRange = weaponRange;
-                if (weaponRange < shortestWeaponRange) shortestWeaponRange = weaponRange;
-                sum += weaponRange;
-                filteredCount++;
-            }
-            WeaponsMaxRange = longestWeaponRange;
-            WeaponsMinRange = shortestWeaponRange;
-            WeaponsAvgRange = sum / (float)filteredCount;
+            float[] ranges = OffensiveWeapons.Select(w => w.Range);
+            WeaponsMinRange = ranges.Min();
+            WeaponsMaxRange = ranges.Max();
+            WeaponsAvgRange = ranges.Avg();
         }
 
-        public float DesiredCombatRange; // replaces the role of maxWeaponsRange.
-        /*
+
+        /**
          * This will have to be expanded to better accommodates support ships. 
          * Right now the workaround is to have at least 1 non-TruePD weapon to set range, 
          * or have no damaging non-truePD weapons so you get the default unarmed range.
-         * */
-        private float CalcDesiredDesiredCombatRange()
+         */
+        float CalcDesiredDesiredCombatRange()
         {
-            const float unarmedRange = 10000f; // also used as evaderange
-            if (Weapons.Count == 0) return unarmedRange;
+            const float unarmedRange = 10000f; // also used as evade range
+            if (Weapons.Count == 0)
+                return unarmedRange;
 
             float almostMaxRange = WeaponsMaxRange * 0.85f;
 
-            float rangeAverage = 0f, highrangeAverage = 0f, lowrangeAverage = 0f;
+            float highrangeAverage = 0f;
+            float lowrangeAverage = 0f;
             float lowestHigh = WeaponsMaxRange;
-            int nonUtilityCount=0, longrangeCount = 0, lowrangeCount=0;
-            for (int i=0; i < Weapons.Count; i++)
+            int nonUtilityCount = 0;
+            int longrangeCount = 0;
+            int lowrangeCount = 0;
+            for (int i = 0; i < Weapons.Count; i++)
             {
-                Weapon w=Weapons[i];
+                Weapon w = Weapons[i];
                 float weaponRange = w.Range;
 
                 // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
-                if (w.DamageAmount < 0.1f || w.TruePD) continue;
+                if (w.DamageAmount < 0.1f || w.TruePD)
+                    continue;
 
                 if (weaponRange >= almostMaxRange)
                 {
@@ -1311,16 +1298,13 @@ namespace Ship_Game.Ships
                     lowrangeCount++;
                 }
                 nonUtilityCount++;
-                rangeAverage += weaponRange;
             }
-            rangeAverage /= (float)nonUtilityCount;
-            highrangeAverage /= (float)longrangeCount; 
-            lowrangeAverage /= (float)lowrangeCount;
+            highrangeAverage /= longrangeCount; 
+            lowrangeAverage /= lowrangeCount;
 
             // in order of size: 
             // WeaponsMaxRange >= highrangeAverage >= lowestHigh >= WeaponsAvgRange >= lowrangeAverage >= WeaponsMinRange.
 
-            /* ordertype dependent returns. */
             switch (AI?.CombatState)
             {
                 case CombatState.Artillery:
@@ -1331,9 +1315,9 @@ namespace Ship_Game.Ships
                     return unarmedRange;
                 case CombatState.HoldPosition:
                     return WeaponsMaxRange;
+                default:
+                    return lowestHigh; // not happy with it, but it is here as catchall.
             }
-           
-            return lowestHigh; // not happy with it, but it is here as catchall.
         }
 
         public void UpdateShipStatus(float deltaTime)
