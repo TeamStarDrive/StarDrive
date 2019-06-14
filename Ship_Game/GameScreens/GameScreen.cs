@@ -71,7 +71,7 @@ namespace Ship_Game
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? GameBase.Base.Content, GetType().Name);
-            ScreenManager    = parent?.ScreenManager ?? StarDriveGame.Instance?.ScreenManager;
+            ScreenManager    = parent?.ScreenManager ?? GameBase.ScreenManager;
             UpdateViewport();
 
             if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)

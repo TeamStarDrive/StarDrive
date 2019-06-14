@@ -482,28 +482,29 @@ namespace Ship_Game.Ships
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
-            InitializeWeaponsRanges();
-            InterceptSpeed = CalcInterceptSpeed();
+            UpdateWeaponRanges();
             
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
 
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
+
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             ShipMass                 = Mass;
-            BaseStrength             = CalculateShipStrength();
-            CurrentStrength          = BaseStrength;
 
-            // @todo Do we need to recalculate this every time? This whole thing looks fishy
+            // initialize strength for our empire:
+            CurrentStrength = CalculateShipStrength();
+            BaseStrength = CurrentStrength; // save base strength for later
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
 
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;
+
             UpdateShields();
             SetmaxFTLSpeed();
         }
@@ -598,7 +599,6 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while.
             shipData.BaseCanWarp      = WarpThrust > 0;
             BaseCanWarp               = WarpThrust > 0;
-
         }
 
         float GetBaseCost()

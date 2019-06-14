@@ -24,20 +24,17 @@ namespace UnitTests.Ships
         public void Dispose()
         {
             Empire.Universe?.ExitScreen();
-            Empire.Universe = null;
             Game.Dispose();
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship)
         {
             var data = new UniverseData();
-            empire = EmpireManager.CreateNewEmpire("ShipRangesEmpire");
-            data.EmpireList.Add(empire);
+            empire = data.CreateEmpire(ResourceManager.MajorRaces[0]);
             Empire.Universe = new UniverseScreen(data, empire);
 
             ship = Ship.CreateShipAtPoint("Excalibur-Class Supercarrier", empire, Vector2.Zero);
         }
-
 
         [TestMethod]
         public void TestShipRangeModifiers()

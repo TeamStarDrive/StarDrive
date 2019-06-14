@@ -714,7 +714,7 @@ namespace Ship_Game
                 Empire.Universe.AssignLightRig("example/NewGamelight_rig");
                 Empire.Universe.RecomputeFleetButtons(true);
             }
-            StarField.UnloadContent();
+            StarField.Dispose();
             base.ExitScreen();
         }
 
