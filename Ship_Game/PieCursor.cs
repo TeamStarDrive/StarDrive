@@ -40,8 +40,8 @@ namespace Ship_Game
 		{
 			Vector3 nearSource = new Vector3(Position, 0f);
 			Vector3 farSource = new Vector3(Position, 1f);
-			Vector3 nearPoint = StarDriveGame.Instance.Viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
-			Vector3 farPoint = StarDriveGame.Instance.Viewport.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
+			Vector3 nearPoint = GameBase.Viewport.Unproject(nearSource, projectionMatrix, viewMatrix, Matrix.Identity);
+			Vector3 farPoint = GameBase.Viewport.Unproject(farSource, projectionMatrix, viewMatrix, Matrix.Identity);
 			Vector3 direction = farPoint - nearPoint;
 			direction.Normalize();
 			return new Ray(nearPoint, direction);

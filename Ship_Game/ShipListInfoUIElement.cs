@@ -90,7 +90,7 @@ namespace Ship_Game
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon);			
                 CombatStatusButtons.Add(button);
-                button.Action = state.ToString();
+                button.State = state;
                 button.HasToolTip = true;
                 button.WhichToolTip = toolTip;
                 ordersBarPos.X += orderSize;
@@ -257,35 +257,23 @@ namespace Ship_Game
             {
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
+                    CombatState action = (CombatState)button.State;
                     if (button.HandleInput(input))
                     {
                         GameAudio.AcceptClick();
 
-                        CombatState action = (CombatState) Enum.Parse(typeof(CombatState), button.Action);
                         foreach(Ship ship in ShipList)
                             ship.AI.CombatState = action;
                     }
                     else
-                    foreach (CombatState combatState in Enum.GetValues(typeof(CombatState)))
                     {
-                        if (combatState.ToString() != button.Action)
-                            continue;
-                        button.Active = AllShipsInState(combatState);
-                        if (button.Active)
-                            break;
+                        button.Active = AllShipsInState(action);
                     }
                 }
                 
                 if (SlidingElement.HandleInput(input))
                 {
-                    if (!SlidingElement.Open)
-                    {
-                        State = ElementState.TransitionOff;
-                    }
-                    else
-                    {
-                        State = ElementState.TransitionOn;
-                    }
+                    State = !SlidingElement.Open ? ElementState.TransitionOff : ElementState.TransitionOn;
                     return true;
                 }
                 

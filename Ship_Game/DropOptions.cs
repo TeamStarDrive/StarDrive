@@ -129,7 +129,7 @@ namespace Ship_Game
 
         static bool IsMouseHoveringOver(in Rectangle rect)
         {
-            return rect.HitTest(StarDriveGame.Instance.ScreenManager.input.CursorPosition);
+            return rect.HitTest(GameBase.ScreenManager.input.CursorPosition);
         }
 
         string WrappedString(string text)

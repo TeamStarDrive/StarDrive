@@ -15,39 +15,17 @@ namespace Ship_Game
 {
     // A simplified dummy game setup
     // for minimal testing
-    public class GameDummy : Game
+    public class GameDummy : GameBase
     {
-        public GraphicsDeviceManager Graphics;
-        public new GameContentManager Content { get; }
-        LightingSystemManager LightSysManager;
+        public SpriteBatch Batch => ScreenManager.SpriteBatch;
 
-        PresentationParameters Presentation => Graphics.GraphicsDevice.PresentationParameters;
-        public Vector2 ScreenSize => new Vector2(Presentation.BackBufferWidth, Presentation.BackBufferHeight);
-
-        SpriteBatch batch;
-        public SpriteBatch Batch => batch ?? (batch = new SpriteBatch(GraphicsDevice));
-
-        public Form Form => (Form)Control.FromHandle(Window.Handle);
-
-        public GameDummy(int width=800, int height=600, bool show = false)
+        public GameDummy(int width = 800, int height = 600, bool show = false)
         {
-            string contentDir = Path.Combine(Directory.GetCurrentDirectory(), "Content");
-            base.Content = Content = new GameContentManager(Services, "Game", contentDir);
-
-            Graphics = new GraphicsDeviceManager(this)
-            {
-                MinimumPixelShaderProfile = ShaderProfile.PS_2_0,
-                MinimumVertexShaderProfile = ShaderProfile.VS_2_0,
-                PreferredDepthStencilFormat = DepthFormat.Depth24Stencil8,
-                PreferMultiSampling = false
-            };
-
-            Graphics.PreferredBackBufferWidth = width;
-            Graphics.PreferredBackBufferHeight = height;
-            Graphics.SynchronizeWithVerticalRetrace = false;
-            if (Graphics.IsFullScreen)
-                Graphics.ToggleFullScreen();
-            Graphics.ApplyChanges();
+            GraphicsSettings settings = GraphicsSettings.FromGlobalStats();
+            settings.Width  = width;
+            settings.Height = height;
+            settings.Mode = WindowMode.Borderless;
+            ApplyGraphics(settings);
 
             if (show) Show();
         }
@@ -66,7 +44,7 @@ namespace Ship_Game
         {
             var manager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
             manager?.CreateDevice();
-            LightSysManager = new LightingSystemManager(Services);
+            ScreenManager = new ScreenManager(this, Graphics);
             base.Initialize();
         }
     }

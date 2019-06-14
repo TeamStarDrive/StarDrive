@@ -71,7 +71,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
             LoadSuns(file);
-            StarDriveGame.Instance.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
+            GameBase.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
         }
 
         static void LoadSuns(FileInfo file)
@@ -132,7 +132,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         static Vector2 ScreenPosition(Vector2 pos, in Matrix view, in Matrix projection)
         {
-            return StarDriveGame.Instance.Viewport.Project(pos.ToVec3(), 
+            return GameBase.Viewport.Project(pos.ToVec3(), 
                             projection, view, Matrix.Identity).ToVec2();
         }
 
@@ -168,10 +168,10 @@ namespace Ship_Game.Universe.SolarBodies
             Vector2 pos  = ScreenPosition(sys.Position, view, projection);
             Vector2 edge = ScreenPosition(sys.Position + new Vector2(Radius, 0f), view, projection);
 
-            float relSizeOnScreen = (edge.X - pos.X) / StarDriveGame.Instance.ScreenWidth;
+            float relSizeOnScreen = (edge.X - pos.X) / GameBase.ScreenWidth;
             float sizeScaleOnScreen = 1.25f * relSizeOnScreen; // this yields the base star size
 
-            SpriteBatch batch = StarDriveGame.Instance.ScreenManager.SpriteBatch;
+            SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
             batch.End();
             {
                 foreach (SunLayerState layer in sys.SunLayers)

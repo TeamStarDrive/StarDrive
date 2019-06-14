@@ -79,7 +79,7 @@ namespace Ship_Game
         static DiplomaticTraits DiplomacyTraits;
 
         // All references to Game1.Instance.Content were replaced by this property
-        public static GameContentManager RootContent => StarDriveGame.Instance.Content;
+        public static GameContentManager RootContent => GameBase.Base.Content;
 
         public static Technology Tech(string techUid)
         {
@@ -822,6 +822,7 @@ namespace Ship_Game
         }
         static void LoadDialogs() // Refactored by RedFox
         {
+            DiplomacyDialogs.Clear();
             string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
             foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
@@ -1330,16 +1331,26 @@ namespace Ship_Game
         }
 
         // @note This is used for Unit Tests and is not part of the core game
-        public static void LoadStarterShipsForTesting()
+        // @param shipsList Only load these ships to make loading faster.
+        //                  Example:  shipsList: new [] { "Vulcan Scout" }
+        public static void LoadStarterShipsForTesting(string[] shipsList = null)
         {
             LoadWeapons();
             LoadHullData();
+            LoadShipRoles();
             LoadShipModules();
             LoadTroops();
+            LoadDialogs(); // for CreateEmpire
+            LoadEmpires();
+            LoadEconomicResearchStrategies();
+
+            FileInfo[] ships = shipsList != null
+                ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
+                : GatherFilesModOrVanilla("StarterShips", "xml");
 
             ShipsDict.Clear();
             var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, ships, readOnly: true, playerDesign: false);
             LoadShipTemplates(designs.Values.ToArray());
         }
 
@@ -1508,6 +1519,7 @@ namespace Ship_Game
         }
         static void LoadEconomicResearchStrategies()
         {
+            EconStrategies.Clear();
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
             {
                 // the story here: some mods have bugged <Name> refs, so we do manual

@@ -808,7 +808,7 @@ namespace Ship_Game.Ships
         {
             Vector2 center    = source.Owner?.Center ?? source.Center;
             int level         = source.Owner?.Level  ?? 0;
-            float searchRange = source.Range + 100;
+            float searchRange = source.BaseRange + 100;
             return TargetRandomInternalModule(center, level, searchRange*searchRange);
         }
 
