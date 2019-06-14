@@ -81,7 +81,7 @@ namespace Ship_Game
 			parameters["BloomSaturation"].SetValue(Settings.BloomSaturation);
 			parameters["BaseSaturation"].SetValue(Settings.BaseSaturation);
 			device.Textures[1] = source;
-			Viewport viewport = StarDriveGame.Instance.Viewport;
+			Viewport viewport = GameBase.Viewport;
 			DrawFullscreenQuad(renderTarget1.GetTexture(), viewport.Width, viewport.Height, bloomCombineEffect);
 			return source;
 		}

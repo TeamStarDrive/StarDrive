@@ -111,7 +111,12 @@ namespace Ship_Game.Gameplay
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
         public Vector2 Center;
-        public float Range;
+        
+        // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
+        // Use GetActualRange() to the true range with bonuses
+        [XmlElement(ElementName = "Range")]
+        public float BaseRange;
+
         public float DamageAmount;
         public float ProjectileSpeed;
         public int ProjectileCount = 1;
@@ -538,7 +543,7 @@ namespace Ship_Game.Gameplay
                 .Predict(advancedTargeting);
 
             float distance = origin.Distance(pip);
-            float maxPredictionRange = Range*2;
+            float maxPredictionRange = BaseRange*2;
             if (distance > maxPredictionRange)
             {
                 Vector2 predictionVector = target.Center.DirectionToTarget(pip);
@@ -772,7 +777,7 @@ namespace Ship_Game.Gameplay
             WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[tag];
             p.RotationRadsPerSecond += mod.Turn * RotationRadsPerSecond;
             p.DamageAmount          += mod.Damage * p.DamageAmount;
-            p.Range                 += mod.Range * Range;
+            p.Range                 += mod.Range * BaseRange;
             p.Speed                 += mod.Speed * ProjectileSpeed;
             p.Health                += mod.HitPoints * HitPoints;
             p.DamageRadius          += mod.ExplosionRadius * DamageRadius;
@@ -785,6 +790,17 @@ namespace Ship_Game.Gameplay
             shieldPenChance      += mod.ShieldPenetration * 100;
             shieldPenChance      += ShieldPenChance;
             actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
+        }
+
+        public float GetActualRange()
+        {
+            float range = BaseRange;
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[ ActiveWeaponTags[i] ];
+                range += mod.Range * BaseRange;
+            }
+            return range;
         }
 
         public void ResetToggleSound()
@@ -868,7 +884,7 @@ namespace Ship_Game.Gameplay
             off *= Tag_Guided ? 1.25f : 1f;
 
             //FB: Range margins are less steep for missiles
-            off *= !Tag_Missile && !Tag_Torpedo ? (Range / 4000) * (Range / 4000) : (Range / 4000);
+            off *= !Tag_Missile && !Tag_Torpedo ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
 
             // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;

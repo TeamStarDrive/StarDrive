@@ -726,7 +726,7 @@ namespace Ship_Game
             switch (stat)
             {
                 case WeaponStat.Damage:    return weapon.DamageAmount;
-                case WeaponStat.Range:     return weapon.Range;
+                case WeaponStat.Range:     return weapon.BaseRange;
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
                 case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;

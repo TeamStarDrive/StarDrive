@@ -703,7 +703,7 @@ namespace Ship_Game.Ships
                     attackRunRange = 50f;
             }
 
-            float range = attackRunRange + w.Range;
+            float range = attackRunRange + w.BaseRange;
             return target.Center.InRadius(w.Module.Center, range);
         }
 
@@ -1240,7 +1240,7 @@ namespace Ship_Game.Ships
         public float DesiredCombatRange { get; private set; }
 
         // @return Filtered list of purely offensive weapons
-        public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
+        Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
 
         /**
          * Sets the min and max weapon ranges based on "real" damage dealing
@@ -1249,14 +1249,29 @@ namespace Ship_Game.Ships
          * TODO: have to expand on this to accomodate 'support' ships.
          *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle)
          */
-        public void InitializeWeaponsRanges()
+        void InitializeWeaponsRanges()
         {
-            float[] ranges = OffensiveWeapons.Select(w => w.Range);
+            float[] ranges = OffensiveWeapons.Select(w => w.GetActualRange());
             WeaponsMinRange = ranges.Min();
             WeaponsMaxRange = ranges.Max();
-            WeaponsAvgRange = ranges.Avg();
+            WeaponsAvgRange = (int)ranges.Avg();
         }
 
+        // This calculates our Ship's interception speed
+        //   If we have weapons, then let the weapons do the talking
+        //   If no weapons, give max ship speed instead
+        float CalcInterceptSpeed()
+        {
+            Weapon[] offensive = OffensiveWeapons;
+
+            // if no offensive weapons, default to ship speed
+            if (offensive.Length == 0)
+                return GetSTLSpeed();
+
+            // @note beam weapon speeds need special treatment, since they are currently instantaneous
+            float[] speeds = offensive.Select(w => w.isBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
+            return speeds.Avg();
+        }
 
         /**
          * This will have to be expanded to better accommodates support ships. 
@@ -1266,12 +1281,11 @@ namespace Ship_Game.Ships
         float CalcDesiredDesiredCombatRange()
         {
             const float unarmedRange = 10000f; // also used as evade range
-            if (Weapons.Count == 0)
+            float[] ranges = OffensiveWeapons.Select(w => w.GetActualRange());
+            if (ranges.Length == 0)
                 return unarmedRange;
 
             float almostMaxRange = WeaponsMaxRange * 0.85f;
-
-            float[] ranges = OffensiveWeapons.Select(w => w.Range);
 
             float highrangeAverage = 0f;
             float lowrangeAverage = 0f;
@@ -1320,10 +1334,11 @@ namespace Ship_Game.Ships
         {
             if (!Empire.Universe.Paused && velocityMaximum <= 0f
                 && !shipData.IsShipyard && shipData.Role <= ShipData.RoleName.station)
+            {
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
+            }
 
             MoveModulesTimer -= deltaTime;
-            updateTimer -= deltaTime;
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
                 EMPDamage -= EmpRecovery;
@@ -1346,15 +1361,17 @@ namespace Ship_Game.Ships
                 }
                 for (int i = 0; i < BombBays.Count; i++)
                 {
-                    var bomb = BombBays[i];
-                    bomb.InstalledWeapon.Update(deltaTime);
+                    BombBays[i].InstalledWeapon.Update(deltaTime);
                 }
             }
 
             AI.CombatAI.SetCombatTactics(AI.CombatState);
 
+            updateTimer -= deltaTime;
             if (updateTimer <= 0)
             {
+                updateTimer = 1f; // update the ship only once per second
+
                 TroopBoardingDefense = 0f;
                 for (int i = 0; i < TroopList.Count; i++)   //Do we need to update this every frame? I moved it here so it would be every second, instead.   -Gretman
                 {
@@ -1475,7 +1492,6 @@ namespace Ship_Game.Ships
                 }
                 UpdateResupply();
                 UpdateTroops();
-                updateTimer = 1f;
             }
             //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
             if (MoveModulesTimer > 0.0f || AI.BadGuysNear
