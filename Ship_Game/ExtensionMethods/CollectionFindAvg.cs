@@ -30,8 +30,38 @@ namespace Ship_Game
                 sum += floats[i];
             return sum;
         }
+        
+        // @note Hand-crafted Sum(filter) extension for float arrays
+        public static float Sum(this float[] floats, Predicate<float> filter)
+        {
+            float sum = 0f;
+            for (int i = 0; i < floats.Length; ++i)
+            {
+                float value = floats[i];
+                if (filter(value))
+                    sum += value;
+            }
+            return sum;
+        }
 
         // @note Hand-crafted Avg() extension for float arrays
         public static float Avg(this float[] floats) => Sum(floats) / floats.Length;
+
+        // @note Hand-crafted Avg(filter) extension for float arrays
+        public static float Avg(this float[] floats, Predicate<float> filter)
+        {
+            int count = 0;
+            float sum = 0f;
+            for (int i = 0; i < floats.Length; ++i)
+            {
+                float value = floats[i];
+                if (filter(value))
+                {
+                    ++count;
+                    sum += value;
+                }
+            }
+            return count == 0 ? 0f : sum / count;
+        }
     }
 }
