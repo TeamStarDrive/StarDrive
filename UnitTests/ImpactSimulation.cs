@@ -67,7 +67,6 @@ namespace UnitTests
     internal class ImpactSimWindow : GameDummy
     {
         readonly AutoResetEvent Started;
-        public readonly Vector2 ScreenCenter;
         public KeyboardState Keys;
         bool CachedVisibility;
         public bool Visible;
@@ -286,7 +285,7 @@ namespace UnitTests
         {
             SpriteBatch batch = Owner.Batch;
 
-            Vector2 center = -Center*Sim.Scale + Owner.ScreenCenter;
+            Vector2 center = -Center*Sim.Scale + GameBase.ScreenCenter;
             foreach (SimObject o in Objects)
                 o.Draw(batch, center, Sim.Scale);
 
@@ -324,7 +323,7 @@ namespace UnitTests
             (Vector2 min, Vector2 max) = GetSimulationBounds();
             float width = min.Distance(max);
             Center = (min + max) / 2f;
-            Sim.Scale = (Owner.ScreenSize.X - 200f) / (width * 2.0f);
+            Sim.Scale = (GameBase.ScreenWidth - 200f) / (width * 2.0f);
             Sim.Scale = Sim.Scale.Clamped(0.01f, 2.0f);
         }
 

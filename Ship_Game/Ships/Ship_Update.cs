@@ -13,14 +13,15 @@ namespace Ship_Game.Ships
 
         public bool UpdateVisibility()
         {
-            bool inFrustrum = (System == null || System.isVisible)
+            bool inFrustum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                 && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI.Target != null
                 && Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)) ;
 
-            InFrustum = inFrustrum;
-            ShipSO.Visibility = inFrustrum ? ObjectVisibility.Rendered : ObjectVisibility.None;
-            return inFrustrum;
+            InFrustum = inFrustum;
+            if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
+                ShipSO.Visibility = inFrustum ? ObjectVisibility.Rendered : ObjectVisibility.None;
+            return inFrustum;
         }
 
         public void UpdateWorldTransform()
@@ -72,8 +73,9 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
-            if (dying) UpdateDying(elapsedTime);
-            else       UpdateAlive(elapsedTime);
+            
+            if (!dying) UpdateAlive(elapsedTime);
+            else        UpdateDying(elapsedTime);
         }
 
         void UpdateAlive(float elapsedTime)
@@ -105,7 +107,7 @@ namespace Ship_Game.Ships
                     AI.Update(elapsedTime);
             }
 
-            if (!Active || ShipSO == null)
+            if (!Active)
                 return;
 
             InCombatTimer -= elapsedTime;
@@ -126,7 +128,7 @@ namespace Ship_Game.Ships
             Center   += Velocity * elapsedTime;
             UpdateShipStatus(elapsedTime);
 
-            if (InFrustum)
+            if (InFrustum && ShipSO != null)
             {
                 UpdateWorldTransform();
                 ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);

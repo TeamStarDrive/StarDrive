@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 using NAudio.CoreAudioApi;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens.MainMenu;
-using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
@@ -22,6 +21,7 @@ namespace Ship_Game
         public float ShadowQuality;
         public int EffectDetail;
         public bool RenderBloom;
+        public bool VSync;
 
         public static GraphicsSettings FromGlobalStats()
         {
@@ -45,6 +45,7 @@ namespace Ship_Game
             ShadowQuality   = GlobalStats.ShadowQuality;
             EffectDetail    = GlobalStats.EffectDetail;
             RenderBloom     = GlobalStats.RenderBloom;
+            VSync           = GlobalStats.VSync;
         }
 
         public void SaveGlobalStats()
@@ -60,6 +61,7 @@ namespace Ship_Game
             GlobalStats.ShadowQuality   = ShadowQuality;
             GlobalStats.EffectDetail    = EffectDetail;
             GlobalStats.RenderBloom     = RenderBloom;
+            GlobalStats.VSync           = VSync;
             GlobalStats.SaveSettings();
         }
 
@@ -82,7 +84,8 @@ namespace Ship_Game
                 && ShadowDetail    == other.ShadowDetail 
                 && ShadowQuality.Equals(other.ShadowQuality) 
                 && EffectDetail    == other.EffectDetail 
-                && RenderBloom     == other.RenderBloom;
+                && RenderBloom     == other.RenderBloom 
+                && VSync           == other.VSync;
         }
     }
 

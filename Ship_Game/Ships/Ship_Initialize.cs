@@ -458,22 +458,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        // This calculates our Ship's interception speed
-        //   If we have weapons, then let the weapons do the talking
-        //   If no weapons, give max ship speed instead
-        float CalcInterceptSpeed()
-        {
-            Weapon[] offensive = OffensiveWeapons;
-
-            // if no offensive weapons, default to ship speed
-            if (offensive.Length == 0)
-                return GetSTLSpeed();
-
-            // @note beam weapon speeds need special treatment, since they are currently instantaneous
-            float[] speeds = offensive.Select(w => w.isBeam ? w.Range * 1.5f : w.ProjectileSpeed);
-            return speeds.Avg();
-        }
-
         public void InitializeStatus(bool fromSave)
         {
             Thrust                   = 0f;
