@@ -23,7 +23,7 @@ namespace Ship_Game.AI
         {
             var target = Drone.Owner?.AI.FriendliesNearby
                 .FindMinFiltered(ship => ship.Active && ship.Mothership == null
-                                                     && ship.Health < ship.HealthMax
+                                                     && ship.HealthStatus < ShipStatus.Maximum
                                                      && ship.Center.InRadius(Drone.Owner.Center, 10000)
                 , ship =>
                 {
@@ -58,7 +58,8 @@ namespace Ship_Game.AI
             DroneWeapon.CooldownTimer -= elapsedTime;
 
             ThinkTimer -= elapsedTime;
-            if (ThinkTimer <= 0f && (DroneTarget == null || !DroneTarget.Active || DroneTarget.HealthStatus < ShipStatus.NotApplicable))
+            if (ThinkTimer <= 0f && (DroneTarget == null || !DroneTarget.Active 
+                                                         || DroneTarget.HealthStatus >= ShipStatus.Maximum))
             {
                 ChooseTarget();
                 ThinkTimer = 2.5f;

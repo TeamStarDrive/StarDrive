@@ -2408,13 +2408,13 @@ namespace Ship_Game.Ships
 
         public void ApplyAllRepair(float repairAmount, int repairLevel, bool repairShields = false)
         {
-            float currentRepair;
-            do
+            if (repairAmount.AlmostEqual(0)) return;
+            int damagedModules = ModuleSlotList.Count(module => !module.Health.AlmostEqual(module.ActualMaxHealth));
+            for (int x =0; x < damagedModules; x++)
             {
-                currentRepair = repairAmount;
+                if (repairAmount.AlmostEqual(0)) break;
                 repairAmount = ApplyRepairOnce(repairAmount, repairLevel);
             }
-            while (0.0f < repairAmount && repairAmount < currentRepair - 0.05f);
             ApplyRepairToShields(repairAmount);
         }
 
