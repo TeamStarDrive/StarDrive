@@ -31,7 +31,7 @@ namespace Ship_Game
 
         Map<PlanetGlow, SubTexture> Glows;
 
-        private void RenderBackdrop()
+        void RenderBackdrop()
         {
             if (GlobalStats.DrawStarfield)
                 bg.Draw(this, StarField);

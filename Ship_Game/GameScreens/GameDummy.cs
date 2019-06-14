@@ -17,9 +17,7 @@ namespace Ship_Game
     // for minimal testing
     public class GameDummy : GameBase
     {
-        LightingSystemManager LightSysManager;
-        SpriteBatch batch;
-        public SpriteBatch Batch => batch ?? (batch = new SpriteBatch(GraphicsDevice));
+        public SpriteBatch Batch => ScreenManager.SpriteBatch;
 
         public GameDummy(int width = 800, int height = 600, bool show = false)
         {
@@ -46,7 +44,7 @@ namespace Ship_Game
         {
             var manager = Services.GetService(typeof(IGraphicsDeviceManager)) as IGraphicsDeviceManager;
             manager?.CreateDevice();
-            LightSysManager = new LightingSystemManager(Services);
+            ScreenManager = new ScreenManager(this, Graphics);
             base.Initialize();
         }
     }

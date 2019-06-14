@@ -21,7 +21,7 @@ namespace Ship_Game
         readonly SceneState GameSceneState;
         readonly SceneInterface SceneInter;
         readonly object InterfaceLock = new object();
-        readonly StarDriveGame GameInstance;
+        readonly GameBase GameInstance;
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         public SceneEnvironment environment;
@@ -47,7 +47,7 @@ namespace Ship_Game
         public static ScreenManager Instance { get; private set; }
         public static GameScreen CurrentScreen => Instance.Current;
 
-        public ScreenManager(StarDriveGame game, GraphicsDeviceManager graphics)
+        public ScreenManager(GameBase game, GraphicsDeviceManager graphics)
         {
             Instance = this;
             GameInstance = game;
@@ -376,7 +376,7 @@ namespace Ship_Game
 
         void PerformHotLoadTasks()
         {
-            HotloadTimer += GameInstance.FrameDeltaTime;
+            HotloadTimer += StarDriveGame.Instance.FrameDeltaTime;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;

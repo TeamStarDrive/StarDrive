@@ -822,6 +822,7 @@ namespace Ship_Game
         }
         static void LoadDialogs() // Refactored by RedFox
         {
+            DiplomacyDialogs.Clear();
             string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
             foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
@@ -1336,8 +1337,12 @@ namespace Ship_Game
         {
             LoadWeapons();
             LoadHullData();
+            LoadShipRoles();
             LoadShipModules();
             LoadTroops();
+            LoadDialogs(); // for CreateEmpire
+            LoadEmpires();
+            LoadEconomicResearchStrategies();
 
             FileInfo[] ships = shipsList != null
                 ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
@@ -1514,6 +1519,7 @@ namespace Ship_Game
         }
         static void LoadEconomicResearchStrategies()
         {
+            EconStrategies.Clear();
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
             {
                 // the story here: some mods have bugged <Name> refs, so we do manual

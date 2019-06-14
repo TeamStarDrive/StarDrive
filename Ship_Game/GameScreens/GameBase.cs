@@ -16,7 +16,7 @@ namespace Ship_Game
     {
         public GraphicsDeviceManager Graphics;
         LightingSystemPreferences Preferences;
-        public ScreenManager ScreenManager;
+        public static ScreenManager ScreenManager;
 
         // This is equivalent to PresentationParameters.BackBufferWidth
         public static int ScreenWidth  { get; protected set; }

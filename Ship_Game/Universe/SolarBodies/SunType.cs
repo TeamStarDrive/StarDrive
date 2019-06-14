@@ -71,7 +71,7 @@ namespace Ship_Game.Universe.SolarBodies
         {
             FileInfo file = ResourceManager.GetModOrVanillaFile("Suns.yaml");
             LoadSuns(file);
-            StarDriveGame.Instance.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
+            GameBase.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
         }
 
         static void LoadSuns(FileInfo file)
@@ -171,7 +171,7 @@ namespace Ship_Game.Universe.SolarBodies
             float relSizeOnScreen = (edge.X - pos.X) / GameBase.ScreenWidth;
             float sizeScaleOnScreen = 1.25f * relSizeOnScreen; // this yields the base star size
 
-            SpriteBatch batch = StarDriveGame.Instance.ScreenManager.SpriteBatch;
+            SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
             batch.End();
             {
                 foreach (SunLayerState layer in sys.SunLayers)
