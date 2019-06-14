@@ -10,17 +10,21 @@ using SynapseGaming.LightingSystem.Rendering;
 namespace UnitTests.Data
 {
     [TestClass]
-    public class TestMeshImportExport
+    public class TestMeshImportExport : StarDriveTest, IDisposable
     {
         readonly GameDummy Game;
         readonly GameContentManager Content;
 
         public TestMeshImportExport()
         {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
             Game = new GameDummy();
             Game.Create();
             Content = Game.Content;
+        }
+
+        public void Dispose()
+        {
+            Game.Dispose();
         }
 
         [TestMethod]
