@@ -458,19 +458,20 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float CalcProjAvgSpeed()
+        // This calculates our Ship's interception speed
+        //   If we have weapons, then let the weapons do the talking
+        //   If no weapons, give max ship speed instead
+        float CalcInterceptSpeed()
         {
-            int nonUtilityCount = 0;
-            float avgProjSpeed = 0f;
-            for (int i = 0; i < Weapons.Count; ++i)
-            {
-                Weapon w = Weapons[i];
-                if (w.DamageAmount < 0.1f) continue;
-                nonUtilityCount++;
-                avgProjSpeed += w.isBeam ? w.Range : w.ProjectileSpeed; 
-            }
-            avgProjSpeed /= (float)nonUtilityCount;
-            return (avgProjSpeed > 0) ? avgProjSpeed : 800f;
+            Weapon[] offensive = OffensiveWeapons;
+
+            // if no offensive weapons, default to ship speed
+            if (offensive.Length == 0)
+                return GetSTLSpeed();
+
+            // @note beam weapon speeds need special treatment, since they are currently instantaneous
+            float[] speeds = offensive.Select(w => w.isBeam ? w.Range * 1.5f : w.ProjectileSpeed);
+            return speeds.Avg();
         }
 
         public void InitializeStatus(bool fromSave)
@@ -498,7 +499,7 @@ namespace Ship_Game.Ships
             MaxBank                  = GetMaxBank(MaxBank);
 
             InitializeWeaponsRanges();
-            AvgProjectileSpeed = CalcProjAvgSpeed();
+            InterceptSpeed = CalcInterceptSpeed();
             
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
@@ -523,7 +524,7 @@ namespace Ship_Game.Ships
             SetmaxFTLSpeed();
         }
 
-        private void InitializeStatusFromModules(bool fromSave)
+        void InitializeStatusFromModules(bool fromSave)
         {
             if (!fromSave)
                 TroopList.Clear();
@@ -616,12 +617,12 @@ namespace Ship_Game.Ships
 
         }
 
-        private float GetBaseCost()
+        float GetBaseCost()
         {
             return ModuleSlotList.Sum(module => module.Cost);
         }
 
-        private float GetMaxBank(float mBank)
+        float GetMaxBank(float mBank)
         {
             switch (shipData.Role)
             {

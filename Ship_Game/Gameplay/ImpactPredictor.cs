@@ -63,7 +63,7 @@ namespace Ship_Game.Gameplay
         {
             Pos = ourShip.Center;
             Vel = ourShip.Velocity;
-            InterceptSpeed = ourShip.AvgProjectileSpeed;
+            InterceptSpeed = ourShip.InterceptSpeed;
             TargetInfo info = GetTargetInfo(target);
             TargetPos = info.Pos;
             TargetVel = info.Vel;
