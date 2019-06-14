@@ -15,44 +15,26 @@ namespace Ship_Game.AI.CombatTactics
      */
     internal sealed class Artillery : ShipAIPlan
     {
-        GameplayObject Target;
-        float MaxDistance;
-        float MinDistance;
-
         public Artillery(ShipAI ai) : base(ai)
         {
-            MaxDistance = Owner.DesiredCombatRange;
-            MinDistance = Math.Max(Owner.DesiredCombatRange - 500f, Owner.DesiredCombatRange * 0.9f);
-            UpdateMinMaxDistance();
         }
 
-        void UpdateMinMaxDistance()
-        {
-            Target = AI.Target;
-            if (Target == null)
-                return;
-            
-            // in general, arty stance is what you use for longrange ships.
-            // This is failsafe distance logic for large ships with super short range going up against other large ships.
-
-            float collisionRange = Owner.Radius + Target.Radius;
-            if (MinDistance <= collisionRange) MinDistance = collisionRange;
-            if (MaxDistance < collisionRange + 150f) MaxDistance = collisionRange + 150f;
-        }
-
-        Vector2 PredictedImpact => Owner.PredictImpact(Target);
-
+        // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
-            if (Target == null)
-                return;
+            float maxDistance = Owner.DesiredCombatRange;
+            float minDistance = Math.Max(Owner.DesiredCombatRange - 500f, Owner.DesiredCombatRange * 0.9f);
 
-            // catch target switches. Necessary after moving pre-calculable stuff to constructor/setup.
-            if (Target != AI.Target)
-                UpdateMinMaxDistance(); 
+            // in general, arty stance is what you use for long range ships.
+            // This is fail safe distance logic for large ships with super short range going up against other large ships.
 
-            float distanceToTarget = Owner.Center.Distance(Target.Center) + 0.5f*Target.Radius;
-            if (distanceToTarget > MaxDistance)
+            Ship target = AI.Target;
+            float collisionRange = Owner.Radius + target.Radius;
+            if (minDistance <= collisionRange)       minDistance = collisionRange;
+            if (maxDistance < collisionRange + 150f) maxDistance = collisionRange + 150f;
+
+            float distanceToTarget = Owner.Center.Distance(target.Center) + 0.5f * target.Radius;
+            if (distanceToTarget > maxDistance)
             {
                 // if more than <interceptBuffer> out of reach, move on a intercept course. Does not have to be 1500.
                 // something like closingSpeed * 2..3 seconds would be fine, so the there is time for optimal align.
@@ -60,25 +42,25 @@ namespace Ship_Game.AI.CombatTactics
                 // maybe (Owner.Velocity - Target.Velocity).Length * 2.0f; to make it adaptable to ship speeds.
                 const float interceptBuffer = 1500f;
 
-                if (distanceToTarget > MaxDistance + interceptBuffer) 
+                if (distanceToTarget > maxDistance + interceptBuffer) 
                 {
                     // This move will keep the ship aligned with the intercept point (for fastest closing of distance).
                     // You won't notice when charging head to head / chasing directly behind, but there are cases 
                     // where this is quite bad for weapons alignment. That is the reason for the buffer.                    
-                    AI.SubLightMoveTowardsPosition(Target.Center, elapsedTime);
+                    AI.SubLightMoveTowardsPosition(target.Center, elapsedTime);
                 }
                 else 
                 {
                     // spend the last bit of the firing gap on a shot impact course, for optimal alignment.
-                    AI.SubLightMoveTowardsPosition(PredictedImpact, elapsedTime);
+                    AI.SubLightMoveTowardsPosition(Owner.PredictImpact(target), elapsedTime);
                 }
             }
             else
             {
                 // adjust to keep facing in intended firing direction.
-                AI.RotateTowardsPosition(PredictedImpact, elapsedTime, 0.05f);
+                AI.RotateTowardsPosition(Owner.PredictImpact(target), elapsedTime, 0.05f);
 
-                if (distanceToTarget > MinDistance)
+                if (distanceToTarget > minDistance)
                 {
                     // stop, we are close enough.
                     AI.ReverseThrustUntilStopped(elapsedTime);
