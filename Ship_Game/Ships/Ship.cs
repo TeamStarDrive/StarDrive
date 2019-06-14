@@ -1236,7 +1236,7 @@ namespace Ship_Game.Ships
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
-        public float AvgProjectileSpeed { get; private set; }
+        public float InterceptSpeed { get; private set; }
         public float DesiredCombatRange { get; private set; }
 
         // @return Filtered list of purely offensive weapons
@@ -1271,25 +1271,22 @@ namespace Ship_Game.Ships
 
             float almostMaxRange = WeaponsMaxRange * 0.85f;
 
+            float[] ranges = OffensiveWeapons.Select(w => w.Range);
+
             float highrangeAverage = 0f;
             float lowrangeAverage = 0f;
             float lowestHigh = WeaponsMaxRange;
-            int nonUtilityCount = 0;
             int longrangeCount = 0;
             int lowrangeCount = 0;
-            for (int i = 0; i < Weapons.Count; i++)
+
+            for (int i = 0; i < ranges.Length; i++)
             {
-                Weapon w = Weapons[i];
-                float weaponRange = w.Range;
-
-                // filter out utility (repairdrone, assault shuttle, etc). Must be low to not filter the weakest beams.
-                if (w.DamageAmount < 0.1f || w.TruePD)
-                    continue;
-
+                float weaponRange = ranges[i];
                 if (weaponRange >= almostMaxRange)
                 {
                     highrangeAverage += weaponRange;
-                    if (weaponRange < lowestHigh) lowestHigh = weaponRange; // WeaponsMaxRange >= lowestHigh >= almostMaxrange
+                    if (lowestHigh > weaponRange)
+                        lowestHigh = weaponRange; // WeaponsMaxRange >= lowestHigh >= almostMaxrange
                     longrangeCount++;
                 }
                 else
@@ -1297,7 +1294,6 @@ namespace Ship_Game.Ships
                     lowrangeAverage += weaponRange;
                     lowrangeCount++;
                 }
-                nonUtilityCount++;
             }
             highrangeAverage /= longrangeCount; 
             lowrangeAverage /= lowrangeCount;
