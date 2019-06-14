@@ -301,7 +301,6 @@ namespace Ship_Game
         public static void CollectMemorySilent()
         {
             GC.WaitForPendingFinalizers();
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
 

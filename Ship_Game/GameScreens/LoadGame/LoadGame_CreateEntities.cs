@@ -36,16 +36,7 @@ namespace Ship_Game
             }
             else
             {
-                e.data = new EmpireData();
-                
-                foreach (string key in e.data.WeaponTags.Keys)
-                {
-                    if (sdata.empireData.WeaponTags.ContainsKey(key))
-                        continue;
-                    sdata.empireData.WeaponTags.Add(key, new WeaponTagModifier());
-                }
                 e.data = sdata.empireData;
-                
                 e.data.ResearchQueue = sdata.empireData.ResearchQueue;
                 e.ResearchTopic      = sdata.ResearchTopic ?? "";
                 e.PortraitName       = e.data.PortraitName;
