@@ -147,7 +147,6 @@ namespace Ship_Game.Ships
         public bool hasRepairBeam;
         public bool hasCommand;
 
-        public float RangeForOverlay;
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
         public int FixedTrackingPower;
