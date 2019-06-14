@@ -219,11 +219,13 @@ namespace Ship_Game.Ships
             text                            = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(Ship), 155f);
             HelperFunctions.ClampVectorToInt(ref shipStatus);
             batch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
-            shipStatus.Y                    = shipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
+            shipStatus.Y += Fonts.Arial12Bold.MeasureString(text).Y;
+
             Ship.RenderOverlay(batch, ShipInfoRect, ShowModules);
             batch.Draw(ResourceManager.Texture("Modules/NuclearReactorMedium"), Power, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Shield_1KW"), Shields, Color.White);
             batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
+
             PBar.Max      = Ship.PowerStoreMax;
             PBar.Progress = Ship.PowerCurrent;
             SBar.Max      = Ship.shield_max;
@@ -245,7 +247,7 @@ namespace Ship_Game.Ships
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
                     button.Draw(ScreenManager);
-                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen);
+                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, (CombatState)button.State);
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI
