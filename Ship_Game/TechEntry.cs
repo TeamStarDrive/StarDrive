@@ -637,18 +637,11 @@ namespace Ship_Game
         {
             if (Tech.BonusUnlocked.Count < 1)
                 return;
-<<<<<<< working copy
-            var theirData = them.data;
-            var theirShipType = theirData.Traits.ShipType;
-
-            //update ship stats if a bonus was unlocked
-=======
 
             EmpireData theirData = them.data;
             string theirShipType = theirData.Traits.ShipType;
 
             // update ship stats if a bonus was unlocked
->>>>>>> merge rev
             empire.TriggerAllShipStatusUpdate();
 
             foreach (Technology.UnlockedBonus unlockedBonus in Tech.BonusUnlocked)
