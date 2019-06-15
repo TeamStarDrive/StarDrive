@@ -5,6 +5,8 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -39,42 +41,42 @@ namespace Ship_Game.Gameplay
 
     public sealed class Weapon : IDisposable, IDamageModifier
     {
-        private WeaponTag TagBits;
-        public bool this[WeaponTag tag]
-        {
-            get => (TagBits & tag) != 0;
-            set => TagBits = value ? TagBits|tag : TagBits & ~tag;
-        }
-        private static readonly char[] TagBitsSeparator = {',', ' '};
-        public string[] GetActiveTagIds()
-        {
-            string[] ids = TagBits.ToString().Split(TagBitsSeparator, StringSplitOptions.RemoveEmptyEntries);
-            return ids;
-        }
-        public bool Tag_Kinetic   { get => this[WeaponTag.Kinetic];   set => this[WeaponTag.Kinetic]   = value; }
-        public bool Tag_Energy    { get => this[WeaponTag.Energy];    set => this[WeaponTag.Energy]    = value; }
-        public bool Tag_Guided    { get => this[WeaponTag.Guided];    set => this[WeaponTag.Guided]    = value; }
-        public bool Tag_Missile   { get => this[WeaponTag.Missile];   set => this[WeaponTag.Missile]   = value; }
-        public bool Tag_Hybrid    { get => this[WeaponTag.Hybrid];    set => this[WeaponTag.Hybrid]    = value; }
-        public bool Tag_Beam      { get => this[WeaponTag.Beam];      set => this[WeaponTag.Beam]      = value; }
-        public bool Tag_Explosive { get => this[WeaponTag.Explosive]; set => this[WeaponTag.Explosive] = value; }
-        public bool Tag_Intercept { get => this[WeaponTag.Intercept]; set => this[WeaponTag.Intercept] = value; }
-        public bool Tag_Railgun   { get => this[WeaponTag.Railgun];   set => this[WeaponTag.Railgun]   = value; }
-        public bool Tag_Bomb      { get => this[WeaponTag.Bomb];      set => this[WeaponTag.Bomb]      = value; }
-        public bool Tag_SpaceBomb { get => this[WeaponTag.SpaceBomb]; set => this[WeaponTag.SpaceBomb] = value; }
-        public bool Tag_BioWeapon { get => this[WeaponTag.BioWeapon]; set => this[WeaponTag.BioWeapon] = value; }
-        public bool Tag_Drone     { get => this[WeaponTag.Drone];     set => this[WeaponTag.Drone]     = value; }
-        public bool Tag_Warp      { get => this[WeaponTag.Warp];      set => this[WeaponTag.Warp]      = value; }
-        public bool Tag_Torpedo   { get => this[WeaponTag.Torpedo];   set => this[WeaponTag.Torpedo]   = value; }
-        public bool Tag_Cannon    { get => this[WeaponTag.Cannon];    set => this[WeaponTag.Cannon]    = value; }
-        public bool Tag_Subspace  { get => this[WeaponTag.Subspace];  set => this[WeaponTag.Subspace]  = value; }
-        public bool Tag_PD        { get => this[WeaponTag.PD];        set => this[WeaponTag.PD]        = value; }
-        public bool Tag_Flak      { get => this[WeaponTag.Flak];      set => this[WeaponTag.Flak]      = value; }
-        public bool Tag_Array     { get => this[WeaponTag.Array];     set => this[WeaponTag.Array]     = value; }
-        public bool Tag_Tractor   { get => this[WeaponTag.Tractor];   set => this[WeaponTag.Tractor]   = value; }
+        WeaponTag TagBits;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        void Tag(WeaponTag tag, bool value) => TagBits = value ? TagBits|tag : TagBits & ~tag;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool Tag(WeaponTag tag) => (TagBits & tag) != 0;
+
+        public static readonly WeaponTag[] TagValues = (WeaponTag[])typeof(WeaponTag).GetEnumValues();
+
+        [XmlIgnore][JsonIgnore] 
+        public WeaponTag[] ActiveWeaponTags;
+
+        // @note These are initialized from XML during serialization
+        public bool Tag_Kinetic   { get => Tag(WeaponTag.Kinetic);   set => Tag(WeaponTag.Kinetic, value);   }
+        public bool Tag_Energy    { get => Tag(WeaponTag.Energy);    set => Tag(WeaponTag.Energy, value);    }
+        public bool Tag_Guided    { get => Tag(WeaponTag.Guided);    set => Tag(WeaponTag.Guided, value);    }
+        public bool Tag_Missile   { get => Tag(WeaponTag.Missile);   set => Tag(WeaponTag.Missile, value);   }
+        public bool Tag_Hybrid    { get => Tag(WeaponTag.Hybrid);    set => Tag(WeaponTag.Hybrid, value);    }
+        public bool Tag_Beam      { get => Tag(WeaponTag.Beam);      set => Tag(WeaponTag.Beam, value);      }
+        public bool Tag_Explosive { get => Tag(WeaponTag.Explosive); set => Tag(WeaponTag.Explosive, value); }
+        public bool Tag_Intercept { get => Tag(WeaponTag.Intercept); set => Tag(WeaponTag.Intercept, value); }
+        public bool Tag_Railgun   { get => Tag(WeaponTag.Railgun);   set => Tag(WeaponTag.Railgun, value);   }
+        public bool Tag_Bomb      { get => Tag(WeaponTag.Bomb);      set => Tag(WeaponTag.Bomb, value);      }
+        public bool Tag_SpaceBomb { get => Tag(WeaponTag.SpaceBomb); set => Tag(WeaponTag.SpaceBomb, value); }
+        public bool Tag_BioWeapon { get => Tag(WeaponTag.BioWeapon); set => Tag(WeaponTag.BioWeapon, value); }
+        public bool Tag_Drone     { get => Tag(WeaponTag.Drone);     set => Tag(WeaponTag.Drone, value);     }
+        public bool Tag_Warp      { get => Tag(WeaponTag.Warp);      set => Tag(WeaponTag.Warp, value);      }
+        public bool Tag_Torpedo   { get => Tag(WeaponTag.Torpedo);   set => Tag(WeaponTag.Torpedo, value);   }
+        public bool Tag_Cannon    { get => Tag(WeaponTag.Cannon);    set => Tag(WeaponTag.Cannon, value);    }
+        public bool Tag_Subspace  { get => Tag(WeaponTag.Subspace);  set => Tag(WeaponTag.Subspace, value);  }
+        public bool Tag_PD        { get => Tag(WeaponTag.PD);        set => Tag(WeaponTag.PD, value);        }
+        public bool Tag_Flak      { get => Tag(WeaponTag.Flak);      set => Tag(WeaponTag.Flak, value);      }
+        public bool Tag_Array     { get => Tag(WeaponTag.Array);     set => Tag(WeaponTag.Array, value);     }
+        public bool Tag_Tractor   { get => Tag(WeaponTag.Tractor);   set => Tag(WeaponTag.Tractor, value);   }
 
         [XmlIgnore][JsonIgnore] public Ship Owner { get; set; }
-        [XmlIgnore][JsonIgnore] public GameplayObject drowner; // drone owner
         public float HitPoints;
         public bool isBeam;
         public float EffectVsArmor = 1f;
@@ -109,12 +111,26 @@ namespace Ship_Game.Gameplay
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
         public Vector2 Center;
-        public float Range;
+        
+        // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
+        // Use GetActualRange() to the true range with bonuses
+        [XmlElement(ElementName = "Range")]
+        public float BaseRange;
+
         public float DamageAmount;
         public float ProjectileSpeed;
         public int ProjectileCount = 1;
-        public int FireArc; // misleading; this is the FireDispersionArc for cannons that do salvo fire
-        public int FireCone; // this is the fire imprecision cone, direction spread is randomized [-FireCone,+FireCone]
+
+        // for cannons that have ProjectileCount > 1, this spreads projectiles out in an arc
+        // this spreading out has a very strict pattern
+        [XmlElement(ElementName = "FireArc")]
+        public int FireDispersionArc;
+        
+        // this is the fire imprecision angle, direction spread is randomized [-FireCone,+FireCone]
+        // the cannon simply has random variability in its shots
+        [XmlElement(ElementName = "FireCone")]
+        public int FireImprecisionAngle; 
+        
         public string ProjectileTexturePath;
         public string ModelPath;
         public string WeaponType;
@@ -150,12 +166,12 @@ namespace Ship_Game.Gameplay
         public string SecondaryFire;
         public bool AltFireMode;
         public bool AltFireTriggerFighter;
-        private Weapon AltFireWeapon;
+        Weapon AltFireWeapon;
         public float OffPowerMod = 1f;
         public bool RangeVariance;
         public float ExplosionRadiusVisual = 4.5f;
         [XmlIgnore][JsonIgnore] public GameplayObject FireTarget { get; private set; }
-        private float TargetChangeTimer;
+        float TargetChangeTimer;
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
@@ -163,18 +179,22 @@ namespace Ship_Game.Gameplay
         public float SalvoTimer;
 
         [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
-        private float SalvoDirection;
-        private float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
-        private GameplayObject SalvoTarget;
+        float SalvoDirection;
+        float SalvoFireTimer; // while SalvosToFire, use this timer to count when to fire next shot
+        GameplayObject SalvoTarget;
         public float ECM = 0;
 
         public void InitializeTemplate()
         {
+            ActiveWeaponTags = TagValues.Where(tag => (TagBits & tag) != 0).ToArray();
+
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             fireDelay = Math.Max(0.016f, fireDelay);
             SalvoTimer = Math.Max(0, SalvoTimer);
+
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
                 SalvoSoundInterval = 9999;
+
             if (Tag_Missile)
             {
                 if (WeaponType.IsEmpty()) WeaponType = "Missile";
@@ -204,12 +224,11 @@ namespace Ship_Game.Gameplay
             wep.FireTarget  = null;
             wep.Module      = null;
             wep.Owner       = null;
-            wep.drowner     = null;
             return wep;
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay =>  isBeam ? fireDelay + BeamDuration : fireDelay + SalvoTimer;
+        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoTimer;
 
         [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
@@ -217,19 +236,22 @@ namespace Ship_Game.Gameplay
         [XmlIgnore][JsonIgnore] // only usage during fire, not power maintenance
         public float PowerFireUsagePerSecond => (BeamPowerCostPerSecond * BeamDuration + PowerRequiredToFire * ProjectileCount * SalvoCount) / NetFireDelay;
 
-        // modify damageamount utilizing tech bonus. Currently this is only ordnance bonus.
+        // modify damage amount utilizing tech bonus. Currently this is only ordnance bonus.
         public float GetDamageWithBonuses(Ship owner)
         {
             float damageAmount = DamageAmount;
-            if (owner?.loyalty?.data != null && OrdinanceRequiredToFire > 0)
+            if (owner?.loyalty.data != null && OrdinanceRequiredToFire > 0)
                 damageAmount += damageAmount * owner.loyalty.data.OrdnanceEffectivenessBonus;
 
             if (owner?.Level > 0)
                 damageAmount += damageAmount * owner.Level * 0.05f;
 
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses) // Hull bonus damage increase
-                if (ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
-                    damageAmount += damageAmount * mod.DamageBonus;
+            // Hull bonus damage increase
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses && owner != null &&
+                ResourceManager.HullBonuses.TryGetValue(owner.shipData.Hull, out HullBonus mod))
+            {
+                damageAmount += damageAmount * mod.DamageBonus;
+            }
 
             return damageAmount;
         }
@@ -254,11 +276,11 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public Vector2 GetFireConeSpread(Vector2 direction)
+        Vector2 ApplyFireImprecisionAngle(Vector2 direction)
         {
-            if (FireCone <= 0)
+            if (FireImprecisionAngle <= 0)
                 return direction;
-            float spread = RandomMath2.RandomBetween(-FireCone, FireCone) * 0.5f;
+            float spread = RandomMath2.RandomBetween(-FireImprecisionAngle, FireImprecisionAngle) * 0.5f;
             return (direction.ToDegrees() + spread).AngleToDirection();
         }
 
@@ -275,22 +297,27 @@ namespace Ship_Game.Gameplay
 
         IEnumerable<FireSource> EnumFireSources(Vector2 origin, Vector2 direction)
         {
-            if (FireArc != 0)
+            if (ProjectileCount == 1) // most common case
             {
-                float degreesBetweenShots = FireArc / (float)ProjectileCount;
-                float angleToTarget = direction.ToDegrees() - FireArc * 0.5f;
+                yield return new FireSource(origin, ApplyFireImprecisionAngle(direction));
+            }
+
+            if (FireDispersionArc != 0)
+            {
+                float degreesBetweenShots = FireDispersionArc / (float)ProjectileCount;
+                float angleToTarget = direction.ToDegrees() - FireDispersionArc * 0.5f;
                 for (int i = 0; i < ProjectileCount; ++i)
                 {
                     Vector2 dir = angleToTarget.AngleToDirection();
                     angleToTarget += degreesBetweenShots;
-                    yield return new FireSource(origin, GetFireConeSpread(dir));
+                    yield return new FireSource(origin, ApplyFireImprecisionAngle(dir));
                 }
             }
             else
             {
                 for (int i = 0; i < ProjectileCount; ++i)
                 {
-                    yield return new FireSource(origin, GetFireConeSpread(direction));
+                    yield return new FireSource(origin, ApplyFireImprecisionAngle(direction));
                 }
             }
         }
@@ -483,7 +510,7 @@ namespace Ship_Game.Gameplay
         }
 
         // Applies correction to weapon target based on distance to target
-        public Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
+        Vector2 AdjustedImpactPoint(Vector2 source, Vector2 target, Vector2 error)
         {
             // once we get too close the angle error becomes too big, so move the target pos further
             float distance = source.Distance(target);
@@ -516,7 +543,7 @@ namespace Ship_Game.Gameplay
                 .Predict(advancedTargeting);
 
             float distance = origin.Distance(pip);
-            float maxPredictionRange = Range*2;
+            float maxPredictionRange = BaseRange*2;
             if (distance > maxPredictionRange)
             {
                 Vector2 predictionVector = target.Center.DirectionToTarget(pip);
@@ -532,7 +559,7 @@ namespace Ship_Game.Gameplay
             return pip != Vector2.Zero;
         }
 
-        public bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
+        bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
         {
             Vector2 origin = Origin;
             pip = Predict(origin, target, CanUseAdvancedTargeting);
@@ -542,6 +569,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
         
+        // @note This is the main firing and targeting method
         // Prioritizes mainTarget
         // But if mainTarget is not viable, will pick a new Target using ships/projectiles lists
         public void UpdateAndFireAtTarget(Ship mainTarget,
@@ -685,7 +713,6 @@ namespace Ship_Game.Gameplay
 
         public DroneBeam FireDroneBeam(DroneAI droneAI)
         {
-            drowner = droneAI.Drone;
             return new DroneBeam(droneAI);
         }
 
@@ -727,61 +754,53 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        // @todo This requires optimization
-        public void ModifyProjectile(Projectile projectile)
+        public void ApplyDamageModifiers(Projectile projectile)
         {
             if (Owner == null)
                 return;
+
             if (Owner.loyalty.data.Traits.Pack)
                 projectile.DamageAmount += projectile.DamageAmount * Owner.PackDamageModifier;
 
-            //if (GlobalStats.HasMod && !GlobalStats.ActiveModInfo.useWeaponModifiers)
-            //    return;
+            float actualShieldPenChance = 0;
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                AddModifiers(ActiveWeaponTags[i], projectile, ref actualShieldPenChance);
+            }
 
-            float actualshieldpenchance = 0;
-
-            if (Tag_Missile)   AddModifiers("Missile", projectile, ref actualshieldpenchance);
-            if (Tag_Energy)    AddModifiers("Energy",  projectile, ref actualshieldpenchance);
-            if (Tag_Torpedo)   AddModifiers("Torpedo", projectile, ref actualshieldpenchance);
-            if (Tag_Kinetic)   AddModifiers("Kinetic", projectile, ref actualshieldpenchance);
-            if (Tag_Hybrid)    AddModifiers("Hybrid",  projectile, ref actualshieldpenchance);
-            if (Tag_Railgun)   AddModifiers("Railgun", projectile, ref actualshieldpenchance);
-            if (Tag_Explosive) AddModifiers("Explosive", projectile, ref actualshieldpenchance);
-            if (Tag_Guided)    AddModifiers("Guided",    projectile, ref actualshieldpenchance);
-            if (Tag_Intercept) AddModifiers("Intercept", projectile, ref actualshieldpenchance);
-            if (Tag_PD)        AddModifiers("PD",        projectile, ref actualshieldpenchance);
-            if (Tag_SpaceBomb) AddModifiers("Spacebomb", projectile, ref actualshieldpenchance);
-            if (Tag_BioWeapon) AddModifiers("BioWeapon", projectile, ref actualshieldpenchance);
-            if (Tag_Drone)     AddModifiers("Drone",     projectile, ref actualshieldpenchance);
-            if (Tag_Subspace)  AddModifiers("Subspace",  projectile, ref actualshieldpenchance);
-            if (Tag_Warp)      AddModifiers("Warp",    projectile, ref actualshieldpenchance);
-            if (Tag_Cannon)    AddModifiers("Cannon",  projectile, ref actualshieldpenchance);
-            if (Tag_Beam)      AddModifiers("Beam",    projectile, ref actualshieldpenchance);
-            if (Tag_Bomb)      AddModifiers("Bomb",    projectile, ref actualshieldpenchance);
-            if (Tag_Array)     AddModifiers("Array",   projectile, ref actualshieldpenchance);
-            if (Tag_Flak)      AddModifiers("Flak",    projectile, ref actualshieldpenchance);
-            if (Tag_Tractor)   AddModifiers("Tractor", projectile, ref actualshieldpenchance);
-
-            projectile.IgnoresShields = actualshieldpenchance > 0f && RandomMath2.InRange(100) <= actualshieldpenchance;
+            // @note This is a random chance, so it cannot be pre calculated
+            projectile.IgnoresShields = actualShieldPenChance > 0f && RandomMath2.InRange(100) <= actualShieldPenChance;
         }
 
-        void AddModifiers(string tag, Projectile projectile, ref float actualShieldPenChance)
+        void AddModifiers(WeaponTag tag, Projectile p, ref float actualShieldPenChance)
         {
-            SerializableDictionary<string, WeaponTagModifier> wepTags = Owner.loyalty.data.WeaponTags;
-            projectile.DamageAmount      += wepTags[tag].Damage * projectile.DamageAmount;
-            projectile.ShieldDamageBonus += wepTags[tag].ShieldDamage;
-            projectile.ArmorDamageBonus  += wepTags[tag].ArmorDamage;
-            // Shield Penetration
-            float currenshieldpenchance   = Module.GetParent().loyalty.data.ShieldPenBonusChance; // check the old calcs first
-            currenshieldpenchance        += wepTags[tag].ShieldPenetration * 100; // new calcs
-            currenshieldpenchance        += ShieldPenChance;
-            actualShieldPenChance = Math.Max(currenshieldpenchance, actualShieldPenChance);
-            if (isBeam) return;
-            projectile.ArmorPiercing         += (int)wepTags[tag].ArmourPenetration;
-            projectile.Health                += HitPoints * wepTags[tag].HitPoints;
-            projectile.RotationRadsPerSecond += wepTags[tag].Turn * RotationRadsPerSecond;
-            projectile.Speed                 += wepTags[tag].Speed * ProjectileSpeed;
-            projectile.DamageRadius          += wepTags[tag].ExplosionRadius * DamageRadius;
+            WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[tag];
+            p.RotationRadsPerSecond += mod.Turn * RotationRadsPerSecond;
+            p.DamageAmount          += mod.Damage * p.DamageAmount;
+            p.Range                 += mod.Range * BaseRange;
+            p.Speed                 += mod.Speed * ProjectileSpeed;
+            p.Health                += mod.HitPoints * HitPoints;
+            p.DamageRadius          += mod.ExplosionRadius * DamageRadius;
+            p.ArmorPiercing         += (int)mod.ArmourPenetration;
+            p.ArmorDamageBonus      += mod.ArmorDamage;
+            p.ShieldDamageBonus     += mod.ShieldDamage;
+            
+            // Shield Penetration TODO
+            float shieldPenChance = Module.GetParent().loyalty.data.ShieldPenBonusChance;
+            shieldPenChance      += mod.ShieldPenetration * 100;
+            shieldPenChance      += ShieldPenChance;
+            actualShieldPenChance = Math.Max(shieldPenChance, actualShieldPenChance);
+        }
+
+        public float GetActualRange()
+        {
+            float range = BaseRange;
+            for (int i = 0; i < ActiveWeaponTags.Length; ++i)
+            {
+                WeaponTagModifier mod = Owner.loyalty.data.WeaponTags[ ActiveWeaponTags[i] ];
+                range += mod.Range * BaseRange;
+            }
+            return range;
         }
 
         public void ResetToggleSound()
@@ -806,42 +825,6 @@ namespace Ship_Game.Gameplay
             else SalvoTarget = null;
             Center = Module.Center;
         }
-
-        float CachedModifiedRange;
-        public float GetModifiedRange()
-        {
-            if (Owner?.loyalty == null || GlobalStats.ActiveModInfo == null || !GlobalStats.ActiveModInfo.useWeaponModifiers)
-                return Range;
-
-            if (CachedModifiedRange > 0f)
-                return CachedModifiedRange;
-
-            float modifier = 1.0f;
-            EmpireData loyaltyData = Owner.loyalty.data;
-            if (Tag_Beam)      modifier *= loyaltyData.WeaponTags["Beam"].Range;
-            if (Tag_Energy)    modifier *= loyaltyData.WeaponTags["Energy"].Range;
-            if (Tag_Explosive) modifier *= loyaltyData.WeaponTags["Explosive"].Range;
-            if (Tag_Guided)    modifier *= loyaltyData.WeaponTags["Guided"].Range;
-            if (Tag_Hybrid)    modifier *= loyaltyData.WeaponTags["Hybrid"].Range;
-            if (Tag_Intercept) modifier *= loyaltyData.WeaponTags["Intercept"].Range;
-            if (Tag_Kinetic)   modifier *= loyaltyData.WeaponTags["Kinetic"].Range;
-            if (Tag_Missile)   modifier *= loyaltyData.WeaponTags["Missile"].Range;
-            if (Tag_Railgun)   modifier *= loyaltyData.WeaponTags["Railgun"].Range;
-            if (Tag_Cannon)    modifier *= loyaltyData.WeaponTags["Cannon"].Range;
-            if (Tag_PD)        modifier *= loyaltyData.WeaponTags["PD"].Range;
-            if (Tag_SpaceBomb) modifier *= loyaltyData.WeaponTags["Spacebomb"].Range;
-            if (Tag_BioWeapon) modifier *= loyaltyData.WeaponTags["BioWeapon"].Range;
-            if (Tag_Drone)     modifier *= loyaltyData.WeaponTags["Drone"].Range;
-            if (Tag_Subspace)  modifier *= loyaltyData.WeaponTags["Subspace"].Range;
-            if (Tag_Warp)      modifier *= loyaltyData.WeaponTags["Warp"].Range;
-            if (Tag_Array)     modifier *= loyaltyData.WeaponTags["Array"].Range;
-            if (Tag_Flak)      modifier *= loyaltyData.WeaponTags["Flak"].Range;
-            if (Tag_Tractor)   modifier *= loyaltyData.WeaponTags["Tractor"].Range;
-
-            CachedModifiedRange = modifier * Range;
-            return CachedModifiedRange;
-        }
-
 
         public float GetShieldDamageMod(ShipModule module)
         {
@@ -879,7 +862,7 @@ namespace Ship_Game.Gameplay
             return true;
         }
 
-        public float UpdateOffense(ShipModule m = null)
+        public float CalculateOffense(ShipModule m = null)
         {
             float off = 0f;
             if (isBeam)
@@ -901,7 +884,7 @@ namespace Ship_Game.Gameplay
             off *= Tag_Guided ? 1.25f : 1f;
 
             //FB: Range margins are less steep for missiles
-            off *= !Tag_Missile && !Tag_Torpedo ? (Range / 4000) * (Range / 4000) : (Range / 4000);
+            off *= !Tag_Missile && !Tag_Torpedo ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
 
             // FB: simpler calcs for these.
             off *= EffectVsArmor > 1 ? 1f + (EffectVsArmor - 1f) / 2f : 1f;
@@ -930,9 +913,10 @@ namespace Ship_Game.Gameplay
             float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
             off *= restrictions;
 
-            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
             if (m == null)
                 return off * OffPowerMod;
+
+            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
 
             //FB: Kinetics which does also require more than minimal power to shoot is less effective
             off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
@@ -961,7 +945,6 @@ namespace Ship_Game.Gameplay
         {
             ToggleCue.Destroy();
             Owner         = null;
-            drowner       = null;
             Module        = null;
             AltFireWeapon = null;
             FireTarget    = null;

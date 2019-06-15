@@ -7,7 +7,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <AssemblyName>StarDrive</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>StarDrive\</OutputPath>
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;STEAM </DefineConstants>
+    <DefineConstants>TRACE;DEBUG;STEAM</DefineConstants>
     <Optimize>false</Optimize>
     <WarningLevel>4</WarningLevel>
     <DebugType>full</DebugType>
@@ -69,7 +69,7 @@
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
     <OutputPath>Deploy\upload\</OutputPath>
-    <DefineConstants>STEAM xPERF xAUTOTIME</DefineConstants>
+    <DefineConstants>STEAM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
@@ -84,7 +84,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug - Auto Fast|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>DEBUG;STEAM PERF xPLAYERONLY </DefineConstants>
+    <DefineConstants>DEBUG;STEAM AUTOFAST</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
@@ -99,7 +99,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release -Auto Fast|x86' ">
     <OutputPath>StarDrive\</OutputPath>
-    <DefineConstants>STEAM PERF  AUTOTIME</DefineConstants>
+    <DefineConstants>STEAM AUTOFAST</DefineConstants>
     <Optimize>true</Optimize>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -129,27 +129,14 @@
   <PropertyGroup>
     <SignManifests>false</SignManifests>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Gretman%27s Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\stardrive mod\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;STEAM ALTERTHREAD</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <UseVSHostingProcess>false</UseVSHostingProcess>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
-    <NoWarn>3270</NoWarn>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Xna.Framework, Version=3.1.0.0, Culture=neutral, PublicKeyToken=6d5c3888ef60e27d, processorArchitecture=x86" />
-    <Reference Include="NAudio, Version=1.8.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\NAudio.1.8.5\lib\net35\NAudio.dll</HintPath>
+    <Reference Include="NAudio, Version=1.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\NAudio.1.9.0\lib\net35\NAudio.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="SharpRaven, Version=2.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\SharpRaven.2.4.0\lib\net45\SharpRaven.dll</HintPath>
@@ -279,6 +266,7 @@
     <Compile Include="Ship_Game\Debug\Page\PlanetDebug.cs" />
     <Compile Include="Ship_Game\Empires\SubSpaceProjectors.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFilter.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\CollectionFindAvg.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMax.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindMin.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionReduce.cs" />
@@ -304,6 +292,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
+    <Compile Include="Ship_Game\GameScreens\GameBase.cs" />
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
@@ -1493,7 +1482,6 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="bitbucket-pipelines.yml" />
     <None Include="Content\Fonts\Arial11Bold.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -1761,6 +1749,9 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Shipyard.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\NewUI\icon_intertrade.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -1778,6 +1769,9 @@
     </Content>
     <Content Include="Microsoft.Xna.Framework.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="XnaNative.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Content\Explosions.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -2133,7 +2127,9 @@
     <Content Include="Content\StarterShips\Mordaving L.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\StarterShips\Rocket Cruiser.xml" />
+    <Content Include="Content\StarterShips\Rocket Cruiser.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\PlanetEdicts\Core.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -5098,7 +5094,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
+    <PostBuildEvent>REM call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
+REM echo "Setting /LARGEADDRESSAWARE"
+REM editbin /largeaddressaware $(TargetPath)
+REM dumpbin /headers $(TargetPath)
+if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>cd $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\UpdateAssemblyInfo.ps1</PreBuildEvent>

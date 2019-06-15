@@ -714,7 +714,7 @@ namespace Ship_Game
                 Empire.Universe.AssignLightRig("example/NewGamelight_rig");
                 Empire.Universe.RecomputeFleetButtons(true);
             }
-            StarField.UnloadContent();
+            StarField.Dispose();
             base.ExitScreen();
         }
 
@@ -780,67 +780,30 @@ namespace Ship_Game
                 else
                 {
                     button.Hover = true;
-                    if (!Input.LeftMouseClick)
+                    if (Input.LeftMouseClick)
                     {
-                        continue;
-                    }
-                    button.Active = false;
-                    foreach (ToggleButton b in OrdersButtons)
-                    {
-                        b.Active = false;
-                    }
-                    button.Active = true;
-                    foreach (FleetDataNode node in SelectedNodeList)
-                    {
-                        string action1 = button.Action;
-                        string str1 = action1;
-                        if (action1 != null)
+                        button.Active = false;
+                        foreach (ToggleButton b in OrdersButtons)
                         {
-                            switch (str1)
-                            {
-                                case "attack":
-                                    node.CombatState = CombatState.AttackRuns;
-                                    break;
-                                case "arty":
-                                    node.CombatState = CombatState.Artillery;
-                                    break;
-                                case "hold":
-                                    node.CombatState = CombatState.HoldPosition;
-                                    break;
-                                case "orbit_left":
-                                    node.CombatState = CombatState.OrbitLeft;
-                                    break;
-                                case "broadside_left":
-                                    node.CombatState = CombatState.BroadsideLeft;
-                                    break;
-                                case "orbit_right":
-                                    node.CombatState = CombatState.OrbitRight;
-                                    break;
-                                case "broadside_right":
-                                    node.CombatState = CombatState.BroadsideRight;
-                                    break;
-                                case "evade":
-                                    node.CombatState = CombatState.Evade;
-                                    break;
-                                case "short":
-                                    node.CombatState = CombatState.ShortRange;
-                                    break;
-                            }
+                            b.Active = false;
                         }
-                        if (node.Ship == null)
+
+                        button.Active = true;
+                        foreach (FleetDataNode node in SelectedNodeList)
                         {
-                            continue;
+                            node.CombatState = (CombatState) button.State;
+                            if (node.Ship != null)
+                                node.Ship.AI.CombatState = node.CombatState;
                         }
-                        node.Ship.AI.CombatState = node.CombatState;
-                    }                    
-                    if (SelectedNodeList[0].Ship == null)
-                    {
-                        continue;
+
+                        if (SelectedNodeList[0].Ship != null)
+                        {
+                            SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
+                            button.Active = true;
+                            GameAudio.EchoAffirmative();
+                            break;
+                        }
                     }
-                    SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
-                    button.Active = true;
-                    GameAudio.EchoAffirmative();
-                    break;
                 }
             }
         }
@@ -965,45 +928,9 @@ namespace Ship_Game
                             button.Active = true;
                             foreach (FleetDataNode node in SelectedNodeList)
                             {
-                                string action1 = button.Action;
-                                string str1 = action1;
-                                if (action1 != null)
-                                {
-                                    switch (str1) {
-                                        case "attack":
-                                            node.CombatState = CombatState.AttackRuns;
-                                            break;
-                                        case "arty":
-                                            node.CombatState = CombatState.Artillery;
-                                            break;
-                                        case "hold":
-                                            node.CombatState = CombatState.HoldPosition;
-                                            break;
-                                        case "orbit_left":
-                                            node.CombatState = CombatState.OrbitLeft;
-                                            break;
-                                        case "broadside_left":
-                                            node.CombatState = CombatState.BroadsideLeft;
-                                            break;
-                                        case "orbit_right":
-                                            node.CombatState = CombatState.OrbitRight;
-                                            break;
-                                        case "broadside_right":
-                                            node.CombatState = CombatState.BroadsideRight;
-                                            break;
-                                        case "evade":
-                                            node.CombatState = CombatState.Evade;
-                                            break;
-                                        case "short":
-                                            node.CombatState = CombatState.ShortRange;
-                                            break;
-                                    }
-                                }
-                                if (node.Ship == null)
-                                {
-                                    continue;
-                                }
-                                node.Ship.AI.CombatState = node.CombatState;
+                                node.CombatState = (CombatState)button.State;
+                                if (node.Ship != null)
+                                    node.Ship.AI.CombatState = node.CombatState;
                             }
                         }
                     }
@@ -1300,55 +1227,9 @@ namespace Ship_Game
                     }
                     foreach (ToggleButton button in OrdersButtons)
                     {
-                        button.Active = false;
-                        CombatState toset = CombatState.Artillery;
-                        string action = button.Action;
-                        string str = action;
-                        if (action != null)
-                        {
-                            if (str == "attack")
-                            {
-                                toset = CombatState.AttackRuns;
-                            }
-                            else if (str == "arty")
-                            {
-                                toset = CombatState.Artillery;
-                            }
-                            else if (str == "hold")
-                            {
-                                toset = CombatState.HoldPosition;
-                            }
-                            else if (str == "orbit_left")
-                            {
-                                toset = CombatState.OrbitLeft;
-                            }
-                            else if (str == "broadside_left")
-                            {
-                                toset = CombatState.BroadsideLeft;
-                            }
-                            else if (str == "orbit_right")
-                            {
-                                toset = CombatState.OrbitRight;
-                            }
-                            else if (str == "broadside_right")
-                            {
-                                toset = CombatState.BroadsideRight;
-                            }
-                            else if (str == "evade")
-                            {
-                                toset = CombatState.Evade;
-                            }
-                            else if (str == "short")
-                            {
-                                toset = CombatState.ShortRange;
-                            }
-                        }
-                        if (node.NodeToClick.CombatState != toset)
-                        {
-                            continue;
-                        }
-                        button.Active = true;
+                        button.Active = (node.NodeToClick.CombatState == (CombatState)button.State);
                     }
+
                     SliderArmor.SetAmount(node.NodeToClick.ArmoredWeight);
                     SliderAssist.SetAmount(node.NodeToClick.AssistWeight);
                     SliderDefend.SetAmount(node.NodeToClick.DefenderWeight);
@@ -1573,11 +1454,11 @@ namespace Ship_Game
             
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
-            void AddOrdersBtn(string action, string icon, int toolTip)
+            void AddOrdersBtn(CombatState state, string icon, int toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon, this)
                 {
-                    Action       = action,
+                    State = state,
                     HasToolTip   = true,
                     WhichToolTip = toolTip
                 };
@@ -1586,16 +1467,16 @@ namespace Ship_Game
                 ordersBarPos.X += 29f;
             }
 
-            AddOrdersBtn("attack",      "SelectionBox/icon_formation_headon", toolTip: 1);
-            AddOrdersBtn("arty",        "SelectionBox/icon_formation_aft",    toolTip: 2);
-            AddOrdersBtn("hold",        "SelectionBox/icon_formation_x",      toolTip: 65);
-            AddOrdersBtn("orbit_left",  "SelectionBox/icon_formation_left",   toolTip: 3);
-            AddOrdersBtn("orbit_right", "SelectionBox/icon_formation_right",  toolTip: 4);
-            AddOrdersBtn("evade",       "SelectionBox/icon_formation_stop",   toolTip: 6);
+            AddOrdersBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: 1);
+            AddOrdersBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: 2);
+            AddOrdersBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: 65);
+            AddOrdersBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: 3);
+            AddOrdersBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: 4);
+            AddOrdersBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: 6);
 
             ordersBarPos = new Vector2(SelectedStuffRect.X + 20 + 3*29f, ordersBarPos.Y + 29f);
-            AddOrdersBtn("broadside_left",  "SelectionBox/icon_formation_bleft",  toolTip: 159);
-            AddOrdersBtn("broadside_right", "SelectionBox/icon_formation_bright", toolTip: 160);
+            AddOrdersBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft",  toolTip: 159);
+            AddOrdersBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: 160);
 
 
             RequisitionForces = new BlueButton(new Vector2(SelectedStuffRect.X + 240, SelectedStuffRect.Y + Fonts.Arial20Bold.LineSpacing + 20), "Requisition...");

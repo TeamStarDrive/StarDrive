@@ -49,7 +49,7 @@ namespace Ship_Game
 
 		public void Draw()
 		{
-            var batch = StarDriveGame.Instance.ScreenManager.SpriteBatch;
+            SpriteBatch batch = GameBase.ScreenManager.SpriteBatch;
 		    batch.FillRectangle(fillRect, new Color(0, 0, 0, 220));
 		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_TL"), corner_TL, Color.White);
 		    batch.Draw(ResourceManager.Texture("NewUI/menu_1_corner_TR"), corner_TR, Color.White);

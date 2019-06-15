@@ -550,7 +550,7 @@ namespace Ship_Game.Ships
 
                 if (totalTroopStrengthToCommit > enemyStrength && (Owner.loyalty.isFaction || targetShip.GetStrength() > 0f))
                 {
-                    if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.maxWeaponsRange))
+                    if (MaxTroopStrengthInSpaceToCommit < enemyStrength && targetShip.Center.InRadius(Owner.Center, Owner.DesiredCombatRange))
                         ScrambleAssaultShips(enemyStrength); // This will launch salvos of assault shuttles if possible
 
                     for (int i = 0; i < AllTroopBays.Length; i++)

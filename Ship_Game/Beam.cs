@@ -35,7 +35,7 @@ namespace Ship_Game
             Module                  = weapon.Module;
             DamageAmount            = weapon.GetDamageWithBonuses(weapon.Owner);
             PowerCost               = weapon.BeamPowerCostPerSecond;
-            Range                   = weapon.Range;
+            Range                   = weapon.BaseRange;
             Duration                = weapon.BeamDuration;
             Thickness               = weapon.BeamThickness;
             WeaponEffectType        = weapon.WeaponEffectType;
@@ -49,8 +49,9 @@ namespace Ship_Game
             ActualHitDestination = Destination;
             BeamCollidedThisFrame = true; //
 
+            weapon.ApplyDamageModifiers(this);
+
             Initialize();
-            weapon.ModifyProjectile(this);
 
             if (Owner != null && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && Owner.InFrustum)
             {

@@ -88,7 +88,7 @@ namespace Ship_Game
                 Troop troop = planet.TroopsHere[i];
                 if (troop.Loyalty == EmpireManager.Cordrazine && troop.TargetType == TargetType.Soft)
                 {
-                    StarDriveGame.Instance.SetSteamAchievement("Owlwoks_Freed");
+                    StarDriveGame.Instance?.SetSteamAchievement("Owlwoks_Freed");
                     troop.SetOwner(Owner);
                     troop.Name = Localizer.Token(EmpireManager.Cordrazine.data.TroopNameIndex);
                     troop.Description = Localizer.Token(EmpireManager.Cordrazine.data.TroopDescriptionIndex);

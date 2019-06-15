@@ -132,7 +132,7 @@ namespace Ship_Game.Gameplay
             Center   = origin;
             Emitter.Position = new Vector3(origin, 0f);
 
-            Range                 = Weapon.Range;
+            Range                 = Weapon.BaseRange;
             Radius                = Weapon.ProjectileRadius;
             Explodes              = Weapon.explodes;
             DamageAmount          = Weapon.GetDamageWithBonuses(Owner);
@@ -145,7 +145,7 @@ namespace Ship_Game.Gameplay
             RotationRadsPerSecond = Weapon.RotationRadsPerSecond;
             ArmorPiercing         = (int)Weapon.ArmourPen;
 
-            Weapon.ModifyProjectile(this); // apply all buffs before initializing
+            Weapon.ApplyDamageModifiers(this); // apply all buffs before initializing
             if (Weapon.RangeVariance)
                 Range *= RandomMath.RandomBetween(0.9f, 1.1f);
 
@@ -164,7 +164,7 @@ namespace Ship_Game.Gameplay
             ParticleDelay  += Weapon.particleDelay;
 
             if (Owner?.loyalty.data.ArmorPiercingBonus > 0
-                && (Weapon.Tag_Kinetic  || Weapon.Tag_Missile || Weapon.Tag_Torpedo))
+                && (Weapon.Tag_Kinetic || Weapon.Tag_Missile || Weapon.Tag_Torpedo))
             {
                 ArmorPiercing += Owner.loyalty.data.ArmorPiercingBonus;
             }
@@ -201,6 +201,12 @@ namespace Ship_Game.Gameplay
 
         void LoadContent()
         {
+            ModelPath = Weapon.ModelPath;
+            UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket";
+
+            if (StarDriveGame.Instance == null)
+                return; // allow spawning invisible projectiles inside Unit Tests
+
             if (Weapon.Animated == 1)
             {
                 string animFolder = "Textures/" + Path.GetDirectoryName(Weapon.AnimationPath);
@@ -214,9 +220,6 @@ namespace Ship_Game.Gameplay
             {
                 ProjectileTexture = ResourceManager.ProjTexture(Weapon.ProjectileTexturePath);
             }
-
-            ModelPath = Weapon.ModelPath;
-            UsesVisibleMesh = Weapon.UseVisibleMesh || WeaponType == "Missile" || WeaponType == "Drone" || WeaponType == "Rocket";
 
             if (Empire.Universe == null)
                 return;

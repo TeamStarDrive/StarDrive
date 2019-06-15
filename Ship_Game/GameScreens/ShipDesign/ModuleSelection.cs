@@ -4,6 +4,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
@@ -11,12 +12,12 @@ namespace Ship_Game
 {
     public class ModuleSelection : Submenu
     {
-        private WeaponScrollList WeaponSl;
-        private readonly ShipDesignScreen ParentScreen;
+        WeaponScrollList WeaponSl;
+        readonly ShipDesignScreen ParentScreen;
         public Rectangle Window;
-        private Submenu ActiveModSubMenu;
-        private readonly ScreenManager ScreenManager;
-        private Submenu ChooseFighterSub;
+        Submenu ActiveModSubMenu;
+        readonly ScreenManager ScreenManager;
+        Submenu ChooseFighterSub;
         public FighterScrollList ChooseFighterSL;
         public Rectangle Choosefighterrect;
 
@@ -92,7 +93,7 @@ namespace Ship_Game
             base.Draw(batch);
         }
 
-        private string ParseText(string text, float width, SpriteFont font)
+        string ParseText(string text, float width, SpriteFont font)
         {
             string line = string.Empty;
             string returnString = string.Empty;
@@ -111,23 +112,22 @@ namespace Ship_Game
         }
 
 
-        private void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
+        void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
             ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, Color.SpringGreen);
             cursorPos.X = cursorPos.X + Fonts.Arial8Bold.MeasureString(text).X;
         }
 
-        private void DrawString(ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
+        void DrawString(ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
             ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, color);
             cursorPos.X = cursorPos.X + font.MeasureString(text).X;
         }
 
-        private void DrawActiveModuleData()
+        void DrawActiveModuleData()
         {
-            //ActiveModSubMenu.Draw();
             Rectangle r = ActiveModSubMenu.Menu;
             int down = 25;
             r.Y += down;
@@ -135,17 +135,6 @@ namespace Ship_Game
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
             ShipModule mod = ParentScreen.ActiveModule ?? ParentScreen.HighlightedModule;
-
-
-
-            //if (ParentScreen.ActiveModule == null && ParentScreen.HighlightedModule != null)
-            //{
-            //    mod = ParentScreen.HighlightedModule;
-            //}
-            //else if (ParentScreen.ActiveModule != null)
-            //{
-            //    mod = ParentScreen.ActiveModule;
-            //}
 
             if (!ActiveModSubMenu.Tabs[0].Selected || mod == null)
                 return;
@@ -316,26 +305,22 @@ namespace Ship_Game
                     mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                 {
                     shipRest = "All Hulls";
-                    specialString = true;
                 }
                 else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule &&
                          !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule &&
                          !mod.StationModule && !mod.FreighterModule)
                 {
                     shipRest = "Fighters Only";
-                    specialString = true;
                 }
                 else if (mod.FightersOnly && !specialString)
                 {
                     shipRest = "Fighters/Corvettes Only";
-                    specialString = true;
                 }
                 else if (!mod.FightersOnly && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule &&
                          !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule &&
                          !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
                 {
                     shipRest = "All Hulls";
-                    specialString = true;
                 }
             }
             else if (!specialString &&
@@ -424,26 +409,30 @@ namespace Ship_Game
                 return;
             ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
-        private void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
+
+        void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
             ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
-        private void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
+
+        void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;
             ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
-        private void DrawStatShieldResist(ref Vector2 cursor, int titleId, float stat, int toolTipId, bool isPercent = true)
+
+        void DrawStatShieldResist(ref Vector2 cursor, int titleId, float stat, int toolTipId, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
             ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
         }
-        private void DrawString(ref Vector2 cursor, string text, bool valueCheck)
+
+        void DrawString(ref Vector2 cursor, string text, bool valueCheck)
         {
             if (!valueCheck)
                 return;
@@ -451,7 +440,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
     }
 
-        private void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
+        void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
             float mass = mod.Mass * EmpireManager.Player.data.MassModifier;
@@ -607,17 +596,18 @@ namespace Ship_Game
             }
         }
 
-        private void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
+        void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
-            float range          = ModifiedWeaponStat(w, WeaponStat.Range);
-            float delay          = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
-            float speed          = ModifiedWeaponStat(w, WeaponStat.Speed);
-            bool repair          = w.isRepairBeam;
-            bool isBeam          = repair || w.isBeam;
-            bool isBallistic     = w.explodes && w.OrdinanceRequiredToFire > 0f;
+            float range = ModifiedWeaponStat(w, WeaponStat.Range);
+            float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
+            float speed = ModifiedWeaponStat(w, WeaponStat.Speed);
+            
+            bool repair = w.isRepairBeam;
+            bool isBeam = repair || w.isBeam;
+            bool isBallistic = w.explodes && w.OrdinanceRequiredToFire > 0f;
             float beamMultiplier = isBeam ? w.BeamDuration * (repair ? -60f : +60f) : 0f;
 
-            float rawDamage       = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
+            float rawDamage = ModifiedWeaponStat(w, WeaponStat.Damage) * GetHullDamageBonus();
             float beamDamage      = rawDamage * beamMultiplier;
             float ballisticDamage = rawDamage + rawDamage * EmpireManager.Player.data.OrdnanceEffectivenessBonus;
             float energyDamage    = rawDamage;
@@ -631,7 +621,6 @@ namespace Ship_Game
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
-
 
             if (isBeam)
             {
@@ -715,34 +704,29 @@ namespace Ship_Game
             }
         }
 
-        private void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, int tooltipId)
+        void DrawStatPercentLine(ref Vector2 cursor, string text, float stat, int tooltipId)
         {
             DrawStat(ref cursor, text, stat, tooltipId, isPercent: true);
             WriteLine(ref cursor);
         }
 
-        private void WriteLine(ref Vector2 cursor, string text)
+        void WriteLine(ref Vector2 cursor, string text)
         {
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
             WriteLine(ref cursor);
         }
 
-        private static void WriteLine(ref Vector2 cursor, int lines = 1)
+        static void WriteLine(ref Vector2 cursor, int lines = 1)
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
         }
 
-        private enum WeaponStat
-        {
-            Damage, Range, Speed, FireDelay, Armor, Shield
-        }
-
-        private static float GetStatForWeapon(WeaponStat stat, Weapon weapon)
+        static float GetStatForWeapon(WeaponStat stat, Weapon weapon)
         {
             switch (stat)
             {
                 case WeaponStat.Damage:    return weapon.DamageAmount;
-                case WeaponStat.Range:     return weapon.Range;
+                case WeaponStat.Range:     return weapon.BaseRange;
                 case WeaponStat.Speed:     return weapon.ProjectileSpeed;
                 case WeaponStat.FireDelay: return weapon.NetFireDelay;
                 case WeaponStat.Armor:     return weapon.EffectVsArmor;
@@ -751,44 +735,21 @@ namespace Ship_Game
             }
         }
 
-        private static float GetStatBonusForWeaponTag(WeaponStat stat, string tagType)
-        {
-            WeaponTagModifier tagModifier = EmpireManager.Player.data.GetWeaponTag(tagType);
-            switch (stat)
-            {
-                case WeaponStat.Damage:    return tagModifier.Damage;
-                case WeaponStat.Range:     return tagModifier.Range;
-                case WeaponStat.Speed:     return tagModifier.Speed;
-                case WeaponStat.FireDelay: return tagModifier.Rate;
-                case WeaponStat.Armor:     return tagModifier.ArmorDamage;
-                case WeaponStat.Shield:    return tagModifier.ShieldDamage;
-                default: return 0f;
-            }
-        }
-
-        private static float ModifiedWeaponStat(Weapon weapon, WeaponStat stat)
+        static float ModifiedWeaponStat(Weapon weapon, WeaponStat stat)
         {
             float value = GetStatForWeapon(stat, weapon);
-            string[] activeTags = weapon.GetActiveTagIds();
-            foreach (string tag in activeTags)
-                value += value * GetStatBonusForWeaponTag(stat, tag);
+            foreach (WeaponTag tag in weapon.ActiveWeaponTags)
+                value += value * EmpireManager.Player.data.GetStatBonusForWeaponTag(stat, tag);
             return value;
         }
 
-        private void DrawResistancePercent(ref Vector2 cursor, Weapon weapon, string description, WeaponStat stat)
+        void DrawResistancePercent(ref Vector2 cursor, Weapon weapon, string description, WeaponStat stat)
         {
-            float effect = ModifiedWeaponStat(weapon, stat) ;
-            if (effect == 1 ) return;
-            DrawStat(ref cursor, description, effect, 147, isPercent: true);
-
+            float effect = ModifiedWeaponStat(weapon, stat);
+            if (effect != 1f) DrawStat(ref cursor, description, effect, 147, isPercent: true);
         }
 
-        private void DrawVSResist(ref Vector2 cursor, string words, string stat, int tooltipId)
-        {
-            DrawStat(ref cursor, words, stat, tooltipId);
-        }
-
-        private float GetHullDamageBonus()
+        float GetHullDamageBonus()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
                 ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
@@ -796,7 +757,7 @@ namespace Ship_Game
             return 1f;
         }
 
-        private float GetHullFireRateBonus()
+        float GetHullFireRateBonus()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
                 ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))

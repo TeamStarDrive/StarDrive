@@ -467,15 +467,15 @@ namespace Ship_Game
             if (showingRangeOverlay && !LookingAtPlanet)
             {
                 var shipRangeTex = ResourceManager.Texture("UI/node_shiprange");
-                foreach (ClickableShip ship in ClickableShipsList)
+                foreach (ClickableShip clickable in ClickableShipsList)
                 {
-                    if (ship.shipToClick != null && ship.shipToClick.RangeForOverlay > 0f)
+                    Ship ship = clickable.shipToClick;
+                    if (ship != null && ship.WeaponsMaxRange > 0f)
                     {
-                        Color color = (ship.shipToClick.loyalty == EmpireManager.Player)
+                        Color color = (ship.loyalty == EmpireManager.Player)
                             ? new Color(0, 200, 0, 30)
                             : new Color(200, 0, 0, 30);
-                        float radius = ship.shipToClick.RangeForOverlay;
-                        DrawTextureProjected(shipRangeTex, ship.shipToClick.Position, radius, color);
+                        DrawTextureProjected(shipRangeTex, ship.Position, ship.WeaponsMaxRange, color);
                     }
                 }
             }

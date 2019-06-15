@@ -12,7 +12,7 @@ namespace UnitTests.Serialization
 {
     [TestClass]
     [SuppressMessage("ReSharper", "UnassignedReadonlyField")]
-    public class TestYamlParser
+    public class TestYamlParser : StarDriveTest
     {
         void ParserDump(YamlParser parser)
         {

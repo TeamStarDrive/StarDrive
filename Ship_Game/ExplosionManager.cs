@@ -171,7 +171,6 @@ namespace Ship_Game
 
         public static void DrawExplosions(SpriteBatch batch, in Matrix view, in Matrix projection)
         {
-            Viewport vp = StarDriveGame.Instance.Viewport;
             using (Lock.AcquireReadLock())
             {
                 for (int i = 0; i < ActiveExplosions.Count; ++i)
@@ -179,7 +178,7 @@ namespace Ship_Game
                     ExplosionState e = ActiveExplosions[i];
                     if (float.IsNaN(e.Radius) || e.Radius.AlmostZero() || e.Animation == null)
                         continue;
-                    DrawExplosion(batch, vp, view, projection, e);
+                    DrawExplosion(batch, GameBase.Viewport, view, projection, e);
                 }
             }
         }

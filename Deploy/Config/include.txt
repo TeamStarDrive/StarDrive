@@ -13,4 +13,6 @@
 "..\..\StarDrive\SharpRaven.xml"
 "..\..\StarDrive\SharpRaven.dll"
 "..\..\StarDrive\libfbxsdk.dll"
+"..\..\StarDrive\XnaNative.dll"
+"..\..\StarDrive\Microsoft.Xna.Framework.dll"
 "..\..\StarDrive\System.ValueTuple.dll"

@@ -67,7 +67,7 @@ namespace Ship_Game.AI
                 return;
 
             // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.maxWeaponsRange))
+            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange))
             {
                 var missile = (Projectile) go;
                 if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
