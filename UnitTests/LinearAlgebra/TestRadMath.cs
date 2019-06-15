@@ -8,14 +8,9 @@ using Ship_Game;
 namespace UnitTests.LinearAlgebra
 {
     [TestClass]
-    public class TestRadMath
+    public class TestRadMath : StarDriveTest
     {
         const float Tolerance = 0.01f;
-
-        public TestRadMath()
-        {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
-        }
 
         [TestMethod]
         public void FastSin()

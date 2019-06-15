@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Gameplay;
 
@@ -384,9 +385,10 @@ namespace Ship_Game.Ships
             }
             screen.ScreenManager.SpriteBatch.End();
         }
-        public void DrawWeaponRangeCircles(UniverseScreen screen)
+
+        public void DrawWeaponRangeCircles(UniverseScreen screen, CombatState state)
         {
-            screen.DrawCircleProjected(Center, maxWeaponsRange, Color.Red);
+            screen.DrawCircleProjected(Center, GetDesiredCombatRangeForState(state), Color.Red);
         }
     }
 }

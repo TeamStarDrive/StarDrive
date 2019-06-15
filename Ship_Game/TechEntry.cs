@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
+using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
@@ -616,11 +617,6 @@ namespace Ship_Game
             return null;
         }
 
-        public TechEntry[] FindChildEntries(Empire empire)
-        {
-            return Tech.Children.Select(empire.GetTechEntry);
-        }
-
         public TechEntry[] GetPlayerChildEntries()
         {
             return Tech.Children.Select(EmpireManager.Player.GetTechEntry);
@@ -641,15 +637,23 @@ namespace Ship_Game
         {
             if (Tech.BonusUnlocked.Count < 1)
                 return;
+<<<<<<< working copy
             var theirData = them.data;
             var theirShipType = theirData.Traits.ShipType;
 
             //update ship stats if a bonus was unlocked
+=======
+
+            EmpireData theirData = them.data;
+            string theirShipType = theirData.Traits.ShipType;
+
+            // update ship stats if a bonus was unlocked
+>>>>>>> merge rev
             empire.TriggerAllShipStatusUpdate();
 
             foreach (Technology.UnlockedBonus unlockedBonus in Tech.BonusUnlocked)
             {
-                //Added by McShooterz: Race Specific bonus
+                // Added by McShooterz: Race Specific bonus
                 string type = unlockedBonus.Type;
 
                 bool bonusRestrictedToThem = type != null && type == theirShipType;
@@ -667,31 +671,43 @@ namespace Ship_Game
                     UnlockOtherBonuses(empire, unlockedBonus);
                     continue;
                 }
-                foreach (string index in unlockedBonus.Tags)
+
+                foreach (string tag in unlockedBonus.Tags)
                 {
-                    var tagmod = theirData.WeaponTags[index];
-                    switch (unlockedBonus.BonusType)
-                    {
-                        case "Weapon_Speed"            : tagmod.Speed             += unlockedBonus.Bonus; continue;
-                        case "Weapon_Damage"           : tagmod.Damage            += unlockedBonus.Bonus; continue;
-                        case "Weapon_ExplosionRadius"  : tagmod.ExplosionRadius   += unlockedBonus.Bonus; continue;
-                        case "Weapon_TurnSpeed"        : tagmod.Turn              += unlockedBonus.Bonus; continue;
-                        case "Weapon_Rate"             : tagmod.Rate              += unlockedBonus.Bonus; continue;
-                        case "Weapon_Range"            : tagmod.Range             += unlockedBonus.Bonus; continue;
-                        case "Weapon_ShieldDamage"     : tagmod.ShieldDamage      += unlockedBonus.Bonus; continue;
-                        case "Weapon_ArmorDamage"      : tagmod.ArmorDamage       += unlockedBonus.Bonus; continue;
-                        case "Weapon_HP"               : tagmod.HitPoints         += unlockedBonus.Bonus; continue;
-                        case "Weapon_ShieldPenetration": tagmod.ShieldPenetration += unlockedBonus.Bonus; continue;
-                        case "Weapon_ArmourPenetration": tagmod.ArmourPenetration += unlockedBonus.Bonus; continue;
-                        default                        : continue;
-                    }
+                    ApplyWeaponTagBonusToEmpire(theirData, tag, unlockedBonus);
                 }
             }
         }
 
-        private void UnlockOtherBonuses(Empire empire, Technology.UnlockedBonus unlockedBonus)
+        static void ApplyWeaponTagBonusToEmpire(EmpireData data, string tag, Technology.UnlockedBonus unlocked)
         {
-            var data = empire.data;
+            if (!Enum.TryParse(tag, out WeaponTag weaponTag))
+            {
+                Log.Error($"No such weapon tag type: '{tag}'");
+                return;
+            }
+
+            WeaponTagModifier mod = data.WeaponTags[weaponTag];
+            switch (unlocked.BonusType)
+            {
+                default: return;
+                case "Weapon_Speed"            : mod.Speed             += unlocked.Bonus; break;
+                case "Weapon_Damage"           : mod.Damage            += unlocked.Bonus; break;
+                case "Weapon_ExplosionRadius"  : mod.ExplosionRadius   += unlocked.Bonus; break;
+                case "Weapon_TurnSpeed"        : mod.Turn              += unlocked.Bonus; break;
+                case "Weapon_Rate"             : mod.Rate              += unlocked.Bonus; break;
+                case "Weapon_Range"            : mod.Range             += unlocked.Bonus; break;
+                case "Weapon_ShieldDamage"     : mod.ShieldDamage      += unlocked.Bonus; break;
+                case "Weapon_ArmorDamage"      : mod.ArmorDamage       += unlocked.Bonus; break;
+                case "Weapon_HP"               : mod.HitPoints         += unlocked.Bonus; break;
+                case "Weapon_ShieldPenetration": mod.ShieldPenetration += unlocked.Bonus; break;
+                case "Weapon_ArmourPenetration": mod.ArmourPenetration += unlocked.Bonus; break;
+            }
+        }
+
+        static void UnlockOtherBonuses(Empire empire, Technology.UnlockedBonus unlockedBonus)
+        {
+            EmpireData data = empire.data;
             switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
             {
                 case "Xeno Compilers":

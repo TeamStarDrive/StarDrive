@@ -13,15 +13,15 @@ namespace Ship_Game.AI.CombatTactics
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
             float distance = Owner.Center.Distance(AI.Target.Center);
-            if (distance > Owner.maxWeaponsRange)
+            if (distance > Owner.DesiredCombatRange)
             {
                 AI.SubLightMoveTowardsPosition(AI.Target.Center, elapsedTime);
                 return; // we're still way far away from target
             }
 
-            if (distance < (Owner.maxWeaponsRange * 0.70f)) // within suitable range
+            if (distance < (Owner.DesiredCombatRange * 0.70f)) // within suitable range
             {
-                UpdateOrbitPos(AI.Target.Center, Owner.MaxWeaponRange * 0.95f, elapsedTime);
+                UpdateOrbitPos(AI.Target.Center, Owner.DesiredCombatRange * 0.95f, elapsedTime);
                 AI.SubLightMoveTowardsPosition(OrbitPos, elapsedTime);
                 return;
             }

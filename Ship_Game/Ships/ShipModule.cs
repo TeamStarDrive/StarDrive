@@ -10,6 +10,10 @@ namespace Ship_Game.Ships
 {
     public sealed class ShipModule : GameplayObject
     {
+        public bool ThisClassMustNotBeAutoSerializedByDotNet =>
+            throw new InvalidOperationException(
+                $"BUG! ShipModule must not be serialized! Add [XmlIgnore][JsonIgnore] to `public ShipModule XXX;` PROPERTIES/FIELDS. {this}");
+
         //private static int TotalModules = 0;
         //public int ID = ++TotalModules;
         public ShipModuleFlyweight Flyweight; //This is where all the other member variables went. Having this as a member object
@@ -32,7 +36,7 @@ namespace Ship_Game.Ships
         public Vector3 GetCenter3D => Center3D;
         const float OnFireThreshold = 0.15f;
         ShipModuleDamageVisualization DamageVisualizer;
-        EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
+        public EmpireShipBonuses Bonuses = EmpireShipBonuses.Default;
         Ship Parent;
         public string WeaponType;
         public ushort NameIndex;
@@ -932,7 +936,6 @@ namespace Ship_Game.Ships
             InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
             InstalledWeapon.Center = Center;
-
         }
 
         public void SetHangarShip(Ship ship)
@@ -1246,7 +1249,7 @@ namespace Ship_Game.Ships
 
         public float CalculateModuleOffense()
         {
-            float off = InstalledWeapon?.UpdateOffense(this) ?? 0f;
+            float off = InstalledWeapon?.CalculateOffense(this) ?? 0f;
 
             off += IsTroopBay ? 50 : 0;
             if (ModuleType != ShipModuleType.Hangar || hangarShipUID.IsEmpty()

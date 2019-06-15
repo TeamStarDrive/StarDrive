@@ -785,7 +785,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(365));
             if (b.TheWeapon != null)
             {
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.Range, "UI/icon_offense", "Range", signs: false);
+                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);

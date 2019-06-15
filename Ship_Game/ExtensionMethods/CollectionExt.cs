@@ -147,9 +147,6 @@ namespace Ship_Game
         public static Array<T> ToArrayList<T>(this IReadOnlyList<T> source) => new Array<T>(source);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Array<T> ToArrayList<T>(this IReadOnlyCollection<T> source) => new Array<T>(source);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Array<T> ToArrayList<T>(this IEnumerable<T> source) => new Array<T>(source);
 
         public static T[] ToArray<T>(this ICollection<T> source)
@@ -170,19 +167,6 @@ namespace Ship_Game
                 c.CopyTo(items, 0);
             else for (int i = 0; i < count; ++i)
                 items[i] = source[i];
-            return items;
-        }
-
-        public static T[] ToArray<T>(this IReadOnlyCollection<T> source)
-        {
-            int count = source.Count;
-            if (count == 0) return Empty<T>.Array;
-            var items = new T[count];
-            if (source is ICollection<T> c)
-                c.CopyTo(items, 0);
-            else using (var e = source.GetEnumerator())
-                for (int i = 0; i < count && e.MoveNext(); ++i)
-                    items[i] = e.Current;
             return items;
         }
 
