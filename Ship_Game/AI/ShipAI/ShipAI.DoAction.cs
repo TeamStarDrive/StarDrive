@@ -102,7 +102,7 @@ namespace Ship_Game.AI
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(Target.Center, Owner.maxWeaponsRange*3f))
+                && Owner.Center.OutsideRadius(Target.Center, Owner.DesiredCombatRange * 3f))
             {
                 ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
                 return;
@@ -396,7 +396,7 @@ namespace Ship_Game.AI
         void DoRepairBeamLogic(Weapon w)
         {
             Ship repairMe = FriendliesNearby.FindMinFiltered(
-                    filter: ship => ShipNeedsRepair(ship, w.Range + 500f, Owner),
+                    filter: ship => ShipNeedsRepair(ship, w.BaseRange + 500f, Owner),
                     selector: ship => ship.InternalSlotsHealthPercent);
 
             if (repairMe != null) w.FireTargetedBeam(repairMe);

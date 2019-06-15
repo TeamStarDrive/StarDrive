@@ -265,7 +265,7 @@ namespace Ship_Game
 
         static void InitializeShip(UniverseData data, Ship ship)
         {
-            ship.InitializeShip(loadingFromSavegame: true);
+            ship.InitializeShip(loadingFromSaveGame: true);
 
             if (ship.Carrier.HasHangars)
             {

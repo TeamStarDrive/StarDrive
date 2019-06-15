@@ -81,7 +81,7 @@ namespace Ship_Game.Ships
                 Level += (int)CurrentGame.Difficulty;
             }
 
-            InitializeShip(loadingFromSavegame: false);
+            InitializeShip(loadingFromSaveGame: false);
             owner.AddShip(this);
             Empire.Universe?.MasterShipList.Add(this);
         }
@@ -235,6 +235,9 @@ namespace Ship_Game.Ships
             if (ThrusterList.IsEmpty || ThrusterList.First.model != null)
                 return;
 
+            if (StarDriveGame.Instance == null) // allows creating ship templates in Unit Tests
+                return;
+
             GameContentManager content = ResourceManager.RootContent;
             foreach (Thruster t in ThrusterList)
             {
@@ -353,6 +356,9 @@ namespace Ship_Game.Ships
 
         public void CreateSceneObject()
         {
+            if (StarDriveGame.Instance == null)
+                return; // allow creating invisible ships in Unit Tests
+
             shipData.LoadModel(out ShipSO, Empire.Universe);
 
             Radius            = ShipSO.WorldBoundingSphere.Radius;
@@ -362,9 +368,9 @@ namespace Ship_Game.Ships
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
-        public void InitializeShip(bool loadingFromSavegame = false)
+        public void InitializeShip(bool loadingFromSaveGame = false)
         {
-            Center = new Vector2(Position.X + Dimensions.X / 2f, Position.Y + Dimensions.Y / 2f);
+            Center = Position + Dimensions / 2f;
 
             CreateSceneObject();
 
@@ -380,17 +386,17 @@ namespace Ship_Game.Ships
             }
             else FromSave = true;
 
-            //begin: ShipSubClass Initialization. Put all ship sub class intializations here
+            // Begin: ShipSubClass Initialization. Put all ship sub class initializations here
             if (AI == null)
             {
                 InitializeAI();
                 AI.CombatState = shipData.CombatState;
             }
-            //end: ship subclass initializations.
+            // End: ship subclass initializations.
 
             // FB: this IF statement so that ships loaded from save wont initialize twice, causing internalslot issues. This is a Workaround
             // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
-            if (!loadingFromSavegame)
+            if (!loadingFromSaveGame)
                 InitializeStatus(false);
 
             SetSystem(System);
@@ -452,7 +458,6 @@ namespace Ship_Game.Ships
             }
         }
 
-
         public void InitializeStatus(bool fromSave)
         {
             Thrust                   = 0f;
@@ -472,41 +477,39 @@ namespace Ship_Game.Ships
             TroopCapacity            = 0;
             ECMValue                 = 0f;
             FTLSpoolTime             = 0f;
-            RangeForOverlay          = 0f;
             SurfaceArea              = shipData.ModuleSlots.Length;
             Mass                     = SurfaceArea;
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank(MaxBank);
 
-            foreach (Weapon w in Weapons)
-            {
-                float weaponRange = w.GetModifiedRange();
-                if (weaponRange > RangeForOverlay)
-                    RangeForOverlay = weaponRange;
-            }
-            Carrier                  = CarrierBays.Create(this, ModuleSlotList);
-            Supply                   = new ShipResupply(this);
+            UpdateWeaponRanges();
+            
+            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
+            Supply  = new ShipResupply(this);
+
             InitializeStatusFromModules(fromSave);
             InitDefendingTroopStrength();
+
             ActiveInternalSlotCount  = InternalSlotCount;
             velocityMaximum          = Thrust / Mass;
             Speed                    = velocityMaximum;
             rotationRadiansPerSecond = TurnThrust / Mass / 700f;
             ShipMass                 = Mass;
-            BaseStrength             = CalculateShipStrength();
-            CurrentStrength          = BaseStrength;
 
-            // @todo Do we need to recalculate this every time? This whole thing looks fishy
+            // initialize strength for our empire:
+            CurrentStrength = CalculateShipStrength();
+            BaseStrength = CurrentStrength; // save base strength for later
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
 
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;
+
             UpdateShields();
             SetmaxFTLSpeed();
         }
 
-        private void InitializeStatusFromModules(bool fromSave)
+        void InitializeStatusFromModules(bool fromSave)
         {
             if (!fromSave)
                 TroopList.Clear();
@@ -596,15 +599,14 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while.
             shipData.BaseCanWarp      = WarpThrust > 0;
             BaseCanWarp               = WarpThrust > 0;
-
         }
 
-        private float GetBaseCost()
+        float GetBaseCost()
         {
             return ModuleSlotList.Sum(module => module.Cost);
         }
 
-        private float GetMaxBank(float mBank)
+        float GetMaxBank(float mBank)
         {
             switch (shipData.Role)
             {

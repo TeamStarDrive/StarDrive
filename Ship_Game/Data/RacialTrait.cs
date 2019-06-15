@@ -250,10 +250,7 @@ namespace Ship_Game
 
         public void ApplyTraitToShip(Ship ship)
         {
-            if (!Pack)
-                return;
-
-            ship.ApplyPackDamageModifier();
+            if (Pack) ship.UpdatePackDamageModifier();
         }
     }
 }

@@ -128,7 +128,7 @@ namespace Ship_Game.Gameplay
         }
 
         public GameplayObject[] FindNearby(GameplayObject obj, float radius, GameObjectType filter = GameObjectType.None)
-            => QuadTree?.FindNearby(obj, radius, filter); //I think dispose order is wrong here so that the quadtree goes null before the projectiles. 
+            => QuadTree.FindNearby(obj, radius, filter);
 
         // @note This is called every time an exploding projectile hits a target and dies
         //       so everything nearby receives additional splash damage

@@ -212,5 +212,20 @@ namespace Ship_Game
             return list.GetInternalArrayItems().FindMin(list.Count, selector);
         }
 
+
+        // @note Hand-crafted Min() extension for float arrays
+        public static float Min(this float[] floats)
+        {
+            if (floats.Length == 0)
+                return 0f;
+
+            float min = floats[0];
+            for (int i = 1; i < floats.Length; ++i)
+            {
+                float value = floats[i];
+                if (value < min) min = value;
+            }
+            return min;
+        }
     }
 }

@@ -43,10 +43,12 @@ namespace Ship_Game
         {
             Items = Empty<T>.Array;
         }
+
         public Array(int capacity)
         {
             Items = new T[capacity];
         }
+
         /// <summary> Fastest method to copying an ArrayT.</summary>
         public Array(Array<T> list)
         {
@@ -54,6 +56,7 @@ namespace Ship_Game
             if ((Count = list.Count) > 0)
                 list.CopyTo(Items = new T[Count]);
         }
+
         /// <summary>Array capacity is reserved exactly, CopyTo is used so the speed will vary
         /// on the container implementation. ArrayT CopyTo uses an extremly fast internal C++ copy routine
         /// which is the best case scenario. Lists that use Array.Copy() are about 2 times slower.</summary>
@@ -63,6 +66,7 @@ namespace Ship_Game
             if ((Count = collection.Count) > 0)
                 collection.CopyTo(Items = new T[Count], 0);
         }
+
         /// <summary>Array capacity is reserved exactly, CopyTo is used</summary>
         public Array(T[] collection)
         {
@@ -70,6 +74,7 @@ namespace Ship_Game
             if ((Count = collection.Length) > 0)
                 collection.CopyTo(Items = new T[Count], 0);
         }
+
         /// <summary>Array capacity is reserved exactly, CopyTo is used if list is ICollection and indexing operator is used for element access (kinda slow, but ok)</summary>
         public Array(IReadOnlyList<T> list)
         {
@@ -82,20 +87,7 @@ namespace Ship_Game
             else for (int i = 0; i < count; ++i)
                 Items[i] = list[i];
         }
-        /// <summary>Array capacity is reserved exactly, but dynamic enumeration is used if collection is not an ICollection (very slow)</summary>
-        public Array(IReadOnlyCollection<T> collection)
-        {
-            Items = Empty<T>.Array;
-            int count = collection.Count;
-            if ((Count = count) <= 0)
-                return;
-            Items = new T[count];
-            if (collection is ICollection<T> c)
-                c.CopyTo(Items, 0);
-            else using (IEnumerator<T> e = collection.GetEnumerator())
-                for (int i = 0; i < count && e.MoveNext(); ++i)
-                    Items[i] = e.Current;
-        }
+
         /// <summary>The slowest way to construct an new ArrayT.
         /// This will check for multiple subtypes to try and optimize creation, dynamic enumeration would be too slow
         /// Going from fastest implementations to the slowest:
@@ -341,7 +333,7 @@ namespace Ship_Game
 
             int last = --Count;
             Items[i]    = Items[last];
-            Items[last] = default(T);
+            Items[last] = default;
             return true;
         }
 
@@ -393,7 +385,7 @@ namespace Ship_Game
                 ThrowIndexOutOfBounds(index);
             int last = --Count;
             Items[index] = Items[last];
-            Items[last]  = default(T);
+            Items[last]  = default;
         }
 
         public T PopLast()
@@ -410,11 +402,11 @@ namespace Ship_Game
         {
             if (Count == 0)
             {
-                item = default(T);
+                item = default;
                 return false;
             }
             item         = Items[--Count];
-            Items[Count] = default(T);
+            Items[Count] = default;
             return true;
         }
 
@@ -434,7 +426,7 @@ namespace Ship_Game
                     int last = --count; // RemoveAtSwapLast():
                     Count    = last;
                     Items[j]    = Items[last];
-                    Items[last] = default(T);
+                    Items[last] = default;
                     ++removed;
                 }
             }
@@ -476,7 +468,7 @@ namespace Ship_Game
                 Index = 0;
                 Count = arr.Count;
                 Items = arr.Items;
-                Current = default(T);
+                Current = default;
             }
             public void Dispose()
             {
@@ -865,7 +857,7 @@ namespace Ship_Game
                 Index = start;
                 End   = end;
                 Items = arr;
-                Current = default(T);
+                Current = default;
             }
             public void Dispose()
             {

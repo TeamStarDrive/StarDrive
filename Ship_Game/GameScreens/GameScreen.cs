@@ -40,11 +40,11 @@ namespace Ship_Game
         public byte TransitionAlpha => (byte)(255f - TransitionPosition * 255f);
 
         // This is equivalent to PresentationParameters.BackBufferWidth
-        public int ScreenWidth      => StarDriveGame.Instance.ScreenWidth;
-        public int ScreenHeight     => StarDriveGame.Instance.ScreenHeight;
+        public int ScreenWidth      => GameBase.ScreenWidth;
+        public int ScreenHeight     => GameBase.ScreenHeight;
         public Vector2 MousePos     => Input.CursorPosition;
-        public Vector2 ScreenArea   => StarDriveGame.Instance.ScreenArea;
-        public Vector2 ScreenCenter => StarDriveGame.Instance.ScreenArea * 0.5f;
+        public Vector2 ScreenArea   => GameBase.ScreenSize;
+        public Vector2 ScreenCenter => GameBase.ScreenCenter;
         public GameTime GameTime    => StarDriveGame.Instance.GameTime;
         protected bool Pauses = true;
 
@@ -63,22 +63,22 @@ namespace Ship_Game
         public Matrix View, Projection;
 
         protected GameScreen(GameScreen parent, bool pause = true) 
-            : this(parent, new Rectangle(0, 0, StarDriveGame.Instance.ScreenWidth, StarDriveGame.Instance.ScreenHeight), pause)
+            : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), pause)
         {
         }
         
         protected GameScreen(GameScreen parent, Rectangle rect, bool pause = true) : base(parent, rect)
         {
             // hook the content chain to parent screen if possible
-            TransientContent = new GameContentManager(parent?.TransientContent ?? StarDriveGame.Instance.Content, GetType().Name);
-            ScreenManager    = parent?.ScreenManager ?? StarDriveGame.Instance.ScreenManager;
+            TransientContent = new GameContentManager(parent?.TransientContent ?? GameBase.Base.Content, GetType().Name);
+            ScreenManager    = parent?.ScreenManager ?? GameBase.ScreenManager;
             UpdateViewport();
 
             if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
                 Empire.Universe.Paused = true;
             else Pauses = false;
             if (Input == null)
-                Input = ScreenManager.input;
+                Input = ScreenManager?.input;
         }
 
         ~GameScreen() { Destroy(); }
@@ -94,7 +94,7 @@ namespace Ship_Game
             TransientContent?.Dispose(ref TransientContent);
         }
 
-        public void UpdateViewport() => Viewport = StarDriveGame.Instance.Viewport;
+        public void UpdateViewport() => Viewport = GameBase.Viewport;
 
         public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
         public void RemoveObject(ISceneObject so) => ScreenManager.RemoveObject(so);
