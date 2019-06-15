@@ -76,6 +76,7 @@
     <Compile Include="Collections\TestCollectionExt.cs" />
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
+    <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="Ships\TestWeaponTargeting.cs" />
@@ -136,6 +137,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

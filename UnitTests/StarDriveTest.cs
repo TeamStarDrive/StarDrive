@@ -13,12 +13,15 @@ namespace UnitTests
     /// </summary>
     public class StarDriveTest
     {
+        public static string StarDriveAbsolutePath { get; private set; }
         static StarDriveTest()
         {
+            SetGameDirectory();
             try
             {
                 var xna2 = Assembly.LoadFile(
-                    "C:/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
+                    //"C:/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
+                    $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
                 //Assembly xna = Assembly.LoadFrom(
                 //    "/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
                 Console.WriteLine($"XNA Path: {xna2.Location}");
@@ -35,9 +38,10 @@ namespace UnitTests
             }
         }
 
-        public StarDriveTest()
+        public static void SetGameDirectory()
         {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
+            Directory.SetCurrentDirectory("../../../stardrive");
+            StarDriveAbsolutePath = Directory.GetCurrentDirectory();
         }
     }
 }

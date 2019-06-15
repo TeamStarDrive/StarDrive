@@ -7,7 +7,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class NotificationManager: IDisposable
+    public sealed class NotificationManager : IDisposable
     {
         private readonly ScreenManager ScreenManager;
         private readonly UniverseScreen Screen;
@@ -15,16 +15,18 @@ namespace Ship_Game
         private Rectangle NotificationArea;
 
         private static readonly object NotificationLocker = new object();
-        private BatchRemovalCollection<Notification> NotificationList =
-            new BatchRemovalCollection<Notification>();
+        private BatchRemovalCollection<Notification> NotificationList;
+        public int NumberOfNotifications => NotificationList.Count();
+            
         private float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
         // i think we should refactor this into base and parent classes. I think it would be better to use the new goal system
         // style. More flexible i think.
         public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
         {
-            Screen        = screen;
-            ScreenManager = screenManager;
+            NotificationList = new BatchRemovalCollection<Notification>();
+            Screen           = screen;
+            ScreenManager    = screenManager;
 
             var presentParams = screenManager.GraphicsDevice.PresentationParameters;
             NotificationArea  = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70,
