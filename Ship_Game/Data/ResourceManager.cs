@@ -1344,14 +1344,7 @@ namespace Ship_Game
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
         public static void LoadStarterShipsForTesting(string[] shipsList = null)
         {
-            LoadWeapons();
-            LoadHullData();
-            LoadShipRoles();
-            LoadShipModules();
-            LoadTroops();
-            LoadDialogs(); // for CreateEmpire
-            LoadEmpires();
-            LoadEconomicResearchStrategies();
+            LoadBasicContentForTesting();
 
             FileInfo[] ships = shipsList != null
                 ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
@@ -1361,6 +1354,21 @@ namespace Ship_Game
             var designs = new Map<string, ShipDesignInfo>();
             CombineOverwrite(designs, ships, readOnly: true, playerDesign: false);
             LoadShipTemplates(designs.Values.ToArray());
+        }
+
+        public static void LoadBasicContentForTesting()
+        {
+            LoadWeapons();
+            LoadHullData();
+            LoadShipRoles();
+            LoadShipModules();
+            LoadTroops();
+            LoadDialogs(); // for CreateEmpire
+            LoadEmpires();
+            LoadEconomicResearchStrategies();
+            LoadPlanetTypes();
+            LoadSunZoneData();
+
         }
 
         static void TechValidator()

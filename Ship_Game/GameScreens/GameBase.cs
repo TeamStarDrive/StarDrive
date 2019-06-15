@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.Data;
 using SynapseGaming.LightingSystem.Core;
 using Point = Microsoft.Xna.Framework.Point;
@@ -165,6 +166,13 @@ namespace Ship_Game
                     size.Height / 2 - settings.Height / 2);
             }
         }
-
+        public void InitializeAudio()
+        {
+            GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+        }
+        protected override void Dispose(bool disposing)
+        {
+            GameAudio.Destroy();
+        }
     }
 }
