@@ -17,7 +17,7 @@ namespace UnitTests.NotificationTests
 
         public TestNotifications()
         {
-            ResourceManager.LoadBasicContentForTesting();
+            ResourceManager.LoadPlanetContentForTesting();
             // UniverseScreen requires a game instance
             Game = new GameDummy();
             Game.Create();
@@ -35,14 +35,20 @@ namespace UnitTests.NotificationTests
             empire = data.CreateEmpire(ResourceManager.MajorRaces[0]);
             empire.isPlayer = true;
             Empire.Universe = new UniverseScreen(data, empire);
+            AddDummyPlanetToEmpire(empire);
+            NotificationManager = new NotificationManager(Empire.Universe.ScreenManager, Empire.Universe);
+        }
+
+        static void AddDummyPlanetToEmpire(Empire empire)
+        {
             Planet p = new Planet();
             var s = new SolarSystem();
             s.PlanetList.Add(p);
             p.ParentSystem = s;
             empire.AddPlanet(p);
             p.Type = ResourceManager.PlanetOrRandom(0);
-            NotificationManager = new NotificationManager(Empire.Universe.ScreenManager, Empire.Universe);
         }
+
         /// <summary>
         /// Add 12 notifications. 4 spy, 4 planet, 4, 4 spy
         /// </summary>
@@ -81,9 +87,6 @@ namespace UnitTests.NotificationTests
             NotificationManager.Update(10);
             NotificationManager.Update(10);
             Assert.That.Equal(7, NotificationManager.NumberOfNotifications);
-
-
-
         }
     }
 }

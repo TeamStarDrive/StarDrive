@@ -1366,9 +1366,14 @@ namespace Ship_Game
             LoadDialogs(); // for CreateEmpire
             LoadEmpires();
             LoadEconomicResearchStrategies();
+        }
+
+        public static void LoadPlanetContentForTesting()
+        {
+            LoadBasicContentForTesting();
             LoadPlanetTypes();
             LoadSunZoneData();
-
+            //SunType.LoadAll(); currently wont load from test.
         }
 
         static void TechValidator()
