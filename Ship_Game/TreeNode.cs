@@ -285,8 +285,7 @@ namespace Ship_Game
             }
             var techCost = Entry.TechCost;
             if (!Entry.Unlocked) techCost -= Entry.Progress;
-            batch.DrawString(TitleFont, ((float)(int)techCost)
-                .String(1), CostPos, Color.White);
+            batch.DrawString(TitleFont, ((float)(int)techCost).String(1), CostPos, Color.White);
         }
 
         public void DrawGlow(ScreenManager ScreenManager)
