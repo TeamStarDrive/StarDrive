@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game;
 
 namespace UnitTests
 {
@@ -39,6 +40,16 @@ namespace UnitTests
         {
             Directory.SetCurrentDirectory("../../../stardrive");
             StarDriveAbsolutePath = Directory.GetCurrentDirectory();
+        }
+
+        public static void AddDummyPlanetToEmpire(Empire empire)
+        {
+            Planet p = new Planet();
+            var s = new SolarSystem();
+            s.PlanetList.Add(p);
+            p.ParentSystem = s;
+            empire.AddPlanet(p);
+            p.Type = ResourceManager.PlanetOrRandom(0);
         }
     }
 }

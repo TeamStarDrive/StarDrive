@@ -1376,6 +1376,13 @@ namespace Ship_Game
             //SunType.LoadAll(); currently wont load from test.
         }
 
+        public static void LoadTechContentForTesting()
+        {
+            LoadBasicContentForTesting();
+            LoadTechTree();
+            //SunType.LoadAll(); currently wont load from test.
+        }
+
         static void TechValidator()
         {
             Array<Technology> techs = TechTree.Values.ToArrayList();
