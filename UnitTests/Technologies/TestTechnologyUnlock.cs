@@ -96,11 +96,10 @@ namespace UnitTests.Technologies
         {
             CreateTestEnv(out Empire empire);
             TechEntry tech = UnlockTech(empire, "Ace Training");
-            var currentBonus = empire.data.BonusFighterLevels;
             foreach (var item in tech.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(empire.data.BonusFighterLevels > 0);
-                Assert.That.Equal(0, currentBonus - item.Bonus);
+                Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
             }
             Dispose();
         }
@@ -109,17 +108,16 @@ namespace UnitTests.Technologies
         {
             CreateTestEnv(out Empire empire);
             TechEntry tech = UnlockTech(empire, "Ace Training");
-            var currentBonus = empire.data.BonusFighterLevels;
             foreach (var item in tech.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(empire.data.BonusFighterLevels > 0);
-                Assert.That.Equal(0, currentBonus - item.Bonus);
+                Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
             }
             tech = UnlockTech(empire, "Ace Training");
             foreach (var item in tech.Tech.BonusUnlocked)
             {
                 Assert.IsTrue(empire.data.BonusFighterLevels > 0);
-                Assert.That.Equal(0, currentBonus - item.Bonus);
+                Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
             }
             Dispose();
         }
