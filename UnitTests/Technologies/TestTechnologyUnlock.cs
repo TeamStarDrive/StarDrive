@@ -13,7 +13,6 @@ namespace UnitTests.Technologies
     public class TestTechnologyUnlock : StarDriveTest, IDisposable
     {
         readonly GameDummy Game;
-        NotificationManager NotificationManager;
 
         public TestTechnologyUnlock()
         {
@@ -36,7 +35,6 @@ namespace UnitTests.Technologies
             empire.isPlayer = true;
             Empire.Universe = new UniverseScreen(data, empire);
             Empire.Universe.player = empire;
-            NotificationManager = new NotificationManager(Empire.Universe.ScreenManager, Empire.Universe);
             Empire.Universe.aw = new AutomationWindow(Empire.Universe);
 
         }
