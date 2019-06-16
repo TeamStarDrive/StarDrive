@@ -36,8 +36,8 @@ namespace UnitTests.Technologies
             Empire.Universe = new UniverseScreen(data, empire);
             Empire.Universe.player = empire;
             Empire.Universe.aw = new AutomationWindow(Empire.Universe);
-
         }
+
         /// <summary>
         /// Add 12 notifications. 4 spy, 4 planet, 4, 4 spy
         /// </summary>
