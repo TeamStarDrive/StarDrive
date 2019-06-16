@@ -81,6 +81,7 @@
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="Ships\TestWeaponTargeting.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
+    <Compile Include="Technologies\TestTechnologyUnlock.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
