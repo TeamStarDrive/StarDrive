@@ -20,10 +20,7 @@ namespace UnitTests
             try
             {
                 var xna2 = Assembly.LoadFile(
-                    //"C:/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
                     $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
-                //Assembly xna = Assembly.LoadFrom(
-                //    "/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
                 Console.WriteLine($"XNA Path: {xna2.Location}");
             }
             catch (FileNotFoundException e)
