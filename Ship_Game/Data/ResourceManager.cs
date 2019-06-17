@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -95,6 +96,14 @@ namespace Ship_Game
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
             return EventsDict["default"];
         }
+        /// <summary>
+        /// No Error logging on eventDates. returns an event named for the dateString passed.
+        /// Else returns null.
+        /// </summary>
+        /// <param name="eventDate"></param>
+        /// <returns></returns>
+        public static ExplorationEvent EventByDate(float starDate) =>
+            EventsDict.TryGetValue(starDate.ToString(CultureInfo.InvariantCulture), out ExplorationEvent events) ? events : null;
 
         // This is used for lazy-loading content triggers
         public static int ContentId { get; private set; }
@@ -1335,14 +1344,7 @@ namespace Ship_Game
         //                  Example:  shipsList: new [] { "Vulcan Scout" }
         public static void LoadStarterShipsForTesting(string[] shipsList = null)
         {
-            LoadWeapons();
-            LoadHullData();
-            LoadShipRoles();
-            LoadShipModules();
-            LoadTroops();
-            LoadDialogs(); // for CreateEmpire
-            LoadEmpires();
-            LoadEconomicResearchStrategies();
+            LoadBasicContentForTesting();
 
             FileInfo[] ships = shipsList != null
                 ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
@@ -1352,6 +1354,33 @@ namespace Ship_Game
             var designs = new Map<string, ShipDesignInfo>();
             CombineOverwrite(designs, ships, readOnly: true, playerDesign: false);
             LoadShipTemplates(designs.Values.ToArray());
+        }
+
+        public static void LoadBasicContentForTesting()
+        {
+            LoadWeapons();
+            LoadHullData();
+            LoadShipRoles();
+            LoadShipModules();
+            LoadTroops();
+            LoadDialogs(); // for CreateEmpire
+            LoadEmpires();
+            LoadEconomicResearchStrategies();
+        }
+
+        public static void LoadPlanetContentForTesting()
+        {
+            LoadBasicContentForTesting();
+            LoadPlanetTypes();
+            LoadSunZoneData();
+            //SunType.LoadAll(); currently wont load from test.
+        }
+
+        public static void LoadTechContentForTesting()
+        {
+            LoadBasicContentForTesting();
+            LoadTechTree();
+            //SunType.LoadAll(); currently wont load from test.
         }
 
         static void TechValidator()

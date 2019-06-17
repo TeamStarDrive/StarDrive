@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Ship_Game;
 
 namespace UnitTests
 {
@@ -13,14 +14,14 @@ namespace UnitTests
     /// </summary>
     public class StarDriveTest
     {
+        public static string StarDriveAbsolutePath { get; private set; }
         static StarDriveTest()
         {
+            SetGameDirectory();
             try
             {
                 var xna2 = Assembly.LoadFile(
-                    "C:/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
-                //Assembly xna = Assembly.LoadFrom(
-                //    "/Projects/BlackBox/StarDrive/Microsoft.Xna.Framework.dll");
+                    $"{StarDriveAbsolutePath}\\Microsoft.Xna.Framework.dll");
                 Console.WriteLine($"XNA Path: {xna2.Location}");
             }
             catch (FileNotFoundException e)
@@ -35,9 +36,20 @@ namespace UnitTests
             }
         }
 
-        public StarDriveTest()
+        public static void SetGameDirectory()
         {
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
+            Directory.SetCurrentDirectory("../../../stardrive");
+            StarDriveAbsolutePath = Directory.GetCurrentDirectory();
+        }
+
+        public static void AddDummyPlanetToEmpire(Empire empire)
+        {
+            Planet p = new Planet();
+            var s = new SolarSystem();
+            s.PlanetList.Add(p);
+            p.ParentSystem = s;
+            empire.AddPlanet(p);
+            p.Type = ResourceManager.PlanetOrRandom(0);
         }
     }
 }

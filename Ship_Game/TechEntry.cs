@@ -21,6 +21,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
+        public float TechCostRemaining => (TechCost - Progress).Clamped(0, TechCost);
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
@@ -308,36 +309,60 @@ namespace Ship_Game
             Progress = 0;
             Unlocked = false;
         }
+        /// <summary>
+        /// return <see langword="true"/> if <see langword="unlocked"/>  here.
+        /// MultiLevel tech can have unlock flag <see langword="true"/> and then set <see langword="false"/>
+        /// on level up. 
+        /// </summary>
+        /// <returns></returns>
+        bool SetMultiLevelUnlockFlag()
+        {
+            if (Level >= Tech.MaxLevel) return false;
+
+            Level++;
+            if (Level == Tech.MaxLevel)
+            {
+                Progress = TechCost;
+                Unlocked = true;
+            }
+            else
+            {
+                Unlocked = false;
+                Progress = 0;
+            }
+            return true;
+        }
+        /// <summary>
+        /// Return <see langword="true"/> if tech was unlocked by this method.
+        /// </summary>
+        /// <returns></returns>
+        bool SetUnlockFlag()
+        {
+            if (Tech.MaxLevel > 1) return SetMultiLevelUnlockFlag();
+            if (Unlocked) return false;
+
+            Progress    = Tech.ActualCost;
+            Unlocked    = true;
+            return true;
+        }
 
         public bool Unlock(Empire us, Empire them = null)
         {
             if (!SetDiscovered(us))
                 return false;
-            if (Tech.MaxLevel > 1)
-            {
-                Level++;
-                if (Level == Tech.MaxLevel)
-                {
-                    Progress = TechCost ;
-                    Unlocked = true;
-                }
-                else
-                {
-                    Unlocked = false;
-                    Progress = 0;
-                }
-            }
-            else
-            {
-                Progress = Tech.ActualCost;
-                Unlocked = true;
-            }
+
             them = them ?? us;
-            UnlockTechContentOnly(us, them);
+            bool techWasUnlocked = SetUnlockFlag();
+            UnlockTechContentOnly(us, them, techWasUnlocked);
             TriggerAnyEvents(us);
             return true;
         }
-
+        public void UnlockWithNoBonusOption(Empire us, Empire them, bool unlockBonus)
+        {
+            them = them ?? us;
+            unlockBonus = SetUnlockFlag() && unlockBonus;
+            UnlockTechContentOnly(us, them, unlockBonus);
+        }
         public void UnlockByConquest(Empire us, Empire them)
         {
             ConqueredSource.Add(them.data.Traits.ShipType);
@@ -349,8 +374,18 @@ namespace Ship_Game
                 UnlockTechContentOnly(us, them);
             }
         }
-
-        bool UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
+        /// <summary>
+        /// This will unlock the content of the tech. Hulls/modules/buildings etc.
+        /// "us" is the empire the tech is being unlocked for.
+        /// "them" is the racial specific tech of a different Empire.
+        /// "bonusUnlock" sets if bonuses will unlock too.
+        /// be careful bonuses currently stack and should only be unlocked once. 
+        /// </summary>
+        /// <param name="us"></param>
+        /// <param name="them"></param>
+        /// <param name="bonusUnlock"></param>
+        /// <returns></returns>
+        void UnlockTechContentOnly(Empire us, Empire them, bool bonusUnlock = true)
         {
             DoRevealedTechs(us);
             if (bonusUnlock) UnlockBonus(us, them);
@@ -358,14 +393,13 @@ namespace Ship_Game
             UnlockTroops(us, them);
             UnLockHulls(us, them);
             UnlockBuildings(us, them);
-            return true;
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)
         {
-            if (!Unlocked && RandomMath.RollDice(50))
+            if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
             {
-                AddToProgress(Tech.ActualCost * 0.25f, us);
+                AddToProgress(TechCost * 0.25f, us);
                 return false;
             }
             if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
@@ -440,10 +474,8 @@ namespace Ship_Game
             }
         }
 
-        public bool IsUnlockedAtGameStart(Empire empire)
-        {
-            return InRaceRequirementsArray(empire, Tech.UnlockedAtGameStart);
-        }
+        public bool IsUnlockedAtGameStart(Empire empire) 
+            => InRaceRequirementsArray(empire, Tech.UnlockedAtGameStart);
 
         private static bool InRaceRequirementsArray(Empire empire, IEnumerable<Technology.RaceRequirements> requiredRace)
         {

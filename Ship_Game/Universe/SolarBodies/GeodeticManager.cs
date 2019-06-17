@@ -146,9 +146,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private float CalcRepairPool()
         {
-            float repairPool = Level * RepairPerTurn * 10 * (2 - P.ShipBuildingModifier);
-            foreach (Ship station in Stations.Values)
-                repairPool += station.RepairRate;
+            float outOfCombatBonus = P.SpaceCombatNearPlanet ? 0.1f : 10;
+            float repairPool       = RepairPerTurn * outOfCombatBonus /  P.ShipBuildingModifier;
 
             return repairPool;
         }
@@ -159,9 +158,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             //Modified by McShooterz: Repair based on repair pool, if no combat in system
             if (!HasSpacePort || ship.Health.AlmostEqual(ship.HealthMax))
                 return;
-
-            if (ship.InCombat)
-                repairPool /= 10; // allow minimal repair for ships near space port even in combat, per turn (good for ships which lost command modules)
 
             int repairLevel = Level + NumShipYards;
             ship.ApplyAllRepair(repairPool, repairLevel, repairShields: true);

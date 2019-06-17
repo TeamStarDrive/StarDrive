@@ -2632,7 +2632,7 @@ namespace Ship_Game
                 return false;
             if(!rel.Known || rel.AtWar)
                 return true;
-            if (rel.Treaty_NAPact)
+            if (rel.Treaty_NAPact || rel.Treaty_Peace)
                 return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;
