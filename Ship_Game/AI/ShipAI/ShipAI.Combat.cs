@@ -348,7 +348,7 @@ namespace Ship_Game.AI
                 } 
                 else if (!cantLaunchShuttle && supplyTarget != null)
                 {
-                    if (!SupplyShuttleLaunch(hangar, supplyTarget))
+                    if (!SupplyShuttleLaunch(hangar, supplyTarget, ref inboundOrdnance))
                         cantLaunchShuttle = true;
                 }
 
@@ -360,7 +360,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private bool SupplyShuttleLaunch(ShipModule hangar, Ship supplyTarget)
+        private bool SupplyShuttleLaunch(ShipModule hangar, Ship supplyTarget,ref float inboundOrdnance)
         {
             hangar.hangarShipUID = Ship.GetSupplyShuttleName(Owner.loyalty);
             Ship supplyShuttleTemplate = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
@@ -368,7 +368,7 @@ namespace Ship_Game.AI
                 return true;
 
             if (supplyShuttleTemplate.ShipOrdLaunchCost > Owner.Ordinance) //fbedard: New spawning cost
-                return true;
+                return false;
 
             Ship supplyShuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
             supplyShuttle.Velocity = UniverseRandom.RandomDirection() * supplyShuttle.Speed + Owner.Velocity;
@@ -380,14 +380,17 @@ namespace Ship_Game.AI
             hangar.SetHangarShip(supplyShuttle);
             SetSupplyTarget(supplyShuttle, supplyTarget);
             if (Owner.Ordinance >= supplyShuttle.OrdinanceMax)
+            {
                 supplyShuttle.AI.State = AIState.Ferrying;
+                inboundOrdnance = AddToInboundOrdnance(supplyShuttle, supplyTarget, inboundOrdnance);
+            }
             else // FB: Fatch ordnance from a colony when mothership doesnt have enough ordnance
             {
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
                 supplyShuttle.AI.GoOrbitNearestPlanetAndResupply(false);
             }
 
-            return false;
+            return true;
         }
 
         static void SetSupplyTarget(Ship supplySource, Ship supplyTarget)
