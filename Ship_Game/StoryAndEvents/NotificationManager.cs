@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -8,7 +7,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class NotificationManager: IDisposable
+    public sealed class NotificationManager : IDisposable
     {
         private readonly ScreenManager ScreenManager;
         private readonly UniverseScreen Screen;
@@ -16,25 +15,29 @@ namespace Ship_Game
         private Rectangle NotificationArea;
 
         private static readonly object NotificationLocker = new object();
-        private BatchRemovalCollection<Notification> NotificationList = 
-            new BatchRemovalCollection<Notification>();
-        private float Timer;
+        private BatchRemovalCollection<Notification> NotificationList;
+        public int NumberOfNotifications => NotificationList.Count();
+            
+        private float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
+        // i think we should refactor this into base and parent classes. I think it would be better to use the new goal system
+        // style. More flexible i think.
         public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
         {
-            Screen        = screen;
-            ScreenManager = screenManager;
+            NotificationList = new BatchRemovalCollection<Notification>();
+            Screen           = screen;
+            ScreenManager    = screenManager;
 
             var presentParams = screenManager.GraphicsDevice.PresentationParameters;
-            NotificationArea  = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70, 
+            NotificationArea  = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70,
                                              presentParams.BackBufferHeight - 70 - 275);
             MaxEntriesToDisplay = NotificationArea.Height / 70;
         }
 
         private Rectangle GetNotificationRect(int index)
         {
-            return new Rectangle(NotificationArea.X,
-                NotificationArea.Y + NotificationArea.Height - (index+1) * 70, 64, 64);
+            int yPos = (NotificationArea.Y + NotificationArea.Height - index * 70 - 70).Clamped(70, NotificationArea.Height );
+            return new Rectangle(NotificationArea.X, yPos, 64, 64);
         }
         private Rectangle DefaultNotificationRect => GetNotificationRect(NotificationList.Count);
         private Rectangle DefaultClickRect => new Rectangle(NotificationArea.X, NotificationArea.Y, 64, 64);
@@ -43,7 +46,7 @@ namespace Ship_Game
         {
             notify.ClickRect = DefaultClickRect;
             notify.DestinationRect = DefaultNotificationRect;
-            
+
             foreach (string cue in soundCueStrings)
                 GameAudio.PlaySfxAsync(cue);
 
@@ -169,14 +172,11 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddNotify(Technology.TriggeredEvent techEvent, string message)
-        {
+        public void AddNotify(Technology.TriggeredEvent techEvent, string message) => 
             AddNotify(ResourceManager.EventsDict[techEvent.EventUID], message);
-        }
-        public void AddNotify(Technology.TriggeredEvent techEvent)
-        {
+
+        public void AddNotify(Technology.TriggeredEvent techEvent) => 
             AddNotify(ResourceManager.EventsDict[techEvent.EventUID]);
-        }
 
         public void AddFoundSomethingInteresting(Planet p)
         {
@@ -191,32 +191,6 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddMolePlantedNotification(Planet wasConquered, Empire us)
-        {
-            AddNotification(new Notification
-            {
-                Pause           = false,
-                RelevantEmpire  = us,
-                Message         = Localizer.Token(1510) + wasConquered.Name,
-                ReferencedItem1 = wasConquered,
-                IconPath        = wasConquered.IconPath,
-                Action          = "SnapToPlanet"
-            }, "sd_troop_march_01");
-        }
-
-        public void AddMoleRemovedNotification(Planet wasConquered, Empire us, Empire them)
-        {
-            AddNotification(new Notification
-            {
-                Pause           = false,
-                RelevantEmpire  = us,
-                Message         = "Removed " + them.data.Traits.Singular + " agent from " + wasConquered.Name,
-                ReferencedItem1 = wasConquered,
-                IconPath        = wasConquered.IconPath,
-                Action          = "SnapToPlanet"
-            }, "sd_troop_march_01");
-        }
-
         public void AddMoneyWarning()
         {
             AddNotification(new Notification
@@ -225,17 +199,6 @@ namespace Ship_Game
                 Message  = Localizer.Token(2296),
                 IconPath = "UI/icon_warning_money"
             }, "sd_ui_notification_warning", "sd_trade_01");
-        }
-
-        public void AddNoMolesNotification(Empire us, Empire them)
-        {
-            AddNotification(new Notification
-            {
-                Pause          = false,
-                RelevantEmpire = us,
-                Message        = Localizer.Token(1508) + them.data.Traits.Singular + Localizer.Token(1509),
-                IconPath       = "NewUI/icon_planet_terran_01_mid"
-            }, "sd_troop_march_01");
         }
 
         public void AddPeacefulMergerNotification(Empire absorber, Empire target)
@@ -362,12 +325,14 @@ namespace Ship_Game
 
         private void UpdateAllPositions()
         {
+            Array<Notification> notifications = NotificationList;
             for (int i = 0; i < NotificationList.Count; i++)
             {
-                Notification n          = NotificationList[i];
-                n.DestinationRect       = GetNotificationRect(i);
-                n.ClickRect.X           = NotificationArea.X;
-                n.transitionElapsedTime = 0f;
+                Notification n           = notifications[i];
+                n.DestinationRect        = GetNotificationRect(i);
+                n.ClickRect.X            = NotificationArea.X;
+                bool resetTransitionTime = n.transitionElapsedTime > n.transDuration;
+                n.transitionElapsedTime  = resetTransitionTime ? 0f : n.transitionElapsedTime;
             }
         }
 
@@ -375,19 +340,6 @@ namespace Ship_Game
         {
             lock (NotificationLocker)
             {
-                if (NotificationList.Count >= MaxEntriesToDisplay)  //fbedard: remove excess notifications
-                {
-                    for (int i = 0; i < NotificationList.Count; i++)
-                    {
-                        Notification n = NotificationList[i];
-                        if (n.Action == "LoadEvent" || n.Pause) continue;
-                        NotificationList.QueuePendingRemoval(n);
-                        break;
-                    }
-                    NotificationList.ApplyPendingRemovals();
-                    UpdateAllPositions();
-                }
-
                 for (int i = 0; i < NotificationList.Count && i <= MaxEntriesToDisplay; i++)
                 {
                     Notification n = NotificationList[i];
@@ -407,7 +359,7 @@ namespace Ship_Game
                             rect.X = n.ClickRect.X + n.ClickRect.Width / 2 - iconTex.Width / 2;
                             rect.Y = n.ClickRect.Y + n.ClickRect.Height / 2 - iconTex.Height / 2;
 
-                            rect.Width = iconTex.Width;
+                            rect.Width  = iconTex.Width;
                             rect.Height = iconTex.Height;
                             batch.Draw(ResourceManager.Texture("TechIcons/techbg"), rect, Color.White);
                             batch.Draw(iconTex, rect, Color.White);
@@ -416,7 +368,8 @@ namespace Ship_Game
                     }
                     if (n.RelevantEmpire != null)
                     {
-                        batch.Draw(ResourceManager.Flag(n.RelevantEmpire.data.Traits.FlagIndex), n.ClickRect, n.RelevantEmpire.EmpireColor);
+                        var flag = n.RelevantEmpire.data.Traits.FlagIndex;
+                        batch.Draw(ResourceManager.Flag(flag), n.ClickRect, n.RelevantEmpire.EmpireColor);
                     }
                     if (n.ShowMessage)
                     {
@@ -429,7 +382,6 @@ namespace Ship_Game
 
             }
         }
-
         public bool HandleInput(InputState input)
         {
             bool retValue = false;
@@ -460,7 +412,7 @@ namespace Ship_Game
                                     SnapToCombat(n.ReferencedItem1 as Planet);
                                     break;
                                 case "LoadEvent":
-                                    TriggerExplorationEvent(n.ReferencedItem1 as ExplorationEvent);
+                                    ((ExplorationEvent) n.ReferencedItem1)?.TriggerExplorationEvent(Screen);
                                     break;
                                 case "ResearchScreen":
                                     ScreenManager.AddScreen(new ResearchPopup(Screen, n.ReferencedItem1 as string));
@@ -476,7 +428,7 @@ namespace Ship_Game
                             GameAudio.SubBassWhoosh();
                             NotificationList.QueuePendingRemoval(n);
                             recalculate = true;
-                            retValue = true;
+                            retValue    = true;
                             // ADDED BY SHAHMATT (to unpause game on right clicking notification icon)
                             if (GlobalStats.PauseOnNotification && n.Pause)
                                 Screen.Paused = false;
@@ -493,15 +445,11 @@ namespace Ship_Game
 
         public void ReSize()
         {
-            NotificationArea = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 70, 70, 70, 
-                                             ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 70 - 250);
+            int screenWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
+
+            NotificationArea = new Rectangle(screenWidth - 70, 70, 70,screenWidth - 70 - 250);
             lock (NotificationLocker)
                 UpdateAllPositions();
-        }
-
-        public void SnapToTechScreen()
-        {
-            
         }
 
         public void SnapToCombat(Planet p)
@@ -525,13 +473,13 @@ namespace Ship_Game
             }
             Screen.SnapViewPlanet(p);
         }
+
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
         {
             GameAudio.SubBassWhoosh();
             if (p != null) Screen.SelectedPlanet = p;
             Screen.SelectedSystem = system;
-           // Screen.mouseWorldPos = p == null ? system.Position : p.Position;
-            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView); 
+            Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.GalaxyView);
         }
 
         public void SnapToSystem(SolarSystem system)
@@ -540,45 +488,12 @@ namespace Ship_Game
             Screen.SnapViewSystem(system, UniverseScreen.UnivScreenState.SystemView);
         }
 
-        public Outcome GetRandomOutcome(ExplorationEvent e)
-        {
-            int ranMax = e.PotentialOutcomes.Where(outcome => !outcome.OnlyTriggerOnce || !outcome.AlreadyTriggered)
-                .Sum(outcome => outcome.Chance);
-
-            int random = (int)RandomMath.RandomBetween(0, ranMax);
-            Outcome triggeredOutcome = new Outcome();
-            int cursor = 0;
-            foreach (Outcome outcome in e.PotentialOutcomes)
-            {
-                if (outcome.OnlyTriggerOnce && outcome.AlreadyTriggered)
-                    continue;
-                cursor = cursor + outcome.Chance;
-                if (random > cursor)
-                    continue;
-                triggeredOutcome = outcome;
-                outcome.AlreadyTriggered = true;
-                break;
-            }
-            return triggeredOutcome;
-        }
-
-        private void TriggerExplorationEvent(ExplorationEvent evt)
-        {
-            Outcome triggeredOutcome = GetRandomOutcome(evt);
-
-            Empire empire = EmpireManager.Player;
-            Screen.ScreenManager.AddScreenDeferred(new EventPopup(Screen, empire, evt, triggeredOutcome, false));
-            evt.TriggerOutcome(empire, triggeredOutcome);
-        }
-
         public void Update(float elapsedTime)
         {
-            float date = Screen.StarDate;
-            string dateString = date.ToString(CultureInfo.InvariantCulture);
-            if (Timer < date && ResourceManager.EventsDict.ContainsKey(dateString))
+            if (LastStarDate < Screen.StarDate)
             {
-                Timer = date;
-                TriggerExplorationEvent(ResourceManager.EventsDict[dateString]);
+                LastStarDate = Screen.StarDate;
+                ResourceManager.EventByDate(Screen.StarDate)?.TriggerExplorationEvent(Screen);
             }
             
             lock (NotificationLocker)
@@ -586,13 +501,29 @@ namespace Ship_Game
                 foreach (Notification n in NotificationList)
                 {
                     n.transitionElapsedTime = n.transitionElapsedTime + elapsedTime;
-                    float amount = (float)Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
-                    n.ClickRect.Y = (int)MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount);
+                    float amount = (float) Math.Pow(n.transitionElapsedTime / n.transDuration, 2);
+                    n.ClickRect.Y =
+                        (int) Math.Ceiling(MathHelper.SmoothStep(n.ClickRect.Y, n.DestinationRect.Y, amount));
                     // ADDED BY SHAHMATT (pause game when there are any notifications)
-                    //if (GlobalStats.PauseOnNotification && this.Screen.viewState > UniverseScreen.UnivScreenState.SystemView && n.ClickRect.Y >= n.DestinationRect.Y)
                     //fbedard : Add filter to pause
                     if (GlobalStats.PauseOnNotification && n.ClickRect.Y >= n.DestinationRect.Y && n.Pause)
                         Screen.Paused = true;
+
+                }
+                if (NotificationList.Count > MaxEntriesToDisplay)  //fbedard: remove excess notifications
+                {
+                    for (int i = 0; i < NotificationList.Count; i++)
+                    {
+                        Notification n = NotificationList[i];
+                        if (n.DestinationRect.Y != n.ClickRect.Y) break;
+                        if (n.Action != "LoadEvent" && !(GlobalStats.PauseOnNotification && n.Pause))
+                        {
+                            NotificationList.QueuePendingRemoval(n);
+                            break;
+                        }
+                    }
+                    NotificationList.ApplyPendingRemovals();
+                    UpdateAllPositions();
                 }
             }
         }

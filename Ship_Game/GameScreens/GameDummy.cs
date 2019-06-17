@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.Data;
 using SynapseGaming.LightingSystem.Core;
 
@@ -26,7 +27,7 @@ namespace Ship_Game
             settings.Height = height;
             settings.Mode = WindowMode.Borderless;
             ApplyGraphics(settings);
-
+            InitializeAudio();
             if (show) Show();
         }
 
@@ -46,6 +47,19 @@ namespace Ship_Game
             manager?.CreateDevice();
             ScreenManager = new ScreenManager(this, Graphics);
             base.Initialize();
+        }
+        /// <summary>
+        /// Currently broken Due to sun resource loading. 
+        /// </summary>
+        /// <param name="empire"></param>
+        /// <param name="data"></param>
+        public void CreateSystemAtCenter(Empire empire, UniverseData data)
+        {
+            var system = new SolarSystem();
+            system.Position = new Vector2(0, 0);
+            system.GenerateStartingSystem(empire.data.Traits.HomeSystemName, data, 1f, empire);
+            system.OwnerList.Add(empire);
+            data.SolarSystemsList.Add(system);
         }
     }
 }

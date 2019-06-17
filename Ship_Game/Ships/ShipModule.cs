@@ -1099,12 +1099,15 @@ namespace Ship_Game.Ships
 
         public float Repair(float repairAmount)
         {
-            if (Health >= ActualMaxHealth)
+            if (Health >= ActualMaxHealth || repairAmount <= 0)
                 return repairAmount;
 
-            repairAmount = RepairDifficulty  <= 0 ? repairAmount : repairAmount / RepairDifficulty; //Some modules might be more difficult to repair
-            float repairLeft = (repairAmount - (ActualMaxHealth - Health)).Clamped(0, repairAmount);
-            SetHealth(Health + repairAmount );
+            float neededRepair    = ActualMaxHealth - Health;
+            float maxRepairAmount = ActualMaxHealth.Clamped(0, ActualMaxHealth * (0.03f / (1 + RepairDifficulty)));
+            float actualRepair    = maxRepairAmount.Clamped(0, repairAmount);
+            actualRepair          = actualRepair.Clamped(0, neededRepair);
+            float repairLeft      = (repairAmount - actualRepair).Clamped(0, repairAmount);
+            SetHealth(Health + actualRepair);
             VisualizeRepair();
 
             return repairLeft;

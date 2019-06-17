@@ -42,7 +42,13 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
-        public float ShipBuildingModifier;
+        float ShipBuildingModifierBacker;
+        public float ShipBuildingModifier
+        {
+            get => ShipBuildingModifierBacker;
+            private set => ShipBuildingModifierBacker = value.Clamped(0.001f, 1);
+        }
+
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         float Unfed;
