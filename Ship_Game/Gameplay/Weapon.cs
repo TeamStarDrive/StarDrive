@@ -301,8 +301,7 @@ namespace Ship_Game.Gameplay
             {
                 yield return new FireSource(origin, ApplyFireImprecisionAngle(direction));
             }
-
-            if (FireDispersionArc != 0)
+            else if (FireDispersionArc != 0)
             {
                 float degreesBetweenShots = FireDispersionArc / (float)ProjectileCount;
                 float angleToTarget = direction.ToDegrees() - FireDispersionArc * 0.5f;
