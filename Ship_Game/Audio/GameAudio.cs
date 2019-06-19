@@ -56,6 +56,7 @@ namespace Ship_Game.Audio
                 if (device == null && !AudioDevices.PickAudioDevice(out device))
                 {
                     Log.Warning("GameAudio is disabled since audio device selection failed.");
+                    AudioDisabled = true;
                     return;
                 }
 

@@ -42,7 +42,13 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
-        public float ShipBuildingModifier;
+        float ShipBuildingModifierBacker;
+        public float ShipBuildingModifier
+        {
+            get => ShipBuildingModifierBacker;
+            private set => ShipBuildingModifierBacker = value.Clamped(0.001f, 1);
+        }
+
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         float Unfed;
@@ -306,7 +312,7 @@ namespace Ship_Game
                     if (building.WeaponTimer.Greater(0))
                         continue;
 
-                    previousD = building.TheWeapon.Range + 1000f;
+                    previousD = building.TheWeapon.BaseRange + 1000f;
                     previousT = previousD;
                 }
                 else if (building.DefenseShipsCapacity > 0 && Owner.Money > 0)

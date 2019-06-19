@@ -267,7 +267,7 @@ namespace Ship_Game
                 offset = -offset;
             }
 
-            string rangeText = $"Range: {w.Range.String(0)}";
+            string rangeText = $"Range: {w.BaseRange.String(0)}";
             float textWidth  = Fonts.Arial8Bold.TextWidth(rangeText);
 
             batch.DrawString(Fonts.Arial8Bold, rangeText,

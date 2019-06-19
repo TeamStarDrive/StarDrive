@@ -234,5 +234,19 @@ namespace Ship_Game
             return (elem = FindMax(list, selector)) != null;
         }
 
+        // @note Hand-crafted Max() extension for float arrays
+        public static float Max(this float[] floats)
+        {
+            if (floats.Length == 0)
+                return 0f;
+
+            float max = floats[0];
+            for (int i = 1; i < floats.Length; ++i)
+            {
+                float value = floats[i];
+                if (value > max) max = value;
+            }
+            return max;
+        }
     }
 }

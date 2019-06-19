@@ -23,13 +23,13 @@ namespace Ship_Game.AI
         {
             var target = Drone.Owner?.AI.FriendliesNearby
                 .FindMinFiltered(ship => ship.Active && ship.Mothership == null
-                                                     && ship.Health < ship.HealthMax
+                                                     && ship.HealthStatus < ShipStatus.Maximum
                                                      && ship.Center.InRadius(Drone.Owner.Center, 10000)
                 , ship =>
                 {
                     var ownerCenter      = Drone.Owner.Center;
                     var distance         = ship.Center.Distance(ownerCenter);
-                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.Range);
+                    var distanceWieght   = 1 + (int)(10 * distance / DroneWeapon.BaseRange);
                     var repairWeight     = (int)ship.HealthStatus;
                     float weight         = distanceWieght * repairWeight ;
                     return weight;
@@ -58,7 +58,8 @@ namespace Ship_Game.AI
             DroneWeapon.CooldownTimer -= elapsedTime;
 
             ThinkTimer -= elapsedTime;
-            if (ThinkTimer <= 0f && (DroneTarget == null || !DroneTarget.Active || DroneTarget.HealthStatus < ShipStatus.NotApplicable))
+            if (ThinkTimer <= 0f && (DroneTarget == null || !DroneTarget.Active 
+                                                         || DroneTarget.HealthStatus >= ShipStatus.Maximum))
             {
                 ChooseTarget();
                 ThinkTimer = 2.5f;
@@ -83,7 +84,7 @@ namespace Ship_Game.AI
         {
             if (Beams.Count == 0 && DroneTarget.Health < DroneTarget.HealthMax
                                  && DroneWeapon.CooldownTimer <= 0f
-                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.Range)
+                                 && DroneTarget != null && Drone.Center.Distance(DroneTarget.Center) <= DroneWeapon.BaseRange)
             {
                 DroneBeam droneBeam = DroneWeapon.FireDroneBeam(this);
                 Beams.Add(droneBeam);

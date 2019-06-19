@@ -226,45 +226,54 @@ namespace Ship_Game
             camera.Pos = camera.Pos.Clamped(ScreenCenter.X, ScreenCenter.Y, 3200f, 3200f);
 
             // unlock ALL techs
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
+            if (Empire.Universe.Debug)
             {
-                foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
+                if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
                 {
-                    foreach (var empire in EmpireManager.Empires)
-                        EmpireManager.Player.UnlockTech(techEntry, TechUnlockType.Spy, empire);
-                    techEntry.Unlock(EmpireManager.Player);
-                }
-                ReloadContent();
-                EmpireManager.Player.UpdateShipsWeCanBuild();
-            }
+                    foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
+                    {
+                        bool shift = input.IsShiftKeyDown;
+                        Empire us = EmpireManager.Player;
+                        techEntry.UnlockWithNoBonusOption(us, us, !shift);
 
-            // Unlock only selected node for player
-            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
-            {
-                if (qcomponent.CurrentResearch != null)
-                {
-                    qcomponent.CurrentResearch.Node.Entry.Unlock(EmpireManager.Player);
-                    EmpireManager.Player.ResearchTopic = "";
+                        foreach (var them in EmpireManager.Empires)
+                        {
+                            if (them != EmpireManager.Player)
+                                techEntry.UnlockWithNoBonusOption(us, them, !shift );
+                        }
+                    }
                     ReloadContent();
                     EmpireManager.Player.UpdateShipsWeCanBuild();
                 }
-                else
+
+                // Unlock only selected node for player
+                if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
                 {
-                    GameAudio.NegativeClick();
+                    if (qcomponent.CurrentResearch != null)
+                    {
+                        qcomponent.CurrentResearch.Node.Entry.Unlock(EmpireManager.Player);
+                        EmpireManager.Player.ResearchTopic = "";
+                        ReloadContent();
+                        EmpireManager.Player.UpdateShipsWeCanBuild();
+                    }
+                    else
+                    {
+                        GameAudio.NegativeClick();
+                    }
+                }
+
+                //Added by McShooterz: Cheat ot unlock non bonus tech
+                if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F3))
+                {
+                    foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
+                    {
+                        Empire us = EmpireManager.Player;
+                        techEntry.UnlockWithNoBonusOption(us, us, false);
+                        EmpireManager.Player.UpdateShipsWeCanBuild();
+                        ReloadContent();
+                    }
                 }
             }
-
-            //Added by McShooterz: Cheat ot unlock non bonus tech
-            if (input.IsCtrlKeyDown  && input.KeyPressed(Keys.F3))
-            {
-                foreach (Technology tech in ResourceManager.TechTree.Values)
-                {
-                    UnlockTreeNoBonus(tech);
-                }
-                EmpireManager.Player.UpdateShipsWeCanBuild();
-                ReloadContent();
-            }
-
             qcomponent.HandleInput(input);
             if (qcomponent.Visible && qcomponent.container.HitTest(input.CursorPosition))
                 return true;

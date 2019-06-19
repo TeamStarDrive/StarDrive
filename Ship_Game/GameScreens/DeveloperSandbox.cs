@@ -95,13 +95,10 @@ namespace Ship_Game
             Stopwatch s = Stopwatch.StartNew();
             EmpireManager.Clear();
 
-            var sandbox = new UniverseData { Size = new Vector2(500000f) };
+            var sandbox = new UniverseData();
             CurrentGame.StartNew(sandbox, pace:1f);
 
-
-
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
-
             IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data.Name != player.Name);
 
             var races = new Array<IEmpireData>(opponents);

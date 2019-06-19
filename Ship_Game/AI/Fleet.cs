@@ -1151,7 +1151,7 @@ namespace Ship_Game.AI
                 ai.CancelIntercept();
                 ai.FleetNode.AssistWeight = 1f;
                 ai.FleetNode.DefenderWeight = 1f;
-                ai.FleetNode.OrdersRadius = ship.maxWeaponsRange;
+                ai.FleetNode.OrdersRadius = ship.WeaponsMaxRange;
                 switch (type) {
                     case InvasionTactics.Screen:
                         if (!ship.InCombat)

@@ -135,7 +135,8 @@ namespace Ship_Game
 
     public class ToggleButton : UIElementV2
     {
-        public string Action = "";
+        // user defined metadata
+        public object State;
 
         public bool Active;
         public bool Hover;
@@ -155,7 +156,7 @@ namespace Ship_Game
         public delegate void ClickHandler(ToggleButton button);
         public event ClickHandler OnClick;
 
-        public override string ToString() => $"ToggleButton {ElementDescr} Icon:{IconPath} Action:{Action}";
+        public override string ToString() => $"ToggleButton {ElementDescr} Icon:{IconPath} Status:{State}";
 
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
         {
@@ -278,7 +279,11 @@ namespace Ship_Game
 
             if (input.LeftMouseClick)
             {
-                OnClick?.Invoke(this);
+                if (OnClick != null)
+                {
+                    GameAudio.AcceptClick();
+                    OnClick(this);
+                }
                 Pressed = true;
                 return true;
             }

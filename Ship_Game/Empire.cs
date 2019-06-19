@@ -2220,13 +2220,13 @@ namespace Ship_Game
                 return true;
             }
 
-            StarDriveGame.Instance.EndingGame(true);
+            StarDriveGame.Instance?.EndingGame(true);
             foreach (Ship ship in Universe.MasterShipList)
                 ship.Die(null, true);
 
             Universe.Paused = true;
             HelperFunctions.CollectMemory();
-            StarDriveGame.Instance.EndingGame(false);
+            StarDriveGame.Instance?.EndingGame(false);
             Universe.ScreenManager.AddScreenDeferred(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;
@@ -2632,7 +2632,7 @@ namespace Ship_Game
                 return false;
             if(!rel.Known || rel.AtWar)
                 return true;
-            if (rel.Treaty_NAPact)
+            if (rel.Treaty_NAPact || rel.Treaty_Peace)
                 return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;
