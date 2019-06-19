@@ -21,7 +21,7 @@ namespace Ship_Game
         readonly SceneState GameSceneState;
         readonly SceneInterface SceneInter;
         readonly object InterfaceLock = new object();
-        readonly StarDriveGame GameInstance;
+        readonly GameBase GameInstance;
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         public SceneEnvironment environment;
@@ -31,7 +31,7 @@ namespace Ship_Game
         public SpriteBatch SpriteBatch;
 
         // Thread safe screen queue
-        SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
+        readonly SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
 
         public float exitScreenTimer
         {
@@ -47,7 +47,7 @@ namespace Ship_Game
         public static ScreenManager Instance { get; private set; }
         public static GameScreen CurrentScreen => Instance.Current;
 
-        public ScreenManager(StarDriveGame game, GraphicsDeviceManager graphics)
+        public ScreenManager(GameBase game, GraphicsDeviceManager graphics)
         {
             Instance = this;
             GameInstance = game;
@@ -82,7 +82,7 @@ namespace Ship_Game
         // @warning This is not thread safe!
         public void AddScreen(GameScreen screen)
         {
-            if (StarDriveGame.Instance.MainThreadId != Thread.CurrentThread.ManagedThreadId)
+            if (GameBase.MainThreadId != Thread.CurrentThread.ManagedThreadId)
             {
                 Log.Error("GameScreens can only be added on the main thread! Use AddScreenDeferred!");
                 AddScreenDeferred(screen);
@@ -276,9 +276,8 @@ namespace Ship_Game
 
         public void FadeBackBufferToBlack(int alpha)
         {
-            Viewport viewport = StarDriveGame.Instance.Viewport;
             SpriteBatch.Begin();
-            SpriteBatch.Draw(BlankTexture, new Rectangle(0, 0, viewport.Width, viewport.Height), new Color(0, 0, 0, (byte)alpha));
+            SpriteBatch.Draw(BlankTexture, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), new Color(0, 0, 0, (byte)alpha));
             SpriteBatch.End();
         }
 
@@ -294,7 +293,7 @@ namespace Ship_Game
                 screen.LoadContent();
             }
 
-            Viewport viewport = StarDriveGame.Instance.Viewport;
+            Viewport viewport = GameBase.Viewport;
             TitleSafeArea = new Rectangle(
                 (int)(viewport.X + viewport.Width  * 0.05f),
                 (int)(viewport.Y + viewport.Height * 0.05f),
@@ -377,7 +376,7 @@ namespace Ship_Game
 
         void PerformHotLoadTasks()
         {
-            HotloadTimer += GameInstance.FrameDeltaTime;
+            HotloadTimer += StarDriveGame.Instance.FrameDeltaTime;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;

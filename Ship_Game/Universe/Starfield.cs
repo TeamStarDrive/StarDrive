@@ -66,6 +66,9 @@ namespace Ship_Game
 		public void Dispose() { Destroy(); GC.SuppressFinalize(this); }
         void Destroy()
 		{
+            CloudTex = null;
+            CloudEffect = null;
+            CloudEffectPos = null;
             StarTexture?.Dispose(ref StarTexture);
         }
 
@@ -173,14 +176,6 @@ namespace Ship_Game
                     star.whichLayer = depth;
                 }
             }
-		}
-
-		public void UnloadContent()
-		{
-			CloudTex = null;
-			CloudEffect = null;
-			CloudEffectPos = null;
-            StarTexture?.Dispose(ref StarTexture);
 		}
 	}
 }

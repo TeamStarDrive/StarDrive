@@ -10,7 +10,7 @@ namespace Ship_Game
 
         public Array<SolarSystem> SolarSystemsList = new Array<SolarSystem>();
 
-        public Vector2 Size;
+        public Vector2 Size = new Vector2(500000f);
 
         public GameDifficulty difficulty = GameDifficulty.Normal;
 

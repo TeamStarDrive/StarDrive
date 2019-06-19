@@ -407,11 +407,22 @@ namespace Ship_Game
                                 AddExperience(ResourceManager.AgentMissionData.StealTechExpPerfect, us);
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, Localizer.Token(6056), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager.
+                                        AddAgentResultNotification(false, Localizer.Token(6056), Target);
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 us.AcquireTech(theUID, Target, TechUnlockType.Spy);
-                                if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6057), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6031)), us);
+                                if (!spyMute) 
+                                {
+                                    var stoleTechText = string.Concat(Name, " ", Localizer.Token(6057), " ");
+                                    var techStolen    = Localizer.Token(ResourceManager.TechTree[theUID].NameIndex);
+                                    var notDetected   = Localizer.Token(6031);
+                                    var resultString  = string.Concat(stoleTechText, techStolen, notDetected);
+
+                                    Empire.Universe.NotificationManager.
+                                    AddAgentResultNotification(true, resultString, us);
+
+                                }
                                 TechStolen++;
                                 break;
                             }
@@ -422,7 +433,12 @@ namespace Ship_Game
                                 AddExperience(ResourceManager.AgentMissionData.StealTechExpGood, us);
                                 if (Target == EmpireManager.Player)
                                 {
-                                    if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, string.Concat(Localizer.Token(6058), " ", Localizer.Token(ResourceManager.TechTree[theUID].NameIndex), Localizer.Token(6049), " ", us.data.Traits.Name), Target);
+                                    if (!spyMute) Empire.Universe.NotificationManager
+                                        .AddAgentResultNotification(false, string.Concat(Localizer.Token(6058)
+                                            , " "
+                                            , Localizer.Token(ResourceManager.TechTree[theUID].NameIndex)
+                                            , Localizer.Token(6049), " ", us.data.Traits.Name)
+                                            , Target);
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 //Owner.UnlockTech(theUID);

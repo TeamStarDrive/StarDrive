@@ -9,6 +9,7 @@ using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
@@ -79,7 +80,7 @@ namespace Ship_Game
         static DiplomaticTraits DiplomacyTraits;
 
         // All references to Game1.Instance.Content were replaced by this property
-        public static GameContentManager RootContent => StarDriveGame.Instance.Content;
+        public static GameContentManager RootContent => GameBase.Base.Content;
 
         public static Technology Tech(string techUid)
         {
@@ -95,6 +96,14 @@ namespace Ship_Game
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
             return EventsDict["default"];
         }
+        /// <summary>
+        /// No Error logging on eventDates. returns an event named for the dateString passed.
+        /// Else returns null.
+        /// </summary>
+        /// <param name="eventDate"></param>
+        /// <returns></returns>
+        public static ExplorationEvent EventByDate(float starDate) =>
+            EventsDict.TryGetValue(starDate.ToString(CultureInfo.InvariantCulture), out ExplorationEvent events) ? events : null;
 
         // This is used for lazy-loading content triggers
         public static int ContentId { get; private set; }
@@ -822,6 +831,7 @@ namespace Ship_Game
         }
         static void LoadDialogs() // Refactored by RedFox
         {
+            DiplomacyDialogs.Clear();
             string dir = "DiplomacyDialogs/" + GlobalStats.Language + "/";
             foreach (var pair in LoadEntitiesWithInfo<DiplomacyDialog>(dir, "LoadDialogs"))
             {
@@ -1330,17 +1340,47 @@ namespace Ship_Game
         }
 
         // @note This is used for Unit Tests and is not part of the core game
-        public static void LoadStarterShipsForTesting()
+        // @param shipsList Only load these ships to make loading faster.
+        //                  Example:  shipsList: new [] { "Vulcan Scout" }
+        public static void LoadStarterShipsForTesting(string[] shipsList = null)
         {
-            LoadWeapons();
-            LoadHullData();
-            LoadShipModules();
-            LoadTroops();
+            LoadBasicContentForTesting();
+
+            FileInfo[] ships = shipsList != null
+                ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
+                : GatherFilesModOrVanilla("StarterShips", "xml");
 
             ShipsDict.Clear();
             var designs = new Map<string, ShipDesignInfo>();
-            CombineOverwrite(designs, GatherFilesModOrVanilla("StarterShips", "xml"), readOnly: true, playerDesign: false);
+            CombineOverwrite(designs, ships, readOnly: true, playerDesign: false);
             LoadShipTemplates(designs.Values.ToArray());
+        }
+
+        public static void LoadBasicContentForTesting()
+        {
+            LoadWeapons();
+            LoadHullData();
+            LoadShipRoles();
+            LoadShipModules();
+            LoadTroops();
+            LoadDialogs(); // for CreateEmpire
+            LoadEmpires();
+            LoadEconomicResearchStrategies();
+        }
+
+        public static void LoadPlanetContentForTesting()
+        {
+            LoadBasicContentForTesting();
+            LoadPlanetTypes();
+            LoadSunZoneData();
+            //SunType.LoadAll(); currently wont load from test.
+        }
+
+        public static void LoadTechContentForTesting()
+        {
+            LoadBasicContentForTesting();
+            LoadTechTree();
+            //SunType.LoadAll(); currently wont load from test.
         }
 
         static void TechValidator()
@@ -1508,6 +1548,7 @@ namespace Ship_Game
         }
         static void LoadEconomicResearchStrategies()
         {
+            EconStrategies.Clear();
             foreach (var pair in LoadEntitiesWithInfo<EconomicResearchStrategy>("EconomicResearchStrategy", "LoadEconResearchStrats"))
             {
                 // the story here: some mods have bugged <Name> refs, so we do manual
