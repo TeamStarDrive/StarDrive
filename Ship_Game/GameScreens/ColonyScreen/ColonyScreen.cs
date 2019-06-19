@@ -779,13 +779,13 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", Localizer.Token(361));
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", Localizer.Token(362));
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
-            DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10 * P.Level, "NewUI/icon_queue_rushconstruction", Localizer.Token(6137));
+            DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", Localizer.Token(6137));
             DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", Localizer.Token(364));
             float maintenance = -(b.Maintenance + b.Maintenance * P.Owner.data.Traits.MaintMod);
             DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(365));
             if (b.TheWeapon != null)
             {
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.Range, "UI/icon_offense", "Range", signs: false);
+                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
                 DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);

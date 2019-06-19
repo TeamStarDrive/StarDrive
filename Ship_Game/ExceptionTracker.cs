@@ -119,7 +119,7 @@ namespace Ship_Game
 
             if (StarDriveGame.Instance?.Window != null)
             {
-                Form form = (Form)Control.FromHandle(StarDriveGame.Instance.Window.Handle);
+                Form form = StarDriveGame.Instance.Form;
                 form.WindowState = FormWindowState.Minimized;
                 form.Update();
             }

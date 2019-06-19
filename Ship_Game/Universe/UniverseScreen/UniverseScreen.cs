@@ -42,8 +42,8 @@ namespace Ship_Game
         public BatchRemovalCollection<Ship> SelectedShipList = new BatchRemovalCollection<Ship>();
         Array<ClickableShip> ClickableShipsList    = new Array<ClickableShip>();
         Rectangle SelectionBox = new Rectangle(-1, -1, 0, 0);
-        public BatchRemovalCollection<Ship> MasterShipList = new BatchRemovalCollection<Ship>();
-        public Background bg            = new Background();
+        public BatchRemovalCollection<Ship> MasterShipList;
+        public Background bg;
         public float UniverseSize       = 5000000f; // universe width and height in world units
         public float FTLModifier        = 1f;
         public float EnemyFTLModifier   = 1f;
@@ -157,7 +157,9 @@ namespace Ship_Game
         bool loading;
         public Thread ProcessTurnsThread;
         public float transitionElapsedTime;
-        public BoundingFrustum Frustum;
+
+        // @note Initialize with a default frustum for UnitTests
+        public BoundingFrustum Frustum = new BoundingFrustum(Matrix.CreateTranslation(1000000, 1000000, 0));
         ClickablePlanets tippedPlanet;
         ClickableSystem tippedSystem;
         bool ShowingSysTooltip;
@@ -585,6 +587,7 @@ namespace Ship_Game
             Empire.Universe = this;
 
             CreateProjectionMatrix();
+            bg = new Background();
             Frustum            = new BoundingFrustum(View * Projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
@@ -634,6 +637,24 @@ namespace Ship_Game
             cloudTex       = content.Load<Texture2D>("Model/SpaceObjects/earthcloudmap");
             RingTexture    = content.Load<Texture2D>("Model/SpaceObjects/planet_rings");
 
+            Glows = new Map<PlanetGlow, SubTexture>(new []
+            {
+                (PlanetGlow.Terran, ResourceManager.Texture("PlanetGlows/Glow_Terran")),
+                (PlanetGlow.Red,    ResourceManager.Texture("PlanetGlows/Glow_Red")),
+                (PlanetGlow.White,  ResourceManager.Texture("PlanetGlows/Glow_White")),
+                (PlanetGlow.Aqua,   ResourceManager.Texture("PlanetGlows/Glow_Aqua")),
+                (PlanetGlow.Orange, ResourceManager.Texture("PlanetGlows/Glow_Orange"))
+            });
+
+            Arc15  = ResourceManager.Texture("Arcs/Arc15");
+            Arc20  = ResourceManager.Texture("Arcs/Arc20");
+            Arc45  = ResourceManager.Texture("Arcs/Arc45");
+            Arc60  = ResourceManager.Texture("Arcs/Arc60");
+            Arc90  = ResourceManager.Texture("Arcs/Arc90");
+            Arc120 = ResourceManager.Texture("Arcs/Arc120");
+            Arc180 = ResourceManager.Texture("Arcs/Arc180");
+            Arc360 = ResourceManager.Texture("Arcs/Arc360");
+
             FTLManager.LoadContent(this);
             MuzzleFlashManager.LoadContent(content);
             ScreenRectangle = new Rectangle(0, 0, width, height);
@@ -645,7 +666,6 @@ namespace Ship_Game
 
         public override void UnloadContent()
         {
-            StarField?.UnloadContent();
             ScreenManager.UnloadSceneObjects();
             base.UnloadContent();
         }
@@ -703,22 +723,25 @@ namespace Ship_Game
         public override void ExitScreen()
         {
             IsExiting = true;
-            var processTurnsThread = ProcessTurnsThread;
+            Thread processTurnsThread = ProcessTurnsThread;
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
-            processTurnsThread.Join(250);
-            EmpireUI.empire = null;
+            processTurnsThread?.Join(250);
             EmpireUI = null;
+
             //SpaceManager.Destroy();
             ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;
-            bg3d.Dispose(ref bg3d);
+            bg3d?.Dispose(ref bg3d);
+            StarField?.Dispose();
+
             ShipToView = null;
             foreach (Ship ship in MasterShipList)
                 ship?.RemoveFromUniverseUnsafe();
             MasterShipList.ApplyPendingRemovals();
             MasterShipList.Clear();
+
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 solarSystem.FiveClosestSystems.Clear();
@@ -752,12 +775,14 @@ namespace Ship_Game
                 }
                 solarSystem.MoonList.Clear();
             }
+
             foreach (Empire empire in EmpireManager.Empires)
                 empire.CleanOut();
             JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
                 spaceJunk.DestroySceneObject();
             JunkList.Clear();
+
 
             SelectedShip   = null;
             SelectedFleet  = null;
@@ -771,33 +796,33 @@ namespace Ship_Game
             ClickableSystems.Clear();
             SpaceManager.Destroy();
             SolarSystemList.Clear();
-            StarField.UnloadContent();
-            StarField.Dispose();
             SolarSystemList.Clear();
-            beamflashes.UnloadContent();
-            explosionParticles.UnloadContent();
-            photonExplosionParticles.UnloadContent();
-            explosionSmokeParticles.UnloadContent();
-            projectileTrailParticles.UnloadContent();
-            fireTrailParticles.UnloadContent();
-            smokePlumeParticles.UnloadContent();
-            fireParticles.UnloadContent();
-            engineTrailParticles.UnloadContent();
-            flameParticles.UnloadContent();
-            SmallflameParticles.UnloadContent();
-            sparks.UnloadContent();
-            lightning.UnloadContent();
-            flash.UnloadContent();
-            star_particles.UnloadContent();
-            neb_particles.UnloadContent();
             SolarSystemDict.Clear();
+
+            beamflashes?.UnloadContent();
+            explosionParticles?.UnloadContent();
+            photonExplosionParticles?.UnloadContent();
+            explosionSmokeParticles?.UnloadContent();
+            projectileTrailParticles?.UnloadContent();
+            fireTrailParticles?.UnloadContent();
+            smokePlumeParticles?.UnloadContent();
+            fireParticles?.UnloadContent();
+            engineTrailParticles?.UnloadContent();
+            flameParticles?.UnloadContent();
+            SmallflameParticles?.UnloadContent();
+            sparks?.UnloadContent();
+            lightning?.UnloadContent();
+            flash?.UnloadContent();
+            star_particles?.UnloadContent();
+            neb_particles?.UnloadContent();
+
             Empire.Universe = null;
             StatTracker.SnapshotsDict.Clear();
             EmpireManager.Clear();
+
             HelperFunctions.CollectMemory();
             base.ExitScreen();
             Dispose();
-
         }
 
 
@@ -805,14 +830,14 @@ namespace Ship_Game
         // this draws the colored empire borders
         // the borders are drawn into a separate framebuffer texture and later blended with final visual
 
-        SubTexture Arc15  = ResourceManager.Texture("Arcs/Arc15");
-        SubTexture Arc20  = ResourceManager.Texture("Arcs/Arc20");
-        SubTexture Arc45  = ResourceManager.Texture("Arcs/Arc45");
-        SubTexture Arc60  = ResourceManager.Texture("Arcs/Arc60");
-        SubTexture Arc90  = ResourceManager.Texture("Arcs/Arc90");
-        SubTexture Arc120 = ResourceManager.Texture("Arcs/Arc120");
-        SubTexture Arc180 = ResourceManager.Texture("Arcs/Arc180");
-        SubTexture Arc360 = ResourceManager.Texture("Arcs/Arc360");
+        SubTexture Arc15;
+        SubTexture Arc20;
+        SubTexture Arc45;
+        SubTexture Arc60;
+        SubTexture Arc90;
+        SubTexture Arc120;
+        SubTexture Arc180;
+        SubTexture Arc360;
 
         public SubTexture GetArcTexture(float weaponArc)
         {

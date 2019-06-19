@@ -114,23 +114,24 @@ namespace Ship_Game
 
         ////////////////////////////////
         // From old Config
-        public static int XRES;
-        public static int YRES;
+        public static int XRES = 1920;
+        public static int YRES = 1080;
         public static WindowMode WindowMode = WindowMode.Fullscreen;
         public static int AntiAlias       = 2;
         public static bool RenderBloom    = true;
+        public static bool VSync          = true;
         public static float MusicVolume   = 0.7f;
         public static float EffectsVolume = 1f;
-        public static string SoundDevice = "Default"; // Use windows default device if not explicitly specified
+        public static string SoundDevice  = "Default"; // Use windows default device if not explicitly specified
         public static Language Language   = Language.English;
 
         // Render options
-        public static int TextureQuality;    //0=High, 1=Medium, 2=Low, 3=Off
-        public static int TextureSampling = 2;    //0=Bilinear, 1=Trilinear, 2=Anisotropic
-        public static int MaxAnisotropy   = 2;    //# of samples, only applies with TextureSampling = 2
-        public static float ShadowQuality = 0.0f; //1.0f highest, 0.0f lowest
-        public static int ShadowDetail    = 3;    //0=High, 1=Medium, 2=Low, 3=Off
-        public static int EffectDetail;    //0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureQuality;         // 0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureSampling = 2;    // 0=Bilinear, 1=Trilinear, 2=Anisotropic
+        public static int MaxAnisotropy   = 2;    // # of samples, only applies with TextureSampling = 2
+        public static float ShadowQuality = 0.0f; // 1.0f highest, 0.0f lowest
+        public static int ShadowDetail    = 3;    // 0=High, 1=Medium, 2=Low, 3=Off
+        public static int EffectDetail;           // 0=High, 1=Medium, 2=Low, 3=Off
         public static bool DrawNebulas    = true;
         public static bool DrawStarfield  = true;
 
@@ -178,6 +179,7 @@ namespace Ship_Game
             GetSetting("WindowMode"            , ref WindowMode);
             GetSetting("AntiAliasSamples"      , ref AntiAlias);
             GetSetting("PostProcessBloom"      , ref RenderBloom);
+            GetSetting("VSync"                 , ref VSync);
             GetSetting("TextureQuality"        , ref TextureQuality);
             GetSetting("TextureSampling"       , ref TextureSampling);
             GetSetting("MaxAnisotropy"         , ref MaxAnisotropy);
@@ -286,6 +288,7 @@ namespace Ship_Game
             WriteSetting(config, "WindowMode",       WindowMode);
             WriteSetting(config, "AntiAliasSamples", AntiAlias);
             WriteSetting(config, "PostProcessBloom", RenderBloom);
+            WriteSetting(config, "VSync",            VSync);
             WriteSetting(config, "TextureQuality",   TextureQuality);
             WriteSetting(config, "TextureSampling",  TextureSampling);
             WriteSetting(config, "MaxAnisotropy",    MaxAnisotropy);
@@ -371,15 +374,15 @@ namespace Ship_Game
 
 
 
-        private static void WriteSetting(Configuration config, string name, float v)
+        static void WriteSetting(Configuration config, string name, float v)
         {
             WriteSetting(config, name, v.ToString(CultureInfo.InvariantCulture));
         }
-        private static void WriteSetting<T>(Configuration config, string name, T v) where T : struct
+        static void WriteSetting<T>(Configuration config, string name, T v) where T : struct
         {
             WriteSetting(config, name, v.ToString());
         }
-        private static void WriteSetting(Configuration config, string name, string value)
+        static void WriteSetting(Configuration config, string name, string value)
         {
             var setting = config.AppSettings.Settings[name];
             if (setting != null) setting.Value = value;

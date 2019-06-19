@@ -41,9 +41,7 @@ namespace Ship_Game
             }
         }
 
-        private static Vector3 ScreenCenter => new Vector3(
-            StarDriveGame.Instance.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.5f,
-            StarDriveGame.Instance.GraphicsDevice.PresentationParameters.BackBufferHeight * 0.5f, 0f);
+        private static Vector3 ScreenCenter => new Vector3(GameBase.ScreenCenter, 0f);
 
         private void UpdateTransform()
         {
@@ -74,7 +72,7 @@ namespace Ship_Game
         public Vector2 GetWorldSpaceFromScreenSpace(Vector2 screenCoord)
         {
             Vector2 worldPos = screenCoord;
-            worldPos -= StarDriveGame.Instance.ScreenCenter;
+            worldPos -= GameBase.ScreenCenter;
             worldPos /= Zoom;
             worldPos += Pos;
             return worldPos;

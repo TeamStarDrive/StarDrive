@@ -811,6 +811,8 @@ namespace Ship_Game.AI {
                                         Relationship.Value.ActiveWar.AlliesCalled.Add(Ally.data.Traits.Name);
                                     }
                                 }
+                                if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == Relationship.Key)
+                                    return;
                                 if (Relationship.Value.ActiveWar.TurnsAtWar % 100.0 == 0.0)
                                 {
                                     switch (Relationship.Value.ActiveWar.WarType)
