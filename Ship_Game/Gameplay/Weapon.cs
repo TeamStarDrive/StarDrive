@@ -366,8 +366,17 @@ namespace Ship_Game.Gameplay
         bool PrepareToFireSalvo()
         {
             float timeBetweenShots = SalvoTimer / SalvoCount;
-            if (SalvoFireTimer < timeBetweenShots || !CanFireWeapon())
-                return false; // not ready to fire salvo
+            if (SalvoFireTimer < timeBetweenShots)
+                return false; // not ready to fire salvo 
+            if (!CanFireWeapon())
+            {
+                // reset salvo and weapon, forgetting any partial salvo that may remain.
+                CooldownTimer = NetFireDelay;
+                //CooldownTimer -= timeBetweenShots * SalvosToFire; // discount for the unspent part.
+                SalvosToFire = 0;
+                SalvoFireTimer = 0f;
+                return false;
+            }
 
             SalvoFireTimer -= timeBetweenShots;
             --SalvosToFire;
