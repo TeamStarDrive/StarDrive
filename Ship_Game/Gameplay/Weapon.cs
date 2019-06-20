@@ -119,6 +119,9 @@ namespace Ship_Game.Gameplay
 
         public float DamageAmount;
         public float ProjectileSpeed;
+
+        // The number of projectiles spawned from a single "shot".
+        // Most commonly it is 1. AFAIK, only some FLAK cannons spawn buck-shots.
         public int ProjectileCount = 1;
 
         // for cannons that have ProjectileCount > 1, this spreads projectiles out in an arc
@@ -175,8 +178,15 @@ namespace Ship_Game.Gameplay
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
+
+        // Number of salvos that will be sequentially spawned.
+        // For example, Vulcan Cannon fires a salvo of 20
         public int SalvoCount = 1;
-        public float SalvoTimer;
+
+        // This is the total salvo duration
+        // TimeBetweenShots = SalvoTimer / SalvoCount;
+        [XmlElement(ElementName = "SalvoTimer")]
+        public float SalvoDuration;
 
         [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
         float SalvoDirection;
@@ -190,7 +200,7 @@ namespace Ship_Game.Gameplay
 
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             fireDelay = Math.Max(0.016f, fireDelay);
-            SalvoTimer = Math.Max(0, SalvoTimer);
+            SalvoDuration = Math.Max(0, SalvoDuration);
 
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
                 SalvoSoundInterval = 9999;
@@ -228,7 +238,7 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoTimer;
+        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoDuration;
 
         [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
@@ -365,7 +375,7 @@ namespace Ship_Game.Gameplay
 
         bool PrepareToFireSalvo()
         {
-            float timeBetweenShots = SalvoTimer / SalvoCount;
+            float timeBetweenShots = SalvoDuration / SalvoCount;
             if (SalvoFireTimer < timeBetweenShots || !CanFireWeapon())
                 return false; // not ready to fire salvo
 
@@ -722,7 +732,7 @@ namespace Ship_Game.Gameplay
 
         public bool ManualFireTowardsPos(Vector2 targetPos)
         {
-            if (CanFireWeapon())
+            if (CanFireWeaponCooldown())
             {
                 if (isBeam)
                 {
