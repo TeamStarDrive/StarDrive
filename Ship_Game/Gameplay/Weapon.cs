@@ -366,17 +366,16 @@ namespace Ship_Game.Gameplay
         bool PrepareToFireSalvo()
         {
             float timeBetweenShots = SalvoTimer / SalvoCount;
-            if (SalvoFireTimer < timeBetweenShots) return false; 
+            if (SalvoFireTimer < timeBetweenShots)
+                return false; // not ready to fire salvo 
             if (!CanFireWeapon())
             {
-                if (Owner.PowerCurrent < PowerRequiredToFire || Owner.Ordinance < OrdinanceRequiredToFire)
-                {
-                    // if cantfire is due to lack or energy or ammo, reset the salvo and cooldown. Do not reset for the other reasons!
-                    CooldownTimer = NetFireDelay; // maybe subtract: (SalvoTimer / SalvoCount) * SalvosTofire. So you get a discount for the unspent part of the salvo.
-                    SalvosToFire = 0;
-                    SalvoFireTimer = 0f;
-                }
-                return false; // not ready to fire salvo
+                // reset salvo and weapon, forgetting any partial salvo that may remain.
+                CooldownTimer = NetFireDelay;
+                //CooldownTimer -= timeBetweenShots * SalvosToFire; // discount for the unspent part.
+                SalvosToFire = 0;
+                SalvoFireTimer = 0f;
+                return false;
             }
 
             SalvoFireTimer -= timeBetweenShots;
@@ -394,7 +393,8 @@ namespace Ship_Game.Gameplay
                 return;
 
             int salvoIndex = SalvoCount - SalvosToFire;
-            if (!PrepareToFireSalvo()) return;
+            if (!PrepareToFireSalvo())
+                return;
 
             if (SalvoTarget != null) // check for new direction
             {
