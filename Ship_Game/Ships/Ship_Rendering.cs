@@ -346,7 +346,8 @@ namespace Ship_Game.Ships
             foreach (ShipModule m in ModuleSlotList)
             {
                 Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
-                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y, (int)moduleSize * m.XSIZE, (int)moduleSize * m.YSIZE);
+                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y,
+                                         (int)moduleSize * m.XSIZE, (int)moduleSize * m.YSIZE);
                 
                 Color healthColor         = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40,40,40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
