@@ -228,17 +228,22 @@ namespace Ship_Game.Ships
         public int ModuleTargetingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
 
 
-        void SetHealth(float newHealth)
+        // @note This should only be used in Testing
+        // @todo Is there a way to limit visibility to unit tests only?
+        public void SetHealth(float newHealth)
         {
-            float maxHealth    = ActualMaxHealth;
-            newHealth          = newHealth.Clamped(0, maxHealth);
+            float maxHealth = ActualMaxHealth;
+            newHealth = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
-            if (Active && Health.AlmostZero())
+            if (Active && Health < 1f)
             {
                 Die(LastDamagedBy, false);
-                Parent.shipStatusChanged = true;
+            }
+            else if (!Active && Health > 1f)
+            {
+                ResurrectModule();
             }
 
             Parent.AddShipHealth(healthChange);
@@ -765,13 +770,12 @@ namespace Ship_Game.Ships
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
             ++DebugInfoScreen.ModulesDied;
-
             ShieldPower = 0f;
-            var center = new Vector3(Center.X, Center.Y, -100f);
 
             SolarSystem inSystem = Parent.System;
             if (Active && Parent.InFrustum)
             {
+                var center = new Vector3(Center.X, Center.Y, -100f);
                 bool parentAlive = !Parent.dying;
                 for (int i = 0; i < 30; ++i)
                 {
@@ -781,8 +785,10 @@ namespace Ship_Game.Ships
             }
 
             Active = false;
+            Parent.shipStatusChanged = true;
+            Parent.ShouldRecalculatePower |= ActualPowerFlowMax > 0 || PowerRadius > 0;
             Parent.UpdateExternalSlots(this, becameActive: false);
-            int size = Area;
+
             if (!cleanupOnly)
             {
                 if (Parent.Active && Parent.InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -799,12 +805,14 @@ namespace Ship_Game.Ships
                             ignoresShields: true, damageAmount: ExplosionDamage, damageRadius: ExplosionRadius);
                 }
             }
-            if (ActualPowerFlowMax > 0 || PowerRadius > 0)
-                Parent.NeedRecalculate = true;
+            
+            int size = Area;
             int debrisCount = (int)RandomMath.RandomBetween(0, size / 2 + 1);
-            if (debrisCount == 0) return;
-            float debrisScale = size * 0.033f;
-            SpaceJunk.SpawnJunk(debrisCount, Center, inSystem, this, 1.0f, debrisScale);
+            if (debrisCount != 0)
+            {
+                float debrisScale = size * 0.033f;
+                SpaceJunk.SpawnJunk(debrisCount, Center, inSystem, this, 1.0f, debrisScale);
+            }
         }
 
         //added by gremlin boarding parties
@@ -958,14 +966,19 @@ namespace Ship_Game.Ships
             newShipToLink.AI.OrderReturnToHangar();
         }
 
+        void ResurrectModule()
+        {
+            Active = true;
+            Parent.shipStatusChanged = true;
+            Parent.ShouldRecalculatePower = true;
+            Parent.UpdateExternalSlots(this, becameActive: true);
+        }
+
         public override void Update(float elapsedTime)
         {
             if (!Active && Health > 1f)
             {
-                Active = true;
-                Parent.shipStatusChanged = true;
-                Parent.UpdateExternalSlots(this, becameActive: true);
-                Parent.NeedRecalculate = true;
+                ResurrectModule();
             }
 
             if (Active && ModuleType == ShipModuleType.Hangar)

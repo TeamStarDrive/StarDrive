@@ -19,7 +19,7 @@ namespace Ship_Game.Ships
     // Ship_Cargo.cs -- All the data related to Cargo
     public partial class Ship
     {
-        private CargoContainer Cargo;
+        CargoContainer Cargo;
 
         public float CargoSpaceMax { get; private set; }
         public float CargoSpaceUsed    => Cargo?.TotalCargo ?? 0;
@@ -33,6 +33,12 @@ namespace Ship_Game.Ships
             float ordnanceLeft = (ordnance - (OrdinanceMax - Ordinance)).Clamped(0, ordnance);
             Ordinance = (Ordinance + ordnance).Clamped(0, OrdinanceMax);
             return ordnanceLeft;
+        }
+
+        // @note Should only be used for testing
+        public void SetOrdnance(float newOrdnance)
+        {
+            Ordinance = newOrdnance.Clamped(0, OrdinanceMax);
         }
 
         public float ShipOrdLaunchCost => Mass / 5f;
