@@ -117,7 +117,7 @@ namespace Ship_Game.Ships
         public MoveState engineState;
         public float ScreenRadius;
         public bool InFrustum;
-        public bool NeedRecalculate;
+        public bool ShouldRecalculatePower;
         public bool Deleted;
         public bool inborders;
         public bool FightersLaunched { get; private set; }
@@ -1458,10 +1458,10 @@ namespace Ship_Game.Ships
             foreach (ShipModule slot in ModuleSlotList)
                 slot.Update(1);
 
-            if (NeedRecalculate) // must be before ShipStatusChange
+            if (ShouldRecalculatePower) // must be before ShipStatusChange
             {
                 RecalculatePower();
-                NeedRecalculate = false;
+                ShouldRecalculatePower = false;
             }
 
             if (shipStatusChanged)
