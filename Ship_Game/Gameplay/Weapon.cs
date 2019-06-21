@@ -301,8 +301,7 @@ namespace Ship_Game.Gameplay
             {
                 yield return new FireSource(origin, ApplyFireImprecisionAngle(direction));
             }
-
-            if (FireDispersionArc != 0)
+            else if (FireDispersionArc != 0)
             {
                 float degreesBetweenShots = FireDispersionArc / (float)ProjectileCount;
                 float angleToTarget = direction.ToDegrees() - FireDispersionArc * 0.5f;
@@ -367,8 +366,17 @@ namespace Ship_Game.Gameplay
         bool PrepareToFireSalvo()
         {
             float timeBetweenShots = SalvoTimer / SalvoCount;
-            if (SalvoFireTimer < timeBetweenShots || !CanFireWeapon())
-                return false; // not ready to fire salvo
+            if (SalvoFireTimer < timeBetweenShots)
+                return false; // not ready to fire salvo 
+            if (!CanFireWeapon())
+            {
+                // reset salvo and weapon, forgetting any partial salvo that may remain.
+                CooldownTimer = NetFireDelay;
+                //CooldownTimer -= timeBetweenShots * SalvosToFire; // discount for the unspent part.
+                SalvosToFire = 0;
+                SalvoFireTimer = 0f;
+                return false;
+            }
 
             SalvoFireTimer -= timeBetweenShots;
             --SalvosToFire;
