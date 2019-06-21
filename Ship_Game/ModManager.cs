@@ -90,7 +90,8 @@ namespace Ship_Game
 
         private void OnShipToolClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new ShipToolScreen(this));
+            //ScreenManager.AddScreen(new ShipToolScreen(this));
+            ScreenManager.GoToScreen(new ShipToolScreen(this), clear3DObjects: true);
         }
 
         private void OnDisableClicked(UIButton b)
