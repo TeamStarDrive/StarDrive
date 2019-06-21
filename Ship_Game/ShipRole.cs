@@ -66,14 +66,13 @@ namespace Ship_Game
             }
             return max;
         }
-
-        public static int GetRoleName(ShipData.RoleName role, Empire owner)
+        public static int GetRoleName(ShipData.RoleName role, string shipType)
         {
             if (!ResourceManager.ShipRoles.TryGetValue(role, out ShipRole shipRole))
                 return 0;
 
             foreach (Race race in shipRole.RaceList)
-                if (race.ShipType == owner.data.Traits.ShipType)
+                if (race.ShipType == shipType)
                     return race.Localization;
 
             return shipRole.Localization;
