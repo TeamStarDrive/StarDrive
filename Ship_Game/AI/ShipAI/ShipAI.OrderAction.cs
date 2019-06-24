@@ -373,8 +373,8 @@ namespace Ship_Game.AI
         }
 
         public void OrderReturnToHangar()
-        {
-            ClearOrders(AIState.ReturnToHangar, priority:true);
+        {            
+            ClearOrders(AIState.ReturnToHangar, priority: true);
             AddShipGoal(Plan.ReturnToHangar);
         }
 
@@ -411,7 +411,14 @@ namespace Ship_Game.AI
             OrderMoveTowardsPosition(OrbitTarget.Center, Vectors.Up, true, OrbitTarget);
             AddScrapGoal(OrbitTarget);
         }
-
+        public void AddSupplyShipGoal(Ship supplyTarget)
+        {
+            IgnoreCombat = true;
+            ClearOrders(AIState.Ferrying);
+            //Clearorders wipes sotred ordnance data if state is ferrying.             
+            EscortTarget = supplyTarget;
+            AddShipGoal(Plan.SupplyShip);            
+        }
         public void OrderSystemDefense(SolarSystem system)
         {
             ShipGoal goal = OrderQueue.PeekLast;

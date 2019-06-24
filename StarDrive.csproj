@@ -305,6 +305,7 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
     <Compile Include="Ship_Game\GameScreens\Sandbox\PredictionDebugPlatform.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\HullLoadMenu.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HangarDesignationDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShieldsBehaviorDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignModuleGrid.cs" />
@@ -324,6 +325,7 @@
     <Compile Include="Ship_Game\PathFinder\NodeVector.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\SupplyShuttles.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Trade.cs" />
     <Compile Include="Ship_Game\Ships\IShipTemplate.cs" />
     <Compile Include="Ship_Game\Ships\RoleData.cs" />

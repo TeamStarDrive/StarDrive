@@ -387,7 +387,7 @@ namespace Ship_Game.AI
 
         public void EngageFormationWarp()
         {
-            if (Owner.fleet.ReadyForWarp)
+            if (!Owner.Carrier.RecallingFighters() && Owner.fleet.ReadyForWarp)
             {
                 if (Owner.engineState == Ship.MoveState.Sublight)
                     Owner.EngageStarDrive();

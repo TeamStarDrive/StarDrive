@@ -568,7 +568,10 @@ namespace Ship_Game.AI
             ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
+                float netOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
+                netOrdnance = Owner.Ordinance - netOrdnance;                
+                EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
+                Owner.ChangeOrdnance(-netOrdnance);
                 EscortTarget.AI.TerminateResupplyIfDone();
                 OrderReturnToHangar();
             }

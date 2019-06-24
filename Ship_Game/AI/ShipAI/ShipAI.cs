@@ -188,9 +188,12 @@ namespace Ship_Game.AI
                 case ResupplyReason.LowHealth:
                     if (Owner.fleet != null && Owner.fleet.HasRepair)
                     {
-                        Ship supplyShip = Owner.fleet.Ships.First(supply => supply.hasRepairBeam || supply.HasRepairModule);
-                        SetUpSupplyEscort(supplyShip, supplyType: "Repair");
-                        return;
+                        Ship supplyShip = Owner.fleet.Ships.FirstOrDefault(supply => supply.hasRepairBeam || supply.HasRepairModule);
+                        if (supplyShip != null)
+                        {
+                            SetUpSupplyEscort(supplyShip, supplyType: "Repair");
+                            return;
+                        }
                     }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;

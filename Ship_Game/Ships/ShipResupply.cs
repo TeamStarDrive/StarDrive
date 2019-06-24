@@ -5,24 +5,28 @@ namespace Ship_Game.Ships
     public struct ShipResupply // Created by Fat Bastard to centralize all ship supply logic
     {
         private readonly Ship Ship;
-        public const float OrdnanceThresholdCombat             = 0.1f;
-        public const float OrdnanceThresholdNonCombat          = 0.35f;
-        public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
-        private const float KineticEnergyRatioWithPriority     = 0.9f;
-        private const float KineticEnergyRatioWithOutPriority  = 0.6f;
-        private const int OrdnanceProductionThresholdPriority  = 400;
+        public const float OrdnanceThresholdCombat = 0.1f;
+        public const float OrdnanceThresholdNonCombat = 0.35f;
+        public const float OrdnanceThresholdSupplyShipsNear = 0.5f;
+        private const float KineticEnergyRatioWithPriority = 0.9f;
+        private const float KineticEnergyRatioWithOutPriority = 0.6f;
+        private const int OrdnanceProductionThresholdPriority = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
-        private const int OrdnanceProductionThresholdCombat    = 75;
+        private const int OrdnanceProductionThresholdCombat = 75;
 
-        public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
-        public const float ShipDestroyThreshold                = 0.5f;
-        public const float RepairDroneThreshold                = 0.9f;
-        public const float RepairDoneThreshold                 = 0.9f;
-        public const float RepairDroneRange                    = 20000f;
-
+        public const ShipStatus ResupplyShuttleOrdnanceThreshold = ShipStatus.Average;
+        public const float ShipDestroyThreshold = 0.5f;
+        public const float RepairDroneThreshold = 0.9f;
+        public const float RepairDoneThreshold = 0.9f;
+        public const float RepairDroneRange = 20000f;
+        public Map<SupplyType, float> IncomingSupply;
         public ShipResupply(Ship ship)
         {
             Ship = ship;
+            IncomingSupply = new Map<SupplyType, float>();
+            foreach (SupplyType suuply in ShipStatus.GetValues(typeof(SupplyType)))
+                IncomingSupply.Add(suuply, 0);
+
         }
 
         private static float DamageThreshold(ShipData.Category category)
@@ -31,16 +35,16 @@ namespace Ship_Game.Ships
             switch (category)
             {
                 default:
-                case ShipData.Category.Civilian: threshold     = 0.85f; break;
-                case ShipData.Category.Recon: threshold        = 0.65f; break;
-                case ShipData.Category.Neutral: threshold      = 0.5f; break;
+                case ShipData.Category.Civilian: threshold = 0.85f; break;
+                case ShipData.Category.Recon: threshold = 0.65f; break;
+                case ShipData.Category.Neutral: threshold = 0.5f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
                 case ShipData.Category.Conservative: threshold = 0.35f; break;
-                case ShipData.Category.Reckless: threshold     = 0.2f; break;
-                case ShipData.Category.Kamikaze: threshold     = 0.0f; break;
+                case ShipData.Category.Reckless: threshold = 0.2f; break;
+                case ShipData.Category.Kamikaze: threshold = 0.0f; break;
             }
 
-            threshold = threshold * (1- ShipDestroyThreshold) + ShipDestroyThreshold;
+            threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
             return threshold;
         }
 
@@ -83,10 +87,10 @@ namespace Ship_Game.Ships
         {
             switch (supplyType)
             {
-                case SupplyType.Rearm:  return OrdnanceOk();
+                case SupplyType.Rearm: return OrdnanceOk();
                 case SupplyType.Repair: return HealthOk();
                 case SupplyType.Troops: return TroopsOk();
-                default:                return HealthOk() && OrdnanceOk() && TroopsOk();
+                default: return HealthOk() && OrdnanceOk() && TroopsOk();
             }
         }
 
@@ -126,7 +130,7 @@ namespace Ship_Game.Ships
             if (Ship.AI.HasPriorityTarget)
                 return false;
 
-            if (Ship.Carrier.AllTroopBays.Length > 0) 
+            if (Ship.Carrier.AllTroopBays.Length > 0)
                 return Ship.Carrier.TroopsMissingVsTroopCapacity < resupplyTroopThreshold;
 
             return (float)Ship.TroopList.Count / Ship.TroopCapacity < resupplyTroopThreshold;
@@ -203,7 +207,7 @@ namespace Ship_Game.Ships
 
         private bool HealthOk()
         {
-            float threshold     = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1) 
+            float threshold = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1)
                                                 : RepairDoneThreshold;
 
             float healthTypeToCheck = Ship.InCombat ? Ship.InternalSlotsHealthPercent
@@ -224,6 +228,36 @@ namespace Ship_Game.Ships
                 return true;
 
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
+        }
+
+        public void ChangeIncomingSupply(SupplyType supplyType, float amount)
+        {
+            IncomingSupply[supplyType] += amount;
+        }
+        public bool AcceptExternalSupply(SupplyType supplyType)
+        {
+            switch (supplyType)
+            {
+                case SupplyType.All:
+                    break;
+                case SupplyType.Rearm:
+                    if (Ship.IsSupplyShip)
+                        return false;
+                    ShipStatus status = ShipStatusWithPendingResupply(supplyType);
+                    return status < ResupplyShuttleOrdnanceThreshold;
+                        
+                case SupplyType.Repair:
+                    break;
+                case SupplyType.Troops:
+                    break;
+            }
+            return false;
+        }
+        public ShipStatus ShipStatusWithPendingResupply(SupplyType supplyType)
+        {
+            float amount = IncomingSupply[supplyType];
+            // for easier debugging keeping this as two statements
+            return Ship.OrdnanceStatusWithincoming(amount);
         }
     }
     public enum ResupplyReason
