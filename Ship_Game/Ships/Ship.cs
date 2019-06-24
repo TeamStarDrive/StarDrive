@@ -420,21 +420,26 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if ( engineState        == MoveState.Warp
-                    || AI.State         == AIState.Scrap
-                    || AI.State         == AIState.Resupply
-                    || AI.State         == AIState.Refit || Mothership != null
-                    || shipData.Role    == ShipData.RoleName.supply
-                    || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
-                    || OrdinanceMax < 1
-                    || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
-                    return ShipStatus.NotApplicable;
-
-                return ToShipStatus(Ordinance, OrdinanceMax);
+                return OrdnanceStatusWithincoming(0);
             }
-
         }
+        public ShipStatus OrdnanceStatusWithincoming(float incomingAmount)
+        {
+            if (engineState == MoveState.Warp
+                || AI.State == AIState.Scrap
+                || AI.State == AIState.Resupply
+                || AI.State == AIState.Refit || Mothership != null
+                || shipData.Role == ShipData.RoleName.supply
+                || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
+                || OrdinanceMax < 1
+                || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
+                return ShipStatus.NotApplicable;
 
+            float amount = Ordinance;
+            if (incomingAmount > 0)
+                amount = (amount + incomingAmount).Clamped(0, OrdinanceMax);
+            return ToShipStatus(amount, OrdinanceMax);
+        }
         public int BombsUseful
         {
             get
@@ -2201,7 +2206,7 @@ namespace Ship_Game.Ships
             if (AI.HasPriorityOrder || AI.State == AIState.Resupply) return ShipStatus.NotApplicable;
             if (!isSpooling && WarpDuration() < ShipStatus.Good ) return ShipStatus.Critical;
             if (engineState == MoveState.Warp) return ShipStatus.Good;
-            if (Carrier.RecallingFighters()) return ShipStatus.Poor;
+            if (Carrier.HasActiveHangars) return ShipStatus.Poor;
             return ShipStatus.Excellent;
         }
 
