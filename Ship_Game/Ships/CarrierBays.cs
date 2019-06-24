@@ -21,6 +21,7 @@ namespace Ship_Game.Ships
         public readonly bool HasAssaultTransporters;
         public bool SendTroopsToShip;
         private bool RecallingShipsBeforeWarp;
+        public SupplyShuttles SupplyShuttle;
 
         private CarrierBays(Ship owner, ShipModule[] slots)
         {
@@ -40,6 +41,7 @@ namespace Ship_Game.Ships
             HasOrdnanceTransporters = AllTransporters.Any(transporter => transporter.TransporterOrdnance > 0);
             SendTroopsToShip        = true;
             Owner                   = owner;
+            SupplyShuttle           = new SupplyShuttles(Owner);
         }
 
         private static readonly CarrierBays None = new CarrierBays(null, Empty<ShipModule>.Array); // NIL object pattern
