@@ -35,11 +35,11 @@ namespace Ship_Game.Ships
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
 
-        public Array<Weapon> Weapons = new Array<Weapon>();
-        private float JumpTimer = 3f;
-        public AudioEmitter SoundEmitter = new AudioEmitter();
+        public Array<Weapon> Weapons      = new Array<Weapon>();
+        private float JumpTimer           = 3f;
+        public AudioEmitter SoundEmitter  = new AudioEmitter();
         public Vector2 ScreenPosition;
-        public float ScuttleTimer = -1f;
+        public float ScuttleTimer         = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool shipStatusChanged;
-        public Guid guid = Guid.NewGuid();
+        public Guid guid                  = Guid.NewGuid();
         public bool AddedOnLoad;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
@@ -101,9 +101,9 @@ namespace Ship_Game.Ships
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
-        readonly AudioHandle Afterburner = new AudioHandle();
+        readonly AudioHandle Afterburner  = new AudioHandle();
         public bool isSpooling;
-        readonly AudioHandle JumpSfx = new AudioHandle();
+        readonly AudioHandle JumpSfx      = new AudioHandle();
         public float InhibitedTimer;
         public int Level;
         private int MaxHealthRevision;
@@ -675,6 +675,15 @@ namespace Ship_Game.Ships
         /// <summary>Forces the ship to be in combat without a target.</summary>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
+        public bool InRadiusOfSystem(SolarSystem system) => InRadius(system.Position, system.Radius);
+        public bool InRadiusOfCurrentSystem()
+        {
+            if (System != null)
+                return InRadiusOfSystem(System);
+                // there is no system so... you are in range of nothing. 
+            return true;
+        }
+
         public bool InRadius(Vector2 worldPos, float radius)
         {
             return Center.InRadius(worldPos, Radius+radius);
@@ -928,8 +937,6 @@ namespace Ship_Game.Ships
         {
             if (Empire.Universe == null || engineState == MoveState.Sublight)
                 return;
-
-            //Log.Info($"HyperspaceReturn {this}");
 
             if (JumpSfx.IsPlaying)
                 JumpSfx.Stop();
@@ -1545,6 +1552,7 @@ namespace Ship_Game.Ships
 
             if (!loyalty.isFaction)
                 AI.ProcessResupply(resupplyReason);
+
         }
 
         private void SetShipsVisibleByPlayer()
