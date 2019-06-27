@@ -5,20 +5,21 @@ namespace Ship_Game.Ships
     public struct ShipResupply // Created by Fat Bastard to centralize all ship supply logic
     {
         private readonly Ship Ship;
-        public const float OrdnanceThresholdCombat = 0.1f;
-        public const float OrdnanceThresholdNonCombat = 0.35f;
-        public const float OrdnanceThresholdSupplyShipsNear = 0.5f;
-        private const float KineticEnergyRatioWithPriority = 0.9f;
-        private const float KineticEnergyRatioWithOutPriority = 0.6f;
-        private const int OrdnanceProductionThresholdPriority = 400;
+        public const float OrdnanceThresholdCombat             = 0.1f;
+        public const float OrdnanceThresholdNonCombat          = 0.35f;
+        public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
+        private const float KineticEnergyRatioWithPriority     = 0.9f;
+        private const float KineticEnergyRatioWithOutPriority  = 0.6f;
+        private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
-        private const int OrdnanceProductionThresholdCombat = 75;
+        private const int OrdnanceProductionThresholdCombat    = 75;
 
         public const ShipStatus ResupplyShuttleOrdnanceThreshold = ShipStatus.Average;
+
         public const float ShipDestroyThreshold = 0.5f;
         public const float RepairDroneThreshold = 0.9f;
-        public const float RepairDoneThreshold = 0.9f;
-        public const float RepairDroneRange = 20000f;
+        public const float RepairDoneThreshold  = 0.9f;
+        public const float RepairDroneRange     = 20000f;
         public Map<SupplyType, float> IncomingSupply;
         public ShipResupply(Ship ship)
         {
@@ -35,13 +36,13 @@ namespace Ship_Game.Ships
             switch (category)
             {
                 default:
-                case ShipData.Category.Civilian: threshold = 0.85f; break;
-                case ShipData.Category.Recon: threshold = 0.65f; break;
-                case ShipData.Category.Neutral: threshold = 0.5f; break;
+                case ShipData.Category.Civilian:     threshold = 0.85f; break;
+                case ShipData.Category.Recon:        threshold = 0.65f; break;
+                case ShipData.Category.Neutral:      threshold = 0.5f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
                 case ShipData.Category.Conservative: threshold = 0.35f; break;
-                case ShipData.Category.Reckless: threshold = 0.2f; break;
-                case ShipData.Category.Kamikaze: threshold = 0.0f; break;
+                case ShipData.Category.Reckless:     threshold = 0.2f; break;
+                case ShipData.Category.Kamikaze:     threshold = 0.0f; break;
             }
 
             threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
@@ -87,10 +88,10 @@ namespace Ship_Game.Ships
         {
             switch (supplyType)
             {
-                case SupplyType.Rearm: return OrdnanceOk();
+                case SupplyType.Rearm:  return OrdnanceOk();
                 case SupplyType.Repair: return HealthOk();
                 case SupplyType.Troops: return TroopsOk();
-                default: return HealthOk() && OrdnanceOk() && TroopsOk();
+                default:                return HealthOk() && OrdnanceOk() && TroopsOk();
             }
         }
 
@@ -218,7 +219,7 @@ namespace Ship_Game.Ships
 
         private bool OrdnanceOk()
         {
-            float threshold = Ship.InCombat ? OrdnanceThresholdCombat * 4 : 0.99f;
+            float threshold = Ship.InCombat ? OrdnanceThresholdCombat  : OrdnanceThresholdNonCombat;
             return Ship.OrdnancePercent >= threshold;
         }
 
@@ -244,7 +245,7 @@ namespace Ship_Game.Ships
                     if (Ship.IsSupplyShip)
                         return false;
                     ShipStatus status = ShipStatusWithPendingResupply(supplyType);
-                    return status < ResupplyShuttleOrdnanceThreshold;
+                    return status <= (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : ShipStatus.Maximum);
                         
                 case SupplyType.Repair:
                     break;

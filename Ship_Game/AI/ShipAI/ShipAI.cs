@@ -159,18 +159,22 @@ namespace Ship_Game.AI
             if (!Owner.isTurning)
                 Owner.RestoreYBankRotation();
         }
+        public Ship NearBySupplyShip => 
+            FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
+        supply => -supply.Center.SqDist(Owner.Center));
 
+        public Ship NearByRepairShip => 
+            FriendliesNearby.FindMinFiltered(supply => supply.hasRepairBeam || supply.HasRepairModule,
+        supply => -supply.Center.SqDist(Owner.Center));
         public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
             switch (resupplyReason)
             {
                 case ResupplyReason.LowOrdnanceCombat:
-                    if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
+                    Ship supplyShip = NearBySupplyShip;
+                    if (supplyShip != null)
                     {
-                        Ship supplyShip = FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays,
-                                                                           supply => -supply.Center.SqDist(Owner.Center));
-
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
                         return;
                     }
@@ -179,23 +183,18 @@ namespace Ship_Game.AI
                 case ResupplyReason.LowOrdnanceNonCombat:
                     if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
                     {
-                        State = AIState.ResupplyEscort; // FB: this will signal supply carriers to dispatch a supply shuttle
+                        State = AIState.ResupplyEscort; // this will cause the ship to move towards supply ships
                         return;
                     }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.NoCommand:
                 case ResupplyReason.LowHealth:
-                    if (Owner.fleet != null && Owner.fleet.HasRepair)
-                    {
-                        Ship supplyShip = Owner.fleet.Ships.FirstOrDefault(supply => supply.hasRepairBeam || supply.HasRepairModule);
-                        if (supplyShip != null)
-                        {
-                            SetUpSupplyEscort(supplyShip, supplyType: "Repair");
-                            return;
-                        }
-                    }
-                    nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
+                    Ship repairShip = NearByRepairShip;
+                    if (repairShip != null)
+                        SetUpSupplyEscort(repairShip, supplyType: "Repair");
+                    else
+                        nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.LowTroops:
                     if (Owner.Carrier.SendTroopsToShip)
@@ -246,13 +245,18 @@ namespace Ship_Game.AI
             if (Owner.AI.State != AIState.Resupply && Owner.AI.State != AIState.ResupplyEscort)
                 return;
 
-            if (!Owner.Supply.DoneResupplying(supplyType))
-                return;
+            if (!Owner.Supply.DoneResupplying(supplyType)) 
+            {
+                //if (State == AIState.ResupplyEscort && OrderQueue.Count > 0 
+                //&& EscortTarget?.SupplyShipCanSupply == true)
+                    return;
+            }
 
-            Owner.AI.HasPriorityOrder = false;
+            Owner.AI.HasPriorityOrder = false;            
+            Owner.AI.State            = AIState.AwaitingOrders;
+            Owner.AI.IgnoreCombat     = false;
+
             DequeueCurrentOrder();
-            Owner.AI.State = AIState.AwaitingOrders;
-            Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
                 OrderMoveTowardsPosition(Owner.fleet.Position + Owner.RelativeFleetOffset, Owner.fleet.Direction, true, null);
         }
