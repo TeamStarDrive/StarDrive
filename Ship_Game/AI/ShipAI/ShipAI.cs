@@ -129,15 +129,16 @@ namespace Ship_Game.AI
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
 
-            if (State == AIState.Resupply)
-            {
-                HasPriorityOrder = true;
-                if (Owner.Ordinance >= Owner.OrdinanceMax && Owner.Health >= Owner.HealthMax) //fbedard: consider health also
-                {
-                    HasPriorityOrder = false;
-                    State = AIState.AwaitingOrders;
-                }
-            }
+            //if (State == AIState.Resupply)
+            //{
+            //    HasPriorityOrder = true;
+            //    if (Owner.Supply.DoneResupplying(SupplyType.All))
+            //    if (Owner.Ordinance >= Owner.OrdinanceMax && Owner.Health >= Owner.HealthMax) //fbedard: consider health also
+            //    {
+            //        HasPriorityOrder = false;
+            //        State = AIState.AwaitingOrders;
+            //    }
+            //}
 
             ResetStateFlee();
             ScanForThreat(elapsedTime);
@@ -169,21 +170,25 @@ namespace Ship_Game.AI
         public void ProcessResupply(ResupplyReason resupplyReason)
         {
             Planet nearestRallyPoint = null;
+            Ship supplyShip = null;
             switch (resupplyReason)
             {
                 case ResupplyReason.LowOrdnanceCombat:
-                    Ship supplyShip = NearBySupplyShip;
+
+                    supplyShip = NearBySupplyShip;
                     if (supplyShip != null)
                     {
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
                         return;
                     }
+
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.LowOrdnanceNonCombat:
-                    if (FriendliesNearby.Any(supply => supply.SupplyShipCanSupply))
+                    supplyShip = NearBySupplyShip;
+                    if (supplyShip != null)
                     {
-                        State = AIState.ResupplyEscort; // this will cause the ship to move towards supply ships
+                        SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
                         return;
                     }
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
@@ -229,12 +234,12 @@ namespace Ship_Game.AI
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
         {
             if (nearestRallyPoint != null)
-                OrderResupply(nearestRallyPoint, false);
+                OrderResupply(nearestRallyPoint, cancelOrders);
             else
             {
                 nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
                 if (nearestRallyPoint != null)
-                    OrderResupply(nearestRallyPoint, false);
+                    OrderResupply(nearestRallyPoint, cancelOrders);
                 else
                     OrderFlee(true);
             }
@@ -247,8 +252,7 @@ namespace Ship_Game.AI
 
             if (!Owner.Supply.DoneResupplying(supplyType)) 
             {
-                //if (State == AIState.ResupplyEscort && OrderQueue.Count > 0 
-                //&& EscortTarget?.SupplyShipCanSupply == true)
+                if (State != AIState.ResupplyEscort || EscortTarget?.SupplyShipCanSupply == true)
                     return;
             }
 

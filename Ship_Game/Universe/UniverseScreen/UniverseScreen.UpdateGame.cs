@@ -316,23 +316,21 @@ namespace Ship_Game
                 for (int i = 0; i < MasterShipList.Count; i++)
                 {
                     Ship ship = MasterShipList[i];
-                    if (!ship.InRadiusOfCurrentSystem())
+                    if (!ship.InRadiusOfCurrentSystem)
                     {
                         ship.SetSystem(null);
-                    }
 
-                    foreach (SolarSystem system in SolarSystemList)
-                    {
-                        if (ship.Position.InRadius(system.Position, system.Radius))
+                        for (int x = 0; x < SolarSystemList.Count; x++)
                         {
+                            SolarSystem system = SolarSystemList[x];
+
+                            if (!ship.InRadiusOfSystem(system))
+                                continue;
                             system.SetExploredBy(ship.loyalty);
                             ship.SetSystem(system);
                             break; // No need to keep looping through all other systems if one is found -Gretman
                         }
                     }
-                    // Add ships to spatial manager if system is null.
-                    //if (ship.System == null)
-                    //    ship.SetSystem(null);
                 }
             }
 
