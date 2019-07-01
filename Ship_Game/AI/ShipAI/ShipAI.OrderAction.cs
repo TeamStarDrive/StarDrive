@@ -415,7 +415,7 @@ namespace Ship_Game.AI
         {
             IgnoreCombat = true;
             ClearOrders(AIState.Ferrying);
-            //Clearorders wipes sotred ordnance data if state is ferrying.             
+            //Clearorders wipes stored ordnance data if state is ferrying.             
             EscortTarget = supplyTarget;
             AddShipGoal(Plan.SupplyShip);            
         }

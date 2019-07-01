@@ -675,19 +675,12 @@ namespace Ship_Game.Ships
         /// <summary>Forces the ship to be in combat without a target.</summary>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
-        public bool InRadiusOfSystem(SolarSystem system) => InRadius(system.Position, system.Radius);
-        public bool InRadiusOfCurrentSystem()
-        {
-            if (System != null)
-                return InRadiusOfSystem(System);
-                // there is no system so... you are in range of nothing. 
-            return true;
-        }
+        public bool InRadiusOfSystem(SolarSystem system) =>
+            system != null && InRadius(system.Position, system.Radius);
+        public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
-        public bool InRadius(Vector2 worldPos, float radius)
-        {
-            return Center.InRadius(worldPos, Radius+radius);
-        }
+        public bool InRadius(Vector2 worldPos, float radius) 
+            => Center.InRadius(worldPos, Radius + radius);
 
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
