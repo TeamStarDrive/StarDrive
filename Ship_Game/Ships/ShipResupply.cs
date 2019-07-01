@@ -1,4 +1,5 @@
-﻿using Ship_Game.AI;
+﻿using System;
+using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {
@@ -25,11 +26,10 @@ namespace Ship_Game.Ships
         {
             Ship = ship;
             IncomingSupply = new Map<SupplyType, float>();
-            foreach (SupplyType suuply in ShipStatus.GetValues(typeof(SupplyType)))
+            foreach (SupplyType suuply in Enum.GetValues(typeof(SupplyType)))
                 IncomingSupply.Add(suuply, 0);
-
         }
-
+        public float IncomingOrdnance => IncomingSupply[SupplyType.Rearm];
         private static float DamageThreshold(ShipData.Category category)
         {
             float threshold;
@@ -52,10 +52,10 @@ namespace Ship_Game.Ships
         public ResupplyReason Resupply(bool forceSupplyStateCheck = false)
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
-                                                           || Ship.DesignRole == ShipData.RoleName.supply)
+                                                           || Ship.DesignRole == ShipData.RoleName.supply
+                                                           || Ship.AI.HasPriorityOrder)
             {
                 return ResupplyReason.NotNeeded;
-
             }
 
             // this saves calculating supply again for ships already in supply states. 
@@ -143,19 +143,9 @@ namespace Ship_Game.Ships
                 && Ship.loyalty.isPlayer)
                 return false; // only player manual command will convince Kamikaze ship to resupply
 
-            float threshold;
-            float ordnancePercent = Ship.OrdnancePercent;
-            if (Ship.InCombat)
-                threshold = OrdnanceThresholdCombat;
-            else
-            {
-                if (ordnancePercent < OrdnanceThresholdSupplyShipsNear
-                        && (Ship.Mothership != null || Ship.AI.FriendliesNearby.Any(supply => supply.SupplyShipCanSupply)))
-                    return true; // FB: let supply shuttles supply ships with partly depleted reserves
-
-                threshold = OrdnanceThresholdNonCombat;
-            }
-            return ordnancePercent < threshold;
+            float threshold = Ship.InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
+            
+            return Ship.OrdnancePercent < threshold;
         }
 
         private bool HighKineticToEnergyRatio()
@@ -233,7 +223,9 @@ namespace Ship_Game.Ships
 
         public void ChangeIncomingSupply(SupplyType supplyType, float amount)
         {
-            IncomingSupply[supplyType] += amount;
+            float currentIncoming = IncomingSupply[supplyType];
+            currentIncoming += amount;
+            IncomingSupply[supplyType] = Math.Max(currentIncoming, 0);
         }
         public bool AcceptExternalSupply(SupplyType supplyType)
         {
@@ -245,7 +237,7 @@ namespace Ship_Game.Ships
                     if (Ship.IsSupplyShip)
                         return false;
                     ShipStatus status = ShipStatusWithPendingResupply(supplyType);
-                    return status <= (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : ShipStatus.Maximum);
+                    return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : ShipStatus.Maximum);
                         
                 case SupplyType.Repair:
                     break;

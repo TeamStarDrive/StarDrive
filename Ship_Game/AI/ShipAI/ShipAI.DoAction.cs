@@ -559,7 +559,8 @@ namespace Ship_Game.AI
                                      || EscortTarget.AI.State == AIState.Resupply
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit
-                                     || EscortTarget.OrdnancePercent >= 0.99f)
+                                     //|| !EscortTarget.Supply.AcceptExternalSupply(SupplyType.Rearm)
+                                     )
             {
                 OrderReturnToHangar();
                 return;
@@ -568,10 +569,13 @@ namespace Ship_Game.AI
             ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                float netOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
-                netOrdnance = Owner.Ordinance - netOrdnance;                
-                EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
-                Owner.ChangeOrdnance(-netOrdnance);
+                // how much the target did not take. 
+                float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
+                // how much the target did take. 
+                float ordnanceDelivered = Owner.Ordinance - leftOverOrdnance;
+                // remove amount from incoming supply 
+                EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -ordnanceDelivered);
+                Owner.ChangeOrdnance(-ordnanceDelivered);
                 EscortTarget.AI.TerminateResupplyIfDone();
                 OrderReturnToHangar();
             }
