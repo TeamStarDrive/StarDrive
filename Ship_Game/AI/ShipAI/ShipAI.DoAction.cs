@@ -558,9 +558,7 @@ namespace Ship_Game.AI
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Resupply
                                      || EscortTarget.AI.State == AIState.Scrap
-                                     || EscortTarget.AI.State == AIState.Refit
-                                     //|| !EscortTarget.Supply.AcceptExternalSupply(SupplyType.Rearm)
-                                     )
+                                     || EscortTarget.AI.State == AIState.Refit)
             {
                 OrderReturnToHangar();
                 return;

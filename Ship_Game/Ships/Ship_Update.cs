@@ -40,7 +40,7 @@ namespace Ship_Game.Ships
             {
                 if (Health <= 0)
                 {
-                    Log.Error($"Ship Terminated due to 0 health bug. Active: {Active}, has live modules: {ModuleSlotsDestroyed}");
+                    Log.Warning($"Ship Terminated due to 0 health bug. Active: {Active}, has live modules: {ModuleSlotsDestroyed}");
                 }
                 Die(null, true);
             }

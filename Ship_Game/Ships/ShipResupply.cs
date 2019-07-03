@@ -8,7 +8,6 @@ namespace Ship_Game.Ships
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
         public const float OrdnanceThresholdNonCombat          = 0.35f;
-        public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
         private const int OrdnanceProductionThresholdPriority  = 400;
@@ -29,7 +28,6 @@ namespace Ship_Game.Ships
             foreach (SupplyType suuply in Enum.GetValues(typeof(SupplyType)))
                 IncomingSupply.Add(suuply, 0);
         }
-        public float IncomingOrdnance => IncomingSupply[SupplyType.Rearm];
         private static float DamageThreshold(ShipData.Category category)
         {
             float threshold;
