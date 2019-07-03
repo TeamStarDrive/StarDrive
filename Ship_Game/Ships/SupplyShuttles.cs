@@ -11,20 +11,28 @@ namespace Ship_Game.Ships
     {
             Owner = ship;
     }
-        public void Launch(float radius)
+        /// <summary>
+        /// <para>check if any friendly ships need supply.</para>
+        /// loop through existing supply shuttles.<para />
+        /// recall shuttles not on task or put them on task<para />
+        /// supply mothership if nothing else to do.<para />
+        /// </summary>
+        /// <param name="radius">Generally Sensor range of ship</param>
+        public void ProcessSupplyShuttles(float radius)
         {
-            //fbedard: for launch only
-            //CG Omergawd. yes i tried getting rid of the orderby and cleaning this up
-            //but im not willing to test that change here. I think i did some of this a long while back.  
             if (Owner == null || Owner.engineState == Ship.MoveState.Warp || !Owner.Carrier.HasSupplyBays)
                 return;
 
             Ship[] shipsNeedingSupply = ShipsInNeedOfSupplyByPriority(FriendliesNearby, radius);
 
+            // nothing to do ¯\_(ツ)_/¯
+            if (shipsNeedingSupply.Length == 0 && Owner.OrdnanceStatus >= ShipStatus.Maximum) 
+                return;
+
             int shipInNeedIndex    = 0;
             bool cantLaunchShuttle = false;
 
-            //oh crap this is really messed up.  FB: working on it.
+            // Its Better!
             foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.Filter(hangar => hangar.IsSupplyBay))
             {
                 Ship supplyShipInSpace = hangar.GetHangarShip();

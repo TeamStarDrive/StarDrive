@@ -209,7 +209,7 @@ namespace Ship_Game.AI
                 NearByShips.AddUnique(sw);
             }
 
-            Owner.Carrier.SupplyShuttle.Launch(radius);
+            Owner.Carrier.SupplyShuttle.ProcessSupplyShuttles(radius);
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
             ShipWeight[] sortedList2 = NearByShips.Filter(weight => weight.Weight > -100)
