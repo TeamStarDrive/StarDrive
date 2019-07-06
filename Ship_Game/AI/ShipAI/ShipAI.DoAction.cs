@@ -63,7 +63,11 @@ namespace Ship_Game.AI
 
             if (Owner.System != null && Owner.Carrier.HasActiveTroopBays)
                 CombatState = CombatState.AssaultShip;
-
+            if (Target == null)
+            {
+                Log.Error($"Target went null in DoCombat. How?");
+                return;
+            }
             // in range:
             if (Target.Center.InRadius(Owner.Center, 7500f))
             {
