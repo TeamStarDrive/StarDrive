@@ -302,7 +302,7 @@ namespace Ship_Game
         {
             foreach (Ship ship in MasterShipList)
                 ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.
-        }
+        }        
 
         private void UpdateShipsAndFleets(float elapsedTime)
         {
@@ -316,18 +316,21 @@ namespace Ship_Game
                 for (int i = 0; i < MasterShipList.Count; i++)
                 {
                     Ship ship = MasterShipList[i];
-                    foreach (SolarSystem system in SolarSystemList)
+                    if (!ship.InRadiusOfCurrentSystem)
                     {
-                        if (ship.Position.InRadius(system.Position, system.Radius))
+                        ship.SetSystem(null);
+
+                        for (int x = 0; x < SolarSystemList.Count; x++)
                         {
+                            SolarSystem system = SolarSystemList[x];
+
+                            if (!ship.InRadiusOfSystem(system))
+                                continue;
                             system.SetExploredBy(ship.loyalty);
                             ship.SetSystem(system);
                             break; // No need to keep looping through all other systems if one is found -Gretman
                         }
                     }
-                    // Add ships to spatial manager if system is null.
-                    if (ship.System == null)
-                        ship.SetSystem(null);
                 }
             }
 

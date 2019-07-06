@@ -15,7 +15,7 @@ namespace Ship_Game.Ships
         {
             bool inFrustum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI.Target != null
+                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI?.Target != null
                 && Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)) ;
 
             InFrustum = inFrustum;
@@ -36,8 +36,12 @@ namespace Ship_Game.Ships
             if (!ShipInitialized)
                 return;
 
-            if (Active && ModuleSlotsDestroyed)
+            if (Active && (ModuleSlotsDestroyed || Health <= 0))
             {
+                if (Health <= 0)
+                {
+                    Log.Warning($"Ship Terminated due to 0 health bug. Active: {Active}, has live modules: {ModuleSlotsDestroyed}");
+                }
                 Die(null, true);
             }
 

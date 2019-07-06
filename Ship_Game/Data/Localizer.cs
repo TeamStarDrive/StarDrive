@@ -137,12 +137,12 @@ namespace Ship_Game
             }
         }
 
-        public static string GetRole(ShipData.RoleName role, Empire owner)
+        public static string GetRole(ShipData.RoleName role, Empire owner) => GetRole(role, owner.data.Traits.ShipType);
+        public static string GetRole(ShipData.RoleName role, string shipType)
         {
-            int localIndex = ShipRole.GetRoleName(role, owner);
+            int localIndex = ShipRole.GetRoleName(role, shipType);
             return localIndex > 0 ? Token(localIndex) : "unknown";
         }
-
         // statistic for amount of memory used for storing strings
         public static int CountBytesUsed()
         {
