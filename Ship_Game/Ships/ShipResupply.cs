@@ -1,4 +1,5 @@
-﻿using Ship_Game.AI;
+﻿using System;
+using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {
@@ -7,50 +8,52 @@ namespace Ship_Game.Ships
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
         public const float OrdnanceThresholdNonCombat          = 0.35f;
-        public const float OrdnanceThresholdSupplyShipsNear    = 0.5f;
         private const float KineticEnergyRatioWithPriority     = 0.9f;
         private const float KineticEnergyRatioWithOutPriority  = 0.6f;
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
 
-        public const float ResupplyShuttleOrdnanceThreshold    = 0.5f;
-        public const float ShipDestroyThreshold                = 0.5f;
-        public const float RepairDroneThreshold                = 0.9f;
-        public const float RepairDoneThreshold                 = 0.9f;
-        public const float RepairDroneRange                    = 20000f;
+        public const ShipStatus ResupplyShuttleOrdnanceThreshold = ShipStatus.Average;
 
+        public const float ShipDestroyThreshold = 0.5f;
+        public const float RepairDroneThreshold = 0.9f;
+        public const float RepairDoneThreshold  = 0.9f;
+        public const float RepairDroneRange     = 20000f;
+        public Map<SupplyType, float> IncomingSupply;
         public ShipResupply(Ship ship)
         {
             Ship = ship;
+            IncomingSupply = new Map<SupplyType, float>();
+            foreach (SupplyType suuply in Enum.GetValues(typeof(SupplyType)))
+                IncomingSupply.Add(suuply, 0);
         }
-
         private static float DamageThreshold(ShipData.Category category)
         {
             float threshold;
             switch (category)
             {
                 default:
-                case ShipData.Category.Civilian: threshold     = 0.85f; break;
-                case ShipData.Category.Recon: threshold        = 0.65f; break;
-                case ShipData.Category.Neutral: threshold      = 0.5f; break;
+                case ShipData.Category.Civilian:     threshold = 0.85f; break;
+                case ShipData.Category.Recon:        threshold = 0.65f; break;
+                case ShipData.Category.Neutral:      threshold = 0.5f; break;
                 case ShipData.Category.Unclassified: threshold = 0.4f; break;
                 case ShipData.Category.Conservative: threshold = 0.35f; break;
-                case ShipData.Category.Reckless: threshold     = 0.2f; break;
-                case ShipData.Category.Kamikaze: threshold     = 0.0f; break;
+                case ShipData.Category.Reckless:     threshold = 0.2f; break;
+                case ShipData.Category.Kamikaze:     threshold = 0.0f; break;
             }
 
-            threshold = threshold * (1- ShipDestroyThreshold) + ShipDestroyThreshold;
+            threshold = threshold * (1 - ShipDestroyThreshold) + ShipDestroyThreshold;
             return threshold;
         }
 
         public ResupplyReason Resupply(bool forceSupplyStateCheck = false)
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
-                                                           || Ship.DesignRole == ShipData.RoleName.supply)
+                                                           || Ship.DesignRole == ShipData.RoleName.supply
+                                                           || Ship.AI.HasPriorityOrder)
             {
                 return ResupplyReason.NotNeeded;
-
             }
 
             // this saves calculating supply again for ships already in supply states. 
@@ -126,7 +129,7 @@ namespace Ship_Game.Ships
             if (Ship.AI.HasPriorityTarget)
                 return false;
 
-            if (Ship.Carrier.AllTroopBays.Length > 0) 
+            if (Ship.Carrier.AllTroopBays.Length > 0)
                 return Ship.Carrier.TroopsMissingVsTroopCapacity < resupplyTroopThreshold;
 
             return (float)Ship.TroopList.Count / Ship.TroopCapacity < resupplyTroopThreshold;
@@ -138,19 +141,9 @@ namespace Ship_Game.Ships
                 && Ship.loyalty.isPlayer)
                 return false; // only player manual command will convince Kamikaze ship to resupply
 
-            float threshold;
-            float ordnancePercent = Ship.OrdnancePercent;
-            if (Ship.InCombat)
-                threshold = OrdnanceThresholdCombat;
-            else
-            {
-                if (ordnancePercent < OrdnanceThresholdSupplyShipsNear
-                        && (Ship.Mothership != null || Ship.AI.FriendliesNearby.Any(supply => supply.SupplyShipCanSupply)))
-                    return true; // FB: let supply shuttles supply ships with partly depleted reserves
-
-                threshold = OrdnanceThresholdNonCombat;
-            }
-            return ordnancePercent < threshold;
+            float threshold = Ship.InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
+            
+            return Ship.OrdnancePercent < threshold;
         }
 
         private bool HighKineticToEnergyRatio()
@@ -203,7 +196,7 @@ namespace Ship_Game.Ships
 
         private bool HealthOk()
         {
-            float threshold     = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1) 
+            float threshold = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1)
                                                 : RepairDoneThreshold;
 
             float healthTypeToCheck = Ship.InCombat ? Ship.InternalSlotsHealthPercent
@@ -214,7 +207,7 @@ namespace Ship_Game.Ships
 
         private bool OrdnanceOk()
         {
-            float threshold = Ship.InCombat ? OrdnanceThresholdCombat * 4 : 0.99f;
+            float threshold = Ship.InCombat ? OrdnanceThresholdCombat  : OrdnanceThresholdNonCombat;
             return Ship.OrdnancePercent >= threshold;
         }
 
@@ -224,6 +217,38 @@ namespace Ship_Game.Ships
                 return true;
 
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
+        }
+
+        public void ChangeIncomingSupply(SupplyType supplyType, float amount)
+        {
+            float currentIncoming = IncomingSupply[supplyType];
+            currentIncoming += amount;
+            IncomingSupply[supplyType] = Math.Max(currentIncoming, 0);
+        }
+        public bool AcceptExternalSupply(SupplyType supplyType)
+        {
+            switch (supplyType)
+            {
+                case SupplyType.All:
+                    break;
+                case SupplyType.Rearm:
+                    if (Ship.IsSupplyShip)
+                        return false;
+                    ShipStatus status = ShipStatusWithPendingResupply(supplyType);
+                    return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : ShipStatus.Maximum);
+                        
+                case SupplyType.Repair:
+                    break;
+                case SupplyType.Troops:
+                    break;
+            }
+            return false;
+        }
+        public ShipStatus ShipStatusWithPendingResupply(SupplyType supplyType)
+        {
+            float amount = IncomingSupply[supplyType];
+            // for easier debugging keeping this as two statements
+            return Ship.OrdnanceStatusWithincoming(amount);
         }
     }
     public enum ResupplyReason
