@@ -27,10 +27,91 @@ namespace Ship_Game.AI
         {
             foreach (ShipGoal g in OrderQueue)
                 g.Dispose();
-
-            OrderQueue.Clear();
-            State = newState;
+            ChangeAIState(newState);
+            OrderQueue.Clear();            
             HasPriorityOrder = priority;
+        }
+
+        public void ChangeAIState(AIState newState)
+        {
+            switch (State)
+            {
+                case AIState.DoNothing:
+                    break;
+                case AIState.Combat:
+                    break;
+                case AIState.HoldPosition:
+                    break;
+                case AIState.ManualControl:
+                    break;
+                case AIState.AwaitingOrders:
+                    break;
+                case AIState.AttackTarget:
+                    break;
+                case AIState.Escort:
+                    break;
+                case AIState.SystemTrader:
+                    break;
+                case AIState.AttackRunner:
+                    break;
+                case AIState.Orbit:
+                    break;
+                case AIState.PatrolSystem:
+                    break;
+                case AIState.Flee:
+                    break;
+                case AIState.Colonize:
+                    break;
+                case AIState.MoveTo:
+                    break;
+                case AIState.PirateRaiderCarrier:
+                    break;
+                case AIState.Explore:
+                    break;
+                case AIState.SystemDefender:
+                    break;
+                case AIState.AwaitingOffenseOrders:
+                    break;
+                case AIState.Resupply:
+                    break;
+                case AIState.Rebase:
+                    break;
+                case AIState.RebaseToShip:
+                    break;
+                case AIState.Bombard:
+                    break;
+                case AIState.Boarding:
+                    break;
+                case AIState.ReturnToHangar:
+                    break;
+                case AIState.MineAsteroids:
+                    break;
+                case AIState.Ferrying:
+                    if (Owner.shipData.Role == ShipData.RoleName.supply)
+                        EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, -Owner.Ordinance);
+                    break;
+                case AIState.Refit:
+                    break;
+                case AIState.Intercept:
+                    break;
+                case AIState.FormationWarp:
+                    break;
+                case AIState.AssaultPlanet:
+                    break;
+                case AIState.Exterminate:
+                    break;
+                case AIState.BombardTroops:
+                    break;
+                case AIState.Scuttle:
+                    break;
+                case AIState.Scrap:
+                    break;
+                case AIState.ResupplyEscort:
+                    break;
+                case AIState.ReturnHome:
+                    break;
+            }
+            State = newState;
         }
 
         public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)
@@ -224,6 +305,10 @@ namespace Ship_Game.AI
 
                 if (sg.Trade != null)
                     Trade = new TradePlan(sg.Trade, data, ship);
+                if (Plan == Plan.SupplyShip && ship.AI.EscortTarget != null)
+                {
+                    ship.AI.EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
+                }
             }
 
             ~ShipGoal() { Destroy(); } // finalizer
