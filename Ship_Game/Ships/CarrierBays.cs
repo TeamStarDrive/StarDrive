@@ -68,26 +68,11 @@ namespace Ship_Game.Ships
         // this will return the number of assault shuttles in space
         public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
-        public float OrdnanceInSpace  // returns potential Ordnance in space for carriers (as fighters cost ordnance to launch)
-        {
-            get
-            {
-                if (Owner == null)
-                    return 0;
-
-                float ordnance = 0;
-                //count() is expensive. Its basically a slow conditional for loop. length is just an int
-                for (int i = 0; i < AllFighterHangars.Length; ++i)
-                {
-                    ShipModule hangar = AllHangars[i];
-                    if (hangar.FighterOut)
-                        ordnance += hangar.GetHangarShip().ShipOrdLaunchCost;
-
-                }
-                return ordnance;
-            }
-        }
-
+        /// <summary>
+        /// Are any of the supply shuttles launched
+        /// </summary>
+        public bool HasSupplyShuttlesInSpace => AllSupplyBays.Any(hangar => hangar.GetHangarShip()?.Active == true);
+        public ShipModule[] SupplyHangarsAlive => AllSupplyBays.Filter(hangar => hangar.Active);
         public int NumTroopsInShipAndInSpace
         {
             get
@@ -366,7 +351,7 @@ namespace Ship_Game.Ships
                 foreach (ShipModule hangar in AllActiveHangars)
                 {
                     Ship hangarShip = hangar.GetHangarShip();
-                    if (hangarShip == null)
+                    if (hangarShip == null || (hangar.IsSupplyBay && hangarShip.AI.State == AIState.Resupply))
                     {
                         recallFighters = false;
                         continue;
