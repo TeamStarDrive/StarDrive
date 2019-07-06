@@ -26,14 +26,17 @@ namespace Ship_Game.Ships
             Ship[] shipsNeedingSupply = ShipsInNeedOfSupplyByPriority(FriendliesNearby, radius);
 
             // nothing to do ¯\_(ツ)_/¯
-            if (shipsNeedingSupply.Length == 0 && Owner.OrdnanceStatus >= ShipStatus.Maximum) 
+            if (shipsNeedingSupply.Length == 0 && !SupplyShipNeedsResupply(0,false)
+                                               && !Owner.Carrier.HasSupplyShuttlesInSpace)
+            {
                 return;
+            }
 
             int shipInNeedIndex    = 0;
             bool cantLaunchShuttle = false;
 
             // Its Better!
-            foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.Filter(hangar => hangar.IsSupplyBay))
+            foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
             {
                 Ship supplyShipInSpace = hangar.GetHangarShip();
                 Ship supplyTarget = null;
@@ -63,7 +66,7 @@ namespace Ship_Game.Ships
             if (!CarrierHasSupplyToLaunch(hangar))
                 return false;
 
-            if (supplyTarget != null || Owner.OrdnanceStatus < ShipStatus.Good)
+            if (supplyTarget != null || SupplyShipNeedsResupply(0,false))
             {
                 CreateShuttle(hangar);
 
@@ -75,7 +78,7 @@ namespace Ship_Game.Ships
                     supplyShuttle.ChangeOrdnance(supplyShuttle.OrdinanceMax);
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
-                else
+                else 
                 {
                     supplyShuttle.AI.GoOrbitNearestPlanetAndResupply(true);
                 }
@@ -91,13 +94,12 @@ namespace Ship_Game.Ships
             return supplyShuttleTemplate.ShipOrdLaunchCost < Owner.Ordinance;
         }
 
-        bool SupplyShipNeedsResupply(float shuttleStorage, bool HasSupplyTarget)
+        bool SupplyShipNeedsResupply(float shuttleStorage, bool hasSupplyTarget)
         {
-            if (Owner.Ordinance >= shuttleStorage && HasSupplyTarget)
-                return false;
-            if (Owner.OrdnanceStatus >= ShipStatus.Good)
-                return false;
-            return true;
+            if (!hasSupplyTarget) 
+                return Owner.OrdnanceStatus < ShipStatus.Maximum;
+
+            return shuttleStorage > Owner.Ordinance;
         }
         void CreateShuttle(ShipModule hangar)
         {

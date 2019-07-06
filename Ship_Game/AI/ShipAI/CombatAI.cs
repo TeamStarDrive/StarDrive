@@ -63,68 +63,51 @@ namespace Ship_Game.AI
 
         public float ApplyWeight(Ship nearbyShip)
         {
-            if (Owner == null) return 0;
+            if (Owner == null) 
+                return 0;
             float weight = 0;
-            if (nearbyShip == null) return weight;
+            if (nearbyShip == null) 
+                return weight;
 
             if (Owner.AI.Target as Ship == nearbyShip)
                 weight += 3;
-            if (nearbyShip?.Weapons.Count == 0)
-            {
-                weight = weight + PirateWeight;
-            }
 
-            if (nearbyShip.Health / nearbyShip.HealthMax < 0.5f)
-            {
-                weight = weight + VultureWeight;
-            }
-            int surfaceArea = nearbyShip.SurfaceArea;
-            if (surfaceArea < 30)
-            {
-                switch (Owner.shipData.ShipCategory) {
-                    case ShipData.Category.Reckless:
-                        weight += SmallAttackWeight * 2f;
-                        break;
-                    case ShipData.Category.Neutral:
-                        weight += SmallAttackWeight / 2f;
-                        break;
-                    default:
-                        weight += SmallAttackWeight;
-                        break;
-                }
-            }
-            if (surfaceArea > 30 && surfaceArea < 100)
-            {
-                weight += Owner.shipData.ShipCategory == ShipData.Category.Neutral ?  MediumAttackWeight *= 1.5f : MediumAttackWeight;
-            }
-            if (surfaceArea > 100)
-            {
-                switch (Owner.shipData.ShipCategory) {
-                    case ShipData.Category.Reckless:
-                        weight += LargeAttackWeight /2f;
-                        break;
-                    case ShipData.Category.Neutral:
-                        weight += LargeAttackWeight * 2f;
-                        break;
-                    default:
-                        weight += LargeAttackWeight;
-                        break;
-                }
-            }
+            if (nearbyShip?.Weapons.Count == 0) 
+                weight = weight + PirateWeight;
+
+            if (nearbyShip.Health / nearbyShip.HealthMax < 0.5f) 
+                weight += VultureWeight;
+
+            weight += SizeAttackWeight(weight, nearbyShip);
+            weight += RangeWeight(nearbyShip, weight);
+           
+            if (nearbyShip.Weapons.Count < 1)
+                weight -= 3;
+
+            if (nearbyShip.AI.Target == Owner)
+                weight += SelfDefenseWeight;
+
+            if (nearbyShip.AI.Target?.GetLoyalty() == Owner.loyalty) 
+                weight += AssistWeight;
+
+            return weight;
+        }
+
+        private float RangeWeight(Ship nearbyShip, float weight)
+        {
             float rangeToTarget = Vector2.Distance(nearbyShip.Center, Owner.Center);
 
             if (rangeToTarget <= PreferredEngagementDistance)
             {
-                weight += (int)Math.Ceiling(5 * ((PreferredEngagementDistance -
-                                                        Vector2.Distance(Owner.Center, nearbyShip.Center))
-                                                       / PreferredEngagementDistance));
-
+                weight += (int) Math.Ceiling(5 * ((PreferredEngagementDistance -
+                                                   Vector2.Distance(Owner.Center, nearbyShip.Center))
+                                                  / PreferredEngagementDistance));
             }
             else if (rangeToTarget > PreferredEngagementDistance + Owner.velocityMaximum * 5)
             {
                 weight += weight - 2.5f * (rangeToTarget /
-                                             (PreferredEngagementDistance +
-                                              Owner.velocityMaximum * 5));
+                                           (PreferredEngagementDistance +
+                                            Owner.velocityMaximum * 5));
             }
             if (Owner.Mothership != null)
             {
@@ -142,14 +125,32 @@ namespace Ship_Game.AI
                 if (nearbyShip.AI.Target == Owner.AI.EscortTarget)
                     weight += 1;
             }
-            if (nearbyShip.Weapons.Count < 1)
-                weight -= 3;
-            if (nearbyShip.AI.Target == Owner)
-                weight += SelfDefenseWeight;
-            if (nearbyShip.AI.Target?.GetLoyalty() == Owner.loyalty)
+            return weight;
+        }
+
+        float SizeAttackWeight(float weight, Ship target)
+        {
+            int surfaceArea = target.SurfaceArea;
+            float priority = MediumAttackWeight;
+            if (surfaceArea < 30)
+                priority = SmallAttackWeight;
+            else if (surfaceArea > 100)
+                priority = LargeAttackWeight;
+
+
+            switch (Owner.shipData.ShipCategory)
             {
-                weight += AssistWeight;
+                case ShipData.Category.Reckless:
+                    weight += priority / 2f;
+                    break;
+                case ShipData.Category.Neutral:
+                    weight += priority * 2f;
+                    break;
+                default:
+                    weight += priority;
+                    break;
             }
+            weight *= target.DesignRole < ShipData.RoleName.troop ? 0.2f : 1;
             return weight;
         }
 
