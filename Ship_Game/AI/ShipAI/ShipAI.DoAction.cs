@@ -63,7 +63,11 @@ namespace Ship_Game.AI
 
             if (Owner.System != null && Owner.Carrier.HasActiveTroopBays)
                 CombatState = CombatState.AssaultShip;
-
+            if (Target == null)
+            {
+                Log.Error($"Target went null in DoCombat. How?");
+                return;
+            }
             // in range:
             if (Target.Center.InRadius(Owner.Center, 7500f))
             {
@@ -558,8 +562,7 @@ namespace Ship_Game.AI
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Resupply
                                      || EscortTarget.AI.State == AIState.Scrap
-                                     || EscortTarget.AI.State == AIState.Refit
-                                     || EscortTarget.OrdnancePercent >= 0.99f)
+                                     || EscortTarget.AI.State == AIState.Refit)
             {
                 OrderReturnToHangar();
                 return;
@@ -568,7 +571,13 @@ namespace Ship_Game.AI
             ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                Owner.ChangeOrdnance(EscortTarget.ChangeOrdnance(Owner.Ordinance) - Owner.Ordinance);
+                // how much the target did not take. 
+                float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
+                // how much the target did take. 
+                float ordnanceDelivered = Owner.Ordinance - leftOverOrdnance;
+                // remove amount from incoming supply 
+                EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -ordnanceDelivered);
+                Owner.ChangeOrdnance(-ordnanceDelivered);
                 EscortTarget.AI.TerminateResupplyIfDone();
                 OrderReturnToHangar();
             }
