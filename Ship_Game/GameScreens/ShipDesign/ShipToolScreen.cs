@@ -11,6 +11,7 @@ using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Rendering;
+using Ship_Game.GameScreens.ShipDesign;
 
 namespace Ship_Game
 {
@@ -57,7 +58,7 @@ namespace Ship_Game
 
         private bool applyThruster;
 
-        public Array<ShipModule> ModuleList = new Array<ShipModule>();
+        public Array<ShipModule> ModuleList = new Array<ShipModule>();        
 
         private Array<SlotStruct> SlotList = new Array<SlotStruct>();
 
@@ -77,11 +78,15 @@ namespace Ship_Game
 
         private ShipModule ActiveModule;
 
+        private Hulls ExistingHulls;
+
         public ShipToolScreen(GameScreen parent) : base(parent)
         {
-            TransitionOnTime = 0f;
+            TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
-            designInputState = new InputState();
+            designInputState  = new InputState();
+            ExistingHulls     = new Hulls();
+            IsPopup = true;
         }
 
         private void ConfigureSlots()
@@ -91,7 +96,7 @@ namespace Ship_Game
             {
                 for (int y = -32; y < 32; y++)
                 {
-                    var newCell = new PrimitiveQuad(((int)Center.X + 16 * x), ((int)Center.Y + 16 * y), slotsize, slotsize);
+                    var newCell = new PrimitiveQuad((int)Center.X + 16 * x, (int)Center.Y + 16 * y, slotsize, slotsize);
                     var newslot = new SlotStruct
                     {
                         PQ = newCell,
@@ -108,10 +113,8 @@ namespace Ship_Game
             ScreenManager.BeginFrameRendering(gameTime, ref view, ref projection);
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            if (applyThruster)
-            {
-                thruster.Draw(ref view, ref projection);
-            }
+            if (applyThruster) thruster.Draw(ref view, ref projection);
+
             ScreenManager.RenderSceneObjects();
             Rectangle rectangle = new Rectangle(border.X, border.Y, 512, 512);
             batch.Begin();
@@ -126,14 +129,18 @@ namespace Ship_Game
                 float radius = shipSO.WorldBoundingSphere.Radius;
                 batch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
                 TitlePos.Y = TitlePos.Y + 20f;
-                string text = "If you can't see your model then your radius is likely too big or too small. A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. If it is rotated oddly change the X, Y, and Z axis. If the model is off-center then you will need to re-export the 3D model from Blender, making sure to Set Origin to the desired pivot point of your model";
+                string text = "If you can't see your model then your radius is likely too big or too small." 
+                              + " A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. " 
+                              + "If it is rotated oddly change the X, Y, and Z axis. " 
+                              + "If the model is off-center then you will need to re-export the 3D model from Blender," 
+                              + " making sure to Set Origin to the desired pivot point of your model";
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Fonts.Arial12.ParseText(text, 600f), TitlePos, Color.White);
             }
             var whichSelectionPos = new Vector2(what.X, what.Y - Fonts.Arial20Bold.LineSpacing);
             batch.DrawString(Fonts.Arial20Bold, string.Concat(DesignState, " - ", GetDesignStateText()), whichSelectionPos, Color.Orange);
-            whichSelectionPos.X = whichSelectionPos.X + 150f;
-            whichSelectionPos.Y = whichSelectionPos.Y + Fonts.Arial20Bold.LineSpacing;
-            whichSelectionPos.Y = whichSelectionPos.Y - Fonts.Arial12Bold.MeasureString(Fonts.Arial12Bold.ParseText(DescriptionOfState, 512f)).Y;
+            whichSelectionPos.X += 150f;
+            whichSelectionPos.Y += Fonts.Arial20Bold.LineSpacing;
+            whichSelectionPos.Y -= Fonts.Arial12Bold.MeasureString(Fonts.Arial12Bold.ParseText(DescriptionOfState, 512f)).Y;
             ScreenManager.SpriteBatch.DrawRectangle(what, Color.White);
             foreach (SlotStruct slot in SlotList)
             {
@@ -182,6 +189,7 @@ namespace Ship_Game
             ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
+            ExistingHulls.DrawHullSelection(batch, ScreenManager);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
@@ -377,7 +385,8 @@ namespace Ship_Game
             {
                 SaveShipData("New Ship");
             }
-            if (input.ScrollIn)  tscale += 1f;
+            if (input.ScrollIn)  
+                tscale += 1f;
             if (input.ScrollOut) tscale -= 1f;
             if (input.Right)
             {
@@ -418,11 +427,11 @@ namespace Ship_Game
             {
                 SelectionBox = new Rectangle(Input.MouseCurr.X, Input.MouseCurr.Y, 0, 0);
             }
-            if (Input.LeftMouseDown)
+            if (Input.LeftMouseHeld(0.1f))
             {
                 SelectionBox = new Rectangle(SelectionBox.X, SelectionBox.Y, Input.MouseCurr.X - SelectionBox.X, Input.MouseCurr.Y - SelectionBox.Y);
             }
-            else if (Input.LeftMouseClick)
+            else if (Input.LeftMouseReleased)
             {
                 foreach (SlotStruct slot in SlotList)
                 {
@@ -434,7 +443,7 @@ namespace Ship_Game
                     slot.Restrictions = DesignState;
                 }
             }
-            if (Input.LeftMouseUp)
+            if (Input.LeftMouseReleased)
             {
                 SelectionBox = new Rectangle(-1, -1, 0, 0);
             }
@@ -442,6 +451,20 @@ namespace Ship_Game
             {
                 tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
                                         Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
+            }
+            if (ExistingHulls.HandleShipHullListSelection(Input))
+            {
+                if (ExistingHulls.ActiveHull != null)
+                {
+                    LoadModel(ExistingHulls.ActiveHull.ModelPath);
+                    SlotList = new Array<SlotStruct>();
+                    foreach (var module in ExistingHulls.ActiveHull.ModuleSlots)
+                    {
+                        var slot = new SlotStruct(module, new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256));
+                        slot.PQ.Filled = true;
+                        SlotList.Add(slot);
+                    }
+                }
             }
         }
 
@@ -487,6 +510,7 @@ namespace Ship_Game
             ConfigureSlots();
             thruster = new Thruster();
             thruster.LoadAndAssignDefaultEffects(TransientContent);
+            ExistingHulls.LoadContent();
             base.LoadContent();
         }
 

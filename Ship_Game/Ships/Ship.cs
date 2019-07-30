@@ -35,11 +35,11 @@ namespace Ship_Game.Ships
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
 
-        public Array<Weapon> Weapons = new Array<Weapon>();
-        private float JumpTimer = 3f;
-        public AudioEmitter SoundEmitter = new AudioEmitter();
+        public Array<Weapon> Weapons      = new Array<Weapon>();
+        private float JumpTimer           = 3f;
+        public AudioEmitter SoundEmitter  = new AudioEmitter();
         public Vector2 ScreenPosition;
-        public float ScuttleTimer = -1f;
+        public float ScuttleTimer         = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool shipStatusChanged;
-        public Guid guid = Guid.NewGuid();
+        public Guid guid                  = Guid.NewGuid();
         public bool AddedOnLoad;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
@@ -101,9 +101,9 @@ namespace Ship_Game.Ships
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
-        readonly AudioHandle Afterburner = new AudioHandle();
+        readonly AudioHandle Afterburner  = new AudioHandle();
         public bool isSpooling;
-        readonly AudioHandle JumpSfx = new AudioHandle();
+        readonly AudioHandle JumpSfx      = new AudioHandle();
         public float InhibitedTimer;
         public int Level;
         private int MaxHealthRevision;
@@ -420,21 +420,26 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if ( engineState        == MoveState.Warp
-                    || AI.State         == AIState.Scrap
-                    || AI.State         == AIState.Resupply
-                    || AI.State         == AIState.Refit || Mothership != null
-                    || shipData.Role    == ShipData.RoleName.supply
-                    || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
-                    || OrdinanceMax < 1
-                    || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
-                    return ShipStatus.NotApplicable;
-
-                return ToShipStatus(Ordinance, OrdinanceMax);
+                return OrdnanceStatusWithincoming(0);
             }
-
         }
+        public ShipStatus OrdnanceStatusWithincoming(float incomingAmount)
+        {
+            if (engineState == MoveState.Warp
+                || AI.State == AIState.Scrap
+                || AI.State == AIState.Resupply
+                || AI.State == AIState.Refit || Mothership != null
+                || shipData.Role == ShipData.RoleName.supply
+                || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
+                || OrdinanceMax < 1
+                || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
+                return ShipStatus.NotApplicable;
 
+            float amount = Ordinance;
+            if (incomingAmount > 0)
+                amount = (amount + incomingAmount).Clamped(0, OrdinanceMax);
+            return ToShipStatus(amount, OrdinanceMax);
+        }
         public int BombsUseful
         {
             get
@@ -670,10 +675,12 @@ namespace Ship_Game.Ships
         /// <summary>Forces the ship to be in combat without a target.</summary>
         public void ForceCombatTimer(float timer = 15f) => InCombatTimer = timer;
 
-        public bool InRadius(Vector2 worldPos, float radius)
-        {
-            return Center.InRadius(worldPos, Radius+radius);
-        }
+        public bool InRadiusOfSystem(SolarSystem system) =>
+            system != null && InRadius(system.Position, system.Radius);
+        public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
+
+        public bool InRadius(Vector2 worldPos, float radius) 
+            => Center.InRadius(worldPos, Radius + radius);
 
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
         {
@@ -923,8 +930,6 @@ namespace Ship_Game.Ships
         {
             if (Empire.Universe == null || engineState == MoveState.Sublight)
                 return;
-
-            //Log.Info($"HyperspaceReturn {this}");
 
             if (JumpSfx.IsPlaying)
                 JumpSfx.Stop();
@@ -1540,6 +1545,7 @@ namespace Ship_Game.Ships
 
             if (!loyalty.isFaction)
                 AI.ProcessResupply(resupplyReason);
+
         }
 
         private void SetShipsVisibleByPlayer()
@@ -2201,7 +2207,7 @@ namespace Ship_Game.Ships
             if (AI.HasPriorityOrder || AI.State == AIState.Resupply) return ShipStatus.NotApplicable;
             if (!isSpooling && WarpDuration() < ShipStatus.Good ) return ShipStatus.Critical;
             if (engineState == MoveState.Warp) return ShipStatus.Good;
-            if (Carrier.RecallingFighters()) return ShipStatus.Poor;
+            if (Carrier.HasActiveHangars) return ShipStatus.Poor;
             return ShipStatus.Excellent;
         }
 

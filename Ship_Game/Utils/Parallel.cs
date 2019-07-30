@@ -291,16 +291,25 @@ namespace Ship_Game
             {
                 if (PhysicalCoreCount == 0)
                 {
-                    var results = new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor").Get();
-                    if (results.Count > 0)
+                    try
                     {
-                        foreach (var item in results)
+                        var query = new ManagementObjectSearcher("Select NumberOfCores from Win32_Processor");
+                        var results = query.Get();
+                        if (results.Count > 0)
                         {
-                            PhysicalCoreCount = (int)(uint)item["NumberOfCores"];
-                            break;
+                            foreach (var item in results)
+                            {
+                                PhysicalCoreCount = (int)(uint)item["NumberOfCores"];
+                                break;
+                            }
                         }
                     }
-                    else
+                    catch (Exception e)
+                    {
+                        Log.Error($"Query NumPhysicalCores failed: {e.Message}");
+                    }
+
+                    if (PhysicalCoreCount == 0)
                     {
                         // Query failed, so assume HT or SMT is enabled
                         PhysicalCoreCount = Environment.ProcessorCount / 2;

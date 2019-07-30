@@ -43,8 +43,20 @@ namespace Ship_Game.AI
 
             int count = Owner.Weapons.Count;
             Weapon[] weapons = Owner.Weapons.GetInternalArrayItems();
+            for (int x = PotentialTargets.Count - 1; x >= 0; x--)
+            {
+                var target = PotentialTargets[x];
+                if (target == null || !target.Active || target.Health <= 0.0f || target.dying)
+                    PotentialTargets.RemoveAtSwapLast(x);
+            }
+            for (int x = TrackProjectiles.Count - 1; x >= 0; x--)
+            {
+                var target = TrackProjectiles[x];
+                if (target == null || !target.Active || target.Health <= 0.0f)
+                    TrackProjectiles.RemoveAtSwapLast(x);
+            }
 
-            if (Target?.Active == false || Target is Ship ship && ship.dying)
+            if (Target?.Active == false || Target?.Health == 0 || Target is Ship ship && ship.dying)
             {
                 Target = null;
             }
@@ -197,7 +209,7 @@ namespace Ship_Game.AI
                 NearByShips.AddUnique(sw);
             }
 
-            SupplyShuttleLaunch(radius);
+            Owner.Carrier.SupplyShuttle.ProcessSupplyShuttles(radius);
             SetTargetWeights(armorAvg, shieldAvg, dpsAvg, sizeAvg);
 
             ShipWeight[] sortedList2 = NearByShips.Filter(weight => weight.Weight > -100)
@@ -260,108 +272,6 @@ namespace Ship_Game.AI
                 copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
                 //ShipWiegth is a struct so we are working with a copy. Need to overwrite existing value. 
                 NearByShips[i] = copyWeight;
-            }
-        }
-
-        private void SupplyShuttleLaunch(float radius)
-        {
-            //fbedard: for launch only
-            //CG Omergawd. yes i tried getting rid of the orderby and cleaning this up
-            //but im not willing to test that change here. I think i did some of this a long while back.  
-            if (Owner.engineState == Ship.MoveState.Warp ||!Owner.Carrier.HasSupplyBays ) return;
-
-            Ship[] sortedList = FriendliesNearby.Filter(ship => ship.shipData.Role != ShipData.RoleName.supply 
-                                                                  && ship.AI.State == AIState.ResupplyEscort
-                                                                  && ship != Owner)       
-                .OrderBy(ship =>
-                {
-                    var distance = Owner.Center.Distance(ship.Center);
-                    distance = (int)distance * 10 / radius;
-                    return (int)ship.OrdnanceStatus * distance + (ship.fleet == Owner.fleet ? 0 : 10 );
-                }).ToArray();
-
-            if (sortedList.Length <= 0 ) return;            
-
-            var skipShip = 0;
-            var inboundOrdinance = 0f;
-            //oh crap this is really messed up.  FB: working on it.
-            foreach (ShipModule hangar in Owner.Carrier.AllActiveHangars.Filter(hangar => hangar.IsSupplyBay))
-            {
-                Ship supplyShipInSpace = hangar.GetHangarShip();
-                if (supplyShipInSpace != null && supplyShipInSpace.Active)
-                {
-                    if (SupplyShipIdle(supplyShipInSpace))
-                    {
-                        if (sortedList[skipShip] != null)
-                        {
-                            SetSupplyTarget(supplyShipInSpace);
-                            supplyShipInSpace.AI.State = AIState.Ferrying;
-                            continue;
-                        }
-
-                        supplyShipInSpace.AI.OrderReturnToHangar(); //shuttle with no target
-                        continue;
-                    }
-                    // FB: check if the same ship needs more ordnance based on resupply class ordnance threshold
-                    if (sortedList[skipShip] != null &&
-                        supplyShipInSpace.AI.EscortTarget == sortedList[skipShip] &&
-                        supplyShipInSpace.AI.State == AIState.Ferrying)
-                    {
-                        inboundOrdinance = inboundOrdinance + supplyShipInSpace.OrdinanceMax;
-                        if ((inboundOrdinance + sortedList[skipShip].Ordinance) /
-                            sortedList[skipShip].OrdinanceMax > ShipResupply.ResupplyShuttleOrdnanceThreshold)
-                        {
-                            if (skipShip >= sortedList.Length - 1)
-                                return;
-
-                            skipShip++;
-                            inboundOrdinance = 0;
-                        }
-                    }
-                    continue;
-                }
-
-                hangar.hangarShipUID = Ship.GetSupplyShuttleName(Owner.loyalty);
-                var supplyShuttle = ResourceManager.GetShipTemplate(hangar.hangarShipUID);
-                if (!hangar.Active || hangar.hangarTimer > 0f || sortedList[skipShip] == null)
-                    continue;
-
-                if (supplyShuttle.ShipOrdLaunchCost > Owner.Ordinance) //fbedard: New spawning cost
-                    continue;
-
-                Ship shuttle = Ship.CreateShipFromHangar(hangar, Owner.loyalty, Owner.Center, Owner);
-                shuttle.Velocity = UniverseRandom.RandomDirection() * shuttle.Speed + Owner.Velocity;
-                if (shuttle.Velocity.Length() > shuttle.velocityMaximum)
-                    shuttle.Velocity = shuttle.Velocity.Normalized() * shuttle.Speed;
-
-                Owner.ChangeOrdnance(-shuttle.ShipOrdLaunchCost);
-                Owner.ChangeOrdnance(-shuttle.OrdinanceMax);
-                hangar.SetHangarShip(shuttle);
-                SetSupplyTarget(shuttle);
-                if (Owner.Ordinance >= shuttle.OrdinanceMax)
-                    shuttle.AI.State = AIState.Ferrying;
-                else // FB: Fatch ordnance from a colony when mothership doesnt have enough ordnance
-                {
-                    shuttle.ChangeOrdnance(-shuttle.OrdinanceMax);
-                    shuttle.AI.GoOrbitNearestPlanetAndResupply(false);
-                }
-                break;
-            }
-
-            void SetSupplyTarget(Ship ship)
-            {
-                ship.AI.EscortTarget = sortedList[skipShip];
-                ship.AI.IgnoreCombat = true;
-                ship.AI.ClearOrders();
-                ship.AI.AddShipGoal(Plan.SupplyShip);
-            }
-
-            bool SupplyShipIdle(Ship supplyShip)
-            {
-                return supplyShip.AI.State != AIState.Ferrying &&
-                       (supplyShip.AI.State != AIState.ReturnToHangar || supplyShip.Ordinance > 0) &&
-                       supplyShip.AI.State != AIState.Resupply &&
-                       supplyShip.AI.State != AIState.Scrap;
             }
         }
 
