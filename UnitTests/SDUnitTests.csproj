@@ -76,6 +76,7 @@
     <Compile Include="Collections\TestCollectionExt.cs" />
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
+    <Compile Include="Ships\TestSupplyShuttles.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
