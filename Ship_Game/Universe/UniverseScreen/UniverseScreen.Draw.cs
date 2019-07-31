@@ -637,7 +637,6 @@ namespace Ship_Game
             {
                 "Comparisons:      " + GlobalStats.Comparisons,
                 "Dis Check Avg:    " + GlobalStats.DistanceCheckTotal / GlobalStats.ComparisonCounter,
-                "Modules Moved:    " + GlobalStats.ModulesMoved,
                 "Modules Updated:  " + GlobalStats.ModuleUpdates,
                 "Arc Checks:       " + GlobalStats.WeaponArcChecks,
                 "Beam Tests:       " + GlobalStats.BeamTests,

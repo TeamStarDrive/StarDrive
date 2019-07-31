@@ -628,9 +628,6 @@ namespace Ship_Game
             if (!beam.Touch(victim))
                 return false;
 
-            if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
-                module.GetParent().MoveModulesTimer = 2f;
-            
             Vector2 beamStart = beam.Source;
             Vector2 beamEnd   = beam.Destination;
             Vector2 hitPos;
@@ -646,13 +643,7 @@ namespace Ship_Game
 
         static bool HandleProjCollision(Projectile projectile, GameplayObject victim)
         {
-            if (!projectile.Touch(victim))
-                return false;
-
-            if (victim is ShipModule module) // for ships we get the actual ShipModule that was hit, not the ship itself
-                module.GetParent().MoveModulesTimer = 2f;
-
-            return true;
+            return projectile.Touch(victim);
         }
 
         static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 

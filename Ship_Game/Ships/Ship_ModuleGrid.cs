@@ -806,7 +806,7 @@ namespace Ship_Game.Ships
         // This is called for guided weapons to pick a new target
         public ShipModule GetRandomInternalModule(Weapon source)
         {
-            Vector2 center    = source.Owner?.Center ?? source.Center;
+            Vector2 center    = source.Owner?.Center ?? source.Origin;
             int level         = source.Owner?.Level  ?? 0;
             float searchRange = source.BaseRange + 100;
             return TargetRandomInternalModule(center, level, searchRange*searchRange);

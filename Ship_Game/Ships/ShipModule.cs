@@ -445,26 +445,15 @@ namespace Ship_Game.Ships
         // Refactored by RedFox - @note This method is called very heavily, so many parts have been inlined by hand
         public void UpdateEveryFrame(float elapsedTime, float cos, float sin, float tan)
         {
-            // Move the module, this part is optimized according to profiler data
-            ++GlobalStats.ModulesMoved;
-
-            //Position = new Vector2(pos.X - 264f, pos.Y - 264f);
-            //localcenter = new Vector2(Position.X + XSIZE * 8f, Position.Y + XSIZE * 8f);
-
-            //Vector2 offset = XMLPosition; // huge cache miss here
             Vector2 offset = LocalCenter;
-           // offset.X       += XSIZE * 8f - 264f;
-            //offset.Y       += YSIZE * 8f - 264f;
             Vector2 pcenter = Parent.Center;
-            float cx        = offset.X * cos - offset.Y * sin;
-            float cy        = offset.X * sin + offset.Y * cos;
-            cx             += pcenter.X;
-            cy             += pcenter.Y;
-            Center.X        = cx;
-            Center.Y        = cy;
-            Center3D.X      = cx;
-            Center3D.Y      = cy;
-            Center3D.Z      = tan * (256f - XMLPosition.X);
+            float cx = offset.X * cos - offset.Y * sin + pcenter.X;
+            float cy = offset.X * sin + offset.Y * cos + pcenter.Y;
+            Center.X   = cx;
+            Center.Y   = cy;
+            Center3D.X = cx;
+            Center3D.Y = cy;
+            Center3D.Z = tan * (256f - XMLPosition.X);
 
             UpdateDamageVisualization(elapsedTime);
             Rotation = Parent.Rotation;
@@ -946,7 +935,6 @@ namespace Ship_Game.Ships
             InstalledWeapon = ResourceManager.CreateWeapon(weaponType);
             InstalledWeapon.Module = this;
             InstalledWeapon.Owner  = Parent;
-            InstalledWeapon.Center = Center;
         }
 
         public void SetHangarShip(Ship ship)
