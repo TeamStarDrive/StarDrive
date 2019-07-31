@@ -311,14 +311,14 @@ namespace Ship_Game.Debug
                     if (weapon.DebugLastImpactPredict.NotZero())
                     {
                         weapon.ProjectedImpactPointNoError(module, out Vector2 impactNoError);
-                        Screen.DrawLineProjected(weapon.Center, weapon.DebugLastImpactPredict, Color.Yellow);
+                        Screen.DrawLineProjected(weapon.Origin, weapon.DebugLastImpactPredict, Color.Yellow);
 
                         Screen.DrawCircleProjected(impactNoError, 22f, 10, Color.BlueViolet, 2f);
                         Screen.DrawStringProjected(impactNoError, 28f, Color.BlueViolet, "pip");
                         Screen.DrawLineProjected(impactNoError, weapon.DebugLastImpactPredict, Color.DarkKhaki, 2f);
                     }
 
-                    Projectile projectile = ship.CopyProjectiles().FirstOrDefault(p => p.Weapon == weapon);
+                    Projectile projectile = ship.CopyProjectiles.FirstOrDefault(p => p.Weapon == weapon);
                     if (projectile != null)
                     {
                         Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);

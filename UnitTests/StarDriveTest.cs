@@ -5,8 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
+using Ship_Game.Ships;
 
 namespace UnitTests
 {
@@ -80,7 +82,20 @@ namespace UnitTests
 
         public void LoadStarterShipVulcan()
         {
-            LoadStarterShips(new[] { "Vulcan Scout" });
+            LoadStarterShips(new[]
+            {
+                "Vulcan Scout",
+                "Rocket Scout"
+            });
+        }
+        
+        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, float rotation = 0f)
+        {
+            var target = Ship.CreateShipAtPoint(shipName, empire, position);
+            target.Rotation = rotation;
+            target.InFrustum = true; // force module pos update
+            target.UpdateShipStatus(0.01f); // update module pos
+            return target;
         }
 
         public void LoadPlanetContent()

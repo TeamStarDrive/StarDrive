@@ -110,7 +110,9 @@ namespace Ship_Game.Gameplay
         public bool isTurret;
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
-        public Vector2 Center;
+
+        // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
+        public Vector2 PlanetCenter;
         
         // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
         // Use GetActualRange() to the true range with bonuses
@@ -552,7 +554,7 @@ namespace Ship_Game.Gameplay
         }
 
         
-        public Vector2 Origin => Module?.Center ?? Center;
+        public Vector2 Origin => Module?.Center ?? PlanetCenter;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
         Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
@@ -654,7 +656,7 @@ namespace Ship_Game.Gameplay
         {
             if (Tag_PD && enemyProjectiles.NotEmpty)
             {
-                int maxTracking = Owner.TrackingPower + Owner.Level;
+                int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < maxTracking && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
@@ -685,7 +687,7 @@ namespace Ship_Game.Gameplay
             else // otherwise track a new target:
             {
                 // limit to one target per level.
-                int maxTracking = Owner.TrackingPower + Owner.Level;
+                int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < potentialTargets.Count && i < maxTracking; ++i)
                 {
                     Ship potentialTarget = potentialTargets[i];
@@ -756,6 +758,7 @@ namespace Ship_Game.Gameplay
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
+            PlanetCenter = planet.Center;
             targetShip.InCombatTimer = 15f;
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
@@ -767,7 +770,7 @@ namespace Ship_Game.Gameplay
 
             if (ProjectedImpactPoint(target, out Vector2 pip))
             {
-                Vector2 direction = (pip - Center).Normalized();
+                Vector2 direction = (pip - Origin).Normalized();
 
                 foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
                     Projectile.Create(this, planet, fireSource.Direction, target);
@@ -842,8 +845,10 @@ namespace Ship_Game.Gameplay
                 SalvoFireTimer += elapsedTime;
                 ContinueSalvo();
             }
-            else SalvoTarget = null;
-            Center = Module.Center;
+            else
+            {
+                SalvoTarget = null;
+            }
         }
 
         public float GetShieldDamageMod(ShipModule module)

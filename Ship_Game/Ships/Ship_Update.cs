@@ -96,17 +96,19 @@ namespace Ship_Game.Ships
                 }
             }
 
-            Rotation += RotationalVelocity * elapsedTime;
             if (RotationalVelocity > 0 || RotationalVelocity < 0)
+            {
+                Rotation += RotationalVelocity * elapsedTime;
                 isTurning = true;
+            }
 
             if (!isSpooling && Afterburner.IsPlaying)
                 Afterburner.Stop();
 
             if (elapsedTime > 0f)
             {
-                UpdateProjectiles(elapsedTime);
-                UpdateBeams(elapsedTime);
+                Projectiles.Update(elapsedTime);
+                Beams.Update(elapsedTime);
                 if (!EMPdisabled && Active)
                     AI.Update(elapsedTime);
             }
@@ -271,7 +273,7 @@ namespace Ship_Game.Ships
                 ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
             }
 
-            UpdateProjectiles(elapsedTime);
+            Projectiles.Update(elapsedTime);
 
             SoundEmitter.Position = new Vector3(Center, 0);
 
