@@ -10,33 +10,21 @@ using Ship_Game.Ships;
 namespace UnitTests.NotificationTests
 {
     [TestClass]
-    public class TestNotifications : StarDriveTest, IDisposable
+    public class TestNotifications : StarDriveTest
     {
-        readonly GameDummy Game;
         NotificationManager NotificationManager;
 
         public TestNotifications()
         {
-            ResourceManager.LoadPlanetContentForTesting();
-            // UniverseScreen requires a game instance
-            Game = new GameDummy();
-            Game.Create();
-        }
-
-        public void Dispose()
-        {
-            Empire.Universe?.ExitScreen();
-            Game.Dispose();
+            LoadPlanetContent();
+            CreateGameInstance();
         }
 
         void CreateTestEnv(out Empire empire)
         {
-            var data = new UniverseData();
-            empire = data.CreateEmpire(ResourceManager.MajorRaces[0]);
-            empire.isPlayer = true;
-            Empire.Universe = new UniverseScreen(data, empire);
+            CreateUniverseAndPlayerEmpire(out empire);
             AddDummyPlanetToEmpire(empire);
-            NotificationManager = new NotificationManager(Empire.Universe.ScreenManager, Empire.Universe);
+            NotificationManager = new NotificationManager(Universe.ScreenManager, Universe);
         }
 
         /// <summary>

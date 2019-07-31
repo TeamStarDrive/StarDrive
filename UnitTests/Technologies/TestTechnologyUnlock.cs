@@ -10,32 +10,18 @@ using Ship_Game.Ships;
 namespace UnitTests.Technologies
 {
     [TestClass]
-    public class TestTechnologyUnlock : StarDriveTest, IDisposable
+    public class TestTechnologyUnlock : StarDriveTest
     {
-        readonly GameDummy Game;
-
         public TestTechnologyUnlock()
         {
-            ResourceManager.LoadTechContentForTesting();
-            // UniverseScreen requires a game instance
-            Game = new GameDummy();
-            Game.Create();
-        }
-
-        public void Dispose()
-        {
-            Empire.Universe?.ExitScreen();
-            Game.Dispose();
+            LoadTechContent();
+            CreateGameInstance();
         }
 
         void CreateTestEnv(out Empire empire)
         {
-            var data = new UniverseData();
-            empire = data.CreateEmpire(ResourceManager.MajorRaces[0]);
-            empire.isPlayer = true;
-            Empire.Universe = new UniverseScreen(data, empire);
-            Empire.Universe.player = empire;
-            Empire.Universe.aw = new AutomationWindow(Empire.Universe);
+            CreateUniverseAndPlayerEmpire(out empire);
+            Universe.aw = new AutomationWindow(Universe);
         }
 
         /// <summary>

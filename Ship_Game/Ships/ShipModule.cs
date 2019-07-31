@@ -58,8 +58,11 @@ namespace Ship_Game.Ships
         public string IconTexturePath;
 
         public string UID => Flyweight.UID;
-
-        public float FieldOfFire; // field of fire arc, in degrees
+        
+        /// Field of fire arc, now in Radians.
+        /// Conversion to Radians is done during loading
+        /// Game files still use Degrees
+        public float FieldOfFire;
         public int TargetValue;
         public float TransporterTimer;
         public const int MaxPriority =6;

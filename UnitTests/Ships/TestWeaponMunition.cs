@@ -8,11 +8,11 @@ using Ship_Game.Ships;
 namespace UnitTests.Ships
 {
     [TestClass]
-    public class TestWeaponTargeting : StarDriveTest
+    public class TestWeaponMunition : StarDriveTest
     {
-        public TestWeaponTargeting()
+        public TestWeaponMunition()
         {
-            ResourceManager.LoadStarterShipsForTesting(new[]{ "Vulcan Scout" });
+            LoadStarterShipVulcan();
         }
 
         static bool FireAtVisiblePoint(Weapon weapon)
@@ -115,6 +115,22 @@ namespace UnitTests.Ships
         public void FirePoweredOrDeathPreventsFiring()
         {
             CreateWeapon(out Ship ship, out Weapon weapon, ordCost:1, pwrCost:0);
+
+            weapon.Module.SetHealth(0);
+            Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if dead");
+
+            weapon.Module.SetHealth(weapon.Module.ActualMaxHealth);
+            weapon.Module.Powered = false;
+            Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if not powered");
+
+            weapon.Module.Powered = true;
+            Assert.IsTrue(FireAtVisiblePoint(weapon), "Can fire if alive and powered");
+        }
+
+        [TestMethod]
+        public void FireAtVisibleTarget()
+        {
+            CreateWeapon(out Ship ship, out Weapon weapon, ordCost: 1, pwrCost: 0);
 
             weapon.Module.SetHealth(0);
             Assert.IsFalse(FireAtVisiblePoint(weapon), "Cannot fire if dead");

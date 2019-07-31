@@ -590,12 +590,13 @@ namespace Ship_Game.Gameplay
         // @note This is the main firing and targeting method
         // Prioritizes mainTarget
         // But if mainTarget is not viable, will pick a new Target using ships/projectiles lists
-        public void UpdateAndFireAtTarget(Ship mainTarget,
+        // @return TRUE if target was fired at
+        public bool UpdateAndFireAtTarget(Ship mainTarget,
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
             if (!CanFireWeaponCooldown())
-                return; // we can't fire, so don't bother checking targets
+                return false; // we can't fire, so don't bother checking targets
 
             if (ShouldPickNewTarget())
             {
@@ -616,10 +617,11 @@ namespace Ship_Game.Gameplay
             if (FireTarget != null)
             {
                 if (isBeam)
-                    FireBeam(Module.Center, FireTarget.Center, FireTarget);
+                    return FireBeam(Module.Center, FireTarget.Center, FireTarget);
                 else
-                    FireAtTarget(FireTarget.Center, FireTarget);
+                    return FireAtTarget(FireTarget.Center, FireTarget);
             }
+            return false; // no target to fire at
         }
 
         bool IsTargetAliveAndInRange(GameplayObject target)
