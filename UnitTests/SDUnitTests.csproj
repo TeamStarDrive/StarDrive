@@ -77,10 +77,11 @@
     <Compile Include="LinearAlgebra\TestIntersectAlgorithms.cs" />
     <Compile Include="LinearAlgebra\TestRadMath.cs" />
     <Compile Include="Ships\TestSupplyShuttles.cs" />
+    <Compile Include="Ships\TestWeaponArcs.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
-    <Compile Include="Ships\TestWeaponTargeting.cs" />
+    <Compile Include="Ships\TestWeaponMunition.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="Technologies\TestTechnologyUnlock.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />

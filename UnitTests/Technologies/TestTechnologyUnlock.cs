@@ -10,38 +10,19 @@ using Ship_Game.Ships;
 namespace UnitTests.Technologies
 {
     [TestClass]
-    public class TestTechnologyUnlock : StarDriveTest, IDisposable
+    public class TestTechnologyUnlock : StarDriveTest
     {
-        readonly GameDummy Game;
-
         public TestTechnologyUnlock()
         {
-            ResourceManager.LoadTechContentForTesting();
-            // UniverseScreen requires a game instance
-            Game = new GameDummy();
-            Game.Create();
-        }
-
-        public void Dispose()
-        {
-            Empire.Universe?.ExitScreen();
-            Game.Dispose();
+            LoadTechContent();
+            CreateGameInstance();
         }
 
         void CreateTestEnv(out Empire empire)
         {
-            var data = new UniverseData();
-            empire = data.CreateEmpire(ResourceManager.MajorRaces[0]);
-            empire.isPlayer = true;
-            Empire.Universe = new UniverseScreen(data, empire);
-            Empire.Universe.player = empire;
-            Empire.Universe.aw = new AutomationWindow(Empire.Universe);
+            CreateUniverseAndPlayerEmpire(out empire);
+            Universe.aw = new AutomationWindow(Universe);
         }
-
-        /// <summary>
-        /// Add 12 notifications. 4 spy, 4 planet, 4, 4 spy
-        /// </summary>
-        /// <param name="empire"></param>
 
         [TestMethod]
         public void TestTechUnlock()
@@ -49,7 +30,6 @@ namespace UnitTests.Technologies
             CreateTestEnv(out Empire empire);
             TechEntry tech = UnlockTech(empire, "FrigateConstruction");
             Assert.IsTrue(tech.Unlocked);
-            Dispose();
         }
 
         TechEntry UnlockTech(Empire empire, string UID)
@@ -66,7 +46,6 @@ namespace UnitTests.Technologies
             TechEntry tech = UnlockTech(empire, "FrigateConstruction");
             foreach (string item in tech.GetUnLockableHulls(empire))
                 Assert.IsTrue(empire.IsHullUnlocked(item));
-            Dispose();
         }
 
         [TestMethod]
@@ -76,7 +55,6 @@ namespace UnitTests.Technologies
             TechEntry tech = UnlockTech(empire, "FrigateConstruction");
             foreach (Technology.UnlockedMod item in tech.GetUnlockableModules(empire))
                 Assert.IsTrue(empire.IsModuleUnlocked(item.ModuleUID));
-            Dispose();
         }
 
         [TestMethod]
@@ -86,7 +64,6 @@ namespace UnitTests.Technologies
             TechEntry tech = UnlockTech(empire, "IndustrialFoundations");
             foreach (var item in tech.Tech.BuildingsUnlocked)
                 Assert.IsTrue(empire.IsBuildingUnlocked(item.Name));
-            Dispose();
         }
 
         [TestMethod]
@@ -99,7 +76,6 @@ namespace UnitTests.Technologies
                 Assert.IsTrue(empire.data.BonusFighterLevels > 0);
                 Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
             }
-            Dispose();
         }
         [TestMethod]
         public void TestBonusStacking()
@@ -117,7 +93,6 @@ namespace UnitTests.Technologies
                 Assert.IsTrue(empire.data.BonusFighterLevels > 0);
                 Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
             }
-            Dispose();
         }
 
     }

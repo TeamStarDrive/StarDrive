@@ -10,31 +10,19 @@ using Ship_Game.Ships;
 namespace UnitTests.Ships
 {
     [TestClass]
-    public class TestSupplyShuttles : StarDriveTest, IDisposable
+    public class TestSupplyShuttles : StarDriveTest
     {
-        readonly GameDummy Game;
-
         public TestSupplyShuttles()
         {
             // Excalibur class has all the bells and whistles
-            ResourceManager.LoadStarterShipsForTesting(new[]{ "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
-            // UniverseScreen requires a game instance
-            Game = new GameDummy();
-            Game.Create();
-        }
-
-        public void Dispose()
-        {
-            Empire.Universe?.ExitScreen();
-            Game.Dispose();
+            LoadStarterShips(new[]{ "Excalibur-Class Supercarrier", "Corsair", "Supply Shuttle" });
+            CreateGameInstance();
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship, out Ship target)
         {
-            var data = new UniverseData();
-            empire   = data.CreateEmpire(ResourceManager.MajorRaces[0]);
-            Empire.Universe = new UniverseScreen(data, empire);
-            ship   = CreateShip(empire, "Excalibur-Class Supercarrier", Vector2.Zero);
+            CreateUniverseAndPlayerEmpire(out empire);
+            ship = CreateShip(empire, "Excalibur-Class Supercarrier", Vector2.Zero);
             target = CreateShip(empire, "Corsair", new Vector2(1000, 1000));
             UniverseScreen.SpaceManager.Update(1f);
         }

@@ -13,7 +13,7 @@ namespace UnitTests.Ships
     {
         public TestWeaponModifiers()
         {
-            ResourceManager.LoadStarterShipsForTesting(new[]{ "Vulcan Scout" });
+            LoadStarterShipVulcan();
         }
 
         void CreateTestEnv(out Empire empire, out Ship ship, out Weapon weapon)

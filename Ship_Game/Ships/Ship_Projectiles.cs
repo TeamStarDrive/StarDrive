@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
         readonly ProjectileCollection<Projectile> Projectiles = new ProjectileCollection<Projectile>();
         readonly ProjectileCollection<Beam> Beams             = new ProjectileCollection<Beam>();
 
-        public Projectile[] CopyProjectiles() => Projectiles.ToArray();
+        public Projectile[] CopyProjectiles => Projectiles.ToArray();
 
         public void AddProjectile(Projectile projectile)
         {
@@ -94,16 +94,6 @@ namespace Ship_Game.Ships
         public void RemoveDyingProjectiles()
         {
             Projectiles.KillActive(force:false, cleanup:false);
-        }
-
-        void UpdateProjectiles(float elapsedTime)
-        {
-            Projectiles.Update(elapsedTime);
-        }
-
-        void UpdateBeams(float elapsedTime)
-        {
-            Beams.Update(elapsedTime);
         }
 
         void RemoveProjectiles()

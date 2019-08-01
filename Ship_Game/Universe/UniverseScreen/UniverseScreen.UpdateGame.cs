@@ -153,16 +153,15 @@ namespace Ship_Game
         // This is different than normal DeltaTime
         public float SimulationDeltaTime { get; private set; }
 
-        private void ProcessTurnDelta(float elapsedTime)
+        void ProcessTurnDelta(float elapsedTime)
         {
             SimulationDeltaTime = elapsedTime;
             perfavg5.Start(); // total do work perf counter
 
             GlobalStats.BeamTests     = 0;
             GlobalStats.Comparisons   = 0;
-            ++GlobalStats.ComparisonCounter;
+            GlobalStats.ComparisonCounter += 1;
             GlobalStats.ModuleUpdates = 0;
-            GlobalStats.ModulesMoved  = 0;
 
             if (ProcessTurnEmpires(elapsedTime))
                 return;
