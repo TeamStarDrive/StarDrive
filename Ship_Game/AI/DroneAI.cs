@@ -80,7 +80,7 @@ namespace Ship_Game.AI
             }
         }
 
-        private void TryFireDroneBeam()
+        void TryFireDroneBeam()
         {
             if (Beams.Count == 0 && DroneTarget.Health < DroneTarget.HealthMax
                                  && DroneWeapon.CooldownTimer <= 0f

@@ -132,12 +132,14 @@ namespace Ship_Game.Gameplay
 
         // @note This is called every time an exploding projectile hits a target and dies
         //       so everything nearby receives additional splash damage
-        //       usually the receipient is only 1 ship, but ships can overlap and cause more results
+        //       usually the recipient is only 1 ship, but ships can overlap and cause more results
         public void ProjectileExplode(Projectile source, float damageAmount, float damageRadius)
         {
             if (damageRadius <= 0f)
                 return;
-            //min search radius of 512. problem was that at very small serach radius neighbors would not be found. I tried to make the min to a the smallest cell size. 
+
+            // min search radius of 512. problem was that at very small search radius neighbors would not be found.
+            // I tried to make the min to a the smallest cell size. 
             GameplayObject[] ships = FindNearby(source, Math.Max(damageRadius, 512), GameObjectType.Ship);
             ships.SortByDistance(source.Center);
 

@@ -110,7 +110,9 @@ namespace Ship_Game.Gameplay
         public bool isTurret;
         public bool isMainGun;
         public float OrdinanceRequiredToFire;
-        public Vector2 Center;
+
+        // Separate because Weapons attached to Planetary Buildings, don't have a ShipModule Center
+        public Vector2 PlanetCenter;
         
         // This is the weapons base unaltered range. In addition to this, many bonuses could be applied.
         // Use GetActualRange() to the true range with bonuses
@@ -119,6 +121,9 @@ namespace Ship_Game.Gameplay
 
         public float DamageAmount;
         public float ProjectileSpeed;
+
+        // The number of projectiles spawned from a single "shot".
+        // Most commonly it is 1. AFAIK, only some FLAK cannons spawn buck-shots.
         public int ProjectileCount = 1;
 
         // for cannons that have ProjectileCount > 1, this spreads projectiles out in an arc
@@ -175,8 +180,15 @@ namespace Ship_Game.Gameplay
         public bool UseVisibleMesh;
         public bool PlaySoundOncePerSalvo; // @todo DEPRECATED
         public int SalvoSoundInterval = 1; // play sound effect every N salvos
+
+        // Number of salvos that will be sequentially spawned.
+        // For example, Vulcan Cannon fires a salvo of 20
         public int SalvoCount = 1;
-        public float SalvoTimer;
+
+        // This is the total salvo duration
+        // TimeBetweenShots = SalvoTimer / SalvoCount;
+        [XmlElement(ElementName = "SalvoTimer")]
+        public float SalvoDuration;
 
         [XmlIgnore][JsonIgnore] public int SalvosToFire { get; private set; }
         float SalvoDirection;
@@ -190,7 +202,7 @@ namespace Ship_Game.Gameplay
 
             BeamDuration = BeamDuration > 0 ? BeamDuration : 2f;
             fireDelay = Math.Max(0.016f, fireDelay);
-            SalvoTimer = Math.Max(0, SalvoTimer);
+            SalvoDuration = Math.Max(0, SalvoDuration);
 
             if (PlaySoundOncePerSalvo) // @note Backwards compatibility
                 SalvoSoundInterval = 9999;
@@ -228,7 +240,7 @@ namespace Ship_Game.Gameplay
         }
 
         [XmlIgnore][JsonIgnore]
-        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoTimer;
+        public float NetFireDelay => isBeam ? fireDelay+BeamDuration : fireDelay+SalvoDuration;
 
         [XmlIgnore][JsonIgnore]
         public float OrdnanceUsagePerSecond => OrdinanceRequiredToFire * ProjectileCount * SalvoCount / NetFireDelay;
@@ -365,14 +377,14 @@ namespace Ship_Game.Gameplay
 
         bool PrepareToFireSalvo()
         {
-            float timeBetweenShots = SalvoTimer / SalvoCount;
+            float timeBetweenShots = SalvoDuration / SalvoCount;
             if (SalvoFireTimer < timeBetweenShots)
                 return false; // not ready to fire salvo 
+
             if (!CanFireWeapon())
             {
                 // reset salvo and weapon, forgetting any partial salvo that may remain.
                 CooldownTimer = NetFireDelay;
-                //CooldownTimer -= timeBetweenShots * SalvosToFire; // discount for the unspent part.
                 SalvosToFire = 0;
                 SalvoFireTimer = 0f;
                 return false;
@@ -542,7 +554,7 @@ namespace Ship_Game.Gameplay
         }
 
         
-        public Vector2 Origin => Module?.Center ?? Center;
+        public Vector2 Origin => Module?.Center ?? PlanetCenter;
         public Vector2 OwnerVelocity => Owner?.Velocity ?? Module?.GetParent()?.Velocity ?? Vector2.Zero;
 
         Vector2 Predict(Vector2 origin, GameplayObject target, bool advancedTargeting)
@@ -580,12 +592,13 @@ namespace Ship_Game.Gameplay
         // @note This is the main firing and targeting method
         // Prioritizes mainTarget
         // But if mainTarget is not viable, will pick a new Target using ships/projectiles lists
-        public void UpdateAndFireAtTarget(Ship mainTarget,
+        // @return TRUE if target was fired at
+        public bool UpdateAndFireAtTarget(Ship mainTarget,
             Array<Projectile> enemyProjectiles, Array<Ship> enemyShips)
         {
             TargetChangeTimer -= 0.0167f;
             if (!CanFireWeaponCooldown())
-                return; // we can't fire, so don't bother checking targets
+                return false; // we can't fire, so don't bother checking targets
 
             if (ShouldPickNewTarget())
             {
@@ -606,10 +619,11 @@ namespace Ship_Game.Gameplay
             if (FireTarget != null)
             {
                 if (isBeam)
-                    FireBeam(Module.Center, FireTarget.Center, FireTarget);
+                    return FireBeam(Module.Center, FireTarget.Center, FireTarget);
                 else
-                    FireAtTarget(FireTarget.Center, FireTarget);
+                    return FireAtTarget(FireTarget.Center, FireTarget);
             }
+            return false; // no target to fire at
         }
 
         bool IsTargetAliveAndInRange(GameplayObject target)
@@ -642,7 +656,7 @@ namespace Ship_Game.Gameplay
         {
             if (Tag_PD && enemyProjectiles.NotEmpty)
             {
-                int maxTracking = Owner.TrackingPower + Owner.Level;
+                int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < maxTracking && i < enemyProjectiles.Count; i++)
                 {
                     Projectile proj = enemyProjectiles[i];
@@ -673,7 +687,7 @@ namespace Ship_Game.Gameplay
             else // otherwise track a new target:
             {
                 // limit to one target per level.
-                int maxTracking = Owner.TrackingPower + Owner.Level;
+                int maxTracking = 1 + Owner.TrackingPower + Owner.Level;
                 for (int i = 0; i < potentialTargets.Count && i < maxTracking; ++i)
                 {
                     Ship potentialTarget = potentialTargets[i];
@@ -731,7 +745,7 @@ namespace Ship_Game.Gameplay
 
         public bool ManualFireTowardsPos(Vector2 targetPos)
         {
-            if (CanFireWeapon())
+            if (CanFireWeaponCooldown())
             {
                 if (isBeam)
                 {
@@ -744,6 +758,7 @@ namespace Ship_Game.Gameplay
 
         public void FireFromPlanet(Planet planet, Ship targetShip)
         {
+            PlanetCenter = planet.Center;
             targetShip.InCombatTimer = 15f;
             GameplayObject target = targetShip.GetRandomInternalModule(this) ?? (GameplayObject) targetShip;
 
@@ -755,7 +770,7 @@ namespace Ship_Game.Gameplay
 
             if (ProjectedImpactPoint(target, out Vector2 pip))
             {
-                Vector2 direction = (pip - Center).Normalized();
+                Vector2 direction = (pip - Origin).Normalized();
 
                 foreach (FireSource fireSource in EnumFireSources(planet.Center, direction))
                     Projectile.Create(this, planet, fireSource.Direction, target);
@@ -830,8 +845,10 @@ namespace Ship_Game.Gameplay
                 SalvoFireTimer += elapsedTime;
                 ContinueSalvo();
             }
-            else SalvoTarget = null;
-            Center = Module.Center;
+            else
+            {
+                SalvoTarget = null;
+            }
         }
 
         public float GetShieldDamageMod(ShipModule module)

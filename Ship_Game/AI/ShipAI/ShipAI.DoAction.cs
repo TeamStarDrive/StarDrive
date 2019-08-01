@@ -391,7 +391,7 @@ namespace Ship_Game.AI
                     selector: ship => ship.InternalSlotsHealthPercent);
 
                 if (repairMe == null) return;
-                Vector2 target = w.Center.DirectionToTarget(repairMe.Center);
+                Vector2 target = w.Origin.DirectionToTarget(repairMe.Center);
                 target.Y = target.Y * -1f;
                 w.FireDrone(target);
             }

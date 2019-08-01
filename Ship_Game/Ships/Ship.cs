@@ -117,7 +117,7 @@ namespace Ship_Game.Ships
         public MoveState engineState;
         public float ScreenRadius;
         public bool InFrustum;
-        public bool NeedRecalculate;
+        public bool ShouldRecalculatePower;
         public bool Deleted;
         public bool inborders;
         public bool FightersLaunched { get; private set; }
@@ -129,9 +129,7 @@ namespace Ship_Game.Ships
         private float updateTimer;
         public float WarpThrust;
         public float TurnThrust;
-        public float MoveModulesTimer;
         public float HealPerTurn;
-        private bool UpdatedModulesOnce;
         public float InternalSlotsHealthPercent; // number_Alive_Internal_slots / number_Internal_slots
         Vector3 DieRotation;
         private float dietimer;
@@ -716,7 +714,7 @@ namespace Ship_Game.Ships
 
         bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
-            float angleToTarget = w.Center.RadiansToTarget(pos);
+            float angleToTarget = w.Origin.RadiansToTarget(pos);
             float facing = w.Module.Facing.ToRadians() + Rotation;
             float difference = Math.Abs(facing - angleToTarget);
             return difference < (w.Module.FieldOfFire * 0.5f);
@@ -1320,26 +1318,34 @@ namespace Ship_Game.Ships
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
-            MoveModulesTimer -= deltaTime;
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
                 EMPDamage -= EmpRecovery;
                 EMPDamage = Math.Max(0, EMPDamage);
-
                 EMPdisabled = EMPDamage > EmpTolerance;
             }
 
             if (Rotation > RadMath.TwoPI) Rotation -= RadMath.TwoPI;
-            else if (Rotation < 0f) Rotation += RadMath.TwoPI;
+            else if (Rotation < 0f)       Rotation += RadMath.TwoPI;
+
+            if (AI.BadGuysNear ||
+                (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
+            {
+                float cos = RadMath.Cos(Rotation);
+                float sin = RadMath.Sin(Rotation);
+                float tan = (float)Math.Tan(yRotation);
+                for (int i = 0; i < ModuleSlotList.Length; ++i)
+                {
+                    ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
+                }
+                GlobalStats.ModuleUpdates += ModuleSlotList.Length;
+            }
 
             if (!EMPdisabled && hasCommand)
             {
-                if (InCombat)
+                for (int i = 0; i < Weapons.Count; i++)
                 {
-                    for (int i = 0; i < Weapons.Count; i++)
-                    {
-                        Weapons[i].Update(deltaTime);
-                    }
+                    Weapons[i].Update(deltaTime);
                 }
                 for (int i = 0; i < BombBays.Count; i++)
                 {
@@ -1354,25 +1360,6 @@ namespace Ship_Game.Ships
             {
                 updateTimer = 1f; // update the ship only once per second
                 UpdateModulesAndStatus();
-            }
-
-            //This used to be an 'else if' but it was causing modules to skip an update every second. -Gretman
-            if (MoveModulesTimer > 0.0f || AI.BadGuysNear
-                || (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView) )
-            {
-                if (deltaTime > 0.0f || UpdatedModulesOnce)
-                {
-                    UpdatedModulesOnce = deltaTime > 0;
-
-                    float cos = RadMath.Cos(Rotation);
-                    float sin = RadMath.Sin(Rotation);
-                    float tan = (float)Math.Tan(yRotation);
-                    for (int i = 0; i < ModuleSlotList.Length; ++i)
-                    {
-                        ModuleSlotList[i].UpdateEveryFrame(deltaTime, cos, sin, tan);
-                        ++GlobalStats.ModuleUpdates;
-                    }
-                }
             }
 
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
@@ -1404,17 +1391,20 @@ namespace Ship_Game.Ships
             UpdateEnginesAndVelocity(deltaTime);
         }
 
-        void UpdateModulesAndStatus()
+        void UpdateTroopBoardingDefense()
         {
             TroopBoardingDefense = 0f;
-            for (int i = 0;
-                i < TroopList.Count;
-                i++) //Do we need to update this every frame? I moved it here so it would be every second, instead.   -Gretman
+            for (int i = 0; i < TroopList.Count; i++)
             {
                 TroopList[i].SetShip(this);
                 if (TroopList[i].Loyalty == loyalty)
                     TroopBoardingDefense += TroopList[i].Strength;
             }
+        }
+
+        void UpdateModulesAndStatus()
+        {
+            UpdateTroopBoardingDefense();
 
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
             {
@@ -1460,13 +1450,13 @@ namespace Ship_Game.Ships
             }
 
             SetShipsVisibleByPlayer();
-            foreach (ShipModule slot in ModuleSlotList)
-                slot.Update(1);
+            for (int i = 0; i < ModuleSlotList.Length; ++i)
+                ModuleSlotList[i].Update(1);
 
-            if (NeedRecalculate) // must be before ShipStatusChange
+            if (ShouldRecalculatePower) // must be before ShipStatusChange
             {
                 RecalculatePower();
-                NeedRecalculate = false;
+                ShouldRecalculatePower = false;
             }
 
             if (shipStatusChanged)
@@ -1548,14 +1538,13 @@ namespace Ship_Game.Ships
 
         }
 
-        private void SetShipsVisibleByPlayer()
+        void SetShipsVisibleByPlayer()
         {
             /* Changed this so that the other ships will only check if they are not in sensors if they have been marked
-             insensors. Player ships will check for to see that ships near them are in sensor range.
-             this seems redundent. there are several places where ships are checked for being in sensors.
-             scanforshipsinsensors,
-                 */
-
+             inSensors. Player ships will check for to see that ships near them are in sensor range.
+             this seems redundant. there are several places where ships are checked for being in sensors.
+             ScanForShipsInSensors,
+             */
             if (Empire.Universe.Debug)
             {
                 inSensorRange = true;

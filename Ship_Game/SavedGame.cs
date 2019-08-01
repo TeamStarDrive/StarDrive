@@ -349,7 +349,7 @@ namespace Ship_Game
                         sdata.AISave.EscortTarget = ship.AI.EscortTarget.guid;
                     }
 
-                    sdata.Projectiles = ship.CopyProjectiles().Select(p => new ProjectileSaveData
+                    sdata.Projectiles = ship.CopyProjectiles.Select(p => new ProjectileSaveData
                     {
                         Velocity = p.Velocity,
                         Rotation = p.Rotation,
