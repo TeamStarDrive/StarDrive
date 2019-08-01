@@ -50,7 +50,6 @@ namespace Ship_Game
         public static object BeamEffectLocker     = new object();
 
         public static bool ShowAllDesigns        = true;
-        public static int ModulesMoved           = 0;
         public static int BeamTests              = 0;
         public static int ModuleUpdates          = 0;
         public static int WeaponArcChecks        = 0;

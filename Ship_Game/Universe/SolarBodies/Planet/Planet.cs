@@ -355,7 +355,6 @@ namespace Ship_Game
 
                 if (building.isWeapon)
                 {
-                    building.TheWeapon.Center = Center;
                     building.TheWeapon.FireFromPlanet(this, target);
                     building.WeaponTimer = building.TheWeapon.fireDelay;
                 }

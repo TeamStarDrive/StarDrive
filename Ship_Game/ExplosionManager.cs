@@ -99,7 +99,11 @@ namespace Ship_Game
 
         public static void AddExplosion(Vector3 position, Vector2 velocity, float radius, float intensity, ExplosionType type)
         {
-            Explosion expType = RandomMath2.RandItem(Types[type]);
+            Array<Explosion> explosions = Types[type];
+            if (explosions.IsEmpty)
+                return; // explosions not loaded in Unit Tests
+
+            Explosion expType = RandomMath2.RandItem(explosions);
             var exp = new ExplosionState
             {
                 Duration = 2.25f,
