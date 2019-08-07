@@ -134,6 +134,7 @@ namespace Ship_Game
         public static bool DrawNebulas    = true;
         public static bool DrawStarfield  = true;
 
+        // Language options
         public static bool IsEnglish => Language == Language.English;
         public static bool IsFrench  => Language == Language.French;
         public static bool IsGerman  => Language == Language.German;
@@ -148,12 +149,16 @@ namespace Ship_Game
         public static bool NotGerman              => Language != Language.German;
         public static bool NotEnglishOrSpanish    => IsGerman || IsPolish || IsRussian || IsFrench;
 
-        ////////////////////////////////
-        /// debug log info
-        ///
+        // Debug log options
         public static bool VerboseLogging;
         public static bool TestLoad;
         public static bool PreLoad;
+
+        // Concurrency and Parallelism options
+        // Unlimited Parallelism: <= 0
+        // Single Threaded: == 1
+        // Limited Parallelism: > 1
+        public static int MaxParallelism = -1;
 
         public static void LoadConfig()
         {
@@ -198,14 +203,15 @@ namespace Ship_Game
         #if DEBUG
             VerboseLogging = true;
         #endif
-
         #if AUTOFAST
             RestrictAIPlayerInteraction = true;
         #endif
+
             if (int.TryParse(GetSetting("MusicVolume"), out int musicVol)) MusicVolume = musicVol / 100f;
             if (int.TryParse(GetSetting("EffectsVolume"), out int fxVol))  EffectsVolume = fxVol / 100f;
             GetSetting("SoundDevice", ref SoundDevice);
             GetSetting("Language", ref Language);
+            GetSetting("MaxParallelism", ref MaxParallelism);
             GetSetting("XRES", ref XRES);
             GetSetting("YRES", ref YRES);
             if (bool.TryParse(GetSetting("UIDCaseCheck"), out bool checkForCase))
@@ -318,6 +324,7 @@ namespace Ship_Game
             WriteSetting(config, "EffectsVolume", (int)(EffectsVolume * 100));
             WriteSetting(config, "SoundDevice",    SoundDevice);
             WriteSetting(config, "Language",       Language);
+            WriteSetting(config, "MaxParallelism", MaxParallelism);
             WriteSetting(config, "XRES",           XRES);
             WriteSetting(config, "YRES",           YRES);
             WriteSetting(config, "CameraPanSpeed", CameraPanSpeed);
