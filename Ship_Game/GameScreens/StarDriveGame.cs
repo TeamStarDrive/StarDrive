@@ -29,18 +29,21 @@ namespace Ship_Game
 
         public StarDriveGame()
         {
+            // @note This will override and initialize global system settings
+            GlobalStats.LoadConfig();
+
             // Configure and display the GC mode
             // LatencyMode is only available if ServerGC=False
             if (!GCSettings.IsServerGC)
             {
                 // Batch : non-concurrent, block until all GC is done
                 // Interactive : concurrent, most of the work is done in a background thread
-                //GCSettings.LatencyMode = GCLatencyMode.Batch;
+                if (GCSettings.LatencyMode != GCLatencyMode.Batch)
+                    GCSettings.LatencyMode = GCLatencyMode.Batch;
             }
-            Log.Write(ConsoleColor.Yellow, 
-                $"GC Server={GCSettings.IsServerGC} LatencyMode={GCSettings.LatencyMode}");
-
-            GlobalStats.LoadConfig();
+            Log.Write(ConsoleColor.Yellow, $"User={Environment.UserName} NET={Environment.Version}");
+            Log.Write(ConsoleColor.Yellow, $"GC Server={GCSettings.IsServerGC} LatencyMode={GCSettings.LatencyMode}");
+            Log.Write(ConsoleColor.Yellow, $"PhysicalCores={Parallel.NumPhysicalCores} MaxParallelism={Parallel.MaxParallelism}");
 
         #if STEAM
             if (SteamManager.SteamInitialize())
