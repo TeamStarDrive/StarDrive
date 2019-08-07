@@ -113,7 +113,7 @@ namespace Ship_Game
             try
             {
                 ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod, reset:false);
-                Log.Write($"Finished loading 'Root' Assets {StarDriveGame.GameContent.GetLoadedAssetMegabytes():0.0}MB");
+                Log.Write($"Finished loading 'Root' Assets {GameBase.GameContent.GetLoadedAssetMegabytes():0.0}MB");
             }
             catch (Exception e)
             {
