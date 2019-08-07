@@ -319,6 +319,22 @@ namespace Ship_Game
             }
         }
 
+        // Maximum parallelism allowed by System settings
+        // Unlimited Parallelism: <= 0
+        // Single Threaded: == 1
+        // Limited Parallelism: > 1
+        public static int MaxParallelism
+        {
+            get
+            {
+                if (GlobalStats.MaxParallelism <= 0)
+                    return NumPhysicalCores;
+                if (GlobalStats.MaxParallelism == 1)
+                    return 1;
+                return Math.Min(GlobalStats.MaxParallelism, NumPhysicalCores);
+            }
+        }
+
         /// <summary>
         /// Several times faster than System.Threading.Tasks.Parallel.For,
         /// will utilize all cores of the CPU at default affinity.
@@ -334,7 +350,6 @@ namespace Ship_Game
         /// <param name="rangeStart">Start of the range (inclusive)</param>
         /// <param name="rangeEnd">End of the range (exclusive)</param>
         /// <param name="body">delegate void RangeAction(int start, int end)</param>
-        /// <param name="parallelism">Number of threads to spawn. By default number of physical cores is used.</param>
         /// <example>
         /// Parallel.For(0, arr.Length, (start, end) =&gt;
         /// {
@@ -344,13 +359,13 @@ namespace Ship_Game
         ///     }
         /// });
         /// </example>
-        public static void For(int rangeStart, int rangeEnd, RangeAction body, int parallelism = 0)
+        public static void For(int rangeStart, int rangeEnd, RangeAction body)
         {
             if (rangeStart >= rangeEnd)
                 return; // no work done on empty ranges
 
             int range = rangeEnd - rangeStart;
-            int cores = Math.Min(range, parallelism <= 0 ? NumPhysicalCores : Math.Min(NumPhysicalCores, parallelism));
+            int cores = Math.Min(range, MaxParallelism);
             int len = range / cores;
 
             // this can happen if the target CPU only has 1 core, or if the list has 1 item
@@ -386,9 +401,9 @@ namespace Ship_Game
                 throw ex;
         }
 
-        public static void For(int rangeLength, RangeAction body, int parallelism = 0)
+        public static void For(int rangeLength, RangeAction body)
         {
-            For(0, rangeLength, body, parallelism);
+            For(0, rangeLength, body);
         }
 
         public static void ForEach<T>(IReadOnlyList<T> list, Action<T> body)
