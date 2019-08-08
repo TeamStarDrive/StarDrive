@@ -14,9 +14,15 @@ namespace Ship_Game
 {
     public static class Log
     {
+        struct LogEntry
+        {
+            public TimeSpan Time;
+            public string Message;
+        }
+
         static readonly StreamWriter LogFile;
         static Thread LogThread;
-        static readonly SafeQueue<string> LogQueue = new SafeQueue<string>(64);
+        static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
         public static readonly bool HasDebugger = Debugger.IsAttached;
 
         // sentry.io automatic crash reporting
@@ -74,12 +80,28 @@ namespace Ship_Game
             }
         }
 
+        static void WriteToFile(in LogEntry log)
+        {
+            LogFile.Write(log.Time.Hours.ToString("00"));
+            LogFile.Write(':');
+            LogFile.Write(log.Time.Minutes.ToString("00"));
+            LogFile.Write(':');
+            LogFile.Write(log.Time.Seconds.ToString("00"));
+            LogFile.Write('.');
+            LogFile.Write(log.Time.Milliseconds.ToString("000"));
+            LogFile.Write('m');
+            LogFile.Write('s');
+            LogFile.Write(':');
+            LogFile.Write(' ');
+            LogFile.Write(log.Message);
+            LogFile.Write('\n');
+        }
 
         public static void FlushAllLogs()
         {
             LogThread = null;
-            foreach (string line in LogQueue.TakeAll())
-                LogFile.WriteLine(line);
+            foreach (LogEntry log in LogQueue.TakeAll())
+                WriteToFile(log);
             LogFile.Flush();
         }
 
@@ -87,11 +109,11 @@ namespace Ship_Game
         {
             while (LogThread != null)
             {
-                if (LogQueue.WaitDequeue(out string line, 15))
+                if (LogQueue.WaitDequeue(out LogEntry log, 15))
                 {
-                    LogFile.WriteLine(line);
-                    while (LogQueue.WaitDequeue(out line, 15))
-                        LogFile.WriteLine(line);
+                    WriteToFile(log);
+                    while (LogQueue.WaitDequeue(out log, 15))
+                        WriteToFile(log);
                     LogFile.Flush();
                 }
             }
@@ -99,7 +121,11 @@ namespace Ship_Game
 
         static void WriteToLog(string text)
         {
-            LogQueue.Enqueue(text);
+            LogQueue.Enqueue(new LogEntry
+            {
+                Time = DateTime.UtcNow.TimeOfDay,
+                Message = text
+            });
         }
 
         static void WriteToConsole(ConsoleColor color, string text)
