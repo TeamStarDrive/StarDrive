@@ -211,8 +211,8 @@ namespace Ship_Game
                 Log.Write("Finished loading non-critical resources");
             }
 
-            LoadNonCritical();
-            //BackgroundLoad = Parallel.Run(LoadNonCritical);
+            //LoadNonCritical();
+            BackgroundLoad = Parallel.Run(LoadNonCritical);
 
             HelperFunctions.CollectMemory();
         }
