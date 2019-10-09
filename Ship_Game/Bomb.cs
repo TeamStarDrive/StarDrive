@@ -54,7 +54,7 @@ namespace Ship_Game
             Empire.Universe.BombList.QueuePendingRemoval(this);
         }
 
-        public void SurfaceImpactEffects()
+        private void SurfaceImpactEffects()
         {
             if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView && TargetPlanet.ParentSystem.isVisible)
             {
@@ -71,8 +71,10 @@ namespace Ship_Game
             if (Empire.Universe.IsViewingCombatScreen(planet))
             {
                 GameAudio.PlaySfxAsync("Explo1");
-                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.Target.ClickRect, 4);
+				((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
             }
+			else
+				SurfaceImpactEffects(); // If viewing the planet from space
         }
 
         public void ResolveSpecialBombActions(Planet planet)

@@ -13,7 +13,7 @@ SunZoneData: Near
 SunZoneData: Habital
   Distribution:
     - {Type: Barren, Count: 20 }
-    - {Type: Desert, Count: 3 }
+    - {Type: Desert, Count: 5 }
     - {Type: Steppe, Count: 3 }
     - {Type: Tundra, Count: 3 }
     - {Type: Terran, Count: 3 }
@@ -26,23 +26,23 @@ SunZoneData: Far
   Distribution:
     - {Type: Barren, Count: 15 }
     - {Type: Desert, Count: 2 }
-    - {Type: Steppe, Count: 1 }
-    - {Type: Tundra, Count: 3 }
+    - {Type: Steppe, Count: 3 }
+    - {Type: Tundra, Count: 5 }
     - {Type: Terran, Count: 1 }
     - {Type: Volcanic, Count: 15 }
-    - {Type: Ice, Count: 5 }
+    - {Type: Ice, Count: 8 }
     - {Type: Swamp, Count: 2 }
     - {Type: Oceanic, Count: 2 }
     - {Type: GasGiant, Count: 40 }
 SunZoneData: VeryFar
   Distribution:
-    - {Type: Barren, Count: 15 }
+    - {Type: Barren, Count: 10 }
     - {Type: Desert, Count: 1 }
     - {Type: Steppe, Count: 0 }
-    - {Type: Tundra, Count: 1 }
+    - {Type: Tundra, Count: 2 }
     - {Type: Terran, Count: 0 }
     - {Type: Volcanic, Count: 5 }
-    - {Type: Ice, Count: 10}
+    - {Type: Ice, Count: 15}
     - {Type: Swamp, Count: 1 }
     - {Type: Oceanic, Count: 1 }
-    - {Type: GasGiant, Count: 70 }
+    - {Type: GasGiant, Count: 60 }

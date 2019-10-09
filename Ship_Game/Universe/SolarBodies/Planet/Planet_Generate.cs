@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Ship_Game.Data;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -58,9 +54,9 @@ namespace Ship_Game
 
         // this applies to any randomly generated planet
         // which is newly created and is not a HomeWorld
-        public void InitNewMinorPlanet(PlanetType type)
+        public void InitNewMinorPlanet(PlanetType type, float scale, float preDefinedPop = 0)
         {
-            GenerateNewFromPlanetType(type);
+            GenerateNewFromPlanetType(type, scale, preDefinedPop);
             AddEventsAndCommodities();
         }
 
@@ -80,78 +76,325 @@ namespace Ship_Game
             Type = ResourceManager.PlanetOrRandom(planetId);
         }
 
-        
         public PlanetGridSquare FindTileUnderMouse(Vector2 mousePos)
             => TilesList.Find(pgs => pgs.ClickRect.HitTest(mousePos));
 
-        void GenerateNewFromPlanetType(PlanetType type)
+        void GenerateNewFromPlanetType(PlanetType type, float scale, float preDefinedPop = 0)
         {
-            Type = type;
-            MaxPopBase = type.MaxPop.Generate();
-            Fertility  = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
-            MaxFertility = Fertility;
             TilesList.Clear();
+            Type = type;
+            Scale = scale;
 
             if (Habitable)
             {
-                float richness = RandomMath.RandomBetween(0.0f, 100f);
-                if      (richness >= 92.5f) MineralRichness = RandomMath.RandomBetween(2.00f, 2.50f);
-                else if (richness >= 85.0f) MineralRichness = RandomMath.RandomBetween(1.50f, 2.00f);
-                else if (richness >= 25.0f) MineralRichness = RandomMath.RandomBetween(0.75f, 1.50f);
-                else if (richness >= 12.5f) MineralRichness = RandomMath.RandomBetween(0.25f, 0.75f);
-                else if (richness < 12.5f)  MineralRichness = RandomMath.RandomBetween(0.10f, 0.25f);
+                float richness = RandomBetween(0.0f, 100f);
+                if      (richness >= 92.5f) MineralRichness = RandomBetween(2.00f, 2.50f);
+                else if (richness >= 85.0f) MineralRichness = RandomBetween(1.50f, 2.00f);
+                else if (richness >= 25.0f) MineralRichness = RandomBetween(0.75f, 1.50f);
+                else if (richness >= 12.5f) MineralRichness = RandomBetween(0.25f, 0.75f);
+                else if (richness < 12.5f)  MineralRichness = RandomBetween(0.10f, 0.25f);
+
+                float habitableChance = GlobalStats.ActiveModInfo?.ChanceForCategory(Category)
+                                        ?? Type.HabitableTileChance.Generate();
+
+                SetTileHabitability(habitableChance, out int numHabitableTiles);
+                if (preDefinedPop > 0)
+					MaxPopBase          = (int)(preDefinedPop*1000 / numHabitableTiles);
+				else
+	                MaxPopBase = type.PopPerTile.Generate() * scale;
+
+				BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
+                BaseMaxFertility = BaseFertility;
             }
-            else MineralRichness = 0.0f;
+            else
+                MineralRichness = 0.0f;
         }
 
-        public void GenerateNewHomeWorld(PlanetType type)
+		public void GeneratePlanetFromSystemData(SolarSystemData.Ring ringData, PlanetType type, float scale)
         {
-            Type = type;
-            Fertility = type.Fertility.Generate().Clamped(type.MinFertility, 100.0f);
-            MaxFertility = Fertility;
-            Zone         = SunZone.Any;
-
-            TilesList.Clear();
-            for (int x = 0; x < 7; ++x)
+			if (ringData.UniqueHabitat)
             {
-                for (int y = 0; y < 5; ++y)
-                {
-                    // HomeWorld always gets 75% habitable chance per tile
-                    bool habitableTile = RandomBetween(0f, 100f) < 75f;
-                    TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
+				UniqueHab = true;
+				UniqueHabPercent = ringData.UniqueHabPC;
                 }
+
+			InitNewMinorPlanet(type, scale, ringData.MaxPopDefined);
+
+			if (ringData.Owner.NotEmpty())
+			{
+				Owner = EmpireManager.GetEmpireByName(ringData.Owner);
+				Owner.AddPlanet(this);
+				InitializeWorkerDistribution(Owner);
+				Population = MaxPopulation(Owner);
+				MineralRichness = 1f;
+				colonyType = ColonyType.Core;
+				SetBaseFertility(2f, 2f);
             }
+		}
+
+        public void GenerateNewHomeWorld(Empire owner, float preDefinedPop = 0)
+        {
+	        Owner         = owner;
+	        Owner.Capital = this;
+	        Scale         = 1 * Owner.data.Traits.HomeworldSizeMultiplier; // base max pop is affected by scale
+	        Owner.AddPlanet(this);
+
+			CreateHomeWorldEnvironment();
+			SetTileHabitability(75, out int numHabitableTiles); // home worlds have 75% habitable tiles
+			BalanceHomeWorldTiles(numHabitableTiles);
+
             if (Owner.isPlayer)
                 colonyType = ColonyType.Colony;
+
+			CreateHomeWorldFertilityAndRichness();
+			CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
+			InitializeWorkerDistribution(Owner);
+			FoodHere     = 100f;
+			ProdHere     = 100f;
+			HasSpacePort = true;
+			if (!ParentSystem.OwnerList.Contains(Owner))
+				ParentSystem.OwnerList.Add(Owner);
+
+			CreateHomeWorldBuildings();
+		}
+
+		private void SetTileHabitability(float tileChance, out int numHabitableTiles)
+		{
+			numHabitableTiles = 0;
+
+			TilesList.Clear();
+			for (int x = 0; x < TileMaxX; ++x)
+			{
+				for (int y = 0; y < TileMaxY; ++y)
+				{
+					bool habitableTile = RollDice(tileChance);
+					TilesList.Add(new PlanetGridSquare(x, y, null, habitableTile));
+					if (habitableTile)
+						++numHabitableTiles;
+				}
+			}
+		}
+
+		private void BalanceHomeWorldTiles(int numHabitableTiles)
+		{
+			const int balancedHabitableTiles = 26;
+			if (numHabitableTiles >= balancedHabitableTiles) // balance if less than 75% tiles
+				return;
+
+			foreach (PlanetGridSquare  tile in TilesList)
+			{
+				if (!tile.Habitable)
+					tile.Habitable = true;
+
+				++numHabitableTiles;
+				if (numHabitableTiles == balancedHabitableTiles)
+					return;
+			}
+		}
+
+		private void CreateHomeWorldPopulation(float preDefinedPop, int numHabitableTiles)
+		{
+			// Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
+			float envMultiplier = 1 / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
+			float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
+			MaxPopBase          = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
+			Population          = MaxPopulation(Owner);
+		}
+		private void CreateHomeWorldFertilityAndRichness()
+		{
+			// Set the base fertility so it always corresponds to preferred env plus any modifiers from traits
+			float baseMaxFertility = (2 + Owner.data.Traits.HomeworldFertMod) / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
+			SetBaseFertilityMinMax(baseMaxFertility);
+
+			MineralRichness = 1f + Owner.data.Traits.HomeworldRichMod;
+		}
+
+		private void CreateHomeWorldEnvironment()
+		{
+			PlanetCategory preferred = Owner.data.PreferredEnv == PlanetCategory.Other ? PlanetCategory.Terran
+				                                                                       : Owner.data.PreferredEnv;
+
+			Type = ResourceManager.RandomPlanet(preferred);
+			Zone = SunZone.Any;
+		}
+
+		private void CreateHomeWorldBuildings()
+		{
+			ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(this);
+			ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(this);
+			if (GlobalStats.HardcoreRuleset)
+			{
+				AddGood("ReactorFuel", 1000);
+				ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(this);
+				ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(this);
+				ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(this);
+				ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(this);
+			}
+		}
+
+		private void ApplyTerraforming() // Added by Fat Bastard
+		{
+			if (Owner == null || TerraformToAdd.LessOrEqual(0))
+				return; // No owner, so Terraformers cannot continue working, or no Terraformers
+
+			ScrapNegativeEnvBuilding();
+
+			// First, make un-habitable tiles habitable
+			if (TerraformTiles()) 
+				return;
+
+			// Then, if all tiles are habitable, proceed to Planet Terraform
+			if (TerraformPlanet())
+				return;
+
+			// Then, remove any existing biospheres from the new heaven
+			TerraformBioSpheres();
+		}
+
+		public bool TilesToTerraform      => TilesList.Any(t => !t.Habitable && !t.Biosphere);
+		public bool BioSpheresToTerraform => TilesList.Any(t => t.Biosphere);
+
+		private bool TerraformTiles()
+		{
+
+			if (!TilesToTerraform)
+				return false; // no tiles need terraforming
+
+			TerraformPoints += TerraformToAdd * 5; // Terraforming a tile is faster than the whole planet
+			if (TerraformPoints.GreaterOrEqual(1))
+				CompleteTileTerraforming(TilesList.Filter(t => !t.Habitable && !t.Biosphere));
+
+			return true;
+		}
+
+		private bool TerraformPlanet()
+		{
+			if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformTargetFertility))
+				return false;
+
+			TerraformPoints += TerraformToAdd;
+			if (TerraformPoints.GreaterOrEqual(1))
+			{
+				CompletePlanetTerraform();
+				return false;
+			}
+
+			return true;
+		}
+
+		private void ScrapNegativeEnvBuilding()
+		{
+			var negativeEnvBuildings = BuildingList.Filter(b => b.MaxFertilityOnBuild < 0 && !b.IsBiospheres);
+			if (negativeEnvBuildings.Length > 0)
+				negativeEnvBuildings[0].ScrapBuilding(this);
+		}
+
+		private void TerraformBioSpheres()
+		{
+			if (!BioSpheresToTerraform)
+			{
+				RemoveTerraformers();
+				if (Owner.isPlayer) // Notify player that the planet was terraformed
+					Empire.Universe.NotificationManager.AddRandomEventNotification(
+						Name + " " + Localizer.Token(1971), Type.IconPath, "SnapToPlanet", this);
+				return;
+			}
+
+			TerraformPoints += TerraformToAdd * 10; // Terraforming Biospheres is much faster than the whole planet
+			if (TerraformPoints.GreaterOrEqual(1))
+				CompleteTileTerraforming(TilesList.Filter(t => t.Biosphere));
+		}
+
+		private void CompleteTileTerraforming(PlanetGridSquare[] possibleTiles)
+		{
+			if (possibleTiles.Length > 0)
+			{
+				PlanetGridSquare tile = RandItem(possibleTiles);
+				MakeTileHabitable(tile);
+			}
+
+			UpdateTerraformPoints(0); // Start terraforming a new tile
+		}
+
+		private void CompletePlanetTerraform()
+		{
+			float fertilityAfterTerraform = Fertility(Owner);
+			Terraform(Owner.data.PreferredEnv);
+			UpdateTerraformPoints(0);
+			BaseMaxFertility   = Math.Max(TerraformTargetFertility, BaseMaxFertility);
+			BaseFertility      = fertilityAfterTerraform; // setting the fertility to what the empire saw before terraform. It will slowly rise.
+			string messageText = Localizer.Token(1920);
+			if (!BioSpheresToTerraform) 
+			{
+				RemoveTerraformers();
+				messageText = Localizer.Token(1971);
+			}
+
+			if (Owner.isPlayer) // Notify player that the planet was terraformed
+				Empire.Universe.NotificationManager.AddRandomEventNotification(
+					Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
+		}
+
+		private void RemoveTerraformers()
+		{
+			foreach (PlanetGridSquare planetGridSquare in TilesList)
+			{
+				if (planetGridSquare.building?.PlusTerraformPoints > 0)
+					planetGridSquare.building.ScrapBuilding(this);
+			}
+		}
+
+		public void UpdateTerraformPoints(float value)
+		{
+			TerraformPoints = value;
+		}
+
+		private void UpdateOrbitalsMaint()
+		{
+			OrbitalsMaintenance = 0;
+			foreach (Ship orbital in OrbitalStations.Values)
+			{
+				OrbitalsMaintenance += orbital.GetMaintCost(Owner);
+			}
+		}
+
+		public void MakeTileHabitable(PlanetGridSquare tile)
+		{
+			if (tile.Biosphere)
+				ClearBioSpheresFromList(tile);
+
+			tile.Habitable = true;
+			UpdateMaxPopulation();
         }
 
         // Refactored by Fat Bastard && RedFox
-        void Terraform(PlanetCategory newCategory, bool recalculateTileHabitation = false)
+		void Terraform(PlanetCategory newCategory, bool improve = true)
         {
-            Type = ResourceManager.RandomPlanet(newCategory);
+			if (Category == newCategory)
+				return; // A planet with the same category was Terraformed (probably to increase fertility)
 
-            // reduce the habitable tile chance slightly from base values:
-            Range chance = Type.HabitableTileChance;
-            chance.Min   = Math.Max(chance.Min - 10, 10);
-            chance.Max   = Math.Max(chance.Max - 10, chance.Min);
-            float habitableChance = chance.Generate();
+            Type                  = ResourceManager.RandomPlanet(newCategory);
+            float newBasePopMax   = Type.PopPerTile.Generate();
 
-            // also reduce base value of maxPop, we don't want super-planets, but don't let a better planet have lower pop max than it has now
-            Range maxPop     = Type.MaxPop;
-            float maxAllowed = Math.Max(10000f, MaxPopulationBillion);
-            // rescale max value to 10000
-            if (maxPop.Max > maxAllowed)
-            {
-                float rescale = maxAllowed / maxPop.Max;
-                maxPop.Min   *= rescale;
-                maxPop.Max   *= rescale;
-            }
-            MaxPopBase = maxPop.Generate();
+            // Dont let the BasePopMax be lower if improving or higher if degrading
+            MaxPopBase = improve ? Math.Max(MaxPopBase, newBasePopMax) 
+                                 : Math.Min(MaxPopBase, newBasePopMax);
 
+			if (!improve)
+				ReCalculateHabitableChances();
+
+			CreatePlanetSceneObject(Empire.Universe);
+			UpdateDescription();
+            UpdateMaxPopulation();
+		}
+
+		private void ReCalculateHabitableChances()
+		{
+			float habitableChance = Type.HabitableTileChance.Generate();
             foreach (PlanetGridSquare pgs in TilesList)
             {
-                if (!recalculateTileHabitation && pgs.Habitable && !pgs.Biosphere) 
-                    continue;
+				if (pgs.Biosphere)
+					continue; // Bio Spheres dont degrade
 
                 switch (Category)
                 {
@@ -163,30 +406,51 @@ namespace Ship_Game
                     case PlanetCategory.Steppe:
                     case PlanetCategory.Tundra:
                     case PlanetCategory.Terran:
-                        if (RollDice(habitableChance))
-                        {
-                            pgs.Habitable = true;
-                            pgs.Biosphere = false;
-                        }
-                        else
-                            pgs.Habitable = pgs.Biosphere;
+						if (!RollDice(habitableChance))
+							DestroyTile(pgs);
                         continue;
                     default:
                         continue;
                 }
             }
-            UpdateDescription();
-            CreatePlanetSceneObject(Empire.Universe);
+		}
+
+		private bool DegradePlanetType() // Added by Fat Bastard
+		{
+			// All Habitable planets possibly degrade to Barren. Barren types degrade to un-habitable volcanic planets.
+			PlanetCategory degradeTo = PlanetCategory.Barren;
+			bool degraded            = false;
+			switch (Category)
+			{
+				case PlanetCategory.Swamp:
+				case PlanetCategory.Ice:
+				case PlanetCategory.Oceanic:
+				case PlanetCategory.Desert:
+				case PlanetCategory.Steppe:
+				case PlanetCategory.Tundra:
+				case PlanetCategory.Terran:
+					if (RollDice(2))
+						degraded = true;
+
+					break;
+				case PlanetCategory.Barren:
+					if (RollDice(1))
+					{
+						degradeTo = PlanetCategory.Volcanic;
+						degraded = true;
+					}
+					break;
+				default:
+					return false;
+			}
+			if (degraded)
+				Terraform(degradeTo, improve: false);
+
+			return degraded;
         }
 
         protected void AddEventsAndCommodities()
         {
-            if (Habitable)
-            {
-                float habitableChance = GlobalStats.ActiveModInfo?.ChanceForCategory(Category)
-                                     ?? Type.HabitableTileChance.Generate();
-                SetTileHabitability(habitableChance);
-            }
             foreach (RandomItem item in ResourceManager.RandomItemsList)
             {
                 (float chance, float maxInstance) = item.ChanceAndMaxInstance(Category);
@@ -197,9 +461,9 @@ namespace Ship_Game
 
         float QualityForRemnants()
         {
-            float quality = Fertility + MineralRichness + MaxPopulationBillion;
+            float quality = BaseFertility*2 + MineralRichness + MaxPopulationBillion(EmpireManager.Remnants);
             //Boost the quality score for planets that are very rich, or very fertile
-            if (Fertility > 1.6)       ++quality;
+            if (BaseFertility*2 > 1.6)   ++quality;
             if (MineralRichness > 1.6) ++quality;
             return quality;
         }

@@ -892,7 +892,7 @@ namespace Ship_Game.Gameplay
             float off = 0f;
             if (isBeam)
             {
-                off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
+                off += DamageAmount * 60 * BeamDuration * (2f / NetFireDelay);
                 off += MassDamage * 30 * (1f / NetFireDelay);
                 off += PowerDamage * 45 * (1f / NetFireDelay);
                 off += RepulsionDamage * 45 * (1f / NetFireDelay);

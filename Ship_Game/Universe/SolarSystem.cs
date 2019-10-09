@@ -289,7 +289,7 @@ namespace Ship_Game
                 else
                 {
                     float scale          = RandomBetween(1f, 2f);
-                    float planetRadius   = 1000f * scale;// (float)(1 + ((Math.Log(scale)) / 1.5));
+                    float planetRadius   = 1000f * scale;
                     float randomAngle    = RandomBetween(0f, 360f);
                     Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
                     var newOrbital       = new Planet
@@ -299,9 +299,8 @@ namespace Ship_Game
                         ParentSystem = this
                     };
                     PlanetType type          = ResourceManager.RandomPlanet(PlanetCategory.Terran);
-                    newOrbital.InitNewMinorPlanet(type);
+                    newOrbital.InitNewMinorPlanet(type, scale);
                     newOrbital.Center        = planetCenter;
-                    newOrbital.Scale         = scale;
                     newOrbital.ObjectRadius  = planetRadius;
                     newOrbital.OrbitalRadius = ringRadius;
                     newOrbital.PlanetTilt    = RandomBetween(45f, 135f);
@@ -436,67 +435,15 @@ namespace Ship_Game
                     ParentSystem       = newSys,
                     SpecialDescription = ringData.SpecialDescription,
                     Center             = MathExt.PointOnCircle(randomAngle, ringRadius),
-                    Scale              = scale,
                     ObjectRadius       = planetRadius,
                     OrbitalRadius      = ringRadius,
                     PlanetTilt         = RandomBetween(45f, 135f)
                 };
 
                 if (!ringData.HomePlanet || owner == null)
-                {
-                    if (ringData.UniqueHabitat)
-                    {
-                        newOrbital.UniqueHab = true;
-                        newOrbital.UniqueHabPercent = ringData.UniqueHabPC;
-                    }
-                    newOrbital.InitNewMinorPlanet(type);
-                    if (ringData.MaxPopDefined > 0)
-                        newOrbital.MaxPopBase = ringData.MaxPopDefined * 1000f;
-
-                    if (ringData.Owner.NotEmpty())
-                    {
-                        newOrbital.Owner = EmpireManager.GetEmpireByName(ringData.Owner);
-                        newOrbital.Owner.AddPlanet(newOrbital);
-                        newOrbital.InitializeWorkerDistribution(newOrbital.Owner);
-                        newOrbital.Population      = newOrbital.MaxPopulation;
-                        newOrbital.MineralRichness = 1f;
-                        newOrbital.colonyType      = Planet.ColonyType.Core;
-                        newOrbital.SetFertility(2f, 2f);
-                    }
-                }
-                else
-                {
-                    newOrbital.Owner = owner;
-                    owner.Capital    = newOrbital;
-                    owner.AddPlanet(newOrbital);
-                    newOrbital.GenerateNewHomeWorld(type);
-                    newOrbital.InitializeWorkerDistribution(owner);
-                    newOrbital.MineralRichness = 1f + owner.data.Traits.HomeworldRichMod;
-                    newOrbital.SetFertilityMinMax(2f + owner.data.Traits.HomeworldFertMod);
-                    if (ringData.MaxPopDefined > 0)
-                        newOrbital.MaxPopBase =
-                            ringData.MaxPopDefined * 1000f * owner.data.Traits.HomeworldSizeMultiplier;
-                    else
-                        newOrbital.MaxPopBase = 14000f * owner.data.Traits.HomeworldSizeMultiplier;
-
-                    newOrbital.Population = 14000f;
-                    newOrbital.FoodHere   = 100f;
-                    newOrbital.ProdHere   = 100f;
-                    if (!newSys.OwnerList.Contains(newOrbital.Owner))
-                        newSys.OwnerList.Add(newOrbital.Owner);
-
-                    newOrbital.HasSpacePort = true;
-                    newOrbital.AddGood("ReactorFuel", 1000);
-                    ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(newOrbital);
-                    ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(newOrbital);
-                    if (GlobalStats.HardcoreRuleset)
-                    {
-                        ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
-                        ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(newOrbital);
-                        ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(newOrbital);
-                        ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(newOrbital);
-                    }
-                }
+					newOrbital.GeneratePlanetFromSystemData(ringData, type, scale);
+				else // home planet
+					newOrbital.GenerateNewHomeWorld(owner, ringData.MaxPopDefined);
 
                 newOrbital.InitializePlanetMesh(null);
 
@@ -634,8 +581,8 @@ namespace Ship_Game
                     ShieldStrength       = planet.ShieldStrengthCurrent,
                     Population           = planet.Population,
                     PopulationMax        = planet.MaxPopBase,
-                    Fertility            = planet.Fertility,
-                    MaxFertility         = planet.MaxFertility,
+                    Fertility            = planet.BaseFertility,
+                    MaxFertility         = planet.BaseMaxFertility,
                     Richness             = planet.MineralRichness,
                     Owner                = planet.Owner?.data.Traits.Name ?? "",
                     WhichPlanet          = planet.Type.Id,
