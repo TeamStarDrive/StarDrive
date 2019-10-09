@@ -38,6 +38,8 @@ The current goals of BlackBox - Hyperion are:
 * Install [SourceTree](https://www.sourcetreeapp.com/) or some other GIT client. 
     * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
+    * Advanced Options When cloning: [v] Recurse submodules (Important!)
+    * Advanced Options When cloning: Checkout branch: develop  Clone Depth 0
 * Switch to DEVELOP branch, which is our main branch for latest ongoing development.
 * Copy the original StarDrive game folder to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
