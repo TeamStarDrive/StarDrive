@@ -1,10 +1,16 @@
 ![banner_bb2.jpg](https://bitbucket.org/repo/4AAMq9/images/765859828-banner_bb2.jpg)
+[![Build status](https://ci.appveyor.com/api/projects/status/io0yiuypjam8m331?svg=true)](https://ci.appveyor.com/project/RedFox20/stardrive-blackbox)
 
 # Stardrive BlackBox #
-This is the 15b version of the stardrive.exe decompiled from CIL into a C# project. The code decompilation errors preventing compilation were fixed and released as BlackBox gravity. Features were added much of the bugs were fixed and released as BlackBox RadicalElements. The current version in development is BlackBox Texas.
+This is the 15b version of StarDrive.exe decompiled from CIL into a C# project.
+The code decompilation errors preventing compilation were fixed and released as BlackBox gravity.
+New features were added, much of the bugs were fixed and released as BlackBox RadicalElements.
+The current release is BlackBox - Venus and upcoming version is BlackBox - Hyperion.
 
-Notice: We have the stardrive devs publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions. Do not use this for immoral or personal financial gain, donations requests are ok but can not be demanded or required. Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
-please read the steam EULA and understand that game modding is a common concept.
+Notice: We have StarDrive developer's publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions.
+Do not use this for immoral or personal financial gain, donation requests are ok but can not be demanded or required.
+Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
+Please read the steam EULA and understand that game modding is a common concept.
 http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c365163686048069513
 http://store.steampowered.com/eula/eula_39190
 
@@ -13,14 +19,12 @@ Feel free to drop in for questions, bug reports, requests and what not.
 [For general mod information, installation instructions, and download please go to the ModDB page.](http://www.moddb.com/mods/deveks-mod)
 
 # Goals #
-The current goal of BlackBox Texas is code refactoring and stability improvements.
-
-* 5000 ships in game
-* 3x speed at 20 fps minimum when zoomed out on galactic map without force full simulation on. 
-* 1000 planets
-
-Once Texas refactor has been complete, improvements to combat, smarter AI and a basic Storyline has been planned.
-
+The current goal of BlackBox - Hyperion are:
+* More Performance Improvements
+* Gas Giant mining operations
+* Tradable resources
+* Racial planet preferences
+* New mesh, texture and shader loading system for stability
 
 ### How do I get set up for Development? ###
 
