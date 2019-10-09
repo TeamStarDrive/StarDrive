@@ -49,11 +49,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 DamageColonyShields(bomb);
             else
             {
-                P.ApplyBombEnvEffects(bomb.PopKilled);
-                bomb.SurfaceImpactEffects();
                 var orbitalDrop = new OrbitalDrop
                 {
-                    Target = SelectTargetTile(bomb),
+                    TargetTile = SelectTargetTile(bomb),
                     Surface = P
                 };
 
@@ -65,7 +63,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     return;
                 }
 
-                bomb.ResolveSpecialBombActions(P);
+				bomb.ResolveSpecialBombActions(P); // This is for "Free Owlwoks" bomb
             }
         }
 

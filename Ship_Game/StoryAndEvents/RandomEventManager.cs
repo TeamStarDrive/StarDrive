@@ -46,7 +46,7 @@ namespace Ship_Game
                     Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
                     if (toImprove.IsExploredBy(EmpireManager.Player))
                     {
-                        toImprove.TerraformExternal(0.5f);
+                        toImprove.AddMaxBaseFertility(0.5f);
                         string txt = toImprove.Name + Localizer.Token(4011);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
                             txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);
@@ -67,12 +67,8 @@ namespace Ship_Game
                     Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
                     if (toImprove.IsExploredBy(EmpireManager.Player))
                     {
-                        toImprove.TerraformExternal(-0.5f);
+                        toImprove.AddMaxBaseFertility(-0.5f);
                         toImprove.MaxPopBase *= 0.65f;
-                        if (toImprove.Population > toImprove.MaxPopulation)
-                        {
-                            toImprove.Population = toImprove.MaxPopulation;
-                        }
                         string txt = toImprove.Name + Localizer.Token(4012);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
                             txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);
@@ -90,18 +86,18 @@ namespace Ship_Game
 
                 if (potentials.Count > 0)
                 {
-                    Planet targetplanet = potentials[RandomMath.InRange(potentials.Count)];
-                    if (targetplanet.IsExploredBy(EmpireManager.Player))
+                    Planet targetPlanet = potentials[RandomMath.InRange(potentials.Count)];
+                    if (targetPlanet.IsExploredBy(EmpireManager.Player))
                     {
                         float sizeOfMeteor = RandomMath.RandomBetween(1, 3) / 10;
-                        targetplanet.TerraformExternal(-sizeOfMeteor);
-                        targetplanet.MineralRichness += sizeOfMeteor * 2;
+                        targetPlanet.AddMaxBaseFertility(-sizeOfMeteor);
+                        targetPlanet.MineralRichness += sizeOfMeteor * 2;
 
-                        string eventtext = targetplanet.Name + Localizer.Token(4105);
+                        string eventText = targetPlanet.Name + Localizer.Token(4105);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            eventtext, targetplanet.Type.IconPath, "SnapToPlanet", targetplanet);
+                            eventText, targetPlanet.Type.IconPath, "SnapToPlanet", targetPlanet);
                     }
-                    else Log.Info($"Something horrible would have happened to '{targetplanet.Name}' but it was on a planet the player hasn't discovered yet.");
+                    else Log.Info($"Something horrible would have happened to '{targetPlanet.Name}' but it was on a planet the player hasn't discovered yet.");
                 }
             }
         }

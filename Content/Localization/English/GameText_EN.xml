@@ -888,7 +888,7 @@
     </Token>
     <Token>
       <Index>219</Index>
-      <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time.</Text>
+      <Text>Indicates how much food this planet will produce per assigned colonist per turn (a turn is .1 StarDate). Some building or environmental effects might increase or decrease the maximum value, in which case the current value will gradually match the max value over time. The number in parentheses indicates the fertility modifier of this colony, based on your empire's suitable environments.</Text>
     </Token>
     <Token>
       <Index>221</Index>
@@ -1495,11 +1495,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>407</Index>
-      <Text>Biospheres are special, highly adaptable living habitats. Biospheres may only be built on Uninhabitable terrain; in doing so, the terrain becomes habitable, and the planet gains .1 to its maximum population. Economic buildings can thereafter be built underneath the biosphere.</Text>
+      <Text>Biospheres are special, highly adaptable living habitats. Biospheres may only be built on Uninhabitable terrain; in doing so, the terrain becomes habitable and the planet gains max population based on the Colonists per Tile. Economic buildings can thereafter be built underneath the biosphere.</Text>
     </Token>
     <Token>
       <Index>408</Index>
-      <Text>+.1b population cap; turns inhabitable squares into habitable squares</Text>
+      <Text>+ population per tile; turns inhabitable tiles into habitable tiles</Text>
     </Token>
     <Token>
       <Index>409</Index>
@@ -1695,11 +1695,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire.After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
     </Token>
     <Token>
       <Index>463</Index>
-      <Text>Slowly terraforms planet</Text>
+      <Text>Slowly terraforms the planet to your Empire's preferred Environment</Text>
     </Token>
     <Token>
       <Index>464</Index>
@@ -2477,7 +2477,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>683</Index>
-      <Text>Terraforming</Text>
+      <Text>Terraforming Planet</Text>
     </Token>
     <Token>
       <Index>685</Index>
@@ -4687,6 +4687,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1919</Index>
+      <Text>Removing Biospheres</Text>
+    </Token>
+    <Token>
+      <Index>1920</Index>
+      <Text>Was Terraformed to a new heaven. \nYour Terraformers will now remove all Biospheres  \nfrom the planet and will be scrapped when the  \nprocess is complete.</Text>
+    </Token>
+    <Token>
+      <Index>1921</Index>
+      <Text> prosper in Terran worlds and will terraform other environments to Terran worlds if possible.</Text>
+    </Token>
+    <Token>
+      <Index>1929</Index>
+      <Text>Population (in Billions) vs. Max Population available for your Empire. Percentage indicates how full the colony is. Lower Max Population than the current population means that the current Race occupying this planet is better suited to the environment than your Empire.</Text>
+    </Token>
+    <Token>
       <Index>1941</Index>
       <Text>Governor Will Not Scrap Buildings</Text>
     </Token>
@@ -4812,7 +4828,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1972</Index>
-      <Text>environment was improved due to Terraforming.</Text>
+      <Text>Terraforming A Tile</Text>
     </Token>
     <Token>
       <Index>1973</Index>
@@ -6469,7 +6485,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>420</Index>
-      <Text>+ production equal to 4x planetary richness; -2 fertility</Text>
+      <Text> (-2) fertility on build, + production equal to 4x planetary richness; </Text> <!-- fertility is dynamic per race-->
     </Token>
     <Token>
       <Index>414</Index>
@@ -6477,7 +6493,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>925</Index>
-      <Text>This module contains all of the equipment, food, and colonists neccessary to start a new colony on a distant world, including a small number of colonists as well as 2 food and 2 production to jump start their efforts. \n \nColonizing a planet will consume the ship used to colonize. </Text>
+      <Text>This module contains all of the equipment, food, and colonists neccassery to start a new colony on a distant world, including a small number of colonists as well as 2 food and 2 production to jump start their efforts. \n \nColonizing a planet will consume the ship used to colonize. </Text>
     </Token>
     <Token>
       <Index>987</Index>

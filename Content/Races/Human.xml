@@ -22,6 +22,16 @@
   <TroopNameIndex>2083</TroopNameIndex>
   <TroopDescriptionIndex>2092</TroopDescriptionIndex>
 
+  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
+  <EnvTerran>1</EnvTerran>
+  <EnvOceanic>1</EnvOceanic>
+  <EnvSteppe>1</EnvSteppe>
+  <EnvTundra>1</EnvTundra>
+  <EnvSwamp>1</EnvSwamp>
+  <EnvDesert>1</EnvDesert>
+  <EnvIce>1</EnvIce>
+  <EnvBarren>1</EnvBarren>
+  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
   
   <Traits>
     <Name>The United Federation</Name>
@@ -75,6 +85,7 @@
 	<HistoryTraitHonest>false</HistoryTraitHonest> 										<!--(-2)-->
 	<HistoryTraitHugeHomeWorld>false</HistoryTraitHugeHomeWorld>			 			<!--( 3)-->
 	<HistoryTraitSmallHomeWorld>false</HistoryTraitSmallHomeWorld>						<!--(-3)-->
+  <PreferredEnvDescription>1921</PreferredEnvDescription>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

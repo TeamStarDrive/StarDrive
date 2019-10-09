@@ -77,6 +77,7 @@ namespace Ship_Game
         private readonly SpriteFont Font8 = Fonts.Arial8Bold;
         private readonly SpriteFont Font12 = Fonts.Arial12Bold;
         private readonly SpriteFont Font20 = Fonts.Arial20Bold;
+        private readonly Empire Player     = EmpireManager.Player;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
         {
@@ -267,6 +268,7 @@ namespace Ship_Game
             {
                 if (!pgs.Habitable)
                     batch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
+
                 batch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
                 if (pgs.building != null)
                 {
@@ -276,13 +278,17 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.WhiteSmoke);
                     }
                     else
-                    
                     batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.White);
                 }
                 else if (pgs.QItem != null)
                 {
                     Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.QItem.Building.Icon + "_64x64"), destinationRectangle2, new Color(255, 255, 255, 128));
+                }
+
+                if (pgs.Biosphere && P.Owner != null)
+                {
+	                batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.5f));
                 }
                 DrawPGSIcons(pgs);
             }
@@ -350,21 +356,39 @@ namespace Ship_Game
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
-            if (P.Fertility.AlmostEqual(P.MaxFertility))
-                batch.DrawString(Font12, P.Fertility.String(2), position3, color);
+            string fertility;
+            if (P.Fertility(Player).AlmostEqual(P.MaxFertility(Player)))
+            {
+                fertility = P.Fertility(Player).String(2);
+                batch.DrawString(Font12, fertility, position3, color);
+            }
             else
             {
-                Color fertColor = P.Fertility < P.MaxFertility ? Color.LightGreen : Color.Pink;
-                batch.DrawString(Font12, $"{P.Fertility.String(2)} / {P.MaxFertility.String(2)}", position3, fertColor);
+                Color fertColor = P.Fertility(Player) < P.MaxFertility(Player) ? Color.LightGreen : Color.Pink;
+                fertility = $"{P.Fertility(Player).String(2)} / {P.MaxFertility(Player).String(2)}";
+                batch.DrawString(Font12, fertility, position3, fertColor);
             }
-
+            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
+			if (!fertEnvMultiplier.AlmostEqual(1))
+			{
+				Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
+				Vector2 fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y);
+				batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
+			}
             if (P.TerraformPoints > 0)
             {
-                Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 4.4f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
-                batch.DrawString(Font12, $"{Localizer.Token(683)} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, Color.White);
+				Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
+				string terraformText = Localizer.Token(683); // Terraform Planet is the default text
+				if (P.TilesToTerraform)
+					terraformText  = Localizer.Token(1972);
+				else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertility(Player).AlmostEqual(P.TerraformTargetFertility))
+					terraformText = Localizer.Token(1919);
+
+				Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
+                batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
             }
 
-            if (P.NumIncomingFreighters > 0 && P.Owner.isPlayer)
+            if (P.NumIncomingFreighters > 0 && P.Owner?.isPlayer == true)
             {
                 Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
                 Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
@@ -384,7 +408,7 @@ namespace Ship_Game
                 batch.DrawString(Font12, $"{P.IncomingColonistsFreighters}", incomingData, Color.White);
             }
 
-            if (P.NumOutgoingFreighters > 0 && P.Owner.isPlayer)
+            if (P.NumOutgoingFreighters > 0 && P.Owner?.isPlayer == true)
             {
                 Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
                 Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
@@ -755,6 +779,8 @@ namespace Ship_Game
 
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
+	        DrawBuildingInfo(ref cursor, batch, P.MaxPopBase * Player.RacialEnvModifer(P.Category) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
+	        DrawBuildingInfo(ref cursor, batch, P.MaxPopBase / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
@@ -775,7 +801,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.PlusFlatResearchAmount, "NewUI/icon_science", Localizer.Token(357));
             DrawBuildingInfo(ref bCursor, batch, b.PlusResearchPerColonist, "NewUI/icon_science", Localizer.Token(358));
             DrawBuildingInfo(ref bCursor, batch, b.PlusTaxPercentage * 100, "NewUI/icon_money", Localizer.Token(359), percent: true);
-            DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuild, "NewUI/icon_food", Localizer.Token(360));
+            DrawBuildingInfo(ref bCursor, batch, b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category), "NewUI/icon_food", Localizer.Token(360));
             DrawBuildingInfo(ref bCursor, batch, b.PlanetaryShieldStrengthAdded, "NewUI/icon_planetshield", Localizer.Token(361));
             DrawBuildingInfo(ref bCursor, batch, b.CreditsPerColonist, "NewUI/icon_money", Localizer.Token(362));
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
@@ -802,23 +828,52 @@ namespace Ship_Game
             }
         }
 
+        public float PositiveTerraformTargetFertility()
+        {
+			var buildingList = P.BuildingList.Filter(b => b.MaxFertilityOnBuild > 0);
+			float positiveFertilityOnBuild = buildingList.Sum(b => b.MaxFertilityOnBuild);
+
+			return 1 + positiveFertilityOnBuild / Player.RacialEnvModifer(Player.data.PreferredEnv);
+		}
+
         string TerraformPotential(out Color color)
         {
-            color = Color.Red;
-            float targetFertility = P.TerraformTargetFertility;
-            if (P.MaxFertility.GreaterOrEqual(targetFertility)) // planet is fertile enough
-                return Localizer.Token(1970);
+            color                       = Color.LightGreen;
+			float targetFertility       = PositiveTerraformTargetFertility();
+			int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
+			int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
+			int numNegativeEnvBuildings = P.BuildingList.Count(b => b.MaxFertilityOnBuild < 0);
+			float minEstimatedMaxPop    = P.TileArea * P.MaxPopBase * Player.RacialEnvModifer(Player.data.PreferredEnv) 
+			                              + P.BuildingList.Sum(b => b.MaxPopIncrease);
 
-            if (targetFertility.LessOrEqual(0)) // too many bad env affecting buildings
-                return Localizer.Token(1969);
+			string text = "Terraformer Process Stages: ";
+			string initialText = text;
 
-            if (targetFertility.Less(1)) // not full potential due to bad env buildings
+			if (numNegativeEnvBuildings > 0) // not full potential due to bad env buildings
+				text += $"Scrap {numNegativeEnvBuildings} environment degrading buildings. ";
+
+			if (numUninhabitableTiles > 0)
+				text += $"Make {numUninhabitableTiles} tiles habitable. ";
+
+			if (P.Category != Player.data.PreferredEnv)
+				text += $"Terraform the planet to {Player.data.PreferredEnv.ToString()}. ";
+
+			if (numBiospheres > 0)
+				text += $"Remove {numBiospheres} Biospheres. ";
+
+			if (minEstimatedMaxPop > P.MaxPopulation(Player))
+				text += $"Increase Population to a minimum of {(minEstimatedMaxPop / 1000).String(2)} Billion colonists. ";
+
+			if (targetFertility.Greater(P.MaxFertility(Player))) // better new fertility max
+				text += $"Fertility will be changed to {targetFertility}.";
+
+			if (text == initialText)
             {
                 color = Color.Yellow;
-                return Localizer.Token(1968) + " " + targetFertility.String(2) + ", " + Localizer.Token(1967);
+				text = "Terraformers will have no effect on this planet.";
             }
-            color = Color.LightGreen;
-            return Localizer.Token(1968) + " " + targetFertility.String(2) + ".";
+
+			return text;
         }
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture, 

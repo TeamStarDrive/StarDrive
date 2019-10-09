@@ -202,6 +202,17 @@ namespace Ship_Game
         [Serialize(94)] public byte ThrustColor1G;
         [Serialize(95)] public byte ThrustColor1B;
 
+        // FB - Environment
+        [Serialize(100)] public float EnvTerran;
+        [Serialize(101)] public float EnvOceanic;
+        [Serialize(102)] public float EnvSteppe;
+        [Serialize(103)] public float EnvTundra;
+        [Serialize(104)] public float EnvSwamp;
+        [Serialize(105)] public float EnvDesert;
+        [Serialize(106)] public float EnvIce;
+        [Serialize(107)] public float EnvBarren;
+        [Serialize(108)] public PlanetCategory PreferredEnv;
+
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
 
         public override string ToString() => $"Name: {Name} ShipType: {ShipType}";

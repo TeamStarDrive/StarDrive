@@ -43,7 +43,7 @@ namespace Ship_Game.Universe.SolarBodies
                     value = 0f;
                 }
 
-                PopValue = value.Clamped(0f, Ground.MaxPopulation);
+                PopValue = Math.Max(0f, value);
             }
         }
 
@@ -54,7 +54,7 @@ namespace Ship_Game.Universe.SolarBodies
         public float RaceFoodRatio => RaceFood / Max;
         public float FoodRatio => FoodValue / Max;
         public float ProdRatio => ProdValue / Max;
-        public float PopRatio  => PopValue  / Ground.MaxPopulation;
+        public float PopRatio  => Ground.MaxPopulation(Ground.Owner).AlmostZero() ? 0 : PopValue  / Ground.MaxPopulation(Ground.Owner);
 
         public void AddCommodity(string goodId, float amount)
         {
