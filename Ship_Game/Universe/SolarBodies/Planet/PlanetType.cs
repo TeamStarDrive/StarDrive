@@ -22,9 +22,9 @@ namespace Ship_Game
         [StarData] public readonly bool EarthLike;
         [StarData] public readonly bool Habitable;
         [StarData] public readonly Range HabitableTileChance = new Range(minMax:20);
-        [StarData] public readonly Range MaxPop;
-        [StarData] public readonly Range Fertility;
-        [StarData] public readonly float MinFertility; // Clamp(MinFertility, float.Max)
+        [StarData] public readonly Range PopPerTile;
+        [StarData] public readonly Range BaseFertility;
+        [StarData] public readonly float MinBaseFertility; // Clamp(MinFertility, float.Max)
         [StarData] public readonly float Scale = 0f;
 
         public override string ToString() => $"PlanetType {Id} {Category} {IconPath} {MeshPath}";

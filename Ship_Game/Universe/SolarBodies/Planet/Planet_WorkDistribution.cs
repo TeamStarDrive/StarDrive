@@ -135,7 +135,7 @@ namespace Ship_Game
 
         float LeftoverWorkerBillions()
         {
-            return LeftoverWorkers() * MaxPopulationBillion;
+            return LeftoverWorkers() * MaxPopulationBillion(Owner);
         }
 
         float EvaluateProductionQueue()

@@ -269,7 +269,6 @@ namespace Ship_Game
 
             string rangeText = $"Range: {w.BaseRange.String(0)}";
             float textWidth  = Fonts.Arial8Bold.TextWidth(rangeText);
-
             batch.DrawString(Fonts.Arial8Bold, rangeText,
                 textPos + offset, color.Alpha(0.4f),
                 textRot, new Vector2(textWidth / 2, 10f), 1f, SpriteEffects.None, 1f);

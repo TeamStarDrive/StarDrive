@@ -195,7 +195,7 @@ namespace Ship_Game
         public float FoodProduced(Planet planet)
         {
             if (planet.NonCybernetic)
-                return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility);
+                return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility(planet.Owner));
             return ProductionProduced(planet);
         }
 
@@ -264,7 +264,7 @@ namespace Ship_Game
         public void ScrapBuilding(Planet p)
         {
             if (MaxFertilityOnBuild > 0)
-                p.AddMaxFertility(-MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnbuild when scraping
+                p.AddMaxBaseFertility(-MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnBuild when scrapping
 
             p.BuildingList.Remove(this);
             p.ProdHere += ActualCost / 2f;
@@ -281,7 +281,7 @@ namespace Ship_Game
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.AddMaxFertility(MaxFertilityOnBuild); 
+            p.AddMaxBaseFertility(MaxFertilityOnBuild); 
             p.BuildingList.Add(this);
             if (IsSpacePort)
             {

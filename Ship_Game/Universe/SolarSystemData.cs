@@ -14,13 +14,13 @@ namespace Ship_Game
             public string Asteroids; //true or false.
             public string HasRings; //Planet has rings.
             public bool HomePlanet; //is an empire home planet. 
-            public float planetScale; //1 or 0 is normal. larger or smaller than 1 increases or decreses planet size. 
+            public float planetScale; //1 or 0 is normal. larger or smaller than 1 increases or decreases planet size. 
             public string Owner; //who ones the planet. 
             public string Station; //Has a space port
-            public Array<Moon> Moons; //an arrary of moons.
+            public Array<Moon> Moons; //an array of moons.
             public Array<string> BuildingList; //buildings on planet.
-            public Array<string> Guardians; //ships that gaurd it. 
-            public float MaxPopDefined; 
+            public Array<string> Guardians; //ships that guard it. 
+            public float MaxPopDefined; // pop per tile, disregarding planet scale
             //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
             public bool UniqueHabitat; 
             public int UniqueHabPC;

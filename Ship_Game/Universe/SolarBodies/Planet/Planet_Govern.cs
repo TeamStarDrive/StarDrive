@@ -327,7 +327,7 @@ namespace Ship_Game
             else if (Owner.Money < 1000)
                 rank -= 1;
 
-            if (MaxPopulationBillion.LessOrEqual(3))
+            if (MaxPopulationBillion(Owner).LessOrEqual(3))
                 rank -= 2;
 
             switch (colonyType)
@@ -487,8 +487,8 @@ namespace Ship_Game
             get
             {
                 float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
-                if (MaxPopulationBillion < 2)
-                    debtTolerance += 2f - MaxPopulationBillion;
+                if (MaxPopulationBillion(Owner) < 2)
+                    debtTolerance += 2f - MaxPopulationBillion(Owner);
 
                 return debtTolerance;
             }

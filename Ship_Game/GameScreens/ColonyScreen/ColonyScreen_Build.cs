@@ -86,6 +86,17 @@ namespace Ship_Game
 
         #endregion
 
+		string BuildingShortDescription(Building b)
+		{
+			string fertilityChange = "";
+			if (b.MaxFertilityOnBuild.Greater(0))
+				fertilityChange = $"+{b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category)}";
+			else if (b.MaxFertilityOnBuild.Less(0))
+				fertilityChange = $"{b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category)}";
+
+			return $"{fertilityChange} {Localizer.Token(b.ShortDescriptionIndex)}";
+		}
+
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
             if (ShouldResetBuildList<Building>() || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
@@ -101,8 +112,7 @@ namespace Ship_Game
                 bool unprofitable = !P.WeCanAffordThis(b, P.colonyType) && b.Maintenance > 0f;
                 Color buildColor = unprofitable ? new Color(255,200,200) : Color.White;
                 if (entry.Hovered) buildColor = Color.White; // hover color
-
-                string descr = Localizer.Token(b.ShortDescriptionIndex) + (unprofitable ? " (unprofitable)" : "");
+                string descr = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
                 descr = Font8.ParseText(descr, 280f);
 
                 var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);

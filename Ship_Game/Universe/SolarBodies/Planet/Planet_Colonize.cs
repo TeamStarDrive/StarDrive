@@ -19,7 +19,7 @@ namespace Ship_Game
             Owner.AddPlanet(this);
             SetExploredBy(Owner);
             CreateStartingEquipment(colonyShip);
-            AddMaxFertility(Owner.data.EmpireFertilityBonus);
+            AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
             Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
             NewColonyAffectRelations();

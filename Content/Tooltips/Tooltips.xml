@@ -1275,5 +1275,10 @@
       <Title>Define Trade Routes</Title>
       <Data>1944</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>254</TIP_ID>
+      <Title>Population vs. Max Population</Title>
+      <Data>1929</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

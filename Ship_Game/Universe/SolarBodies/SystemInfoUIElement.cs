@@ -264,7 +264,7 @@ namespace Ship_Game
                             HelperFunctions.ClampVectorToInt(ref pt);
                             if (p.Owner == null || p.Owner != EmpireManager.Player)
                             {
-                                ScreenManager.SpriteBatch.DrawString(DataFont, p.Fertility.String(), ft, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, p.Fertility(EmpireManager.Player).String(), ft, tColor);
                                 ScreenManager.SpriteBatch.DrawString(DataFont, p.MineralRichness.String(), pt, tColor);
                             }
                             else

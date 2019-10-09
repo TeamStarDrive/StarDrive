@@ -252,30 +252,9 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnHomeWorld(Planet home, PlanetType type)
+        public void SpawnHomeWorld(Planet home, PlanetType type) // FB: seems to me this is only used in Dev Sandbox
         {
-            home.Owner = this;
-            Capital    = home;
-            AddPlanet(home);
-            home.GenerateNewHomeWorld(type);
-            home.InitializeWorkerDistribution(this);
-            home.SetFertilityMinMax(2f + data.Traits.HomeworldFertMod);
-            home.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            home.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;
-            home.Population      = 14000f;
-            home.FoodHere        = 100f;
-            home.ProdHere        = 100f;
-            home.HasSpacePort     = true;
-            home.AddGood("ReactorFuel", 1000); // WTF?
-            ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(home);
-            ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(home);
-            if (GlobalStats.HardcoreRuleset)
-            {
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(home);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(home);
-                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(home);
-                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(home);
-            }
+            //home.GenerateNewHomeWorld(type);
         }
 
         public void SetRallyPoints()
@@ -344,6 +323,24 @@ namespace Ship_Game
             }
             return planets;
         }
+
+        public float RacialEnvModifer(PlanetCategory category)
+        {
+            float modifer = 1f; // If no Env tags were found, the multiplier is 1.
+            switch (category)
+            {
+                case PlanetCategory.Terran:  modifer = data.EnvTerran;  break;
+                case PlanetCategory.Oceanic: modifer = data.EnvOceanic; break;
+                case PlanetCategory.Steppe:  modifer = data.EnvSteppe;  break;
+                case PlanetCategory.Tundra:  modifer = data.EnvTundra;  break;
+                case PlanetCategory.Swamp:   modifer = data.EnvSwamp;   break;
+                case PlanetCategory.Desert:  modifer = data.EnvDesert;  break;
+                case PlanetCategory.Ice:     modifer = data.EnvIce;     break;
+                case PlanetCategory.Barren:  modifer = data.EnvBarren;  break;
+            }
+
+			return modifer;
+		}
 
         public Planet GetNearestUnOwnedPlanet()
         {
@@ -1680,9 +1677,9 @@ namespace Ship_Game
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)
         {
-            float fertility = p.Fertility;
+            float fertility = p.Fertility(this);
             float richness = p.MineralRichness;
-            float pop = p.MaxPopulationBillion;
+            float pop = p.MaxPopulationBillion(this);
             if (IsCybernetic)
                  fertility = richness;
             if (richness >= 1.0f && fertility >= 1 && pop > 7)
@@ -1708,41 +1705,42 @@ namespace Ship_Game
             float researchPotential = 0.0f;
             float fertility         = 0.0f;
             float militaryPotential = 0.0f;
+            float maxPopBillion     = p.MaxPopulationBillion(this);
 
             if (p.MineralRichness > .50f)
             {
-                mineralWealth += p.MineralRichness + p.MaxPopulationBillion;
+                mineralWealth += p.MineralRichness + maxPopBillion;
             }
             else
                 mineralWealth += p.MineralRichness;
 
-            if (p.MaxPopulation > 1000)
+            if (maxPopBillion > 1)
             {
-                researchPotential += p.MaxPopulationBillion;
+                researchPotential += maxPopBillion;
                 if (IsCybernetic)
                 {
                     if (p.MineralRichness > 1)
-                        popSupport += p.MaxPopulationBillion + p.MineralRichness;
+                        popSupport += maxPopBillion + p.MineralRichness;
                 }
                 else
                 {
-                    if (p.Fertility > 1f)
+                    if (p.Fertility(this) > 1f)
                     {
                         if (p.MineralRichness > 1)
-                            popSupport += p.MaxPopulationBillion + p.Fertility + p.MineralRichness;
-                        fertility += p.Fertility + p.MaxPopulationBillion;
+                            popSupport += maxPopBillion + p.Fertility(this) + p.MineralRichness;
+                        fertility += p.Fertility(this) + maxPopBillion;
                     }
                 }
             }
             else
             {
-                militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
-                if (p.MaxPopulation >=500)
+                militaryPotential += fertility + p.MineralRichness + maxPopBillion;
+                if (maxPopBillion >= 0.5)
                 {
 
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
-                                            * (p.Fertility*2 + p.MineralRichness + (p.MaxPopulation / 500));
+                                            * (p.Fertility(this)*2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
             }
 
@@ -2303,7 +2301,7 @@ namespace Ship_Game
             }
             foreach (Planet planet in OwnedPlanets)
             {
-                ExpansionScore += (float)(planet.Fertility + (double)planet.MineralRichness + planet.PopulationBillion);
+                ExpansionScore += (float)(planet.Fertility(this) + (double)planet.MineralRichness + planet.PopulationBillion);
                 foreach (Building building in planet.BuildingList)
                     IndustrialScore += building.ActualCost / 20f;
             }
@@ -2573,7 +2571,7 @@ namespace Ship_Game
             for (int i = 0; i < list.Count; i++)
             {
                 Planet planet = list[i];
-                planet.AddMaxFertility(amount);
+                planet.AddMaxBaseFertility(amount);
             }
         }
 

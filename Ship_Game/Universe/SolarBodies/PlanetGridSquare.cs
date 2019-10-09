@@ -15,7 +15,7 @@ namespace Ship_Game
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
 		public bool Biosphere;
 		public Building building;
-		public bool Habitable;
+		public bool Habitable; // FB - this also affects max population (because of pop per habitalbe tile)
 		public QueueItem QItem;
 		public Rectangle ClickRect      = new Rectangle();
 		public Rectangle TroopClickRect = new Rectangle();
@@ -57,26 +57,32 @@ namespace Ship_Game
             if (QItem != null)
                 return false;
 
-            if (b.IsBiospheres && (Biosphere || Habitable))
-                return false; // don't allow double biosphere
+            if (b.IsBiospheres && Habitable)
+                return false; // don't allow biospheres on habitable tiles (including tiles with biospheres)
 
-            return !Habitable && b.CanBuildAnywhere
-                 || Habitable && building == null;
+            return !Habitable && b.CanBuildAnywhere && !BuildingOnTile
+                 || Habitable && NoBuildingOnTile;
         }
 
-        public void PlaceBuilding(Building b)
+        public void PlaceBuilding(Building b, Planet p)
         {
             if (b.IsBiospheres)
             {
+				if (Habitable)
+				{
+					QItem = null;
+					return; // Tile was Habitable when Biospheres completed. Probably due to Terraforming
+				}
+
                 Habitable = true;
                 Biosphere = true;
                 building = null;
             }
             else
-            {
                 building = b;
-            }
+
             QItem = null;
+            b.OnBuildingBuiltAt(p);
         }
 
         public bool PerformAutoCombat(Planet p)

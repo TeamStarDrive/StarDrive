@@ -111,7 +111,7 @@ namespace Ship_Game.AI
             Owner.loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
-            importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);
+            importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation(importPlanet.Owner) - importPlanet.Population);
 
             // If we did not unload all cargo, its better to build faster smaller cheaper freighters
             FreighterPriority freighterPriority = fullBeforeUnload && Owner.CargoSpaceUsed.AlmostZero()
