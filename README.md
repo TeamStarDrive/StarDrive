@@ -35,11 +35,11 @@ The current goals of BlackBox - Hyperion are:
     * Workloads Module: .NET desktop development
     * Workloads Module: Desktop development with C++
     * Workloads Module: Game development with C++
-* Install [SourceTree](https://www.sourcetreeapp.com/) or some other Mercurial client. 
-    * Configure SourceTree: Tools->Options->Mercurial: [v] Allow Git Subrepositories
+* Install [SourceTree](https://www.sourcetreeapp.com/) or some other GIT client. 
+    * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
 * Switch to DEVELOP branch, which is our main branch for latest ongoing development.
-* Copy the original StarDrive game files to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
+* Copy the original StarDrive game folder to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
 * Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to VS2019 installer and enable Desktop development with C++
@@ -57,7 +57,7 @@ The current goals of BlackBox - Hyperion are:
 * Use [BitBucket issues](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new) to propose new ideas. 
 * Check [BitBucket Cards](http://www.bitbucketcards.com/CrunchyGremlin/sd-blackbox#) for current projects and needs
 * Code in the **guest branch** at first.
-* When given the OK use HG flow to create Feature branches for your goal. 
+* When given the OK use GIT flow to create Feature branches for your goal. 
 * Comment your code so people can see what you are changing
 * Use clean code as much as possible.
 
