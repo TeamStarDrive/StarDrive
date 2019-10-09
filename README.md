@@ -9,7 +9,8 @@ The current release is BlackBox - Venus and upcoming version is BlackBox - Hyper
 
 Notice: We have StarDrive developer's publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions.
 Do not use this for immoral or personal financial gain, donation requests are ok but can not be demanded or required.
-Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
+Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam.
+
 Please read the steam EULA and understand that game modding is a common concept.
 http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c365163686048069513
 http://store.steampowered.com/eula/eula_39190
@@ -18,13 +19,15 @@ Feel free to drop in for questions, bug reports, requests and what not.
 
 [For general mod information, installation instructions, and download please go to the ModDB page.](http://www.moddb.com/mods/deveks-mod)
 
-# Goals #
-The current goal of BlackBox - Hyperion are:
+# BlackBox - Hyperion #
+The current goals of BlackBox - Hyperion are:
+
 * More Performance Improvements
 * Gas Giant mining operations
 * Tradable resources
 * Racial planet preferences
-* New mesh, texture and shader loading system for stability
+* New mesh, texture and shader loading system
+* More stability improvements
 
 ### How do I get set up for Development? ###
 
@@ -32,11 +35,13 @@ The current goal of BlackBox - Hyperion are:
     * Workloads Module: .NET desktop development
     * Workloads Module: Desktop development with C++
     * Workloads Module: Game development with C++
-* Install [SourceTree](https://www.sourcetreeapp.com/) or some other Mercurial client. 
-    * Configure SourceTree: Tools->Options->Mercurial: [v] Allow Git Subrepositories
+* Install [SourceTree](https://www.sourcetreeapp.com/) or some other GIT client. 
+    * Configure SourceTree: Tools->Options->Git: [v] Perform submodule actions recursively
 * [Clone](https://confluence.atlassian.com/sourcetreekb/clone-a-repository-into-sourcetree-780870050.html) this repository to a local directory, for example: C:/Projects/BlackBox
+    * Advanced Options When cloning: [v] Recurse submodules (Important!)
+    * Advanced Options When cloning: Checkout branch: develop  Clone Depth 0
 * Switch to DEVELOP branch, which is our main branch for latest ongoing development.
-* Copy the original StarDrive game files to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
+* Copy the original StarDrive game folder to repository root. For example: C:/Projects/BlackBox/StarDrive/StarDrive.exe
 * Launch Visual Studio, any missing DLL references should be in BlackBox/StarDrive directory.
 * Launch a full build (Build -> Build Solution) to produce the BlackBox StarDrive executable.
     * If you get this build error: "Windows 10 SDK is not installed", then you need to go back to VS2019 installer and enable Desktop development with C++
@@ -54,7 +59,7 @@ The current goal of BlackBox - Hyperion are:
 * Use [BitBucket issues](https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new) to propose new ideas. 
 * Check [BitBucket Cards](http://www.bitbucketcards.com/CrunchyGremlin/sd-blackbox#) for current projects and needs
 * Code in the **guest branch** at first.
-* When given the OK use HG flow to create Feature branches for your goal. 
+* When given the OK use GIT flow to create Feature branches for your goal. 
 * Comment your code so people can see what you are changing
 * Use clean code as much as possible.
 
