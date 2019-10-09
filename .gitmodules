@@ -1,0 +1,6 @@
+[submodule "SDNative/ReCpp"]
+	path = SDNative/ReCpp
+	url = https://github.com/RedFox20/ReCpp.git
+[submodule "SDNative/NanoMesh"]
+	path = SDNative/NanoMesh
+	url = https://github.com/RedFox20/NanoMesh.git
