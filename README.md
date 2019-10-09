@@ -9,7 +9,8 @@ The current release is BlackBox - Venus and upcoming version is BlackBox - Hyper
 
 Notice: We have StarDrive developer's publicly and privately stated approval for modifying the game for educational purposes but this software is still under the steam license restrictions.
 Do not use this for immoral or personal financial gain, donation requests are ok but can not be demanded or required.
-Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam. 
+Do not attempt to circumvent game DRM. Be reasonably respectful of the dev and the original software and steam.
+
 Please read the steam EULA and understand that game modding is a common concept.
 http://steamcommunity.com/app/252450/discussions/0/385428458177062745/#c365163686048069513
 http://store.steampowered.com/eula/eula_39190
@@ -18,13 +19,15 @@ Feel free to drop in for questions, bug reports, requests and what not.
 
 [For general mod information, installation instructions, and download please go to the ModDB page.](http://www.moddb.com/mods/deveks-mod)
 
-# Goals #
-The current goal of BlackBox - Hyperion are:
+# BlackBox - Hyperion #
+The current goals of BlackBox - Hyperion are:
+
 * More Performance Improvements
 * Gas Giant mining operations
 * Tradable resources
 * Racial planet preferences
-* New mesh, texture and shader loading system for stability
+* New mesh, texture and shader loading system
+* More stability improvements
 
 ### How do I get set up for Development? ###
 
