@@ -1,5 +1,5 @@
-echo %1deploy\TortoiseHg\hg.exe
-%1deploy\TortoiseHg\hg.exe id ||  exit 0
+echo git show --oneline -s
+git show --oneline -s ||  exit 0
 cd
 if not exist ..\Config exit 0
 set year=%date:~-2%
@@ -7,12 +7,12 @@ set month=%date:~4,2%
 set day=%date:~7,2%
 
 REM Get the branch name and replace release/ with empty and / with _
-for /f "delims=" %%b in ('%1\deploy\TortoiseHg\hg id -b') do set name=%%b
+for /f "delims=" %%b in ('git name-rev --name-only HEAD') do set name=%%b
 set name=%name:release/=%
 set name=%name:/=_%
 
 REM Get current revision `7912`
-for /f %%r in ('%1deploy\TortoiseHg\hg log -r . --template {rev}') do set hgrev=%%r
+for /f %%r in ('git rev-list --count HEAD') do set hgrev=%%r
 set hgrev="%name%_%hgrev%"
 echo %hgrev% > version.txt
 

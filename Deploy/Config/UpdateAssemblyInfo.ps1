@@ -2,9 +2,9 @@
 $updatefile = $false
 
 
-$name = .\Deploy\TortoiseHg\hg.exe id -b
+$name = git name-rev --name-only HEAD
 $name = $name.Replace("release/", "")
-$revision = .\Deploy\TortoiseHg\hg.exe log -r . --template `{rev`}
+$revision = git rev-list --count HEAD
 $ver = $name + "_" + $revision
 
 $newline = "`[assembly`: AssemblyInformationalVersion(`"" + $ver + "`")`]"
