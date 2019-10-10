@@ -71,10 +71,10 @@ namespace Ship_Game
             if (Empire.Universe.IsViewingCombatScreen(planet))
             {
                 GameAudio.PlaySfxAsync("Explo1");
-				((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
+                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(od.TargetTile.ClickRect, 4);
             }
-			else
-				SurfaceImpactEffects(); // If viewing the planet from space
+            else
+                SurfaceImpactEffects(); // If viewing the planet from space
         }
 
         public void ResolveSpecialBombActions(Planet planet)

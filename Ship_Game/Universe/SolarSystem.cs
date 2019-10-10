@@ -441,9 +441,9 @@ namespace Ship_Game
                 };
 
                 if (!ringData.HomePlanet || owner == null)
-					newOrbital.GeneratePlanetFromSystemData(ringData, type, scale);
-				else // home planet
-					newOrbital.GenerateNewHomeWorld(owner, ringData.MaxPopDefined);
+                    newOrbital.GeneratePlanetFromSystemData(ringData, type, scale);
+                else // home planet
+                    newOrbital.GenerateNewHomeWorld(owner, ringData.MaxPopDefined);
 
                 newOrbital.InitializePlanetMesh(null);
 
