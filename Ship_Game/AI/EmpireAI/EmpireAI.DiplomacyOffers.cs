@@ -331,7 +331,7 @@ namespace Ship_Game.AI
                     }
                     var te = new TrustEntry
                     {
-                        TrustCost = p.ColonyWorth(us),
+                        TrustCost = p.ColonyWorthTo(us),
                         TurnTimer = 40,
                         Type = TrustEntryType.Technology
                     };
@@ -379,7 +379,7 @@ namespace Ship_Game.AI
                     {
                         var te = new TrustEntry
                         {
-                            TrustCost = p.ColonyWorth(us),
+                            TrustCost = p.ColonyWorthTo(us),
                             TurnTimer = 40,
                             Type = TrustEntryType.Technology
                         };
@@ -689,7 +689,7 @@ namespace Ship_Game.AI
                     }
                     var te = new FearEntry
                     {
-                        FearCost = p.ColonyWorth(us),
+                        FearCost = p.ColonyWorthTo(us),
                         TurnTimer = 40
                     };
                     us.GetRelations(Them).FearEntries.Add(te);
@@ -737,7 +737,7 @@ namespace Ship_Game.AI
                     }
                     var te = new FearEntry
                     {
-                        FearCost = p.ColonyWorth(Them),
+                        FearCost = p.ColonyWorthTo(Them),
                         TurnTimer = 40
                     };
                     Them.GetRelations(us).FearEntries.Add(te);
@@ -878,7 +878,7 @@ namespace Ship_Game.AI
                     if (p.Name != planetName)
                         continue;
 
-                    float worth = p.ColonyWorth(us);
+                    float worth = p.ColonyWorthTo(us);
                     foreach (Building b in p.BuildingList)
                         if (b.IsCapital)
                             worth += 200f;
@@ -895,7 +895,7 @@ namespace Ship_Game.AI
                     {
                         continue;
                     }
-                    float worth = p.ColonyWorth(us);
+                    float worth = p.ColonyWorthTo(us);
                     int multiplier = 1 + p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
                     ValueToUs += worth;
@@ -1113,7 +1113,7 @@ namespace Ship_Game.AI
                 foreach (Planet p in us.GetPlanets())
                 {
                     if (p.Name == planetName)
-                        ValueFromUs += p.ColonyWorth(us);
+                        ValueFromUs += p.ColonyWorthTo(us);
                 }
             }
             Array<Planet> PlanetsToUs = new Array<Planet>();
@@ -1124,7 +1124,7 @@ namespace Ship_Game.AI
                     if (p.Name != planetName)
                         continue;
                     PlanetsToUs.Add(p);
-                    float worth = p.ColonyWorth(us);
+                    float worth = p.ColonyWorthTo(us);
                     foreach (Building b in p.BuildingList)
                         if (b.IsCapital)
                             worth += 100000f; // basically, don't let AI give away their capital too easily

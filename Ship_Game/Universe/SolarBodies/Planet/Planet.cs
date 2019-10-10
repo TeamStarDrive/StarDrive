@@ -218,13 +218,13 @@ namespace Ship_Game
             return GravityWellRadius;
         }
 
-        public float ColonyWorth(Empire toEmpire)
+        public float ColonyWorthTo(Empire empire)
         {
-            float worth = PopulationBillion + MaxPopulationBillion(toEmpire);
-            if (toEmpire.NonCybernetic)
+            float worth = PopulationBillion + MaxPopulationBillion(empire);
+            if (empire.NonCybernetic)
             {
                 worth += (FoodHere / 50f) + (ProdHere / 50f);
-                worth += FertilityFor(toEmpire)*1.5f;
+                worth += FertilityFor(empire)*1.5f;
                 worth += MineralRichness;
             }
             else // filthy Opteris
@@ -232,12 +232,16 @@ namespace Ship_Game
                 worth += (ProdHere / 25f);
                 worth += MineralRichness*2.0f;
             }
+
             foreach (Building b in BuildingList)
                 worth += b.ActualCost / 50f;
+
             if (worth < 15f)
                 worth = 15f;
-            if (toEmpire.data.EconomicPersonality.Name == "Expansionists")
+
+            if (empire.data.EconomicPersonality.Name == "Expansionists")
                 worth *= 1.35f;
+
             return worth;
         }
 
