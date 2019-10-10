@@ -493,7 +493,7 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
-                    score += + b.CreditsPerColonist * 5
+                    score += b.CreditsPerColonist * 5
                              + b.PlusTaxPercentage * 10
                              + b.MaxPopIncrease / 1000 * 2
                              + b.PlusFlatPopulation / 5
@@ -506,11 +506,12 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
                          score += 1f;
-                    score += b.PlusProdPerColonist * MineralRichness 
-                             + b.PlusFlatProductionAmount + 1
-                             + b.PlusProdPerRichness * MineralRichness
-                             + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
-                    break;
+
+                     score += b.PlusProdPerColonist * MineralRichness 
+                              + b.PlusFlatProductionAmount + 1
+                              + b.PlusProdPerRichness * MineralRichness
+                              + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
+                     break;
                 case ColonyType.Research:
                     score += b.PlusResearchPerColonist * 10
                              + b.MaxPopIncrease / 1000

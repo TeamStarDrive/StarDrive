@@ -339,8 +339,8 @@ namespace Ship_Game
                 case PlanetCategory.Barren:  modifer = data.EnvBarren;  break;
             }
 
-			return modifer;
-		}
+            return modifer;
+        }
 
         public Planet GetNearestUnOwnedPlanet()
         {
