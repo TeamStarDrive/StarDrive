@@ -48,7 +48,7 @@ namespace Ship_Game
         public float PlusFlatPopulationPerTurn;
 
         public bool HasProduction               => Prod.GrossIncome > 1.0f;
-        public float PopulationRatio           => MaxPopulation().AlmostZero() ? 0 : Storage.Population / MaxPopulation();
+        public float PopulationRatio           => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
         public Building BiospheresWeCanBuild   => BuildingsCanBuild.Find(b => b.IsBiospheres);
 		public Building TerraformersWeCanBuild => BuildingsCanBuild.Find(b => b.IsTerraformer);
 
@@ -93,10 +93,10 @@ namespace Ship_Game
                 if (needFood && Population > 2000f)
                     return GoodState.EXPORT;
 
-                if (!needFood && MaxPopulation() > 200f && PopulationRatio < 0.8f)
+                if (!needFood && MaxPopulation > 200f && PopulationRatio < 0.8f)
                     return GoodState.IMPORT;
 
-                if (MaxPopulation() > 2000 && PopulationRatio > 0.9f)
+                if (MaxPopulation > 2000 && PopulationRatio > 0.9f)
                     return GoodState.EXPORT;
 
                 return GoodState.STORE;

@@ -242,7 +242,7 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             Vector2 tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, P.Fertility(EmpireManager.Player).String(), tcurs, tColor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, P.FertilityFor(EmpireManager.Player).String(), tcurs, tColor);
             Rectangle pIcon = new Rectangle(300,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
                 ResourceManager.Texture("NewUI/icon_production").Width,
