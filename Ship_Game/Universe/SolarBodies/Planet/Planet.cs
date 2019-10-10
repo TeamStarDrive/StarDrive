@@ -91,8 +91,8 @@ namespace Ship_Game
 
 
         public float Fertility                      => FertilityFor(Owner);
-		public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-		public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
+        public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
+        public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -101,19 +101,19 @@ namespace Ship_Game
         public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
                                      .Clamped(0, TileArea);
 
-		public float MaxPopulation => MaxPopulationFor(Owner);
+        public float MaxPopulation => MaxPopulationFor(Owner);
 
-		public float MaxPopulationFor(Empire empire)
+        public float MaxPopulationFor(Empire empire)
         {
             if (!Habitable)
                 return 0;
 
-			float minimumPop = MaxPopBase + PopulationBonus; // At least a tile's worth population and any max pop bonus buildings have
-			if (empire == null)
-				return Math.Max(minimumPop, MaxPopValFromTiles + PopulationBonus);
+            float minimumPop = MaxPopBase + PopulationBonus; // At least a tile's worth population and any max pop bonus buildings have
+            if (empire == null)
+                return Math.Max(minimumPop, MaxPopValFromTiles + PopulationBonus);
 
-			return Math.Max(minimumPop, MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus);
-		}
+            return Math.Max(minimumPop, MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus);
+        }
 
         public int FreeTilesWithRebaseOnTheWay
         {
@@ -168,15 +168,15 @@ namespace Ship_Game
 
             if (owner != null && owner.Capital == null && sunZone >= SunZone.Habital)
             {
-				GenerateNewHomeWorld(owner, preDefinedPop);
+                GenerateNewHomeWorld(owner, preDefinedPop);
                 Name = system.Name + " " + RomanNumerals.ToRoman(1);
             }
             else
             {
                 PlanetType chosenType = ChooseTypeByWeight(sunZone);
                 float scale     = RandomMath.RandomBetween(0.75f, 1.5f);
-				if (chosenType.Category == PlanetCategory.GasGiant)
-					++scale;
+                if (chosenType.Category == PlanetCategory.GasGiant)
+                    ++scale;
 
                 scale += chosenType.Scale;
                 InitNewMinorPlanet(chosenType, scale);
@@ -436,32 +436,32 @@ namespace Ship_Game
             Projectiles.RemoveInActiveObjects();
         }
 
-		public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as remove biospheres
+        public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as remove biospheres
 
-		public void DestroyBioSpheres(PlanetGridSquare tile)
+        public void DestroyBioSpheres(PlanetGridSquare tile)
         {
 
             if (tile.BuildingOnTile)
             {
-				// Building under biospheres is also destroyed
-				if (tile.building.MaxFertilityOnBuild > 0)
-					AddMaxBaseFertility(-tile.building.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertility On build when destroying
+                // Building under biospheres is also destroyed
+                if (tile.building.MaxFertilityOnBuild > 0)
+                    AddMaxBaseFertility(-tile.building.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertility On build when destroying
 
-				BuildingList.Remove(tile.building);
+                BuildingList.Remove(tile.building);
                 tile.building = null;
         }
 
-			ClearBioSpheresFromList(tile);
-			UpdateMaxPopulation();
+            ClearBioSpheresFromList(tile);
+            UpdateMaxPopulation();
         }
 
-		public void ClearBioSpheresFromList(PlanetGridSquare tile)
+        public void ClearBioSpheresFromList(PlanetGridSquare tile)
         {
-			tile.Habitable = false;
-			tile.Biosphere = false;
+            tile.Habitable = false;
+            tile.Biosphere = false;
 
-			var biospheresList = BuildingList.Filter(b => b.IsBiospheres);
-			if (biospheresList.Length > 0)
+            var biospheresList = BuildingList.Filter(b => b.IsBiospheres);
+            if (biospheresList.Length > 0)
                 BuildingList.Remove(biospheresList.First());
         }
 
@@ -546,9 +546,9 @@ namespace Ship_Game
             int numHabitableTiles = 0;
             if (Type.Habitable)
             {
-	            numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-				PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease) 
-				                    + BuildingList.Count(b => b.IsBiospheres) * MaxPopBase;
+                numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
+                PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease) 
+                                    + BuildingList.Count(b => b.IsBiospheres) * MaxPopBase;
             }
 
             MaxPopValFromTiles = Math.Max(MaxPopBase, MaxPopBase * numHabitableTiles);
@@ -833,12 +833,12 @@ namespace Ship_Game
             if (Owner == null)
                 return;
 
-			if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
-			{
-				float popToRemove = ((1 - PopulationRatio) * 10).Clamped(20,1000);
-				Population        = Math.Max(Population - popToRemove, MaxPopulation);
-			}
-			else if (IsStarving)
+            if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
+            {
+                float popToRemove = ((1 - PopulationRatio) * 10).Clamped(20,1000);
+                Population        = Math.Max(Population - popToRemove, MaxPopulation);
+            }
+            else if (IsStarving)
                 Population += Unfed * 10f; // Reduces population depending on starvation severity. 
             else 
             {
@@ -852,7 +852,7 @@ namespace Ship_Game
                 repRate    += PlusFlatPopulationPerTurn;
                 repRate    += repRate * Owner.data.Traits.ReproductionMod;
                 Population += ShortOnFood() ? repRate * 0.1f : repRate;
-				Population  = Population.Clamped(0, MaxPopulation);
+                Population  = Population.Clamped(0, MaxPopulation);
             }
 
             Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
@@ -983,13 +983,13 @@ namespace Ship_Game
             string exportFood = FoodExportSlots - FreeFoodExportSlots + "/" + FoodExportSlots;
             string exportProd = ProdExportSlots - FreeProdExportSlots + "/" + ProdExportSlots;
             string exportColonists = ColonistsExportSlots - FreeColonistExportSlots + "/" + ColonistsExportSlots;
-			int numHabitableTiles  = TilesList.Filter(t => t.Habitable).Length;
+            int numHabitableTiles  = TilesList.Filter(t => t.Habitable).Length;
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
-			debug.AddLine($"Scale: {Scale}");
-			debug.AddLine($"Population per Habitable Tile: {MaxPopBase}");
-			debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.RacialEnvModifer(Category)}");
-			debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
-			debug.AddLine("");
+            debug.AddLine($"Scale: {Scale}");
+            debug.AddLine($"Population per Habitable Tile: {MaxPopBase}");
+            debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.RacialEnvModifer(Category)}");
+            debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
+            debug.AddLine("");
             debug.AddLine($"Incoming Freighters: {NumIncomingFreighters}");
             debug.AddLine($"Outgoing Freighters: {NumOutgoingFreighters}");
             debug.AddLine("");

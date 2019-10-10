@@ -50,9 +50,9 @@ namespace Ship_Game
         public bool HasProduction               => Prod.GrossIncome > 1.0f;
         public float PopulationRatio           => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
         public Building BiospheresWeCanBuild   => BuildingsCanBuild.Find(b => b.IsBiospheres);
-		public Building TerraformersWeCanBuild => BuildingsCanBuild.Find(b => b.IsTerraformer);
+        public Building TerraformersWeCanBuild => BuildingsCanBuild.Find(b => b.IsTerraformer);
 
-		public string PopulationString
+        public string PopulationString
         {
             get
             {
