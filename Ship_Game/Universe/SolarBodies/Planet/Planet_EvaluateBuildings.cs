@@ -108,13 +108,13 @@ namespace Ship_Game
 
         float EvalFoodPerCol(Building b)
         {
-            if (b.PlusFoodPerColonist.AlmostZero() || Fertility(Owner).AlmostZero())
+            if (b.PlusFoodPerColonist.AlmostZero() || Fertility().AlmostZero())
                 return 0;
 
             float score = 0;
             if (NonCybernetic)
             {
-                float gain = b.PlusFoodPerColonist * Fertility(Owner) * MaxPopulationBillion(Owner);
+                float gain = b.PlusFoodPerColonist * Fertility() * MaxPopulationBillion(Owner);
                 score += gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
             }
             else
@@ -376,9 +376,9 @@ namespace Ship_Game
             {   
                 // How much fertility will actually be lost
                 // @todo food calculation is a bit dodgy
-                float fertLost = Math.Min(Fertility(Owner), -b.MaxFertilityOnBuild);
-                float foodFromLabor = MaxPopulationBillion(Owner) * ((Fertility(Owner) - fertLost));
-                float foodFromFlat = Food.FlatBonus + b.PlusFlatFoodAmount;
+                float fertLost      = Math.Min(Fertility(), -b.MaxFertilityOnBuild);
+                float foodFromLabor = MaxPopulationBillion(Owner) * ((Fertility() - fertLost));
+                float foodFromFlat  = Food.FlatBonus + b.PlusFlatFoodAmount;
                 // Will we still be able to feed ourselves?
                 if (foodFromFlat + foodFromLabor < MaxConsumption)
                     score -= fertLost * 20;
@@ -485,7 +485,7 @@ namespace Ship_Game
             {
                 case ColonyType.Agricultural:
                     score += b.PlusFlatFoodAmount +2
-                             + b.PlusFoodPerColonist * Fertility(Owner) * 2
+                             + b.PlusFoodPerColonist * Fertility() * 2
                              + b.MaxPopIncrease / 1000 * 0.5f
                              + b.PlusFlatProductionAmount // some flat production as most people will be farming
                              + b.PlusFlatPopulation / 5

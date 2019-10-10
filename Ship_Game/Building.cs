@@ -195,7 +195,8 @@ namespace Ship_Game
         public float FoodProduced(Planet planet)
         {
             if (planet.NonCybernetic)
-                return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility(planet.Owner));
+                return Production(planet, PlusFlatFoodAmount, PlusFoodPerColonist, planet.Fertility());
+
             return ProductionProduced(planet);
         }
 
