@@ -288,7 +288,7 @@ namespace Ship_Game
 
                 if (pgs.Biosphere && P.Owner != null)
                 {
-	                batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.5f));
+                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.5f));
                 }
                 DrawPGSIcons(pgs);
             }
@@ -369,22 +369,22 @@ namespace Ship_Game
                 batch.DrawString(Font12, fertility, position3, fertColor);
             }
             float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
-			if (!fertEnvMultiplier.AlmostEqual(1))
-			{
-				Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
-				Vector2 fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y);
-				batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
-			}
+            if (!fertEnvMultiplier.AlmostEqual(1))
+            {
+                Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
+                Vector2 fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y);
+                batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
+            }
             if (P.TerraformPoints > 0)
             {
-				Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
-				string terraformText = Localizer.Token(683); // Terraform Planet is the default text
-				if (P.TilesToTerraform)
-					terraformText  = Localizer.Token(1972);
-				else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformTargetFertility))
-					terraformText = Localizer.Token(1919);
+                Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
+                string terraformText = Localizer.Token(683); // Terraform Planet is the default text
+                if (P.TilesToTerraform)
+                    terraformText  = Localizer.Token(1972);
+                else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformTargetFertility))
+                    terraformText = Localizer.Token(1919);
 
-				Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
+                Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
                 batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
             }
 
@@ -779,8 +779,8 @@ namespace Ship_Game
 
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
-	        DrawBuildingInfo(ref cursor, batch, P.MaxPopBase * Player.RacialEnvModifer(P.Category) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
-	        DrawBuildingInfo(ref cursor, batch, P.MaxPopBase / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
+            DrawBuildingInfo(ref cursor, batch, P.MaxPopBase * Player.RacialEnvModifer(P.Category) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
+            DrawBuildingInfo(ref cursor, batch, P.MaxPopBase / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
@@ -830,50 +830,50 @@ namespace Ship_Game
 
         public float PositiveTerraformTargetFertility()
         {
-			var buildingList = P.BuildingList.Filter(b => b.MaxFertilityOnBuild > 0);
-			float positiveFertilityOnBuild = buildingList.Sum(b => b.MaxFertilityOnBuild);
+            var buildingList = P.BuildingList.Filter(b => b.MaxFertilityOnBuild > 0);
+            float positiveFertilityOnBuild = buildingList.Sum(b => b.MaxFertilityOnBuild);
 
-			return 1 + positiveFertilityOnBuild / Player.RacialEnvModifer(Player.data.PreferredEnv);
-		}
+            return 1 + positiveFertilityOnBuild / Player.RacialEnvModifer(Player.data.PreferredEnv);
+        }
 
         string TerraformPotential(out Color color)
         {
             color                       = Color.LightGreen;
-			float targetFertility       = PositiveTerraformTargetFertility();
-			int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
-			int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
-			int numNegativeEnvBuildings = P.BuildingList.Count(b => b.MaxFertilityOnBuild < 0);
-			float minEstimatedMaxPop    = P.TileArea * P.MaxPopBase * Player.RacialEnvModifer(Player.data.PreferredEnv) 
-			                              + P.BuildingList.Sum(b => b.MaxPopIncrease);
+            float targetFertility       = PositiveTerraformTargetFertility();
+            int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
+            int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
+            int numNegativeEnvBuildings = P.BuildingList.Count(b => b.MaxFertilityOnBuild < 0);
+            float minEstimatedMaxPop    = P.TileArea * P.MaxPopBase * Player.RacialEnvModifer(Player.data.PreferredEnv) 
+                                          + P.BuildingList.Sum(b => b.MaxPopIncrease);
 
-			string text = "Terraformer Process Stages: ";
-			string initialText = text;
+            string text = "Terraformer Process Stages: ";
+            string initialText = text;
 
-			if (numNegativeEnvBuildings > 0) // not full potential due to bad env buildings
-				text += $"Scrap {numNegativeEnvBuildings} environment degrading buildings. ";
+            if (numNegativeEnvBuildings > 0) // not full potential due to bad env buildings
+                text += $"Scrap {numNegativeEnvBuildings} environment degrading buildings. ";
 
-			if (numUninhabitableTiles > 0)
-				text += $"Make {numUninhabitableTiles} tiles habitable. ";
+            if (numUninhabitableTiles > 0)
+                text += $"Make {numUninhabitableTiles} tiles habitable. ";
 
-			if (P.Category != Player.data.PreferredEnv)
-				text += $"Terraform the planet to {Player.data.PreferredEnv.ToString()}. ";
+            if (P.Category != Player.data.PreferredEnv)
+                text += $"Terraform the planet to {Player.data.PreferredEnv.ToString()}. ";
 
-			if (numBiospheres > 0)
-				text += $"Remove {numBiospheres} Biospheres. ";
+            if (numBiospheres > 0)
+                text += $"Remove {numBiospheres} Biospheres. ";
 
-			if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
-				text += $"Increase Population to a minimum of {(minEstimatedMaxPop / 1000).String(2)} Billion colonists. ";
+            if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
+                text += $"Increase Population to a minimum of {(minEstimatedMaxPop / 1000).String(2)} Billion colonists. ";
 
-			if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
-				text += $"Fertility will be changed to {targetFertility}.";
+            if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
+                text += $"Fertility will be changed to {targetFertility}.";
 
-			if (text == initialText)
+            if (text == initialText)
             {
                 color = Color.Yellow;
-				text = "Terraformers will have no effect on this planet.";
+                text = "Terraformers will have no effect on this planet.";
             }
 
-			return text;
+            return text;
         }
 
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture, 
@@ -1490,7 +1490,7 @@ namespace Ship_Game
             Sliders.Create(sliderX, sliderY, sliderW, spacingY);
             Sliders.SetPlanet(P);
         }
-            
+
         void DrawSliders(SpriteBatch batch)
         {
             Sliders.Draw(batch);
