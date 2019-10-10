@@ -260,7 +260,7 @@ namespace Ship_Game
             HandleButton(input, sb_Name,  p => p.Name);
             HandleButton(input, sb_Fert,  p => p.Fertility(EmpireManager.Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
-            HandleButton(input, sb_Pop,   p => p.MaxPopulation(p.Owner));
+            HandleButton(input, sb_Pop,   p => p.MaxPopulation());
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
 
             foreach (ScrollList.Entry e in PlanetSL.VisibleEntries)
@@ -323,7 +323,7 @@ namespace Ship_Game
                 ResetButton(sb_Name,  p => p.Name);
                 ResetButton(sb_Fert,  p => p.Fertility(EmpireManager.Player));
                 ResetButton(sb_Rich,  p => p.MineralRichness);
-                ResetButton(sb_Pop,   p => p.MaxPopulation(p.Owner));
+                ResetButton(sb_Pop,   p => p.MaxPopulation());
                 ResetButton(sb_Owned, p => p.GetOwnerName());
             }
             if (PlanetSL.NumEntries <= 0)
