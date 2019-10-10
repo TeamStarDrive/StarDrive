@@ -86,14 +86,13 @@ namespace Ship_Game
         public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
 
-        public float MaxPopulationBillion(Empire empire) => MaxPopulation(empire) / 1000;
+        public float MaxPopulationBillion(Empire empire) => MaxPopulationFor(empire) / 1000;
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
 
 
-        public float Fertility()                 => Fertility(Owner);
-		public float Fertility(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-		public float MaxFertility()              => MaxFertility(Owner);
-		public float MaxFertility(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
+        public float Fertility                      => FertilityFor(Owner);
+		public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
+		public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -102,9 +101,9 @@ namespace Ship_Game
         public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
                                      .Clamped(0, TileArea);
 
-		public float MaxPopulation() => MaxPopulation(Owner);
+		public float MaxPopulation => MaxPopulationFor(Owner);
 
-		public float MaxPopulation(Empire empire)
+		public float MaxPopulationFor(Empire empire)
         {
             if (!Habitable)
                 return 0;
@@ -225,7 +224,7 @@ namespace Ship_Game
             if (toEmpire.NonCybernetic)
             {
                 worth += (FoodHere / 50f) + (ProdHere / 50f);
-                worth += Fertility(toEmpire)*1.5f;
+                worth += FertilityFor(toEmpire)*1.5f;
                 worth += MineralRichness;
             }
             else // filthy Opteris
@@ -248,7 +247,7 @@ namespace Ship_Game
         }
 
         public float EmpireFertility(Empire empire) =>
-            (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : Fertility(empire);
+            (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : FertilityFor(empire);
 
         public float EmpireBaseValue(Empire empire) => (
             10 * Storage.CommoditiesCount +
@@ -284,7 +283,7 @@ namespace Ship_Game
                     notificationText, Type.IconPath, "SnapToPlanet", this);
             }
 
-            if (MaxPopulation().AlmostZero())
+            if (MaxPopulation.AlmostZero())
                 WipeOutColony();
         }
 
@@ -523,7 +522,7 @@ namespace Ship_Game
             ColonyValue  = BuildingList.Any(b => b.IsCapital) ? 100 : 0;
             ColonyValue += BuildingList.Sum(b => b.ActualCost) / 10;
             ColonyValue += (PopulationBillion + MaxPopulationBillion(Owner)) * 5;
-            ColonyValue += IsCybernetic ? MineralRichness * 20 : MineralRichness * 10 + Fertility() * 10;
+            ColonyValue += IsCybernetic ? MineralRichness * 20 : MineralRichness * 10 + Fertility * 10;
         }
 
         // these are intentionally duplicated so we don't easily modify them...
@@ -592,7 +591,7 @@ namespace Ship_Game
 
             if (Prod.NetIncome >= 10.0 && HasSpacePort)
                 DevelopmentStatus += Localizer.Token(1776); // fine shipwright
-            else if (Fertility() >= 2.0 && Food.NetIncome > MaxPopulation())
+            else if (Fertility >= 2.0 && Food.NetIncome > MaxPopulation)
                 DevelopmentStatus += Localizer.Token(1777); // fine agriculture
             else if (Res.NetIncome > 5.0)
                 DevelopmentStatus += Localizer.Token(1778); // universities are good
@@ -833,7 +832,7 @@ namespace Ship_Game
 			if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
 			{
 				float popToRemove = ((1 - PopulationRatio) * 10).Clamped(20,1000);
-				Population        = Math.Max(Population - popToRemove, MaxPopulation());
+				Population        = Math.Max(Population - popToRemove, MaxPopulation);
 			}
 			else if (IsStarving)
                 Population += Unfed * 10f; // Reduces population depending on starvation severity. 
@@ -849,7 +848,7 @@ namespace Ship_Game
                 repRate    += PlusFlatPopulationPerTurn;
                 repRate    += repRate * Owner.data.Traits.ReproductionMod;
                 Population += ShortOnFood() ? repRate * 0.1f : repRate;
-				Population  = Population.Clamped(0, MaxPopulation());
+				Population  = Population.Clamped(0, MaxPopulation);
             }
 
             Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
