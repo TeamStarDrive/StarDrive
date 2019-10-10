@@ -50,22 +50,22 @@ namespace Ship_Game
         {
             int softDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
             int hardDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
-			float popKilled = bomb.PopKilled;
+            float popKilled = bomb.PopKilled;
 
             DamageTile(hardDamage, popKilled);
             DamageTroops(softDamage);
             DamageBuildings(hardDamage);
 
-			Surface.ApplyBombEnvEffects(popKilled); // Fertility and pop loss
+            Surface.ApplyBombEnvEffects(popKilled); // Fertility and pop loss
         }
 
-		private void DamageTile(int hardDamage, float popKilled)
+        private void DamageTile(int hardDamage, float popKilled)
         {
-			if (DamageBioSpheres(hardDamage))
-				return;  // the bioSpheres on this tile were destroyed by this bomb
+            if (DamageBioSpheres(hardDamage))
+                return;  // the bioSpheres on this tile were destroyed by this bomb
 
-			if (!TargetTile.Habitable && RandomMath.RollDice(popKilled * 10))
-				Surface.DestroyTile(TargetTile); // Tile becomes un-habitable
+            if (!TargetTile.Habitable && RandomMath.RollDice(popKilled * 10))
+                Surface.DestroyTile(TargetTile); // Tile becomes un-habitable
             }
 
         private bool DamageBioSpheres(int damage)
@@ -76,7 +76,7 @@ namespace Ship_Game
             // Biospheres could not withstand damage
             TargetTile.Highlighted = false;
             Surface.DestroyBioSpheres(TargetTile);
-			return true;
+            return true;
         }
 
         private void DamageTroops(int damage)

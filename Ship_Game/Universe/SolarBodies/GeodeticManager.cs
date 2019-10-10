@@ -63,7 +63,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     return;
                 }
 
-				bomb.ResolveSpecialBombActions(P); // This is for "Free Owlwoks" bomb
+                bomb.ResolveSpecialBombActions(P); // This is for "Free Owlwoks" bomb
             }
         }
 
