@@ -131,14 +131,14 @@ namespace Ship_Game
         {
             if (b.AllowShipBuilding && Prod.NetMaxPotential > 20)
                 return true;
-            if (Fertility() > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return true;
             if (a.HighPri)
             {
                 if (b.PlusFlatFoodAmount > 0
                     || (b.PlusFoodPerColonist > 0 && Population > 500f)
                     || ((b.MaxPopIncrease > 0
-                    || b.PlusFlatPopulation > 0 || b.PlusTerraformPoints > 0) && Population > MaxPopulation() * 0.5f)
+                    || b.PlusFlatPopulation > 0 || b.PlusTerraformPoints > 0) && Population > MaxPopulation * 0.5f)
                     || b.PlusFlatFoodAmount > 0
                     || b.PlusFlatProductionAmount > 0
                     || b.StorageAdded > 0
@@ -148,12 +148,12 @@ namespace Ship_Game
 
             if (a.MedPri && IsVibrant && a.MakingMoney)
             {
-                if (b.IsBiospheres || (b.PlusTerraformPoints > 0 && Fertility() < 3)
+                if (b.IsBiospheres || (b.PlusTerraformPoints > 0 && Fertility < 3)
                                    || b.MaxPopIncrease > 0
                                    || b.PlusFlatPopulation > 0
                                    || IsCoreWorld
                                    || b.PlusFlatResearchAmount > 0
-                                   || (b.PlusResearchPerColonist > 0 && MaxPopulation() > 999)
+                                   || (b.PlusResearchPerColonist > 0 && MaxPopulation > 999)
                                    || a.NeedDefense)
                     return true;
             }
@@ -165,14 +165,14 @@ namespace Ship_Game
         
         bool CanAffordCore(in Afford a, Building b)
         {
-            if (Fertility() > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return false;
             if (a.HighPri)
             {
                 if (b.StorageAdded > 0
-                    || (NonCybernetic && (b.PlusTerraformPoints > 0 && Fertility() < 1) && MaxPopulation() > 2000)
+                    || (NonCybernetic && (b.PlusTerraformPoints > 0 && Fertility < 1) && MaxPopulation > 2000)
                     || ((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0)
-                        && Population < MaxPopulation()*0.5f && Money.NetRevenue*0.5f > b.Maintenance)
+                        && Population < MaxPopulation*0.5f && Money.NetRevenue*0.5f > b.Maintenance)
                     || (NonCybernetic && b.PlusFlatFoodAmount > 0)
                     || (NonCybernetic && b.PlusFoodPerColonist > 0)
                     || b.PlusFlatProductionAmount > 0
@@ -203,7 +203,7 @@ namespace Ship_Game
                     || b.PlusProdPerRichness > 0
                     || b.PlusProdPerColonist > 0
                     || b.PlusFlatProductionAmount > 0
-                    || (NonCybernetic && Fertility() < 1f && b.PlusFlatFoodAmount > 0)
+                    || (NonCybernetic && Fertility < 1f && b.PlusFlatFoodAmount > 0)
                     || b.StorageAdded > 0
                     || (a.NeedDefense && IsCoreWorld))
                     return true;
@@ -212,12 +212,12 @@ namespace Ship_Game
             if (a.MedPri && IsVibrant && a.MakingMoney)
             {
                 if ((b.PlusResearchPerColonist * PopulationBillion) > b.Maintenance
-                    || ((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population.AlmostEqual(MaxPopulation()))
-                    || (NonCybernetic && b.PlusTerraformPoints > 0 && Fertility() < 1 && Population.AlmostEqual(MaxPopulation()) &&
-                        MaxPopulation() > 2000)
+                    || ((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population.AlmostEqual(MaxPopulation))
+                    || (NonCybernetic && b.PlusTerraformPoints > 0 && Fertility < 1 && Population.AlmostEqual(MaxPopulation) &&
+                        MaxPopulation > 2000)
                     || (b.PlusFlatFoodAmount > 0 && Food.NetIncome < 0)
                     || b.PlusFlatResearchAmount > 0
-                    || (b.PlusResearchPerColonist > 0 && MaxPopulation() > 999))
+                    || (b.PlusResearchPerColonist > 0 && MaxPopulation > 999))
                     return true;
             }
 
@@ -227,14 +227,14 @@ namespace Ship_Game
 
         bool CanAffordMilitary(in Afford a, Building b)
         {
-            if (Fertility() > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return false;
             if (a.HighPri)
             {
                 if (b.isWeapon
                     || b.IsSensor
                     || b.Defense > 0
-                    || (Fertility() < 1f && b.PlusFlatFoodAmount > 0)
+                    || (Fertility < 1f && b.PlusFlatFoodAmount > 0)
                     || (MineralRichness < 1f && b.PlusFlatFoodAmount > 0)
                     || b.PlanetaryShieldStrengthAdded > 0
                     || (b.AllowShipBuilding && HasProduction)
@@ -265,14 +265,14 @@ namespace Ship_Game
             if (b.AllowShipBuilding && Prod.NetMaxPotential > 20)
                 return true;
 
-            if (Fertility() > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
+            if (Fertility > 0 && b.MaxFertilityOnBuild < 0 && NonCybernetic)
                 return true;
 
             if (a.HighPri)
             {
                 if (b.PlusFlatResearchAmount > 0
-                    || (Fertility() < 1f && b.PlusFlatFoodAmount > 0)
-                    || (Fertility() < 1f && b.PlusFlatFoodAmount > 0)
+                    || (Fertility < 1f && b.PlusFlatFoodAmount > 0)
+                    || (Fertility < 1f && b.PlusFlatFoodAmount > 0)
                     || b.PlusFlatProductionAmount > 0
                     || b.PlusResearchPerColonist > 0
                     || (IsCybernetic && (b.PlusFlatProductionAmount > 0 || b.PlusProdPerColonist > 0))
@@ -281,8 +281,8 @@ namespace Ship_Game
             }
             if (a.MedPri && IsCoreWorld && a.MakingMoney)
             {
-                if (((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population > MaxPopulation() * .5f)
-                    || NonCybernetic && ((b.PlusTerraformPoints > 0 && Fertility() < 1 && Population > MaxPopulation() * 0.5f && MaxPopulation() > 2000)
+                if (((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population > MaxPopulation * 0.5f)
+                    || NonCybernetic && ((b.PlusTerraformPoints > 0 && Fertility < 1 && Population > MaxPopulation * 0.5f && MaxPopulation > 2000)
                     || (b.PlusFlatFoodAmount > 0 && Food.NetIncome < 0)))
                     return true;
             }

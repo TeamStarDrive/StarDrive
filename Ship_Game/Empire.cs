@@ -1677,7 +1677,7 @@ namespace Ship_Game
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)
         {
-            float fertility = p.Fertility(this);
+            float fertility = p.FertilityFor(this);
             float richness = p.MineralRichness;
             float pop = p.MaxPopulationBillion(this);
             if (IsCybernetic)
@@ -1724,11 +1724,11 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (p.Fertility(this) > 1f)
+                    if (p.FertilityFor(this) > 1f)
                     {
                         if (p.MineralRichness > 1)
-                            popSupport += maxPopBillion + p.Fertility(this) + p.MineralRichness;
-                        fertility += p.Fertility(this) + maxPopBillion;
+                            popSupport += maxPopBillion + p.FertilityFor(this) + p.MineralRichness;
+                        fertility += p.FertilityFor(this) + maxPopBillion;
                     }
                 }
             }
@@ -1740,7 +1740,7 @@ namespace Ship_Game
 
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
-                                            * (p.Fertility(this)*2 + p.MineralRichness + (maxPopBillion / 0.5f));
+                                            * (p.FertilityFor(this)*2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
             }
 
@@ -2301,7 +2301,7 @@ namespace Ship_Game
             }
             foreach (Planet planet in OwnedPlanets)
             {
-                ExpansionScore += (float)(planet.Fertility(this) + (double)planet.MineralRichness + planet.PopulationBillion);
+                ExpansionScore += (float)(planet.FertilityFor(this) + (double)planet.MineralRichness + planet.PopulationBillion);
                 foreach (Building building in planet.BuildingList)
                     IndustrialScore += building.ActualCost / 20f;
             }

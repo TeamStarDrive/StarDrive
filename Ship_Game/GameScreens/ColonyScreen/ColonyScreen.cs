@@ -357,15 +357,15 @@ namespace Ship_Game
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(386) + ":", vector2_2, Color.Orange);
             string fertility;
-            if (P.Fertility(Player).AlmostEqual(P.MaxFertility(Player)))
+            if (P.FertilityFor(Player).AlmostEqual(P.MaxFertilityFor(Player)))
             {
-                fertility = P.Fertility(Player).String(2);
+                fertility = P.FertilityFor(Player).String(2);
                 batch.DrawString(Font12, fertility, position3, color);
             }
             else
             {
-                Color fertColor = P.Fertility(Player) < P.MaxFertility(Player) ? Color.LightGreen : Color.Pink;
-                fertility = $"{P.Fertility(Player).String(2)} / {P.MaxFertility(Player).String(2)}";
+                Color fertColor = P.FertilityFor(Player) < P.MaxFertilityFor(Player) ? Color.LightGreen : Color.Pink;
+                fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).String(2)}";
                 batch.DrawString(Font12, fertility, position3, fertColor);
             }
             float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
@@ -381,7 +381,7 @@ namespace Ship_Game
 				string terraformText = Localizer.Token(683); // Terraform Planet is the default text
 				if (P.TilesToTerraform)
 					terraformText  = Localizer.Token(1972);
-				else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertility(Player).AlmostEqual(P.TerraformTargetFertility))
+				else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformTargetFertility))
 					terraformText = Localizer.Token(1919);
 
 				Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
@@ -861,10 +861,10 @@ namespace Ship_Game
 			if (numBiospheres > 0)
 				text += $"Remove {numBiospheres} Biospheres. ";
 
-			if (minEstimatedMaxPop > P.MaxPopulation(Player))
+			if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
 				text += $"Increase Population to a minimum of {(minEstimatedMaxPop / 1000).String(2)} Billion colonists. ";
 
-			if (targetFertility.Greater(P.MaxFertility(Player))) // better new fertility max
+			if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
 				text += $"Fertility will be changed to {targetFertility}.";
 
 			if (text == initialText)

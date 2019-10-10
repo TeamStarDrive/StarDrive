@@ -116,7 +116,7 @@ namespace Ship_Game
             {
 				UniqueHab = true;
 				UniqueHabPercent = ringData.UniqueHabPC;
-                }
+	        }
 
 			InitNewMinorPlanet(type, scale, ringData.MaxPopDefined);
 
@@ -125,7 +125,7 @@ namespace Ship_Game
 				Owner = EmpireManager.GetEmpireByName(ringData.Owner);
 				Owner.AddPlanet(this);
 				InitializeWorkerDistribution(Owner);
-				Population = MaxPopulation();
+				Population = MaxPopulation;
 				MineralRichness = 1f;
 				colonyType = ColonyType.Core;
 				SetBaseFertility(2f, 2f);
@@ -198,8 +198,9 @@ namespace Ship_Game
 			float envMultiplier = 1 / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
 			float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
 			MaxPopBase          = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
-			Population          = MaxPopulation();
+			Population          = MaxPopulation;
 		}
+
 		private void CreateHomeWorldFertilityAndRichness()
 		{
 			// Set the base fertility so it always corresponds to preferred env plus any modifiers from traits
@@ -318,7 +319,7 @@ namespace Ship_Game
 
 		private void CompletePlanetTerraform()
 		{
-			float fertilityAfterTerraform = Fertility();
+			float fertilityAfterTerraform = Fertility;
 			Terraform(Owner.data.PreferredEnv);
 			UpdateTerraformPoints(0);
 			BaseMaxFertility   = Math.Max(TerraformTargetFertility, BaseMaxFertility);
