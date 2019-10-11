@@ -101,7 +101,17 @@ namespace Ship_Game
         [Serialize(8)] public string DiplomacyDialogPath;
         [Serialize(9)] public DTrait DiplomaticPersonality;
         [Serialize(10)] public ETrait EconomicPersonality;
-        [Serialize(11)] public float TaxRate = 0.25f; // player modified tax rate
+
+        float TaxRateValue = 0.25f;
+
+        // player modified tax rate
+        [Serialize(11)] public float TaxRate
+        {
+            get => TaxRateValue;
+            set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
+        }
+
+
         [Serialize(12)] public Array<string> ExcludedDTraits = new Array<string>();
         [Serialize(13)] public Array<string> ExcludedETraits = new Array<string>();
         [Serialize(14)] public BatchRemovalCollection<Agent> AgentList = new BatchRemovalCollection<Agent>();

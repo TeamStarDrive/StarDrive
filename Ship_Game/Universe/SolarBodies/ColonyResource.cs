@@ -11,13 +11,9 @@ namespace Ship_Game.Universe.SolarBodies
         public float Percent // Percentage workers allocated [0.0-1.0]
         {
             get => PercentValue;
-            set
-            {
-                if (float.IsNaN(value) || float.IsInfinity(value))
-                    Log.Error($"Resource.Percent invalid value: {value}");
-                PercentValue = value;
-            }
+            set => PercentValue = value.NaNChecked(0f, "Resource.Percent");
         }
+
         //public float Percent; // Percentage workers allocated [0.0-1.0]
         public bool PercentLock; // Percentage slider locked by user
 
@@ -93,9 +89,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             float needed = AvgResourceConsumption() - netFlat;
             float minWorkers = netColo.AlmostZero() ? 0f : (needed / netColo);
-            if (float.IsNaN(minWorkers) || float.IsInfinity(minWorkers))
-                Log.Error($"WorkersNeededForEquilibrium invalid result: {minWorkers}");
-            return minWorkers.Clamped(0.0f, 0.9f);
+            return minWorkers.NaNChecked(0f, "WorkersNeededForEquilibrium").Clamped(0.0f, 0.9f);
         }
 
         public float EstPercentForNetIncome(float targetNetIncome)

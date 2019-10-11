@@ -63,7 +63,7 @@ namespace Ship_Game
             }
             
             e.InitializeFromSave();
-            e.AddMoney(sdata.Money - e.Money);
+            e.Money = sdata.Money;
             e.Research = sdata.Research;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;            
   
@@ -116,9 +116,7 @@ namespace Ship_Game
             foreach (Guid guid in psdata.StationsList)
                 p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
 
-            p.Food.Percent = psdata.farmerPercentage;
-            p.Prod.Percent = psdata.workerPercentage;
-            p.Res.Percent  = psdata.researcherPercentage;
+            p.SetWorkerPercentages(psdata.farmerPercentage, psdata.workerPercentage, psdata.researcherPercentage);
 
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);

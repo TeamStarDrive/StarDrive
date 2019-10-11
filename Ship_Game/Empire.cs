@@ -40,7 +40,14 @@ namespace Ship_Game
         public Array<Ship>      Inhibitors     = new Array<Ship>();
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
-        public float Money {get; private set; } = 1000f;
+
+        float MoneyValue = 1000f;
+        public float Money
+        {
+            get => MoneyValue;
+            set => MoneyValue = value.NaNChecked(0f, "Empire.Money");
+        }
+
         private BatchRemovalCollection<Planet>      OwnedPlanets      = new BatchRemovalCollection<Planet>();
         private BatchRemovalCollection<SolarSystem> OwnedSolarSystems = new BatchRemovalCollection<SolarSystem>();
         private BatchRemovalCollection<Ship>        OwnedProjectors   = new BatchRemovalCollection<Ship>();
@@ -65,7 +72,14 @@ namespace Ship_Game
         // it doesn't normally colonize or make war plans.
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
-        public float Research;
+
+        float ResearchValue;
+        public float Research
+        {
+            get => ResearchValue;
+            set => ResearchValue = value.NaNChecked(0f, "Empire.Research");
+        }
+
         public Color EmpireColor;
         public static UniverseScreen Universe;
         private EmpireAI EmpireAI;
