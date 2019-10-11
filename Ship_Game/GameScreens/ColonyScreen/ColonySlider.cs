@@ -90,7 +90,7 @@ namespace Ship_Game
         public float Value
         {
             get => Resource.Percent;
-            set => Resource.Percent = value;
+            set => Resource.Percent = value.NaNChecked(0f, "ColonySlider.Value");
         }
 
         public float NetValue => Resource.NetIncome;
