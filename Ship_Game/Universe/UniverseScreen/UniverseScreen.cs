@@ -617,15 +617,25 @@ namespace Ship_Game
             MiniMapSector = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             BorderRT      = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             StencilRT     = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
-            if (loadFogPath == null)
+
+            if (loadFogPath != null)
+            {
+                try
+                {
+                    using (FileStream fs = File.OpenRead($"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png"))
+                        FogMap = Texture2D.FromFile(device, fs);
+                }
+                catch (Exception e) // whatever issue with fog map
+                {
+                    Log.Warning(e.Message);
+                }
+            }
+
+            if (FogMap == null)
             {
                 FogMap = ResourceManager.Texture2D("UniverseFeather");
             }
-            else
-            {
-                using (FileStream fileStream = File.OpenRead($"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png"))
-                    FogMap = Texture2D.FromFile(device, fileStream);
-            }
+
             FogMapTarget = new RenderTarget2D(device, 512, 512, 1, backBufferFormat, device.PresentationParameters.MultiSampleType, device.PresentationParameters.MultiSampleQuality);
             basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
             LoadMenu();
