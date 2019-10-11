@@ -82,8 +82,7 @@ namespace Ship_Game.AI.ShipMovement
                 {
                     // MAGIC STOP ships when orbiting off screen
                     Owner.Velocity = Vector2.Zero;
-                    OrbitPos = orbitTarget.Center + OrbitOffset;
-                    Owner.Center = Owner.Position = OrbitPos;
+                    Owner.Center = Owner.Position;
                     return;
                 }
             }
