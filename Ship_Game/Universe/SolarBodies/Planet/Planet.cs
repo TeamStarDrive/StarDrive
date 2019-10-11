@@ -42,7 +42,7 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
-        float ShipBuildingModifierBacker;
+        private float ShipBuildingModifierBacker;
         public float ShipBuildingModifier
         {
             get => ShipBuildingModifierBacker;
@@ -51,7 +51,7 @@ namespace Ship_Game
 
         public int NumShipyards;
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
-        float Unfed;
+        private float Unfed;
         public bool IsStarving => Unfed < 0f;
         public bool CorsairPresence;
         public bool QueueEmptySent = true;
@@ -63,7 +63,7 @@ namespace Ship_Game
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float OrbitalsMaintenance;
 
-        static string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
+        private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion(Owner) + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion(Owner);
@@ -449,7 +449,7 @@ namespace Ship_Game
 
                 BuildingList.Remove(tile.building);
                 tile.building = null;
-        }
+            }
 
             ClearBioSpheresFromList(tile);
             UpdateMaxPopulation();
@@ -530,7 +530,7 @@ namespace Ship_Game
         }
 
         // these are intentionally duplicated so we don't easily modify them...
-        float MaxPopBaseVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
+        private float MaxPopBaseVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
         public float MaxPopBase // planetary base max population value
         {
             get => MaxPopBaseVal;
@@ -807,7 +807,7 @@ namespace Ship_Game
                 if (!Owner.isPlayer)
                     return 0;  // AI manages It's own troops
 
-                if (GovMilitia && colonyType != Planet.ColonyType.Colony)
+                if (GovMilitia && colonyType != ColonyType.Colony)
                     return 0; // Player Governor will replace garrisoned troops with new ones
 
                 return 5; // Default value for non Governor Player Colonies 
