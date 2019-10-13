@@ -99,9 +99,9 @@ namespace Ship_Game
 
                 SetTileHabitability(habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)
-                    MaxPopBase          = (int)(preDefinedPop*1000 / numHabitableTiles);
+                    MaxPopBase = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
-                    MaxPopBase = type.PopPerTile.Generate() * scale;
+                    MaxPopBase = (int)(type.PopPerTile.Generate() * scale);
 
                 BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
