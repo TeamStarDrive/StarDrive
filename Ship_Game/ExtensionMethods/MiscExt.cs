@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ship_Game
 {
@@ -15,6 +11,18 @@ namespace Ship_Game
             int elapsed = (int)t.Elapsed.TotalMilliseconds;
             t.Restart();
             return elapsed;
+        }
+
+        // Provides a simple NaN-checking facility to avoid broken float values
+        // @note FIX/WORKAROUND for save-game NaN bug
+        public static float NaNChecked(this float value, float defaultValue, string where)
+        {
+            if (float.IsNaN(value) || float.IsInfinity(value))
+            {
+                Log.Warning(ConsoleColor.DarkRed, $"{where} NaN, defaulting to {defaultValue}");
+                return defaultValue;
+            }
+            return value;
         }
     }
 }

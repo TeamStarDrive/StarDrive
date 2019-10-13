@@ -23,28 +23,19 @@ namespace Ship_Game.Universe.SolarBodies
         public float Food
         {
             get => FoodValue;
-            set => FoodValue = value.Clamped(0f, Max);
+            set => FoodValue = value.NaNChecked(0f, "Storage.Food").Clamped(0f, Max);
         }
 
         public float Prod
         {
             get => ProdValue;
-            set => ProdValue = value.Clamped(0f, Max);
+            set => ProdValue = value.NaNChecked(0f, "Storage.Prod").Clamped(0f, Max);
         }
 
         public float Population
         {
             get => PopValue;
-            set
-            {
-                if (float.IsNaN(value))
-                {
-                    Log.Error("Invalid NAN Value!");
-                    value = 0f;
-                }
-
-                PopValue = value.Clamped(0f, Ground.MaxPopulation);
-            }
+            set => PopValue = value.NaNChecked(0f, "Storage.Population").Clamped(0f, Ground.MaxPopulation);
         }
 
         // different from Food -- this is based on race
