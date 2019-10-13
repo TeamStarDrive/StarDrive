@@ -1,16 +1,14 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.GameScreens.NewGame;
 
 namespace Ship_Game
@@ -24,6 +22,7 @@ namespace Ship_Game
 
         readonly TaskResult BackgroundTask;
         readonly ProgressCounter Progress = new ProgressCounter();
+        bool LoadingFailed;
 
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
@@ -33,23 +32,31 @@ namespace Ship_Game
 
             BackgroundTask = Parallel.Run(() =>
             {
-                Progress.Start(0.22f, 0.34f, 0.44f);
+                try
+                {
+                    Progress.Start(0.22f, 0.34f, 0.44f);
 
-                SavedGame.UniverseSaveData save = DecompressSaveGame(activeFile, Progress.NextStep()); // 641ms
-                Log.Info(ConsoleColor.Blue, $"  DecompressSaveGame     elapsed: {Progress[0].ElapsedMillis}ms");
+                    SavedGame.UniverseSaveData save = DecompressSaveGame(activeFile, Progress.NextStep()); // 641ms
+                    Log.Info(ConsoleColor.Blue, $"  DecompressSaveGame     elapsed: {Progress[0].ElapsedMillis}ms");
 
-                UniverseData data = LoadEverything(save, Progress.NextStep()); // 992ms
-                Log.Info(ConsoleColor.Blue, $"  LoadEverything         elapsed: {Progress[1].ElapsedMillis}ms");
+                    UniverseData data = LoadEverything(save, Progress.NextStep()); // 992ms
+                    Log.Info(ConsoleColor.Blue, $"  LoadEverything         elapsed: {Progress[1].ElapsedMillis}ms");
 
-                Universe = CreateUniverseScreen(data, save, Progress.NextStep()); // 1244ms
-                Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
+                    Universe = CreateUniverseScreen(data, save, Progress.NextStep()); // 1244ms
+                    Log.Info(ConsoleColor.Blue, $"  CreateUniverseScreen   elapsed: {Progress[2].ElapsedMillis}ms");
 
-                Progress.Finish();
+                    Progress.Finish();
 
-                Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
+                    Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
+                }
+                catch (Exception e)
+                {
+                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", isFatal: false);
+                    LoadingFailed = true;
+                }
             });
         }
-        
+
         public override void LoadContent()
         {
             LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
@@ -76,12 +83,19 @@ namespace Ship_Game
                 Thread.Sleep(33);
             }
 
+            if (LoadingFailed) // fatal error when loading save game
+            {
+                // go back to main menu
+                ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects: true);
+                return;
+            }
+
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             batch.Begin();
             var artRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
             batch.Draw(LoadingImage, artRect, Color.White);
             var meterBar = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
-            
+
             float percentLoaded = Progress.Percent;
             var pb = new ProgressBar(meterBar)
             {
@@ -95,10 +109,9 @@ namespace Ship_Game
 
             if (Universe != null)
             {
-                cursor.Y = cursor.Y - Fonts.Pirulen16.LineSpacing - 10f;
+                cursor.Y -= Fonts.Pirulen16.LineSpacing - 10f;
                 const string begin = "Click to Continue!";
                 cursor.X = ScreenCenter.X - Fonts.Pirulen16.MeasureString(begin).X / 2f;
-
                 batch.DrawString(Fonts.Pirulen16, begin, cursor, CurrentFlashColor);
             }
             batch.End();

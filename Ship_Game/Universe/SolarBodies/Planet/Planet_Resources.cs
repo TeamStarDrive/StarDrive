@@ -44,6 +44,15 @@ namespace Ship_Game
             }
         }
 
+        public void SetWorkerPercentages(float farmerPercent, float workerPercent, float researchPercent)
+        {
+            Food.Percent = farmerPercent.NaNChecked(0.4f, "SetWorkerPercentages farmer");
+            Prod.Percent = workerPercent.NaNChecked(0.4f, "SetWorkerPercentages worker");
+            Res.Percent  = researchPercent.NaNChecked(0.2f, "SetWorkerPercentages research");
+            if (Owner != null)
+                Food.AutoBalanceWorkers();
+        }
+
         public float PopulationBillion { get; private set; }
         public float PlusFlatPopulationPerTurn;
 
