@@ -235,10 +235,15 @@ namespace Ship_Game
 
         private void ApplyTerraforming() // Added by Fat Bastard
         {
-            if (Owner == null || TerraformToAdd.LessOrEqual(0))
-                return; // No owner, so Terraformers cannot continue working, or no Terraformers
+            if (TerraformToAdd.LessOrEqual(0) || Owner == null)
+            {
+                TerraformPoints = 0;
+                return; // No Terraformers or No owner (Terraformers cannot continue working)
+            }
 
-            ScrapNegativeEnvBuilding();
+            // Remove negative effect buildings
+            if (ScrapNegativeEnvBuilding())
+                return;
 
             // First, make un-habitable tiles habitable
             if (TerraformTiles()) 
@@ -283,11 +288,19 @@ namespace Ship_Game
             return true;
         }
 
-        private void ScrapNegativeEnvBuilding()
+        private bool ScrapNegativeEnvBuilding()
         {
+            if (Owner.IsCybernetic)
+                return false; // Cybernetic races do not care for environmental harmful facilities. 
+
             var negativeEnvBuildings = BuildingList.Filter(b => b.MaxFertilityOnBuild < 0 && !b.IsBiospheres);
             if (negativeEnvBuildings.Length > 0)
+            {
                 negativeEnvBuildings[0].ScrapBuilding(this);
+                return true;
+            }
+
+            return false;
         }
 
         private void TerraformBioSpheres()
@@ -319,11 +332,17 @@ namespace Ship_Game
 
         private void CompletePlanetTerraform()
         {
-            float fertilityAfterTerraform = Fertility;
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
-            BaseMaxFertility   = Math.Max(TerraformTargetFertility, BaseMaxFertility);
-            BaseFertility      = fertilityAfterTerraform; // setting the fertility to what the empire saw before terraform. It will slowly rise.
+            if (Owner.NonCybernetic)
+            {
+                float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
+                BaseMaxFertility              = Math.Max(TerraformTargetFertility, BaseMaxFertility);
+                BaseFertility                 = fertilityAfterTerraform;
+            }
+            else
+                BaseMaxFertility = 0; // cybernetic races will reduce fertility to 0 on their terraformed worlds, they dont need it.
+
             string messageText = Localizer.Token(1920);
             if (!BioSpheresToTerraform) 
             {
@@ -369,7 +388,7 @@ namespace Ship_Game
         }
 
         // Refactored by Fat Bastard && RedFox
-        void Terraform(PlanetCategory newCategory, bool improve = true)
+        private void Terraform(PlanetCategory newCategory, bool improve = true)
         {
             if (Category == newCategory)
                 return; // A planet with the same category was Terraformed (probably to increase fertility)
