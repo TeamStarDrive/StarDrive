@@ -410,9 +410,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public SolarSystem GetContestedSystem()
+        public bool GetContestedSystem(out SolarSystem contested)
         {
-            return Empire.Universe.SolarSystemDict[contestedSystemGuid];
+            return Empire.Universe.SolarSystemDict.TryGetValue(contestedSystemGuid, out contested);
         }
 
         public float GetStrength()
