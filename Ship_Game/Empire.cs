@@ -2318,8 +2318,21 @@ namespace Ship_Game
             }
         }
 
+        private void AbsorbAllEnvPreferences(Empire target)
+        {
+            data.EnvTerran  = Math.Max(data.EnvTerran, target.data.EnvTerran);
+            data.EnvOceanic = Math.Max(data.EnvOceanic, target.data.EnvOceanic);
+            data.EnvSteppe  = Math.Max(data.EnvSteppe, target.data.EnvSteppe);
+            data.EnvTundra  = Math.Max(data.EnvTundra, target.data.EnvTundra);
+            data.EnvSwamp   = Math.Max(data.EnvSwamp, target.data.EnvSwamp);
+            data.EnvDesert  = Math.Max(data.EnvDesert, target.data.EnvDesert);
+            data.EnvIce     = Math.Max(data.EnvIce, target.data.EnvIce);
+            data.EnvBarren  = Math.Max(data.EnvBarren, target.data.EnvBarren);
+        }
+
         public void AbsorbEmpire(Empire target)
         {
+            AbsorbAllEnvPreferences(target);
             foreach (Planet planet in target.GetPlanets())
             {
                 AddPlanet(planet);
