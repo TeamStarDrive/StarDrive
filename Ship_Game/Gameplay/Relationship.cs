@@ -473,14 +473,18 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
+            
             if (Treaty_Trade)
+            {
                 Treaty_Trade_TurnsExisted++;
+            }
 
-            if (!Treaty_Peace || --PeaceTurnsRemaining > 0)
-                return;
-            Treaty_Peace = false;
-            us.GetRelations(them).Treaty_Peace = false;
-            Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+            if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
+            {
+                Treaty_Peace = false;
+                us.GetRelations(them).Treaty_Peace = false;
+                Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+            }
         }
 
         public void UpdateRelationship(Empire us, Empire them)
@@ -493,7 +497,7 @@ namespace Ship_Game.Gameplay
 
             Risk.UpdateRiskAssessment(us);
 
-            if(us.isPlayer)
+            if (us.isPlayer)
             {
                 UpdatePlayerRelations(us, them);
                 return;
@@ -501,7 +505,7 @@ namespace Ship_Game.Gameplay
 
             if (FedQuest != null)
             {
-                var enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
+                Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
                 if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
                 {
                     DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
