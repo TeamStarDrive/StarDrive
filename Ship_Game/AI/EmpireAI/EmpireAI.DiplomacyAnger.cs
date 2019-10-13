@@ -96,9 +96,9 @@ namespace Ship_Game.AI {
                     {
                         DiplomacyScreen.Show(OwnerEmpire, Relationship.Key, "Warning Ships");
                     }
-                    else
+                    else if (r.GetContestedSystem(out SolarSystem contested))
                     {
-                        DiplomacyScreen.Show(OwnerEmpire, Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem());
+                        DiplomacyScreen.Show(OwnerEmpire, Relationship.Key, "Warning Colonized then Ships", contested);
                     }
                     r.WarnedAboutShips = true;
                 }
@@ -190,9 +190,9 @@ namespace Ship_Game.AI {
                         {
                             DiplomacyScreen.Show(OwnerEmpire, Relationship.Key, "Warning Ships");
                         }
-                        else
+                        else if (r.GetContestedSystem(out SolarSystem contested))
                         {
-                            DiplomacyScreen.Show(OwnerEmpire, Relationship.Key, "Warning Colonized then Ships", r.GetContestedSystem());
+                            DiplomacyScreen.Show(OwnerEmpire, Relationship.Key, "Warning Colonized then Ships", contested);
                         }
                         r.WarnedAboutShips = true;
                     }
@@ -231,9 +231,9 @@ namespace Ship_Game.AI {
                     {
                         DiplomacyScreen.Show(OwnerEmpire, them, "Warning Ships");
                     }
-                    else
+                    else if (r.GetContestedSystem(out SolarSystem contested))
                     {
-                        DiplomacyScreen.Show(OwnerEmpire, them, "Warning Colonized then Ships", r.GetContestedSystem());
+                        DiplomacyScreen.Show(OwnerEmpire, them, "Warning Colonized then Ships", contested);
                     }
 
                 r.turnsSinceLastContact = 0;
