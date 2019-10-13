@@ -25,22 +25,31 @@ namespace Ship_Game
                 tbError.Select(0, 0);
             }
         }
+
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            Activate(); // give focus to the dialog
+        }
+
         [STAThread]
-        private void btClip_Click(object sender, EventArgs e)
+        void btClip_Click(object sender, EventArgs e)
         {
             string all = tbError.Text + "\n\nUser Comment: " + tbComment.Text;
             Clipboard.SetText(all);
         }
 
-        private void btClose_Click(object sender, EventArgs e)
+        void btClose_Click(object sender, EventArgs e)
         {
             Close();
         }
 
-        private void btOpenBugTracker_Click(object sender, EventArgs e)
+        void btOpenBugTracker_Click(object sender, EventArgs e)
         {
-            if(!ExceptionTracker.Kudos)
-            Process.Start(ExceptionTracker.BugtrackerURL);
+            if (!ExceptionTracker.Kudos)
+            {
+                Process.Start(ExceptionTracker.BugtrackerURL);
+            }
             else
             {
                 ExceptionTracker.Kudos = false;
