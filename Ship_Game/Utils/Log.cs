@@ -321,7 +321,8 @@ namespace Ship_Game
         {
             if (IsTerminating)
                 return;
-            IsTerminating = true;
+
+            IsTerminating = isFatal;
 
             string text = CurryExceptionMessage(ex, error);
             string withStack = text + "\n" + CleanStackTrace(ex);
@@ -334,7 +335,7 @@ namespace Ship_Game
 
             WriteToConsole(ConsoleColor.DarkRed, withStack);
 
-            ExceptionViewer.ShowExceptionDialog(withStack, isFatal && GlobalStats.AutoErrorReport);
+            ExceptionViewer.ShowExceptionDialog(withStack, GlobalStats.AutoErrorReport);
             if (isFatal) Environment.Exit(-1);
         }
 
