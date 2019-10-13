@@ -201,7 +201,7 @@ namespace Ship_Game
         int SelectorFrame;
         public int globalshipCount;
         public int empireShipCountReserve;
-        Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
+        readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -209,7 +209,7 @@ namespace Ship_Game
         public UIButton PlanetsInCombat;
         public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
-        public int PathMapReducer          = 1;
+        public int PathMapReducer   = 1;
         public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 
