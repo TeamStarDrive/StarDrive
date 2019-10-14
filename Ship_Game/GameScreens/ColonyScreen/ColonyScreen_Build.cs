@@ -98,6 +98,9 @@ namespace Ship_Game
 
                 description = $"{fertilityChange} {description}";
             }
+
+            if (b.IsBiospheres)
+                description = $"{(P.BasePopPerTile/1000).String(2) } {description}";
             
             return description;
         }

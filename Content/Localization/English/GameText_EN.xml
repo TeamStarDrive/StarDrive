@@ -1499,7 +1499,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>408</Index>
-      <Text>+ population per tile; turns inhabitable tiles into habitable tiles</Text>
+      <Text>population cap; turns inhabitable tiles into habitable tiles</Text>
     </Token>
     <Token>
       <Index>409</Index>
