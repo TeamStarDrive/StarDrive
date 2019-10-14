@@ -68,7 +68,7 @@ namespace Ship_Game
                     if (toImprove.IsExploredBy(EmpireManager.Player))
                     {
                         toImprove.AddMaxBaseFertility(-0.5f);
-                        toImprove.MaxPopBase *= 0.65f;
+                        toImprove.BasePopPerTile *= 0.65f;
                         string txt = toImprove.Name + Localizer.Token(4012);
                         Empire.Universe.NotificationManager.AddRandomEventNotification(
                             txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);

@@ -108,7 +108,7 @@ namespace Ship_Game
             if (!Habitable)
                 return 0;
 
-            float minimumPop = MaxPopBase + PopulationBonus; // At least a tile's worth population and any max pop bonus buildings have
+            float minimumPop = BasePopPerTile + PopulationBonus; // At least a tile's worth population and any max pop bonus buildings have
             if (empire == null)
                 return Math.Max(minimumPop, MaxPopValFromTiles + PopulationBonus);
 
@@ -529,14 +529,16 @@ namespace Ship_Game
             ColonyValue += IsCybernetic ? MineralRichness * 20 : MineralRichness * 10 + Fertility * 10;
         }
 
+        public float PopPerTileFor(Empire empire) => BasePopPerTile * empire?.RacialEnvModifer(Category) ?? BasePopPerTile;
+
         // these are intentionally duplicated so we don't easily modify them...
-        private float MaxPopBaseVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
-        public float MaxPopBase // planetary base max population value
+        private float BasePopPerTileVal, MaxPopValFromTiles, PopulationBonus, MaxPopBillionVal;
+        public float BasePopPerTile // population per tile with no racial modifiers
         {
-            get => MaxPopBaseVal;
+            get => BasePopPerTileVal;
             set
             {
-                MaxPopBaseVal = value;
+                BasePopPerTileVal = value;
                 UpdateMaxPopulation();
             }
         }
@@ -548,10 +550,10 @@ namespace Ship_Game
             {
                 numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
                 PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease) 
-                                    + BuildingList.Count(b => b.IsBiospheres) * MaxPopBase;
+                                    + BuildingList.Count(b => b.IsBiospheres) * BasePopPerTile;
             }
 
-            MaxPopValFromTiles = Math.Max(MaxPopBase, MaxPopBase * numHabitableTiles);
+            MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
             MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
         }
 
@@ -986,7 +988,7 @@ namespace Ship_Game
             int numHabitableTiles  = TilesList.Filter(t => t.Habitable).Length;
             debug.AddLine($"{ParentSystem.Name} : {Name}", Color.Green);
             debug.AddLine($"Scale: {Scale}");
-            debug.AddLine($"Population per Habitable Tile: {MaxPopBase}");
+            debug.AddLine($"Population per Habitable Tile: {BasePopPerTile}");
             debug.AddLine($"Environment Modifier for {EmpireManager.Player.Name}: {EmpireManager.Player.RacialEnvModifer(Category)}");
             debug.AddLine($"Habitable Tiles: {numHabitableTiles}");
             debug.AddLine("");
