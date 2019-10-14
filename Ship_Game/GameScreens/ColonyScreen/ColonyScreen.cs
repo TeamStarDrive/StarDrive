@@ -779,8 +779,8 @@ namespace Ship_Game
 
         void DrawPlanetStat(ref Vector2 cursor, SpriteBatch batch)
         {
-            DrawBuildingInfo(ref cursor, batch, P.MaxPopBase * Player.RacialEnvModifer(P.Category) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
-            DrawBuildingInfo(ref cursor, batch, P.MaxPopBase / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
+            DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
+            DrawBuildingInfo(ref cursor, batch, P.BasePopPerTile / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
@@ -843,7 +843,7 @@ namespace Ship_Game
             int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
             int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
             int numNegativeEnvBuildings = P.BuildingList.Count(b => b.MaxFertilityOnBuild < 0);
-            float minEstimatedMaxPop    = P.TileArea * P.MaxPopBase * Player.RacialEnvModifer(Player.data.PreferredEnv) 
+            float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
                                           + P.BuildingList.Sum(b => b.MaxPopIncrease);
 
             string text = "Terraformer Process Stages: ";
