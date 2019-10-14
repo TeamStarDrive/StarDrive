@@ -86,16 +86,21 @@ namespace Ship_Game
 
         #endregion
 
-		string BuildingShortDescription(Building b)
-		{
-			string fertilityChange = "";
-			if (b.MaxFertilityOnBuild.Greater(0))
-				fertilityChange = $"+{b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category)}";
-			else if (b.MaxFertilityOnBuild.Less(0))
-				fertilityChange = $"{b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category)}";
+        string BuildingShortDescription(Building b)
+        {
+            string description = Localizer.Token(b.ShortDescriptionIndex);
 
-			return $"{fertilityChange} {Localizer.Token(b.ShortDescriptionIndex)}";
-		}
+            if (b.MaxFertilityOnBuild.NotZero())
+            {
+                string fertilityChange = $"{b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category)}";
+                if (b.MaxFertilityOnBuild.Greater(0))
+                    fertilityChange = $"+{fertilityChange}";
+
+                description = $"{fertilityChange} {description}";
+            }
+            
+            return description;
+        }
 
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
