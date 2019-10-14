@@ -682,11 +682,12 @@ namespace Ship_Game
                             Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
                             Them.GetEmpireAI().GetWarDeclaredOnUs(Us, WarType.ImperialistWar);
                         }
-                        Us.GetEmpireAI().DeclareWarOn(Them, WarType.ImperialistWar);
                     }
                 }
                 else if (DeclareWar != null && DeclareWar.R.HitTest(input.CursorPosition))
+                {
                     ToolTip.CreateTooltip(128);
+                }
 
                 if (Discuss != null && Discuss.HandleInput(input))
                 {

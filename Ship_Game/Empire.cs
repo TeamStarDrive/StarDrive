@@ -1110,6 +1110,7 @@ namespace Ship_Game
         }
 
         public IReadOnlyDictionary<Empire, Relationship> AllRelations => Relationships;
+
         public Relationship GetRelations(Empire withEmpire)
         {
             Relationships.TryGetValue(withEmpire, out Relationship rel);
@@ -1122,6 +1123,7 @@ namespace Ship_Game
             if (!TryGetRelations(empire, out Relationship relation))
                 Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
         }
+
         public bool TryGetRelations(Empire empire, out Relationship relations) => Relationships.TryGetValue(empire, out relations);
 
         public void AddRelationships(Empire e, Relationship i) => Relationships.Add(e, i);

@@ -233,22 +233,25 @@ namespace Ship_Game.Ships
 
         // @note This should only be used in Testing
         // @todo Is there a way to limit visibility to unit tests only?
-        public void SetHealth(float newHealth)
+        public void SetHealth(float newHealth, bool fromSave = false)
         {
             float maxHealth = ActualMaxHealth;
             newHealth = newHealth.Clamped(0, maxHealth);
             float healthChange = newHealth - Health;
             Health = newHealth;
             OnFire = (newHealth / maxHealth) < OnFireThreshold;
-            if (Active && Health < 1f)
-            {
-                Die(LastDamagedBy, false);
-            }
-            else if (!Active && Health > 1f)
-            {
-                ResurrectModule();
-            }
 
+            if (!fromSave) // do not trigger Die() or Resurrect() during savegame loading
+            {
+                if (Active && Health < 1f)
+                {
+                    Die(LastDamagedBy, false);
+                }
+                else if (!Active && Health > 1f)
+                {
+                    ResurrectModule();
+                }
+            }
             Parent.AddShipHealth(healthChange);
         }
 
@@ -362,7 +365,7 @@ namespace Ship_Game.Ships
                 module.ShieldPower           = slot.ShieldPower;
                 module.ShieldUpChance        = slot.ShieldUpChance;
                 module.ShieldPowerBeforeWarp = slot.ShieldPowerBeforeWarp;
-                module.SetHealth(slot.Health);
+                module.SetHealth(slot.Health, fromSave: true);
             }
             return module;
         }
@@ -803,7 +806,7 @@ namespace Ship_Game.Ships
             if (debrisCount != 0)
             {
                 float debrisScale = size * 0.033f;
-                SpaceJunk.SpawnJunk(debrisCount, Center, inSystem, this, 1.0f, debrisScale);
+                SpaceJunk.SpawnJunk(debrisCount, Center, this, 1.0f, debrisScale);
             }
         }
 
@@ -967,7 +970,11 @@ namespace Ship_Game.Ships
 
         public override void Update(float elapsedTime)
         {
-            if (!Active && Health > 1f)
+            if (Active && Health < 1f)
+            {
+                Die(LastDamagedBy, false);
+            }
+            else if (!Active && Health > 1f)
             {
                 ResurrectModule();
             }
