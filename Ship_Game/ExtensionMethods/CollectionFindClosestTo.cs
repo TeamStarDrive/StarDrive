@@ -26,20 +26,24 @@ namespace Ship_Game
     {
         public static Ship FindClosestTo(this Array<Ship> ships, Planet toPlanet)
         {
-            return FindClosestTo(ships.GetInternalArrayItems(), ships.Count, toPlanet);
+            return FindClosestTo(ships.GetInternalArrayItems(), ships.Count, toPlanet.Center);
         }
 
         public static Ship FindClosestTo(this Ship[] ships, Planet toPlanet)
         {
-            return FindClosestTo(ships, ships.Length, toPlanet);
+            return FindClosestTo(ships, ships.Length, toPlanet.Center);
+        }
+        
+        public static Ship FindClosestTo(this Ship[] ships, int count, Planet toPlanet)
+        {
+            return FindClosestTo(ships, count, toPlanet.Center);
         }
 
-        public static Ship FindClosestTo(this Ship[] ships, int count, Planet toPlanet)
+        public static Ship FindClosestTo(this Ship[] ships, int count, Vector2 to)
         {
             if (count <= 0)
                 return null;
 
-            Vector2 to = toPlanet.Center;
             Ship found = ships[0];
             float min = to.SqDist(found.Center);
             for (int i = 1; i < count; ++i)
@@ -58,20 +62,24 @@ namespace Ship_Game
 
         public static Planet FindClosestTo(this Array<Planet> planets, Planet toPlanet)
         {
-            return FindClosestTo(planets.GetInternalArrayItems(), planets.Count, toPlanet);
+            return FindClosestTo(planets.GetInternalArrayItems(), planets.Count, toPlanet.Center);
         }
 
         public static Planet FindClosestTo(this Planet[] planets, Planet toPlanet)
         {
-            return FindClosestTo(planets, planets.Length, toPlanet);
+            return FindClosestTo(planets, planets.Length, toPlanet.Center);
         }
 
         public static Planet FindClosestTo(this Planet[] planets, int count, Planet toPlanet)
         {
+            return FindClosestTo(planets, count, toPlanet.Center);
+        }
+
+        public static Planet FindClosestTo(this Planet[] planets, int count, Vector2 to)
+        {
             if (count <= 0)
                 return null;
 
-            Vector2 to = toPlanet.Center;
             Planet found = planets[0];
             float min = to.SqDist(found.Center);
             for (int i = 1; i < count; ++i)
@@ -87,18 +95,22 @@ namespace Ship_Game
             return found;
         }
 
-
         public static Ship FindClosestTo(this Ship[] ships, Planet to, Predicate<Ship> filter)
         {
-            return ships.FindMinFiltered(filter, s => s.Center.SqDist(to.Center));
+            return FindClosestTo(ships, ships.Length, to.Center, filter);
         }
 
         public static Ship FindClosestTo(this Array<Ship> ships, Planet to, Predicate<Ship> filter)
         {
-            return ships.FindMinFiltered(filter, s => s.Center.SqDist(to.Center));
+            return FindClosestTo(ships.GetInternalArrayItems(), ships.Count, to.Center, filter);
         }
 
         public static Ship FindClosestTo(this Ship[] ships, int count, Planet toPlanet, Predicate<Ship> filter)
+        {
+            return FindClosestTo(ships, count, toPlanet.Center, filter);
+        }
+
+        public static Ship FindClosestTo(this Ship[] ships, int count, Vector2 to, Predicate<Ship> filter)
         {
             if (count <= 0) return null;
 
@@ -106,7 +118,6 @@ namespace Ship_Game
             if (found == null) // no elements passed the filter!
                 return null;
             
-            Vector2 to = toPlanet.Center;
             float min = to.SqDist(found.Center);
             for (; i < count; ++i)
             {

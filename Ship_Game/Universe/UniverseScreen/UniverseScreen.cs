@@ -53,18 +53,16 @@ namespace Ship_Game
         public Array<NebulousOverlay> Stars        = new Array<NebulousOverlay>();
         public Array<NebulousOverlay> NebulousShit = new Array<NebulousOverlay>();
         Rectangle ScreenRectangle;
-        public Map<Guid, Planet> PlanetsDict            = new Map<Guid, Planet>();
-        public Map<Guid, SolarSystem> SolarSystemDict   = new Map<Guid, SolarSystem>();
-        public BatchRemovalCollection<Bomb> BombList    = new BatchRemovalCollection<Bomb>();
-        AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
-        AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
+        public Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
+        public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
+        public BatchRemovalCollection<Bomb> BombList  = new BatchRemovalCollection<Bomb>();
+        readonly AutoResetEvent DrawCompletedEvt         = new AutoResetEvent(false);
+        readonly AutoResetEvent ProcessTurnsCompletedEvt = new AutoResetEvent(true);
         public float CamHeight = 2550f;
         public Vector3 CamPos = Vector3.Zero;
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        float TimerDelay = 0.25f;
         GameTime SimulationTime = new GameTime();
-        bool TurnFlip = true;
         float TurnFlipCounter;
         int Auto = 1;
         AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
@@ -76,11 +74,9 @@ namespace Ship_Game
         Array<Ship> DeepSpaceShips  = new Array<Ship>();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
-        float SectorMiniMapHeight = 20000f;
         public Vector2 mouseWorldPos;
         public float SelectedSomethingTimer = 3f;
         Array<FleetButton> FleetButtons = new Array<FleetButton>();
-        float desiredSectorZ = 20000f;
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
         bool drawBloom = GlobalStats.RenderBloom; //true
         Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
@@ -201,7 +197,7 @@ namespace Ship_Game
         int SelectorFrame;
         public int globalshipCount;
         public int empireShipCountReserve;
-        Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
+        readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
         public float Lag = 0;
         public Ship previousSelection;
 
@@ -209,7 +205,7 @@ namespace Ship_Game
         public UIButton PlanetsInCombat;
         public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
-        public int PathMapReducer          = 1;
+        public int PathMapReducer   = 1;
         public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 
