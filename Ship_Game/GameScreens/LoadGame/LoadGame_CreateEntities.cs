@@ -102,7 +102,7 @@ namespace Ship_Game
             p.Prod.PercentLock   = psdata.ProdLock;
             p.Res.PercentLock    = psdata.ResLock;
             p.OrbitalRadius      = psdata.OrbitalDistance;
-            p.BasePopPerTile     = psdata.PopulationMax;
+            p.BasePopPerTile     = psdata.BasePopPerTile;
 
             p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility);
 
