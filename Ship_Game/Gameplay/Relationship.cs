@@ -410,9 +410,9 @@ namespace Ship_Game.Gameplay
             }
         }
 
-        public SolarSystem GetContestedSystem()
+        public bool GetContestedSystem(out SolarSystem contested)
         {
-            return Empire.Universe.SolarSystemDict[contestedSystemGuid];
+            return Empire.Universe.SolarSystemDict.TryGetValue(contestedSystemGuid, out contested);
         }
 
         public float GetStrength()
@@ -473,14 +473,18 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
+            
             if (Treaty_Trade)
+            {
                 Treaty_Trade_TurnsExisted++;
+            }
 
-            if (!Treaty_Peace || --PeaceTurnsRemaining > 0)
-                return;
-            Treaty_Peace = false;
-            us.GetRelations(them).Treaty_Peace = false;
-            Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+            if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
+            {
+                Treaty_Peace = false;
+                us.GetRelations(them).Treaty_Peace = false;
+                Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
+            }
         }
 
         public void UpdateRelationship(Empire us, Empire them)
@@ -493,14 +497,15 @@ namespace Ship_Game.Gameplay
 
             Risk.UpdateRiskAssessment(us);
 
-            if(us.isPlayer)
+            if (us.isPlayer)
             {
                 UpdatePlayerRelations(us, them);
                 return;
             }
+
             if (FedQuest != null)
             {
-                var enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
+                Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);
                 if (FedQuest.type == QuestType.DestroyEnemy && enemyEmpire.data.Defeated)
                 {
                     DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_KilledEnemy", enemyEmpire);
@@ -524,31 +529,34 @@ namespace Ship_Game.Gameplay
                     }
                 }
             }
+
             if (Posture == Posture.Hostile && Trust > 50f && TotalAnger < 10f)
                 Posture = Posture.Neutral;
             if (them.isFaction)
                 AtWar = false;
+
             UpdateIntelligence(us, them);
             if (AtWar && ActiveWar != null)
             {
                 ActiveWar.TurnsAtWar += 1f;
             }
+
             foreach (TrustEntry te in TrustEntries)
             {
                 te.TurnsInExistence += 1;
-                if (te.TurnTimer == 0 || te.TurnsInExistence <= 250)
-                    continue;
-                TrustEntries.QueuePendingRemoval(te);
+                if (te.TurnTimer != 0 && te.TurnsInExistence > 250)
+                    TrustEntries.QueuePendingRemoval(te);
             }
             TrustEntries.ApplyPendingRemovals();
+
             foreach (FearEntry te in FearEntries)
             {
                 te.TurnsInExistence += 1f;
-                if (te.TurnTimer == 0 || te.TurnsInExistence <= 250f)
-                    continue;
-                FearEntries.QueuePendingRemoval(te);
+                if (te.TurnTimer != 0 && !(te.TurnsInExistence <= 250f))
+                    FearEntries.QueuePendingRemoval(te);
             }
             FearEntries.ApplyPendingRemovals();
+
             if (!Treaty_Alliance)
             {
                 TurnsAllied = 0;
@@ -557,6 +565,7 @@ namespace Ship_Game.Gameplay
             {
                 TurnsAllied += 1;
             }
+
             DTrait dt = us.data.DiplomaticPersonality;
             if (Posture == Posture.Friendly)
             {
@@ -569,6 +578,7 @@ namespace Ship_Game.Gameplay
             {
                 Trust -= dt.TrustGainedAtPeace;
             }
+
             if (Treaty_NAPact)      Trust += 0.0125f;
             if (Treaty_OpenBorders) Trust += 0.0125f;
             if (Treaty_Trade)
@@ -576,6 +586,7 @@ namespace Ship_Game.Gameplay
                 Trust += 0.0125f;
                 Treaty_Trade_TurnsExisted += 1;
             }
+
             if (Treaty_Peace)
             {
                 if (--PeaceTurnsRemaining <= 0)
@@ -597,13 +608,13 @@ namespace Ship_Game.Gameplay
 
             if (!Treaty_Alliance && !Treaty_OpenBorders)
             {
-                float strengthofshipsinborders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
-                if (strengthofshipsinborders > 0)
+                float strShipsInBorders = us.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireShipsInBorders(them);
+                if (strShipsInBorders > 0)
                 {
                     if (!Treaty_NAPact)
-                        Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore);
+                        Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore);
                     else
-                        Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strengthofshipsinborders / (us.MilitaryScore * 2f);
+                        Anger_FromShipsInOurBorders += (100f - Trust) / 100f * strShipsInBorders / (us.MilitaryScore * 2f);
                 }
             }
 

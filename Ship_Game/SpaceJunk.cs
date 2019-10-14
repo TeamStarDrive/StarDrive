@@ -107,13 +107,20 @@ namespace Ship_Game
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
-        public static void SpawnJunk(int howMuchJunk, Vector2 position, SolarSystem s, 
+        public static void SpawnJunk(int howMuchJunk, Vector2 position, 
                                      GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f, bool staticSmoke = false)
         {
-            if (UniverseScreen.JunkList.Count > 800 ||
-                Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView ||
-                !Empire.Universe.Frustum.Contains(position, 10f))
-                return;
+            if (Empire.Universe == null)
+            {
+                Log.Error($"SpawnJunk {howMuchJunk} failed: {source}");
+                return; // we can't spawn junk while loading the game :'/
+            }
+
+            if (UniverseScreen.JunkList.Count > 800)
+                return; // don't allow too much junk
+
+            if (!source.IsInFrustum)
+                return; // not visible on the screen, so lets forget about it :)
 
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
@@ -122,7 +129,7 @@ namespace Ship_Game
             }
 
             // now lock and add to scene
-            foreach (var j in junk) Empire.Universe.AddObject(j.So);
+            foreach (SpaceJunk j in junk) Empire.Universe.AddObject(j.So);
             UniverseScreen.JunkList.AddRange(junk);
         }
 
