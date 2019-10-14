@@ -99,9 +99,9 @@ namespace Ship_Game
 
                 SetTileHabitability(habitableChance, out int numHabitableTiles);
                 if (preDefinedPop > 0)
-                    MaxPopBase = (int)(preDefinedPop * 1000 / numHabitableTiles);
+                    BasePopPerTile = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
-                    MaxPopBase = (int)(type.PopPerTile.Generate() * scale);
+                    BasePopPerTile = (int)(type.PopPerTile.Generate() * scale);
 
                 BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
@@ -197,7 +197,7 @@ namespace Ship_Game
             // Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
             float envMultiplier = 1 / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
             float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
-            MaxPopBase          = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
+            BasePopPerTile          = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
             Population          = MaxPopulation;
         }
 
@@ -397,8 +397,8 @@ namespace Ship_Game
             float newBasePopMax   = Type.PopPerTile.Generate();
 
             // Dont let the BasePopMax be lower if improving or higher if degrading
-            MaxPopBase = improve ? Math.Max(MaxPopBase, newBasePopMax) 
-                                 : Math.Min(MaxPopBase, newBasePopMax);
+            BasePopPerTile = improve ? Math.Max(BasePopPerTile, newBasePopMax) 
+                                 : Math.Min(BasePopPerTile, newBasePopMax);
 
             if (!improve)
                 ReCalculateHabitableChances();
