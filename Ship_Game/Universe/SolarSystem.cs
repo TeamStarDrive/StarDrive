@@ -580,7 +580,7 @@ namespace Ship_Game
                     Scale                = planet.Scale,
                     ShieldStrength       = planet.ShieldStrengthCurrent,
                     Population           = planet.Population,
-                    PopulationMax        = planet.BasePopPerTile,
+                    BasePopPerTile       = planet.BasePopPerTile,
                     Fertility            = planet.BaseFertility,
                     MaxFertility         = planet.BaseMaxFertility,
                     Richness             = planet.MineralRichness,

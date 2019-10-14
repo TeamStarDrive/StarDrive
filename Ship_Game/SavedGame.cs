@@ -614,7 +614,7 @@ namespace Ship_Game
             [Serialize(3)] public float Scale;
             [Serialize(4)] public string Owner;
             [Serialize(5)] public float Population;
-            [Serialize(6)] public float PopulationMax;
+            [Serialize(6)] public float BasePopPerTile;
             [Serialize(7)] public float Fertility;
             [Serialize(8)] public float Richness;
             [Serialize(9)] public int WhichPlanet;
