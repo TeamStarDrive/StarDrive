@@ -129,7 +129,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
             var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
             
-            string pop = P.PopulationString;
+            string pop = P.PopulationStringForPlayer;
             cursor.X -= (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
             batch.DrawString(Fonts.Arial12Bold, pop, cursor, tColor);
 
@@ -190,7 +190,7 @@ namespace Ship_Game
                     Localizer.Token(1429) + P.LocalizedCategory, namePos, tColor);
                 var textCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                     namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
-                string pop = P.PopulationString;
+                string pop = P.PopulationStringForPlayer;
                 textCursor.X = textCursor.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop, textCursor, tColor);
 
@@ -216,7 +216,7 @@ namespace Ship_Game
             Vector2 TextCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                 namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
 
-            string pop2 = P.PopulationString;
+            string pop2 = P.PopulationStringForPlayer;
             TextCursor.X -= (Fonts.Arial12Bold.MeasureString(pop2).X + 5f);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop2, TextCursor, tColor);
 

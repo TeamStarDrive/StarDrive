@@ -188,7 +188,7 @@ namespace Ship_Game
             Vector2 RichCursor = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, planet.MineralRichness.String(1), RichCursor, (planet.Habitable ? Color.White : Color.LightPink));
             Vector2 PopCursor = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, planet.PopulationString, PopCursor, (planet.Habitable ? Color.White : Color.LightPink));
+            batch.DrawString(Fonts.Arial12Bold, planet.PopulationStringForPlayer, PopCursor, (planet.Habitable ? Color.White : Color.LightPink));
             Vector2 OwnerCursor = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             SpriteBatch spriteBatch2 = batch;
             SpriteFont spriteFont = Fonts.Arial12Bold;

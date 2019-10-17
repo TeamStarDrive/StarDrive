@@ -112,7 +112,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
                     return 0;
 
-                return (int)(MaxPopulationBillion(Owner) - PopulationBillion).Clamped(0, 5);
+                return (int)(MaxPopulationBillion - PopulationBillion).Clamped(0, 5);
             }
         }
 
