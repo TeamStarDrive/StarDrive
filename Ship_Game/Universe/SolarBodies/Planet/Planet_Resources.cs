@@ -61,19 +61,20 @@ namespace Ship_Game
         public Building BiospheresWeCanBuild   => BuildingsCanBuild.Find(b => b.IsBiospheres);
         public Building TerraformersWeCanBuild => BuildingsCanBuild.Find(b => b.IsTerraformer);
 
-        public string PopulationString
+        public string PopulationStringForPlayer
         {
             get
             {
-                string popString = $"{PopulationBillion.String(2)} /" +
-                                   $" {MaxPopulationBillion(EmpireManager.Player).String(2)}";
+                float maxPopForPlayer = MaxPopulationBillionFor(EmpireManager.Player);
+                int numDecimalsPop    = PopulationBillion.GreaterOrEqual(0.1f) ? 1 : 2;
+                int numDecimalsPopMax = maxPopForPlayer.GreaterOrEqual(0.1f) ? 1 : 2;
+                string popString      = $"{PopulationBillion.String(numDecimalsPop)} / {maxPopForPlayer.String(numDecimalsPopMax)}";
 
                 if (PopulationRatio.NotZero())
                     popString += $" ({(PopulationRatio * 100).String()}%)";
 
                 return popString;
             }
-                            
         }
 
         public float GetGoodHere(Goods good)

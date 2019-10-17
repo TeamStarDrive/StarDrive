@@ -278,7 +278,7 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.WhiteSmoke);
                     }
                     else
-                    batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.White);
+                        batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.White);
                 }
                 else if (pgs.QItem != null)
                 {
@@ -349,7 +349,7 @@ namespace Ship_Game
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
             var color = new Color(255, 239, 208);
-            batch.DrawString(Font12, P.PopulationString, position3, color);
+            batch.DrawString(Font12, P.PopulationStringForPlayer, position3, color);
             var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(385) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(75);
