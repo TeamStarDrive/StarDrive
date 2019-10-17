@@ -321,6 +321,7 @@ namespace Ship_Game
         {
             if (IsTerminating)
                 return;
+
             IsTerminating = isFatal;
 
             string text = CurryExceptionMessage(ex, error);

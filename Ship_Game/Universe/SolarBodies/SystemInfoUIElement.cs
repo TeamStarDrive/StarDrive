@@ -235,7 +235,7 @@ namespace Ship_Game
                         {
                             int Spacing = DataFont.LineSpacing;
                             PlanetTypeCursor.Y += (Spacing + 4);
-                            string popString = p.PopulationString;
+                            string popString = p.PopulationStringForPlayer;
                             PlanetTypeCursor.X = PlanetRect.X + PlanetRect.Width / 2 - DataFont.MeasureString(popString).X / 2f;
                             ScreenManager.SpriteBatch.DrawString(DataFont, popString, PlanetTypeCursor, tColor);
                             Rectangle flagRect = new Rectangle(PlanetRect.X + PlanetRect.Width / 2 - 10, PlanetRect.Y - 20, 20, 20);
@@ -264,7 +264,7 @@ namespace Ship_Game
                             HelperFunctions.ClampVectorToInt(ref pt);
                             if (p.Owner == null || p.Owner != EmpireManager.Player)
                             {
-                                ScreenManager.SpriteBatch.DrawString(DataFont, p.Fertility.String(), ft, tColor);
+                                ScreenManager.SpriteBatch.DrawString(DataFont, p.FertilityFor(EmpireManager.Player).String(), ft, tColor);
                                 ScreenManager.SpriteBatch.DrawString(DataFont, p.MineralRichness.String(), pt, tColor);
                             }
                             else

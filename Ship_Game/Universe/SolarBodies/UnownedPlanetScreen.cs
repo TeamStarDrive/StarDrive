@@ -70,7 +70,7 @@ namespace Ship_Game
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.PopulationString, infoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, new Color(255, 239, 208));
 			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
@@ -79,7 +79,7 @@ namespace Ship_Game
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.Fertility.String(), infoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, new Color(255, 239, 208));
 			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{

@@ -89,6 +89,7 @@ namespace Ship_Game
             if (psdata.SpecialDescription.NotEmpty())
                 p.SpecialDescription = psdata.SpecialDescription;
 
+            p.RestorePlanetTypeFromSave(psdata.WhichPlanet);
             p.Scale = psdata.Scale > 0f ? psdata.Scale : RandomMath.RandomBetween(1f, 2f);
             p.colonyType         = psdata.ColonyType;
             p.GovOrbitals        = psdata.GovOrbitals;
@@ -101,13 +102,12 @@ namespace Ship_Game
             p.Prod.PercentLock   = psdata.ProdLock;
             p.Res.PercentLock    = psdata.ResLock;
             p.OrbitalRadius      = psdata.OrbitalDistance;
-            p.MaxPopBase         = psdata.PopulationMax;
+            p.BasePopPerTile     = psdata.BasePopPerTile;
 
-            p.SetFertility(psdata.Fertility, psdata.MaxFertility);
+            p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility);
 
             p.MineralRichness       = psdata.Richness;
             p.HasRings              = psdata.HasRings;
-            p.RestorePlanetTypeFromSave(psdata.WhichPlanet);
             p.ShieldStrengthCurrent = psdata.ShieldStrength;
             p.CrippledTurns         = psdata.Crippled_Turns;
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
@@ -117,7 +117,6 @@ namespace Ship_Game
                 p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
 
             p.SetWorkerPercentages(psdata.farmerPercentage, psdata.workerPercentage, psdata.researcherPercentage);
-
             if (p.HasRings)
                 p.RingTilt = RandomMath.RandomBetween(-80f, -45f);
 

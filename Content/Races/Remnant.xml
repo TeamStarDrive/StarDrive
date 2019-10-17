@@ -5,6 +5,18 @@
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
   <StartingScout>Xeno Fighter</StartingScout>
   <BaseShipLevel>3</BaseShipLevel>
+
+  <!-- Fertility multipliers for environments. For Remnants, this will control amount of guardian fleet deploy at game creation -->
+  <EnvTerran>2</EnvTerran>
+  <EnvOceanic>1.5</EnvOceanic>
+  <EnvSteppe>1.5</EnvSteppe>
+  <EnvTundra>1.3</EnvTundra>
+  <EnvSwamp>1.3</EnvSwamp>
+  <EnvDesert>1.2</EnvDesert>
+  <EnvIce>1.2</EnvIce>
+  <EnvBarren>0</EnvBarren>
+  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
+
   <Traits>
     <Name>The Remnant</Name>
     <Singular>Remnant</Singular>

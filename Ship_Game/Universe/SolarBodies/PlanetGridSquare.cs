@@ -4,22 +4,22 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-	public sealed class PlanetGridSquare // Refactored by Fat Bastard, Feb 6, 2019
-	{
-		public int x;
-		public int y;
-		public bool CanAttack;
-		public bool CanMoveTo;
-		public bool ShowAttackHover;
-		public int MaxAllowedTroops = 1; //FB - multiple troops per PGS is not supported yet
+    public sealed class PlanetGridSquare // Refactored by Fat Bastard, Feb 6, 2019
+    {
+        public int x;
+        public int y;
+        public bool CanAttack;
+        public bool CanMoveTo;
+        public bool ShowAttackHover;
+        public int MaxAllowedTroops = 1; //FB - multiple troops per PGS is not supported yet
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
-		public bool Biosphere;
-		public Building building;
-		public bool Habitable;
-		public QueueItem QItem;
-		public Rectangle ClickRect      = new Rectangle();
-		public Rectangle TroopClickRect = new Rectangle();
-		public bool Highlighted;
+        public bool Biosphere;
+        public Building building;
+        public bool Habitable; // FB - this also affects max population (because of pop per habitalbe tile)
+        public QueueItem QItem;
+        public Rectangle ClickRect      = new Rectangle();
+        public Rectangle TroopClickRect = new Rectangle();
+        public bool Highlighted;
 
         public bool NoTroopsOnTile       => !TroopsAreOnTile;
         public bool TroopsAreOnTile      => TroopsHere.Count > 0;
@@ -41,42 +41,48 @@ namespace Ship_Game
         public int TroopsSoftAttack => TroopsHere.Sum(troop => troop.ActualSoftAttack);
 
         public PlanetGridSquare()
-		{
-		}
+        {
+        }
 
-		public PlanetGridSquare(int x, int y, Building b, bool hab)
-		{
-			this.x = x;
-			this.y = y;
-			Habitable = hab;
-			building = b;
-		}
+        public PlanetGridSquare(int x, int y, Building b, bool hab)
+        {
+            this.x = x;
+            this.y = y;
+            Habitable = hab;
+            building = b;
+        }
 
         public bool CanBuildHere(Building b)
         {
             if (QItem != null)
                 return false;
 
-            if (b.IsBiospheres && (Biosphere || Habitable))
-                return false; // don't allow double biosphere
+            if (b.IsBiospheres && Habitable)
+                return false; // don't allow biospheres on habitable tiles (including tiles with biospheres)
 
-            return !Habitable && b.CanBuildAnywhere
-                 || Habitable && building == null;
+            return !Habitable && b.CanBuildAnywhere && !BuildingOnTile
+                 || Habitable && NoBuildingOnTile;
         }
 
-        public void PlaceBuilding(Building b)
+        public void PlaceBuilding(Building b, Planet p)
         {
             if (b.IsBiospheres)
             {
+                if (Habitable)
+                {
+                    QItem = null;
+                    return; // Tile was Habitable when Biospheres completed. Probably due to Terraforming
+                }
+
                 Habitable = true;
                 Biosphere = true;
                 building = null;
             }
             else
-            {
                 building = b;
-            }
+
             QItem = null;
+            b.OnBuildingBuiltAt(p);
         }
 
         public bool PerformAutoCombat(Planet p)
@@ -92,16 +98,16 @@ namespace Ship_Game
                 && PerformAutoCombat(p);
         }
 
-	    public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
-	    {
-	        return (TroopsAreOnTile && SingleTroop.Loyalty != us) || EventOnTile || 
-	               (CombatBuildingOnTile && planetOwner != us);  // also event ID needed
-	    }
+        public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
+        {
+            return (TroopsAreOnTile && SingleTroop.Loyalty != us) || EventOnTile || 
+                   (CombatBuildingOnTile && planetOwner != us);  // also event ID needed
+        }
 
-	    public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
-	    {
-	        return Math.Abs(x - tileToCheck.x) <= range && Math.Abs(y - tileToCheck.y) <= range;
-	    }
+        public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
+        {
+            return Math.Abs(x - tileToCheck.x) <= range && Math.Abs(y - tileToCheck.y) <= range;
+        }
 
         public void DirectionToTarget(PlanetGridSquare target, out int xDiff, out int yDiff)
         {
@@ -118,21 +124,21 @@ namespace Ship_Game
         public TileDirection GetDirectionTo(PlanetGridSquare target)
         {
 
-	        int xDiff = (target.x - x).Clamped(-1, 1);
-	        int yDiff = (target.y - y).Clamped(-1, 1);
-	        switch (xDiff)
-	        {
-	            case 0 when yDiff == -1:  return TileDirection.North;
-	            case 0 when yDiff == 1:   return TileDirection.South;
-	            case 1 when yDiff == 0:   return TileDirection.East;
-	            case -1 when yDiff == 0:  return TileDirection.West;
-	            case 1 when yDiff == -1:  return TileDirection.NorthEast;
-	            case -1 when yDiff == -1: return TileDirection.NorthWest;
-	            case 1 when yDiff == 1:   return TileDirection.SouthEast;
-	            case -1 when yDiff == 1:  return TileDirection.SouthWest;
-	            default: return TileDirection.None;
-	        }
-	    }
+            int xDiff = (target.x - x).Clamped(-1, 1);
+            int yDiff = (target.y - y).Clamped(-1, 1);
+            switch (xDiff)
+            {
+                case 0 when yDiff == -1:  return TileDirection.North;
+                case 0 when yDiff == 1:   return TileDirection.South;
+                case 1 when yDiff == 0:   return TileDirection.East;
+                case -1 when yDiff == 0:  return TileDirection.West;
+                case 1 when yDiff == -1:  return TileDirection.NorthEast;
+                case -1 when yDiff == -1: return TileDirection.NorthWest;
+                case 1 when yDiff == 1:   return TileDirection.SouthEast;
+                case -1 when yDiff == 1:  return TileDirection.SouthWest;
+                default: return TileDirection.None;
+            }
+        }
 
         public Point ConvertDirectionToCoordinates(TileDirection d)
         {

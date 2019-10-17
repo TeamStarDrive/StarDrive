@@ -13,57 +13,43 @@ namespace Ship_Game
 {
     public sealed class PlanetInfoUIElement : UIElement
     {
-        private Rectangle SliderRect;
-
-        private Rectangle clickRect;
-
-        private UniverseScreen screen;
-
-        private Rectangle LeftRect;
-
-        private Rectangle RightRect;
-
-        private Rectangle PlanetIconRect;
-
-        private Rectangle flagRect;
-
-        private Rectangle moneyRect;
+        public Planet P;
+        private Rectangle ClickRect;
+        private readonly UniverseScreen Screen;
+        private Rectangle MoneyRect;
         private Rectangle SendTroops;
-
-        private Rectangle popRect;
-
+        private Rectangle PopRect;
         private string PlanetTypeRichness;
         private Vector2 PlanetTypeCursor;
-
-        public Planet p;
-        private Selector sel;
-        private SkinnableButton Inspect;
-        private SkinnableButton Invade;
-
-        ColonySliderGroup Sliders;
-        private Rectangle Housing;
-
-        private Rectangle DefenseRect;
-        private Rectangle InjuryRect;
-        private Rectangle OffenseRect;
-        private Rectangle ShieldRect;
-        private Rectangle DefenseShipsRect;
-        private Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        private readonly Selector Sel;
+        private readonly SkinnableButton Inspect;
+        private readonly SkinnableButton Invade;
+        private readonly ColonySliderGroup Sliders;
+        private readonly Rectangle Housing;
+        private readonly Rectangle DefenseRect;
+        private readonly Rectangle InjuryRect;
+        private readonly Rectangle OffenseRect;
+        private readonly Rectangle ShieldRect;
+        private readonly Rectangle DefenseShipsRect;
+        private readonly Rectangle RightRect;
+        private readonly Rectangle PlanetIconRect;
+        private readonly Rectangle FlagRect;
+        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         private Rectangle Mark;
 
         public PlanetInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
-            this.screen = screen;
+            this.Screen = screen;
             ScreenManager = sm;
             ElementRect = r;
-            sel = new Selector(r, Color.Black);
+            Sel = new Selector(r, Color.Black);
             Housing = r;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            clickRect = new Rectangle(ElementRect.Right - 16, ElementRect.CenterY() - 11, 11, 22);
-            LeftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
+            ClickRect = new Rectangle(ElementRect.Right - 16, ElementRect.CenterY() - 11, 11, 22);
+            Rectangle leftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
             RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
-            PlanetIconRect = new Rectangle(LeftRect.X + 75, Housing.Y + 120, 80, 80);
+            PlanetIconRect = new Rectangle(leftRect.X + 75, Housing.Y + 120, 80, 80);
             Inspect = new SkinnableButton(new Rectangle(PlanetIconRect.CenterX() - 16, PlanetIconRect.Y, 32, 32), "UI/viewPlanetIcon")
             {
                 HoverColor = tColor,
@@ -75,21 +61,21 @@ namespace Ship_Game
                 IsToggle = false
             };
 
-            SliderRect = new Rectangle(r.Right - 100, r.Bottom - 40, 500, 40);
-            Sliders = new ColonySliderGroup(null, SliderRect);
+            Rectangle sliderRect = new Rectangle(r.Right - 100, r.Bottom - 40, 500, 40);
+            Sliders = new ColonySliderGroup(null, sliderRect);
             Sliders.Create(RightRect.X, Housing.Y + 120, 145, 40);
 
-            flagRect         = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
-            DefenseRect      = new Rectangle(LeftRect.X + 13, Housing.Y + 114, 22, 22);
-            OffenseRect      = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
-            InjuryRect       = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
-            ShieldRect       = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
-            DefenseShipsRect = new Rectangle(LeftRect.X + 13, Housing.Y + 114 + 88, 22, 22);
+            FlagRect         = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
+            DefenseRect      = new Rectangle(leftRect.X + 13, Housing.Y + 114, 22, 22);
+            OffenseRect      = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
+            InjuryRect       = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
+            ShieldRect       = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
+            DefenseShipsRect = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 88, 22, 22);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            if (p == null)
+            if (P == null)
                 return;
 
             SpriteBatch batch = ScreenManager.SpriteBatch;
@@ -120,64 +106,73 @@ namespace Ship_Game
                 TIP_ID = 251
             };
             ToolTipItems.Add(defenseShips);
+            var population = new TippedItem
+            {
+                r = PopRect,
+                TIP_ID = 254
+            };
+            ToolTipItems.Add(population);
+
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             var MousePos = new Vector2(x, state.Y);
             batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             var NamePos = new Vector2(Housing.X + 41, Housing.Y + 65);
-            if (p.Owner == null || !p.IsExploredBy(EmpireManager.Player))
+            P.UpdateMaxPopulation();
+            if (P.Owner == null || !P.IsExploredBy(EmpireManager.Player))
             {
-                if (DrawUnexploredUninhabited(NamePos, MousePos)) return;
+                DrawUnexploredUninhabited(NamePos, MousePos);
                 return;
             }
-            batch.DrawString(Fonts.Arial20Bold, p.Name, NamePos, tColor);
-            batch.Draw(ResourceManager.Flag(p.Owner), flagRect, p.Owner.EmpireColor);
-            var cursor = new Vector2(sel.Rect.X + sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
             
-            string pop = p.PopulationString;
+            batch.DrawString(Fonts.Arial20Bold, P.Name, NamePos, tColor);
+            batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
+            var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
+            
+            string pop = P.PopulationStringForPlayer;
             cursor.X -= (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
             batch.DrawString(Fonts.Arial12Bold, pop, cursor, tColor);
 
-            popRect = new Rectangle((int)cursor.X - 23, (int)cursor.Y - 3, 22, 22);
-            batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
+            PopRect = new Rectangle((int)cursor.X - 23, (int)cursor.Y - 3, 22, 22);
+            batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
-            moneyRect = new Rectangle(popRect.X - 70, popRect.Y, 22, 22);
-            var moneyCursor = new Vector2((float)moneyRect.X + 24, cursor.Y);
+            MoneyRect = new Rectangle(PopRect.X - 70, PopRect.Y, 22, 22);
+            var moneyCursor = new Vector2((float)MoneyRect.X + 24, cursor.Y);
 
-            if (p.Owner == EmpireManager.Player)
+            if (P.Owner == EmpireManager.Player)
             {
-                string sNetIncome = p.Money.NetRevenue.String(2);
-                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, p.Money.NetRevenue > 0.0 ? Color.LightGreen : Color.Salmon);
-                batch.Draw(ResourceManager.Texture("UI/icon_money_22"), moneyRect, Color.White);
+                string sNetIncome = P.Money.NetRevenue.String(2);
+                batch.DrawString(Fonts.Arial12Bold, sNetIncome, moneyCursor, P.Money.NetRevenue > 0.0 ? Color.LightGreen : Color.Salmon);
+                batch.Draw(ResourceManager.Texture("UI/icon_money_22"), MoneyRect, Color.White);
             }
 
-            PlanetTypeRichness = p.LocalizedRichness;
+            PlanetTypeRichness = P.LocalizedRichness;
             PlanetTypeCursor = new Vector2(PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f, PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            batch.Draw(p.PlanetTexture, PlanetIconRect, Color.White);
+            batch.Draw(P.PlanetTexture, PlanetIconRect, Color.White);
             batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
-            p.UpdateIncomes(false);
+            P.UpdateIncomes(false);
 
-            DrawPlanetStats(DefenseRect, ((float)p.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
+            DrawPlanetStats(DefenseRect, ((float)P.TotalDefensiveStrength).String(1), "UI/icon_shield", Color.White, Color.White);
 
             // Added by Fat Bastard - display total injury level inflicted automatically to invading troops
-            if (p.TotalInvadeInjure > 0)
-                DrawPlanetStats(InjuryRect, ((float)p.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
+            if (P.TotalInvadeInjure > 0)
+                DrawPlanetStats(InjuryRect, ((float)P.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
 
             // Added by Fat Bastard - display total space offense of the planet
-            if (p.TotalSpaceOffense > 0)
+            if (P.TotalSpaceOffense > 0)
             {
-                string offenseNumberString = ((float) Math.Round(p.TotalSpaceOffense,0)).GetNumberString();
+                string offenseNumberString = ((float) Math.Round(P.TotalSpaceOffense,0)).GetNumberString();
                 DrawPlanetStats(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
             }
 
-            if (p.ShieldStrengthMax > 0f)
-                DrawPlanetStats(ShieldRect, p.ShieldStrengthCurrent.String(0), "NewUI/icon_planetshield", Color.White, Color.Green);
+            if (P.ShieldStrengthMax > 0f)
+                DrawPlanetStats(ShieldRect, P.ShieldStrengthCurrent.String(0), "NewUI/icon_planetshield", Color.White, Color.Green);
 
             // Added by Fat Bastard - display total defense ships stationed on this planet
-            int maxDefenseShips = p.MaxDefenseShips;
+            int maxDefenseShips = P.MaxDefenseShips;
             if (maxDefenseShips > 0 )
             {
-                int currentDefenseShips = p.CurrentDefenseShips;
+                int currentDefenseShips = P.CurrentDefenseShips;
                 if (currentDefenseShips == maxDefenseShips)
                     DrawPlanetStats(DefenseShipsRect, currentDefenseShips.ToString(), "UI/icon_hangar", Color.White, Color.White);
                 else
@@ -189,18 +184,18 @@ namespace Ship_Game
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)
         {
-            if (!p.IsExploredBy(EmpireManager.Player))
+            if (!P.IsExploredBy(EmpireManager.Player))
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
-                    Localizer.Token(1429) + p.LocalizedCategory, namePos, tColor);
-                var textCursor = new Vector2(sel.Rect.X + sel.Rect.Width - 65,
+                    Localizer.Token(1429) + P.LocalizedCategory, namePos, tColor);
+                var textCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                     namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
-                string pop = p.PopulationString;
+                string pop = P.PopulationStringForPlayer;
                 textCursor.X = textCursor.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop, textCursor, tColor);
 
-                popRect = new Rectangle((int) textCursor.X - 23, (int) textCursor.Y - 3, 22, 22);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
+                PopRect = new Rectangle((int) textCursor.X - 23, (int) textCursor.Y - 3, 22, 22);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
                 string text = Localizer.Token(1430);
                 var cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
@@ -208,32 +203,32 @@ namespace Ship_Game
                 return true;
             }
 
-            if (!p.Habitable)
+            if (!P.Habitable)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, p.Name, namePos, tColor);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
                 string text = Localizer.Token(1427);
                 Vector2 Cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, tColor);
                 return true;
             }
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, p.Name, namePos, tColor);
-            Vector2 TextCursor = new Vector2(sel.Rect.X + sel.Rect.Width - 65,
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
+            Vector2 TextCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                 namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
 
-            string pop2 = p.PopulationString;
+            string pop2 = P.PopulationStringForPlayer;
             TextCursor.X -= (Fonts.Arial12Bold.MeasureString(pop2).X + 5f);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop2, TextCursor, tColor);
 
-            popRect = new Rectangle((int) TextCursor.X - 23, (int) TextCursor.Y - 3, 22, 22);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), popRect, Color.White);
+            PopRect = new Rectangle((int) TextCursor.X - 23, (int) TextCursor.Y - 3, 22, 22);
+            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
-            PlanetTypeRichness = p.LocalizedRichness;
+            PlanetTypeRichness = P.LocalizedRichness;
             PlanetTypeCursor =
                 new Vector2(
                     PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
                     PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(p.PlanetTexture, PlanetIconRect,
+            ScreenManager.SpriteBatch.Draw(P.PlanetTexture, PlanetIconRect,
                 Color.White);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             Rectangle fIcon = new Rectangle(240,
@@ -247,7 +242,7 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             Vector2 tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.Fertility.String(), tcurs, tColor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, P.FertilityFor(EmpireManager.Player).String(), tcurs, tColor);
             Rectangle pIcon = new Rectangle(300,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
                 ResourceManager.Texture("NewUI/icon_production").Width,
@@ -260,7 +255,7 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             tcurs = new Vector2(325f, Housing.Y + 205);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), tcurs, tColor);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
             Mark = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
             Vector2 Text = new Vector2(RightRect.X + 25, Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), Mark, Color.White);
@@ -272,7 +267,7 @@ namespace Ship_Game
             bool marked = false;
             foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
             {
-                if (g.ColonizationTarget == null || g.ColonizationTarget != p)
+                if (g.ColonizationTarget == null || g.ColonizationTarget != P)
                 {
                     continue;
                 }
@@ -332,10 +327,10 @@ namespace Ship_Game
             SendTroops = new Rectangle(Mark.X, Mark.Y - Mark.Height - 5, 182, 25);
             Text = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
-            int troops = screen.player
+            int troops = Screen.player
                 .GetShips()
                 .Where(troop => troop.TroopList.Count > 0)
-                .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == p));
+                .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
             if (!SendTroops.HitTest(mousePos))
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
                     new Color(88, 108, 146)); // Localizer.Token(1425)
@@ -358,7 +353,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (p == null)
+            if (P == null)
             {
                 return false;
             }
@@ -380,7 +375,7 @@ namespace Ship_Game
                 Goal markedGoal = null;
                 foreach (Goal g in EmpireManager.Player.GetEmpireAI().Goals)
                 {
-                    if (g.ColonizationTarget == null || g.ColonizationTarget != p)
+                    if (g.ColonizationTarget == null || g.ColonizationTarget != P)
                     {
                         continue;
                     }
@@ -397,16 +392,16 @@ namespace Ship_Game
                 else
                 {
                     GameAudio.EchoAffirmative();
-                    EmpireManager.Player.GetEmpireAI().Goals.Add(new MarkForColonization(p, EmpireManager.Player));
+                    EmpireManager.Player.GetEmpireAI().Goals.Add(new MarkForColonization(P, EmpireManager.Player));
                 }
             }
             if (SendTroops.HitTest(input.CursorPosition) && input.InGameSelect)
             {
 
-                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, p))
+                if (EmpireManager.Player.GetTroopShipForRebase(out Ship troopShip, P))
                 {
                     GameAudio.EchoAffirmative();
-                    troopShip.AI.OrderLandAllTroops(p);
+                    troopShip.AI.OrderLandAllTroops(P);
                 }
                 else
                     GameAudio.BlipClick();
@@ -414,7 +409,7 @@ namespace Ship_Game
 
             if (Inspect.Hover)
             {
-                if (p.Owner == null || p.Owner != EmpireManager.Player)
+                if (P.Owner == null || P.Owner != EmpireManager.Player)
                 {
                     ToolTip.CreateTooltip(61);
                 }
@@ -427,24 +422,24 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(62);
             }
-            if (p.Habitable)
+            if (P.Habitable)
             {
                 if (Inspect.HandleInput(input))
                 {
-                    screen.ViewPlanet();
+                    Screen.ViewPlanet();
                 }
                 if (Invade.HandleInput(input))
                 {
-                    screen.OpenCombatMenu();
+                    Screen.OpenCombatMenu();
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))
             {
                 return false;
             }
-            if (p.Owner != null && p.Owner == EmpireManager.Player)
+            if (P.Owner != null && P.Owner == EmpireManager.Player)
             {
-                p.UpdateIncomes(false);
+                P.UpdateIncomes(false);
                 Sliders.HandleInput(input);
             }
             return true;
@@ -452,7 +447,7 @@ namespace Ship_Game
 
         public void SetPlanet(Planet p)
         {
-            this.p = p;
+            this.P = p;
             Sliders.SetPlanet(p);
         }
 

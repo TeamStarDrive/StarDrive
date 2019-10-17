@@ -34,7 +34,6 @@ namespace Ship_Game
             if (RecentCombat)
                 return; // Do not build / scrap when in combat
 
-            int totalBuildings = TotalBuildings;
             if (budget < -0.1f)
             {
                 ScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
@@ -42,14 +41,19 @@ namespace Ship_Game
             }
 
             ScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building
-            if (OpenTiles > 0)
+            if (AvailableTiles > 0)
             {
-                SimpleBuild(budget); // lets try to build something within our debt tolerance
-                return;
+                if (SimpleBuild(budget)) // lets try to build something within our debt tolerance
+                    return;
+            }
+            else
+            {
+                if (BuildBiospheres(budget))
+                    return;
             }
 
-            BuildBiospheres(budget, totalBuildings); // lets build biospheres if we can, since we have no open tiles
             ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
+            BuildTerraformers(budget); // Build Terraformers if needed
         }
 
         float EvalMaintenance(Building b, float budget)
@@ -80,7 +84,8 @@ namespace Ship_Game
                 else
                 {
                     float farmers = Food.WorkersNeededForEquilibrium();
-                    score += ((b.PlusFlatFoodAmount / MaxPopulationBillion) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
+                    float maxPop  = MaxPopulationBillion.AlmostZero() ? 0 : MaxPopulationBillion;
+                    score += ((b.PlusFlatFoodAmount / maxPop) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
                     score += 1.5f - (Food.YieldPerColonist / 2);//Bonus for low Effective Fertility
                     if (farmers.AlmostZero())
                         score += b.PlusFlatFoodAmount; //Bonus if planet is relying on flat food
@@ -130,7 +135,10 @@ namespace Ship_Game
             else
             {
                 if (IsCybernetic)
-                    score += b.PlusFlatProductionAmount / MaxPopulationBillion;     //Percentage of the filthy Opteris population this will feed
+                {
+                    float maxPop = MaxPopulationBillion.AlmostZero() ? 0 : MaxPopulationBillion;
+                    score += b.PlusFlatProductionAmount / maxPop;     //Percentage of the filthy Opteris population this will feed
+                }
                 
                 score += (0.5f - popRatio).Clamped(0.0f, 0.5f);   //Bonus if population is currently less than half of max population
                 score += 1.5f - Prod.YieldPerColonist;      //Bonus for low richness planets
@@ -212,7 +220,7 @@ namespace Ship_Game
             else
             {
                 // More desirable on high pop planets
-                score += (MaxPopulationBillion * 0.02f - 1.0f) + (b.PlusFlatPopulation * 0.01f);
+                score += (MaxPopulationBillion*0.02f - 1.0f) + (b.PlusFlatPopulation * 0.01f);
                 if (score < 0) score = 0; // Don't let this cause a penalty to other building properties
             }
 
@@ -226,23 +234,43 @@ namespace Ship_Game
 
         float EvalPlusMaxPopulation(Building b)
         {
-            if (b.MaxPopIncrease.AlmostZero() || PopulationRatio < 0.9f)
+            float maxPopIncrease = b.MaxPopIncrease;
+            if (maxPopIncrease.AlmostZero() || PopulationRatio < 0.9f)
                 return 0;
 
             float score = 0;
-            if (b.MaxPopIncrease < 0)
-                score = b.MaxPopIncrease * 0.002f; // Which is sorta like 0.001f * 2
+            if (maxPopIncrease < 0)
+                score = maxPopIncrease * 0.002f; // Which is sorta like 0.001f * 2
             else
             {
                 ColonyResource resource = IsCybernetic ? Prod : Food;
                 if (resource.NetMaxPotential / PopulationBillion > 1)
-                    score = b.MaxPopIncrease * 0.002f;
+                    score = maxPopIncrease * 0.002f;
 
                 score *= 2 * PopulationRatio;
             }
             DebugEvalBuild(b, "MaxPop", score);
             return score;
         }
+
+        float EvalBioSpheres(Building b)
+        {
+            if (!TilesList.Any(t => !t.Habitable))
+                return 0; // All tiles are habitable
+
+            Building bio = BiospheresWeCanBuild;
+            if (bio == null)
+                return 0; // Cant build Biospheres yet
+
+            float score = 0;
+            if (PopulationRatio.GreaterOrEqual(0.95f)) // think about Biospheres when population is almost max.
+            {
+                score += PopulationRatio * 10;
+                DebugEvalBuild(b, "Biospheres", score);
+            }
+            return score;
+        }
+
 
         float EvalFlatResearch(Building b, float budget)
         {
@@ -332,41 +360,25 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalTerraformer(Building b) // FB - note that Terraformers are automatically scraped when they finish their job in DoTerraform()
-        {
-            if (b.PlusTerraformPoints.AlmostZero() 
-                || IsCybernetic
-                || MaxFertility.GreaterOrEqual(TerraformTargetFertility) 
-                || Owner.Money < 0) 
-                return 0; 
-
-            float score = (TerraformTargetFertility - MaxFertility) * 100;
-            switch (colonyType)
-            {
-                case ColonyType.Military:
-                case ColonyType.Research:     score *= 0.5f;  break;
-                case ColonyType.Core:         score *= 0.9f;  break;
-                case ColonyType.Industrial:   score *= 0.2f;  break;
-                case ColonyType.Agricultural: score *= 1.25f; break;
-            }
-            DebugEvalBuild(b, "Terraformer", score);
-            return score;
-        }
-
         float EvalFertilityLoss(Building b)
         {
-            if (b.MaxFertilityOnBuild.AlmostZero() || IsCybernetic) return 0;
+            if (b.MaxFertilityOnBuild.AlmostZero()
+                || IsCybernetic
+                || b.MaxFertilityOnBuild.Less(0) && TerraformingHere)
+            {
+                return 0;
+            }
 
             float score = 0;
-            if (b.MaxFertilityOnBuild > 0)
+            if (b.MaxFertilityOnBuild.Greater(0))
                 score = b.MaxFertilityOnBuild * 2; 
             else
             {   
                 // How much fertility will actually be lost
                 // @todo food calculation is a bit dodgy
-                float fertLost = Math.Min(Fertility, -b.MaxFertilityOnBuild);
+                float fertLost      = Math.Min(Fertility, -b.MaxFertilityOnBuild);
                 float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost));
-                float foodFromFlat = Food.FlatBonus + b.PlusFlatFoodAmount;
+                float foodFromFlat  = Food.FlatBonus + b.PlusFlatFoodAmount;
                 // Will we still be able to feed ourselves?
                 if (foodFromFlat + foodFromLabor < MaxConsumption)
                     score -= fertLost * 20;
@@ -407,7 +419,7 @@ namespace Ship_Game
         {
             float score = 0.0f;
 
-            score += EvalbyGovernor(b);
+            score += EvalByGovernor(b);
             score += EvalFlatProd(b, PopulationRatio);
             score += EvalProdPerCol(b);
             score += EvalProdPerRichness(b);
@@ -422,8 +434,8 @@ namespace Ship_Game
             score += EvalFoodPerCol(b);
             score += EvalFlatResearch(b, budget);
             score += EvalCreditsPerCol(b, budget);
-            score += EvalTerraformer(b);
             score += EvalFertilityLoss(b);
+            score += EvalBioSpheres(b);
 
             return score;
         }
@@ -431,6 +443,9 @@ namespace Ship_Game
         float EvaluateBuilding(Building b, float budget, float highestCost,
             int desiredMilitary, int existingMilitary, bool checkCosts = true) //Gretman function, to support DoGoverning()
         {
+            if (b.IsTerraformer) // Terraformers get different logic
+                return 0;
+
             float score = 0;
             if (checkCosts) // we want to also check the cost to build and maintain something we dont have yet
             {
@@ -455,7 +470,7 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalbyGovernor(Building b) // by Fat Bastard
+        float EvalByGovernor(Building b) // by Fat Bastard
         {
             float score = -1; // Because governors do not like to spend money on things not close to their hearts
 
@@ -478,7 +493,7 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     score += 1; // Core governors are open to different building functions
-                    score += + b.CreditsPerColonist * 5
+                    score += b.CreditsPerColonist * 5
                              + b.PlusTaxPercentage * 10
                              + b.MaxPopIncrease / 1000 * 2
                              + b.PlusFlatPopulation / 5
@@ -491,11 +506,12 @@ namespace Ship_Game
                 case ColonyType.Industrial:
                      if (b.PlusProdPerColonist > 0 || b.PlusFlatProductionAmount > 0 || b.PlusProdPerRichness > 0)
                          score += 1f;
-                    score += b.PlusProdPerColonist * MineralRichness 
-                             + b.PlusFlatProductionAmount + 1
-                             + b.PlusProdPerRichness * MineralRichness
-                             + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
-                    break;
+
+                     score += b.PlusProdPerColonist * MineralRichness 
+                              + b.PlusFlatProductionAmount + 1
+                              + b.PlusProdPerRichness * MineralRichness
+                              + b.PlusFlatFoodAmount * 0.5f; // some flat food as most people will be in production
+                     break;
                 case ColonyType.Research:
                     score += b.PlusResearchPerColonist * 10
                              + b.MaxPopIncrease / 1000
@@ -646,7 +662,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded)
+                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded || b.IsTerraformer)
                     continue;
 
                 int desiredMilitary  = DesiredMilitaryBuildings;
@@ -677,21 +693,59 @@ namespace Ship_Game
 
             Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
             if (bestBuilding != null && bestValue > 0)
-                Construction.AddBuilding(bestBuilding);
+                return Construction.AddBuilding(bestBuilding);
 
-            return bestBuilding != null; ;
+            return false;
         }
 
-        bool BuildBiospheres(float budget, int totalBuildings)
+        void BuildTerraformers(float budget)
         {
-            Building bio = GetBiospheresWeCanBuild;
-            if (bio != null && !BiosphereInTheWorks && budget - bio.ActualMaintenance(this) > 0)  // Within budget
+            if (!BuildingInTheWorks && !TerraformerInTheWorks && NumWantedTerraformers() > 0)
+            {
+                if (BuildingList.Filter(b => !b.IsBiospheres).Length == TileArea)
+                    ScrapBuilding(budget);  // scrap something to make room for terraformers
+
+                Construction.AddBuilding(TerraformersWeCanBuild);
+            }
+        }
+
+        int NumWantedTerraformers()
+        {
+            if (TerraformersWeCanBuild == null)
+                return 0;
+
+            int num = 0;
+            if (TilesList.Any(t => !t.Habitable))
+                ++num;
+
+            if (TilesList.Any(t => t.Biosphere))
+                ++num;
+
+            if (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
+                ++num;
+
+            num -= Math.Max(BuildingList.Count(b => b.IsTerraformer), 0);
+            return num;
+        }
+
+        bool BuildBiospheres(float budget)
+        {
+            if (!TilesList.Any(t => !t.Habitable))
+                return false; // All tiles are habitable
+
+            Building bio = BiospheresWeCanBuild;
+            if (bio == null || BiosphereInTheWorks && (budget - bio.ActualMaintenance(this)).Less(0))
+                return false; // not within budget or Biospheres are being built
+
+            if (PopulationRatio.GreaterOrEqual(0.9f)) // think about Biospheres when population is almost max.
             {
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
-                Construction.AddBuilding(bio);
+
+                return Construction.AddBuilding(bio);
             }
-            return bio != null;
+
+            return false;
         }
 
         bool ScrapBuilding(float budget, float scoreThreshold = float.MaxValue)

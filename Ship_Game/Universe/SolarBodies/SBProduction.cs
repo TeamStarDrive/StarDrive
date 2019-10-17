@@ -145,8 +145,7 @@ namespace Ship_Game.Universe.SolarBodies
 
             Building b = ResourceManager.CreateBuilding(q.Building.Name);
             b.IsPlayerAdded = q.IsPlayerAdded;
-            q.pgs.PlaceBuilding(b);
-            b.OnBuildingBuiltAt(P);
+            q.pgs.PlaceBuilding(b, P);
             return true;
         }
 
@@ -216,9 +215,6 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueNumber = ConstructionQueue.Count
             };
 
-            // if not added by player, then skip biosphere, let it be handled below:
-            if (playerAdded || !b.IsBiospheres)
-            {
                 if (b.AssignBuildingToTile(b, ref where, P))
                 {
                     where.QItem = qi;
@@ -227,26 +223,8 @@ namespace Ship_Game.Universe.SolarBodies
                     P.RefreshBuildingsWeCanBuildHere();
                     return true;
                 }
-                if (playerAdded) // no magic terraform hocus-pocus for players
-                    return false;
-            }
 
-            // Try to Auto-build TerraFormer, since it's better than Biospheres
-            if (Owner.NonCybernetic && P.Fertility < 1.0f)
-            {
-                if (ResourceManager.GetBuilding(Building.TerraformerId, out Building terraFormer))
-                {
-                    if (P.BuildingBuiltOrQueued(terraFormer))
                         return false;
-                    if (Owner.IsBuildingUnlocked(terraFormer.Name) && P.WeCanAffordThis(terraFormer, P.colonyType))
-                        // @todo HACK added playerAdded: true to stop the recursive overflow,
-                        // anyway terraformers are removed automatically when done
-                        return AddBuilding(ResourceManager.CreateBuilding(terraFormer.BID), playerAdded: true);
-                }
-            }
-
-            return Owner.IsBuildingUnlocked(Building.BiospheresId)
-                && TryBiosphereBuild(ResourceManager.CreateBuilding(Building.BiospheresId), qi);
         }
 
         public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)

@@ -105,12 +105,12 @@ namespace Ship_Game
         float TaxRateValue = 0.25f;
 
         // player modified tax rate
-        [Serialize(11)] public float TaxRate
+        [Serialize(11)]
+        public float TaxRate
         {
             get => TaxRateValue;
             set => TaxRateValue = value.NaNChecked(0.25f, "EmpireData.TaxRate");
         }
-
 
         [Serialize(12)] public Array<string> ExcludedDTraits = new Array<string>();
         [Serialize(13)] public Array<string> ExcludedETraits = new Array<string>();
@@ -211,6 +211,17 @@ namespace Ship_Game
         [Serialize(93)] public byte ThrustColor1R;
         [Serialize(94)] public byte ThrustColor1G;
         [Serialize(95)] public byte ThrustColor1B;
+
+        // FB - Environment
+        [Serialize(100)] public float EnvTerran;
+        [Serialize(101)] public float EnvOceanic;
+        [Serialize(102)] public float EnvSteppe;
+        [Serialize(103)] public float EnvTundra;
+        [Serialize(104)] public float EnvSwamp;
+        [Serialize(105)] public float EnvDesert;
+        [Serialize(106)] public float EnvIce;
+        [Serialize(107)] public float EnvBarren;
+        [Serialize(108)] public PlanetCategory PreferredEnv;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
 
