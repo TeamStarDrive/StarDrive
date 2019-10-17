@@ -45,7 +45,7 @@ namespace Ship_Game.Universe.SolarBodies
         public float RaceFoodRatio => RaceFood / Max;
         public float FoodRatio => FoodValue / Max;
         public float ProdRatio => ProdValue / Max;
-        public float PopRatio  => PopValue  / Ground.MaxPopulation;
+        public float PopRatio  => Ground.MaxPopulation.AlmostZero() ? 0 : PopValue  / Ground.MaxPopulation;
 
         public void AddCommodity(string goodId, float amount)
         {

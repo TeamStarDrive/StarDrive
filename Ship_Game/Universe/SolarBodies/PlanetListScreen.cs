@@ -258,7 +258,7 @@ namespace Ship_Game
 
             HandleButton(input, sb_Sys,   p => p.ParentSystem.Name);
             HandleButton(input, sb_Name,  p => p.Name);
-            HandleButton(input, sb_Fert,  p => p.Fertility);
+            HandleButton(input, sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
             HandleButton(input, sb_Pop,   p => p.MaxPopulation);
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
@@ -321,7 +321,7 @@ namespace Ship_Game
             {
                 ResetButton(sb_Sys,   p => p.ParentSystem.Name);
                 ResetButton(sb_Name,  p => p.Name);
-                ResetButton(sb_Fert,  p => p.Fertility);
+                ResetButton(sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
                 ResetButton(sb_Rich,  p => p.MineralRichness);
                 ResetButton(sb_Pop,   p => p.MaxPopulation);
                 ResetButton(sb_Owned, p => p.GetOwnerName());

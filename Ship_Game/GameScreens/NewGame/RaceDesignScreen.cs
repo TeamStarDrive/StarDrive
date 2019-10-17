@@ -84,6 +84,7 @@ namespace Ship_Game
         protected string Plural = "Humans";
         protected string HomeWorldName = "Earth";
         protected string HomeSystemName = "Sol";
+        protected int PreferredEnvDescription;
 
         Rectangle ExtraRemnantRect; // Added by Gretman
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
@@ -253,13 +254,10 @@ namespace Ship_Game
                 b.Plural(1380); // | HUMANS | are natural sailors and shipwrights
             }
 
+            b.Plural(PreferredEnvDescription);
             DescriptionSL.Reset();
             HelperFunctions.parseTextToSL(b.ToString(), Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
         }
-
-
-
-
 
         static float DotSpaceWidth;
 
@@ -1206,6 +1204,7 @@ namespace Ship_Game
             HomeSystemEntry.Text = traits.HomeSystemName;
             HomeSystemName       = traits.HomeSystemName;
             HomeWorldName        = traits.HomeworldName;
+            PreferredEnvDescription = traits.PreferredEnvDescription;
             TotalPointsUsed      = 8;
             foreach (TraitEntry t in AllTraits)
             {

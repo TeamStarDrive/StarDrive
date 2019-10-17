@@ -60,7 +60,7 @@ namespace Ship_Game
     {
         // Every time the savegame layout changes significantly,
         // this version needs to be bumped to avoid loading crashes
-        public const int SaveGameVersion = 3;
+        public const int SaveGameVersion = 4;
 
         public static bool NewFormat = true; // use new save format ?
         public const string NewExt = ".sav";
@@ -614,7 +614,7 @@ namespace Ship_Game
             [Serialize(3)] public float Scale;
             [Serialize(4)] public string Owner;
             [Serialize(5)] public float Population;
-            [Serialize(6)] public float PopulationMax;
+            [Serialize(6)] public float BasePopPerTile;
             [Serialize(7)] public float Fertility;
             [Serialize(8)] public float Richness;
             [Serialize(9)] public int WhichPlanet;

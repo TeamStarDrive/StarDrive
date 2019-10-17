@@ -306,6 +306,7 @@ namespace Ship_Game
             using (Explosions.AcquireReadLock())
             foreach (SmallExplosion exp in Explosions)
                 exp.Draw(batch);
+
             batch.End();
 
             batch.Begin();

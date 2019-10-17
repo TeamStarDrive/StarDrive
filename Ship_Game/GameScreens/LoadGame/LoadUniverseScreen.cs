@@ -51,12 +51,12 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", isFatal:false);
+                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", isFatal: false);
                     LoadingFailed = true;
                 }
             });
         }
-        
+
         public override void LoadContent()
         {
             LoadingImage = ResourceManager.LoadRandomLoadingScreen(TransientContent);
@@ -86,7 +86,7 @@ namespace Ship_Game
             if (LoadingFailed) // fatal error when loading save game
             {
                 // go back to main menu
-                ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
+                ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects: true);
                 return;
             }
 
@@ -95,7 +95,7 @@ namespace Ship_Game
             var artRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
             batch.Draw(LoadingImage, artRect, Color.White);
             var meterBar = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
-            
+
             float percentLoaded = Progress.Percent;
             var pb = new ProgressBar(meterBar)
             {

@@ -21,7 +21,6 @@
       <HomePlanet>true</HomePlanet>
       <Station>Yes</Station>  
 	  <planetScale>1.0</planetScale>
-	  <MaxPopDefined>14.0</MaxPopDefined>
 	  <Moons>
 		<Moon>
 			<WhichMoon>20</WhichMoon>

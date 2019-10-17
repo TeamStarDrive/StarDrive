@@ -41,7 +41,7 @@ namespace Ship_Game
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
 
-        float MoneyValue = 1000f;
+        private float MoneyValue = 1000f;
         public float Money
         {
             get => MoneyValue;
@@ -73,7 +73,7 @@ namespace Ship_Game
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
 
-        float ResearchValue;
+        private float ResearchValue;
         public float Research
         {
             get => ResearchValue;
@@ -266,32 +266,6 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnHomeWorld(Planet home, PlanetType type)
-        {
-            home.Owner = this;
-            Capital    = home;
-            AddPlanet(home);
-            home.GenerateNewHomeWorld(type);
-            home.InitializeWorkerDistribution(this);
-            home.SetFertilityMinMax(2f + data.Traits.HomeworldFertMod);
-            home.MineralRichness = 1f + data.Traits.HomeworldRichMod;
-            home.MaxPopBase      = 14000f * data.Traits.HomeworldSizeMultiplier;
-            home.Population      = 14000f;
-            home.FoodHere        = 100f;
-            home.ProdHere        = 100f;
-            home.HasSpacePort     = true;
-            home.AddGood("ReactorFuel", 1000); // WTF?
-            ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(home);
-            ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(home);
-            if (GlobalStats.HardcoreRuleset)
-            {
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(home);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(home);
-                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(home);
-                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(home);
-            }
-        }
-
         public void SetRallyPoints()
         {
             Array<Planet> rallyPlanets;
@@ -357,6 +331,24 @@ namespace Ship_Game
 
             }
             return planets;
+        }
+
+        public float RacialEnvModifer(PlanetCategory category)
+        {
+            float modifer = 1f; // If no Env tags were found, the multiplier is 1.
+            switch (category)
+            {
+                case PlanetCategory.Terran:  modifer = data.EnvTerran;  break;
+                case PlanetCategory.Oceanic: modifer = data.EnvOceanic; break;
+                case PlanetCategory.Steppe:  modifer = data.EnvSteppe;  break;
+                case PlanetCategory.Tundra:  modifer = data.EnvTundra;  break;
+                case PlanetCategory.Swamp:   modifer = data.EnvSwamp;   break;
+                case PlanetCategory.Desert:  modifer = data.EnvDesert;  break;
+                case PlanetCategory.Ice:     modifer = data.EnvIce;     break;
+                case PlanetCategory.Barren:  modifer = data.EnvBarren;  break;
+            }
+
+            return modifer;
         }
 
         public Planet GetNearestUnOwnedPlanet()
@@ -1696,9 +1688,9 @@ namespace Ship_Game
 
         public Planet.ColonyType AssessColonyNeeds2(Planet p)
         {
-            float fertility = p.Fertility;
+            float fertility = p.FertilityFor(this);
             float richness = p.MineralRichness;
-            float pop = p.MaxPopulationBillion;
+            float pop = p.MaxPopulationBillionFor(this);
             if (IsCybernetic)
                  fertility = richness;
             if (richness >= 1.0f && fertility >= 1 && pop > 7)
@@ -1722,43 +1714,41 @@ namespace Ship_Game
             float mineralWealth     = 0.0f;
             float popSupport        = 0.0f;
             float researchPotential = 0.0f;
-            float fertility         = 0.0f;
             float militaryPotential = 0.0f;
+            float maxPopBillion     = p.MaxPopulationBillionFor(this);
+            float fertility         = p.FertilityFor(this);
 
-            if (p.MineralRichness > .50f)
-            {
-                mineralWealth += p.MineralRichness + p.MaxPopulationBillion;
-            }
+            if (p.MineralRichness > 0.5f)
+                mineralWealth += p.MineralRichness + maxPopBillion;
             else
                 mineralWealth += p.MineralRichness;
 
-            if (p.MaxPopulation > 1000)
+            if (maxPopBillion > 1)
             {
-                researchPotential += p.MaxPopulationBillion;
+                researchPotential += maxPopBillion;
                 if (IsCybernetic)
                 {
                     if (p.MineralRichness > 1)
-                        popSupport += p.MaxPopulationBillion + p.MineralRichness;
+                        popSupport += maxPopBillion + p.MineralRichness;
                 }
                 else
                 {
-                    if (p.Fertility > 1f)
+                    if (fertility > 1f)
                     {
                         if (p.MineralRichness > 1)
-                            popSupport += p.MaxPopulationBillion + p.Fertility + p.MineralRichness;
-                        fertility += p.Fertility + p.MaxPopulationBillion;
+                            popSupport += maxPopBillion + fertility + p.MineralRichness;
+                        fertility += fertility + maxPopBillion;
                     }
                 }
             }
             else
             {
-                militaryPotential += fertility + p.MineralRichness + p.MaxPopulationBillion;
-                if (p.MaxPopulation >=500)
+                militaryPotential += fertility + p.MineralRichness + maxPopBillion;
+                if (maxPopBillion >= 0.5)
                 {
-
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
-                                            * (p.Fertility*2 + p.MineralRichness + (p.MaxPopulation / 500));
+                                            * (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
             }
 
@@ -1774,11 +1764,14 @@ namespace Ship_Game
             {
                 foreach (Planet planet in OwnedPlanets)
                 {
-                    if (planet.colonyType == Planet.ColonyType.Agricultural) ++agriculturalCount;
-                    if (planet.colonyType == Planet.ColonyType.Core)         ++coreCount;
-                    if (planet.colonyType == Planet.ColonyType.Industrial)   ++industrialCount;
-                    if (planet.colonyType == Planet.ColonyType.Research)     ++researchCount;
-                    if (planet.colonyType == Planet.ColonyType.Military)     ++militaryCount;
+                    switch (planet.colonyType)
+                    {
+                        case Planet.ColonyType.Agricultural: ++agriculturalCount; break;
+                        case Planet.ColonyType.Core:         ++coreCount;         break;
+                        case Planet.ColonyType.Industrial:   ++industrialCount;   break;
+                        case Planet.ColonyType.Research:     ++researchCount;     break;
+                        case Planet.ColonyType.Military:     ++militaryCount;     break;
+                    }
                 }
             }
             float assignedFactor = (coreCount + industrialCount + agriculturalCount + militaryCount + researchCount)
@@ -2319,7 +2312,7 @@ namespace Ship_Game
             }
             foreach (Planet planet in OwnedPlanets)
             {
-                ExpansionScore += (float)(planet.Fertility + (double)planet.MineralRichness + planet.PopulationBillion);
+                ExpansionScore += (float)(planet.FertilityFor(this) + (double)planet.MineralRichness + planet.PopulationBillion);
                 foreach (Building building in planet.BuildingList)
                     IndustrialScore += building.ActualCost / 20f;
             }
@@ -2336,8 +2329,21 @@ namespace Ship_Game
             }
         }
 
+        private void AbsorbAllEnvPreferences(Empire target)
+        {
+            data.EnvTerran  = Math.Max(data.EnvTerran, target.data.EnvTerran);
+            data.EnvOceanic = Math.Max(data.EnvOceanic, target.data.EnvOceanic);
+            data.EnvSteppe  = Math.Max(data.EnvSteppe, target.data.EnvSteppe);
+            data.EnvTundra  = Math.Max(data.EnvTundra, target.data.EnvTundra);
+            data.EnvSwamp   = Math.Max(data.EnvSwamp, target.data.EnvSwamp);
+            data.EnvDesert  = Math.Max(data.EnvDesert, target.data.EnvDesert);
+            data.EnvIce     = Math.Max(data.EnvIce, target.data.EnvIce);
+            data.EnvBarren  = Math.Max(data.EnvBarren, target.data.EnvBarren);
+        }
+
         public void AbsorbEmpire(Empire target)
         {
+            AbsorbAllEnvPreferences(target);
             foreach (Planet planet in target.GetPlanets())
             {
                 AddPlanet(planet);
@@ -2589,7 +2595,7 @@ namespace Ship_Game
             for (int i = 0; i < list.Count; i++)
             {
                 Planet planet = list[i];
-                planet.AddMaxFertility(amount);
+                planet.AddMaxBaseFertility(amount);
             }
         }
 

@@ -20,6 +20,17 @@
   <WarpStart>sd_warp_start_vulfen_01</WarpStart>
   <WarpEnd>sd_warp_stop_vulfen_01</WarpEnd>
 
+  <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
+  <EnvTerran>1</EnvTerran>
+  <EnvOceanic>1</EnvOceanic>
+  <EnvSteppe>1</EnvSteppe>
+  <EnvTundra>1</EnvTundra>
+  <EnvSwamp>1</EnvSwamp>
+  <EnvDesert>1</EnvDesert>
+  <EnvIce>1</EnvIce>
+  <EnvBarren>1</EnvBarren>
+  <PreferredEnv>Terran</PreferredEnv> <!-- Terraformers will terraform a planet to this environment -->
+
   <ExcludedDTraits>
     <string>Pacifist</string>
     <string>Honorable</string>
@@ -75,6 +86,7 @@
     <Pack>true</Pack>
     <Cybernetic>0</Cybernetic>
     <PassengerBonus>0</PassengerBonus>
+    <PreferredEnvDescription>1921</PreferredEnvDescription>
   </Traits>
   <Faction>0</Faction>
 </EmpireData>

@@ -212,8 +212,8 @@ namespace Ship_Game
             if (a.MedPri && IsVibrant && a.MakingMoney)
             {
                 if ((b.PlusResearchPerColonist * PopulationBillion) > b.Maintenance
-                    || ((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population == MaxPopulation)
-                    || (NonCybernetic && b.PlusTerraformPoints > 0 && Fertility < 1 && Population == MaxPopulation &&
+                    || ((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population.AlmostEqual(MaxPopulation))
+                    || (NonCybernetic && b.PlusTerraformPoints > 0 && Fertility < 1 && Population.AlmostEqual(MaxPopulation) &&
                         MaxPopulation > 2000)
                     || (b.PlusFlatFoodAmount > 0 && Food.NetIncome < 0)
                     || b.PlusFlatResearchAmount > 0
@@ -281,7 +281,7 @@ namespace Ship_Game
             }
             if (a.MedPri && IsCoreWorld && a.MakingMoney)
             {
-                if (((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population > MaxPopulation * .5f)
+                if (((b.MaxPopIncrease > 0 || b.PlusFlatPopulation > 0) && Population > MaxPopulation * 0.5f)
                     || NonCybernetic && ((b.PlusTerraformPoints > 0 && Fertility < 1 && Population > MaxPopulation * 0.5f && MaxPopulation > 2000)
                     || (b.PlusFlatFoodAmount > 0 && Food.NetIncome < 0)))
                     return true;
