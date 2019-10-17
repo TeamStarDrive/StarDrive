@@ -364,9 +364,9 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateTerraformPoints(float value)
+        public void UpdateTerraformPoints(float points)
         {
-            TerraformPoints = value;
+            TerraformPoints = points;
         }
 
         private void UpdateOrbitalsMaint()
@@ -481,7 +481,7 @@ namespace Ship_Game
 
         float QualityForRemnants()
         {
-            float quality = BaseFertility*2 + MineralRichness + MaxPopulationBillion(EmpireManager.Remnants);
+            float quality = BaseFertility*2 + MineralRichness + MaxPopulationBillionFor(EmpireManager.Remnants);
             //Boost the quality score for planets that are very rich, or very fertile
             if (BaseFertility*2 > 1.6)   ++quality;
             if (MineralRichness > 1.6) ++quality;

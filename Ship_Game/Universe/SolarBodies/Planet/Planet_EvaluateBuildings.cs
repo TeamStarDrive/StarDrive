@@ -84,7 +84,7 @@ namespace Ship_Game
                 else
                 {
                     float farmers = Food.WorkersNeededForEquilibrium();
-                    float maxPop  = MaxPopulationBillion(Owner).AlmostZero() ? 0 : MaxPopulationBillion(Owner);
+                    float maxPop  = MaxPopulationBillion.AlmostZero() ? 0 : MaxPopulationBillion;
                     score += ((b.PlusFlatFoodAmount / maxPop) * 1.5f).Clamped(0.0f, 1.5f);   //Percentage of population this will feed, weighted
                     score += 1.5f - (Food.YieldPerColonist / 2);//Bonus for low Effective Fertility
                     if (farmers.AlmostZero())
@@ -114,7 +114,7 @@ namespace Ship_Game
             float score = 0;
             if (NonCybernetic)
             {
-                float gain = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion(Owner);
+                float gain = b.PlusFoodPerColonist * Fertility * MaxPopulationBillion;
                 score += gain * (Food.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
             }
             else
@@ -136,7 +136,7 @@ namespace Ship_Game
             {
                 if (IsCybernetic)
                 {
-                    float maxPop = MaxPopulationBillion(Owner).AlmostZero() ? 0 : MaxPopulationBillion(Owner);
+                    float maxPop = MaxPopulationBillion.AlmostZero() ? 0 : MaxPopulationBillion;
                     score += b.PlusFlatProductionAmount / maxPop;     //Percentage of the filthy Opteris population this will feed
                 }
                 
@@ -162,7 +162,7 @@ namespace Ship_Game
             if (b.PlusProdPerColonist.AlmostZero() || MineralRichness.AlmostZero())
                 return 0;
 
-            float gain  = b.PlusProdPerColonist * MineralRichness * MaxPopulationBillion(Owner);
+            float gain  = b.PlusProdPerColonist * MineralRichness * MaxPopulationBillion;
             float score = gain * (Prod.NetYieldPerColonist < 1 ? 2 : 1); // if we have low yield, let's add some
             if (IsCybernetic)
                 score  *= 2; // FB - Filthy Opteris really wants more production.
@@ -220,7 +220,7 @@ namespace Ship_Game
             else
             {
                 // More desirable on high pop planets
-                score += (MaxPopulationBillion(Owner)*0.02f - 1.0f) + (b.PlusFlatPopulation * 0.01f);
+                score += (MaxPopulationBillion*0.02f - 1.0f) + (b.PlusFlatPopulation * 0.01f);
                 if (score < 0) score = 0; // Don't let this cause a penalty to other building properties
             }
 
@@ -316,7 +316,7 @@ namespace Ship_Game
 
             float score;
             if (b.CreditsPerColonist < 0)
-                score = b.CreditsPerColonist * MaxPopulationBillion(Owner) * 2.0f;
+                score = b.CreditsPerColonist * MaxPopulationBillion * 2.0f;
             else // Don't want to cause this to have building preference over infrastructure buildings
                 score = b.CreditsPerColonist * PopulationBillion;
 
@@ -349,7 +349,7 @@ namespace Ship_Game
             if (BuildingBuiltOrQueued(Building.CapitalId))
                 score += 10f; // we can't be a space-faring species if our capital doesn't have a space-port...
 
-            if (PopulationRatio < 0.5f || MaxPopulationBillion(Owner) < 1)
+            if (PopulationRatio < 0.5f || MaxPopulationBillion < 1)
                 score -= 5; // don't build space port on low population planets
 
             // Do we have enough production capability to really justify trying to build ships
@@ -377,7 +377,7 @@ namespace Ship_Game
                 // How much fertility will actually be lost
                 // @todo food calculation is a bit dodgy
                 float fertLost      = Math.Min(Fertility, -b.MaxFertilityOnBuild);
-                float foodFromLabor = MaxPopulationBillion(Owner) * ((Fertility - fertLost));
+                float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost));
                 float foodFromFlat  = Food.FlatBonus + b.PlusFlatFoodAmount;
                 // Will we still be able to feed ourselves?
                 if (foodFromFlat + foodFromLabor < MaxConsumption)

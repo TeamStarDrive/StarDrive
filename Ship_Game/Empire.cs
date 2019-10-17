@@ -266,11 +266,6 @@ namespace Ship_Game
             }
         }
 
-        public void SpawnHomeWorld(Planet home, PlanetType type) // FB: seems to me this is only used in Dev Sandbox
-        {
-            //home.GenerateNewHomeWorld(type);
-        }
-
         public void SetRallyPoints()
         {
             Array<Planet> rallyPlanets;
@@ -1695,7 +1690,7 @@ namespace Ship_Game
         {
             float fertility = p.FertilityFor(this);
             float richness = p.MineralRichness;
-            float pop = p.MaxPopulationBillion(this);
+            float pop = p.MaxPopulationBillionFor(this);
             if (IsCybernetic)
                  fertility = richness;
             if (richness >= 1.0f && fertility >= 1 && pop > 7)
@@ -1719,14 +1714,12 @@ namespace Ship_Game
             float mineralWealth     = 0.0f;
             float popSupport        = 0.0f;
             float researchPotential = 0.0f;
-            float fertility         = 0.0f;
             float militaryPotential = 0.0f;
-            float maxPopBillion     = p.MaxPopulationBillion(this);
+            float maxPopBillion     = p.MaxPopulationBillionFor(this);
+            float fertility         = p.FertilityFor(this);
 
-            if (p.MineralRichness > .50f)
-            {
+            if (p.MineralRichness > 0.5f)
                 mineralWealth += p.MineralRichness + maxPopBillion;
-            }
             else
                 mineralWealth += p.MineralRichness;
 
@@ -1740,11 +1733,11 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (p.FertilityFor(this) > 1f)
+                    if (fertility > 1f)
                     {
                         if (p.MineralRichness > 1)
-                            popSupport += maxPopBillion + p.FertilityFor(this) + p.MineralRichness;
-                        fertility += p.FertilityFor(this) + maxPopBillion;
+                            popSupport += maxPopBillion + fertility + p.MineralRichness;
+                        fertility += fertility + maxPopBillion;
                     }
                 }
             }
@@ -1753,10 +1746,9 @@ namespace Ship_Game
                 militaryPotential += fertility + p.MineralRichness + maxPopBillion;
                 if (maxPopBillion >= 0.5)
                 {
-
                     if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
-                                            * (p.FertilityFor(this)*2 + p.MineralRichness + (maxPopBillion / 0.5f));
+                                            * (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
             }
 
@@ -1772,11 +1764,14 @@ namespace Ship_Game
             {
                 foreach (Planet planet in OwnedPlanets)
                 {
-                    if (planet.colonyType == Planet.ColonyType.Agricultural) ++agriculturalCount;
-                    if (planet.colonyType == Planet.ColonyType.Core)         ++coreCount;
-                    if (planet.colonyType == Planet.ColonyType.Industrial)   ++industrialCount;
-                    if (planet.colonyType == Planet.ColonyType.Research)     ++researchCount;
-                    if (planet.colonyType == Planet.ColonyType.Military)     ++militaryCount;
+                    switch (planet.colonyType)
+                    {
+                        case Planet.ColonyType.Agricultural: ++agriculturalCount; break;
+                        case Planet.ColonyType.Core:         ++coreCount;         break;
+                        case Planet.ColonyType.Industrial:   ++industrialCount;   break;
+                        case Planet.ColonyType.Research:     ++researchCount;     break;
+                        case Planet.ColonyType.Military:     ++militaryCount;     break;
+                    }
                 }
             }
             float assignedFactor = (coreCount + industrialCount + agriculturalCount + militaryCount + researchCount)

@@ -66,7 +66,7 @@ namespace Ship_Game
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
         public bool RecentCombat    => TroopManager.RecentCombat;
-        public float MaxConsumption => MaxPopulationBillion(Owner) + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion(Owner);
+        public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
@@ -86,9 +86,7 @@ namespace Ship_Game
         public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
 
-        public float MaxPopulationBillion(Empire empire) => MaxPopulationFor(empire) / 1000;
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
-
 
         public float Fertility                      => FertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
@@ -100,6 +98,9 @@ namespace Ship_Game
         // FB - free tiles always leaves 1 free spot for invasions
         public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
                                      .Clamped(0, TileArea);
+
+        public float MaxPopulationBillion                   => MaxPopulation / 1000;
+        public float MaxPopulationBillionFor(Empire empire) => MaxPopulationFor(empire) / 1000;
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
@@ -220,7 +221,7 @@ namespace Ship_Game
 
         public float ColonyWorthTo(Empire empire)
         {
-            float worth = PopulationBillion + MaxPopulationBillion(empire);
+            float worth = PopulationBillion + MaxPopulationBillionFor(empire);
             if (empire.NonCybernetic)
             {
                 worth += (FoodHere / 50f) + (ProdHere / 50f);
@@ -257,7 +258,7 @@ namespace Ship_Game
             10 * Storage.CommoditiesCount +
             (0.01f + EmpireFertility(empire))
             * (0.1f + MineralRichness)
-            * (float)Math.Ceiling(MaxPopulationBillion(empire))
+            * (float)Math.Ceiling(MaxPopulationBillionFor(empire))
             );
 
         public void AddProjectile(Projectile projectile)
@@ -525,7 +526,7 @@ namespace Ship_Game
 
             ColonyValue  = BuildingList.Any(b => b.IsCapital) ? 100 : 0;
             ColonyValue += BuildingList.Sum(b => b.ActualCost) / 10;
-            ColonyValue += (PopulationBillion + MaxPopulationBillion(Owner)) * 5;
+            ColonyValue += (PopulationBillion + MaxPopulationBillion) * 5;
             ColonyValue += IsCybernetic ? MineralRichness * 20 : MineralRichness * 10 + Fertility * 10;
         }
 
@@ -566,23 +567,23 @@ namespace Ship_Game
             {
                 Level = (int)DevelopmentLevel.Solitary;
                 DevelopmentStatus = Localizer.Token(1763);
-                if      (MaxPopulationBillion(Owner) >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(1764);
-                else if (MaxPopulationBillion(Owner) >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1765);
-                else if (MaxPopulationBillion(Owner) < 0.0f && !IsBarrenType) DevelopmentStatus += Localizer.Token(1766);
-                else if (MaxPopulationBillion(Owner) < 0.5f &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1767);
+                if      (MaxPopulationBillion >= 2f  && !IsBarrenType) DevelopmentStatus += Localizer.Token(1764);
+                else if (MaxPopulationBillion >= 2f  &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1765);
+                else if (MaxPopulationBillion < 0.0f && !IsBarrenType) DevelopmentStatus += Localizer.Token(1766);
+                else if (MaxPopulationBillion < 0.5f &&  IsBarrenType) DevelopmentStatus += Localizer.Token(1767);
             }
             else if (PopulationBillion > 0.5f && PopulationBillion <= 2)
             {
                 Level = (int)DevelopmentLevel.Meager;
                 DevelopmentStatus = Localizer.Token(1768);
-                DevelopmentStatus += MaxPopulationBillion(Owner) >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
+                DevelopmentStatus += MaxPopulationBillion >= 2 ? Localizer.Token(1769) : Localizer.Token(1770);
             }
             else if (PopulationBillion > 2.0 && PopulationBillion <= 5.0)
             {
                 Level = (int)DevelopmentLevel.Vibrant;
                 DevelopmentStatus = Localizer.Token(1771);
-                if      (MaxPopulationBillion(Owner) >= 5.0) DevelopmentStatus += Localizer.Token(1772);
-                else if (MaxPopulationBillion(Owner) <  5.0) DevelopmentStatus += Localizer.Token(1773);
+                if      (MaxPopulationBillion >= 5.0) DevelopmentStatus += Localizer.Token(1772);
+                else if (MaxPopulationBillion <  5.0) DevelopmentStatus += Localizer.Token(1773);
             }
             else if (PopulationBillion > 5.0 && PopulationBillion <= 10.0)
             {
