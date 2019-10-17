@@ -715,6 +715,14 @@ namespace Ship_Game.Ships
                     ValueToModify = new Ref<bool>(() => Ship.DoingExplore, x => Ship.DoingExplore = x)
                 };
                 Orders.Add(exp);
+                /* FB: does not do anything useful from what i've seen. Disabling it for now
+                var systemDefense = new OrdersButton(Ship, Vector2.Zero, OrderType.EmpireDefense, 150)
+                {
+                    ValueToModify = new Ref<bool>(() => Ship.DoingSystemDefense, x => Ship.DoingSystemDefense = x),
+                    Active = false
+                };
+                Orders.Add(systemDefense);
+                */
             }
             if (Ship.Mothership == null)
             {

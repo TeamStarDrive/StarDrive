@@ -67,6 +67,7 @@ namespace Ship_Game
         public int NumTroopsInTheWorks       => ConstructionQueue.Count(t => t.isTroop);
         public int NumShipYardsInTheWorks    => ConstructionQueue.Count(s => s.sData != null && s.sData.IsShipyard);
         public bool BiosphereInTheWorks      => BuildingInQueue(Building.BiospheresId);
+        public bool TerraformerInTheWorks    => BuildingInQueue(Building.TerraformerId);
         public bool BuildingBuilt(int bid)   => BuildingList.Any(existing => existing.BID == bid);
         public bool BuildingInQueue(int bid) => ConstructionQueue
                                                .Any(q => q.isBuilding && q.Building.BID == bid);

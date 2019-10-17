@@ -57,9 +57,25 @@ namespace Ship_Game
         public float PlusFlatPopulationPerTurn;
 
         public bool HasProduction               => Prod.GrossIncome > 1.0f;
-        public string PopulationString          => $"{PopulationBillion.String()} / {MaxPopulationBillion.String()}";
-        public float PopulationRatio            => Storage.Population / MaxPopulation;
-        public Building GetBiospheresWeCanBuild => BuildingsCanBuild.Find(b => b.IsBiospheres);
+        public float PopulationRatio           => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
+        public Building BiospheresWeCanBuild   => BuildingsCanBuild.Find(b => b.IsBiospheres);
+        public Building TerraformersWeCanBuild => BuildingsCanBuild.Find(b => b.IsTerraformer);
+
+        public string PopulationStringForPlayer
+        {
+            get
+            {
+                float maxPopForPlayer = MaxPopulationBillionFor(EmpireManager.Player);
+                int numDecimalsPop    = PopulationBillion.GreaterOrEqual(0.1f) ? 1 : 2;
+                int numDecimalsPopMax = maxPopForPlayer.GreaterOrEqual(0.1f) ? 1 : 2;
+                string popString      = $"{PopulationBillion.String(numDecimalsPop)} / {maxPopForPlayer.String(numDecimalsPopMax)}";
+
+                if (PopulationRatio.NotZero())
+                    popString += $" ({(PopulationRatio * 100).String()}%)";
+
+                return popString;
+            }
+        }
 
         public float GetGoodHere(Goods good)
         {

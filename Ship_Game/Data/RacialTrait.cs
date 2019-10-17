@@ -115,6 +115,7 @@ namespace Ship_Game
         [Serialize(93)] public float SpyModifier;
 
         [Serialize(94)] public float ResearchTaxMultiplier = 1;
+        [Serialize(95)] public int PreferredEnvDescription;
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
@@ -245,7 +246,6 @@ namespace Ship_Game
 
             if (HistoryTraitPrototypeFlagship)
                 Prototype = 1;
-
         }
 
         public void ApplyTraitToShip(Ship ship)

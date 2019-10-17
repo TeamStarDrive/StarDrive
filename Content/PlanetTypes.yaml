@@ -5,8 +5,9 @@ PlanetType: 3 # this is the legacy planet ID
   IconPath: Planets/3
   MeshPath: Model/SpaceObjects/planet_3
   Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
+  HabitableTileChance: 1
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
 PlanetType: 4
   Category: Barren
@@ -14,8 +15,9 @@ PlanetType: 4
   IconPath: Planets/4
   MeshPath: Model/SpaceObjects/planet_4
   Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
+  HabitableTileChance: 2
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
 PlanetType: 5 # Venus
   Category: Barren
@@ -25,8 +27,9 @@ PlanetType: 5 # Venus
   Glow: Red
   EarthLike: true # Give it earthlike clouds
   Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
+  HabitableTileChance: 1
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
 PlanetType: 7 # Mercury
   Category: Barren
@@ -35,8 +38,9 @@ PlanetType: 7 # Mercury
   MeshPath: Model/SpaceObjects/planet_7
   Glow: Red
   Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
+  HabitableTileChance: 1
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
 PlanetType: 8 # Mars
   Category: Barren
@@ -45,17 +49,21 @@ PlanetType: 8 # Mars
   MeshPath: Model/SpaceObjects/planet_8
   Glow: Red
   Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
+  HabitableTileChance: 5
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
+# Barren Planet with some chance for habitable tiles
 PlanetType: 16
   Category: Barren
   Composition: 1712
   IconPath: Planets/16
   MeshPath: Model/SpaceObjects/planet_16
+  EarthLike: true # Give it earthlike clouds
   Habitable: true
-  HabitableTileChance: 0
-  MaxPop: [100, 500]
+  HabitableTileChance: 5
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
 PlanetType: 24
   Category: Barren
@@ -64,7 +72,8 @@ PlanetType: 24
   MeshPath: Model/SpaceObjects/planet_24
   Habitable: true
   HabitableTileChance: 0
-  MaxPop: [100, 500]
+  PopPerTile: [75, 125]
+  BaseFertility: 0
 
 PlanetType: 20 # Moon, rocky barren
   Category: Barren
@@ -73,9 +82,10 @@ PlanetType: 20 # Moon, rocky barren
   MeshPath: Model/SpaceObjects/planet_20
   Habitable: true
   HabitableTileChance: 0
-  MaxPop: [100, 500]
+  PopPerTile: [50, 100]
+  BaseFertility: 0
 
-# Volcanic, terraforms to Ice
+# Volcanic
 PlanetType: 9
   Category: Volcanic
   Composition: 1705
@@ -90,8 +100,7 @@ PlanetType: 23 # Kahless
   MeshPath: Model/SpaceObjects/planet_23
   Glow: Red
 
-
-# Ice, terraforms to Swamp
+# Ice
 PlanetType: 17 # Kholin:Jasnah
   Category: Ice
   Composition: 1713
@@ -99,10 +108,36 @@ PlanetType: 17 # Kholin:Jasnah
   MeshPath: Model/SpaceObjects/planet_17
   Glow: White
   Habitable: true
-  HabitableTileChance: [15, 35]
-  MaxPop: [100, 500]
+  HabitableTileChance: [35, 75]
+  PopPerTile: [100, 250]
+  BaseFertility: [0.5, 1.0]
+  MinBaseFertility: 0.7
 
-# Swamp, terraforms to Oceanic
+# Ice, better pop but less tiles
+PlanetType: 32 
+  Category: Ice
+  Composition: 1713
+  IconPath: Planets/17
+  MeshPath: Model/SpaceObjects/planet_17
+  Glow: White
+  Habitable: true
+  HabitableTileChance: [25, 60]
+  PopPerTile: [50, 150]
+  BaseFertility: [-0.25, 0.5]
+
+# Ice, almost barren
+PlanetType: 33 
+  Category: Ice
+  Composition: 1713
+  IconPath: Planets/17
+  MeshPath: Model/SpaceObjects/planet_17
+  Glow: White
+  Habitable: true
+  HabitableTileChance: [20, 50]
+  PopPerTile: [50, 100]
+  BaseFertility: [-0.5, 0.25]
+
+# Swamp
 PlanetType: 19 # Polmar:Sporl
   Category: Swamp
   Composition: 1715
@@ -111,10 +146,38 @@ PlanetType: 19 # Polmar:Sporl
   Glow: Aqua
   EarthLike: true
   Habitable: true
+  HabitableTileChance: [35, 70]
+  PopPerTile: [100, 200]
+  BaseFertility: [0.5, 1.5]
+  MinBaseFertility: 1.0
+
+# Swamp, slightly harsher
+PlanetType: 34
+  Category: Swamp
+  Composition: 1715
+  IconPath: Planets/19
+  MeshPath: Model/SpaceObjects/planet_19
+  Glow: Aqua
+  EarthLike: true
+  Habitable: true
   HabitableTileChance: [15, 45]
-  MaxPop: [3000, 9000]
-  Fertility: [-2.0, 3.0]
-  MinFertility: 1.0
+  PopPerTile: [50, 100]
+  BaseFertility: [-1.0, 1.5]
+  MinBaseFertility: 0.25
+
+# Swamp, wider magrins on this planet
+PlanetType: 35 
+  Category: Swamp
+  Composition: 1715
+  IconPath: Planets/19
+  MeshPath: Model/SpaceObjects/planet_19
+  Glow: Aqua
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: 40
+  PopPerTile: [50, 250]
+  BaseFertility: [-0.5, 0.5]
+  MinBaseFertility: 0.25
 
 # Oceanic 
 PlanetType: 21
@@ -125,13 +188,39 @@ PlanetType: 21
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [15, 45]
-  MaxPop: [3000, 7000]
-  Fertility: [-3.0, 5.0]
-  MinFertility: 1.0
+  HabitableTileChance: [40, 60]
+  PopPerTile: [100, 200]
+  BaseFertility: [-1.5, 2.5]
+  MinBaseFertility: 0.5
     
+# Oceanic, more oceans so less tiles 
+PlanetType: 36
+  Category: Oceanic
+  Composition: 1716
+  IconPath: Planets/21
+  MeshPath: Model/SpaceObjects/planet_21
+  Glow: Terran
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 45]
+  PopPerTile: [75, 175]
+  BaseFertility: [-1, 2]
+  MinBaseFertility: 0.3
 
-# Desert,  terraforms to Tundra
+# Oceanic, many isle, so more tiles but less pop 
+PlanetType: 37
+  Category: Oceanic
+  Composition: 1716
+  IconPath: Planets/21
+  MeshPath: Model/SpaceObjects/planet_21
+  Glow: Terran
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [50, 85]
+  PopPerTile: [50, 125]
+  BaseFertility: [0.25, 1]
+
+# Desert
 PlanetType: 14 # Mradeep:Arrachus
   Category: Desert
   Composition: 1710
@@ -140,11 +229,38 @@ PlanetType: 14 # Mradeep:Arrachus
   Glow: Orange
   Habitable: true
   HabitableTileChance: [10, 45]
-  MaxPop: [1000, 4500]
-  Fertility: [-2.0, 1.9]
-  MinFertility: 0.8
+  PopPerTile: [100, 200]
+  BaseFertility: [-1.0, 1]
+  MinBaseFertility: 0.4
   
-# Tundra,  terraforms to Steppe
+# Desert
+PlanetType: 30
+  Category: Desert
+  Composition: 1710
+  IconPath: Planets/14
+  MeshPath: Model/SpaceObjects/planet_14
+  Glow: Orange
+  Habitable: true
+  HabitableTileChance: [45, 75]
+  PopPerTile: [75, 150]
+  BaseFertility: [-0.4, 0.4]
+  MinBaseFertility: 0.25
+
+# Desert, big (tatooine style)
+PlanetType: 38
+  Category: Desert
+  Composition: 1710
+  IconPath: Planets/14
+  MeshPath: Model/SpaceObjects/planet_14
+  Glow: Orange
+  Habitable: true
+  HabitableTileChance: [5, 40]
+  PopPerTile: [50, 90]
+  BaseFertility: [-0.4, 0.25]
+  MinBaseFertility: 0.1
+  Scale: 1.5
+  
+# Tundra
 PlanetType: 11 # Pandora, Rathi:Bul
   Category: Tundra
   Composition: 1707
@@ -153,11 +269,37 @@ PlanetType: 11 # Pandora, Rathi:Bul
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [15, 20]
-  MaxPop: [3000, 8000]
-  Fertility: [0.5, 1.0]
+  HabitableTileChance: [45, 75]
+  PopPerTile: [100, 200]
+  BaseFertility: [0.5, 1.0]
   
-# Steppe,  terraforms Terran
+# Tundra, harsg
+PlanetType: 39 
+  Category: Tundra
+  Composition: 1707
+  IconPath: Planets/11
+  MeshPath: Model/SpaceObjects/planet_11
+  Glow: Terran
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 20]
+  PopPerTile: [50, 200]
+  BaseFertility: [0.25, 0.5]
+
+# Tundra, dense
+PlanetType: 40 
+  Category: Tundra
+  Composition: 1707
+  IconPath: Planets/11
+  MeshPath: Model/SpaceObjects/planet_11
+  Glow: Terran
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [25, 45]
+  PopPerTile: [125, 250]
+  BaseFertility: [0.25, 1.5]
+  
+# Steppe
 PlanetType: 18
   Category: Steppe
   Composition: 1714
@@ -167,10 +309,35 @@ PlanetType: 18
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
-  MaxPop: [3000, 9000]
-  Fertility: [0.0, 2.1]
-  MinFertility: 0.8
+  PopPerTile: [100, 200]
+  BaseFertility: [0.0, 2.1]
+  MinBaseFertility: 0.8
   
+# Steppe
+PlanetType: 41
+  Category: Steppe
+  Composition: 1714
+  IconPath: Planets/18
+  MeshPath: Model/SpaceObjects/planet_18
+  Glow: Orange
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [15, 45]
+  PopPerTile: [75, 150]
+  BaseFertility: [0.0, 1.0]
+
+# Steppe
+PlanetType: 42
+  Category: Steppe
+  Composition: 1714
+  IconPath: Planets/18
+  MeshPath: Model/SpaceObjects/planet_18
+  Glow: Orange
+  EarthLike: true
+  Habitable: true
+  HabitableTileChance: [35, 80]
+  PopPerTile: [50, 250]
+  BaseFertility: [-0.5, 1.5]
 
 # Terran
 PlanetType: 1
@@ -181,8 +348,9 @@ PlanetType: 1
   Glow: Terran
   EarthLike: true
   Habitable: true
-  MaxPop: [4000, 8000]
-  Fertility: [0.8, 1.5]
+  HabitableTileChance: 10
+  PopPerTile: [30, 75]
+  BaseFertility: [0.4, 0.75]
 
 PlanetType: 13
   Category: Terran
@@ -193,9 +361,9 @@ PlanetType: 13
   PlanetTile: Terran_2
   EarthLike: true
   Habitable: true
-  HabitableTileChance: 75
-  MaxPop: [12000, 20000]
-  Fertility: [1.0, 3.0]
+  HabitableTileChance: 65
+  PopPerTile: [100, 200]
+  BaseFertility: [0.5, 1.5]
 
 PlanetType: 22 # Kholin:Adolin
   Category: Terran
@@ -206,10 +374,10 @@ PlanetType: 22 # Kholin:Adolin
   PlanetTile: Terran_3
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [60, 90]
-  MaxPop: [12000, 18000]
-  Fertility: [0.0, 3.0]
-  MinFertility: 1.0
+  HabitableTileChance: [40, 70]
+  PopPerTile: [75, 175]
+  BaseFertility: [0.0, 1.5]
+  MinBaseFertility: 0.5
 
 PlanetType: 25
   Category: Terran
@@ -219,10 +387,10 @@ PlanetType: 25
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [60, 90]
-  MaxPop: [12000, 18000]
-  Fertility: [-0.5, 3.0]
-  MinFertility: 1.0
+  HabitableTileChance: [30, 50]
+  PopPerTile: [100, 200]
+  BaseFertility: [-0.25, 1.5]
+  MinBaseFertility: 0.5
 
 PlanetType: 27 # Rathi:Tor
   Category: Terran
@@ -232,10 +400,10 @@ PlanetType: 27 # Rathi:Tor
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [60, 90]
-  MaxPop: [12000, 18000]
-  Fertility: [-10.0, 3.0]
-  MinFertility: 1.0
+  HabitableTileChance: [40, 70]
+  PopPerTile: [50, 150]
+  BaseFertility: [-10.0, 3.0]
+  MinBaseFertility: 1.0
 
 PlanetType: 29
   Category: Terran
@@ -245,10 +413,10 @@ PlanetType: 29
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [50, 80]
-  MaxPop: [7500, 12000]
-  Fertility: [-10.0, 3.0]
-  MinFertility: 1.0
+  HabitableTileChance: [20, 50]
+  PopPerTile: [70, 120]
+  BaseFertility: [-5.0, 1.2]
+  MinBaseFertility: 0.5
 
 # GasGiants
 PlanetType: 2 # Less Stripey Light Beige Giant
@@ -299,51 +467,3 @@ PlanetType: 28 # Jupiter, striped beige giant
   MeshPath: Model/SpaceObjects/planet_28
   Habitable: false
   Scale: 2.5
-
-# Desert,  terraforms to Tundra
-PlanetType: 30
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/14
-  MeshPath: Model/SpaceObjects/planet_14
-  Glow: Orange
-  Habitable: true
-  HabitableTileChance: [10, 35]
-  MaxPop: [500, 3000]
-  Fertility: [-0.8, 0.8]
-  MinFertility: 0.3
-
-# Ice, better pop but less tiles, terraforms to Swamp
-PlanetType: 31 
-  Category: Ice
-  Composition: 1713
-  IconPath: Planets/17
-  MeshPath: Model/SpaceObjects/planet_17
-  Glow: White
-  Habitable: true
-  HabitableTileChance: [10, 30]
-  MaxPop: [100, 800]
-
-# Ice, almost baren terraforms to Swamp
-PlanetType: 32 
-  Category: Ice
-  Composition: 1713
-  IconPath: Planets/17
-  MeshPath: Model/SpaceObjects/planet_17
-  Glow: White
-  Habitable: true
-  MaxPop: [100, 300]
-
-# Desert, big (tatooine style) terraforms to Tundra
-PlanetType: 33
-  Category: Desert
-  Composition: 1710
-  IconPath: Planets/14
-  MeshPath: Model/SpaceObjects/planet_14
-  Glow: Orange
-  Habitable: true
-  HabitableTileChance: [5, 40]
-  MaxPop: [500, 6000]
-  Fertility: [-0.8, 0.5]
-  MinFertility: 0.2
-  Scale: 1.5

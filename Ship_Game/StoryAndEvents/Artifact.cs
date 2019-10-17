@@ -60,7 +60,7 @@ namespace Ship_Game
                     triggerer.data.EmpireFertilityBonus += triggeredOutcome.GetArtifact().FertilityMod;
                     foreach (Planet planet in triggerer.GetPlanets())
                     {
-                        planet.AddMaxFertility(bonus);
+                        planet.AddMaxBaseFertility(bonus);
                     }
                 }
                 TrySetArtifactEffect(ref triggerer.data.Traits.DiplomacyMod,

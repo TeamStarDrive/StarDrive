@@ -69,7 +69,7 @@ namespace Ship_Game
             }
             else
             {
-                view.Description = 
+                view.Description =
                     "Automatic error reporting is disabled. \r\n" +
                     "If this error keep reoccurring, you can add comments and create a new issue on BitBucket.";
             }

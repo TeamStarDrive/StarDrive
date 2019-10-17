@@ -43,77 +43,76 @@ namespace Ship_Game
         public Vector2 Position;
         public Vector2 Velocity;
         public float Rotation;
-        public PlanetGridSquare Target;
+        public PlanetGridSquare TargetTile;
         public Planet Surface;
 
         public void DamageColonySurface(Bomb bomb)
         {
             int softDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
             int hardDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
-            DamageBioSpheres(hardDamage);
+            float popKilled = bomb.PopKilled;
+
+            DamageTile(hardDamage, popKilled);
             DamageTroops(softDamage);
             DamageBuildings(hardDamage);
+
+            Surface.ApplyBombEnvEffects(popKilled); // Fertility and pop loss
         }
 
-        private void DamageBioSpheres(int damage)
+        private void DamageTile(int hardDamage, float popKilled)
         {
-            if (!Target.Biosphere || !RandomMath.RollDice(damage * 5))
-                return;
+            if (DamageBioSpheres(hardDamage))
+                return;  // the bioSpheres on this tile were destroyed by this bomb
+
+            if (!TargetTile.Habitable && RandomMath.RollDice(popKilled * 10))
+                Surface.DestroyTile(TargetTile); // Tile becomes un-habitable
+            }
+
+        private bool DamageBioSpheres(int damage)
+            {
+            if (!TargetTile.Biosphere || !RandomMath.RollDice(damage * 5))
+                return false;
 
             // Biospheres could not withstand damage
-            Target.Habitable   = false;
-            Target.Highlighted = false;
-            Target.Biosphere   = false;
-            if (Target.BuildingOnTile)
-            {
-                // Building under biospheres is also destroyed
-                Surface.BuildingList.Remove(Target.building);
-                Target.building = null;
-            }
-
-            // Remove some pop and also the Biospheres from the building list
-            Building bio = Surface.BuildingList.First(b => b.IsBiospheres);
-            if (bio != null)
-            {
-                Surface.Population -= bio.MaxPopIncrease * Surface.PopulationRatio;
-                Surface.BuildingList.Remove(bio);
-            }
+            TargetTile.Highlighted = false;
+            Surface.DestroyBioSpheres(TargetTile);
+            return true;
         }
 
         private void DamageTroops(int damage)
         {
-            if (!Target.TroopsAreOnTile)
+            if (!TargetTile.TroopsAreOnTile)
                 return;
 
-            Troop troop        = Target.SingleTroop;
+            Troop troop        = TargetTile.SingleTroop;
             int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
 
             // Try to hit the troop, high level troops have better chance to evade
             if (RandomMath.RollDice(troopHitChance))
             {
                 troop.DamageTroop(damage);
-                if (Target.SingleTroop.Strength <= 0)
+                if (TargetTile.SingleTroop.Strength <= 0)
                 {
-                    Surface.TroopsHere.Remove(Target.SingleTroop);
-                    Target.TroopsHere.Clear();
+                    Surface.TroopsHere.Remove(TargetTile.SingleTroop);
+                    TargetTile.TroopsHere.Clear();
                 }
             }
         }
 
         private void DamageBuildings(int damage)
         {
-            if (!Target.BuildingOnTile)
+            if (!TargetTile.BuildingOnTile)
                 return;
 
-            Building building = Target.building;
+            Building building = TargetTile.building;
             building.Strength -= damage;
             if (building.IsAttackable)
                 building.CombatStrength = building.Strength;
 
-            if (Target.BuildingDestroyed)
+            if (TargetTile.BuildingDestroyed)
             {
                 Surface.BuildingList.Remove(building);
-                Target.building = null;
+                TargetTile.building = null;
             }
         }
     }
@@ -175,8 +174,8 @@ namespace Ship_Game
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public float Density;
-        public float Fertility { get; protected set; }
-        public float MaxFertility { get; protected set; }
+        public float BaseFertility { get; protected set; }
+        public float BaseMaxFertility { get; protected set; }
         public float MineralRichness;
 
         public Array<Building> BuildingList = new Array<Building>();
@@ -205,22 +204,6 @@ namespace Ship_Game
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
         public IReadOnlyList<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
-
-        protected void SetTileHabitability(float habChance)
-        {
-            if (UniqueHab)
-            {
-                habChance = UniqueHabPercent;
-            }
-            for (int x = 0; x < TileMaxX; ++x)
-            {
-                for (int y = 0; y < TileMaxY; ++y)
-                {
-                    bool habitable = habChance > 0 && RandomMath.RandomBetween(0, 100) < habChance;
-                    TilesList.Add(new PlanetGridSquare(x, y, null, habitable));
-                }
-            }
-        }
 
         protected void AddTileEvents()
         {
@@ -347,7 +330,7 @@ namespace Ship_Game
             else
             {
                 Description = Name + " " + Type.Composition.Text + ". ";
-                if (MaxFertility > 2)
+                if (BaseMaxFertility > 2)
                 {
                     switch (Type.Id)
                     {
@@ -357,7 +340,7 @@ namespace Ship_Game
                         default: Description += Localizer.Token(1731); break;
                     }
                 }
-                else if (MaxFertility > 1)
+                else if (BaseMaxFertility > 1)
                 {
                     switch (Type.Id)
                     {
@@ -368,7 +351,7 @@ namespace Ship_Game
                         default: Description += Localizer.Token(1735); break;
                     }
                 }
-                else if (MaxFertility > 0.6f)
+                else if (BaseMaxFertility > 0.6f)
                 {
                     switch (Type.Id)
                     {
@@ -409,7 +392,7 @@ namespace Ship_Game
                             break;
                     }
                 }
-                if (MaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
+                if (BaseMaxFertility < 0.6f && MineralRichness >= 2 && Habitable)
                 {
                     Description += Localizer.Token(1754);
                     if      (MineralRichness > 3)  Description += Localizer.Token(1755);
@@ -451,6 +434,7 @@ namespace Ship_Game
                 ++rel2.ActiveWar.ColoniesLost;
 
             ConstructionQueue.Clear();
+            thisPlanet.UpdateTerraformPoints(0);
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
 
