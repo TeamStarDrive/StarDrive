@@ -6,8 +6,8 @@ namespace Ship_Game.GameScreens.MainMenu
 {
     internal class VersionChecking : PopupWindow
     {
-        readonly ReadRestAPI BlackBoxVersionCheck;
-        readonly ReadRestAPI ModVersionCheck;
+        readonly ReadRestAPIFromSite BlackBoxVersionCheck;
+        readonly ReadRestAPIFromSite ModVersionCheck;
         UILabel BlackBoxListHeader;
         UILabel ModListHeader;
         const string URL = "http://api.bitbucket.org/2.0/repositories/CrunchyGremlin/stardrive-blackbox/downloads";
@@ -17,8 +17,8 @@ namespace Ship_Game.GameScreens.MainMenu
         public VersionChecking(GameScreen parent, int width, int height) : base(parent, width, height)
         {
             IsPopup = true;
-            BlackBoxVersionCheck = new ReadRestAPI();
-            ModVersionCheck = new ReadRestAPI();
+            BlackBoxVersionCheck = new ReadRestAPIFromSite();
+            ModVersionCheck = new ReadRestAPIFromSite();
         }
         public VersionChecking(GameScreen parent) : this(parent, 500, 600)
         {
@@ -50,7 +50,7 @@ namespace Ship_Game.GameScreens.MainMenu
             base.LoadContent();            
             BlackBoxVersionCheck.LoadContent(URL);
             ModVersionCheck.LoadContent(ModURL);
-            if (BlackBoxVersionCheck.FilesAndLinks == null)
+            if (BlackBoxVersionCheck.FilesAvailable == null)
             {
                 ExitScreen();
                 return;
@@ -69,7 +69,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public override void Draw(SpriteBatch batch)
         {
-            if (BlackBoxVersionCheck.FilesAndLinks == null)
+            if (BlackBoxVersionCheck.FilesAvailable == null)
             {
                 ExitScreen();
                 return;
