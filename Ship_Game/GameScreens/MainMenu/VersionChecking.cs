@@ -56,8 +56,8 @@ namespace Ship_Game.GameScreens.MainMenu
                 return;
             }
             Vector2 drawLoc = BodyTextStart;            
-            BlackBoxListHeader = new UILabel(this, drawLoc, "========== BlackBox ==========");
-            drawLoc.Y += 16;
+            BlackBoxListHeader = new UILabel(this, drawLoc, "Click to download\n========== BlackBox ==========");
+            drawLoc.Y += 32;
             drawLoc = BlackBoxVersionCheck.PopulateVersions(versionText, this, drawLoc);
             drawLoc.Y += 16;
             ModListHeader = new UILabel(this, drawLoc, $"========== {mod?.ModName ?? "Vanilla"} ==========");
