@@ -154,13 +154,13 @@ namespace Ship_Game.Utils
             {
                 case Age.Old:
                     color = Color.Gray;
-                    return $"==== {item} ====";
+                    return $"=Old= {item} ====";
                 case Age.Current:
                     color = Color.Yellow;
-                    return $"*=== {item} ====";
+                    return $"*==== {item} ====";
                 case Age.New:
                     color = Color.White;
-                    return $"==== {item} ====";
+                    return $"=New= {item} ====";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(age), age, null);
             }
