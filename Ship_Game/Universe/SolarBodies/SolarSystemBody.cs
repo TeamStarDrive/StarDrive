@@ -61,22 +61,21 @@ namespace Ship_Game
 
         private void DamageTile(int hardDamage, float popKilled)
         {
-            if (DamageBioSpheres(hardDamage))
-                return;  // the bioSpheres on this tile were destroyed by this bomb
-
-            if (!TargetTile.Habitable && RandomMath.RollDice(popKilled * 10))
+            // Damage biospheres first
+            if (TargetTile.Biosphere)
+                DamageBioSpheres(hardDamage);
+            else if (TargetTile.Habitable && RandomMath.RollDice(popKilled * 20))
                 Surface.DestroyTile(TargetTile); // Tile becomes un-habitable
-            }
+        }
 
-        private bool DamageBioSpheres(int damage)
+        private void DamageBioSpheres(int damage)
+        {
+            if (TargetTile.Biosphere && RandomMath.RollDice(damage * 10))
             {
-            if (!TargetTile.Biosphere || !RandomMath.RollDice(damage * 5))
-                return false;
-
-            // Biospheres could not withstand damage
-            TargetTile.Highlighted = false;
-            Surface.DestroyBioSpheres(TargetTile);
-            return true;
+                // Biospheres could not withstand damage
+                TargetTile.Highlighted = false;
+                Surface.DestroyBioSpheres(TargetTile);
+            }
         }
 
         private void DamageTroops(int damage)
