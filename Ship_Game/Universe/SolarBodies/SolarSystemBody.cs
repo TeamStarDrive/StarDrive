@@ -48,29 +48,33 @@ namespace Ship_Game
 
         public void DamageColonySurface(Bomb bomb)
         {
-            int softDamage = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
-            int hardDamage = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
-            float popKilled = bomb.PopKilled;
+            int softDamage  = (int)RandomMath.RandomBetween(bomb.TroopDamageMin, bomb.TroopDamageMax);
+            int hardDamage  = (int)RandomMath.RandomBetween(bomb.HardDamageMin, bomb.HardDamageMax);
+            float popKilled = TargetTile.Habitable ? bomb.PopKilled : bomb.PopKilled / 10;
 
-            DamageTile(hardDamage, popKilled);
+            DamageTile(hardDamage);
             DamageTroops(softDamage);
             DamageBuildings(hardDamage);
 
             Surface.ApplyBombEnvEffects(popKilled); // Fertility and pop loss
         }
 
-        private void DamageTile(int hardDamage, float popKilled)
+        private void DamageTile(int hardDamage)
         {
             // Damage biospheres first
             if (TargetTile.Biosphere)
                 DamageBioSpheres(hardDamage);
-            else if (TargetTile.Habitable && RandomMath.RollDice(popKilled * 20))
-                Surface.DestroyTile(TargetTile); // Tile becomes un-habitable
+            else if (TargetTile.Habitable)
+            {
+                int destroyThreshold = TargetTile.building == null ? 4 : 1; // Lower chance to destroy a tile if there is a building on it
+                if (RandomMath.RollDice(hardDamage * destroyThreshold))
+                    Surface.DestroyTile(TargetTile); // Tile becomes un-habitable and any building on it is destroyed immediately
+            }
         }
 
         private void DamageBioSpheres(int damage)
         {
-            if (TargetTile.Biosphere && RandomMath.RollDice(damage * 10))
+            if (TargetTile.Biosphere && RandomMath.RollDice(damage * 20))
             {
                 // Biospheres could not withstand damage
                 TargetTile.Highlighted = false;
