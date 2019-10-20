@@ -1375,7 +1375,9 @@ namespace Ship_Game
 
         void ScrapAccepted(object sender, EventArgs e)
         {
-            ToScrap?.ScrapBuilding(P);
+            if (ToScrap != null)
+                P.ScrapBuilding(ToScrap);
+
             Update(0f);
         }
 

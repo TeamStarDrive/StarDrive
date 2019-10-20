@@ -272,21 +272,9 @@ namespace Ship_Game
         public void ApplyBombEnvEffects(float amount) // added by Fat Bastard
         {
             Population -= 1000f * amount;
-            AddBaseFertility(amount * -0.25f);
-            if (BaseFertility > 0 || !RandomMath.RollDice(amount * 200))
-                return; // environment suffers only temp damage
-
-            // permanent damage to Max Fertility and possibly changing planet type
-            AddMaxBaseFertility(-0.02f);
-            bool degraded = DegradePlanetType();
-
-            if (degraded || Owner != null && Owner.isPlayer)
-            {
-                // Notify player that planet was degraded
-                string notificationText = Name + " " + Localizer.Token(1973);
-                Empire.Universe.NotificationManager.AddRandomEventNotification(
-                    notificationText, Type.IconPath, "SnapToPlanet", this);
-            }
+            AddBaseFertility(amount * -0.25f); // environment suffers temp damage
+            if (BaseFertility.LessOrEqual(0) && RandomMath.RollDice(amount * 200))
+                AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
 
             if (MaxPopulation.AlmostZero())
                 WipeOutColony();
@@ -437,28 +425,50 @@ namespace Ship_Game
             Projectiles.RemoveInActiveObjects();
         }
 
-        public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as remove biospheres
+        public void DestroyTile(PlanetGridSquare tile) => DestroyBioSpheres(tile); // since it does the same as DestroyBioSpheres
 
         public void DestroyBioSpheres(PlanetGridSquare tile)
         {
+            if (tile.building != null)
+                RemoveBuildingFromPlanet(tile.building, tile);
 
-            if (tile.BuildingOnTile)
-            {
-                // Building under biospheres is also destroyed
-                if (tile.building.MaxFertilityOnBuild > 0)
-                    AddMaxBaseFertility(-tile.building.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertility On build when destroying
+            tile.Habitable = false;
+            if (tile.Biosphere)
+                ClearBioSpheresFromList(tile);
 
-                BuildingList.Remove(tile.building);
-                tile.building = null;
-            }
-
-            ClearBioSpheresFromList(tile);
             UpdateMaxPopulation();
+        }
+
+        public void ScrapBuilding(Building b)
+        {
+            RemoveBuildingFromPlanet(b);
+            ProdHere += b.ActualCost / 2f;
+        }
+
+        private void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile = null)
+        {
+            if (b.MaxFertilityOnBuild > 0)
+                AddMaxBaseFertility(-b.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnBuild when scrapping
+
+            BuildingList.Remove(b);
+            if (tile != null)
+                tile.building = null;
+            else // search for the tile which corresponds with the building
+                foreach (PlanetGridSquare pgs in TilesList)
+                {
+                    if (pgs.building != b)
+                        continue;
+
+                    pgs.building = null;
+                    break;
+                }
+
+            if (b.IsTerraformer && !TerraformingHere)
+                UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
         {
-            tile.Habitable = false;
             tile.Biosphere = false;
 
             var biospheresList = BuildingList.Filter(b => b.IsBiospheres);

@@ -296,7 +296,7 @@ namespace Ship_Game
             var negativeEnvBuildings = BuildingList.Filter(b => b.MaxFertilityOnBuild < 0 && !b.IsBiospheres);
             if (negativeEnvBuildings.Length > 0)
             {
-                negativeEnvBuildings[0].ScrapBuilding(this);
+                ScrapBuilding(negativeEnvBuildings[0]);
                 return true;
             }
 
@@ -357,10 +357,10 @@ namespace Ship_Game
 
         private void RemoveTerraformers()
         {
-            foreach (PlanetGridSquare planetGridSquare in TilesList)
+            foreach (PlanetGridSquare tile in TilesList)
             {
-                if (planetGridSquare.building?.PlusTerraformPoints > 0)
-                    planetGridSquare.building.ScrapBuilding(this);
+                if (tile.building?.PlusTerraformPoints > 0)
+                    ScrapBuilding(tile.building);
             }
         }
 
@@ -433,40 +433,6 @@ namespace Ship_Game
                         continue;
                 }
             }
-        }
-
-        private bool DegradePlanetType() // Added by Fat Bastard
-        {
-            // All Habitable planets possibly degrade to Barren. Barren types degrade to un-habitable volcanic planets.
-            PlanetCategory degradeTo = PlanetCategory.Barren;
-            bool degraded            = false;
-            switch (Category)
-            {
-                case PlanetCategory.Swamp:
-                case PlanetCategory.Ice:
-                case PlanetCategory.Oceanic:
-                case PlanetCategory.Desert:
-                case PlanetCategory.Steppe:
-                case PlanetCategory.Tundra:
-                case PlanetCategory.Terran:
-                    if (RollDice(2))
-                        degraded = true;
-
-                    break;
-                case PlanetCategory.Barren:
-                    if (RollDice(1))
-                    {
-                        degradeTo = PlanetCategory.Volcanic;
-                        degraded = true;
-                    }
-                    break;
-                default:
-                    return false;
-            }
-            if (degraded)
-                Terraform(degradeTo, improve: false);
-
-            return degraded;
         }
 
         protected void AddEventsAndCommodities()
