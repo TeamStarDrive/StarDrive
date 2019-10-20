@@ -891,6 +891,7 @@ namespace Ship_Game
                             if (tech.Unlockable)
                                 continue;
                             tech.Unlockable = true;
+
                             if (GlobalStats.VerboseLogging)
                                 Log.WarningVerbose($"Technology can be unlocked by encounter '{encounter.Name}' : '{tech.UID}'");
                         }
