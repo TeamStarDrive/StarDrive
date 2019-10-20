@@ -2446,7 +2446,7 @@ namespace Ship_Game
                         }
 
                         foreach (Building b in list)
-                            b.ScrapBuilding(planet);
+                            planet.ScrapBuilding(b);
                     }
                 }
             }
