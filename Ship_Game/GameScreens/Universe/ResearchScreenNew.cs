@@ -205,11 +205,12 @@ namespace Ship_Game
                 return true;
             }
 
-            if (input.RightMouseHeldDown)
+            if (!input.RightMouseHeldDown && input.RightMouseDown)
             {
                 StartDragPos = input.CursorPosition;
                 cameraVelocity = Vector2.Zero;
             }
+            
             if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || RightClicked)
             {
                 cameraVelocity = Vector2.Zero;
@@ -234,7 +235,7 @@ namespace Ship_Game
                     {
                         bool shift = input.IsShiftKeyDown;
                         Empire us = EmpireManager.Player;
-                        techEntry.UnlockWithNoBonusOption(us, us, !shift);
+                        techEntry.DebugUnlockFromTechScreen(us, us, !shift);
 
                         foreach (var them in EmpireManager.Empires)
                         {
@@ -280,7 +281,7 @@ namespace Ship_Game
 
             foreach (RootNode root in RootNodes.Values)
             {
-                if (root.HandleInput(input))
+                if (root.HandleInput(input,camera))
                 {
                     PopulateNodesFromRoot(root);
                     GameAudio.ResearchSelect();

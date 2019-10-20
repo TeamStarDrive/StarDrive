@@ -4,6 +4,8 @@
   <TechnologyType>ShipDefense</TechnologyType>
   <Cost>50</Cost>
   <RootNode>0</RootNode>
+  <Secret>true</Secret>
+  <IconPath>../ResearchMenu/icons_techroot_science</IconPath>
   <Name>Ancient Shield Tech</Name>
   <NameIndex>511</NameIndex>
   <DescriptionIndex>512</DescriptionIndex>
