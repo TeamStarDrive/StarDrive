@@ -205,22 +205,15 @@ namespace Ship_Game
                 return true;
             }
 
-            if (!input.RightMouseHeldDown && input.RightMouseDown)
-            {
-                StartDragPos = input.CursorPosition;
-                cameraVelocity = Vector2.Zero;
-            }
-            
-            if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || RightClicked)
-            {
-                cameraVelocity = Vector2.Zero;
-                if (RightClicked) // fbedard: prevent screen scroll
-                    StartDragPos = input.CursorPosition;
-            }
-            else
+            if (input.RightMouseHeldDown)
             {
                 camera.Pos += (StartDragPos - input.CursorPosition);
                 StartDragPos = input.CursorPosition;
+            }
+            else
+            {
+                StartDragPos = input.CursorPosition;
+                cameraVelocity = Vector2.Zero;
             }
 
             cameraVelocity = cameraVelocity.Clamped(-10f, 10f);
