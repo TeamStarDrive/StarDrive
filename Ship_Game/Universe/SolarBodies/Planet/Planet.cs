@@ -429,9 +429,7 @@ namespace Ship_Game
 
         public void DestroyBioSpheres(PlanetGridSquare tile)
         {
-            if (tile.building != null)
-                RemoveBuildingFromPlanet(tile.building, tile);
-
+            RemoveBuildingFromPlanet(tile);
             tile.Habitable = false;
             if (tile.Biosphere)
                 ClearBioSpheresFromList(tile);
@@ -445,23 +443,36 @@ namespace Ship_Game
             ProdHere += b.ActualCost / 2f;
         }
 
-        private void RemoveBuildingFromPlanet(Building b, PlanetGridSquare tile = null)
+        private void RemoveBuildingFromPlanet(Building b)
+        {
+            BuildingList.Remove(b);
+            foreach (PlanetGridSquare pgs in TilesList) // search for the tile which corresponds with the building 
+            {
+                if (pgs.building != b)
+                    continue;
+
+                pgs.building = null;
+                break;
+            }
+
+            PostBuildingRemoval(b);
+        }
+
+        private void RemoveBuildingFromPlanet(PlanetGridSquare tile)
+        {
+            if (tile?.building == null)
+                return;
+
+            Building b = tile.building;
+            BuildingList.Remove(b);
+            tile.building = null;
+            PostBuildingRemoval(b);
+        }
+
+        private void PostBuildingRemoval(Building b)
         {
             if (b.MaxFertilityOnBuild > 0)
                 AddMaxBaseFertility(-b.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnBuild when scrapping
-
-            BuildingList.Remove(b);
-            if (tile != null)
-                tile.building = null;
-            else // search for the tile which corresponds with the building
-                foreach (PlanetGridSquare pgs in TilesList)
-                {
-                    if (pgs.building != b)
-                        continue;
-
-                    pgs.building = null;
-                    break;
-                }
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
