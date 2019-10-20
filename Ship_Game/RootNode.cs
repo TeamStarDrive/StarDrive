@@ -112,9 +112,12 @@ namespace Ship_Game
 			}
 		}
 
-		public override bool HandleInput(InputState input)
+		public bool HandleInput(InputState input, Camera2D camera)
 		{
-			if (RootRect.HitTest(input.CursorPosition))
+            Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(RootRect.X, RootRect.Y));
+            Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, RootRect.Width, RootRect.Height);
+
+            if (moddedRect.HitTest(input.CursorPosition))
 			{
 				if (nodeState != NodeState.Press)
 				{

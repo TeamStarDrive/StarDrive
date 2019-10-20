@@ -3,10 +3,12 @@
   <UID>Ancient Ion Technology</UID>
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>50</Cost>
+  <Secret>true</Secret>
   <RootNode>0</RootNode>
   <Name>Ancient Ion Tech</Name>
   <NameIndex>505</NameIndex>
   <DescriptionIndex>506</DescriptionIndex>
+  <IconPath>../ResearchMenu/icons_techroot_science</IconPath>
   <LongDescription>This technology was recovered from an ancient ship.</LongDescription>
   <LeadsTo />
   <ModulesUnlocked>

@@ -18,7 +18,8 @@ namespace Ship_Game
     {
         Normal,
         Spy,
-        Diplomacy
+        Diplomacy,
+        Event
     }
     public sealed partial class Empire : IDisposable
     {
@@ -681,9 +682,6 @@ namespace Ship_Game
             {
                 var techEntry = kv.Value;
                 data.Traits.TechUnlocks(techEntry, this);
-
-                if (techEntry.Unlocked)
-                    techEntry.Progress = techEntry.TechCost;
             }
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
@@ -747,17 +745,6 @@ namespace Ship_Game
                 AddToShipTechLists(entry.Value);
                 entry.Value.UnlockFromSave(this, unlockBonuses);
             }
-
-            //foreach (TechEntry techEntry in TechnologyDict.Values)
-            //{
-            //    bool hullsNotRoot = techEntry.Tech.HullsUnlocked.Count > 0 && techEntry.Tech.RootNode != 1;
-            //    if (!hullsNotRoot || !techEntry.Unlocked) continue;
-            //    techEntry.Unlocked = false;
-            //    if (unlockBonuses)
-            //        techEntry.Unlock(this);
-            //    else
-            //        techEntry.UnlockFromSave(this, unlockBonuses);
-            //}
         }
 
         private void InitTechs()
@@ -961,6 +948,15 @@ namespace Ship_Game
                         UpdateForNewTech();
                     if (techEntry.Unlocked) 
                         data.ResearchQueue.Remove(techEntry.UID);
+                    break;
+                case TechUnlockType.Event:
+                    //techEntry.Discovered = true;
+                    //techEntry.Unlocked = true;
+                    if (techEntry.Unlock(this))
+                    {
+                        UpdateForNewTech();
+                        data.ResearchQueue.Remove(techEntry.UID);
+                    }
                     break;
             }
         }
@@ -2246,44 +2242,33 @@ namespace Ship_Game
         {
             if (string.IsNullOrEmpty(ResearchTopic))
             {
-                if (data.ResearchQueue.Count > 0)
-                    ResearchTopic = data.ResearchQueue[0];
-                else
+                if (data.ResearchQueue.Count <= 0)
                     return;
+                ResearchTopic = data.ResearchQueue[0];
             }
 
             float research = Research + LeftoverResearch;
             TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
-            //reduce the impact of tech that doesnt affect cybernetics.
-            float cyberneticMultiplier = 1.0f;
-            if (IsCybernetic && tech.UnlocksFoodBuilding)
-                cyberneticMultiplier = .5f;
 
-            float techCost = tech.TechCost * cyberneticMultiplier;
-            if (techCost - tech.Progress > research)
+            LeftoverResearch = tech.AddToProgress(research, this, out bool unLocked);
+            research = LeftoverResearch;
+
+            if (unLocked)
             {
-                tech.Progress += research;
-                LeftoverResearch = 0f;
-                return;
+                UnlockTech(ResearchTopic, TechUnlockType.Normal, this);
+                if (isPlayer)
+                    Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
+                data.ResearchQueue.Remove(ResearchTopic);
+                if (data.ResearchQueue.Count > 0)
+                {
+                    ResearchTopic = data.ResearchQueue[0];
+                    data.ResearchQueue.RemoveAt(0);
+                }
+                else
+                    ResearchTopic = "";
             }
-
-            research -= techCost - tech.Progress;
-            tech.Progress = techCost;
-            UnlockTech(ResearchTopic, TechUnlockType.Normal, this);
-            if (isPlayer)
-                Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
-            data.ResearchQueue.Remove(ResearchTopic);
-            if (data.ResearchQueue.Count > 0)
-            {
-                ResearchTopic = data.ResearchQueue[0];
-                data.ResearchQueue.RemoveAt(0);
-            }
-            else
-                ResearchTopic = "";
-
-            LeftoverResearch = research;
         }
 
         private void UpdateRelationships()
