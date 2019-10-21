@@ -39,8 +39,6 @@ namespace Ship_Game
 
         public bool RightClicked;
 
-        Vector2 StartDragPos = Vector2.Zero;
-
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
             empireUI = empireUi;
@@ -206,18 +204,7 @@ namespace Ship_Game
             }
 
             if (input.RightMouseHeldDown)
-            {
-                camera.Pos += (StartDragPos - input.CursorPosition);
-                StartDragPos = input.CursorPosition;
-            }
-            else
-            {
-                StartDragPos = input.CursorPosition;
-                cameraVelocity = Vector2.Zero;
-            }
-
-            cameraVelocity = cameraVelocity.Clamped(-10f, 10f);
-            camera.Pos = camera.Pos.Clamped(ScreenCenter.X, ScreenCenter.Y, 3200f, 3200f);
+                camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
 
             // unlock ALL techs
             if (Empire.Universe.Debug)

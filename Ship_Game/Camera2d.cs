@@ -84,6 +84,13 @@ namespace Ship_Game
             CamPos.Y += dy;            
         }
 
+        public void MoveClamped(Vector2 pos, Vector2 min, Vector2 max)
+        {
+            CamPos.X += pos.X;
+            CamPos.Y += pos.Y;
+            CamPos = CamPos.Clamped(min.X, min.Y, max.X, max.Y);
+        }
+
         public Vector2 WASDCamMovement(InputState input, GameScreen screen, float limit)
         {
             Vector2 adjustCam = Vector2.Zero;

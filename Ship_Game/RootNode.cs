@@ -114,8 +114,8 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input, Camera2D camera)
 		{
-            Vector2 RectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(RootRect.X, RootRect.Y));
-            Rectangle moddedRect = new Rectangle((int)RectPos.X, (int)RectPos.Y, RootRect.Width, RootRect.Height);
+            Vector2 rectPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(RootRect.X, RootRect.Y));
+            Rectangle moddedRect = new Rectangle((int)rectPos.X, (int)rectPos.Y, RootRect.Width, RootRect.Height);
 
             if (moddedRect.HitTest(input.CursorPosition))
 			{
