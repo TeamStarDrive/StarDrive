@@ -16,7 +16,6 @@ namespace Ship_Game
     {
         public DrawableSprite Sprite { get; set; }
         public Color Color { get; set; } = Color.White;
-        public bool DebugBorder;
 
         public override string ToString()
         {
@@ -55,11 +54,6 @@ namespace Ship_Game
             else if (Color.A > 0)
             {
                 batch.FillRectangle(Rect, Color);
-            }
-
-            if (DebugBorder)
-            {
-                batch.DrawRectangle(Rect, Color.Red);
             }
 
             base.Draw(batch);
