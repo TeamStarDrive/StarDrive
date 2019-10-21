@@ -49,8 +49,8 @@ namespace UnitTests.Planets
         public void TestPopulationCreated() // FB: Should be moved to other planet test class once i create them.
         {
             float expectedPop = 14 * TestEmpire.data.Traits.HomeworldSizeMultiplier;
-            float actualPop   = (float)Math.Round(P.MaxPopulationBillion, 1);
-            Assert.That.Equal(expectedPop, actualPop);
+            float actualPop   = P.MaxPopulationBillion;
+            Assert.That.Equal(0.1f, expectedPop, actualPop);
         }
 
         [TestMethod]
