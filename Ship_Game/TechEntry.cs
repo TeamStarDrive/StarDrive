@@ -59,23 +59,21 @@ namespace Ship_Game
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
         }
         /// <summary>
-        /// Returns 0 or amount of research left over. Crybernetic get a break on food buildings here. 
+        /// Returns empire research not used.
+        /// Crybernetic gets a break on food buildings here. 
         /// </summary>
         /// <param name="amount"></param>
         /// <param name="us"></param>
         /// <param name="unLocked"></param>
         /// <returns></returns>
-        public float AddToProgress(float amount, Empire us, out bool unLocked)
+        public float AddToProgress(float amount, float modifier, out bool unLocked)
         {
-            //reduce the impact of tech that doesnt affect cybernetics.
-            float cyberneticMultiplier = 1.0f;
-            if (us.IsCybernetic && UnlocksFoodBuilding)
-                cyberneticMultiplier = 0.5f;
-
-            float techCost = Tech.ActualCost * cyberneticMultiplier;
-            float leftOver = Math.Max(0, amount - (techCost - Progress));
-            Progress = Math.Min(Progress + amount, techCost);
-            unLocked = Progress >= techCost;
+            float techCost = Tech.ActualCost * modifier;
+            float leftOver = 0;
+            Progress += amount;
+            leftOver = Math.Max(0, Progress - techCost);
+            Progress = Math.Min(Progress, techCost);
+            unLocked = Progress.AlmostEqual(techCost);
             return leftOver;
         }
 
@@ -412,7 +410,8 @@ namespace Ship_Game
         {
             if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
             {
-                AddToProgress(TechCost * 0.25f, us, out bool unLocked);
+                float multiplier = us.data.Traits.ResearchMultiplierForTech(this, us);
+                AddToProgress(TechCost * 0.25f, multiplier, out bool unLocked);
                 if (unLocked) us.UnlockTech(this, TechUnlockType.Normal);
                 return unLocked;
             }
