@@ -446,14 +446,11 @@ namespace Ship_Game
         private void RemoveBuildingFromPlanet(Building b)
         {
             BuildingList.Remove(b);
-            foreach (PlanetGridSquare pgs in TilesList) // search for the tile which corresponds with the building 
-            {
-                if (pgs.building != b)
-                    continue;
-
+            PlanetGridSquare pgs = TilesList.Find(tile => tile.building == b);
+            if (pgs != null)
                 pgs.building = null;
-                break;
-            }
+            else
+                Log.Error($"{this} failed to find tile with building {b}");
 
             PostBuildingRemoval(b);
         }
