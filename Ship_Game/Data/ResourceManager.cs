@@ -1,11 +1,8 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
-using SgMotion;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using SynapseGaming.LightingSystem.Core;
-using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Data;
-using Ship_Game.Data.Mesh;
 using Ship_Game.Data.Yaml;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
@@ -79,6 +75,8 @@ namespace Ship_Game
         static RacialTraits RacialTraits;
         static DiplomaticTraits DiplomacyTraits;
 
+        public static SubTexture Blank;
+
         // All references to Game1.Instance.Content were replaced by this property
         public static GameContentManager RootContent => GameBase.Base.Content;
 
@@ -96,12 +94,11 @@ namespace Ship_Game
             Log.WarningWithCallStack($"{eventName} not found. Contact mod creator.");
             return EventsDict["default"];
         }
+
         /// <summary>
         /// No Error logging on eventDates. returns an event named for the dateString passed.
         /// Else returns null.
         /// </summary>
-        /// <param name="eventDate"></param>
-        /// <returns></returns>
         public static ExplorationEvent EventByDate(float starDate) =>
             EventsDict.TryGetValue(starDate.ToString(CultureInfo.InvariantCulture), out ExplorationEvent events) ? events : null;
 
@@ -148,7 +145,8 @@ namespace Ship_Game
                 BackgroundLoad.CancelAndWait();
             }
 
-            if (reset) Reset(manager);
+            if (reset)
+                UnloadAllData(manager);
 
             if (mod != null)
                 GlobalStats.SetActiveModNoSave(mod);
@@ -158,27 +156,17 @@ namespace Ship_Game
             Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
             LoadLanguage(); // @todo Slower than expected [0.36]
             LoadToolTips();
+            LoadHullBonuses();
             LoadHullData(); // we need Hull Data for main menu ship
             LoadEmpires();  // empire for NewGame @todo Very slow [0.54%]
-
-            LoadTextureAtlases();
-
-            LoadNebulae();
-            LoadStars();
-            LoadFlagTextures(); // @todo Very slow for some reason [1.04%]
-            LoadHullBonuses();
 
             LoadTroops();
             LoadWeapons();     // @todo Also slow [0.87%]
             LoadShipModules(); // @todo Extremely slow [1.29%]
             LoadGoods();
-            LoadShipTemplates(); // @note Extremely fast :))) Loads everything in [0.16%]
             LoadShipRoles();
-            LoadJunk();      // @todo SLOW [0.47%]
-            LoadAsteroids(); // @todo SLOW [0.40%]
-            LoadProjTexts(); // @todo SLOW [0.47%]
+            LoadShipTemplates(); // @note Extremely fast :))) Loads everything in [0.16%]
             LoadBuildings();
-            LoadProjectileMeshes();
             LoadRandomItems();
             LoadDialogs();  // @todo SLOW [0.44%]
             LoadTechTree(); // @todo This is VERY slow, about 4x slower than loading textures [0.97%]
@@ -190,36 +178,83 @@ namespace Ship_Game
             LoadPlanetEdicts();
             LoadPlanetTypes();
             LoadSunZoneData();
-            SunType.LoadAll();
             LoadEconomicResearchStrategies();
             LoadBlackboxSpecific();
-            ShieldManager.LoadContent(RootContent);
-            Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
-            BackgroundItem.QuadEffect = new BasicEffect(ScreenManager.Instance.GraphicsDevice, null) { TextureEnabled = true };
+
             TestLoad();
 
-            ++ContentId; // LoadContent will see a new content id
+            LoadGraphicsResources(manager);
             if (reset) // now reload manager content, otherwise we're f**ked as soon as game calls Draw
                 manager.LoadContent();
+
+            HelperFunctions.CollectMemory();
+        }
+
+        public static void LoadGraphicsResources(ScreenManager manager)
+        {
+            manager.UpdateGraphicsDevice();
+
+            ++ContentId; // LoadContent will see a new content id
+
+            LoadTextureAtlases();
+            LoadNebulae();
+            LoadStars();
+            LoadFlagTextures(); // @todo Very slow for some reason [1.04%]
+            LoadJunk();         // @todo SLOW [0.47%]
+            LoadAsteroids();    // @todo SLOW [0.40%]
+            LoadProjTexts();    // @todo SLOW [0.47%]
+            LoadProjectileMeshes();
+
+            SunType.LoadAll();
+            ShieldManager.LoadContent(RootContent);
+            Beam.BeamEffect = RootContent.Load<Effect>("Effects/BeamFX");
+            BackgroundItem.QuadEffect = new BasicEffect(manager.GraphicsDevice, null) { TextureEnabled = true };
+            Blank = Texture("blank");
+
+            Fonts.LoadContent(RootContent);
 
             // Load non-critical resources:
             void LoadNonCritical()
             {
                 Log.Write("Load non-critical resources");
-                ExplosionManager.Initialize(RootContent);
+                ExplosionManager.LoadContent(RootContent);
                 LoadNonEssentialAtlases(BackgroundLoad);
                 Log.Write("Finished loading non-critical resources");
             }
 
             //LoadNonCritical();
             BackgroundLoad = Parallel.Run(LoadNonCritical);
-
-            HelperFunctions.CollectMemory();
         }
 
-        public static void Reset(ScreenManager manager)
+        public static void UnloadGraphicsResources(ScreenManager manager)
         {
             manager.ResetHotLoadTargets();
+
+            SmallNebulae.Clear();
+            MedNebulae.Clear();
+            BigNebulae.Clear();
+            SmallStars = MediumStars = LargeStars = null;
+            FlagTextures = null;
+            JunkModels.Clear();
+            AsteroidModels.Clear();
+            ProjTextDict.Clear();
+            ProjectileModelDict.Clear();
+            ProjectileMeshDict.Clear();
+            SunType.Unload();
+            ShieldManager.UnloadContent();
+            Beam.BeamEffect = null;
+            BackgroundItem.QuadEffect.Dispose(ref BackgroundItem.QuadEffect);
+
+            // Texture caches MUST be cleared before triggering content reload!
+            Textures.Clear();
+
+            // This is a destructive operation that invalidates ALL game resources!
+            // @note It HAS to be done after clearing all ResourceManager texture caches!
+            manager.UnloadAllGameContent();
+        }
+
+        static void UnloadAllData(ScreenManager manager)
+        {
             TroopsDictKeys.Clear();
             BuildingsDict.Clear();
             BuildingsById.Clear();
@@ -239,14 +274,8 @@ namespace Ship_Game
             MainMenuShipList.ModelPaths.Clear();
             AgentMissionData = new AgentMissionData();
 
-            // Texture caches MUST be cleared before triggering content reload!
-            Textures.Clear();
-
-            // This is a destructive operation that invalidates ALL game resources!
-            // @note It HAS to be done after clearing all ResourceManager texture caches!
-            manager.UnloadAllGameContent();
+            UnloadGraphicsResources(manager);
         }
-
 
         static void TestLoad()
         {
@@ -1007,9 +1036,11 @@ namespace Ship_Game
                 try
                 {
                     // only accept "prefixNN" format, because there are a bunch of textures in the asteroids folder
-                    if (!nameNoExt.StartsWith(modelPrefix) || !int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
-                        continue;
-                    models.Add(RootContent.Load<Model>(info.CleanResPath()));
+                    if (nameNoExt.StartsWith(modelPrefix) &&
+                        int.TryParse(nameNoExt.Substring(modelPrefix.Length), out int _))
+                    {
+                        models.Add(RootContent.Load<Model>(info.CleanResPath()));
+                    }
                 }
                 catch (Exception e)
                 {

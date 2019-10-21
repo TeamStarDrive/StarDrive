@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using Microsoft.Xna.Framework;
@@ -56,9 +57,9 @@ namespace Ship_Game
             (ExplosionType.Warp,       new Array<Explosion>()),
         });
 
-        public static void Initialize(GameContentManager content)
+        public static void LoadContent(GameContentManager content)
         {
-            foreach (var kv in Types)
+            foreach (KeyValuePair<ExplosionType, Array<Explosion>> kv in Types)
                 kv.Value.Clear();
 
             ExplosionPixel = ResourceManager.Texture("blank");
@@ -76,6 +77,16 @@ namespace Ship_Game
                         continue;
                     Types[e.Type].Add(e);
                 }
+            }
+        }
+
+        public static void UnloadContent()
+        {
+            using (Lock.AcquireWriteLock())
+            {
+                ActiveExplosions.Clear();
+                ExplosionPixel = null;
+                Types.Clear();
             }
         }
 

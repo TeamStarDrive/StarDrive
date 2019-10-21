@@ -7,15 +7,18 @@ namespace Ship_Game
 {
     public  class MessageBoxScreen : GameScreen
     {
-        private string Message;
+        string Message;
 
-        private UIButton Ok;
-        private UIButton Cancel;
+        readonly UIButton Ok;
+        readonly UIButton Cancel;
 
-        private float Timer;
-        private readonly bool Timed;
-        private readonly string Original = "";
-        private string Toappend;
+        float Timer;
+        readonly bool Timed;
+        readonly string Original = "";
+        string Toappend;
+
+        public event EventHandler<EventArgs> Accepted;
+        public event EventHandler<EventArgs> Cancelled;
 
         public MessageBoxScreen(GameScreen parent, string message) : base(parent)
         {
@@ -36,8 +39,8 @@ namespace Ship_Game
         
         public MessageBoxScreen(GameScreen parent, string message, string oktext, string canceltext) : base(parent)
         {
+            Original = message;
             Message = message;
-            Message = Fonts.Arial12Bold.ParseText(message, 250f);
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -46,15 +49,15 @@ namespace Ship_Game
             Cancel = ButtonSmall(0f, 0f, canceltext, click: OnCancelClicked);
         }
 
-        public MessageBoxScreen(GameScreen parent, string message, float Timer) : base(parent)
+        public MessageBoxScreen(GameScreen parent, string message, float timer) : base(parent)
         {
             Timed = true;
-            this.Timer = Timer;
+            Timer = timer;
             Original = message;
             Message = message;
             IsPopup = true;
             TransitionOnTime = 0.25f;
-            TransitionOffTime = 0.25f;
+            TransitionOffTime = 0.0f;
 
             Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
             Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
@@ -63,45 +66,33 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            if (!Timed)
-            {
-                Rectangle r = new Rectangle(ScreenWidth / 2 - 135,
-                    ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) + 15);
-                Vector2 textPosition = new Vector2(r.X + r.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r.Y + 10);
-                batch.Begin();
-                batch.FillRectangle(r, Color.Black);
-                batch.DrawRectangle(r, Color.Orange);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat(Message, Toappend), textPosition, Color.White);
 
-                Ok.SetAbsPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
-                Cancel.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
-                base.Draw(batch);
-                batch.End();
-                return;
-            }
-            Message = Fonts.Arial12Bold.ParseText(string.Concat(Original, Toappend), 250f);
-            //renamed r, textposition
-            Rectangle r2 = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) / 2, 270, (int)(Fonts.Arial12Bold.MeasureString(Message).Y + 40f) + 15);
-            Vector2 textPosition2 = new Vector2(r2.X + r2.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r2.Y + 10);
+            Message = Fonts.Arial12Bold.ParseText(Original + Toappend, 250f);
+            Vector2 msgSize = Fonts.Arial12Bold.MeasureString(Message);
+            var r = new Rectangle(ScreenWidth / 2 - 135, ScreenHeight / 2 - (int)(msgSize.Y + 40f) / 2,
+                                  270, (int)(msgSize.Y + 40f) + 15);
+
+            var textPosition = new Vector2(r.X + r.Width / 2 - Fonts.Arial12Bold.MeasureString(Message).X / 2f, r.Y + 10);
+            
+            Ok.SetAbsPos(    r.X + r.Width / 2 + 5,  r.Y + r.Height - 28);
+            Cancel.SetAbsPos(r.X + r.Width / 2 - 73, r.Y + r.Height - 28);
+
             batch.Begin();
-            batch.FillRectangle(r2, Color.Black);
-            batch.DrawRectangle(r2, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, Message, textPosition2, Color.White);
-
-            Ok.SetAbsPos(    r2.X + r2.Width / 2 + 5,  r2.Y + r2.Height - 28);
-            Cancel.SetAbsPos(r2.X + r2.Width / 2 - 73, r2.Y + r2.Height - 28);
+            batch.FillRectangle(r, Color.Black);
+            batch.DrawRectangle(r, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Message, textPosition, Color.White);
             base.Draw(batch);
             batch.End();
         }
 
-        private void OnOkClicked(UIButton b)
+        void OnOkClicked(UIButton b)
         {
             Accepted?.Invoke(this, EventArgs.Empty);
             GameAudio.AffirmativeClick();
             ExitScreen();
         }
 
-        private void OnCancelClicked(UIButton b)
+        void OnCancelClicked(UIButton b)
         {
             Cancelled?.Invoke(this, EventArgs.Empty);
             ExitScreen();
@@ -127,11 +118,10 @@ namespace Ship_Game
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            MessageBoxScreen messageBoxScreen = this;
-            messageBoxScreen.Timer = messageBoxScreen.Timer - elapsedTime;
-            if (Timed)
+            Timer -= elapsedTime;
+            if (Timed && !IsExiting)
             {
-                Toappend = string.Concat(Timer.String(0), " ", Localizer.Token(17));
+                Toappend = string.Concat(" ", Timer.String(0), " ", Localizer.Token(17));
                 if (Timer <= 0f)
                 {
                     Cancelled?.Invoke(this, EventArgs.Empty);
@@ -140,9 +130,5 @@ namespace Ship_Game
             }
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
-
-        public event EventHandler<EventArgs> Accepted;
-
-        public event EventHandler<EventArgs> Cancelled;
     }
 }
