@@ -140,13 +140,14 @@ namespace Ship_Game
             Owner.AddPlanet(this);
 
             CreateHomeWorldEnvironment();
-            SetTileHabitability(75, out int numHabitableTiles); // home worlds have 75% habitable tiles
-            BalanceHomeWorldTiles(numHabitableTiles);
+            SetTileHabitability(0, out _); // Create the homeworld's tiles without making them habitable yet
+            SetHomeworldTiles();
 
             if (Owner.isPlayer)
                 colonyType = ColonyType.Colony;
 
             CreateHomeWorldFertilityAndRichness();
+            int numHabitableTiles = TilesList.Count(t => t.Habitable);
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
             FoodHere     = 100f;
@@ -175,20 +176,12 @@ namespace Ship_Game
             }
         }
 
-        private void BalanceHomeWorldTiles(int numHabitableTiles)
+        private void SetHomeworldTiles()
         {
-            const int balancedHabitableTiles = 26;
-            if (numHabitableTiles >= balancedHabitableTiles) // balance if less than 75% tiles
-                return;
-
-            foreach (PlanetGridSquare  tile in TilesList)
+            for (int i = 0; i < 28; ++i)
             {
-                if (!tile.Habitable)
-                    tile.Habitable = true;
-
-                ++numHabitableTiles;
-                if (numHabitableTiles == balancedHabitableTiles)
-                    return;
+                PlanetGridSquare tile = RandItem(TilesList.Filter(t => !t.Habitable));
+                tile.Habitable = true;
             }
         }
 
@@ -197,7 +190,8 @@ namespace Ship_Game
             // Homeworld Pop is always 14 (or if defined else in the xml) multiplied by scale (homeworld size mod)
             float envMultiplier = 1 / Owner.RacialEnvModifer(Owner.data.PreferredEnv);
             float maxPop        = preDefinedPop > 0 ? preDefinedPop * 1000 : 14000;
-            BasePopPerTile          = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
+            BasePopPerTile      = (int)(maxPop * envMultiplier / numHabitableTiles) * Scale;
+            UpdateMaxPopulation();
             Population          = MaxPopulation;
         }
 
