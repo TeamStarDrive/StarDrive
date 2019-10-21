@@ -1,6 +1,4 @@
 using System;
-using System.Globalization;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -9,16 +7,16 @@ namespace Ship_Game
 {
     public sealed class NotificationManager : IDisposable
     {
-        private readonly ScreenManager ScreenManager;
-        private readonly UniverseScreen Screen;
-        private readonly int MaxEntriesToDisplay;
-        private Rectangle NotificationArea;
+        readonly ScreenManager ScreenManager;
+        readonly UniverseScreen Screen;
+        Rectangle NotificationArea;
+        int MaxEntriesToDisplay;
 
-        private static readonly object NotificationLocker = new object();
-        private BatchRemovalCollection<Notification> NotificationList;
-        public int NumberOfNotifications => NotificationList.Count();
-            
-        private float LastStarDate;
+        static readonly object NotificationLocker = new object();
+        BatchRemovalCollection<Notification> NotificationList;
+        public int NumberOfNotifications => NotificationList.Count;
+
+        float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
         // i think we should refactor this into base and parent classes. I think it would be better to use the new goal system
         // style. More flexible i think.
@@ -27,20 +25,24 @@ namespace Ship_Game
             NotificationList = new BatchRemovalCollection<Notification>();
             Screen           = screen;
             ScreenManager    = screenManager;
+            UpdateNotificationArea();
+        }
 
-            var presentParams = screenManager.GraphicsDevice.PresentationParameters;
-            NotificationArea  = new Rectangle(presentParams.BackBufferWidth - 70, 70, 70,
-                                             presentParams.BackBufferHeight - 70 - 275);
+        void UpdateNotificationArea()
+        {
+            NotificationArea = new Rectangle(GameBase.ScreenWidth - 70, 70, 70,
+                                            GameBase.ScreenHeight - 70 - 275);
             MaxEntriesToDisplay = NotificationArea.Height / 70;
         }
 
-        private Rectangle GetNotificationRect(int index)
+        Rectangle GetNotificationRect(int index)
         {
             int yPos = (NotificationArea.Y + NotificationArea.Height - index * 70 - 70).Clamped(70, NotificationArea.Height );
             return new Rectangle(NotificationArea.X, yPos, 64, 64);
         }
-        private Rectangle DefaultNotificationRect => GetNotificationRect(NotificationList.Count);
-        private Rectangle DefaultClickRect => new Rectangle(NotificationArea.X, NotificationArea.Y, 64, 64);
+
+        Rectangle DefaultNotificationRect => GetNotificationRect(NotificationList.Count);
+        Rectangle DefaultClickRect => new Rectangle(NotificationArea.X, NotificationArea.Y, 64, 64);
 
         public void AddNotification(Notification notify, params string[] soundCueStrings)
         {
@@ -323,12 +325,11 @@ namespace Ship_Game
             }, "sd_ui_notification_warning");
         }
 
-        private void UpdateAllPositions()
+        void UpdateAllPositions()
         {
-            Array<Notification> notifications = NotificationList;
             for (int i = 0; i < NotificationList.Count; i++)
             {
-                Notification n           = notifications[i];
+                Notification n = NotificationList[i];
                 n.DestinationRect        = GetNotificationRect(i);
                 n.ClickRect.X            = NotificationArea.X;
                 bool resetTransitionTime = n.transitionElapsedTime > n.transDuration;
@@ -445,9 +446,7 @@ namespace Ship_Game
 
         public void ReSize()
         {
-            int screenWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-
-            NotificationArea = new Rectangle(screenWidth - 70, 70, 70,screenWidth - 70 - 250);
+            UpdateNotificationArea();
             lock (NotificationLocker)
                 UpdateAllPositions();
         }
@@ -534,7 +533,8 @@ namespace Ship_Game
             GC.SuppressFinalize(this);
         }
         ~NotificationManager() { Destroy(); }
-        private void Destroy()
+
+        void Destroy()
         {
             NotificationList?.Dispose();
             NotificationList = null;

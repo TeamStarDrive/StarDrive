@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 
 namespace Ship_Game
 {
@@ -53,7 +54,7 @@ namespace Ship_Game
         }
 
 
-        static SpriteFont LoadFont(ContentManager content, string name, int extraLineSpacing = 0)
+        static SpriteFont LoadFont(GameContentManager content, string name, int extraLineSpacing = 0)
         {
             var font = content.Load<SpriteFont>("Fonts/" + name);
             if (extraLineSpacing != 0)
@@ -61,7 +62,7 @@ namespace Ship_Game
             return font;
         }
 
-        public static void LoadContent(ContentManager c)
+        public static void LoadContent(GameContentManager c)
         {
             Arial20Bold   = LoadFont(c, "Arial20Bold", -3);
             Arial14Bold   = LoadFont(c, "Arial14Bold");

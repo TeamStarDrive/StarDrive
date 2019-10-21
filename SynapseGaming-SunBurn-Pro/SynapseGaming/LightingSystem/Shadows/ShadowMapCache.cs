@@ -39,7 +39,10 @@ namespace SynapseGaming.LightingSystem.Shadows
                 if (depthStencilBuffer_0 == null)
                 {
                     method_0();
-                    depthStencilBuffer_0 = new DepthStencilBuffer(igraphicsDeviceService_0.GraphicsDevice, PageSize, PageSize, LightingSystemManager.Instance.GetGraphicsDeviceSupport(igraphicsDeviceService_0.GraphicsDevice).FindSupportedFormat(depthFormat_0, surfaceFormat_0));
+                    depthStencilBuffer_0 = new DepthStencilBuffer(igraphicsDeviceService_0.GraphicsDevice,
+                        PageSize, PageSize,
+                        LightingSystemManager.Instance.GetGraphicsDeviceSupport(igraphicsDeviceService_0.GraphicsDevice)
+                            .FindSupportedFormat(depthFormat_0, surfaceFormat_0));
                 }
                 return depthStencilBuffer_0;
             }

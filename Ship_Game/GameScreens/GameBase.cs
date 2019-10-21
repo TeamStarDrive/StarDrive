@@ -101,9 +101,11 @@ namespace Ship_Game
             ScreenManager?.UpdatePreferences(p);
         }
 
-        void ApplySettings(ref GraphicsSettings settings)
+        bool ApplySettings(ref GraphicsSettings settings)
         {
+            GraphicsDevice before = Graphics.GraphicsDevice;
             Graphics.ApplyChanges();
+            bool deviceChanged = before != Graphics.GraphicsDevice;
 
             PresentationParameters p = GraphicsDevice.PresentationParameters;
             ScreenWidth  = p.BackBufferWidth;
@@ -114,9 +116,11 @@ namespace Ship_Game
 
             UpdateRendererPreferences(ref settings);
             ScreenManager?.UpdateViewports();
+            return deviceChanged;
         }
 
-        public void ApplyGraphics(GraphicsSettings settings)
+        // @return TRUE if graphics device changed
+        public bool ApplyGraphics(GraphicsSettings settings)
         {
             DisplayMode currentMode = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode;
 
@@ -152,7 +156,7 @@ namespace Ship_Game
                 Graphics.ToggleFullScreen();
             }
 
-            ApplySettings(ref settings);
+            bool deviceChanged = ApplySettings(ref settings);
 
             if (settings.Mode != WindowMode.Fullscreen) // set to screen center
             {
@@ -165,11 +169,15 @@ namespace Ship_Game
                     size.Width / 2 - settings.Width / 2,
                     size.Height / 2 - settings.Height / 2);
             }
+
+            return deviceChanged;
         }
+
         public void InitializeAudio()
         {
             GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
         }
+
         protected override void Dispose(bool disposing)
         {
             GameAudio.Destroy();
