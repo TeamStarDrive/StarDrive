@@ -1,18 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
-using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public abstract class GameScreen : UIElementContainer, IDisposable
+    public abstract class GameScreen : MultiLayerDrawContainer, IDisposable
     {
         public InputState Input;
         bool OtherScreenHasFocus;
@@ -211,124 +209,11 @@ namespace Ship_Game
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        readonly Array<UIElementV2> BackElements = new Array<UIElementV2>();
-        readonly Array<UIElementV2> BackAdditive = new Array<UIElementV2>();
-        readonly Array<UIElementV2> ForeElements = new Array<UIElementV2>();
-        readonly Array<UIElementV2> ForeAdditive = new Array<UIElementV2>();
-
-        void ClearDrawLayers()
-        {
-            BackElements.Clear();
-            BackAdditive.Clear();
-            ForeElements.Clear();
-            ForeAdditive.Clear();
-        }
-
-        void GatherDrawLayers()
-        {
-            int count = Elements.Count;
-            UIElementV2[] elements = Elements.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                UIElementV2 e = elements[i];
-                if (e.Visible) switch (e.DrawDepth)
-                {
-                    default:
-                    case DrawDepth.Foreground:   ForeElements.Add(e); break;
-                    case DrawDepth.Background:   BackElements.Add(e); break;
-                    case DrawDepth.ForeAdditive: ForeAdditive.Add(e); break;
-                    case DrawDepth.BackAdditive: BackAdditive.Add(e); break;
-                }
-            }
-        }
-
         public void DrawMultiLayeredExperimental(ScreenManager manager, bool draw3D = false)
         {
             if (!Visible)
                 return;
-            
-            GatherDrawLayers();
-
-            if (draw3D) manager.BeginFrameRendering(GameTime, ref View, ref Projection);
-
-            SpriteBatch batch = manager.SpriteBatch;
-
-            if (BackElements.NotEmpty) BatchDrawSimple(batch, BackElements);
-            if (BackAdditive.NotEmpty) BatchDrawAdditive(batch, BackAdditive);
-
-            if (draw3D) manager.RenderSceneObjects();
-
-            // @note Foreground is the default layer
-            if (ForeElements.NotEmpty) BatchDrawSimple(batch, ForeElements, drawToolTip: true);
-            if (ForeAdditive.NotEmpty) BatchDrawAdditive(batch, ForeAdditive);
-
-            if (draw3D) manager.EndFrameRendering();
-
-            ClearDrawLayers();
-        }
-
-        public void BatchDrawSimple(SpriteBatch batch, Array<UIElementV2> elements, bool drawToolTip = false)
-        {
-            batch.Begin();
-            int count = elements.Count;
-            UIElementV2[] items = elements.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                UIElementV2 e = items[i];
-                if (e.Visible) e.Draw(batch);
-            }
-            if (drawToolTip)
-            {
-                if (ToolTip.Hotkey.IsEmpty())
-                    ToolTip.Draw(batch);
-            }
-            batch.End();
-        }
-
-        public void BeginAdditive(SpriteBatch batch, bool saveState = false)
-        {
-            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, 
-                saveState ? SaveStateMode.SaveState : SaveStateMode.None);
-            Device.RenderState.SourceBlend      = Blend.InverseDestinationColor;
-            Device.RenderState.DestinationBlend = Blend.One;
-            Device.RenderState.BlendFunction    = BlendFunction.Add;
-        }
-        
-        public void BatchDrawAdditive(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
-        {
-            BeginAdditive(batch);
-
-            int count = elements.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                UIElementV2 e = elements[i];
-                if (e.Visible) e.Draw(batch);
-            }
-
-            batch.End();
-        }
-
-        
-        public void DrawElementsActiveBatch(SpriteBatch batch, IReadOnlyList<UIElementV2> elements)
-        {
-            int count = elements.Count;
-            for (int i = 0; i < count; ++i)
-            {
-                UIElementV2 e = elements[i];
-                if (e.Visible) e.Draw(batch);
-            }
-        }
-
-        public void DrawElementsAtDepth(SpriteBatch batch, DrawDepth depth)
-        {
-            int count = Elements.Count;
-            UIElementV2[] items = Elements.GetInternalArrayItems();
-            for (int i = 0; i < count; ++i)
-            {
-                UIElementV2 e = items[i];
-                if (e.Visible && e.DrawDepth == depth)
-                    e.Draw(batch);
-            }
+            DrawMulti(manager, this, draw3D, GameTime, ref View, ref Projection);
         }
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
