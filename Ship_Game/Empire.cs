@@ -950,8 +950,6 @@ namespace Ship_Game
                         data.ResearchQueue.Remove(techEntry.UID);
                     break;
                 case TechUnlockType.Event:
-                    //techEntry.Discovered = true;
-                    //techEntry.Unlocked = true;
                     if (techEntry.Unlock(this))
                     {
                         UpdateForNewTech();
@@ -2240,7 +2238,7 @@ namespace Ship_Game
 
         private void ApplyResearchPoints()
         {
-            if (string.IsNullOrEmpty(ResearchTopic))
+            if (ResearchTopic.IsEmpty())
             {
                 if (data.ResearchQueue.Count <= 0)
                     return;
@@ -2251,8 +2249,8 @@ namespace Ship_Game
             TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
-
-            LeftoverResearch = tech.AddToProgress(research, this, out bool unLocked);
+            float cyberneticMultiplier = data.Traits.ResearchMultiplierForTech(tech, this);
+            LeftoverResearch = tech.AddToProgress(research, cyberneticMultiplier, out bool unLocked);
             research = LeftoverResearch;
 
             if (unLocked)
