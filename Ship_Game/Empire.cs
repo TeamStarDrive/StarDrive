@@ -2249,8 +2249,8 @@ namespace Ship_Game
             TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
                 return;
-            float cyberneticMultiplier = data.Traits.ResearchMultiplierForTech(tech, this);
-            LeftoverResearch = tech.AddToProgress(research, cyberneticMultiplier, out bool unLocked);
+
+            LeftoverResearch = tech.AddToProgress(research, this, out bool unLocked);
             research = LeftoverResearch;
 
             if (unLocked)

@@ -57,7 +57,7 @@ namespace Ship_Game
         public void ResolveTech()
         {
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
-        }
+        }        
         /// <summary>
         /// Returns empire research not used.
         /// Crybernetic gets a break on food buildings here. 
@@ -66,6 +66,12 @@ namespace Ship_Game
         /// <param name="us"></param>
         /// <param name="unLocked"></param>
         /// <returns></returns>
+        public float AddToProgress(float amount, Empire us, out bool unLocked)
+        {
+            float modifier = us.data.Traits.ResearchMultiplierForTech(this, us);
+            return AddToProgress(amount, modifier, out unLocked);
+        }
+
         public float AddToProgress(float amount, float modifier, out bool unLocked)
         {
             float techCost = Tech.ActualCost * modifier;
@@ -409,8 +415,7 @@ namespace Ship_Game
         {
             if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
             {
-                float multiplier = us.data.Traits.ResearchMultiplierForTech(this, us);
-                AddToProgress(TechCost * 0.25f, multiplier, out bool unLocked);
+                AddToProgress(TechCost * 0.25f, us, out bool unLocked);
                 if (unLocked) us.UnlockTech(this, TechUnlockType.Normal);
                 return unLocked;
             }
