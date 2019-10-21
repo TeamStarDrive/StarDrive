@@ -577,8 +577,8 @@ namespace Ship_Game
 
             var content = TransientContent;
             var device  = ScreenManager.GraphicsDevice;
-            int width   = device.PresentationParameters.BackBufferWidth;
-            int height  = device.PresentationParameters.BackBufferHeight;
+            int width   = GameBase.ScreenWidth;
+            int height  = GameBase.ScreenHeight;
 
             Empire.Universe = this;
 
@@ -613,6 +613,8 @@ namespace Ship_Game
             MiniMapSector = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             BorderRT      = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             StencilRT     = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
+
+            NotificationManager.ReSize();
 
             if (loadFogPath != null)
             {

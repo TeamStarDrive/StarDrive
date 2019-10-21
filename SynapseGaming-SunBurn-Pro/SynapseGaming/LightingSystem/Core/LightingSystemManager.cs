@@ -37,7 +37,7 @@ namespace SynapseGaming.LightingSystem.Core
         SpriteBatch spriteBatch_0;
 
         VertexDeclaration vertexDeclaration_0;
-        GraphicsDeviceSupport graphicsDeviceSupport_0;
+        GraphicsDeviceSupport GfxDeviceSupport;
 
         IServiceProvider Service;
         ResourceContentManager Content;
@@ -100,7 +100,7 @@ namespace SynapseGaming.LightingSystem.Core
         internal Effect EmbeddedEffect(string effectName)
         {
             var effect = EmbeddedContent.Load<Effect>(effectName);
-            if (effect.IsDisposed)
+            if (effect.IsDisposed || effect.GraphicsDevice.IsDisposed)
             {
                 if (Debugger.IsAttached)
                     Debugger.Break();
@@ -326,9 +326,9 @@ namespace SynapseGaming.LightingSystem.Core
         /// <returns></returns>
         public GraphicsDeviceSupport GetGraphicsDeviceSupport(GraphicsDevice device)
         {
-            if (this.graphicsDeviceSupport_0 == null)
-                this.graphicsDeviceSupport_0 = new GraphicsDeviceSupport(device);
-            return this.graphicsDeviceSupport_0;
+            if (GfxDeviceSupport == null || GfxDeviceSupport.Device != device)
+                GfxDeviceSupport = new GraphicsDeviceSupport(device);
+            return GfxDeviceSupport;
         }
 
         /// <summary>
@@ -340,7 +340,7 @@ namespace SynapseGaming.LightingSystem.Core
             Content?.Dispose();
             Content = null;
             consoleFont = null;
-            graphicsDeviceSupport_0 = null;
+            GfxDeviceSupport = null;
             Disposable.Free(ref spriteBatch_0);
             Disposable.Free(ref texture3D_0);
             Disposable.Free(ref texture2D_0);

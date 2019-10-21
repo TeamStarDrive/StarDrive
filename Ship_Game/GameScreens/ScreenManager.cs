@@ -17,16 +17,18 @@ namespace Ship_Game
     {
         readonly Array<GameScreen> GameScreens = new Array<GameScreen>();
         readonly IGraphicsDeviceService GraphicsDeviceService;
-        SubTexture BlankTexture;
         readonly SceneState GameSceneState;
         readonly SceneInterface SceneInter;
         readonly object InterfaceLock = new object();
         readonly GameBase GameInstance;
+
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         public SceneEnvironment environment;
         public InputState input = new InputState();
         public AudioHandle Music = new AudioHandle();
+
+        public GraphicsDeviceManager Graphics;
         public GraphicsDevice GraphicsDevice;
         public SpriteBatch SpriteBatch;
 
@@ -51,6 +53,7 @@ namespace Ship_Game
         {
             Instance = this;
             GameInstance = game;
+            Graphics = graphics;
             GraphicsDevice = graphics.GraphicsDevice;
             GraphicsDeviceService = (IGraphicsDeviceService)game.Services.GetService(typeof(IGraphicsDeviceService));
             if (GraphicsDeviceService == null)
@@ -277,16 +280,22 @@ namespace Ship_Game
         public void FadeBackBufferToBlack(int alpha)
         {
             SpriteBatch.Begin();
-            SpriteBatch.Draw(BlankTexture, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), new Color(0, 0, 0, (byte)alpha));
+            SpriteBatch.Draw(ResourceManager.Blank, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), new Color(0, 0, 0, (byte)alpha));
             SpriteBatch.End();
+        }
+
+        public void UpdateGraphicsDevice()
+        {
+            GraphicsDevice = Graphics.GraphicsDevice;
+            if (SpriteBatch == null || SpriteBatch.GraphicsDevice != GraphicsDevice)
+            {
+                SpriteBatch = new SpriteBatch(GraphicsDevice);
+            }
         }
 
         public void LoadContent()
         {
-            if (SpriteBatch == null)
-                SpriteBatch = new SpriteBatch(GraphicsDevice);
-
-            BlankTexture = ResourceManager.Texture("blank");
+            UpdateGraphicsDevice();
 
             foreach (GameScreen screen in GameScreens)
             {
@@ -305,9 +314,9 @@ namespace Ship_Game
         public void UnloadAllGameContent()
         {
             foreach (GameScreen screen in GameScreens)
-            {
                 screen.UnloadContent();
-            }
+
+            UnloadSceneObjects();
             GameInstance.Content.Unload();
         }
 
@@ -403,7 +412,8 @@ namespace Ship_Game
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
             bool coveredByOtherScreen = false;
 
-            for (int i = GameScreens.Count-1; i >= 0; --i)
+            // @note GameScreen could be removed during screen.Update, so [i] must always be bounds checked
+            for (int i = GameScreens.Count - 1; i >= 0 && i < GameScreens.Count; --i)
             {
                 GameScreen screen = GameScreens[i];
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);

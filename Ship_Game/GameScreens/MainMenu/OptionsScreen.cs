@@ -48,7 +48,7 @@ namespace Ship_Game
             VSync           = GlobalStats.VSync;
         }
 
-        public void SaveGlobalStats()
+        void SetGlobalStats()
         {
             GlobalStats.WindowMode      = Mode;
             GlobalStats.XRES            = Width;
@@ -62,13 +62,21 @@ namespace Ship_Game
             GlobalStats.EffectDetail    = EffectDetail;
             GlobalStats.RenderBloom     = RenderBloom;
             GlobalStats.VSync           = VSync;
-            GlobalStats.SaveSettings();
         }
 
-        public void ApplyGraphicSettings()
+        public void ApplyChanges()
         {
-            SaveGlobalStats();
-            StarDriveGame.Instance.ApplyGraphics(this);
+            // @note This MAY trigger StarDriveGame.UnloadContent() and LoadContent() !!!
+            //       Only if graphics device reset fails and a new device must be created
+            SetGlobalStats();
+            bool deviceChanged = StarDriveGame.Instance.ApplyGraphics(this);
+            
+            // if device changed, then all game screens were already reloaded
+            if (deviceChanged)
+                return; // nothing to do here!
+
+            // reload all screens, this is specific to StarDriveGame
+            ScreenManager.Instance.LoadContent();
         }
 
         public bool Equals(GraphicsSettings other)
@@ -91,11 +99,7 @@ namespace Ship_Game
 
     public sealed class OptionsScreen : PopupWindow
     {
-        public bool Fade = true;
-        public bool FromGame;
-        readonly MainMenuScreen MainMenu;
-        readonly UniverseScreen Universe;
-        readonly GameplayMMScreen UniverseMainMenu; // the little menu in universe view
+        readonly bool Fade = true;
         DropOptions<DisplayMode> ResolutionDropDown;
         DropOptions<MMDevice> SoundDevices;
         Rectangle LeftArea;
@@ -112,25 +116,25 @@ namespace Ship_Game
         FloatSlider FreighterLimiter;
         FloatSlider AutoSaveFreq;     // Added by Gretman
 
-        public OptionsScreen(MainMenuScreen s) : base(s, 600, 600)
+        public OptionsScreen(MainMenuScreen mainMenu) : base(mainMenu, 600, 600)
         {
-            MainMenu          = s;
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
             TitleText         = Localizer.Token(4);
             MiddleText        = Localizer.Token(4004);
+            Original = GraphicsSettings.FromGlobalStats();
+            New = Original.GetClone();
         }
 
-        public OptionsScreen(UniverseScreen s, GameplayMMScreen universeMainMenuScreen) : base(s, 600, 720)
+        public OptionsScreen(UniverseScreen universe) : base(universe, 600, 720)
         {
-            UniverseMainMenu  = universeMainMenuScreen;
-            Universe          = s;
             Fade              = false;
             IsPopup           = true;
-            FromGame          = true;
             TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
+            Original = GraphicsSettings.FromGlobalStats();
+            New = Original.GetClone();
         }
 
         string AntiAliasString()
@@ -277,7 +281,7 @@ namespace Ship_Game
                                     "Experimental and untested feature for complex Shield behaviors during Warp");
 
             Add(new UIButton(this, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
-                .OnClick = button => ApplyGraphicsSettings();
+                .OnClick = button => ApplyOptions();
 
             RefreshZOrder();
             PerformLayout();
@@ -336,52 +340,30 @@ namespace Ship_Game
             GameAudio.TacticalPause();
         }
 
-
-        void ReloadGameContent()
-        {
-            if (FromGame)
-            {
-                Universe.LoadGraphics();
-                Universe.NotificationManager.ReSize();
-                UniverseMainMenu.LoadContent();
-            }
-            else
-            {
-                MainMenu.LoadContent();
-            }
-
-            base.LoadContent();
-            InitScreen();
-        }
-
         public override void LoadContent()
         {
-            Original = GraphicsSettings.FromGlobalStats();
-            New = Original.GetClone(); // fresh copy!
             base.LoadContent();
             InitScreen();
         }
 
-        void ApplyGraphicsSettings()
+        void ApplyOptions()
         {
             try
             {
-                New.Width = ResolutionDropDown.ActiveValue.Width;
+                New.Width  = ResolutionDropDown.ActiveValue.Width;
                 New.Height = ResolutionDropDown.ActiveValue.Height;
-                New.ApplyGraphicSettings();
+                New.ApplyChanges();
 
-                ReloadGameContent();
-
-                if (!Original.Equals(New))
+                if (Original.Equals(New))
                 {
-                    var messageBox = new MessageBoxScreen(this, Localizer.Token(14), 10f);
-                    messageBox.Accepted  += AcceptChanges;
-                    messageBox.Cancelled += CancelChanges;
-                    ScreenManager.AddScreen(messageBox);
+                    AcceptChanges(this, EventArgs.Empty); // auto-accept
                 }
                 else
                 {
-                    AcceptChanges(this, EventArgs.Empty);
+                    var dialog = new MessageBoxScreen(this, Localizer.Token(14), 10f);
+                    dialog.Accepted  += AcceptChanges;
+                    dialog.Cancelled += CancelChanges;
+                    ScreenManager.AddScreen(dialog);
                 }
             }
             catch
@@ -392,8 +374,8 @@ namespace Ship_Game
 
         void AcceptChanges(object sender, EventArgs e)
         {
-            New.ApplyGraphicSettings();
             Original = New.GetClone(); // accepted!
+            GlobalStats.SaveSettings();
 
             EffectsVolumeSlider.RelativeValue = GlobalStats.EffectsVolume;
             MusicVolumeSlider.RelativeValue   = GlobalStats.MusicVolume;
@@ -401,11 +383,9 @@ namespace Ship_Game
 
         void CancelChanges(object sender, EventArgs e1)
         {
-            Original.ApplyGraphicSettings();
             New = Original.GetClone(); // back to default!
-            ReloadGameContent();
+            New.ApplyChanges();
         }
-
 
         public override void Draw(SpriteBatch batch)
         {
