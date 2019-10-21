@@ -235,24 +235,12 @@ namespace Microsoft.Xna.Framework
       }
     }
 
-    public GraphicsDevice GraphicsDevice
-    {
-      get
-      {
-        return this.device;
-      }
-    }
+    public GraphicsDevice GraphicsDevice => this.device;
 
     public event EventHandler DeviceCreated
     {
-      add
-      {
-        this.deviceCreated += value;
-      }
-      remove
-      {
-        this.deviceCreated -= value;
-      }
+      add => this.deviceCreated += value;
+      remove => this.deviceCreated -= value;
     }
 
     public event EventHandler DeviceResetting
@@ -390,55 +378,56 @@ namespace Microsoft.Xna.Framework
 
     private void ChangeDevice(bool forceCreate)
     {
-      if (this.game == null)
-        throw new InvalidOperationException(Resources.GraphicsComponentNotAttachedToGame);
-      this.CheckForAvailableSupportedHardware();
-      this.inDeviceTransition = true;
-      string screenDeviceName = this.game.Window.ScreenDeviceName;
-      int clientWidth = this.game.Window.ClientBounds.Width;
-      int clientHeight = this.game.Window.ClientBounds.Height;
-      bool flag1 = false;
-      try
-      {
-        GraphicsDeviceInformation bestDevice = this.FindBestDevice(forceCreate);
-        this.game.Window.BeginScreenDeviceChange(bestDevice.PresentationParameters.IsFullScreen);
-        flag1 = true;
-        bool flag2 = true;
-        if (!forceCreate && this.device != null)
+        if (game == null)
+            throw new InvalidOperationException(Resources.GraphicsComponentNotAttachedToGame);
+        CheckForAvailableSupportedHardware();
+        inDeviceTransition = true;
+        string screenDeviceName = game.Window.ScreenDeviceName;
+        int clientWidth = game.Window.ClientBounds.Width;
+        int clientHeight = game.Window.ClientBounds.Height;
+        bool begunScreenDeviceChange = false;
+        try
         {
-          this.OnPreparingDeviceSettings((object) this, new PreparingDeviceSettingsEventArgs(bestDevice));
-          if (this.CanResetDevice(bestDevice))
-          {
-            try
+            GraphicsDeviceInformation bestDevice = FindBestDevice(forceCreate);
+            game.Window.BeginScreenDeviceChange(bestDevice.PresentationParameters.IsFullScreen);
+            begunScreenDeviceChange = true;
+            bool deviceNotReset = true;
+            if (!forceCreate && device != null)
             {
-              GraphicsDeviceInformation deviceInformation = bestDevice.Clone();
-              this.MassagePresentParameters(bestDevice.PresentationParameters);
-              this.ValidateGraphicsDeviceInformation(bestDevice);
-              this.device.Reset(deviceInformation.PresentationParameters, deviceInformation.Adapter);
-              flag2 = false;
+                OnPreparingDeviceSettings(this, new PreparingDeviceSettingsEventArgs(bestDevice));
+                if (CanResetDevice(bestDevice))
+                {
+                    try
+                    {
+                        GraphicsDeviceInformation deviceInformation = bestDevice.Clone();
+                        MassagePresentParameters(bestDevice.PresentationParameters);
+                        ValidateGraphicsDeviceInformation(bestDevice);
+                        device.Reset(deviceInformation.PresentationParameters, deviceInformation.Adapter);
+                        deviceNotReset = false;
+                    }
+                    catch
+                    {
+                    }
+                }
             }
-            catch
-            {
-            }
-          }
+
+            if (deviceNotReset) // or also, creating a completely new device
+                CreateDevice(bestDevice);
+            PresentationParameters presentParams = device.PresentationParameters;
+            screenDeviceName = device.CreationParameters.Adapter.DeviceName;
+            isReallyFullScreen = presentParams.IsFullScreen;
+            if (presentParams.BackBufferWidth != 0)
+                clientWidth = presentParams.BackBufferWidth;
+            if (presentParams.BackBufferHeight != 0)
+                clientHeight = presentParams.BackBufferHeight;
+            isDeviceDirty = false;
         }
-        if (flag2)
-          this.CreateDevice(bestDevice);
-        PresentationParameters presentationParameters = this.device.PresentationParameters;
-        screenDeviceName = this.device.CreationParameters.Adapter.DeviceName;
-        this.isReallyFullScreen = presentationParameters.IsFullScreen;
-        if (presentationParameters.BackBufferWidth != 0)
-          clientWidth = presentationParameters.BackBufferWidth;
-        if (presentationParameters.BackBufferHeight != 0)
-          clientHeight = presentationParameters.BackBufferHeight;
-        this.isDeviceDirty = false;
-      }
-      finally
-      {
-        if (flag1)
-          this.game.Window.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
-        this.inDeviceTransition = false;
-      }
+        finally
+        {
+            if (begunScreenDeviceChange)
+                game.Window.EndScreenDeviceChange(screenDeviceName, clientWidth, clientHeight);
+            inDeviceTransition = false;
+        }
     }
 
     private void MassagePresentParameters(PresentationParameters pp)

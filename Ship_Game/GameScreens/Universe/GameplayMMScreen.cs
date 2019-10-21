@@ -87,7 +87,7 @@ namespace Ship_Game
         }
         private void Options_OnClick(UIButton button)
         {
-            ScreenManager.AddScreen(new OptionsScreen(screen, this)
+            ScreenManager.AddScreen(new OptionsScreen(universe: screen)
             {
                 TitleText  = Localizer.Token(4),
                 MiddleText = Localizer.Token(4004)
