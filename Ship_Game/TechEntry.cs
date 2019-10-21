@@ -69,10 +69,9 @@ namespace Ship_Game
         public float AddToProgress(float amount, float modifier, out bool unLocked)
         {
             float techCost = Tech.ActualCost * modifier;
-            float leftOver = 0;
             Progress += amount;
-            leftOver = Math.Max(0, Progress - techCost);
-            Progress = Math.Min(Progress, techCost);
+            float leftOver = Math.Max(0, Progress - techCost);
+            Progress -= leftOver;
             unLocked = Progress.AlmostEqual(techCost);
             return leftOver;
         }
