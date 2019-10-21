@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -7,12 +6,11 @@ using Ship_Game.UI;
 
 namespace Ship_Game
 {
-    public abstract class UIElementContainer : UIElementV2
+    public class UIElementContainer : UIElementV2
     {
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
         protected readonly Array<UIElementV2> Elements = new Array<UIElementV2>();
-        public IReadOnlyList<UIElementV2> Children => Elements;
 
         /// <summary>
         /// If enabled, UI elements will be drawn with a fixed delay
@@ -22,6 +20,11 @@ namespace Ship_Game
         int DebugDrawIndex;
         float DebugDrawTimer;
         const float DebugDrawInterval = 0.5f;
+
+        /// <summary>
+        /// Hack: NEW Multi-Layered draw mode disables child element drawing
+        /// </summary>
+        public bool NewMultiLayeredDrawMode;
 
         public override string ToString() => $"Element {ElementDescr} Elements={Elements.Count}";
 
@@ -42,6 +45,12 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
+        public int GetInternalElementsUnsafe(out UIElementV2[] elements)
+        {
+            elements = Elements.GetInternalArrayItems();
+            return Elements.Count;
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             if (!Visible)
@@ -49,30 +58,42 @@ namespace Ship_Game
 
             if (!DebugDraw)
             {
-                for (int i = 0; i < Elements.Count; ++i)
+                if (!NewMultiLayeredDrawMode) // DON'T DRAW CHILD ELEMENTS IN MULTI-LAYER MODE
                 {
-                    UIElementV2 e = Elements[i];
-                    if (e.Visible) e.Draw(batch);
+                    for (int i = 0; i < Elements.Count; ++i)
+                    {
+                        UIElementV2 child = Elements[i];
+                        if (child.Visible) child.Draw(batch);
+                    }
                 }
             }
             else
             {
-                for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
-                {
-                    UIElementV2 e = Elements[i];
-                    if (!e.Visible) continue;
-                    e.Draw(batch);
-                    if (i == DebugDrawIndex)
-                        batch.DrawRectangle(e.Rect, Color.Orange);
-                }
-
-                Color debugColor = Color.Red.Alpha(0.75f);
-                batch.DrawRectangle(Rect, debugColor);
-                batch.DrawString(Fonts.Arial12Bold, ToString(), Pos, debugColor);
+                DrawWithDebugOverlay(batch);
             }
 
             if (ToolTip.Hotkey.IsEmpty())
                 ToolTip.Draw(batch);
+        }
+
+        void DrawWithDebugOverlay(SpriteBatch batch)
+        {
+            for (int i = 0; i <= DebugDrawIndex && i < Elements.Count; ++i)
+            {
+                UIElementV2 child = Elements[i];
+                if (child.Visible)
+                {
+                    if (!NewMultiLayeredDrawMode) // DON'T DRAW CHILD ELEMENTS IN MULTI-LAYER MODE
+                        child.Draw(batch);
+
+                    if (i == DebugDrawIndex)
+                        batch.DrawRectangle(child.Rect, Color.Orange);
+                }
+            }
+
+            Color debugColor = Color.Red.Alpha(0.75f);
+            batch.DrawRectangle(Rect, debugColor);
+            batch.DrawString(Fonts.Arial12Bold, ToString(), Pos, debugColor);
         }
 
         public override bool HandleInput(InputState input)

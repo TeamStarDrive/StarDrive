@@ -384,6 +384,7 @@
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
+    <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
