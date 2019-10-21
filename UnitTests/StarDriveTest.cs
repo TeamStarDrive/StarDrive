@@ -108,14 +108,25 @@ namespace UnitTests
             ResourceManager.LoadTechContentForTesting();
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire)
+        private static void AddDummyPlanet(out Planet p)
         {
-            Planet p = new Planet();
+            p = new Planet();
             var s = new SolarSystem();
             s.PlanetList.Add(p);
             p.ParentSystem = s;
+        }
+
+        public static void AddDummyPlanetToEmpire(Empire empire)
+        {
+            AddDummyPlanet(out Planet p);
             empire.AddPlanet(p);
             p.Type = ResourceManager.PlanetOrRandom(0);
+        }
+
+        public static void AddHomeWorldToEmpire(Empire empire, out Planet p)
+        {
+            AddDummyPlanet(out p);
+            p.GenerateNewHomeWorld(empire);
         }
     }
 }
