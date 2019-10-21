@@ -42,7 +42,8 @@ Panel: background
 
 Panel: planet
   Texture: MMenu/new_planet.png
-  Size: [1, 0] # fill to width, auto-pick height
+  #Size: [1, 0] # fill to width, auto-pick height
+  Size: [0, 0.8] # set relative height, auto-aspect width
   AxisAlign: BottomCenter # Align our Pos and Axis
   DrawDepth: Background
   DebugDraw: false
