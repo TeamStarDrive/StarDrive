@@ -19,6 +19,7 @@ namespace Ship_Game
         public static StarDriveGame Instance;
         public bool IsLoaded  { get; private set; }
         public bool IsExiting { get; private set; }
+        bool GraphicsDeviceWasReset;
 
         // Time elapsed between 2 frames
         // this can be used for rendering animations
@@ -106,14 +107,27 @@ namespace Ship_Game
             if (IsLoaded)
                 return;
 
+            // Quite rare, but brutal case for all graphic resource reload
+            if (GraphicsDeviceWasReset)
+            {
+                Log.Warning("StarDriveGame GfxDevice Reset");
+                GraphicsDeviceWasReset = false;
+                ResourceManager.LoadGraphicsResources(ScreenManager);
+            }
+
             ScreenManager.LoadContent();
-            Fonts.LoadContent(Content);
-            ScreenManager.AddScreen(new GameLoadingScreen());
             IsLoaded = true;
+
+            if (ScreenManager.NumScreens == 0)
+                ScreenManager.AddScreen(new GameLoadingScreen());
         }
 
         protected override void UnloadContent()
         {
+            Log.Warning("StarDriveGame UnloadContent");
+            ResourceManager.UnloadGraphicsResources(ScreenManager);
+            IsLoaded = false;
+            GraphicsDeviceWasReset = true;
         }
 
         protected override void Update(GameTime gameTime)

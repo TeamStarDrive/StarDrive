@@ -83,7 +83,9 @@ namespace Ship_Game
         static StyleTextures[] GetStyles()
         {
             if (Styling != null && ContentId == ResourceManager.ContentId)
+            {
                 return Styling;
+            }
 
             ContentId = ResourceManager.ContentId;
             Styling = new []
@@ -104,11 +106,6 @@ namespace Ship_Game
         public static SubTexture StyleTexture(ButtonStyle style = ButtonStyle.Default)
         {
             return GetStyles()[(int)style].Normal;
-        }
-
-        public static Vector2 StyleSize(ButtonStyle style = ButtonStyle.Default)
-        {
-            return GetStyles()[(int)style].Normal.SizeF;
         }
 
         SubTexture ButtonTexture()
