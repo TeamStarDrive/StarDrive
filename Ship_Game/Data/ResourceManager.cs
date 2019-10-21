@@ -1397,6 +1397,7 @@ namespace Ship_Game
             LoadDialogs(); // for CreateEmpire
             LoadEmpires();
             LoadEconomicResearchStrategies();
+            LoadBuildings();
         }
 
         public static void LoadPlanetContentForTesting()

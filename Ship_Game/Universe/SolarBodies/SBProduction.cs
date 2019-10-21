@@ -224,7 +224,7 @@ namespace Ship_Game.Universe.SolarBodies
                     return true;
                 }
 
-                        return false;
+                return false;
         }
 
         public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)

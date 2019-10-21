@@ -758,7 +758,7 @@ namespace Ship_Game
                 return false;
 
             Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {worstBuilding.Name} on planet {Name}   value: {worstWeHave}");
-            worstBuilding.ScrapBuilding(this); // scrap the worst building  we have on the planet
+            ScrapBuilding(worstBuilding); // scrap the worst building  we have on the planet
             return true;
         }
 
@@ -777,7 +777,7 @@ namespace Ship_Game
                 return false; // No approval from the military
             Log.Info(ConsoleColor.Cyan, $"{Owner.PortraitName} REPLACED {worstBuilding.Name} on planet {Name}" +
                                         $" value: {worstValue} with {bestBuilding.Name} value: {bestValue}");
-            worstBuilding.ScrapBuilding(this);
+            ScrapBuilding(worstBuilding);
             Construction.AddBuilding(bestBuilding);
             return true;
         }
