@@ -70,10 +70,10 @@ namespace Ship_Game
             //reduce the impact of tech that doesnt affect cybernetics.
             float cyberneticMultiplier = 1.0f;
             if (us.IsCybernetic && UnlocksFoodBuilding)
-                cyberneticMultiplier = .5f;
+                cyberneticMultiplier = 0.5f;
 
             float techCost = Tech.ActualCost * cyberneticMultiplier;
-            var leftOver = Math.Max(0, amount - (techCost - Progress));
+            float leftOver = Math.Max(0, amount - (techCost - Progress));
             Progress = Math.Min(Progress + amount, techCost);
             unLocked = Progress >= techCost;
             return leftOver;
@@ -540,7 +540,7 @@ namespace Ship_Game
             {
                 if (!CheckSource(revealedTech.Type, empire))
                     continue;
-                var tech = empire.GetTechEntry(revealedTech.RevUID);
+                TechEntry tech = empire.GetTechEntry(revealedTech.RevUID);
                 if (!tech.IsHidden(empire))
                     tech.Discovered = true;
             }
@@ -566,7 +566,7 @@ namespace Ship_Game
                 return false;
 
             Discovered = true;
-            TechEntry root = DiscoverToRoot(empire);
+            DiscoverToRoot(empire);
             if (Tech.Secret) 
                 return true;
             if (discoverForward)

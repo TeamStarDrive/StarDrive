@@ -39,6 +39,8 @@ namespace Ship_Game
 
         // Mouse position
         public Vector2 CursorPosition { get; private set; }
+        public Vector2 CursorDirection => MousePrev.Pos().DirectionToTarget(CursorPosition);
+        public Vector2 CursorVelocity =>  MousePrev.Pos() - CursorPosition;
         public float CursorX => CursorPosition.X;
         public float CursorY => CursorPosition.Y;
         public int MouseX { get; private set; }
