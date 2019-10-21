@@ -7,13 +7,13 @@ namespace Ship_Game
 {
     public sealed class ShieldManager
     {
-        private static readonly BatchRemovalCollection<Shield> ShieldList = new BatchRemovalCollection<Shield>();
-        private static readonly BatchRemovalCollection<Shield> PlanetaryShieldList = new BatchRemovalCollection<Shield>();
+        static readonly BatchRemovalCollection<Shield> ShieldList = new BatchRemovalCollection<Shield>();
+        static readonly BatchRemovalCollection<Shield> PlanetaryShieldList = new BatchRemovalCollection<Shield>();
 
-        private static Model     ShieldModel;
-        private static Texture2D ShieldTexture;
-        private static Texture2D GradientTexture;
-        private static Effect    ShieldEffect;
+        static Model     ShieldModel;
+        static Texture2D ShieldTexture;
+        static Texture2D GradientTexture;
+        static Effect    ShieldEffect;
 
         public static void LoadContent(GameContentManager content)
         {
@@ -23,27 +23,39 @@ namespace Ship_Game
             ShieldEffect    = content.Load<Effect>("Effects/scale");
         }
 
+        public static void UnloadContent()
+        {
+            ShieldList.Clear();
+            PlanetaryShieldList.Clear();
+            ShieldModel = null;
+            ShieldTexture = null;
+            GradientTexture = null;
+            ShieldEffect = null;
+        }
+
         public static void Draw(Matrix view, Matrix projection)
         {
             using (ShieldList.AcquireReadLock())
-            for (int i = 0; i < ShieldList.Count; i++)
             {
-                Shield shield = ShieldList[i];
-                if (shield.TexScale <= 0f || !shield.InFrustum())
-                    continue;
-                DrawShield(shield, view, projection);
+                for (int i = 0; i < ShieldList.Count; i++)
+                {
+                    Shield shield = ShieldList[i];
+                    if (shield.TexScale > 0f && shield.InFrustum())
+                        DrawShield(shield, view, projection);
+                }
             }
-            using(PlanetaryShieldList.AcquireReadLock())
-            for (int i = 0; i < PlanetaryShieldList.Count; i++)
+            using (PlanetaryShieldList.AcquireReadLock())
             {
-                Shield shield = PlanetaryShieldList[i];
-                if (shield.TexScale <= 0f || !shield.InFrustum())
-                    continue;
-                DrawShield(shield, view, projection);
+                for (int i = 0; i < PlanetaryShieldList.Count; i++)
+                {
+                    Shield shield = PlanetaryShieldList[i];
+                    if (shield.TexScale > 0f && shield.InFrustum())
+                        DrawShield(shield, view, projection);
+                }
             }
         }
 
-        private static void DrawShield(Shield shield, Matrix view, Matrix projection)
+        static void DrawShield(Shield shield, Matrix view, Matrix projection)
         {
             shield.UpdateWorldTransform();
             ShieldEffect.Parameters["World"]       .SetValue(shield.World);
@@ -92,36 +104,45 @@ namespace Ship_Game
 
         public static void Update()
         {            
+            using (PlanetaryShieldList.AcquireReadLock())
             {
-                using (PlanetaryShieldList.AcquireReadLock())
                 for (int i = 0; i < PlanetaryShieldList.Count; i++)
                 {
                     Shield shield = PlanetaryShieldList[i];
-                    if (shield.TexScale <= 0f)
-                        continue;
-                    shield.UpdateLightIntensity(2.45f);
-                    shield.Displacement += 0.085f;
-                    shield.TexScale     -= 0.185f;
+                    if (shield.TexScale > 0f)
+                    {
+                        shield.UpdateLightIntensity(2.45f);
+                        shield.Displacement += 0.085f;
+                        shield.TexScale -= 0.185f;
+                    }
                 }
-                using (ShieldList.AcquireReadLock())
+            }
+
+            using (ShieldList.AcquireReadLock())
+            {
                 for (int i = 0; i < ShieldList.Count; i++)
                 {
                     Shield shield = ShieldList[i];
-                    if (shield.TexScale <= 0f)
-                        continue;
-                    shield.UpdateLightIntensity(2.45f);
-                    shield.Displacement += 0.085f;
-                    shield.TexScale     -= 0.185f;
+                    if (shield.TexScale > 0f)
+                    {
+                        shield.UpdateLightIntensity(2.45f);
+                        shield.Displacement += 0.085f;
+                        shield.TexScale -= 0.185f;
+                    }
                 }
             }
+
             using (ShieldList.AcquireWriteLock())
-            for (int i = ShieldList.Count - 1; i >= 0; --i)
             {
-                Shield shield = ShieldList[i];
-                if (shield.Owner == null || shield.Owner.Active)
-                    continue;
-                ShieldList.RemoveAtSwapLast(i);
-                shield.RemoveLight();                    
+                for (int i = ShieldList.Count - 1; i >= 0; --i)
+                {
+                    Shield shield = ShieldList[i];
+                    if (shield.Owner != null && !shield.Owner.Active)
+                    {
+                        ShieldList.RemoveAtSwapLast(i);
+                        shield.RemoveLight();
+                    }
+                }
             }
         }
     }

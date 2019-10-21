@@ -74,6 +74,13 @@ namespace Ship_Game.Universe.SolarBodies
             GameBase.ScreenManager.AddHotLoadTarget(null, "Suns", file.FullName, OnSunsFileModified);
         }
 
+        public static void Unload()
+        {
+            Map.Clear();
+            HabitableSuns = Empty<SunType>.Array;
+            BarrenSuns    = Empty<SunType>.Array;
+        }
+
         static void LoadSuns(FileInfo file)
         {
             Array<SunType> all;
