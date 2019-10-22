@@ -918,17 +918,22 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire empire = null)
+        public void UnlockTech(string techId, TechUnlockType techUnlockType)
+            => UnlockTech(techId, techUnlockType, null);
+        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire otherEmpire)
         {
-            UnlockTech(GetTechEntry(techId), techUnlockType, empire);
+            UnlockTech(GetTechEntry(techId), techUnlockType, otherEmpire);
         }
 
-        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire empire = null) 
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType)
+        => UnlockTech(techEntry, techUnlockType, null);
+
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire otherEmpire) 
         {
             switch (techUnlockType)
             {
                 case TechUnlockType.Diplomacy:
-                    if (techEntry.UnlockFromDiplomacy(this, empire))
+                    if (techEntry.UnlockFromDiplomacy(this, otherEmpire))
                     {
                         UpdateForNewTech();
                         data.ResearchQueue.Remove(techEntry.UID);
@@ -944,7 +949,7 @@ namespace Ship_Game
                     break;
 
                 case TechUnlockType.Spy:
-                    if (techEntry.UnlockFromSpy(this, empire))
+                    if (techEntry.UnlockFromSpy(this, otherEmpire))
                         UpdateForNewTech();
                     if (techEntry.Unlocked) 
                         data.ResearchQueue.Remove(techEntry.UID);

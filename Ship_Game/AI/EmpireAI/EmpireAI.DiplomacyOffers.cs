@@ -604,7 +604,7 @@ namespace Ship_Game.AI
             }
             foreach (string tech in FromUs.TechnologiesOffered)
             {
-                Them.UnlockTech(tech, TechUnlockType.Diplomacy);
+                Them.UnlockTech(tech, TechUnlockType.Diplomacy, us);
                 if (Empire.Universe.PlayerEmpire == us)
                 {
                     continue;
@@ -618,7 +618,7 @@ namespace Ship_Game.AI
             }
             foreach (string tech in ToUs.TechnologiesOffered)
             {
-                us.UnlockTech(tech, TechUnlockType.Diplomacy);
+                us.UnlockTech(tech, TechUnlockType.Diplomacy,Them);
                 if (Empire.Universe.PlayerEmpire == Them)
                 {
                     continue;

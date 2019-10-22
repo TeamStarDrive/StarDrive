@@ -62,24 +62,20 @@ namespace Ship_Game
         /// Returns empire research not used.
         /// Crybernetic gets a break on food buildings here. 
         /// </summary>
-        /// <param name="amount"></param>
-        /// <param name="us"></param>
-        /// <param name="unLocked"></param>
-        /// <returns></returns>
-        public float AddToProgress(float amount, Empire us, out bool unLocked)
+        public float AddToProgress(float researchToApply, Empire us, out bool unLocked)
         {
             float modifier = us.data.Traits.ResearchMultiplierForTech(this, us);
-            return AddToProgress(amount, modifier, out unLocked);
+            return AddToProgress(researchToApply, modifier, out unLocked);
         }
 
-        public float AddToProgress(float amount, float modifier, out bool unLocked)
+        public float AddToProgress(float researchToApply, float modifier, out bool unLocked)
         {
             float techCost = Tech.ActualCost * modifier;
-            Progress += amount;
-            float leftOver = Math.Max(0, Progress - techCost);
-            Progress -= leftOver;
+            Progress += researchToApply;
+            float excessResearch = Math.Max(0, Progress - techCost);
+            Progress -= excessResearch;
             unLocked = Progress.AlmostEqual(techCost);
-            return leftOver;
+            return excessResearch;
         }
 
         public bool UnlocksFoodBuilding => GoodsBuildingUnlocked(Goods.Food);
