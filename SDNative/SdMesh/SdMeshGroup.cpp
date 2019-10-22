@@ -77,7 +77,7 @@ namespace SdMesh
 
     template<class T> T* Resize(vector<T>& elements, Nano::MapMode& mapMode, int vertexCount)
     {
-        mapMode = Nano::MapPerVertex;
+        mapMode = Nano::MapMode::PerVertex;
         elements.resize(vertexCount);
         return elements.data();
     }

@@ -204,24 +204,19 @@ namespace Ship_Game.Data.Mesh
         {
             public float Time;
             public SdBonePose Pose;
-        };
+        }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected unsafe struct SdBoneAnimation
+        protected struct SdBoneAnimation
         {
-            public readonly int BoneIndex;
-            public readonly int NumKeyFrames;
-            public readonly SdAnimationKeyFrame* KeyFrames;
-        };
+            public readonly int Id;
+        }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
-        protected unsafe struct SdAnimationClip
+        protected struct SdAnimationClip
         {
-            public CStrView Name;
-            public float Duration;
-            public readonly int NumAnimations;
-            public readonly SdBoneAnimation* Animations;
-        };
+            public readonly int Id;
+        }
 
         [DllImport("SDNative.dll")] protected static extern unsafe
             void SDMeshAddBone(SdMesh* mesh,
@@ -241,20 +236,23 @@ namespace Ship_Game.Data.Mesh
             );
 
         [DllImport("SDNative.dll")] protected static extern unsafe
-            SdAnimationClip* SDMeshCreateAnimationClip(SdMesh* mesh,
+            SdAnimationClip SDMeshCreateAnimationClip(SdMesh* mesh,
                 [MarshalAs(UnmanagedType.LPWStr)] string name,
                 float duration
             );
 
         [DllImport("SDNative.dll")]
         protected static extern unsafe
-            SdBoneAnimation* SDMeshAddBoneAnimation(SdAnimationClip* clip,
+            SdBoneAnimation SDMeshAddBoneAnimation(SdMesh* mesh,
+                SdAnimationClip clip,
                 int skinnedBoneIndex
             );
 
         [DllImport("SDNative.dll")]
         protected static extern unsafe
-            void SDMeshAddAnimationKeyFrame(SdBoneAnimation* anim, 
+            void SDMeshAddAnimationKeyFrame(SdMesh* mesh,
+                SdAnimationClip clip,
+                SdBoneAnimation anim, 
                 in SdAnimationKeyFrame keyFrame
             );
 

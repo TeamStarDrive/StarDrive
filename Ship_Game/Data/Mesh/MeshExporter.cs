@@ -77,7 +77,7 @@ namespace Ship_Game.Data.Mesh
             AnimationClip[] clips = animClips.Values.Sorted(clip => clip.Name);
             foreach (AnimationClip animClip in clips)
             {
-                SdAnimationClip* clip = SDMeshCreateAnimationClip(mesh, 
+                SdAnimationClip clip = SDMeshCreateAnimationClip(mesh, 
                     animClip.Name, (float)animClip.Duration.TotalSeconds);
 
                 foreach (KeyValuePair<string, AnimationChannel> ch in animClip.Channels)
@@ -89,7 +89,7 @@ namespace Ship_Game.Data.Mesh
                         continue;
                     }
 
-                    SdBoneAnimation* anim = SDMeshAddBoneAnimation(clip, skinnedIndex);
+                    SdBoneAnimation anim = SDMeshAddBoneAnimation(mesh, clip, skinnedIndex);
                     foreach (AnimationChannelKeyframe kf in ch.Value)
                     {
                         Pose pose = kf.Pose;
@@ -103,7 +103,7 @@ namespace Ship_Game.Data.Mesh
                                 Scale = pose.Scale
                             }
                         };
-                        SDMeshAddAnimationKeyFrame(anim, keyFrame);
+                        SDMeshAddAnimationKeyFrame(mesh, clip, anim, keyFrame);
                     }
                 }
             }
