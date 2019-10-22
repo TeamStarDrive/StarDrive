@@ -12,23 +12,43 @@ namespace UnitTests.Technologies
     [TestClass]
     public class TestTechnologyUnlock : StarDriveTest
     {
+        private Empire MajorEnemy;
         public TestTechnologyUnlock()
         {
             LoadTechContent();
             CreateGameInstance();
+            CreateTestEnv(out _);
         }
 
         void CreateTestEnv(out Empire empire)
         {
             CreateUniverseAndPlayerEmpire(out empire);
+            MajorEnemy = EmpireManager.CreateEmpireFromEmpireData(ResourceManager.MajorRaces[1]);
             Universe.aw = new AutomationWindow(Universe);
         }
 
         [TestMethod]
         public void TestTechUnlock()
         {
-            CreateTestEnv(out Empire empire);
-            TechEntry tech = UnlockTech(empire, "FrigateConstruction");
+            TechEntry tech = Player.GetTechEntry("FrigateConstruction");
+            Player.UnlockTech("FrigateConstruction", TechUnlockType.Normal);
+            Assert.IsTrue(tech.Unlocked);
+            //Ancient Repulsor
+            tech = Player.GetTechEntry("Ancient Repulsor");
+            Player.UnlockTech("Ancient Repulsor", TechUnlockType.Event);
+            Assert.IsTrue(tech.Unlocked);
+
+            tech = Player.GetTechEntry("Cruisers");
+            Player.UnlockTech("Cruisers", TechUnlockType.Diplomacy);
+            Assert.IsTrue(tech.Unlocked);
+
+            tech = Player.GetTechEntry("IndustrialFoundations");
+            for (int x =0; x< 100; x++)
+            {
+                Player.UnlockTech("IndustrialFoundations", TechUnlockType.Spy, MajorEnemy);
+                if (tech.Unlocked)
+                    break;
+            }
             Assert.IsTrue(tech.Unlocked);
         }
 
@@ -42,56 +62,80 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TestHullUnlock()
         {
-            CreateTestEnv(out Empire empire);
-            TechEntry tech = UnlockTech(empire, "FrigateConstruction");
-            foreach (string item in tech.GetUnLockableHulls(empire))
-                Assert.IsTrue(empire.IsHullUnlocked(item));
+            TechEntry tech = UnlockTech(Player, "FrigateConstruction");
+            int playerHulls = 0;
+            foreach (string item in tech.GetUnLockableHulls(Player))
+            {
+                playerHulls++;
+                Assert.IsTrue(Player.IsHullUnlocked(item));
+            }
+            Player.UnlockTech("FrigateConstruction", TechUnlockType.Diplomacy, MajorEnemy);
+            //test unlock foreign hull
+            int foreignHulls = 0;
+            foreach (string item in tech.GetUnLockableHulls(Player))
+            {
+                foreignHulls++;
+                Assert.IsTrue(Player.IsHullUnlocked(item));
+            }
+            Assert.IsTrue(foreignHulls > playerHulls);
         }
 
         [TestMethod]
         public void TestModuleUnlock()
         {
-            CreateTestEnv(out Empire empire);
-            TechEntry tech = UnlockTech(empire, "FrigateConstruction");
-            foreach (Technology.UnlockedMod item in tech.GetUnlockableModules(empire))
-                Assert.IsTrue(empire.IsModuleUnlocked(item.ModuleUID));
+            TechEntry tech = UnlockTech(Player, "FrigateConstruction");
+            foreach (Technology.UnlockedMod item in tech.GetUnlockableModules(Player))
+                Assert.IsTrue(Player.IsModuleUnlocked(item.ModuleUID));
         }
 
         [TestMethod]
         public void TestBuildingUnlock()
         {
-            CreateTestEnv(out Empire empire);
-            TechEntry tech = UnlockTech(empire, "IndustrialFoundations");
+            TechEntry tech = UnlockTech(Player, "IndustrialFoundations");
             foreach (var item in tech.Tech.BuildingsUnlocked)
-                Assert.IsTrue(empire.IsBuildingUnlocked(item.Name));
+                Assert.IsTrue(Player.IsBuildingUnlocked(item.Name));
         }
 
         [TestMethod]
         public void TestBonusUnlock()
         {
-            CreateTestEnv(out Empire empire);
-            TechEntry tech = UnlockTech(empire, "Ace Training");
+            TechEntry tech = UnlockTech(Player, "Ace Training");
             foreach (var item in tech.Tech.BonusUnlocked)
             {
-                Assert.IsTrue(empire.data.BonusFighterLevels > 0);
-                Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
+                Assert.IsTrue(Player.data.BonusFighterLevels > 0);
             }
+        }
+        [TestMethod]
+        public void TestAddResearchToTech()
+        {
+            TechEntry tech = Player.GetTechEntry("Ace Training");
+            float cost = tech.TechCost;
+            float leftOver;
+            bool unlocked;
+            leftOver = tech.AddToProgress(5, Player, out unlocked);
+            Assert.IsTrue(tech.Progress.AlmostEqual(5f));
+            Assert.IsTrue(leftOver.AlmostZero());
+            Assert.IsTrue(!unlocked);
+
+            leftOver = tech.AddToProgress(cost, Player, out unlocked);
+            Assert.IsTrue(leftOver.AlmostEqual(5));
+            Assert.IsTrue(unlocked);
+
         }
         [TestMethod]
         public void TestBonusStacking()
         {
-            CreateTestEnv(out Empire empire);
-            TechEntry tech = UnlockTech(empire, "Ace Training");
+            TechEntry tech = UnlockTech(Player, "Ace Training");
             foreach (var item in tech.Tech.BonusUnlocked)
             {
-                Assert.IsTrue(empire.data.BonusFighterLevels > 0);
-                Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
+                Assert.IsTrue(Player.data.BonusFighterLevels > 0);
+                Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
             }
-            tech = UnlockTech(empire, "Ace Training");
+            tech = UnlockTech(Player, "Ace Training");
             foreach (var item in tech.Tech.BonusUnlocked)
             {
-                Assert.IsTrue(empire.data.BonusFighterLevels > 0);
-                Assert.That.Equal(0, empire.data.BonusFighterLevels - item.Bonus);
+                Assert.IsTrue(Player.data.BonusFighterLevels > 0);
+                Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
             }
         }
 
