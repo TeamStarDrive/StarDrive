@@ -29,7 +29,6 @@ namespace SdMesh
 
         // not mapped to C#
         Nano::Mesh TheMesh;
-        vector<unique_ptr<SDAnimationClip>> Clips;
         vector<unique_ptr<SDMeshGroup>> Groups;
         vector<unique_ptr<SDMaterial>> Materials;
 
