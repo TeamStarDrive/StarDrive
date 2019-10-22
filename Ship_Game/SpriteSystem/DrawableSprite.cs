@@ -13,8 +13,8 @@ namespace Ship_Game.SpriteSystem
     // Within a single abstract entity
     public class DrawableSprite
     {
-        SpriteAnimation Anim;
-        SubTexture Tex;
+        readonly SpriteAnimation Anim;
+        readonly SubTexture Tex;
 
         public SpriteEffects Effects;
         public float Rotation;
