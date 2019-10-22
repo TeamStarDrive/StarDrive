@@ -95,7 +95,7 @@ namespace Ship_Game
                 TechEntry tech = triggerer.GetTechEntry(UnlockTech);
                 if (!tech.Unlocked)
                 {
-                    triggerer.UnlockTech(tech, TechUnlockType.Event, null);
+                    triggerer.UnlockTech(tech, TechUnlockType.Event);
                 }
                 else
                 {
