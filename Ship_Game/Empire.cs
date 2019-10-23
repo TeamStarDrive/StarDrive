@@ -926,9 +926,9 @@ namespace Ship_Game
         }
 
         public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType)
-        => UnlockTech(techEntry, techUnlockType, null);
+            => UnlockTech(techEntry, techUnlockType, null);
 
-        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire otherEmpire) 
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire otherEmpire)
         {
             switch (techUnlockType)
             {
@@ -951,7 +951,7 @@ namespace Ship_Game
                 case TechUnlockType.Spy:
                     if (techEntry.UnlockFromSpy(this, otherEmpire))
                         UpdateForNewTech();
-                    if (techEntry.Unlocked) 
+                    if (techEntry.Unlocked)
                         data.ResearchQueue.Remove(techEntry.UID);
                     break;
                 case TechUnlockType.Event:
@@ -980,7 +980,7 @@ namespace Ship_Game
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
         public void AcquireTech(string techID, Empire target, TechUnlockType techUnlockType)
-        {            
+        {
             UnlockTech(techID, techUnlockType, target);
         }
 
@@ -1008,12 +1008,12 @@ namespace Ship_Game
             if (isPlayer && Universe.Debug) // if Debug overlay is enabled, make all ships visible
             {
                 using (Universe.MasterShipList.AcquireReadLock())
-                foreach (Ship nearby in Universe.MasterShipList)
-                {
-                    nearby.inSensorRange = true;
-                    KnownShips.Add(nearby);
-                    EmpireAI.ThreatMatrix.UpdatePin(nearby);
-                }
+                    foreach (Ship nearby in Universe.MasterShipList)
+                    {
+                        nearby.inSensorRange = true;
+                        KnownShips.Add(nearby);
+                        EmpireAI.ThreatMatrix.UpdatePin(nearby);
+                    }
                 return;
             }
 
@@ -1075,13 +1075,13 @@ namespace Ship_Game
             nearby.inborders = false;
 
             using (BorderNodes.AcquireReadLock())
-            foreach (InfluenceNode node in BorderNodes)
-            {
-                if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
-                nearby.inborders = true;
-                nearby.BorderCheck.Add(this);
-                break;
-            }
+                foreach (InfluenceNode node in BorderNodes)
+                {
+                    if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
+                    nearby.inborders = true;
+                    nearby.BorderCheck.Add(this);
+                    break;
+                }
 
             if (!nearby.inborders)
             {
@@ -2250,17 +2250,19 @@ namespace Ship_Game
                 ResearchTopic = data.ResearchQueue[0];
             }
 
-            float research = Research + LeftoverResearch;
             TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
+            {
+                Log.Error($"tech UID was empty!: {tech}");
                 return;
+            }
 
-            LeftoverResearch = tech.AddToProgress(research, this, out bool unLocked);
-            research = LeftoverResearch;
+            float researchThisTurn = Research + LeftoverResearch;
+            LeftoverResearch = tech.AddToProgress(researchThisTurn, this, out bool unLocked);
 
             if (unLocked)
             {
-                UnlockTech(ResearchTopic, TechUnlockType.Normal, this);
+                UnlockTech(ResearchTopic, TechUnlockType.Normal);
                 if (isPlayer)
                     Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
                 data.ResearchQueue.Remove(ResearchTopic);
