@@ -81,7 +81,7 @@ namespace Ship_Game
         public void Move(float dx, float dy)
         {
             CamPos.X += dx;
-            CamPos.Y += dy;            
+            CamPos.Y += dy;
         }
 
         public void MoveClamped(Vector2 pos, Vector2 min, Vector2 max)
@@ -99,15 +99,15 @@ namespace Ship_Game
             if (input.WASDRight && CamPos.X - c.X  <  limit) adjustCam.X += GlobalStats.CameraPanSpeed * (5 - Zoom);
             if (input.WASDUp    && CamPos.Y - c.Y > -limit)  adjustCam.Y -= GlobalStats.CameraPanSpeed * (5 - Zoom);
             if (input.WASDDown  && CamPos.Y - c.Y <  limit)  adjustCam.Y += GlobalStats.CameraPanSpeed * (5 - Zoom);
-            
-            CamPos += adjustCam; 
+
+            CamPos += adjustCam;
             return CamPos - c;
         }
 
         private Vector2 CameraVelocity = Vector2.Zero;
 
         public void CameraDrag(InputState input)
-        {            
+        {
             if (input.RightMouseHeld())
             {
                 if (input.StartRightHold.OutsideRadius(input.CursorPosition, 10f))
@@ -123,7 +123,7 @@ namespace Ship_Game
             if (CameraVelocity.Length() > 150f)
                 CameraVelocity = CameraVelocity.Normalized() * 150f;
 
-            CamPos += CameraVelocity; 
+            CamPos += CameraVelocity;
         }
     }
 }
