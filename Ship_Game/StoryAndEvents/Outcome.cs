@@ -152,7 +152,7 @@ namespace Ship_Game
                 return true;
             }
 
-            return false;	        
+            return false;
         }
 
         private void TroopActions(Empire triggerer, Planet p, PlanetGridSquare eventLocation)
@@ -210,20 +210,20 @@ namespace Ship_Game
                     }
                     potentials.Add(kv.Value);
                 }
-                //if no artifact is available just give them money 
+                //if no artifact is available just give them money
                 if (potentials.Count <= 0)
                 {
                     MoneyGranted = 500;
                 }
                 else
                 {
-                    //choose a random available artifact and process it. 
+                    //choose a random available artifact and process it.
                     Artifact chosenArtifact = potentials[RandomMath.InRange(potentials.Count)];
                     triggerer.data.OwnedArtifacts.Add(chosenArtifact);
                     ResourceManager.ArtifactsDict[chosenArtifact.Name].Discovered = true;
                     SetArtifact(chosenArtifact);
                     chosenArtifact.CheckGrantArtifact(triggerer, this, popup);
-                }                
+                }
             }
             //Generic grants
             FlatGrants(triggerer);
@@ -238,13 +238,13 @@ namespace Ship_Game
             {
                 BuildingActions(p, eventLocation);
                 TroopActions(triggerer, p, eventLocation);
-                return;	            
+                return;
             }
 
             //events that trigger on other planets
             if(!SetRandomPlanet()) return;
             p = _selectedPlanet;
-                        
+
             if (eventLocation == null)
             {
                 eventLocation = p.TilesList[17];

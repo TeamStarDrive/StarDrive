@@ -1,11 +1,5 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Ship_Game;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace UnitTests.Technologies
 {
@@ -30,26 +24,27 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TestTechUnlock()
         {
-            TechEntry tech = Player.GetTechEntry("FrigateConstruction");
+            TechEntry normalTech = Player.GetTechEntry("FrigateConstruction");
             Player.UnlockTech("FrigateConstruction", TechUnlockType.Normal);
-            Assert.IsTrue(tech.Unlocked);
-            //Ancient Repulsor
-            tech = Player.GetTechEntry("Ancient Repulsor");
+            Assert.IsTrue(normalTech.Unlocked, "Unlocking tech via normal process failed");
+
+            TechEntry eventTech = Player.GetTechEntry("Ancient Repulsor");
             Player.UnlockTech("Ancient Repulsor", TechUnlockType.Event);
-            Assert.IsTrue(tech.Unlocked);
+            Assert.IsTrue(eventTech.Unlocked, "Unlocking tech via spy event failed");
 
-            tech = Player.GetTechEntry("Cruisers");
+            TechEntry diplomacyTech = Player.GetTechEntry("Cruisers");
             Player.UnlockTech("Cruisers", TechUnlockType.Diplomacy);
-            Assert.IsTrue(tech.Unlocked);
+            Assert.IsTrue(diplomacyTech.Unlocked, "Unlocking tech via diplomacy process failed");
 
-            tech = Player.GetTechEntry("IndustrialFoundations");
+            TechEntry spyTech = Player.GetTechEntry("IndustrialFoundations");
+            //spy tech currently has a random chance to unlock.
             for (int x =0; x< 100; x++)
             {
                 Player.UnlockTech("IndustrialFoundations", TechUnlockType.Spy, MajorEnemy);
-                if (tech.Unlocked)
+                if (spyTech.Unlocked)
                     break;
             }
-            Assert.IsTrue(tech.Unlocked);
+            Assert.IsTrue(spyTech.Unlocked,"Unlocking tech via spy process failed");
         }
 
         TechEntry UnlockTech(Empire empire, string UID)
@@ -62,62 +57,65 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TestHullUnlock()
         {
-            TechEntry tech = UnlockTech(Player, "FrigateConstruction");
+            TechEntry hullTech = UnlockTech(Player, "FrigateConstruction");
             int playerHulls = 0;
-            foreach (string item in tech.GetUnLockableHulls(Player))
+            foreach (string item in hullTech.GetUnLockableHulls(Player))
             {
                 playerHulls++;
-                Assert.IsTrue(Player.IsHullUnlocked(item));
+                Assert.IsTrue(Player.IsHullUnlocked(item),$"Standard hull tech not unlocked: {item}");
             }
+
+            //Unlock hulls from other empire.
             Player.UnlockTech("FrigateConstruction", TechUnlockType.Diplomacy, MajorEnemy);
-            //test unlock foreign hull
             int foreignHulls = 0;
-            foreach (string item in tech.GetUnLockableHulls(Player))
+            foreach (string item in hullTech.GetUnLockableHulls(Player))
             {
                 foreignHulls++;
-                Assert.IsTrue(Player.IsHullUnlocked(item));
+                Assert.IsTrue(Player.IsHullUnlocked(item), $"Foreign hull not unlocked{item}");
             }
-            Assert.IsTrue(foreignHulls > playerHulls);
+            Assert.IsTrue(foreignHulls > playerHulls, $"Failed to unlock all expected hulls");
         }
 
         [TestMethod]
         public void TestModuleUnlock()
         {
-            TechEntry tech = UnlockTech(Player, "FrigateConstruction");
-            foreach (Technology.UnlockedMod item in tech.GetUnlockableModules(Player))
-                Assert.IsTrue(Player.IsModuleUnlocked(item.ModuleUID));
+            TechEntry moduleTech = UnlockTech(Player, "FrigateConstruction");
+            foreach (Technology.UnlockedMod item in moduleTech.GetUnlockableModules(Player))
+                Assert.IsTrue(Player.IsModuleUnlocked(item.ModuleUID)
+                    , $"Expected Module not Unlocked: {item.ModuleUID}");
         }
 
         [TestMethod]
         public void TestBuildingUnlock()
         {
-            TechEntry tech = UnlockTech(Player, "IndustrialFoundations");
-            foreach (var item in tech.Tech.BuildingsUnlocked)
-                Assert.IsTrue(Player.IsBuildingUnlocked(item.Name));
+            TechEntry buildingTech = UnlockTech(Player, "IndustrialFoundations");
+            foreach (var item in buildingTech.Tech.BuildingsUnlocked)
+                Assert.IsTrue(Player.IsBuildingUnlocked(item.Name)
+                    ,$"Expected building not unlocked: {item.Name}");
         }
 
         [TestMethod]
         public void TestBonusUnlock()
         {
-            TechEntry tech = UnlockTech(Player, "Ace Training");
-            foreach (var item in tech.Tech.BonusUnlocked)
+            TechEntry bonusTech = UnlockTech(Player, "Ace Training");
+            foreach (var item in bonusTech.Tech.BonusUnlocked)
             {
-                Assert.IsTrue(Player.data.BonusFighterLevels > 0);
+                Assert.IsTrue(Player.data.BonusFighterLevels > 0, $"Bonus not unlocked: {item.Name}");
             }
         }
         [TestMethod]
         public void TestAddResearchToTech()
         {
-            TechEntry tech = Player.GetTechEntry("Ace Training");
-            float cost = tech.TechCost;
+            TechEntry techProgress = Player.GetTechEntry("Ace Training");
+            float cost = techProgress.TechCost;
             float leftOver;
             bool unlocked;
-            leftOver = tech.AddToProgress(5, Player, out unlocked);
-            Assert.IsTrue(tech.Progress.AlmostEqual(5f));
+            leftOver = techProgress.AddToProgress(5, Player, out unlocked);
+            Assert.IsTrue(techProgress.Progress.AlmostEqual(5f));
             Assert.IsTrue(leftOver.AlmostZero());
-            Assert.IsTrue(!unlocked);
+            Assert.IsFalse(unlocked, $"Tech should not have beeen unlocked: {techProgress.UID}");
 
-            leftOver = tech.AddToProgress(cost, Player, out unlocked);
+            leftOver = techProgress.AddToProgress(cost, Player, out unlocked);
             Assert.IsTrue(leftOver.AlmostEqual(5));
             Assert.IsTrue(unlocked);
 
@@ -125,16 +123,16 @@ namespace UnitTests.Technologies
         [TestMethod]
         public void TestBonusStacking()
         {
-            TechEntry tech = UnlockTech(Player, "Ace Training");
-            foreach (var item in tech.Tech.BonusUnlocked)
+            TechEntry bonus = UnlockTech(Player, "Ace Training");
+            foreach (var item in bonus.Tech.BonusUnlocked)
             {
-                Assert.IsTrue(Player.data.BonusFighterLevels > 0);
+                Assert.IsTrue(Player.data.BonusFighterLevels > 0, $"Bonus not unlocked {item.Name}");
                 Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
             }
-            tech = UnlockTech(Player, "Ace Training");
-            foreach (var item in tech.Tech.BonusUnlocked)
+            TechEntry bonusStack = UnlockTech(Player, "Ace Training");
+            foreach (var item in bonusStack.Tech.BonusUnlocked)
             {
-                Assert.IsTrue(Player.data.BonusFighterLevels > 0);
+                Assert.IsTrue(Player.data.BonusFighterLevels > 0, $"Bonus not unlocked");
                 Assert.That.Equal(0, Player.data.BonusFighterLevels - item.Bonus);
             }
         }
