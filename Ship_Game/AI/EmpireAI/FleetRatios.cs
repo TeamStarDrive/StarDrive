@@ -202,7 +202,7 @@ namespace Ship_Game.AI
         {
             //Array<Ship> ships = new Array<Ship>();
             if (bombCount < 1 || Ratios.MinBombers < 1)
-                return EmptyArray<Ship>.Array;
+                return new Array<Ship>();
             return GetShipsByFeaturesAndRole(Ships, bombCount, s => s.BombsUseful,
                 r => r?.DesignRole == ShipData.RoleName.bomber);
         }
