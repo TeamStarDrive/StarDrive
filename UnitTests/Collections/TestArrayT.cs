@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Ship_Game;
-using Ship_Game.Gameplay;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests.Collections
@@ -11,7 +10,7 @@ namespace UnitTests.Collections
     public class TestArrayT : StarDriveTest
     {
         [TestMethod]
-        public void TestAdd()
+        public void Add()
         {
             var arr = new Array<int>();
             arr.Add(1);
@@ -26,7 +25,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestInsert()
+        public void Insert()
         {
             var arr = new Array<string>();
             arr.Insert(0, "a");
@@ -37,25 +36,69 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestContains()
+        public void Contains()
         {
             var arr = new Array<string> { "a", "b", "c", "d" };
             Assert.IsTrue(arr.Contains("c"), "Contains should work for existing items");
             Assert.IsFalse(arr.Contains("x"), "Contains should not give false positives");
             arr.Add(null);
             Assert.IsTrue(arr.Contains(null), "Contains must detect null properly");
-
-            var obj = "c";
-            var refs = new Array<string> { "a", "b", "c", "d" };
-            refs.Add(obj);
-            Assert.IsTrue(refs.ContainsRef(obj), "Contains should work for existing items");
-            Assert.IsFalse(refs.ContainsRef("x"), "Contains should not give false positives");
-            refs.Add(null);
-            Assert.IsTrue(refs.ContainsRef(null), "Contains must detect null properly");
         }
 
         [TestMethod]
-        public void TestRemoveAt()
+        public void ContainsRef()
+        {
+            string validRef = "c";
+            string nonMatchingRef = new string('c', 1);
+            var refs = new Array<string> { "a", "b", "c", "d", validRef, null };
+            Assert.IsTrue(refs.ContainsRef(validRef), "ContainsRef should work for existing items");
+            Assert.IsFalse(refs.ContainsRef("x"), "ContainsRef should not give false positives");
+            Assert.IsFalse(refs.ContainsRef(nonMatchingRef), "ContainsRef should not give false positives");
+            Assert.IsTrue(refs.ContainsRef(null), "ContainsRef must detect null properly");
+        }
+
+        [TestMethod]
+        public void IndexOf()
+        {
+            var arr = new Array<string> { "a", "b", "c", "d" };
+            Assert.AreEqual(2 , arr.IndexOf("c"), "IndexOf should work for existing items");
+            Assert.AreEqual(-1, arr.IndexOf("x"), "IndexOf should not give false positives");
+            arr.Add(null);
+            Assert.AreEqual(4, arr.IndexOf((string)null), "IndexOf must detect null properly");
+        }
+
+        [TestMethod]
+        public void IndexOfRef()
+        {
+            string validRef = "c";
+            string nonMatchingRef = new string('c', 1);
+            var refs = new Array<string> { "a", "b", "c", "d", validRef, null };
+            Assert.AreEqual(2, refs.IndexOfRef(validRef), "IndexOfRef should work for existing items");
+            Assert.AreEqual(-1, refs.IndexOfRef("x"), "IndexOfRef should not give false positives");
+            Assert.AreEqual(-1, refs.IndexOfRef(nonMatchingRef), "IndexOfRef should not give false positives");
+            Assert.AreEqual(5, refs.IndexOfRef((string)null), "IndexOfRef must detect null properly");
+        }
+
+        [TestMethod]
+        public void FirstIndexOf()
+        {
+            var arr = new Array<string> { "a", null, "b", "c", "b", null, "d" };
+            Assert.AreEqual(2, arr.FirstIndexOf(s => s == "b"), "FirstIndexOf(predicate) should work for existing items");
+            Assert.AreEqual(-1, arr.FirstIndexOf(s => s == "x"), "FirstIndexOf(predicate) should not give false positives");
+            Assert.AreEqual(1, arr.FirstIndexOf(s => s == null), "FirstIndexOf(predicate) must detect null properly");
+        }
+
+        [TestMethod]
+        public void LastIndexOf()
+        {
+            var arr = new Array<string> { "a", null, "b", "c", "b", null, "d" };
+            Assert.AreEqual(4, arr.LastIndexOf(s => s == "b"), "LastIndexOf(predicate) should work for existing items");
+            Assert.AreEqual(-1, arr.LastIndexOf(s => s == "x"), "LastIndexOf(predicate) should not give false positives");
+            Assert.AreEqual(5, arr.LastIndexOf(s => s == null), "LastIndexOf(predicate) must detect null properly");
+        }
+
+        [TestMethod]
+        public void RemoveAt()
         {
             var arr = new Array<string> { "a", "b", "c", "d", "e" };
             arr.RemoveAt(2);
@@ -71,7 +114,25 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestRemove()
+        public void RemoveAtSwapLast()
+        {
+            // SwapLast is unstable, so the elements will be swapped around instead
+            // of doing an expensive array unshift
+            var arr = new Array<string> { "a", "b", "c", "d", "e" };
+            arr.RemoveAtSwapLast(2);
+            Assert.That.Equal(new[] { "a", "b", "e", "d" }, arr);
+            arr.RemoveAtSwapLast(0);
+            Assert.That.Equal(new[] { "d", "b", "e" }, arr);
+            arr.RemoveAtSwapLast(arr.Count - 1);
+            Assert.That.Equal(new[] { "d", "b" }, arr);
+            arr.RemoveAtSwapLast(arr.Count - 1);
+            Assert.That.Equal(new[] { "d" }, arr);
+            arr.RemoveAtSwapLast(0);
+            Assert.IsTrue(arr.IsEmpty);
+        }
+
+        [TestMethod]
+        public void Remove()
         {
             var arr = new Array<string> { "a", "b", "c", "b", "d" };
             arr.Remove("b");
@@ -89,7 +150,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestRemoveFirst()
+        public void RemoveFirst()
         {
             var arr = new Array<string> { "a", "b", "c", "b", "d" };
             arr.RemoveFirst(s => s == "b");
@@ -97,7 +158,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestRemoveLast()
+        public void RemoveLast()
         {
             var arr = new Array<string> { "a", "b", "c", "b", "d" };
             arr.RemoveLast(s => s == "b");
@@ -105,7 +166,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestRemoveSwapLast()
+        public void RemoveSwapLast()
         {
             var arr = new Array<string> { "a", "b", "c", "d" };
             arr.RemoveSwapLast("b");
@@ -114,7 +175,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestArrayRemoveAll()
+        public void RemoveAll()
         {
             var arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
             arr.RemoveAll(x => true);
@@ -126,7 +187,23 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestRemoveDuplicates()
+        public void RemoveRange()
+        {
+            var arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+            arr.RemoveRange(0, 4);
+            Assert.That.Equal(new []{5, 6, 7, 8}, arr);
+
+            arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+            arr.RemoveRange(4, 4);
+            Assert.That.Equal(new []{1, 2, 3, 4}, arr);
+
+            arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+            arr.RemoveRange(2, 4);
+            Assert.That.Equal(new []{1, 2, 7, 8}, arr);
+        }
+
+        [TestMethod]
+        public void RemoveDuplicates()
         {
             var arr = new Array<string> { "a", "a", "b", "c", "d", "c", "c" };
             // @note RemoveDuplicates is an UNSTABLE algorithm, which means
@@ -138,7 +215,41 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestAddRange()
+        public void RemoveDuplicateRefs()
+        {
+            var arr = new Array<string> { "a", "a", "b", "c", "d", "c", "c" };
+            // @note RemoveDuplicates is an UNSTABLE algorithm, which means
+            //       item ordering can change
+            arr.RemoveDuplicateRefs();
+            Assert.AreEqual(4, arr.Count);
+            arr.Sort();
+            Assert.That.Equal(new[] { "a", "b", "c", "d" }, arr);
+        }
+
+        
+        [TestMethod]
+        public void Reverse()
+        {
+            var arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7, 8 };
+            arr.Reverse();
+            Assert.That.Equal(new []{8, 7, 6, 5, 4, 3, 2, 1}, arr);
+
+            arr = new Array<int> { 1, 2, 3, 4, 5, 6, 7 };
+            arr.Reverse();
+            Assert.That.Equal(new []{7, 6, 5, 4, 3, 2, 1}, arr);
+        }
+
+        [TestMethod]
+        public void ForEach()
+        {
+            string sum = "";
+            var arr = new Array<string> { "a", "b", "c", "d" };
+            arr.ForEach(s => sum += s);
+            Assert.AreEqual("abcd", sum);
+        }
+
+        [TestMethod]
+        public void AddRange()
         {
             var src = new[] { "a", "b", "c" };
             var dst = new Array<string>();
@@ -153,8 +264,78 @@ namespace UnitTests.Collections
             Assert.That.Equal(dst, new[] { "a", "b", "c", "a", "b", "c" });
         }
 
+        class ReadOnlyList<T> : IReadOnlyList<T>, ICollection
+        {
+            readonly T[] Items;
+            public ReadOnlyList(T[] items)  { Items = items; }
+            public int Count => Items.Length;
+            public object SyncRoot => this;
+            public bool IsSynchronized => false;
+            public T this[int index] => Items[index];
+            public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)Items).GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => Items.GetEnumerator();
+            public void CopyTo(Array array, int index) => Items.CopyTo(array, index);
+        }
+
+        class ReadOnlyCollection<T> : IReadOnlyCollection<T>, ICollection
+        {
+            readonly T[] Items;
+            public ReadOnlyCollection(T[] items)  { Items = items; }
+            int ICollection.Count => Items.Length;
+            int IReadOnlyCollection<T>.Count => Items.Length;
+            public object SyncRoot => this;
+            public bool IsSynchronized => false;
+            public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)Items).GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public void CopyTo(Array array, int index) => Items.CopyTo(array, index);
+        }
+
+        class Enumerable<T> : IEnumerable<T>, ICollection
+        {
+            readonly T[] Items;
+            public Enumerable(T[] items)  { Items = items; }
+            public int Count => Items.Length;
+            public object SyncRoot => this;
+            public bool IsSynchronized => false;
+            public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)Items).GetEnumerator();
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            public void CopyTo(Array array, int index) => Items.CopyTo(array, index);
+        }
+
         [TestMethod]
-        public void TestToArrayList()
+        public void Construct()
+        {
+            string[] items = { "a", "b", "c", "d" };
+            var arr = new Array<string> { "a", "b", "c", "d" };
+            Assert.That.Equal(arr, items);
+            Assert.That.Equal(arr, new Array<string>(arr));
+            Assert.That.Equal(arr, new Array<string>(items));
+            Assert.That.Equal(arr, arr.Clone());
+
+            ICollection<string> collection = new List<string>(items);
+            Assert.That.Equal(collection, new Array<string>(collection));
+            Assert.That.Equal(arr, new Array<string>(collection));
+
+            IReadOnlyList<string> constList = new ReadOnlyList<string>(items);
+            Assert.That.Equal(constList, new Array<string>(constList));
+            Assert.That.Equal(arr, new Array<string>(constList));
+
+            IReadOnlyCollection<string> constCollection = new ReadOnlyCollection<string>(items);
+            Assert.That.Equal(constCollection, new Array<string>(constCollection));
+            Assert.That.Equal(arr, new Array<string>(constCollection));
+
+            IEnumerable<string> enumerable = new Enumerable<string>(items);
+            Assert.That.Equal(enumerable, new Array<string>(enumerable));
+            Assert.That.Equal(arr, new Array<string>(enumerable));
+
+            Assert.That.Equal(arr, new Array<string>((IEnumerable<string>)collection));
+            Assert.That.Equal(arr, new Array<string>((IEnumerable<string>)constList));
+            Assert.That.Equal(arr, new Array<string>((IEnumerable<string>)constCollection));
+            Assert.That.Equal(arr, new Array<string>((IEnumerable<string>)enumerable));
+        }
+
+        [TestMethod]
+        public void ToArrayList()
         {
             var arr = new[] { "a", "b", "c" };
             var arr1 = new Array<string>();
@@ -176,7 +357,7 @@ namespace UnitTests.Collections
         }
         
         [TestMethod]
-        public void TestToArray()
+        public void ToArray()
         {
             var arr = new[] { "a", "b", "c" };
             var arr1 = new Array<string>();
@@ -197,7 +378,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestPopFirst()
+        public void PopFirst()
         {
             var arr = new Array<string> { "a", "b", "c" };
 
@@ -212,7 +393,7 @@ namespace UnitTests.Collections
         }
 
         [TestMethod]
-        public void TestPopLast()
+        public void PopLast()
         {
             var arr = new Array<string> { "a", "b", "c" };
 
@@ -224,6 +405,48 @@ namespace UnitTests.Collections
 
             Assert.AreEqual("a", arr.PopFirst());
             Assert.IsTrue(arr.IsEmpty);
+        }
+
+        [TestMethod]
+        public void TryPopLast()
+        {
+            var arr = new Array<string> { "a", "b", "c" };
+
+            Assert.IsTrue(arr.TryPopLast(out string c));
+            Assert.AreEqual("c", c);
+            Assert.That.Equal(new[] { "a", "b" }, arr);
+            
+            Assert.IsTrue(arr.TryPopLast(out string b));
+            Assert.AreEqual("b", b);
+            Assert.That.Equal(new[] { "a" }, arr);
+            
+            Assert.IsTrue(arr.TryPopLast(out string a));
+            Assert.AreEqual("a", a);
+            Assert.IsTrue(arr.IsEmpty);
+
+            Assert.IsFalse(arr.TryPopLast(out string _));
+        }
+
+        [TestMethod]
+        public void Filter()
+        {
+            var arr = new Array<string> { "a", "b", "c", "b", "d", "e" };
+
+            Assert.That.Equal(new[]{ "a" }, arr.Filter(x => x == "a"));
+            Assert.That.Equal(new[]{ "b", "b", "e"}, arr.Filter(x => x == "b" || x == "e"));
+            Assert.That.Equal(new string[]{ }, arr.Filter(x => x == "x"));
+        }
+
+        [TestMethod]
+        public void SubRange()
+        {
+            var arr = new Array<string> { "a", "b", "c", "b", "d", "e" };
+
+            Assert.That.Equal(new[]{ "a", "b" }, arr.SubRange(0, 2));
+            Assert.That.Equal(new[]{ "c", "b", "d" }, arr.SubRange(2, 5));
+            Assert.That.Equal(new[]{ "d", "e" }, arr.SubRange(4, 6));
+            Assert.That.Equal(new[]{ "a" }, arr.SubRange(0, 1));
+            Assert.That.Equal(new[]{ "e" }, arr.SubRange(5, 6));
         }
     }
 }
