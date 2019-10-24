@@ -85,7 +85,8 @@ namespace Ship_Game
             return TechTree[techUid];
         }
 
-        public static bool TryGetTech(string techUid, out Technology tech) => TechTree.TryGetValue(techUid, out tech);
+        public static bool TryGetTech(string techUid, out Technology tech)
+            => TechTree.TryGetValue(techUid, out tech);
 
         public static ExplorationEvent Event(string eventName)
         {
@@ -920,6 +921,7 @@ namespace Ship_Game
                             if (tech.Unlockable)
                                 continue;
                             tech.Unlockable = true;
+
                             if (GlobalStats.VerboseLogging)
                                 Log.WarningVerbose($"Technology can be unlocked by encounter '{encounter.Name}' : '{tech.UID}'");
                         }

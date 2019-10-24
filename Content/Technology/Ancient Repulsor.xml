@@ -4,6 +4,8 @@
   <TechnologyType>ShipWeapons</TechnologyType>
   <Cost>50</Cost>
   <RootNode>0</RootNode>
+  <Secret>true</Secret>
+  <IconPath>../ResearchMenu/icons_techroot_science</IconPath>
   <Name>Ancient Repulsor</Name>
   <NameIndex>509</NameIndex>
   <DescriptionIndex>510</DescriptionIndex>

@@ -18,7 +18,8 @@ namespace Ship_Game
     {
         Normal,
         Spy,
-        Diplomacy
+        Diplomacy,
+        Event
     }
     public sealed partial class Empire : IDisposable
     {
@@ -41,7 +42,7 @@ namespace Ship_Game
         public Array<Ship>      ShipsToAdd     = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
 
-        private float MoneyValue = 1000f;
+        float MoneyValue = 1000f;
         public float Money
         {
             get => MoneyValue;
@@ -61,7 +62,6 @@ namespace Ship_Game
         public HashSet<string> structuresWeCanBuild = new HashSet<string>();
         private float FleetUpdateTimer = 5f;
         private int TurnCount = 1;
-        public string ResearchTopic = "";
         private Fleet DefensiveFleet = new Fleet();
         private Array<Ship> ForcePool = new Array<Ship>();
         public EmpireData data;
@@ -73,7 +73,7 @@ namespace Ship_Game
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
 
-        private float ResearchValue;
+        float ResearchValue;
         public float Research
         {
             get => ResearchValue;
@@ -156,6 +156,20 @@ namespace Ship_Game
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange());
 
+        public readonly EmpireResearch TechResearch;
+
+        // Empire unique ID. If this is 0, then this empire is invalid!
+        // Set in EmpireManager.cs
+        public int Id;
+
+        public Empire()
+        {
+            TechResearch = new EmpireResearch(this);
+
+            // @note @todo This is very flaky and weird!
+            UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
+        }
+
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
@@ -229,16 +243,6 @@ namespace Ship_Game
         }
 
         public string Name => data.Traits.Name;
-
-        // Empire unique ID. If this is 0, then this empire is invalid!
-        // Set in EmpireManager.cs
-        public int Id;
-
-        public Empire()
-        {
-            // @note @todo This is very flaky and weird!
-            UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
-        }
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
 
@@ -570,8 +574,57 @@ namespace Ship_Game
 
         public int TechCost(Ship ship)              => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
         public bool HasTechEntry(string uid)        => TechnologyDict.ContainsKey(uid);
-        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p=> p.Res.NetIncome);
-        public TechEntry CurrentResearch            => ResearchTopic.NotEmpty() ? TechnologyDict[ResearchTopic] : TechEntry.None;
+
+        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p => p.Res.NetIncome);
+
+        // The CURRENT research topic is simply the first item in our ResearchQueue
+        public string ResearchTopic => data.ResearchQueue.NotEmpty ? data.ResearchQueue.First : "";
+        public TechEntry CurrentResearch => HasResearchTopic ? TechnologyDict[ResearchTopic] : TechEntry.None;
+
+        public bool HasResearchTopic => data.ResearchQueue.NotEmpty;
+        public bool NoResearchTopic  => data.ResearchQueue.IsEmpty;
+        public bool IsResearchingOrQueued(string tech) => data.ResearchQueue.Contains(tech);
+
+        public string ResearchTopicLocText
+        {
+            get
+            {
+                if (ResourceManager.TryGetTech(ResearchTopic, out Technology tech))
+                    return Localizer.Token(tech.NameIndex);
+                return Localizer.Token(341);
+            }
+        }
+
+        // Inserts to the front of ResearchQueue, OR moves existing tech to the front
+        public void SetResearchTopic(string techUID)
+        {
+            if (techUID.NotEmpty() && !TechnologyDict.ContainsKey(techUID))
+                Log.Error($"SetResearchTopic: Unrecognized tech: {techUID}");
+
+            data.ResearchQueue.Remove(techUID);
+            data.ResearchQueue.Insert(0, techUID); // this makes it the current ResearchTopic
+        }
+
+        // @return TRUE if tech was added to the queue and wasn't already present
+        public bool AddToResearchQueue(string techUID)
+        {
+            if (!TechnologyDict.ContainsKey(techUID))
+            {
+                Log.Error($"AddToResearchQueue: Unrecognized tech: {techUID}");
+                return false;
+            }
+            return data.ResearchQueue.AddUnique(techUID);
+        }
+
+        public void RemoveResearchFromQueue(string techUID)
+        {
+            data.ResearchQueue.Remove(techUID);
+        }
+
+        public int ResearchQueueIndex(string techUID)
+        {
+            return data.ResearchQueue.IndexOf(techUID);
+        }
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
@@ -681,9 +734,6 @@ namespace Ship_Game
             {
                 var techEntry = kv.Value;
                 data.Traits.TechUnlocks(techEntry, this);
-
-                if (techEntry.Unlocked)
-                    techEntry.Progress = techEntry.TechCost;
             }
             //Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
@@ -747,17 +797,6 @@ namespace Ship_Game
                 AddToShipTechLists(entry.Value);
                 entry.Value.UnlockFromSave(this, unlockBonuses);
             }
-
-            //foreach (TechEntry techEntry in TechnologyDict.Values)
-            //{
-            //    bool hullsNotRoot = techEntry.Tech.HullsUnlocked.Count > 0 && techEntry.Tech.RootNode != 1;
-            //    if (!hullsNotRoot || !techEntry.Unlocked) continue;
-            //    techEntry.Unlocked = false;
-            //    if (unlockBonuses)
-            //        techEntry.Unlock(this);
-            //    else
-            //        techEntry.UnlockFromSave(this, unlockBonuses);
-            //}
         }
 
         private void InitTechs()
@@ -931,36 +970,37 @@ namespace Ship_Game
             }
         }
 
-        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire empire = null)
-        {
-            UnlockTech(GetTechEntry(techId), techUnlockType, empire);
-        }
+        public void UnlockTech(string techId, TechUnlockType techUnlockType)
+            => UnlockTech(techId, techUnlockType, null);
 
-        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire empire = null) 
+        public void UnlockTech(string techId, TechUnlockType techUnlockType, Empire otherEmpire)
+            => UnlockTech(GetTechEntry(techId), techUnlockType, otherEmpire);
+
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType)
+            => UnlockTech(techEntry, techUnlockType, null);
+
+        public void UnlockTech(TechEntry techEntry, TechUnlockType techUnlockType, Empire otherEmpire)
         {
             switch (techUnlockType)
             {
-                case TechUnlockType.Diplomacy:
-                    if (techEntry.UnlockFromDiplomacy(this, empire))
-                    {
-                        UpdateForNewTech();
-                        data.ResearchQueue.Remove(techEntry.UID);
-                    }
-                    break;
-
                 case TechUnlockType.Normal:
+                case TechUnlockType.Event:
                     if (techEntry.Unlock(this))
                     {
                         UpdateForNewTech();
-                        data.ResearchQueue.Remove(techEntry.UID);
                     }
                     break;
-
-                case TechUnlockType.Spy:
-                    if (techEntry.UnlockFromSpy(this, empire))
+                case TechUnlockType.Diplomacy:
+                    if (techEntry.UnlockFromDiplomacy(this, otherEmpire))
+                    {
                         UpdateForNewTech();
-                    if (techEntry.Unlocked) 
-                        data.ResearchQueue.Remove(techEntry.UID);
+                    }
+                    break;
+                case TechUnlockType.Spy:
+                    if (techEntry.UnlockFromSpy(this, otherEmpire))
+                    {
+                        UpdateForNewTech();
+                    }
                     break;
             }
         }
@@ -981,7 +1021,7 @@ namespace Ship_Game
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
         public void AcquireTech(string techID, Empire target, TechUnlockType techUnlockType)
-        {            
+        {
             UnlockTech(techID, techUnlockType, target);
         }
 
@@ -1009,12 +1049,12 @@ namespace Ship_Game
             if (isPlayer && Universe.Debug) // if Debug overlay is enabled, make all ships visible
             {
                 using (Universe.MasterShipList.AcquireReadLock())
-                foreach (Ship nearby in Universe.MasterShipList)
-                {
-                    nearby.inSensorRange = true;
-                    KnownShips.Add(nearby);
-                    EmpireAI.ThreatMatrix.UpdatePin(nearby);
-                }
+                    foreach (Ship nearby in Universe.MasterShipList)
+                    {
+                        nearby.inSensorRange = true;
+                        KnownShips.Add(nearby);
+                        EmpireAI.ThreatMatrix.UpdatePin(nearby);
+                    }
                 return;
             }
 
@@ -1076,13 +1116,13 @@ namespace Ship_Game
             nearby.inborders = false;
 
             using (BorderNodes.AcquireReadLock())
-            foreach (InfluenceNode node in BorderNodes)
-            {
-                if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
-                nearby.inborders = true;
-                nearby.BorderCheck.Add(this);
-                break;
-            }
+                foreach (InfluenceNode node in BorderNodes)
+                {
+                    if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
+                    nearby.inborders = true;
+                    nearby.BorderCheck.Add(this);
+                    break;
+                }
 
             if (!nearby.inborders)
             {
@@ -1746,7 +1786,7 @@ namespace Ship_Game
                 militaryPotential += fertility + p.MineralRichness + maxPopBillion;
                 if (maxPopBillion >= 0.5)
                 {
-                    if (ResourceManager.TechTree.TryGetValue(ResearchTopic, out Technology tech))
+                    if (ResourceManager.TryGetTech(ResearchTopic, out Technology tech))
                         researchPotential = (tech.ActualCost - Research) / tech.ActualCost
                                             * (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
@@ -2239,54 +2279,32 @@ namespace Ship_Game
             Universe.ScreenManager.AddScreenDeferred(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;
-
         }
 
-        private void ApplyResearchPoints()
+        void ApplyResearchPoints()
         {
-            if (string.IsNullOrEmpty(ResearchTopic))
-            {
-                if (data.ResearchQueue.Count > 0)
-                    ResearchTopic = data.ResearchQueue[0];
-                else
-                    return;
-            }
+            if (NoResearchTopic)
+                return;
 
-            float research = Research + LeftoverResearch;
             TechEntry tech = CurrentResearch;
             if (tech.UID.IsEmpty())
-                return;
-            //reduce the impact of tech that doesnt affect cybernetics.
-            float cyberneticMultiplier = 1.0f;
-            if (IsCybernetic && tech.UnlocksFoodBuilding)
-                cyberneticMultiplier = .5f;
-
-            float techCost = tech.TechCost * cyberneticMultiplier;
-            if (techCost - tech.Progress > research)
             {
-                tech.Progress += research;
-                LeftoverResearch = 0f;
+                Log.Error($"ApplyResearchPoints: Tech UID was empty!: {tech}");
                 return;
             }
 
-            research -= techCost - tech.Progress;
-            tech.Progress = techCost;
-            UnlockTech(ResearchTopic, TechUnlockType.Normal, this);
-            if (isPlayer)
-                Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
-            data.ResearchQueue.Remove(ResearchTopic);
-            if (data.ResearchQueue.Count > 0)
-            {
-                ResearchTopic = data.ResearchQueue[0];
-                data.ResearchQueue.RemoveAt(0);
-            }
-            else
-                ResearchTopic = "";
+            float researchThisTurn = Research + LeftoverResearch;
+            LeftoverResearch = tech.AddToProgress(researchThisTurn, this, out bool unLocked);
 
-            LeftoverResearch = research;
+            if (unLocked)
+            {
+                UnlockTech(ResearchTopic, TechUnlockType.Normal);
+                if (isPlayer)
+                    Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
+            }
         }
 
-        private void UpdateRelationships()
+        void UpdateRelationships()
         {
             if (isFaction) return;
             int atWarCount = 0;

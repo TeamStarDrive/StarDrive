@@ -57,15 +57,25 @@ namespace Ship_Game
         public void ResolveTech()
         {
             Tech = UID.NotEmpty() ? ResourceManager.TechTree[UID] : Technology.Dummy;
+        }        
+        /// <summary>
+        /// Returns empire research not used.
+        /// Crybernetic gets a break on food buildings here. 
+        /// </summary>
+        public float AddToProgress(float researchToApply, Empire us, out bool unLocked)
+        {
+            float modifier = us.data.Traits.ResearchMultiplierForTech(this, us);
+            return AddToProgress(researchToApply, modifier, out unLocked);
         }
 
-        public float AddToProgress(float amount, Empire us)
+        public float AddToProgress(float researchToApply, float modifier, out bool unLocked)
         {
-            var leftOver = amount - (Tech.ActualCost - Progress);
-            Progress = Math.Min(Progress + amount, Tech.ActualCost);
-            if (Progress >= Tech.ActualCost)
-                Unlock(us);
-            return leftOver;
+            float techCost = Tech.ActualCost * modifier;
+            Progress += researchToApply;
+            float excessResearch = Math.Max(0, Progress - techCost);
+            Progress -= excessResearch;
+            unLocked = Progress.AlmostEqual(techCost);
+            return excessResearch;
         }
 
         public bool UnlocksFoodBuilding => GoodsBuildingUnlocked(Goods.Food);
@@ -357,9 +367,11 @@ namespace Ship_Game
             TriggerAnyEvents(us);
             return true;
         }
+
         public void UnlockWithNoBonusOption(Empire us, Empire them, bool unlockBonus)
         {
             them = them ?? us;
+  
             unlockBonus = SetUnlockFlag() && unlockBonus;
             UnlockTechContentOnly(us, them, unlockBonus);
         }
@@ -393,14 +405,18 @@ namespace Ship_Game
             UnlockTroops(us, them);
             UnLockHulls(us, them);
             UnlockBuildings(us, them);
+
+            // Finally, remove this tech from our ResearchQueue
+            us.RemoveResearchFromQueue(UID);
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)
         {
             if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
             {
-                AddToProgress(TechCost * 0.25f, us);
-                return false;
+                AddToProgress(TechCost * 0.25f, us, out bool unLocked);
+                if (unLocked) us.UnlockTech(this, TechUnlockType.Normal, null);
+                return unLocked;
             }
             if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
 
@@ -414,16 +430,22 @@ namespace Ship_Game
                 UnlockTechContentOnly(us, them);
             return true;
         }
+
         public bool UnlockFromDiplomacy(Empire us, Empire them)
         {
             if (!Unlocked)
+            {
                 Unlock(us);
-            else if (!WasAcquiredFrom.Contains(them.data.Traits.ShipType))
+                return true;
+            }
+
+            if (!WasAcquiredFrom.Contains(them.data.Traits.ShipType))
             {
                 WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
                 UnlockTechContentOnly(us, them);
+                return true;
             }
-            return true;
+            return false;
         }
 
         void UnlockFromSave(Empire us, Empire them, bool contentOnly)
@@ -452,7 +474,6 @@ namespace Ship_Game
 
             if (Unlocked)
             {
-
                 Unlocked = false;
                 if (unlockBonuses)
                     Unlock(us);
@@ -460,7 +481,11 @@ namespace Ship_Game
                     UnlockFromSave(us, us, false);
             }
         }
-
+        public void DebugUnlockFromTechScreen(Empire us, Empire them, bool bonusUnlock = true)
+        {
+            SetDiscovered(us);
+            UnlockWithNoBonusOption(us, them, bonusUnlock);
+        }
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
         {
             if (!Discovered || Tech.HullsUnlocked.IsEmpty)
@@ -518,9 +543,11 @@ namespace Ship_Game
             {
                 if (!CheckSource(revealedTech.Type, empire))
                     continue;
-                if (!IsHidden(empire))
-                    Discovered = true;
+                TechEntry tech = empire.GetTechEntry(revealedTech.RevUID);
+                if (!tech.IsHidden(empire))
+                    tech.Discovered = true;
             }
+            
             if (Tech.Secret && Tech.RootNode == 0)
             {
                 foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
@@ -543,7 +570,8 @@ namespace Ship_Game
 
             Discovered = true;
             DiscoverToRoot(empire);
-            if (Tech.Secret) return true;
+            if (Tech.Secret) 
+                return true;
             if (discoverForward)
             {
                 foreach (Technology.LeadsToTech leadsToTech in Tech.LeadsTo)
@@ -553,6 +581,7 @@ namespace Ship_Game
                         tech.SetDiscovered(empire);
                 }
             }
+            
             return true;
         }
 

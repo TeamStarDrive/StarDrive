@@ -517,23 +517,21 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), SelectedEmpire.BuildingAndShipMaint.String(2)), textCursor, Color.White);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
 
-                if (!string.IsNullOrEmpty(SelectedEmpire.ResearchTopic))
+                if (SelectedEmpire.HasResearchTopic)
                 {
                     if (IntelligenceLevel(SelectedEmpire)>1)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", Localizer.Token(ResourceManager.TechTree[SelectedEmpire.ResearchTopic].NameIndex)), textCursor, Color.White);
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.CurrentResearch.Tech.NameIndex), textCursor, Color.White);
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: "
-                            , ResourceManager.TechTree[SelectedEmpire.ResearchTopic].TechnologyType.ToString()), textCursor, Color.White);
-                        textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.CurrentResearch.TechnologyType, textCursor, Color.White);
                     }
                     else
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat("Researching: ", "Unknown"), textCursor, Color.White);
-                    textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-
+                    {
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: Unknown", textCursor, Color.White);
+                    }
+                    textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 }
             }
             if (IntelligenceLevel(SelectedEmpire)>1)
