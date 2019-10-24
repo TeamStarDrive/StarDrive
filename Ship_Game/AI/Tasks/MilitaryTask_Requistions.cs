@@ -294,7 +294,7 @@ namespace Ship_Game.AI.Tasks
             int bombersWanted = TargetPlanet.GetGroundLandingSpots() < 15 ? 30 : 0;
             bombersWanted += TargetPlanet.ShieldStrengthMax > 0 ? 30 : 0;
 
-            Array <Ship> potentialAssaultShips = fleetShips.GetTroops(enemyTroopCount * 2);
+            Array<Ship> potentialAssaultShips = fleetShips.GetTroops(enemyTroopCount * 2);
             Array<Ship> potentialCombatShips = fleetShips.GetFleetByStrength(MinimumTaskForceStrength * 2);
             Array<Ship> potentialBombers = fleetShips.GetBombers(bombersWanted);
             
