@@ -25,36 +25,36 @@ namespace Ship_Game
     [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
     public class ScrollList
     {
-        private readonly Submenu Parent;
-        private Rectangle ScrollUp;
-        private Rectangle ScrollDown;
-        private Rectangle ScrollBarHousing;
-        private Rectangle ScrollBar;
+        readonly Submenu Parent;
+        Rectangle ScrollUp;
+        Rectangle ScrollDown;
+        Rectangle ScrollBarHousing;
+        Rectangle ScrollBar;
 
-        private readonly int EntryHeight = 40;
-        private int ScrollBarHover;
-        private int StartDragPos;
+        readonly int EntryHeight = 40;
+        int ScrollBarHover;
+        int StartDragPos;
         public bool DraggingScrollBar { get; private set; }
-        private float ScrollBarStartDragPos;
-        private float ClickTimer;
-        private float TimerDelay = 0.05f;
+        float ScrollBarStartDragPos;
+        float ClickTimer;
+        float TimerDelay = 0.05f;
 
-        private readonly int MaxVisibleEntries;
+        readonly int MaxVisibleEntries;
         public int FirstVisibleIndex;
-        private readonly Array<Entry> Entries = new Array<Entry>();
-        private readonly Array<Entry> ExpandedEntries = new Array<Entry>(); // Flattened entries
-        private readonly bool IsDraggable;
+        readonly Array<Entry> Entries = new Array<Entry>();
+        readonly Array<Entry> ExpandedEntries = new Array<Entry>(); // Flattened entries
+        readonly bool IsDraggable;
         public Entry DraggedEntry;
-        private Vector2 DraggedOffset;
+        Vector2 DraggedOffset;
 
         // Added by EVWeb to not waste space when a list won't use certain buttons
-        private readonly ListControls Controls = ListControls.All;
-        private readonly SubTexture ArrowUpIcon  = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
-        private readonly SubTexture BuildAddIcon = ResourceManager.Texture("NewUI/icon_build_add");
+        readonly ListControls Controls = ListControls.All;
+        readonly SubTexture ArrowUpIcon  = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
+        readonly SubTexture BuildAddIcon = ResourceManager.Texture("NewUI/icon_build_add");
 
-        private readonly SubTexture ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
-        private readonly SubTexture ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
-        private readonly SubTexture ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
+        readonly SubTexture ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
+        readonly SubTexture ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
+        readonly SubTexture ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
 
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None)
@@ -82,7 +82,7 @@ namespace Ship_Game
             InitializeRects(p, 5);
         }
 
-        private void InitializeRects(Submenu p, int yOffset)
+        void InitializeRects(Submenu p, int yOffset)
         {
             int x = p.Menu.X + p.Menu.Width - 20;
             ScrollUp   = new Rectangle(x, p.Menu.Y + yOffset,            ScrollBarArrowUp.Width, ScrollBarArrowUp.Height);
@@ -114,7 +114,7 @@ namespace Ship_Game
             UpdateListElements();
         }
 
-        private bool RemoveSub(Entry e)
+        bool RemoveSub(Entry e)
         {
             foreach (Entry entry in Entries)
                 if (entry.RemoveSub(e)) return true;
@@ -130,7 +130,7 @@ namespace Ship_Game
                 UpdateListElements();
         }
 
-        private bool RemoveSubItem(Predicate<Entry> predicate)
+        bool RemoveSubItem(Predicate<Entry> predicate)
         {
             foreach (Entry entry in Entries)
                 if (entry.RemoveFirstSubIf(predicate)) return true;
@@ -217,11 +217,11 @@ namespace Ship_Game
         public int NumEntries         => Entries.Count;
         public int NumExpandedEntries => ExpandedEntries.Count;
 
-        private int EntriesEnd         => Math.Min(Entries.Count,         FirstVisibleIndex + MaxVisibleEntries);
-        private int ExpandedEntriesEnd => Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
+        int EntriesEnd         => Math.Min(Entries.Count,         FirstVisibleIndex + MaxVisibleEntries);
+        int ExpandedEntriesEnd => Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
 
         // @note Optimized for speed
-        private Entry[] CopyVisibleEntries(Array<Entry> entries)
+        Entry[] CopyVisibleEntries(Array<Entry> entries)
         {
             int start = FirstVisibleIndex;
             int end = Math.Min(entries.Count, FirstVisibleIndex + MaxVisibleEntries);
@@ -237,7 +237,7 @@ namespace Ship_Game
         public Entry[] VisibleExpandedEntries => CopyVisibleEntries(ExpandedEntries);
 
 
-        private static Array<T> CopyAllItemsOfType<T>(Array<Entry> entries)
+        static Array<T> CopyAllItemsOfType<T>(Array<Entry> entries)
         {
             var items = new Array<T>();
             for (int i = 0; i < entries.Count; ++i)
@@ -258,7 +258,7 @@ namespace Ship_Game
             UpdateListElements();
         }
 
-        private void DrawScrollBar(SpriteBatch spriteBatch)
+        void DrawScrollBar(SpriteBatch spriteBatch)
         {
             int updownsize = (ScrollBar.Height - ScrollBarMidMarker.Height) / 2;
             var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
@@ -287,7 +287,7 @@ namespace Ship_Game
             spriteBatch.Draw(ScrollDown.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_down_hover1") : ScrollBarArrorDown, ScrollDown, Color.White);
         }
 
-        private void DrawScrollBarBlue(SpriteBatch spriteBatch)
+        void DrawScrollBarBlue(SpriteBatch spriteBatch)
         {
             int updownsize = (ScrollBar.Height - ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height) / 2;
             var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
@@ -366,10 +366,10 @@ namespace Ship_Game
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
         }
 
-        private float PercentViewed => MaxVisibleEntries / (float)ExpandedEntries.Count;
-        private float StartingPercent => FirstVisibleIndex / (float)ExpandedEntries.Count;
+        float PercentViewed => MaxVisibleEntries / (float)ExpandedEntries.Count;
+        float StartingPercent => FirstVisibleIndex / (float)ExpandedEntries.Count;
 
-        private void UpdateScrollBar(bool blue = false)
+        void UpdateScrollBar(bool blue = false)
         {
             int scrollStart = (int)(StartingPercent * ScrollBarHousing.Height);
             int scrollEnd = (int)(ScrollBarHousing.Height * PercentViewed);
@@ -378,7 +378,7 @@ namespace Ship_Game
             ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + scrollStart, width, scrollEnd);
         }
 
-        private bool HandleScrollUpDownButtons(InputState input)
+        bool HandleScrollUpDownButtons(InputState input)
         {
             if (!input.InGameSelect)
                 return false;
@@ -399,7 +399,7 @@ namespace Ship_Game
             return false;
         }
 
-        private bool HandleScrollDragInput(InputState input)
+        bool HandleScrollDragInput(InputState input)
         {
             ScrollBarHover = 0;
             if (!ScrollBarHousing.HitTest(input.CursorPosition))
@@ -419,7 +419,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool HandleScrollBarDragging(InputState input)
+        bool HandleScrollBarDragging(InputState input)
         {
             if (!input.LeftMouseDown || !DraggingScrollBar)
                 return false;
@@ -448,7 +448,7 @@ namespace Ship_Game
             return true;
         }
 
-        private bool HandleScrollBar(InputState input)
+        bool HandleScrollBar(InputState input)
         {
             bool hit = HandleScrollUpDownButtons(input);
             hit |= HandleScrollDragInput(input);
@@ -459,7 +459,7 @@ namespace Ship_Game
             return hit;
         }
 
-        private bool HandleMouseScrollUpDown(InputState input)
+        bool HandleMouseScrollUpDown(InputState input)
         {
             if (!Parent.Menu.HitTest(input.CursorPosition))
                 return false;
@@ -480,7 +480,7 @@ namespace Ship_Game
             return false;
         }
 
-        private void HandleDraggable(InputState input)
+        void HandleDraggable(InputState input)
         {
             if (IsDraggable && DraggedEntry == null)
             {
@@ -512,7 +512,7 @@ namespace Ship_Game
             }
         }
 
-        private void HandleElementDragging(InputState input, Func<int, int, bool> onDragElement)
+        void HandleElementDragging(InputState input, Func<int, int, bool> onDragElement)
         {
             if (DraggedEntry == null || !input.LeftMouseDown)
                 return;
@@ -611,7 +611,7 @@ namespace Ship_Game
             }
         }
 
-        private void UpdateListElements()
+        void UpdateListElements()
         {
             ExpandedEntries.Clear();
             foreach (Entry e in Entries)
@@ -645,21 +645,21 @@ namespace Ship_Game
             public object item;
 
             // Plus and Edit buttons in ColonyScreen build list
-            private readonly bool Plus;
-            private readonly bool Edit;
-            private bool PlusHover;
-            private bool EditHover;
-            private Rectangle PlusRect;
-            private Rectangle EditRect;
+            readonly bool Plus;
+            readonly bool Edit;
+            bool PlusHover;
+            bool EditHover;
+            Rectangle PlusRect;
+            Rectangle EditRect;
 
-            private readonly ScrollList List;
+            readonly ScrollList List;
 
-            private Rectangle Up;
-            private Rectangle Down;
-            private Rectangle Cancel;
-            private Rectangle Apply;
+            Rectangle Up;
+            Rectangle Down;
+            Rectangle Cancel;
+            Rectangle Apply;
 
-            private readonly Array<Entry> SubEntries = new Array<Entry>();
+            readonly Array<Entry> SubEntries = new Array<Entry>();
 
             public override string ToString() => $"Y:{Rect.Y} | {item}";
 
@@ -892,7 +892,7 @@ namespace Ship_Game
 
     internal sealed class ScrollListDebugView
     {
-        private readonly ScrollList List;
+        readonly ScrollList List;
 
         // ReSharper disable once UnusedMember.Global
         public ScrollListDebugView(ScrollList list)

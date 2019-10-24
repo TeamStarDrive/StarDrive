@@ -155,7 +155,7 @@ namespace Ship_Game.AI.Research
                             if (!defaultTech.Unlocked && OwnerEmpire.HavePreReq(defaultTech.UID))
                             {
                                 DebugLog("Researching");
-                                OwnerEmpire.ResearchTopic = defaultTech.UID;
+                                OwnerEmpire.SetResearchTopic(defaultTech.UID);
                                 ScriptIndex++;
                                 if (!string.IsNullOrEmpty(scriptEntry))
                                     return true;
@@ -178,7 +178,7 @@ namespace Ship_Game.AI.Research
                             if (OwnerEmpire.HasTechEntry(tech.id) && !OwnerEmpire.HasUnlocked(tech.id) &&
                                 OwnerEmpire.HavePreReq(tech.id))
                             {
-                                OwnerEmpire.ResearchTopic = tech.id;
+                                OwnerEmpire.SetResearchTopic(tech.id);
                                 ScriptIndex++;
                                 if (tech.id.NotEmpty())
                                     return true;
@@ -189,7 +189,7 @@ namespace Ship_Game.AI.Research
                         return true;
                 }
             }
-            if (OwnerEmpire.ResearchTopic.IsEmpty())
+            if (OwnerEmpire.NoResearchTopic)
             {
                 GoRandomOnce();
                 if (loopCount >= OwnerEmpire.ResearchStrategy.TechPath.Count)
@@ -199,16 +199,16 @@ namespace Ship_Game.AI.Research
             return false;
         }
 
-        private bool GoRandomOnce(string command = "CHEAPEST")
+        bool GoRandomOnce(string command = "CHEAPEST")
         {
             DebugLog("Go Random Once");
             ScriptType = EmpireAI.ResearchStrategy.Random;
             ScriptedResearch(command, "RANDOM", ResearchPriorities.TechCategoryPrioritized);
             ScriptType = EmpireAI.ResearchStrategy.Scripted;
-            return OwnerEmpire.ResearchTopic.NotEmpty();
+            return OwnerEmpire.HasResearchTopic;
         }
 
-        private int ScriptBump(bool check, int index = 1)
+        int ScriptBump(bool check, int index = 1)
         {
             if (check)
             {
@@ -270,13 +270,11 @@ namespace Ship_Game.AI.Research
                     }
             }
 
-            OwnerEmpire.ResearchTopic = researchTopic;
-
-            if (string.IsNullOrEmpty(OwnerEmpire.ResearchTopic))
-                return false;
-            return true;
+            OwnerEmpire.SetResearchTopic(researchTopic);
+            return OwnerEmpire.HasResearchTopic;
         }
-        private string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
+
+        string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
         {
 
             string testResearchTopic = researchTech?.UID ?? string.Empty;

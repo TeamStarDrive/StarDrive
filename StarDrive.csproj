@@ -215,6 +215,7 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
+    <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
@@ -1242,7 +1243,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\QueueComponent.cs">
+    <Compile Include="Ship_Game\ResearchQueueUIComponent.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

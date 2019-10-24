@@ -137,6 +137,13 @@ namespace Ship_Game
                 techEntry.ForceFullyResearched();
         }
 
+        public float ResearchMultiplierForTech(TechEntry tech, Empire empire)
+        {
+            if (IsCybernetic && tech.UnlocksFoodBuilding)
+                return 0.5f;
+            return 1;
+        }
+
         //Added by McShooterz: set old values from new bools
         public void LoadTraitConstraints()
         {

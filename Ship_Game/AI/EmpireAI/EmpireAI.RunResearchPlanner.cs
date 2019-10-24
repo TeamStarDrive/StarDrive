@@ -15,8 +15,9 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoResearch)
                 return;
-            if (OwnerEmpire.ResearchTopic.NotEmpty())
+            if (OwnerEmpire.HasResearchTopic)
                 return;
+
             Empire.Universe?.DebugWin?.ClearResearchLog(OwnerEmpire);
             OwnerEmpire.data.TechDelayTime++;
 
