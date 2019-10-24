@@ -224,10 +224,13 @@ namespace Ship_Game
             Count = count + 1;
         }
 
-        public void AddUnique(T item)
+        // @return TRUE if item was Added, FALSE if it already exists
+        public bool AddUnique(T item)
         {
-            if (!Contains(item))
-                Add(item);
+            if (Contains(item))
+                return false;
+            Add(item);
+            return true;
         }
 
         public void Insert(int index, T item)
