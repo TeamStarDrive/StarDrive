@@ -87,17 +87,16 @@ namespace Ship_Game
         public Rectangle Menu;
         public Array<Tab> Tabs = new Array<Tab>();
 
-        private Rectangle UpperLeft;
-        private Rectangle TR;
-        private Rectangle topHoriz;
-        private Rectangle botHoriz;
-        private Rectangle BL;
-        private Rectangle BR;
-        private Rectangle VL;
-        private Rectangle VR;
-        private Rectangle TL;
-
-        private SpriteFont toUse;
+        Rectangle UpperLeft;
+        Rectangle TR;
+        Rectangle topHoriz;
+        Rectangle botHoriz;
+        Rectangle BL;
+        Rectangle BR;
+        Rectangle VL;
+        Rectangle VR;
+        Rectangle TL;
+        readonly SpriteFont Font = Fonts.Pirulen12;
 
         readonly bool Blue;
         SubmenuStyle Style;
@@ -105,14 +104,13 @@ namespace Ship_Game
         public Submenu(Rectangle theMenu)
         {
             ReloadStyle();
-            toUse = Fonts.Pirulen12;
             InitLayout(theMenu);
         }
+
         public Submenu(bool blue, Rectangle theMenu)
         {
             Blue = blue;
             ReloadStyle();
-            toUse = Fonts.Pirulen12;
             InitLayout(theMenu);
         }
 
@@ -121,7 +119,7 @@ namespace Ship_Game
             Style = Blue ? SubmenuStyle.CreateBlue() : SubmenuStyle.CreateBrown();
         }
 
-        private void InitLayout(Rectangle theMenu)
+        void InitLayout(Rectangle theMenu)
         {
             Menu = theMenu;
             UpperLeft = new Rectangle(theMenu.X, theMenu.Y, Style.Left.Width, Style.Left.Height);
@@ -142,7 +140,7 @@ namespace Ship_Game
             foreach (Tab ta in Tabs)
                 tabX += ta.tabRect.Width + Style.Right.Width;
 
-            var tabRect = new Rectangle((int)tabX, UpperLeft.Y, (int)toUse.MeasureString(title).X + 2, 25);
+            var tabRect = new Rectangle((int)tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25);
             Tabs.Add(new Tab
             {
                 tabRect  = tabRect,
@@ -171,11 +169,11 @@ namespace Ship_Game
                 foreach (Tab t in Tabs)
                 {
                     var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
-                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - toUse.LineSpacing / 2));
+                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - Font.LineSpacing / 2));
 
                     batch.Draw(Style.Middle, t.tabRect, Color.White);
                     batch.Draw(Style.Right, right, Color.White);
-                    batch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
+                    batch.DrawString(Font, t.Title, textPos, new Color(255, 239, 208));
                 }
             }
             else if (Tabs.Count > 1)
@@ -224,8 +222,8 @@ namespace Ship_Game
                             batch.Draw(tex, right, Color.White);
                         }
                     }
-                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - toUse.LineSpacing / 2));
-                    batch.DrawString(toUse, t.Title, textPos, new Color(255, 239, 208));
+                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - Font.LineSpacing / 2));
+                    batch.DrawString(Font, t.Title, textPos, new Color(255, 239, 208));
                 }
             }
             batch.Draw(Style.HorizVert, topHoriz, Color.White);

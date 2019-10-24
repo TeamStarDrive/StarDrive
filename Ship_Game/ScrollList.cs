@@ -39,6 +39,10 @@ namespace Ship_Game
         float ClickTimer;
         float TimerDelay = 0.05f;
 
+        // TODO: This is set to false for compatibility reasons
+        //       So by default ScrollList.HandleInput will not call HandleInput on child entries
+        public bool AutoHandleInput = false;
+
         readonly int MaxVisibleEntries;
         public int FirstVisibleIndex;
         readonly Array<Entry> Entries = new Array<Entry>();
@@ -217,9 +221,6 @@ namespace Ship_Game
         public int NumEntries         => Entries.Count;
         public int NumExpandedEntries => ExpandedEntries.Count;
 
-        int EntriesEnd         => Math.Min(Entries.Count,         FirstVisibleIndex + MaxVisibleEntries);
-        int ExpandedEntriesEnd => Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
-
         // @note Optimized for speed
         Entry[] CopyVisibleEntries(Array<Entry> entries)
         {
@@ -366,7 +367,7 @@ namespace Ship_Game
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
         }
 
-        float PercentViewed => MaxVisibleEntries / (float)ExpandedEntries.Count;
+        float PercentViewed   => MaxVisibleEntries / (float)ExpandedEntries.Count;
         float StartingPercent => FirstVisibleIndex / (float)ExpandedEntries.Count;
 
         void UpdateScrollBar(bool blue = false)
@@ -547,6 +548,8 @@ namespace Ship_Game
                 return false;
             });
             UpdateListElements();
+            if (!hit && AutoHandleInput)
+                return HandleInputChildElements(input);
             return hit;
         }
 
@@ -587,10 +590,8 @@ namespace Ship_Game
                 return false;
             });
             UpdateListElements();
-
-            // @todo This cannot be implemented before duplicate HandleInput's are removed
-            //if (!hit)
-            //    hit = HandleItemInput(input);
+            if (!hit && AutoHandleInput)
+                return HandleInputChildElements(input);
             return hit;
         }
 
@@ -600,7 +601,7 @@ namespace Ship_Game
             ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             int j = 0;
-            int end = EntriesEnd;
+            int end = Math.Min(Entries.Count, FirstVisibleIndex + MaxVisibleEntries);
             for (int i = 0; i < Entries.Count; i++)
             {
                 Entry e = Entries[i];
@@ -611,11 +612,11 @@ namespace Ship_Game
             }
         }
 
-        void UpdateListElements()
+        public void UpdateListElements()
         {
             ExpandedEntries.Clear();
             foreach (Entry e in Entries)
-                e.ExpandSubEntries(ExpandedEntries);
+                e.GetFlattenedVisibleExpandedEntries(ExpandedEntries);
 
             FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
                 Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
@@ -633,6 +634,19 @@ namespace Ship_Game
             UpdateScrollBar();
         }
 
+        
+        bool HandleInputChildElements(InputState input)
+        {
+            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count; i++)
+            {
+                if (ExpandedEntries[i].TryGet(out UIElementV2 element))
+                    if (element.HandleInput(input))
+                        return true;
+            }
+            return false;
+        }
+
+
         public class Entry
         {
             // entries with subitems can be expanded or collapsed via category title
@@ -640,6 +654,9 @@ namespace Ship_Game
 
             // true if item is currently being hovered over with mouse cursor
             public bool Hovered { get; private set; }
+
+            // true if item is visible, false if it isn't visible and doesn't participate in layout
+            public bool Visible = true;
 
             public Rectangle Rect;
             public object item;
@@ -719,11 +736,15 @@ namespace Ship_Game
                 return SubEntries.RemoveFirst(predicate);
             }
 
-            public void ExpandSubEntries(Array<Entry> entries)
+            public void GetFlattenedVisibleExpandedEntries(Array<Entry> entries)
             {
-                entries.Add(this);
-                if (Expanded)
-                    entries.AddRange(SubEntries);
+                if (Visible)
+                {
+                    entries.Add(this);
+                    if (Expanded)
+                        foreach (Entry sub in SubEntries)
+                            sub.GetFlattenedVisibleExpandedEntries(entries);
+                }
             }
 
             public void Expand(bool expanded)
@@ -733,7 +754,7 @@ namespace Ship_Game
                 Expanded = expanded;
                 if (!expanded)
                 {
-                    List.FirstVisibleIndex = List.FirstVisibleIndex - SubEntries.Count;
+                    List.FirstVisibleIndex -= SubEntries.Count;
                     if (List.FirstVisibleIndex < 0)
                         List.FirstVisibleIndex = 0;
                 }
