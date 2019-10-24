@@ -28,7 +28,7 @@ namespace Ship_Game
 
         Rectangle QueueContainer;
 
-        public QueueComponent qcomponent;
+        public ResearchQueueUIComponent qcomponent;
 
         int GridWidth  = 175;
         int GridHeight = 100;
@@ -38,8 +38,6 @@ namespace Ship_Game
         Vector2 cameraVelocity = Vector2.Zero;
 
         public bool RightClicked;
-
-        Vector2 StartDragPos = Vector2.Zero;
 
         public ResearchScreenNew(GameScreen parent, EmpireUIOverlay empireUi) : base(parent)
         {
@@ -64,12 +62,12 @@ namespace Ship_Game
 
             foreach (RootNode rootNode in RootNodes.Values)
             {
-                rootNode.Draw(ScreenManager.SpriteBatch);
+                rootNode.Draw(batch);
             }
 
             foreach (TreeNode treeNode in SubNodes.Values)
             {
-                treeNode.Draw(ScreenManager);
+                treeNode.Draw(batch);
             }
             batch.End();
 
@@ -206,24 +204,7 @@ namespace Ship_Game
             }
 
             if (input.RightMouseHeldDown)
-            {
-                StartDragPos = input.CursorPosition;
-                cameraVelocity = Vector2.Zero;
-            }
-            if (input.MouseCurr.RightButton != ButtonState.Pressed || input.MousePrev.RightButton != ButtonState.Pressed || RightClicked)
-            {
-                cameraVelocity = Vector2.Zero;
-                if (RightClicked) // fbedard: prevent screen scroll
-                    StartDragPos = input.CursorPosition;
-            }
-            else
-            {
-                camera.Pos += (StartDragPos - input.CursorPosition);
-                StartDragPos = input.CursorPosition;
-            }
-
-            cameraVelocity = cameraVelocity.Clamped(-10f, 10f);
-            camera.Pos = camera.Pos.Clamped(ScreenCenter.X, ScreenCenter.Y, 3200f, 3200f);
+                camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
 
             // unlock ALL techs
             if (Empire.Universe.Debug)
@@ -234,7 +215,7 @@ namespace Ship_Game
                     {
                         bool shift = input.IsShiftKeyDown;
                         Empire us = EmpireManager.Player;
-                        techEntry.UnlockWithNoBonusOption(us, us, !shift);
+                        techEntry.DebugUnlockFromTechScreen(us, us, !shift);
 
                         foreach (var them in EmpireManager.Empires)
                         {
@@ -249,10 +230,10 @@ namespace Ship_Game
                 // Unlock only selected node for player
                 if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
                 {
-                    if (qcomponent.CurrentResearch != null)
+                    if (qcomponent.QSL.NumEntries > 0)
                     {
-                        qcomponent.CurrentResearch.Node.Entry.Unlock(EmpireManager.Player);
-                        EmpireManager.Player.ResearchTopic = "";
+                        qcomponent.QSL.ItemAt<ResearchQItem>(0).Node.Entry.Unlock(EmpireManager.Player);
+                        EmpireManager.Player.SetResearchTopic("");
                         ReloadContent();
                         EmpireManager.Player.UpdateShipsWeCanBuild();
                     }
@@ -280,7 +261,7 @@ namespace Ship_Game
 
             foreach (RootNode root in RootNodes.Values)
             {
-                if (root.HandleInput(input))
+                if (root.HandleInput(input,camera))
                 {
                     PopulateNodesFromRoot(root);
                     GameAudio.ResearchSelect();
@@ -303,7 +284,7 @@ namespace Ship_Game
                 else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
                 {
                     qcomponent.SetVisible();
-                    qcomponent.AddToQueue(node);
+                    qcomponent.AddToResearchQueue(node);
                     GameAudio.ResearchSelect();
                 }
                 else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
@@ -336,7 +317,7 @@ namespace Ship_Game
                     foreach (string toAdd in techsToAdd)
                     {
                         TechEntry techEntry = EmpireManager.Player.GetTechEntry(toAdd);
-                        if (techEntry.Discovered) qcomponent.AddToQueue(SubNodes[toAdd]);
+                        if (techEntry.Discovered) qcomponent.AddToResearchQueue(SubNodes[toAdd]);
                     }
                 }
             }
@@ -351,7 +332,7 @@ namespace Ship_Game
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
             close          = Add(new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20)));
             QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
-            qcomponent     = new QueueComponent(ScreenManager, QueueContainer, this);
+            qcomponent     = new ResearchQueueUIComponent(ScreenManager, QueueContainer, this);
 
             RootNodes.Clear();
             AllTechNodes.Clear();
@@ -389,22 +370,8 @@ namespace Ship_Game
 
             RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
             PopulateNodesFromRoot(root);
-
-            if (EmpireManager.Player.ResearchTopic.NotEmpty())
-            {
-                if (AllTechNodes.TryGetValue(EmpireManager.Player.ResearchTopic, out Node resTopNode))
-                {
-                    qcomponent.LoadQueue(resTopNode as TreeNode);
-                }
-                else
-                {
-                    EmpireManager.Player.ResearchTopic = "";
-                }
-            }
-            foreach (string uid in EmpireManager.Player.data.ResearchQueue)
-            {
-                qcomponent.LoadQueue(AllTechNodes[uid] as TreeNode);
-            }
+            qcomponent.ReloadResearchQueue();
+            
             base.LoadContent();
         }
 
@@ -587,10 +554,11 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            ResearchQItem tech = qcomponent?.CurrentResearch;
-            if (tech != null && tech.Node.Entry.Progress >= tech.Node.Entry.TechCost)
+            if (qcomponent.QSL.NumEntries > 0)
             {
-                qcomponent.CurrentResearch.Node.complete = true;
+                var tech = qcomponent.QSL.ItemAt<ResearchQItem>(0);
+                if (tech.Node.Entry.Progress >= tech.Node.Entry.TechCost)
+                    tech.Node.complete = true;
             }
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);

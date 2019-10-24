@@ -16,7 +16,10 @@ namespace Ship_Game
         MediumMenu, // empiretopbar_btn_132px_menu
         BigDip,     // empiretopbar_btn_168px_dip
         Military,   // empiretopbar_btn_168px_military
-        Close       // NewUI/Close_Normal
+        Close,      // NewUI/Close_Normal
+        ResearchQueueUp, // "ResearchMenu/button_queue_up"
+        ResearchQueueDown, // "ResearchMenu/button_queue_down"
+        ResearchQueueCancel, // "ResearchMenu/button_queue_cancel"
     }
 
     // Refactored by RedFox
@@ -56,6 +59,11 @@ namespace Ship_Game
             Style = style;
             Text  = text;
             Size  = ButtonTexture().SizeF;
+        }
+
+        public UIButton(UIElementV2 parent, ButtonStyle style, in Rectangle rect) : base(parent, rect)
+        {
+            Style = style;
         }
 
         class StyleTextures
@@ -98,7 +106,10 @@ namespace Ship_Game
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_132px_menu"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_dip"),
                 new StyleTextures("EmpireTopBar/empiretopbar_btn_168px_military"),
-                new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover")
+                new StyleTextures("NewUI/Close_Normal", "NewUI/Close_Hover"),
+                new StyleTextures("ResearchMenu/button_queue_up", "ResearchMenu/button_queue_up_hover"),
+                new StyleTextures("ResearchMenu/button_queue_down", "ResearchMenu/button_queue_down_hover"),
+                new StyleTextures("ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover"),
             };
             return Styling;
         }
@@ -137,15 +148,18 @@ namespace Ship_Game
             Rectangle r = Rect;
             batch.Draw(ButtonTexture(), r, Color.White);
 
-            SpriteFont font = Fonts.Arial12Bold;
+            if (Text.NotEmpty())
+            {
+                SpriteFont font = Fonts.Arial12Bold;
 
-            Vector2 textCursor;
-            textCursor.X = r.X + r.Width  / 2 - font.MeasureString(Text).X / 2f;
-            textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
-            if (State == PressState.Pressed)
-                textCursor.Y += 1f; // pressed down effect
+                Vector2 textCursor;
+                textCursor.X = r.X + r.Width / 2 - font.MeasureString(Text).X / 2f;
+                textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
+                if (State == PressState.Pressed)
+                    textCursor.Y += 1f; // pressed down effect
 
-            batch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
+                batch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
+            }
 
             if (State == PressState.Hover && Tooltip.NotEmpty())
             {
