@@ -405,6 +405,9 @@ namespace Ship_Game
             UnlockTroops(us, them);
             UnLockHulls(us, them);
             UnlockBuildings(us, them);
+
+            // Finally, remove this tech from our ResearchQueue
+            us.RemoveResearchFromQueue(UID);
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)
@@ -412,7 +415,7 @@ namespace Ship_Game
             if (!Unlocked && (RandomMath.RollDice(50) || !ContentRestrictedTo(them)))
             {
                 AddToProgress(TechCost * 0.25f, us, out bool unLocked);
-                if (unLocked) us.UnlockTech(this, TechUnlockType.Normal);
+                if (unLocked) us.UnlockTech(this, TechUnlockType.Normal, null);
                 return unLocked;
             }
             if (WasAcquiredFrom.Contains(them.data.Traits.ShipType)) return false;
@@ -427,6 +430,7 @@ namespace Ship_Game
                 UnlockTechContentOnly(us, them);
             return true;
         }
+
         public bool UnlockFromDiplomacy(Empire us, Empire them)
         {
             if (!Unlocked)

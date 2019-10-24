@@ -442,7 +442,7 @@ namespace Ship_Game
             spriteBatch.DrawString(Fonts.Arial12Bold, starDateText, starDatePos, new Color(255, 240, 189));
 			if (!LowRes)
 			{
-				if (string.IsNullOrEmpty(empire.ResearchTopic))
+				if (empire.NoResearchTopic)
 				{
 					textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
 					textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
@@ -469,7 +469,7 @@ namespace Ship_Game
 			}
 			if (LowRes)
 			{
-				if (!string.IsNullOrEmpty(empire.ResearchTopic))
+				if (empire.HasResearchTopic)
 				{
 					float percentResearch = empire.CurrentResearch.Progress / empire.CurrentResearch.TechCost;
 					int xOffset = (int)(percentResearch * res2.Width);
@@ -571,9 +571,7 @@ namespace Ship_Game
 						{
 							case "Research":
 							{
-								string res = (ResourceManager.TechTree.ContainsKey(Empire.Universe.player.ResearchTopic) ? Localizer.Token(ResourceManager.TechTree[Empire.Universe.player.ResearchTopic].NameIndex) : Localizer.Token(341));
-								string[] strArrays = { Localizer.Token(2306), "\n\n", Localizer.Token(1405), ": ", res };
-								ToolTip.CreateTooltip(string.Concat(strArrays), "R");
+								ToolTip.CreateTooltip(string.Concat(Localizer.Token(2306), "\n\n", Localizer.Token(1405), ": ", empire.ResearchTopicLocText), "R");
 								break;
 							}
 							case "Budget":

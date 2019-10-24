@@ -196,22 +196,21 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(ScreenManager screenManager)
+        public void Draw(SpriteBatch batch)
         {
-            SpriteBatch batch = screenManager.SpriteBatch;
             if (complete)
             {
-                DrawGlow(screenManager,Entry.Tech.Secret ? Color.Green : Color.White );
+                DrawGlow(batch, Entry.Tech.Secret ? Color.Green : Color.White );
             }
             switch (State)
             {
                 case NodeState.Normal:
-                    bool active = complete || EmpireManager.Player.ResearchTopic == Entry.UID || EmpireManager.Player.data.ResearchQueue.Contains(Entry.UID);
+                    bool active = complete || EmpireManager.Player.IsResearchingOrQueued(Entry.UID);
                     batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
                     batch.DrawRectangle(UnlocksRect, active ? new Color(34, 136, 200) : Color.Black);
                     grid.Draw(batch);
                     batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_base_complete")
-                                            : ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
+                                      : ResourceManager.Texture("ResearchMenu/tech_base"), BaseRect, Color.White);
                     //Added by McShooterz: Allows non root techs to use IconPath
                     batch.Draw(TechIcon, IconRect, Color.White);
                     batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_base_title_complete")
@@ -288,16 +287,15 @@ namespace Ship_Game
             batch.DrawString(TitleFont, ((float)(int)techCost).String(1), CostPos, Color.White);
         }
 
-        public void DrawGlow(ScreenManager ScreenManager)
+        public void DrawGlow(SpriteBatch batch)
         {
-            DrawGlow(ScreenManager, Color.White);
+            DrawGlow(batch, Color.White);
         }
-        public void DrawGlow(ScreenManager ScreenManager, Color color)
+        public void DrawGlow(SpriteBatch batch, Color color)
         {
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
-            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/tech_underglow_base"), BaseRect, color);
-            spriteBatch.DrawRectangleGlow(TitleRect);
-            spriteBatch.DrawRectangleGlow(UnlocksRect);
+            batch.Draw(ResourceManager.Texture("ResearchMenu/tech_underglow_base"), BaseRect, color);
+            batch.DrawRectangleGlow(TitleRect);
+            batch.DrawRectangleGlow(UnlocksRect);
         }
 
         public bool HandleInput(InputState input, ScreenManager ScreenManager, Camera2D camera)
