@@ -388,6 +388,18 @@ namespace Ship_Game
             Items[last]  = default;
         }
 
+        public T PopFirst()
+        {
+            if (Count == 0)
+                ThrowIndexOutOfBounds(0);
+
+            T item = Items[0];
+            --Count;
+            Array.Copy(Items, 1, Items, 0, Count); // unshift
+            Items[Count] = default;
+            return item;
+        }
+
         public T PopLast()
         {
             if (Count == 0)
@@ -411,6 +423,8 @@ namespace Ship_Game
         }
 
         // This is slower than RemoveDuplicateRefs if T is a class
+        // @note RemoveDuplicates is an UNSTABLE algorithm, which means
+        //       item ordering can change
         public int RemoveDuplicates()
         {
             int removed = 0;
