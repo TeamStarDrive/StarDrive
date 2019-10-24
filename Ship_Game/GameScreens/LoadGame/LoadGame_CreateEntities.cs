@@ -38,7 +38,7 @@ namespace Ship_Game
             {
                 e.data = sdata.empireData;
                 e.data.ResearchQueue = sdata.empireData.ResearchQueue;
-                e.ResearchTopic      = sdata.ResearchTopic ?? "";
+                e.SetResearchTopic(sdata.ResearchTopic ?? "");
                 e.PortraitName       = e.data.PortraitName;
                 e.dd                 = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
                 e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
