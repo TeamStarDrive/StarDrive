@@ -31,31 +31,11 @@ namespace SdMesh
         Matrix4 InverseBindPoseTransform;
     };
 
-    struct SDBoneAnimation
-    {
-        int BoneIndex = 0; // index of SkinnedBone
-        int NumKeyFrames = 0;
-        Nano::AnimationKeyFrame* KeyFrames = nullptr;
+    // Contains BoneAnimations
+    struct SDAnimationClip { int Id; };
 
-        // hidden
-        Nano::BoneAnimation& TheAnim;
-        explicit SDBoneAnimation(Nano::BoneAnimation& anim) : TheAnim{ anim } {}
-    };
-
-    struct SDAnimationClip
-    {
-        // publicly visible to C#
-        strview Name;
-        float Duration = 0;
-        int NumAnimations = 0;
-        SDBoneAnimation* Animations = nullptr;
-
-        // hidden
-        Nano::AnimationClip& TheClip;
-        vector<unique_ptr<SDBoneAnimation>> TheAnims;
-
-        explicit SDAnimationClip(Nano::AnimationClip& clip) : TheClip{ clip } {}
-    };
+    // Contains AnimationKeyFrames
+    struct SDBoneAnimation { int Id; };
 
     ////////////////////////////////////////////////////////////////////////////////////
 
@@ -72,17 +52,17 @@ namespace SdMesh
      * Creates a new animation clip inside SDMesh
      * This clip is automatically freed once SDMesh is closed
      */
-    DLLAPI(SDAnimationClip*) SDMeshCreateAnimationClip(SDMesh* mesh, const wchar_t* name, float duration);
+    DLLAPI(SDAnimationClip) SDMeshCreateAnimationClip(SDMesh* mesh, const wchar_t* name, float duration);
 
     /**
      * Creates a new animation channel inside the animation clip for a specific bone
      */
-    DLLAPI(SDBoneAnimation*) SDMeshAddBoneAnimation(SDAnimationClip* clip, int skinnedBoneIndex);
+    DLLAPI(SDBoneAnimation) SDMeshAddBoneAnimation(SDMesh* mesh, SDAnimationClip clip, int skinnedBoneIndex);
 
     /**
      * Adds a bone transformation keyframe to the bone animation channel
      */
-    DLLAPI(void) SDMeshAddAnimationKeyFrame(SDBoneAnimation* anim, const Nano::AnimationKeyFrame& keyFrame);
+    DLLAPI(void) SDMeshAddAnimationKeyFrame(SDMesh* mesh, SDAnimationClip clip, SDBoneAnimation anim, const Nano::AnimationKeyFrame& keyFrame);
 
     ////////////////////////////////////////////////////////////////////////////////////
 }
