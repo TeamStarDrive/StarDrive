@@ -64,12 +64,12 @@ namespace UnitTests
             throw new AssertFailedException($"Expected {expected} does not match Actual {actual}");
         }
 
-        public static void Equal(this Assert assert, object expected, object actual)
+        public static void Equal(this Assert assert, object expected, object actual, string message = "")
         {
             if (expected == null)
             {
                 if (actual == null) return;
-                throw new AssertFailedException($"Expected null does not match Actual {actual}");
+                throw new AssertFailedException($"Expected null does not match Actual {actual}. {message}");
             }
 
             if (expected is ICollection expectedCollection)
@@ -80,40 +80,65 @@ namespace UnitTests
                 }
                 else
                 {
-                    throw new AssertFailedException($"Expected {expected} - collection but got Actual {actual}");
+                    throw new AssertFailedException($"Expected {expected} - collection but got Actual {actual}. {message}");
                 }
             }
             else
             {
-                Assert.AreEqual(expected, actual);
+                Assert.AreEqual(expected, actual, message);
             }
         }
 
         static object[] ToArray(ICollection c)
         {
             var items = new object[c.Count];
-            c.CopyTo(items, 0);
+            int i = 0;
+            foreach (object o in c)
+            {
+                items[i++] = o;
+            }
             return items;
         }
 
-        public static void Equal(this Assert assert, ICollection expected, ICollection actual)
+        static string ToString(ICollection c)
+        {
+            var sb = new StringBuilder();
+            sb.Append("[");
+            int i = 0, count = c.Count;
+            foreach (object o in c)
+            {
+                sb.Append(o);
+                if (++i != count) sb.Append(", ");
+            }
+            sb.Append("]");
+            return sb.ToString();
+        }
+
+        public static void Equal(this Assert assert, ICollection expected, ICollection actual, string message = "")
         {
             if (expected == null)
             {
                 if (actual == null) return;
-                throw new AssertFailedException($"Expected null does not match Actual {actual}");
+                throw new AssertFailedException($"Expected null does not match Actual {actual}. {message}");
             }
 
             if (expected.Count != actual.Count)
                 throw new AssertFailedException(
-                    $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}");
+                    $"Expected.Length {expected.Count} does not match Actual.Length {actual.Count}. {message}");
 
             object[] e = ToArray(expected);
             object[] a = ToArray(actual);
 
-            for (int i = 0; i < e.Length; ++i)
+            try
             {
-                assert.Equal(e[i], a[i]);
+                for (int i = 0; i < e.Length; ++i)
+                {
+                    assert.Equal(e[i], a[i], message);
+                }
+            }
+            catch (AssertFailedException ex)
+            {
+                throw new AssertFailedException($"\nExpected: {ToString(expected)}\nActual: {ToString(actual)}", ex);
             }
         }
     }
