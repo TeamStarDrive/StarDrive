@@ -598,8 +598,14 @@ namespace Ship_Game
         // Inserts to the front of ResearchQueue, OR moves existing tech to the front
         public void SetResearchTopic(string techUID)
         {
-            if (techUID.NotEmpty() && !TechnologyDict.ContainsKey(techUID))
+            if (techUID.IsEmpty())
+                return;
+
+            if (techUID.NotEmpty() && !ResourceManager.TechTree.ContainsKey(techUID))
+            {
                 Log.Error($"SetResearchTopic: Unrecognized tech: {techUID}");
+                return;
+            }
 
             data.ResearchQueue.Remove(techUID);
             data.ResearchQueue.Insert(0, techUID); // this makes it the current ResearchTopic
