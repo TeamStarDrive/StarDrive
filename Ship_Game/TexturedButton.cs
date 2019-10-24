@@ -1,21 +1,17 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
+    [Obsolete("Use UIButton for showing buttons")]
 	public sealed class TexturedButton
 	{
 		public Rectangle r;
 
 		public int LocalizerTip;
 
-		public object ReferenceObject;
-
 		public string Action = "";
-
-		public bool IsToggle = true;
-
-		public bool Toggled;
 
 		public bool Hover;
 
@@ -23,23 +19,14 @@ namespace Ship_Game
 
 		private string hPath;
 
-		private string pPath;
-
-		public int WhichToolTip;
-
-		public bool HasToolTip;
-
 		public string Hotkey = "";
 
 		public Color BaseColor = Color.White;
-
-		private Color ToggleColor = new Color(33, 26, 18);
 
 		public TexturedButton(Rectangle r, string TexturePath, string HoverPath, string PressPath)
 		{
 			tPath = TexturePath;
 			hPath = HoverPath;
-			pPath = PressPath;
 			this.r = r;
 		}
 
@@ -48,10 +35,12 @@ namespace Ship_Game
 			if (Hover)
 			{
 				screenManager.SpriteBatch.Draw(ResourceManager.Texture(hPath), r, Color.White);
-				return;
 			}
-			screenManager.SpriteBatch.Draw(ResourceManager.Texture(tPath), r, Color.White);
-		}
+            else
+            {
+                screenManager.SpriteBatch.Draw(ResourceManager.Texture(tPath), r, Color.White);
+            }
+        }
 
 		public bool HandleInput(InputState input)
 		{

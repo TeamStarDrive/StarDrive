@@ -238,6 +238,13 @@ namespace Ship_Game
         protected UIButton Button(ButtonStyle style, float x, float y, string text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
 
+        protected UIButton Button(ButtonStyle style, in Rectangle rect, Action<UIButton> click, string clickSfx = null)
+        {
+            var button = new UIButton(this, style, rect);
+            if (click != null) button.OnClick += click;
+            if (clickSfx.NotEmpty()) button.ClickSfx = clickSfx;
+            return Add(button);
+        }
 
         protected UIButton Button(float x, float y, string text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);

@@ -265,7 +265,7 @@ namespace Ship_Game.Debug
                 DrawString($"bombers: {e.canBuildBombers}");
                 DrawString($"carriers: {e.canBuildCarriers}");
 
-                if (!string.IsNullOrEmpty(e.ResearchTopic))
+                if (e.HasResearchTopic)
                 {
                     DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0} ({e.GetProjectedResearchNextTurn().String()} / {e.MaxResearchPotential.String()})");
                     DrawString("   --" + e.ResearchTopic);
@@ -564,10 +564,10 @@ namespace Ship_Game.Debug
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
-                if (!string.IsNullOrEmpty(e.ResearchTopic))
+                if (e.HasResearchTopic)
                 {
                     DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0}({e.GetProjectedResearchNextTurn().String()})");
-                    DrawString("   --"+e.ResearchTopic);
+                    DrawString("   --" + e.ResearchTopic);
                 }
 
                 NewLine(3);
