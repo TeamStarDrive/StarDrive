@@ -7,24 +7,24 @@ namespace Ship_Game
 	public sealed class ResearchQItem : UIElementContainer
 	{
         readonly ResearchScreenNew Screen;
-        readonly TechEntry Tech;
-	    public TreeNode Node;
+        public readonly TechEntry Tech;
+	    TreeNode Node;
         readonly UIButton BtnUp;
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
 
-		public ResearchQItem(Vector2 position, TreeNode node, ResearchScreenNew screen) : base(screen, position)
+		public ResearchQItem(ResearchScreenNew screen, TreeNode node) : base(screen, Vector2.Zero)
 		{
 			Screen = screen;
             Tech = node.Entry;
 			BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
 			BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
 			BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
-            UpdateContainer(position);
 		}
 
         void UpdateContainer(Vector2 pos)
         {
+            Pos = pos;
             var r = new Rectangle((int)pos.X, (int)pos.Y, 320, 110);
             Node = new TreeNode(pos + new Vector2(100f, 20f), Tech, Screen);
             BtnUp.Rect     = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33, 30, 30);

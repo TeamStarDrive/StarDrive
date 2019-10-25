@@ -106,9 +106,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            SelectionBox?.Draw(spriteBatch);
+            SelectionBox?.Draw(batch);
 
             if (ResetOnNextDraw)
             {
@@ -121,8 +121,8 @@ namespace Ship_Game
                 ResetOnNextDraw = false;
             }
 
-            DrawList(spriteBatch);
-            base.Draw(spriteBatch);
+            DrawList(batch);
+            base.Draw(batch);
         }
 
         private bool IsModuleAvailable(ShipModule template, out ShipModule tmp)

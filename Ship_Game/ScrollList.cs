@@ -21,6 +21,12 @@ namespace Ship_Game
         Draggable
     }
 
+    public enum ListStyle
+    {
+        Default,
+        Blue, // used in research screen
+    }
+
     [DebuggerTypeProxy(typeof(ScrollListDebugView))]
     [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
     public class ScrollList
@@ -51,48 +57,130 @@ namespace Ship_Game
         public Entry DraggedEntry;
         Vector2 DraggedOffset;
 
-        // Added by EVWeb to not waste space when a list won't use certain buttons
+        public ListStyle Style;
         readonly ListControls Controls = ListControls.All;
-        readonly SubTexture ArrowUpIcon  = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
-        readonly SubTexture BuildAddIcon = ResourceManager.Texture("NewUI/icon_build_add");
 
-        readonly SubTexture ScrollBarArrowUp   = ResourceManager.Texture("NewUI/scrollbar_arrow_up");
-        readonly SubTexture ScrollBarArrorDown = ResourceManager.Texture("NewUI/scrollbar_arrow_down");
-        readonly SubTexture ScrollBarMidMarker = ResourceManager.Texture("NewUI/scrollbar_bar_mid");
-
-
-        public ScrollList(Submenu p, ListOptions options = ListOptions.None)
+        public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
         {
             Parent = p;
+            Style = style;
             MaxVisibleEntries = (p.Menu.Height - 25) / 40;
             IsDraggable = options == ListOptions.Draggable;
             InitializeRects(p, 30);
         }
 
-        public ScrollList(Submenu p, int eHeight, ListControls controls = ListControls.All)
+        public ScrollList(Submenu p, int eHeight, ListControls controls = ListControls.All, ListStyle style = ListStyle.Default)
         {
             Parent = p;
+            Style = style;
             EntryHeight = eHeight;
             Controls = controls;
             MaxVisibleEntries = (p.Menu.Height - 25) / EntryHeight;
             InitializeRects(p, 30);
         }
 
-        public ScrollList(Submenu p, int eHeight, bool realRect)
+        public ScrollList(Submenu p, int eHeight, bool realRect, ListStyle style = ListStyle.Default)
         {
             Parent = p;
+            Style = style;
             EntryHeight = eHeight;
             MaxVisibleEntries = p.Menu.Height / EntryHeight;
             InitializeRects(p, 5);
         }
 
+        class StyleTextures
+        {
+            public readonly SubTexture ScrollBarArrowUp;
+            public readonly SubTexture ScrollBarArrowUpHover1;
+            public readonly SubTexture ScrollBarArrowDown;
+            public readonly SubTexture ScrollBarArrowDownHover1;
+            public readonly SubTexture ScrollBarUpDown;
+            public readonly SubTexture ScrollBarUpDownHover1;
+            public readonly SubTexture ScrollBarUpDownHover2;
+            public readonly SubTexture ScrollBarMid;
+            public readonly SubTexture ScrollBarMidHover1;
+            public readonly SubTexture ScrollBarMidHover2;
+
+            public readonly SubTexture BuildAdd;
+            public readonly SubTexture BuildAddHover1;
+            public readonly SubTexture BuildAddHover2;
+            public readonly SubTexture BuildEdit;
+            public readonly SubTexture BuildEditHover1;
+            public readonly SubTexture BuildEditHover2;
+
+            public readonly SubTexture QueueArrowUp;
+            public readonly SubTexture QueueArrowUpHover1;
+            public readonly SubTexture QueueArrowUpHover2;
+            public readonly SubTexture QueueArrowDown;
+            public readonly SubTexture QueueArrowDownHover1;
+            public readonly SubTexture QueueArrowDownHover2;
+            public readonly SubTexture QueueRush;
+            public readonly SubTexture QueueRushHover1;
+            public readonly SubTexture QueueRushHover2;
+            public readonly SubTexture QueueDelete;
+            public readonly SubTexture QueueDeleteHover1;
+            public readonly SubTexture QueueDeleteHover2;
+
+            public StyleTextures(string folder)
+            {
+                ScrollBarArrowUp         = ResourceManager.Texture(folder+"/scrollbar_arrow_up");
+                ScrollBarArrowUpHover1   = ResourceManager.Texture(folder+"/scrollbar_arrow_up_hover1");
+                ScrollBarArrowDown       = ResourceManager.Texture(folder+"/scrollbar_arrow_down");
+                ScrollBarArrowDownHover1 = ResourceManager.Texture(folder+"/scrollbar_arrow_down_hover1");
+                ScrollBarMid             = ResourceManager.Texture(folder+"/scrollbar_bar_mid");
+                ScrollBarMidHover1       = ResourceManager.Texture(folder+"/scrollbar_bar_mid_hover1");
+                ScrollBarMidHover2       = ResourceManager.Texture(folder+"/scrollbar_bar_mid_hover2");
+                ScrollBarUpDown          = ResourceManager.Texture(folder+"/scrollbar_bar_updown");
+                ScrollBarUpDownHover1    = ResourceManager.Texture(folder+"/scrollbar_bar_updown_hover1");
+                ScrollBarUpDownHover2    = ResourceManager.Texture(folder+"/scrollbar_bar_updown_hover2");
+
+                BuildAdd          = ResourceManager.Texture("NewUI/icon_build_add");
+                BuildAddHover1    = ResourceManager.Texture("NewUI/icon_build_add_hover1");
+                BuildAddHover2    = ResourceManager.Texture("NewUI/icon_build_add_hover2");
+                BuildEdit         = ResourceManager.Texture("NewUI/icon_build_edit");
+                BuildEditHover1   = ResourceManager.Texture("NewUI/icon_build_edit_hover1");
+                BuildEditHover2   = ResourceManager.Texture("NewUI/icon_build_edit_hover2");
+
+                QueueArrowUp         = ResourceManager.Texture("NewUI/icon_queue_arrow_up");
+                QueueArrowUpHover1   = ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover1");
+                QueueArrowUpHover2   = ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover2");
+                QueueArrowDown       = ResourceManager.Texture("NewUI/icon_queue_arrow_down");
+                QueueArrowDownHover1 = ResourceManager.Texture("NewUI/icon_queue_arrow_down_hover1");
+                QueueArrowDownHover2 = ResourceManager.Texture("NewUI/icon_queue_arrow_down_hover2");
+                QueueRush            = ResourceManager.Texture("NewUI/icon_queue_rushconstruction");
+                QueueRushHover1      = ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1");
+                QueueRushHover2      = ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2");
+                QueueDelete          = ResourceManager.Texture("NewUI/icon_queue_delete");
+                QueueDeleteHover1    = ResourceManager.Texture("NewUI/icon_queue_delete_hover1");
+                QueueDeleteHover2    = ResourceManager.Texture("NewUI/icon_queue_delete_hover2");
+            }
+        }
+
+        static int ContentId;
+        static StyleTextures[] Styling;
+
+        StyleTextures GetStyle()
+        {
+            if (Styling != null && ContentId == ResourceManager.ContentId)
+                return Styling[(int)Style];
+
+            ContentId = ResourceManager.ContentId;
+            Styling = new []
+            {
+                new StyleTextures("NewUI"),
+                new StyleTextures("ResearchMenu"),
+            };
+            return Styling[(int)Style];
+        }
+
         void InitializeRects(Submenu p, int yOffset)
         {
+            StyleTextures s = GetStyle();
             int x = p.Menu.X + p.Menu.Width - 20;
-            ScrollUp   = new Rectangle(x, p.Menu.Y + yOffset,            ScrollBarArrowUp.Width, ScrollBarArrowUp.Height);
-            ScrollDown = new Rectangle(x, p.Menu.Y + p.Menu.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
-            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
-            ScrollBar        = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, ScrollBarMidMarker.Width, 0);
+            ScrollUp   = new Rectangle(x, p.Menu.Y + yOffset,            s.ScrollBarArrowUp.Width, s.ScrollBarArrowUp.Height);
+            ScrollDown = new Rectangle(x, p.Menu.Y + p.Menu.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
+            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
+            ScrollBar        = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, s.ScrollBarMid.Width, 0);
         }
 
         public Entry AddItem(object o)
@@ -259,76 +347,40 @@ namespace Ship_Game
             UpdateListElements();
         }
 
-        void DrawScrollBar(SpriteBatch spriteBatch)
+        void DrawScrollBar(SpriteBatch batch)
         {
-            int updownsize = (ScrollBar.Height - ScrollBarMidMarker.Height) / 2;
+            StyleTextures s = GetStyle();
+            int updownsize = (ScrollBar.Height - s.ScrollBarMid.Height) / 2;
             var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
-            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ScrollBarMidMarker.Height);
+            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, s.ScrollBarMid.Height);
             var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
             if (ScrollBarHover == 0)
             {
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown"), up, Color.White);
-                spriteBatch.Draw(ScrollBarMidMarker, mid, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown"), bot, Color.White);
+                batch.Draw(s.ScrollBarUpDown, up, Color.White);
+                batch.Draw(s.ScrollBarMid, mid, Color.White);
+                batch.Draw(s.ScrollBarUpDown, bot, Color.White);
             }
             else if (ScrollBarHover == 1)
             {
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover1"), up, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_mid_hover1"), mid, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover1"), bot, Color.White);
+                batch.Draw(s.ScrollBarUpDownHover1, up, Color.White);
+                batch.Draw(s.ScrollBarMidHover1, mid, Color.White);
+                batch.Draw(s.ScrollBarUpDownHover1, bot, Color.White);
             }
             else if (ScrollBarHover == 2)
             {
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover2"), up, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_mid_hover2"), mid, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("NewUI/scrollbar_bar_updown_hover2"), bot, Color.White);
+                batch.Draw(s.ScrollBarUpDownHover2, up, Color.White);
+                batch.Draw(s.ScrollBarMidHover2, mid, Color.White);
+                batch.Draw(s.ScrollBarUpDownHover2, bot, Color.White);
             }
             Vector2 mousepos = Mouse.GetState().Pos();
-            spriteBatch.Draw(ScrollUp.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_up_hover1") : ScrollBarArrowUp, ScrollUp, Color.White);
-            spriteBatch.Draw(ScrollDown.HitTest(mousepos) ? ResourceManager.Texture("NewUI/scrollbar_arrow_down_hover1") : ScrollBarArrorDown, ScrollDown, Color.White);
+            batch.Draw(ScrollUp.HitTest(mousepos) ? s.ScrollBarArrowUpHover1 : s.ScrollBarArrowUp, ScrollUp, Color.White);
+            batch.Draw(ScrollDown.HitTest(mousepos) ? s.ScrollBarArrowDownHover1 : s.ScrollBarArrowDown, ScrollDown, Color.White);
         }
 
-        void DrawScrollBarBlue(SpriteBatch spriteBatch)
-        {
-            int updownsize = (ScrollBar.Height - ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height) / 2;
-            var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
-            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Height);
-            var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
-            if (ScrollBarHover == 0)
-            {
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown"), up, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid"), mid, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown"), bot, Color.White);
-            }
-            else if (ScrollBarHover == 1)
-            {
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover1"), up, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid_hover1"), mid, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover1"), bot, Color.White);
-            }
-            else if (ScrollBarHover == 2)
-            {
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover2"), up, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid_hover2"), mid, Color.White);
-                spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_bar_updown_hover2"), bot, Color.White);
-            }
-            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_up"), ScrollUp, Color.White);
-            spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/scrollbar_arrow_down"), ScrollDown, Color.White);
-        }
-
-        public void DrawBlue(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch batch)
         {
             if (ExpandedEntries.Count > MaxVisibleEntries)
-            {
-                UpdateScrollBar(blue: true);
-                DrawScrollBarBlue(spriteBatch);
-            }
-        }
-
-        public virtual void Draw(SpriteBatch spriteBatch)
-        {
-            if (ExpandedEntries.Count > MaxVisibleEntries)
-                DrawScrollBar(spriteBatch);
+                DrawScrollBar(batch);
 
             // @todo Why the hell do we need to know the exact type of item??
             if (DraggedEntry?.item is QueueItem queueItem)
@@ -341,22 +393,22 @@ namespace Ship_Game
 
                 if (queueItem.isBuilding)
                 {
-                    spriteBatch.Draw(ResourceManager.Texture($"Buildings/icon_{queueItem.Building.Icon}_48x48"), r, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.Building.Name, tCursor, Color.White);
-                    pb.Draw(spriteBatch);
+                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{queueItem.Building.Icon}_48x48"), r, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, queueItem.Building.Name, tCursor, Color.White);
+                    pb.Draw(batch);
                 }
                 else if (queueItem.isShip)
                 {
-                    spriteBatch.Draw(queueItem.sData.Icon, r, Color.White);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, tCursor, Color.White);
-                    pb.Draw(spriteBatch);
+                    batch.Draw(queueItem.sData.Icon, r, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, queueItem.sData.Name, tCursor, Color.White);
+                    pb.Draw(batch);
                 }
                 else if (queueItem.isTroop)
                 {
                     Troop template = ResourceManager.GetTroopTemplate(queueItem.TroopType);
-                    template.Draw(spriteBatch, r);
-                    spriteBatch.DrawString(Fonts.Arial12Bold, queueItem.TroopType, tCursor, Color.White);
-                    pb.Draw(spriteBatch);
+                    template.Draw(batch, r);
+                    batch.DrawString(Fonts.Arial12Bold, queueItem.TroopType, tCursor, Color.White);
+                    pb.Draw(batch);
                 }
             }
         }
@@ -370,11 +422,12 @@ namespace Ship_Game
         float PercentViewed   => MaxVisibleEntries / (float)ExpandedEntries.Count;
         float StartingPercent => FirstVisibleIndex / (float)ExpandedEntries.Count;
 
-        void UpdateScrollBar(bool blue = false)
+        void UpdateScrollBar()
         {
+            StyleTextures s = GetStyle();
             int scrollStart = (int)(StartingPercent * ScrollBarHousing.Height);
             int scrollEnd = (int)(ScrollBarHousing.Height * PercentViewed);
-            int width = blue ? ResourceManager.Texture("ResearchMenu/scrollbar_bar_mid").Width : ScrollBarMidMarker.Width;
+            int width = s.ScrollBarMid.Width;
 
             ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + scrollStart, width, scrollEnd);
         }
@@ -597,9 +650,10 @@ namespace Ship_Game
 
         public void TransitionUpdate(Rectangle r)
         {
-            ScrollUp = new Rectangle(r.X + r.Width - 20, r.Y + 30, ScrollBarArrowUp.Width, ScrollBarArrowUp.Height);
-            ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, ScrollBarArrorDown.Width, ScrollBarArrorDown.Height);
-            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, ScrollBarMidMarker.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
+            StyleTextures s = GetStyle();
+            ScrollUp = new Rectangle(r.X + r.Width - 20, r.Y + 30, s.ScrollBarArrowUp.Width, s.ScrollBarArrowUp.Height);
+            ScrollDown = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
+            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             int j = 0;
             int end = Math.Min(Entries.Count, FirstVisibleIndex + MaxVisibleEntries);
             for (int i = 0; i < Entries.Count; i++)
@@ -777,7 +831,6 @@ namespace Ship_Game
             public bool WasCancelHovered(InputState input) => Cancel.HitTest(input.CursorPosition);
             public bool WasApplyHovered(InputState input)  => Apply.HitTest(input.CursorPosition);
 
-            public bool CheckHover(MouseState mouse) => CheckHover(mouse.Pos());
             public bool CheckHover(InputState input) => CheckHover(input.CursorPosition);
             public bool CheckHover(Vector2 mousePos)
             {
@@ -809,10 +862,11 @@ namespace Ship_Game
             {
                 if (Plus)
                 {
-                    string plus = PlusHover ? "NewUI/icon_build_add_hover2"
-                                  : Hovered ? "NewUI/icon_build_add_hover1"
-                                            : "NewUI/icon_build_add";
-                    spriteBatch.Draw(ResourceManager.Texture(plus), PlusRect, Color.White);
+                    StyleTextures s = List.GetStyle();
+                    SubTexture plus = PlusHover ? s.BuildAddHover2
+                                      : Hovered ? s.BuildAddHover1
+                                                : s.BuildAdd;
+                    spriteBatch.Draw(plus, PlusRect, Color.White);
                 }
             }
 
@@ -820,61 +874,61 @@ namespace Ship_Game
             {
                 if (Edit)
                 {
-                    string edit = EditHover ? "NewUI/icon_build_edit_hover2"
-                                  : Hovered ? "NewUI/icon_build_edit_hover1"
-                                            : "NewUI/icon_build_edit";
-                    spriteBatch.Draw(ResourceManager.Texture(edit), EditRect, Color.White);
+                    StyleTextures s = List.GetStyle();
+                    SubTexture edit = EditHover ? s.BuildEditHover2
+                                      : Hovered ? s.BuildEditHover1
+                                                : s.BuildEdit;
+                    spriteBatch.Draw(edit, EditRect, Color.White);
                 }
             }
 
             public void DrawUpDownApplyCancel(SpriteBatch batch, InputState input)
             {
-                Vector2 pos = input.CursorPosition;
+                StyleTextures s = List.GetStyle();
                 if (!Hovered)
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up"), Up, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_down"), Down, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction"), Apply, Color.White);
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), Cancel, Color.White);
+                    batch.Draw(s.QueueArrowUp, Up, Color.White);
+                    batch.Draw(s.QueueArrowDown, Down, Color.White);
+                    batch.Draw(s.QueueRush, Apply, Color.White);
+                    batch.Draw(s.QueueDelete, Cancel, Color.White);
                     return;
                 }
 
-                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover1"), Up, Color.White);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_down_hover1"), Down, Color.White);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1"), Apply, Color.White);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover1"), Cancel, Color.White);
+                batch.Draw(s.QueueArrowUpHover1, Up, Color.White);
+                batch.Draw(s.QueueArrowDownHover1, Down, Color.White);
+                batch.Draw(s.QueueRushHover1, Apply, Color.White);
+                batch.Draw(s.QueueDeleteHover1, Cancel, Color.White);
 
+                Vector2 pos = input.CursorPosition;
                 if (Up.HitTest(pos))
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_up_hover2"), Up, Color.White);
+                    batch.Draw(s.QueueArrowUpHover2, Up, Color.White);
                 }
-                if (Empire.Universe.IsActive)
+                if (Down.HitTest(pos))
                 {
-                    if (Down.HitTest(pos))
-                    {
-                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_arrow_down_hover2"), Down, Color.White);
-                    }
-                    if (Apply.HitTest(pos))
-                    {
-                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover2"), Apply, Color.White);
-                        ToolTip.CreateTooltip(50);
-                    }
-                    if (Cancel.HitTest(pos))
-                    {
-                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover2"), Cancel, Color.White);
-                        ToolTip.CreateTooltip(53);
-                    }
+                    batch.Draw(s.QueueArrowDownHover2, Down, Color.White);
+                }
+                if (Apply.HitTest(pos))
+                {
+                    batch.Draw(s.QueueRushHover2, Apply, Color.White);
+                    ToolTip.CreateTooltip(50);
+                }
+                if (Cancel.HitTest(pos))
+                {
+                    batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
+                    ToolTip.CreateTooltip(53);
                 }
             }
 
             public void DrawCancel(SpriteBatch batch, InputState input, string toolTipText = null)
             {
+                StyleTextures s = List.GetStyle();
                 if (Hovered)
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover1"), Cancel, Color.White);
+                    batch.Draw(s.QueueDeleteHover1, Cancel, Color.White);
                     if (WasCancelHovered(input))
                     {
-                        batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete_hover2"), Cancel, Color.White);
+                        batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
                         if (toolTipText.NotEmpty())
                             ToolTip.CreateTooltip(toolTipText);
                         else
@@ -883,7 +937,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    batch.Draw(ResourceManager.Texture("NewUI/icon_queue_delete"), Cancel, Color.White);
+                    batch.Draw(s.QueueDelete, Cancel, Color.White);
                 }
             }
 
@@ -895,8 +949,9 @@ namespace Ship_Game
                 int iconY = r.Y + 15;
                 Rect = r;
 
-                SubTexture addIcon = List.BuildAddIcon;
-                SubTexture upIcon  = List.ArrowUpIcon;
+                StyleTextures s = List.GetStyle();
+                SubTexture addIcon = s.BuildAdd;
+                SubTexture upIcon  = s.QueueArrowUp;
 
                 if (Plus) PlusRect  = new Rectangle(right - 30, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);
                 if (Edit) EditRect = new Rectangle(right - 60, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);

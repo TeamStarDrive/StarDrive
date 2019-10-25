@@ -103,7 +103,7 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
             if (ActiveHangarModule == null)
                 return;
@@ -116,15 +116,15 @@ namespace Ship_Game
                 if (!(e.item is Ship ship))
                     continue;
                 bCursor.Y = e.Y;
-                spriteBatch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
                 var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
                 Color color = ShipBuilder.GetHangarTextColor(ship.Name);
-                spriteBatch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, color);
+                batch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, color);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
             }
-            SelectionBox?.Draw(spriteBatch);
-            FighterSubMenu.Draw(spriteBatch);
-            base.Draw(spriteBatch);
+            SelectionBox?.Draw(batch);
+            FighterSubMenu.Draw(batch);
+            base.Draw(batch);
         }
     }
 }

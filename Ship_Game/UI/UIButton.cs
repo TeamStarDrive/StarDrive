@@ -116,10 +116,10 @@ namespace Ship_Game
         static int ContentId;
         static StyleTextures[] Styling;
         
-        static StyleTextures[] GetStyles()
+        static StyleTextures GetStyle(ButtonStyle style)
         {
             if (Styling != null && ContentId == ResourceManager.ContentId)
-                return Styling;
+                return Styling[(int)style];
 
             ContentId = ResourceManager.ContentId;
             Styling = new []
@@ -139,17 +139,17 @@ namespace Ship_Game
                 new StyleTextures("UI/dan_button", danButtonBlue:false),
                 new StyleTextures("UI/dan_button_blue", danButtonBlue:true),
             };
-            return Styling;
+            return Styling[(int)style];
         }
 
         public static SubTexture StyleTexture(ButtonStyle style = ButtonStyle.Default)
         {
-            return GetStyles()[(int)style].Normal;
+            return GetStyle(style).Normal;
         }
 
         SubTexture ButtonTexture()
         {
-            StyleTextures styling = GetStyles()[(int)Style];
+            StyleTextures styling = GetStyle(Style);
             switch (State)
             {
                 default:                 return styling.Normal;
@@ -160,7 +160,7 @@ namespace Ship_Game
 
         Color TextColor()
         {
-            StyleTextures styling = GetStyles()[(int)Style];
+            StyleTextures styling = GetStyle(Style);
             switch (State)
             {
                 default:                 return styling.DefaultColor;
