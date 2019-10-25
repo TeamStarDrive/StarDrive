@@ -123,7 +123,7 @@ namespace Ship_Game
                 string descr = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
                 descr = Font8.ParseText(descr, 280f);
 
-                var position = new Vector2(build.Menu.X + 60f, entry.Y - 4f);
+                var position = new Vector2(build.X + 60f, entry.Y - 4f);
 
                 batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), buildColor);
                 DrawText(ref position, b.NameTranslationIndex, buildColor);
@@ -185,7 +185,7 @@ namespace Ship_Game
             if (ShouldResetBuildList<ModuleHeader>())
                 PopulateBuildableShips();
 
-            var topLeft = new Vector2((build.Menu.X + 20), (build.Menu.Y + 45));
+            var topLeft = new Vector2(build.X + 20, build.Y + 45);
             foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
             {
                 topLeft.Y = entry.Y;
@@ -366,7 +366,7 @@ namespace Ship_Game
                 PopulateRecruitableTroops();
 
             SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-            var tl = new Vector2(build.Menu.X + 20, 0f);
+            var tl = new Vector2(build.X + 20, 0f);
             foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
             {
                 tl.Y = entry.Y;

@@ -13,23 +13,30 @@ namespace Ship_Game
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
 
-		public ResearchQItem(ResearchScreenNew screen, TreeNode node) : base(screen, Vector2.Zero)
+		public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos) : base(screen, pos)
 		{
 			Screen = screen;
             Tech = node.Entry;
 			BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
 			BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
 			BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
+            this.PerformLayout();
 		}
 
         void UpdateContainer(Vector2 pos)
         {
             Pos = pos;
-            var r = new Rectangle((int)pos.X, (int)pos.Y, 320, 110);
-            Node = new TreeNode(pos + new Vector2(100f, 20f), Tech, Screen);
+            PerformLayout();
+        }
+
+        public override void PerformLayout()
+        {
+            var r = new Rectangle((int)Pos.X, (int)Pos.Y, 320, 110);
+            Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             BtnUp.Rect     = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33, 30, 30);
             BtnDown.Rect   = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33 + 36, 30, 30);
             BtnCancel.Rect = new Rectangle(r.X + 15 + 30 + 12, r.Y + r.Height / 2 - 15, 30, 30);
+            base.PerformLayout();
         }
 
         public override bool HandleInput(InputState input)

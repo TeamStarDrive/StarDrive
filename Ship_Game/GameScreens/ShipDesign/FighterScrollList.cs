@@ -29,7 +29,7 @@ namespace Ship_Game
 
         public bool HitTest(InputState input)
         {
-            return   FighterSubMenu.Menu.HitTest(input.CursorPosition) && ActiveModule != null ;
+            return   FighterSubMenu.HitTest(input.CursorPosition) && ActiveModule != null ;
         }
 
         private void Populate()
@@ -61,7 +61,7 @@ namespace Ship_Game
                 foreach (Entry e in VisibleExpandedEntries)
                 {
                     if (!(e.item is Ship ship)) continue;
-                    if (FighterSubMenu.Menu.HitTest(Screen.Input.CursorPosition))
+                    if (FighterSubMenu.HitTest(Screen.Input.CursorPosition))
                     {
                         if (!e.CheckHover(input))
                             continue;
@@ -108,9 +108,9 @@ namespace Ship_Game
             if (ActiveHangarModule == null)
                 return;
 
-            Screen.DrawRectangle(FighterSubMenu.Menu, Color.TransparentWhite, Color.Black);  
+            Screen.DrawRectangle(FighterSubMenu.Rect, Color.TransparentWhite, Color.Black);  
             
-            var bCursor = new Vector2(FighterSubMenu.Menu.X + 15, (FighterSubMenu.Menu.Y + 25));
+            var bCursor = new Vector2(FighterSubMenu.X + 15, (FighterSubMenu.Y + 25));
             foreach (Entry e in VisibleEntries)
             {
                 if (!(e.item is Ship ship))
