@@ -448,7 +448,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            int warWeight = (int)Math.Ceiling(1 + 5 * (OwnerEmpire.ResearchStrategy.MilitaryRatio + OwnerEmpire.ResearchStrategy.ExpansionRatio));
+            int warWeight = (int)Math.Ceiling(1 + 5 * (OwnerEmpire.Research.Strategy.MilitaryRatio + OwnerEmpire.Research.Strategy.ExpansionRatio));
             var weightedTargets = EmpireAttackWeights();
             foreach (KeyValuePair<Empire, Relationship> kv in weightedTargets)
             {

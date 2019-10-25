@@ -265,10 +265,10 @@ namespace Ship_Game.Debug
                 DrawString($"bombers: {e.canBuildBombers}");
                 DrawString($"carriers: {e.canBuildCarriers}");
 
-                if (e.HasResearchTopic)
+                if (e.Research.HasTopic)
                 {
-                    DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0} ({e.GetProjectedResearchNextTurn().String()} / {e.MaxResearchPotential.String()})");
-                    DrawString("   --" + e.ResearchTopic);
+                    DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0} ({e.Research.NetResearch.String()} / {e.Research.MaxResearchPotential.String()})");
+                    DrawString("   --" + e.Research.Topic);
                     Ship bestShip = e.GetEmpireAI().TechChooser.LineFocus.BestCombatShip;
                     if (bestShip != null)
                     {
@@ -564,10 +564,10 @@ namespace Ship_Game.Debug
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
-                if (e.HasResearchTopic)
+                if (e.Research.HasTopic)
                 {
-                    DrawString($"Research: {e.CurrentResearch.Progress:0}/{e.CurrentResearch.TechCost:0}({e.GetProjectedResearchNextTurn().String()})");
-                    DrawString("   --" + e.ResearchTopic);
+                    DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0}({e.Research.NetResearch.String()})");
+                    DrawString("   --" + e.Research.Topic);
                 }
 
                 NewLine(3);
