@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
-using Ship_Game.Data;
-using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -48,18 +39,15 @@ namespace Ship_Game
             ScreenManager = new ScreenManager(this, Graphics);
             base.Initialize();
         }
-        /// <summary>
-        /// Currently broken Due to sun resource loading. 
-        /// </summary>
-        /// <param name="empire"></param>
-        /// <param name="data"></param>
-        public void CreateSystemAtCenter(Empire empire, UniverseData data)
+
+        protected override void Update(GameTime gameTime)
         {
-            var system = new SolarSystem();
-            system.Position = new Vector2(0, 0);
-            system.GenerateStartingSystem(empire.data.Traits.HomeSystemName, data, 1f, empire);
-            system.OwnerList.Add(empire);
-            data.SolarSystemsList.Add(system);
+            UpdateGame(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            ScreenManager.Draw();
         }
     }
 }

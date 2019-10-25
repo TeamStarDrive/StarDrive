@@ -1,15 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using SynapseGaming.LightingSystem.Core;
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Runtime;
 using System.Windows.Forms;
 using Ship_Game.Audio;
 using Color = Microsoft.Xna.Framework.Graphics.Color;
-using Point = System.Drawing.Point;
 
 namespace Ship_Game
 {
@@ -20,13 +17,6 @@ namespace Ship_Game
         public bool IsLoaded  { get; private set; }
         public bool IsExiting { get; private set; }
         bool GraphicsDeviceWasReset;
-
-        // Time elapsed between 2 frames
-        // this can be used for rendering animations
-        public float FrameDeltaTime { get; private set; }
-        public GameTime GameTime;
-        public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
-        public int FrameId { get; private set; }
 
         public StarDriveGame()
         {
@@ -132,23 +122,13 @@ namespace Ship_Game
 
         protected override void Update(GameTime gameTime)
         {
-            ++FrameId;
-            GameTime = gameTime;
-            
-            FrameDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (FrameDeltaTime > 0.4f) // @note Probably we were loading something heavy
-                FrameDeltaTime = 1f / 60f;
-
             GameAudio.Update();
 
-            // 1. Handle Input and 2. Update for each game screen
-            ScreenManager.Update(gameTime);
-            base.Update(gameTime); // Update XNA components
+            UpdateGame(gameTime);
 
             if (ScreenManager.NumScreens == 0)
                 Instance.Exit();
         }
-
 
         protected override void Draw(GameTime gameTime)
         {
@@ -159,7 +139,6 @@ namespace Ship_Game
             ScreenManager.Draw();
             base.Draw(gameTime);
         }
-
 
         protected override void Dispose(bool disposing)
         {

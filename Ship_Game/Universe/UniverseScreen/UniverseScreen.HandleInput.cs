@@ -232,7 +232,8 @@ namespace Ship_Game
 
             if (input.PauseGame && !GlobalStats.TakingInput)
                 Paused = !Paused;
-            if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
+
+            if (ScreenManager.UpdateExitTimer(!LookingAtPlanet))
                 return true; //if planet screen is still exiting prevent further input
 
             if (input.DebugMode)

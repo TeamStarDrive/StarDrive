@@ -22,8 +22,6 @@ namespace Ship_Game
         private Matrix projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, 1f, 1f, 10000f);
         private SceneObject shipSO;
 
-        private InputState designInputState;
-
         private SubTexture DottedLine;
 
         private Restrictions DesignState;
@@ -84,7 +82,6 @@ namespace Ship_Game
         {
             TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
-            designInputState  = new InputState();
             ExistingHulls     = new Hulls();
             IsPopup = true;
         }
@@ -612,7 +609,6 @@ namespace Ship_Game
                  * Matrix.CreateRotationY(RadMath.PI)
                  * Matrix.CreateRotationX(0f)
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            designInputState.Update(gameTime);
             HandleInput();
             thruster.tscale = tscale;
             thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);

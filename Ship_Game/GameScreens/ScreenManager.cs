@@ -22,6 +22,10 @@ namespace Ship_Game
         readonly object InterfaceLock = new object();
         readonly GameBase GameInstance;
 
+        // Time elapsed between 2 frames
+        // this can be used for rendering animations
+        public float FrameDeltaTime { get; private set; }
+
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
         public SceneEnvironment environment;
@@ -35,11 +39,7 @@ namespace Ship_Game
         // Thread safe screen queue
         readonly SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
 
-        public float exitScreenTimer
-        {
-            get => input.ExitScreenTimer;
-            set => input.ExitScreenTimer = value;
-        }
+        public float ExitScreenTimer { get; set; }
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => GameScreens.Count;
@@ -325,7 +325,7 @@ namespace Ship_Game
             if (GraphicsDeviceService?.GraphicsDevice != null)
                 screen.UnloadContent();
             GameScreens.Remove(screen);
-            exitScreenTimer = 0.25f;
+            ExitScreenTimer = 0.25f;
         }
 
         float HotloadTimer;
@@ -385,7 +385,7 @@ namespace Ship_Game
 
         void PerformHotLoadTasks()
         {
-            HotloadTimer += StarDriveGame.Instance.FrameDeltaTime;
+            HotloadTimer += FrameDeltaTime;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
@@ -405,11 +405,20 @@ namespace Ship_Game
 
         public void Update(GameTime gameTime)
         {
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            FrameDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (FrameDeltaTime > 0.4f) // @note Probably we were loading something heavy
+                FrameDeltaTime = 1f/60f;
+
             PerformHotLoadTasks();
-            input.Update(gameTime);
+            input.Update(elapsedTime); // analyze input state for this frame
             AddPendingScreens();
 
-            bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
+            if (ExitScreenTimer >= 0)
+                ExitScreenTimer -= elapsedTime;
+
+            bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
 
@@ -431,7 +440,7 @@ namespace Ship_Game
                 if (screen.ScreenState == ScreenState.TransitionOn ||
                     screen.ScreenState == ScreenState.Active)
                 {
-                    if (!otherScreenHasFocus && exitScreenTimer <= 0f)
+                    if (!otherScreenHasFocus && ExitScreenTimer <= 0f)
                         otherScreenHasFocus = true;
 
                     if (!screen.IsPopup)
@@ -440,11 +449,11 @@ namespace Ship_Game
             }
         }
 
-        public bool UpdateExitTimeer(bool stopFurtherInput)
+        public bool UpdateExitTimer(bool stopFurtherInput)
         {
             if (!stopFurtherInput)
             {
-                if (exitScreenTimer > 0f)
+                if (ExitScreenTimer > 0f)
                     return true;
             }
             return false;
