@@ -205,7 +205,7 @@ namespace Ship_Game
             switch (State)
             {
                 case NodeState.Normal:
-                    bool active = complete || EmpireManager.Player.IsResearchingOrQueued(Entry.UID);
+                    bool active = complete || EmpireManager.Player.Research.IsQueued(Entry.UID);
                     batch.FillRectangle(UnlocksRect, new Color(26, 26, 28));
                     batch.DrawRectangle(UnlocksRect, active ? new Color(34, 136, 200) : Color.Black);
                     grid.Draw(batch);

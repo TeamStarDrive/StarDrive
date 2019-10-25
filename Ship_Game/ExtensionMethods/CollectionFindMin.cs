@@ -29,9 +29,9 @@ namespace Ship_Game
 
 
         // @return NULL if list is empty! Or the item with smallest selected value
-        public static T FindMin<T>(this T[] items, int count, Func<T, float> selector) where T : class
+        public static T FindMin<T>(this T[] items, int count, Func<T, float> selector)
         {
-            if (count <= 0) return null;
+            if (count <= 0) return default;
             T found = items[0]; // @note This prevents the NaN and +Infinity float compare issue
             float min = selector(found);
             CheckForNaNInfinity(min);
@@ -51,10 +51,10 @@ namespace Ship_Game
 
 
         // @return NULL if list is empty! Or the item with smallest selected value
-        public static T FindMin<T>(this IReadOnlyList<T> list, Func<T, float> selector) where T : class
+        public static T FindMin<T>(this IReadOnlyList<T> list, Func<T, float> selector)
         {
             int count = list.Count;
-            if (count <= 0) return null;
+            if (count <= 0) return default;
             T found = list[0]; // @note This prevents the NaN and +Infinity float compare issue
             float min = selector(found);
             CheckForNaNInfinity(min);
@@ -139,13 +139,10 @@ namespace Ship_Game
 
         // @return NULL if list is empty! Or the item with smallest selected value
         public static T FindMinFiltered<T>(this T[] items, int count, Predicate<T> filter, 
-                                           Func<T, float> selector) where T : class
+                                           Func<T, float> selector)
         {
-            if (count <= 0) return null;
-
-            T found = items.FindFirstValid(count, filter, out int i);
-            if (found == null) // no elements passed the filter!
-                return null;
+            if (count <= 0 || !items.FindFirstValid(count, filter, out int i, out T found))
+                return default; // no elements passed the filter!
 
             float min = selector(found);
             CheckForNaNInfinity(min);
@@ -183,7 +180,7 @@ namespace Ship_Game
         // @return NULL if list is empty! Or the item with smallest selected value
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMinFiltered<T>(this T[] items, Predicate<T> filter, 
-            Func<T, float> selector) where T : class
+            Func<T, float> selector)
         {
             return items.FindMinFiltered(items.Length, filter, selector);
         }
@@ -191,7 +188,7 @@ namespace Ship_Game
         // @return NULL if list is empty! Or the item with smallest selected value
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T FindMinFiltered<T>(this Array<T> list, Predicate<T> filter, 
-                                           Func<T, float> selector) where T : class
+                                           Func<T, float> selector)
         {
             return list.GetInternalArrayItems().FindMinFiltered(list.Count, filter, selector);
         }
@@ -199,7 +196,7 @@ namespace Ship_Game
         
         // @return NULL if list is empty! Or the item with smallest selected value
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMin<T>(this T[] items, Func<T, float> selector) where T : class
+        public static T FindMin<T>(this T[] items, Func<T, float> selector)
         {
             return items.FindMin(items.Length, selector);
         }
@@ -207,7 +204,7 @@ namespace Ship_Game
         
         // @return NULL if list is empty! Or the item with smallest selected value
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T FindMin<T>(this Array<T> list, Func<T, float> selector) where T : class
+        public static T FindMin<T>(this Array<T> list, Func<T, float> selector)
         {
             return list.GetInternalArrayItems().FindMin(list.Count, selector);
         }

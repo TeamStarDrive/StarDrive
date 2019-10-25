@@ -73,13 +73,6 @@ namespace Ship_Game
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
 
-        float ResearchValue;
-        public float Research
-        {
-            get => ResearchValue;
-            set => ResearchValue = value.NaNChecked(0f, "Empire.Research");
-        }
-
         public Color EmpireColor;
         public static UniverseScreen Universe;
         private EmpireAI EmpireAI;
@@ -122,15 +115,12 @@ namespace Ship_Game
         public float currentMilitaryStrength;
         public Color ThrustColor0;
         public Color ThrustColor1;
-        public float MaxResearchPotential    = 10;
         public float MaxColonyValue          { get; private set; }
         public Ship BestPlatformWeCanBuild   { get; private set; }
         public Ship BestStationWeCanBuild    { get; private set; }
         public int ColonyRankModifier        { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
 
-        //added by gremlin
-        private float LeftoverResearch;
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
         [XmlIgnore][JsonIgnore] public int AtWarCount;
@@ -156,19 +146,28 @@ namespace Ship_Game
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange());
 
-        public readonly EmpireResearch TechResearch;
+        public readonly EmpireResearch Research;
 
         // Empire unique ID. If this is 0, then this empire is invalid!
         // Set in EmpireManager.cs
         public int Id;
 
+        public string Name => data.Traits.Name;
+
         public Empire()
         {
-            TechResearch = new EmpireResearch(this);
+            Research = new EmpireResearch(this);
 
             // @note @todo This is very flaky and weird!
             UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
         }
+
+        public Empire(Empire parentEmpire)
+        {
+            Research = new EmpireResearch(this);
+            TechnologyDict = parentEmpire.TechnologyDict;
+        }
+
 
         public void AddMoney(float moneyDiff)
         {
@@ -199,11 +198,6 @@ namespace Ship_Game
         {
             closest = SpacePorts.FindMin(p => p.Center.SqDist(position));
             return closest != null;
-        }
-
-        public bool TryFindSpaceportToBuildShipAt(Ship ship, out Planet spacePort)
-        {
-            return FindPlanetToBuildAt(SpacePorts, ship, out spacePort);
         }
 
         public bool FindPlanetToBuildAt(IReadOnlyList<Planet> ports, Ship ship, out Planet chosen)
@@ -242,19 +236,9 @@ namespace Ship_Game
             return null;
         }
 
-        public string Name => data.Traits.Name;
-
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
-
-        public Empire(Empire parentEmpire) => TechnologyDict = parentEmpire.TechnologyDict;
-
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
-
-        public Fleet GetFleet(int key)
-        {
-            FleetsDict.TryGetValue(key, out Fleet fleet);
-            return fleet;
-        }
+        public Fleet GetFleetOrNull(int key) => FleetsDict.TryGetValue(key, out Fleet fleet) ? fleet : null;
 
         public Fleet FirstFleet
         {
@@ -404,7 +388,7 @@ namespace Ship_Game
             data.MoleList.Clear();
             data.OwnedArtifacts.Clear();
             data.AgentList.Clear();
-            data.ResearchQueue.Clear();
+            Research.Reset();
         }
 
         public void SetAsDefeated()
@@ -558,73 +542,22 @@ namespace Ship_Game
         public bool HasDiscovered(string techId)  => GetTechEntry(techId).Discovered;
         public float TechProgress(TechEntry tech) => GetTechEntry(tech).Progress;
         public float TechCost(TechEntry tech)     => GetTechEntry(tech).TechCost;
-        public float TechCost(string techID)      => GetTechEntry(techID).TechCost;
+        public float TechCost(string techId)      => GetTechEntry(techId).TechCost;
         public Array<string> AcquiredFrom(TechEntry tech) => GetTechEntry(tech).WasAcquiredFrom;
         public Array<string> AcquiredFrom(string techId)  => GetTechEntry(techId).WasAcquiredFrom;
 
-        public int TechCost(IEnumerable<string> techID)// => GetTechEntry(techID).TechCost;
+        int TechCost(IEnumerable<string> techIds)
         {
             float costAccumulator = 0;
-            foreach (var tech in techID)
+            foreach (string tech in techIds)
             {
                 costAccumulator += TechCost(tech);
             }
             return (int)costAccumulator;
         }
 
-        public int TechCost(Ship ship)              => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
-        public bool HasTechEntry(string uid)        => TechnologyDict.ContainsKey(uid);
-
-        public float GetProjectedResearchNextTurn() => OwnedPlanets.Sum(p => p.Res.NetIncome);
-
-        // The CURRENT research topic is simply the first item in our ResearchQueue
-        public string ResearchTopic => data.ResearchQueue.NotEmpty ? data.ResearchQueue.First : "";
-        public TechEntry CurrentResearch => HasResearchTopic ? TechnologyDict[ResearchTopic] : TechEntry.None;
-
-        public bool HasResearchTopic => data.ResearchQueue.NotEmpty;
-        public bool NoResearchTopic  => data.ResearchQueue.IsEmpty;
-        public bool IsResearchingOrQueued(string tech) => data.ResearchQueue.Contains(tech);
-
-        public string ResearchTopicLocText
-        {
-            get
-            {
-                if (ResourceManager.TryGetTech(ResearchTopic, out Technology tech))
-                    return Localizer.Token(tech.NameIndex);
-                return Localizer.Token(341);
-            }
-        }
-
-        // Inserts to the front of ResearchQueue, OR moves existing tech to the front
-        public void SetResearchTopic(string techUID)
-        {
-            if (techUID.NotEmpty() && !TechnologyDict.ContainsKey(techUID))
-                Log.Error($"SetResearchTopic: Unrecognized tech: {techUID}");
-
-            data.ResearchQueue.Remove(techUID);
-            data.ResearchQueue.Insert(0, techUID); // this makes it the current ResearchTopic
-        }
-
-        // @return TRUE if tech was added to the queue and wasn't already present
-        public bool AddToResearchQueue(string techUID)
-        {
-            if (!TechnologyDict.ContainsKey(techUID))
-            {
-                Log.Error($"AddToResearchQueue: Unrecognized tech: {techUID}");
-                return false;
-            }
-            return data.ResearchQueue.AddUnique(techUID);
-        }
-
-        public void RemoveResearchFromQueue(string techUID)
-        {
-            data.ResearchQueue.Remove(techUID);
-        }
-
-        public int ResearchQueueIndex(string techUID)
-        {
-            return data.ResearchQueue.IndexOf(techUID);
-        }
+        public int TechCost(Ship ship)       => TechCost(ship.shipData.TechsNeeded.Except(ShipTechs));
+        public bool HasTechEntry(string uid) => TechnologyDict.ContainsKey(uid);
 
         public IReadOnlyList<SolarSystem> GetOwnedSystems() => OwnedSolarSystems;
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
@@ -721,10 +654,10 @@ namespace Ship_Game
 
             InitTechs();
 
-            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull] = false;
-            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]            = false;
-            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key]    = false;
-            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]      = false;
+            foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
+            foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
+            foreach (var kv in ResourceManager.BuildingsDict) UnlockedBuildingsDict[kv.Key] = false;
+            foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
             //unlock from empire data file
             foreach (string building in data.unlockBuilding)  UnlockedBuildingsDict[building]  = true;
             UnlockedTroops.Clear();
@@ -752,10 +685,6 @@ namespace Ship_Game
             data.unlockShips    = new Array<string>();
             UpdateShipsWeCanBuild();
 
-            if (data.EconomicPersonality == null)
-                data.EconomicPersonality = new ETrait { Name = "Generalists" };
-
-            ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
             data.TechDelayTime = 0;
 
             if (EmpireManager.NumEmpires ==0)
@@ -763,6 +692,8 @@ namespace Ship_Game
             InitColonyRankModifier();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this);
+
+            Research.Update();
         }
 
         private void CreateThrusterColors()
@@ -878,11 +809,10 @@ namespace Ship_Game
 
             UpdateShipsWeCanBuild();
 
-            if (data.EconomicPersonality == null)
-                data.EconomicPersonality = new ETrait { Name = "Generalists" };
-            ResearchStrategy = ResourceManager.GetEconomicStrategy(data.EconomicPersonality.Name);
+
             InitColonyRankModifier();
             CreateThrusterColors();
+            Research.Update();
         }
 
         bool WeCanUseThisLater(TechEntry tech)
@@ -895,9 +825,6 @@ namespace Ship_Game
             }
             return false;
         }
-
-        [XmlIgnore][JsonIgnore]
-        public EconomicResearchStrategy ResearchStrategy { get; set; }
 
         public string[] GetTroopsWeCanBuild() => UnlockedTroopDict.Where(kv => kv.Value)
                                                                   .Select(kv => kv.Key).ToArray();
@@ -1550,7 +1477,7 @@ namespace Ship_Game
                 return;
             }
 
-            foreach (var kv in ResourceManager.ShipsDict)
+            foreach (KeyValuePair<string, Ship> kv in ResourceManager.ShipsDict)
             {
                 var ship = kv.Value;
                 if (hulls != null && !hulls.Contains(ship.shipData.Hull))
@@ -1565,8 +1492,13 @@ namespace Ship_Game
                 try
                 {
                     if (ship.shipData.Role <= ShipData.RoleName.station)
+                    {
                         structuresWeCanBuild.Add(ship.Name);
+                    }
+                    else
+                    {
                         ShipsWeCanBuild.Add(ship.Name);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -1786,8 +1718,8 @@ namespace Ship_Game
                 militaryPotential += fertility + p.MineralRichness + maxPopBillion;
                 if (maxPopBillion >= 0.5)
                 {
-                    if (ResourceManager.TryGetTech(ResearchTopic, out Technology tech))
-                        researchPotential = (tech.ActualCost - Research) / tech.ActualCost
+                    if (ResourceManager.TryGetTech(Research.Topic, out Technology tech))
+                        researchPotential = (tech.ActualCost - Research.NetResearch) / tech.ActualCost
                                             * (fertility * 2 + p.MineralRichness + (maxPopBillion / 0.5f));
                 }
             }
@@ -1814,6 +1746,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             float assignedFactor = (coreCount + industrialCount + agriculturalCount + militaryCount + researchCount)
                                    / (OwnedPlanets.Count + 0.01f);
 
@@ -1823,20 +1756,18 @@ namespace Ship_Game
             float militaryDesire    = militaryPotential + (assignedFactor - militaryCount);
             float researchDesire    = researchPotential + (assignedFactor - researchCount);
 
+            (Planet.ColonyType, float)[] desires =
+            {
+                (Planet.ColonyType.Core,         coreDesire),
+                (Planet.ColonyType.Industrial,   industrialDesire),
+                (Planet.ColonyType.Agricultural, agricultureDesire),
+                (Planet.ColonyType.Military,     militaryDesire),
+                (Planet.ColonyType.Research,     researchDesire),
+            };
 
-
-            if (coreDesire > industrialDesire && coreDesire > agricultureDesire
-                                              && (coreDesire > militaryDesire && coreDesire > researchDesire))
-                return Planet.ColonyType.Core;
-            if (industrialDesire > coreDesire && industrialDesire > agricultureDesire
-                                              && (industrialDesire > militaryDesire && industrialDesire > researchDesire))
-                return Planet.ColonyType.Industrial;
-            if (agricultureDesire > industrialDesire && agricultureDesire > coreDesire
-                                                     && (agricultureDesire > militaryDesire && agricultureDesire > researchDesire))
-                return Planet.ColonyType.Agricultural;
-            return researchDesire > coreDesire && researchDesire > agricultureDesire
-                                               && (researchDesire > militaryDesire && researchDesire > industrialDesire)
-                ? Planet.ColonyType.Research : Planet.ColonyType.Military;
+            // get the type with maximum desire
+            Planet.ColonyType maxDesireType = desires.FindMax(typeAndDesire => typeAndDesire.Item2).Item1;
+            return maxDesireType;
         }
 
         public void ResetBorders()
@@ -2045,6 +1976,7 @@ namespace Ship_Game
                 data.AgentList[index].ServiceYears += 0.1f;
             }
             data.AgentList.ApplyPendingRemovals();
+
             if (Money < 0.0 && !isFaction)
             {
                 data.TurnsBelowZero += (short)(1 + -1 * (Money) / 500);
@@ -2055,6 +1987,7 @@ namespace Ship_Game
                 if (data.TurnsBelowZero < 0)
                     data.TurnsBelowZero = 0;
             }
+
             float militaryStrength = 0.0f;
             string starDate = Universe.StarDateString;
             for (int index = 0; index < OwnedShips.Count; ++index)
@@ -2158,24 +2091,18 @@ namespace Ship_Game
                 }
             }
 
-            Research = 0;
-            MaxResearchPotential = 0;
-            foreach (Planet planet in OwnedPlanets)
+            if (!data.IsRebelFaction)
             {
-                if (!data.IsRebelFaction)
-                    StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
-
-                Research             += planet.Res.NetIncome;
-                MaxResearchPotential += planet.Res.GrossMaxPotential;
+                StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)]
+                    .Population = OwnedPlanets.Sum(p => p.Population);
             }
+
+            Research.Update();
 
             if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)
                 Bankruptcy();
 
             CalculateScore();
-
-            ApplyResearchPoints();
-
             UpdateRelationships();
 
             if (Money > data.CounterIntelligenceBudget)
@@ -2190,11 +2117,11 @@ namespace Ship_Game
                 }
             }
 
-            if (isFaction)
-                return;
-
-            DispatchBuildAndScrapFreighters();
-            AssignExplorationTasks();
+            if (!isFaction)
+            {
+                DispatchBuildAndScrapFreighters();
+                AssignExplorationTasks();
+            }
         }
 
         void UpdateAI()
@@ -2252,7 +2179,7 @@ namespace Ship_Game
             }
         }
 
-        private bool IsEmpireDead()
+        bool IsEmpireDead()
         {
             if (isFaction) return false;
             if (data.Defeated) return true;
@@ -2279,29 +2206,6 @@ namespace Ship_Game
             Universe.ScreenManager.AddScreenDeferred(new YouLoseScreen(Universe));
             Universe.Paused = false;
             return true;
-        }
-
-        void ApplyResearchPoints()
-        {
-            if (NoResearchTopic)
-                return;
-
-            TechEntry tech = CurrentResearch;
-            if (tech.UID.IsEmpty())
-            {
-                Log.Error($"ApplyResearchPoints: Tech UID was empty!: {tech}");
-                return;
-            }
-
-            float researchThisTurn = Research + LeftoverResearch;
-            LeftoverResearch = tech.AddToProgress(researchThisTurn, this, out bool unLocked);
-
-            if (unLocked)
-            {
-                UnlockTech(ResearchTopic, TechUnlockType.Normal);
-                if (isPlayer)
-                    Universe.NotificationManager.AddResearchComplete(ResearchTopic, this);
-            }
         }
 
         void UpdateRelationships()
@@ -2591,7 +2495,7 @@ namespace Ship_Game
             if (EmpireAI.HasGoal(GoalType.BuildScout))
                 return;
 
-            var desiredScouts = unexplored * ResearchStrategy.ExpansionRatio * .5f;
+            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * .5f;
             foreach (Ship ship in OwnedShips)
             {
                 if (ship.DesignRole != ShipData.RoleName.scout || ship.fleet != null)

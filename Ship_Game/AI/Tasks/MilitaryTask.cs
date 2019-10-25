@@ -32,7 +32,7 @@ namespace Ship_Game.AI.Tasks
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
-        [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleet(WhichFleet);
+        [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
 
         public MilitaryTask()
         {
@@ -156,7 +156,7 @@ namespace Ship_Game.AI.Tasks
             {
                 //something wrong here in the logic flow as sometimes the fleet is null. 
                 if (WhichFleet == -1 || (Fleet?.IsCoreFleet ?? true) || Owner == Empire.Universe.player) return;
-                Fleet fleet = Owner.GetFleet(WhichFleet);
+                Fleet fleet = Owner.GetFleetOrNull(WhichFleet);
                 if (fleet == null) return;
                 foreach (Ship ship in fleet.Ships)
                 {
@@ -264,21 +264,21 @@ namespace Ship_Game.AI.Tasks
             {
                 if (IsCoreFleetTask)
                 {
-                    Owner.GetFleet(WhichFleet).FleetTask = null;
-                    Owner.GetFleet(WhichFleet).MoveToDirectly(closestAo.Center, Vectors.Up);
+                    Owner.GetFleetOrNull(WhichFleet).FleetTask = null;
+                    Owner.GetFleetOrNull(WhichFleet).MoveToDirectly(closestAo.Center, Vectors.Up);
                 }
                 else
                 {
                     foreach (Ship ship in Owner.GetFleetsDict()[WhichFleet].Ships)
                     {
-                        Owner.GetFleet(WhichFleet).RemoveShip(ship);
+                        Owner.GetFleetOrNull(WhichFleet).RemoveShip(ship);
                         closestAo.AddShip(ship);
                         closestAo.TurnsToRelax = 0;
                     }
 
                     TaskForce.Clear();
                     Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
-                    Owner.GetFleet(WhichFleet).Reset();
+                    Owner.GetFleetOrNull(WhichFleet).Reset();
                 }
             }
         }
@@ -483,7 +483,7 @@ namespace Ship_Game.AI.Tasks
                 }
             } 
             
-            if (Owner.GetFleet(WhichFleet)?.FleetTask == null )
+            if (Owner.GetFleetOrNull(WhichFleet)?.FleetTask == null )
             {
                 EndTask();
                 return;
@@ -514,7 +514,7 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            Owner.GetFleet(WhichFleet).Ships.ApplyPendingRemovals();
+            Owner.GetFleetOrNull(WhichFleet).Ships.ApplyPendingRemovals();
             float currentEnemyStrength = 0f;
 
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetEmpireAI().ThreatMatrix.Pins)
@@ -549,7 +549,7 @@ namespace Ship_Game.AI.Tasks
                     if (!Owner.GetFleetsDict().ContainsKey(WhichFleet))
                         return;
 
-                    foreach (Ship ship in Owner.GetFleet(WhichFleet).Ships)
+                    foreach (Ship ship in Owner.GetFleetOrNull(WhichFleet).Ships)
                     {
                         ship.AI.ClearOrders();
                         Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);

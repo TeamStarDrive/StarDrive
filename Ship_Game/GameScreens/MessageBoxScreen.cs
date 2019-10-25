@@ -22,7 +22,7 @@ namespace Ship_Game
 
         public MessageBoxScreen(GameScreen parent, string message) : base(parent)
         {
-            Message = message;
+            Original = message;
             Message = Fonts.Arial12Bold.ParseText(message, 250f);
             IsPopup = true;
             TransitionOnTime = 0.25f;

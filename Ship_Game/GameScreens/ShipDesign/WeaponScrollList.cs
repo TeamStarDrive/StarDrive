@@ -29,7 +29,7 @@ namespace Ship_Game
         {
             base.HandleInput(input);
 
-            if (!Screen.ModSel.Menu.HitTest(input.CursorPosition))
+            if (!Screen.ModSel.HitTest(input.CursorPosition))
             {
                 DestroySelectionBox();
                 return false;
@@ -106,9 +106,9 @@ namespace Ship_Game
             }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch batch)
         {
-            SelectionBox?.Draw(spriteBatch);
+            SelectionBox?.Draw(batch);
 
             if (ResetOnNextDraw)
             {
@@ -121,8 +121,8 @@ namespace Ship_Game
                 ResetOnNextDraw = false;
             }
 
-            DrawList(spriteBatch);
-            base.Draw(spriteBatch);
+            DrawList(batch);
+            base.Draw(batch);
         }
 
         private bool IsModuleAvailable(ShipModule template, out ShipModule tmp)
@@ -259,7 +259,7 @@ namespace Ship_Game
             Vector2 mousePos = Input.CursorPosition;
             foreach (Entry e in VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(Screen.ModSel.Menu.X + 10, e.Y);
+                var bCursor = new Vector2(Screen.ModSel.X + 10, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(Screen.ScreenManager, bCursor);
@@ -283,7 +283,7 @@ namespace Ship_Game
                     var tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
 
                     string moduleName = Localizer.Token(mod.NameIndex);
-                    if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < Screen.ModSel.Menu.Width)
+                    if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < Screen.ModSel.Width)
                     {
                         spriteBatch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, Color.White);
                         tCursor.Y += Fonts.Arial12Bold.LineSpacing;

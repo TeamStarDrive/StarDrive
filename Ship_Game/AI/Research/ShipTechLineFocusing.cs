@@ -273,58 +273,41 @@ namespace Ship_Game.AI.Research
             return roleSorter;
         }
 
-        private SortedList<int, Array<Ship>> HullSorter(SortedList<int, Array<Ship>> costSorter, int key)
+        SortedList<int, Array<Ship>> HullSorter(SortedList<int, Array<Ship>> costSorter, int key)
         {
-            var hullSorter = BucketShips(costSorter[key],
-                hull =>
-                {
-                    int countOfHullTechs = hull.shipData.BaseHull.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count();
-                    if (hull.DesignRole < ShipData.RoleName.troopShip)
-                        countOfHullTechs += 1;
-                        return countOfHullTechs < 2
-                            ? 0
-                            : 1;
-                });
+            var hullSorter = BucketShips(costSorter[key], hull =>
+            {
+                int countOfHullTechs = hull.shipData.BaseHull.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count();
+                if (hull.DesignRole < ShipData.RoleName.troopShip)
+                    countOfHullTechs += 1;
+                return countOfHullTechs < 2 ? 0 : 1;
+            });
             return hullSorter;
         }
 
-        private SortedList<int, Array<Ship>> CostSorter(SortedList<int, Array<Ship>> shipToBeSorted, int key)
+        SortedList<int, Array<Ship>> TechCostSorter(Array<Ship> shipsToSort)
         {
-            var research = Math.Max(OwnerEmpire.Research, 1);
-            int scoreDivisor = (int)(research * 100);
-            var costSorter = BucketShips(shipToBeSorted[key], ship =>
+            var techSorter = BucketShips(shipsToSort, shortTermBest =>
             {
-                var score = ship.shipData.TechScore / scoreDivisor;
-                if (ship.DesignRole < ShipData.RoleName.troopShip)
-                    score += 4;
-                return score;
+                int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 20 : 50;
+                int techCost = OwnerEmpire.TechCost(shortTermBest);
+                techCost /= (int)(OwnerEmpire.Research.MaxResearchPotential + 1) * costNormalizer;
+                return techCost;
             });
-            return costSorter;
+            return techSorter;
         }
 
-        private SortedList<int, Array<Ship>> TechCostSorter(Array<Ship> shipsToSort)
-        {
-            var techSorter = BucketShips(shipsToSort,
-                shortTermBest =>
-                {
-                    int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 20 : 50;
-                    var techCost = OwnerEmpire.TechCost(shortTermBest);
-                    techCost /= (int)(OwnerEmpire.MaxResearchPotential + 1) * costNormalizer;
-                    return techCost;
-                });
-            return techSorter;
-        }
         private SortedList<int, Array<Ship>> TechCountSorter(Array<Ship> shipsToSort, HashSet<string> shipTechs)
         {
-            var techSorter = BucketShips(shipsToSort,
-                shortTermBest =>
-                {
-                    int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 2 : 3;
-                    var techCount = shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count() / costNormalizer;
-                    return techCount;
-                });
+            var techSorter = BucketShips(shipsToSort, shortTermBest =>
+            {
+                int costNormalizer = shortTermBest.shipData.BaseHull.Role <= ShipData.RoleName.freighter ? 2 : 3;
+                int techCount = shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Count() / costNormalizer;
+                return techCount;
+            });
             return techSorter;
         }
+
         private HashSet<string> FindBestShip(string modifier, Array<TechEntry> availableTechs, string command)
         {
             HashSet<string> shipTechs       = new HashSet<string>();
