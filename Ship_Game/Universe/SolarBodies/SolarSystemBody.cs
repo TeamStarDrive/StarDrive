@@ -206,7 +206,7 @@ namespace Ship_Game
         }
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
-        public IReadOnlyList<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
+        public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
 
         protected void AddTileEvents()
         {

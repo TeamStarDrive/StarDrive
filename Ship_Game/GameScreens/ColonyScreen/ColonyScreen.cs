@@ -34,7 +34,7 @@ namespace Ship_Game
         private UICheckBox DontScrapBuildings;
         private UITextEntry PlanetName = new UITextEntry();
         private Rectangle PlanetIcon;
-        private EmpireUIOverlay eui;
+        public EmpireUIOverlay eui;
         private ToggleButton LeftColony;
         private ToggleButton RightColony;
         private UIButton LaunchAllTroops;
@@ -48,8 +48,8 @@ namespace Ship_Game
         private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
         private Rectangle GridPos;
         private Submenu subColonyGrid;
-        private ScrollList buildSL;
-        private ScrollList CQueue;
+        private ScrollList<BuildListItem> buildSL;
+        private ScrollList<QueueItem> CQueue;
         private DropDownMenu foodDropDown;
         private DropDownMenu prodDropDown;
         private ProgressBar FoodStorage;
@@ -65,19 +65,18 @@ namespace Ship_Game
 
         private object DetailInfo;
         private Building ToScrap;
-        private ScrollList.Entry ActiveBuildingEntry;
+        public BuildListItem ActiveBuildingEntry;
 
         public bool ClickedTroop;
         bool Reset;
         int EditHoverState;
 
-        private Selector Selector;
-        private Rectangle EditNameButton;
-        private static bool Popup;  //fbedard
-        private readonly SpriteFont Font8 = Fonts.Arial8Bold;
-        private readonly SpriteFont Font12 = Fonts.Arial12Bold;
-        private readonly SpriteFont Font20 = Fonts.Arial20Bold;
-        private readonly Empire Player     = EmpireManager.Player;
+        Rectangle EditNameButton;
+        static bool Popup;  //fbedard
+        readonly SpriteFont Font8 = Fonts.Arial8Bold;
+        readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        readonly SpriteFont Font20 = Fonts.Arial20Bold;
+        public readonly Empire Player = EmpireManager.Player;
 
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
         {
@@ -183,11 +182,10 @@ namespace Ship_Game
             //new ScrollList(pFacilities, 40);
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
             build = new Submenu(theMenu10);
-            build.AddTab(Localizer.Token(334));
-            buildSL = new ScrollList(build);
-            PlayerDesignsToggle = new ToggleButton(
-                new Vector2(build.Right - 270, build.Y),
-                ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
+            build.AddTab(BuildingsTabText);
+            buildSL = new ScrollList<BuildListItem>(build) { AutoManageItems = true };
+            PlayerDesignsToggle = new ToggleButton(new Vector2(build.Right - 270, build.Y),
+                                                   ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
 
             PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
             if (p.HasSpacePort)
@@ -198,7 +196,7 @@ namespace Ship_Game
             queue = new Submenu(theMenu11);
             queue.AddTab(Localizer.Token(337));
 
-            CQueue = new ScrollList(queue, ListOptions.Draggable);
+            CQueue = new ScrollList<QueueItem>(queue, ListOptions.Draggable);
 
             PlanetIcon = new Rectangle(theMenu4.X + theMenu4.Width - 148, theMenu4.Y + (theMenu4.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
@@ -262,8 +260,10 @@ namespace Ship_Game
             pLabor.Draw(batch);
             pStorage.Draw(batch);
             subColonyGrid.Draw(batch);
+
             var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
             batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.PlanetTileId), destinationRectangle1, Color.White);
+            
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
                 if (!pgs.Habitable)
@@ -292,6 +292,7 @@ namespace Ship_Game
                 }
                 DrawPGSIcons(pgs);
             }
+
             foreach (PlanetGridSquare planetGridSquare in P.TilesList)
             {
                 if (planetGridSquare.Highlighted)
@@ -299,7 +300,7 @@ namespace Ship_Game
             }
 
             pFacilities.Draw(batch);
-            DrawDetailInfo(new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
+            DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
             build.Draw(batch);
             queue.Draw(batch);
 
@@ -322,7 +323,6 @@ namespace Ship_Game
             DrawConstructionQueue(batch);
 
             buildSL.Draw(batch);
-            Selector?.Draw(batch);
 
             DrawSliders(batch);
 
@@ -655,9 +655,8 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Font12, MultiLineFormat(4097), bCursor, TextColor);
         }
 
-        void DrawDetailInfo(Vector2 bCursor)
+        void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
             if (pFacilities.Tabs.Count > 1 && pFacilities.Tabs[1].Selected)
             {
                 DrawCommoditiesArea(bCursor);
@@ -667,7 +666,7 @@ namespace Ship_Game
             switch (DetailInfo)
             {
                 case Troop t:
-                    spriteBatch.DrawString(Font20, t.DisplayNameEmpire(P.Owner), bCursor, TextColor);
+                    batch.DrawString(Font20, t.DisplayNameEmpire(P.Owner), bCursor, TextColor);
                     bCursor.Y += Font20.LineSpacing + 2;
                     string strength = t.Strength < t.ActualStrengthMax ? t.Strength + "/" + t.ActualStrengthMax
                         : t.ActualStrengthMax.String(1);
@@ -714,21 +713,21 @@ namespace Ship_Game
                     DrawMultiLine(ref bCursor, desc);
                     if (P.IsStarving)
                         DrawMultiLine(ref bCursor, Localizer.Token(344), Color.LightPink);
-                    DrawPlanetStat(ref bCursor, spriteBatch);
+                    DrawPlanetStat(ref bCursor, batch);
                     break;
 
                 case PlanetGridSquare pgs:
                     switch (pgs.building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
-                            spriteBatch.DrawString(Font20, Localizer.Token(348), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(348), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            spriteBatch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
+                            batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             return;
                         case null when pgs.Habitable:
-                            spriteBatch.DrawString(Font20, Localizer.Token(350), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            spriteBatch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
+                            batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             return;
                     }
 
@@ -736,43 +735,42 @@ namespace Ship_Game
                     {
                         if (P.IsBarrenType)
                         {
-                            spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                            batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
-                            spriteBatch.DrawString(Font12, MultiLineFormat(352), bCursor, color);
+                            batch.DrawString(Font12, MultiLineFormat(352), bCursor, color);
                             return;
                         }
-                        spriteBatch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                        batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                         bCursor.Y += Font20.LineSpacing + 5;
-                        spriteBatch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
+                        batch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
                         return;
                     }
 
                     if (pgs.building == null)
                         return;
 
-                    Rectangle bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    spriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
-                    spriteBatch.DrawString(Font20, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
+                    var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                    batch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), bRect, Color.White);
+                    batch.DrawString(Font20, Localizer.Token(pgs.building.NameTranslationIndex), bCursor, color);
                     bCursor.Y   += Font20.LineSpacing + 5;
                     string buildingDescription  = MultiLineFormat(pgs.building.DescriptionIndex);
-                    spriteBatch.DrawString(Font12, buildingDescription, bCursor, color);
+                    batch.DrawString(Font12, buildingDescription, bCursor, color);
                     bCursor.Y   += Font12.MeasureString(buildingDescription).Y + Font20.LineSpacing;
-                    DrawSelectedBuildingInfo(ref bCursor, spriteBatch, pgs.building);
+                    DrawSelectedBuildingInfo(ref bCursor, batch, pgs.building);
                     if (!pgs.building.Scrappable)
                         return;
 
-                    bCursor.Y = bCursor.Y + (Font12.LineSpacing + 10);
-                    spriteBatch.DrawString(Font12, "You may scrap this building by right clicking it", bCursor, Color.White);
+                    bCursor.Y += (Font12.LineSpacing + 10);
+                    batch.DrawString(Font12, "You may scrap this building by right clicking it", bCursor, Color.White);
                     break;
 
-                case ScrollList.Entry entry:
-                    var selectedBuilding = entry.Get<Building>();
-                    spriteBatch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
+                case Building selectedBuilding:
+                    batch.DrawString(Font20, Localizer.Token(selectedBuilding.NameTranslationIndex), bCursor, color);
                     bCursor.Y += Font20.LineSpacing + 5;
                     string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
-                    spriteBatch.DrawString(Font12, selectionText, bCursor, color);
+                    batch.DrawString(Font12, selectionText, bCursor, color);
                     bCursor.Y += Font12.MeasureString(selectionText).Y + Font20.LineSpacing;
-                    DrawSelectedBuildingInfo(ref bCursor, spriteBatch, selectedBuilding);
+                    DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
                     break;
             }
         }
@@ -938,29 +936,29 @@ namespace Ship_Game
             {
                 if (pgs.building.PlusFlatFoodAmount > 0f || pgs.building.PlusFoodPerColonist > 0f)
                 {
-                    numFood = numFood + pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
-                    numFood = numFood + pgs.building.PlusFlatFoodAmount;
+                    numFood += pgs.building.PlusFoodPerColonist * P.PopulationBillion * P.Food.Percent;
+                    numFood += pgs.building.PlusFlatFoodAmount;
                 }
                 if (pgs.building.PlusFlatProductionAmount > 0f || pgs.building.PlusProdPerColonist > 0f)
                 {
-                    numProd = numProd + pgs.building.PlusFlatProductionAmount;
-                    numProd = numProd + pgs.building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
+                    numProd += pgs.building.PlusFlatProductionAmount;
+                    numProd += pgs.building.PlusProdPerColonist * P.PopulationBillion * P.Prod.Percent;
                 }
                 if (pgs.building.PlusProdPerRichness > 0f)
                 {
-                    numProd = numProd + pgs.building.PlusProdPerRichness * P.MineralRichness;
+                    numProd += pgs.building.PlusProdPerRichness * P.MineralRichness;
                 }
                 if (pgs.building.PlusResearchPerColonist > 0f || pgs.building.PlusFlatResearchAmount > 0f)
                 {
-                    numRes = numRes + pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.Res.Percent;
-                    numRes = numRes + pgs.building.PlusFlatResearchAmount;
+                    numRes += pgs.building.PlusResearchPerColonist * P.PopulationBillion * P.Res.Percent;
+                    numRes += pgs.building.PlusFlatResearchAmount;
                 }
             }
             float total = numFood + numProd + numRes;
             float totalSpace = pgs.ClickRect.Width - 30;
             float spacing = totalSpace / total;
             Rectangle rect = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y + pgs.ClickRect.Height - ResourceManager.Texture("NewUI/icon_food").Height, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            for (int i = 0; (float)i < numFood; i++)
+            for (int i = 0; i < numFood; i++)
             {
                 if (numFood - i <= 0f || numFood - i >= 1f)
                 {
@@ -970,9 +968,9 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numFood - i, SpriteEffects.None, 1f);
                 }
-                rect.X = rect.X + (int)spacing;
+                rect.X += (int)spacing;
             }
-            for (int i = 0; (float)i < numProd; i++)
+            for (int i = 0; i < numProd; i++)
             {
                 if (numProd - i <= 0f || numProd - i >= 1f)
                 {
@@ -982,9 +980,9 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numProd - i, SpriteEffects.None, 1f);
                 }
-                rect.X = rect.X + (int)spacing;
+                rect.X += (int)spacing;
             }
-            for (int i = 0; (float)i < numRes; i++)
+            for (int i = 0; i < numRes; i++)
             {
                 if (numRes - i <= 0f || numRes - i >= 1f)
                 {
@@ -994,7 +992,7 @@ namespace Ship_Game
                 {
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_science"), new Vector2(rect.X, rect.Y), Color.White, 0f, Vector2.Zero, numRes - i, SpriteEffects.None, 1f);
                 }
-                rect.X = rect.X + (int)spacing;
+                rect.X += (int)spacing;
             }
         }
 
@@ -1016,12 +1014,12 @@ namespace Ship_Game
         void HandleDetailInfo(InputState input)
         {
             DetailInfo = null;
-            foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
+            foreach (BuildListItem e in buildSL.VisibleExpandedEntries)
             {
                 if (e.CheckHover(input))
                 {
-                    if (e.Is<Building>())   DetailInfo = e; // @todo Why are we storing Entry here???
-                    else if (e.Is<Troop>()) DetailInfo = e.item;
+                    if (e.Troop != null)    DetailInfo = e.Troop;
+                    if (e.Building != null) DetailInfo = e.Building;
                 }
             }
             if (DetailInfo == null)
@@ -1072,19 +1070,21 @@ namespace Ship_Game
                 }
             }
 
-            Selector = null;
             if (HandleTroopSelect(input))
                 return true;
 
             HandleExportImportButtons(input);
-            HandleConstructionQueueInput(input);
+
             if (HandleDragBuildingOntoTile(input))
             {
                 ActiveBuildingEntry = null; // building was placed or discarded
                 return true;
             }
 
-            if (HandleBuildListClicks(input))
+            if (CQueue.HandleInput(input))
+                return true;
+
+            if (buildSL.HandleInput(input))
                 return true;
 
             if (Popup)
@@ -1381,95 +1381,30 @@ namespace Ship_Game
             Update(0f);
         }
 
+        readonly string BuildingsTabText = Localizer.Token(334); // BUILDINGS
+        readonly string ShipsTabText = Localizer.Token(335); // SHIPS
+        readonly string TroopsTabText = Localizer.Token(336); // TROOPS
+
+        bool TabExists(string title) => build.Tabs.IndexOf(tab => tab.Title == title) != -1;
+
+        void ResetBuildTabs()
+        {
+            build.Tabs.Clear();
+            build.AddTab(BuildingsTabText);
+            if (P.HasSpacePort)     build.AddTab(ShipsTabText);
+            if (P.CanBuildInfantry) build.AddTab(TroopsTabText);
+        }
+
         public override void Update(float elapsedTime)
         {
             P.UpdateIncomes(false);
-            if (!P.CanBuildInfantry)
+
+            buildSL.Update(elapsedTime);
+
+            if (P.HasSpacePort && !TabExists(ShipsTabText) ||
+                P.CanBuildInfantry && !TabExists(TroopsTabText))
             {
-                bool remove = false;
-                foreach (Submenu.Tab tab in build.Tabs)
-                {
-                    if (tab.Title != Localizer.Token(336))
-                    {
-                        continue;
-                    }
-                    remove = true;
-                }
-                if (remove)
-                {
-                    build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
-                    if (P.HasSpacePort)
-                    {
-                        build.AddTab(Localizer.Token(335));
-                    }
-                }
-            }
-            else
-            {
-                bool add = true;
-                foreach (Submenu.Tab tab in build.Tabs)
-                {
-                    if (tab.Title != Localizer.Token(336))
-                        continue;
-                    add = false;
-                    foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
-                        if (entry.TryGet(out Troop troop))
-                            troop.Update(elapsedTime);
-                }
-                if (add)
-                {
-                    build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
-                    if (P.HasSpacePort)
-                    {
-                        build.AddTab(Localizer.Token(335));
-                    }
-                    build.AddTab(Localizer.Token(336));
-                }
-            }
-            if (!P.HasSpacePort)
-            {
-                bool remove = false;
-                foreach (Submenu.Tab tab in build.Tabs)
-                {
-                    if (tab.Title != Localizer.Token(335))
-                    {
-                        continue;
-                    }
-                    remove = true;
-                }
-                if (remove)
-                {
-                    build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
-                    if (P.AllowInfantry)
-                    {
-                        build.AddTab(Localizer.Token(336));
-                    }
-                }
-            }
-            else
-            {
-                bool add = true;
-                foreach (Submenu.Tab tab in build.Tabs)
-                {
-                    if (tab.Title != Localizer.Token(335))
-                    {
-                        continue;
-                    }
-                    add = false;
-                }
-                if (add)
-                {
-                    build.Tabs.Clear();
-                    build.AddTab(Localizer.Token(334));
-                    build.AddTab(Localizer.Token(335));
-                    if (P.AllowInfantry)
-                    {
-                        build.AddTab(Localizer.Token(336));
-                    }
-                }
+                ResetBuildTabs();
             }
 
             UpdateButtonTimer(elapsedTime);

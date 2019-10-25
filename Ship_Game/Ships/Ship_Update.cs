@@ -298,11 +298,11 @@ namespace Ship_Game.Ships
                 var distanceX = (int) Math.Abs(center.X - slot.LocalCenter.X) ;
                 var distanceY = (int) Math.Abs(center.Y - slot.LocalCenter.Y) ;
                 if (distanceX + distanceY > 16)
-                { if (distanceX + distanceY > 33)
+                {
+                    if (distanceX + distanceY > 33)
                         continue;
-                  if (distanceX + distanceY < 33)
+                    if (distanceX + distanceY < 33)
                         continue;
-
                 }
 
                 CheckAndPowerConduit(slot);

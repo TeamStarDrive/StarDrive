@@ -4,67 +4,36 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-	public sealed class ModuleHeader
-	{
-		public string Text;
-	    public bool Hover { get; private set; }
-	    private bool Open;
-		private readonly int Width = 305;
-		private Rectangle ClickRect;
-		private Rectangle R;
+    public sealed class ModuleHeader : UIElementV2
+    {
+        public string Text;
+        public bool Hover;
+        public bool Open;
 
-		public ModuleHeader(string text)
-		{
-			Text = text;
-		}
-		public ModuleHeader(string text, int width)
-		{
-			Width = width;
-			Text = text;
-		}
-
-		public void Draw(ScreenManager screenManager, Vector2 position)
-		{
-		    DrawWidth(screenManager, position, Width);
-		}
-
-		public void DrawWidth(ScreenManager screenManager, Vector2 position, int width)
-		{
-		    SpriteBatch spriteBatch = screenManager.SpriteBatch;
-			R = new Rectangle((int)position.X, (int)position.Y, width, 30);
-
-			new Selector(R, (Hover ? new Color(95, 82, 47) : new Color(32, 30, 18))).Draw(spriteBatch);
-
-		    var textPos = new Vector2(R.X + 10, R.Y + R.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
-		    spriteBatch.DrawString(Fonts.Pirulen12, Text, textPos, Color.White);
-			ClickRect = new Rectangle(R.X + R.Width - 15, R.Y + 10, 10, 10);
-
-		    string open = Open ? "-" : "+";
-			textPos = new Vector2(ClickRect.X - Fonts.Arial20Bold.MeasureString(open).X / 2f,
-			                      ClickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2);
-		    spriteBatch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
-		}
-
-        public void Expand(bool expanded, ScrollList.Entry e)
+        public ModuleHeader(string text, int width = 305)
         {
-            Open = expanded;
-            e.Expand(expanded);
+            Rect = new Rectangle(0, 0, width, 30);
+            Text = text;
+        }
+        
+        public override bool HandleInput(InputState input)
+        {
+            return false;
         }
 
-		public bool HandleInput(InputState input, ScrollList.Entry e)
-		{
-			if (e.CheckHover(input))
-			{
-			    Hover = true;
-			    if (!input.LeftMouseClick)
-			        return false;
-			    
-			    GameAudio.AcceptClick();
-			    Expand(!Open, e);
-			    return true;
-			}
-			Hover = false;
-			return false;
-		}
-	}
+        public override void Draw(SpriteBatch batch)
+        {
+            Rectangle r = Rect;
+            new Selector(r, (Hover ? new Color(95, 82, 47) : new Color(32, 30, 18))).Draw(batch);
+
+            var textPos = new Vector2(r.X + 10, r.Y + r.Height / 2 - Fonts.Pirulen12.LineSpacing / 2);
+            var clickRect = new Rectangle(r.X + r.Width - 15, r.Y + 10, 10, 10);
+            batch.DrawString(Fonts.Pirulen12, Text, textPos, Color.White);
+
+            string open = Open ? "-" : "+";
+            textPos = new Vector2(clickRect.X - Fonts.Arial20Bold.MeasureString(open).X / 2f,
+                                  clickRect.Y + 6 - Fonts.Arial20Bold.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
+        }
+    }
 }
