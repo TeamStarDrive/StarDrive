@@ -21,6 +21,7 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
+        public float PercentResearched => Progress / TechCost;
 
         //add initializer for tech
         [XmlIgnore][JsonIgnore]
@@ -406,7 +407,7 @@ namespace Ship_Game
             UnlockBuildings(us, them);
 
             // Finally, remove this tech from our ResearchQueue
-            us.RemoveResearchFromQueue(UID);
+            us.Research.RemoveFromQueue(UID);
         }
 
         public bool UnlockFromSpy(Empire us, Empire them)

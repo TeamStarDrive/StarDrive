@@ -135,8 +135,7 @@ namespace Ship_Game
                 empireToSave.Name                 = e.data.Traits.Name;
                 empireToSave.empireData           = e.data.GetClone();
                 empireToSave.Traits               = e.data.Traits;
-                empireToSave.Research             = e.Research;
-                empireToSave.ResearchTopic        = e.ResearchTopic;
+                empireToSave.ResearchTopic        = e.Research.Topic;
                 empireToSave.Money                = e.Money;
                 empireToSave.CurrentAutoScout     = e.data.CurrentAutoScout;
                 empireToSave.CurrentAutoFreighter = e.data.CurrentAutoFreighter;
@@ -532,18 +531,17 @@ namespace Ship_Game
             [Serialize(5)] public RacialTrait Traits;
             [Serialize(6)] public EmpireData empireData;
             [Serialize(7)] public Array<ShipSaveData> OwnedShips;
-            [Serialize(8)] public float Research;
-            [Serialize(9)] public float Money;
-            [Serialize(10)] public Array<TechEntry> TechTree;
-            [Serialize(11)] public GSAISAVE GSAIData;
-            [Serialize(12)] public string ResearchTopic;
-            [Serialize(13)] public Array<AO> AOs;
-            [Serialize(14)] public Array<FleetSave> FleetsList;
-            [Serialize(15)] public string CurrentAutoFreighter;
-            [Serialize(16)] public string CurrentAutoColony;
-            [Serialize(17)] public string CurrentAutoScout;
-            [Serialize(18)] public string CurrentConstructor;
-            [Serialize(19)] public float FastVsBigFreighterRatio;
+            [Serialize(8)] public float Money;
+            [Serialize(9)] public Array<TechEntry> TechTree;
+            [Serialize(10)] public GSAISAVE GSAIData;
+            [Serialize(11)] public string ResearchTopic;
+            [Serialize(12)] public Array<AO> AOs;
+            [Serialize(13)] public Array<FleetSave> FleetsList;
+            [Serialize(14)] public string CurrentAutoFreighter;
+            [Serialize(15)] public string CurrentAutoColony;
+            [Serialize(16)] public string CurrentAutoScout;
+            [Serialize(17)] public string CurrentConstructor;
+            [Serialize(18)] public float FastVsBigFreighterRatio;
         }
 
         public class FleetSave

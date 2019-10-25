@@ -517,15 +517,15 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), SelectedEmpire.BuildingAndShipMaint.String(2)), textCursor, Color.White);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
 
-                if (SelectedEmpire.HasResearchTopic)
+                if (SelectedEmpire.Research.HasTopic)
                 {
                     if (IntelligenceLevel(SelectedEmpire)>1)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.CurrentResearch.Tech.NameIndex), textCursor, Color.White);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: "+Localizer.Token(SelectedEmpire.Research.Current.Tech.NameIndex), textCursor, Color.White);
                     }
                     else if (IntelligenceLevel(SelectedEmpire) >0)
                     {
-                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.CurrentResearch.TechnologyType, textCursor, Color.White);
+                        ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, "Researching: "+SelectedEmpire.Research.Current.TechnologyType, textCursor, Color.White);
                     }
                     else
                     {
