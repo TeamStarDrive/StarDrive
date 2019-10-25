@@ -12,7 +12,7 @@ namespace Ship_Game
 
         // This is our research queue
         // The FIRST item (0) is always the Current research topic
-        Array<string> Queue => Empire.data.ResearchQueue;
+        public Array<string> Queue => Empire.data.ResearchQueue;
 
         // NET research this turn
         public float NetResearch { get; private set; }

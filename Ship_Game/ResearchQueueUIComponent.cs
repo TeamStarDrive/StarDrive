@@ -7,11 +7,13 @@ namespace Ship_Game
 	public sealed class ResearchQueueUIComponent : UIElementContainer
 	{
         readonly ResearchScreenNew Screen;
-        readonly Submenu ActiveResearchPanel;
+        readonly Submenu CurrentResearchPanel;
         readonly Submenu ResearchQueuePanel;
 
         readonly Rectangle TimeLeft;
-        public ScrollList QSL;
+
+        public ResearchQItem CurrentResearch { get; private set; }
+        readonly ScrollList QSL;
         bool IsQueueVisible;
         readonly UIButton BtnShowQueue;
 
@@ -27,13 +29,13 @@ namespace Ship_Game
             var current = new Rectangle(container.X, container.Y, container.Width, 150);
 			TimeLeft = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
 			
-            ActiveResearchPanel = new Submenu(true, current);
-			ActiveResearchPanel.AddTab(Localizer.Token(1405));
+            CurrentResearchPanel = new Submenu(true, current);
+			CurrentResearchPanel.AddTab(Localizer.Token(1405));
 			
             var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
             ResearchQueuePanel = new Submenu(true, queue);
 			ResearchQueuePanel.AddTab(Localizer.Token(1404));
-            QSL = new ScrollList(ResearchQueuePanel, 125) {AutoHandleInput = true};
+            QSL = new ScrollList(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue) {AutoHandleInput = true};
         }
 
         void OnBtnShowQueuePressed(UIButton button)
@@ -47,12 +49,6 @@ namespace Ship_Game
             BtnShowQueue.Text = Localizer.Token(IsQueueVisible ? 2136 : 2135);
         }
 
-        bool GetCurrentResearchItem(out ResearchQItem current)
-        {
-            current = null;
-            return QSL.NumEntries > 0 && QSL.EntryAt(0).TryGet(out current);
-        }
-
         public override bool HandleInput(InputState input)
         {
             if ((IsQueueVisible && input.RightMouseClick && ResearchQueuePanel.Menu.HitTest(input.CursorPosition))
@@ -64,7 +60,7 @@ namespace Ship_Game
 
             if (IsQueueVisible)
             {
-                if (GetCurrentResearchItem(out ResearchQItem current) && current.HandleInput(input))
+                if (CurrentResearch != null && CurrentResearch.HandleInput(input))
                     return true;
 
                 if (QSL.HandleInput(input))
@@ -76,14 +72,6 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
-            if (QSL.NumEntries > 0)
-            {
-                QSL.EntryAt(0).Visible = false;
-                for (int i = 1; i < QSL.NumEntries; ++i)
-                    QSL.EntryAt(i).Visible = true;
-
-                QSL.UpdateListElements();
-            }
             base.Update(deltaTime);
         }
         
@@ -96,19 +84,18 @@ namespace Ship_Game
 
             batch.FillRectangle(Rect, Color.Black);
 
-            QSL.DrawBlue(batch);
-            ActiveResearchPanel.Draw(batch);
+            QSL.Draw(batch);
+            CurrentResearchPanel.Draw(batch);
 
-            if (QSL.NumEntries > 0)
+            if (CurrentResearch != null)
             {
-                var activeResearchPos = new Vector2(ActiveResearchPanel.Menu.X + 5, ActiveResearchPanel.Menu.Y + 30);
-                var currentResearch = QSL.EntryAt(0).Get<ResearchQItem>();
-                currentResearch.Draw(batch, activeResearchPos);
+                var currentResPos = new Vector2(CurrentResearchPanel.Menu.X + 5, CurrentResearchPanel.Menu.Y + 30);
+                CurrentResearch.Draw(batch, currentResPos);
 
                 batch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), TimeLeft, Color.White);
                 var cursor = new Vector2(TimeLeft.X + TimeLeft.Width - 7, TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2);
 				
-                TechEntry tech = currentResearch.Node.Entry;
+                TechEntry tech = CurrentResearch.Tech;
                 float cost = tech.TechCost - tech.Progress;
                 float numTurns = (float)Math.Ceiling(cost / (0.01f + EmpireManager.Player.Research.NetResearch));
                 string text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
@@ -117,37 +104,37 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Verdana14Bold, text, cursor, new Color(205, 229, 255));
             }
 
-            if (QSL.NumEntries > 1)
+            foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
             {
-                ScrollList.Entry[] entries = QSL.VisibleExpandedEntries;
-                for (int i = 0; i < entries.Length; ++i)
-                {
-                    ScrollList.Entry e = entries[i];
-                    e.Get<ResearchQItem>().Draw(batch, e.Rect.PosVec());
-                }
+                e.Get<ResearchQItem>().Draw(batch, e.Rect.PosVec());
             }
 
             ResearchQueuePanel.Draw(batch);
         }
 
-        ResearchQItem CreateQItem(TreeNode researchItem)
-        {
-            return new ResearchQItem(new Vector2(ActiveResearchPanel.Menu.X + 5, ActiveResearchPanel.Menu.Y + 30), researchItem, Screen);
-        }
-
         public void AddToResearchQueue(TreeNode researchItem)
         {
             if (EmpireManager.Player.Research.AddToQueue(researchItem.Entry.UID))
-                QSL.AddItem(CreateQItem(researchItem));
+            {
+                if (CurrentResearch == null)
+                    CurrentResearch = new ResearchQItem(Screen, researchItem);
+                else
+                    QSL.AddItem(new ResearchQItem(Screen, researchItem));
+            }
         }
 
         public void ReloadResearchQueue()
         {
+            CurrentResearch = EmpireManager.Player.Research.HasTopic
+                            ? new ResearchQItem(Screen, (TreeNode)Screen.AllTechNodes[EmpireManager.Player.Research.Topic])
+                            : null;
+
+            Array<string> techIds = EmpireManager.Player.Research.Queue;
             var items = new Array<ResearchQItem>();
-            foreach (string uid in EmpireManager.Player.data.ResearchQueue)
+
+            for (int i = 1; i < techIds.Count; ++i)
             {
-                var researchItem = (TreeNode)Screen.AllTechNodes[uid];
-                items.Add(CreateQItem(researchItem));
+                items.Add(new ResearchQItem(Screen, (TreeNode)Screen.AllTechNodes[techIds[i]]));
             }
             QSL.SetItems(items);
         }
