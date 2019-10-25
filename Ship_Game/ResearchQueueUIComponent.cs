@@ -4,8 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class ResearchQueueUIComponent : UIPanel
-	{
+    public sealed class ResearchQueueUIComponent : UIPanel
+    {
         readonly ResearchScreenNew Screen;
 
         readonly Submenu CurrentResearchPanel;
@@ -17,8 +17,8 @@ namespace Ship_Game
         readonly ScrollList QSL;
         readonly UIButton BtnShowQueue;
 
-		public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
-		{
+        public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
+        {
             Screen = screen;
 
             BtnShowQueue = Button(ButtonStyle.DanButtonBlue, 
@@ -26,19 +26,19 @@ namespace Ship_Game
             BtnShowQueue.TextAlign = ButtonTextAlign.Left;
 
             var current = new Rectangle(container.X, container.Y, container.Width, 150);
-			var timeLeftRect = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
+            var timeLeftRect = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
             TimeLeft = Panel(timeLeftRect, Color.White, ResourceManager.Texture("ResearchMenu/timeleft"));
-			
+            
             var labelPos = new Vector2(TimeLeft.X + 26,
                                        TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2);
             TimeLeftLabel = TimeLeft.Label(labelPos, "", Fonts.Verdana14Bold, new Color(205, 229, 255));
 
             CurrentResearchPanel = Add(new Submenu(current, SubmenuStyle.Blue));
-			CurrentResearchPanel.AddTab(Localizer.Token(1405));
-			
+            CurrentResearchPanel.AddTab(Localizer.Token(1405));
+            
             var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
             ResearchQueuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
-			ResearchQueuePanel.AddTab(Localizer.Token(1404));
+            ResearchQueuePanel.AddTab(Localizer.Token(1404));
 
             QSL = Add(new ScrollList(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue) { AutoManageItems = true });
             ReloadResearchQueue();
@@ -138,5 +138,5 @@ namespace Ship_Game
 
             SetQueueVisible(EmpireManager.Player.Research.HasTopic);
         }
-	}
+    }
 }
