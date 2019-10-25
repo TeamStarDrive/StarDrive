@@ -1746,6 +1746,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             float assignedFactor = (coreCount + industrialCount + agriculturalCount + militaryCount + researchCount)
                                    / (OwnedPlanets.Count + 0.01f);
 
@@ -1755,31 +1756,18 @@ namespace Ship_Game
             float militaryDesire    = militaryPotential + (assignedFactor - militaryCount);
             float researchDesire    = researchPotential + (assignedFactor - researchCount);
 
-            if (coreDesire > industrialDesire &&
-                coreDesire > agricultureDesire &&
-                coreDesire > militaryDesire &&
-                coreDesire > researchDesire)
-                return Planet.ColonyType.Core;
+            (Planet.ColonyType, float)[] desires =
+            {
+                (Planet.ColonyType.Core,         coreDesire),
+                (Planet.ColonyType.Industrial,   industrialDesire),
+                (Planet.ColonyType.Agricultural, agricultureDesire),
+                (Planet.ColonyType.Military,     militaryDesire),
+                (Planet.ColonyType.Research,     researchDesire),
+            };
 
-            if (industrialDesire > coreDesire &&
-                industrialDesire > agricultureDesire &&
-                industrialDesire > militaryDesire &&
-                industrialDesire > researchDesire)
-                return Planet.ColonyType.Industrial;
-
-            if (agricultureDesire > industrialDesire &&
-                agricultureDesire > coreDesire &&
-                agricultureDesire > militaryDesire &&
-                agricultureDesire > researchDesire)
-                return Planet.ColonyType.Agricultural;
-
-            if (researchDesire > coreDesire &&
-                researchDesire > agricultureDesire &&
-                researchDesire > militaryDesire &&
-                researchDesire > industrialDesire)
-                return Planet.ColonyType.Research;
-
-            return Planet.ColonyType.Military;
+            // get the type with maximum desire
+            Planet.ColonyType maxDesireType = desires.FindMax(typeAndDesire => typeAndDesire.Item2).Item1;
+            return maxDesireType;
         }
 
         public void ResetBorders()
