@@ -4,24 +4,24 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-	public sealed class ResearchQItem : UIElementContainer
-	{
+    public sealed class ResearchQItem : UIElementContainer
+    {
         readonly ResearchScreenNew Screen;
         public readonly TechEntry Tech;
-	    TreeNode Node;
+        TreeNode Node;
         readonly UIButton BtnUp;
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
 
-		public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos) : base(screen, pos)
-		{
-			Screen = screen;
+        public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos) : base(screen, pos)
+        {
+            Screen = screen;
             Tech = node.Entry;
-			BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
-			BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
-			BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
+            BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
+            BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
+            BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
             this.PerformLayout();
-		}
+        }
 
         void UpdateContainer(Vector2 pos)
         {
@@ -50,17 +50,17 @@ namespace Ship_Game
         }
 
         public override void Draw(SpriteBatch batch)
-		{
+        {
             base.Draw(batch);
-			Node.DrawGlow(batch);
-			Node.Draw(batch);
-		}
+            Node.DrawGlow(batch);
+            Node.Draw(batch);
+        }
 
-		public void Draw(SpriteBatch batch, Vector2 pos)
-		{
+        public void Draw(SpriteBatch batch, Vector2 pos)
+        {
             UpdateContainer(pos);
             Draw(batch);
-		}
+        }
 
         void SwapQueueItems(int first, int second)
         {
@@ -81,7 +81,7 @@ namespace Ship_Game
             Screen.Queue.ReloadResearchQueue();
         }
 
-	    void OnBtnDownPressed(UIButton down)
+        void OnBtnDownPressed(UIButton down)
         {
             int index = EmpireManager.Player.Research.IndexInQueue(Tech.UID);
             if (index == -1 || index == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(index))
@@ -91,7 +91,7 @@ namespace Ship_Game
             }
             SwapQueueItems(index + 1, index);
             Screen.Queue.ReloadResearchQueue();
-	    }
+        }
 
         void OnBtnCancelPressed(UIButton cancel)
         {
@@ -102,25 +102,25 @@ namespace Ship_Game
         Technology PlayerResearchAt(int index) => ResourceManager.TechTree[ResearchUidAt(index)];
 
         bool AboveIsPreReq(int indexOfThis)
-	    {
-	        foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
-	            if (dependent.UID == Tech.UID)
-	                return true;
-	        return false;
-	    }
+        {
+            foreach (Technology.LeadsToTech dependent in PlayerResearchAt(indexOfThis - 1).LeadsTo)
+                if (dependent.UID == Tech.UID)
+                    return true;
+            return false;
+        }
 
         bool ThisIsPreReq(int indexOfThis)
-	    {
+        {
             Technology current = PlayerResearchAt(indexOfThis);
             string next = ResearchUidAt(indexOfThis + 1);
             foreach (Technology.LeadsToTech dependent in current.LeadsTo)
-	            if (dependent.UID == next)
+                if (dependent.UID == next)
                     return true;
             return false;
-	    }
+        }
 
         void RemoveTech(string uid)
-		{
+        {
             void RemoveLeadsToRecursive(string tech)
             {
                 EmpireManager.Player.Research.RemoveFromQueue(tech);
@@ -130,6 +130,6 @@ namespace Ship_Game
 
             RemoveLeadsToRecursive(uid);
             Screen.Queue.ReloadResearchQueue();
-		}
-	}
+        }
+    }
 }
