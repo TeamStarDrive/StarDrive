@@ -186,7 +186,7 @@ namespace Ship_Game
             build.AddTab(Localizer.Token(334));
             buildSL = new ScrollList(build);
             PlayerDesignsToggle = new ToggleButton(
-                new Vector2(build.Menu.X + build.Menu.Width - 270, build.Menu.Y),
+                new Vector2(build.Right - 270, build.Y),
                 ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
 
             PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
@@ -201,7 +201,7 @@ namespace Ship_Game
             CQueue = new ScrollList(queue, ListOptions.Draggable);
 
             PlanetIcon = new Rectangle(theMenu4.X + theMenu4.Width - 148, theMenu4.Y + (theMenu4.Height - 25) / 2 - 64 + 25, 128, 128);
-            GridPos = new Rectangle(subColonyGrid.Menu.X + 10, subColonyGrid.Menu.Y + 30, subColonyGrid.Menu.Width - 20, subColonyGrid.Menu.Height - 35);
+            GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
             int width = GridPos.Width / 7;
             int height = GridPos.Height / 5;
             foreach (PlanetGridSquare planetGridSquare in p.TilesList)
@@ -211,7 +211,7 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                var rectangle4 = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
+                var rectangle4 = new Rectangle(pDescription.Rect.X + 10, pDescription.Rect.Y + 30, 124, 148);
                 var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
                 GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 GovernorDropdown.AddOption("--", 1);
@@ -299,7 +299,7 @@ namespace Ship_Game
             }
 
             pFacilities.Draw(batch);
-            DrawDetailInfo(new Vector2(pFacilities.Menu.X + 15, pFacilities.Menu.Y + 35));
+            DrawDetailInfo(new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
             build.Draw(batch);
             queue.Draw(batch);
 
@@ -330,7 +330,7 @@ namespace Ship_Game
             float num5 = 80f;
             if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
-            Vector2 vector2_2 = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
+            var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             P.Name = PlanetName.Text;
             PlanetName.Draw(Font20, batch, vector2_2, GameTime, new Color(255, 239, 208));
             EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
@@ -480,8 +480,8 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
-            var portrait = new Rectangle(pDescription.Menu.X + 10, pDescription.Menu.Y + 30, 124, 148);
-            while (portrait.Bottom > pDescription.Menu.Bottom)
+            var portrait = new Rectangle(pDescription.Rect.X + 10, pDescription.Rect.Y + 30, 124, 148);
+            while (portrait.Bottom > pDescription.Rect.Bottom)
             {
                 portrait.Height -= (int)(0.1 * portrait.Height);
                 portrait.Width  -= (int)(0.1 * portrait.Width);
@@ -496,8 +496,8 @@ namespace Ship_Game
             // [dropdown]
             // ColonTypeInfoText
             var description = new Rectangle(portrait.Right + 15, portrait.Y,
-                                            pDescription.Menu.Right - portrait.Right - 20,
-                                            pDescription.Menu.Height - 60);
+                                            pDescription.Rect.Right - portrait.Right - 20,
+                                            pDescription.Rect.Height - 60);
 
             var descCursor = new Vector2(description.X, description.Y);
             batch.DrawString(Font12, P.WorldType, descCursor, Color.White);
@@ -635,7 +635,7 @@ namespace Ship_Game
 
         string MultiLineFormat(string text)
         {
-            return Font12.ParseText(text, pFacilities.Menu.Width - 40);
+            return Font12.ParseText(text, pFacilities.Rect.Width - 40);
         }
 
         string MultiLineFormat(int token)

@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 
 namespace Ship_Game
@@ -334,7 +335,11 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public UIPanel Panel(in Rectangle r, Color c) => Add(new UIPanel(this, r, c));
+        public UIPanel Panel(in Rectangle r, Color c, DrawableSprite s = null)
+            => Add(new UIPanel(this, r, c, s));
+
+        public UIPanel Panel(in Rectangle r, Color c, SubTexture s)
+            => Panel(r, c, new DrawableSprite(s));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

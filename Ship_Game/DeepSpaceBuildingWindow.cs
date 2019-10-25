@@ -63,16 +63,16 @@ namespace Ship_Game
 
         public void Draw(GameTime gameTime)
         {
-            Rectangle r = ConstructionSubMenu.Menu;
-            r.Y = r.Y + 25;
-            r.Height = r.Height - 25;
+            Rectangle r = ConstructionSubMenu.Rect;
+            r.Y += 25;
+            r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
 
             SpriteBatch batch = ScreenManager.SpriteBatch;
             sel.Draw(batch);
             ConstructionSubMenu.Draw(batch);
             SL.Draw(batch);
-            var bCursor = new Vector2(ConstructionSubMenu.Menu.X + 20, ConstructionSubMenu.Menu.Y + 45);
+            var bCursor = new Vector2(ConstructionSubMenu.X + 20, ConstructionSubMenu.Y + 45);
 
             SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
             SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
@@ -215,7 +215,7 @@ namespace Ship_Game
                 {
                     itemToBuild = null;
                 }
-                if (!ConstructionSubMenu.Menu.HitTest(input.CursorPosition) || !input.RightMouseClick)
+                if (!ConstructionSubMenu.HitTest(input.CursorPosition) || !input.RightMouseClick)
                 {
                     return false;
                 }

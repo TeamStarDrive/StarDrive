@@ -64,7 +64,7 @@ namespace Ship_Game
             PlanetMenu.Draw();
             PlanetInfo.Draw(batch);
             batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
-            Vector2 PNameCursor = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
+            Vector2 PNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, new Color(255, 239, 208));
             PNameCursor.Y = PNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
             float amount = 80f;
@@ -114,7 +114,7 @@ namespace Ship_Game
                 }
             }
             PNameCursor.Y = PlanetIcon.Y + PlanetIcon.Height + 20;
-            string desc = parseText(p.Description, PlanetInfo.Menu.Width - 40);
+            string desc = parseText(p.Description, PlanetInfo.Width - 40);
             batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, new Color(255, 239, 208));
             /*if (this.p.Special != "None")     //This was removed, because the string "Special" was never assigned a valus other than "None" -Gretman
             {

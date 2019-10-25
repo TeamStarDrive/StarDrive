@@ -45,18 +45,10 @@ namespace Ship_Game
             MainMenu       = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
             close          = Add(new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20)));
-            
-            var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
-            Queue = Add(new ResearchQueueUIComponent(this, queue));
 
             RootNodes.Clear();
             AllTechNodes.Clear();
             SubNodes.Clear();
-
-            if (ScreenWidth < 1600)
-            {
-                Queue.SetQueueVisible(false);
-            }
 
             int numDiscoveredRoots = EmpireManager.Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
 
@@ -85,8 +77,11 @@ namespace Ship_Game
 
             RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
             PopulateNodesFromRoot(root);
-            Queue.ReloadResearchQueue();
             
+            // Create queue once all techs are populated            
+            var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
+            Queue = Add(new ResearchQueueUIComponent(this, queue));
+
             base.LoadContent();
         }
 
@@ -285,7 +280,6 @@ namespace Ship_Game
                 }
                 else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
                 {
-                    Queue.SetQueueVisible(true);
                     Queue.AddToResearchQueue(node);
                     GameAudio.ResearchSelect();
                 }
@@ -295,7 +289,6 @@ namespace Ship_Game
                 }
                 else
                 {
-                    Queue.SetQueueVisible(true);
                     GameAudio.ResearchSelect();
                     TechEntry techToCheck = node.Entry;
                     var techsToAdd = new Array<string>{ techToCheck.UID };
@@ -350,9 +343,9 @@ namespace Ship_Game
             // Unlock only selected node for player
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
-                if (Queue.CurrentResearch != null)
+                if (EmpireManager.Player.Research.HasTopic)
                 {
-                    Queue.CurrentResearch.Tech.Unlock(EmpireManager.Player);
+                    EmpireManager.Player.Research.Current.Unlock(EmpireManager.Player);
                     ReloadContent();
                     EmpireManager.Player.UpdateShipsWeCanBuild();
                 }
