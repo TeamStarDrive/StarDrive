@@ -111,7 +111,7 @@ namespace Ship_Game
             SaveMenu.Draw();
             NameSave.Draw(batch);
             AllSaves.Draw(batch);
-            var bCursor = new Vector2(AllSaves.Menu.X + 20, AllSaves.Menu.Y + 20);
+            var bCursor = new Vector2(AllSaves.X + 20, AllSaves.Y + 20);
             foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
             {
                 var data = (FileData)e.item;

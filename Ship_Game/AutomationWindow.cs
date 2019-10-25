@@ -114,9 +114,9 @@ namespace Ship_Game
             if (!Visible)
                 return;
 
-            Rectangle r = ConstructionSubMenu.Menu;
-            r.Y = r.Y + 25;
-            r.Height = r.Height - 25;
+            Rectangle r = ConstructionSubMenu.Rect;
+            r.Y += 25;
+            r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch);
             ConstructionSubMenu.Draw(batch);

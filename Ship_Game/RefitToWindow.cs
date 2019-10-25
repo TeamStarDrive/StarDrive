@@ -43,14 +43,14 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             sub_ships.Draw(batch);
-            Rectangle r = sub_ships.Menu;
+            Rectangle r = sub_ships.Rect;
             r.Y += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch);
             selector?.Draw(batch);
             ShipSL.Draw(batch);
-            var bCursor = new Vector2(sub_ships.Menu.X + 5, sub_ships.Menu.Y + 25);
+            var bCursor = new Vector2(sub_ships.X + 5, sub_ships.Y + 25);
             foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
             {
                 Ship ship = ResourceManager.ShipsDict[e.item as string];

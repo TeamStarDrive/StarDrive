@@ -372,7 +372,7 @@ namespace Ship_Game
 
         void DrawHullSelection(SpriteBatch batch)
         {
-            Rectangle  r = HullSelectionSub.Menu;
+            Rectangle  r = HullSelectionSub.Rect;
             r.Y      += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
@@ -383,7 +383,7 @@ namespace Ship_Game
 
             foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.Y);
+                var bCursor = new Vector2(HullSelectionSub.X + 10, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(ScreenManager, bCursor);
@@ -543,7 +543,7 @@ namespace Ship_Game
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier;
 
-            var cursor = new Vector2((StatsSub.Menu.X + 10), (ShipStats.Menu.Y + 18));
+            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Menu.Y + 18);
 
             DrawHullBonuses();
 
@@ -597,7 +597,7 @@ namespace Ship_Game
             float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
             if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
-            var cursorReq = new Vector2(StatsSub.Menu.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
+            var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
             if (ActiveHull.Role != ShipData.RoleName.platform)
                 DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
 

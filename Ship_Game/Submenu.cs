@@ -9,82 +9,14 @@ namespace Ship_Game
         void ResetLists();
     }
 
-    public class SubmenuStyle
+    public enum SubmenuStyle
     {
-        public int ContentId { get; set; }
-
-        public SubTexture HorizVert       { get; private set; }
-        public SubTexture CornerTL        { get; private set; }
-        public SubTexture CornerTR        { get; private set; }
-        public SubTexture CornerBR        { get; private set; }
-        public SubTexture CornerBL        { get; private set; }
-
-        public SubTexture Left          { get; private set; }
-        public SubTexture LeftUnsel     { get; private set; }
-        public SubTexture HoverLeftEdge { get; private set; }
-        public SubTexture HoverLeft     { get; private set; }
-        public SubTexture HoverMid      { get; private set; }
-        public SubTexture HoverRight    { get; private set; }
-        public SubTexture Middle        { get; private set; }
-        public SubTexture MiddleUnsel   { get; private set; }
-        public SubTexture Right         { get; private set; }
-        public SubTexture RightUnsel    { get; private set; }
-        public SubTexture RightExt      { get; private set; }
-        public SubTexture RightExtUnsel { get; private set; }
-
-        // create the style dynamically to allow hotloading
-        public static SubmenuStyle CreateBrown() => new SubmenuStyle
-        {
-            HorizVert       = ResourceManager.Texture("NewUI/submenu_horiz_vert"),
-            CornerTL        = ResourceManager.Texture("NewUI/submenu_corner_TL"),
-            CornerTR        = ResourceManager.Texture("NewUI/submenu_corner_TR"),
-            CornerBR        = ResourceManager.Texture("NewUI/submenu_corner_BR"),
-            CornerBL        = ResourceManager.Texture("NewUI/submenu_corner_BL"),
-
-            HoverLeftEdge = ResourceManager.Texture("NewUI/submenu_header_hover_leftedge"),
-            HoverLeft     = ResourceManager.Texture("NewUI/submenu_header_hover_left"),
-            HoverMid      = ResourceManager.Texture("NewUI/submenu_header_hover_mid"),
-            HoverRight    = ResourceManager.Texture("NewUI/submenu_header_hover_right"),
-
-            Left          = ResourceManager.Texture("NewUI/submenu_header_left"),
-            LeftUnsel     = ResourceManager.Texture("NewUI/submenu_header_left_unsel"),
-            Middle        = ResourceManager.Texture("NewUI/submenu_header_middle"),
-            MiddleUnsel   = ResourceManager.Texture("NewUI/submenu_header_middle_unsel"),
-            Right         = ResourceManager.Texture("NewUI/submenu_header_right"),
-            RightUnsel    = ResourceManager.Texture("NewUI/submenu_header_right_unsel"),
-            RightExt      = ResourceManager.Texture("NewUI/submenu_header_rightextend"),
-            RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel")
-        };
-
-        public static SubmenuStyle CreateBlue() => new SubmenuStyle
-        {
-            ContentId     = ResourceManager.ContentId,
-            HorizVert     = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert"),
-            CornerTL      = ResourceManager.Texture("ResearchMenu/submenu_corner_TL"),
-            CornerTR      = ResourceManager.Texture("ResearchMenu/submenu_corner_TR"),
-            CornerBR      = ResourceManager.Texture("ResearchMenu/submenu_corner_BR"),
-            CornerBL      = ResourceManager.Texture("ResearchMenu/submenu_corner_BL"),
-
-            // research menu doesn't have any hovers, so just reuse left/middle/right
-            HoverLeftEdge = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
-            HoverLeft     = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
-            HoverMid      = ResourceManager.Texture("ResearchMenu/submenu_header_middle"),
-            HoverRight    = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
-
-            Left          = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
-            LeftUnsel     = ResourceManager.Texture("ResearchMenu/submenu_header_left"),
-            Middle        = ResourceManager.Texture("ResearchMenu/submenu_header_middle"),
-            MiddleUnsel   = ResourceManager.Texture("ResearchMenu/submenu_header_middle"),
-            Right         = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
-            RightUnsel    = ResourceManager.Texture("ResearchMenu/submenu_header_right"),
-            RightExt      = ResourceManager.Texture("ResearchMenu/submenu_transition_right"),
-            RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right")
-        };
+        Brown,
+        Blue,
     }
 
-    public class Submenu
+    public class Submenu : UIElementV2
     {
-        public Rectangle Menu;
         public Array<Tab> Tabs = new Array<Tab>();
 
         Rectangle UpperLeft;
@@ -97,48 +29,126 @@ namespace Ship_Game
         Rectangle VR;
         Rectangle TL;
         readonly SpriteFont Font = Fonts.Pirulen12;
+        readonly SubmenuStyle Style;
 
-        readonly bool Blue;
-        SubmenuStyle Style;
-
-        public Submenu(Rectangle theMenu)
+        public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown) : base(null, theMenu)
         {
-            ReloadStyle();
-            InitLayout(theMenu);
+            Style = style;
+            this.PerformLayout();
         }
 
-        public Submenu(bool blue, Rectangle theMenu)
+        public class StyleTextures
         {
-            Blue = blue;
-            ReloadStyle();
-            InitLayout(theMenu);
+            public SubTexture HorizVert;
+            public SubTexture CornerTL;
+            public SubTexture CornerTR;
+            public SubTexture CornerBR;
+            public SubTexture CornerBL;
+
+            public SubTexture Left;
+            public SubTexture LeftUnsel;
+            public SubTexture HoverLeftEdge;
+            public SubTexture HoverLeft;
+            public SubTexture HoverMid;
+            public SubTexture HoverRight;
+            public SubTexture Middle;
+            public SubTexture MiddleUnsel;
+            public SubTexture Right;
+            public SubTexture RightUnsel;
+            public SubTexture RightExt;
+            public SubTexture RightExtUnsel;
+
+            public StyleTextures(SubmenuStyle style)
+            {
+                switch (style)
+                {
+                    case SubmenuStyle.Brown:
+                        HorizVert       = ResourceManager.Texture("NewUI/submenu_horiz_vert");
+                        CornerTL        = ResourceManager.Texture("NewUI/submenu_corner_TL");
+                        CornerTR        = ResourceManager.Texture("NewUI/submenu_corner_TR");
+                        CornerBR        = ResourceManager.Texture("NewUI/submenu_corner_BR");
+                        CornerBL        = ResourceManager.Texture("NewUI/submenu_corner_BL");
+
+                        HoverLeftEdge = ResourceManager.Texture("NewUI/submenu_header_hover_leftedge");
+                        HoverLeft     = ResourceManager.Texture("NewUI/submenu_header_hover_left");
+                        HoverMid      = ResourceManager.Texture("NewUI/submenu_header_hover_mid");
+                        HoverRight    = ResourceManager.Texture("NewUI/submenu_header_hover_right");
+
+                        Left          = ResourceManager.Texture("NewUI/submenu_header_left");
+                        LeftUnsel     = ResourceManager.Texture("NewUI/submenu_header_left_unsel");
+                        Middle        = ResourceManager.Texture("NewUI/submenu_header_middle");
+                        MiddleUnsel   = ResourceManager.Texture("NewUI/submenu_header_middle_unsel");
+                        Right         = ResourceManager.Texture("NewUI/submenu_header_right");
+                        RightUnsel    = ResourceManager.Texture("NewUI/submenu_header_right_unsel");
+                        RightExt      = ResourceManager.Texture("NewUI/submenu_header_rightextend");
+                        RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel");
+                        break;
+                    
+                    case SubmenuStyle.Blue:
+                        HorizVert     = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert");
+                        CornerTL      = ResourceManager.Texture("ResearchMenu/submenu_corner_TL");
+                        CornerTR      = ResourceManager.Texture("ResearchMenu/submenu_corner_TR");
+                        CornerBR      = ResourceManager.Texture("ResearchMenu/submenu_corner_BR");
+                        CornerBL      = ResourceManager.Texture("ResearchMenu/submenu_corner_BL");
+
+                        // research menu doesn't have any hovers, so just reuse left/middle/right
+                        HoverLeftEdge = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        HoverLeft     = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        HoverMid      = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
+                        HoverRight    = ResourceManager.Texture("ResearchMenu/submenu_header_right");
+
+                        Left          = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        LeftUnsel     = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        Middle        = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
+                        MiddleUnsel   = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
+                        Right         = ResourceManager.Texture("ResearchMenu/submenu_header_right");
+                        RightUnsel    = ResourceManager.Texture("ResearchMenu/submenu_header_right");
+                        RightExt      = ResourceManager.Texture("ResearchMenu/submenu_transition_right");
+                        RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right");
+                        break;
+                }
+            }
         }
 
-        void ReloadStyle()
+        static int ContentId;
+        static StyleTextures[] Styling;
+
+        StyleTextures GetStyle()
         {
-            Style = Blue ? SubmenuStyle.CreateBlue() : SubmenuStyle.CreateBrown();
+            if (Styling == null || ContentId != ResourceManager.ContentId)
+            {
+                ContentId = ResourceManager.ContentId;
+                Styling = new[]
+                {
+                    new StyleTextures(SubmenuStyle.Brown),
+                    new StyleTextures(SubmenuStyle.Blue),
+                };
+            }
+            return Styling[(int)Style];
         }
 
-        void InitLayout(Rectangle theMenu)
+        public override void PerformLayout()
         {
-            Menu = theMenu;
-            UpperLeft = new Rectangle(theMenu.X, theMenu.Y, Style.Left.Width, Style.Left.Height);
-            TL = new Rectangle(theMenu.X, theMenu.Y + 25 - 2, Style.CornerTL.Width, Style.CornerTL.Height);
-            TR = new Rectangle(theMenu.X + theMenu.Width - Style.CornerTR.Width, theMenu.Y + 25 - 2, Style.CornerTR.Width, Style.CornerTR.Height);
-            BL = new Rectangle(theMenu.X, theMenu.Y + theMenu.Height - Style.CornerBL.Height + 2, Style.CornerBL.Width, Style.CornerBL.Height);
-            BR = new Rectangle(theMenu.X + theMenu.Width - Style.CornerBR.Width, theMenu.Y + theMenu.Height + 2 - Style.CornerBR.Height, Style.CornerBR.Width, Style.CornerBR.Height);
-            topHoriz = new Rectangle(theMenu.X + TL.Width, theMenu.Y + 25 - 2, theMenu.Width - TR.Width - TL.Width, 2);
-            botHoriz = new Rectangle(theMenu.X + BL.Width, theMenu.Y + theMenu.Height, theMenu.Width - BL.Width - BR.Width, 2);
-            VL = new Rectangle(theMenu.X, theMenu.Y + 25 + TR.Height - 2, 2, theMenu.Height - 25 - BL.Height - 2);
-            VR = new Rectangle(theMenu.X + theMenu.Width - 2, theMenu.Y + 25 + TR.Height - 2, 2, theMenu.Height - 25 - BR.Height - 2);
+            StyleTextures s = GetStyle();
+            Rectangle r = Rect;
+            TL = new Rectangle(r.X, r.Y + 25 - 2, s.CornerTL.Width, s.CornerTL.Height);
+            TR = new Rectangle(r.X + r.Width - s.CornerTR.Width, r.Y + 25 - 2, s.CornerTR.Width, s.CornerTR.Height);
+            BL = new Rectangle(r.X, r.Y + r.Height - s.CornerBL.Height + 2, s.CornerBL.Width, s.CornerBL.Height);
+            BR = new Rectangle(r.X + r.Width - s.CornerBR.Width, r.Y + r.Height + 2 - s.CornerBR.Height, s.CornerBR.Width, s.CornerBR.Height);
+            VL = new Rectangle(r.X, r.Y + 25 + TR.Height - 2, 2, r.Height - 25 - BL.Height - 2);
+            VR = new Rectangle(r.X + r.Width - 2, r.Y + 25 + TR.Height - 2, 2, r.Height - 25 - BR.Height - 2);
+            UpperLeft = new Rectangle(r.X, r.Y, s.Left.Width, s.Left.Height);
+            topHoriz = new Rectangle(r.X + TL.Width, r.Y + 25 - 2, r.Width - TR.Width - TL.Width, 2);
+            botHoriz = new Rectangle(r.X + BL.Width, r.Y + r.Height, r.Width - BL.Width - BR.Width, 2);
         }
 
 
         public void AddTab(string title)
         {
+            StyleTextures s = GetStyle();
             float tabX = UpperLeft.X + UpperLeft.Width;
             foreach (Tab ta in Tabs)
-                tabX += ta.tabRect.Width + Style.Right.Width;
+                tabX += ta.tabRect.Width + s.Right.Width;
 
             var tabRect = new Rectangle((int)tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25);
             Tabs.Add(new Tab
@@ -150,17 +160,19 @@ namespace Ship_Game
             });
         }
 
-        public void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch)
         {
-            if (Style.ContentId != ResourceManager.ContentId)
-                ReloadStyle();
+            if (!Visible)
+                return;
+            
+            StyleTextures s = GetStyle();
 
-            batch.Draw(Style.CornerTL, TL, Color.White);
+            batch.Draw(s.CornerTL, TL, Color.White);
             if (Tabs.Count > 0)
             {
-                SubTexture header = Tabs[0].Selected ? Style.Left :
-                                    Tabs[0].Hover    ? Style.HoverLeftEdge :
-                                                       Style.LeftUnsel;
+                SubTexture header = Tabs[0].Selected ? s.Left :
+                                    Tabs[0].Hover    ? s.HoverLeftEdge :
+                                                       s.LeftUnsel;
                 batch.Draw(header, UpperLeft, Color.White);
             }
 
@@ -168,11 +180,11 @@ namespace Ship_Game
             {
                 foreach (Tab t in Tabs)
                 {
-                    var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
+                    var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.Right.Width, 25);
                     var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - Font.LineSpacing / 2));
 
-                    batch.Draw(Style.Middle, t.tabRect, Color.White);
-                    batch.Draw(Style.Right, right, Color.White);
+                    batch.Draw(s.Middle, t.tabRect, Color.White);
+                    batch.Draw(s.Right, right, Color.White);
                     batch.DrawString(Font, t.Title, textPos, new Color(255, 239, 208));
                 }
             }
@@ -183,42 +195,42 @@ namespace Ship_Game
                     Tab t = Tabs[i];
                     if (t.Selected)
                     {
-                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.Right.Width, 25);
+                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.Right.Width, 25);
 
-                        batch.Draw(Style.Middle, t.tabRect, Color.White);
-                        batch.Draw(Style.Right, right, Color.White);
+                        batch.Draw(s.Middle, t.tabRect, Color.White);
+                        batch.Draw(s.Right, right, Color.White);
 
                         if (Tabs.Count - 1 > i && !Tabs[i + 1].Selected)
                         {
-                            SubTexture tab = Tabs[i + 1].Hover ? Style.HoverLeft : Style.RightExtUnsel;
+                            SubTexture tab = Tabs[i + 1].Hover ? s.HoverLeft : s.RightExtUnsel;
                             batch.Draw(tab, right, Color.White);
                         }
                     }
                     else if (!t.Hover)
                     {
-                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.RightUnsel.Width, 25);
+                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.RightUnsel.Width, 25);
 
-                        batch.Draw(Style.MiddleUnsel, t.tabRect, Color.White);
-                        batch.Draw(Style.RightUnsel, right, Color.White);
+                        batch.Draw(s.MiddleUnsel, t.tabRect, Color.White);
+                        batch.Draw(s.RightUnsel, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
-                            SubTexture tex = Tabs[i + 1].Selected ? Style.RightExt :
-                                             Tabs[i + 1].Hover    ? Style.HoverLeft :
-                                                                    Style.RightExtUnsel;
+                            SubTexture tex = Tabs[i + 1].Selected ? s.RightExt :
+                                             Tabs[i + 1].Hover    ? s.HoverLeft :
+                                                                    s.RightExtUnsel;
                             batch.Draw(tex, right, Color.White);
                         }
                     }
                     else
                     {
-                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, Style.HoverRight.Width, 25);
+                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.HoverRight.Width, 25);
 
-                        batch.Draw(Style.HoverMid, t.tabRect, Color.White);
-                        batch.Draw(Style.HoverRight, right, Color.White);
+                        batch.Draw(s.HoverMid, t.tabRect, Color.White);
+                        batch.Draw(s.HoverRight, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
-                            SubTexture tex = Tabs[i + 1].Selected ? Style.RightExt :
-                                             Tabs[i + 1].Hover    ? Style.HoverLeft :
-                                                                    Style.RightExtUnsel;
+                            SubTexture tex = Tabs[i + 1].Selected ? s.RightExt :
+                                             Tabs[i + 1].Hover    ? s.HoverLeft :
+                                                                    s.RightExtUnsel;
                             batch.Draw(tex, right, Color.White);
                         }
                     }
@@ -226,18 +238,21 @@ namespace Ship_Game
                     batch.DrawString(Font, t.Title, textPos, new Color(255, 239, 208));
                 }
             }
-            batch.Draw(Style.HorizVert, topHoriz, Color.White);
-            batch.Draw(Style.CornerTR,  TR, Color.White);
-            batch.Draw(Style.HorizVert, botHoriz, Color.White);
-            batch.Draw(Style.CornerBR,  BR, Color.White);
-            batch.Draw(Style.CornerBL,  BL, Color.White);
-            batch.Draw(Style.HorizVert, VR, Color.White);
-            batch.Draw(Style.HorizVert, VL, Color.White);
+            batch.Draw(s.HorizVert, topHoriz, Color.White);
+            batch.Draw(s.CornerTR,  TR, Color.White);
+            batch.Draw(s.HorizVert, botHoriz, Color.White);
+            batch.Draw(s.CornerBR,  BR, Color.White);
+            batch.Draw(s.CornerBL,  BL, Color.White);
+            batch.Draw(s.HorizVert, VR, Color.White);
+            batch.Draw(s.HorizVert, VL, Color.White);
         }
 
         /// TODO: there are 3 pretty much identical functions here... what the hell??
         public void HandleInput(InputState input, IListScreen caller)
         {
+            if (!Visible || !Enabled)
+                return;
+
             for (int i = 0; i < Tabs.Count; i++)
             {
                 Tab tab = Tabs[i];
@@ -258,8 +273,12 @@ namespace Ship_Game
                 }
             }
         }
-        public virtual bool HandleInput(InputState input)
+
+        public override bool HandleInput(InputState input)
         {
+            if (!Visible || !Enabled)
+                return false;
+
             Vector2 mousePos = input.CursorPosition;
             for (int i = 0; i < Tabs.Count; i++)
             {
@@ -290,8 +309,12 @@ namespace Ship_Game
             }
             return false;
         }
+
         public void HandleInputNoReset(InputState input)
         {
+            if (!Visible || !Enabled)
+                return;
+
             foreach (Tab tab in Tabs)
             {
                 if (!tab.tabRect.HitTest(input.CursorPosition))

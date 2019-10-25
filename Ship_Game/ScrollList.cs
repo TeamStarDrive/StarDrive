@@ -29,9 +29,9 @@ namespace Ship_Game
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView))]
     [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
-    public class ScrollList
+    public class ScrollList : UIElementV2
     {
-        readonly Submenu Parent;
+        readonly Submenu ParentMenu;
         Rectangle ScrollUp;
         Rectangle ScrollDown;
         Rectangle ScrollBarHousing;
@@ -44,10 +44,13 @@ namespace Ship_Game
         float ScrollBarStartDragPos;
         float ClickTimer;
         float TimerDelay = 0.05f;
+        int YOffset = 5;
 
         // TODO: This is set to false for compatibility reasons
-        //       So by default ScrollList.HandleInput will not call HandleInput on child entries
-        public bool AutoHandleInput = false;
+        //       By default ScrollList.HandleInput will not call HandleInput and Draw on child entries
+        //       If TRUE, ScrollList will automatically HandleInput
+        //       and call UIElementV2.Draw on ScrollList.Entry.item
+        public bool AutoManageItems = false;
 
         readonly int MaxVisibleEntries;
         public int FirstVisibleIndex;
@@ -62,30 +65,33 @@ namespace Ship_Game
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
         {
-            Parent = p;
+            ParentMenu = p;
             Style = style;
-            MaxVisibleEntries = (p.Menu.Height - 25) / 40;
+            MaxVisibleEntries = (p.Rect.Height - 25) / 40;
             IsDraggable = options == ListOptions.Draggable;
-            InitializeRects(p, 30);
+            YOffset = 30;
+            this.PerformLayout();
         }
 
         public ScrollList(Submenu p, int eHeight, ListControls controls = ListControls.All, ListStyle style = ListStyle.Default)
         {
-            Parent = p;
+            ParentMenu = p;
             Style = style;
             EntryHeight = eHeight;
             Controls = controls;
-            MaxVisibleEntries = (p.Menu.Height - 25) / EntryHeight;
-            InitializeRects(p, 30);
+            MaxVisibleEntries = (p.Rect.Height - 25) / EntryHeight;
+            YOffset = 30;
+            this.PerformLayout();
         }
 
         public ScrollList(Submenu p, int eHeight, bool realRect, ListStyle style = ListStyle.Default)
         {
-            Parent = p;
+            ParentMenu = p;
             Style = style;
             EntryHeight = eHeight;
-            MaxVisibleEntries = p.Menu.Height / EntryHeight;
-            InitializeRects(p, 5);
+            MaxVisibleEntries = p.Rect.Height / EntryHeight;
+            YOffset = 5;
+            this.PerformLayout();
         }
 
         class StyleTextures
@@ -173,14 +179,21 @@ namespace Ship_Game
             return Styling[(int)Style];
         }
 
-        void InitializeRects(Submenu p, int yOffset)
+        public override void PerformLayout()
         {
+            Submenu p = ParentMenu;
             StyleTextures s = GetStyle();
-            int x = p.Menu.X + p.Menu.Width - 20;
-            ScrollUp   = new Rectangle(x, p.Menu.Y + yOffset,            s.ScrollBarArrowUp.Width, s.ScrollBarArrowUp.Height);
-            ScrollDown = new Rectangle(x, p.Menu.Y + p.Menu.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
+            int x = p.Rect.X + p.Rect.Width - 20;
+            ScrollUp   = new Rectangle(x, p.Rect.Y + YOffset,            s.ScrollBarArrowUp.Width, s.ScrollBarArrowUp.Height);
+            ScrollDown = new Rectangle(x, p.Rect.Y + p.Rect.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             ScrollBar        = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, s.ScrollBarMid.Width, 0);
+            base.PerformLayout();
+        }
+
+        void InitializeRects(Submenu p, int yOffset)
+        {
+
         }
 
         public Entry AddItem(object o)
@@ -377,10 +390,13 @@ namespace Ship_Game
             batch.Draw(ScrollDown.HitTest(mousepos) ? s.ScrollBarArrowDownHover1 : s.ScrollBarArrowDown, ScrollDown, Color.White);
         }
 
-        public virtual void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch)
         {
             if (ExpandedEntries.Count > MaxVisibleEntries)
                 DrawScrollBar(batch);
+
+            if (AutoManageItems)
+                DrawChildElements(batch);
 
             // @todo Why the hell do we need to know the exact type of item??
             if (DraggedEntry?.item is QueueItem queueItem)
@@ -515,7 +531,7 @@ namespace Ship_Game
 
         bool HandleMouseScrollUpDown(InputState input)
         {
-            if (!Parent.Menu.HitTest(input.CursorPosition))
+            if (!ParentMenu.HitTest(input.CursorPosition))
                 return false;
             if (input.ScrollIn)
             {
@@ -580,7 +596,7 @@ namespace Ship_Game
             }
         }
 
-        public virtual bool HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
             bool hit = HandleScrollBar(input);
             hit |= HandleMouseScrollUpDown(input);
@@ -601,7 +617,7 @@ namespace Ship_Game
                 return false;
             });
             UpdateListElements();
-            if (!hit && AutoHandleInput)
+            if (!hit && AutoManageItems)
                 return HandleInputChildElements(input);
             return hit;
         }
@@ -643,7 +659,7 @@ namespace Ship_Game
                 return false;
             });
             UpdateListElements();
-            if (!hit && AutoHandleInput)
+            if (!hit && AutoManageItems)
                 return HandleInputChildElements(input);
             return hit;
         }
@@ -680,7 +696,7 @@ namespace Ship_Game
             {
                 Entry e = ExpandedEntries[i];
                 if (i >= FirstVisibleIndex)
-                    e.UpdateClickRect(Parent.Menu.Pos(), j++);
+                    e.UpdateClickRect(ParentMenu.Rect.Pos(), j++);
                 else
                     e.SetUnclickable();
             }
@@ -691,13 +707,23 @@ namespace Ship_Game
         
         bool HandleInputChildElements(InputState input)
         {
-            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count; i++)
+            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
             {
                 if (ExpandedEntries[i].TryGet(out UIElementV2 element))
                     if (element.HandleInput(input))
                         return true;
             }
             return false;
+        }
+
+        
+        void DrawChildElements(SpriteBatch batch)
+        {
+            for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
+            {
+                if (ExpandedEntries[i].TryGet(out UIElementV2 element))
+                    element.Draw(batch);
+            }
         }
 
 
@@ -944,10 +970,15 @@ namespace Ship_Game
             public void UpdateClickRect(Point topLeft, int j)
             {
                 int height = List.EntryHeight;
-                var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * height, List.Parent.Menu.Width - 40, height);
+                var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * height, List.ParentMenu.Rect.Width - 40, height);
                 int right = r.X + r.Width;
                 int iconY = r.Y + 15;
                 Rect = r;
+                if (List.AutoManageItems && item is UIElementV2 element)
+                {
+                    element.Rect = r;
+                    element.PerformLayout();
+                }
 
                 StyleTextures s = List.GetStyle();
                 SubTexture addIcon = s.BuildAdd;
