@@ -140,6 +140,8 @@ namespace Ship_Game
                 FrameDeltaTime = 1f / 60f;
 
             GameAudio.Update();
+
+            // 1. Handle Input and 2. Update for each game screen
             ScreenManager.Update(gameTime);
             base.Update(gameTime); // Update XNA components
 

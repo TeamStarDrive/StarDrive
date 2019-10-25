@@ -72,8 +72,8 @@ namespace Ship_Game
 
             orbitalResourcesSub.AddTab("In Orbit");
 
-            LandAll   = Button(orbitalResourcesSub.Menu.X + 20, orbitalResourcesSub.Menu.Y - 2, "Land All", OnLandAllClicked);
-            LaunchAll = Button(orbitalResourcesSub.Menu.X + 20, LandAll.Rect.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
+            LandAll   = Button(orbitalResourcesSub.X + 20, orbitalResourcesSub.Y - 2, "Land All", OnLandAllClicked);
+            LaunchAll = Button(orbitalResourcesSub.X + 20, LandAll.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
             LandAll.Tooltip   = Localizer.Token(1951);
             LaunchAll.Tooltip = Localizer.Token(1952);
 
@@ -236,7 +236,7 @@ namespace Ship_Game
             if (assetsUI.LandTroops.Toggled)
             {
                 OrbitSL.Draw(batch);
-                var bCursor = new Vector2((orbitalResourcesSub.Menu.X + 25), 350f);
+                var bCursor = new Vector2(orbitalResourcesSub.X + 25, 350f);
                 foreach (ScrollList.Entry e in OrbitSL.VisibleExpandedEntries)
                 {
                     if (e.item is Troop t)

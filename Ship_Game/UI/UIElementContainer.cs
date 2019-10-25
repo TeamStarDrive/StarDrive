@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 
 namespace Ship_Game
@@ -39,7 +40,7 @@ namespace Ship_Game
         protected UIElementContainer(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
         {
         }
-        protected UIElementContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
+        protected UIElementContainer(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
         {
         }
 
@@ -248,24 +249,24 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UIButton Button(ButtonStyle style, Vector2 pos, string text, Action<UIButton> click, string clickSfx = null)
+        protected UIButton Button(UIButton btn, Action<UIButton> click, string clickSfx)
         {
-            var button = new UIButton(this, style, pos, text);
-            if (click != null)       button.OnClick += click;
-            if (clickSfx.NotEmpty()) button.ClickSfx = clickSfx;
-            return Add(button);
+            if (click != null)       btn.OnClick += click;
+            if (clickSfx.NotEmpty()) btn.ClickSfx = clickSfx;
+            return Add(btn);
         }
+
+        protected UIButton Button(ButtonStyle style, Action<UIButton> click, string clickSfx = null)
+            => Button(new UIButton(this, style), click, clickSfx);
+
+        protected UIButton Button(ButtonStyle style, Vector2 pos, string text, Action<UIButton> click, string clickSfx = null)
+            => Button(new UIButton(this, style, pos, text), click, clickSfx);
 
         protected UIButton Button(ButtonStyle style, float x, float y, string text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
 
         protected UIButton Button(ButtonStyle style, in Rectangle rect, Action<UIButton> click, string clickSfx = null)
-        {
-            var button = new UIButton(this, style, rect);
-            if (click != null) button.OnClick += click;
-            if (clickSfx.NotEmpty()) button.ClickSfx = clickSfx;
-            return Add(button);
-        }
+            => Button(new UIButton(this, style, rect), click, clickSfx);
 
         protected UIButton Button(float x, float y, string text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
@@ -334,7 +335,11 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public UIPanel Panel(in Rectangle r, Color c) => Add(new UIPanel(this, r, c));
+        public UIPanel Panel(in Rectangle r, Color c, DrawableSprite s = null)
+            => Add(new UIPanel(this, r, c, s));
+
+        public UIPanel Panel(in Rectangle r, Color c, SubTexture s)
+            => Panel(r, c, new DrawableSprite(s));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

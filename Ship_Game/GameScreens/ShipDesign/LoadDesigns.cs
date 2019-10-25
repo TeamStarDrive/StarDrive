@@ -73,7 +73,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             
             foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(SaveShips.Menu.X + 20, SaveShips.Menu.Y + 20);
+                var bCursor = new Vector2(SaveShips.X + 20, SaveShips.Y + 20);
                 if (e.item == null)
                     continue;
                 bCursor.Y = e.Y;
@@ -188,7 +188,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             SaveShips.AddTab(Localizer.Token(198));
             ShipDesigns         = new ScrollList(SaveShips);
             TitlePosition       = new Vector2(Window.X + 20, Window.Y + 20);
-            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Menu.X + SaveShips.Menu.Width - 44, SaveShips.Menu.Y)));
+            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Right - 44, SaveShips.Y)));
             PlayerDesignsToggle.OnClick += p =>
             {
                 GameAudio.AcceptClick();

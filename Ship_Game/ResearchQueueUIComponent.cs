@@ -1,152 +1,142 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-	public sealed class ResearchQueueUIComponent
-	{
-        Rectangle Current;
-        Rectangle Queue;
-		public ScrollList QSL;
-        ScreenManager ScreenManager;
-        Submenu qsub;
-		public Submenu csub;
-        ResearchScreenNew screen;
-		public bool Visible = true;
-        Rectangle TimeLeft;
-		public Rectangle container;
-        DanButton ShowQueue;
+    public sealed class ResearchQueueUIComponent : UIPanel
+    {
+        readonly ResearchScreenNew Screen;
 
+        readonly Submenu CurrentResearchPanel;
+        readonly Submenu ResearchQueuePanel;
+        readonly UIPanel TimeLeft;
+        readonly UILabel TimeLeftLabel;
 
-		public ResearchQueueUIComponent(ScreenManager ScreenManager, Rectangle container, ResearchScreenNew screen)
-		{
-			this.container = container;
-			this.screen = screen;
-			this.ScreenManager = ScreenManager;
-			Current = new Rectangle(container.X, container.Y, container.Width, 150);
-			ShowQueue = new DanButton(new Vector2(container.X + container.Width - 192, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 55), Localizer.Token(2136));
-			TimeLeft = new Rectangle(Current.X + Current.Width - 119, Current.Y + Current.Height - 24, 111, 20);
-			csub = new Submenu(true, Current);
-			csub.AddTab(Localizer.Token(1405));
-			Queue = new Rectangle(Current.X, Current.Y + 165, container.Width, container.Height - 165);
-			qsub = new Submenu(true, Queue);
-			qsub.AddTab(Localizer.Token(1404));
-			QSL = new ScrollList(qsub, 125);
-		}
+        ResearchQItem CurrentResearch;
+        readonly ScrollList QSL;
+        readonly UIButton BtnShowQueue;
 
-        public void Draw(SpriteBatch batch)
-		{
-			if (!Visible)
-			{
-				ShowQueue.DrawBlue(batch);
-				return;
-			}
-
-			ShowQueue.DrawBlue(batch);
-			batch.FillRectangle(container, Color.Black);
-			QSL.DrawBlue(batch);
-			csub.Draw(batch);
-
-            ScrollList.Entry[] entries = QSL.VisibleExpandedEntries;
-
-			if (entries.Length > 0)
-			{
-                var currentResearch = entries[0].Get<ResearchQItem>();
-                TechEntry tech = currentResearch.Node.Entry;
-                currentResearch.Draw(batch);
-				batch.Draw(ResourceManager.Texture("ResearchMenu/timeleft"), TimeLeft, Color.White);
-				var cursor = new Vector2(TimeLeft.X + TimeLeft.Width - 7, TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2 - 2);
-				float cost = tech.TechCost - tech.Progress;
-				int numTurns = (int)(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
-				if (cost % numTurns != 0f)
-				{
-					numTurns++;
-				}
-				string text = string.Concat(numTurns, " turns");
-				if (numTurns > 999)
-				{
-					text = ">999 turns";
-				}
-				cursor.X -= Fonts.Verdana14Bold.MeasureString(text).X;
-				batch.DrawString(Fonts.Verdana14Bold, text, cursor, new Color(205, 229, 255));
-			}
-
-            for (int i = 1; i < entries.Length; ++i)
-            {
-                ScrollList.Entry e = entries[i];
-                e.Get<ResearchQItem>().Draw(batch, e.Rect);
-            }
-
-			qsub.Draw(batch);
-		}
-
-		public void HandleInput(InputState input)
-		{
-			if ((Visible && input.RightMouseClick && Queue.HitTest(input.CursorPosition))
-                || input.Escaped)
-			{
-				screen.ExitScreen();
-				return;
-			}
-
-			screen.qcomponent.QSL.HandleInput(input);
-			if (Visible)
-			{
-                foreach (ScrollList.Entry e in QSL.VisibleExpandedEntries)
-                {
-                    if (e.Get<ResearchQItem>().HandleInput(input))
-                    {
-                        GameAudio.ResearchSelect();
-                        break;
-                    }
-                }
-
-				if (ShowQueue.HandleInput(input))
-				{
-					ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2135));
-					Visible = false;
-				}
-			}
-			else if (ShowQueue.HandleInput(input))
-			{
-				ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2136));
-				Visible = true;
-			}
-		}
-
-        ResearchQItem CreateQItem(TreeNode researchItem)
+        public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
         {
-            return new ResearchQItem(new Vector2(csub.Menu.X + 5, csub.Menu.Y + 30), researchItem, screen);
+            Screen = screen;
+
+            BtnShowQueue = Button(ButtonStyle.DanButtonBlue, 
+                new Vector2(container.Right - 192, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
+            BtnShowQueue.TextAlign = ButtonTextAlign.Left;
+
+            var current = new Rectangle(container.X, container.Y, container.Width, 150);
+            var timeLeftRect = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
+            TimeLeft = Panel(timeLeftRect, Color.White, ResourceManager.Texture("ResearchMenu/timeleft"));
+            
+            var labelPos = new Vector2(TimeLeft.X + 26,
+                                       TimeLeft.Y + TimeLeft.Height / 2 - Fonts.Verdana14Bold.LineSpacing / 2);
+            TimeLeftLabel = TimeLeft.Label(labelPos, "", Fonts.Verdana14Bold, new Color(205, 229, 255));
+
+            CurrentResearchPanel = Add(new Submenu(current, SubmenuStyle.Blue));
+            CurrentResearchPanel.AddTab(Localizer.Token(1405));
+            
+            var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
+            ResearchQueuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
+            ResearchQueuePanel.AddTab(Localizer.Token(1404));
+
+            QSL = Add(new ScrollList(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue) { AutoManageItems = true });
+            ReloadResearchQueue();
         }
 
-        public void AddToResearchQueue(TreeNode researchItem)
+        void OnBtnShowQueuePressed(UIButton button)
         {
-            if (EmpireManager.Player.AddToResearchQueue(researchItem.Entry.UID))
-                QSL.AddItem(CreateQItem(researchItem));
+            SetQueueVisible(!QSL.Visible);
+        }
+
+        void SetQueueVisible(bool visible)
+        {
+            BtnShowQueue.Visible = (CurrentResearch != null);
+
+            if (CurrentResearch != null)
+            {
+                TimeLeft.Visible = visible;
+                CurrentResearch.Visible = visible;
+            }
+            else
+            {
+                TimeLeft.Visible = false;
+            }
+
+            QSL.Visible = visible;
+            CurrentResearchPanel.Visible = visible;
+            ResearchQueuePanel.Visible = visible;
+            BtnShowQueue.Text = Localizer.Token(QSL.Visible ? 2136 : 2135);
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if ((QSL.Visible && input.RightMouseClick && ResearchQueuePanel.HitTest(input.CursorPosition))
+                || input.Escaped)
+            {
+                Screen.ExitScreen();
+                return true;
+            }
+
+            if (CurrentResearch != null && CurrentResearch.HandleInput(input))
+                return true;
+
+            return base.HandleInput(input);
+        }
+
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+        }
+        
+        public override void Draw(SpriteBatch batch)
+        {
+            base.Draw(batch);
+
+            if (QSL.Visible && CurrentResearch != null)
+            {
+                CurrentResearch.Draw(batch);
+
+                float remaining = CurrentResearch.Tech.TechCost - CurrentResearch.Tech.Progress;
+                float numTurns = (float)Math.Ceiling(remaining / (0.01f + EmpireManager.Player.Research.NetResearch));
+                TimeLeftLabel.Text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
+            }
+        }
+
+        ResearchQItem CreateQueueItem(TreeNode node)
+        {
+            var defaultPos = new Vector2(CurrentResearchPanel.X + 5, CurrentResearchPanel.Y + 30);
+            return new ResearchQItem(Screen, node, defaultPos);
+        }
+
+        public void AddToResearchQueue(TreeNode node)
+        {
+            if (EmpireManager.Player.Research.AddToQueue(node.Entry.UID))
+            {
+                if (CurrentResearch == null)
+                    CurrentResearch = CreateQueueItem(node);
+                else
+                    QSL.AddItem(CreateQueueItem(node));
+
+                SetQueueVisible(true);
+            }
         }
 
         public void ReloadResearchQueue()
         {
+            CurrentResearch = EmpireManager.Player.Research.HasTopic
+                            ? CreateQueueItem((TreeNode)Screen.AllTechNodes[EmpireManager.Player.Research.Topic])
+                            : null;
+
+            Array<string> techIds = EmpireManager.Player.Research.Queue;
             var items = new Array<ResearchQItem>();
-            foreach (string uid in EmpireManager.Player.data.ResearchQueue)
+            for (int i = 1; i < techIds.Count; ++i)
             {
-                var researchItem = (TreeNode)screen.AllTechNodes[uid];
-                items.Add(CreateQItem(researchItem));
+                items.Add(CreateQueueItem((TreeNode)Screen.AllTechNodes[techIds[i]]));
             }
             QSL.SetItems(items);
+
+            SetQueueVisible(EmpireManager.Player.Research.HasTopic);
         }
-
-		public void SetInvisible()
-		{
-			ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2135));
-			Visible = false;
-		}
-
-		public void SetVisible()
-		{
-			ShowQueue = new DanButton(ShowQueue.Pos, Localizer.Token(2136));
-			Visible = true;
-		}
-	}
+    }
 }

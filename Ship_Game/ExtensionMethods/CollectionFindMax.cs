@@ -30,9 +30,8 @@ namespace Ship_Game
 
         // @return the element with the greatest selector value, or NULL if empty
         public static T FindMax<T>(this T[] items, int count, Func<T, float> selector) 
-            where T : class
         {
-            if (count <= 0) return null;
+            if (count <= 0) return default;
 
             T found = items[0]; // @note This prevents the NaN and +Infinity float compare issue
             float max = selector(found);
@@ -53,10 +52,9 @@ namespace Ship_Game
 
         // @return the element with the greatest selector value, or NULL if empty
         public static T FindMax<T>(this IReadOnlyList<T> list, Func<T, float> selector)
-            where T : class
         {
             int count = list.Count;
-            if (count <= 0) return null;
+            if (count <= 0) return default;
 
             T found = list[0]; // @note This prevents the NaN and +Infinity float compare issue
             float max = selector(found);
@@ -77,14 +75,10 @@ namespace Ship_Game
 
         // @return the element with the greatest filtered selector value, or NULL if empty
         public static T FindMaxFiltered<T>(this T[] items, int count, Predicate<T> filter, Func<T, float> selector)
-            where T : class
         {
-            if (count <= 0) return null;
-
             // find first valid item @note This prevents the NaN and +Infinity float compare issue
-            T found = items.FindFirstValid(count, filter, out int i);
-            if (found == null) // no elements passed the filter!
-                return null;
+            if (count <= 0 || !items.FindFirstValid(count, filter, out int i, out T found))
+                return default; // no elements passed the filter!
 
             float max = selector(found);
             CheckForNaNInfinity(max);

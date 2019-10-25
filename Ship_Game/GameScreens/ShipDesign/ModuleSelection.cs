@@ -77,9 +77,9 @@ namespace Ship_Game
         }
         public new void Draw(SpriteBatch batch)
         {
-            Rectangle r = Menu;
-            r.Y = r.Y + 25;
-            r.Height = r.Height - 25;
+            Rectangle r = Rect;
+            r.Y += 25;
+            r.Height -= 25;
             Selector sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
 
@@ -128,7 +128,7 @@ namespace Ship_Game
 
         void DrawActiveModuleData()
         {
-            Rectangle r = ActiveModSubMenu.Menu;
+            Rectangle r = ActiveModSubMenu.Rect;
             int down = 25;
             r.Y += down;
             r.Height -= down;
@@ -142,20 +142,20 @@ namespace Ship_Game
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
 
             //Added by McShooterz: Changed how modules names are displayed for allowing longer names
-            var modTitlePos = new Vector2(ActiveModSubMenu.Menu.X + 10, ActiveModSubMenu.Menu.Y + 35);
+            var modTitlePos = new Vector2(ActiveModSubMenu.X + 10, ActiveModSubMenu.Y + 35);
 
             if (Fonts.Arial20Bold.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X + 16 <
-                ActiveModSubMenu.Menu.Width)
+                ActiveModSubMenu.Width)
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
-                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial20Bold.LineSpacing + 6);
+                modTitlePos.Y += (Fonts.Arial20Bold.LineSpacing + 6);
             }
             else
             {
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
-                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial14Bold.LineSpacing + 4);
+                modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
             }
             string rest = "";
             switch (moduleTemplate.Restrictions)
@@ -385,7 +385,7 @@ namespace Ship_Game
             }
 
             string txt = ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
-                                   ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12);
+                                   ActiveModSubMenu.Width - 20, Fonts.Arial12);
 
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
@@ -407,21 +407,21 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Menu.Width * 0.33f, lineSpacing: 0);
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Width * 0.33f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
 
@@ -429,7 +429,7 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Menu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
         }
 
         void DrawString(ref Vector2 cursor, string text, bool valueCheck)
@@ -560,7 +560,7 @@ namespace Ship_Game
             {
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                 Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                string bestShip = ParseText(GetDynamicHangarText(), ActiveModSubMenu.Menu.Width - 20, Fonts.Arial12Bold);
+                string bestShip = ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20, Fonts.Arial12Bold);
                 Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
                 DrawString(ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
                 return;
