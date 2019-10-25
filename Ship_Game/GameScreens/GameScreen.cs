@@ -107,7 +107,8 @@ namespace Ship_Game
 
         public virtual void ExitScreen()
         {
-            ScreenManager.exitScreenTimer = 0.25f;            
+            ScreenManager.ExitScreenTimer = 0.25f;           
+            
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
 
@@ -149,7 +150,9 @@ namespace Ship_Game
         {
             // @note If content was being loaded, we will force deltaTime to 1/60th
             //       This will prevent animations going nuts due to huge deltaTime
-            FrameDeltaTime = DidLoadContent ? (1.0f/60.0f) : StarDriveGame.Instance.FrameDeltaTime;
+            FrameDeltaTime = ScreenManager.FrameDeltaTime;
+            if (DidLoadContent && FrameDeltaTime > (1f/60f))
+                FrameDeltaTime = 1f/60f;
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
 
             Visible = ScreenState != ScreenState.Hidden;

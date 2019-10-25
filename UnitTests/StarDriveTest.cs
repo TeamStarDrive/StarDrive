@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Ships;
+using UnitTests.UI;
 
 namespace UnitTests
 {
@@ -47,6 +48,8 @@ namespace UnitTests
 
         public GameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
+        public MockInputProvider InputProvider { get; private set; }
+
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
@@ -56,6 +59,7 @@ namespace UnitTests
             Game = new GameDummy();
             Game.Create();
             Content = Game.Content;
+            Game.Manager.input.Provider = InputProvider = new MockInputProvider();
         }
 
         public void Dispose()
@@ -108,7 +112,7 @@ namespace UnitTests
             ResourceManager.LoadTechContentForTesting();
         }
 
-        private static void AddDummyPlanet(out Planet p)
+        static void AddDummyPlanet(out Planet p)
         {
             p = new Planet();
             var s = new SolarSystem();

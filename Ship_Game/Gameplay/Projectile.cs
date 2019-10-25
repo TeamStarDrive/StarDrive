@@ -291,18 +291,8 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        int LastDrawId;
-
         public void Draw(SpriteBatch batch, GameScreen screen)
         {
-            int thisFrame = StarDriveGame.Instance.FrameId;
-            if (LastDrawId == thisFrame)
-            {
-                Log.Warning("Projectile.Draw called twice per frame!");
-                return;
-            }
-            LastDrawId = thisFrame;
-
             InFrustum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
                          && Empire.Universe.Frustum.Contains(Center, Radius*100f);
             if (!InFrustum)
