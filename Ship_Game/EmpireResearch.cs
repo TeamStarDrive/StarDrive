@@ -9,11 +9,10 @@ namespace Ship_Game
     public class EmpireResearch
     {
         readonly Empire Empire;
-        readonly EmpireData Data;
 
         // This is our research queue
         // The FIRST item (0) is always the Current research topic
-        Array<string> Queue => Data.ResearchQueue;
+        Array<string> Queue => Empire.data.ResearchQueue;
 
         // NET research this turn
         public float NetResearch { get; private set; }
@@ -36,7 +35,6 @@ namespace Ship_Game
             // @warning EmpireResearch is constructed while Empire is still uninitialized
             //          Do NOT perform any sensitive initialization here and use
             Empire = empire;
-            Data = empire.data;
         }
 
         public void Reset()
@@ -51,9 +49,9 @@ namespace Ship_Game
         {
             if (Strategy == null)
             {
-                if (Data.EconomicPersonality == null)
-                    Data.EconomicPersonality = new ETrait { Name = "Generalists" };
-                Strategy = ResourceManager.GetEconomicStrategy(Data.EconomicPersonality.Name);
+                if (Empire.data.EconomicPersonality == null)
+                    Empire.data.EconomicPersonality = new ETrait { Name = "Generalists" };
+                Strategy = ResourceManager.GetEconomicStrategy(Empire.data.EconomicPersonality.Name);
             }
 
             UpdateNetResearch();
