@@ -22,7 +22,7 @@ namespace Ship_Game
             BtnShowQueue = Button(ButtonStyle.DanButtonBlue, 
                 new Vector2(container.Right - 192, screen.ScreenHeight - 55), "", OnBtnShowQueuePressed);
             BtnShowQueue.TextAlign = ButtonTextAlign.Left;
-            SetQueueVisible(EmpireManager.Player.HasResearchTopic);
+            SetQueueVisible(EmpireManager.Player.Research.HasTopic);
 
             var current = new Rectangle(container.X, container.Y, container.Width, 150);
 			TimeLeft = new Rectangle(current.X + current.Width - 119, current.Y + current.Height - 24, 111, 20);
@@ -110,7 +110,7 @@ namespace Ship_Game
 				
                 TechEntry tech = currentResearch.Node.Entry;
                 float cost = tech.TechCost - tech.Progress;
-                float numTurns = (float)Math.Ceiling(cost / (0.01f + EmpireManager.Player.GetProjectedResearchNextTurn()));
+                float numTurns = (float)Math.Ceiling(cost / (0.01f + EmpireManager.Player.Research.NetResearch));
                 string text = (numTurns > 999f) ? ">999 turns" : numTurns.String(0)+" turns";
 
                 cursor.X -= Fonts.Verdana14Bold.MeasureString(text).X;
@@ -137,7 +137,7 @@ namespace Ship_Game
 
         public void AddToResearchQueue(TreeNode researchItem)
         {
-            if (EmpireManager.Player.AddToResearchQueue(researchItem.Entry.UID))
+            if (EmpireManager.Player.Research.AddToQueue(researchItem.Entry.UID))
                 QSL.AddItem(CreateQItem(researchItem));
         }
 

@@ -17,7 +17,6 @@ namespace Ship_Game.AI.Research
         public ResearchPriorities(Empire empire, float buildCapacity, string command, string command2)
         {
             OwnerEmpire    = empire;
-            EconomicResearchStrategy resStrat = empire.ResearchStrategy;
             Wars           = 0;
             float shipBuildBonus = 0;
             BuildCapacity = buildCapacity;
@@ -37,7 +36,7 @@ namespace Ship_Game.AI.Research
 
             ResearchDebt = 0;
             var availableTechs = OwnerEmpire.CurrentTechsResearchable();
-            float workerEfficiency = empire.Research / empire.MaxResearchPotential;
+            float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential;
             if (availableTechs.NotEmpty)
             {
                 //calculate standard deviation of tech costs. remove extreme highs and lows in average
@@ -47,7 +46,7 @@ namespace Ship_Game.AI.Research
                 avgTechCost = (float)Math.Sqrt(avgTechCost);
                 //use stddev of techcost to determine how behind we are in tech
 
-                float techCostRatio = avgTechCost / empire.Research;
+                float techCostRatio = avgTechCost / empire.Research.NetResearch;
                 ResearchDebt = techCostRatio / 100f; //divide by 100 turns.
 
                 ResearchDebt = ResearchDebt.Clamped(0, 1);
@@ -78,16 +77,19 @@ namespace Ship_Game.AI.Research
 
             TechCategoryPrioritized = "TECH";
 
-           Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
+            Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
+            EconomicResearchStrategy strat = empire.Research.Strategy;
 
-            var priority = new Map<string, float>();
-            priority.Add("SHIPTECH"    , Randomizer(resStrat.MilitaryRatio, Wars));
-            priority.Add("Research"    , Randomizer(resStrat.ResearchRatio, ResearchDebt));
-            priority.Add("Colonization", Randomizer(resStrat.ExpansionRatio, foodNeeds));
-            priority.Add("Economic"    , Randomizer(resStrat.ExpansionRatio, Economics));
-            priority.Add("Industry"    , Randomizer(resStrat.IndustryRatio, industry));
-            priority.Add("General"     , Randomizer(resStrat.ResearchRatio, 0));
-            priority.Add("GroundCombat", Randomizer(resStrat.MilitaryRatio, Wars * .5f));
+            var priority = new Map<string, float>
+            {
+                { "SHIPTECH",     Randomizer(strat.MilitaryRatio, Wars)        },
+                { "Research",     Randomizer(strat.ResearchRatio, ResearchDebt)},
+                { "Colonization", Randomizer(strat.ExpansionRatio, foodNeeds)  },
+                { "Economic",     Randomizer(strat.ExpansionRatio, Economics)  },
+                { "Industry",     Randomizer(strat.IndustryRatio, industry)    },
+                { "General",      Randomizer(strat.ResearchRatio, 0)           },
+                { "GroundCombat", Randomizer(strat.MilitaryRatio, Wars * .5f)  },
+            };
 
             int maxNameLength = priority.Keys.Max(name => name.Length);
             maxNameLength += 5;

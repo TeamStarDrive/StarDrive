@@ -360,7 +360,6 @@ namespace Ship_Game
                 if (Queue.QSL.NumEntries > 0)
                 {
                     Queue.QSL.ItemAt<ResearchQItem>(0).Node.Entry.Unlock(EmpireManager.Player);
-                    EmpireManager.Player.SetResearchTopic("");
                     ReloadContent();
                     EmpireManager.Player.UpdateShipsWeCanBuild();
                 }

@@ -16,7 +16,7 @@ namespace Ship_Game.AI
             get
             {
                 float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                float diffMod   = (float)CurrentGame.Difficulty * 2.5f * OwnerEmpire.ResearchStrategy.ExpansionRatio;
+                float diffMod   = (float)CurrentGame.Difficulty * 2.5f * OwnerEmpire.Research.Strategy.ExpansionRatio;
                 int plusGoals   = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
                 float goals     = (float)Math.Round(baseValue + diffMod + plusGoals, 0);
                 return (int)goals.Clamped(1f, 5f);

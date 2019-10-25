@@ -64,7 +64,7 @@ namespace Ship_Game
 
         void OnBtnUpPressed(UIButton up)
         {
-            int index = EmpireManager.Player.ResearchQueueIndex(Tech.UID);
+            int index = EmpireManager.Player.Research.IndexInQueue(Tech.UID);
             if (index == -1 || index < 1 || AboveIsPreReq(index))
             {
                 GameAudio.NegativeClick();
@@ -76,7 +76,7 @@ namespace Ship_Game
 
 	    void OnBtnDownPressed(UIButton down)
         {
-            int index = EmpireManager.Player.ResearchQueueIndex(Tech.UID);
+            int index = EmpireManager.Player.Research.IndexInQueue(Tech.UID);
             if (index == -1 || index == EmpireManager.Player.data.ResearchQueue.Count - 1 || ThisIsPreReq(index))
             {
                 GameAudio.NegativeClick();
@@ -116,7 +116,7 @@ namespace Ship_Game
 		{
             void RemoveLeadsToRecursive(string tech)
             {
-                EmpireManager.Player.RemoveResearchFromQueue(tech);
+                EmpireManager.Player.Research.RemoveFromQueue(tech);
                 foreach (Technology.LeadsToTech dependent in ResourceManager.TechTree[tech].LeadsTo)
                     RemoveLeadsToRecursive(dependent.UID);
             }
