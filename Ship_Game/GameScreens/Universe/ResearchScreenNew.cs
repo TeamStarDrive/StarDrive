@@ -92,13 +92,6 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (Queue.QSL.NumEntries > 0)
-            {
-                var tech = Queue.QSL.EntryAt(0).Get<ResearchQItem>();
-                if (tech.Node.Entry.Progress >= tech.Node.Entry.TechCost)
-                    tech.Node.complete = true;
-            }
-
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -357,9 +350,9 @@ namespace Ship_Game
             // Unlock only selected node for player
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
-                if (Queue.QSL.NumEntries > 0)
+                if (Queue.CurrentResearch != null)
                 {
-                    Queue.QSL.ItemAt<ResearchQItem>(0).Node.Entry.Unlock(EmpireManager.Player);
+                    Queue.CurrentResearch.Tech.Unlock(EmpireManager.Player);
                     ReloadContent();
                     EmpireManager.Player.UpdateShipsWeCanBuild();
                 }
