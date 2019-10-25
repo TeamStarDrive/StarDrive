@@ -42,11 +42,11 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
-        private float ShipBuildingModifierBacker;
+        float ShipBuildingModifierValue;
         public float ShipBuildingModifier
         {
-            get => ShipBuildingModifierBacker;
-            private set => ShipBuildingModifierBacker = value.Clamped(0.001f, 1);
+            get => ShipBuildingModifierValue;
+            private set => ShipBuildingModifierValue = value.Clamped(0.001f, 1);
         }
 
         public int NumShipyards;

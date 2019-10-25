@@ -290,6 +290,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\BuildListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
@@ -316,6 +317,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.CategoryDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />

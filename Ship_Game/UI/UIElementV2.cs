@@ -86,6 +86,9 @@ namespace Ship_Game
         public float Height { get => Size.Y; set => Size.Y = value; }
         public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
         public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
+        
+        public Vector2 TopLeft  => new Vector2(Pos.X, Pos.Y);
+        public Vector2 TopRight => new Vector2(Pos.X + Size.X, Rect.Y);
         public Vector2 BotRight => new Vector2(Pos.X + Size.X, Pos.Y + Size.Y);
         public Vector2 BotLeft  => new Vector2(Pos.X,          Pos.Y + Size.Y);
         public float CenterX => Pos.X + Size.X*0.5f;

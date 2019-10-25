@@ -14,11 +14,7 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
-        private Ship SelectedShip;
-        private float MaxWeaponRange;
-        private float AverageWeaponRange;
-
-        #region Populat lists
+        Ship SelectedShip;
 
         class ShipCategory
         {
@@ -30,7 +26,7 @@ namespace Ship_Game
             public override string ToString() => $"Category {Name} Size={Size} Count={Ships.Count}";
         }
 
-        void PopulateBuildableShips()
+        void PopulateBuildableShips(Ship[] buildableShips)
         {
             var categoryMap = new Map<string, ShipCategory>();
 
@@ -59,255 +55,54 @@ namespace Ship_Game
                     if (diff.NotEqual(0)) return (int)diff;
                     return string.CompareOrdinal(b.Name, a.Name);
                 });
+
                 // and add to Build list
-                ScrollList.Entry entry = buildSL.AddItem(category.Header);
+                ScrollList<BuildListItem>.Entry categoryHeader = buildSL.AddItem(
+                    new BuildListItem(this){ Header = category.Header });
                 foreach (Ship ship in category.Ships)
-                    entry.AddSubItem(ship, addAndEdit: true);
+                    categoryHeader.AddSubItem(new BuildListItem(this, addAndEdit: true){ Ship = ship });
             }
-        }
-
-        void PopulateRecruitableTroops()
-        {
-            string[] troopTypes = P.Owner.GetTroopsWeCanBuild();
-            foreach (string troopType in troopTypes)
-            {
-                buildSL.AddItem(ResourceManager.GetTroopTemplate(troopType), true, false);
-            }
-        }
-
-        bool ShouldResetBuildList<T>()
-        {
-            if (!Reset && buildSL.NumEntries != 0 && buildSL.EntryAt(0).item is T)
-                return false;
-            Reset = false;
-            buildSL.Reset();
-            return true;
-        }
-
-        #endregion
-
-        string BuildingShortDescription(Building b)
-        {
-            string description = Localizer.Token(b.ShortDescriptionIndex);
-
-            if (b.MaxFertilityOnBuild.NotZero())
-            {
-                string fertilityChange = $"{b.MaxFertilityOnBuild * Player.RacialEnvModifer(P.Category)}";
-                if (b.MaxFertilityOnBuild.Greater(0))
-                    fertilityChange = $"+{fertilityChange}";
-
-                description = $"{fertilityChange} {description}";
-            }
-
-            if (b.IsBiospheres)
-                description = $"{(P.BasePopPerTile/1000).String(2) } {description}";
-            
-            return description;
         }
 
         void DrawBuildingsWeCanBuild(SpriteBatch batch)
         {
-            if (ShouldResetBuildList<Building>() || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
-                buildSL.SetItems(P.GetBuildingsCanBuild().Sorted(b => b.Name));
-
-            foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
+            if (Reset || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
             {
-                var b = entry.Get<Building>();
-
-                SubTexture icon = ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48");
-                SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-
-                bool unprofitable = !P.WeCanAffordThis(b, P.colonyType) && b.Maintenance > 0f;
-                Color buildColor = unprofitable ? new Color(255,200,200) : Color.White;
-                if (entry.Hovered) buildColor = Color.White; // hover color
-                string descr = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
-                descr = Font8.ParseText(descr, 280f);
-
-                var position = new Vector2(build.X + 60f, entry.Y - 4f);
-
-                batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), buildColor);
-                DrawText(ref position, b.NameTranslationIndex, buildColor);
-
-                if (!entry.Hovered)
-                {
-                    batch.DrawString(Font8, descr, position, unprofitable ? Color.Chocolate : Color.Green);
-                    position.X = (entry.Right - 100);
-                    var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
-                        iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, r, Color.White);
-
-                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
-
-                    position = new Vector2( (r.X - 60),
-                         (1 + r.Y + r.Height / 2 -
-                                 Font12.LineSpacing / 2));
-                    string maintenance = b.Maintenance.ToString("F2");
-                    batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
-
-                    // ~~~~
-
-                    position = new Vector2((r.X + 26),
-                        (r.Y + r.Height / 2 -
-                                 Font12.LineSpacing / 2));
-                    batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
-                    entry.DrawPlus(batch);
-                }
-                else
-                {
-                    batch.DrawString(Font8, descr, position, Color.Orange);
-                    position.X = (entry.Right - 100);
-                    var r = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
-                        iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, r, Color.White);
-
-                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of building
-
-                    position = new Vector2((r.X - 60),
-                                           (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                    float actualMaint = b.Maintenance + b.Maintenance * P.Owner.data.Traits.MaintMod;
-                    string maintenance = actualMaint.ToString("F2");
-                    batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
-
-                    // ~~~
-
-                    position = new Vector2((r.X + 26),
-                        (r.Y + r.Height / 2 -
-                                 Font12.LineSpacing / 2));
-                    batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
-                    entry.DrawPlus(batch);
-                }
-                entry.CheckHover(Input.CursorPosition);
+                Reset = false;
+                Building[] buildings = P.GetBuildingsCanBuild().Sorted(b => b.Name);
+                BuildListItem[] items = buildings.Select(b => new BuildListItem(this){ Building = b });
+                buildSL.SetItems(items);
             }
+            buildSL.Draw(batch);
         }
 
         void DrawBuildableShipsList(SpriteBatch batch)
         {
-            if (ShouldResetBuildList<ModuleHeader>())
-                PopulateBuildableShips();
+            Ship[] buildableShips = P.Owner.ShipsWeCanBuild
+                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
+                .Where(ship => ship.IsBuildableByPlayer).ToArray();
 
-            var topLeft = new Vector2(build.X + 20, build.Y + 45);
-            foreach (ScrollList.Entry entry in buildSL.VisibleExpandedEntries)
+            if (Reset || buildSL.NumEntries != buildableShips.Length)
             {
-                topLeft.Y = entry.Y;
-                if (entry.TryGet(out ModuleHeader header))
-                    header.Draw(ScreenManager, topLeft);
-                else if (!entry.Hovered)
-                {
-                    var ship = entry.Get<Ship>();
-                    batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
-                    var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Font12,
-                        ship.IsPlatformOrStation
-                            ? ship.Name + " " + Localizer.Token(2041)
-                            : ship.Name, position, Color.White);
-                    position.Y += Font12.LineSpacing;
-
-                    var role = ship.BaseHull.Name;
-                    batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
-                    position.X = position.X + Font8.MeasureString(role).X + 8;
-                    batch.DrawString(Font8,
-                        $"Base Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
-
-
-                    //Forgive my hacks this code of nightmare must GO!
-                    position.X = (entry.Right - 120);
-                    var iconProd = ResourceManager.Texture("NewUI/icon_production");
-                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
-                        iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                    position = new Vector2((destinationRectangle2.X - 60),
-                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                    // Use correct upkeep method depending on mod settings
-                    string upkeep;
-                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                    {
-                        upkeep = ship.GetMaintCostRealism(P.Owner).ToString("F2");
-                    }
-                    else
-                    {
-                        upkeep = ship.GetMaintCost(P.Owner).ToString("F2");
-                    }
-
-                    batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
-
-                    // ~~~
-
-                    position = new Vector2(destinationRectangle2.X + 26,
-                        destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                        Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int) (ship.GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(),
-                        position, Color.White);
-                }
-                else
-                {
-                    var ship = entry.Get<Ship>();
-                    if (ship != SelectedShip) // no need to do these calcs all the time for the same ship
-                    {
-                        ship.RecalculatePower();
-                        ship.ShipStatusChange();
-                        MaxWeaponRange = ship.WeaponsMaxRange;
-                        AverageWeaponRange = ship.WeaponsAvgRange;
-                        SelectedShip = ship;
-                    }
-                    topLeft.Y = entry.Y;
-                    batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
-                    Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                    batch.DrawString(Font12,
-                        ship.IsPlatformOrStation
-                            ? ship.Name + " " + Localizer.Token(2041)
-                            : ship.Name, position, Color.Green);
-                    position.Y += Font12.LineSpacing;
-                    //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                    var role = ship.BaseHull.Name;
-                    batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
-                    position.X = position.X + Font8.MeasureString(role).X + 8;
-                    batch.DrawString(Font8,
-                        $"Base Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
-
-                    position.X = (entry.Right - 120);
-                    SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
-                        iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                    // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                    position = new Vector2((destinationRectangle2.X - 60),
-                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                    // Use correct upkeep method depending on mod settings
-                    string upkeep;
-                    if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                    {
-                        upkeep = entry.Get<Ship>().GetMaintCostRealism(P.Owner).ToString("F2");
-                    }
-                    else
-                    {
-                        upkeep = entry.Get<Ship>().GetMaintCost(P.Owner).ToString("F2");
-                    }
-
-                    batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
-
-                    // ~~~
-
-                    position = new Vector2((destinationRectangle2.X + 26),
-                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                    batch.DrawString(Font12,
-                        ((int) (entry.Get<Ship>().GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(), position,
-                        Color.White);
-                    entry.DrawPlusEdit(batch);
-
-                    DrawSelectedShipInfo((int)position.X, entry.CenterY, ship, batch);
-                }
+                Reset = false;
+                buildSL.Reset();
+                PopulateBuildableShips(buildableShips);
             }
 
+            buildSL.Draw(batch);
             PlayerDesignsToggle.Draw(ScreenManager);
         }
 
-        void DrawSelectedShipInfo(int x, int y, Ship ship, SpriteBatch batch)
+        public void DrawSelectedShipInfo(int x, int y, Ship ship, SpriteBatch batch)
         {
+            if (ship != SelectedShip) // no need to do these calcs all the time for the same ship
+            {
+                // TODO: USE NEW FAST POWER RECALC FROM SHIP DESIGN SCREEN
+                ship.RecalculatePower();
+                ship.ShipStatusChange();
+                SelectedShip = ship;
+            }
+
             var shipBackground  = new Rectangle(x - 840, y - 120, 360, 240);
             var shipOverlay     = new Rectangle(x - 700, y - 100, 200, 200);
             Vector2 cursor      = new Vector2(x - 815, y - 119);
@@ -321,8 +116,8 @@ namespace Ship_Game
             DrawShipValueLine(ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", ref cursor, batch, Font8, Color.Gray);
             WriteLine(ref cursor, Font8);
             DrawShipValueLine("Weapons:", ship.Weapons.Count, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipValueLine("Max W.Range:", MaxWeaponRange, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipValueLine("Avr W.Range:", AverageWeaponRange, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipValueLine("Max W.Range:", ship.WeaponsMaxRange, ref cursor, batch, Font8, Color.LightBlue);
+            DrawShipValueLine("Avr W.Range:", ship.WeaponsAvgRange, ref cursor, batch, Font8, Color.LightBlue);
             DrawShipValueLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightGreen);
             DrawShipValueLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightGreen);
             DrawShipValueLine("Turn Rate:", turnRate, ref cursor, batch, Font8, Color.LightGreen);
@@ -362,97 +157,31 @@ namespace Ship_Game
 
         void DrawBuildTroopsList(SpriteBatch batch)
         {
-            if (ShouldResetBuildList<Troop>())
-                PopulateRecruitableTroops();
-
-            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-            var tl = new Vector2(build.X + 20, 0f);
-            foreach (ScrollList.Entry entry in buildSL.VisibleEntries)
+            string[] troopTypes = P.Owner.GetTroopsWeCanBuild();
+            if (Reset || buildSL.NumEntries != troopTypes.Length)
             {
-                tl.Y = entry.Y;
-                var troop = entry.Get<Troop>();
-                if (!entry.Hovered)
+                foreach (string troopType in troopTypes)
                 {
-                    troop.Draw(batch, new Rectangle((int) tl.X, (int) tl.Y, 29, 30));
-                    var position = new Vector2(tl.X + 40f, tl.Y + 3f);
-                    batch.DrawString(Font12, troop.DisplayNameEmpire(P.Owner), position, Color.White);
-                    position.Y += Font12.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-
-                    position.X = entry.Right - 100;
-                    var dest2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, dest2, Color.White);
-                    position = new Vector2(dest2.X + 26, dest2.Y + dest2.Height / 2 - Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int)troop.ActualCost).ToString(), position, Color.White);
-                    entry.DrawPlusEdit(batch);
-                }
-                else
-                {
-                    tl.Y = entry.Y;
-                    troop.Draw(batch, new Rectangle((int) tl.X, (int) tl.Y, 29, 30));
-                    Vector2 position = new Vector2(tl.X + 40f, tl.Y + 3f);
-                    batch.DrawString(Font12, troop.DisplayNameEmpire(P.Owner), position, Color.White);
-                    position.Y += Font12.LineSpacing;
-                    batch.DrawString(Font8, troop.Class, position, Color.Orange);
-                    position.X = entry.Right - 100;
-                    Rectangle destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
-                        iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
-                    position = new Vector2(destinationRectangle2.X + 26,
-                        destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                        Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
-                    entry.DrawPlusEdit(batch);
+                    Troop troop = ResourceManager.GetTroopTemplate(troopType);
+                    buildSL.AddItem(new BuildListItem(this, add:true, edit:false){ Troop = troop });
                 }
             }
+            buildSL.Draw(batch);
         }
 
         void DrawConstructionQueue(SpriteBatch batch)
         {
-            CQueue.SetItems(P.ConstructionQueue);
-            CQueue.DrawDraggedEntry(batch);
-
-            foreach (ScrollList.Entry entry in CQueue.VisibleExpandedEntries)
+            if (Reset || CQueue.NumEntries != P.ConstructionQueue.Count)
             {
-                entry.CheckHoverNoSound(Input.CursorPosition);
-
-                var qi = entry.Get<QueueItem>();
-                var position = new Vector2(entry.X + 40f, entry.Y);
-                DrawText(ref position, qi.DisplayText);
-                var r = new Rectangle((int)position.X, (int)position.Y, 150, 18);
-
-                if (qi.isBuilding)
-                {
-                    SubTexture icon = ResourceManager.Texture($"Buildings/icon_{qi.Building.Icon}_48x48");
-                    batch.Draw(icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    new ProgressBar(r, qi.Cost, qi.ProductionSpent).Draw(batch);
-                }
-                else if (qi.isShip)
-                {
-                    batch.Draw(qi.sData.Icon, new Rectangle(entry.X, entry.Y, 29, 30), Color.White);
-                    new ProgressBar(r, qi.Cost * P.ShipBuildingModifier, qi.ProductionSpent).Draw(batch);
-                }
-                else if (qi.isTroop)
-                {
-                    Troop template = ResourceManager.GetTroopTemplate(qi.TroopType);
-                    template.Draw(batch, new Rectangle(entry.X, entry.Y, 29, 30));
-                    new ProgressBar(r, qi.Cost, qi.ProductionSpent).Draw(batch);
-                }
-
-                entry.DrawUpDownApplyCancel(batch, Input);
-                entry.DrawPlus(batch);
+                CQueue.SetItems(P.ConstructionQueue);
             }
-
             CQueue.Draw(batch);
         }
 
-        bool Build(Building b, PlanetGridSquare where = null)
+        public bool Build(Building b, PlanetGridSquare where = null)
         {
             if (P.Construction.AddBuilding(b, where, true))
             {
-                // remove building if it's unique:
-                if (b.Unique || b.BuildOnlyOnce)
-                    buildSL.RemoveFirstIf<Building>(b2 => b2 == b);
                 GameAudio.AcceptClick();
                 return true;
             }
@@ -460,7 +189,7 @@ namespace Ship_Game
             return false;
         }
 
-        void Build(Ship ship, int repeat = 1)
+        public void Build(Ship ship, int repeat = 1)
         {
             for (int i = 0; i < repeat; i++)
             {
@@ -471,7 +200,9 @@ namespace Ship_Game
                 }
 
                 if (ship.IsPlatformOrStation || ship.shipData.IsShipyard)
+                {
                     P.AddOrbital(ship);
+                }
                 else
                 {
                     P.ConstructionQueue.Add(new QueueItem(P)
@@ -482,13 +213,12 @@ namespace Ship_Game
                         Cost = ship.GetCost(P.Owner),
                         ProductionSpent = 0f
                     });
-
                 }
             }
             GameAudio.AcceptClick();
         }
 
-        void Build(Troop troop, int repeat = 1)
+        public void Build(Troop troop, int repeat = 1)
         {
             for (int i = 0; i < repeat; i++)
             {
@@ -503,71 +233,11 @@ namespace Ship_Game
             GameAudio.AcceptClick();
         }
 
-
-        bool HandleBuildListClicks(InputState input)
-        {
-            foreach (ScrollList.Entry e in buildSL.VisibleExpandedEntries)
-            {
-                if (e.item is ModuleHeader header)
-                {
-                    if (header.HandleInput(input, e)) // try to open Ship category header
-                        return true;
-                }
-                else if (!buildSL.DraggingScrollBar && e.CheckHover(input))
-                {
-                    Selector = e.CreateSelector();
-
-                    if (ActiveBuildingEntry == null && input.LeftMouseHeld(0.1f) && e.item is Building)
-                        ActiveBuildingEntry = e;
-                    
-                    if (e.CheckEdit(input))
-                    {
-                        ToolTip.CreateTooltip(52);
-                        if (input.LeftMouseClick)
-                        {
-                            var sdScreen = new ShipDesignScreen(Empire.Universe, eui);
-                            ScreenManager.AddScreen(sdScreen);
-                            sdScreen.ChangeHull(e.Get<Ship>().shipData);
-                            return true;
-                        }
-                    }
-                    else if (e.CheckPlus(input))
-                    {
-                        ToolTip.CreateTooltip(51);
-                        if (input.LeftMouseClick)
-                        {
-                            int repeat = 1;
-                            if (input.IsShiftKeyDown)     repeat = 5;
-                            else if (input.IsCtrlKeyDown) repeat = 10;
-
-                            switch (e.item)
-                            {
-                                case Building b: Build(b);            break;
-                                case Ship ship:  Build(ship, repeat); break;
-                                case Troop t:    Build(t, repeat);    break;
-                            }
-
-                            return true;
-                        }
-                    }
-                    else if (input.LeftMouseDoubleClick)
-                    {
-                        if      (e.TryGet(out Building b)) Build(b);
-                        else if (e.TryGet(out Ship ship))  Build(ship);
-                        else if (e.TryGet(out Troop t))    Build(t);
-                        return true;
-                    }
-                    break;
-                }
-            }
-            return false;
-        }
-
         void DrawActiveBuildingEntry(SpriteBatch batch)
         {
             if (ActiveBuildingEntry == null) return; // nothing to draw
 
-            var b = ActiveBuildingEntry.Get<Building>();
+            var b = ActiveBuildingEntry.Building;
             var icon = ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48");
             var rect = new Rectangle(Input.MouseX, Input.MouseY, icon.Width, icon.Height);
 
@@ -577,9 +247,9 @@ namespace Ship_Game
 
         bool HandleDragBuildingOntoTile(InputState input)
         {
-            if (!(ActiveBuildingEntry?.item is Building b))
-                return false;
+            if (ActiveBuildingEntry == null) return false;
 
+            Building b = ActiveBuildingEntry.Building;
             if (input.LeftMouseReleased)
             {
                 PlanetGridSquare tile = P.FindTileUnderMouse(input.CursorPosition);
@@ -593,86 +263,5 @@ namespace Ship_Game
 
             return ActiveBuildingEntry != null && b.Unique && P.BuildingBuiltOrQueued(b);
         }
-        
-        void HandleConstructionQueueInput(InputState input)
-        {
-            int i = CQueue.FirstVisibleIndex;
-            foreach (ScrollList.Entry e in CQueue.VisibleExpandedEntries)
-            {
-                if (e.CheckHover(Input.CursorPosition))
-                {
-                    Selector = e.CreateSelector();
-                }
-
-                if (e.WasUpHovered(input))
-                {
-                    ToolTip.CreateTooltip(63);
-                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased)
-                    {
-                        if (input.LeftMouseClick && i > 0)
-                        {
-                            QueueItem item = P.ConstructionQueue[i - 1];
-                            P.ConstructionQueue[i - 1] = P.ConstructionQueue[i];
-                            P.ConstructionQueue[i] = item;
-                            GameAudio.AcceptClick();
-                        }
-                    }
-                    else if (i > 0)
-                    {
-                        QueueItem item = P.ConstructionQueue[i];
-                        P.ConstructionQueue.Remove(item);
-                        P.ConstructionQueue.Insert(0, item);
-                        GameAudio.AcceptClick();
-                        break;
-                    }
-                }
-
-                if (e.WasDownHovered(input))
-                {
-                    ToolTip.CreateTooltip(64);
-                    if (!input.IsCtrlKeyDown || input.LeftMouseDown || input.LeftMouseReleased) // @todo WTF??
-                    {
-                        if (input.LeftMouseClick && i + 1 < CQueue.NumExpandedEntries)
-                        {
-                            QueueItem item = P.ConstructionQueue[i + 1];
-                            P.ConstructionQueue[i + 1] = P.ConstructionQueue[i];
-                            P.ConstructionQueue[i] = item;
-                            GameAudio.AcceptClick();
-                        }
-                    }
-                    else if (i + 1 < CQueue.NumExpandedEntries)
-                    {
-                        QueueItem item = P.ConstructionQueue[i];
-                        P.ConstructionQueue.Remove(item);
-                        P.ConstructionQueue.Insert(0, item);
-                        GameAudio.AcceptClick();
-                        break;
-                    }
-                }
-
-                if (e.WasApplyHovered(input))
-                {
-                    if (input.LeftMouseClick)
-                    {
-                        float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-                        if (P.Construction.RushProduction(i, maxAmount))
-                            GameAudio.AcceptClick();
-                        else
-                            GameAudio.NegativeClick();
-                    }
-                }
-
-                if (e.WasCancelHovered(input) && input.LeftMouseClick)
-                {
-                    var item = e.Get<QueueItem>();
-                    P.Construction.Cancel(item);
-                    GameAudio.AcceptClick();
-                }
-                ++i;
-            }
-
-            CQueue.HandleInput(input, P);
-        }
-
     }
 }

@@ -248,11 +248,10 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            Troop troop        = this;
             UpdateTimer -= elapsedTime;
             if (UpdateTimer > 0f)
                 return;
-            first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
+            first_frame = ResourceManager.GetTroopTemplate(Name).first_frame;
             int whichFrame    = WhichFrame;
             if (!Idle)
             {
