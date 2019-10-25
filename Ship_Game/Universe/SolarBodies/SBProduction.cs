@@ -203,6 +203,12 @@ namespace Ship_Game.Universe.SolarBodies
         //         FALSE if `where` is occupied or if there is no free random tiles
         public bool AddBuilding(Building b, PlanetGridSquare where = null, bool playerAdded = false)
         {
+            if (b.Unique || b.BuildOnlyOnce)
+            {
+                if (P.BuildingBuiltOrQueued(b))
+                    return false; // unique building already built
+            }
+
             var qi = new QueueItem(P)
             {
                 IsPlayerAdded = playerAdded,
@@ -215,16 +221,16 @@ namespace Ship_Game.Universe.SolarBodies
                 QueueNumber = ConstructionQueue.Count
             };
 
-                if (b.AssignBuildingToTile(b, ref where, P))
-                {
-                    where.QItem = qi;
-                    qi.pgs = where; // reset PGS if we got a new one
-                    ConstructionQueue.Add(qi);
-                    P.RefreshBuildingsWeCanBuildHere();
-                    return true;
-                }
+            if (b.AssignBuildingToTile(b, ref where, P))
+            {
+                where.QItem = qi;
+                qi.pgs = where; // reset PGS if we got a new one
+                ConstructionQueue.Add(qi);
+                P.RefreshBuildingsWeCanBuildHere();
+                return true;
+            }
 
-                return false;
+            return false;
         }
 
         public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)

@@ -4,14 +4,12 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
-// ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public class WeaponScrollList : ScrollList
+    public class WeaponScrollList : ScrollList<WeaponListItem>
     {
-        private readonly ShipDesignScreen Screen;
-        private Selector SelectionBox;
-        private readonly InputState Input;
+        public readonly ShipDesignScreen Screen;
+        readonly InputState Input;
         public bool ResetOnNextDraw = true;
 
         public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
@@ -20,89 +18,60 @@ namespace Ship_Game
             Input = Screen.Input;
         }
 
-        private void DestroySelectionBox()
-        {
-            SelectionBox?.RemoveFromParent();
-            SelectionBox = null;
-        }
         public override bool HandleInput(InputState input)
         {
             base.HandleInput(input);
 
+            // cursor moves outside the ScrollList
             if (!Screen.ModSel.HitTest(input.CursorPosition))
             {
-                DestroySelectionBox();
+                SelectionBox = null;
                 return false;
-            }
-            foreach (Entry e in VisibleExpandedEntries)
-            {
-                if (e.item is ModuleHeader moduleHeader)
-                {
-                    if (moduleHeader.HandleInput(input, e))
-                    {
-                        DestroySelectionBox();
-                        return true;
-                    }
-                    if (moduleHeader.Hover)
-                        DestroySelectionBox();
-                }
-                else if (e.CheckHover(input))
-                {
-                    SelectionBox = e.CreateSelector();
-                    if (!Screen.Input.InGameSelect)
-                        continue;
-
-                    var module = (ShipModule)e.item;
-                    Screen.SetActiveModule(module, ModuleOrientation.Normal, 0f);
-                    return true;
-                }
             }
             return false;
         }
 
-        private bool IsBadModuleSize(ShipModule module)
+        bool IsBadModuleSize(ShipModule module)
         {
             if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
                 return false;
             return Screen.IsBadModuleSize(module);
         }
 
-        private bool IsGoodModuleSize(ShipModule module)
+        bool IsGoodModuleSize(ShipModule module)
         {
             return !IsBadModuleSize(module);
         }
 
-        private readonly Map<int, Entry> Categories = new Map<int, Entry>();
+        readonly Map<int, WeaponListItem> Categories = new Map<int, WeaponListItem>();
 
-        private void AddCategoryItem(int categoryId, string categoryName, ShipModule mod)
+        void AddCategoryItem(int categoryId, string categoryName, ShipModule mod)
         {
             if (!IsGoodModuleSize(mod))
                 return;
-            if (!Categories.TryGetValue(categoryId, out Entry e))
+            if (!Categories.TryGetValue(categoryId, out WeaponListItem e))
             {
-                e = AddItem(new ModuleHeader(categoryName, 240));
+                e = AddItem(new WeaponListItem(this){ Header = new ModuleHeader(categoryName, 240) });
                 Categories.Add(categoryId, e);
             }
-            e.AddSubItem(mod);
+            e.AddSubItem(new WeaponListItem(this){ Module = mod });
         }
 
-        private bool OpenCategory(int categoryId)
+        bool OpenCategory(int categoryId)
         {
-            if (Categories.TryGetValue(categoryId, out Entry e))
+            if (Categories.TryGetValue(categoryId, out WeaponListItem e))
             {
-                var category = (ModuleHeader)e.item;
-                category.Expand(true, e);
+                e.Expand(true);
                 return true;
             }
             return false;
         }
 
-        private void OpenCategoryByIndex(int index)
+        void OpenCategoryByIndex(int index)
         {
             if (index < NumEntries)
             {
-                var category = (ModuleHeader)EntryAt(index).item;
-                category.Expand(true, EntryAt(index));
+                EntryAt(index).Expand(true);
             }
         }
 
@@ -121,11 +90,10 @@ namespace Ship_Game
                 ResetOnNextDraw = false;
             }
 
-            DrawList(batch);
             base.Draw(batch);
         }
 
-        private bool IsModuleAvailable(ShipModule template, out ShipModule tmp)
+        bool IsModuleAvailable(ShipModule template, out ShipModule tmp)
         {
             tmp = null;
 
@@ -139,7 +107,7 @@ namespace Ship_Game
             return true;
         }
 
-        private Array<ShipModule> SortedModules
+        Array<ShipModule> SortedModules
         {
             get
             {
@@ -167,7 +135,7 @@ namespace Ship_Game
             }
         }
 
-        private void AddWeaponCategories()
+        void AddWeaponCategories()
         {
             foreach (ShipModule m in SortedModules)
             {
@@ -197,7 +165,7 @@ namespace Ship_Game
             OpenCategoryByIndex(0);
         }
 
-        private void AddPowerCategories()
+        void AddPowerCategories()
         {
             foreach (ShipModule m in SortedModules)
             {
@@ -212,7 +180,7 @@ namespace Ship_Game
                 OpenCategoryByIndex(0);
         }
 
-        private void AddDefenseCategories()
+        void AddDefenseCategories()
         {
             foreach (ShipModule m in SortedModules)
             {
@@ -238,7 +206,7 @@ namespace Ship_Game
                 OpenCategoryByIndex(0);
         }
 
-        private void AddSpecialCategories()
+        void AddSpecialCategories()
         {
             foreach (ShipModule m in SortedModules)
             {
@@ -254,66 +222,7 @@ namespace Ship_Game
             OpenCategory((int)ShipModuleType.Storage);
         }
 
-        private void DrawList(SpriteBatch spriteBatch)
-        {
-            Vector2 mousePos = Input.CursorPosition;
-            foreach (Entry e in VisibleExpandedEntries)
-            {
-                var bCursor = new Vector2(Screen.ModSel.X + 10, e.Y);
-                if (e.item is ModuleHeader header)
-                {
-                    header.Draw(Screen.ScreenManager, bCursor);
-                }
-                else if (e.item is ShipModule mod)
-                {
-                    bCursor.X += 5f;
-                    SubTexture modTexture = mod.ModuleTexture;
-                    var modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
-                    float aspectRatio = (float)modTexture.Width / modTexture.Height;
-                    float w = modRect.Width;
-                    float h;
-                    for (h = modRect.Height; w > 30f || h > 30f; h = h - 1.6f)
-                    {
-                        w -= aspectRatio * 1.6f;
-                    }
-                    modRect.Width  = (int)w;
-                    modRect.Height = (int)h;
-                    spriteBatch.Draw(modTexture, modRect, Color.White);
-
-                    var tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
-
-                    string moduleName = Localizer.Token(mod.NameIndex);
-                    if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < Screen.ModSel.Width)
-                    {
-                        spriteBatch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, Color.White);
-                        tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    }
-                    else
-                    {
-                        spriteBatch.DrawString(Fonts.Arial11Bold, moduleName, tCursor, Color.White);
-                        tCursor.Y += Fonts.Arial11Bold.LineSpacing;
-                    }
-
-                    string restriction = mod.Restrictions.ToString();
-                    spriteBatch.DrawString(Fonts.Arial8Bold, restriction, tCursor, Color.Orange);
-                    tCursor.X += Fonts.Arial8Bold.MeasureString(restriction).X;
-
-                    if (mod.IsRotatable)
-                    {
-                        var rotateRect = new Rectangle((int)bCursor.X + 240, (int)bCursor.Y + 3, 20, 22);
-                        spriteBatch.Draw(ResourceManager.Texture("UI/icon_can_rotate"), rotateRect, Color.White);
-                        if (rotateRect.HitTest(mousePos))
-                        {
-                            ToolTip.CreateTooltip("Indicates that this module can be rotated using the arrow keys");
-                        }
-                    }
-
-                    e.CheckHover(mousePos);
-                }
-            }
-        }
-
-        private static bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
+        static bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
         {
             if (mod.FighterModule   || mod.CorvetteModule || mod.FrigateModule || mod.StationModule ||
                 mod.DestroyerModule || mod.CruiserModule  || mod.CarrierModule || mod.CapitalModule ||
