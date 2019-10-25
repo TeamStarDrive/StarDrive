@@ -379,7 +379,7 @@ namespace Ship_Game
             {
                 ShipDesigns.Draw(batch);
                 batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
-                batch.FillRectangle(SubShips.Menu, new Color(0, 0, 0, 130));
+                batch.FillRectangle(SubShips.Rect, new Color(0, 0, 0, 130));
                 SubShips.Draw(batch);
                 ShipSL.Draw(batch);
                 var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);

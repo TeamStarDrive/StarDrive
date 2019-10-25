@@ -2,9 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
-using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -16,26 +14,19 @@ namespace Ship_Game
         public Map<string, Node> AllTechNodes = new Map<string, Node>(StringComparer.OrdinalIgnoreCase);
         public Map<string, TreeNode> SubNodes = new Map<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
 
-        Vector2 Cursor = Vector2.Zero;
-
         CloseButton close;
-
         Menu2 MainMenu;
-
         public EmpireUIOverlay empireUI;
 
+        Vector2 Cursor;
         Vector2 MainMenuOffset;
 
-        Rectangle QueueContainer;
-
-        public ResearchQueueUIComponent qcomponent;
+        public ResearchQueueUIComponent Queue;
 
         int GridWidth  = 175;
         int GridHeight = 100;
 
         readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
-
-        Vector2 cameraVelocity = Vector2.Zero;
 
         public bool RightClicked;
 
@@ -45,6 +36,58 @@ namespace Ship_Game
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
+        }
+        
+        public override void LoadContent()
+        {
+            camera = new Camera2D { Pos = new Vector2(Viewport.Width, Viewport.Height) / 2f };
+            var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
+            MainMenu       = new Menu2(main);
+            MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
+            close          = Add(new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20)));
+
+            RootNodes.Clear();
+            AllTechNodes.Clear();
+            SubNodes.Clear();
+
+            int numDiscoveredRoots = EmpireManager.Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
+
+            GridHeight = (main.Height - 40) / numDiscoveredRoots;
+            MainMenuOffset.Y = main.Y + GridHeight / 3;
+            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
+            {
+                MainMenuOffset.Y = MainMenuOffset.Y + 8f;
+            }
+
+            foreach (TechEntry tech in EmpireManager.Player.TechEntries)
+            {
+                if (tech.IsRoot && tech.Discovered)
+                {
+                    Cursor.X = 0f;
+                    Cursor.Y = FindDeepestY() + 1;
+                    SetNode(tech);
+                }
+            }
+
+            GridHeight = (main.Height - 40) / 6;
+            foreach (RootNode node in RootNodes.Values)
+            {
+                PopulateAllTechsFromRoot(node);
+            }
+
+            RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
+            PopulateNodesFromRoot(root);
+            
+            // Create queue once all techs are populated            
+            var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
+            Queue = Add(new ResearchQueueUIComponent(this, queue));
+
+            base.LoadContent();
+        }
+
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        {
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -57,23 +100,24 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, camera.Transform);
-
-            DrawConnectingLines(batch);
-
-            foreach (RootNode rootNode in RootNodes.Values)
             {
-                rootNode.Draw(batch);
-            }
+                DrawConnectingLines(batch);
 
-            foreach (TreeNode treeNode in SubNodes.Values)
-            {
-                treeNode.Draw(batch);
+                foreach (RootNode rootNode in RootNodes.Values)
+                {
+                    rootNode.Draw(batch);
+                }
+
+                foreach (TreeNode treeNode in SubNodes.Values)
+                {
+                    treeNode.Draw(batch);
+                }
             }
             batch.End();
 
             batch.Begin();
             close.Draw(batch);
-            qcomponent.Draw(batch);
+            Queue.Draw(batch);
             ToolTip.Draw(batch);
             batch.End();
         }
@@ -205,58 +249,11 @@ namespace Ship_Game
 
             if (input.RightMouseHeldDown)
                 camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
+            
+            if (Empire.Universe.Debug && HandleDebugInput(input)) // DEBUG unlock inputs
+                return true;
 
-            // unlock ALL techs
-            if (Empire.Universe.Debug)
-            {
-                if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
-                {
-                    foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
-                    {
-                        bool shift = input.IsShiftKeyDown;
-                        Empire us = EmpireManager.Player;
-                        techEntry.DebugUnlockFromTechScreen(us, us, !shift);
-
-                        foreach (var them in EmpireManager.Empires)
-                        {
-                            if (them != EmpireManager.Player)
-                                techEntry.UnlockWithNoBonusOption(us, them, !shift );
-                        }
-                    }
-                    ReloadContent();
-                    EmpireManager.Player.UpdateShipsWeCanBuild();
-                }
-
-                // Unlock only selected node for player
-                if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
-                {
-                    if (qcomponent.QSL.NumEntries > 0)
-                    {
-                        qcomponent.QSL.ItemAt<ResearchQItem>(0).Node.Entry.Unlock(EmpireManager.Player);
-                        EmpireManager.Player.SetResearchTopic("");
-                        ReloadContent();
-                        EmpireManager.Player.UpdateShipsWeCanBuild();
-                    }
-                    else
-                    {
-                        GameAudio.NegativeClick();
-                    }
-                }
-
-                //Added by McShooterz: Cheat ot unlock non bonus tech
-                if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F3))
-                {
-                    foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
-                    {
-                        Empire us = EmpireManager.Player;
-                        techEntry.UnlockWithNoBonusOption(us, us, false);
-                        EmpireManager.Player.UpdateShipsWeCanBuild();
-                        ReloadContent();
-                    }
-                }
-            }
-            qcomponent.HandleInput(input);
-            if (qcomponent.Visible && qcomponent.container.HitTest(input.CursorPosition))
+            if (Queue.HandleInput(input))
                 return true;
 
             foreach (RootNode root in RootNodes.Values)
@@ -283,8 +280,7 @@ namespace Ship_Game
                 }
                 else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
                 {
-                    qcomponent.SetVisible();
-                    qcomponent.AddToResearchQueue(node);
+                    Queue.AddToResearchQueue(node);
                     GameAudio.ResearchSelect();
                 }
                 else if (EmpireManager.Player.HavePreReq(node.Entry.UID))
@@ -293,7 +289,6 @@ namespace Ship_Game
                 }
                 else
                 {
-                    qcomponent.SetVisible();
                     GameAudio.ResearchSelect();
                     TechEntry techToCheck = node.Entry;
                     var techsToAdd = new Array<string>{ techToCheck.UID };
@@ -317,62 +312,64 @@ namespace Ship_Game
                     foreach (string toAdd in techsToAdd)
                     {
                         TechEntry techEntry = EmpireManager.Player.GetTechEntry(toAdd);
-                        if (techEntry.Discovered) qcomponent.AddToResearchQueue(SubNodes[toAdd]);
+                        if (techEntry.Discovered) Queue.AddToResearchQueue(SubNodes[toAdd]);
                     }
                 }
             }
             return base.HandleInput(input);
         }
 
-        public override void LoadContent()
+        bool HandleDebugInput(InputState input)
         {
-            camera = new Camera2D { Pos = new Vector2(Viewport.Width, Viewport.Height) / 2f };
-            var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
-            MainMenu       = new Menu2(main);
-            MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
-            close          = Add(new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20)));
-            QueueContainer = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
-            qcomponent     = new ResearchQueueUIComponent(ScreenManager, QueueContainer, this);
-
-            RootNodes.Clear();
-            AllTechNodes.Clear();
-            SubNodes.Clear();
-
-            if (ScreenWidth < 1600)
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F1))
             {
-                qcomponent.SetInvisible();
-            }
-
-            int numDiscoveredRoots = EmpireManager.Player.TechEntries.Count(t => t.IsRoot && t.Discovered);
-
-            GridHeight = (main.Height - 40) / numDiscoveredRoots;
-            MainMenuOffset.Y = main.Y + GridHeight / 3;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
-            {
-                MainMenuOffset.Y = MainMenuOffset.Y + 8f;
-            }
-
-            foreach (TechEntry tech in EmpireManager.Player.TechEntries)
-            {
-                if (tech.IsRoot && tech.Discovered)
+                foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
                 {
-                    Cursor.X = 0f;
-                    Cursor.Y = FindDeepestY() + 1;
-                    SetNode(tech);
+                    bool shift = input.IsShiftKeyDown;
+                    Empire us = EmpireManager.Player;
+                    techEntry.DebugUnlockFromTechScreen(us, us, !shift);
+
+                    foreach (var them in EmpireManager.Empires)
+                    {
+                        if (them != EmpireManager.Player)
+                            techEntry.UnlockWithNoBonusOption(us, them, !shift );
+                    }
                 }
+                ReloadContent();
+                EmpireManager.Player.UpdateShipsWeCanBuild();
+                return true;
             }
 
-            GridHeight = (main.Height - 40) / 6;
-            foreach (RootNode node in RootNodes.Values)
+            // Unlock only selected node for player
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
-                PopulateAllTechsFromRoot(node);
+                if (EmpireManager.Player.Research.HasTopic)
+                {
+                    EmpireManager.Player.Research.Current.Unlock(EmpireManager.Player);
+                    ReloadContent();
+                    EmpireManager.Player.UpdateShipsWeCanBuild();
+                }
+                else
+                {
+                    GameAudio.NegativeClick();
+                }
+                return true;
             }
 
-            RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
-            PopulateNodesFromRoot(root);
-            qcomponent.ReloadResearchQueue();
-            
-            base.LoadContent();
+            //Added by McShooterz: Cheat ot unlock non bonus tech
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F3))
+            {
+                foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
+                {
+                    Empire us = EmpireManager.Player;
+                    techEntry.UnlockWithNoBonusOption(us, us, false);
+                    EmpireManager.Player.UpdateShipsWeCanBuild();
+                    ReloadContent();
+                }
+                return true;
+            }
+
+            return false;
         }
 
         Vector2 GridSize => new Vector2(GridWidth, GridHeight);
@@ -502,19 +499,6 @@ namespace Ship_Game
             RootNodes.Add(tech.UID, newNode);
         }
 
-        void UnlockTreeNoBonus(Technology tech)
-        {
-            string uid = tech.UID;
-            if (EmpireManager.Player.HasDiscovered(uid) && EmpireManager.Player.HavePreReq(uid))
-            {
-                if (tech.BonusUnlocked.Count == 0 && !EmpireManager.Player.HasUnlocked(uid))
-                    EmpireManager.Player.UnlockTech(uid, TechUnlockType.Normal);
-
-                foreach (Technology child in tech.Children)
-                    UnlockTreeNoBonus(child);
-            }
-        }
-
         //Added by McShooterz: find size of tech tree before it is built
         static int CalculateTreeDimensionsFromRoot(string uid, ref int rows, int cols, int colmax)
         {
@@ -550,18 +534,6 @@ namespace Ship_Game
                 }
             }
             return colmax;
-        }
-
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            if (qcomponent.QSL.NumEntries > 0)
-            {
-                var tech = qcomponent.QSL.ItemAt<ResearchQItem>(0);
-                if (tech.Node.Entry.Progress >= tech.Node.Entry.TechCost)
-                    tech.Node.complete = true;
-            }
-
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
     }
 }

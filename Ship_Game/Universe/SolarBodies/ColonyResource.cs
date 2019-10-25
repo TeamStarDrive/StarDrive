@@ -108,7 +108,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void AutoBalanceWorkers()
         {
-            bool noResearch = Planet.Owner.NoResearchTopic
+            bool noResearch = Planet.Owner.Research.NoTopic
                               && Planet.colonyType != Planet.ColonyType.Colony
                               && Planet.colonyType != Planet.ColonyType.TradeHub;
 

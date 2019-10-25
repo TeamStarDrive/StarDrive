@@ -411,21 +411,28 @@ namespace Ship_Game
 
             bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
             bool coveredByOtherScreen = false;
+            bool inputCaptured = false;
 
             // @note GameScreen could be removed during screen.Update, so [i] must always be bounds checked
             for (int i = GameScreens.Count - 1; i >= 0 && i < GameScreens.Count; --i)
             {
                 GameScreen screen = GameScreens[i];
+
+                // 1. Handle Input
+                if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
+                {
+                    inputCaptured = screen.HandleInput(input);
+                }
+
+                // 2. Update the screen
                 screen.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
 
-                if (screen.ScreenState == ScreenState.TransitionOn || screen.ScreenState == ScreenState.Active)
+                // update visibility flags
+                if (screen.ScreenState == ScreenState.TransitionOn ||
+                    screen.ScreenState == ScreenState.Active)
                 {
                     if (!otherScreenHasFocus && exitScreenTimer <= 0f)
-                    {
-                        if (!screen.IsExiting)
-                            screen.HandleInput(input);
                         otherScreenHasFocus = true;
-                    }
 
                     if (!screen.IsPopup)
                         coveredByOtherScreen = true;

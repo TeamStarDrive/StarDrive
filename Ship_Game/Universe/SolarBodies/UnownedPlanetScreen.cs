@@ -56,7 +56,7 @@ namespace Ship_Game
 			PlanetMenu.Draw();
 			PlanetInfo.Draw(batch);
 			batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
-			var pNameCursor = new Vector2(PlanetInfo.Menu.X + 20, PlanetInfo.Menu.Y + 45);
+			var pNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
 			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, new Color(255, 239, 208));
 			pNameCursor.Y = pNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
 			float amount = 80f;
@@ -94,8 +94,8 @@ namespace Ship_Game
 			{
 				ToolTip.CreateTooltip(21);
 			}
-			pNameCursor.Y = pNameCursor.Y + Fonts.Arial12Bold.LineSpacing * 2;
-			batch.DrawString(Fonts.Arial12Bold, parseText(p.Description, PlanetInfo.Menu.Width - 40), pNameCursor, new Color(255, 239, 208));
+			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
+			batch.DrawString(Fonts.Arial12Bold, parseText(p.Description, PlanetInfo.Width - 40), pNameCursor, new Color(255, 239, 208));
 		}
 
 		public override bool HandleInput(InputState input)

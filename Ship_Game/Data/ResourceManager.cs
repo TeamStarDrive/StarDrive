@@ -1576,10 +1576,7 @@ namespace Ship_Game
 
 
         static readonly Map<string, EconomicResearchStrategy> EconStrategies = new Map<string, EconomicResearchStrategy>();
-        public static EconomicResearchStrategy GetEconomicStrategy(string name)
-        {
-            return EconStrategies[name];
-        }
+        public static EconomicResearchStrategy GetEconomicStrategy(string name) => EconStrategies[name];
         static void LoadEconomicResearchStrategies()
         {
             EconStrategies.Clear();

@@ -44,7 +44,7 @@ namespace Ship_Game
                 StarDriveGame.Instance.GameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             subAllDesigns.Draw(batch);
             ShipDesigns.Draw(batch);
-            var bCursor = new Vector2(subAllDesigns.Menu.X + 20, subAllDesigns.Menu.Y + 20);
+            var bCursor = new Vector2(subAllDesigns.X + 20, subAllDesigns.Y + 20);
             foreach (ScrollList.Entry e in ShipDesigns.VisibleEntries)
             {
                 var ship = (Ship)e.item;

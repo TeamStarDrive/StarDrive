@@ -20,6 +20,14 @@ namespace Ship_Game
         ResearchQueueUp, // "ResearchMenu/button_queue_up"
         ResearchQueueDown, // "ResearchMenu/button_queue_down"
         ResearchQueueCancel, // "ResearchMenu/button_queue_cancel"
+        DanButton,     // UI/dan_button
+        DanButtonBlue, // UI/dan_button_blue
+    }
+
+    public enum ButtonTextAlign
+    {
+        Center,
+        Left,
     }
 
     // Refactored by RedFox
@@ -31,12 +39,9 @@ namespace Ship_Game
         }
         public PressState  State = PressState.Default;
         public ButtonStyle Style = ButtonStyle.Default;
+        public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
         public string Text;
-        public readonly Color DefaultColor = new Color(255, 240, 189);
-        public readonly Color HoverColor   = new Color(255, 240, 189);
-        public readonly Color PressColor   = new Color(255, 240, 189);
         public string Tooltip;
-
         public string ClickSfx = "echo_affirm";
 
         public Action<UIButton> OnClick;
@@ -44,6 +49,11 @@ namespace Ship_Game
         public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
         public UIButton(ButtonStyle style)
+        {
+            Style = style;
+        }
+
+        public UIButton(UIElementV2 parent, ButtonStyle style) : base(parent)
         {
             Style = style;
         }
@@ -71,6 +81,9 @@ namespace Ship_Game
             public readonly SubTexture Normal;
             public readonly SubTexture Hover;
             public readonly SubTexture Pressed;
+            public readonly Color DefaultColor = new Color(255, 240, 189);
+            public readonly Color HoverColor   = new Color(255, 240, 189);
+            public readonly Color PressColor   = new Color(255, 240, 189);
             public StyleTextures(string normal)
             {
                 Normal  = ResourceManager.Texture(normal);
@@ -83,17 +96,30 @@ namespace Ship_Game
                 Hover   = ResourceManager.Texture(hover);
                 Pressed = Hover;
             }
+            public StyleTextures(string normal, bool danButtonBlue)
+            {
+                Normal = Hover = Pressed = ResourceManager.Texture(normal);
+                if (danButtonBlue)
+                {
+                    DefaultColor = new Color(205, 229, 255);
+                    HoverColor = new Color(174, 202, 255);
+                    PressColor = new Color(174, 202, 255);
+                }
+                else
+                {
+                    HoverColor = new Color(255, 255, 255, 150);
+                    PressColor = new Color(255, 255, 255, 150);
+                }
+            }
         }
 
         static int ContentId;
         static StyleTextures[] Styling;
         
-        static StyleTextures[] GetStyles()
+        static StyleTextures GetStyle(ButtonStyle style)
         {
             if (Styling != null && ContentId == ResourceManager.ContentId)
-            {
-                return Styling;
-            }
+                return Styling[(int)style];
 
             ContentId = ResourceManager.ContentId;
             Styling = new []
@@ -110,18 +136,20 @@ namespace Ship_Game
                 new StyleTextures("ResearchMenu/button_queue_up", "ResearchMenu/button_queue_up_hover"),
                 new StyleTextures("ResearchMenu/button_queue_down", "ResearchMenu/button_queue_down_hover"),
                 new StyleTextures("ResearchMenu/button_queue_cancel", "ResearchMenu/button_queue_cancel_hover"),
+                new StyleTextures("UI/dan_button", danButtonBlue:false),
+                new StyleTextures("UI/dan_button_blue", danButtonBlue:true),
             };
-            return Styling;
+            return Styling[(int)style];
         }
 
         public static SubTexture StyleTexture(ButtonStyle style = ButtonStyle.Default)
         {
-            return GetStyles()[(int)style].Normal;
+            return GetStyle(style).Normal;
         }
 
         SubTexture ButtonTexture()
         {
-            StyleTextures styling = GetStyles()[(int)Style];
+            StyleTextures styling = GetStyle(Style);
             switch (State)
             {
                 default:                 return styling.Normal;
@@ -132,11 +160,12 @@ namespace Ship_Game
 
         Color TextColor()
         {
+            StyleTextures styling = GetStyle(Style);
             switch (State)
             {
-                default:                 return DefaultColor;
-                case PressState.Hover:   return HoverColor;
-                case PressState.Pressed: return PressColor;
+                default:                 return styling.DefaultColor;
+                case PressState.Hover:   return styling.HoverColor;
+                case PressState.Pressed: return styling.PressColor;
             }
         }
 
@@ -153,7 +182,11 @@ namespace Ship_Game
                 SpriteFont font = Fonts.Arial12Bold;
 
                 Vector2 textCursor;
-                textCursor.X = r.X + r.Width / 2 - font.MeasureString(Text).X / 2f;
+                if (TextAlign == ButtonTextAlign.Center)
+                    textCursor.X = r.X + r.Width / 2 - font.MeasureString(Text).X / 2f;
+                else
+                    textCursor.X = r.X + 25f;
+
                 textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect

@@ -83,7 +83,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         public void DrawHullSelection(SpriteBatch batch, ScreenManager screenManager)
         {
-            Rectangle r = HullSelectionSub.Menu;
+            Rectangle r = HullSelectionSub.Rect;
             r.Y += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
@@ -94,7 +94,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
             {
-                var bCursor = new Vector2(HullSelectionSub.Menu.X + 10, e.Y);
+                var bCursor = new Vector2(HullSelectionSub.X + 10, e.Y);
                 if (e.item is ModuleHeader header)
                 {
                     header.Draw(screenManager, bCursor);

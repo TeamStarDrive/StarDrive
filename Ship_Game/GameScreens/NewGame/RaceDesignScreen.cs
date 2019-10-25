@@ -439,10 +439,10 @@ namespace Ship_Game
             traitsSL.Draw(batch);
             if (Traits.Tabs[0].Selected || Traits.Tabs[1].Selected || Traits.Tabs[2].Selected)
             {
-                var bCursor = new Vector2(Traits.Menu.X + 20, Traits.Menu.Y + 45);
+                var bCursor = new Vector2(Traits.X + 20, Traits.Y + 45);
                 foreach (ScrollList.Entry e in traitsSL.VisibleEntries)
                 {
-                    string name = PaddedWithDots((e.item as TraitEntry).trait.TraitName, Traits.Menu.Width - 70);
+                    string name = PaddedWithDots((e.item as TraitEntry).trait.TraitName, Traits.Rect.Width - 70);
 
                     if (e.Hovered)
                     {
@@ -468,10 +468,10 @@ namespace Ship_Game
                         }
                         batch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
                         Vector2 curs = bCursor;
-                        curs.X = curs.X + (Traits.Menu.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+                        curs.X = curs.X + (Traits.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
                         batch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + Fonts.Arial14Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Menu.Width - 45), tCursor, drawColor);
+                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Width - 45), tCursor, drawColor);
                         
                         e.DrawPlus(batch);
                     }
@@ -499,10 +499,10 @@ namespace Ship_Game
                         }
                         batch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
                         Vector2 curs = bCursor;
-                        curs.X = curs.X + (Traits.Menu.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
+                        curs.X = curs.X + (Traits.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
                         batch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
                         tCursor.Y = tCursor.Y + Fonts.Arial14Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Menu.Width - 45), tCursor, drawColor);
+                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Width - 45), tCursor, drawColor);
                         e.DrawPlus(batch);
                     }
 
