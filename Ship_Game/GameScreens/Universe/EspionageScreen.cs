@@ -120,7 +120,7 @@ namespace Ship_Game
                 float x = Screen.ScreenWidth / 2f - (148f * empires.Count) / 2f;
                 Pos = new Vector2(x, rect.Y + 10);
 
-                UIList list = List(new Vector2(Pos.X + 10, rect.Y + 40));
+                UIList list = AddList(new Vector2(Pos.X + 10, rect.Y + 40));
                 list.Padding = new Vector2(10f, 10f);
                 list.LayoutStyle = ListLayoutStyle.Resize;
                 list.Direction = new Vector2(1f, 0f);

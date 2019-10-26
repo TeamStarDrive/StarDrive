@@ -27,6 +27,12 @@ namespace Ship_Game
         Blue, // used in research screen
     }
 
+    public enum DragEvent
+    {
+        Begin,
+        End,
+    }
+
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
     [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
     public class ScrollList<T> : UIElementV2
@@ -66,7 +72,13 @@ namespace Ship_Game
         public Action<T> OnHovered;
 
         // EVENT: Called when an item is clicked on
-        public Action<T> OnClicked;
+        public Action<T> OnClick;
+
+        // EVENT: Called when an item is double-clicked
+        public Action<T> OnDoubleClick;
+
+        // EVENT: Called when an item drag starts or item drag ends
+        public Action<T, DragEvent> OnDrag;
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
         {
@@ -106,7 +118,17 @@ namespace Ship_Game
 
         public virtual void OnItemClicked(T item)
         {
-            OnClicked?.Invoke(item);
+            OnClick?.Invoke(item);
+        }
+
+        public virtual void OnItemDoubleClicked(T item)
+        {
+            OnDoubleClick?.Invoke(item);
+        }
+
+        public virtual void OnItemDragged(T item, DragEvent evt)
+        {
+            OnDrag?.Invoke(item, evt);
         }
 
         class StyleTextures
@@ -198,8 +220,9 @@ namespace Ship_Game
         {
             Submenu p = ParentMenu;
             StyleTextures s = GetStyle();
-            int x = p.Rect.X + p.Rect.Width - 20;
-            ScrollUp   = new Rectangle(x, p.Rect.Y + YOffset,            s.ScrollBarArrowUp.Width, s.ScrollBarArrowUp.Height);
+            Rect = p.Rect;
+            int x = (int)(p.X + p.Width - 20f);
+            ScrollUp   = new Rectangle(x, p.Rect.Y + YOffset,            s.ScrollBarArrowUp.Width,   s.ScrollBarArrowUp.Height);
             ScrollDown = new Rectangle(x, p.Rect.Y + p.Rect.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             ScrollBar        = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, s.ScrollBarMid.Width, 0);
@@ -391,6 +414,7 @@ namespace Ship_Game
 
             if (DraggedEntry != null)
             {
+                DraggedEntry.Pos = GameBase.ScreenManager.input.CursorPosition + DraggedOffset;
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
                 DraggedEntry.Draw(batch);
             }
@@ -527,17 +551,20 @@ namespace Ship_Game
                         for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
                         {
                             T e = ExpandedEntries[i];
-                            if (!e.CheckHover(input))
-                                continue;
-                            DraggedEntry = e;
-                            DraggedOffset = e.TopLeft - input.CursorPosition;
-                            break;
+                            if (e.CheckHover(input))
+                            {
+                                DraggedEntry = e;
+                                DraggedOffset = e.TopLeft - input.CursorPosition;
+                                OnItemDragged(DraggedEntry, DragEvent.Begin);
+                                break;
+                            }
                         }
                     }
                 }
             }
             if (input.LeftMouseUp)
             {
+                OnItemDragged(DraggedEntry, DragEvent.End);
                 ClickTimer = 0f;
                 DraggedEntry = null;
             }
@@ -662,7 +689,7 @@ namespace Ship_Game
             }
         }
 
-        public class Entry : UIElementV2
+        public class Entry : UIElementContainer
         {
             public ScrollList<T> List;
 
@@ -684,6 +711,9 @@ namespace Ship_Game
             Rectangle Down;
             Rectangle Cancel;
             Rectangle Apply;
+
+            // The current visible index of this Entry
+            public int VisibleIndex { get; protected set; }
 
             readonly Array<T> SubEntries = new Array<T>();
             public bool HasSubEntries => SubEntries.NotEmpty;
@@ -798,10 +828,11 @@ namespace Ship_Game
                 }
             }
 
-            public void UpdateClickRect(Point topLeft, int j)
+            public void UpdateClickRect(Point topLeft, int ourIndex)
             {
+                VisibleIndex = ourIndex;
                 int height = List.EntryHeight;
-                var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + j * height, List.ParentMenu.Rect.Width - 40, height);
+                var r = new Rectangle(topLeft.X + 20, topLeft.Y + 35 + ourIndex * height, List.ParentMenu.Rect.Width - 40, height);
                 int right = r.X + r.Width;
                 int iconY = r.Y + 15;
                 Rect = r;
@@ -837,18 +868,26 @@ namespace Ship_Game
                     List.OnItemHovered(this as T);
                 }
 
-                bool clicked = Hovered && input.LeftMouseClick;
-                if (clicked)
+                if (Hovered)
                 {
-                    GameAudio.AcceptClick();
-                    if (SubEntries.NotEmpty)
+                    if (input.LeftMouseDoubleClick)
                     {
-                        Expand(!Expanded);
+                        GameAudio.AcceptClick();
+                        List.OnItemDoubleClicked(this as T);
+                        return true;
                     }
-
-                    List.OnItemClicked(this as T);
-                    return true;
+                    if (input.LeftMouseClick)
+                    {
+                        GameAudio.AcceptClick();
+                        if (SubEntries.NotEmpty)
+                        {
+                            Expand(!Expanded);
+                        }
+                        List.OnItemClicked(this as T);
+                        return true;
+                    }
                 }
+
                 return Hovered;
             }
 

@@ -94,7 +94,7 @@ namespace Ship_Game
                     cat.AddSubItem(new WikiHelpCategoryListItem{ Topic = topic });
                 }
             }
-            HelpCategories.OnClicked = OnHelpCategoryClicked;
+            HelpCategories.OnClick = OnHelpCategoryClicked;
         }
 
         void OnHelpCategoryClicked(WikiHelpCategoryListItem item)

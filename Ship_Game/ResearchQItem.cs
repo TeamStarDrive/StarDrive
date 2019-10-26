@@ -4,7 +4,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class ResearchQItem : UIElementContainer
+    public sealed class ResearchQItem : ScrollList<ResearchQItem>.Entry
     {
         readonly ResearchScreenNew Screen;
         public readonly TechEntry Tech;
@@ -13,20 +13,15 @@ namespace Ship_Game
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
 
-        public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos) : base(screen, pos)
+        public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos)
         {
             Screen = screen;
             Tech = node.Entry;
+            Pos = pos;
             BtnUp     = Button(ButtonStyle.ResearchQueueUp, OnBtnUpPressed);
             BtnDown   = Button(ButtonStyle.ResearchQueueDown, OnBtnDownPressed);
             BtnCancel = Button(ButtonStyle.ResearchQueueCancel, OnBtnCancelPressed);
             this.PerformLayout();
-        }
-
-        void UpdateContainer(Vector2 pos)
-        {
-            Pos = pos;
-            PerformLayout();
         }
 
         public override void PerformLayout()
@@ -54,12 +49,6 @@ namespace Ship_Game
             base.Draw(batch);
             Node.DrawGlow(batch);
             Node.Draw(batch);
-        }
-
-        public void Draw(SpriteBatch batch, Vector2 pos)
-        {
-            UpdateContainer(pos);
-            Draw(batch);
         }
 
         void SwapQueueItems(int first, int second)

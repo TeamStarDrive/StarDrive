@@ -11,15 +11,14 @@ namespace Ship_Game
 {
     public sealed class RefitToWindow : GameScreen
     {
-        private readonly ShipListScreen Screen;
-        private readonly Ship ShipToRefit;
-        private Submenu sub_ships;
-        private ScrollList ShipSL;
-        private UIButton RefitOne;
-        private UIButton RefitAll;
-        private Ship RefitTo;
-        private DanButton ConfirmRefit;
-        private Selector selector;
+        readonly ShipListScreen Screen;
+        readonly Ship ShipToRefit;
+        Submenu sub_ships;
+        ScrollList<RefitShipListItem> RefitShipList;
+        UIButton RefitOne;
+        UIButton RefitAll;
+        Ship RefitTo;
+        DanButton ConfirmRefit;
 
         public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
         {
@@ -38,6 +37,86 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
+        class RefitShipListItem : ScrollList<RefitShipListItem>.Entry
+        {
+            readonly RefitToWindow Screen;
+            public readonly Ship Ship;
+
+            public RefitShipListItem(RefitToWindow screen, Ship template)
+            {
+                Screen = screen;
+                Ship = template;
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+
+                var tCursor = new Vector2(X + 40f, Y + 3f);
+                batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
+
+                if (List.ParentMenu.Tabs[0].Selected)
+                {
+                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                    batch.DrawString(Fonts.Arial12Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
+                }
+
+                var moneyRect = new Rectangle((int)X + 165, (int)Y, 21, 20);
+                var moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
+                batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
+                int refitCost = Screen.ShipToRefit.RefitCost(Ship);
+                batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
+            }
+        }
+
+        public override void LoadContent()
+        {
+            var shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 140, 100, 280, 500);
+            sub_ships = new Submenu(shipDesignsRect);
+            RefitShipList = new ScrollList<RefitShipListItem>(sub_ships, 40);
+            sub_ships.AddTab("Refit to...");
+            RefitShipList.OnClick = OnRefitShipItemClicked;
+
+            foreach (string shipId in ShipToRefit.loyalty.ShipsWeCanBuild)
+            {
+                Ship weCanBuild = ResourceManager.GetShipTemplate(shipId);
+                if (weCanBuild.shipData.Hull == ShipToRefit.shipData.Hull && shipId != ShipToRefit.Name &&
+                    !weCanBuild.shipData.ShipRole.Protected)
+                {
+                    RefitShipList.AddItem(new RefitShipListItem(this, weCanBuild));
+                }
+            }
+
+            ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");
+
+            RefitOne = ButtonLow(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, titleId:2265, click: OnRefitOneClicked);
+            RefitOne.Tooltip = Localizer.Token(2267);
+            RefitAll = ButtonLow(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, titleId:2266, click: OnRefitAllClicked);
+            RefitAll.Tooltip = Localizer.Token(2268);
+
+            base.LoadContent();
+        }
+
+        void OnRefitShipItemClicked(RefitShipListItem item)
+        {
+            RefitTo = item.Ship;
+            RefitOne.Enabled = RefitTo != null;
+            RefitAll.Enabled = RefitTo != null;
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (input.Escaped || input.RightMouseClick)
+            {
+                ExitScreen();
+                return true;
+            }
+
+            if (RefitShipList.HandleInput(input))
+                return true;
+
+            return base.HandleInput(input);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
@@ -48,27 +127,8 @@ namespace Ship_Game
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch);
-            selector?.Draw(batch);
-            ShipSL.Draw(batch);
-            var bCursor = new Vector2(sub_ships.X + 5, sub_ships.Y + 25);
-            foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
-            {
-                Ship ship = ResourceManager.ShipsDict[e.item as string];
-                bCursor.Y = e.Y;
-                batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                Vector2 tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                if (sub_ships.Tabs[0].Selected)
-                {
-                    batch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                }
-                Rectangle moneyRect = new Rectangle(e.X + 165, e.Y, 21, 20);
-                Vector2 moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
-                batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
-                int refitCost = ShipToRefit.RefitCost(ship);
-                batch.DrawString(Fonts.Arial12Bold, refitCost.ToString(), moneyText, Color.White);
-            }
+            RefitShipList.Draw(batch);
+
             if (RefitTo != null)
             {
                 var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));
@@ -89,7 +149,7 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        private void OnRefitOneClicked(UIButton b)
+        void OnRefitOneClicked(UIButton b)
         {
             Goal refitShip = new RefitShip(ShipToRefit, RefitTo.Name, EmpireManager.Player);
             EmpireManager.Player.GetEmpireAI().Goals.Add(refitShip);
@@ -97,7 +157,7 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        private void OnRefitAllClicked(UIButton b)
+        void OnRefitAllClicked(UIButton b)
         {
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
@@ -109,61 +169,6 @@ namespace Ship_Game
             }
             GameAudio.EchoAffirmative();
             ExitScreen();
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            ShipSL.HandleInput(input);
-            if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
-            {
-                ExitScreen();
-                return true;
-            }
-            selector = null;
-            foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
-            {
-                if (e.CheckHover(input))
-                {
-                    selector = e.CreateSelector();
-                    if (input.InGameSelect)
-                    {
-                        GameAudio.AcceptClick();
-                        ResourceManager.ShipsDict.TryGetValue(e.Get<string>(), out Ship template);
-                        RefitTo = template;
-                    }
-                }
-            }
-
-            RefitOne.Enabled = RefitTo != null;
-            RefitAll.Enabled = RefitTo != null;
-            return base.HandleInput(input);
-        }
-
-        public override void LoadContent()
-        {
-            var shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 140, 100, 280, 500);
-            sub_ships = new Submenu(shipDesignsRect);
-            ShipSL = new ScrollList(sub_ships, 40);
-            sub_ships.AddTab("Refit to...");
-            foreach (string shipname in ShipToRefit.loyalty.ShipsWeCanBuild)
-            {
-                Ship weCanBuild = ResourceManager.GetShipTemplate(shipname);
-                if (weCanBuild.shipData.Hull != ShipToRefit.shipData.Hull
-                    || shipname == ShipToRefit.Name 
-                    || weCanBuild.shipData.ShipRole.Protected)
-                {
-                    continue;
-                }
-                ShipSL.AddItem(shipname);
-            }
-            ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");
-
-            RefitOne = ButtonLow(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, titleId:2265, click: OnRefitOneClicked);
-            RefitOne.Tooltip = Localizer.Token(2267);
-            RefitAll = ButtonLow(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, titleId:2266, click: OnRefitAllClicked);
-            RefitAll.Tooltip = Localizer.Token(2268);
-
-            base.LoadContent();
         }
     }
 }
