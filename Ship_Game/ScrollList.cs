@@ -66,7 +66,7 @@ namespace Ship_Game
 
         public Selector SelectionBox;
 
-            public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
+        public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
         {
             ParentMenu = p;
             Style = style;
@@ -348,24 +348,24 @@ namespace Ship_Game
             var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
             if (ScrollBarHover == 0)
             {
-                batch.Draw(s.ScrollBarUpDown, up, Color.White);
-                batch.Draw(s.ScrollBarMid, mid, Color.White);
+                batch.Draw(s.ScrollBarUpDown,  up, Color.White);
+                batch.Draw(s.ScrollBarMid,    mid, Color.White);
                 batch.Draw(s.ScrollBarUpDown, bot, Color.White);
             }
             else if (ScrollBarHover == 1)
             {
-                batch.Draw(s.ScrollBarUpDownHover1, up, Color.White);
-                batch.Draw(s.ScrollBarMidHover1, mid, Color.White);
+                batch.Draw(s.ScrollBarUpDownHover1,  up, Color.White);
+                batch.Draw(s.ScrollBarMidHover1,    mid, Color.White);
                 batch.Draw(s.ScrollBarUpDownHover1, bot, Color.White);
             }
             else if (ScrollBarHover == 2)
             {
-                batch.Draw(s.ScrollBarUpDownHover2, up, Color.White);
-                batch.Draw(s.ScrollBarMidHover2, mid, Color.White);
+                batch.Draw(s.ScrollBarUpDownHover2,  up, Color.White);
+                batch.Draw(s.ScrollBarMidHover2,    mid, Color.White);
                 batch.Draw(s.ScrollBarUpDownHover2, bot, Color.White);
             }
             Vector2 mousepos = Mouse.GetState().Pos();
-            batch.Draw(ScrollUp.HitTest(mousepos) ? s.ScrollBarArrowUpHover1 : s.ScrollBarArrowUp, ScrollUp, Color.White);
+            batch.Draw(ScrollUp.HitTest(mousepos)   ? s.ScrollBarArrowUpHover1   : s.ScrollBarArrowUp, ScrollUp, Color.White);
             batch.Draw(ScrollDown.HitTest(mousepos) ? s.ScrollBarArrowDownHover1 : s.ScrollBarArrowDown, ScrollDown, Color.White);
         }
 
@@ -534,7 +534,7 @@ namespace Ship_Game
             }
         }
 
-        void HandleElementDragging(InputState input, Func<int, int, bool> onDragElement)
+        void HandleElementDragging(InputState input)
         {
             if (DraggedEntry == null || !input.LeftMouseDown)
                 return;
@@ -543,8 +543,28 @@ namespace Ship_Game
 
             for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
             {
-                if (Entries[i].CheckHover(input) && dragged != -1 && onDragElement(i, dragged))
-                    break;
+                if (Entries[i].CheckHover(input) && dragged != -1)
+                {
+                    if (i < dragged)
+                    {
+                        T toReplace = Entries[i];
+                        Entries[i] = Entries[dragged];
+                        Entries[dragged] = toReplace;
+                        DraggedEntry = Entries[i];
+                        break;
+                    }
+                    if (i > dragged)
+                    {
+                        T toRemove = Entries[dragged];
+                        for (int j = dragged + 1; j <= i; j++)
+                        {
+                            Entries[j - 1] = Entries[j];
+                        }
+                        Entries[i] = toRemove;
+                        DraggedEntry = Entries[i];
+                        break;
+                    }
+                }
             }
         }
 
@@ -553,30 +573,7 @@ namespace Ship_Game
             bool hit = HandleScrollBar(input);
             hit |= HandleMouseScrollUpDown(input);
             HandleDraggable(input);
-
-            HandleElementDragging(input, (newIndex, dragged) =>
-            {
-                if (newIndex < dragged)
-                {
-                    T toReplace = Entries[newIndex];
-                    Entries[newIndex] = Entries[dragged];
-                    Entries[dragged] = toReplace;
-                    DraggedEntry = Entries[newIndex];
-                    return true;
-                }
-                if (newIndex > dragged)
-                {
-                    T toRemove = Entries[dragged];
-                    for (int j = dragged + 1; j <= newIndex; j++)
-                    {
-                        Entries[j - 1] = Entries[j];
-                    }
-                    Entries[newIndex] = toRemove;
-                    DraggedEntry = Entries[newIndex];
-                }
-                return false;
-            });
-
+            HandleElementDragging(input);
             UpdateListElements();
             if (!hit && AutoManageItems)
                 return HandleInputChildElements(input);
@@ -628,9 +625,12 @@ namespace Ship_Game
         {
             for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
             {
-                if (ExpandedEntries[i].HandleInput(input))
+                T item = ExpandedEntries[i];
+                if (item.HandleInput(input))
                 {
-                    SelectionBox = new Selector(ExpandedEntries[i].Rect);
+                    // only show selector if item doesn't have child elements (it's a header item)
+                    if (!item.HasSubEntries)
+                        SelectionBox = new Selector(item.Rect);
                     return true;
                 }
             }
@@ -661,6 +661,9 @@ namespace Ship_Game
             // true if item was just clicked
             public bool Clicked { get; private set; }
 
+            // OnClick event
+            public Action<T> OnClick;
+
             // Plus and Edit buttons in ColonyScreen build list
             readonly bool Plus;
             readonly bool Edit;
@@ -675,6 +678,7 @@ namespace Ship_Game
             Rectangle Apply;
 
             readonly Array<T> SubEntries = new Array<T>();
+            public bool HasSubEntries => SubEntries.NotEmpty;
 
             public Entry()
             {
@@ -684,8 +688,6 @@ namespace Ship_Game
                 Plus = plus;
                 Edit = edit;
             }
-
-            public Selector CreateSelector() => new Selector(Rect);
 
             public void AddSubItem(T entry)
             {
@@ -738,7 +740,6 @@ namespace Ship_Game
                         List.FirstVisibleIndex = 0;
                 }
                 List.UpdateListElements();
-                GameAudio.AcceptClick();
             }
 
             public bool WasClicked(InputState input)
@@ -765,12 +766,6 @@ namespace Ship_Game
                 if (!wasHovered && Hovered)
                     GameAudio.ButtonMouseOver();
 
-                return Hovered;
-            }
-
-            public bool CheckHoverNoSound(Vector2 mousePos)
-            {
-                Hovered = Rect.HitTest(mousePos);
                 return Hovered;
             }
 
@@ -902,10 +897,10 @@ namespace Ship_Game
                 Clicked = Hovered && input.LeftMouseClick;
                 if (Clicked)
                 {
+                    GameAudio.AcceptClick();
                     if (SubEntries.NotEmpty)
-                    {
                         Expand(!Expanded);
-                    }
+                    OnClick?.Invoke(this as T);
                     return true;
                 }
                 return Hovered;

@@ -178,6 +178,27 @@ namespace Ship_Game
             }
         }
 
+        public static Vector2 MeasureLines(this SpriteFont font, Array<string> lines)
+        {
+            var size = new Vector2();
+            foreach (string line in lines)
+            {
+                size.X = Math.Max(size.X, font.MeasureString(line).X);
+                size.Y += font.LineSpacing + 2;
+            }
+            return size;
+        }
+
+        public static int TextWidth(this SpriteFont font, string text)
+        {
+            return (int)font.MeasureString(text).X;
+        }
+
+        public static int TextWidth(this SpriteFont font, int localizationId)
+        {
+            return (int)font.MeasureString(Localizer.Token(localizationId)).X;
+        }
+
         public static string ParseText(this SpriteFont font, string text, float maxLineWidth)
         {
             var result = new StringBuilder();
@@ -211,27 +232,6 @@ namespace Ship_Game
                 }
             }
             return result.ToString();
-        }
-
-        public static Vector2 MeasureLines(this SpriteFont font, Array<string> lines)
-        {
-            var size = new Vector2();
-            foreach (string line in lines)
-            {
-                size.X = Math.Max(size.X, font.MeasureString(line).X);
-                size.Y += font.LineSpacing + 2;
-            }
-            return size;
-        }
-
-        public static int TextWidth(this SpriteFont font, string text)
-        {
-            return (int)font.MeasureString(text).X;
-        }
-
-        public static int TextWidth(this SpriteFont font, int localizationId)
-        {
-            return (int)font.MeasureString(Localizer.Token(localizationId)).X;
         }
 
         public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
