@@ -294,12 +294,14 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
+    <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\GameBase.cs" />
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipHullListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\TextListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceArchetypeListItem.cs" />
@@ -381,6 +383,7 @@
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactEntryListItem.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\ResponseListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\WikiHelpCategoryListItem.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
@@ -901,7 +904,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\CombatScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1353,7 +1356,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\EmpireScreenEntry.cs">
+    <Compile Include="Ship_Game\GameScreens\Universe\ColoniesListItem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

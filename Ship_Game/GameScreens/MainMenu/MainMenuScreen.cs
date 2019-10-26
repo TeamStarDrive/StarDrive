@@ -56,7 +56,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!Find("buttons", out UIList list))
-                list = List(Vector2.Zero);
+                list = AddList(Vector2.Zero);
             if (list.Find("new_game",  out UIButton newGame))   newGame.OnClick   = NewGame_Clicked;
             if (list.Find("tutorials", out UIButton tutorials)) tutorials.OnClick = Tutorials_Clicked;
             if (list.Find("load_game", out UIButton loadGame))  loadGame.OnClick  = LoadGame_Clicked;

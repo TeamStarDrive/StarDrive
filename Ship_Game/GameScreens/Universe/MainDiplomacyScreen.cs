@@ -901,8 +901,8 @@ namespace Ship_Game
         void CreateArtifactsScrollList(Empire empire)
         {
             SelectedEmpire = empire;
-
             ArtifactsSL.Reset();
+
             var entry = new ArtifactEntry();
             for (int i = 0; i < SelectedEmpire.data.OwnedArtifacts.Count; i++)
             {
@@ -1003,28 +1003,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    SelectedEmpire = e;
-                    ArtifactsSL.Reset();
-                    var entry = new ArtifactEntry();
-                    for (int i = 0; i < e.data.OwnedArtifacts.Count; i++)
-                    {
-                        Artifact art = e.data.OwnedArtifacts[i];
-                        var button = new SkinnableButton(new Rectangle(0, 0, 32, 32), string.Concat("Artifact Icons/", art.Name))
-                        {
-                            IsToggle = false,
-                            ReferenceObject = art,
-                            BaseColor = Color.White
-                        };
-                        if (entry.ArtifactButtons.Count < 5)
-                        {
-                            entry.ArtifactButtons.Add(button);
-                        }
-                        if (entry.ArtifactButtons.Count == 5 || i == e.data.OwnedArtifacts.Count - 1)
-                        {
-                            ArtifactsSL.AddItem(entry);
-                            entry = new ArtifactEntry();
-                        }
-                    }
+                    CreateArtifactsScrollList(e);
                 }
                 Races.Add(new RaceEntry { e = e });
             }
@@ -1040,8 +1019,6 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            TransitionElapsedTime += elapsedTime;
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
     }

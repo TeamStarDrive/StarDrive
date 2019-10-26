@@ -758,7 +758,7 @@ namespace Ship_Game
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
             
-            UIList bottomList = List(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
+            UIList bottomList = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomList.LayoutStyle = ListLayoutStyle.Resize;
             bottomList.Direction = new Vector2(-1, 0);
             bottomList.Padding = new Vector2(16f, 2f);
@@ -828,7 +828,7 @@ namespace Ship_Game
                     }
                 }
             }
-            HullSL.OnClicked = OnHullListItemClicked;
+            HullSL.OnClick = OnHullListItemClicked;
 
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
