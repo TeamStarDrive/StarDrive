@@ -31,9 +31,9 @@ namespace Ship_Game
         Rectangle ThemRect;
         Rectangle BigTradeRect;
 
-        ScrollList StatementsSL;
-        ScrollList OurItemsSL;
-        ScrollList TheirItemsSL;
+        ScrollList<DialogOptionListItem> StatementsSL;
+        ScrollList<ItemToOffer> OurItemsSL;
+        ScrollList<ItemToOffer> TheirItemsSL;
 
         GenericButton Accept;
         GenericButton Reject;
@@ -50,7 +50,7 @@ namespace Ship_Game
         GenericButton ar;
         GenericButton at;
         Vector2 EmpireNamePos;
-        ScrollList OfferTextSL;
+        ScrollList<TextListItem> OfferTextSL;
 
         Rectangle R;
         Rectangle BridgeRect;
@@ -315,7 +315,7 @@ namespace Ship_Game
             {
                 case DialogState.Them:
                 {
-                    string text = ParseDiplomacyText(TheirText, (DialogRect.Width - 25), Fonts.Consolas18);
+                    string text = ParseTextDiplomacy(TheirText, (DialogRect.Width - 25));
                     var position = new Vector2((ScreenWidth / 2f) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
@@ -378,15 +378,14 @@ namespace Ship_Game
                 }
                 case DialogState.Negotiate:
                 {
-                    var drawCurs = new Vector2((R.X + 15), (R.Y + 10));
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
+
                     OfferTextSL.Reset();
-                    HelperFunctions.parseTextToSL(txt, (DialogRect.Width - 30), Fonts.Consolas18, ref OfferTextSL);
-                    foreach (ScrollList.Entry e in OfferTextSL.VisibleEntries)
-                    {
-                        DrawDropShadowText(e.Get<string>(), new Vector2(drawCurs.X, e.Y - 33), Fonts.Consolas18);
-                    }
+                    string[] lines = Fonts.Consolas18.ParseTextToLines(txt, (DialogRect.Width - 30));
+                    foreach (string line in lines) OfferTextSL.AddItem(new TextListItem(line, Fonts.Consolas18));
+                    OfferTextSL.Draw(batch);
+
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
                         SendOffer.DrawWithShadow(batch);
@@ -394,8 +393,8 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Right"), Negotiate_Right, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Left"), Negotiate_Left, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Tone"), ToneContainerRect, Color.White);
-                    DrawOurItems();
-                    DrawTheirItems();
+                    OurItemsSL.Draw(batch);
+                    TheirItemsSL.Draw(batch);
                     OfferTextSL.Draw(batch);
                     ap.Transition(Attitude_Pleading_Rect);
                     ap.Draw(ScreenManager);
@@ -403,7 +402,8 @@ namespace Ship_Game
                     at.Draw(ScreenManager);
                     ar.Transition(Attitude_Respectful_Rect);
                     ar.Draw(ScreenManager);
-                    drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
+
+                    var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
                     batch.DrawString(Fonts.Pirulen12, Localizer.Token(1221), drawCurs, Color.White);
                     drawCurs = new Vector2((ThemRect.X + 10), (ThemRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
                     batch.DrawString(Fonts.Pirulen12, Localizer.Token(1222), drawCurs, Color.White);
@@ -412,7 +412,7 @@ namespace Ship_Game
                 case DialogState.TheirOffer:
                 {
                     batch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
-                    string text = ParseDiplomacyText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
+                    string text = ParseTextDiplomacy(TheirText, DialogRect.Width - 25);
                     var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
@@ -421,7 +421,7 @@ namespace Ship_Game
                 }
                 case DialogState.End:
                 {
-                    string text = ParseDiplomacyText(TheirText, DialogRect.Width - 20, Fonts.Consolas18);
+                    string text = ParseTextDiplomacy(TheirText, DialogRect.Width - 25);
                     var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
@@ -441,36 +441,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, Color.White);
         }
 
-        void DrawOurItems()
-        {
-            OurItemsSL.Draw(ScreenManager.SpriteBatch);
-            var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y + Fonts.Pirulen12.LineSpacing + 10));
-            foreach (ScrollList.Entry e in OurItemsSL.VisibleExpandedEntries)
-            {
-                if (!e.Hovered && e.item is ItemToOffer item)
-                {
-                    item.Update(drawCurs);
-                    item.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold);
-                    drawCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-                }
-            }
-        }
-
-        void DrawTheirItems()
-        {
-            TheirItemsSL.Draw(ScreenManager.SpriteBatch);
-            Vector2 drawCurs = new Vector2(ThemRect.X + 10, ThemRect.Y + Fonts.Pirulen12.LineSpacing + 10);
-            foreach (ScrollList.Entry e in TheirItemsSL.VisibleExpandedEntries)
-            {
-                if (!e.Hovered && e.item is ItemToOffer item)
-                {
-                    item.Update(drawCurs);
-                    item.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold);
-                    drawCurs.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-                }
-            }
-        }
-
         public override void ExitScreen()
         {
             base.ExitScreen();
@@ -480,11 +450,11 @@ namespace Ship_Game
 
         class DiplomacyItemsLayout
         {
-            readonly ScrollList List;
-            ScrollList.Entry Current;
+            readonly ScrollList<ItemToOffer> List;
+            ItemToOffer Current;
             Vector2 Cursor;
 
-            public DiplomacyItemsLayout(ScrollList list, Rectangle rect)
+            public DiplomacyItemsLayout(ScrollList<ItemToOffer> list, Rectangle rect)
             {
                 List = list;
                 Current = null;
@@ -530,7 +500,7 @@ namespace Ship_Game
             }
         }
 
-        static void FillItems(Empire empire, Empire other, ScrollList list, Rectangle rect)
+        static void FillItems(Empire empire, Empire other, ScrollList<ItemToOffer> list, Rectangle rect)
         {
             list.Reset();
             var layout = new DiplomacyItemsLayout(list, rect);
@@ -703,9 +673,9 @@ namespace Ship_Game
                             {
                                 string str = opt1.SpecialInquiry.NotEmpty() ? GetDialogueByName(opt1.SpecialInquiry) : opt1.Words;
                                 var opt2 = new DialogOption(n++, str, cursor, Fonts.Consolas18);
-                                opt2.Words = ParseDiplomacyText(str, (DialogRect.Width - 20), Fonts.Consolas18);
+                                opt2.Words = ParseTextDiplomacy(str, (DialogRect.Width - 25));
                                 opt2.Response = opt1.Response;
-                                StatementsSL.AddItem(opt2);
+                                StatementsSL.AddItem(new DialogOptionListItem(opt2));
                                 cursor.Y += (Fonts.Consolas18.LineSpacing + 5);
                             }
                         }
@@ -713,7 +683,10 @@ namespace Ship_Game
                 }
                 if (dState == DialogState.Discuss)
                 {
-                    StatementsSL.HandleInput(input);
+                    if (StatementsSL.HandleInput(input))
+                    {
+
+                    }
                     foreach (DialogOption option in StatementsSL.AllItems<DialogOption>())
                     {
                         if (option.HandleInput(input) != null)
@@ -811,16 +784,15 @@ namespace Ship_Game
             }
         }
 
-        static ItemToOffer FindItemToOffer(ScrollList items, string response)
+        static ItemToOffer FindItemToOffer(ScrollList<ItemToOffer> items, string response)
         {
-            foreach (ScrollList.Entry entry in items.AllEntries)
-                if (entry.TryGet(out ItemToOffer item))
-                    if (item.Response == response)
-                        return item;
+            foreach (ItemToOffer entry in items.AllEntries)
+                if (entry.Response == response)
+                    return entry;
             return null;
         }
 
-        void ProcessResponse(ItemToOffer item, string response, ScrollList theirs, Offer ourOffer, Offer theirOffer)
+        void ProcessResponse(ItemToOffer item, string response, ScrollList<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
         {
             switch (response)
             {
@@ -916,7 +888,7 @@ namespace Ship_Game
             blerdybloo.Height -= 40;
             var ot = new Submenu(blerdybloo);
 
-            OfferTextSL = new ScrollList(ot, Fonts.Consolas18.LineSpacing + 2, true);
+            OfferTextSL = new ScrollList<TextListItem>(ot, Fonts.Consolas18.LineSpacing + 2, true);
             Attitude_Pleading_Rect   = new Rectangle(R.X + 45,       R.Y + R.Height - 48, 180, 48);
             Attitude_Respectful_Rect = new Rectangle(R.X + 250 + 5,  R.Y + R.Height - 48, 180, 48);
             Attitude_Threaten_Rect   = new Rectangle(R.X + 450 + 15, R.Y + R.Height - 48, 180, 48);
@@ -936,40 +908,27 @@ namespace Ship_Game
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
             
-            TheirItemsSL = new ScrollList(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5, true);
-            OurItemsSL   = new ScrollList(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5, true);
-            StatementsSL = new ScrollList(new Submenu(blerdybloo), Fonts.Consolas18.LineSpacing + 2, true);
+            TheirItemsSL = new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5, true);
+            OurItemsSL   = new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5, true);
+            StatementsSL = new ScrollList<DialogOptionListItem>(new Submenu(blerdybloo), Fonts.Consolas18.LineSpacing + 2, true);
             TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
 
             PlayRaceVideoAndMusic();
         }
 
-        string ParseDiplomacyText(string text, float width, SpriteFont font)
+        string ParseTextDiplomacy(string text, float maxLineWidth)
         {
             if (text == null)
             {
+                Log.Error("ParseTextDiplomacy: text was null");
                 return "Debug info: Error. Expected " + WhichDialog;
             }
 
-            width -= 5f;
             string[] words = text.Split(' ');
-
             for (int i = 0; i < words.Length; i++)
                 words[i] = ConvertDiplomacyKeyword(words[i]);
 
-            var completeText = new StringBuilder();
-            string line = string.Empty;
-            for (int i = 0; i < words.Length; i++)
-            {
-                if (font.TextWidth(line + words[i]) > width)
-                {
-                    completeText.Append(line).Append('\n');
-                    line = string.Empty;
-                }
-                line = line + words[i] + ' ';
-            }
-            completeText.Append(line);
-            return completeText.ToString();
+            return Fonts.Consolas18.ParseText(words, maxLineWidth);
         }
 
         string UsSingular          => Us?.data.Traits.Singular ?? "HUMAN";
@@ -1244,13 +1203,13 @@ namespace Ship_Game
                 if (rel.Value.Known && !rel.Key.isFaction && (rel.Key != Us && !rel.Key.data.Defeated) &&
                     Us.GetRelations(rel.Key).Known)
                 {
-                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + rel.Key.data.Traits.Name, cursor1,
-                        Fonts.Consolas18);
+                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + rel.Key.data.Traits.Name,
+                                                  cursor1, Fonts.Consolas18);
                     option.Target = rel.Key;
-                    option.Words = ParseDiplomacyText(option.Words, DialogRect.Width - 20, Fonts.Consolas18);
+                    option.Words = ParseTextDiplomacy(option.Words, DialogRect.Width - 25);
                     option.Response = "EmpireDiscuss";
                     cursor1.Y += Fonts.Consolas18.LineSpacing + 5;
-                    StatementsSL.AddItem(option);
+                    StatementsSL.AddItem(new DialogOptionListItem(option));
                     ++n1;
                 }
             }
@@ -1275,7 +1234,7 @@ namespace Ship_Game
                     foreach (DialogOption option1 in set.DialogOptions)
                     {
                         var option2 = new DialogOption(n, option1.Words, Cursor, Fonts.Consolas18);
-                        option2.Words = ParseDiplomacyText(option1.Words, DialogRect.Width - 20, Fonts.Consolas18);
+                        option2.Words = ParseTextDiplomacy(option1.Words, DialogRect.Width - 25);
                         StatementsSL.AddItem(option2);
                         option2.Response = option1.Response;
                         option2.Target = EmpireToDiscuss;

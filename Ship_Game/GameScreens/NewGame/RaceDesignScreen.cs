@@ -62,7 +62,7 @@ namespace Ship_Game
 
         Map<IEmpireData, SubTexture> TextureDict = new Map<IEmpireData, SubTexture>();
 
-        ScrollList<DescriptionListItem> DescriptionSL;
+        ScrollList<TextListItem> DescriptionSL;
         protected UIButton Engage;
         protected UIButton Abort;
         protected UIButton ClearTraits;
@@ -256,7 +256,8 @@ namespace Ship_Game
 
             b.Plural(PreferredEnvDescription);
             DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(b.ToString(), Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
+            string[] lines = Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Menu.Width - 50);
+            foreach (string line in lines) DescriptionSL.AddItem(new TextListItem(line));
         }
 
         static float DotSpaceWidth;
