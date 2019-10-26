@@ -77,6 +77,7 @@ namespace Ship_Game
             return false;
 
         }
+
         public new void Draw(SpriteBatch batch)
         {
             Rectangle r = Rect;
@@ -94,25 +95,6 @@ namespace Ship_Game
             ChooseFighterSL.Draw(batch);
             base.Draw(batch);
         }
-
-        string ParseText(string text, float width, SpriteFont font)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(' ');
-            for (int i = 0; i < strArrays.Length; i++)
-            {
-                string word = strArrays[i];
-                if (font.MeasureString(string.Concat(line, word)).Length() > width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
-            }
-            return string.Concat(returnString, line);
-        }
-
 
         void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
@@ -386,8 +368,8 @@ namespace Ship_Game
                 modTitlePos.X = startx;
             }
 
-            string txt = ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
-                                   ActiveModSubMenu.Width - 20, Fonts.Arial12);
+            string txt = Fonts.Arial12.ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
+                                                 ActiveModSubMenu.Width - 20);
 
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
@@ -562,7 +544,7 @@ namespace Ship_Game
             {
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                 Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                string bestShip = ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20, Fonts.Arial12Bold);
+                string bestShip = Fonts.Arial12Bold.ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20);
                 Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
                 DrawString(ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
                 return;

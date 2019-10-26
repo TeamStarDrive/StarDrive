@@ -266,7 +266,7 @@ namespace Ship_Game
             UpdateListElements();
         }
 
-        public Entry EntryAt(int index) => Entries[index];
+        public T EntryAt(int index) => Entries[index];
 
         public T FirstItem()
         {
@@ -307,8 +307,8 @@ namespace Ship_Game
             UpdateListElements();
         }
 
-        public IReadOnlyList<Entry> AllEntries         => Entries;
-        public IReadOnlyList<Entry> AllExpandedEntries => ExpandedEntries;
+        public IReadOnlyList<T> AllEntries         => Entries;
+        public IReadOnlyList<T> AllExpandedEntries => ExpandedEntries;
         public int NumEntries         => Entries.Count;
         public int NumExpandedEntries => ExpandedEntries.Count;
 

@@ -48,7 +48,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.FillRectangle(BlackRect, Color.Black);
             ScreenManager.SpriteBatch.FillRectangle(ResponseRect, Color.Black);
             Vector2 TheirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
-            string theirText = parseText(MessageList[CurrentMessage].text, BlackRect.Width - 20, Fonts.Verdana12Bold);
+            string theirText = ParseTextEncounters(MessageList[CurrentMessage].text, BlackRect.Width - 20, Fonts.Verdana12Bold);
             TheirTextPos.X = (int)TheirTextPos.X;
             TheirTextPos.Y = (int)TheirTextPos.Y;
             ScreenManager.SpriteBatch.DrawString(Fonts.Verdana12Bold, theirText, TheirTextPos, Color.White);
@@ -137,7 +137,7 @@ namespace Ship_Game
             SetResponses();
         }
 
-        private string parseText(string text, float Width, SpriteFont font)
+        string ParseTextEncounters(string text, float Width, SpriteFont font)
         {
             string line = string.Empty;
             string returnString = string.Empty;

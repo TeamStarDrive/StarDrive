@@ -7,24 +7,16 @@ namespace Ship_Game
     public sealed class UnexploredPlanetScreen : PlanetScreen
     {
         private Planet p;
-
         private Menu2 TitleBar;
-
         private Vector2 TitlePos;
-
         private Menu1 PlanetMenu;
 
         //private Rectangle titleRect;
 
         private bool LowRes;
-
         private Submenu PlanetInfo;
-
         private Rectangle PlanetIcon;
 
-        private MouseState currentMouse;
-
-        private MouseState previousMouse;
 
         public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
         {
@@ -114,7 +106,7 @@ namespace Ship_Game
                 }
             }
             PNameCursor.Y = PlanetIcon.Y + PlanetIcon.Height + 20;
-            string desc = parseText(p.Description, PlanetInfo.Width - 40);
+            string desc = Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40);
             batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, new Color(255, 239, 208));
             /*if (this.p.Special != "None")     //This was removed, because the string "Special" was never assigned a valus other than "None" -Gretman
             {
@@ -159,27 +151,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            currentMouse = Mouse.GetState();
-            previousMouse = Mouse.GetState();
             return base.HandleInput(input);
-        }
-
-        private string parseText(string text, float Width)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(' ');
-            for (int i = 0; i < strArrays.Length; i++)
-            {
-                string word = strArrays[i];
-                if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
-            }
-            return string.Concat(returnString, line);
         }
     }
 }
