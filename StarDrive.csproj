@@ -300,6 +300,9 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\DescriptionListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\RaceArchetypeListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\TraitsListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ScreenMediaPlayer.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MenuFleet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\VersionChecking.cs" />
@@ -307,6 +310,7 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\ProgressCounter.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\ShipDesignUtils.cs" />
     <Compile Include="Ship_Game\GameScreens\Sandbox\PredictionDebugPlatform.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\FighterListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HullLoadMenu.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HangarDesignationDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShieldsBehaviorDropDown.cs" />

@@ -35,7 +35,7 @@ namespace Ship_Game
         protected Submenu Traits;
         protected Submenu NameSub;
 
-        protected ScrollList traitsSL;
+        protected ScrollList<TraitsListItem> traitsSL;
         protected Selector selector;
         protected Menu1 ColorSelectMenu;
 
@@ -49,7 +49,7 @@ namespace Ship_Game
 
         protected Rectangle FlagRect;
         Menu1 ChooseRaceMenu;
-        ScrollList RaceArchetypeSL;
+        ScrollList<RaceArchetypeListItem> RaceArchetypeSL;
         Submenu arch;
         Rectangle PacingRect;
 
@@ -62,7 +62,7 @@ namespace Ship_Game
 
         Map<IEmpireData, SubTexture> TextureDict = new Map<IEmpireData, SubTexture>();
 
-        ScrollList DescriptionSL;
+        ScrollList<DescriptionListItem> DescriptionSL;
         protected UIButton Engage;
         protected UIButton Abort;
         protected UIButton ClearTraits;
