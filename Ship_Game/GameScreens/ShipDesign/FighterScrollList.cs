@@ -8,77 +8,83 @@ using Ship_Game.Ships;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public class FighterScrollList : ScrollList
+    public class FighterScrollList : ScrollList<FighterListItem>
     {
-        private readonly GameScreen Screen;
-        private Selector SelectionBox;
-        private readonly InputState Input;
-        public bool ResetOnNextDraw = true;
-        public Rectangle Choosefighterrect;
+        readonly GameScreen Screen;
         public ShipModule ActiveHangarModule;
         public ShipModule ActiveModule;
         public string HangarShipUIDLast = "";
-        private readonly Submenu FighterSubMenu;
 
         public FighterScrollList(Submenu fighterList, GameScreen shipDesignScreen) : base(fighterList, 40)
         {
             Screen = shipDesignScreen;
-            Input = Screen.Input;
-            FighterSubMenu = fighterList;
+            AutoManageItems = true;
         }
 
         public bool HitTest(InputState input)
         {
-            return   FighterSubMenu.HitTest(input.CursorPosition) && ActiveModule != null ;
+            return ParentMenu.HitTest(input.CursorPosition) && ActiveModule != null;
         }
 
-        private void Populate()
+        void Populate()
         {
             Reset();
-            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicLaunch.ToString()));
-            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicInterceptor.ToString()));
-            AddItem(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicAntiShip.ToString()));
-            foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
+            AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicLaunch.ToString()));
+            AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicInterceptor.ToString()));
+            AddShip(ResourceManager.GetShipTemplate(DynamicHangarOptions.DynamicAntiShip.ToString()));
+            foreach (string shipId in EmpireManager.Player.ShipsWeCanBuild)
             {
-                if (!ResourceManager.ShipsDict.TryGetValue(shipname, out Ship hangarShip)) continue;
+                if (!ResourceManager.GetShipTemplate(shipId, out Ship hangarShip))
+                    continue;
                 string role = ShipData.GetRole(hangarShip.shipData.HullRole);
-                if (!ActiveModule.PermittedHangarRoles.Contains(role)) continue;
-                if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize) continue;
-                AddItem(ResourceManager.ShipsDict[shipname]);
-            }         
+                if (!ActiveModule.PermittedHangarRoles.Contains(role))
+                    continue;
+                if (hangarShip.SurfaceArea > ActiveModule.MaximumHangarShipSize)
+                    continue;
+                AddShip(ResourceManager.ShipsDict[shipId]);
+            }
+        }
+        
+        void AddShip(Ship ship)
+        {
+            AddItem(new FighterListItem(ship)).OnClick = OnItemClicked;
+        }
+
+        void OnItemClicked(FighterListItem item)
+        {
+            ActiveModule.hangarShipUID = item.Ship.Name;
+            HangarShipUIDLast = item.Ship.Name;
         }
 
         public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
         {
-            base.HandleInput(input);
             activeModule = activeModule ?? highlightedModule;
-            if (activeModule?.ModuleType == ShipModuleType.Hangar && !activeModule.IsTroopBay
-                && !activeModule.IsSupplyBay)
+            if (activeModule?.ModuleType == ShipModuleType.Hangar &&
+                !activeModule.IsTroopBay && !activeModule.IsSupplyBay)
             {
                 ActiveModule = activeModule;
                 SetActiveHangarModule(activeModule, ActiveHangarModule);
                 
-                foreach (Entry e in VisibleExpandedEntries)
+                // handle everything related to scroll list
+                if (ParentMenu.HitTest(Screen.Input.CursorPosition))
                 {
-                    if (!(e.item is Ship ship)) continue;
-                    if (FighterSubMenu.HitTest(Screen.Input.CursorPosition))
+                    base.HandleInput(input);
+                }
+                else // we're not hovering the scroll list, just highlight the active ship
+                {
+                    foreach (FighterListItem e in VisibleExpandedEntries)
                     {
-                        if (!e.CheckHover(input))
-                            continue;
-                        SelectionBox = e.CreateSelector();
-                        if (!input.InGameSelect)
-                            continue;
-                        ActiveModule.hangarShipUID = ship.Name;
-                        HangarShipUIDLast = ship.Name;
-                        GameAudio.AcceptClick();
-                    }
-                    else if (ActiveModule.hangarShipUID == ship.Name)
-                    {
-                        SelectionBox = e.CreateSelector();
+                        if (ActiveModule.hangarShipUID == e.Ship.Name)
+                        {
+                            SelectionBox = new Selector(e.Rect);
+                            break;
+                        }
                     }
                 }
                 return true;
             }
+            
+            base.HandleInput(input);
             ActiveHangarModule = null;
             ActiveModule = null;
             HangarShipUIDLast = "";
@@ -108,22 +114,8 @@ namespace Ship_Game
             if (ActiveHangarModule == null)
                 return;
 
-            Screen.DrawRectangle(FighterSubMenu.Rect, Color.TransparentWhite, Color.Black);  
-            
-            var bCursor = new Vector2(FighterSubMenu.X + 15, (FighterSubMenu.Y + 25));
-            foreach (Entry e in VisibleEntries)
-            {
-                if (!(e.item is Ship ship))
-                    continue;
-                bCursor.Y = e.Y;
-                batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                Color color = ShipBuilder.GetHangarTextColor(ship.Name);
-                batch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, color);
-                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-            }
-            SelectionBox?.Draw(batch);
-            FighterSubMenu.Draw(batch);
+            Screen.DrawRectangle(ParentMenu.Rect, Color.TransparentWhite, Color.Black);
+            ParentMenu.Draw(batch);
             base.Draw(batch);
         }
     }

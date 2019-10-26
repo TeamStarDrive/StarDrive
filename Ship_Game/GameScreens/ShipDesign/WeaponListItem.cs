@@ -20,17 +20,6 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             bool captured = base.HandleInput(input);
-            if (Hovered)
-            {
-                if (Header != null)
-                {
-                    WSL.SelectionBox = null;
-                }
-                else if (Module != null)
-                {
-                    WSL.SelectionBox = new Selector(Rect);
-                }
-            }
             if (Clicked)
             {
                 if (Module != null)

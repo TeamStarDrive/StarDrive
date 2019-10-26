@@ -9,13 +9,12 @@ namespace Ship_Game
     public class WeaponScrollList : ScrollList<WeaponListItem>
     {
         public readonly ShipDesignScreen Screen;
-        readonly InputState Input;
         public bool ResetOnNextDraw = true;
 
         public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
         {
             Screen = shipDesignScreen;
-            Input = Screen.Input;
+            AutoManageItems = true;
         }
 
         public override bool HandleInput(InputState input)
@@ -33,7 +32,7 @@ namespace Ship_Game
 
         bool IsBadModuleSize(ShipModule module)
         {
-            if (Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
+            if (Screen.Input.IsShiftKeyDown || Screen.ActiveHull == null || module.XSIZE + module.YSIZE == 2)
                 return false;
             return Screen.IsBadModuleSize(module);
         }

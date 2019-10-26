@@ -67,10 +67,12 @@ namespace Ship_Game
         {
             if (HitTest(input) && WeaponSl.HandleInput(input))
                 return true;
+
             ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
             ActiveModSubMenu.HandleInputNoReset(input);
             if (!base.HandleInput(input))
                 return false;
+
             ResetLists();
             return false;
 
