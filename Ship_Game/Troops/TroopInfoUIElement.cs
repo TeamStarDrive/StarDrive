@@ -236,7 +236,7 @@ namespace Ship_Game
             if (pgs.TroopsHere.Count != 0)
             {
                 DescriptionSL.Reset();
-                HelperFunctions.parseTextToSL(pgs.SingleTroop.Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
+                HelperFunctions.ParseTextToLines(pgs.SingleTroop.Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
                 return;
             }
 
@@ -244,7 +244,7 @@ namespace Ship_Game
                 return;
 
             DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
+            HelperFunctions.ParseTextToLines(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
         }
 
         private struct TippedItem
