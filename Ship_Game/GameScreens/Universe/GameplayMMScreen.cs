@@ -119,7 +119,7 @@ namespace Ship_Game
             Vector2 c = ScreenCenter;
             window = new Menu2(new Rectangle((int)c.X - 100, (int)c.Y - 150, 200, 330));
 
-            UIList list = List(new Vector2(c.X - 84, c.Y - 100));
+            UIList list = AddList(new Vector2(c.X - 84, c.Y - 100));
             list.Padding = new Vector2(2f, 12f);
             list.LayoutStyle = ListLayoutStyle.Resize;
 

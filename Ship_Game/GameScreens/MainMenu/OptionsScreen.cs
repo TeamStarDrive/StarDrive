@@ -230,7 +230,7 @@ namespace Ship_Game
             LeftArea  = new Rectangle(Rect.X + 20, Rect.Y + 150, 300, 375);
             RightArea = new Rectangle(LeftArea.Right + 10, LeftArea.Y, 210, 330);
 
-            UIList graphics = List(LeftArea.PosVec(), LeftArea.Size());
+            UIList graphics = AddList(LeftArea.PosVec(), LeftArea.Size());
             graphics.Padding = new Vector2(2f, 4f);
             ResolutionDropDown = new DropOptions<DisplayMode>(105, 18);
 
@@ -247,7 +247,7 @@ namespace Ship_Game
             graphics.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
             graphics.ZOrder = 10;
 
-            UIList botLeft = List(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
+            UIList botLeft = AddList(new Vector2(LeftArea.X, LeftArea.Y + 180), LeftArea.Size());
             botLeft.Padding = new Vector2(2f, 8f);
             SoundDevices = new DropOptions<MMDevice>(180, 18);
             botLeft.AddSplit(new UILabel("Sound Device:  "), SoundDevices);
@@ -259,13 +259,13 @@ namespace Ship_Game
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
-            UIList botRight = List(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
+            UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
             FreighterLimiter = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit));
             ShipLimiter      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
                                           500, 3500, GlobalStats.ShipCountLimit));
 
-            UIList right = List(RightArea.PosVec(), RightArea.Size());
+            UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
             right.AddCheckbox(() => GlobalStats.PauseOnNotification, title: 6007, tooltip: 7004);
             right.AddCheckbox(() => GlobalStats.AltArcControl,       title: 6184, tooltip: 7081);

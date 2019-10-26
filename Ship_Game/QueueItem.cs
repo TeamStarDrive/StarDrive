@@ -112,13 +112,12 @@ namespace Ship_Game
             base.Update(deltaTime);
         }
 
-        public override void Draw(SpriteBatch batch)
+        public void DrawAt(SpriteBatch batch, Vector2 at)
         {
             //batch.FillRectangle(Rect, new Color(0, 0, 0, 150));
 
-            Vector2 bCursor = Mouse.GetState().Pos() + List.DraggedOffset;
-            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y);
-            var r = new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30);
+            var r = new Rectangle((int)at.X, (int)at.Y, 29, 30);
+            var tCursor = new Vector2(at.X + 40f, at.Y);
             var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing, 150, 18);
             var pb = new ProgressBar(pbRect, Cost, ProductionSpent);
 
@@ -172,6 +171,11 @@ namespace Ship_Game
             //}
 
             base.Draw(batch);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            DrawAt(batch, Pos);
         }
 
         public int TurnsUntilComplete

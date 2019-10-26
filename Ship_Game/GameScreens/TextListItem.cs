@@ -10,12 +10,12 @@ namespace Ship_Game
 {
     public class TextListItem : ScrollList<TextListItem>.Entry
     {
-        public UILabel Label;
-        public string Text => Label.Text;
+        public UILabel TextLabel;
+        public string Text => TextLabel.Text;
 
         public TextListItem(string text, SpriteFont font)
         {
-            Label = new UILabel(text, font);
+            TextLabel = new UILabel(text, font);
         }
 
         public TextListItem(string text) : this(text, Fonts.Consolas18)
@@ -24,13 +24,13 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
-            Label.Rect = Rect;
+            TextLabel.Rect = Rect;
             base.Update(deltaTime);
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            Label.Draw(batch);
+            TextLabel.Draw(batch);
         }
     }
 }

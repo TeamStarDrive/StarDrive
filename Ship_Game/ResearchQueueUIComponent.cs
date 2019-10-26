@@ -14,7 +14,7 @@ namespace Ship_Game
         readonly UILabel TimeLeftLabel;
 
         ResearchQItem CurrentResearch;
-        readonly ScrollList QSL;
+        readonly ScrollList<ResearchQItem> QSL;
         readonly UIButton BtnShowQueue;
 
         public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
@@ -40,7 +40,7 @@ namespace Ship_Game
             ResearchQueuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
             ResearchQueuePanel.AddTab(Localizer.Token(1404));
 
-            QSL = Add(new ScrollList(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue) { AutoManageItems = true });
+            QSL = Add(new ScrollList<ResearchQItem>(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue));
             ReloadResearchQueue();
         }
 
@@ -51,8 +51,6 @@ namespace Ship_Game
 
         void SetQueueVisible(bool visible)
         {
-            BtnShowQueue.Visible = (CurrentResearch != null);
-
             if (CurrentResearch != null)
             {
                 TimeLeft.Visible = visible;
@@ -84,11 +82,6 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        public override void Update(float deltaTime)
-        {
-            base.Update(deltaTime);
-        }
-        
         public override void Draw(SpriteBatch batch)
         {
             base.Draw(batch);
