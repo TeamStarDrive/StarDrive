@@ -135,7 +135,7 @@ namespace Ship_Game
         {
             if (AlignRight) pos.X -= Size.X;
             if (DropShadow)
-                HelperFunctions.DrawDropShadowText(batch, text, pos, LabelFont, color);
+                batch.DrawDropShadowText(text, pos, LabelFont, color);
             else
                 batch.DrawString(LabelFont, text, pos, color);
         }

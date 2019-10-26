@@ -102,6 +102,8 @@ namespace Ship_Game
             batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), position, buildColor);
             position.Y += Font12.LineSpacing;
 
+            base.Draw(batch);
+
             if (!Hovered)
             {
                 batch.DrawString(Font8, descr, position, unprofitable ? Color.Chocolate : Color.Green);
@@ -116,7 +118,6 @@ namespace Ship_Game
 
                 position = new Vector2((r.X + 26), (r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                 batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
-                DrawPlus(batch);
             }
             else
             {
@@ -133,7 +134,6 @@ namespace Ship_Game
 
                 position = new Vector2((r.X + 26), (r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                 batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
-                DrawPlus(batch);
             }
         }
 
@@ -165,6 +165,9 @@ namespace Ship_Game
 
             SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
             var tl = new Vector2(List.ParentMenu.X + 20, Y);
+
+            base.Draw(batch);
+
             if (!Hovered)
             {
                 troop.Draw(batch, new Rectangle((int) tl.X, (int) tl.Y, 29, 30));
@@ -178,7 +181,6 @@ namespace Ship_Game
                 batch.Draw(iconProd, dest2, Color.White);
                 position = new Vector2(dest2.X + 26, dest2.Y + dest2.Height / 2 - Font12.LineSpacing / 2);
                 batch.DrawString(Font12, ((int)troop.ActualCost).ToString(), position, Color.White);
-                DrawPlusEdit(batch);
             }
             else
             {
@@ -195,7 +197,6 @@ namespace Ship_Game
                     destinationRectangle2.Y + destinationRectangle2.Height / 2 -
                     Font12.LineSpacing / 2);
                 batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
-                DrawPlusEdit(batch);
             }
         }
 

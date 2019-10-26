@@ -10,25 +10,6 @@ namespace Ship_Game
     {
         public ModuleHeader Header;
         public ShipModule Module;
-        readonly WeaponScrollList WSL;
-
-        public WeaponListItem(WeaponScrollList list)
-        {
-            WSL = list;
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            bool captured = base.HandleInput(input);
-            if (Clicked)
-            {
-                if (Module != null)
-                {
-                    WSL.Screen.SetActiveModule(Module, ModuleOrientation.Normal, 0f);
-                }
-            }
-            return captured;
-        }
 
         public override void Update(float deltaTime)
         {
@@ -46,7 +27,7 @@ namespace Ship_Game
 
             if (Header != null)
             {
-                Header.Pos = new Vector2(WSL.Screen.ModSel.X + 10, Y);
+                Header.Pos = new Vector2(List.ParentMenu.X + 10, Y);
                 Header.Draw(batch);
             }
             else if (Module != null)
@@ -57,7 +38,7 @@ namespace Ship_Game
 
         void DrawModule(SpriteBatch batch, ShipModule mod)
         {
-            var bCursor = new Vector2(WSL.Screen.ModSel.X + 15, Y);
+            var bCursor = new Vector2(List.ParentMenu.X + 15, Y);
             SubTexture modTexture = mod.ModuleTexture;
             var modRect = new Rectangle((int)bCursor.X, (int)bCursor.Y, modTexture.Width, modTexture.Height);
             float aspectRatio = (float)modTexture.Width / modTexture.Height;
@@ -74,7 +55,7 @@ namespace Ship_Game
             var tCursor = new Vector2(bCursor.X + 35f, bCursor.Y + 3f);
 
             string moduleName = Localizer.Token(mod.NameIndex);
-            if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < WSL.Screen.ModSel.Width)
+            if (Fonts.Arial12Bold.MeasureString(moduleName).X + 90 < List.ParentMenu.Width)
             {
                 batch.DrawString(Fonts.Arial12Bold, moduleName, tCursor, Color.White);
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;

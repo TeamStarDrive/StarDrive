@@ -8,12 +8,8 @@ namespace Ship_Game
 {
     public sealed class TroopInfoUIElement : UIElement
     {
-        private Rectangle SliderRect;
-        private Rectangle ClickRect;
         private readonly UniverseScreen screen;
         private readonly Rectangle LeftRect;
-        private Rectangle RightRect;
-        private Rectangle FlagRect;
         private readonly Rectangle DefenseRect;
         private readonly Rectangle SoftAttackRect;
         private readonly Rectangle HardAttackRect;
@@ -21,7 +17,7 @@ namespace Ship_Game
         private Rectangle ItemDisplayRect;
         private DanButton LaunchTroop;
         private readonly Selector Sel;
-        private ScrollList DescriptionSL;
+        private ScrollList<TextListItem> DescriptionSL;
         public PlanetGridSquare pgs;
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
@@ -33,11 +29,7 @@ namespace Ship_Game
             Sel               = new Selector(r, Color.Black);
             TransitionOnTime  = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            SliderRect        = new Rectangle(r.X + r.Width - 100, r.Y + r.Height - 40, 500, 40);
-            ClickRect         = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
             LeftRect          = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
-            RightRect         = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
-            FlagRect          = new Rectangle(r.X + r.Width - 31, r.Y + 22 - 13, 26, 26);
             DefenseRect       = new Rectangle(LeftRect.X + 12, LeftRect.Y + 18, 22, 22);
             SoftAttackRect    = new Rectangle(LeftRect.X + 12, DefenseRect.Y + 22 + 5, 16, 16);
             HardAttackRect    = new Rectangle(LeftRect.X + 12, SoftAttackRect.Y + 16 + 5, 16, 16);
@@ -46,7 +38,7 @@ namespace Ship_Game
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
             Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y - 10, LeftRect.Width + 8, 95);
             Submenu sub       = new Submenu(desRect);
-            DescriptionSL     = new ScrollList(sub, Fonts.Arial12.LineSpacing + 1);
+            DescriptionSL     = new ScrollList<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
 
             ToolTipItems.Add(new TippedItem
             {
@@ -87,27 +79,27 @@ namespace Ship_Game
             string slantText = pgs.TroopsHere.Count > 0 ? pgs.SingleTroop.Name : Localizer.Token(pgs.building.NameTranslationIndex);
             Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), slantText);
             Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
-            Color color      = Color.White;
+            Color color = Color.White;
 
-            SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+            SpriteBatch batch = ScreenManager.SpriteBatch;
             slant.Draw(ScreenManager);
             body.Draw(ScreenManager);
-            spriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
-            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
-            spriteBatch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
-            spriteBatch.Draw(ResourceManager.Texture("UI/icon_offense"), RangeRect, color);
+            batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
+            batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
+            batch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
+            batch.Draw(ResourceManager.Texture("UI/icon_offense"), RangeRect, color);
 
             if (pgs.TroopsHere.Count > 0) // draw troop_stats
             {
                 Troop troop = pgs.SingleTroop;
                 if (troop.Strength < troop.ActualStrengthMax)
-                    DrawInfoData(spriteBatch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
+                    DrawInfoData(batch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
                 else
-                    DrawInfoData(spriteBatch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
+                    DrawInfoData(batch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
 
-                DrawInfoData(spriteBatch, SoftAttackRect, troop.ActualSoftAttack.ToString(), color, 5, 8);
-                DrawInfoData(spriteBatch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
-                DrawInfoData(spriteBatch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
+                DrawInfoData(batch, SoftAttackRect, troop.ActualSoftAttack.ToString(), color, 5, 8);
+                DrawInfoData(batch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
+                DrawInfoData(batch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
                 DrawLaunchButton(troop, slant);
                 DrawLevelStars(troop.Level, mousePos);
@@ -115,18 +107,16 @@ namespace Ship_Game
             else // draw building stats
             {
                 if (pgs.building.Strength < pgs.building.StrengthMax)
-                    DrawInfoData(spriteBatch, DefenseRect, pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1), color, 2, 11);
+                    DrawInfoData(batch, DefenseRect, pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1), color, 2, 11);
                 else
-                    DrawInfoData(spriteBatch, DefenseRect, pgs.building.StrengthMax.String(1), color, 2, 11);
+                    DrawInfoData(batch, DefenseRect, pgs.building.StrengthMax.String(1), color, 2, 11);
 
-                DrawInfoData(spriteBatch, SoftAttackRect, pgs.building.SoftAttack.ToString(), color, 5, 8);
-                DrawInfoData(spriteBatch, HardAttackRect, pgs.building.HardAttack.ToString(), color, 5, 8);
+                DrawInfoData(batch, SoftAttackRect, pgs.building.SoftAttack.ToString(), color, 5, 8);
+                DrawInfoData(batch, HardAttackRect, pgs.building.HardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_"
-                                               , pgs.building.Icon, "_64x64")), ItemDisplayRect, color);
+                batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64")), ItemDisplayRect, color);
             }
-
-            DrawDescription(color);
+            DescriptionSL.Draw(batch);
         }
 
         private void DrawInfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
@@ -178,16 +168,6 @@ namespace Ship_Game
             }
         }
 
-        private void DrawDescription(Color color)
-        {
-            foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
-            {
-                string t1 = e.item as string;
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, t1, new Vector2(DefenseRect.X, e.Y), color);
-            }
-            DescriptionSL.Draw(ScreenManager.SpriteBatch);
-        }
-
         public override bool HandleInput(InputState input)
         {
             try
@@ -235,16 +215,12 @@ namespace Ship_Game
 
             if (pgs.TroopsHere.Count != 0)
             {
-                DescriptionSL.Reset();
-                HelperFunctions.ParseTextToLines(pgs.SingleTroop.Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
-                return;
+                DescriptionSL.ResetWithParseText(Fonts.Arial12, pgs.SingleTroop.Description, LeftRect.Width - 15);
             }
-
-            if (pgs.building == null)
-                return;
-
-            DescriptionSL.Reset();
-            HelperFunctions.ParseTextToLines(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
+            else if (pgs.building != null)
+            {
+                DescriptionSL.ResetWithParseText(Fonts.Arial12, Localizer.Token(pgs.building.DescriptionIndex), LeftRect.Width - 15);
+            }
         }
 
         private struct TippedItem
