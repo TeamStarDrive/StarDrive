@@ -56,17 +56,21 @@ namespace UnitTests.Planets
         [TestMethod]
         public void TestPopKilledHabitable()
         {
-            CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindHabitableTargetTile);
-            float expectedPop = P.Population - B.PopKilled*1000;
-            orbitalDrop.DamageColonySurface(B);
-            Assert.That.Equal(expectedPop, P.Population);
+            for (int i = 0; i < 100; ++i)
+            {
+                CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindHabitableTargetTile);
+                float expectedPop = P.Population - B.PopKilled * 1000;
+                orbitalDrop.DamageColonySurface(B);
+                Assert.That.Equal(expectedPop, P.Population, $"At index {i}");
+            }
         }
 
         [TestMethod]
         public void TestPopKilledUnhabitable()
         {
+
             CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile);
-            float expectedPop = P.Population - B.PopKilled*100; // 0.1 of pop killed potential. the usual is * 1000
+            float expectedPop = P.Population - B.PopKilled * 100; // 0.1 of pop killed potential. the usual is * 1000
             orbitalDrop.DamageColonySurface(B);
             Assert.That.Equal(expectedPop, P.Population);
         }
@@ -89,6 +93,8 @@ namespace UnitTests.Planets
             float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile;
             P.DestroyTile(bioTile);
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
+            Assert.IsFalse(bioTile.Biosphere);
+            Assert.IsFalse(bioTile.Habitable);
         }
     }
 }
