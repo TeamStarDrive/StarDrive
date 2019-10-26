@@ -233,7 +233,7 @@ namespace Ship_Game
             if (base.HandleInput(input)) // handle any buttons before any other selection logic
                 return true;
 
-            if (HandleShipHullListSelection(input))
+            if (HullSL.HandleInput(input))
                 return true;
 
             if (ModSel.HandleInput(input, ActiveModule, HighlightedModule))
@@ -407,35 +407,6 @@ namespace Ship_Game
 
             CameraVelocity.X = CameraVelocity.X.Clamped(-10f, 10f);
             CameraVelocity.Y = CameraVelocity.Y.Clamped(-10f, 10f);
-        }
-
-        bool HandleShipHullListSelection(InputState input)
-        {
-            HullSL.HandleInput(input);
-            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
-            {
-                if (e.item is ModuleHeader moduleHeader)
-                {
-                    if (moduleHeader.HandleInput(input, e))
-                        return true;
-                }
-                else if (e.CheckHover(input))
-                {
-                    selector = e.CreateSelector();
-                    if (!input.InGameSelect)
-                        continue;
-                    GameAudio.AcceptClick();
-                    if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
-                    {
-                        Changeto = e.item as ShipData;
-                        MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
-                        return true;
-                    }
-                    ChangeHull(e.item as ShipData);
-                    return true;
-                }
-            }
-            return false;
         }
 
         bool HandleModuleSelection(InputState input)
@@ -830,7 +801,7 @@ namespace Ship_Game
             HullSelectionSub = new Submenu(HullSelectionRect);
             WeaponSL = new WeaponScrollList(ModSel, this);
             HullSelectionSub.AddTab(Localizer.Token(107));
-            HullSL = new ScrollList(HullSelectionSub);
+            HullSL = new ScrollList<ShipHullListItem>(HullSelectionSub);
             var categories = new Array<string>();
             foreach (ShipData hull in ResourceManager.Hulls)
             {
@@ -844,22 +815,20 @@ namespace Ship_Game
             categories.Sort();
             foreach (string cat in categories)
             {
-                HullSL.AddItem(new ModuleHeader(cat, 240));
-            }
+                var categoryItem = new ShipHullListItem{ Header = new ModuleHeader(cat, 240) };
+                HullSL.AddItem(categoryItem);
 
-            foreach (ScrollList.Entry e in HullSL.AllEntries)
-            {
                 foreach (ShipData hull in ResourceManager.Hulls)
                 {
-                    if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Hull) ||
-                        ((ModuleHeader)e.item).Text != Localizer.GetRole(hull.Role, EmpireManager.Player))
+                    if ((!hull.IsShipyard || Empire.Universe.Debug) &&
+                        EmpireManager.Player.IsHullUnlocked(hull.Hull) &&
+                        cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
                     {
-                        continue;
+                        categoryItem.AddSubItem(new ShipHullListItem{Hull = hull});
                     }
-
-                    e.AddSubItem(hull);
                 }
             }
+            HullSL.OnClicked = OnHullListItemClicked;
 
             var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
                 HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
@@ -890,6 +859,23 @@ namespace Ship_Game
 
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
+        }
+
+        void OnHullListItemClicked(ShipHullListItem item)
+        {
+            if (item.Hull == null)
+                return;
+
+            GameAudio.AcceptClick();
+            if (!ShipSaved && !CheckDesign() && !ModuleGrid.IsEmptyDesign())
+            {
+                Changeto = item.Hull;
+                MakeMessageBox(this, JustChangeHull, SaveWIPThenChangeHull, 2121, "Save", "No");
+            }
+            else
+            {
+                ChangeHull(item.Hull);
+            }
         }
 
         void ReallyExit()

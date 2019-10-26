@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -14,20 +13,15 @@ namespace Ship_Game
         public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
         {
             Screen = shipDesignScreen;
-            AutoManageItems = true;
+            OnItemClicked = ListItemClicked;
         }
 
-        public override bool HandleInput(InputState input)
+        void ListItemClicked(WeaponListItem item)
         {
-            base.HandleInput(input);
-
-            // cursor moves outside the ScrollList
-            if (!Screen.ModSel.HitTest(input.CursorPosition))
+            if (item.Module != null)
             {
-                SelectionBox = null;
-                return false;
+                Screen.SetActiveModule(item.Module, ModuleOrientation.Normal, 0f);
             }
-            return false;
         }
 
         bool IsBadModuleSize(ShipModule module)
@@ -50,10 +44,10 @@ namespace Ship_Game
                 return;
             if (!Categories.TryGetValue(categoryId, out WeaponListItem e))
             {
-                e = AddItem(new WeaponListItem(this){ Header = new ModuleHeader(categoryName, 240) });
+                e = AddItem(new WeaponListItem{ Header = new ModuleHeader(categoryName, 240) });
                 Categories.Add(categoryId, e);
             }
-            e.AddSubItem(new WeaponListItem(this){ Module = mod });
+            e.AddSubItem(new WeaponListItem{ Module = mod });
         }
 
         bool OpenCategory(int categoryId)

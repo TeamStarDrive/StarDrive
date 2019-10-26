@@ -12,14 +12,13 @@ namespace Ship_Game
     {
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-        private Rectangle ClickRect;
         private readonly UniverseScreen Screen;
         private Array<Ship> ShipList = new Array<Ship>();
         private readonly Selector Selector;
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        private readonly ScrollList SelectedShipsSL;
+        private readonly ScrollList<SelectedShipEntry> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public Rectangle Ordnance;
@@ -78,9 +77,7 @@ namespace Ship_Game
             {
                 Active = true
             };
-            ClickRect = new Rectangle(ElementRect.X + ElementRect.Width - 16, ElementRect.Y + ElementRect.Height / 2 - 11, 11, 22);
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
-            
 
             const float orderSize = 29f;
             float ordersStartX = Power.X - 3f;
@@ -109,7 +106,7 @@ namespace Ship_Game
             AddOrdersBarButton(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: 160);
 
             var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
-            SelectedShipsSL = new ScrollList(new Submenu(slsubRect), 24);
+            SelectedShipsSL = new ScrollList<SelectedShipEntry>(new Submenu(slsubRect), 24);
         }
 
         public void ClearShipList()
@@ -139,10 +136,9 @@ namespace Ship_Game
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
             SelectedShipsSL.Draw(ScreenManager.SpriteBatch);
 
-            foreach (ScrollList.Entry e in SelectedShipsSL.VisibleEntries)
+            foreach (SelectedShipEntry ship in SelectedShipsSL.VisibleEntries)
             {
-                var ship = (SelectedShipEntry)e.item;
-                ship.Update(new Vector2(RightRect.X, e.Y));
+                ship.Update(new Vector2(RightRect.X, ship.Y));
                 foreach (SkinnableButton button in ship.ShipButtons)
                 {
                     if (HoveredShip == button.ReferenceObject)
@@ -233,12 +229,13 @@ namespace Ship_Game
             if (Screen.SelectedShipList == null)
                 return false;  // fbedard
 
-            foreach (ScrollList.Entry e in SelectedShipsSL.VisibleEntries)
+            foreach (SelectedShipEntry ship in SelectedShipsSL.VisibleEntries)
             {
-                if (((SelectedShipEntry) e.item).AllButtonsActive)
-                    continue;
-                SetShipList(ShipList, IsFleet);
-                break;
+                if (!ship.AllButtonsActive)
+                {
+                    SetShipList(ShipList, IsFleet);
+                    break;
+                }
             }
 
             if (Screen.SelectedShipList.Count == 0 || Screen.SelectedShipList.Count == 1)
@@ -312,9 +309,9 @@ namespace Ship_Game
             HoveredShipLast = HoveredShip;
             HoveredShip = null;
 
-            foreach (ScrollList.Entry e in SelectedShipsSL.VisibleEntries)
+            foreach (SelectedShipEntry ship in SelectedShipsSL.VisibleEntries)
             {
-                foreach (SkinnableButton button in ((SelectedShipEntry)e.item).ShipButtons)
+                foreach (SkinnableButton button in ship.ShipButtons)
                 {
                     if (!button.r.HitTest(input.CursorPosition))
                     {

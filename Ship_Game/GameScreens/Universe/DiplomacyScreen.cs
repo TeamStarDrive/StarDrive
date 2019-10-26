@@ -362,30 +362,16 @@ namespace Ship_Game
                 }
                 case DialogState.Discuss:
                 {
-                    var selector1 = new Selector(DialogRect, new Color(0, 0, 0, 220));
                     StatementsSL.Draw(batch);
-                    var drawCurs = TextCursor;
-                    foreach (ScrollList.Entry e in StatementsSL.VisibleEntries)
-                    {
-                        if (!e.Hovered && e.item is DialogOption option)
-                        {
-                            option.Update(drawCurs);
-                            option.Draw(batch, Fonts.Consolas18);
-                            drawCurs.Y += (Fonts.Consolas18.LineSpacing + 5);
-                        }
-                    }
                     goto case DialogState.Choosing;
                 }
                 case DialogState.Negotiate:
                 {
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
-
-                    OfferTextSL.Reset();
-                    string[] lines = Fonts.Consolas18.ParseTextToLines(txt, (DialogRect.Width - 30));
-                    foreach (string line in lines) OfferTextSL.AddItem(new TextListItem(line, Fonts.Consolas18));
+                    OfferTextSL.ResetWithParseText(Fonts.Consolas18, txt, DialogRect.Width - 30);
                     OfferTextSL.Draw(batch);
-
+                    
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
                         SendOffer.DrawWithShadow(batch);
@@ -663,20 +649,18 @@ namespace Ship_Game
                 {
                     StatementsSL.Reset();
                     dState = DialogState.Discuss;
-                    foreach (StatementSet statementSet in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
+                    foreach (StatementSet set in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
                     {
-                        if (statementSet.Name == "Ordinary Discussion")
+                        if (set.Name == "Ordinary Discussion")
                         {
                             int n = 1;
-                            Vector2 cursor = TextCursor;
-                            foreach (DialogOption opt1 in statementSet.DialogOptions)
+                            foreach (DialogOption opt1 in set.DialogOptions)
                             {
                                 string str = opt1.SpecialInquiry.NotEmpty() ? GetDialogueByName(opt1.SpecialInquiry) : opt1.Words;
-                                var opt2 = new DialogOption(n++, str, cursor, Fonts.Consolas18);
+                                var opt2 = new DialogOption(n++, str);
                                 opt2.Words = ParseTextDiplomacy(str, (DialogRect.Width - 25));
                                 opt2.Response = opt1.Response;
                                 StatementsSL.AddItem(new DialogOptionListItem(opt2));
-                                cursor.Y += (Fonts.Consolas18.LineSpacing + 5);
                             }
                         }
                     }
@@ -771,16 +755,18 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        void HandleItemToOffer(InputState input, ScrollList ours, ScrollList theirs, Offer ourOffer, Offer theirOffer)
+        void HandleItemToOffer(InputState input, ScrollList<ItemToOffer> ours, ScrollList<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
         {
             // Note: ItemToOffer.HandleInput CAN modify OurItemsSL entries
             //       so we need to grab a copy
-            ScrollList.Entry[] entries = ours.AllExpandedEntries.ToArray();
-            foreach (ScrollList.Entry e in entries)
+            ItemToOffer[] entries = ours.AllExpandedEntries.ToArray();
+            foreach (ItemToOffer item in entries)
             {
-                var item = (ItemToOffer)e.item;
-                string response = item.HandleInput(input, e);
-                ProcessResponse(item, response, theirs, ourOffer, theirOffer);
+                if (item.HandleInput(input))
+                {
+                    ProcessResponse(item, item.Response, theirs, ourOffer, theirOffer);
+                    return;
+                }
             }
         }
 
@@ -1196,19 +1182,16 @@ namespace Ship_Game
         void RespondHardcodedEmpireChoose()
         {
             StatementsSL.Reset();
-            Vector2 cursor1 = TextCursor;
             int n1 = 1;
             foreach (KeyValuePair<Empire, Relationship> rel in Them.AllRelations)
             {
                 if (rel.Value.Known && !rel.Key.isFaction && (rel.Key != Us && !rel.Key.data.Defeated) &&
                     Us.GetRelations(rel.Key).Known)
                 {
-                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + rel.Key.data.Traits.Name,
-                                                  cursor1, Fonts.Consolas18);
+                    var option = new DialogOption(n1, Localizer.Token(2220) + " " + rel.Key.data.Traits.Name);
                     option.Target = rel.Key;
                     option.Words = ParseTextDiplomacy(option.Words, DialogRect.Width - 25);
                     option.Response = "EmpireDiscuss";
-                    cursor1.Y += Fonts.Consolas18.LineSpacing + 5;
                     StatementsSL.AddItem(new DialogOptionListItem(option));
                     ++n1;
                 }
@@ -1230,15 +1213,13 @@ namespace Ship_Game
                 {
                     StatementsSL.Reset();
                     int n = 1;
-                    Vector2 Cursor = TextCursor;
                     foreach (DialogOption option1 in set.DialogOptions)
                     {
-                        var option2 = new DialogOption(n, option1.Words, Cursor, Fonts.Consolas18);
+                        var option2 = new DialogOption(n, option1.Words);
                         option2.Words = ParseTextDiplomacy(option1.Words, DialogRect.Width - 25);
-                        StatementsSL.AddItem(option2);
                         option2.Response = option1.Response;
                         option2.Target = EmpireToDiscuss;
-                        Cursor.Y += Fonts.Consolas18.LineSpacing + 5;
+                        StatementsSL.AddItem(new DialogOptionListItem(option2));
                         ++n;
                     }
                 }
