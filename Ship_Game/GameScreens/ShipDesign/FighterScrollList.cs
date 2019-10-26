@@ -18,7 +18,6 @@ namespace Ship_Game
         public FighterScrollList(Submenu fighterList, GameScreen shipDesignScreen) : base(fighterList, 40)
         {
             Screen = shipDesignScreen;
-            AutoManageItems = true;
         }
 
         public bool HitTest(InputState input)
@@ -47,13 +46,25 @@ namespace Ship_Game
         
         void AddShip(Ship ship)
         {
-            AddItem(new FighterListItem(ship)).OnClick = OnItemClicked;
+            AddItem(new FighterListItem(ship));
         }
 
-        void OnItemClicked(FighterListItem item)
+        public override void OnItemHovered(FighterListItem item)
+        {
+            if (item == null) // we're not hovering the scroll list, just highlight the active ship
+            {
+                foreach (FighterListItem e in VisibleExpandedEntries)
+                    if (ActiveModule.hangarShipUID == e.Ship.Name)
+                        SelectionBox = new Selector(e.Rect);
+            }
+            base.OnItemHovered(item);
+        }
+
+        public override void OnItemClicked(FighterListItem item)
         {
             ActiveModule.hangarShipUID = item.Ship.Name;
             HangarShipUIDLast = item.Ship.Name;
+            base.OnItemClicked(item);
         }
 
         public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
@@ -65,22 +76,7 @@ namespace Ship_Game
                 ActiveModule = activeModule;
                 SetActiveHangarModule(activeModule, ActiveHangarModule);
                 
-                // handle everything related to scroll list
-                if (ParentMenu.HitTest(Screen.Input.CursorPosition))
-                {
-                    base.HandleInput(input);
-                }
-                else // we're not hovering the scroll list, just highlight the active ship
-                {
-                    foreach (FighterListItem e in VisibleExpandedEntries)
-                    {
-                        if (ActiveModule.hangarShipUID == e.Ship.Name)
-                        {
-                            SelectionBox = new Selector(e.Rect);
-                            break;
-                        }
-                    }
-                }
+                base.HandleInput(input);
                 return true;
             }
             

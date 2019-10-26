@@ -255,9 +255,8 @@ namespace Ship_Game
             }
 
             b.Plural(PreferredEnvDescription);
-            DescriptionSL.Reset();
-            string[] lines = Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Menu.Width - 50);
-            foreach (string line in lines) DescriptionSL.AddItem(new TextListItem(line));
+
+            DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), Description.Menu.Width - 50);
         }
 
         static float DotSpaceWidth;

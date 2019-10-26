@@ -246,6 +246,15 @@ namespace Ship_Game
             return lines;
         }
 
+        public static void ResetWithParseText(
+            this ScrollList<TextListItem> list, SpriteFont font, string text, float maxLineWidth)
+        {
+            string parsed = ParseText(font, text, maxLineWidth);
+            list.Reset();
+            string[] lines = parsed.Split('\n');
+            foreach (string line in lines) list.AddItem(new TextListItem(line));
+        }
+
         public static int RoundTo(float amount1, int roundTo)
         {
             int rounded = (int)((amount1 + 0.5 * roundTo) / roundTo) * roundTo;

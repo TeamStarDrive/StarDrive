@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
+    // @note These are automatically serialized from /DiplomacyDialogs/{Language}/
     public sealed class DialogOption
     {
         public object Target;
@@ -11,7 +12,6 @@ namespace Ship_Game.Gameplay
         public int Number;
         [XmlElement(ElementName = "words")]
         public string Words;
-        private Rectangle ClickRect;
         public string SpecialInquiry = string.Empty;
         public string Response;
         public bool Hover;
@@ -22,17 +22,15 @@ namespace Ship_Game.Gameplay
         {
         }
 
-        public DialogOption(int n, string w, Vector2 cursor, SpriteFont font)
+        public DialogOption(int number, string words)
         {
-            Number = n;
-            Words = w;
-            int width = (int)font.MeasureString(w).X;
-            ClickRect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
+            Number = number;
+            Words = words;
         }
 
         public void Draw(SpriteBatch batch, SpriteFont font)
         {
-            HelperFunctions.DrawDropShadowText(batch, string.Concat(Number.ToString(), ". ", Words),
+            batch.DrawDropShadowText(string.Concat(Number.ToString(), ". ", Words),
                 new Vector2(ClickRect.X, ClickRect.Y), font, (Hover ? Color.White : new Color(255, 255, 255, 220)));
         }
 
@@ -49,11 +47,6 @@ namespace Ship_Game.Gameplay
                 return Response;
 
             return null;
-        }
-
-        public void Update(Vector2 cursor)
-        {
-            ClickRect.Y = (int)cursor.Y;
         }
     }
 }

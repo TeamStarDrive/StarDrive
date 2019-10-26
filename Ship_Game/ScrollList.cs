@@ -47,12 +47,6 @@ namespace Ship_Game
         float TimerDelay = 0.05f;
         readonly int YOffset;
 
-        // TODO: This is set to false for compatibility reasons
-        //       By default ScrollList.HandleInput will not call HandleInput and Draw on child entries
-        //       If TRUE, ScrollList will automatically HandleInput
-        //       and call UIElementV2.Draw on ScrollList.Entry.item
-        public bool AutoManageItems = false;
-
         readonly int MaxVisibleEntries;
         public int FirstVisibleIndex;
         readonly Array<T> Entries         = new Array<T>();
@@ -64,7 +58,15 @@ namespace Ship_Game
         public ListStyle Style;
         readonly ListControls Controls = ListControls.All;
 
+        // Automatic Selection highlight
         public Selector SelectionBox;
+
+        // EVENT: Called when a new item is focused with mouse
+        //        @note This is called again with <null> when mouse leaves focus
+        public Action<T> OnHovered;
+
+        // EVENT: Called when an item is clicked on
+        public Action<T> OnClicked;
 
         public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
         {
@@ -95,6 +97,16 @@ namespace Ship_Game
             MaxVisibleEntries = p.Rect.Height / EntryHeight;
             YOffset = 5;
             this.PerformLayout();
+        }
+
+        public virtual void OnItemHovered(T item)
+        {
+            OnHovered?.Invoke(item);
+        }
+
+        public virtual void OnItemClicked(T item)
+        {
+            OnClicked?.Invoke(item);
         }
 
         class StyleTextures
@@ -374,11 +386,8 @@ namespace Ship_Game
             if (ExpandedEntries.Count > MaxVisibleEntries)
                 DrawScrollBar(batch);
 
-            if (AutoManageItems)
-            {
-                DrawChildElements(batch);
-                SelectionBox?.Draw(batch);
-            }
+            DrawChildElements(batch);
+            SelectionBox?.Draw(batch);
 
             if (DraggedEntry != null)
             {
@@ -575,7 +584,7 @@ namespace Ship_Game
             HandleDraggable(input);
             HandleElementDragging(input);
             UpdateListElements();
-            if (!hit && AutoManageItems)
+            if (!hit)
                 return HandleInputChildElements(input);
             return hit;
         }
@@ -630,15 +639,21 @@ namespace Ship_Game
                 {
                     // only show selector if item doesn't have child elements (it's a header item)
                     if (!item.HasSubEntries)
+                    {
                         SelectionBox = new Selector(item.Rect);
+                    }
                     return true;
                 }
             }
-            SelectionBox = null;
+
+            // No longer hovering over the scroll list? Clear the SelectionBox
+            if (!ParentMenu.HitTest(input.CursorPosition))
+            {
+                SelectionBox = null;
+            }
             return false;
         }
 
-        
         void DrawChildElements(SpriteBatch batch)
         {
             for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
@@ -646,7 +661,6 @@ namespace Ship_Game
                 ExpandedEntries[i].Draw(batch);
             }
         }
-
 
         public class Entry : UIElementV2
         {
@@ -657,12 +671,6 @@ namespace Ship_Game
 
             // true if item is currently being hovered over with mouse cursor
             public bool Hovered { get; private set; }
-
-            // true if item was just clicked
-            public bool Clicked { get; private set; }
-
-            // OnClick event
-            public Action<T> OnClick;
 
             // Plus and Edit buttons in ColonyScreen build list
             readonly bool Plus;
@@ -769,77 +777,6 @@ namespace Ship_Game
                 return Hovered;
             }
 
-            public bool CheckPlus(InputState input) => (PlusHover = PlusRect.HitTest(input.CursorPosition));
-            public bool CheckEdit(InputState input) => (EditHover = EditRect.HitTest(input.CursorPosition));
-
-            public void DrawPlusEdit(SpriteBatch spriteBatch)
-            {
-                DrawPlus(spriteBatch);
-                DrawEdit(spriteBatch);
-            }
-
-            public void DrawPlus(SpriteBatch spriteBatch)
-            {
-                if (Plus)
-                {
-                    StyleTextures s = List.GetStyle();
-                    SubTexture plus = PlusHover ? s.BuildAddHover2
-                                      : Hovered ? s.BuildAddHover1
-                                                : s.BuildAdd;
-                    spriteBatch.Draw(plus, PlusRect, Color.White);
-                }
-            }
-
-            public void DrawEdit(SpriteBatch spriteBatch)
-            {
-                if (Edit)
-                {
-                    StyleTextures s = List.GetStyle();
-                    SubTexture edit = EditHover ? s.BuildEditHover2
-                                      : Hovered ? s.BuildEditHover1
-                                                : s.BuildEdit;
-                    spriteBatch.Draw(edit, EditRect, Color.White);
-                }
-            }
-
-            public void DrawUpDownApplyCancel(SpriteBatch batch, InputState input)
-            {
-                StyleTextures s = List.GetStyle();
-                if (!Hovered)
-                {
-                    batch.Draw(s.QueueArrowUp, Up, Color.White);
-                    batch.Draw(s.QueueArrowDown, Down, Color.White);
-                    batch.Draw(s.QueueRush, Apply, Color.White);
-                    batch.Draw(s.QueueDelete, Cancel, Color.White);
-                    return;
-                }
-
-                batch.Draw(s.QueueArrowUpHover1, Up, Color.White);
-                batch.Draw(s.QueueArrowDownHover1, Down, Color.White);
-                batch.Draw(s.QueueRushHover1, Apply, Color.White);
-                batch.Draw(s.QueueDeleteHover1, Cancel, Color.White);
-
-                Vector2 pos = input.CursorPosition;
-                if (Up.HitTest(pos))
-                {
-                    batch.Draw(s.QueueArrowUpHover2, Up, Color.White);
-                }
-                if (Down.HitTest(pos))
-                {
-                    batch.Draw(s.QueueArrowDownHover2, Down, Color.White);
-                }
-                if (Apply.HitTest(pos))
-                {
-                    batch.Draw(s.QueueRushHover2, Apply, Color.White);
-                    ToolTip.CreateTooltip(50);
-                }
-                if (Cancel.HitTest(pos))
-                {
-                    batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
-                    ToolTip.CreateTooltip(53);
-                }
-            }
-
             public void DrawCancel(SpriteBatch batch, InputState input, string toolTipText = null)
             {
                 StyleTextures s = List.GetStyle();
@@ -868,10 +805,7 @@ namespace Ship_Game
                 int right = r.X + r.Width;
                 int iconY = r.Y + 15;
                 Rect = r;
-                if (List.AutoManageItems)
-                {
-                    PerformLayout();
-                }
+                PerformLayout();
 
                 StyleTextures s = List.GetStyle();
                 SubTexture addIcon = s.BuildAdd;
@@ -890,17 +824,29 @@ namespace Ship_Game
 
             public override bool HandleInput(InputState input)
             {
-                CheckHover(input);
-                if (Plus) CheckPlus(input);
-                if (Edit) CheckEdit(input);
+                if (Plus) PlusHover = PlusRect.HitTest(input.CursorPosition);
+                if (Edit) EditHover = EditRect.HitTest(input.CursorPosition);
 
-                Clicked = Hovered && input.LeftMouseClick;
-                if (Clicked)
+                bool wasHovered = Hovered;
+                Hovered = Rect.HitTest(input.CursorPosition);
+
+                // Mouse entered this Entry
+                if (!wasHovered && Hovered)
+                {
+                    GameAudio.ButtonMouseOver();
+                    List.OnItemHovered(this as T);
+                }
+
+                bool clicked = Hovered && input.LeftMouseClick;
+                if (clicked)
                 {
                     GameAudio.AcceptClick();
                     if (SubEntries.NotEmpty)
+                    {
                         Expand(!Expanded);
-                    OnClick?.Invoke(this as T);
+                    }
+
+                    List.OnItemClicked(this as T);
                     return true;
                 }
                 return Hovered;
@@ -913,8 +859,57 @@ namespace Ship_Game
 
             public override void Draw(SpriteBatch batch)
             {
-                DrawUpDownApplyCancel(batch, GameBase.Base.Manager.input);
-                DrawPlus(batch);
+                StyleTextures s = List.GetStyle();
+
+                if (Plus)
+                {
+                    SubTexture plus = PlusHover ? s.BuildAddHover2
+                                      : Hovered ? s.BuildAddHover1
+                                                : s.BuildAdd;
+                    batch.Draw(plus, PlusRect, Color.White);
+                }
+
+                if (Edit)
+                {
+                    SubTexture edit = EditHover ? s.BuildEditHover2
+                                      : Hovered ? s.BuildEditHover1
+                                                : s.BuildEdit;
+                    batch.Draw(edit, EditRect, Color.White);
+                }
+
+                if (!Hovered)
+                {
+                    batch.Draw(s.QueueArrowUp,   Up,     Color.White);
+                    batch.Draw(s.QueueArrowDown, Down,   Color.White);
+                    batch.Draw(s.QueueRush,      Apply,  Color.White);
+                    batch.Draw(s.QueueDelete,    Cancel, Color.White);
+                    return;
+                }
+
+                batch.Draw(s.QueueArrowUpHover1,   Up,     Color.White);
+                batch.Draw(s.QueueArrowDownHover1, Down,   Color.White);
+                batch.Draw(s.QueueRushHover1,      Apply,  Color.White);
+                batch.Draw(s.QueueDeleteHover1,    Cancel, Color.White);
+
+                Vector2 pos = GameBase.Base.Manager.input.CursorPosition;
+                if (Up.HitTest(pos))
+                {
+                    batch.Draw(s.QueueArrowUpHover2, Up, Color.White);
+                }
+                if (Down.HitTest(pos))
+                {
+                    batch.Draw(s.QueueArrowDownHover2, Down, Color.White);
+                }
+                if (Apply.HitTest(pos))
+                {
+                    batch.Draw(s.QueueRushHover2, Apply, Color.White);
+                    ToolTip.CreateTooltip(50);
+                }
+                if (Cancel.HitTest(pos))
+                {
+                    batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
+                    ToolTip.CreateTooltip(53);
+                }
             }
         }
     }

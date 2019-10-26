@@ -12,14 +12,13 @@ namespace Ship_Game.Gameplay
 
         public ItemToOffer(string words, Vector2 cursor)
         {
-            SpriteFont font = Fonts.Arial12Bold;
             Words = words;
+            SpriteFont font = Fonts.Arial12Bold;
             int width = (int)font.MeasureString(words).X;
             Rect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
         }
 
-        public ItemToOffer(string words, string response, Vector2 cursor)
-            : this(words, cursor)
+        public ItemToOffer(string words, string response, Vector2 cursor) : this(words, cursor)
         {
             Response = response;
         }
@@ -40,7 +39,7 @@ namespace Ship_Game.Gameplay
                 items.Remove(SpecialInquiry);
         }
 
-        public void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch)
         {
             Color orange;
             if (Selected)
@@ -85,11 +84,6 @@ namespace Ship_Game.Gameplay
                 }
             }
             return captured;
-        }
-
-        public void Update(Vector2 cursor)
-        {
-            ClickRect.Y = (int)cursor.Y;
         }
     }
 }

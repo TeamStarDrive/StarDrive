@@ -10,24 +10,27 @@ namespace Ship_Game
 {
     public class TextListItem : ScrollList<TextListItem>.Entry
     {
-        public string Text;
-        public SpriteFont Font = Fonts.Consolas18;
-
-        public TextListItem(string text)
-        {
-            Text = text;
-        }
+        public UILabel Label;
+        public string Text => Label.Text;
 
         public TextListItem(string text, SpriteFont font)
         {
-            Text = text;
-            Font = font;
+            Label = new UILabel(text, font);
+        }
+
+        public TextListItem(string text) : this(text, Fonts.Consolas18)
+        {
+        }
+
+        public override void Update(float deltaTime)
+        {
+            Label.Rect = Rect;
+            base.Update(deltaTime);
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            var pos = new Vector2(X, Y - 33);
-            batch.DrawDropShadowText(Text, pos, Font, Color.White, shadowOffset:2f);
+            Label.Draw(batch);
         }
     }
 }

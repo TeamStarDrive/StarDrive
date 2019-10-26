@@ -26,7 +26,7 @@ namespace Ship_Game
         private float OriginalZ;
         private Rectangle SearchBar;
         private Rectangle BottomSep;
-        private ScrollList HullSL;
+        private ScrollList<ShipHullListItem> HullSL;
         private WeaponScrollList WeaponSL;
         private Rectangle HullSelectionRect;
         private Submenu HullSelectionSub;

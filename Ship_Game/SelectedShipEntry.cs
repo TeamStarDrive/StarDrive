@@ -3,7 +3,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-	public sealed class SelectedShipEntry
+	public sealed class SelectedShipEntry : ScrollList<SelectedShipEntry>.Entry
 	{
 		public Array<SkinnableButton> ShipButtons = new Array<SkinnableButton>();
 
