@@ -183,7 +183,7 @@ namespace Ship_Game
             var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
             build = new Submenu(theMenu10);
             build.AddTab(BuildingsTabText);
-            buildSL = new ScrollList<BuildListItem>(build) { AutoManageItems = true };
+            buildSL = new ScrollList<BuildListItem>(build);
             PlayerDesignsToggle = new ToggleButton(new Vector2(build.Right - 270, build.Y),
                                                    ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
 

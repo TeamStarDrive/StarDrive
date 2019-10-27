@@ -178,63 +178,65 @@ namespace Ship_Game
                 else
                     DrawPlanetStats(DefenseShipsRect, currentDefenseShips + "/" + maxDefenseShips , "UI/icon_hangar", Color.Yellow, Color.White);
             }
-            Inspect.Draw(ScreenManager);
-            Invade.Draw(ScreenManager);
+            Inspect.Draw(batch);
+            Invade.Draw(batch);
         }
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)
         {
+            SpriteBatch batch = ScreenManager.SpriteBatch;
+
             if (!P.IsExploredBy(EmpireManager.Player))
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold,
+                batch.DrawString(Fonts.Arial20Bold,
                     Localizer.Token(1429) + P.LocalizedCategory, namePos, tColor);
                 var textCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                     namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
                 string pop = P.PopulationStringForPlayer;
                 textCursor.X = textCursor.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop, textCursor, tColor);
+                batch.DrawString(Fonts.Arial12Bold, pop, textCursor, tColor);
 
                 PopRect = new Rectangle((int) textCursor.X - 23, (int) textCursor.Y - 3, 22, 22);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
+                batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
                 string text = Localizer.Token(1430);
                 var cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
+                batch.DrawString(Fonts.Arial12Bold, text, cursor, tColor);
                 return true;
             }
 
             if (!P.Habitable)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
+                batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
                 string text = Localizer.Token(1427);
                 Vector2 Cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, Cursor, tColor);
+                batch.DrawString(Fonts.Arial12Bold, text, Cursor, tColor);
                 return true;
             }
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
+            batch.DrawString(Fonts.Arial20Bold, P.Name, namePos, tColor);
             Vector2 TextCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                 namePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
 
             string pop2 = P.PopulationStringForPlayer;
             TextCursor.X -= (Fonts.Arial12Bold.MeasureString(pop2).X + 5f);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, pop2, TextCursor, tColor);
+            batch.DrawString(Fonts.Arial12Bold, pop2, TextCursor, tColor);
 
             PopRect = new Rectangle((int) TextCursor.X - 23, (int) TextCursor.Y - 3, 22, 22);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
+            batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
             PlanetTypeRichness = P.LocalizedRichness;
             PlanetTypeCursor =
                 new Vector2(
                     PlanetIconRect.X + PlanetIconRect.Width / 2 - Fonts.Arial12Bold.MeasureString(PlanetTypeRichness).X / 2f,
                     PlanetIconRect.Y + PlanetIconRect.Height + 5);
-            ScreenManager.SpriteBatch.Draw(P.PlanetTexture, PlanetIconRect,
+            batch.Draw(P.PlanetTexture, PlanetIconRect,
                 Color.White);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
+            batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
             Rectangle fIcon = new Rectangle(240,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_food").Height,
                 ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
             TippedItem ti = new TippedItem
             {
                 r = fIcon,
@@ -242,12 +244,12 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             Vector2 tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, P.FertilityFor(EmpireManager.Player).String(), tcurs, tColor);
+            batch.DrawString(Fonts.Arial12Bold, P.FertilityFor(EmpireManager.Player).String(), tcurs, tColor);
             Rectangle pIcon = new Rectangle(300,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
                 ResourceManager.Texture("NewUI/icon_production").Width,
                 ResourceManager.Texture("NewUI/icon_production").Height);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_production"), pIcon, Color.White);
             ti = new TippedItem
             {
                 r = pIcon,
@@ -255,10 +257,10 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             tcurs = new Vector2(325f, Housing.Y + 205);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
+            batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
             Mark = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
             Vector2 Text = new Vector2(RightRect.X + 25, Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), Mark, Color.White);
+            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), Mark, Color.White);
             if (GlobalStats.IsGermanOrPolish)
             {
                 Text.X = Text.X - 9f;
@@ -279,12 +281,12 @@ namespace Ship_Game
             {
                 if (!Mark.HitTest(mousePos))
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text,
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text,
                         new Color(88, 108, 146));
                 }
                 else
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text,
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1426), Text,
                         new Color(174, 202, 255));
                 }
 
@@ -299,12 +301,12 @@ namespace Ship_Game
             {
                 if (!Mark.HitTest(mousePos))
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text,
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text,
                         new Color(88, 108, 146));
                 }
                 else
                 {
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text,
+                    batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1425), Text,
                         new Color(174, 202, 255));
                 }
 
@@ -326,20 +328,20 @@ namespace Ship_Game
 
             SendTroops = new Rectangle(Mark.X, Mark.Y - Mark.Height - 5, 182, 25);
             Text = new Vector2(SendTroops.X + 25, SendTroops.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
+            batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
             int troops = Screen.player
                 .GetShips()
                 .Where(troop => troop.TroopList.Count > 0)
                 .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
             if (!SendTroops.HitTest(mousePos))
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
+                batch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
                     new Color(88, 108, 146)); // Localizer.Token(1425)
             else
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
+                batch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
                     new Color(174, 202, 255)); // Localizer.Token(1425)
 
-            Inspect.Draw(ScreenManager);
-            Invade.Draw(ScreenManager);
+            Inspect.Draw(batch);
+            Invade.Draw(batch);
             return false;
         }
 

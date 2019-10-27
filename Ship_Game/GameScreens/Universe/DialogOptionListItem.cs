@@ -10,7 +10,7 @@ namespace Ship_Game.Gameplay
 {
     public class DialogOptionListItem : ScrollList<DialogOptionListItem>.Entry
     {
-        readonly DialogOption Option;
+        public readonly DialogOption Option;
         public DialogOptionListItem(DialogOption option)
         {
             Option = option;

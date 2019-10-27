@@ -25,7 +25,7 @@ namespace Ship_Game
             this.screen = screen;
 
             const int windowWidth = 320;
-            win = new Rectangle(screenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 5 - windowWidth, 260, windowWidth, 225);
+            win = new Rectangle(screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 225);
             ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab("Build Menu");
             SL = new ScrollList<ConstructionListItem>(ConstructionSubMenu, 40);
@@ -188,7 +188,8 @@ namespace Ship_Game
                         TetherOffset = pp - p.planetToClick.Center;
                         TargetPlanet = p.planetToClick.guid;
                         batch.DrawLine(p.ScreenPos, screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
-                        batch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name), new Vector2(mousePos.X, mousePos.Y + 34f), Color.White);
+                        batch.DrawString(Fonts.Arial20Bold, string.Concat("Will Orbit ", p.planetToClick.Name),
+                            new Vector2(screen.Input.CursorX, screen.Input.CursorY + 34f), Color.White);
                     }
                 }
                 batch.Draw(platform, screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);

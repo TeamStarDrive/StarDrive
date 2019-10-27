@@ -66,9 +66,8 @@ namespace Ship_Game
                 {
                 }
             }
-            var sortedList = from header in saves orderby (header.Data as HeaderData)?.Time descending select header;
-            foreach (FileData data in sortedList)
-                SavesSL.AddItem(data).AddSubItem(data.FileLink);
+
+            AddItemsToSaveSL(saves.OrderByDescending(header => (header.Data as HeaderData)?.Time));
         }
     }
 }

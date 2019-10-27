@@ -103,21 +103,20 @@ namespace Ship_Game
         class EmpiresPanel : UIElementContainer
         {
             readonly EspionageScreen Screen;
-            readonly ScrollList<OperationsListItem> OperationsSL;
+            //readonly ScrollList<OperationsListItem> OperationsSL;
 
-            class OperationsListItem : ScrollList<OperationsListItem>.Entry
-            {
-                public Operation Operation;
-            }
+            //class OperationsListItem : ScrollList<OperationsListItem>.Entry
+            //{
+            //    public Operation Operation;
+            //}
 
             public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
             {
                 Screen = screen;
 
-                var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
-                                            operationsRect.Width - 40, operationsRect.Height - 45);
-
-                OperationsSL = new ScrollList<OperationsListItem>(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
+                //var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
+                //                            operationsRect.Width - 40, operationsRect.Height - 45);
+                //OperationsSL = new ScrollList<OperationsListItem>(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
 
                 var empires = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
@@ -143,11 +142,11 @@ namespace Ship_Game
                 if (EmpireManager.Player == button.Empire || EmpireManager.Player.GetRelations(button.Empire).Known)
                 {
                     Screen.SelectedEmpire = button.Empire;
-                    if (EmpireManager.Player == button.Empire)
-                    {
-                        foreach (OperationsListItem item in OperationsSL.AllEntries)
-                            item.Operation.Selected = false;
-                    }
+                    //if (EmpireManager.Player == button.Empire)
+                    //{
+                    //    foreach (OperationsListItem item in OperationsSL.AllEntries)
+                    //        item.Operation.Selected = false;
+                    //}
                     Screen.Agents.Reinitialize();
                 }
             }
