@@ -155,7 +155,7 @@ namespace Ship_Game
 
         protected virtual void OnSaveLoadItemClicked(SaveLoadListItem item)
         {
-            if (item.WasCancelHovered(Input)) // handle file delete
+            if (item.CancelHover) // handle file delete
             {
                 fileToDel = item.Data.FileLink;
                 var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
