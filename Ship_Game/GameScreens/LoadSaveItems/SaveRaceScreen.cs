@@ -57,9 +57,7 @@ namespace Ship_Game
                 }
             }
 
-            var sortedList = from data in saves orderby data.FileName select data;
-            foreach (FileData data in sortedList)
-                SavesSL.AddItem(data).AddSubItem(data.FileLink);
+            AddItemsToSaveSL(saves.OrderBy(data => data.FileName));
         }
     }
 }

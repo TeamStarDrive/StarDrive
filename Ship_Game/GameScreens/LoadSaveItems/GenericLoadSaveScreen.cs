@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -241,6 +242,18 @@ namespace Ship_Game
                 messageBox.Accepted += OverWriteAccepted;
                 ScreenManager.AddScreen(messageBox);
             }
+        }
+
+        protected void AddItemToSaveSL(FileInfo info)
+        {
+            var item = new SaveLoadListItem(this, new FileData(info, info, info.NameNoExt()));
+            SavesSL.AddItem(item);
+        }
+
+        protected void AddItemsToSaveSL(IEnumerable<FileData> files)
+        {
+            foreach (FileData data in files)
+                SavesSL.AddItem(new SaveLoadListItem(this, data));
         }
 
         protected class SaveLoadListItem : ScrollList<SaveLoadListItem>.Entry

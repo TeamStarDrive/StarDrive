@@ -197,18 +197,6 @@ namespace Ship_Game
                 }
             }
 
-            foreach (ScrollList.Entry e in AgentSL.VisibleEntries)
-            {
-                if (e.CheckHover(input))
-                    if (input.InGameSelect)
-                    {
-                        SelectedAgent = e.Get<Agent>();
-                        foreach (MissionEntry mission in OpsSL.AllItems())
-                            mission.UpdateMissionAvailability();
-                        GameAudio.AcceptClick();
-                    }
-            }
-
             return base.HandleInput(input);
         }
 

@@ -117,7 +117,10 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime)
         {
-            if (Screen.SelectedShipList == null) return;  //fbedard
+            if (Screen.SelectedShipList == null)
+                return;  //fbedard
+
+            SpriteBatch batch = ScreenManager.SpriteBatch;
 
             float transitionOffset = MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             int columns = Orders.Count / 2 + Orders.Count % 2;
@@ -131,10 +134,10 @@ namespace Ship_Game
                     ob.Draw(ScreenManager, r);
                 }
             }
-            ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
+            batch.Draw(ResourceManager.Texture("SelectionBox/unitselmenu_main"), Housing, Color.White);
             string text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null) ? "Multiple Ships" : ShipList.First.fleet.Name;
             var namePos = new Vector2(Housing.X + 41, Housing.Y + 64);
-            SelectedShipsSL.Draw(ScreenManager.SpriteBatch);
+            SelectedShipsSL.Draw(batch);
 
             foreach (SelectedShipEntry ship in SelectedShipsSL.VisibleEntries)
             {
@@ -143,7 +146,7 @@ namespace Ship_Game
                 {
                     if (HoveredShip == button.ReferenceObject)
                         button.Hover = true;
-                    button.Draw(ScreenManager);
+                    button.Draw(batch);
                 }
             }
             if (HoveredShip == null)
@@ -152,7 +155,7 @@ namespace Ship_Game
                 if (HoverOff > 0.5f)
                 {
                     text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
+                    batch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
                     float fleetOrdnance = 0f;
                     float fleetOrdnanceMax = 0f;
                     foreach (Ship ship in ShipList)
@@ -169,16 +172,16 @@ namespace Ship_Game
                             Progress = fleetOrdnance,
                             color = "brown"
                         };
-                        oBar.Draw(ScreenManager.SpriteBatch);
+                        oBar.Draw(batch);
                         Ordnance = new Rectangle(pordrect.X - 25, pordrect.Y, 20, 20);
-                        ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
+                        batch.Draw(ResourceManager.Texture("Modules/Ordnance"), Ordnance, Color.White);
                     }
                 }
             }
             else
             {
                 HoverOff = 0f;
-                HoveredShip.RenderOverlay(ScreenManager.SpriteBatch, ShipInfoRect, ShowModules);
+                HoveredShip.RenderOverlay(batch, ShipInfoRect, ShowModules);
                 text = HoveredShip.VanityName;
                 Vector2 tpos = new Vector2(Housing.X + 30, Housing.Y + 63);
                 string name = (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name);
@@ -190,16 +193,16 @@ namespace Ship_Game
                     tpos.Y = tpos.Y + 1;
                     tpos.X = tpos.X - 8;
                 }
-                ScreenManager.SpriteBatch.DrawString(TitleFont, (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name), tpos, tColor);
+                batch.DrawString(TitleFont, (!string.IsNullOrEmpty(HoveredShip.VanityName) ? HoveredShip.VanityName : HoveredShip.Name), tpos, tColor);
                 //Added by Doctor, adds McShooterz' class/hull data to the rollover in the list too:
-                //this.ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
+                //this.batch.DrawString(Fonts.Visitor10, string.Concat(this.HoveredShip.Name, " - ", Localizer.GetRole(this.HoveredShip.shipData.Role, this.HoveredShip.loyalty)), ShipSuperName, Color.Orange);
                 string longName = string.Concat(HoveredShip.Name, " - ", ShipData.GetRole(HoveredShip.DesignRole));
                 if (HoveredShip.shipData.ShipCategory != ShipData.Category.Unclassified)
                     longName += string.Concat(" - ", HoveredShip.shipData.GetCategory());
-                ScreenManager.SpriteBatch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
+                batch.DrawString(Fonts.Visitor10, longName, ShipSuperName, Color.Orange);
+                batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, Color.White);
                 Vector2 defPos = new Vector2(DefenseRect.X + DefenseRect.Width + 2, DefenseRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-                SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
+                SpriteBatch spriteBatch = batch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
                 spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(fmt), defPos, Color.White);
@@ -207,15 +210,15 @@ namespace Ship_Game
                 Vector2 ShipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 170, Housing.Y + 68);
                 text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
                 HelperFunctions.ClampVectorToInt(ref ShipStatus);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
+                batch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
                 ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
+                batch.Draw(ResourceManager.Texture("UI/icon_troop_shipUI"), TroopRect, Color.White);
                 Vector2 troopPos = new Vector2(TroopRect.X + TroopRect.Width + 2, TroopRect.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(HoveredShip.TroopList.Count, "/", HoveredShip.TroopCapacity), troopPos, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, string.Concat(HoveredShip.TroopList.Count, "/", HoveredShip.TroopCapacity), troopPos, Color.White);
                 Rectangle star = new Rectangle(TroopRect.X, TroopRect.Y + 25, 22, 22);
                 Vector2 levelPos = new Vector2(star.X + star.Width + 2, star.Y + 11 - Fonts.Arial12Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
+                batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
             }
             foreach (ToggleButton button in CombatStatusButtons)
             {

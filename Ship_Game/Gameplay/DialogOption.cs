@@ -27,26 +27,5 @@ namespace Ship_Game.Gameplay
             Number = number;
             Words = words;
         }
-
-        public void Draw(SpriteBatch batch, SpriteFont font)
-        {
-            batch.DrawDropShadowText(string.Concat(Number.ToString(), ". ", Words),
-                new Vector2(ClickRect.X, ClickRect.Y), font, (Hover ? Color.White : new Color(255, 255, 255, 220)));
-        }
-
-        public string HandleInput(InputState input)
-        {
-            if (!ClickRect.HitTest(input.CursorPosition))
-            {
-                Hover = false;
-                return null;
-            }
-
-            Hover = true;
-            if (input.LeftMouseClick)	        
-                return Response;
-
-            return null;
-        }
     }
 }
