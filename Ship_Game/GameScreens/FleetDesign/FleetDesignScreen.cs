@@ -1510,7 +1510,7 @@ namespace Ship_Game
             SelectedFleet.FleetIconIndex = data.FleetIconIndex;
         }
 
-        public void ResetLists()
+        public void ResetLists() // IListScreen.ResetLists()
         {
             AvailableShips.Clear();
             foreach (Ship ship in EmpireManager.Player.GetShips())

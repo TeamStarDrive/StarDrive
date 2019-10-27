@@ -64,14 +64,12 @@ namespace Ship_Game
         {
             if (index < NumEntries)
             {
-                EntryAt(index).Expand(true);
+                this[index].Expand(true);
             }
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            SelectionBox?.Draw(batch);
-
             if (ResetOnNextDraw)
             {
                 Reset();

@@ -86,8 +86,15 @@ namespace Ship_Game
             }
         }
 
-        public void Draw(SpriteBatch batch, GameTime gameTime)
+        public override void Draw(SpriteBatch batch)
         {
+            SetNewPos((int)X + 2, (int)Y);
+
+            if (Selected)
+            {
+                batch.FillRectangle(TotalEntrySize, Color.DarkGreen);
+            }
+
             var TextColor = new Color(255, 239, 208);
 
             string sysname = ship.System?.Name ?? Localizer.Token(150);
@@ -103,7 +110,7 @@ namespace Ship_Game
             }
 
             batch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
-            ShipNameEntry.Draw(Fonts.Arial12Bold, batch, ShipNameEntry.ClickableArea.PosVec(), gameTime, TextColor);
+            ShipNameEntry.Draw(Fonts.Arial12Bold, batch, ShipNameEntry.ClickableArea.PosVec(), GameBase.Base.GameTime, TextColor);
 
             var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
@@ -156,6 +163,8 @@ namespace Ship_Game
             }
             RefitButton.Draw(batch);
             ScrapButton.Draw(batch);
+
+            batch.DrawRectangle(TotalEntrySize, new Color(118, 102, 67, 50));
         }
 
         public static string GetStatusText(Ship ship)
@@ -404,7 +413,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void SetNewPos(int x, int y)
+        void SetNewPos(int x, int y)
         {
             TotalEntrySize = new Rectangle(x, y, TotalEntrySize.Width, TotalEntrySize.Height);
             SysNameRect = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.10f), TotalEntrySize.Height);

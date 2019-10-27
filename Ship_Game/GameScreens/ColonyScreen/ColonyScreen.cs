@@ -1014,7 +1014,7 @@ namespace Ship_Game
         void HandleDetailInfo()
         {
             DetailInfo = null;
-            foreach (BuildListItem e in buildSL.VisibleExpandedEntries)
+            foreach (BuildListItem e in buildSL.AllEntries)
             {
                 if (e.Hovered)
                 {
@@ -1372,7 +1372,7 @@ namespace Ship_Game
             }
         }
 
-        public void ResetLists()
+        public void ResetLists() // IListScreen.ResetLists()
         {
             Reset = true;
         }
