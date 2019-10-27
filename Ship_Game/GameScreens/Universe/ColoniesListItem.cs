@@ -103,8 +103,6 @@ namespace Ship_Game
             {
                 if (ApplyProdHover && p.IsConstructing)
                 {
-                    Screen.ClickTimer = 0.25f;
-
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
                     if (p.Construction.RushProduction(0, maxAmount))
                         GameAudio.AcceptClick();
@@ -136,6 +134,19 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            SetNewPos((int)X, (int)Y);
+            
+            var TextColor2 = new Color(118, 102, 67, 50);
+            var smallHighlight = new Color(118, 102, 67, 25);
+            if (VisibleIndex % 2 == 0)
+            {
+                batch.FillRectangle(TotalEntrySize, smallHighlight);
+            }
+            if (p == Screen.SelectedPlanet)
+            {
+                batch.FillRectangle(TotalEntrySize, TextColor2);
+            }
+
             Color TextColor = new Color(255, 239, 208);
             if (Fonts.Pirulen16.MeasureString(p.ParentSystem.Name).X <= SysNameRect.Width)
             {
@@ -233,6 +244,8 @@ namespace Ship_Game
 
                 batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
             }
+            
+            batch.DrawRectangle(TotalEntrySize, TextColor2);
         }
 
         public void SetNewPos(int x, int y)

@@ -36,7 +36,6 @@ namespace Ship_Game
         protected Submenu NameSub;
 
         protected ScrollList<TraitsListItem> traitsSL;
-        protected Selector selector;
         protected Menu1 ColorSelectMenu;
 
         protected UITextEntry RaceName = new UITextEntry();
@@ -60,7 +59,7 @@ namespace Ship_Game
         Rectangle GameModeRect;
         Rectangle DifficultyRect;
 
-        Map<IEmpireData, SubTexture> TextureDict = new Map<IEmpireData, SubTexture>();
+        public Map<IEmpireData, SubTexture> TextureDict { get; } = new Map<IEmpireData, SubTexture>();
 
         ScrollList<TextListItem> DescriptionSL;
         protected UIButton Engage;
@@ -72,11 +71,11 @@ namespace Ship_Game
         protected float tTimer = 0.35f;
 
         protected int FlagIndex;
-        protected int TotalPointsUsed = 8;
+        public int TotalPointsUsed { get; private set; } = 8;
         protected bool DrawingColorSelector;
 
         UniverseData.GameDifficulty SelectedDifficulty = UniverseData.GameDifficulty.Normal;
-        IEmpireData SelectedData;
+        public IEmpireData SelectedData { get; private set; }
         protected Color currentObjectColor = Color.White;
         protected Rectangle ColorSelector;
 
@@ -259,25 +258,6 @@ namespace Ship_Game
             DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), Description.Menu.Width - 50);
         }
 
-        static float DotSpaceWidth;
-
-        // Creates padded text: "Vulgar Animals . . . . . . . . . . . ."
-        static string PaddedWithDots(int localizedNameId, float totalWidth)
-        {
-            if (DotSpaceWidth <= 0f)
-                DotSpaceWidth = Fonts.Arial14Bold.MeasureString(" .").X;
-
-            string name = Localizer.Token(localizedNameId);
-            float nameWidth = Fonts.Arial14Bold.MeasureString(name).X;
-            int numDots = (int)Math.Ceiling((totalWidth - nameWidth) / DotSpaceWidth);
-
-            var sb = new StringBuilder(name, name.Length + numDots*2);
-            for (int i = 0; i < numDots; ++i)
-                sb.Append(" .");
-
-            return sb.ToString();
-        }
-
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
@@ -299,34 +279,6 @@ namespace Ship_Game
                 r.X += (int)(transitionOffset * 256f);
             }
             DescriptionSL.TransitionUpdate(r);
-            if (!IsExiting)
-            {
-                var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Menu.Y + 10);
-                
-                foreach (ScrollList.Entry e in RaceArchetypeSL.VisibleEntries)
-                {
-                    var data = e.item as EmpireData;
-                    raceCursor.Y = e.Y;
-                    if (LowRes)
-                    {
-                        var portrait = new Rectangle(e.CenterX - 128, (int)raceCursor.Y, 256, 128);
-                        batch.Draw(TextureDict[data], portrait, Color.White);
-                        if (SelectedData == data)
-                        {
-                            batch.DrawRectangle(portrait, Color.BurlyWood);
-                        }
-                    }
-                    else
-                    {
-                        var portrait = new Rectangle(e.CenterX - 176, (int)raceCursor.Y, 352, 128);
-                        batch.Draw(TextureDict[data], portrait, Color.White);
-                        if (SelectedData == data)
-                        {
-                            batch.DrawRectangle(portrait, Color.BurlyWood);
-                        }
-                    }
-                }
-            }
 
             GameTime gameTime = StarDriveGame.Instance.GameTime;
 
@@ -401,15 +353,8 @@ namespace Ship_Game
             Description.Draw();
             rpos = new Vector2((r.X + 20), (Description.Menu.Y + 20));
             DescriptionSL.Draw(batch);
+
             Vector2 drawCurs = rpos;
-            foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
-            {
-                if (!e.Hovered)
-                {
-                    batch.DrawString(Fonts.Arial12, e.item as string, drawCurs, Color.White);
-                    drawCurs.Y += Fonts.Arial12.LineSpacing;
-                }
-            }
             rpos = drawCurs;
             rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
             batch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", TotalPointsUsed), rpos, Color.White);
@@ -437,78 +382,7 @@ namespace Ship_Game
             Left.Draw();
             Traits.Draw(batch);
             traitsSL.Draw(batch);
-            if (Traits.Tabs[0].Selected || Traits.Tabs[1].Selected || Traits.Tabs[2].Selected)
-            {
-                var bCursor = new Vector2(Traits.X + 20, Traits.Y + 45);
-                foreach (ScrollList.Entry e in traitsSL.VisibleEntries)
-                {
-                    string name = PaddedWithDots((e.item as TraitEntry).trait.TraitName, Traits.Rect.Width - 70);
 
-                    if (e.Hovered)
-                    {
-                        bCursor.Y = (e.Y - 5);
-                        var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
-
-                        var drawColor = new Color(95, 95, 95, 95);
-                        if (!(e.item as TraitEntry).Selected)
-                        {
-                            drawColor = new Color(95, 95, 95, 95);
-                        }
-                        if ((e.item as TraitEntry).Selected)
-                        {
-                            drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.ForestGreen : Color.Crimson);
-                        }
-                        else if ((e.item as TraitEntry).Excluded)
-                        {
-                            drawColor = new Color(95, 95, 95, 95);
-                        }
-                        else if (TotalPointsUsed >= 0 && TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
-                        {
-                            drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
-                        }
-                        batch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
-                        Vector2 curs = bCursor;
-                        curs.X = curs.X + (Traits.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-                        batch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
-                        tCursor.Y = tCursor.Y + Fonts.Arial14Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Width - 45), tCursor, drawColor);
-                        
-                        e.DrawPlus(batch);
-                    }
-                    else
-                    {
-                        bCursor.Y = e.Y - 5;
-                        var tCursor = new Vector2(bCursor.X, bCursor.Y + 3f);
-                        var drawColor = new Color(95, 95, 95, 95);
-
-                        if (!(e.item as TraitEntry).Selected)
-                        {
-                            drawColor = new Color(95, 95, 95, 95);
-                        }
-                        if ((e.item as TraitEntry).Selected)
-                        {
-                            drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.ForestGreen : Color.Crimson);
-                        }
-                        else if ((e.item as TraitEntry).Excluded)
-                        {
-                            drawColor = new Color(95, 95, 95, 95);
-                        }
-                        else if (TotalPointsUsed >= 0 && TotalPointsUsed - (e.item as TraitEntry).trait.Cost >= 0 || (e.item as TraitEntry).trait.Cost < 0)
-                        {
-                            drawColor = ((e.item as TraitEntry).trait.Cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
-                        }
-                        batch.DrawString(Fonts.Arial14Bold, name, tCursor, drawColor);
-                        Vector2 curs = bCursor;
-                        curs.X = curs.X + (Traits.Width - 45 - Fonts.Arial14Bold.MeasureString((e.item as TraitEntry).trait.Cost.ToString()).X);
-                        batch.DrawString(Fonts.Arial14Bold, (e.item as TraitEntry).trait.Cost.ToString(), curs, drawColor);
-                        tCursor.Y = tCursor.Y + Fonts.Arial14Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(Localizer.Token((e.item as TraitEntry).trait.Description), Traits.Width - 45), tCursor, drawColor);
-                        e.DrawPlus(batch);
-                    }
-
-                    e.CheckHover(Input.CursorPosition);
-                }
-            }
             batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, GalaxySize.ToString(), new Vector2(GalaxySizeRect.X + 190 - Fonts.Arial12.MeasureString(GalaxySize.ToString()).X, GalaxySizeRect.Y), Color.BurlyWood);
             batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2(NumberStarsRect.X, NumberStarsRect.Y), Color.White);
@@ -567,7 +441,6 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(126);
             }
 
-            selector?.Draw(batch);
             if (DrawingColorSelector)
             {
                 DrawColorSelector();
@@ -651,20 +524,14 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            DescriptionSL.HandleInput(input);
+            if (DescriptionSL.HandleInput(input))
+                return true;
+
             if (!DrawingColorSelector)
             {
-                selector = null;
-                foreach (ScrollList.Entry e in RaceArchetypeSL.AllEntries)
-                {
-                    if (e.WasClicked(input))
-                    {
-                        SelectedData = e.item as EmpireData;
-                        GameAudio.EchoAffirmative();
-                        SetRacialTraits(SelectedData.Traits);
-                    }
-                }
-                RaceArchetypeSL.HandleInput(input);
+                if (RaceArchetypeSL.HandleInput(input))
+                    return true;
+
                 if (Traits.HandleInput(input))
                     ResetLists();
 
@@ -733,59 +600,13 @@ namespace Ship_Game
                     HomeSystemEntry.HandleTextInput(ref HomeSystemEntry.Text, input);
                 }
 
-                traitsSL.HandleInput(input);
-                foreach (ScrollList.Entry f in traitsSL.VisibleEntries)
-                {
-                    if (!f.CheckHover(input.CursorPosition))
-                        continue;
-
-                    selector = f.CreateSelector();
-                    var t = f.Get<TraitEntry>();
-                    if (input.LeftMouseClick)
-                    {
-                        if (t.Selected && TotalPointsUsed + t.trait.Cost >= 0)
-                        {
-                            t.Selected = !t.Selected;
-                            RaceDesignScreen totalPointsUsed = this;
-                            totalPointsUsed.TotalPointsUsed = totalPointsUsed.TotalPointsUsed + t.trait.Cost;
-                            GameAudio.BlipClick();
-                            foreach (TraitEntry ex in AllTraits)
-                                if (t.trait.Excludes == ex.trait.TraitName)
-                                    ex.Excluded = false;
-                        }
-                        else if (TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
-                        {
-                            GameAudio.NegativeClick();
-                        }
-                        else
-                        {
-                            bool ok = true;
-                            foreach (TraitEntry ex in AllTraits)
-                            {
-                                if (t.trait.Excludes == ex.trait.TraitName && ex.Selected)
-                                    ok = false;
-                            }
-                            if (ok)
-                            {
-                                t.Selected = true;
-                                TotalPointsUsed -= t.trait.Cost;
-                                GameAudio.BlipClick();
-                                foreach (TraitEntry ex in AllTraits)
-                                {
-                                    if (t.trait.Excludes == ex.trait.TraitName)
-                                        ex.Excluded = true;
-                                }
-                            }
-                        }
-                        DoRaceDescription();
-                    }
-                }
+                if (traitsSL.HandleInput(input))
+                    return true;
 
                 if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
-                    RaceDesignScreen galaxysize = this;
-                    galaxysize.GalaxySize = (GalSize)((int)galaxysize.GalaxySize + (int)GalSize.Small);
+                    GalaxySize = (GalSize)((int)GalaxySize + (int)GalSize.Small);
                     if (GalaxySize > GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
                     {
                         GalaxySize = GalSize.Tiny;
@@ -794,8 +615,7 @@ namespace Ship_Game
                 if (GameModeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
-                    //RaceDesignScreen gamemode = this;
-                    Mode = Mode + 1;
+                    Mode += 1;
                     if (Mode == GameMode.Corners) numOpponents = 3;
                     if (Mode > GameMode.Corners)  //Updated by Gretman
                     {
@@ -815,13 +635,10 @@ namespace Ship_Game
                 if (NumOpponentsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
-                    int maxOpponents = Mode == GameMode.Corners ? 3 
-                        : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
-                    numOpponents = numOpponents + 1;
-                    
+                    int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
+                    numOpponents += 1;
                     if (numOpponents > maxOpponents)                    
                         numOpponents = 1;
-                    
                 }
                 if (ScaleRect.HitTest(input.CursorPosition))
                 {
@@ -1005,17 +822,20 @@ namespace Ship_Game
             Rectangle smaller = ChooseRaceRect;
             smaller.Y = smaller.Y - 20;
             smaller.Height = smaller.Height + 20;
+
             arch = new Submenu(smaller);
-            RaceArchetypeSL = new ScrollList(arch, 135);
+            RaceArchetypeSL = new ScrollList<RaceArchetypeListItem>(arch, 135);
+            RaceArchetypeSL.OnClick = OnRaceArchetypeItemClicked;
 
             foreach (IEmpireData e in ResourceManager.MajorRaces)
             {
-                RaceArchetypeSL.AddItem(e);
+                RaceArchetypeSL.AddItem(new RaceArchetypeListItem(this, e));
                 if (e.VideoPath.NotEmpty())
                     TextureDict.Add(e, ResourceManager.Texture("Races/" + e.VideoPath));
                 if (e.Singular == "Human")
                     SelectedData = e;
             }
+
             RaceName.Text = SelectedData.Name;
             SingEntry.Text = SelectedData.Singular;
             PlurEntry.Text = SelectedData.Plural;
@@ -1035,7 +855,7 @@ namespace Ship_Game
             Description = new Menu1(ScreenManager, dRect, true);
             dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
             Submenu dsub = new Submenu(dslrect);
-            DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
+            DescriptionSL = new ScrollList<TextListItem>(dsub, Fonts.Arial12.LineSpacing);
             Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
             Traits = new Submenu(psubRect);
             Traits.AddTab(Localizer.Token(19));
@@ -1050,11 +870,13 @@ namespace Ship_Game
             {
                 size = 70;
             }
-            traitsSL = new ScrollList(Traits, size);
+
+            traitsSL = new ScrollList<TraitsListItem>(Traits, size);
+            traitsSL.OnClick = OnTraitsListItemClicked;
             foreach (TraitEntry t in AllTraits)
             {
                 if (t.trait.Category == "Physical")
-                    traitsSL.AddItem(t);
+                    traitsSL.AddItem(new TraitsListItem(this, t));
             }
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
@@ -1075,6 +897,51 @@ namespace Ship_Game
             Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
 
             base.LoadContent();
+        }
+
+        void OnTraitsListItemClicked(TraitsListItem item)
+        {
+            TraitEntry t = item.Trait;
+            if (t.Selected && TotalPointsUsed + t.trait.Cost >= 0)
+            {
+                t.Selected = !t.Selected;
+                TotalPointsUsed += t.trait.Cost;
+                GameAudio.BlipClick();
+                foreach (TraitEntry ex in AllTraits)
+                    if (t.trait.Excludes == ex.trait.TraitName)
+                        ex.Excluded = false;
+            }
+            else if (TotalPointsUsed - t.trait.Cost < 0 || t.Selected)
+            {
+                GameAudio.NegativeClick();
+            }
+            else
+            {
+                bool ok = true;
+                foreach (TraitEntry ex in AllTraits)
+                {
+                    if (t.trait.Excludes == ex.trait.TraitName && ex.Selected)
+                        ok = false;
+                }
+                if (ok)
+                {
+                    t.Selected = true;
+                    TotalPointsUsed -= t.trait.Cost;
+                    GameAudio.BlipClick();
+                    foreach (TraitEntry ex in AllTraits)
+                    {
+                        if (t.trait.Excludes == ex.trait.TraitName)
+                            ex.Excluded = true;
+                    }
+                }
+            }
+            DoRaceDescription();
+        }
+
+        void OnRaceArchetypeItemClicked(RaceArchetypeListItem item)
+        {
+            SelectedData = item.EmpireData;
+            SetRacialTraits(SelectedData.Traits);
         }
 
         void OnEngageClicked(UIButton b)
@@ -1135,19 +1002,19 @@ namespace Ship_Game
             {
                 foreach (TraitEntry t in AllTraits)
                     if (t.trait.Category == "Physical")
-                        traitsSL.AddItem(t);
+                        traitsSL.AddItem(new TraitsListItem(this, t));
             }
             else if (Traits.Tabs[1].Selected)
             {
                 foreach (TraitEntry t in AllTraits)
                     if (t.trait.Category == "Industry")
-                        traitsSL.AddItem(t);
+                        traitsSL.AddItem(new TraitsListItem(this, t));
             }
             else if (Traits.Tabs[2].Selected)
             {
                 foreach (TraitEntry t in AllTraits)
                     if (t.trait.Category == "Special")
-                        traitsSL.AddItem(t);
+                        traitsSL.AddItem(new TraitsListItem(this, t));
             }
         }
 
@@ -1162,26 +1029,28 @@ namespace Ship_Game
             this.Mode         = mode;
         }
 
-        public void SetCustomEmpireData(RacialTrait traits)    // Sets the empire data externally, checks for fields that are default so don't overwrite
+        // Sets the empire data externally, checks for fields that are default so don't overwrite
+        public void SetCustomEmpireData(RacialTrait traits)
         {
-            foreach (EmpireData origRace in RaceArchetypeSL.AllItems<EmpireData>())
+            foreach (RaceArchetypeListItem origRace in RaceArchetypeSL.AllEntries)
             {
-                if (origRace.Traits.ShipType == traits.ShipType)
+                RacialTrait origRaceTraits = origRace.EmpireData.Traits;
+                if (origRaceTraits.ShipType == traits.ShipType)
                 {
-                    if (traits.Name == origRace.Traits.Name)
+                    if (traits.Name == origRaceTraits.Name)
                         traits.Name = RaceName.Text;
-                    if (traits.Singular == origRace.Traits.Singular)
+                    if (traits.Singular == origRaceTraits.Singular)
                         traits.Singular = SingEntry.Text;
-                    if (traits.Plural == origRace.Traits.Plural)
+                    if (traits.Plural == origRaceTraits.Plural)
                         traits.Plural = PlurEntry.Text;
-                    if (traits.HomeSystemName == origRace.Traits.HomeSystemName)
+                    if (traits.HomeSystemName == origRaceTraits.HomeSystemName)
                         traits.HomeSystemName = HomeSystemEntry.Text;
-                    if (traits.FlagIndex == origRace.Traits.FlagIndex)
+                    if (traits.FlagIndex == origRaceTraits.FlagIndex)
                         traits.FlagIndex = FlagIndex;
 
-                    if (traits.R == origRace.Traits.R && 
-                        traits.G == origRace.Traits.G &&
-                        traits.B == origRace.Traits.B)
+                    if (traits.R == origRaceTraits.R && 
+                        traits.G == origRaceTraits.G &&
+                        traits.B == origRaceTraits.B)
                     {
                         traits.R = currentObjectColor.R;
                         traits.G = currentObjectColor.G;

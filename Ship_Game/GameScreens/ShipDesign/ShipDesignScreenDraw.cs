@@ -40,7 +40,6 @@ namespace Ship_Game
                 DrawActiveModule(batch);
 
             DrawUi();
-            selector?.Draw(batch);
             ArcsButton.DrawWithShadowCaps(batch);
             if (Debug)
                 DrawDebug();
@@ -378,28 +377,7 @@ namespace Ship_Game
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(batch);
             HullSL.Draw(batch);
-            Vector2 mousePos = Mouse.GetState().Pos();
             HullSelectionSub.Draw(batch);
-
-            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
-            {
-                var bCursor = new Vector2(HullSelectionSub.X + 10, e.Y);
-                if (e.item is ModuleHeader header)
-                {
-                    header.Draw(ScreenManager, bCursor);
-                }
-                else if (e.item is ShipData ship)
-                {
-                    bCursor.X += 10f;
-                    batch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-
-                    e.CheckHover(mousePos);
-                }
-            }
         }
 
         // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs

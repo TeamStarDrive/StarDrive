@@ -41,7 +41,6 @@ namespace Ship_Game
         private SlotModOperation Operation;
         public ShipModule ActiveModule;
         private ModuleOrientation ActiveModState;
-        private Selector selector;
         private CategoryDropDown CategoryList;
         private ShieldBehaviorDropDown ShieldsBehaviorList;
         private HangarDesignationDropDown HangarOptionsList;

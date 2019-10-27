@@ -53,7 +53,7 @@ namespace Ship_Game
                 var design = serializer.Deserialize<FleetDesign>(info);
                 if (PlayerCanBuildFleet(design))
                 {
-                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt()));
+                    AddItemToSaveSL(info);
                 }
                 else
                 {
@@ -67,7 +67,7 @@ namespace Ship_Game
                 var design = serializer.Deserialize<FleetDesign>(info);
                 if (PlayerCanBuildFleet(design))
                 {
-                    SavesSL.AddItem(new FileData(info, info, info.NameNoExt())).AddSubItem(info);
+                    AddItemToSaveSL(info);
                 }
                 else
                 {

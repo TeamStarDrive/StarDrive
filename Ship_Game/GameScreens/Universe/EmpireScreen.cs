@@ -31,10 +31,6 @@ namespace Ship_Game
 
         private Rectangle eRect;
 
-        private float ClickDelay = 0.25f;
-
-        public float ClickTimer;
-
         private SortButton pop;
 
         private SortButton food;
@@ -47,7 +43,7 @@ namespace Ship_Game
 
         private Rectangle AutoButton;
 
-        private Planet SelectedPlanet;
+        public Planet SelectedPlanet { get; private set; }
 
 
         public EmpireScreen(GameScreen parent, EmpireUIOverlay empUI) : base(parent)
@@ -84,7 +80,7 @@ namespace Ship_Game
             }
             ColonySubMenu = new Submenu(eRect);
             ColoniesList = new ScrollList<ColoniesListItem>(ColonySubMenu, 80);
-            //if (!firstSort || pop.Ascending !=true)
+            ColoniesList.OnClick = OnColonyListItemClicked;
 
             foreach (Planet p in EmpireManager.Player.GetPlanets())
             {
@@ -358,26 +354,7 @@ namespace Ship_Game
                 TextCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(392), TextCursor, new Color(255, 239, 208));
             }
-            Color smallHighlight = TextColor;
-            smallHighlight.A = (byte)(TextColor.A / 2);
 
-            int i = ColoniesList.FirstVisibleIndex;
-            foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
-            {
-                var entry = (ColoniesListItem)e.item;
-                if (i % 2 == 0)
-                {
-                    batch.FillRectangle(entry.TotalEntrySize, smallHighlight);
-                }
-                if (entry.p == SelectedPlanet)
-                {
-                    batch.FillRectangle(entry.TotalEntrySize, TextColor);
-                }
-                entry.SetNewPos(eRect.X + 22, e.Y);
-                entry.Draw(batch);
-                batch.DrawRectangle(entry.TotalEntrySize, TextColor);
-                ++i;
-            }
             Color lineColor = new Color(118, 102, 67, 255);
             Vector2 topLeftSL = new Vector2(e1.SysNameRect.X, eRect.Y + 35);
             Vector2 botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
@@ -427,7 +404,7 @@ namespace Ship_Game
             batch.End();
         }
 
-        private void DrawPGSIcons(PlanetGridSquare pgs)
+        void DrawPGSIcons(PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
             {
@@ -502,10 +479,25 @@ namespace Ship_Game
             }
         }
 
+        
+        void OnColonyListItemClicked(ColoniesListItem item)
+        {
+            if (SelectedPlanet != item.p)
+            {
+                SelectedPlanet = item.p;
+                GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
+                SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
+            }
+
+            Empire.Universe.SelectedPlanet = SelectedPlanet;
+            Empire.Universe.ViewPlanet();
+            ExitScreen();
+        }
 
         public override bool HandleInput(InputState input)
         {
-            ColoniesList.HandleInput(input);
+            if (ColoniesList.HandleInput(input))
+                return true;
 
             HandleSortButton(input, pop, 2278, p => p.Population);
             HandleSortButton(input, food, 139, p => p.Food.NetIncome);
@@ -513,32 +505,6 @@ namespace Ship_Game
             HandleSortButton(input, res, 141, p => p.Res.NetIncome);
             HandleSortButton(input, res, 142, p => p.Money.NetRevenue);
 
-            foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
-            {
-                var entry = (ColoniesListItem)e.item;
-                entry.HandleInput(input, ScreenManager);
-                if (entry.TotalEntrySize.HitTest(MousePos) && input.LeftMouseClick)
-                {
-                    if (SelectedPlanet != entry.p)
-                    {
-                        GameAudio.AcceptClick();
-                        SelectedPlanet = entry.p;
-                        GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
-                        SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                    }
-                    if (ClickTimer >= ClickDelay || SelectedPlanet == null)
-                    {
-                        ClickTimer = 0f;
-                    }
-                    else
-                    {
-                        
-                        Empire.Universe.SelectedPlanet = SelectedPlanet;
-                        Empire.Universe.ViewPlanet();
-                        ExitScreen();
-                    }
-                }
-            }
             GovernorDropdown.HandleInput(input);
 
             SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
@@ -582,22 +548,10 @@ namespace Ship_Game
                 var entry = new ColoniesListItem(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 80, this);
                 ColoniesList.AddItem(entry);
             }
-            SelectedPlanet = ColoniesList.ItemAtTop<ColoniesListItem>().p;
+            SelectedPlanet = ColoniesList.ItemAtTop().p;
             GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
 
             SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-
-            foreach (ScrollList.Entry e in ColoniesList.VisibleEntries)
-            {
-                e.Get<ColoniesListItem>().SetNewPos(eRect.X + 22, e.Y);
-            }
-        }
-
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            ClickTimer += elapsedTime;
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
     }
 }

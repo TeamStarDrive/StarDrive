@@ -602,6 +602,11 @@ namespace Ship_Game
             return sb.ToString();
         }
 
+        void OnDiscussStatementClicked(DialogOptionListItem item)
+        {
+            Respond(item.Option);
+        }
+
         public override bool HandleInput(InputState input)
         {
             if (new Rectangle(TrustRect.X - (int)Fonts.Pirulen16.MeasureString("Trust").X, TrustRect.Y, (int)Fonts.Pirulen16.MeasureString("Trust").X + TrustRect.Width, 14).HitTest(input.CursorPosition))
@@ -648,6 +653,7 @@ namespace Ship_Game
                 if (Discuss != null && Discuss.HandleInput(input))
                 {
                     StatementsSL.Reset();
+                    StatementsSL.OnClick = OnDiscussStatementClicked;
                     dState = DialogState.Discuss;
                     foreach (StatementSet set in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
                     {
@@ -665,21 +671,13 @@ namespace Ship_Game
                         }
                     }
                 }
+
                 if (dState == DialogState.Discuss)
                 {
                     if (StatementsSL.HandleInput(input))
-                    {
-
-                    }
-                    foreach (DialogOption option in StatementsSL.AllItems<DialogOption>())
-                    {
-                        if (option.HandleInput(input) != null)
-                        {
-                            Respond(option);
-                            break;
-                        }
-                    }
+                        return true;
                 }
+                
                 if (dState == DialogState.Negotiate)
                 {
                     if ((!TheirOffer.IsBlank() || !OurOffer.IsBlank() || TheirOffer.Alliance) && SendOffer.HandleInput(input))
@@ -754,6 +752,7 @@ namespace Ship_Game
             }
             return base.HandleInput(input);
         }
+
 
         void HandleItemToOffer(InputState input, ScrollList<ItemToOffer> ours, ScrollList<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
         {
