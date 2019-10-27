@@ -267,7 +267,7 @@ namespace Ship_Game
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                 batch.DrawString(Fonts.Arial12Bold, Data.ExtraInfo, tCursor, Color.White);
 
-                DrawCancel(batch, Screen.Input, "Delete File");
+                DrawCancel(batch, "Delete File");
             }
         }
 

@@ -26,8 +26,7 @@ namespace Ship_Game
         private Menu1 LeftMenu;
         private Menu1 RightMenu;
         public Fleet SelectedFleet;
-        private ScrollList FleetSL;
-        private ScrollList ShipSL;
+        private ScrollList<FleetDesignShipListItem> ShipSL;
         private CloseButton Close;
         private BlueButton RequisitionForces;
         private BlueButton SaveDesign;
@@ -44,7 +43,7 @@ namespace Ship_Game
         private readonly Array<ToggleButton> OrdersButtons = new Array<ToggleButton>();
         private FloatSlider OperationalRadius;
         private SizeSlider SliderSize;
-        private Submenu SubShips;
+        public Submenu SubShips;
         private BatchRemovalCollection<Ship> AvailableShips = new BatchRemovalCollection<Ship>();
         private Vector3 CamPos = new Vector3(0f, 0f, 14000f);
         private readonly Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
@@ -375,6 +374,7 @@ namespace Ship_Game
                     rect.Key != FleetToEdit ? Color.Gray : Color.White);
                 m++;
             }
+
             if (FleetToEdit != -1)
             {
                 ShipDesigns.Draw(batch);
@@ -382,48 +382,8 @@ namespace Ship_Game
                 batch.FillRectangle(SubShips.Rect, new Color(0, 0, 0, 130));
                 SubShips.Draw(batch);
                 ShipSL.Draw(batch);
-                var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
-                foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
-                {
-                    bCursor.Y = e.Y;
-                    if (e.item is ModuleHeader header)
-                    {
-                        header.DrawWidth(ScreenManager, bCursor, 265);
-                    }
-                    else if (e.Hovered)
-                    {
-                        var ship = (Ship)e.item;
-                        bCursor.Y = e.Y;
-                        batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                        var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                        tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                        batch.DrawString(Fonts.Arial8Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                        e.DrawPlusEdit(batch);
-                    }
-                    else
-                    {
-                        var ship = (Ship)e.item;
-                        batch.Draw(ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                        var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                        batch.DrawString(Fonts.Arial12Bold, (!string.IsNullOrEmpty(ship.VanityName) ? ship.VanityName : ship.Name), tCursor, Color.White);
-                        tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                        if (SubShips.Tabs[0].Selected)
-                        {
-                            batch.DrawString(Fonts.Arial12Bold, ship.shipData.GetRole(), tCursor, Color.Orange);
-                        }
-                        else if (ship.System== null)
-                        {
-                            batch.DrawString(Fonts.Arial12Bold, "Deep Space", tCursor, Color.Orange);
-                        }
-                        else
-                        {
-                            batch.DrawString(Fonts.Arial12Bold, $"{ship.System.Name} system", tCursor, Color.Orange);
-                        }
-                        e.DrawPlusEdit(batch);
-                    }
-                }
             }
+
             EmpireUI.Draw(batch);
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
             {
@@ -808,6 +768,16 @@ namespace Ship_Game
             }
         }
 
+        void OnDesignShipItemClicked(FleetDesignShipListItem item)
+        {
+            if (FleetToEdit != -1 && item.Ship != null)
+            {
+                ActiveShipDesign = item.Ship;
+                SelectedNodeList.Clear();
+                SelectedSquad = null;
+            }
+        }
+
         public override bool HandleInput(InputState input)
         {
             if (Close.HandleInput(input))
@@ -867,9 +837,7 @@ namespace Ship_Game
             {
                 SubShips.HandleInput(input);
                 if (ShipSL.HandleInput(input))
-                {
                     return true;
-                }
             }
             if(SelectedNodeList.Count >0 && Input.RightMouseClick)
             {
@@ -986,7 +954,7 @@ namespace Ship_Game
                         
                         if (SubShips.Tabs[1].Selected)
                         {
-                            ShipSL.RemoveFirstIf<Ship>(ship => ship == ActiveShipDesign);
+                            ShipSL.RemoveFirstIf(item => item.Ship != null && item.Ship == ActiveShipDesign);
                         }
                         ActiveShipDesign = null;
                     }
@@ -1000,27 +968,7 @@ namespace Ship_Game
                     ActiveShipDesign = null;
                 }
             }
-            if (FleetToEdit != -1)
-            {
-                ScrollList.Entry[] items = ShipSL.AllExpandedEntries.ToArray();
-                foreach (ScrollList.Entry e in items)
-                {
-                    if (e.item is ModuleHeader header)
-                    {
-                        if (header.HandleInput(input, e))
-                            break;
-                    }
-                    else
-                    {
-                        if (!e.WasClicked(input))
-                            continue;
 
-                        ActiveShipDesign = e.item as Ship;
-                        SelectedNodeList.Clear();
-                        SelectedSquad = null;
-                    }
-                }
-            }
             HandleEdgeDetection(input);
             HandleSelectionBox(input);
             if (input.ScrollIn)
@@ -1425,7 +1373,6 @@ namespace Ship_Game
                 , titleRect.Y + titleRect.Height / 2f - Fonts.Laserian14.LineSpacing / 2f);
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
             LeftMenu = new Menu1(ScreenManager, leftRect, true);
-            FleetSL = new ScrollList(LeftMenu.subMenu, 40);
             int i = 0;
             foreach (KeyValuePair<int, Fleet> fleet in EmpireManager.Player.GetFleetsDict())
             {
@@ -1438,16 +1385,14 @@ namespace Ship_Game
             Rectangle shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
             RightMenu = new Menu1(shipDesignsRect);
             SubShips = new Submenu(shipDesignsRect);
-            ShipSL = new ScrollList(SubShips, 40);
+            ShipSL = new ScrollList<FleetDesignShipListItem>(SubShips, 40);
+            ShipSL.OnClick = OnDesignShipItemClicked;
             SubShips.AddTab("Designs");
             SubShips.AddTab("Owned");
             foreach (Ship ship in EmpireManager.Player.GetShips())
             {
-                if (ship.fleet != null || !ship.Active)
-                {
-                    continue;
-                }
-                AvailableShips.Add(ship);
+                if (ship.fleet == null && ship.Active)
+                    AvailableShips.Add(ship);
             }
             ResetLists();
             SelectedStuffRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 220, -13 + ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
@@ -1528,15 +1473,17 @@ namespace Ship_Game
             SliderSize.SetAmount(0.5f);
             SliderSize.Tip_ID = 14;
             StarField = new StarField(this);
-            //bg = new Background();
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
             using (SelectedFleet.Ships.AcquireReadLock())
-            foreach (Ship ship in SelectedFleet.Ships)
             {
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                foreach (Ship ship in SelectedFleet.Ships)
+                {
+                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                }
             }
             base.LoadContent();
         }
+
 
         public void LoadData(FleetDesign data)
         {
@@ -1574,6 +1521,7 @@ namespace Ship_Game
                 }
                 AvailableShips.Add(ship);
             }
+
             ShipSL.Reset();
             if (SubShips.Tabs[0].Selected)
             {
@@ -1581,42 +1529,39 @@ namespace Ship_Game
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
                 {
                     Ship ship = ResourceManager.GetShipTemplate(shipname);
-                    if (roles.Contains(ship.DesignRoleName))                    
-                        continue;                    
-                    roles.Add(ship.DesignRoleName);
-
-                    ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
-                }
-                foreach (ScrollList.Entry e in ShipSL.AllEntries)
-                {
-                    foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
+                    if (!roles.Contains(ship.DesignRoleName))
                     {
-                        Ship ship = ResourceManager.ShipsDict[shipname];
-                        if (ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
-                            continue;
-                        e.AddSubItem(ship);
+                        roles.Add(ship.DesignRoleName);
+
+                        FleetDesignShipListItem header = ShipSL.AddItem(
+                            new FleetDesignShipListItem(this){ Header = new ModuleHeader(ship.DesignRoleName, 295) });
+
+                        foreach (string shipname2 in EmpireManager.Player.ShipsWeCanBuild)
+                        {
+                            Ship ship2 = ResourceManager.ShipsDict[shipname2];
+                            if (ship2.DesignRoleName == header.Header.Text)
+                                header.AddSubItem(new FleetDesignShipListItem(this){ Ship = ship });
+                        }
                     }
                 }
             }
             else if (SubShips.Tabs[1].Selected)
             {
-                Array<string> roles = new Array<string>();
+                var roles = new Array<string>();
                 foreach (Ship ship in AvailableShips)
                 {
-                    if (roles.Contains(ship.DesignRoleName) || ship.shipData.Role == ShipData.RoleName.troop)
+                    if (!roles.Contains(ship.DesignRoleName) && ship.shipData.Role != ShipData.RoleName.troop)
                     {
-                        continue;
-                    }
-                    roles.Add(ship.DesignRoleName);
-                    ShipSL.AddItem(new ModuleHeader(ship.DesignRoleName, 295));
-                }
-                foreach (ScrollList.Entry e in ShipSL.AllEntries)
-                {
-                    foreach (Ship ship in AvailableShips)
-                    {
-                        if (ship.shipData.Role == ShipData.RoleName.troop || ship.DesignRoleName != (e.item as ModuleHeader)?.Text)
-                            continue;
-                        e.AddSubItem(ship);
+                        roles.Add(ship.DesignRoleName);
+
+                        FleetDesignShipListItem header = ShipSL.AddItem(
+                            new FleetDesignShipListItem(this){ Header = new ModuleHeader(ship.DesignRoleName, 295) });
+
+                        foreach (Ship ship2 in AvailableShips)
+                        {
+                            if (ship2.shipData.Role != ShipData.RoleName.troop && ship2.DesignRoleName == header.Header.Text)
+                                header.AddSubItem(new FleetDesignShipListItem(this){ Ship = ship2 });
+                        }
                     }
                 }
             }

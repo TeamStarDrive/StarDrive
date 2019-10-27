@@ -20,10 +20,10 @@ namespace Ship_Game
         Ship RefitTo;
         DanButton ConfirmRefit;
 
-        public RefitToWindow(ShipListScreen screen, ShipListScreenEntry entry) : base(screen)
+        public RefitToWindow(ShipListScreen screen, ShipListScreenItem item) : base(screen)
         {
             Screen = screen;
-            ShipToRefit = entry.ship;
+            ShipToRefit = item.ship;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;

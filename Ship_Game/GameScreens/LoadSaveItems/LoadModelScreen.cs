@@ -14,23 +14,77 @@ namespace Ship_Game
 
     public sealed class LoadModelScreen : GameScreen
     {
-        private ShipToolScreen screen;
-        //private MainMenuScreen mmscreen;
-        //private Submenu subSave;
-        private Rectangle Window;
-        private Menu1 SaveMenu;
-        private Submenu AllSaves;
-        private Vector2 TitlePosition;
-        private ScrollList SavesSL;
-        private Selector selector;
-        private FileInfo activeFile;
-
-        //private float transitionElapsedTime;
+        ShipToolScreen Screen;
+        Rectangle Window;
+        Menu1 SaveMenu;
+        Submenu AllSaves;
+        ScrollList<LoadModelListItem> SavesSL;
+        FileInfo activeFile;
 
         public LoadModelScreen(ShipToolScreen screen) : base(screen)
         {
-            this.screen = screen;
+            Screen = screen;
             IsPopup = true;
+        }
+
+        class LoadModelListItem : ScrollList<LoadModelListItem>.Entry
+        {
+            public ModuleHeader Header;
+            public ModelData Model;
+            public override void Draw(SpriteBatch batch)
+            {
+                if (Header != null)
+                {
+                    Header.Pos = Pos;
+                    Header.Draw(batch);
+                }
+                else if (Model != null)
+                {
+                    batch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
+                    new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+                    var tCursor = new Vector2(X + 40f, Y + 3f);
+                    batch.DrawString(Fonts.Arial20Bold, Model.Name, tCursor, Color.Orange);
+                }
+            }
+        }
+
+        public override void LoadContent()
+        {
+            Window = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
+            var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
+            var scrollList = new Rectangle(sub.X, sub.Y, sub.Width, Window.Height - 45);
+
+            SaveMenu = new Menu1(Window);
+            AllSaves = new Submenu(scrollList);
+            AllSaves.AddTab("Load Model");
+
+            SavesSL = new ScrollList<LoadModelListItem>(AllSaves, 55);
+            SavesSL.OnClick = OnLoadModelClicked;
+            SavesSL.AddItem(new LoadModelListItem{ Header = new ModuleHeader("XNB Models") } );
+            SavesSL.AddItem(new LoadModelListItem{ Header = new ModuleHeader("OBJ Models") } );
+            SavesSL.AddItem(new LoadModelListItem{ Header = new ModuleHeader("FBX Models") } );
+
+            Array<FileInfo> xnbModels = ResourceManager.GetAllXnbModelFiles("Model/Ships");
+            FileInfo[] objModels = ResourceManager.GatherFilesUnified("Model/Ships", "obj");
+            FileInfo[] fbxModels = ResourceManager.GatherFilesUnified("Model/Ships", "fbx");
+            foreach (FileInfo file in xnbModels)
+            {
+                SavesSL.EntryAt(0).AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+            }
+            foreach (FileInfo file in objModels)
+            {
+                SavesSL.EntryAt(1).AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+            }
+            foreach (FileInfo file in fbxModels)
+            {
+                SavesSL.EntryAt(2).AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+            }
+            base.LoadContent();
+        }
+
+        void OnLoadModelClicked(LoadModelListItem item)
+        {
+            LoadModel(item.Model);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -38,25 +92,8 @@ namespace Ship_Game
             batch.Begin();
             SaveMenu.Draw();
             AllSaves.Draw(batch);
-            var bCursor = new Vector2(AllSaves.X + 20, AllSaves.Y + 20);
-            foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
-            {
-                bCursor.Y = e.Y;
-                if (e.item is ModuleHeader header)
-                {
-                    header.Draw(ScreenManager, bCursor);
-                }
-                else if (e.item is ModelData data)
-                {
-                    batch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
-                        new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    batch.DrawString(Fonts.Arial20Bold, data.Name, tCursor, Color.Orange);
-                }
-            }
             SavesSL.Draw(batch);
             base.Draw(batch);
-            selector?.Draw(batch);
             batch.End();
         }
 
@@ -64,7 +101,7 @@ namespace Ship_Game
         {
             if (activeFile != null)
             {
-                screen?.ExitScreen();
+                Screen?.ExitScreen();
                 ScreenManager.AddScreen(new LoadUniverseScreen(activeFile));
             }
             else
@@ -76,41 +113,22 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            selector = null;
             if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
+                return true;
             }
-
-            SavesSL.HandleInput(input);
-            foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)
-            {
-                if (!e.CheckHover(input.CursorPosition))
-                    continue;
-
-                selector = e.CreateSelector();
-                if (!input.InGameSelect)
-                    continue;
-                if (!(e.item is ModuleHeader moduleHeader) || !moduleHeader.HandleInput(input, e))
-                {
-                    var modelData = e.item as ModelData;
-                    if (modelData == null)
-                        continue;
-                    LoadModel(modelData);
-                }
-                else return true; // scrollList entry clicked
-            }
-            return base.HandleInput(input);
+            return SavesSL.HandleInput(input) && base.HandleInput(input);
         }
 
-        private bool LoadModel(ModelData modelData)
+        bool LoadModel(ModelData modelData)
         {
             try
             {
                 GameAudio.AcceptClick();
 
                 string relativePath = modelData.FileInfo.RelPath().Replace("Content\\", "");
-                screen.LoadModel(relativePath);
+                Screen.LoadModel(relativePath);
 
                 activeFile = modelData.FileInfo;
                 return true;
@@ -119,40 +137,6 @@ namespace Ship_Game
             {
                 return false;
             }
-        }
-
-        public override void LoadContent()
-        {
-            Window = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
-            var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
-            var scrollList = new Rectangle(sub.X, sub.Y, sub.Width, Window.Height - 45);
-
-            SaveMenu = new Menu1(Window);
-            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
-            AllSaves = new Submenu(scrollList);
-            AllSaves.AddTab("Load Model");
-
-            SavesSL = new ScrollList(AllSaves, 55);
-            SavesSL.AddItem(new ModuleHeader("XNB Models"));
-            SavesSL.AddItem(new ModuleHeader("OBJ Models"));
-            SavesSL.AddItem(new ModuleHeader("FBX Models"));
-
-            Array<FileInfo> xnbModels = ResourceManager.GetAllXnbModelFiles("Model/Ships");
-            FileInfo[] objModels = ResourceManager.GatherFilesUnified("Model/Ships", "obj");
-            FileInfo[] fbxModels = ResourceManager.GatherFilesUnified("Model/Ships", "fbx");
-            foreach (FileInfo file in xnbModels)
-            {
-                SavesSL.EntryAt(0).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
-            }
-            foreach (FileInfo file in objModels)
-            {
-                SavesSL.EntryAt(1).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
-            }
-            foreach (FileInfo file in fbxModels)
-            {
-                SavesSL.EntryAt(2).AddSubItem(new ModelData { Name = file.Name, FileInfo = file });
-            }
-            base.LoadContent();
         }
     }
 }

@@ -203,9 +203,9 @@ namespace Ship_Game
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float mechanicalBoardingDefense = HoveredShip.MechanicalBoardingDefense + HoveredShip.TroopBoardingDefense;
                 spriteBatch.DrawString(arial12Bold, mechanicalBoardingDefense.ToString(fmt), defPos, Color.White);
-                text = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
+                text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
                 Vector2 ShipStatus = new Vector2(Selector.Rect.X + Selector.Rect.Width - 170, Housing.Y + 68);
-                text = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(HoveredShip), 155f);
+                text = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(HoveredShip), 155f);
                 HelperFunctions.ClampVectorToInt(ref ShipStatus);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial10, text, ShipStatus, tColor);
                 ShipStatus.Y = ShipStatus.Y + Fonts.Arial12Bold.MeasureString(text).Y;

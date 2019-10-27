@@ -18,7 +18,7 @@ namespace Ship_Game
 
         private Ship SelectedShip;
 
-        private ScrollList ShipSL;
+        private ScrollList<ShipListScreenItem> ShipSL;
 
         public EmpireUIOverlay empUI;
 
@@ -81,7 +81,7 @@ namespace Ship_Game
                 eRect.Height = eRect.Height - 1;
             }
             ShipSubMenu = new Submenu(eRect);
-            ShipSL = new ScrollList(ShipSubMenu, 30);
+            ShipSL = new ScrollList<ShipListScreenItem>(ShipSubMenu, 30);
 
             Add(new UICheckBox(this, TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
                 () => PlayerDesignsOnly,
@@ -132,7 +132,7 @@ namespace Ship_Game
 
             if (ShipSL.NumExpandedEntries > 0)
             {
-                var e1 = ShipSL.ItemAtTop<ShipListScreenEntry>();
+                ShipListScreenItem e1 = ShipSL.ItemAtTop();
                 var cursor = new Vector2(e1.SysNameRect.CenterX() - Fonts.Arial20Bold.TextWidth(192) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
                 SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(192), Fonts.Arial20Bold.LineSpacing);
                 
@@ -149,14 +149,12 @@ namespace Ship_Game
                 cursor = new Vector2(e1.OrdersRect.CenterX() - Fonts.Arial20Bold.TextWidth(195) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 30);
                 SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(195), Fonts.Arial20Bold.LineSpacing);
                 SortOrder.Draw(ScreenManager, Fonts.Arial20Bold);
-                //base.batch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
 
                 STRIconRect = new Rectangle(e1.STRRect.X + e1.STRRect.Width / 2 - 6, eRect.Y - 18 + 30, 18, 18);
                 SB_STR.rect = STRIconRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), STRIconRect, Color.White);                    
                 MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, eRect.Y - 20 + 30, 21, 20);
                 Maint.rect = MaintRect;
-                //this.Maint.Draw(base.ScreenManager, null);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), MaintRect, Color.White);
                 TroopRect = new Rectangle(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, eRect.Y - 22 + 30, 18, 22);
                 SB_Troop.rect = TroopRect;
@@ -172,15 +170,14 @@ namespace Ship_Game
                 HelperFunctions.ClampVectorToInt(ref cursor);
                 batch.DrawString(Fonts.Arial12Bold, "STL", cursor, new Color(255, 239, 208));
             
-                foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
+                foreach (ShipListScreenItem entry in ShipSL.VisibleEntries)
                 {
-                    var entry = e.Get<ShipListScreenEntry>();
                     if (entry.Selected)
                     {
                         batch.FillRectangle(entry.TotalEntrySize, Color.DarkGreen);
                     }
-                    entry.SetNewPos(eRect.X + 22, e.Y);
-                    entry.Draw(ScreenManager, GameTime);
+                    entry.SetNewPos(eRect.X + 22, (int)entry.Y);
+                    entry.Draw(batch, GameTime);
                     batch.DrawRectangle(entry.TotalEntrySize, textColor);
                 }
 
@@ -241,7 +238,7 @@ namespace Ship_Game
             int i = ShipSL.FirstVisibleIndex;
             foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
-                var entry = e.Get<ShipListScreenEntry>();
+                var entry = e.Get<ShipListScreenItem>();
                 entry.HandleInput(input);
                 if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
@@ -264,17 +261,17 @@ namespace Ship_Game
                         GameAudio.AcceptClick();
                         if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
                         {
-                            foreach (ShipListScreenEntry slEntry in ShipSL.AllExpandedItems<ShipListScreenEntry>())
+                            foreach (ShipListScreenItem slEntry in ShipSL.AllExpandedItems<ShipListScreenItem>())
                                 slEntry.Selected = false;
                         }
                         if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && SelectedShip != null)
                         {
                             if (i >= CurrentLine)
                                 for (int l = CurrentLine; l <= i; l++)
-                                    ShipSL.ItemAt<ShipListScreenEntry>(l).Selected = true;
+                                    ShipSL.ItemAt<ShipListScreenItem>(l).Selected = true;
                             else
                                 for (int l = i; l <= CurrentLine; l++)
-                                    ShipSL.ItemAt<ShipListScreenEntry>(l).Selected = true;
+                                    ShipSL.ItemAt<ShipListScreenItem>(l).Selected = true;
                         }
 
                         SelectedShip = entry.ship;
@@ -285,7 +282,7 @@ namespace Ship_Game
                 ++i;
             }
 
-            void Sort<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
+            void Sort<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
             {
                 GameAudio.AcceptClick();
                 button.Ascending = !button.Ascending;
@@ -308,7 +305,7 @@ namespace Ship_Game
             if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.ship.GetStrength());
             else if (SB_STR.Hover) ToolTip.CreateTooltip("Indicates Ship Strength; sortable");
 
-            void SortAndReset<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
+            void SortAndReset<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
             {
                 GameAudio.BlipClick();
                 button.Ascending = !button.Ascending;
@@ -319,7 +316,7 @@ namespace Ship_Game
 
             if (SortName.HandleInput(input))   SortAndReset(SortName,  sl => sl.ship.VanityName);
             if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.ship.shipData.Role);
-            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenEntry.GetStatusText(sl.ship));
+            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenItem.GetStatusText(sl.ship));
             if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.ship.SystemName);
 
             if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
@@ -336,7 +333,7 @@ namespace Ship_Game
                     Empire.Universe.SelectedSystem = null;
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip = false;
-                    foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                    foreach (ShipListScreenItem sel in ShipSL.AllItems<ShipListScreenItem>())
                         if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
@@ -365,7 +362,7 @@ namespace Ship_Game
                     Empire.Universe.SelectedSystem = null;
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip   = false;
-                    foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                    foreach (ShipListScreenItem sel in ShipSL.AllItems<ShipListScreenItem>())
                         if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
@@ -418,7 +415,7 @@ namespace Ship_Game
             {
                 if (ShouldAddForCategory(ship, category))
                 {
-                    ShipSL.AddItem(new ShipListScreenEntry(ship, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
+                    ShipSL.AddItem(new ShipListScreenItem(ship, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
                 }
             }
             SelectedShip = null;
@@ -429,15 +426,15 @@ namespace Ship_Game
         {
             foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
             {
-                var entry = (ShipListScreenEntry)e.item;
+                var entry = (ShipListScreenItem)e.item;
                 entry.SetNewPos(eRect.X + 22, e.Y);
             }
         }
 
         public void ResetStatus()
         {
-            foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
-                sel.Status_Text = ShipListScreenEntry.GetStatusText(sel.ship);
+            foreach (ShipListScreenItem sel in ShipSL.AllItems<ShipListScreenItem>())
+                sel.Status_Text = ShipListScreenItem.GetStatusText(sel.ship);
         }
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
