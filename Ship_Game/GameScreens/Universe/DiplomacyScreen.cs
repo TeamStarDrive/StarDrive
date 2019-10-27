@@ -1,11 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
-using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Ship_Game.GameScreens;
 
@@ -16,7 +13,6 @@ namespace Ship_Game
         Rectangle Portrait;
         Vector2 TextCursor;
         DialogState dState;
-        Menu2 PlayerMenu;
 
         readonly Array<GenericButton> GenericButtons = new Array<GenericButton>();
 
@@ -687,12 +683,12 @@ namespace Ship_Game
                         TheirOffer = new Offer { Them = Them };
                     }
 
-                    OfferTextSL.HandleInput(input);
-                    OurItemsSL.HandleInput(input);
-                    TheirItemsSL.HandleInput(input);
-
-                    HandleItemToOffer(input, OurItemsSL, TheirItemsSL, OurOffer, TheirOffer);
-                    HandleItemToOffer(input, TheirItemsSL, OurItemsSL, TheirOffer, OurOffer);
+                    if (OfferTextSL.HandleInput(input))
+                        return true;
+                    if (OurItemsSL.HandleInput(input))
+                        return true;
+                    if (TheirItemsSL.HandleInput(input))
+                        return true;
 
                     if (ap.HandleInput(input))
                     {
@@ -753,20 +749,9 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-
-        void HandleItemToOffer(InputState input, ScrollList<ItemToOffer> ours, ScrollList<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
+        void OnItemToOfferClicked(ItemToOffer ourItem, ScrollList<ItemToOffer> theirOffers, Offer ourOffer, Offer theirOffer)
         {
-            // Note: ItemToOffer.HandleInput CAN modify OurItemsSL entries
-            //       so we need to grab a copy
-            ItemToOffer[] entries = ours.AllExpandedEntries.ToArray();
-            foreach (ItemToOffer item in entries)
-            {
-                if (item.HandleInput(input))
-                {
-                    ProcessResponse(item, item.Response, theirs, ourOffer, theirOffer);
-                    return;
-                }
-            }
+            ProcessResponse(ourItem, ourItem.Response, theirOffers, ourOffer, theirOffer);
         }
 
         static ItemToOffer FindItemToOffer(ScrollList<ItemToOffer> items, string response)
@@ -833,7 +818,6 @@ namespace Ship_Game
         public override void LoadContent()
         {
             BridgeRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
-            PlayerMenu = new Menu2(new Rectangle(ScreenWidth / 2 - 659, 0, 1318, 757));
             Portrait = new Rectangle(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
             
             var cursor = new Vector2(Portrait.X + Portrait.Width - 85, Portrait.Y + 140);
@@ -869,11 +853,6 @@ namespace Ship_Game
                 R.Y -= (R.Y + R.Height - ScreenHeight + 2);
             }
 
-            Rectangle blerdybloo = R;
-            blerdybloo.Height -= 40;
-            var ot = new Submenu(blerdybloo);
-
-            OfferTextSL = new ScrollList<TextListItem>(ot, Fonts.Consolas18.LineSpacing + 2, true);
             Attitude_Pleading_Rect   = new Rectangle(R.X + 45,       R.Y + R.Height - 48, 180, 48);
             Attitude_Respectful_Rect = new Rectangle(R.X + 250 + 5,  R.Y + R.Height - 48, 180, 48);
             Attitude_Threaten_Rect   = new Rectangle(R.X + 450 + 15, R.Y + R.Height - 48, 180, 48);
@@ -893,11 +872,17 @@ namespace Ship_Game
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
             
-            TheirItemsSL = new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5, true);
+            
+            var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 40));
+            OfferTextSL = new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2, true);
+            StatementsSL = new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2, true);
             OurItemsSL   = new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5, true);
-            StatementsSL = new ScrollList<DialogOptionListItem>(new Submenu(blerdybloo), Fonts.Consolas18.LineSpacing + 2, true);
+            TheirItemsSL = new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5, true);
+            
+            OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
+            TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);
+            
             TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
-
             PlayRaceVideoAndMusic();
         }
 

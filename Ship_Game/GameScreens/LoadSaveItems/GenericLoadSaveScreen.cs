@@ -93,7 +93,6 @@ namespace Ship_Game
             int iAT = SavesSL.FirstVisibleIndex;
             LoadContent();
             SavesSL.FirstVisibleIndex = iAT;
-
         }
 
         public override void Draw(SpriteBatch batch)

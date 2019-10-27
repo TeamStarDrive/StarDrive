@@ -1,35 +1,82 @@
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-	public sealed class SelectedShipEntry : ScrollList<SelectedShipEntry>.Entry
-	{
-		public Array<SkinnableButton> ShipButtons = new Array<SkinnableButton>();
+    public sealed class SelectedShipEntry : ScrollList<SelectedShipEntry>.Entry
+    {
+        readonly ShipListInfoUIElement ShipListInfo;
+        public Array<SkinnableButton> ShipButtons = new Array<SkinnableButton>();
+        public Action<SkinnableButton> OnShipButtonClick;
 
-	    public void Update(Vector2 position)
-		{
-			Vector2 cursor = position;
-			foreach (SkinnableButton button in ShipButtons)
-			{
-				button.r.X = (int)cursor.X;
-				button.r.Y = (int)cursor.Y;
-				cursor.X = cursor.X + 24f;
-			}
-		}
+        public SelectedShipEntry(ShipListInfoUIElement parent, Action<SkinnableButton> onShipBtnClick)
+        {
+            ShipListInfo = parent;
+            OnShipButtonClick = onShipBtnClick;
+        }
 
-	    public bool AllButtonsActive
-	    {
+        public override void PerformLayout()
+        {
+            Vector2 cursor = Pos;
+            foreach (SkinnableButton button in ShipButtons)
+            {
+                button.r.X = (int)cursor.X;
+                button.r.Y = (int)cursor.Y;
+                cursor.X += 24f;
+            }
+            base.PerformLayout();
+        }
+
+        public bool AllButtonsActive
+        {
             get
             {
                 foreach (SkinnableButton button in ShipButtons)
                 {
-                    if (((Ship)button.ReferenceObject).Active)
-                        continue;
-                    return false;
+                    if (((Ship)button.ReferenceObject).Active == false)
+                        return false;
                 }
                 return true;
             }
-	    }
-	}
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            foreach (SkinnableButton button in ShipButtons)
+            {
+                if (!button.r.HitTest(input.CursorPosition))
+                {
+                    button.Hover = false;
+                }
+                else
+                {
+                    button.Hover = true;
+
+                    if (ShipListInfo.HoveredShipLast != (Ship)button.ReferenceObject)
+                        GameAudio.ButtonMouseOver();
+                    ShipListInfo.HoveredShip = (Ship)button.ReferenceObject;
+
+                    if (input.InGameSelect)
+                    {
+                        OnShipButtonClick(button);
+                        return true;
+                    }
+                }
+            }
+            return base.HandleInput(input);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            base.Draw(batch);
+            
+            foreach (SkinnableButton button in ShipButtons)
+            {
+                button.Draw(batch);
+            }
+        }
+    }
 }

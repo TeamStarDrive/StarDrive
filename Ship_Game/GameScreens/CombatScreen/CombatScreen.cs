@@ -248,7 +248,7 @@ namespace Ship_Game
 
             assetsUI.Draw(gameTime);
 
-            if (OrbitSL.DraggedEntry != null)
+            if (IsDraggingTroop)
             {
                 foreach (PlanetGridSquare pgs in ReversedList)
                 {
@@ -494,10 +494,17 @@ namespace Ship_Game
             TryLandTroop(item, where: null);
         }
 
+        bool IsDraggingTroop;
+
         void OnTroopItemDrag(CombatScreenOrbitListItem item, DragEvent evt)
         {
-            if (evt == DragEvent.End)
+            if (evt == DragEvent.Begin)
             {
+                IsDraggingTroop = true;
+            }
+            else if (evt == DragEvent.End)
+            {
+                IsDraggingTroop = false;
                 PlanetGridSquare toLand = p.TilesList.Find(pgs => pgs.NoTroopsOnTile && !pgs.CombatBuildingOnTile);
                 TryLandTroop(item, toLand);
             }

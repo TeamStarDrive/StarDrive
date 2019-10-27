@@ -104,7 +104,7 @@ namespace Ship_Game
 
             if (PlanetSL.NumEntries > 0)
             {
-                PlanetListScreenItem e1 = PlanetSL.ItemAtTop();
+                PlanetListScreenItem e1 = PlanetSL.FirstItem;
                 var textCursor = new Vector2(e1.SysNameRect.X + e1.SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 
                 sb_Sys.Update(textCursor);
@@ -286,7 +286,7 @@ namespace Ship_Game
                 ResetButton(sb_Owned, p => p.GetOwnerName());
             }
 
-            SelectedPlanet = PlanetSL.NumEntries > 0 ? PlanetSL.ItemAtTop().planet : null;
+            SelectedPlanet = PlanetSL.NumEntries > 0 ? PlanetSL.FirstItem.planet : null;
         }
     }
 }
