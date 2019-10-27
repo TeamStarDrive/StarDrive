@@ -69,15 +69,15 @@ namespace Ship_Game
             FileInfo[] fbxModels = ResourceManager.GatherFilesUnified("Model/Ships", "fbx");
             foreach (FileInfo file in xnbModels)
             {
-                SavesSL.EntryAt(0).AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+                SavesSL[0].AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
             }
             foreach (FileInfo file in objModels)
             {
-                SavesSL.EntryAt(1).AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+                SavesSL[1].AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
             }
             foreach (FileInfo file in fbxModels)
             {
-                SavesSL.EntryAt(2).AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+                SavesSL[2].AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
             }
             base.LoadContent();
         }

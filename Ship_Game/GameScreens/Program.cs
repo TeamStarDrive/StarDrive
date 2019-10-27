@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     internal static class Program
     {
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             GraphicsDeviceManager graphicsMgr = StarDriveGame.Instance?.Graphics;
             if (graphicsMgr != null && graphicsMgr.IsFullScreen)
@@ -26,7 +26,7 @@ namespace Ship_Game
         }
 
         [STAThread]
-        private static void Main(string[] args)
+        static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             Thread.CurrentThread.CurrentCulture   = CultureInfo.InvariantCulture;
@@ -40,8 +40,9 @@ namespace Ship_Game
                 {
                     if (!instance.UniqueInstance)
                     {
-                        MessageBox.Show("Another instance of SD-BlackBox is already running!");
-                        return;
+                        // TODO: Uncomment this
+                        //MessageBox.Show("Another instance of SD-BlackBox is already running!");
+                        //return;
                     }
 
                     using (var game = new StarDriveGame())

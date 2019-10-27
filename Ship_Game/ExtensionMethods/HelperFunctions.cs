@@ -252,7 +252,8 @@ namespace Ship_Game
             string parsed = ParseText(font, text, maxLineWidth);
             list.Reset();
             string[] lines = parsed.Split('\n');
-            foreach (string line in lines) list.AddItem(new TextListItem(line));
+            TextListItem[] textItems = lines.Select(line => new TextListItem(line, font));
+            list.SetItems(textItems);
         }
 
         public static int RoundTo(float amount1, int roundTo)

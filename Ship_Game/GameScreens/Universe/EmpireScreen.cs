@@ -92,7 +92,7 @@ namespace Ship_Game
             prod = new SortButton(eui.empire.data.ESSort, "prod");
             res = new SortButton(eui.empire.data.ESSort, "res");
             money = new SortButton(eui.empire.data.ESSort, "money");
-            SelectedPlanet = ColoniesList.ItemAtTop().p;
+            SelectedPlanet = ColoniesList.FirstItem.p;
             GovernorDropdown = new DropOptions<int>(this, new Rectangle(0, 0, 100, 18));
             GovernorDropdown.AddOption("--", 1);
             GovernorDropdown.AddOption(Localizer.Token(4064), 0);
@@ -123,7 +123,7 @@ namespace Ship_Game
             EMenu.Draw(batch);
             Color TextColor = new Color(118, 102, 67, 50);
             ColoniesList.Draw(batch);
-            ColoniesListItem e1 = ColoniesList.ItemAtTop();
+            ColoniesListItem e1 = ColoniesList.FirstItem;
             Rectangle PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.3f), ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - eRect.Y - eRect.Height - 22);
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
             Rectangle PlanetIconRect = new Rectangle(PlanetInfoRect.X + 10, PlanetInfoRect.Y + PlanetInfoRect.Height / 2 - iconSize / 2, iconSize, iconSize);
@@ -332,7 +332,7 @@ namespace Ship_Game
 
             if (ColoniesList.NumEntries > 0)
             {
-                ColoniesListItem entry = ColoniesList.ItemAtTop();
+                ColoniesListItem entry = ColoniesList.FirstItem;
                 Vector2 TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, new Color(255, 239, 208));
                 TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
@@ -548,7 +548,7 @@ namespace Ship_Game
                 var entry = new ColoniesListItem(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 80, this);
                 ColoniesList.AddItem(entry);
             }
-            SelectedPlanet = ColoniesList.ItemAtTop().p;
+            SelectedPlanet = ColoniesList.FirstItem.p;
             GovernorDropdown.ActiveIndex = ColonyScreen.GetIndex(SelectedPlanet);
 
             SelectedPlanet.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;

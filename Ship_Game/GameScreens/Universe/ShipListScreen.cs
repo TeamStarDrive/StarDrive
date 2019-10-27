@@ -125,9 +125,9 @@ namespace Ship_Game
 
             base.Draw(batch);
 
-            if (ShipSL.NumExpandedEntries > 0)
+            if (ShipSL.NumEntries > 0)
             {
-                ShipListScreenItem e1 = ShipSL.ItemAtTop();
+                ShipListScreenItem e1 = ShipSL.FirstItem;
                 var cursor = new Vector2(e1.SysNameRect.CenterX() - Fonts.Arial20Bold.TextWidth(192) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
                 SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(192), Fonts.Arial20Bold.LineSpacing);
                 
@@ -164,17 +164,6 @@ namespace Ship_Game
                 cursor = new Vector2(e1.STLRect.X + e1.STLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref cursor);
                 batch.DrawString(Fonts.Arial12Bold, "STL", cursor, new Color(255, 239, 208));
-            
-                foreach (ShipListScreenItem entry in ShipSL.VisibleEntries)
-                {
-                    if (entry.Selected)
-                    {
-                        batch.FillRectangle(entry.TotalEntrySize, Color.DarkGreen);
-                    }
-                    entry.SetNewPos(eRect.X + 22, (int)entry.Y);
-                    entry.Draw(batch, GameTime);
-                    batch.DrawRectangle(entry.TotalEntrySize, textColor);
-                }
 
                 void DrawLine(int aX, int aY, int bX, int bY)
                 {

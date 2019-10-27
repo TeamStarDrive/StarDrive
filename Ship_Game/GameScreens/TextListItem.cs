@@ -18,13 +18,14 @@ namespace Ship_Game
             TextLabel = new UILabel(text, font);
         }
 
-        public TextListItem(string text) : this(text, Fonts.Consolas18)
+        public override void PerformLayout()
         {
+            TextLabel.Rect = Rect;
+            base.PerformLayout();
         }
 
         public override void Update(float deltaTime)
         {
-            TextLabel.Rect = Rect;
             base.Update(deltaTime);
         }
 
