@@ -363,7 +363,6 @@ namespace Ship_Game
         public T[] VisibleEntries         => CopyVisibleEntries(Entries);
         public T[] VisibleExpandedEntries => CopyVisibleEntries(ExpandedEntries);
         public Array<T> AllItems()         => new Array<T>(Entries);
-        public Array<T> AllExpandedItems() => new Array<T>(ExpandedEntries);
 
 
         public void Reset()
@@ -548,10 +547,11 @@ namespace Ship_Game
                     ClickTimer += 0.0166666675f;
                     if (ClickTimer > TimerDelay)
                     {
+                        Vector2 cursor = input.CursorPosition;
                         for (int i = FirstVisibleIndex; i < ExpandedEntries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
                         {
                             T e = ExpandedEntries[i];
-                            if (e.CheckHover(input))
+                            if (e.Rect.HitTest(cursor))
                             {
                                 DraggedEntry = e;
                                 DraggedOffset = e.TopLeft - input.CursorPosition;
@@ -575,11 +575,12 @@ namespace Ship_Game
             if (DraggedEntry == null || !input.LeftMouseDown)
                 return;
 
+            Vector2 cursor = input.CursorPosition;
             int dragged = Entries.FirstIndexOf(e => e.Rect == DraggedEntry.Rect);
 
             for (int i = FirstVisibleIndex; i < Entries.Count && i < FirstVisibleIndex + MaxVisibleEntries; i++)
             {
-                if (Entries[i].CheckHover(input) && dragged != -1)
+                if (Entries[i].Rect.HitTest(cursor) && dragged != -1)
                 {
                     if (i < dragged)
                     {
@@ -739,6 +740,7 @@ namespace Ship_Game
 
             public void AddSubItem(T entry)
             {
+                entry.List = List;
                 SubEntries.Add(entry);
             }
 
@@ -790,31 +792,9 @@ namespace Ship_Game
                 List.UpdateListElements();
             }
 
-            public bool WasClicked(InputState input)
-            {
-                return input.LeftMouseClick && CheckHover(input);
-            }
-
             public void SetUnclickable()
             {
                 Rect = new Rectangle(-500, -500, 0, 0);
-            }
-
-            public bool WasUpHovered(InputState input)     => Up.HitTest(input.CursorPosition);
-            public bool WasDownHovered(InputState input)   => Down.HitTest(input.CursorPosition);
-            public bool WasCancelHovered(InputState input) => Cancel.HitTest(input.CursorPosition);
-            public bool WasApplyHovered(InputState input)  => Apply.HitTest(input.CursorPosition);
-
-            public bool CheckHover(InputState input) => CheckHover(input.CursorPosition);
-            public bool CheckHover(Vector2 mousePos)
-            {
-                bool wasHovered = Hovered;
-                Hovered = Rect.HitTest(mousePos);
-
-                if (!wasHovered && Hovered)
-                    GameAudio.ButtonMouseOver();
-
-                return Hovered;
             }
 
             public void DrawCancel(SpriteBatch batch, string toolTipText = null)
@@ -823,7 +803,7 @@ namespace Ship_Game
                 if (Hovered)
                 {
                     batch.Draw(s.QueueDeleteHover1, Cancel, Color.White);
-                    if (WasCancelHovered(GameBase.ScreenManager.input))
+                    if (CancelHover)
                     {
                         batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
                         if (toolTipText.NotEmpty())
@@ -905,11 +885,6 @@ namespace Ship_Game
                 }
 
                 return Hovered;
-            }
-
-            public override void Update(float deltaTime)
-            {
-                base.Update(deltaTime);
             }
 
             public override void Draw(SpriteBatch batch)

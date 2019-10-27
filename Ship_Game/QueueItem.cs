@@ -78,19 +78,19 @@ namespace Ship_Game
             {
                 int index = Planet.ConstructionQueue.IndexOf(this);
 
-                if (WasUpHovered(input))
+                if (UpHover)
                 {
                     ToolTip.CreateTooltip(63);
                     if (input.IsCtrlKeyDown) MoveToConstructionQueuePosition(0, index); // move to top
                     else                     SwapConstructionQueueItems(index - 1, index); // move up by one
                 }
-                else if (WasDownHovered(input))
+                else if (DownHover)
                 {
                     ToolTip.CreateTooltip(64);
                     if (input.IsCtrlKeyDown) MoveToConstructionQueuePosition(Planet.ConstructionQueue.Count-1, index); // move to bottom
                     else                     SwapConstructionQueueItems(index + 1, index); // move down by one
                 }
-                else if (WasApplyHovered(input))
+                else if (ApplyHover)
                 {
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
                     if (Planet.Construction.RushProduction(index, maxAmount))
@@ -98,7 +98,7 @@ namespace Ship_Game
                     else
                         GameAudio.NegativeClick();
                 }
-                else if (WasCancelHovered(input))
+                else if (CancelHover)
                 {
                     Planet.Construction.Cancel(this);
                     GameAudio.AcceptClick();
