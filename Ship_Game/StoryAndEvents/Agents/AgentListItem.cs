@@ -1,0 +1,63 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace Ship_Game
+{
+    public class AgentListItem : ScrollList<AgentListItem>.Entry
+    {
+        public Agent Agent;
+
+        public override void Draw(SpriteBatch batch)
+        {
+            SubTexture spy  = ResourceManager.Texture("UI/icon_spy");
+            SubTexture star = ResourceManager.Texture("UI/icon_star");
+
+            var r = new Rectangle((int)X, (int)Y, 25, 26);
+            batch.Draw(spy, r, Color.White);
+            var namecursor = new Vector2(r.X + 30, r.Y);
+
+            batch.DrawString(Fonts.Arial12Bold, Agent.Name, namecursor, Color.White);
+            namecursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(Agent.MissionNameIndex), namecursor, Color.Gray);
+
+            for (int j = 0; j < Agent.Level; j++)
+            {
+                var levelRect = new Rectangle((int)Right - 18 - 12 * j, (int)Y, 12, 11);
+                batch.Draw(star, levelRect, Color.White);
+            }
+
+            if (Agent.Mission != AgentMission.Defending)
+            {
+                if (Agent.TargetEmpire.NotEmpty() && Agent.Mission != AgentMission.Training &&
+                    Agent.Mission != AgentMission.Undercover)
+                {
+                    Vector2 targetCursor = namecursor;
+                    targetCursor.X += 75f;
+                    string mission = Localizer.Token(2199) + ": " +
+                                     EmpireManager.GetEmpireByName(Agent.TargetEmpire).data.Traits.Plural;
+                    batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
+                }
+                else if (Agent.TargetGUID != Guid.Empty && Agent.Mission == AgentMission.Undercover)
+                {
+                    Vector2 targetCursor = namecursor;
+                    targetCursor.X += 75f;
+                    string mission = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[Agent.TargetGUID].Name;
+                    batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
+                }
+
+                if (Agent.Mission != AgentMission.Undercover)
+                {
+                    Vector2 turnsCursor = namecursor;
+                    turnsCursor.X += 193f;
+                    string mission = Localizer.Token(2200) + ": " + Agent.TurnsRemaining;
+                    batch.DrawString(Fonts.Arial12, mission, turnsCursor, Color.Gray);
+                }
+            }
+        }
+    }
+}

@@ -216,7 +216,7 @@ namespace Ship_Game.Ships
 
             string text;
             Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 170, Housing.Y + 68);
-            text                            = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(Ship), 155f);
+            text                            = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(Ship), 155f);
             HelperFunctions.ClampVectorToInt(ref shipStatus);
             batch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
             shipStatus.Y += Fonts.Arial12Bold.MeasureString(text).Y;

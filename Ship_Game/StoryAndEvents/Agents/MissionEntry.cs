@@ -3,77 +3,77 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class MissionEntry : UIElementContainer
-	{
-		private bool MissionAvailable;
-	    private readonly UIButton DoMission;
-		private readonly AgentComponent Component;
-	    private readonly AgentMission TheMission;
-		private int cost;
-	    private int turns;
-	    private int NameIndex;
-	    private int DescriptionIndex;
+    public sealed class MissionEntry : ScrollList<MissionEntry>.Entry
+    {
+        bool MissionAvailable;
+        readonly UIButton DoMission;
+        readonly AgentComponent Component;
+        readonly AgentMission TheMission;
+        int cost;
+        int turns;
+        int NameIndex;
+        int DescriptionIndex;
 
-		public MissionEntry(AgentMission am, AgentComponent parent) : base(null, Vector2.Zero)
-		{
-			Component = parent;
-			TheMission = am;
+        public MissionEntry(AgentMission am, AgentComponent parent)
+        {
+            Component = parent;
+            TheMission = am;
             DoMission = ButtonLow(0f, 0f, "Go", DoMission_OnClick);
-		}
+        }
 
-        private void DoMission_OnClick(UIButton button)
+        void DoMission_OnClick(UIButton button)
         {
             Component.SelectedAgent.AssignMission(TheMission, 
                 EmpireManager.Player, Component.EspionageScreen.SelectedEmpire.data.Traits.Name);
             UpdateMissionAvailability();
         }
 
-        public void Draw(SpriteBatch batch, Rectangle clickRect)
-		{
-            var cursor = new Vector2(clickRect.X, clickRect.Center.Y - Fonts.Arial12Bold.LineSpacing / 2);
+        public override void Draw(SpriteBatch batch)
+        {
+            var cursor = new Vector2(X, CenterY - Fonts.Arial12Bold.LineSpacing / 2);
 
             void DrawString(string text)
             {
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, MissionAvailable ? Color.White : Color.Gray);
             }
 
-		    DrawString(Localizer.Token(NameIndex));
-			cursor.X += 120f;
+            DrawString(Localizer.Token(NameIndex));
+            cursor.X += 120f;
 
-		    DrawString(turns + " turns");
-			cursor.X += 70f;
+            DrawString(turns + " turns");
+            cursor.X += 70f;
 
-			var smallmoney = new Rectangle((int)cursor.X, (int)cursor.Y - 3, 21, 20);
-		    batch.Draw(ResourceManager.Texture("NewUI/icon_money"), smallmoney, Color.White);
-			cursor.X += 25f;
-		    
-		    batch.DrawString(Fonts.Arial12Bold, cost.ToString(), cursor, (MissionAvailable ? Color.White : Color.Gray));
+            var smallmoney = new Rectangle((int)cursor.X, (int)cursor.Y - 3, 21, 20);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_money"), smallmoney, Color.White);
+            cursor.X += 25f;
+            
+            batch.DrawString(Fonts.Arial12Bold, cost.ToString(), cursor, (MissionAvailable ? Color.White : Color.Gray));
 
 
-		    DoMission.X = smallmoney.X + 50;
-		    DoMission.Y = (int)cursor.Y - 1;
+            DoMission.X = smallmoney.X + 50;
+            DoMission.Y = (int)cursor.Y - 1;
             DoMission.Visible = MissionAvailable;
 
-		    base.Draw(batch);
+            base.Draw(batch);
 
-            batch.DrawLine(new Vector2(clickRect.X,     clickRect.Bottom),
-		                   new Vector2(clickRect.Right, clickRect.Bottom), Color.OrangeRed);
-		}
+            batch.DrawLine(BotLeft, BotRight, Color.OrangeRed);
+        }
 
-        public bool HandleInput(InputState input, bool entryIsHovered)
+        public override bool HandleInput(InputState input)
         {
-            if (entryIsHovered)
+            bool captured = base.HandleInput(input);
+            if (Hovered)
             {
                 ToolTip.CreateTooltip(!DoMission.Rect.HitTest(input.CursorPosition)
                     ? Localizer.Token(DescriptionIndex)
                     : Localizer.Token(2198));
             }
-            return base.HandleInput(input);
+            return captured;
         }
 
-        private bool IsRivalEmpire => Component.EspionageScreen.SelectedEmpire != EmpireManager.Player;
+        bool IsRivalEmpire => Component.EspionageScreen.SelectedEmpire != EmpireManager.Player;
 
-        private bool SelectedAgentAvailable => Component.SelectedAgent.Mission == AgentMission.Defending
+        bool SelectedAgentAvailable => Component.SelectedAgent.Mission == AgentMission.Defending
                                             || Component.SelectedAgent.Mission == AgentMission.Undercover;
 
         //added by gremlin deveks missionInit
@@ -134,5 +134,5 @@ namespace Ship_Game
                 MissionAvailable = false;
             }
         }
-	}
+    }
 }

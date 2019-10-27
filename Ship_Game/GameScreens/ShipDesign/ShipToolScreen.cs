@@ -76,13 +76,13 @@ namespace Ship_Game
 
         private ShipModule ActiveModule;
 
-        private Hulls ExistingHulls;
+        private HullsListMenu ExistingHullsListMenu;
 
         public ShipToolScreen(GameScreen parent) : base(parent)
         {
             TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
-            ExistingHulls     = new Hulls();
+            ExistingHullsListMenu     = new HullsListMenu();
             IsPopup = true;
         }
 
@@ -186,7 +186,7 @@ namespace Ship_Game
             ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
-            ExistingHulls.DrawHullSelection(batch, ScreenManager);
+            ExistingHullsListMenu.Draw(batch);
             batch.End();
             ScreenManager.EndFrameRendering();
         }
@@ -449,13 +449,13 @@ namespace Ship_Game
                 tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
                                         Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
             }
-            if (ExistingHulls.HandleShipHullListSelection(Input))
+            if (ExistingHullsListMenu.HandleInput(Input))
             {
-                if (ExistingHulls.ActiveHull != null)
+                if (ExistingHullsListMenu.ActiveHull != null)
                 {
-                    LoadModel(ExistingHulls.ActiveHull.ModelPath);
+                    LoadModel(ExistingHullsListMenu.ActiveHull.ModelPath);
                     SlotList = new Array<SlotStruct>();
-                    foreach (var module in ExistingHulls.ActiveHull.ModuleSlots)
+                    foreach (var module in ExistingHullsListMenu.ActiveHull.ModuleSlots)
                     {
                         var slot = new SlotStruct(module, new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256));
                         slot.PQ.Filled = true;
@@ -507,7 +507,7 @@ namespace Ship_Game
             ConfigureSlots();
             thruster = new Thruster();
             thruster.LoadAndAssignDefaultEffects(TransientContent);
-            ExistingHulls.LoadContent();
+            ExistingHullsListMenu.LoadContent();
             base.LoadContent();
         }
 

@@ -103,7 +103,12 @@ namespace Ship_Game
         class EmpiresPanel : UIElementContainer
         {
             readonly EspionageScreen Screen;
-            readonly ScrollList OperationsSL;
+            readonly ScrollList<OperationsListItem> OperationsSL;
+
+            class OperationsListItem : ScrollList<OperationsListItem>.Entry
+            {
+                public Operation Operation;
+            }
 
             public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
             {
@@ -111,7 +116,8 @@ namespace Ship_Game
 
                 var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
                                             operationsRect.Width - 40, operationsRect.Height - 45);
-                OperationsSL = new ScrollList(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
+
+                OperationsSL = new ScrollList<OperationsListItem>(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
 
                 var empires = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
@@ -139,14 +145,13 @@ namespace Ship_Game
                     Screen.SelectedEmpire = button.Empire;
                     if (EmpireManager.Player == button.Empire)
                     {
-                        foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
-                            f.Get<Operation>().Selected = false;
+                        foreach (OperationsListItem item in OperationsSL.AllEntries)
+                            item.Operation.Selected = false;
                     }
                     Screen.Agents.Reinitialize();
                 }
             }
         }
-
 
         class EmpireButton : UIElementV2
         {
