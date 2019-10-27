@@ -14,7 +14,7 @@ namespace Ship_Game
         readonly UILabel TimeLeftLabel;
 
         ResearchQItem CurrentResearch;
-        readonly ScrollList<ResearchQItem> QSL;
+        readonly ScrollList<ResearchQItem> ResearchQueueList;
         readonly UIButton BtnShowQueue;
 
         public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
@@ -40,13 +40,13 @@ namespace Ship_Game
             ResearchQueuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
             ResearchQueuePanel.AddTab(Localizer.Token(1404));
 
-            QSL = Add(new ScrollList<ResearchQItem>(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue));
+            ResearchQueueList = Add(new ScrollList<ResearchQItem>(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue));
             ReloadResearchQueue();
         }
 
         void OnBtnShowQueuePressed(UIButton button)
         {
-            SetQueueVisible(!QSL.Visible);
+            SetQueueVisible(!ResearchQueueList.Visible);
         }
 
         void SetQueueVisible(bool visible)
@@ -61,15 +61,15 @@ namespace Ship_Game
                 TimeLeft.Visible = false;
             }
 
-            QSL.Visible = visible;
+            ResearchQueueList.Visible = visible;
             CurrentResearchPanel.Visible = visible;
             ResearchQueuePanel.Visible = visible;
-            BtnShowQueue.Text = Localizer.Token(QSL.Visible ? 2136 : 2135);
+            BtnShowQueue.Text = Localizer.Token(ResearchQueueList.Visible ? 2136 : 2135);
         }
 
         public override bool HandleInput(InputState input)
         {
-            if ((QSL.Visible && input.RightMouseClick && ResearchQueuePanel.HitTest(input.CursorPosition))
+            if ((ResearchQueueList.Visible && input.RightMouseClick && ResearchQueuePanel.HitTest(input.CursorPosition))
                 || input.Escaped)
             {
                 Screen.ExitScreen();
@@ -86,7 +86,7 @@ namespace Ship_Game
         {
             base.Draw(batch);
 
-            if (QSL.Visible && CurrentResearch != null)
+            if (ResearchQueueList.Visible && CurrentResearch != null)
             {
                 CurrentResearch.Draw(batch);
 
@@ -99,7 +99,7 @@ namespace Ship_Game
         ResearchQItem CreateQueueItem(TreeNode node)
         {
             var defaultPos = new Vector2(CurrentResearchPanel.X + 5, CurrentResearchPanel.Y + 30);
-            return new ResearchQItem(Screen, node, defaultPos);
+            return new ResearchQItem(Screen, node, defaultPos) { List = ResearchQueueList };
         }
 
         public void AddToResearchQueue(TreeNode node)
@@ -109,7 +109,7 @@ namespace Ship_Game
                 if (CurrentResearch == null)
                     CurrentResearch = CreateQueueItem(node);
                 else
-                    QSL.AddItem(CreateQueueItem(node));
+                    ResearchQueueList.AddItem(CreateQueueItem(node));
 
                 SetQueueVisible(true);
             }
@@ -127,7 +127,7 @@ namespace Ship_Game
             {
                 items.Add(CreateQueueItem((TreeNode)Screen.AllTechNodes[techIds[i]]));
             }
-            QSL.SetItems(items);
+            ResearchQueueList.SetItems(items);
 
             SetQueueVisible(EmpireManager.Player.Research.HasTopic);
         }

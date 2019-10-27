@@ -1011,12 +1011,12 @@ namespace Ship_Game
             return 0;
         }
 
-        void HandleDetailInfo(InputState input)
+        void HandleDetailInfo()
         {
             DetailInfo = null;
             foreach (BuildListItem e in buildSL.VisibleExpandedEntries)
             {
-                if (e.CheckHover(input))
+                if (e.Hovered)
                 {
                     if (e.Troop != null)    DetailInfo = e.Troop;
                     if (e.Building != null) DetailInfo = e.Building;
@@ -1037,9 +1037,13 @@ namespace Ship_Game
                 return true;
 
             P.UpdateIncomes(false);
-            HandleDetailInfo(input);
-            buildSL.HandleInput(input);
-            build.HandleInput(input);
+
+            if (build.HandleInput(input))
+                return true;
+            if (buildSL.HandleInput(input))
+                return true;
+
+            HandleDetailInfo();
 
             // We are monitoring AI Colonies
             if (P.Owner != EmpireManager.Player && !Log.HasDebugger)
