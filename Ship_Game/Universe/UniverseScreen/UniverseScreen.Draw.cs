@@ -492,7 +492,7 @@ namespace Ship_Game
                             nodeTex, new Color(0, 0, 255, 50));
                     }
                 }
-                dsbw.Draw(gameTime);
+                dsbw.Draw(batch);
             }
             DrawFleetIcons();
 

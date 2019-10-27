@@ -11,23 +11,22 @@ namespace Ship_Game
 {
     public sealed class ModManager : GameScreen
     {
-        private MainMenuScreen mmscreen;
-        private Rectangle Window;
-        private Menu1 SaveMenu;
-        private Submenu NameSave;
-        private Submenu AllSaves;
-        private Vector2 TitlePosition;
-        private Vector2 EnternamePos;
-        private UITextEntry EnterNameArea;
-        private UIButton Load;
-        private UIButton Disable;
-        private UIButton Visit;
-        private UIButton shiptool;
-        private Selector selector;
-        private UIButton CurrentButton;
+        MainMenuScreen mmscreen;
+        Rectangle Window;
+        Menu1 SaveMenu;
+        Submenu NameSave;
+        Submenu AllSaves;
+        Vector2 TitlePosition;
+        Vector2 EnternamePos;
+        UITextEntry EnterNameArea;
+        UIButton Load;
+        UIButton Disable;
+        UIButton Visit;
+        UIButton shiptool;
+        UIButton CurrentButton;
 
-        private ScrollList ModsSL;
-        private ModEntry SelectedMod;
+        ScrollList<ModsListItem> ModsSL;
+        ModEntry SelectedMod;
 
         public ModManager(MainMenuScreen mmscreen) : base(mmscreen)
         {
@@ -37,114 +36,19 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        public override void Draw(SpriteBatch batch)
+        class ModsListItem : ScrollList<ModsListItem>.Entry
         {
-            if (IsExiting)
-                return;
-            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-            ScreenManager.SpriteBatch.Begin();
-            SaveMenu.Draw();
-            NameSave.Draw(batch);
-            AllSaves.Draw(batch);
-            foreach (ScrollList.Entry e in ModsSL.VisibleEntries)
+            public ModEntry Mod;
+            public ModsListItem(ModEntry mod)
             {
-                e.Get<ModEntry>().DrawListElement(batch, e.Rect);
+                Mod = mod;
             }
-            ModsSL.Draw(ScreenManager.SpriteBatch);
-            EnterNameArea.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, EnternamePos, 
-                StarDriveGame.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
-
-            base.Draw(batch);
-            selector?.Draw(ScreenManager.SpriteBatch);
-            ScreenManager.SpriteBatch.End();
-        }
-
-        private void OnLoadClicked(UIButton b)
-        {
-            if (SelectedMod == null)
-                return;
-            CurrentButton = b;
-            b.Text = "Loading";
-            LoadModTask();
-        }
-
-        private void OnVisitClicked(UIButton b)
-        {
-            if (string.IsNullOrEmpty(SelectedMod?.mi.URL)) try
+            public override void Draw(SpriteBatch batch)
             {
-                SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
-            }
-            catch
-            {
-                Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
-            }
-            else try
-            {
-                SteamManager.ActivateOverlayWebPage(SelectedMod.mi.URL);
-            }
-            catch
-            {
-                Process.Start(SelectedMod.mi.URL);
+                Mod.DrawListElement(batch, Rect);
             }
         }
 
-        private void OnShipToolClicked(UIButton b)
-        {
-            //ScreenManager.AddScreen(new ShipToolScreen(this));
-            ScreenManager.GoToScreen(new ShipToolScreen(this), clear3DObjects: true);
-        }
-
-        private void OnDisableClicked(UIButton b)
-        {
-            ClearMods();
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            selector?.RemoveFromParent();
-            selector = null;
-            
-            if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
-            {
-                ExitScreen();
-                return true;    
-            }
-
-            ModsSL.HandleInput(input);
-            foreach (ScrollList.Entry e in ModsSL.AllEntries)
-            {
-                if (!e.CheckHover(input.CursorPosition))
-                    continue;
-
-                selector = e.CreateSelector();
-                if (!input.InGameSelect)
-                    continue;
-
-                GameAudio.AcceptClick();
-                SelectedMod = (ModEntry)e.item;
-                EnterNameArea.Text = SelectedMod.ModName;
-                Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(4015) : "Goto Mod URL";
-            }
-            return base.HandleInput(input);
-        }
-        private void ClearMods()
-        {
-            if (!GlobalStats.HasMod)
-                return;
-
-            Log.Info("ModManager.ClearMods");
-            ExitScreen();
-            // @note This will trigger game unload and reload
-            ResourceManager.LoadItAll(ScreenManager, null, reset:true);
-        }
-        private void LoadModTask()
-        {
-            Log.Info($"ModManager.LoadMod {SelectedMod.ModName}");
-            GlobalStats.SetActiveModNoSave(SelectedMod);
-            ExitScreen();
-            // @note This will trigger game unload and reload
-            ResourceManager.LoadItAll(ScreenManager, SelectedMod, reset:true);
-        }
         public override void LoadContent()
         {
             Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 425, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 850, 600);
@@ -172,7 +76,8 @@ namespace Ship_Game
 
         void LoadMods()
         {
-            ModsSL = new ScrollList(AllSaves, 140);
+            ModsSL = new ScrollList<ModsListItem>(AllSaves, 140);
+            ModsSL.OnClick = OnModItemClicked;
 
             var ser = new XmlSerializer(typeof(ModInformation));
             foreach (DirectoryInfo info in Dir.GetDirs("Mods", SearchOption.TopDirectoryOnly))
@@ -187,7 +92,7 @@ namespace Ship_Game
 
                     var e = new ModEntry(modInfo);
                     e.LoadPortrait(mmscreen);
-                    ModsSL.AddItem(e);
+                    ModsSL.AddItem(new ModsListItem(e));
                 }
                 catch (Exception ex)
                 {
@@ -195,7 +100,105 @@ namespace Ship_Game
                     ex.Data.Add("Load Error in file", modFile);
                 }
             }
+        }
 
+        void OnModItemClicked(ModsListItem item)
+        {
+            SelectedMod = item.Mod;
+            EnterNameArea.Text = SelectedMod.ModName;
+            Visit.Text = SelectedMod.mi.URL.IsEmpty() ? Localizer.Token(4015) : "Goto Mod URL";
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (CurrentButton == null && (input.Escaped || input.RightMouseClick))
+            {
+                ExitScreen();
+                return true;    
+            }
+            return ModsSL.HandleInput(input) && base.HandleInput(input);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            if (IsExiting)
+                return;
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.Begin();
+            SaveMenu.Draw();
+            NameSave.Draw(batch);
+            AllSaves.Draw(batch);
+            ModsSL.Draw(batch);
+            EnterNameArea.Draw(Fonts.Arial12Bold, batch, EnternamePos, 
+                GameBase.Base.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            base.Draw(batch);
+            batch.End();
+        }
+
+        void OnLoadClicked(UIButton b)
+        {
+            if (SelectedMod == null)
+                return;
+            CurrentButton = b;
+            b.Text = "Loading";
+            LoadModTask();
+        }
+
+        void OnVisitClicked(UIButton b)
+        {
+            if (string.IsNullOrEmpty(SelectedMod?.mi.URL))
+            {
+                try
+                {
+                    SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                }
+                catch
+                {
+                    Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                }
+            }
+            else
+            {
+                try
+                {
+                    SteamManager.ActivateOverlayWebPage(SelectedMod.mi.URL);
+                }
+                catch
+                {
+                    Process.Start(SelectedMod.mi.URL);
+                }
+            }
+        }
+
+        void OnShipToolClicked(UIButton b)
+        {
+            //ScreenManager.AddScreen(new ShipToolScreen(this));
+            ScreenManager.GoToScreen(new ShipToolScreen(this), clear3DObjects: true);
+        }
+
+        void OnDisableClicked(UIButton b)
+        {
+            ClearMods();
+        }
+
+        void ClearMods()
+        {
+            if (!GlobalStats.HasMod)
+                return;
+
+            Log.Info("ModManager.ClearMods");
+            ExitScreen();
+            // @note This will trigger game unload and reload
+            ResourceManager.LoadItAll(ScreenManager, null, reset:true);
+        }
+
+        void LoadModTask()
+        {
+            Log.Info($"ModManager.LoadMod {SelectedMod.ModName}");
+            GlobalStats.SetActiveModNoSave(SelectedMod);
+            ExitScreen();
+            // @note This will trigger game unload and reload
+            ResourceManager.LoadItAll(ScreenManager, SelectedMod, reset:true);
         }
     }
 }

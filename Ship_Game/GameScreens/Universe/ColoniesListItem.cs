@@ -31,7 +31,7 @@ namespace Ship_Game
         Rectangle prodStorageIcon;
         EmpireScreen Screen;
 
-        bool ApplyHover;
+        bool ApplyProdHover;
 
         public ColoniesListItem(Planet planet, int x, int y, int width1, int height, EmpireScreen screen)
         {
@@ -91,7 +91,7 @@ namespace Ship_Game
         {
             p.UpdateIncomes(false);
 
-            ApplyHover = ApplyProductionRect.HitTest(input.CursorPosition);
+            ApplyProdHover = ApplyProductionRect.HitTest(input.CursorPosition);
 
             if (ApplyProductionRect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(50);
@@ -101,7 +101,7 @@ namespace Ship_Game
 
             if (input.LeftMouseClick)
             {
-                if (ApplyHover && p.IsConstructing)
+                if (ApplyProdHover && p.IsConstructing)
                 {
                     Screen.ClickTimer = 0.25f;
 
@@ -231,7 +231,7 @@ namespace Ship_Game
                 QueueItem qi = p.ConstructionQueue[0];
                 qi.DrawAt(batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 15));
 
-                batch.Draw((ApplyHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
+                batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
             }
         }
 

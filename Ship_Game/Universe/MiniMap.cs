@@ -129,6 +129,7 @@ namespace Ship_Game
         void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list, SpriteBatch batch)
         {
             using (list.AcquireReadLock())
+            {
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
@@ -152,6 +153,7 @@ namespace Ship_Game
                     batch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                     batch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 }
+            }
         }
 
         void DrawInfluenceNodes(SpriteBatch batch)
@@ -181,16 +183,7 @@ namespace Ship_Game
 
         public void DeepSpaceBuild_OnClick(ToggleButton toggleButton)
         {
-            GameAudio.AcceptClick();
-            if (Screen.showingDSBW)
-            {
-                Screen.showingDSBW = false;
-            }
-            else
-            {
-                Screen.dsbw = new DeepSpaceBuildingWindow(Screen.ScreenManager, Screen);
-                Screen.showingDSBW = true;
-            }
+            Screen.InputOpenDeepSpaceBuildWindow();
         }
 
         public void PlanetScreen_OnClick(ToggleButton toggleButton)

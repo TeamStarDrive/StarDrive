@@ -707,6 +707,10 @@ namespace Ship_Game
             Rectangle PlusRect;
             Rectangle EditRect;
 
+            public bool UpHover     { get; private set; }
+            public bool DownHover   { get; private set; }
+            public bool CancelHover { get; private set; }
+            public bool ApplyHover  { get; private set; }
             Rectangle Up;
             Rectangle Down;
             Rectangle Cancel;
@@ -725,6 +729,12 @@ namespace Ship_Game
             {
                 Plus = plus;
                 Edit = edit;
+            }
+            protected Entry(UIElementV2 parent, Vector2 pos) : base(parent, pos)
+            {
+            }
+            protected Entry(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
+            {
             }
 
             public void AddSubItem(T entry)
@@ -807,13 +817,13 @@ namespace Ship_Game
                 return Hovered;
             }
 
-            public void DrawCancel(SpriteBatch batch, InputState input, string toolTipText = null)
+            public void DrawCancel(SpriteBatch batch, string toolTipText = null)
             {
                 StyleTextures s = List.GetStyle();
                 if (Hovered)
                 {
                     batch.Draw(s.QueueDeleteHover1, Cancel, Color.White);
-                    if (WasCancelHovered(input))
+                    if (WasCancelHovered(GameBase.ScreenManager.input))
                     {
                         batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
                         if (toolTipText.NotEmpty())
@@ -855,8 +865,14 @@ namespace Ship_Game
 
             public override bool HandleInput(InputState input)
             {
-                if (Plus) PlusHover = PlusRect.HitTest(input.CursorPosition);
-                if (Edit) EditHover = EditRect.HitTest(input.CursorPosition);
+                Vector2 pos = input.CursorPosition;
+                if (Plus) PlusHover = PlusRect.HitTest(pos);
+                if (Edit) EditHover = EditRect.HitTest(pos);
+
+                UpHover     = Up.HitTest(input.CursorPosition);
+                DownHover   = Down.HitTest(input.CursorPosition);
+                CancelHover = Cancel.HitTest(input.CursorPosition);
+                ApplyHover  = Apply.HitTest(input.CursorPosition);
 
                 bool wasHovered = Hovered;
                 Hovered = Rect.HitTest(input.CursorPosition);
@@ -930,21 +946,20 @@ namespace Ship_Game
                 batch.Draw(s.QueueRushHover1,      Apply,  Color.White);
                 batch.Draw(s.QueueDeleteHover1,    Cancel, Color.White);
 
-                Vector2 pos = GameBase.Base.Manager.input.CursorPosition;
-                if (Up.HitTest(pos))
+                if (UpHover)
                 {
                     batch.Draw(s.QueueArrowUpHover2, Up, Color.White);
                 }
-                if (Down.HitTest(pos))
+                if (DownHover)
                 {
                     batch.Draw(s.QueueArrowDownHover2, Down, Color.White);
                 }
-                if (Apply.HitTest(pos))
+                if (ApplyHover)
                 {
                     batch.Draw(s.QueueRushHover2, Apply, Color.White);
                     ToolTip.CreateTooltip(50);
                 }
-                if (Cancel.HitTest(pos))
+                if (CancelHover)
                 {
                     batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
                     ToolTip.CreateTooltip(53);

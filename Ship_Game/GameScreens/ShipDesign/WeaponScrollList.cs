@@ -13,15 +13,15 @@ namespace Ship_Game
         public WeaponScrollList(Submenu weaponList, ShipDesignScreen shipDesignScreen) : base(weaponList)
         {
             Screen = shipDesignScreen;
-            OnItemClicked = ListItemClicked;
         }
 
-        void ListItemClicked(WeaponListItem item)
+        public override void OnItemClicked(WeaponListItem item)
         {
             if (item.Module != null)
             {
                 Screen.SetActiveModule(item.Module, ModuleOrientation.Normal, 0f);
             }
+            base.OnItemClicked(item);
         }
 
         bool IsBadModuleSize(ShipModule module)
