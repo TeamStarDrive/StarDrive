@@ -35,7 +35,7 @@ namespace Ship_Game.Universe.SolarBodies
         public float Population
         {
             get => PopValue;
-            set => PopValue = value.NaNChecked(0f, "Storage.Population").Clamped(0f, Ground.MaxPopulation);
+            set => PopValue = Math.Max(0, value.NaNChecked(0f, "Storage.Population"));
         }
 
         // different from Food -- this is based on race
