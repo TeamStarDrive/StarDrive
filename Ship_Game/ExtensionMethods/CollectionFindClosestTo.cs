@@ -112,7 +112,7 @@ namespace Ship_Game
 
         public static Ship FindClosestTo(this Ship[] ships, int count, Vector2 to, Predicate<Ship> filter)
         {
-            if (count <= 0 || ships.FindFirstValid(count, filter, out int i, out Ship found))
+            if (count <= 0 || !ships.FindFirstValid(count, filter, out int i, out Ship found))
                 return null; // no elements passed the filter!
             
             float min = to.SqDist(found.Center);
