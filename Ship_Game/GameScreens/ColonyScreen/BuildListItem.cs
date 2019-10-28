@@ -9,7 +9,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class BuildListItem : ScrollListEntry<BuildListItem>
+    public class BuildListItem : ScrollListItem<BuildListItem>
     {
         public readonly ColonyScreen Screen;
 

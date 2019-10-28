@@ -22,7 +22,7 @@ namespace Ship_Game
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
     [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
-    public class ScrollList<T> : UIElementV2 where T : ScrollListEntry<T>
+    public class ScrollList<T> : UIElementV2 where T : ScrollListItem<T>
     {
         Rectangle ScrollUp;
         Rectangle ScrollDown;
@@ -561,7 +561,7 @@ namespace Ship_Game
 
     }
 
-    internal sealed class ScrollListDebugView<T> where T : ScrollListEntry<T>
+    internal sealed class ScrollListDebugView<T> where T : ScrollListItem<T>
     {
         readonly ScrollList<T> List;
         // ReSharper disable once UnusedMember.Global

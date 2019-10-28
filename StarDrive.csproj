@@ -386,7 +386,7 @@
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentListItem.cs" />
-    <Compile Include="Ship_Game\StoryAndEvents\ArtifactEntryListItem.cs" />
+    <Compile Include="Ship_Game\StoryAndEvents\ArtifactItemListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ResponseListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\WikiHelpCategoryListItem.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
@@ -403,7 +403,7 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
-    <Compile Include="Ship_Game\UI\ScrollListEntry.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListItem.cs" />
     <Compile Include="Ship_Game\UI\ScrollListStyleTextures.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
@@ -591,7 +591,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\SelectedShipEntry.cs">
+    <Compile Include="Ship_Game\SelectedShipListItem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1290,7 +1290,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\MissionEntry.cs">
+    <Compile Include="Ship_Game\StoryAndEvents\Agents\MissionListItem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

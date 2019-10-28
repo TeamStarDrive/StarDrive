@@ -37,7 +37,7 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        class RefitShipListItem : ScrollListEntry<RefitShipListItem>
+        class RefitShipListItem : ScrollListItem<RefitShipListItem>
         {
             readonly RefitToWindow Screen;
             public readonly Ship Ship;

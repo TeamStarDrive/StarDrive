@@ -5,11 +5,11 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public class ScrollListEntry<T> : UIElementContainer where T : ScrollListEntry<T>
+    public class ScrollListItem<T> : UIElementContainer where T : ScrollListItem<T>
     {
         public ScrollList<T> List;
 
-        // entries with IsHeader=true can be expanded or collapsed via category title
+        // Entries with IsHeader=true can be expanded or collapsed via category title
         public bool Expanded { get; private set; }
 
         // true if item is currently being hovered over with mouse cursor
@@ -30,15 +30,14 @@ namespace Ship_Game
         //       use methods EnablePlus() / EnableUpDown() / etc to enable these elements
         Array<Element> DynamicElements;
 
-        public override string ToString()
-            => IsHeader ? $"{TypeName} Header={HeaderText}" : base.ToString();
+        public override string ToString() => IsHeader ? $"{TypeName} Header={HeaderText}" : base.ToString();
 
-        public ScrollListEntry()
+        public ScrollListItem()
         {
         }
 
         // Creates a ScrollList Item Header which can be expanded
-        public ScrollListEntry(string headerText)
+        public ScrollListItem(string headerText)
         {
             HeaderText = headerText;
             IsHeader = true;
@@ -46,7 +45,7 @@ namespace Ship_Game
 
         public class Element
         {
-            public ScrollListEntry<T> Parent;
+            public ScrollListItem<T> Parent;
             public Vector2 RelPos;
             public ToolTipText Tooltip;
             public Action OnClick;

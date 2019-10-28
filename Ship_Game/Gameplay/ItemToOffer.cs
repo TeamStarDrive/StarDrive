@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
-    public sealed class ItemToOffer : ScrollListEntry<ItemToOffer>
+    public sealed class ItemToOffer : ScrollListItem<ItemToOffer>
     {
         public string Words;
         public string SpecialInquiry = "";

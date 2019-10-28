@@ -40,7 +40,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             TransitionOffTime = 0.25f;
         }
 
-        class DesignListItem : ScrollListEntry<DesignListItem>
+        class DesignListItem : ScrollListItem<DesignListItem>
         {
             readonly LoadDesigns Screen;
             public Ship Ship;
