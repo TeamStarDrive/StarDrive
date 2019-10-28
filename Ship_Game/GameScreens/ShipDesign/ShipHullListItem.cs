@@ -11,23 +11,14 @@ namespace Ship_Game
 {
     public class ShipHullListItem : ScrollList<ShipHullListItem>.Entry
     {
-        public ModuleHeader Header;
         public ShipData Hull;
-
-        public override bool HandleInput(InputState input)
-        {
-            return base.HandleInput(input);
-        }
+        public ShipHullListItem(string headerText) : base(headerText) {}
+        public ShipHullListItem(ShipData hull) { Hull = hull; }
 
         public override void Draw(SpriteBatch batch)
         {
             base.Draw(batch);
-            if (Header != null)
-            {
-                Header.Pos = Pos;
-                Header.Draw(batch);
-            }
-            else if (Hull != null)
+            if (Hull != null)
             {
                 batch.Draw(Hull.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
 

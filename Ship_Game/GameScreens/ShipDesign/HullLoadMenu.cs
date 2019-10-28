@@ -22,17 +22,13 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         class HullListItem : ScrollList<HullListItem>.Entry
         {
-            public ModuleHeader Header;
             public ShipData Hull;
-
+            public HullListItem(string headerText) : base(headerText) {}
+            public HullListItem(ShipData hull) { Hull = hull; }
             public override void Draw(SpriteBatch batch)
             {
-                if (Header != null)
-                {
-                    Header.Pos = Pos;
-                    Header.Draw(batch);
-                }
-                else if (Hull != null)
+                base.Draw(batch);
+                if (Hull != null)
                 {
                     var bCursor = new Vector2(X, Y);
                     batch.Draw(Hull.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -65,11 +61,11 @@ namespace Ship_Game.GameScreens.ShipDesign
             categories.Sort();
             foreach (string cat in categories)
             {
-                HullListItem item = HullSL.AddItem(new HullListItem{ Header = new ModuleHeader(cat, 240) });
+                HullListItem item = HullSL.AddItem(new HullListItem(cat));
                 foreach (ShipData hull in ResourceManager.Hulls)
                 {
-                    if (item.Header.Text == Localizer.GetRole(hull.Role, hull.ShipStyle))
-                        item.AddSubItem(new HullListItem{ Hull = hull });
+                    if (item.HeaderText == Localizer.GetRole(hull.Role, hull.ShipStyle))
+                        item.AddSubItem(new HullListItem(hull));
                 }
             }
         }
