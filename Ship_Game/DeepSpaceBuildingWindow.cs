@@ -29,7 +29,7 @@ namespace Ship_Game
             ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab("Build Menu");
             SL = new ScrollList<ConstructionListItem>(ConstructionSubMenu, 40);
-            SL.OnClick = OnConstructionItemClicked;
+            SL.OnClick = (item) => { itemToBuild = item.Ship; };
 
             //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
             foreach (string s in EmpireManager.Player.structuresWeCanBuild)
@@ -77,12 +77,6 @@ namespace Ship_Game
                 tCursor = new Vector2(prodiconRect.X + 26, prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
                 batch.DrawString(Fonts.Arial12Bold, Ship.GetCost(EmpireManager.Player).ToString("F2"), tCursor, Color.White);
             }
-        }
-
-        
-        void OnConstructionItemClicked(ConstructionListItem item)
-        {
-            itemToBuild = item.Ship;
         }
 
         public bool HandleInput(InputState input)

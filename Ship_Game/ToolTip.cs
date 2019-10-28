@@ -1,35 +1,49 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
+    public struct ToolTipText
+    {
+        public int Id; // Tooltip ID
+        public string Text; // custom text
+
+        public static readonly ToolTipText None = new ToolTipText();
+
+        public bool IsValid => Id > 0 || !string.IsNullOrEmpty(Text);
+
+        public static implicit operator ToolTipText(int id)
+        {
+            return new ToolTipText{ Id = id };
+        }
+        
+        public static implicit operator ToolTipText(string text)
+        {
+            return new ToolTipText{ Text = text };
+        }
+    }
+
     public sealed class ToolTip
     {
-        public int TIP_ID;
-        public int Data;
-        public string Title;
-        public static Rectangle Rect;
-        public static string Text;
-        public static string Ti;
-        public static string TextLast;
-        public static string Hotkey;
-        public static float TipTimer;
-        public static int LastWhich;
-        private static bool HoldTip;
-        private static bool AlwaysShow;
-        private static float MaxTipTime;
+        public int TIP_ID; // Serialized from: Tooltips.xml
+        public int Data; // Serialized from: Tooltips.xml
+        public string Title; // Serialized from: Tooltips.xml
 
-        static ToolTip()
-        {
-            Hotkey = "";
-            TipTimer = 0; 
-            LastWhich = -1;
-        }
+        static Rectangle Rect;
+        static string Text;
+        static string TextLast;
+        static string HotKey;
+        static float TipTimer;
+        static bool HoldTip;
+        static bool AlwaysShow;
+        static float MaxTipTime = 5;
 
-        public static void ShipYardArcTip() => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
-        public static void PlanetLandingSpotsTip(string locationText, int spots) => CreateTooltip($"{locationText}\n{spots} Landing Spots",alwaysShow:true);
+        public static void ShipYardArcTip()
+            => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
+
+        public static void PlanetLandingSpotsTip(string locationText, int spots)
+            => CreateTooltip($"{locationText}\n{spots} Landing Spots", null, alwaysShow:true);
 
         /**
          * @todo tooltip issues
@@ -40,32 +54,32 @@ namespace Ship_Game
          * 
          * as far as i can tell... also the tooltip rectangle isnt right.
          */
-        private static void SpawnTooltip(string intext, int toolTipId, string hotkey, int timer = 6, Vector2? position = null, bool alwaysShow = false)
-        {    
-            Hotkey = hotkey;
-            MaxTipTime = timer;
+        static void SpawnTooltip(ToolTipText tip, string hotKey, Vector2? position = null, bool alwaysShow = false)
+        {
+            HotKey = hotKey;
             AlwaysShow = alwaysShow;
-            MouseState state = Mouse.GetState();
-            if (toolTipId >= 0)
+
+            string inText = tip.Text;
+            if (tip.Id > 0)
             {
-                ToolTip tooltip = ResourceManager.GetToolTip(toolTipId);
+                ToolTip tooltip = ResourceManager.GetToolTip(tip.Id);
                 if (tooltip != null)
                 {
-                    intext = Localizer.Token(tooltip.Data);
-                    Ti = tooltip.Title;
+                    inText = Localizer.Token(tooltip.Data);
                 }
-                else if (intext.IsEmpty()) // try to recover.. somehow
+                else if (inText.IsEmpty()) // try to recover.. somehow
                 {
-                    intext = Localizer.Token(toolTipId);
-                    Ti = "";
+                    inText = Localizer.Token(tip.Id);
                 }
-            }
-            else
-            {
-                Ti = "";
             }
 
-            string text = Fonts.Arial12Bold.ParseText(intext, 200f);
+            if (inText.IsEmpty())
+            {
+                Log.Error($"Invalid Tooltip: tip.Id={tip.Id} tip.Text={tip.Text}");
+                return;
+            }
+
+            string text = Fonts.Arial12Bold.ParseText(inText, 200f);
             
             if (TipTimer > 0 && Text == text)
             {
@@ -75,50 +89,47 @@ namespace Ship_Game
             
             Text = text;
             
-            Vector2 pos = position ?? new Vector2(state.X, state.Y);
-            Vector2 size = Fonts.Arial12Bold.MeasureString(hotkey.NotEmpty() ? $"{Text}\n\n{hotkey}" : Text);
+            Vector2 pos = position ?? GameBase.ScreenManager.input.CursorPosition;
+            Vector2 size = Fonts.Arial12Bold.MeasureString(hotKey.NotEmpty() ? $"{Text}\n\n{hotKey}" : Text);
             var tipRect = new Rectangle((int) pos.X + 10, (int) pos.Y + 10,
-                (int) size.X + 20, (int) size.Y + 10);
+                                        (int) size.X + 20, (int) size.Y + 10);
 
             if (tipRect.X + tipRect.Width > GameBase.ScreenWidth)
-                tipRect.X = tipRect.X - (tipRect.Width + 10);
+                tipRect.X -= (tipRect.Width + 10);
+
             while (tipRect.Y + tipRect.Height > GameBase.ScreenHeight)
-                tipRect.Y = tipRect.Y - 1;
+                tipRect.Y -= 1;
 
             if (alwaysShow || TextLast != Text)
             {
-                TipTimer = timer;
+                TipTimer = MaxTipTime;
                 TextLast = Text;
             }
             Rect = tipRect;
         }
 
-        public static void CreateTooltip(string intext, Vector2? position = null, bool alwaysShow = false)
+        public static void CreateTooltip(ToolTipText tip, Vector2? position, bool alwaysShow)
         {
-            SpawnTooltip(intext, -1, "", position: position,alwaysShow: alwaysShow);
+            SpawnTooltip(tip, "", position: position, alwaysShow: alwaysShow);
         }
 
-        public static void CreateTooltip(string intext, string hotKey)
+        public static void CreateTooltip(ToolTipText tip, string hotKey)
         {
-            SpawnTooltip(intext, -1, hotKey);
+            SpawnTooltip(tip, hotKey);
         }
 
-        public static void CreateTooltip(int which)
+        public static void CreateTooltip(ToolTipText tip)
         {
-            SpawnTooltip("", which, "");
+            SpawnTooltip(tip, "");
         }
 
-        public static void CreateTooltip(int which, string hotKey)
-        {
-            SpawnTooltip("", which, hotKey);
-        }
 
         static float FadeInTimer  => MaxTipTime * 0.75f;
         static float FadeOutTimer => MaxTipTime * 0.25f;
 
         static bool UpdateCurrentTip()
         {
-            float elapsedTime = (float)StarDriveGame.Instance.GameTime.ElapsedGameTime.TotalSeconds;
+            float elapsedTime = (float)GameBase.Base.GameTime.ElapsedGameTime.TotalSeconds;
             if (TipTimer <= 0)
                 return false;
 
@@ -157,7 +168,7 @@ namespace Ship_Game
             sel.Draw(batch);
 
             var textColor = new Color(255, 239, 208, (byte) alpha);
-            if (Hotkey.NotEmpty())
+            if (HotKey.NotEmpty())
             {
                 string title = Localizer.Token(2300) + ": ";
 
@@ -166,7 +177,7 @@ namespace Ship_Game
                 Vector2 hotKey = textPos;
                 hotKey.X += Fonts.Arial12Bold.MeasureString(title).X;
 
-                batch.DrawString(Fonts.Arial12Bold, Hotkey, hotKey, new Color(Color.Gold, (byte)alpha));
+                batch.DrawString(Fonts.Arial12Bold, HotKey, hotKey, new Color(Color.Gold, (byte)alpha));
                 textPos.Y += Fonts.Arial12Bold.LineSpacing * 2;
             }
 

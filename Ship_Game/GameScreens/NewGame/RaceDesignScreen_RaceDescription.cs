@@ -160,7 +160,7 @@ namespace Ship_Game
 
             b.Plural(PreferredEnvDescription);
 
-            DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), Description.Menu.Width - 50);
+            DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), Description.Width - 50);
         }
 
     
@@ -187,9 +187,9 @@ namespace Ship_Game
                         traits.G == origRaceTraits.G &&
                         traits.B == origRaceTraits.B)
                     {
-                        traits.R = currentObjectColor.R;
-                        traits.G = currentObjectColor.G;
-                        traits.B = currentObjectColor.B;
+                        traits.R = Picker.CurrentColor.R;
+                        traits.G = Picker.CurrentColor.G;
+                        traits.B = Picker.CurrentColor.B;
                     }
                     break;
                 }
@@ -201,7 +201,7 @@ namespace Ship_Game
         {
             RaceSummary.ShipType = traits.ShipType;
             FlagIndex = traits.FlagIndex;
-            currentObjectColor = new Color((byte)traits.R, (byte)traits.G, (byte)traits.B, 255);
+            Picker.CurrentColor = new Color((byte)traits.R, (byte)traits.G, (byte)traits.B, 255);
             RaceName.Text        = traits.Name;
             SingEntry.Text       = traits.Singular;
             PlurEntry.Text       = traits.Plural;
@@ -286,7 +286,8 @@ namespace Ship_Game
             
             foreach (TraitEntry t in AllTraits)
             {
-                if (!t.Selected) continue;
+                if (!t.Selected)
+                    continue;
                 RacialTrait trait = t.trait;
                 RaceSummary.ConsumptionModifier    += trait.ConsumptionModifier;
                 RaceSummary.DiplomacyMod           += trait.DiplomacyMod;

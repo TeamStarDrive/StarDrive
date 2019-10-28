@@ -9,18 +9,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public enum ListControls
-    {
-        All,    // show all list controls
-        Cancel // only show Cancel control
-    }
-
-    public enum ListOptions
-    {
-        None,
-        Draggable
-    }
-
+    // Visual style of the ScrollList
     public enum ListStyle
     {
         Default,
@@ -44,32 +33,27 @@ namespace Ship_Game
         Rectangle ScrollBarHousing;
         Rectangle ScrollBar;
 
-        readonly int EntryHeight = 40;
         int ScrollBarHover;
         int StartDragPos;
         bool DraggingScrollBar;
         float ScrollBarStartDragPos;
         float ClickTimer;
         const float TimerDelay = 0.05f;
-        readonly int YOffset;
 
+        readonly int EntryHeight;
         readonly int MaxVisibleEntries;
         readonly Array<T> Entries         = new Array<T>();
         readonly Array<T> ExpandedEntries = new Array<T>(); // Flattened entries
-        readonly bool IsDraggable;
-        T DraggedEntry;
-        Vector2 DraggedOffset;
 
         // this controls the visual style of the ScrollList
         // can be freely changed at any point
         public ListStyle Style;
-        readonly ListControls Controls = ListControls.All;
 
         // Automatic Selection highlight
         public Selector SelectionBox;
 
         // If TRUE, automatically draws Selection highlight around each ScrollList Item
-        public bool EnableSelectionBox = true;
+        public bool IsSelectable = false;
 
         // EVENT: Called when a new item is focused with mouse
         //        @note This is called again with <null> when mouse leaves focus
@@ -81,40 +65,25 @@ namespace Ship_Game
         // EVENT: Called when an item is double-clicked
         public Action<T> OnDoubleClick;
 
-        // If TRUE, allows automatic dragging of ScrollList Items
-        public bool EnableElementDragging = false;
-
         // EVENT: Called when an item drag starts or item drag ends
         public Action<T, DragEvent> OnDrag;
 
-        public ScrollList(Submenu p, ListOptions options = ListOptions.None, ListStyle style = ListStyle.Default)
+        // If TRUE, allows automatic dragging of ScrollList Items
+        public bool IsDraggable = false;
+
+        T DraggedEntry;
+        Vector2 DraggedOffset;
+
+        public ScrollList(Submenu menu, ListStyle style = ListStyle.Default) : this(menu, 40, style)
         {
-            ParentMenu = p;
-            Style = style;
-            MaxVisibleEntries = (p.Rect.Height - 25) / 40;
-            IsDraggable = options == ListOptions.Draggable;
-            YOffset = 30;
-            this.PerformLayout();
         }
 
-        public ScrollList(Submenu p, int eHeight, ListControls controls = ListControls.All, ListStyle style = ListStyle.Default)
+        public ScrollList(Submenu menu, int entryHeight, ListStyle style = ListStyle.Default)
         {
-            ParentMenu = p;
+            ParentMenu = menu;
             Style = style;
-            EntryHeight = eHeight;
-            Controls = controls;
-            MaxVisibleEntries = (p.Rect.Height - 25) / EntryHeight;
-            YOffset = 30;
-            this.PerformLayout();
-        }
-
-        public ScrollList(Submenu p, int eHeight, bool realRect, ListStyle style = ListStyle.Default)
-        {
-            ParentMenu = p;
-            Style = style;
-            EntryHeight = eHeight;
-            MaxVisibleEntries = p.Rect.Height / EntryHeight;
-            YOffset = 5;
+            EntryHeight = entryHeight;
+            MaxVisibleEntries = (menu.Rect.Height - 25) / entryHeight;
             this.PerformLayout();
         }
 
@@ -197,7 +166,7 @@ namespace Ship_Game
                 Entries.Remove(e);
 
             if (ExpandedEntries.Remove(e))
-                UpdateListElements();
+                RequiresLayout = true;
         }
 
         bool RemoveSubItem(Predicate<T> predicate)
@@ -213,7 +182,7 @@ namespace Ship_Game
                 Entries.RemoveFirst(predicate);
 
             if (ExpandedEntries.RemoveFirst(predicate))
-                UpdateListElements();
+                RequiresLayout = true;
         }
 
         public void Sort<TValue>(Func<T, TValue> predicate)
@@ -221,7 +190,7 @@ namespace Ship_Game
             T[] sorted = Entries.OrderBy(predicate).ToArray();
             Entries.Clear();
             Entries.AddRange(sorted);
-            UpdateListElements();
+            RequiresLayout = true;
         }
 
         public void SortDescending<TValue>(Func<T, TValue> predicate)
@@ -229,7 +198,7 @@ namespace Ship_Game
             T[] sorted = Entries.OrderByDescending(predicate).ToArray();
             Entries.Clear();
             Entries.AddRange(sorted);
-            UpdateListElements();
+            RequiresLayout = true;
         }
 
         // @note Optimized for speed
@@ -442,7 +411,7 @@ namespace Ship_Game
                 if (item.HandleInput(input))
                 {
                     // only show selector if item doesn't have child elements (it's a header item)
-                    if (!item.HasSubEntries && EnableSelectionBox)
+                    if (!item.HasSubEntries && IsSelectable)
                     {
                         SelectionBox = new Selector(item.Rect);
                     }
@@ -451,7 +420,7 @@ namespace Ship_Game
             }
 
             // No longer hovering over the scroll list? Clear the SelectionBox
-            if (EnableSelectionBox && !ParentMenu.HitTest(input.CursorPosition))
+            if (IsSelectable && !ParentMenu.HitTest(input.CursorPosition))
             {
                 SelectionBox = null;
             }
@@ -460,6 +429,9 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (!Visible || !Enabled)
+                return false;
+
             bool hit = HandleScrollBar(input);
             hit |= HandleMouseScrollUpDown(input);
             HandleDraggable(input);
@@ -473,25 +445,41 @@ namespace Ship_Game
 
         #region ScrollList Update / PerformLayout
         
+        ScrollListStyleTextures GetStyle() => ScrollListStyleTextures.Get(Style);
+
         public override void PerformLayout()
         {
-            ScrollListStyleTextures s = ScrollListStyleTextures.Get(Style);
+            base.PerformLayout();
+
+            ScrollListStyleTextures s = GetStyle();
             Submenu p = ParentMenu;
             Rect = p.Rect;
             int x = (int)(p.X + p.Width - 20f);
-            ScrollUp   = new Rectangle(x, p.Rect.Y + YOffset,            s.ScrollBarArrowUp.Width,   s.ScrollBarArrowUp.Height);
-            ScrollDown = new Rectangle(x, p.Rect.Y + p.Rect.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
-            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
-            ScrollBar        = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y, s.ScrollBarMid.Width, 0);
-            base.PerformLayout();
+            ScrollUp   = new Rectangle(x, p.Rect.Y + 30,                 s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
+            ScrollDown = new Rectangle(x, p.Rect.Y + p.Rect.Height - 14, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
+            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
+
+            if (Entries.Count > 0)
+            {
+                ExpandedEntries.Clear();
+                foreach (T e in Entries)
+                    e.GetFlattenedVisibleExpandedEntries(ExpandedEntries);
+
+                FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
+                    Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
+
+                UpdateItemPositions(ParentMenu.Pos);
+            }
+
+            UpdateScrollBar();
         }
 
         void UpdateScrollBar()
         {
-            ScrollListStyleTextures s = ScrollListStyleTextures.Get(Style);
+            ScrollListStyleTextures s = GetStyle();
             int scrollStart = (int)(StartingPercent * ScrollBarHousing.Height);
             int scrollEnd = (int)(ScrollBarHousing.Height * PercentViewed);
-            int width = s.ScrollBarMid.Width;
+            int width = s.ScrollBarMid.Normal.Width;
 
             ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + scrollStart, width, scrollEnd);
         }
@@ -517,60 +505,36 @@ namespace Ship_Game
             }
         }
 
-        public void TransitionUpdate(Rectangle r)
+        public override void Update(float deltaTime)
         {
-            ScrollListStyleTextures s = ScrollListStyleTextures.Get(Style);
-            ScrollUp         = new Rectangle(r.X + r.Width - 20, r.Y + 30, s.ScrollBarArrowUp.Width, s.ScrollBarArrowUp.Height);
-            ScrollDown       = new Rectangle(r.X + r.Width - 20, r.Y + r.Height - 14, s.ScrollBarArrowDown.Width, s.ScrollBarArrowDown.Height);
-            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
-            UpdateItemPositions(r.PosVec());
-        }
+            base.Update(deltaTime);
 
-        void UpdateListElements()
-        {
-            ExpandedEntries.Clear();
-            foreach (T e in Entries)
-                e.GetFlattenedVisibleExpandedEntries(ExpandedEntries);
-
-            FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
-                Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
-
-            UpdateItemPositions(ParentMenu.Pos);
-            UpdateScrollBar();
+            if (RequiresLayout)
+                PerformLayout();
         }
 
         #endregion
 
         #region ScrollList Draw
-        
+
         void DrawScrollBar(SpriteBatch batch)
         {
-            ScrollListStyleTextures s = ScrollListStyleTextures.Get(Style);
-            int updownsize = (ScrollBar.Height - s.ScrollBarMid.Height) / 2;
-            var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, updownsize);
-            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + updownsize, ScrollBar.Width, s.ScrollBarMid.Height);
-            var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, updownsize);
-            if (ScrollBarHover == 0)
-            {
-                batch.Draw(s.ScrollBarUpDown,  up, Color.White);
-                batch.Draw(s.ScrollBarMid,    mid, Color.White);
-                batch.Draw(s.ScrollBarUpDown, bot, Color.White);
-            }
-            else if (ScrollBarHover == 1)
-            {
-                batch.Draw(s.ScrollBarUpDownHover1,  up, Color.White);
-                batch.Draw(s.ScrollBarMidHover1,    mid, Color.White);
-                batch.Draw(s.ScrollBarUpDownHover1, bot, Color.White);
-            }
-            else if (ScrollBarHover == 2)
-            {
-                batch.Draw(s.ScrollBarUpDownHover2,  up, Color.White);
-                batch.Draw(s.ScrollBarMidHover2,    mid, Color.White);
-                batch.Draw(s.ScrollBarUpDownHover2, bot, Color.White);
-            }
-            Vector2 mousepos = Mouse.GetState().Pos();
-            batch.Draw(ScrollUp.HitTest(mousepos)   ? s.ScrollBarArrowUpHover1   : s.ScrollBarArrowUp, ScrollUp, Color.White);
-            batch.Draw(ScrollDown.HitTest(mousepos) ? s.ScrollBarArrowDownHover1 : s.ScrollBarArrowDown, ScrollDown, Color.White);
+            ScrollListStyleTextures s = GetStyle();
+            int upDownSize = (ScrollBar.Height - s.ScrollBarMid.Normal.Height) / 2;
+            var up  = new Rectangle(ScrollBar.X, ScrollBar.Y, ScrollBar.Width, upDownSize);
+            var mid = new Rectangle(ScrollBar.X, ScrollBar.Y + upDownSize, ScrollBar.Width, s.ScrollBarMid.Normal.Height);
+            var bot = new Rectangle(ScrollBar.X, mid.Y + mid.Height, ScrollBar.Width, upDownSize);
+
+            bool parentHovered      = (ScrollBarHover == 1);
+            bool controlItemHovered = (ScrollBarHover == 2);
+
+            s.ScrollBarUpDown.Draw(batch, up, parentHovered, controlItemHovered);
+            s.ScrollBarMid   .Draw(batch, mid, parentHovered, controlItemHovered);
+            s.ScrollBarUpDown.Draw(batch, bot, parentHovered, controlItemHovered);
+
+            Vector2 cursor = GameBase.ScreenManager.input.CursorPosition;
+            s.ScrollBarArrowUp.Draw(batch, ScrollUp, parentHovered, ScrollUp.HitTest(cursor));
+            s.ScrollBarArrowDown.Draw(batch, ScrollDown, parentHovered, ScrollDown.HitTest(cursor));
         }
 
         public override void Draw(SpriteBatch batch)
@@ -580,7 +544,7 @@ namespace Ship_Game
 
             DrawChildElements(batch);
 
-            if (EnableSelectionBox)
+            if (IsSelectable)
                 SelectionBox?.Draw(batch);
 
             if (DraggedEntry != null)
@@ -615,43 +579,77 @@ namespace Ship_Game
             // true if item is currently being hovered over with mouse cursor
             public bool Hovered { get; private set; }
 
-            // Plus and Edit buttons in ColonyScreen build list
-            readonly bool Plus;
-            readonly bool Edit;
-            public bool PlusHover { get; private set; }
-            public bool EditHover { get; private set; }
-            Rectangle PlusRect;
-            Rectangle EditRect;
-
-            public bool UpHover     { get; private set; }
-            public bool DownHover   { get; private set; }
-            public bool CancelHover { get; private set; }
-            public bool ApplyHover  { get; private set; }
-            Rectangle Up;
-            Rectangle Down;
-            Rectangle Cancel;
-            Rectangle Apply;
-
             // The current visible index of this Entry
             public int VisibleIndex;
 
             readonly Array<T> SubEntries = new Array<T>();
             public bool HasSubEntries => SubEntries.NotEmpty;
+            
+            // Lightweight dynamic elements
+            // @note This provides customization options for each ScrollList Item
+            //       use methods EnablePlus() / EnableUpDown() / etc to enable these elements
+            readonly Array<Element> DynamicElements = new Array<Element>();
 
             public Entry()
             {
             }
-            public Entry(bool plus, bool edit)
-            {
-                Plus = plus;
-                Edit = edit;
-            }
+
             protected Entry(UIElementV2 parent, Vector2 pos) : base(parent, pos)
             {
             }
+
             protected Entry(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
             {
             }
+
+            public class Element
+            {
+                public Entry Parent;
+                public Vector2 RelPos;
+                public ToolTipText Tooltip;
+                public Action OnClick;
+                public Func<ScrollListStyleTextures.Hoverable> GetHoverable;
+                Rectangle AbsRect;
+                bool IsHovered;
+                
+                public bool HandleInput(InputState input)
+                {
+                    IsHovered = AbsRect.HitTest(input.CursorPosition);
+                    if (IsHovered && input.LeftMouseClick)
+                    {
+                        OnClick?.Invoke();
+                        return true;
+                    }
+                    return false;
+                }
+                public void UpdateLayout()
+                {
+                    SubTexture icon = GetHoverable().Normal;
+                    // For negative RelPos, start from opposite edge
+                    float x = (RelPos.X >= 0 ? Parent.X : Parent.Right) + RelPos.X;
+                    float y = (RelPos.Y >= 0 ? Parent.Y : Parent.Bottom) + RelPos.Y;
+                    AbsRect = new Rectangle((int)x, (int)(y + 15f - icon.Height / 2f), icon.Width, icon.Height);
+                }
+                public void Draw(SpriteBatch batch)
+                {
+                    GetHoverable().Draw(batch, AbsRect, Parent.Hovered, IsHovered);
+                    if (IsHovered && Tooltip.IsValid)
+                        ToolTip.CreateTooltip(Tooltip);
+                }
+            }
+
+            void AddElement(Vector2 relPos, ToolTipText tooltip, Action onClick, Func<ScrollListStyleTextures.Hoverable> getHoverable)
+            {
+                var e = new Element{ Parent = this, RelPos = relPos, Tooltip = tooltip, OnClick = onClick, GetHoverable = getHoverable };
+                DynamicElements.Add(e);
+            }
+
+            public void AddPlus(Vector2 relPos, ToolTipText tooltip, Action onClick = null) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().BuildAdd);
+            public void AddEdit(Vector2 relPos, ToolTipText tooltip, Action onClick = null) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().BuildEdit);
+            public void AddUp(Vector2 relPos, ToolTipText tooltip, Action onClick = null) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueArrowUp);
+            public void AddDown(Vector2 relPos, ToolTipText tooltip, Action onClick = null) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueArrowDown);
+            public void AddApply(Vector2 relPos, ToolTipText tooltip, Action onClick = null) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueRush);
+            public void AddCancel(Vector2 relPos, ToolTipText tooltip, Action onClick) => AddElement(relPos, tooltip, onClick, () => List.GetStyle().QueueDelete);
 
             public void AddSubItem(T entry)
             {
@@ -714,27 +712,6 @@ namespace Ship_Game
                 List.RequiresLayout = true;
             }
 
-            public void DrawCancel(SpriteBatch batch, string toolTipText = null)
-            {
-                ScrollListStyleTextures s = ScrollListStyleTextures.Get(List.Style);
-                if (Hovered)
-                {
-                    batch.Draw(s.QueueDeleteHover1, Cancel, Color.White);
-                    if (CancelHover)
-                    {
-                        batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
-                        if (toolTipText.NotEmpty())
-                            ToolTip.CreateTooltip(toolTipText);
-                        else
-                            ToolTip.CreateTooltip(78);
-                    }
-                }
-                else
-                {
-                    batch.Draw(s.QueueDelete, Cancel, Color.White);
-                }
-            }
-
             // Resets the list item in such a way that it cannot be accidentally interacted with
             public void ClearItemLayout()
             {
@@ -744,36 +721,14 @@ namespace Ship_Game
 
             public override void PerformLayout()
             {
-                ScrollListStyleTextures s = ScrollListStyleTextures.Get(List.Style);
-                SubTexture addIcon = s.BuildAdd;
-                SubTexture upIcon  = s.QueueArrowUp;
+                for (int i = 0; i < DynamicElements.Count; ++i)
+                    DynamicElements[i].UpdateLayout();
 
-                int right = (int)Right;
-                int iconY = (int)Y + 15;
-                if (Plus) PlusRect = new Rectangle(right - 30, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);
-                if (Edit) EditRect = new Rectangle(right - 60, iconY - addIcon.Height / 2, addIcon.Width, addIcon.Height);
-
-                int offset = 0;
-                bool all = List.Controls == ListControls.All;
-                if (all) Up    = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
-                if (all) Down  = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
-                if (all) Apply = new Rectangle(right - (offset += 30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
-                        Cancel = new Rectangle(right - (offset +  30), iconY - upIcon.Height / 2, upIcon.Width, upIcon.Height);
-                
                 base.PerformLayout();
             }
 
             public override bool HandleInput(InputState input)
             {
-                Vector2 pos = input.CursorPosition;
-                if (Plus) PlusHover = PlusRect.HitTest(pos);
-                if (Edit) EditHover = EditRect.HitTest(pos);
-
-                UpHover     = Up.HitTest(input.CursorPosition);
-                DownHover   = Down.HitTest(input.CursorPosition);
-                CancelHover = Cancel.HitTest(input.CursorPosition);
-                ApplyHover  = Apply.HitTest(input.CursorPosition);
-
                 bool wasHovered = Hovered;
                 Hovered = Rect.HitTest(input.CursorPosition);
 
@@ -783,6 +738,10 @@ namespace Ship_Game
                     GameAudio.ButtonMouseOver();
                     List.OnItemHovered(this as T);
                 }
+
+                for (int i = 0; i < DynamicElements.Count; ++i)
+                    if (DynamicElements[i].HandleInput(input))
+                        return true;
 
                 if (Hovered)
                 {
@@ -802,62 +761,18 @@ namespace Ship_Game
                         List.OnItemClicked(this as T);
                         return true;
                     }
+                    // @note Always capture input if hovered?
+                    return true;
                 }
 
-                return Hovered;
+                return false;
             }
 
             public override void Draw(SpriteBatch batch)
             {
-                ScrollListStyleTextures s = ScrollListStyleTextures.Get(List.Style);
-
-                if (Plus)
+                for (int i = 0; i < DynamicElements.Count; ++i)
                 {
-                    SubTexture plus = PlusHover ? s.BuildAddHover2
-                                      : Hovered ? s.BuildAddHover1
-                                                : s.BuildAdd;
-                    batch.Draw(plus, PlusRect, Color.White);
-                }
-
-                if (Edit)
-                {
-                    SubTexture edit = EditHover ? s.BuildEditHover2
-                                      : Hovered ? s.BuildEditHover1
-                                                : s.BuildEdit;
-                    batch.Draw(edit, EditRect, Color.White);
-                }
-
-                if (!Hovered)
-                {
-                    batch.Draw(s.QueueArrowUp,   Up,     Color.White);
-                    batch.Draw(s.QueueArrowDown, Down,   Color.White);
-                    batch.Draw(s.QueueRush,      Apply,  Color.White);
-                    batch.Draw(s.QueueDelete,    Cancel, Color.White);
-                    return;
-                }
-
-                batch.Draw(s.QueueArrowUpHover1,   Up,     Color.White);
-                batch.Draw(s.QueueArrowDownHover1, Down,   Color.White);
-                batch.Draw(s.QueueRushHover1,      Apply,  Color.White);
-                batch.Draw(s.QueueDeleteHover1,    Cancel, Color.White);
-
-                if (UpHover)
-                {
-                    batch.Draw(s.QueueArrowUpHover2, Up, Color.White);
-                }
-                if (DownHover)
-                {
-                    batch.Draw(s.QueueArrowDownHover2, Down, Color.White);
-                }
-                if (ApplyHover)
-                {
-                    batch.Draw(s.QueueRushHover2, Apply, Color.White);
-                    ToolTip.CreateTooltip(50);
-                }
-                if (CancelHover)
-                {
-                    batch.Draw(s.QueueDeleteHover2, Cancel, Color.White);
-                    ToolTip.CreateTooltip(53);
+                    DynamicElements[i].Draw(batch);
                 }
             }
         }

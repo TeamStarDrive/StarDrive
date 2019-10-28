@@ -400,7 +400,6 @@ namespace Ship_Game
             Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 

@@ -72,9 +72,6 @@ namespace Ship_Game
             {
                 DrawWithDebugOverlay(batch);
             }
-
-            if (ToolTip.Hotkey.IsEmpty())
-                ToolTip.Draw(batch);
         }
 
         void DrawWithDebugOverlay(SpriteBatch batch)
@@ -146,6 +143,7 @@ namespace Ship_Game
             }
         }
 
+        // UIElementContainer default implementation performs layout on all child elements
         public override void PerformLayout()
         {
             RequiresLayout = false;

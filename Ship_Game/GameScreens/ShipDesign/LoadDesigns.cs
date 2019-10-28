@@ -42,15 +42,42 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         class DesignListItem : ScrollList<DesignListItem>.Entry
         {
+            readonly LoadDesigns Screen;
             public ModuleHeader Header;
             public Ship Ship;
-            public ShipData Hull;
-
-            public override bool HandleInput(InputState input)
+            public ShipData WipHull;
+            
+            public DesignListItem(LoadDesigns screen, ModuleHeader header)
             {
-                return base.HandleInput(input);
+                Screen = screen;
+                Header = header;
             }
 
+            public DesignListItem(LoadDesigns screen, Ship ship)
+            {
+                Screen = screen;
+                Ship = ship;
+                if (!ship.IsReadonlyDesign && !ship.FromSave)
+                    AddCancel(new Vector2(-30, 0), "Delete this Ship Design", 
+                        () => PromptDeleteShip(Ship.Name, Screen.DeleteAccepted));
+            }
+
+            public DesignListItem(LoadDesigns screen, ShipData wipHull)
+            {
+                Screen = screen;
+                WipHull = wipHull;
+                AddCancel(new Vector2(-30, 0), "Delete this WIP Hull", 
+                    () => PromptDeleteShip(WipHull.Name, Screen.DeleteDataAccepted));
+            }
+            
+            void PromptDeleteShip(string shipId, EventHandler<EventArgs> onAccept)
+            {
+                Screen.ShipToDelete = shipId;
+                var messageBox = new MessageBoxScreen(Screen, $"Confirm Delete: {shipId}");
+                messageBox.Accepted += onAccept;
+                Screen.ScreenManager.AddScreen(messageBox);
+            }
+            
             public override void Draw(SpriteBatch batch)
             {
                 if (Header != null)
@@ -70,24 +97,19 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     batch.DrawString(Fonts.Arial8Bold, role, tCursor, Color.DarkGray);
                     tCursor.X = tCursor.X + Fonts.Arial8Bold.MeasureString(role).X + 8;
                     batch.DrawString(Fonts.Arial8Bold, $"Base Strength: {Ship.BaseStrength.String(0)}", tCursor, Color.Orange);
-                    
-                    if (!Ship.IsReadonlyDesign && !Ship.FromSave)
-                    {
-                        base.DrawCancel(batch);
-                    }
                 }
-                else if (Hull != null)
+                else if (WipHull != null)
                 {
                     var bCursor = new Vector2(X + 35f, Y);                 
-                    batch.Draw(Hull.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
+                    batch.Draw(WipHull.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
 
                     var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, Hull.Name, tCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, WipHull.Name, tCursor, Color.White);
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(Hull.Role, EmpireManager.Player), tCursor, Color.Orange);
-
-                    base.DrawCancel(batch);
+                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(WipHull.Role, EmpireManager.Player), tCursor, Color.Orange);
                 }
+                
+                base.Draw(batch);
             }
         }
 
@@ -123,34 +145,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         void OnDesignListItemClicked(DesignListItem item)
         {
-            if (item.CancelHover)
+            if (item.WipHull != null)
             {
-                if (item.Hull != null)
-                {
-                    ShipToDelete = item.Hull.Name;
-                    var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                    messageBox.Accepted += DeleteDataAccepted;
-                    ScreenManager.AddScreen(messageBox);
-                }
-                else if (item.Ship != null && !item.Ship.IsReadonlyDesign && !item.Ship.FromSave)
-                {
-                    ShipToDelete = item.Ship.Name;
-                    var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                    messageBox.Accepted += DeleteAccepted;
-                    ScreenManager.AddScreen(messageBox);
-                }
+                EnterNameArea.Text = item.WipHull.Name;
+                selectedWIP = item.WipHull;
             }
-            else
+            else if (item.Ship != null)
             {
-                if (item.Hull != null)
-                {
-                    EnterNameArea.Text = item.Hull.Name;
-                    selectedWIP = item.Hull;
-                }
-                else if (item.Ship != null)
-                {
-                    EnterNameArea.Text = item.Ship.Name;
-                }
+                EnterNameArea.Text = item.Ship.Name;
             }
         }
 
@@ -189,17 +191,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = GameBase.Base.GameTime;
-            
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();            
-            loadMenu.Draw();
+            loadMenu.Draw(batch);
             SaveShips.Draw(batch);
             ShipDesigns.Draw(batch);
-            EnterNameArea.Draw(Fonts.Arial20Bold, batch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             base.Draw(batch);
             PlayerDesignsToggle.Draw(ScreenManager);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
@@ -238,7 +237,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                     shipRoles.Add(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
                     var mh = new ModuleHeader(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
-                    ShipDesigns.AddItem(new DesignListItem{ Header = mh });
+                    ShipDesigns.AddItem(new DesignListItem(this, mh));
                 }
                 catch
                 {
@@ -250,7 +249,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             {
                 shipRoles.Add("WIP");
                 var mh = new ModuleHeader("WIP");
-                ShipDesigns.AddItem(new DesignListItem{ Header = mh });
+                ShipDesigns.AddItem(new DesignListItem(this, mh));
             }
 
             KeyValuePair<string, Ship>[] ships = ResourceManager.ShipsDict
@@ -272,7 +271,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         && (Empire.Universe?.Debug == true || !ship.Value.IsSubspaceProjector)
                         && !ResourceManager.ShipRoles[ship.Value.shipData.Role].Protected)
                     {
-                        headerItem.AddSubItem(new DesignListItem{ Ship = ship.Value });
+                        headerItem.AddSubItem(new DesignListItem(this, ship.Value));
                     }
                 }
 
@@ -280,7 +279,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 {
                     foreach (ShipData wipHull in WIPs)
                     {
-                        headerItem.AddSubItem(new DesignListItem{ Hull = wipHull });
+                        headerItem.AddSubItem(new DesignListItem(this, wipHull));
                     }
                 }
             }

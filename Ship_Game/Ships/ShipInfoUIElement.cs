@@ -205,7 +205,7 @@ namespace Ship_Game.Ships
                 namePos.X = namePos.X - 8;
                 namePos.Y = namePos.Y + 1;
             }
-            ShipNameArea.Draw(titleFont, batch, namePos, gameTime, tColor);
+            ShipNameArea.Draw(batch, titleFont, namePos, tColor);
             //Added by McShooterz:
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);

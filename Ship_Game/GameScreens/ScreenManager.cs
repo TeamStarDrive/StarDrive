@@ -250,12 +250,21 @@ namespace Ship_Game
                         GameScreens[i].Draw(batch);
                     }
                 }
+
+                DrawToolTip(batch);
             }
             catch (Exception e)
             {
                 Log.Error(e, "ScreenManager.Draw Crashed");
                 try { batch.End(); } catch { }
             }
+        }
+
+        void DrawToolTip(SpriteBatch batch)
+        {
+            batch.Begin();
+            ToolTip.Draw(batch);
+            batch.End();
         }
 
         public void ExitAll(bool clear3DObjects)
