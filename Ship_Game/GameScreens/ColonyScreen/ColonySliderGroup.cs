@@ -115,10 +115,5 @@ namespace Ship_Game
             }
             return base.HandleInput(input);
         }
-
-        public override void Draw(SpriteBatch batch)
-        {
-            base.Draw(batch);
-        }
     }
 }

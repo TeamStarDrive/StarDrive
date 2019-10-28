@@ -17,7 +17,7 @@ namespace Ship_Game
         Vector2 TextPos;
         Vector2 CheckPos;
         public bool Checked => Binding.Value;
-        public override string ToString() => $"Checkbox {ElementDescr} Text=\"{Text}\" Checked={Checked}";
+        public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\" Checked={Checked}";
 
         public UICheckBox(UIElementV2 parent, float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
             : base(parent, new Vector2(x,y))

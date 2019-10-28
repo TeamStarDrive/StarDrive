@@ -20,8 +20,8 @@ namespace Ship_Game
         public override string ToString()
         {
             return Sprite == null
-                ? $"Panel {ElementDescr} Color={Color}"
-                : $"Panel {ElementDescr} Name={Sprite.Name}";
+                ? $"{TypeName} {ElementDescr} Color={Color}"
+                : $"{TypeName} {ElementDescr} Name={Sprite.Name}";
         }
 
         public UIPanel()
