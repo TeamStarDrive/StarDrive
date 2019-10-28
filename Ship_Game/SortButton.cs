@@ -45,7 +45,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				orange = (Hover ? Color.White : new Color(255, 239, 208));
+				orange = (Hover ? Color.White : Colors.Cream);
 			}
 			spriteBatch.DrawString(arial20Bold, text, vector2, orange);
 		}
@@ -63,7 +63,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				orange = (Hover ? Color.White : new Color(255, 239, 208));
+				orange = (Hover ? Color.White : Colors.Cream);
 			}
 			spriteBatch.DrawString(spriteFont, text, vector2, orange);
 		}

@@ -51,13 +51,13 @@ namespace Ship_Game
             float x = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 MousePos = new Vector2(x, state.Y);
-            Color c = new Color(255, 239, 208);
+            Color c = Colors.Cream;
             batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
             PlanetMenu.Draw(batch);
             PlanetInfo.Draw(batch);
             batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
             Vector2 PNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
-            batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial20Bold, p.Name, PNameCursor, Colors.Cream);
             PNameCursor.Y = PNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
             float amount = 80f;
             if (GlobalStats.IsGerman)
@@ -66,7 +66,7 @@ namespace Ship_Game
             }
             batch.DrawString(Fonts.Arial12Bold, "Class:", PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, InfoCursor, Colors.Cream);
             if (!p.Habitable)
             {
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
@@ -80,7 +80,7 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", PNameCursor, Color.Orange);
                 SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
-                spriteBatch1.DrawString(arial12Bold, p.PopulationStringForPlayer, InfoCursor, new Color(255, 239, 208));
+                spriteBatch1.DrawString(arial12Bold, p.PopulationStringForPlayer, InfoCursor, Colors.Cream);
                 Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
                 if (hoverRect.HitTest(MousePos))
                 {
@@ -89,7 +89,7 @@ namespace Ship_Game
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", PNameCursor, Color.Orange);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), InfoCursor, new Color(255, 239, 208));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), InfoCursor, Colors.Cream);
                 hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
                 if (hoverRect.HitTest(MousePos))
                 {
@@ -98,7 +98,7 @@ namespace Ship_Game
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", PNameCursor, Color.Orange);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), InfoCursor, new Color(255, 239, 208));
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), InfoCursor, Colors.Cream);
                 hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
                 if (hoverRect.HitTest(MousePos))
                 {
@@ -107,7 +107,7 @@ namespace Ship_Game
             }
             PNameCursor.Y = PlanetIcon.Y + PlanetIcon.Height + 20;
             string desc = Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40);
-            batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, Colors.Cream);
             /*if (this.p.Special != "None")     //This was removed, because the string "Special" was never assigned a valus other than "None" -Gretman
             {
                 PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.MeasureString(desc).Y + 10f);
@@ -118,25 +118,25 @@ namespace Ship_Game
                     if (str1 == "Gold Deposits")
                     {
                         d = this.parseText("This planet has extensive gold deposits and would produce +5 credits per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
                         return;
                     }
                     if (str1 == "Platinum Deposits")
                     {
                         d = this.parseText("This planet has extensive platinum deposits and would produce +10 credits per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
                         return;
                     }
                     if (str1 == "Artifacts")
                     {
                         d = this.parseText("This planet has extensive archaeological curosities, and would provide +2 research points per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
                         return;
                     }
                     if (str1 == "Ancient Machinery")
                     {
                         d = this.parseText("This planet has a cache of ancient but functional alien machinery, and would reap +2 production per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, new Color(255, 239, 208));
+                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
                         return;
                     }
                     if (str1 != "Spice")
@@ -144,7 +144,7 @@ namespace Ship_Game
                         return;
                     }
                     d = this.parseText("The native creatures of this planet secrete an incredible spice-like element with brain-enhancing properties.  If colonized, this planet would produce +5 research per turn", (float)(this.PlanetInfo.Menu.Width - 40));
-                    spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, new Color(255, 239, 208));
+                    spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
                 }
             }*/
         }

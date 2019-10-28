@@ -25,7 +25,8 @@ namespace Ship_Game
         {
             try
             {
-                FileInfo headerToDel = new FileInfo(string.Concat(Path, "Headers/", fileToDel.Name.Substring(0, fileToDel.Name.LastIndexOf('.'))));       // find header of save file
+                // find header of save file
+                FileInfo headerToDel = new FileInfo(Path+"Headers/"+FileToDelete.FileLink.NameNoExt());
                 //Log.Info(headerToDel.FullName);
                 headerToDel.Delete();
             }
@@ -41,9 +42,9 @@ namespace Ship_Game
             {
                 try
                 {
-                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(fileInfo);
+                    var data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(fileInfo);
 
-                    if (string.IsNullOrEmpty(data.SaveName))
+                    if (data.SaveName.IsEmpty())
                     {
                         data.SaveName = fileInfo.NameNoExt(); // set name before it's used
                         data.Version = 0;
@@ -60,7 +61,9 @@ namespace Ship_Game
 
                     string info = $"{data.PlayerName} StarDate {data.StarDate}";
                     string extraInfo = data.RealDate;
-                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
+                    IEmpireData empire = ResourceManager.AllRaces.FirstOrDefault(e => e.Name == data.PlayerName)
+                                      ?? ResourceManager.AllRaces[0];
+                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo, empire.Traits.FlagIcon, empire.Traits.Color));
                 }
                 catch
                 {

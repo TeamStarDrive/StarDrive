@@ -183,13 +183,9 @@ namespace Ship_Game
                     if (traits.FlagIndex == origRaceTraits.FlagIndex)
                         traits.FlagIndex = FlagIndex;
 
-                    if (traits.R == origRaceTraits.R && 
-                        traits.G == origRaceTraits.G &&
-                        traits.B == origRaceTraits.B)
+                    if (traits.Color == origRaceTraits.Color)
                     {
-                        traits.R = Picker.CurrentColor.R;
-                        traits.G = Picker.CurrentColor.G;
-                        traits.B = Picker.CurrentColor.B;
+                        traits.Color = Picker.CurrentColor;
                     }
                     break;
                 }
@@ -201,7 +197,7 @@ namespace Ship_Game
         {
             RaceSummary.ShipType = traits.ShipType;
             FlagIndex = traits.FlagIndex;
-            Picker.CurrentColor = new Color((byte)traits.R, (byte)traits.G, (byte)traits.B, 255);
+            Picker.CurrentColor  = traits.Color;
             RaceName.Text        = traits.Name;
             SingEntry.Text       = traits.Singular;
             PlurEntry.Text       = traits.Plural;

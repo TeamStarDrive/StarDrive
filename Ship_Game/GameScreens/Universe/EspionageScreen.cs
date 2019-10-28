@@ -35,7 +35,7 @@ namespace Ship_Game
                 string espionage = Localizer.Token(6089);
                 var titlePos = new Vector2(titleRect.Center.X - Fonts.Laserian14.MeasureString(espionage).X / 2f, 
                                            titleRect.Center.Y - Fonts.Laserian14.LineSpacing / 2);
-                Label(titlePos, espionage, Fonts.Laserian14, new Color(255, 239, 208));
+                Label(titlePos, espionage, Fonts.Laserian14, Colors.Cream);
             }
 
 

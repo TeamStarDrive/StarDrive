@@ -34,6 +34,8 @@ namespace Ship_Game.AI
         public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
 
         public int FleetIconIndex;
+        public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
+        
         public int TaskStep;
         public bool IsCoreFleet;
 

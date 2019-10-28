@@ -95,7 +95,7 @@ namespace Ship_Game
                 batch.FillRectangle(TotalEntrySize, Color.DarkGreen);
             }
 
-            var TextColor = new Color(255, 239, 208);
+            var TextColor = Colors.Cream;
 
             string sysname = ship.System?.Name ?? Localizer.Token(150);
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)

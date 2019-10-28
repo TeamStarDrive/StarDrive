@@ -84,7 +84,7 @@ namespace Ship_Game
             string text;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             ScreenManager.SpriteBatch.Begin();
-            Color c = new Color(255, 239, 208);
+            Color c = Colors.Cream;
             Selector fleetStats = new Selector(FleetStatsRect, new Color(0, 0, 0, 180));
             fleetStats.Draw(ScreenManager.SpriteBatch);
             Cursor = new Vector2(FleetStatsRect.X + 25, FleetStatsRect.Y + 25);
@@ -163,7 +163,7 @@ namespace Ship_Game
 
         private void DrawStat(string text, int value, ref Vector2 cursor)
         {
-            Color c = new Color(255, 239, 208);
+            Color c = Colors.Cream;
             float column1 = cursor.X;
             float column2 = cursor.X + 175f;
             cursor.X = column1;
@@ -176,7 +176,7 @@ namespace Ship_Game
 
         private void DrawStat(string text, int value, ref Vector2 cursor, Color statColor)
         {
-            Color c = new Color(255, 239, 208);
+            Color c = Colors.Cream;
             float column1 = cursor.X;
             float column2 = cursor.X + 175f;
             cursor.X = column1;

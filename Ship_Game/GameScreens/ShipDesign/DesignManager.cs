@@ -114,7 +114,7 @@ namespace Ship_Game
             batch.Begin();
             SaveMenu.Draw(batch);
             SaveShips.Draw(batch);
-            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Colors.Cream));
             subAllDesigns.Draw(batch);
             ShipDesigns.Draw(batch);
             base.Draw(batch);

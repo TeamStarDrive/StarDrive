@@ -962,6 +962,11 @@ namespace Ship_Game
             FlagTextures = RootContent.LoadTextureAtlas("Flags");
         }
 
+        public static SubTexture FleetIcon(int index)
+        {
+            return Texture("FleetIcons/"+index);
+        }
+
         static void LoadGoods() // Refactored by RedFox
         {
             foreach (var pair in LoadEntitiesWithInfo<Good>("Goods", "LoadGoods"))

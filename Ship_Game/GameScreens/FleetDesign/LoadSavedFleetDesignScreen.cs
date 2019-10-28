@@ -18,10 +18,10 @@ namespace Ship_Game
 
         protected override void Load()
         {
-            if (selectedFile != null)
+            if (SelectedFile != null)
             {
                 XmlSerializer serializer1 = new XmlSerializer(typeof(FleetDesign));
-                FleetDesign data = (FleetDesign)serializer1.Deserialize(selectedFile.FileLink.OpenRead());
+                FleetDesign data = (FleetDesign)serializer1.Deserialize(SelectedFile.FileLink.OpenRead());
                 parentScreen.LoadData(data);
             }
             else
@@ -53,7 +53,7 @@ namespace Ship_Game
                 var design = serializer.Deserialize<FleetDesign>(info);
                 if (PlayerCanBuildFleet(design))
                 {
-                    AddItemToSaveSL(info);
+                    AddItemToSaveSL(info, design.Icon);
                 }
                 else
                 {
@@ -67,7 +67,7 @@ namespace Ship_Game
                 var design = serializer.Deserialize<FleetDesign>(info);
                 if (PlayerCanBuildFleet(design))
                 {
-                    AddItemToSaveSL(info);
+                    AddItemToSaveSL(info, design.Icon);
                 }
                 else
                 {
