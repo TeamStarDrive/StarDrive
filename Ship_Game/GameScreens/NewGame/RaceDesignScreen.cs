@@ -610,7 +610,7 @@ namespace Ship_Game
             NameMenu.Draw(batch);
             var c = new Color(255, 239, 208);
             NameSub.Draw(batch);
-            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(31)+": ", RaceNamePos, Color.BurlyWood);
             Vector2 rpos = RaceNamePos;
             rpos.X = rpos.X + 205f;
             if (!RaceName.HandlingInput)
@@ -624,7 +624,7 @@ namespace Ship_Game
             RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(26), ": "), rpos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(26)+": ", rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
             if (!SingEntry.HandlingInput)
             {
@@ -637,7 +637,7 @@ namespace Ship_Game
             SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(27), ": "), rpos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(27)+": ", rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
             if (!PlurEntry.HandlingInput)
             {
@@ -650,7 +650,7 @@ namespace Ship_Game
             PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
             rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(28), ": "), rpos, Color.BurlyWood);
+            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(28)+": ", rpos, Color.BurlyWood);
             rpos.X = rpos.X + 205f;
             if (!HomeSystemEntry.HandlingInput)
             {
@@ -699,20 +699,20 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
             // ========================
 
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(24)+": ", new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, GalaxySize.ToString(), new Vector2(GalaxySizeRect.X + 190 - Fonts.Arial12.MeasureString(GalaxySize.ToString()).X, GalaxySizeRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(25), " : "), new Vector2(NumberStarsRect.X, NumberStarsRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(25)+" : ", new Vector2(NumberStarsRect.X, NumberStarsRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, StarEnum.ToString(), new Vector2(NumberStarsRect.X + 190 - Fonts.Arial12.MeasureString(StarEnum.ToString()).X, NumberStarsRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2102), " : "), new Vector2(NumOpponentsRect.X, NumOpponentsRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(2102)+" : ", new Vector2(NumOpponentsRect.X, NumOpponentsRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, numOpponents.ToString(), new Vector2(NumOpponentsRect.X + 190 - Fonts.Arial12.MeasureString(numOpponents.ToString()).X, NumOpponentsRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2105), " : "), new Vector2(GameModeRect.X, GameModeRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2133), " : "), new Vector2(PacingRect.X, PacingRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, string.Concat(Pacing.ToString(), "%"), new Vector2(PacingRect.X + 190 - Fonts.Arial12.MeasureString(string.Concat(Pacing.ToString(), "%")).X, PacingRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(2139), " : "), new Vector2(DifficultyRect.X, DifficultyRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(2105)+" : ", new Vector2(GameModeRect.X, GameModeRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(2133)+" : ", new Vector2(PacingRect.X, PacingRect.Y), Color.White);
+            batch.DrawString(Fonts.Arial12, Pacing+"%", new Vector2(PacingRect.X + 190 - Fonts.Arial12.MeasureString(Pacing+"%").X, PacingRect.Y), Color.BurlyWood);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(2139)+" : ", new Vector2(DifficultyRect.X, DifficultyRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, SelectedDifficulty.ToString(), new Vector2(DifficultyRect.X + 190 - Fonts.Arial12.MeasureString(SelectedDifficulty.ToString()).X, DifficultyRect.Y), Color.BurlyWood);
 
             //Added by Gretman
-            string ExtraRemnantString = string.Concat(Localizer.Token(4101), " : ");
+            string ExtraRemnantString = Localizer.Token(4101)+" : ";
             batch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2(ExtraRemnantRect.X, ExtraRemnantRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, ExtraRemnant.ToString(), new Vector2(ExtraRemnantRect.X + 190 - Fonts.Arial12.MeasureString(ExtraRemnant.ToString()).X, ExtraRemnantRect.Y), Color.BurlyWood);
 

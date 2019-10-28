@@ -136,32 +136,32 @@ namespace Ship_Game
             {
                 amount = amount + 25f;
             }
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384)+":", PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.CategoryName, InfoCursor, new Color(255, 239, 208));
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.PopulationStringForPlayer, InfoCursor, new Color(255, 239, 208));
-            Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(75);
             }
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(386), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(EmpireManager.Player).String(), InfoCursor, new Color(255, 239, 208));
-            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(20);
             }
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(387), ":"), PNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", PNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.MineralRichness.String(), InfoCursor, new Color(255, 239, 208));
-            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
                 ToolTip.CreateTooltip(21);
@@ -220,7 +220,7 @@ namespace Ship_Game
                 }
                 DrawPGSIcons(pgs);
             }
-            batch.Draw(ResourceManager.Texture(string.Concat("PlanetTiles/", SelectedPlanet.PlanetTileId)), buildingsRect, Color.White);
+            batch.Draw(ResourceManager.Texture("PlanetTiles/"+SelectedPlanet.PlanetTileId), buildingsRect, Color.White);
     
             int xpos = (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - MapRect.Width) / 2;
             int ypos = (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - MapRect.Height) / 2;
@@ -234,7 +234,7 @@ namespace Ship_Game
                 portraitRect.Height = portraitRect.Height - (int)(0.25 * portraitRect.Height);
                 portraitRect.Width = portraitRect.Width - (int)(0.25 * portraitRect.Width);
             }
-            batch.Draw(ResourceManager.Texture(string.Concat("Portraits/", EmpireManager.Player.data.PortraitName)), portraitRect, Color.White);
+            batch.Draw(ResourceManager.Texture("Portraits/"+EmpireManager.Player.data.PortraitName), portraitRect, Color.White);
             batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), portraitRect, Color.White);
             if (SelectedPlanet.colonyType == Planet.ColonyType.Colony)
             {
@@ -413,7 +413,7 @@ namespace Ship_Game
             if (pgs.TroopsHere.Count > 0)
             {
                 pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 36, pgs.ClickRect.Y, 35, 35);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Troops/", pgs.SingleTroop.TexturePath)), pgs.TroopClickRect, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Troops/"+pgs.SingleTroop.TexturePath), pgs.TroopClickRect, Color.White);
             }
             float numFood = 0f;
             float numProd = 0f;

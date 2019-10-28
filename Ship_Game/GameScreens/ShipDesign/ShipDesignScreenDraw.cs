@@ -652,7 +652,7 @@ namespace Ship_Game
                     }
                 }
                 else
-                    DrawStatPropulsion(ref cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
+                    DrawStatPropulsion(ref cursor, Localizer.Token(2170)+":", warpString, 135);
 
                 if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
             }

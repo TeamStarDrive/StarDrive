@@ -124,7 +124,7 @@ namespace Ship_Game
                 TitlePos = new Vector2(what.X, 20f);
                 SpriteFont arial12Bold = Fonts.Arial12Bold;
                 float radius = shipSO.WorldBoundingSphere.Radius;
-                batch.DrawString(arial12Bold, string.Concat("Radius: ", radius.ToString()), TitlePos, Color.White);
+                batch.DrawString(arial12Bold, "Radius: "+radius.ToString(), TitlePos, Color.White);
                 TitlePos.Y = TitlePos.Y + 20f;
                 string text = "If you can't see your model then your radius is likely too big or too small." 
                               + " A radius of 512 will fit snugly inside the box. Change the scale when you compile the model. " 

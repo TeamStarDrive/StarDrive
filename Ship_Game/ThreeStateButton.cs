@@ -37,7 +37,7 @@ namespace Ship_Game
 
 		public void Draw(ScreenManager ScreenManager, int amount)
 		{
-			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Goods/", Good)), rect, Color.White);
+			ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Goods/"+Good), rect, Color.White);
 			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, amount.ToString(), TextPos, Color.White);
 			string statetext = "";
 			if (state == State.In)
