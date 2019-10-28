@@ -444,9 +444,9 @@ namespace Ship_Game
 			{
 				if (empire.Research.NoTopic)
 				{
-					textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
+					textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(102)+"...").X;
 					textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-					spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
+					spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(102)+"...", textCursor, new Color(255, 240, 189));
 					return;
 				}
 				int xOffset = (int)(empire.Research.Current.PercentResearched * res2.Width);
@@ -499,9 +499,9 @@ namespace Ship_Game
 					spriteBatch.DrawString(Fonts.Tahoma10, text, textCursor, new Color(255, 240, 189));
 					return;
 				}
-				textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
+				textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(102)+"...").X;
 				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
+				spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(102)+"...", textCursor, new Color(255, 240, 189));
 			}
 		}
 

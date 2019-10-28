@@ -32,7 +32,7 @@ namespace Ship_Game
 			string toDraw = Name;
 			while (Fonts.Arial12Bold.MeasureString(toDraw).X < width - 20f)
 			{
-				toDraw = string.Concat(toDraw, " .");
+				toDraw = toDraw+" .";
 			}
 			if (points < Cost)
 			{

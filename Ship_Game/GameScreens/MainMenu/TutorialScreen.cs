@@ -28,7 +28,7 @@ namespace Ship_Game
 		{
 			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
 		    batch.Begin();
-		    batch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
+		    batch.Draw(TexDict["Slide_"+Index.ToString("00")], BridgeRect, Color.White);
 			close.Draw(batch);
 		    batch.End();
 		}

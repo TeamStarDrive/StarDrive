@@ -53,14 +53,14 @@ namespace Ship_Game
 			{
 				amount = amount + 25f;
 			}
-			batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), pNameCursor, Color.Orange);
+			batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384)+":", pNameCursor, Color.Orange);
 			var infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
 			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, new Color(255, 239, 208));
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), pNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", pNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, new Color(255, 239, 208));
-			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
+			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(75);
@@ -69,7 +69,7 @@ namespace Ship_Game
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", pNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, new Color(255, 239, 208));
-			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
+			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(20);
@@ -78,7 +78,7 @@ namespace Ship_Game
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", pNameCursor, Color.Orange);
             batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, new Color(255, 239, 208));
-			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
+			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(21);

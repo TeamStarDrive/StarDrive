@@ -147,9 +147,9 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12, string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity), TroopPos, Color.White);
             
             var FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            FTLPos.X -= Fonts.Arial12.MeasureString(string.Concat((ship.GetmaxFTLSpeed / 1000f).ToString("0"), "k")).X / 2f + 6;
+            FTLPos.X -= Fonts.Arial12.MeasureString((ship.GetmaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref FTLPos);
-            batch.DrawString(Fonts.Arial12, string.Concat((ship.GetmaxFTLSpeed / 1000f).ToString("0"), "k"), FTLPos, Color.White);
+            batch.DrawString(Fonts.Arial12, (ship.GetmaxFTLSpeed / 1000f).ToString("0")+"k", FTLPos, Color.White);
 
             var STLPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             STLPos.X -= Fonts.Arial12.MeasureString(ship.GetSTLSpeed().ToString("0")).X / 2f + 6;
@@ -249,7 +249,7 @@ namespace Ship_Game
                 case AIState.MoveTo:
                     if (ship.Velocity.NotZero() || ship.isTurning)
                     {
-                        string text = string.Concat(Localizer.Token(187), " ");
+                        string text = Localizer.Token(187)+" ";
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
@@ -259,7 +259,7 @@ namespace Ship_Game
                         }
                         if (last.Plan == ShipAI.Plan.DeployStructure || last.Plan == ShipAI.Plan.DeployOrbital)
                         {
-                            text = string.Concat(text, Localizer.Token(188));
+                            text = text+Localizer.Token(188);
                             if (last.Goal != null && ResourceManager.GetShipTemplate(last.Goal.ToBuildUID, out Ship toBuild))
                                 text = string.Concat(text, " ", toBuild.Name);
                             return text;

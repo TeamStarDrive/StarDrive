@@ -111,7 +111,7 @@ namespace Ship_Game
 
                 position = new Vector2((r.X - 60), (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                 string maintenance = b.Maintenance.ToString("F2");
-                batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+                batch.DrawString(Font8, maintenance+" BC/Y", position, Color.Salmon);
 
                 position = new Vector2((r.X + 26), (r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                 batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
@@ -127,7 +127,7 @@ namespace Ship_Game
                 position = new Vector2((r.X - 60), (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                 float actualMaint = b.Maintenance + b.Maintenance * p.Owner.data.Traits.MaintMod;
                 string maintenance = actualMaint.ToString("F2");
-                batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
+                batch.DrawString(Font8, maintenance+" BC/Y", position, Color.Salmon);
 
                 position = new Vector2((r.X + 26), (r.Y + r.Height / 2 - Font12.LineSpacing / 2));
                 batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
@@ -247,7 +247,7 @@ namespace Ship_Game
                     upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
                 }
 
-                batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+                batch.DrawString(Font8, upkeep+" BC/Y", position, Color.Salmon);
 
                 // ~~~
 
@@ -292,7 +292,7 @@ namespace Ship_Game
                     upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
                 }
 
-                batch.DrawString(Font8, string.Concat(upkeep, " BC/Y"), position, Color.Salmon);
+                batch.DrawString(Font8, upkeep+" BC/Y", position, Color.Salmon);
 
                 // ~~~
 

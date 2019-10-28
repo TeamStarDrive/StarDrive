@@ -60,7 +60,7 @@ namespace Ship_Game
 						line++;
 					}
 					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/techroot_body"), RootRect, Color.White);
-					spriteBatch.Draw(ResourceManager.Texture(string.Concat("ResearchMenu/", ResourceManager.TechTree[Entry.UID].IconPath)), IconRect, Color.White);
+					spriteBatch.Draw(ResourceManager.Texture("ResearchMenu/"+ResourceManager.TechTree[Entry.UID].IconPath), IconRect, Color.White);
 					return;
 				}
 				case NodeState.Hover:

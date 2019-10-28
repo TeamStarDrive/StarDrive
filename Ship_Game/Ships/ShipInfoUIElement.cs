@@ -210,7 +210,7 @@ namespace Ship_Game.Ships
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
             if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
-                longName += string.Concat(" - ", Ship.shipData.GetCategory());
+                longName += " - "+Ship.shipData.GetCategory();
 
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
@@ -307,7 +307,7 @@ namespace Ship_Game.Ships
             batch.Draw(iconPack, packRect, Color.White);
             var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
             float damageModifier = Ship.PackDamageModifier * 100f;
-            batch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
+            batch.DrawString(Fonts.Arial12, damageModifier.ToString("0")+"%", textPos, Color.White);
             if (packRect.HitTest(mousePos))
                 ToolTip.CreateTooltip(Localizer.Token(2245));
 
