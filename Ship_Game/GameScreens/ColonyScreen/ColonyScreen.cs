@@ -13,7 +13,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public partial class ColonyScreen : PlanetScreen, IListScreen
+    public partial class ColonyScreen : PlanetScreen
     {
         public Planet P;
         private ToggleButton PlayerDesignsToggle;
@@ -1031,7 +1031,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            pFacilities.HandleInputNoReset(input);
+            pFacilities.HandleInput(input);
             GovOrbitals.HandleInput(input);
             GovMilitia.HandleInput(input);
             DontScrapBuildings.HandleInput(input);

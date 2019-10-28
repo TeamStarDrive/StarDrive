@@ -11,7 +11,7 @@ using Ship_Game.Audio;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public sealed class FleetDesignScreen : GameScreen, IListScreen
+    public sealed class FleetDesignScreen : GameScreen
     {
         public static bool Open;
         public Camera2D Camera;

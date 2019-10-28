@@ -93,7 +93,7 @@ namespace Ship_Game
             string descr = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
             descr = Font8.ParseText(descr, 280f);
 
-            var position = new Vector2(List.ParentMenu.X + 60f, Y - 4f);
+            var position = new Vector2(List.X + 60f, Y - 4f);
 
             batch.Draw(icon, new Rectangle((int)X, (int)Y, 29, 30), buildColor);
             batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), position, buildColor);
@@ -161,7 +161,7 @@ namespace Ship_Game
             SpriteFont Font12 = Fonts.Arial12Bold;
 
             SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-            var tl = new Vector2(List.ParentMenu.X + 20, Y);
+            var tl = new Vector2(List.X + 20, Y);
 
             base.Draw(batch);
 
@@ -199,7 +199,7 @@ namespace Ship_Game
 
         void DrawHeader(SpriteBatch batch, ModuleHeader header)
         {
-            header.Pos = new Vector2(List.ParentMenu.X + 20, Y);
+            header.Pos = new Vector2(List.X + 20, Y);
             header.Draw(batch);
         }
         
@@ -208,7 +208,7 @@ namespace Ship_Game
             Planet p = Screen.P;
             SpriteFont Font8 = Fonts.Arial8Bold;
             SpriteFont Font12 = Fonts.Arial12Bold;
-            var topLeft =  new Vector2(List.ParentMenu.X + 20, Y);
+            var topLeft =  new Vector2(List.X + 20, Y);
 
             if (!Hovered)
             {

@@ -27,7 +27,6 @@ namespace Ship_Game
     public class ScrollList<T> : UIElementV2
         where T : ScrollList<T>.Entry
     {
-        public readonly Submenu ParentMenu;
         Rectangle ScrollUp;
         Rectangle ScrollDown;
         Rectangle ScrollBarHousing;
@@ -55,6 +54,9 @@ namespace Ship_Game
         // If TRUE, automatically draws Selection highlight around each ScrollList Item
         public bool IsSelectable = false;
 
+        // If set to a valid UIElement instance, then this element will be drawn in the background
+        public UIElementV2 Background;
+
         // EVENT: Called when a new item is focused with mouse
         //        @note This is called again with <null> when mouse leaves focus
         public Action<T> OnHovered;
@@ -74,16 +76,25 @@ namespace Ship_Game
         T DraggedEntry;
         Vector2 DraggedOffset;
 
-        public ScrollList(Submenu menu, ListStyle style = ListStyle.Default) : this(menu, 40, style)
+        public ScrollList(UIElementV2 background, ListStyle style = ListStyle.Default) : this(background, 40, style)
+        {
+        }
+        
+        public ScrollList(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default) : this(background.Rect, entryHeight, style)
+        {
+            Background = background;
+        }
+
+        public ScrollList(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
+            : this(new Rectangle((int)x, (int)y, (int)w, (int)h), entryHeight, style)
         {
         }
 
-        public ScrollList(Submenu menu, int entryHeight, ListStyle style = ListStyle.Default)
+        public ScrollList(in Rectangle rect, int entryHeight, ListStyle style = ListStyle.Default) : base(null, rect)
         {
-            ParentMenu = menu;
             Style = style;
             EntryHeight = entryHeight;
-            MaxVisibleEntries = (menu.Rect.Height - 25) / entryHeight;
+            MaxVisibleEntries = (rect.Height - 25) / entryHeight;
             this.PerformLayout();
         }
 
@@ -312,7 +323,7 @@ namespace Ship_Game
 
         bool HandleMouseScrollUpDown(InputState input)
         {
-            if (!ParentMenu.HitTest(input.CursorPosition))
+            if (!Rect.HitTest(input.CursorPosition))
                 return false;
             if (input.ScrollIn)
             {
@@ -420,7 +431,7 @@ namespace Ship_Game
             }
 
             // No longer hovering over the scroll list? Clear the SelectionBox
-            if (IsSelectable && !ParentMenu.HitTest(input.CursorPosition))
+            if (IsSelectable && !Rect.HitTest(input.CursorPosition))
             {
                 SelectionBox = null;
             }
@@ -436,6 +447,10 @@ namespace Ship_Game
             hit |= HandleMouseScrollUpDown(input);
             HandleDraggable(input);
             HandleElementDragging(input);
+
+            if (Background != null && Background.HandleInput(input))
+                return true;
+
             if (!hit)
                 return HandleInputChildElements(input);
             return hit;
@@ -452,12 +467,15 @@ namespace Ship_Game
             base.PerformLayout();
 
             ScrollListStyleTextures s = GetStyle();
-            Submenu p = ParentMenu;
-            Rect = p.Rect;
-            int x = (int)(p.X + p.Width - 20f);
-            ScrollUp   = new Rectangle(x, p.Rect.Y + 30,                 s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
-            ScrollDown = new Rectangle(x, p.Rect.Y + p.Rect.Height - 14, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
+            ScrollUp   = new Rectangle((int)(Right - 20), (int)Y + 30,      s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
+            ScrollDown = new Rectangle((int)(Right - 20), (int)Bottom - 14, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
             ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Y + ScrollUp.Height + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
+
+            if (Background != null)
+            {
+                Background.Rect = Rect;
+                Background.PerformLayout();
+            }
 
             if (Entries.Count > 0)
             {
@@ -468,7 +486,7 @@ namespace Ship_Game
                 FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
                     Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
 
-                UpdateItemPositions(ParentMenu.Pos);
+                UpdateItemPositions(Pos);
             }
 
             UpdateScrollBar();
@@ -495,7 +513,7 @@ namespace Ship_Game
                 {
                     e.VisibleIndex = visibleIndex++;
                     e.Rect = new Rectangle((int)listTopLeft.X + 20, (int)listTopLeft.Y + 35 + e.VisibleIndex * EntryHeight, 
-                                           ParentMenu.Rect.Width - 40, EntryHeight);
+                                           (int)Width - 40, EntryHeight);
                     e.PerformLayout();
                 }
                 else
@@ -539,6 +557,8 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            Background?.Draw(batch);
+
             if (ExpandedEntries.Count > MaxVisibleEntries)
                 DrawScrollBar(batch);
 
@@ -786,12 +806,12 @@ namespace Ship_Game
         // ReSharper disable once UnusedMember.Global
         public ScrollListDebugView(ScrollList<T> list) { List = list; }
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        public ScrollList<T>.Entry[] Items
+        public T[] Items
         {
             get
             {
-                IReadOnlyList<ScrollList<T>.Entry> allEntries = List.AllEntries;
-                var items = new ScrollList<T>.Entry[allEntries.Count];
+                IReadOnlyList<T> allEntries = List.AllEntries;
+                var items = new T[allEntries.Count];
                 for (int i = 0; i < items.Length; ++i)
                     items[i] = allEntries[i];
                 return items;

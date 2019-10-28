@@ -211,7 +211,7 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString() => DisplayText;
+        public override string ToString() => $"{TypeName} DisplayText={DisplayText}";
 
         public SavedGame.QueueItemSave Serialize()
         {

@@ -1,14 +1,10 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public interface IListScreen
-    {
-        void ResetLists();
-    }
-
     public enum SubmenuStyle
     {
         Brown,
@@ -30,6 +26,31 @@ namespace Ship_Game
         Rectangle TL;
         readonly SpriteFont Font = Fonts.Pirulen12;
         readonly SubmenuStyle Style;
+
+        // EVT: Triggered when a tab is changed
+        public Action<Tab> OnTabChange;
+
+        Tab ActiveTab;
+
+        // Currently Active Tab
+        public Tab SelectedTab
+        {
+            get => ActiveTab;
+            set
+            {
+                for (int i = 0; i < Tabs.Count; ++i)
+                    Tabs[i].Selected = false;
+
+                Tab oldActive = ActiveTab;
+                ActiveTab = Tabs.Contains(value) ? value : null; // validate Tab
+
+                if (ActiveTab != null)
+                    ActiveTab.Selected = true;
+
+                if (ActiveTab != oldActive)
+                    OnTabChange?.Invoke(ActiveTab);
+            }
+        }
 
         public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown) : base(null, theMenu)
         {
@@ -163,6 +184,7 @@ namespace Ship_Game
             var tabRect = new Rectangle((int)tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25);
             Tabs.Add(new Tab
             {
+                Index = Tabs.Count,
                 tabRect  = tabRect,
                 Title    = title,
                 Selected = Tabs.Count == 0,
@@ -257,33 +279,6 @@ namespace Ship_Game
             batch.Draw(s.HorizVert, VL, Color.White);
         }
 
-        /// TODO: there are 3 pretty much identical functions here... what the hell??
-        public void HandleInput(InputState input, IListScreen caller)
-        {
-            if (!Visible || !Enabled)
-                return;
-
-            for (int i = 0; i < Tabs.Count; i++)
-            {
-                Tab tab = Tabs[i];
-                if (!tab.tabRect.HitTest(input.CursorPosition))
-                {
-                    tab.Hover = false;
-                    continue;
-                }
-                tab.Hover = true;
-                if (input.LeftMouseClick)
-                {
-                    GameAudio.AcceptClick();
-                    tab.Selected = true;
-                    foreach (Tab otherTab in Tabs)
-                        if (otherTab != tab) otherTab.Selected = false;
-
-                    caller.ResetLists();
-                }
-            }
-        }
-
         public override bool HandleInput(InputState input)
         {
             if (!Visible || !Enabled)
@@ -293,59 +288,21 @@ namespace Ship_Game
             for (int i = 0; i < Tabs.Count; i++)
             {
                 Tab tab = Tabs[i];
-                if (!tab.tabRect.HitTest(mousePos))
+                tab.Hover = tab.tabRect.HitTest(mousePos);
+                if (tab.Hover && input.LeftMouseClick)
                 {
-                    tab.Hover = false;
+                    GameAudio.AcceptClick();
+                    SelectedTab = tab;
+                    return true;
                 }
-                else
-                {
-                    tab.Hover = true;
-                    if (input.LeftMouseClick)
-                    {
-                        GameAudio.AcceptClick();
-                        tab.Selected = true;
-                        foreach (Tab t1 in Tabs)
-                        {
-                            if (t1 == tab)
-                            {
-                                continue;
-                            }
-                            t1.Selected = false;
-                        }
-                        return true;
-                    }
-                }
-
             }
+
             return false;
-        }
-
-        public void HandleInputNoReset(InputState input)
-        {
-            if (!Visible || !Enabled)
-                return;
-
-            foreach (Tab tab in Tabs)
-            {
-                if (!tab.tabRect.HitTest(input.CursorPosition))
-                {
-                    tab.Hover = false;
-                    continue;
-                }
-
-                tab.Hover = true;
-                if (input.LeftMouseClick)
-                    continue;
-                tab.Selected = true;
-                foreach (Tab otherTab in Tabs)
-                {
-                    if (otherTab != tab) otherTab.Selected = false;
-                }
-            }
         }
 
         public class Tab
         {
+            public int Index;
             public string Title;
             public Rectangle tabRect;
             public bool Selected;

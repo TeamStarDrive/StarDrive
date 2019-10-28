@@ -44,11 +44,11 @@ namespace Ship_Game
             corner_TR = new Rectangle(r.X + r.Width - s.TR.Width, r.Y, s.TR.Width, s.TR.Height);
             corner_BL = new Rectangle(r.X, r.Y + r.Height - s.BL.Height, s.BL.Width, s.BL.Height);
             corner_BR = new Rectangle(r.X + r.Width - s.BR.Width, r.Y + r.Height - s.BR.Height, s.BR.Width, s.BR.Height);
-            horizTop = new Rectangle(corner_TL.X + corner_TL.Width, corner_TL.Y, r.Width - corner_TL.Width - corner_TR.Width, s.HT.Height);
-            horizBot = new Rectangle(corner_BL.X + corner_BL.Width, r.Y + r.Height - s.HB.Height, r.Width - corner_BL.Width - corner_BR.Width, s.HB.Height);
-            vertLeft = new Rectangle(corner_TL.X + 1, corner_TL.Y + corner_TL.Height, s.VL.Width, r.Height - corner_TL.Height - corner_BL.Height);
+            horizTop  = new Rectangle(corner_TL.X + corner_TL.Width, corner_TL.Y, r.Width - corner_TL.Width - corner_TR.Width, s.HT.Height);
+            horizBot  = new Rectangle(corner_BL.X + corner_BL.Width, r.Y + r.Height - s.HB.Height, r.Width - corner_BL.Width - corner_BR.Width, s.HB.Height);
+            vertLeft  = new Rectangle(corner_TL.X + 1, corner_TL.Y + corner_TL.Height, s.VL.Width, r.Height - corner_TL.Height - corner_BL.Height);
             vertRight = new Rectangle(r.X + r.Width - 1 - s.VR.Width, corner_TR.Y + corner_TR.Height, s.VR.Width, r.Height - corner_TR.Height - corner_BR.Height);
-            fillRect = new Rectangle(r.X + 8, r.Y + 8, r.Width - 16, r.Height - 16);
+            fillRect  = new Rectangle(r.X + 8, r.Y + 8, r.Width - 16, r.Height - 16);
 
             var subMenuRect = new Rectangle(r.X + 20, r.Y - 5, r.Width - 40, r.Height - 15);
 
@@ -66,12 +66,6 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             return false;
-        }
-        
-        public void Update(Rectangle theMenu)
-        {
-            Rect = theMenu;
-            PerformLayout();
         }
 
         public override void Draw(SpriteBatch batch)

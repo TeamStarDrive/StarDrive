@@ -29,7 +29,7 @@ namespace Ship_Game.Gameplay
         }
 
         public override string ToString()
-            => $"Response:\"{Response}\"  Words:\"{Words}\"  Inquiry:\"{SpecialInquiry}\"";
+            => $"{TypeName} Response:\"{Response}\"  Words:\"{Words}\"  Inquiry:\"{SpecialInquiry}\"";
 
         public void ChangeSpecialInquiry(Array<string> items)
         {

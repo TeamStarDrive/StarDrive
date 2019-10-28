@@ -1,8 +1,6 @@
 ﻿
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
-using Ship_Game.Audio;
 using Ship_Game.Ships;
 
 // ReSharper disable once CheckNamespace
@@ -10,6 +8,7 @@ namespace Ship_Game
 {
     public class FighterScrollList : ScrollList<FighterListItem>
     {
+        Submenu FighterListContainer;
         readonly GameScreen Screen;
         public ShipModule ActiveHangarModule;
         public ShipModule ActiveModule;
@@ -18,11 +17,12 @@ namespace Ship_Game
         public FighterScrollList(Submenu fighterList, GameScreen shipDesignScreen) : base(fighterList, 40)
         {
             Screen = shipDesignScreen;
+            FighterListContainer = fighterList;
         }
 
         public bool HitTest(InputState input)
         {
-            return ParentMenu.HitTest(input.CursorPosition) && ActiveModule != null;
+            return ActiveModule != null && Rect.HitTest(input.CursorPosition);
         }
 
         void Populate()
@@ -110,8 +110,8 @@ namespace Ship_Game
             if (ActiveHangarModule == null)
                 return;
 
-            Screen.DrawRectangle(ParentMenu.Rect, Color.TransparentWhite, Color.Black);
-            ParentMenu.Draw(batch);
+            Screen.DrawRectangle(Rect, Color.TransparentWhite, Color.Black);
+            FighterListContainer.Draw(batch);
             base.Draw(batch);
         }
     }
