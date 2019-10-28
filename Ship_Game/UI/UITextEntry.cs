@@ -145,15 +145,15 @@ namespace Ship_Game
             return input.KeyPressed(key);
         }
 
-        public void Draw(SpriteFont font, SpriteBatch spriteBatch, Vector2 pos, GameTime gameTime, Color c)
+        public void Draw(SpriteBatch batch, SpriteFont font, Vector2 pos, Color c)
         {
-            spriteBatch.DrawString(font, Text, pos, c);
-            pos.X = pos.X + font.MeasureString(Text).X;
+            batch.DrawString(font, Text, pos, c);
+            pos.X += font.MeasureString(Text).X;
             if (HandlingInput)
             {
-                float f = Math.Abs(RadMath.Sin(gameTime.TotalGameTime.TotalSeconds)) * 255f;
+                float f = Math.Abs(RadMath.Sin(GameBase.Base.GameTime.TotalGameTime.TotalSeconds)) * 255f;
                 var flashColor = new Color(255, 255, 255, (byte)f);
-                spriteBatch.DrawString(font, "|", pos, flashColor);
+                batch.DrawString(font, "|", pos, flashColor);
             }
         }
 

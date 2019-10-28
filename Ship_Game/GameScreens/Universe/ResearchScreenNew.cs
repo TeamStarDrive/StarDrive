@@ -118,7 +118,6 @@ namespace Ship_Game
             batch.Begin();
             close.Draw(batch);
             Queue.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 

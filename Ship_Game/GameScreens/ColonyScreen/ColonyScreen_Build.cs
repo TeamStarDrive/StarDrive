@@ -60,7 +60,7 @@ namespace Ship_Game
                 ScrollList<BuildListItem>.Entry categoryHeader = buildSL.AddItem(
                     new BuildListItem(this){ Header = category.Header });
                 foreach (Ship ship in category.Ships)
-                    categoryHeader.AddSubItem(new BuildListItem(this, addAndEdit: true){ Ship = ship });
+                    categoryHeader.AddSubItem(new BuildListItem(this, plusAndEdit: true){ Ship = ship });
             }
         }
 
@@ -163,7 +163,7 @@ namespace Ship_Game
                 foreach (string troopType in troopTypes)
                 {
                     Troop troop = ResourceManager.GetTroopTemplate(troopType);
-                    buildSL.AddItem(new BuildListItem(this, add:true, edit:false){ Troop = troop });
+                    buildSL.AddItem(new BuildListItem(this, plus:true, edit:false){ Troop = troop });
                 }
             }
             buildSL.Draw(batch);

@@ -90,7 +90,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
-            SaveMenu.Draw();
+            SaveMenu.Draw(batch);
             AllSaves.Draw(batch);
             SavesSL.Draw(batch);
             base.Draw(batch);

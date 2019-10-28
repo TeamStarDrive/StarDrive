@@ -21,12 +21,37 @@ namespace Ship_Game
         public BuildListItem(ColonyScreen screen) : this(screen, false, false)
         {
         }
-        public BuildListItem(ColonyScreen screen, bool addAndEdit) : this(screen, addAndEdit, addAndEdit)
+        public BuildListItem(ColonyScreen screen, bool plusAndEdit) : this(screen, plusAndEdit, plusAndEdit)
         {
+            // 50: Rush Production
+            // 53: CancelProduction
         }
-        public BuildListItem(ColonyScreen screen, bool add, bool edit) : base(add, edit)
+        public BuildListItem(ColonyScreen screen, bool plus, bool edit)
         {
             Screen = screen;
+            if (plus) AddPlus(new Vector2(-60, 0), /*Add to Q:*/51, OnPlusClicked);
+            if (edit) AddEdit(new Vector2(-30, 0), /*Edit Ship:*/52, OnEditClicked);
+        }
+
+        void OnPlusClicked()
+        {
+            int repeat = 1;
+            if (Screen.Input.IsShiftKeyDown)     repeat = 5;
+            else if (Screen.Input.IsCtrlKeyDown) repeat = 10;
+
+            if (Building != null) Screen.Build(Building);
+            else if (Ship != null) Screen.Build(Ship, repeat);
+            else if (Troop != null) Screen.Build(Troop, repeat);
+        }
+
+        void OnEditClicked()
+        {
+            if (Ship != null)
+            {
+                var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.eui);
+                Screen.ScreenManager.AddScreen(sdScreen);
+                sdScreen.ChangeHull(Ship.shipData);
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -36,34 +61,6 @@ namespace Ship_Game
             {
                 if (Screen.ActiveBuildingEntry == null && Building != null && input.LeftMouseHeld(0.1f))
                     Screen.ActiveBuildingEntry = this;
-
-                if (PlusHover)
-                {
-                    ToolTip.CreateTooltip(51);
-                    if (input.LeftMouseClick)
-                    {
-                        int repeat = 1;
-                        if (input.IsShiftKeyDown)     repeat = 5;
-                        else if (input.IsCtrlKeyDown) repeat = 10;
-
-                        if (Building != null) Screen.Build(Building);
-                        else if (Ship != null) Screen.Build(Ship, repeat);
-                        else if (Troop != null) Screen.Build(Troop, repeat);
-
-                        return true;
-                    }
-                }
-                else if (EditHover)
-                {
-                    ToolTip.CreateTooltip(52);
-                    if (input.LeftMouseClick && Ship != null)
-                    {
-                        var sdScreen = new ShipDesignScreen(Empire.Universe, Screen.eui);
-                        Screen.ScreenManager.AddScreen(sdScreen);
-                        sdScreen.ChangeHull(Ship.shipData);
-                        return true;
-                    }
-                }
             }
             return captured;
         }
