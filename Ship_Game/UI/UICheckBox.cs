@@ -2,7 +2,6 @@ using System;
 using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
@@ -81,11 +80,10 @@ namespace Ship_Game
             if (!Rect.HitTest(input.CursorPosition))
                 return false;
 
-            if (!TipText.IsEmpty())
-                ToolTip.CreateTooltip(TipText);
-
             if (input.LeftMouseClick)
                 Binding.Value = !Binding.Value;
+            else if (!TipText.IsEmpty())
+                ToolTip.CreateTooltip(TipText);
 
             // always capture input to prevent clicks from reaching elements under us
             return true;
