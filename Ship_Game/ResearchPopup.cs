@@ -33,7 +33,7 @@ namespace Ship_Game
             MiddleText = Localizer.Token(techEntry.Tech.DescriptionIndex);
         }
 
-        class UnlockListItem : ScrollListEntry<UnlockListItem>
+        class UnlockListItem : ScrollListItem<UnlockListItem>
         {
             readonly UnlockItem Unlock;
             public UnlockListItem(UnlockItem unlock)

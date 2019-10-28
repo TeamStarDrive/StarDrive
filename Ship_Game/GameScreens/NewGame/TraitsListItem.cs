@@ -9,7 +9,7 @@ using Ship_Game.Gameplay;
 
 namespace Ship_Game
 {
-    public class TraitsListItem : ScrollListEntry<TraitsListItem>
+    public class TraitsListItem : ScrollListItem<TraitsListItem>
     {
         RaceDesignScreen Screen;
         public TraitEntry Trait;

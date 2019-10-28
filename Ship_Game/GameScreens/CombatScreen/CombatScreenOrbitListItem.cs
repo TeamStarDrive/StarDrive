@@ -9,7 +9,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public class CombatScreenOrbitListItem : ScrollListEntry<CombatScreenOrbitListItem>
+    public class CombatScreenOrbitListItem : ScrollListItem<CombatScreenOrbitListItem>
     {
         public Troop Troop;
 
