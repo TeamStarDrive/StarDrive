@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -23,9 +22,8 @@ namespace Ship_Game
     }
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
-    [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
-    public class ScrollList<T> : UIElementV2
-        where T : ScrollList<T>.Entry
+    [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
+    public class ScrollList<T> : UIElementV2 where T : ScrollList<T>.Entry
     {
         Rectangle ScrollUp;
         Rectangle ScrollDown;
@@ -118,17 +116,18 @@ namespace Ship_Game
             OnDrag?.Invoke(item, evt);
         }
 
+        public int NumEntries => Entries.Count;
         public IReadOnlyList<T> AllEntries => Entries;
-        public int NumEntries              => Entries.Count;
 
         // Item at non-flattened index: doesn't index hierarchical elements
         public T this[int index] => Entries[index];
 
         // @return The first visible item
-        public T FirstItem => ExpandedEntries[FirstVisibleIndex];
-        public T LastItem => ExpandedEntries[Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries) - 1];
+        public T FirstItem => ExpandedEntries[FirstVisibleIndexValue];
+        public T LastItem => ExpandedEntries[LastVisibleIndex];
 
         int FirstVisibleIndexValue;
+        int LastVisibleIndex;
         
         // Gets or Sets index of the topmost visible item in the list
         public int FirstVisibleIndex
@@ -143,6 +142,7 @@ namespace Ship_Game
                 }
             }
         }
+
 
         public T AddItem(T entry)
         {
@@ -422,12 +422,12 @@ namespace Ship_Game
                 T item = ExpandedEntries[i];
                 if (item.HandleInput(input))
                 {
-                    // only show selector if item doesn't have child elements (it's a header item)
-                    if (!item.HasSubEntries && IsSelectable)
+                    // only show selector if item is not a Header element
+                    if (!item.IsHeader && IsSelectable)
                     {
                         SelectionBox = new Selector(item.Rect);
                     }
-                    return true;
+                    // NOTE: We do not early return, because we want to update hover state for all ScrollList items
                 }
             }
 
@@ -444,17 +444,21 @@ namespace Ship_Game
             if (!Visible || !Enabled)
                 return false;
 
-            bool hit = HandleScrollBar(input);
-            hit |= HandleMouseScrollUpDown(input);
             HandleDraggable(input);
             HandleElementDragging(input);
+
+            bool hit = HandleScrollBar(input);
+            hit |= HandleMouseScrollUpDown(input);
+            if (hit)
+                return true;
+
+            if (HandleInputChildElements(input))
+                return true;
 
             if (Background != null && Background.HandleInput(input))
                 return true;
 
-            if (!hit)
-                return HandleInputChildElements(input);
-            return hit;
+            return false;
         }
 
         #endregion
@@ -484,8 +488,8 @@ namespace Ship_Game
                 foreach (T e in Entries)
                     e.GetFlattenedVisibleExpandedEntries(ExpandedEntries);
 
-                FirstVisibleIndex = FirstVisibleIndex.Clamped(0,
-                    Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
+                FirstVisibleIndex = FirstVisibleIndex.Clamped(0, Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
+                LastVisibleIndex = Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries) - 1;
 
                 UpdateItemPositions(Pos);
             }
@@ -506,11 +510,10 @@ namespace Ship_Game
         void UpdateItemPositions(Vector2 listTopLeft)
         {
             int visibleIndex = 0;
-            int visibleEnd = Math.Min(Entries.Count, FirstVisibleIndex + MaxVisibleEntries);
             for (int i = 0; i < ExpandedEntries.Count; i++)
             {
                 T e = ExpandedEntries[i];
-                if (i >= FirstVisibleIndex && i < visibleEnd)
+                if (FirstVisibleIndex <= i && i <= LastVisibleIndex)
                 {
                     e.VisibleIndex = visibleIndex++;
                     e.Rect = new Rectangle((int)listTopLeft.X + 20, (int)listTopLeft.Y + 35 + e.VisibleIndex * EntryHeight, 
@@ -527,7 +530,6 @@ namespace Ship_Game
         public override void Update(float deltaTime)
         {
             Background?.Update(deltaTime);
-
             base.Update(deltaTime);
 
             if (RequiresLayout)
@@ -560,6 +562,10 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            //if (!FirstUpdateDone)
+            //    Log.Error($"{TypeName}.Update() has not been called. This is a bug!"
+            //              +" Make sure the ScrollList is being updated in GameScreen.Update() or screen.Add(list) for automatic update.");
+
             Background?.Draw(batch);
 
             if (ExpandedEntries.Count > MaxVisibleEntries)
@@ -581,8 +587,7 @@ namespace Ship_Game
 
         void DrawChildElements(SpriteBatch batch)
         {
-            int end = Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
-            for (int i = FirstVisibleIndex; i < end; i++)
+            for (int i = FirstVisibleIndex; i <= LastVisibleIndex; ++i)
             {
                 ExpandedEntries[i].Draw(batch);
             }
@@ -596,7 +601,7 @@ namespace Ship_Game
         {
             public ScrollList<T> List;
 
-            // entries with subitems can be expanded or collapsed via category title
+            // entries with IsHeader=true can be expanded or collapsed via category title
             public bool Expanded { get; private set; }
 
             // true if item is currently being hovered over with mouse cursor
@@ -605,24 +610,30 @@ namespace Ship_Game
             // The current visible index of this Entry
             public int VisibleIndex;
 
-            readonly Array<T> SubEntries = new Array<T>();
-            public bool HasSubEntries => SubEntries.NotEmpty;
+            // If TRUE, this entry acts as a special ScrollList Item Header
+            // Which can be expanded and collapsed
+            public bool IsHeader;
+            public readonly string HeaderText;
+
+            Array<T> SubEntries;
             
             // Lightweight dynamic elements
             // @note This provides customization options for each ScrollList Item
             //       use methods EnablePlus() / EnableUpDown() / etc to enable these elements
-            readonly Array<Element> DynamicElements = new Array<Element>();
+            Array<Element> DynamicElements;
+
+            public override string ToString()
+                => IsHeader ? $"{TypeName} Header={HeaderText}" : base.ToString();
 
             public Entry()
             {
             }
 
-            protected Entry(UIElementV2 parent, Vector2 pos) : base(parent, pos)
+            // Creates a ScrollList Item Header which can be expanded
+            public Entry(string headerText)
             {
-            }
-
-            protected Entry(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
-            {
+                HeaderText = headerText;
+                IsHeader = true;
             }
 
             public class Element
@@ -664,6 +675,7 @@ namespace Ship_Game
             void AddElement(Vector2 relPos, ToolTipText tooltip, Action onClick, Func<ScrollListStyleTextures.Hoverable> getHoverable)
             {
                 var e = new Element{ Parent = this, RelPos = relPos, Tooltip = tooltip, OnClick = onClick, GetHoverable = getHoverable };
+                if (DynamicElements == null) DynamicElements = new Array<Element>();
                 DynamicElements.Add(e);
             }
 
@@ -676,13 +688,18 @@ namespace Ship_Game
 
             public void AddSubItem(T entry)
             {
+                if (!IsHeader)
+                    Log.Error($"SubItems can only be added if {TypeName}.IsHeader = true");
+
                 entry.List = List;
+                if (SubEntries == null)
+                    SubEntries = new Array<T>();
                 SubEntries.Add(entry);
             }
 
             public bool RemoveSub(T e)
             {
-                if (SubEntries.IsEmpty)
+                if (SubEntries == null || SubEntries.IsEmpty)
                     return false;
 
                 for (int i = 0; i < SubEntries.Count; ++i)
@@ -696,7 +713,7 @@ namespace Ship_Game
 
             public bool RemoveFirstSubIf(Predicate<T> predicate)
             {
-                if (SubEntries.IsEmpty)
+                if (SubEntries == null || SubEntries.IsEmpty)
                     return false;
 
                 foreach (T sub in SubEntries)
@@ -712,7 +729,7 @@ namespace Ship_Game
                 if (Visible)
                 {
                     entries.Add((T)this);
-                    if (Expanded)
+                    if (Expanded && SubEntries != null)
                     {
                         foreach (T sub in SubEntries)
                             sub.GetFlattenedVisibleExpandedEntries(entries);
@@ -722,11 +739,11 @@ namespace Ship_Game
 
             public void Expand(bool expanded)
             {
-                if (Expanded == expanded)
+                if (!IsHeader || Expanded == expanded || SubEntries == null || SubEntries.IsEmpty)
                     return;
 
                 Expanded = expanded;
-                if (!expanded)
+                if (!expanded && SubEntries != null)
                 {
                     List.FirstVisibleIndex -= SubEntries.Count;
                     if (List.FirstVisibleIndex < 0)
@@ -744,8 +761,11 @@ namespace Ship_Game
 
             public override void PerformLayout()
             {
-                for (int i = 0; i < DynamicElements.Count; ++i)
-                    DynamicElements[i].UpdateLayout();
+                if (DynamicElements != null)
+                {
+                    for (int i = 0; i < DynamicElements.Count; ++i)
+                        DynamicElements[i].UpdateLayout();
+                }
 
                 base.PerformLayout();
             }
@@ -762,9 +782,12 @@ namespace Ship_Game
                     List.OnItemHovered(this as T);
                 }
 
-                for (int i = 0; i < DynamicElements.Count; ++i)
-                    if (DynamicElements[i].HandleInput(input))
-                        return true;
+                if (DynamicElements != null)
+                {
+                    for (int i = 0; i < DynamicElements.Count; ++i)
+                        if (DynamicElements[i].HandleInput(input))
+                            return true;
+                }
 
                 if (Hovered)
                 {
@@ -777,10 +800,7 @@ namespace Ship_Game
                     if (input.LeftMouseClick)
                     {
                         GameAudio.AcceptClick();
-                        if (SubEntries.NotEmpty)
-                        {
-                            Expand(!Expanded);
-                        }
+                        Expand(!Expanded);
                         List.OnItemClicked(this as T);
                         return true;
                     }
@@ -794,9 +814,27 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch)
             {
                 base.Draw(batch);
-                for (int i = 0; i < DynamicElements.Count; ++i)
+
+                if (IsHeader)
                 {
-                    DynamicElements[i].Draw(batch);
+                    var r = new Rectangle((int)X, (int)Y, (int)Width - 40, (int)Height - 10);
+                    new Selector(r, (Hovered ? new Color(95, 82, 47) : new Color(32, 30, 18))).Draw(batch);
+
+                    var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
+                    batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
+
+                    string open = Expanded ? "-" : "+";
+                    textPos = new Vector2(r.Right - 15 - Fonts.Arial20Bold.MeasureString(open).X / 2f,
+                                          r.Y + 10 + 6 - Fonts.Arial20Bold.LineSpacing / 2);
+                    batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
+                }
+
+                if (DynamicElements != null)
+                {
+                    for (int i = 0; i < DynamicElements.Count; ++i)
+                    {
+                        DynamicElements[i].Draw(batch);
+                    }
                 }
             }
         }

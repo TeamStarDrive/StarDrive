@@ -14,10 +14,13 @@ namespace Ship_Game
         public readonly ColonyScreen Screen;
 
         public Building Building;
-        public ModuleHeader Header; // ship category
         public Ship Ship;
         public Troop Troop;
 
+        public BuildListItem(ColonyScreen screen, string headerText) : base(headerText)
+        {
+            Screen = screen;
+        }
         public BuildListItem(ColonyScreen screen) : this(screen, false, false)
         {
         }
@@ -72,9 +75,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            base.Draw(batch);
             if   (Building != null)  DrawBuilding(batch, Building);
             else if (Troop != null)  DrawTroop(batch, Troop);
-            else if (Header != null) DrawHeader(batch, Header);
             else if (Ship != null)   DrawShip(batch, Ship);
         }
 
@@ -98,8 +101,6 @@ namespace Ship_Game
             batch.Draw(icon, new Rectangle((int)X, (int)Y, 29, 30), buildColor);
             batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), position, buildColor);
             position.Y += Font12.LineSpacing;
-
-            base.Draw(batch);
 
             if (!Hovered)
             {
@@ -163,8 +164,6 @@ namespace Ship_Game
             SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
             var tl = new Vector2(List.X + 20, Y);
 
-            base.Draw(batch);
-
             if (!Hovered)
             {
                 troop.Draw(batch, new Rectangle((int) tl.X, (int) tl.Y, 29, 30));
@@ -197,12 +196,6 @@ namespace Ship_Game
             }
         }
 
-        void DrawHeader(SpriteBatch batch, ModuleHeader header)
-        {
-            header.Pos = new Vector2(List.X + 20, Y);
-            header.Draw(batch);
-        }
-        
         void DrawShip(SpriteBatch batch, Ship ship)
         {
             Planet p = Screen.P;

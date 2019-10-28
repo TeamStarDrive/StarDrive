@@ -10,21 +10,14 @@ namespace Ship_Game
 {
     public class WikiHelpCategoryListItem : ScrollList<WikiHelpCategoryListItem>.Entry
     {
-        public ModuleHeader Header;
         public HelpTopic Topic;
-
-        public WikiHelpCategoryListItem()
-        {
-        }
+        public WikiHelpCategoryListItem(string headerText) : base(headerText) { }
+        public WikiHelpCategoryListItem(HelpTopic topic) { Topic = topic; }
 
         public override void Draw(SpriteBatch batch)
         {
-            if (Header != null)
-            {
-                Header.Pos = new Vector2(X + 35, Y);
-                Header.Draw(batch);
-            }
-            else if (Topic != null)
+            base.Draw(batch);
+            if (Topic != null)
             {
                 Vector2 cursor = Pos;
                 cursor.X += 15f;

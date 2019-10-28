@@ -8,29 +8,15 @@ namespace Ship_Game
 {
     public class WeaponListItem : ScrollList<WeaponListItem>.Entry
     {
-        public ModuleHeader Header;
         public ShipModule Module;
-
-        public override void Update(float deltaTime)
-        {
-            if (Header != null)
-            {
-                Header.Hover = Hovered;
-                Header.Open = Expanded;
-            }
-            base.Update(deltaTime);
-        }
+        public WeaponListItem(string headerText) : base(headerText) {}
+        public WeaponListItem(ShipModule module) { Module = module; }
 
         public override void Draw(SpriteBatch batch)
         {
             base.Draw(batch);
 
-            if (Header != null)
-            {
-                Header.Pos = new Vector2(List.X + 10, Y);
-                Header.Draw(batch);
-            }
-            else if (Module != null)
+            if (Module != null)
             {
                 DrawModule(batch, Module);
             }

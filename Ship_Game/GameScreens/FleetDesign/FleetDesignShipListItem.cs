@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
@@ -11,9 +7,13 @@ namespace Ship_Game
 {
     public class FleetDesignShipListItem : ScrollList<FleetDesignShipListItem>.Entry
     {
-        FleetDesignScreen Screen;
-        public ModuleHeader Header;
+        readonly FleetDesignScreen Screen;
         public Ship Ship;
+
+        public FleetDesignShipListItem(FleetDesignScreen screen, string headerText) : base(headerText)
+        {
+            Screen = screen;
+        }
 
         public FleetDesignShipListItem(FleetDesignScreen screen)
         {
@@ -26,12 +26,7 @@ namespace Ship_Game
         {
             base.Draw(batch);
             
-            if (Header != null)
-            {
-                Header.Pos = Pos;
-                Header.Draw(batch);
-            }
-            else if (Ship != null)
+            if (Ship != null)
             {
                 batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
 

@@ -20,7 +20,6 @@ namespace Ship_Game
         {
             public string Name;
             public Array<Ship> Ships = new Array<Ship>();
-            public ModuleHeader Header;
             public int Size;
 
             public override string ToString() => $"Category {Name} Size={Size} Count={Ships.Count}";
@@ -30,14 +29,12 @@ namespace Ship_Game
         {
             var categoryMap = new Map<string, ShipCategory>();
 
-            foreach (Ship ship in P.Owner.ShipsWeCanBuild
-                                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
-                                .Where(ship => ship.IsBuildableByPlayer))
+            foreach (Ship ship in buildableShips)
             {
                 string name = Localizer.GetRole(ship.DesignRole, P.Owner);
                 if (!categoryMap.TryGetValue(name, out ShipCategory c))
                 {
-                    c = new ShipCategory {Name = name, Header = new ModuleHeader(name), Size = ship.SurfaceArea};
+                    c = new ShipCategory{ Name = name, Size = ship.SurfaceArea };
                     categoryMap.Add(name, c);
                 }
                 c.Ships.Add(ship);
@@ -57,10 +54,9 @@ namespace Ship_Game
                 });
 
                 // and add to Build list
-                ScrollList<BuildListItem>.Entry categoryHeader = buildSL.AddItem(
-                    new BuildListItem(this){ Header = category.Header });
+                BuildListItem catHeader = buildSL.AddItem(new BuildListItem(this, category.Name));
                 foreach (Ship ship in category.Ships)
-                    categoryHeader.AddSubItem(new BuildListItem(this, plusAndEdit: true){ Ship = ship });
+                    catHeader.AddSubItem(new BuildListItem(this, plusAndEdit: true){ Ship = ship });
             }
         }
 

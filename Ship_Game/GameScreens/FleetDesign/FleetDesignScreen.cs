@@ -1532,12 +1532,12 @@ namespace Ship_Game
                         roles.Add(ship.DesignRoleName);
 
                         FleetDesignShipListItem header = ShipSL.AddItem(
-                            new FleetDesignShipListItem(this){ Header = new ModuleHeader(ship.DesignRoleName, 295) });
+                            new FleetDesignShipListItem(this, ship.DesignRoleName));
 
                         foreach (string shipname2 in EmpireManager.Player.ShipsWeCanBuild)
                         {
                             Ship ship2 = ResourceManager.ShipsDict[shipname2];
-                            if (ship2.DesignRoleName == header.Header.Text)
+                            if (ship2.DesignRoleName == header.HeaderText)
                                 header.AddSubItem(new FleetDesignShipListItem(this){ Ship = ship });
                         }
                     }
@@ -1553,11 +1553,11 @@ namespace Ship_Game
                         roles.Add(ship.DesignRoleName);
 
                         FleetDesignShipListItem header = ShipSL.AddItem(
-                            new FleetDesignShipListItem(this){ Header = new ModuleHeader(ship.DesignRoleName, 295) });
+                            new FleetDesignShipListItem(this, ship.DesignRoleName));
 
                         foreach (Ship ship2 in AvailableShips)
                         {
-                            if (ship2.shipData.Role != ShipData.RoleName.troop && ship2.DesignRoleName == header.Header.Text)
+                            if (ship2.shipData.Role != ShipData.RoleName.troop && ship2.DesignRoleName == header.HeaderText)
                                 header.AddSubItem(new FleetDesignShipListItem(this){ Ship = ship2 });
                         }
                     }

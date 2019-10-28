@@ -815,7 +815,7 @@ namespace Ship_Game
             categories.Sort();
             foreach (string cat in categories)
             {
-                var categoryItem = new ShipHullListItem{ Header = new ModuleHeader(cat, 240) };
+                var categoryItem = new ShipHullListItem(cat);
                 HullSL.AddItem(categoryItem);
 
                 foreach (ShipData hull in ResourceManager.Hulls)
@@ -824,7 +824,7 @@ namespace Ship_Game
                         EmpireManager.Player.IsHullUnlocked(hull.Hull) &&
                         cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
                     {
-                        categoryItem.AddSubItem(new ShipHullListItem{Hull = hull});
+                        categoryItem.AddSubItem(new ShipHullListItem(hull));
                     }
                 }
             }
