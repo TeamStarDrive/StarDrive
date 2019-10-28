@@ -363,7 +363,7 @@ namespace Ship_Game
                 if (f.DataNodes.Count > 0)
                 {
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12, rect.Value.Width - 12);
-                    batch.Draw(ResourceManager.Texture(string.Concat("FleetIcons/", f.FleetIconIndex.ToString())), firect, EmpireManager.Player.EmpireColor);
+                    batch.Draw(ResourceManager.Texture("FleetIcons/"+f.FleetIconIndex.ToString()), firect, EmpireManager.Player.EmpireColor);
                 }
                 Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
                 SpriteFont pirulen12 = Fonts.Pirulen12;
@@ -652,7 +652,7 @@ namespace Ship_Game
             cursor1 = cursor1 + new Vector2(50f, 30f);
             spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, new Color(255, 239, 208));
             Rectangle ficonrect = new Rectangle((int)cursor1.X + 12, (int)cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
-            spriteBatch.Draw(ResourceManager.Texture(string.Concat("FleetIcons/", f.FleetIconIndex.ToString())), ficonrect, f.Owner.EmpireColor);
+            spriteBatch.Draw(ResourceManager.Texture("FleetIcons/"+f.FleetIconIndex.ToString()), ficonrect, f.Owner.EmpireColor);
             RequisitionForces.Draw(ScreenManager);
             SaveDesign.Draw(ScreenManager);
             LoadDesign.Draw(ScreenManager);

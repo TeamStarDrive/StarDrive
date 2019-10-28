@@ -170,14 +170,14 @@ namespace Ship_Game
                 {
                     if (race.e.data.AbsorbedBy == null)
                     {
-                        batch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                        batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                         batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                         batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                         batch.Draw(ResourceManager.Texture("NewUI/x_red"), race.container, Color.White);
                     }
                     else
                     {
-                        batch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                        batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                         batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                         batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                         var r = new Rectangle(race.container.X, race.container.Y, 124, 124);
@@ -192,7 +192,7 @@ namespace Ship_Game
                         Rectangle war = new Rectangle(race.container.X - 2, race.container.Y - 2, race.container.Width + 4, race.container.Height + 4);
                         batch.FillRectangle(war, Color.Red);
                     }
-                    batch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                    batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                     batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                     batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
                 }
@@ -202,7 +202,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    batch.Draw(ResourceManager.Texture(string.Concat("Portraits/", race.e.data.PortraitName)), race.container, Color.White);
+                    batch.Draw(ResourceManager.Texture("Portraits/"+race.e.data.PortraitName), race.container, Color.White);
                     batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), race.container, Color.White);
                     NameCursor = new Vector2(race.container.X + 62 - Fonts.Arial12Bold.MeasureString(race.e.data.Traits.Name).X / 2f, race.container.Y + 148 + 8);
                     batch.DrawString(Fonts.Arial12Bold, race.e.data.Traits.Name, NameCursor, Color.White);
@@ -268,7 +268,7 @@ namespace Ship_Game
                     }
                     rank++;
                 }
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> ResSortedList = 
@@ -302,7 +302,7 @@ namespace Ship_Game
                     rank++;
                 }
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1605), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> PopSortedList = 
@@ -334,7 +334,7 @@ namespace Ship_Game
             {
                 if (SelectedEmpire.data.AbsorbedBy != null)
                 {
-                    batch.DrawString(Fonts.Arial12Bold, string.Concat(EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular, " Federation"), textCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12Bold, EmpireManager.GetEmpireByName(SelectedEmpire.data.AbsorbedBy).data.Traits.Singular+" Federation", textCursor, Color.White);
                     textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 }
             }
@@ -432,7 +432,7 @@ namespace Ship_Game
                     }
                     rank++;
                 }
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
                 ColumnBCursor.Y = ColumnBCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> ResSortedList = 
@@ -466,14 +466,14 @@ namespace Ship_Game
                     rank++;
                 }
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1605), textCursor, Color.White);
-                batch.DrawString(Fonts.Arial12Bold, string.Concat("# ", rank.ToString()), ColumnBCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, "# "+rank.ToString(), ColumnBCursor, Color.White);
             }
             textCursor = new Vector2(IntelligenceRect.X + 20, IntelligenceRect.Y + 10);
             HelperFunctions.DrawDropShadowText(batch, Localizer.Token(6091), textCursor, Fonts.Arial20Bold);
             textCursor.Y = textCursor.Y + (Fonts.Arial20Bold.LineSpacing + 5);
             if (IntelligenceLevel(SelectedEmpire) > 0)
             {
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6094), SelectedEmpire.data.Traits.HomeworldName), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6094)+SelectedEmpire.data.Traits.HomeworldName, textCursor, Color.White);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             //Added by McShooterz:  intel report
@@ -481,16 +481,16 @@ namespace Ship_Game
             {
                 if (SelectedEmpire.Capital != null)
                 {
-                    batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6106), (SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), textCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12, Localizer.Token(6106)+((SelectedEmpire.Capital.Owner == SelectedEmpire) ? Localizer.Token(6107) : Localizer.Token(1508)), textCursor, Color.White);
                     textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 }
                 batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6095), SelectedEmpire.GetPlanets().Count), textCursor, Color.White);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
                 batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6096), SelectedEmpire.GetShips().Count), textCursor, Color.White);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6097), SelectedEmpire.Money.String(2)), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6097)+SelectedEmpire.Money.String(2), textCursor, Color.White);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6098), SelectedEmpire.BuildingAndShipMaint.String(2)), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6098)+SelectedEmpire.BuildingAndShipMaint.String(2), textCursor, Color.White);
                 textCursor.Y += (Fonts.Arial12.LineSpacing + 2);
 
                 if (SelectedEmpire.Research.HasTopic)
@@ -517,12 +517,12 @@ namespace Ship_Game
             }
             else if (IntelligenceLevel(SelectedEmpire)>0)
             {
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), (SelectedEmpire.data.AgentList.Count >=PlayerEmpire.data.AgentList.Count ? "Many":"Few" )), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+(SelectedEmpire.data.AgentList.Count >=PlayerEmpire.data.AgentList.Count ? "Many":"Few" ), textCursor, Color.White);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             else 
             {
-                batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6099), "Unknown"), textCursor, Color.White);
+                batch.DrawString(Fonts.Arial12, Localizer.Token(6099)+"Unknown", textCursor, Color.White);
                 textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
             }
             batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(6100), GetPop(SelectedEmpire).ToString("0.0"), Localizer.Token(6101)), textCursor, Color.White);
@@ -534,7 +534,7 @@ namespace Ship_Game
                 if (Relation.Key.data.Defeated)
                 {
                     textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                    batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, Localizer.Token(6102)), textCursor, Color.White);
+                    batch.DrawString(Fonts.Arial12, Relation.Key.data.Traits.Name+Localizer.Token(6102), textCursor, Color.White);
                     continue;
                 }
                 if (IntelligenceLevel(SelectedEmpire) >0)
@@ -567,7 +567,7 @@ namespace Ship_Game
                     else
                     {
                         textCursor.Y = textCursor.Y + (Fonts.Arial12.LineSpacing + 2);
-                        batch.DrawString(Fonts.Arial12, string.Concat(Relation.Key.data.Traits.Name, (Relation.Value.Treaty_Trade) ? Localizer.Token(6104) : Localizer.Token(6105)), textCursor, Color.White);
+                        batch.DrawString(Fonts.Arial12, Relation.Key.data.Traits.Name+((Relation.Value.Treaty_Trade) ? Localizer.Token(6104) : Localizer.Token(6105)), textCursor, Color.White);
                     }
                 }
             }
@@ -579,9 +579,9 @@ namespace Ship_Game
             if (IntelligenceLevel(SelectedEmpire)>0)
             {
                 if (SelectedEmpire.data.Traits.PopGrowthMax > 0f)
-                    DrawBadStat(Localizer.Token(4041), string.Concat("+", SelectedEmpire.data.Traits.PopGrowthMax.ToString(".##")), ref textCursor);
+                    DrawBadStat(Localizer.Token(4041), "+"+SelectedEmpire.data.Traits.PopGrowthMax.ToString(".##"), ref textCursor);
                 if (SelectedEmpire.data.Traits.PopGrowthMin > 0f)
-                    DrawGoodStat(Localizer.Token(4040), string.Concat("+", SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##")), ref textCursor);
+                    DrawGoodStat(Localizer.Token(4040), "+"+SelectedEmpire.data.Traits.PopGrowthMin.ToString(".##"), ref textCursor);
                 if (SelectedEmpire.data.Traits.ReproductionMod != 0)
                     DrawStat(Localizer.Token(4017), SelectedEmpire.data.Traits.ReproductionMod, ref textCursor, false);
                 if (SelectedEmpire.data.Traits.ConsumptionModifier != 0)
@@ -615,7 +615,7 @@ namespace Ship_Game
                 if (Empire.Universe.FTLModifier != 1f)
                 {
                     float fTLModifier = Empire.Universe.FTLModifier * 100f;
-                    DrawBadStat(Localizer.Token(4038), string.Concat(fTLModifier.ToString("##"), "%"), ref textCursor);
+                    DrawBadStat(Localizer.Token(4038), fTLModifier.ToString("##")+"%", ref textCursor);
                 }
                 DrawStat(Localizer.Token(4026), string.Concat(SelectedEmpire.data.FTLModifier, "x"), ref textCursor);
                 DrawStat(Localizer.Token(4027), string.Concat(SelectedEmpire.data.FTLPowerDrainModifier, "x"), ref textCursor);
@@ -628,9 +628,9 @@ namespace Ship_Game
                 if (SelectedEmpire.data.ExperienceMod != 0)
                     DrawStat("Ship Experience Modifier", SelectedEmpire.data.ExperienceMod, ref textCursor, false);
                 if (SelectedEmpire.data.SpyModifier > 0f)
-                    DrawGoodStat(Localizer.Token(4030), string.Concat("+", SelectedEmpire.data.SpyModifier.ToString("#")), ref textCursor);
+                    DrawGoodStat(Localizer.Token(4030), "+"+SelectedEmpire.data.SpyModifier.ToString("#"), ref textCursor);
                 else if (SelectedEmpire.data.SpyModifier < 0f)
-                    DrawBadStat(Localizer.Token(4030), string.Concat("-", SelectedEmpire.data.SpyModifier.ToString("#")), ref textCursor);
+                    DrawBadStat(Localizer.Token(4030), "-"+SelectedEmpire.data.SpyModifier.ToString("#"), ref textCursor);
                 if (SelectedEmpire.data.Traits.Spiritual != 0)
                     DrawStat(Localizer.Token(4031), SelectedEmpire.data.Traits.Spiritual, ref textCursor, false);
                 if (SelectedEmpire.data.Traits.EnergyDamageMod != 0)
@@ -697,12 +697,12 @@ namespace Ship_Game
             spriteBatch.DrawString(arial12, str, position, color);
             Vector2 nPos = new Vector2(Position.X + 310f, Position.Y);
             //{
-            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(string.Concat(value.ToString("#.##"), "%")).X;
+            nPos.X = nPos.X - Fonts.Arial12Bold.MeasureString(value.ToString("#.##")+"%").X;
             //};
             HelperFunctions.ClampVectorToInt(ref nPos);
             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
             SpriteFont arial12Bold = Fonts.Arial12Bold;
-            string str1 = string.Concat(value.ToString("#.##"), "%");
+            string str1 = value.ToString("#.##")+"%";
             Vector2 vector2 = nPos;
             spriteBatch1.DrawString(arial12Bold, str1, vector2, color);
             Position.Y = Position.Y + Fonts.Arial12Bold.LineSpacing;

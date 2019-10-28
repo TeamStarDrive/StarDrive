@@ -130,7 +130,7 @@ namespace Ship_Game
             {
                 HelpEntries.Reset();
                 VideoPlayer = new VideoPlayer();
-                ActiveVideo = TransientContent.Load<Video>(string.Concat("Video/", ActiveTopic.VideoPath));
+                ActiveVideo = TransientContent.Load<Video>("Video/"+ActiveTopic.VideoPath);
                 VideoPlayer.Play(ActiveVideo);
                 VideoPlayer.Pause();
             }

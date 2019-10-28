@@ -443,7 +443,7 @@ namespace Ship_Game
             }
             DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
             DrawStat(ref modTitlePos, Localizer.Token(2231), mod.MechanicalBoardingDefense, 143);
-            DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), mod.ActualBonusRepairRate, 97);
+            DrawStat(ref modTitlePos, Localizer.Token(135)+"+", mod.ActualBonusRepairRate, 97);
 
             float maxDepth = modTitlePos.Y;
             modTitlePos.X = modTitlePos.X + 152f;
