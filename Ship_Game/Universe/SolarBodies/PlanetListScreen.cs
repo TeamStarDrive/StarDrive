@@ -97,7 +97,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, Colors.Cream);
             EMenu.Draw(batch);
 
             PlanetSL.Draw(batch);

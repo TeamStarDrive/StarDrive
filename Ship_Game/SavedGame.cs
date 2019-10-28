@@ -36,7 +36,7 @@ namespace Ship_Game
         public string ModPath = "";
         public int Version;
 
-        [XmlIgnore][JsonIgnore]public FileInfo FI;
+        [XmlIgnore][JsonIgnore] public FileInfo FI;
     }
 
     // XNA.Rectangle cannot be serialized, so we need a proxy object

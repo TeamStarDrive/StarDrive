@@ -16,9 +16,9 @@ namespace Ship_Game
 
         protected override void Load()
         {
-            if (selectedFile != null)
+            if (SelectedFile != null)
             {
-                screen.SetCustomEmpireData((selectedFile.Data as RaceSave)?.Traits);
+                screen.SetCustomEmpireData((SelectedFile.Data as RaceSave)?.Traits);
             }
             else
             {
@@ -48,7 +48,7 @@ namespace Ship_Game
 
                     string info = "Race Name: " + data.Traits.Name;
                     string extraInfo = (data.ModName != "" ? "Mod: " + data.ModName : "Default");
-                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo));
+                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo, data.Traits.FlagIcon, data.Traits.Color));
                 }
                 catch
                 {

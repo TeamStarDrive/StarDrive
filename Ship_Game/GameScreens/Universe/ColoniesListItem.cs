@@ -147,7 +147,7 @@ namespace Ship_Game
                 batch.FillRectangle(TotalEntrySize, TextColor2);
             }
 
-            Color TextColor = new Color(255, 239, 208);
+            Color TextColor = Colors.Cream;
             if (Fonts.Pirulen16.MeasureString(p.ParentSystem.Name).X <= SysNameRect.Width)
             {
                 Vector2 SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Pirulen16.MeasureString(p.ParentSystem.Name).X / 2f, SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Pirulen16.LineSpacing / 2);

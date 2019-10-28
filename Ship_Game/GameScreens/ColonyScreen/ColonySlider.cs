@@ -229,7 +229,7 @@ namespace Ship_Game
             else if (IsCrippled) text = Localizer.Token(2202/*sabotaged*/);
             else if (IsInvasion) text = Localizer.Token(2257/*invasion!*/);
             else                 text = value.String();
-            batch.DrawString(font, text, pos, (value < 0.0f ? Color.LightPink : new Color(255, 239, 208)));
+            batch.DrawString(font, text, pos, (value < 0.0f ? Color.LightPink : Colors.Cream));
         }
     }
 }

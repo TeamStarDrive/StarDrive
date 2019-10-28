@@ -79,7 +79,7 @@ namespace Ship_Game
 				spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(r.X + 8, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.White);
 				return;
 			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Colors.Cream);
 		}
 
 		public void DrawGrayed(SpriteBatch spriteBatch)

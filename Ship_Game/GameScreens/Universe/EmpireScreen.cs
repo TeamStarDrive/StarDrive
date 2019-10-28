@@ -119,7 +119,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(383), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(383), TitlePos, Colors.Cream);
             EMenu.Draw(batch);
             Color TextColor = new Color(118, 102, 67, 50);
             ColoniesList.Draw(batch);
@@ -138,11 +138,11 @@ namespace Ship_Game
             }
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384)+":", PNameCursor, Color.Orange);
             Vector2 InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.CategoryName, InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.CategoryName, InfoCursor, Colors.Cream);
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", PNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.PopulationStringForPlayer, InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.PopulationStringForPlayer, InfoCursor, Colors.Cream);
             Rectangle hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
@@ -151,7 +151,7 @@ namespace Ship_Game
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", PNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(EmpireManager.Player).String(), InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.FertilityFor(EmpireManager.Player).String(), InfoCursor, Colors.Cream);
             hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
@@ -160,7 +160,7 @@ namespace Ship_Game
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             InfoCursor = new Vector2(PNameCursor.X + amount, PNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", PNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.MineralRichness.String(), InfoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, SelectedPlanet.MineralRichness.String(), InfoCursor, Colors.Cream);
             hoverRect = new Rectangle((int)PNameCursor.X, (int)PNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
             if (hoverRect.HitTest(MousePos))
             {
@@ -334,9 +334,9 @@ namespace Ship_Game
             {
                 ColoniesListItem entry = ColoniesList.FirstItem;
                 Vector2 TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, Colors.Cream);
                 TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(389), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(389), TextCursor, Colors.Cream);
                 pop.rect = new Rectangle(entry.PopRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
                 batch.Draw(ResourceManager.Texture("UI/icon_pop"), pop.rect, Color.White);
                 food.rect = new Rectangle(entry.FoodRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
@@ -348,11 +348,11 @@ namespace Ship_Game
                 money.rect = new Rectangle(entry.MoneyRect.X + 15 - ResourceManager.Texture("NewUI/icon_money").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), money.rect, Color.White);
                 TextCursor = new Vector2(entry.SliderRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(390), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(390), TextCursor, Colors.Cream);
                 TextCursor = new Vector2(entry.StorageRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(391), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(391), TextCursor, Colors.Cream);
                 TextCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(392), TextCursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(392), TextCursor, Colors.Cream);
             }
 
             Color lineColor = new Color(118, 102, 67, 255);

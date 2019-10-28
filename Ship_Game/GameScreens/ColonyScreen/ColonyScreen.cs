@@ -250,7 +250,7 @@ namespace Ship_Game
             TitleBar.Draw(batch);
             LeftColony.Draw(ScreenManager);
             RightColony.Draw(ScreenManager);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, Colors.Cream);
             if (!GlobalStats.HardcoreRuleset)
             {
                 FoodStorage.Max = P.Storage.Max;
@@ -335,7 +335,7 @@ namespace Ship_Game
                 num5 += 20f;
             var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             P.Name = PlanetName.Text;
-            PlanetName.Draw(batch, Font20, vector2_2, new Color(255, 239, 208));
+            PlanetName.Draw(batch, Font20, vector2_2, Colors.Cream);
             EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
             if (EditHoverState == 0 && !PlanetName.HandlingInput)
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
@@ -347,11 +347,11 @@ namespace Ship_Game
                 vector2_2.Y += Font20.LineSpacing;
             batch.DrawString(Font12, Localizer.Token(384) + ":", vector2_2, Color.Orange);
             Vector2 position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
-            batch.DrawString(Font12, P.CategoryName, position3, new Color(255, 239, 208));
+            batch.DrawString(Font12, P.CategoryName, position3, Colors.Cream);
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(385) + ":", vector2_2, Color.Orange);
-            var color = new Color(255, 239, 208);
+            var color = Colors.Cream;
             batch.DrawString(Font12, P.PopulationStringForPlayer, position3, color);
             var rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(385) + ":").X, Font12.LineSpacing);
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
@@ -437,7 +437,7 @@ namespace Ship_Game
             vector2_2.Y += Font12.LineSpacing + 2;
             position3 = new Vector2(vector2_2.X + num5, vector2_2.Y);
             batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
-            batch.DrawString(Font12, P.MineralRichness.String(), position3, new Color(255, 239, 208));
+            batch.DrawString(Font12, P.MineralRichness.String(), position3, Colors.Cream);
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
 
 
@@ -603,7 +603,7 @@ namespace Ship_Game
 
         }
 
-        Color TextColor { get; } = new Color(255, 239, 208);
+        Color TextColor { get; } = Colors.Cream;
 
         void DrawText(ref Vector2 cursor, string text)
         {

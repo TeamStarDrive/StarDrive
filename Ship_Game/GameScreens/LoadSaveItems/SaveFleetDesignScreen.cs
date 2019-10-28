@@ -5,34 +5,33 @@ using Ship_Game.AI;
 
 namespace Ship_Game
 {
-    public sealed class SaveFleetDesignScreen : GenericLoadSaveScreen, IDisposable
+    public sealed class SaveFleetDesignScreen : GenericLoadSaveScreen
     {
-        private Fleet f;
+        readonly Fleet Fleet;
 
-        public SaveFleetDesignScreen(GameScreen parent, Fleet f) 
-            : base(parent, SLMode.Save, f.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
+        public SaveFleetDesignScreen(GameScreen parent, Fleet fleet) 
+            : base(parent, SLMode.Save, fleet.Name, "Save Fleet As...", "Saved Fleets", "Saved Fleet already exists.  Overwrite?", 40)
         {
-            this.f = f;        // set save file data and starting name
+            Fleet = fleet; // set save file data and starting name
             Path = Dir.StarDriveAppData + "/Fleet Designs/";
         }
 
         public override void DoSave()
         {
-            FleetDesign d = new FleetDesign
+            var d = new FleetDesign
             {
                 Name = EnterNameArea.Text
             };
-            foreach (FleetDataNode node in f.DataNodes)
+            foreach (FleetDataNode node in Fleet.DataNodes)
             {
                 d.Data.Add(node);
             }
             try
             {
-                d.FleetIconIndex = f.FleetIconIndex;
-                XmlSerializer Serializer = new XmlSerializer(typeof(FleetDesign));
-                TextWriter WriteFileStream = new StreamWriter(string.Concat(Path, EnterNameArea.Text, ".xml"));
-                Serializer.Serialize(WriteFileStream, d);
-                WriteFileStream.Close();
+                d.FleetIconIndex = Fleet.FleetIconIndex;
+                var serializer = new XmlSerializer(typeof(FleetDesign));
+                using (var stream = new StreamWriter(string.Concat(Path, EnterNameArea.Text, ".xml")))
+                    serializer.Serialize(stream, d);
             }
             catch(Exception e)
             {
@@ -46,13 +45,16 @@ namespace Ship_Game
 
         protected override void InitSaveList()
         {
+            var serializer = new XmlSerializer(typeof(FleetDesign));
             foreach (FileInfo info in Dir.GetFiles(Path))
             {
-                AddItemToSaveSL(info);
+                var design = serializer.Deserialize<FleetDesign>(info);
+                AddItemToSaveSL(info, design.Icon);
             }
             foreach (FileInfo info in Dir.GetFiles("Content/FleetDesigns"))
             {
-                AddItemToSaveSL(info);
+                var design = serializer.Deserialize<FleetDesign>(info);
+                AddItemToSaveSL(info, design.Icon);
             }
         }
     }

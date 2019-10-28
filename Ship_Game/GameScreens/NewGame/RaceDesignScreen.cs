@@ -34,7 +34,6 @@ namespace Ship_Game
         protected Submenu NameSub;
 
         ScrollList<TraitsListItem> TraitsSL;
-        SelectedTraitsSummary TraitsSummary;
         ColorPicker Picker;
 
         protected UITextEntry RaceName = new UITextEntry();
@@ -101,9 +100,7 @@ namespace Ship_Game
             t.Singular = SingEntry.Text;
             t.Plural = PlurEntry.Text;
             t.HomeSystemName = HomeSystemEntry.Text;
-            t.R = Picker.CurrentColor.R;
-            t.G = Picker.CurrentColor.G;
-            t.B = Picker.CurrentColor.B;
+            t.Color = Picker.CurrentColor;
             t.FlagIndex = FlagIndex;
             t.HomeworldName = HomeWorldName;
             t.Name = RaceName.Text;
@@ -190,7 +187,7 @@ namespace Ship_Game
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
             DescriptionSL = Add(new ScrollList<TextListItem>(description, Fonts.Arial12.LineSpacing));
-            TraitsSummary = Add(new SelectedTraitsSummary(this));
+            Add(new SelectedTraitsSummary(this));
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
@@ -264,12 +261,12 @@ namespace Ship_Game
 
         void OnLoadSetupClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new LoadSetupScreen(this));
+            ScreenManager.AddScreen(new LoadNewGameSetupScreen(this));
         }
 
         void OnSaveSetupClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new SaveSetupScreen(this, SelectedDifficulty, StarEnum, GalaxySize, Pacing,
+            ScreenManager.AddScreen(new SaveNewGameSetupScreen(this, SelectedDifficulty, StarEnum, GalaxySize, Pacing,
                 ExtraRemnant, numOpponents, Mode));
         }
 
@@ -465,7 +462,7 @@ namespace Ship_Game
                 if (ResourceManager.NumFlags - 1 <= FlagIndex)
                     FlagIndex = 0;
                 else
-                    FlagIndex = FlagIndex + 1;
+                    FlagIndex += 1;
                 GameAudio.BlipClick();
             }
             if (FlagLeft.HitTest(input.CursorPosition) && input.LeftMouseClick)
@@ -473,7 +470,7 @@ namespace Ship_Game
                 if (FlagIndex <= 0)
                     FlagIndex = ResourceManager.NumFlags - 1;
                 else
-                    FlagIndex = FlagIndex - 1;
+                    FlagIndex -= 1;
                 GameAudio.BlipClick();
             }
             return false;
@@ -533,9 +530,7 @@ namespace Ship_Game
             Singular                   = SingEntry.Text;
             Plural                     = PlurEntry.Text;
             HomeSystemName             = HomeSystemEntry.Text;
-            RaceSummary.R              = Picker.CurrentColor.R;
-            RaceSummary.G              = Picker.CurrentColor.G;
-            RaceSummary.B              = Picker.CurrentColor.B;
+            RaceSummary.Color          = Picker.CurrentColor;
             RaceSummary.Singular       = Singular;
             RaceSummary.Plural         = Plural;
             RaceSummary.HomeSystemName = HomeSystemName;
@@ -610,7 +605,7 @@ namespace Ship_Game
             base.Draw(batch);
 
             NameMenu.Draw(batch);
-            var c = new Color(255, 239, 208);
+            var c = Colors.Cream;
             NameSub.Draw(batch);
             batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(31)+": ", RaceNamePos, Color.BurlyWood);
             Vector2 rpos = RaceNamePos;

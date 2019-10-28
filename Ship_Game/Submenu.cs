@@ -253,7 +253,7 @@ namespace Ship_Game
 
                     batch.Draw(s.Middle, t.tabRect, Color.White);
                     batch.Draw(s.Right, right, Color.White);
-                    batch.DrawString(Font, t.Title, textPos, new Color(255, 239, 208));
+                    batch.DrawString(Font, t.Title, textPos, Colors.Cream);
                 }
             }
             else if (Tabs.Count > 1)
@@ -303,7 +303,7 @@ namespace Ship_Game
                         }
                     }
                     var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - Font.LineSpacing / 2));
-                    batch.DrawString(Font, t.Title, textPos, new Color(255, 239, 208));
+                    batch.DrawString(Font, t.Title, textPos, Colors.Cream);
                 }
             }
             batch.Draw(s.HorizVert, topHoriz, Color.White);

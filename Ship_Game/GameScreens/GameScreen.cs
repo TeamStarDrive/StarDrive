@@ -149,6 +149,12 @@ namespace Ship_Game
             Elements.Clear();
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            // TODO: if (IsPopup) auto-dismiss the screen
+            return base.HandleInput(input);
+        }
+
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             // @note If content was being loaded, we will force deltaTime to 1/60th

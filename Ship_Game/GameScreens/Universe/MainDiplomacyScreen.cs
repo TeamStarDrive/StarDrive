@@ -156,7 +156,7 @@ namespace Ship_Game
             if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 766)
             {
                 TitleBar.Draw(batch);
-                batch.DrawString(Fonts.Laserian14, Localizer.Token(1600), TitlePos, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Laserian14, Localizer.Token(1600), TitlePos, Colors.Cream);
             }
             DMenu.Draw(batch);
             foreach (RaceEntry race in Races)

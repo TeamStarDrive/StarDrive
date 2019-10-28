@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -66,6 +62,13 @@ namespace Ship_Game
             CheckTextureDisposed(texture);
             var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
             batch.Draw(texture, r, Color.White);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, Vector2 position, Vector2 size, Color color)
+        {
+            CheckSubTextureDisposed(texture);
+            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+            batch.Draw(texture.Texture, r, texture.Rect, color);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle rect, 
