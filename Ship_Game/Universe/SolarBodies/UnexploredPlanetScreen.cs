@@ -53,7 +53,7 @@ namespace Ship_Game
             Vector2 MousePos = new Vector2(x, state.Y);
             Color c = new Color(255, 239, 208);
             batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
-            PlanetMenu.Draw();
+            PlanetMenu.Draw(batch);
             PlanetInfo.Draw(batch);
             batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
             Vector2 PNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);

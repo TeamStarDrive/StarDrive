@@ -66,9 +66,6 @@ namespace Ship_Game
 
             base.Draw(batch);
 
-            if (IsActive)
-                ToolTip.Draw(batch); // draw current tooltip
-
             batch.End();
         }
 

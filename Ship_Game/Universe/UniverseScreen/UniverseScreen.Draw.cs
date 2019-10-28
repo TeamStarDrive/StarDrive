@@ -605,9 +605,6 @@ namespace Ship_Game
             if (Debug) ShowDebugGameInfo();
             else       HideDebugGameInfo();
 
-            if (IsActive)
-                ToolTip.Draw(batch);
-
             aw.Visible = aw.IsOpen && !LookingAtPlanet;
 
             base.Draw(batch);  // UIElementV2 Draw

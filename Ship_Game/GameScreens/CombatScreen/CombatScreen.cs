@@ -267,11 +267,6 @@ namespace Ship_Game
                 OrbitSL.Draw(batch);
             }
 
-            if (Empire.Universe.IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
-
             batch.End();
 
             batch.Begin(SpriteBlendMode.Additive);

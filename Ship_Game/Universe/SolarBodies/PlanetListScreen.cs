@@ -183,7 +183,6 @@ namespace Ship_Game
             cb_hideUninhabitable.Draw(batch);
             cb_hideOwned.Draw(batch);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 

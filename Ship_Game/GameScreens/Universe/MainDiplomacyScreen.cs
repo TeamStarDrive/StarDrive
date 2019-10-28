@@ -645,10 +645,6 @@ namespace Ship_Game
                     DrawStat(Localizer.Token(4035), SelectedEmpire.data.MissileDodgeChance, ref textCursor, false); 
             }
             close.Draw(batch);
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
         }
 

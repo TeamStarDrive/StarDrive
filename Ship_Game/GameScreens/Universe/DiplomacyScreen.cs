@@ -352,7 +352,6 @@ namespace Ship_Game
                     pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
                     pos.X -= 8f;
 
-                    ToolTip.Draw(batch);
                     batch.End();
                     return;
                 }
@@ -872,12 +871,11 @@ namespace Ship_Game
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
             
-            
             var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 40));
-            OfferTextSL = new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2, true);
-            StatementsSL = new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2, true);
-            OurItemsSL   = new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5, true);
-            TheirItemsSL = new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5, true);
+            OfferTextSL = new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2);
+            StatementsSL = new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2);
+            OurItemsSL   = new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5);
+            TheirItemsSL = new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5);
             
             OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
             TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);

@@ -484,7 +484,6 @@ namespace Ship_Game
             }
             DrawSelectedData(StarDriveGame.Instance.GameTime);
             Close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
 
             ScreenManager.EndFrameRendering();
@@ -648,7 +647,7 @@ namespace Ship_Game
             Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
             FleetNameEntry.Text = f.Name;
             FleetNameEntry.ClickableArea = new Rectangle((int)cursor1.X, (int)cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-            FleetNameEntry.Draw(Fonts.Arial20Bold, spriteBatch, cursor1, gameTime, (FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
+            FleetNameEntry.Draw(spriteBatch, Fonts.Arial20Bold, cursor1, (FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
             cursor1.Y = cursor1.Y + (Fonts.Arial20Bold.LineSpacing + 10);
             cursor1 = cursor1 + new Vector2(50f, 30f);
             spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, new Color(255, 239, 208));
@@ -1115,7 +1114,7 @@ namespace Ship_Game
 
         private void HandleSelectionBox(InputState input)
         {
-            if (LeftMenu.Menu.HitTest(input.CursorPosition) || RightMenu.Menu.HitTest(input.CursorPosition))
+            if (LeftMenu.HitTest(input.CursorPosition) || RightMenu.HitTest(input.CursorPosition))
             {
                 SelectionBox = new Rectangle(0, 0, -1, -1);
                 return;
@@ -1372,7 +1371,7 @@ namespace Ship_Game
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2f - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f
                 , titleRect.Y + titleRect.Height / 2f - Fonts.Laserian14.LineSpacing / 2f);
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
-            LeftMenu = new Menu1(ScreenManager, leftRect, true);
+            LeftMenu = new Menu1(leftRect, true);
             int i = 0;
             foreach (KeyValuePair<int, Fleet> fleet in EmpireManager.Player.GetFleetsDict())
             {

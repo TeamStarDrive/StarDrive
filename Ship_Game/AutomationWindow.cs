@@ -47,12 +47,6 @@ namespace Ship_Game
                 Options.PerformLayout();
                 Height = Options.Bottom - Pos.Y;
             }
-            public override void Update(float deltaTime)
-            {
-                // @todo Gray out Options drop-down
-                //Options.Enabled = Check.Checked;
-                base.Update(deltaTime);
-            }
             public override bool HandleInput(InputState input)
             {
                 return Check.HandleInput(input) || Options.HandleInput(input);

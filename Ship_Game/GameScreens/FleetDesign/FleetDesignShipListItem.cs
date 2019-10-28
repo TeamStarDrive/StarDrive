@@ -15,9 +15,11 @@ namespace Ship_Game
         public ModuleHeader Header;
         public Ship Ship;
 
-        public FleetDesignShipListItem(FleetDesignScreen screen) : base(plus:true, edit:true)
+        public FleetDesignShipListItem(FleetDesignScreen screen)
         {
             Screen = screen;
+            AddPlus(new Vector2(30, 0), "FleetDesignShipListItem.Add");
+            AddEdit(new Vector2(60, 0), "FleetDesignShipListItem.Edit");
         }
 
         public override void Draw(SpriteBatch batch)

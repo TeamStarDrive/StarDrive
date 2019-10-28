@@ -40,7 +40,7 @@ namespace Ship_Game
             ResearchQueuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
             ResearchQueuePanel.AddTab(Localizer.Token(1404));
 
-            ResearchQueueList = Add(new ScrollList<ResearchQItem>(ResearchQueuePanel, 125, ListControls.All, ListStyle.Blue));
+            ResearchQueueList = Add(new ScrollList<ResearchQItem>(ResearchQueuePanel, 125, ListStyle.Blue));
             ReloadResearchQueue();
         }
 

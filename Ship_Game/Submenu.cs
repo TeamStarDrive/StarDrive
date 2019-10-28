@@ -37,6 +37,16 @@ namespace Ship_Game
             this.PerformLayout();
         }
 
+        public Submenu(int x, int y, int width, int height, SubmenuStyle style = SubmenuStyle.Brown)
+            : this(new Rectangle(x, y, width, height), style)
+        {
+        }
+
+        public Submenu(float x, float y, float width, float height, SubmenuStyle style = SubmenuStyle.Brown)
+            : this(new Rectangle((int)x, (int)y, (int)width, (int)height), style)
+        {
+        }
+
         public class StyleTextures
         {
             public SubTexture HorizVert;

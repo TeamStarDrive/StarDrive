@@ -135,10 +135,6 @@ namespace Ship_Game
                 string text = Fonts.Arial12Bold.ParseText($"Refit {ShipToRefit.Name} to {RefitTo.Name}", 270f);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             base.Draw(batch);
             batch.End();
         }

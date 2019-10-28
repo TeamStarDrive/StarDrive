@@ -110,7 +110,7 @@ namespace Ship_Game
             }
 
             batch.Draw(ship.shipData.Icon, ShipIconRect, Color.White);
-            ShipNameEntry.Draw(Fonts.Arial12Bold, batch, ShipNameEntry.ClickableArea.PosVec(), GameBase.Base.GameTime, TextColor);
+            ShipNameEntry.Draw(batch, Fonts.Arial12Bold, ShipNameEntry.ClickableArea.PosVec(), TextColor);
 
             var rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);

@@ -39,7 +39,7 @@ namespace Ship_Game
             if (ActiveModule != null && !ModSel.HitTest(Input))
                 DrawActiveModule(batch);
 
-            DrawUi();
+            DrawUi(batch);
             ArcsButton.DrawWithShadowCaps(batch);
             if (Debug)
                 DrawDebug();
@@ -364,9 +364,9 @@ namespace Ship_Game
         void DrawDebug()
         {
             var pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
-            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, "Debug", pos, Fonts.Arial20Bold);
+            ScreenManager.SpriteBatch.DrawDropShadowText("Debug", pos, Fonts.Arial20Bold);
             pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
-            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, Operation.ToString(), pos, Fonts.Arial20Bold);
+            ScreenManager.SpriteBatch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
         void DrawHullSelection(SpriteBatch batch)
@@ -521,7 +521,7 @@ namespace Ship_Game
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier;
 
-            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Menu.Y + 18);
+            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
 
             DrawHullBonuses();
 
@@ -575,7 +575,7 @@ namespace Ship_Game
             float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
             if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
-            var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
+            var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
             if (ActiveHull.Role != ShipData.RoleName.platform)
                 DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
 
@@ -779,22 +779,22 @@ namespace Ship_Game
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
         }
 
-        void DrawUi()
+        void DrawUi(SpriteBatch batch)
         {
-            EmpireUI.Draw(ScreenManager.SpriteBatch);
+            EmpireUI.Draw(batch);
             DrawShipInfoPanel();
 
-            CategoryList.Draw(ScreenManager.SpriteBatch);
+            CategoryList.Draw(batch);
 
             DrawTitle(ScreenWidth * 0.375f, "Repair Options");
             DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
             DrawTitle(ScreenWidth * 0.65f, "Hangar Designation");
-            HangarOptionsList.Draw(ScreenManager.SpriteBatch);
+            HangarOptionsList.Draw(batch);
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
                 DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
-                ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
+                ShieldsBehaviorList.Draw(batch);
             }
 
             float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
@@ -802,34 +802,34 @@ namespace Ship_Game
             Rectangle r = BlackBar;
             if (IsTransitioning)
                 r.Y += (int)(transitionOffset * 50f);
-            ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
+            batch.FillRectangle(r, Color.Black);
 
 
             r = BottomSep;
             if (IsTransitioning)
                 r.Y += (int) (transitionOffset * 50f);
-            ScreenManager.SpriteBatch.FillRectangle(r, new Color(77, 55, 25));
+            batch.FillRectangle(r, new Color(77, 55, 25));
 
 
             r = SearchBar;
             if (IsTransitioning)
                 r.Y += (int)(transitionOffset * 50f);
-            ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
+            batch.FillRectangle(r, new Color(54, 54, 54));
 
 
             SpriteFont font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
                             ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
-            ScreenManager.SpriteBatch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
+            batch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
 
 
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);
-            ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
+            batch.FillRectangle(r, new Color(54, 54, 54));
 
             {
                 var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
+                batch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
             }
 
             if (IsTransitioning)
@@ -840,18 +840,15 @@ namespace Ship_Game
                 //SymmetricDesignButton.Y += (int)(transitionOffset * 50f);
             }
 
-            ModSel.Draw(ScreenManager.SpriteBatch);
+            ModSel.Draw(batch);
 
-            DrawHullSelection(ScreenManager.SpriteBatch);
-
-            if (IsActive)
-                ToolTip.Draw(ScreenManager.SpriteBatch);
+            DrawHullSelection(batch);
 
             void DrawTitle(float x, string title)
             {
                 int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
                 var pos = new Vector2(x, buttonHeight);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
+                batch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
             }
         }
 

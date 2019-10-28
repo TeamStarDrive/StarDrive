@@ -186,7 +186,6 @@ namespace Ship_Game
 
             DidLoadContent = false;
         }
-        
 
         bool UpdateTransition(float time, int direction)
         {

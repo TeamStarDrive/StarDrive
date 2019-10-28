@@ -196,7 +196,10 @@ namespace Ship_Game
             queue = new Submenu(theMenu11);
             queue.AddTab(Localizer.Token(337));
 
-            CQueue = new ScrollList<QueueItem>(queue, ListOptions.Draggable);
+            CQueue = new ScrollList<QueueItem>(queue)
+            {
+                IsDraggable = true
+            };
 
             PlanetIcon = new Rectangle(theMenu4.X + theMenu4.Width - 148, theMenu4.Y + (theMenu4.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
@@ -242,8 +245,8 @@ namespace Ship_Game
             if (P.Owner == null)
                 return;
             P.UpdateIncomes(false);
-            LeftMenu.Draw();
-            RightMenu.Draw();
+            LeftMenu.Draw(batch);
+            RightMenu.Draw(batch);
             TitleBar.Draw(batch);
             LeftColony.Draw(ScreenManager);
             RightColony.Draw(ScreenManager);
@@ -332,7 +335,7 @@ namespace Ship_Game
                 num5 += 20f;
             var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             P.Name = PlanetName.Text;
-            PlanetName.Draw(Font20, batch, vector2_2, GameTime, new Color(255, 239, 208));
+            PlanetName.Draw(batch, Font20, vector2_2, new Color(255, 239, 208));
             EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
             if (EditHoverState == 0 && !PlanetName.HandlingInput)
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);

@@ -197,10 +197,6 @@ namespace Ship_Game
             }
             ShowRoles.Draw(batch);
             close.Draw(batch);
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
         }
         

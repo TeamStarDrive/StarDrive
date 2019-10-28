@@ -42,7 +42,7 @@ namespace Ship_Game
 		{
 			TitleBar.Draw(batch);
 			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, new Color(255, 239, 208));
-			PlanetMenu.Draw();
+			PlanetMenu.Draw(batch);
 			PlanetInfo.Draw(batch);
 			batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
 			var pNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);

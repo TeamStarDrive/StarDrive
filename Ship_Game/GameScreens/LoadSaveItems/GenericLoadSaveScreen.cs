@@ -99,16 +99,15 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw();
+            SaveMenu.Draw(batch);
             NameSave.Draw(batch);
             AllSaves.Draw(batch);
             SavesSL.Draw(batch);
-            EnterNameArea.Draw(Fonts.Arial12Bold, batch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            EnterNameArea.Draw(batch, Fonts.Arial12Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Color.Orange));
 
             base.Draw(batch);
 
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
@@ -130,7 +129,7 @@ namespace Ship_Game
             var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(TabText);
-            SavesSL = new ScrollList<SaveLoadListItem>(AllSaves, eHeight, ListControls.Cancel);
+            SavesSL = new ScrollList<SaveLoadListItem>(AllSaves, eHeight);
             SavesSL.OnClick = OnSaveLoadItemClicked;
             InitSaveList();
 
@@ -154,17 +153,7 @@ namespace Ship_Game
 
         protected virtual void OnSaveLoadItemClicked(SaveLoadListItem item)
         {
-            if (item.CancelHover) // handle file delete
-            {
-                fileToDel = item.Data.FileLink;
-                var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                messageBox.Accepted += DeleteFile;
-                ScreenManager.AddScreen(messageBox);
-            }
-            else
-            {
-                SwitchFile(item.Data);
-            }
+            SwitchFile(item.Data);
         }
 
 
@@ -263,6 +252,14 @@ namespace Ship_Game
             {
                 Screen = screen;
                 Data = data;
+                AddCancel(new Vector2(-30, 0), "Delete Save File", OnDeleteClicked);
+            }
+            void OnDeleteClicked()
+            {
+                Screen.fileToDel = Data.FileLink;
+                var messageBox = new MessageBoxScreen(Screen, "Confirm Delete:");
+                messageBox.Accepted += Screen.DeleteFile;
+                Screen.ScreenManager.AddScreen(messageBox);
             }
             public override void Draw(SpriteBatch batch)
             {
@@ -278,8 +275,6 @@ namespace Ship_Game
 
                 tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                 batch.DrawString(Fonts.Arial12Bold, Data.ExtraInfo, tCursor, Color.White);
-
-                DrawCancel(batch, "Delete File");
             }
         }
 
