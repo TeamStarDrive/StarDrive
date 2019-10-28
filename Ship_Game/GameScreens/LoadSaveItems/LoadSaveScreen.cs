@@ -25,7 +25,7 @@ namespace Ship_Game
         {
             Path = Dir.StarDriveAppData + "/Saved Games/";
         }
-        protected override void DeleteFile(object sender, EventArgs e)
+        protected override void DeleteFile()
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Ship_Game
             }
             catch { }
 
-            base.DeleteFile(sender, e);
+            base.DeleteFile();
         }
 
         protected override void Load()

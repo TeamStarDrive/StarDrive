@@ -128,7 +128,7 @@ namespace Ship_Game
             TrySave();
         }
 
-        void OverWriteAccepted(object sender, EventArgs e)
+        void OverWriteAccepted()
         {
             GameAudio.AffirmativeClick();
             screen?.SaveShipDesign(EnterNameArea.Text);
@@ -171,15 +171,15 @@ namespace Ship_Game
             if (reserved && !Empire.Universe.Debug)
             {
                 GameAudio.NegativeClick();
-                var messageBox = new MessageBoxScreen(this, $"{EnterNameArea.Text} is a reserved ship name and you cannot overwrite this design");
-                ScreenManager.AddScreen(messageBox);
+                ScreenManager.AddScreen(new MessageBoxScreen(this, $"{EnterNameArea.Text} is a reserved ship name and you cannot overwrite this design"));
                 return;
             }
             if (!saveOk)
             {
-                var messageBox = new MessageBoxScreen(this, "Design name already exists.  Overwrite?");
-                messageBox.Accepted += OverWriteAccepted;
-                ScreenManager.AddScreen(messageBox);
+                ScreenManager.AddScreen(new MessageBoxScreen(this, "Design name already exists.  Overwrite?")
+                {
+                    Accepted = OverWriteAccepted
+                });
                 return;
             }
             GameAudio.AffirmativeClick();

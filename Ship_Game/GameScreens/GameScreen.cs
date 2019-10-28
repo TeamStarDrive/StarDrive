@@ -323,15 +323,16 @@ namespace Ship_Game
             return amount;
         }
 
-        public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId, string okText, string cancelledText)
+        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
         {
-            var messageBox = new MessageBoxScreen(screen, localId, okText, cancelledText);
-            messageBox.Cancelled += cancelled;
-            messageBox.Accepted += accepted;
-            ScreenManager.AddScreenDeferred(messageBox);            
+            ScreenManager.AddScreenDeferred(new MessageBoxScreen(screen, localId, okText, cancelledText)
+            {
+                Cancelled = cancelled,
+                Accepted = accepted
+            });            
         }
 
-        public void ExitMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId)
+        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId)
         {
             MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
         }

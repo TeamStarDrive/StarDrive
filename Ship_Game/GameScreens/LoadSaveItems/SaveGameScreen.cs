@@ -21,18 +21,17 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        protected override void DeleteFile(object sender, EventArgs e)
+        protected override void DeleteFile()
         {
             try
             {
                 // find header of save file
-                FileInfo headerToDel = new FileInfo(Path+"Headers/"+FileToDelete.FileLink.NameNoExt());
-                //Log.Info(headerToDel.FullName);
+                var headerToDel = new FileInfo(Path+"Headers/"+FileToDelete.FileLink.NameNoExt());
                 headerToDel.Delete();
             }
             catch { }
 
-            base.DeleteFile(sender, e);
+            base.DeleteFile();
         }
 
         protected override void InitSaveList()        // Set list of files to show
