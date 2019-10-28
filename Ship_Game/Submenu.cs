@@ -30,25 +30,28 @@ namespace Ship_Game
         // EVT: Triggered when a tab is changed
         public Action<Tab> OnTabChange;
 
-        Tab ActiveTab;
+        Tab SelectedTabValue;
+
+        // If set, draws a background element before the Submenu itself is drawn
+        public UIElementV2 Background;
 
         // Currently Active Tab
         public Tab SelectedTab
         {
-            get => ActiveTab;
+            get => SelectedTabValue;
             set
             {
                 for (int i = 0; i < Tabs.Count; ++i)
                     Tabs[i].Selected = false;
 
-                Tab oldActive = ActiveTab;
-                ActiveTab = Tabs.Contains(value) ? value : null; // validate Tab
+                Tab oldActive = SelectedTabValue;
+                SelectedTabValue = Tabs.Contains(value) ? value : null; // validate Tab
 
-                if (ActiveTab != null)
-                    ActiveTab.Selected = true;
+                if (SelectedTabValue != null)
+                    SelectedTabValue.Selected = true;
 
-                if (ActiveTab != oldActive)
-                    OnTabChange?.Invoke(ActiveTab);
+                if (SelectedTabValue != oldActive)
+                    OnTabChange?.Invoke(SelectedTabValue);
             }
         }
 
@@ -160,6 +163,8 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            Background?.PerformLayout();
+
             StyleTextures s = GetStyle();
             Rectangle r = Rect;
             TL = new Rectangle(r.X, r.Y + 25 - 2, s.CornerTL.Width, s.CornerTL.Height);
@@ -172,7 +177,6 @@ namespace Ship_Game
             topHoriz = new Rectangle(r.X + TL.Width, r.Y + 25 - 2, r.Width - TR.Width - TL.Width, 2);
             botHoriz = new Rectangle(r.X + BL.Width, r.Y + r.Height, r.Width - BL.Width - BR.Width, 2);
         }
-
 
         public void AddTab(string title)
         {
@@ -192,11 +196,43 @@ namespace Ship_Game
             });
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            if (!Visible || !Enabled)
+                return false;
+
+            Vector2 mousePos = input.CursorPosition;
+            for (int i = 0; i < Tabs.Count; i++)
+            {
+                Tab tab = Tabs[i];
+                tab.Hover = tab.tabRect.HitTest(mousePos);
+                if (tab.Hover && input.LeftMouseClick)
+                {
+                    GameAudio.AcceptClick();
+                    SelectedTab = tab;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            if (SelectedTab == null)
+                SelectedTab = Tabs.First;
+
+            Background?.Update(deltaTime);
+            base.Update(deltaTime);
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             if (!Visible)
                 return;
             
+            Background?.Draw(batch);
+
             StyleTextures s = GetStyle();
 
             batch.Draw(s.CornerTL, TL, Color.White);
@@ -279,26 +315,6 @@ namespace Ship_Game
             batch.Draw(s.HorizVert, VL, Color.White);
         }
 
-        public override bool HandleInput(InputState input)
-        {
-            if (!Visible || !Enabled)
-                return false;
-
-            Vector2 mousePos = input.CursorPosition;
-            for (int i = 0; i < Tabs.Count; i++)
-            {
-                Tab tab = Tabs[i];
-                tab.Hover = tab.tabRect.HitTest(mousePos);
-                if (tab.Hover && input.LeftMouseClick)
-                {
-                    GameAudio.AcceptClick();
-                    SelectedTab = tab;
-                    return true;
-                }
-            }
-
-            return false;
-        }
 
         public class Tab
         {

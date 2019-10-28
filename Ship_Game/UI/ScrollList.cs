@@ -525,6 +525,8 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
+            Background?.Update(deltaTime);
+
             base.Update(deltaTime);
 
             if (RequiresLayout)
@@ -785,11 +787,12 @@ namespace Ship_Game
                     return true;
                 }
 
-                return false;
+                return base.HandleInput(input);
             }
 
             public override void Draw(SpriteBatch batch)
             {
+                base.Draw(batch);
                 for (int i = 0; i < DynamicElements.Count; ++i)
                 {
                     DynamicElements[i].Draw(batch);
