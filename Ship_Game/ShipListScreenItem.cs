@@ -7,7 +7,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class ShipListScreenItem : ScrollList<ShipListScreenItem>.Entry
+    public sealed class ShipListScreenItem : ScrollListEntry<ShipListScreenItem>
     {
         public Ship ship;
 

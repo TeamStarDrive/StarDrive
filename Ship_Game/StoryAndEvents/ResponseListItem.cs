@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class ResponseListItem : ScrollList<ResponseListItem>.Entry
+    public class ResponseListItem : ScrollListEntry<ResponseListItem>
     {
         public Response Response;
         public ResponseListItem(Response response)

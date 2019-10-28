@@ -403,6 +403,7 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListEntry.cs" />
     <Compile Include="Ship_Game\UI\ScrollListStyleTextures.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />

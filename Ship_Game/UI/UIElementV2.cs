@@ -50,7 +50,10 @@ namespace Ship_Game
 
         //protected Vector2 AxisOffset = Vector2.Zero;
         //protected Vector2 ParentOffset = Vector2.Zero;
-        protected bool RequiresLayout;
+
+        // If set TRUE, this.PerformLayout() will be triggered during next Update()
+        // After layout is complete, RequiresLayout should be set false
+        public bool RequiresLayout;
 
         // Elements are sorted by ZOrder during EndLayout()
         // Changing this will allow you to bring your UI elements to top

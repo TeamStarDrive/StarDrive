@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class WikiHelpCategoryListItem : ScrollList<WikiHelpCategoryListItem>.Entry
+    public class WikiHelpCategoryListItem : ScrollListEntry<WikiHelpCategoryListItem>
     {
         public HelpTopic Topic;
         public WikiHelpCategoryListItem(string headerText) : base(headerText) { }

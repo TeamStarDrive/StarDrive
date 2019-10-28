@@ -4,7 +4,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class ResearchQItem : ScrollList<ResearchQItem>.Entry
+    public sealed class ResearchQItem : ScrollListEntry<ResearchQItem>
     {
         readonly ResearchScreenNew Screen;
         public readonly TechEntry Tech;

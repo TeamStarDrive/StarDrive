@@ -5,7 +5,7 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-    public sealed class ColoniesListItem : ScrollList<ColoniesListItem>.Entry
+    public sealed class ColoniesListItem : ScrollListEntry<ColoniesListItem>
     {
         public Planet p;
         public Rectangle TotalEntrySize;

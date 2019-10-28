@@ -49,7 +49,7 @@ namespace Ship_Game
             }
         }
 
-        class ConstructionListItem : ScrollList<ConstructionListItem>.Entry
+        class ConstructionListItem : ScrollListEntry<ConstructionListItem>
         {
             public Ship Ship;
 

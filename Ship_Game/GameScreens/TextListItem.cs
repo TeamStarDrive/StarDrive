@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class TextListItem : ScrollList<TextListItem>.Entry
+    public class TextListItem : ScrollListEntry<TextListItem>
     {
         public UILabel TextLabel;
         public string Text => TextLabel.Text;
