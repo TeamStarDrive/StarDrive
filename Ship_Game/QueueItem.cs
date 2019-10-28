@@ -9,7 +9,7 @@ namespace Ship_Game
 {
     public delegate void QueueItemCompleted(bool success);
 
-    public class QueueItem : ScrollList<QueueItem>.Entry
+    public class QueueItem : ScrollListEntry<QueueItem>
     {
         public Planet Planet;
         public bool isBuilding;

@@ -9,7 +9,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class ShipHullListItem : ScrollList<ShipHullListItem>.Entry
+    public class ShipHullListItem : ScrollListEntry<ShipHullListItem>
     {
         public ShipData Hull;
         public ShipHullListItem(string headerText) : base(headerText) {}

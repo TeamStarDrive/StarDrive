@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class RaceArchetypeListItem : ScrollList<RaceArchetypeListItem>.Entry
+    public class RaceArchetypeListItem : ScrollListEntry<RaceArchetypeListItem>
     {
         public RaceDesignScreen Screen;
         public IEmpireData EmpireData;
