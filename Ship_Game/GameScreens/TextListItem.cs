@@ -10,13 +10,19 @@ namespace Ship_Game
 
         public TextListItem(string text, SpriteFont font)
         {
-            TextLabel = Add(new UILabel(text, font));
+            TextLabel = new UILabel(text, font);
         }
 
         public override void PerformLayout()
         {
             TextLabel.Pos = Pos;
-            base.PerformLayout();
+            RequiresLayout = false;
+        }
+
+        // custom override, because it's faster
+        public override void Draw(SpriteBatch batch)
+        {
+            TextLabel.Draw(batch);
         }
     }
 }

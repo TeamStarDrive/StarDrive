@@ -26,7 +26,6 @@ namespace Ship_Game
         Rectangle NumOpponentsRect;
         protected Menu2 TitleBar;
         protected Vector2 TitlePos;
-        protected Menu1 Left;
         protected Menu1 NameMenu;
 
         protected bool LowRes;
@@ -140,17 +139,27 @@ namespace Ship_Game
             Picker = Add(new ColorPicker(this, new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
 
-            var leftRect = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
+            var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
                                          (int)NameMenu.Bottom + 5,
                                          (int)(ScreenWidth * 0.5f), 
                                          (int)(ScreenHeight - TitleBar.Bottom - 0.28f*ScreenHeight));
-            if (leftRect.Height > 580)
-                leftRect.Height = 580;
+            if (traitsList.Height > 580)
+                traitsList.Height = 580;
 
-            Left = new Menu1(leftRect);
+            Traits = new Submenu(traitsList.Bevel(-20));
+            Traits.AddTab(Localizer.Token(19));
+            Traits.AddTab(Localizer.Token(20));
+            Traits.AddTab(Localizer.Token(21));
+            Traits.OnTabChange = OnTraitsTabChanged;
+            Traits.Background = new Menu1(traitsList); 
 
-            var chooseRace = new Menu1(5, (LowRes ? (int)NameMenu.Y : leftRect.Y), leftRect.X - 10,
-                                           (LowRes ? leftRect.Y + leftRect.Height - (int)NameMenu.Y : leftRect.Height));
+            int size = 55;
+            if (GlobalStats.NotGerman && ScreenWidth <= 1280) size = 65;
+            if (GlobalStats.IsRussian || GlobalStats.IsPolish) size = 70;
+            TraitsSL = Add(new ScrollList<TraitsListItem>(Traits, size));
+            TraitsSL.OnClick = OnTraitsListItemClicked;
+
+            var chooseRace = new Menu1(5, traitsList.Y, traitsList.X - 10, traitsList.Height);
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.OnClick = OnRaceArchetypeItemClicked;
 
@@ -178,28 +187,8 @@ namespace Ship_Game
             //Gretman - Remnant Presence button, relative to Difficulty button
             ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
 
-            var description = new Menu1(new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenWidth - leftRect.X - leftRect.Width - 10, leftRect.Height));
+            var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
             DescriptionSL = Add(new ScrollList<TextListItem>(description, Fonts.Arial12.LineSpacing));
-
-            var psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
-            Traits = new Submenu(psubRect);
-            Traits.AddTab(Localizer.Token(19));
-            Traits.AddTab(Localizer.Token(20));
-            Traits.AddTab(Localizer.Token(21));
-            Traits.OnTabChange = OnTraitsTabChanged;
-
-            int size = 55;
-            if (GlobalStats.NotGerman && ScreenWidth <= 1280) size = 65;
-            if (GlobalStats.IsRussian || GlobalStats.IsPolish) size = 70;
-
-            TraitsSL = Add(new ScrollList<TraitsListItem>(Traits, size));
-            TraitsSL.OnClick = OnTraitsListItemClicked;
-
-            foreach (TraitEntry t in AllTraits)
-            {
-                if (t.trait.Category == "Physical")
-                    TraitsSL.AddItem(new TraitsListItem(this, t));
-            }
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
@@ -211,7 +200,7 @@ namespace Ship_Game
             ButtonMedium(ChooseRaceList.CenterX - 142, ChooseRaceList.Y - 40, "Load Race", OnLoadRaceClicked);
             ButtonMedium(ChooseRaceList.CenterX + 10,  ChooseRaceList.Y - 40, "Save Race", OnSaveRaceClicked);
 
-            var pos = new Vector2(ScreenWidth / 2 - 84, leftRect.Y + leftRect.Height + 10);
+            var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
@@ -704,9 +693,11 @@ namespace Ship_Game
                 rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
                 numTraits++;
             }
+
+            // === DESIGN YOUR RACE ===
             TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
-            Left.Draw(batch);
+            // ========================
 
             batch.DrawString(Fonts.Arial12, string.Concat(Localizer.Token(24), ": "), new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
             batch.DrawString(Fonts.Arial12, GalaxySize.ToString(), new Vector2(GalaxySizeRect.X + 190 - Fonts.Arial12.MeasureString(GalaxySize.ToString()).X, GalaxySizeRect.Y), Color.BurlyWood);
@@ -767,6 +758,24 @@ namespace Ship_Game
             }
 
             batch.End();
+        }
+
+        class SelectedTraitsSummary : UIElementV2
+        {
+            RaceDesignScreen Screen;
+            public SelectedTraitsSummary(RaceDesignScreen screen)
+            {
+                Screen = screen;
+            }
+
+            public override bool HandleInput(InputState input)
+            {
+                return false;
+            }
+
+            public override void Draw(SpriteBatch batch)
+            {
+            }
         }
         
         public enum GalSize
