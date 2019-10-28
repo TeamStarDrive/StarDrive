@@ -43,14 +43,12 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         class DesignListItem : ScrollList<DesignListItem>.Entry
         {
             readonly LoadDesigns Screen;
-            public ModuleHeader Header;
             public Ship Ship;
             public ShipData WipHull;
             
-            public DesignListItem(LoadDesigns screen, ModuleHeader header)
+            public DesignListItem(LoadDesigns screen, string headerText) : base(headerText)
             {
                 Screen = screen;
-                Header = header;
             }
 
             public DesignListItem(LoadDesigns screen, Ship ship)
@@ -81,12 +79,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             
             public override void Draw(SpriteBatch batch)
             {
-                if (Header != null)
-                {
-                    Header.Pos = Pos;
-                    Header.Draw(batch);
-                }
-                else if (Ship != null)
+                base.Draw(batch);
+                if (Ship != null)
                 {
                     var bCursor = new Vector2(X + 35f, Y);
                     batch.Draw(Ship.shipData.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
@@ -236,9 +230,10 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                         Log.Info($"Ship Design excluded by filter {Ship.Key}");
                         continue;
                     }
-                    shipRoles.Add(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
-                    var mh = new ModuleHeader(Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player));
-                    ShipDesigns.AddItem(new DesignListItem(this, mh));
+
+                    string headerText = Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player);
+                    shipRoles.Add(headerText);
+                    ShipDesigns.AddItem(new DesignListItem(this, headerText));
                 }
                 catch
                 {
@@ -249,8 +244,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             if (WIPs.Count > 0)
             {
                 shipRoles.Add("WIP");
-                var mh = new ModuleHeader("WIP");
-                ShipDesigns.AddItem(new DesignListItem(this, mh));
+                ShipDesigns.AddItem(new DesignListItem(this, "WIP"));
             }
 
             KeyValuePair<string, Ship>[] ships = ResourceManager.ShipsDict
@@ -268,7 +262,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     if (!ship.Value.Deleted
                         && !ship.Value.shipData.IsShipyard
                         && EmpireManager.Player.WeCanBuildThis(ship.Key)
-                        && Localizer.GetRole(ship.Value.DesignRole, EmpireManager.Player) == headerItem.Header.Text
+                        && Localizer.GetRole(ship.Value.DesignRole, EmpireManager.Player) == headerItem.HeaderText
                         && (Empire.Universe?.Debug == true || !ship.Value.IsSubspaceProjector)
                         && !ResourceManager.ShipRoles[ship.Value.shipData.Role].Protected)
                     {
@@ -276,7 +270,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     }
                 }
 
-                if (headerItem.Header.Text == "WIP")
+                if (headerItem.HeaderText == "WIP")
                 {
                     foreach (ShipData wipHull in WIPs)
                     {

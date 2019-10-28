@@ -30,8 +30,8 @@ namespace Ship_Game
         bool MarkedForColonization;
 
         public PlanetListScreenItem(Planet p, int x, int y, int width, int height, PlanetListScreen caller)
-            : base(caller, new Rectangle(x, y, width, height))
         {
+            Rect = new Rectangle(x, y, width, height);
             screen = caller;
             planet = p;
             TotalEntrySize = new Rectangle(x, y, width - 60, height);

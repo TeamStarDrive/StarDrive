@@ -44,10 +44,10 @@ namespace Ship_Game
                 return;
             if (!Categories.TryGetValue(categoryId, out WeaponListItem e))
             {
-                e = AddItem(new WeaponListItem{ Header = new ModuleHeader(categoryName, 240) });
+                e = AddItem(new WeaponListItem(categoryName));
                 Categories.Add(categoryId, e);
             }
-            e.AddSubItem(new WeaponListItem{ Module = mod });
+            e.AddSubItem(new WeaponListItem(mod));
         }
 
         bool OpenCategory(int categoryId)

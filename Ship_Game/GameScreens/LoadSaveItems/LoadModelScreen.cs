@@ -29,16 +29,13 @@ namespace Ship_Game
 
         class LoadModelListItem : ScrollList<LoadModelListItem>.Entry
         {
-            public ModuleHeader Header;
             public ModelData Model;
+            public LoadModelListItem(ModelData model) { Model = model; }
+            public LoadModelListItem(string headerText) : base(headerText) {}
             public override void Draw(SpriteBatch batch)
             {
-                if (Header != null)
-                {
-                    Header.Pos = Pos;
-                    Header.Draw(batch);
-                }
-                else if (Model != null)
+                base.Draw(batch);
+                if (Model != null)
                 {
                     batch.Draw(ResourceManager.Texture("ShipIcons/Wisp"),
                     new Rectangle((int)X, (int)Y, 29, 30), Color.White);
@@ -60,24 +57,24 @@ namespace Ship_Game
 
             SavesSL = new ScrollList<LoadModelListItem>(AllSaves, 55);
             SavesSL.OnClick = OnLoadModelClicked;
-            SavesSL.AddItem(new LoadModelListItem{ Header = new ModuleHeader("XNB Models") } );
-            SavesSL.AddItem(new LoadModelListItem{ Header = new ModuleHeader("OBJ Models") } );
-            SavesSL.AddItem(new LoadModelListItem{ Header = new ModuleHeader("FBX Models") } );
+            SavesSL.AddItem(new LoadModelListItem("XNB Models"));
+            SavesSL.AddItem(new LoadModelListItem("OBJ Models"));
+            SavesSL.AddItem(new LoadModelListItem("FBX Models"));
 
             Array<FileInfo> xnbModels = ResourceManager.GetAllXnbModelFiles("Model/Ships");
             FileInfo[] objModels = ResourceManager.GatherFilesUnified("Model/Ships", "obj");
             FileInfo[] fbxModels = ResourceManager.GatherFilesUnified("Model/Ships", "fbx");
             foreach (FileInfo file in xnbModels)
             {
-                SavesSL[0].AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+                SavesSL[0].AddSubItem(new LoadModelListItem(new ModelData{ Name = file.Name, FileInfo = file }));
             }
             foreach (FileInfo file in objModels)
             {
-                SavesSL[1].AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+                SavesSL[1].AddSubItem(new LoadModelListItem(new ModelData{ Name = file.Name, FileInfo = file }));
             }
             foreach (FileInfo file in fbxModels)
             {
-                SavesSL[2].AddSubItem(new LoadModelListItem{ Model = new ModelData { Name = file.Name, FileInfo = file } });
+                SavesSL[2].AddSubItem(new LoadModelListItem(new ModelData{ Name = file.Name, FileInfo = file }));
             }
             base.LoadContent();
         }

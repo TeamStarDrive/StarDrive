@@ -53,7 +53,7 @@ namespace Ship_Game
         {
             if (item == null) // we're not hovering the scroll list, just highlight the active ship
             {
-                foreach (FighterListItem e in VisibleExpandedEntries)
+                foreach (FighterListItem e in AllEntries)
                     if (ActiveModule.hangarShipUID == e.Ship.Name)
                         SelectionBox = new Selector(e.Rect);
             }
