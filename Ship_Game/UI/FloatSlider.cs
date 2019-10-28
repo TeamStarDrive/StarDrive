@@ -59,7 +59,7 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString() => $"Slider {ElementDescr} r:{Value} a:{AbsoluteValue} [{Min}..{Max}] {Text}";
+        public override string ToString() => $"{TypeName} {ElementDescr} r:{Value} a:{AbsoluteValue} [{Min}..{Max}] {Text}";
 
         static readonly Color TextColor   = new Color(255, 239, 208);
         static readonly Color HoverColor  = new Color(164, 154, 133);

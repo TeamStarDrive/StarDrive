@@ -70,8 +70,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             // Animate the buttons in and out
             var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
-            list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
-            OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
+            list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
+            OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
             
             FTLManager.LoadContent(this);
             CreateMainMenuFleet();

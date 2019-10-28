@@ -63,10 +63,7 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString()
-        {
-            return $"Label {ElementDescr} Text=\"{Text}\"";
-        }
+        public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\"";
 
         public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
         {

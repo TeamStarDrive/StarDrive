@@ -59,7 +59,7 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString() => $"List {ElementDescr} Items={Items.Count} Header={Header!=null} Footer={Footer!=null}";
+        public override string ToString() => $"{TypeName} {ElementDescr} Items={Items.Count} Header={Header!=null} Footer={Footer!=null}";
 
         public UIList()
         {

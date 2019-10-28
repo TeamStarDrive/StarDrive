@@ -15,6 +15,7 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            TextLabel.Pos = Pos;
             base.PerformLayout();
         }
     }

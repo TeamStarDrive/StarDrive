@@ -160,14 +160,14 @@ namespace Ship_Game
 
             b.Plural(PreferredEnvDescription);
 
-            DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), Description.Width - 50);
+            DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), DescriptionSL.Width - 50);
         }
 
     
         // Sets the empire data externally, checks for fields that are default so don't overwrite
         public void SetCustomEmpireData(RacialTrait traits)
         {
-            foreach (RaceArchetypeListItem origRace in RaceArchetypeSL.AllEntries)
+            foreach (RaceArchetypeListItem origRace in ChooseRaceList.AllEntries)
             {
                 RacialTrait origRaceTraits = origRace.EmpireData.Traits;
                 if (origRaceTraits.ShipType == traits.ShipType)

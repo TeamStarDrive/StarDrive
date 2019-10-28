@@ -27,7 +27,7 @@ namespace Ship_Game
         /// </summary>
         public bool NewMultiLayeredDrawMode;
 
-        public override string ToString() => $"Element {ElementDescr} Elements={Elements.Count}";
+        public override string ToString() => $"{TypeName} {ElementDescr} Elements={Elements.Count}";
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -352,7 +352,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
-        public void StartTransition<T>(Vector2 offset, float direction, float time = 1f) where T : UIElementV2
+        public void StartGroupTransition<T>(Vector2 offset, float direction, float time = 1f) where T : UIElementV2
         {
             var candidates = new Array<UIElementV2>();
             for (int i = 0; i < Elements.Count; ++i)
@@ -374,12 +374,6 @@ namespace Ship_Game
             }
         }
 
-        public UIBasicAnimEffect StartFadeIn(float fadeInTime, float delay = 0f)
-        {
-            var fx = new UIBasicAnimEffect(this).FadeIn(delay, fadeInTime);
-            AddEffect(fx);
-            return fx;
-        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
     }

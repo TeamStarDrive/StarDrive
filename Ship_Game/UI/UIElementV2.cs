@@ -95,9 +95,10 @@ namespace Ship_Game
         public float CenterY => Pos.Y + Size.Y*0.5f;
         public Vector2 Center => Pos + Size*0.5f;
 
+        public string TypeName => GetType().GetTypeName();
         public string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
 
-        public override string ToString() => $"Element {ElementDescr}";
+        public override string ToString() => $"{TypeName} {ElementDescr}";
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
@@ -228,8 +229,21 @@ namespace Ship_Game
             float delay, 
             float duration = 1.0f, 
             float fadeIn   = 0.25f, 
-            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
+            float fadeOut  = 0.25f)
+        {
+            return Anim().Time(delay, duration, fadeIn, fadeOut);
+        }
 
+        public UIBasicAnimEffect StartFadeIn(float fadeInTime, float delay = 0f) => Anim().FadeIn(delay, fadeInTime);
+
+        // Starts transition from [start] to [end]
+        public UIBasicAnimEffect StartTransition(Vector2 start, Vector2 end, float time = 1f) => Anim().FadeIn(0f, time).Pos(start, end);
+
+        // Starts transition from Pos to [end]
+        public UIBasicAnimEffect StartTransitionTo(Vector2 end, float time = 1f) => Anim().FadeIn(0f, time).Pos(Pos, end);
+
+        // Starts transition from [from] to Pos
+        public UIBasicAnimEffect StartTransitionFrom(Vector2 from, float time = 1f) => Anim().FadeIn(0f, time).Pos(from, Pos);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

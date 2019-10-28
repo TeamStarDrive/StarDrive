@@ -46,7 +46,7 @@ namespace Ship_Game
 
         public Action<UIButton> OnClick;
 
-        public override string ToString() => $"Button '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
+        public override string ToString() => $"{TypeName} '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
         
         public UIButton(ButtonStyle style)
         {

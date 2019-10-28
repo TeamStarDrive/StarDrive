@@ -69,13 +69,12 @@ namespace Ship_Game
                 return true;
 
             ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
-            ActiveModSubMenu.HandleInputNoReset(input);
+            ActiveModSubMenu.HandleInput(input);
             if (!base.HandleInput(input))
                 return false;
 
             ResetLists();
             return false;
-
         }
 
         public new void Draw(SpriteBatch batch)
