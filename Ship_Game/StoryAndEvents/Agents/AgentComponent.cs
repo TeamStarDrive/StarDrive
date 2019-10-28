@@ -18,7 +18,7 @@ namespace Ship_Game
         public Rectangle OpsSubRect;
 
         public ScrollList<AgentListItem> AgentSL;
-        public ScrollList<MissionEntry> OpsSL;
+        public ScrollList<MissionListItem> OpsSL;
 
         private ScreenManager ScreenManager;
 
@@ -26,19 +26,19 @@ namespace Ship_Game
 
         public EspionageScreen EspionageScreen;
 
-        private MissionEntry Training;
+        private MissionListItem Training;
 
-        private MissionEntry Infiltrate;
+        private MissionListItem Infiltrate;
 
-        private MissionEntry Assassinate;
+        private MissionListItem Assassinate;
 
-        private MissionEntry Sabotage;
+        private MissionListItem Sabotage;
 
-        private MissionEntry StealTech;
+        private MissionListItem StealTech;
 
-        private MissionEntry StealShip;
+        private MissionListItem StealShip;
 
-        private MissionEntry InciteRebellion;
+        private MissionListItem InciteRebellion;
 
         private int spyLimitCount;
         private int empirePlanetSpys;
@@ -59,14 +59,14 @@ namespace Ship_Game
 
             Rectangle c = ComponentRect;
             c.X = OpsSubRect.X;
-            OpsSL = new ScrollList<MissionEntry>(new Submenu(c), 30);
-            Training        = new MissionEntry(AgentMission.Training, this);
-            Infiltrate      = new MissionEntry(AgentMission.Infiltrate, this);
-            Assassinate     = new MissionEntry(AgentMission.Assassinate, this);
-            Sabotage        = new MissionEntry(AgentMission.Sabotage, this);
-            StealTech       = new MissionEntry(AgentMission.StealTech, this);
-            StealShip       = new MissionEntry(AgentMission.Robbery, this);
-            InciteRebellion = new MissionEntry(AgentMission.InciteRebellion, this);
+            OpsSL = new ScrollList<MissionListItem>(new Submenu(c), 30);
+            Training        = new MissionListItem(AgentMission.Training, this);
+            Infiltrate      = new MissionListItem(AgentMission.Infiltrate, this);
+            Assassinate     = new MissionListItem(AgentMission.Assassinate, this);
+            Sabotage        = new MissionListItem(AgentMission.Sabotage, this);
+            StealTech       = new MissionListItem(AgentMission.StealTech, this);
+            StealShip       = new MissionListItem(AgentMission.Robbery, this);
+            InciteRebellion = new MissionListItem(AgentMission.InciteRebellion, this);
             OpsSL.AddItem(Training);
             OpsSL.AddItem(Infiltrate);
             OpsSL.AddItem(Assassinate);
@@ -85,7 +85,7 @@ namespace Ship_Game
         void OnAgentItemClicked(AgentListItem item)
         {
             SelectedAgent = item.Agent;
-            foreach (MissionEntry mission in OpsSL.AllEntries)
+            foreach (MissionListItem mission in OpsSL.AllEntries)
                 mission.UpdateMissionAvailability();
         }
 
@@ -204,7 +204,7 @@ namespace Ship_Game
         {
             if (SelectedAgent == null)
                 return;
-            foreach (MissionEntry mission in OpsSL.AllEntries)
+            foreach (MissionListItem mission in OpsSL.AllEntries)
                 mission.UpdateMissionAvailability();
         }
     }

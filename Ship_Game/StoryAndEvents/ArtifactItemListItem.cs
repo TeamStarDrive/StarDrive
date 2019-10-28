@@ -8,10 +8,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class ArtifactEntryListItem : ScrollListEntry<ArtifactEntryListItem>
+    public class ArtifactItemListItem : ScrollListItem<ArtifactItemListItem>
     {
         public ArtifactEntry Artifact;
-        public ArtifactEntryListItem(ArtifactEntry artifact)
+        public ArtifactItemListItem(ArtifactEntry artifact)
         {
             Artifact = artifact;
         }

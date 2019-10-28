@@ -18,7 +18,7 @@ namespace Ship_Game
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        private readonly ScrollList<SelectedShipEntry> SelectedShipsSL;
+        private readonly ScrollList<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public Rectangle Ordnance;
@@ -105,7 +105,7 @@ namespace Ship_Game
             AddOrdersBarButton(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: 160);
 
             var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
-            SelectedShipsSL = new ScrollList<SelectedShipEntry>(new Submenu(slsubRect), 24);
+            SelectedShipsSL = new ScrollList<SelectedShipListItem>(new Submenu(slsubRect), 24);
         }
 
         public void ClearShipList()
@@ -221,7 +221,7 @@ namespace Ship_Game
             if (Screen.SelectedShipList == null)
                 return false;  // fbedard
 
-            foreach (SelectedShipEntry ship in SelectedShipsSL.AllEntries)
+            foreach (SelectedShipListItem ship in SelectedShipsSL.AllEntries)
             {
                 if (!ship.AllButtonsActive)
                 {
@@ -361,7 +361,7 @@ namespace Ship_Game
             bool allCombat      = true;
             bool carriersHere   = false;
             bool troopShipsHere = false;
-            var entry = new SelectedShipEntry(this, OnSelectedShipsListButtonClicked);
+            var entry = new SelectedShipListItem(this, OnSelectedShipsListButtonClicked);
             for (int i = 0; i < shipList.Count; i++)
             {
                 Ship ship = shipList[i];
@@ -378,7 +378,7 @@ namespace Ship_Game
                 if (entry.ShipButtons.Count == 8 || i == shipList.Count - 1)
                 {
                     SelectedShipsSL.AddItem(entry);
-                    entry = new SelectedShipEntry(this, OnSelectedShipsListButtonClicked);
+                    entry = new SelectedShipListItem(this, OnSelectedShipsListButtonClicked);
                 }
 
                 if (ship.AI.State != AIState.Resupply)    allResupply    = false;

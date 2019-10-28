@@ -205,7 +205,7 @@ namespace Ship_Game
                 SavesSL.AddItem(new SaveLoadListItem(this, data));
         }
 
-        protected class SaveLoadListItem : ScrollListEntry<SaveLoadListItem>
+        protected class SaveLoadListItem : ScrollListItem<SaveLoadListItem>
         {
             readonly GenericLoadSaveScreen Screen;
             public FileData Data;

@@ -36,7 +36,7 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-        class ModsListItem : ScrollListEntry<ModsListItem>
+        class ModsListItem : ScrollListItem<ModsListItem>
         {
             public ModEntry Mod;
             public ModsListItem(ModEntry mod)

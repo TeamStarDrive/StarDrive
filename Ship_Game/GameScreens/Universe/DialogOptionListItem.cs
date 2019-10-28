@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Gameplay
 {
-    public class DialogOptionListItem : ScrollListEntry<DialogOptionListItem>
+    public class DialogOptionListItem : ScrollListItem<DialogOptionListItem>
     {
         public readonly DialogOption Option;
         public DialogOptionListItem(DialogOption option)

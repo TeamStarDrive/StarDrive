@@ -27,7 +27,7 @@ namespace Ship_Game
             IsPopup = true;
         }
 
-        class LoadModelListItem : ScrollListEntry<LoadModelListItem>
+        class LoadModelListItem : ScrollListItem<LoadModelListItem>
         {
             public ModelData Model;
             public LoadModelListItem(ModelData model) { Model = model; }

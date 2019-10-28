@@ -10,7 +10,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class PlanetListScreenItem : ScrollListEntry<PlanetListScreenItem>
+    public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem>
     {
         public Planet planet;
         public Rectangle TotalEntrySize;
