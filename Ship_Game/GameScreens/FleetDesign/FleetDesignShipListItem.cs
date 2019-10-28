@@ -5,7 +5,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class FleetDesignShipListItem : ScrollList<FleetDesignShipListItem>.Entry
+    public class FleetDesignShipListItem : ScrollListEntry<FleetDesignShipListItem>
     {
         readonly FleetDesignScreen Screen;
         public Ship Ship;

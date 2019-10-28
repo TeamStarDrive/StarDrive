@@ -6,7 +6,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class SelectedShipEntry : ScrollList<SelectedShipEntry>.Entry
+    public sealed class SelectedShipEntry : ScrollListEntry<SelectedShipEntry>
     {
         readonly ShipListInfoUIElement ShipListInfo;
         public Array<SkinnableButton> ShipButtons = new Array<SkinnableButton>();

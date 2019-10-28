@@ -6,7 +6,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class WeaponListItem : ScrollList<WeaponListItem>.Entry
+    public class WeaponListItem : ScrollListEntry<WeaponListItem>
     {
         public ShipModule Module;
         public WeaponListItem(string headerText) : base(headerText) {}

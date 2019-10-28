@@ -20,7 +20,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         public Vector2 ScreenArea => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
 
-        class HullListItem : ScrollList<HullListItem>.Entry
+        class HullListItem : ScrollListEntry<HullListItem>
         {
             public ShipData Hull;
             public HullListItem(string headerText) : base(headerText) {}

@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public sealed class MissionEntry : ScrollList<MissionEntry>.Entry
+    public sealed class MissionEntry : ScrollListEntry<MissionEntry>
     {
         bool MissionAvailable;
         readonly UIButton DoMission;

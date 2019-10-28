@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-    public class AgentListItem : ScrollList<AgentListItem>.Entry
+    public class AgentListItem : ScrollListEntry<AgentListItem>
     {
         public Agent Agent;
 

@@ -9,7 +9,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class ShipDesignListItem : ScrollList<ShipDesignListItem>.Entry
+    public class ShipDesignListItem : ScrollListEntry<ShipDesignListItem>
     {
         public Ship Ship;
         public ShipDesignListItem(Ship template)

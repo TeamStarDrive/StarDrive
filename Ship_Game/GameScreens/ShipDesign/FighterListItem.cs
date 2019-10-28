@@ -10,7 +10,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class FighterListItem : ScrollList<FighterListItem>.Entry
+    public class FighterListItem : ScrollListEntry<FighterListItem>
     {
         public Ship Ship;
 
