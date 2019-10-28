@@ -126,6 +126,7 @@ namespace Ship_Game
 
         // @return The first visible item
         public T FirstItem => ExpandedEntries[FirstVisibleIndex];
+        public T LastItem => ExpandedEntries[Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries) - 1];
 
         int FirstVisibleIndexValue;
         
