@@ -86,7 +86,7 @@ namespace Ship_Game
 				spriteBatch.Draw(ResourceManager.Texture("NewUI/progressbar_container_right"), Right, Color.White);
 			}
 			var textPos = new Vector2(Left.X + 7, Left.Y + Left.Height / 2 - Fonts.TahomaBold9.LineSpacing / 2);
-			spriteBatch.DrawString(Fonts.TahomaBold9, $"{(int)Progress}/{(int)Max}", textPos, new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.TahomaBold9, $"{(int)Progress}/{(int)Max}", textPos, Colors.Cream);
 		}
 
 		public void DrawGrayed(SpriteBatch spriteBatch)

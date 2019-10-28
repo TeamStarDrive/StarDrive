@@ -330,7 +330,7 @@ namespace Ship_Game
 
             batch.Begin();
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, "Fleet Hotkeys", TitlePos, Colors.Cream);
             const int numEntries = 9;
             int k = 9;
             int m = 0;
@@ -363,7 +363,7 @@ namespace Ship_Game
                 if (f.DataNodes.Count > 0)
                 {
                     var firect = new Rectangle(rect.Value.X + 6, rect.Value.Y + 6, rect.Value.Width - 12, rect.Value.Width - 12);
-                    batch.Draw(ResourceManager.Texture("FleetIcons/"+f.FleetIconIndex.ToString()), firect, EmpireManager.Player.EmpireColor);
+                    batch.Draw(f.Icon, firect, EmpireManager.Player.EmpireColor);
                 }
                 Vector2 num = new Vector2(rect.Value.X + 4, rect.Value.Y + 4);
                 SpriteFont pirulen12 = Fonts.Pirulen12;
@@ -378,7 +378,7 @@ namespace Ship_Game
             if (FleetToEdit != -1)
             {
                 ShipDesigns.Draw(batch);
-                batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, Colors.Cream);
                 batch.FillRectangle(SubShips.Rect, new Color(0, 0, 0, 130));
                 SubShips.Draw(batch);
                 ShipSL.Draw(batch);
@@ -482,7 +482,7 @@ namespace Ship_Game
                 MouseState state = Mouse.GetState();
                 batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
-            DrawSelectedData(StarDriveGame.Instance.GameTime);
+            DrawSelectedData(batch);
             Close.Draw(batch);
             batch.End();
 
@@ -542,84 +542,83 @@ namespace Ship_Game
             }
         }
 
-        private void DrawSelectedData(GameTime gameTime)
+        void DrawSelectedData(SpriteBatch batch)
         {
-            var spriteBatch = ScreenManager.SpriteBatch;
             if (SelectedNodeList.Count == 1)
             {
                 StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(spriteBatch);
+                StuffSelector.Draw(batch);
                 Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 if (SelectedNodeList[0].Ship== null)
                 {
-                    spriteBatch.DrawString(Fonts.Arial20Bold, string.Concat("(", SelectedNodeList[0].ShipName, ")"), cursor, new Color(255, 239, 208));
+                    batch.DrawString(Fonts.Arial20Bold, string.Concat("(", SelectedNodeList[0].ShipName, ")"), cursor, Colors.Cream);
                 }
                 else
                 {
-                    spriteBatch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(SelectedNodeList[0].Ship.VanityName) ? SelectedNodeList[0].Ship.VanityName : string.Concat(SelectedNodeList[0].Ship.Name, " (", SelectedNodeList[0].Ship.shipData.Role, ")")), cursor, new Color(255, 239, 208));
+                    batch.DrawString(Fonts.Arial20Bold, (!string.IsNullOrEmpty(SelectedNodeList[0].Ship.VanityName) ? SelectedNodeList[0].Ship.VanityName : string.Concat(SelectedNodeList[0].Ship.Name, " (", SelectedNodeList[0].Ship.shipData.Role, ")")), cursor, Colors.Cream);
                 }
                 cursor.Y = OperationsRect.Y + 10;
-                spriteBatch.DrawString(Fonts.Pirulen12, "Movement Orders", cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Pirulen12, "Movement Orders", cursor, Colors.Cream);
                 foreach (ToggleButton button in OrdersButtons)
                 {
-                    button.Draw(ScreenManager);
+                    button.Draw(batch);
                 }
                 OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
-                OperationsSelector.Draw(spriteBatch);
+                OperationsSelector.Draw(batch);
                 cursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-                spriteBatch.DrawString(Fonts.Pirulen12, "Target Selection", cursor, new Color(255, 239, 208));
-                SliderArmor.Draw(ScreenManager);
-                SliderAssist.Draw(ScreenManager);
-                SliderDefend.Draw(ScreenManager);
-                SliderDps.Draw(ScreenManager);
-                SliderShield.Draw(ScreenManager);
-                SliderVulture.Draw(ScreenManager);
+                batch.DrawString(Fonts.Pirulen12, "Target Selection", cursor, Colors.Cream);
+                SliderArmor.Draw(batch);
+                SliderAssist.Draw(batch);
+                SliderDefend.Draw(batch);
+                SliderDps.Draw(batch);
+                SliderShield.Draw(batch);
+                SliderVulture.Draw(batch);
                 Priorityselector = new Selector( PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(spriteBatch);
+                Priorityselector.Draw(batch);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
-                spriteBatch.DrawString(Fonts.Pirulen12, "Priorities", cursor, new Color(255, 239, 208));
-                OperationalRadius.Draw(spriteBatch);
+                batch.DrawString(Fonts.Pirulen12, "Priorities", cursor, Colors.Cream);
+                OperationalRadius.Draw(batch);
                 SliderSize.Draw(ScreenManager);
                 return;
             }
             if (SelectedNodeList.Count > 1)
             {
                 StuffSelector = new Selector( SelectedStuffRect, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(spriteBatch);
+                StuffSelector.Draw(batch);
                 Vector2 cursor = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
                 if (SelectedNodeList[0].Ship== null)
                 {
                     SpriteFont arial20Bold = Fonts.Arial20Bold;
                     int count = SelectedNodeList.Count;
-                    spriteBatch.DrawString(arial20Bold, string.Concat("Group of ", count.ToString(), " ships selected"), cursor, new Color(255, 239, 208));
+                    batch.DrawString(arial20Bold, string.Concat("Group of ", count.ToString(), " ships selected"), cursor, Colors.Cream);
                 }
                 else
                 {
                     SpriteFont spriteFont = Fonts.Arial20Bold;
                     int num = SelectedNodeList.Count;
-                    spriteBatch.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), cursor, new Color(255, 239, 208));
+                    batch.DrawString(spriteFont, string.Concat("Group of ", num.ToString(), " ships selected"), cursor, Colors.Cream);
                 }
                 cursor.Y = OperationsRect.Y + 10;
-                spriteBatch.DrawString(Fonts.Pirulen12, "Group Movement Orders", cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Pirulen12, "Group Movement Orders", cursor, Colors.Cream);
                 foreach (ToggleButton button in OrdersButtons)
                 {
                     button.Draw(ScreenManager);
                 }
                 OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
-                OperationsSelector.Draw(spriteBatch);
+                OperationsSelector.Draw(batch);
                 cursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
-                spriteBatch.DrawString(Fonts.Pirulen12, "Group Target Selection", cursor, new Color(255, 239, 208));
-                SliderArmor.Draw(ScreenManager);
-                SliderAssist.Draw(ScreenManager);
-                SliderDefend.Draw(ScreenManager);
-                SliderDps.Draw(ScreenManager);
-                SliderShield.Draw(ScreenManager);
-                SliderVulture.Draw(ScreenManager);
+                batch.DrawString(Fonts.Pirulen12, "Group Target Selection", cursor, Colors.Cream);
+                SliderArmor.Draw(batch);
+                SliderAssist.Draw(batch);
+                SliderDefend.Draw(batch);
+                SliderDps.Draw(batch);
+                SliderShield.Draw(batch);
+                SliderVulture.Draw(batch);
                 Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-                Priorityselector.Draw(spriteBatch);
+                Priorityselector.Draw(batch);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
-                spriteBatch.DrawString(Fonts.Pirulen12, "Group Priorities", cursor, new Color(255, 239, 208));
-                OperationalRadius.Draw(spriteBatch);
+                batch.DrawString(Fonts.Pirulen12, "Group Priorities", cursor, Colors.Cream);
+                OperationalRadius.Draw(batch);
                 SliderSize.Draw(ScreenManager);
                 return;
             }
@@ -632,38 +631,38 @@ namespace Ship_Game
                     r.Y = r.Y + (int)(transitionOffset * 256f);
                 }
                 StuffSelector = new Selector(r, new Color(0, 0, 0, 180));
-                StuffSelector.Draw(spriteBatch);
+                StuffSelector.Draw(batch);
                 Vector2 cursor = new Vector2(r.X + 20, r.Y + 10);
-                spriteBatch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial20Bold, "No Fleet Selected", cursor, Colors.Cream);
                 cursor.Y = cursor.Y + (Fonts.Arial20Bold.LineSpacing + 2);
                 string txt = "You are not currently editing a fleet. Click a hotkey on the left side of the screen to begin creating or editing the corresponding fleet. \n\nWhen you are finished editing, you can save your fleet design to disk for quick access in the future.";
                 txt = Fonts.Arial12Bold.ParseText(txt, SelectedStuffRect.Width - 40);
-                spriteBatch.DrawString(Fonts.Arial12Bold, txt, cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial12Bold, txt, cursor, Colors.Cream);
                 return;
             }
             StuffSelector = new Selector(SelectedStuffRect, new Color(0, 0, 0, 180));
-            StuffSelector.Draw(spriteBatch);
+            StuffSelector.Draw(batch);
             Fleet f = EmpireManager.Player.GetFleetsDict()[FleetToEdit];
             Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
             FleetNameEntry.Text = f.Name;
             FleetNameEntry.ClickableArea = new Rectangle((int)cursor1.X, (int)cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-            FleetNameEntry.Draw(spriteBatch, Fonts.Arial20Bold, cursor1, (FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
+            FleetNameEntry.Draw(batch, Fonts.Arial20Bold, cursor1, (FleetNameEntry.Hover ? Color.Orange : Colors.Cream));
             cursor1.Y = cursor1.Y + (Fonts.Arial20Bold.LineSpacing + 10);
             cursor1 = cursor1 + new Vector2(50f, 30f);
-            spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, Colors.Cream);
             Rectangle ficonrect = new Rectangle((int)cursor1.X + 12, (int)cursor1.Y + Fonts.Pirulen12.LineSpacing + 5, 64, 64);
-            spriteBatch.Draw(ResourceManager.Texture("FleetIcons/"+f.FleetIconIndex.ToString()), ficonrect, f.Owner.EmpireColor);
+            batch.Draw(f.Icon, ficonrect, f.Owner.EmpireColor);
             RequisitionForces.Draw(ScreenManager);
             SaveDesign.Draw(ScreenManager);
             LoadDesign.Draw(ScreenManager);
             Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
-            Priorityselector.Draw(spriteBatch);
+            Priorityselector.Draw(batch);
             cursor1 = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
-            spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Pirulen12, "Fleet Design Overview", cursor1, Colors.Cream);
             cursor1.Y = cursor1.Y + (Fonts.Pirulen12.LineSpacing + 2);
             string txt0 = Localizer.Token(4043);
             txt0 = Fonts.Arial12Bold.ParseText(txt0, PrioritiesRect.Width - 40);
-            spriteBatch.DrawString(Fonts.Arial12Bold, txt0, cursor1, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, txt0, cursor1, Colors.Cream);
         }
 
         public override void ExitScreen()

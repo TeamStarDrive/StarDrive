@@ -41,12 +41,12 @@ namespace Ship_Game
 		public override void Draw(SpriteBatch batch)
 		{
 			TitleBar.Draw(batch);
-			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, Colors.Cream);
 			PlanetMenu.Draw(batch);
 			PlanetInfo.Draw(batch);
 			batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
 			var pNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
-			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, Colors.Cream);
 			pNameCursor.Y = pNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
 			float amount = 80f;
 			if (GlobalStats.IsGerman)
@@ -55,11 +55,11 @@ namespace Ship_Game
 			}
 			batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384)+":", pNameCursor, Color.Orange);
 			var infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, Colors.Cream);
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, Colors.Cream);
 			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
@@ -68,7 +68,7 @@ namespace Ship_Game
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, Colors.Cream);
 			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
@@ -77,14 +77,14 @@ namespace Ship_Game
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, Colors.Cream);
 			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(21);
 			}
 			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
-			batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 		}
 
 		public override bool HandleInput(InputState input)

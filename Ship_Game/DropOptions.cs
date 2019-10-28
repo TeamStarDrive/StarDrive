@@ -166,7 +166,7 @@ namespace Ship_Game
 
             if (Count > 0) // draw active item
             {
-                Color color = hover ? Color.White : new Color(255, 239, 208);
+                Color color = hover ? Color.White : Colors.Cream;
                 batch.DrawString(Fonts.Arial12Bold, WrappedString(ActiveName), TextPosition(Rect), color);
             }
 

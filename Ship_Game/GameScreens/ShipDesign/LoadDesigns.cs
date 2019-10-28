@@ -196,7 +196,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             loadMenu.Draw(batch);
             SaveShips.Draw(batch);
             ShipDesigns.Draw(batch);
-            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Colors.Cream));
             base.Draw(batch);
             PlayerDesignsToggle.Draw(ScreenManager);
             batch.End();

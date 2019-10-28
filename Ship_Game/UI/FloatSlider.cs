@@ -61,7 +61,7 @@ namespace Ship_Game
 
         public override string ToString() => $"{TypeName} {ElementDescr} r:{Value} a:{AbsoluteValue} [{Min}..{Max}] {Text}";
 
-        static readonly Color TextColor   = new Color(255, 239, 208);
+        static readonly Color TextColor   = Colors.Cream;
         static readonly Color HoverColor  = new Color(164, 154, 133);
         static readonly Color NormalColor = new Color(72, 61, 38);
 
@@ -177,7 +177,7 @@ namespace Ship_Game
             batch.Draw(Hover ? SliderKnobHover : SliderKnob, knobRect, Color.White);
 
             var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, Colors.Cream);
 
             if (Hover)
             {

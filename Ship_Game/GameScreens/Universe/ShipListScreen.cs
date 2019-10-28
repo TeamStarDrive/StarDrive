@@ -118,7 +118,7 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, Colors.Cream);
             EMenu.Draw(batch);
             var textColor = new Color(118, 102, 67, 50);
             ShipSL.Draw(batch);
@@ -156,14 +156,14 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), TroopRect, Color.White);
                 cursor = new Vector2(e1.FTLRect.X + e1.FTLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref cursor);
-                batch.DrawString(Fonts.Arial12Bold, "FTL", cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial12Bold, "FTL", cursor, Colors.Cream);
                 FTL = new Rectangle(e1.FTLRect.X, eRect.Y - 20 + 35, e1.FTLRect.Width, 20);
                 SB_FTL.rect = FTL;
                 STL = new Rectangle(e1.STLRect.X, eRect.Y - 20 + 35, e1.STLRect.Width, 20);
                 SB_STL.rect = STL;
                 cursor = new Vector2(e1.STLRect.X + e1.STLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref cursor);
-                batch.DrawString(Fonts.Arial12Bold, "STL", cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial12Bold, "STL", cursor, Colors.Cream);
 
                 void DrawLine(int aX, int aY, int bX, int bY)
                 {

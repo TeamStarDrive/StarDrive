@@ -362,7 +362,7 @@
     <Compile Include="Ship_Game\GameScreens\GameScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RuleOptionsScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\GenericLoadSaveScreen.cs" />
-    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadSetupScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadNewGameSetupScreen.cs" />
     <Compile Include="Ship_Game\RaceSave.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveRaceScreen.cs" />
     <Compile Include="Ship_Game\ExceptionTracker.cs" />
@@ -487,7 +487,7 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Utils\SafeQueue.cs" />
-    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveSetupScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveNewGameSetupScreen.cs" />
     <Compile Include="Ship_Game\SetupSave.cs" />
     <Compile Include="Ship_Game\Data\ShipNames.cs" />
     <Compile Include="Ship_Game\ShipRole.cs" />

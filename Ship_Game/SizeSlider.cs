@@ -42,7 +42,7 @@ namespace Ship_Game
 		{
 			SpriteBatch SpriteBatch = ScreenManager.SpriteBatch;
 			Vector2 Cursor = new Vector2(ContainerRect.X + 10, ContainerRect.Y);
-			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
+			SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, Colors.Cream);
 			if (amount > 0.5f)
 			{
 				float greenamount = 2f * (amount - 0.5f);
@@ -93,7 +93,7 @@ namespace Ship_Game
 			{
 				text = "Similar";
 			}
-			SpriteBatch.DrawString(Fonts.Arial12Bold, text, textPos, new Color(255, 239, 208));
+			SpriteBatch.DrawString(Fonts.Arial12Bold, text, textPos, Colors.Cream);
 			if (Hover && Tip_ID != 0)
 			{
 				ToolTip.CreateTooltip(Tip_ID);

@@ -85,7 +85,7 @@ namespace Ship_Game
             }
 
             string singular;
-            var TextColor = new Color(255, 239, 208);
+            var TextColor = Colors.Cream;
             string sysname = planet.ParentSystem.Name;
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
             {

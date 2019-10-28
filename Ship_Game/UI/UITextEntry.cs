@@ -9,13 +9,126 @@ namespace Ship_Game
 {
     using InputKeys = Keys;
 
-    public class UITextEntry
+    public class UITextEntry : UIElementV2
     {
-        public Rectangle ClickableArea;
+        public Rectangle ClickableArea
+        {
+            get => Rect;
+            set => Rect = value;
+        }
+
         public string Text;
         public bool HandlingInput;
         public bool Hover;
-        private readonly InputKeys[] KeysToCheck =
+
+        // If TRUE, this text element will capture input
+        public bool InputEnabled = true;
+
+        public SpriteFont Font;
+        public Color Color = Color.Orange;
+        public Color HoverColor = Color.White;
+
+        public UITextEntry()
+        {
+        }
+
+        public UITextEntry(Vector2 pos, SpriteFont font, string text)
+        {
+            Font = font;
+            Text = text;
+            ClickableArea = new Rectangle((int)pos.X, (int)pos.Y - 2, 
+                (int)Fonts.Arial20Bold.MeasureString(Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+        }
+
+        public bool HandleTextInput(ref string text, InputState input)
+        {
+            if (!HandlingInput || input.IsEnterOrEscape)
+            {
+                HandlingInput = false;
+                return false;
+            }
+
+            boop++;
+            if (boop == 7)
+                boop = 0;
+            
+            if (input.IsKeyDown(InputKeys.Back))
+            {
+                if (boop == 0 && text.Length != 0)
+                    text = text.Remove(text.Length - 1);
+                return true;
+            }
+
+            InputKeys[] keysArray = KeysToCheck;
+            for (int i = 0; i < keysArray.Length; i++)
+            {
+                InputKeys key = keysArray[i];
+                if (CheckKey(key, input))
+                {
+                    if (text.Length >= MaxCharacters)
+                    {
+                        GameAudio.NegativeClick();
+                    }
+                    else
+                    {
+                        AddKeyToText(ref text, key, input);
+                        GameAudio.BlipClick();
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (!InputEnabled)
+                return false;
+
+            if (!ClickableArea.HitTest(input.CursorPosition))
+            {
+                Hover = false;
+            }
+            else
+            {
+                Hover = true;
+                if (input.LeftMouseClick)
+                {
+                    HandlingInput = true;
+                    Text = "";
+                    return true;
+                }
+            }
+
+            return HandleTextInput(ref Text, input);
+        }
+
+        // TODO: This is only here for legacy compat
+        public void Draw(SpriteBatch batch, SpriteFont font, Vector2 pos, Color c)
+        {
+            Font = font;
+            Pos = pos;
+            if (Hover)
+                HoverColor = c;
+            else 
+                Color = c;
+            Draw(batch);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
+            Vector2 pos = Pos;
+            batch.DrawString(Font, Text, pos, Hover ? HoverColor : Color);
+            pos.X += Font.MeasureString(Text).X;
+            if (HandlingInput)
+            {
+                float f = 255f * Math.Abs(RadMath.Sin(GameBase.Base.GameTime.TotalGameTime.TotalSeconds));
+                var flashColor = new Color(255, 255, 255, (byte)f);
+                batch.DrawString(Font, "|", pos, flashColor);
+            }
+        }
+        
+        readonly InputKeys[] KeysToCheck =
         {
             InputKeys.A, InputKeys.B, InputKeys.C, InputKeys.D,
             InputKeys.E, InputKeys.F,
@@ -43,9 +156,9 @@ namespace Ship_Game
             InputKeys.D8, InputKeys.D9
         };
         public int MaxCharacters = 30;
-        private int boop;
+        int boop;
 
-        private void AddKeyToText(ref string text, InputKeys key, InputState input)
+        void AddKeyToText(ref string text, InputKeys key, InputState input)
         {
             if (text.Length >= 60 && key != InputKeys.Back)
                 return;
@@ -143,50 +256,6 @@ namespace Ship_Game
             if (key == InputKeys.Back && boop == 0)
                 return input.IsKeyDown(key);
             return input.KeyPressed(key);
-        }
-
-        public void Draw(SpriteBatch batch, SpriteFont font, Vector2 pos, Color c)
-        {
-            batch.DrawString(font, Text, pos, c);
-            pos.X += font.MeasureString(Text).X;
-            if (HandlingInput)
-            {
-                float f = Math.Abs(RadMath.Sin(GameBase.Base.GameTime.TotalGameTime.TotalSeconds)) * 255f;
-                var flashColor = new Color(255, 255, 255, (byte)f);
-                batch.DrawString(font, "|", pos, flashColor);
-            }
-        }
-
-        public void HandleTextInput(ref string text, InputState input)
-        {
-            InputKeys[] keysArray = KeysToCheck;
-            for (int i = 0; i < keysArray.Length; i++)
-            {
-                InputKeys key = keysArray[i];
-                if (CheckKey(key, input))
-                {
-                    if (text.Length >= MaxCharacters)
-                    {
-                        GameAudio.NegativeClick();
-                    }
-                    else
-                    {
-                        AddKeyToText(ref text, key, input);
-                        GameAudio.BlipClick();
-                        break;
-                    }
-                }
-            }
-
-            if (input.IsEnterOrEscape)
-                HandlingInput = false;
-
-            if (input.IsKeyDown(InputKeys.Back) && boop == 0 && text.Length != 0)
-                text = text.Remove(text.Length - 1);
-
-            boop++;
-            if (boop == 7)
-                boop = 0;
         }
 
     }
