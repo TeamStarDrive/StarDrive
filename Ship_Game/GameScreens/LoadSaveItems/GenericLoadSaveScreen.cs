@@ -69,7 +69,7 @@ namespace Ship_Game
         {
         }
 
-        protected virtual void DeleteFile(object sender, EventArgs e)
+        protected virtual void DeleteFile()
         {
             GameAudio.EchoAffirmative();
             
@@ -159,7 +159,7 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        void OverWriteAccepted(object sender, EventArgs e)
+        void OverWriteAccepted()
         {
             DoSave();
         }
@@ -174,15 +174,21 @@ namespace Ship_Game
 
         void TrySave()
         {
-            if (IsSaveOk())
+            if (EnterNameArea.Text.IsEmpty())
+            {
+                GameAudio.NegativeClick();
+                ScreenManager.AddScreen(new MessageBoxScreen(this, "Please enter file name", MessageBoxButtons.Ok));
+            }
+            else if (IsSaveOk())
             {
                 DoSave();
             }
             else
             {
-                var messageBox = new MessageBoxScreen(this, OverwriteText);
-                messageBox.Accepted += OverWriteAccepted;
-                ScreenManager.AddScreen(messageBox);
+                ScreenManager.AddScreen(new MessageBoxScreen(this, OverwriteText)
+                {
+                    Accepted = OverWriteAccepted
+                });
             }
         }
 
@@ -212,9 +218,10 @@ namespace Ship_Game
             void OnDeleteClicked()
             {
                 Screen.FileToDelete = Data;
-                var messageBox = new MessageBoxScreen(Screen, "Confirm Delete:");
-                messageBox.Accepted += Screen.DeleteFile;
-                Screen.ScreenManager.AddScreen(messageBox);
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, "Confirm Delete:")
+                {
+                    Accepted = Screen.DeleteFile
+                });
             }
             public override void Draw(SpriteBatch batch)
             {

@@ -356,23 +356,24 @@ namespace Ship_Game
 
                 if (Original.Equals(New))
                 {
-                    AcceptChanges(this, EventArgs.Empty); // auto-accept
+                    AcceptChanges(); // auto-accept
                 }
                 else
                 {
-                    var dialog = new MessageBoxScreen(this, Localizer.Token(14), 10f);
-                    dialog.Accepted  += AcceptChanges;
-                    dialog.Cancelled += CancelChanges;
-                    ScreenManager.AddScreen(dialog);
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(14), 10f)
+                    {
+                        Accepted = AcceptChanges,
+                        Cancelled = CancelChanges
+                    });
                 }
             }
             catch
             {
-                CancelChanges(this, EventArgs.Empty);
+                CancelChanges();
             }
         }
 
-        void AcceptChanges(object sender, EventArgs e)
+        void AcceptChanges()
         {
             Original = New.GetClone(); // accepted!
             GlobalStats.SaveSettings();
@@ -381,7 +382,7 @@ namespace Ship_Game
             MusicVolumeSlider.RelativeValue   = GlobalStats.MusicVolume;
         }
 
-        void CancelChanges(object sender, EventArgs e1)
+        void CancelChanges()
         {
             New = Original.GetClone(); // back to default!
             New.ApplyChanges();

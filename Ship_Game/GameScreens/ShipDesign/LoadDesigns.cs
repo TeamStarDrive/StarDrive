@@ -70,12 +70,13 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     () => PromptDeleteShip(WipHull.Name, Screen.DeleteDataAccepted));
             }
             
-            void PromptDeleteShip(string shipId, EventHandler<EventArgs> onAccept)
+            void PromptDeleteShip(string shipId, Action onAccept)
             {
                 Screen.ShipToDelete = shipId;
-                var messageBox = new MessageBoxScreen(Screen, $"Confirm Delete: {shipId}");
-                messageBox.Accepted += onAccept;
-                Screen.ScreenManager.AddScreen(messageBox);
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, $"Confirm Delete: {shipId}")
+                {
+                    Accepted = onAccept
+                });
             }
             
             public override void Draw(SpriteBatch batch)
@@ -170,7 +171,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             return base.HandleInput(input);
         }
         
-        void DeleteAccepted(object sender, EventArgs e)
+        void DeleteAccepted()
         {            
             GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[ShipToDelete].Deleted = true;
@@ -180,7 +181,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             LoadContent();
         }
 
-        void DeleteDataAccepted(object sender, EventArgs e)
+        void DeleteDataAccepted()
         {
             GameAudio.EchoAffirmative();
             ShipsToLoad.Clear();
