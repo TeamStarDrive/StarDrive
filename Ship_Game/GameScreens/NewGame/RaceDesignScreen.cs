@@ -33,7 +33,8 @@ namespace Ship_Game
         protected Submenu Traits;
         protected Submenu NameSub;
 
-        protected ScrollList<TraitsListItem> TraitsSL;
+        ScrollList<TraitsListItem> TraitsSL;
+        SelectedTraitsSummary TraitsSummary;
         ColorPicker Picker;
 
         protected UITextEntry RaceName = new UITextEntry();
@@ -189,6 +190,7 @@ namespace Ship_Game
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
             DescriptionSL = Add(new ScrollList<TextListItem>(description, Fonts.Arial12.LineSpacing));
+            TraitsSummary = Add(new SelectedTraitsSummary(this));
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
@@ -668,31 +670,6 @@ namespace Ship_Game
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
-            
-            rpos = new Vector2((DescriptionSL.X + 20), (DescriptionSL.Y + 20));
-            Vector2 drawCurs = rpos;
-            rpos = drawCurs;
-            rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
-            batch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(30), ": ", TotalPointsUsed), rpos, Color.White);
-            rpos.Y += (Fonts.Arial14Bold.LineSpacing + 8);
-            int numTraits = 0;
-            foreach (TraitEntry t in AllTraits)
-            {
-                if (numTraits == 9)
-                {
-                    rpos = drawCurs;
-                    rpos.X += 145f;
-                    rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
-                    rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
-                }
-                if (!t.Selected)
-                {
-                    continue;
-                }
-                batch.DrawString(Fonts.Arial14Bold, string.Concat(Localizer.Token(t.trait.TraitName), " ", t.trait.Cost), rpos, (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
-                rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
-                numTraits++;
-            }
 
             // === DESIGN YOUR RACE ===
             TitleBar.Draw(batch);
@@ -762,7 +739,7 @@ namespace Ship_Game
 
         class SelectedTraitsSummary : UIElementV2
         {
-            RaceDesignScreen Screen;
+            readonly RaceDesignScreen Screen;
             public SelectedTraitsSummary(RaceDesignScreen screen)
             {
                 Screen = screen;
@@ -775,6 +752,35 @@ namespace Ship_Game
 
             public override void Draw(SpriteBatch batch)
             {
+                float start = Screen.DescriptionSL.NumEntries > 0
+                            ? Screen.DescriptionSL.LastItem.Bottom
+                            : Screen.DescriptionSL.Y;
+                var rpos = new Vector2(Screen.DescriptionSL.X + 20, start + 20);
+                Vector2 drawCurs = rpos;
+                rpos = drawCurs;
+                rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
+                batch.DrawString(Fonts.Arial14Bold, $"{Localizer.Token(30)}: {Screen.TotalPointsUsed}", rpos, Color.White);
+                rpos.Y += (Fonts.Arial14Bold.LineSpacing + 8);
+                int numTraits = 0;
+                foreach (TraitEntry t in Screen.AllTraits)
+                {
+                    if (numTraits == 9)
+                    {
+                        rpos = drawCurs;
+                        rpos.X += 145f;
+                        rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
+                        rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
+                    }
+
+                    if (t.Selected)
+                    {
+                        batch.DrawString(Fonts.Arial14Bold,
+                            $"{Localizer.Token(t.trait.TraitName)} {t.trait.Cost}", rpos,
+                            (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                        rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
+                        numTraits++;
+                    }
+                }
             }
         }
         
