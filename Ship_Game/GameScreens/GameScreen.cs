@@ -112,6 +112,9 @@ namespace Ship_Game
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
 
+            // if we got any tooltips, clear them now
+            ToolTip.Clear();
+
             // call the exit event only once
             if (OnExit != null)
             {

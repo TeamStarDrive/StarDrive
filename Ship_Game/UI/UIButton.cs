@@ -193,11 +193,6 @@ namespace Ship_Game
 
                 batch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
             }
-
-            if (State == PressState.Hover && Tooltip.NotEmpty())
-            {
-                ToolTip.CreateTooltip(Tooltip);
-            }
         }
 
         public override bool HandleInput(InputState input)
@@ -205,14 +200,19 @@ namespace Ship_Game
             if (!Visible)
                 return false;
 
-            if (!Rect.HitTest(input.CursorPosition))
+            if (!Rect.HitTest(input.CursorPosition)) // not hovering?
             {
                 State = PressState.Default;
                 return false;
             }
 
+            // we are now hovering
+
+            // not hovering last frame? trigger mouseover sfx
             if (State != PressState.Hover && State != PressState.Pressed)
+            {
                 GameAudio.MouseOver();
+            }
 
             if (State == PressState.Pressed && input.LeftMouseReleased)
             {
@@ -234,8 +234,17 @@ namespace Ship_Game
                 return true;
             }
 
+            // only trigger tooltip if we were hovering last frame as well as this one
+            if (State == PressState.Hover)
+            {
+                if (Tooltip.NotEmpty())
+                {
+                    ToolTip.CreateTooltip(Tooltip);
+                }
+            }
+
             State = PressState.Hover;
-            // @note This should return false to capture the hover input,
+            // @note This should return true to capture the hover input,
             //       however most UI code doesn't use UIElementV2 system yet,
             //       so returning true would falsely trigger a lot of old style buttons
             //       Semantic differences:
