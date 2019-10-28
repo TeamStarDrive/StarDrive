@@ -1156,7 +1156,7 @@ namespace Ship_Game
                                     Localizer.Token(pgs.building.NameTranslationIndex),
                                     "? Half of the building's construction cost will be recovered to your storage.");
                                 var messageBox = new MessageBoxScreen(Empire.Universe, message);
-                                messageBox.Accepted += ScrapAccepted;
+                                messageBox.Accepted = ScrapAccepted;
                                 ScreenManager.AddScreenDeferred(messageBox);
                             }
 
@@ -1380,7 +1380,7 @@ namespace Ship_Game
             Reset = true;
         }
 
-        void ScrapAccepted(object sender, EventArgs e)
+        void ScrapAccepted()
         {
             if (ToScrap != null)
                 P.ScrapBuilding(ToScrap);
