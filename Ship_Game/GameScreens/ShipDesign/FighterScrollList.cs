@@ -49,7 +49,7 @@ namespace Ship_Game
             AddItem(new FighterListItem(ship));
         }
 
-        public override void OnItemHovered(FighterListItem item)
+        public override void OnItemHovered(ScrollListItemBase item)
         {
             if (item == null) // we're not hovering the scroll list, just highlight the active ship
             {
@@ -60,10 +60,11 @@ namespace Ship_Game
             base.OnItemHovered(item);
         }
 
-        public override void OnItemClicked(FighterListItem item)
+        public override void OnItemClicked(ScrollListItemBase item)
         {
-            ActiveModule.hangarShipUID = item.Ship.Name;
-            HangarShipUIDLast = item.Ship.Name;
+            var fighterItem = (FighterListItem)item;
+            ActiveModule.hangarShipUID = fighterItem.Ship.Name;
+            HangarShipUIDLast = fighterItem.Name;
             base.OnItemClicked(item);
         }
 

@@ -15,11 +15,12 @@ namespace Ship_Game
             Screen = shipDesignScreen;
         }
 
-        public override void OnItemClicked(WeaponListItem item)
+        public override void OnItemClicked(ScrollListItemBase item)
         {
-            if (item.Module != null)
+            var weaponItem = (WeaponListItem)item;
+            if (weaponItem.Module != null)
             {
-                Screen.SetActiveModule(item.Module, ModuleOrientation.Normal, 0f);
+                Screen.SetActiveModule(weaponItem.Module, ModuleOrientation.Normal, 0f);
             }
             base.OnItemClicked(item);
         }
