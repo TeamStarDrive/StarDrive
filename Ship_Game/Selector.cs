@@ -20,9 +20,9 @@ namespace Ship_Game
 
         public Selector(Rectangle theMenu) : base(null, Vector2.Zero)
         {
-            theMenu.X = theMenu.X - 15;
-            theMenu.Y = theMenu.Y - 5;
-            theMenu.Width = theMenu.Width + 12;
+            theMenu.X -= 15;
+            theMenu.Y -= 5;
+            theMenu.Width += 12;
             Initialize(theMenu);
             EdgeColor = Color.White;
         }

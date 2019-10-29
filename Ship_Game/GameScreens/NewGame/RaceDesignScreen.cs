@@ -146,10 +146,7 @@ namespace Ship_Game
             Traits.OnTabChange = OnTraitsTabChanged;
             Traits.Background = new Menu1(traitsList); 
 
-            int size = 55;
-            if (GlobalStats.NotGerman && ScreenWidth <= 1280) size = 65;
-            if (GlobalStats.IsRussian || GlobalStats.IsPolish) size = 70;
-            TraitsList = Add(new ScrollList<TraitsListItem>(Traits, size));
+            TraitsList = Add(new ScrollList<TraitsListItem>(Traits, 40));
             TraitsList.EnableItemHighlight = true;
             TraitsList.OnClick = OnTraitsListItemClicked;
 

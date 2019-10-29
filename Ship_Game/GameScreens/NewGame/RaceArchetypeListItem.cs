@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         public RaceDesignScreen Screen;
         public IEmpireData EmpireData;
-        public SubTexture Portrait;
+        public SubTexture Portrait => Screen.TextureDict[EmpireData];
 
         public RaceArchetypeListItem(RaceDesignScreen screen, IEmpireData empireData)
         {
@@ -16,21 +16,21 @@ namespace Ship_Game
             EmpireData = empireData;
         }
 
-        public override void PerformLayout()
+        public override int ItemHeight
         {
-            Portrait = Screen.TextureDict[EmpireData];
-
-            int width = (int)(List.Width * 0.8f);
-            int height = (int)(width / Portrait.AspectRatio);
-            List.ItemHeight = height;
-            base.PerformLayout();
+            get
+            {
+                int width = (int)(List.Width * 0.8f);
+                int height = (int)(width / Portrait.AspectRatio);
+                return height;
+            }
         }
 
         public override void Draw(SpriteBatch batch)
         {
             base.Draw(batch);
 
-            int height = (int)Height - 8;
+            int height = (int)Height;
             int width = (int)(height * Portrait.AspectRatio);
             var portrait = new Rectangle((int)CenterX - width/2, (int)Y, width, height);
             batch.Draw(Portrait, portrait, Color.White);
