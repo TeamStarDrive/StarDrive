@@ -24,12 +24,13 @@ namespace Ship_Game
     [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
     public class ScrollList<T> : UIElementV2 where T : ScrollListItem<T>
     {
-        Rectangle ScrollUp;
-        Rectangle ScrollDown;
+        Rectangle ScrollUp, ScrollUpClickArea;
+        Rectangle ScrollDown, ScrollDownClickArea;
+        Rectangle ScrollBar, ScrollBarClickArea;
         Rectangle ScrollHousing;
-        Rectangle ScrollBar;
-
         int ScrollBarHover;
+        bool ScrollUpHover, ScrollDownHover;
+        
         int DragStartMousePos;
         int DragStartScrollPos;
         bool DraggingScrollBar;
@@ -231,43 +232,18 @@ namespace Ship_Game
 
         #region ScrollList HandleInput
 
-        // set scrollbar to requested position
-        void SetScrollBarPosition(int newScrollY)
-        {
-            if (newScrollY < ScrollHousing.Y)
-                newScrollY = ScrollHousing.Y;
-            else if ((newScrollY + ScrollBar.Height) > ScrollHousing.Bottom)
-                newScrollY = ScrollHousing.Bottom - ScrollBar.Height;
-            
-            // This enables smooth scrollbar dragging: with every pixel changed we request layout
-            if (ScrollBar.Y != newScrollY)
-            {
-                ScrollBar.Y = newScrollY;
-                RequiresLayout = true;
-                WasScrolled = true;
-            }
-        }
-
-        // move the scrollbar by requested amount of pixels up (-) or down (+)
-        void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
-
         int ScrollButtonAmount(bool held) => !held ? EntryHeight / 2 : EntryHeight / 6;
         int ScrollWheelAmount => EntryHeight / 3;
 
         bool HandleInputScrollButtons(InputState input)
         {
-            bool clicked = input.LeftMouseClick;
+            ScrollUpHover   = ScrollUpClickArea.HitTest(input.CursorPosition);
+            ScrollDownHover = ScrollDownClickArea.HitTest(input.CursorPosition);
             bool held = input.LeftMouseHeld(0.1f);
-            if (clicked || held)
+            if ((held || input.LeftMouseClick) && (ScrollUpHover || ScrollDownHover))
             {
-                int amount = 0;
-                if (ScrollUp.HitTest(input.CursorPosition))  amount = -ScrollButtonAmount(held);
-                if (ScrollDown.HitTest(input.CursorPosition)) amount = ScrollButtonAmount(held);
-                if (amount != 0)
-                {
-                    ScrollByScrollBar(amount);
-                    return true;
-                }
+                ScrollByScrollBar(ScrollButtonAmount(held) * (ScrollUpHover ? -1 : +1));
+                return true;
             }
             return false;
         }
@@ -276,7 +252,7 @@ namespace Ship_Game
         {
             ScrollBarHover = 0; // no highlight
 
-            if (ScrollBar.HitTest(input.CursorPosition))
+            if (ScrollBarClickArea.HitTest(input.CursorPosition))
             {
                 ScrollBarHover = 1; // gentle focus
                 if (!DraggingScrollBar && input.LeftMouseHeld(0.1f))
@@ -453,6 +429,8 @@ namespace Ship_Game
             ScrollUp   = new Rectangle((int)(Right - 20), (int)Y + 30,      s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
             ScrollDown = new Rectangle((int)(Right - 20), (int)Bottom - 14, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
             ScrollHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
+            ScrollUpClickArea   = ScrollUp.Bevel(5);
+            ScrollDownClickArea = ScrollDown.Bevel(5);
 
             if (Background != null)
             {
@@ -475,8 +453,7 @@ namespace Ship_Game
 
                 float remainder = (newIndexFraction - VisibleItemsBegin) % 1f;
                 scrollOffset = (int)Math.Floor(remainder * EntryHeight);
-
-                Log.Info($"rpos={scrollPos} fidx={newIndexFraction} rem={remainder} offset={scrollOffset}");
+                //Log.Info($"rpos={scrollPos} fidx={newIndexFraction} rem={remainder} offset={scrollOffset}");
             }
             else // otherwise, update/clamp visible indices and recalculate scrollbar
             {
@@ -517,7 +494,28 @@ namespace Ship_Game
 
             ScrollBar = new Rectangle(ScrollHousing.X, ScrollHousing.Y + startOffset,
                                       GetStyle().ScrollBarMid.Normal.Width, barHeight);
+            ScrollBarClickArea = ScrollBar.Widen(5);
         }
+
+        // set scrollbar to requested position
+        void SetScrollBarPosition(int newScrollY)
+        {
+            if (newScrollY < ScrollHousing.Y)
+                newScrollY = ScrollHousing.Y;
+            else if ((newScrollY + ScrollBar.Height) > ScrollHousing.Bottom)
+                newScrollY = ScrollHousing.Bottom - ScrollBar.Height;
+            
+            // This enables smooth scrollbar dragging: with every pixel changed we request layout
+            if (ScrollBar.Y != newScrollY)
+            {
+                ScrollBar.Y = ScrollBarClickArea.Y = newScrollY;
+                RequiresLayout = true;
+                WasScrolled = true;
+            }
+        }
+
+        // move the scrollbar by requested amount of pixels up (-) or down (+)
+        void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
 
         public override void Update(float deltaTime)
         {
@@ -546,10 +544,8 @@ namespace Ship_Game
             s.ScrollBarUpDown.Draw(batch, up, parentHovered, controlItemHovered);
             s.ScrollBarMid   .Draw(batch, mid, parentHovered, controlItemHovered);
             s.ScrollBarUpDown.Draw(batch, bot, parentHovered, controlItemHovered);
-
-            Vector2 cursor = GameBase.ScreenManager.input.CursorPosition;
-            s.ScrollBarArrowUp.Draw(batch, ScrollUp, parentHovered, ScrollUp.HitTest(cursor));
-            s.ScrollBarArrowDown.Draw(batch, ScrollDown, parentHovered, ScrollDown.HitTest(cursor));
+            s.ScrollBarArrowUp.Draw(batch, ScrollUp, parentHovered, ScrollUpHover);
+            s.ScrollBarArrowDown.Draw(batch, ScrollDown, parentHovered, ScrollDownHover);
         }
 
         public override void Draw(SpriteBatch batch)
