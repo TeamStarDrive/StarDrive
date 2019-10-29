@@ -302,7 +302,7 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
-    <Compile Include="Ship_Game\GameScreens\NewGame\ColorPicker.cs" />
+    <Compile Include="Ship_Game\GameScreens\NewGame\UIColorPicker.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen_RaceDescription.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipHullListItem.cs" />
