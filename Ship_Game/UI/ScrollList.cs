@@ -104,13 +104,21 @@ namespace Ship_Game
 
         public void SetItems(IEnumerable<T> newItems)
         {
-            Entries.Clear();
-            FlatEntries.Clear();
+            Reset();
             foreach (T item in newItems)
             {
                 item.List = this;
                 Entries.Add(item);
             }
+        }
+
+        public void Reset()
+        {
+            Entries.Clear();
+            FlatEntries.Clear();
+            // we reset the End to prevent index out of bounds,
+            // but we keep Begin to give stability to the queue
+            VisibleItemsEnd = 0; 
             RequiresLayout = true;
         }
 
@@ -160,13 +168,6 @@ namespace Ship_Game
             T[] sorted = Entries.OrderByDescending(predicate).ToArray();
             Entries.Clear();
             Entries.AddRange(sorted);
-            RequiresLayout = true;
-        }
-
-        public void Reset()
-        {
-            Entries.Clear();
-            FlatEntries.Clear();
             RequiresLayout = true;
         }
         
