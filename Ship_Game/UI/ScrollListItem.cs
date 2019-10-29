@@ -205,8 +205,7 @@ namespace Ship_Game
                     List.OnItemClicked(this as T);
                     return true;
                 }
-                // @note Always capture input if hovered?
-                return true;
+                return false;
             }
 
             return base.HandleInput(input);

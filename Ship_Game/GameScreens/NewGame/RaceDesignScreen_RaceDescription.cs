@@ -160,7 +160,7 @@ namespace Ship_Game
 
             b.Plural(PreferredEnvDescription);
 
-            DescriptionSL.ResetWithParseText(Fonts.Arial12, b.ToString(), DescriptionSL.Width - 50);
+            DescriptionTextList.ResetWithParseText(DescriptionTextFont, b.ToString(), DescriptionTextList.Width - 50);
         }
 
     
