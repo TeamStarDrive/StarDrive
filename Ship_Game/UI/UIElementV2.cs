@@ -134,7 +134,12 @@ namespace Ship_Game
 
         public void SetRelPos(float x, float y)
         {
-            RelPos = new Vector2(x, y);
+            SetRelPos(new Vector2(x, y));
+        }
+
+        public void SetRelPos(in Vector2 relPos)
+        {
+            RelPos = relPos;
             UseRelPos = true;
             RequiresLayout = true;
         }
