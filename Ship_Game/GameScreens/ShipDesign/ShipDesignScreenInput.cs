@@ -660,10 +660,6 @@ namespace Ship_Game
         {
             Log.Info("ShipDesignScreen.LoadContent");
             RemoveAll();
-            if (ScreenWidth  <= 1280 || ScreenHeight <= 768)
-            {
-                LowRes = true;
-            }
             ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
 
             var hulls = EmpireManager.Player.GetHDict();

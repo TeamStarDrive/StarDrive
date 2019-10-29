@@ -9,7 +9,6 @@ namespace Ship_Game
     {
         public bool isOpen;
         private Menu2 MainMenu;
-        private bool LowRes;
         private FloatSlider FTLPenaltySlider;
         private FloatSlider EnemyFTLPenaltySlider;
         private FloatSlider GravityWellSize;
@@ -57,11 +56,9 @@ namespace Ship_Game
         {
             base.LoadContent();
             RemoveAll();
-            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            int width  = ScreenWidth;
+            int height = ScreenHeight;
 
-            if (width <= 1366 || height <= 720)
-                LowRes = true;
             var titleRect = new Rectangle(width / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             var nameRect  = new Rectangle(width / 2 - height / 4, titleRect.Y + titleRect.Height + 5, width / 2, 150);
             var leftRect  = new Rectangle(width / 2 - height / 4, nameRect.Y + nameRect.Height + 5, width / 2,

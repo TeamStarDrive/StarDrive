@@ -115,7 +115,7 @@ namespace Ship_Game
             AllSaves.AddTab(TabText);
             SavesSL = Add(new ScrollList<SaveLoadListItem>(AllSaves, EntryHeight));
             SavesSL.OnClick = OnSaveLoadItemClicked;
-            SavesSL.IsSelectable = true;
+            SavesSL.EnableItemHighlight = true;
             InitSaveList();
 
             EnterNameArea = Add(new UITextEntry(TitlePosition, Fonts.Arial20Bold, InitText));

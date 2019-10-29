@@ -42,8 +42,11 @@ namespace Ship_Game
         float ClickTimer;
         const float TimerDelay = 0.05f;
 
-        readonly int EntryHeight;
-        readonly int MaxVisibleEntries;
+        // Top and Bottom padding for list items
+        readonly int PaddingTop = 30;
+        readonly int PaddingBot = 14;
+        int EntryHeight;
+        int MaxVisibleEntries;
         readonly Array<T> Entries         = new Array<T>();
         readonly Array<T> ExpandedEntries = new Array<T>(); // Flattened entries
 
@@ -55,7 +58,7 @@ namespace Ship_Game
         public Selector SelectionBox;
 
         // If TRUE, automatically draws Selection highlight around each ScrollList Item
-        public bool IsSelectable = false;
+        public bool EnableItemHighlight;
 
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
@@ -118,9 +121,7 @@ namespace Ship_Game
         public ScrollList(in Rectangle rect, int entryHeight, ListStyle style = ListStyle.Default) : base(null, rect)
         {
             Style = style;
-            EntryHeight = entryHeight;
-            MaxVisibleEntries = (rect.Height - 25) / entryHeight;
-            this.PerformLayout();
+            ItemHeight = entryHeight;
         }
 
         public virtual void OnItemHovered(T item)
@@ -143,6 +144,20 @@ namespace Ship_Game
             OnDrag?.Invoke(item, evt);
         }
 
+        public int ItemHeight
+        {
+            get => EntryHeight;
+            set
+            {
+                if (EntryHeight != value)
+                {
+                    EntryHeight = value;
+                    MaxVisibleEntries = (int)Math.Floor((Height - (PaddingTop + PaddingBot)) / value);
+                    RequiresLayout = true;
+                }
+            }
+        }
+
         public int NumEntries => Entries.Count;
         public IReadOnlyList<T> AllEntries => Entries;
 
@@ -160,6 +175,7 @@ namespace Ship_Game
         // @return TRUE if this caused FirstVisibleIndex or LastVisibleIndex to change
         void UpdateVisibleIndex(float indexFraction)
         {
+            //ItemHeight = EntryHeight;
             int begin = (int)Math.Floor(indexFraction);
             int end   = (int)Math.Ceiling(indexFraction + MaxVisibleEntries);
             VisibleItemsBegin = begin.Clamped(0, Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
@@ -384,30 +400,34 @@ namespace Ship_Game
             }
         }
 
-        bool HandleInputChildElements(InputState input)
+        bool HandleInputVisibleItems(InputState input)
         {
             // NOTE: We do not early return, because we want to update hover state for all ScrollList items
-            bool captured = false;
-            for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+            bool anyCaptured = false;
+            bool anyHovered = false;
+            if (Rect.HitTest(input.CursorPosition))
             {
-                T item = ExpandedEntries[i];
-                if (item.HandleInput(input))
+                for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
                 {
+                    T item = ExpandedEntries[i];
+                    anyCaptured |= item.HandleInput(input);
+                    bool thisHovered = item.Hovered;
+                    anyHovered |= thisHovered;
+
                     // only show selector if item is not a Header element
-                    if (!item.IsHeader && IsSelectable)
+                    if (thisHovered && !item.IsHeader && EnableItemHighlight)
                     {
                         SelectionBox = new Selector(item.Rect);
                     }
-                    captured = true;
                 }
             }
 
-            // No longer hovering over the scroll list? Clear the SelectionBox
-            if (IsSelectable && !Rect.HitTest(input.CursorPosition))
+            // Not hovering over any items? Clear the SelectionBox
+            if (!anyHovered && EnableItemHighlight)
             {
                 SelectionBox = null;
             }
-            return captured;
+            return anyCaptured;
         }
 
         public override bool HandleInput(InputState input)
@@ -418,10 +438,7 @@ namespace Ship_Game
             HandleDraggable(input);
             HandleElementDragging(input);
 
-            if (HandleInputScrollBar(input) || HandleInputChildElements(input))
-                return true;
-
-            return base.HandleInput(input);
+            return base.HandleInput(input) || HandleInputScrollBar(input) || HandleInputVisibleItems(input);
         }
 
         #endregion
@@ -438,8 +455,8 @@ namespace Ship_Game
             base.PerformLayout();
 
             ScrollListStyleTextures s = GetStyle();
-            ScrollUp   = new Rectangle((int)(Right - 20), (int)Y + 30,      s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
-            ScrollDown = new Rectangle((int)(Right - 20), (int)Bottom - 14, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
+            ScrollUp   = new Rectangle((int)(Right - 20), (int)Y + PaddingTop,      s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
+            ScrollDown = new Rectangle((int)(Right - 20), (int)Bottom - PaddingBot, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
             ScrollHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             ScrollUpClickArea   = ScrollUp.Bevel(5);
             ScrollDownClickArea = ScrollDown.Bevel(5);
@@ -474,7 +491,7 @@ namespace Ship_Game
                 if (VisibleItemsBegin <= i && i < VisibleItemsEnd)
                 {
                     e.VisibleIndex = visibleIndex++;
-                    int y = (int)Y + 35 + (e.VisibleIndex * EntryHeight) - scrollOffset;
+                    int y = (int)Y + PaddingTop + (e.VisibleIndex * EntryHeight) - scrollOffset;
                     e.Rect = new Rectangle((int)X + 20, y, (int)Width - 40, EntryHeight);
                     e.PerformLayout();
                 }
@@ -564,14 +581,14 @@ namespace Ship_Game
                 ExpandedEntries[i].Draw(batch);
             }
 
+            if (EnableItemHighlight)
+                SelectionBox?.Draw(batch);
+
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
             batch.GraphicsDevice.ScissorRectangle = new Rectangle((int)X, ScrollUp.Y, (int)Width, ScrollDown.Bottom - ScrollUp.Y);
             batch.End();
             batch.Begin();
             batch.GraphicsDevice.RenderState.ScissorTestEnable = false;
-            
-            if (IsSelectable)
-                SelectionBox?.Draw(batch);
 
             if (DraggedEntry != null)
             {
