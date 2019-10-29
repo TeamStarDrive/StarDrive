@@ -59,7 +59,6 @@ namespace Ship_Game
         ScrollList<TextListItem> DescriptionSL;
         protected UIButton Engage;
         protected UIButton Abort;
-        protected UIButton ClearTraits;
 
         int numOpponents;
         protected RacialTrait tipped;
@@ -191,13 +190,13 @@ namespace Ship_Game
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
-            ClearTraits = ButtonMedium(ScreenWidth - 150, DescriptionSL.Bottom - 40, "Clear Traits", OnClearClicked);
+            DescriptionSL.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionSL.Width - 150, DescriptionSL.Height - 40);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
 
-            ButtonMedium(ChooseRaceList.CenterX - 142, ChooseRaceList.Y - 40, "Load Race", OnLoadRaceClicked);
-            ButtonMedium(ChooseRaceList.CenterX + 10,  ChooseRaceList.Y - 40, "Save Race", OnSaveRaceClicked);
+            ChooseRaceList.ButtonMedium("Load Race", OnLoadRaceClicked).SetRelPos(ChooseRaceList.Width/2 - 142, -40);
+            ChooseRaceList.ButtonMedium("Save Race", OnSaveRaceClicked).SetRelPos(ChooseRaceList.Width/2 + 10, -40);
 
             var pos = new Vector2(ScreenWidth / 2 - 84, traitsList.Y + traitsList.Height + 10);
 

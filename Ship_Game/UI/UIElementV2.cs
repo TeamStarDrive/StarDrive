@@ -19,7 +19,7 @@ namespace Ship_Game
 
         BottomLeft,  // "bottomleft"   x=0.0  y=1.0
         BottomCenter,// "bottomcenter" x=0.5  y=1.0
-        BottomRight // "bottomright"  x=1.0  y=1.0
+        BottomRight  // "bottomright"  x=1.0  y=1.0
     }
 
     public enum DrawDepth
@@ -48,6 +48,9 @@ namespace Ship_Game
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
+        public Vector2 RelPos; // relative position on parent, in absolute coordinates
+        protected bool UseRelPos; // if TRUE, uses RelPos during PerformLayout()
+
         //protected Vector2 AxisOffset = Vector2.Zero;
         //protected Vector2 ParentOffset = Vector2.Zero;
 
@@ -69,20 +72,21 @@ namespace Ship_Game
         // Nullable to save memory
         Array<UIEffect> Effects;
 
-
         public void Show() => Visible = true;
         public void Hide() => Visible = false;
-
 
         public Rectangle Rect
         {
             get => new Rectangle((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
             set
             {
-                Pos  = new Vector2(value.X, value.Y);
-                Size = new Vector2(value.Width, value.Height);
+                Pos.X = value.X;
+                Pos.Y = value.Y;
+                Size.X = value.Width;
+                Size.Y = value.Height;
             }
         }
+
         public float X { get => Pos.X; set => Pos.X = value; }
         public float Y { get => Pos.Y; set => Pos.Y = value; }
         public float Width  { get => Size.X; set => Size.X = value; }
@@ -98,8 +102,8 @@ namespace Ship_Game
         public float CenterY => Pos.Y + Size.Y*0.5f;
         public Vector2 Center => Pos + Size*0.5f;
 
-        public string TypeName => GetType().GetTypeName();
-        public string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
+        protected string TypeName => GetType().GetTypeName();
+        protected string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
 
         public override string ToString() => $"{TypeName} {ElementDescr}";
 
@@ -110,11 +114,6 @@ namespace Ship_Game
             if      (y < 0f) y += parent.Size.Y;
             else if (y <=1f) y *= parent.Size.Y;
             return new Vector2(x, y);
-        }
-
-        public Vector2 RelativeToAbsolute(Vector2 pos)
-        {
-            return RelativeToAbsolute(Parent ?? this, pos.X, pos.Y);
         }
 
         public Vector2 RelativeToAbsolute(float x, float y)
@@ -128,13 +127,15 @@ namespace Ship_Game
         {
             Pos = new Vector2(x, y);
         }
-        public void SetRelPos(Vector2 pos)
-        {
-            Pos = RelativeToAbsolute(pos);
-        }
         public void SetSize(float width, float height)
         {
             Size = new Vector2(width, height);
+        }
+
+        public void SetRelPos(float x, float y)
+        {
+            RelPos = new Vector2(x, y);
+            UseRelPos = true;
             RequiresLayout = true;
         }
 
@@ -168,6 +169,16 @@ namespace Ship_Game
 
         protected virtual int NextZOrder() { return ZOrder + 1; }
 
+        // 0. Perform Layout operations on demand
+        public virtual void PerformLayout()
+        {
+            RequiresLayout = false;
+            if (UseRelPos && Parent != null)
+            {
+                Pos = Parent.Pos + RelPos;
+            }
+        }
+
         // 1. we handle input
         public abstract bool HandleInput(InputState input);
 
@@ -175,6 +186,8 @@ namespace Ship_Game
         public virtual void Update(float deltaTime)
         {
             UpdateEffects(deltaTime);
+            if (RequiresLayout)
+                PerformLayout();
         }
 
         // 3. finally we draw
@@ -249,13 +262,7 @@ namespace Ship_Game
         public UIBasicAnimEffect StartTransitionFrom(Vector2 from, float time = 1f) => Anim().FadeIn(0f, time).Pos(from, Pos);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        public virtual void PerformLayout()
-        {
-            RequiresLayout = false;
-        }
-
+        
         public bool HitTest(Vector2 pos)
         {
             return pos.X > Pos.X && pos.Y > Pos.Y && pos.X < Pos.X + Size.X && pos.Y < Pos.Y + Size.Y;

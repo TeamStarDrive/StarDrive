@@ -22,7 +22,7 @@ namespace Ship_Game
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
     [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
-    public class ScrollList<T> : UIElementV2 where T : ScrollListItem<T>
+    public class ScrollList<T> : UIElementContainer where T : ScrollListItem<T>
     {
         Rectangle ScrollUp, ScrollUpClickArea;
         Rectangle ScrollDown, ScrollDownClickArea;
@@ -58,7 +58,19 @@ namespace Ship_Game
         public bool IsSelectable = false;
 
         // If set to a valid UIElement instance, then this element will be drawn in the background
-        public UIElementV2 Background;
+        UIElementV2 TheBackground;
+        public UIElementV2 Background
+        {
+            set
+            {
+                if (TheBackground != value)
+                {
+                    TheBackground?.RemoveFromParent();
+                    TheBackground = value;
+                    if (value != null) Add(value);
+                }
+            }
+        }
 
         // EVENT: Called when a new item is focused with mouse
         //        @note This is called again with <null> when mouse leaves focus
@@ -409,10 +421,7 @@ namespace Ship_Game
             if (HandleInputScrollBar(input) || HandleInputChildElements(input))
                 return true;
 
-            if (Background != null && Background.HandleInput(input))
-                return true;
-
-            return false;
+            return base.HandleInput(input);
         }
 
         #endregion
@@ -423,6 +432,9 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            if (TheBackground != null)
+                TheBackground.Pos = Pos;
+
             base.PerformLayout();
 
             ScrollListStyleTextures s = GetStyle();
@@ -431,12 +443,6 @@ namespace Ship_Game
             ScrollHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
             ScrollUpClickArea   = ScrollUp.Bevel(5);
             ScrollDownClickArea = ScrollDown.Bevel(5);
-
-            if (Background != null)
-            {
-                Background.Pos = Pos;
-                Background.PerformLayout();
-            }
 
             ExpandedEntries.Clear();
             for (int i = 0; i < Entries.Count; ++i)
@@ -517,15 +523,6 @@ namespace Ship_Game
         // move the scrollbar by requested amount of pixels up (-) or down (+)
         void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
 
-        public override void Update(float deltaTime)
-        {
-            Background?.Update(deltaTime);
-            base.Update(deltaTime);
-
-            if (RequiresLayout)
-                PerformLayout();
-        }
-
         #endregion
 
         #region ScrollList Draw
@@ -553,12 +550,11 @@ namespace Ship_Game
             //if (!FirstUpdateDone)
             //    Log.Error($"{TypeName}.Update() has not been called. This is a bug!"
             //              +" Make sure the ScrollList is being updated in GameScreen.Update() or screen.Add(list) for automatic update.");
-
-            Background?.Draw(batch);
+            base.Draw(batch);
 
             if (ExpandedEntries.Count > MaxVisibleEntries)
                 DrawScrollBar(batch);
-
+            
             // use a scissor to clip smooth scroll items
             batch.End();
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.None);
@@ -573,7 +569,7 @@ namespace Ship_Game
             batch.End();
             batch.Begin();
             batch.GraphicsDevice.RenderState.ScissorTestEnable = false;
-
+            
             if (IsSelectable)
                 SelectionBox?.Draw(batch);
 

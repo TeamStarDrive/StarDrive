@@ -93,6 +93,21 @@ namespace Ship_Game
         }
     }
 
+    public struct LocalizedText
+    {
+        public string Text;
+        public LocalizedText(int id) { Text = Localizer.Token(id); }
+        public LocalizedText(string text) { Text = text; }
+        public static implicit operator LocalizedText(int id)
+        {
+            return new LocalizedText(id);
+        }
+        public static implicit operator LocalizedText(string text)
+        {
+            return new LocalizedText(text);
+        }
+    }
+
     public static class Localizer
     {
         //Hull Bonus Text
@@ -106,8 +121,7 @@ namespace Ship_Game
         public static string HullRepairBonus => Token(6013);
         public static string HullCostBonus => Token(6021);
 
-
-        private static string[] Strings = new string[0];
+        static string[] Strings = new string[0];
 
         public static bool Contains(int locIndex)
         {
