@@ -58,6 +58,13 @@ namespace Ship_Game
             Style = style;
         }
 
+        public UIButton(UIElementV2 parent, ButtonStyle style, string text) : base(parent)
+        {
+            Style = style;
+            Text = text;
+            Size = ButtonTexture().SizeF;
+        }
+
         public UIButton(UIElementV2 parent, Vector2 pos, string text) : base(parent, pos)
         {
             Text = text;

@@ -9,14 +9,18 @@ namespace Ship_Game
     {
         static void GetGenericTypeName(this Type type, StringBuilder sb)
         {
-            sb.Append(type.Name.Split('`')[0]).Append('<');
+            sb.Append(type.Name.Split('`')[0]);
             Type[] args = type.GenericTypeArguments;
-            for (int i = 0; i < args.Length; ++i)
+            if (args.Length > 0)
             {
-                GetGenericTypeName(args[i], sb);
-                if (i != args.Length - 1) sb.Append(',');
+                sb.Append('<');
+                for (int i = 0; i < args.Length; ++i)
+                {
+                    GetGenericTypeName(args[i], sb);
+                    if (i != args.Length - 1) sb.Append(',');
+                }
+                sb.Append('>');
             }
-            sb.Append('>');
         }
 
         static readonly Map<Type, string> GenericTypeNames = new Map<Type, string>();
