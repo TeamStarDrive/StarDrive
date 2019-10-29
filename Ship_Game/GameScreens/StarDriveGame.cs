@@ -104,12 +104,12 @@ namespace Ship_Game
                 GraphicsDeviceWasReset = false;
                 ResourceManager.LoadGraphicsResources(ScreenManager);
             }
-
+            
             ScreenManager.LoadContent();
             IsLoaded = true;
 
             if (ScreenManager.NumScreens == 0)
-                ScreenManager.AddScreen(new GameLoadingScreen());
+                ScreenManager.AddScreen(new GameLoadingScreen(showSplash: true, resetResources: false));
         }
 
         protected override void UnloadContent()

@@ -11,7 +11,7 @@ namespace Ship_Game
 {
     public sealed class ModManager : GameScreen
     {
-        MainMenuScreen mmscreen;
+        readonly MainMenuScreen MainMenu;
         Rectangle Window;
         Menu1 SaveMenu;
         Submenu NameSave;
@@ -19,18 +19,16 @@ namespace Ship_Game
         Vector2 TitlePosition;
         Vector2 EnternamePos;
         UITextEntry EnterNameArea;
-        UIButton Load;
-        UIButton Disable;
         UIButton Visit;
-        UIButton shiptool;
+        UIButton UnloadMod;
         UIButton CurrentButton;
 
-        ScrollList<ModsListItem> ModsSL;
+        ScrollList<ModsListItem> ModsList;
         ModEntry SelectedMod;
 
-        public ModManager(MainMenuScreen mmscreen) : base(mmscreen)
+        public ModManager(MainMenuScreen mainMenu) : base(mainMenu)
         {
-            this.mmscreen = mmscreen;
+            MainMenu = mainMenu;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
@@ -38,7 +36,7 @@ namespace Ship_Game
 
         class ModsListItem : ScrollListItem<ModsListItem>
         {
-            public ModEntry Mod;
+            public readonly ModEntry Mod;
             public ModsListItem(ModEntry mod)
             {
                 Mod = mod;
@@ -66,18 +64,20 @@ namespace Ship_Game
             EnterNameArea = new UITextEntry {Text = ""};
             EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            Load     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, titleId:8, click: OnLoadClicked);
-            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, titleId:4015, click: OnVisitClicked);
-            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, titleId:4044, click: OnShipToolClicked);
-            Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, titleId:4016, click:OnDisableClicked);
+            ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, titleId:8, click: OnLoadClicked);
+            Visit = Button(Window.X + 3, Window.Y + Window.Height + 20, titleId:4015, click: OnVisitClicked);
+            Button(Window.X + 200, Window.Y + Window.Height + 20, titleId:4044, click: OnShipToolClicked);
+            UnloadMod = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, "Unload Mod", click:OnUnloadModClicked);
+            UnloadMod.Enabled = GlobalStats.HasMod;
 
             base.LoadContent();
         }
 
         void LoadMods()
         {
-            ModsSL = new ScrollList<ModsListItem>(AllSaves, 140);
-            ModsSL.OnClick = OnModItemClicked;
+            ModsList = Add(new ScrollList<ModsListItem>(AllSaves, 140));
+            ModsList.IsSelectable = true;
+            ModsList.OnClick = OnModItemClicked;
 
             var ser = new XmlSerializer(typeof(ModInformation));
             foreach (DirectoryInfo info in Dir.GetDirs("Mods", SearchOption.TopDirectoryOnly))
@@ -91,8 +91,8 @@ namespace Ship_Game
                         throw new FileNotFoundException($"Mod XML not found: {modFile}");
 
                     var e = new ModEntry(modInfo);
-                    e.LoadPortrait(mmscreen);
-                    ModsSL.AddItem(new ModsListItem(e));
+                    e.LoadPortrait(MainMenu);
+                    ModsList.AddItem(new ModsListItem(e));
                 }
                 catch (Exception ex)
                 {
@@ -116,7 +116,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;    
             }
-            return ModsSL.HandleInput(input) && base.HandleInput(input);
+            return base.HandleInput(input);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -128,7 +128,6 @@ namespace Ship_Game
             SaveMenu.Draw(batch);
             NameSave.Draw(batch);
             AllSaves.Draw(batch);
-            ModsSL.Draw(batch);
             EnterNameArea.Draw(batch, Fonts.Arial12Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Color.Orange));
             base.Draw(batch);
             batch.End();
@@ -149,11 +148,11 @@ namespace Ship_Game
             {
                 try
                 {
-                    SteamManager.ActivateOverlayWebPage("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                    SteamManager.ActivateOverlayWebPage("https://bitbucket.org/codegremlins/combinedarms/downloads/");
                 }
                 catch
                 {
-                    Process.Start("http://www.stardrivegame.com/forum/viewtopic.php?f=6&t=696");
+                    Process.Start("https://bitbucket.org/codegremlins/combinedarms/downloads/");
                 }
             }
             else
@@ -171,11 +170,10 @@ namespace Ship_Game
 
         void OnShipToolClicked(UIButton b)
         {
-            //ScreenManager.AddScreen(new ShipToolScreen(this));
             ScreenManager.GoToScreen(new ShipToolScreen(this), clear3DObjects: true);
         }
 
-        void OnDisableClicked(UIButton b)
+        void OnUnloadModClicked(UIButton b)
         {
             ClearMods();
         }
@@ -186,18 +184,17 @@ namespace Ship_Game
                 return;
 
             Log.Info("ModManager.ClearMods");
-            ExitScreen();
-            // @note This will trigger game unload and reload
-            ResourceManager.LoadItAll(ScreenManager, null, reset:true);
+            GlobalStats.SetActiveModNoSave(null);
+            // reload the whole game
+            ScreenManager.GoToScreen(new GameLoadingScreen(showSplash: false, resetResources: true), clear3DObjects: true);
         }
 
         void LoadModTask()
         {
             Log.Info($"ModManager.LoadMod {SelectedMod.ModName}");
             GlobalStats.SetActiveModNoSave(SelectedMod);
-            ExitScreen();
-            // @note This will trigger game unload and reload
-            ResourceManager.LoadItAll(ScreenManager, SelectedMod, reset:true);
+            // reload the whole game
+            ScreenManager.GoToScreen(new GameLoadingScreen(showSplash: false, resetResources: true), clear3DObjects: true);
         }
     }
 }

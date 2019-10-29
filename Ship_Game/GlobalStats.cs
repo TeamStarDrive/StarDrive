@@ -225,39 +225,38 @@ namespace Ship_Game
 
         public static void LoadModInfo(string modName)
         {
-            ModName = modName;
-            ModPath = "";
-            if (modName == "")
-            {
-                ActiveMod     = null;
-                ActiveModInfo = null;
-                SaveActiveMod();
-                return;
-            }
+            SetActiveModNoSave(null); // reset
 
-            var modInfo = new FileInfo($"Mods/{modName}/{modName}.xml");
-            if (modInfo.Exists)
+            if (modName.NotEmpty())
             {
-                ModPath = "Mods/" + ModName + "/";
-                ActiveModInfo = new XmlSerializer(typeof(ModInformation))
-                              .Deserialize<ModInformation>(modInfo);
-                ActiveMod     = new ModEntry(ActiveModInfo);
-            }
-            else
-            {
-                ModName       = "";
-                ActiveMod     = null;
-                ActiveModInfo = null;
+                var modInfo = new FileInfo($"Mods/{modName}/{modName}.xml");
+                if (modInfo.Exists)
+                {
+                    var info = new XmlSerializer(typeof(ModInformation)).Deserialize<ModInformation>(modInfo);
+                    var me = new ModEntry(info);
+                    SetActiveModNoSave(me);
+                }
             }
             SaveActiveMod();
         }
 
         public static void SetActiveModNoSave(ModEntry me)
         {
-            ModName       = me.ModName;
-            ModPath       = "Mods/" + ModName + "/";
-            ActiveModInfo = me.mi;
-            ActiveMod     = me;
+            if (me != null)
+            {
+                ModName       = me.ModName;
+                ModPath       = "Mods/" + ModName + "/";
+                ActiveModInfo = me.mi;
+                ActiveMod     = me;
+            }
+            else
+            {
+                ModName       = "";
+                ModPath       = "";
+                ActiveMod     = null;
+                ActiveModInfo = null;
+            }
+
         }
 
         public static void Statreset()
