@@ -187,12 +187,13 @@ namespace Ship_Game
         public static int RelativeY(this Rectangle r, float percent) => r.Y + (int)(r.Height*percent);
 
         public static Vector2 RelPos(this Rectangle r, float relX, float relY)
-        {
-            return new Vector2(RelativeX(r, relX), RelativeY(r, relY));
-        }
+            => new Vector2(RelativeX(r, relX), RelativeY(r, relY));
 
         public static Rectangle Bevel(this Rectangle r, int bevel)
             => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
+
+        public static Rectangle Widen(this Rectangle r, int widen)
+            => new Rectangle(r.X - widen, r.Y, r.Width + widen*2, r.Height);
 
         public static Rectangle ScaledBy(this Rectangle r, float scale)
         {
