@@ -392,7 +392,7 @@ namespace Ship_Game
                 SelectionBox?.Draw(batch);
 
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
-            batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsRect.X - 10, ItemsRect.Y - 5, ItemsRect.Width + 20, ItemsRect.Height + 10);
+            batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsRect.X - 10, ItemsRect.Y - 5, ItemsRect.Width + 20, ItemsRect.Height + 5);
             batch.End();
             batch.Begin();
             batch.GraphicsDevice.RenderState.ScissorTestEnable = false;
