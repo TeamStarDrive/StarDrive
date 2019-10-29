@@ -10,6 +10,9 @@ namespace Ship_Game
     {
         public ScrollListBase List;
 
+        // Customization Point: Provide a custom dynamic Item Height
+        public virtual int ItemHeight => 0;
+
         // Entries with IsHeader=true can be expanded or collapsed via category title
         public bool Expanded { get; protected set; }
 

@@ -31,7 +31,13 @@ namespace Ship_Game
         {
             Rectangle r = background.Rect;
             if (background is Menu1)
+            {
                 r.Width -= 5;
+            }
+            else if (background is Submenu)
+            {
+                r.Y += 10;
+            }
             return r;
         }
 
@@ -55,27 +61,27 @@ namespace Ship_Game
         {
             Rect = rect;
             Style = style;
-            ItemHeight = entryHeight;
+            EntryHeight = entryHeight;
         }
 
         public override void OnItemHovered(ScrollListItemBase item)
         {
-            OnHovered?.Invoke(item as T);
+            OnHovered?.Invoke((T)item);
         }
 
         public override void OnItemClicked(ScrollListItemBase item)
         {
-            OnClick?.Invoke(item as T);
+            OnClick?.Invoke((T)item);
         }
 
         public override void OnItemDoubleClicked(ScrollListItemBase item)
         {
-            OnDoubleClick?.Invoke(item as T);
+            OnDoubleClick?.Invoke((T)item);
         }
 
         public override void OnItemDragged(ScrollListItemBase item, DragEvent evt)
         {
-            OnDrag?.Invoke(item as T, evt);
+            OnDrag?.Invoke((T)item, evt);
         }
 
         public int NumEntries => Entries.Count;
@@ -85,8 +91,8 @@ namespace Ship_Game
         public T this[int index] => Entries[index];
 
         // @return The first visible item
-        public T FirstItem => FlatEntries[VisibleItemsBegin] as T;
-        public T LastItem  => FlatEntries[VisibleItemsEnd - 1] as T;
+        public T FirstItem => (T)FlatEntries[VisibleItemsBegin];
+        public T LastItem  => (T)FlatEntries[VisibleItemsEnd - 1];
 
         public T AddItem(T entry)
         {
@@ -137,7 +143,7 @@ namespace Ship_Game
             if (!RemoveSubItem(predicate))
                 Entries.RemoveFirst(predicate);
 
-            if (FlatEntries.RemoveFirst((e) => predicate(e as T)))
+            if (FlatEntries.RemoveFirst((e) => predicate((T)e)))
                 RequiresLayout = true;
         }
 
@@ -189,7 +195,7 @@ namespace Ship_Game
                         Vector2 cursor = input.CursorPosition;
                         for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
                         {
-                            var e = (T)FlatEntries[i];
+                            ScrollListItemBase e = FlatEntries[i];
                             if (e.Rect.HitTest(cursor))
                             {
                                 DraggedEntry = e;
@@ -203,7 +209,7 @@ namespace Ship_Game
             }
             if (input.LeftMouseUp)
             {
-                OnItemDragged(DraggedEntry as T, DragEvent.End);
+                OnItemDragged(DraggedEntry, DragEvent.End);
                 ClickTimer = 0f;
                 DraggedEntry = null;
             }

@@ -23,6 +23,8 @@ namespace Ship_Game
             DescrFont = screen.LowRes ? Fonts.Arial10 : Fonts.Arial12;
         }
 
+        public override int ItemHeight => TitleFont.LineSpacing * 2 + DescrFont.LineSpacing;
+
         public override void Draw(SpriteBatch batch)
         {
             base.Draw(batch);
@@ -31,9 +33,7 @@ namespace Ship_Game
             string name = PaddedWithDots(TitleFont, Trait.trait.TraitName, textAreaWidth);
             int cost = Trait.trait.Cost;
 
-            var tCursor = new Vector2(X, Y - 2);
             var drawColor = new Color(95, 95, 95, 95);
-
             if (!Trait.Selected)
             {
                 drawColor = new Color(95, 95, 95, 95);
@@ -51,13 +51,15 @@ namespace Ship_Game
                 drawColor = (cost > 0 ? Color.MediumSeaGreen : Color.LightCoral);
             }
             
-            batch.DrawString(TitleFont, name, tCursor, drawColor);
-            tCursor.Y += TitleFont.LineSpacing;
+            var pos = new Vector2(X + 4, Y);
+            batch.DrawString(TitleFont, name, pos, drawColor);
 
             string costText = cost.ToString();
-            var curs = new Vector2(X + 30 + textAreaWidth - TitleFont.TextWidth(costText), Y);
+            var curs = new Vector2(pos.X + 30 + textAreaWidth - TitleFont.TextWidth(costText), Y);
             batch.DrawString(TitleFont, costText, curs, drawColor);
-            batch.DrawString(DescrFont, DescrFont.ParseText(Localizer.Token(Trait.trait.Description), textAreaWidth), tCursor, drawColor);
+
+            pos.Y += TitleFont.LineSpacing;
+            batch.DrawString(DescrFont, DescrFont.ParseText(Localizer.Token(Trait.trait.Description), textAreaWidth), pos, drawColor);
         }
 
         static float DotSpaceWidth;

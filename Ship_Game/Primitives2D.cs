@@ -131,7 +131,7 @@ namespace Ship_Game
             batch.Draw(Pixel, point, null, color, angle, Vector2.Zero, scale, SpriteEffects.None, 0f);
         }
 
-        public static void DrawRectangle(this SpriteBatch batch, Rectangle rect, Color color, float thickness = 1f)
+        public static void DrawRectangle(this SpriteBatch batch, in Rectangle rect, Color color, float thickness = 1f)
         {
             var tl = new Vector2(rect.X, rect.Y);
             var bl = new Vector2(rect.X, rect.Bottom);
