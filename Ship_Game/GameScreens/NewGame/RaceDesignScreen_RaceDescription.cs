@@ -273,13 +273,6 @@ namespace Ship_Game
             HomeSystemName = HomeSystemEntry.Text;
             RaceSummary = new RacialTrait();
 
-            TraitEntry entry = AllTraits.Find(t => t.Selected);
-            if (entry == null)
-            {
-                Log.Warning("No traits selected");
-                return;
-            }
-            
             foreach (TraitEntry t in AllTraits)
             {
                 if (!t.Selected)

@@ -314,7 +314,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch)
             {
                 Agent agent = Screen.Agents.SelectedAgent;
-                AgentName.Visible = agent != null;
+                AgentName.Visible  = agent != null;
                 AgentLevel.Visible = agent != null;
                 if (agent != null)
                 {
