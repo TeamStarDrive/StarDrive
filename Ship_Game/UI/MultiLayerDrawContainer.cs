@@ -91,6 +91,9 @@ namespace Ship_Game.UI
 
         static void BeginAdditive(SpriteBatch batch, bool saveState = false)
         {
+            // NOTE: SaveState restores graphics device settings
+            //       just in case we mix 3D rendering with 2D rendering
+
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, 
                 saveState ? SaveStateMode.SaveState : SaveStateMode.None);
             batch.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;

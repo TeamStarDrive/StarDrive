@@ -26,13 +26,18 @@ namespace Ship_Game
     {
         Rectangle ScrollUp;
         Rectangle ScrollDown;
-        Rectangle ScrollBarHousing;
+        Rectangle ScrollHousing;
         Rectangle ScrollBar;
 
         int ScrollBarHover;
-        int StartDragPos;
+        int DragStartMousePos;
+        int DragStartScrollPos;
         bool DraggingScrollBar;
-        float ScrollBarStartDragPos;
+        bool WasScrolled;
+
+        // The current scroll position of the scrollbar, clamped to [0, 1]
+        float RelScrollPos;
+
         float ClickTimer;
         const float TimerDelay = 0.05f;
 
@@ -73,11 +78,21 @@ namespace Ship_Game
         T DraggedEntry;
         Vector2 DraggedOffset;
 
-        public ScrollList(UIElementV2 background, ListStyle style = ListStyle.Default) : this(background, 40, style)
+        static Rectangle GetOurRectFromBackground(UIElementV2 background)
+        {
+            Rectangle r = background.Rect;
+            if (background is Menu1)
+                r.Width -= 5;
+            return r;
+        }
+
+        public ScrollList(UIElementV2 background, ListStyle style = ListStyle.Default)
+            : this(background, 40, style)
         {
         }
         
-        public ScrollList(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default) : this(background.Rect, entryHeight, style)
+        public ScrollList(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default)
+            : this(GetOurRectFromBackground(background), entryHeight, style)
         {
             Background = background;
         }
@@ -118,36 +133,24 @@ namespace Ship_Game
         public int NumEntries => Entries.Count;
         public IReadOnlyList<T> AllEntries => Entries;
 
-        float PercentViewed   => MaxVisibleEntries / (float)ExpandedEntries.Count;
-        float StartingPercent => FirstVisibleIndex / (float)ExpandedEntries.Count;
-
         // Item at non-flattened index: doesn't index hierarchical elements
         public T this[int index] => Entries[index];
 
         // @return The first visible item
-        public T FirstItem => ExpandedEntries[FirstVisibleIndex];
+        public T FirstItem => ExpandedEntries[VisibleItemsBegin];
         public T LastItem  => ExpandedEntries[VisibleItemsEnd - 1];
 
-        int FirstVisibleIndex;
-        int VisibleItemsEnd;
+        // visible range is [begin, end)
+        int VisibleItemsBegin, VisibleItemsEnd;
         
         // Updates the visible index range
         // @return TRUE if this caused FirstVisibleIndex or LastVisibleIndex to change
-        bool UpdateVisibleIndex(int index)
+        void UpdateVisibleIndex(float indexFraction)
         {
-            int oldFirst = FirstVisibleIndex;
-            int oldEnd  = VisibleItemsEnd;
-            FirstVisibleIndex = index.Clamped(0, Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
-            VisibleItemsEnd   = Math.Min(ExpandedEntries.Count, FirstVisibleIndex + MaxVisibleEntries);
-            return FirstVisibleIndex != oldFirst || VisibleItemsEnd != oldEnd;
-        }
-
-        // Gets or Sets index of the topmost visible item in the list
-        // NOTE: This will trigger ScrollList layout if this caused FirstVisibleIndex or LastVisibleIndex to change
-        public int FirstVisibleItemIndex
-        {
-            get => FirstVisibleIndex;
-            set => RequiresLayout |= UpdateVisibleIndex(value);
+            int begin = (int)Math.Floor(indexFraction);
+            int end   = (int)Math.Ceiling(indexFraction + MaxVisibleEntries);
+            VisibleItemsBegin = begin.Clamped(0, Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries));
+            VisibleItemsEnd   = end.Clamped(0, Math.Max(0, ExpandedEntries.Count));
         }
 
         public T AddItem(T entry)
@@ -228,88 +231,86 @@ namespace Ship_Game
 
         #region ScrollList HandleInput
 
-        bool HandleScrollUpDownButtons(InputState input)
+        // set scrollbar to requested position
+        void SetScrollBarPosition(int newScrollY)
         {
-            if (input.LeftMouseClick)
+            if (newScrollY < ScrollHousing.Y)
+                newScrollY = ScrollHousing.Y;
+            else if ((newScrollY + ScrollBar.Height) > ScrollHousing.Bottom)
+                newScrollY = ScrollHousing.Bottom - ScrollBar.Height;
+            
+            // This enables smooth scrollbar dragging: with every pixel changed we request layout
+            if (ScrollBar.Y != newScrollY)
             {
-                if (ScrollUp.HitTest(input.CursorPosition))
+                ScrollBar.Y = newScrollY;
+                RequiresLayout = true;
+                WasScrolled = true;
+            }
+        }
+
+        // move the scrollbar by requested amount of pixels up (-) or down (+)
+        void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
+
+        int ScrollButtonAmount(bool held) => !held ? EntryHeight / 2 : EntryHeight / 6;
+        int ScrollWheelAmount => EntryHeight / 3;
+
+        bool HandleInputScrollButtons(InputState input)
+        {
+            bool clicked = input.LeftMouseClick;
+            bool held = input.LeftMouseHeld(0.1f);
+            if (clicked || held)
+            {
+                int amount = 0;
+                if (ScrollUp.HitTest(input.CursorPosition))  amount = -ScrollButtonAmount(held);
+                if (ScrollDown.HitTest(input.CursorPosition)) amount = ScrollButtonAmount(held);
+                if (amount != 0)
                 {
-                    if (FirstVisibleIndex > 0)
-                        FirstVisibleItemIndex -= 1;
-                    UpdateScrollBar();
-                    return true;
-                }
-                if (ScrollDown.HitTest(input.CursorPosition))
-                {
-                    if (VisibleItemsEnd < ExpandedEntries.Count)
-                        FirstVisibleItemIndex += 1;
-                    UpdateScrollBar();
+                    ScrollByScrollBar(amount);
                     return true;
                 }
             }
             return false;
         }
 
-        bool HandleScrollDragInput(InputState input)
+        bool HandleInputScrollDrag(InputState input)
         {
-            ScrollBarHover = 0;
-            if (!ScrollBar.HitTest(input.CursorPosition))
-                return false;
+            ScrollBarHover = 0; // no highlight
 
-            ScrollBarHover = 1;
-            if (!input.LeftMouseHeld(0.1f))
-                return false;
+            if (ScrollBar.HitTest(input.CursorPosition))
+            {
+                ScrollBarHover = 1; // gentle focus
+                if (!DraggingScrollBar && input.LeftMouseHeld(0.1f))
+                {
+                    DraggingScrollBar = true;
+                    DragStartMousePos = (int)input.CursorPosition.Y;
+                    DragStartScrollPos = ScrollBar.Y;
+                }
+            }
 
-            ScrollBarHover = 2;
-            StartDragPos = (int)input.CursorPosition.Y;
-            ScrollBarStartDragPos = ScrollBar.Y;
-            DraggingScrollBar = true;
-            return true;
-        }
-
-        bool HandleScrollBarDragging(InputState input)
-        {
             if (DraggingScrollBar && input.LeftMouseDown)
             {
-                float difference = input.CursorPosition.Y - StartDragPos;
-                if (Math.Abs(difference) > 0f)
-                {
-                    ScrollBar.Y = (int) (ScrollBarStartDragPos + difference);
-                    if (ScrollBar.Y < ScrollBarHousing.Y)
-                    {
-                        ScrollBar.Y = ScrollBarHousing.Y;
-                    }
-                    else if (ScrollBar.Bottom > ScrollBarHousing.Bottom)
-                    {
-                        ScrollBar.Y = ScrollBarHousing.Bottom - ScrollBar.Height;
-                    }
-                }
+                ScrollBarHover = 2; // full active highlight
 
-                float relativeScrollPos = ((ScrollBar.Y - ScrollBarHousing.Y) / (float)ScrollBarHousing.Height).Clamped(0f, 1f);
-                FirstVisibleItemIndex = (int)(ExpandedEntries.Count * relativeScrollPos);
+                float difference = input.CursorPosition.Y - DragStartMousePos;
+                if (Math.Abs(difference) > 0f)
+                    SetScrollBarPosition((int)Math.Round(DragStartScrollPos + difference));
                 return true;
             }
 
             DraggingScrollBar = false;
             return false;
         }
-        
-        bool HandleMouseScrollUpDown(InputState input)
+
+        bool HandleInputMouseWheel(InputState input)
         {
             if (Rect.HitTest(input.CursorPosition))
             {
-                if (input.ScrollIn)
+                int amount = 0;
+                if (input.ScrollIn) amount = -ScrollWheelAmount;
+                if (input.ScrollOut) amount = ScrollWheelAmount;
+                if (amount != 0)
                 {
-                    if (FirstVisibleIndex > 0)
-                        FirstVisibleItemIndex -= 1;
-                    UpdateScrollBar();
-                    return true;
-                }
-                if (input.ScrollOut)
-                {
-                    if (VisibleItemsEnd < ExpandedEntries.Count)
-                        FirstVisibleItemIndex += 1;
-                    UpdateScrollBar();
+                    ScrollByScrollBar(amount);
                     return true;
                 }
             }
@@ -318,10 +319,9 @@ namespace Ship_Game
 
         bool HandleInputScrollBar(InputState input)
         {
-            bool hit = HandleScrollUpDownButtons(input);
-            hit |= HandleScrollDragInput(input);
-            hit |= HandleScrollBarDragging(input);
-            hit |= HandleMouseScrollUpDown(input);
+            bool hit = HandleInputScrollButtons(input);
+            hit |= HandleInputScrollDrag(input);
+            hit |= HandleInputMouseWheel(input);
             return hit;
         }
 
@@ -339,7 +339,7 @@ namespace Ship_Game
                     if (ClickTimer > TimerDelay)
                     {
                         Vector2 cursor = input.CursorPosition;
-                        for (int i = FirstVisibleIndex; i < VisibleItemsEnd; i++)
+                        for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
                         {
                             T e = ExpandedEntries[i];
                             if (e.Rect.HitTest(cursor))
@@ -369,7 +369,7 @@ namespace Ship_Game
             Vector2 cursor = input.CursorPosition;
             int dragged = Entries.FirstIndexOf(e => e.Rect == DraggedEntry.Rect);
 
-            for (int i = FirstVisibleIndex; i < VisibleItemsEnd; i++)
+            for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
             {
                 if (Entries[i].Rect.HitTest(cursor) && dragged != -1)
                 {
@@ -400,7 +400,7 @@ namespace Ship_Game
         {
             // NOTE: We do not early return, because we want to update hover state for all ScrollList items
             bool captured = false;
-            for (int i = FirstVisibleIndex; i < VisibleItemsEnd; i++)
+            for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
             {
                 T item = ExpandedEntries[i];
                 if (item.HandleInput(input))
@@ -430,10 +430,7 @@ namespace Ship_Game
             HandleDraggable(input);
             HandleElementDragging(input);
 
-            if (HandleInputScrollBar(input))
-                return true;
-
-            if (HandleInputChildElements(input))
+            if (HandleInputScrollBar(input) || HandleInputChildElements(input))
                 return true;
 
             if (Background != null && Background.HandleInput(input))
@@ -455,11 +452,11 @@ namespace Ship_Game
             ScrollListStyleTextures s = GetStyle();
             ScrollUp   = new Rectangle((int)(Right - 20), (int)Y + 30,      s.ScrollBarArrowUp.Normal.Width,   s.ScrollBarArrowUp.Normal.Height);
             ScrollDown = new Rectangle((int)(Right - 20), (int)Bottom - 14, s.ScrollBarArrowDown.Normal.Width, s.ScrollBarArrowDown.Normal.Height);
-            ScrollBarHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
+            ScrollHousing = new Rectangle(ScrollUp.X + 1, ScrollUp.Bottom + 3, s.ScrollBarMid.Normal.Width, ScrollDown.Y - ScrollUp.Y - ScrollUp.Height - 6);
 
             if (Background != null)
             {
-                Background.Rect = Rect;
+                Background.Pos = Pos;
                 Background.PerformLayout();
             }
 
@@ -467,20 +464,35 @@ namespace Ship_Game
             for (int i = 0; i < Entries.Count; ++i)
                 Entries[i].GetFlattenedVisibleExpandedEntries(ExpandedEntries);
 
-            UpdateVisibleIndex(FirstVisibleIndex);
-            // only updated scrollbar if we're not already dragging it
-            if (!DraggingScrollBar)
+            int scrollOffset = 0;
+            if (WasScrolled)
+            {
+                WasScrolled = false;
+                // when scrollbar was moved being dragged by input, use it to update the visible index
+                float scrollPos = GetRelativeScrollPosFromScrollBar();
+                float newIndexFraction = Math.Max(0, ExpandedEntries.Count - MaxVisibleEntries) * scrollPos;
+                UpdateVisibleIndex(newIndexFraction);
+
+                float remainder = (newIndexFraction - VisibleItemsBegin) % 1f;
+                scrollOffset = (int)Math.Floor(remainder * EntryHeight);
+
+                Log.Info($"rpos={scrollPos} fidx={newIndexFraction} rem={remainder} offset={scrollOffset}");
+            }
+            else // otherwise, update/clamp visible indices and recalculate scrollbar
+            {
+                UpdateVisibleIndex(VisibleItemsBegin);
                 UpdateScrollBar();
+            }
 
             int visibleIndex = 0;
             for (int i = 0; i < ExpandedEntries.Count; i++)
             {
                 T e = ExpandedEntries[i];
-                if (FirstVisibleIndex <= i && i < VisibleItemsEnd)
+                if (VisibleItemsBegin <= i && i < VisibleItemsEnd)
                 {
                     e.VisibleIndex = visibleIndex++;
-                    e.Rect = new Rectangle((int)X + 20, (int)Y + 35 + e.VisibleIndex * EntryHeight, 
-                                           (int)Width - 40, EntryHeight);
+                    int y = (int)Y + 35 + (e.VisibleIndex * EntryHeight) - scrollOffset;
+                    e.Rect = new Rectangle((int)X + 20, y, (int)Width - 40, EntryHeight);
                     e.PerformLayout();
                 }
                 else
@@ -490,13 +502,21 @@ namespace Ship_Game
             }
         }
 
+        // this is the relative position of the scrollbar [0, 1] inside the scrollbar housing
+        float GetRelativeScrollPosFromScrollBar()
+        {
+            float scrollBarPos = (ScrollBar.Y - ScrollHousing.Y);
+            float scrollSpan   = ScrollHousing.Height - ScrollBar.Height;
+            return (scrollBarPos / scrollSpan);
+        }
+
         void UpdateScrollBar()
         {
-            ScrollListStyleTextures s = GetStyle();
-            int scrollStart = (int)(ScrollBarHousing.Height * StartingPercent);
-            int scrollEnd   = (int)(ScrollBarHousing.Height * PercentViewed);
-            int width = s.ScrollBarMid.Normal.Width;
-            ScrollBar = new Rectangle(ScrollBarHousing.X, ScrollBarHousing.Y + scrollStart, width, scrollEnd);
+            int startOffset = (int)(ScrollHousing.Height * (VisibleItemsBegin / (float)ExpandedEntries.Count));
+            int barHeight   = (int)(ScrollHousing.Height * (MaxVisibleEntries / (float)ExpandedEntries.Count));
+
+            ScrollBar = new Rectangle(ScrollHousing.X, ScrollHousing.Y + startOffset,
+                                      GetStyle().ScrollBarMid.Normal.Width, barHeight);
         }
 
         public override void Update(float deltaTime)
@@ -543,8 +563,20 @@ namespace Ship_Game
             if (ExpandedEntries.Count > MaxVisibleEntries)
                 DrawScrollBar(batch);
 
-            for (int i = FirstVisibleIndex; i < VisibleItemsEnd; ++i)
+            // use a scissor to clip smooth scroll items
+            batch.End();
+            batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Deferred, SaveStateMode.None);
+
+            for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
+            {
                 ExpandedEntries[i].Draw(batch);
+            }
+
+            batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
+            batch.GraphicsDevice.ScissorRectangle = new Rectangle((int)X, ScrollUp.Y, (int)Width, ScrollDown.Bottom - ScrollUp.Y);
+            batch.End();
+            batch.Begin();
+            batch.GraphicsDevice.RenderState.ScissorTestEnable = false;
 
             if (IsSelectable)
                 SelectionBox?.Draw(batch);
@@ -558,7 +590,6 @@ namespace Ship_Game
         }
 
         #endregion
-
     }
 
     internal sealed class ScrollListDebugView<T> where T : ScrollListItem<T>

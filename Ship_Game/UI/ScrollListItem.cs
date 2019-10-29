@@ -146,17 +146,11 @@ namespace Ship_Game
 
         public void Expand(bool expanded)
         {
-            if (!IsHeader || Expanded == expanded || SubEntries == null || SubEntries.IsEmpty)
-                return;
-
-            Expanded = expanded;
-            if (!expanded && SubEntries != null)
+            if (Expanded != expanded && IsHeader && SubEntries != null && SubEntries.NotEmpty)
             {
-                List.FirstVisibleItemIndex -= SubEntries.Count;
-                if (List.FirstVisibleItemIndex < 0)
-                    List.FirstVisibleItemIndex = 0;
+                Expanded = expanded;
+                List.RequiresLayout = true;
             }
-            List.RequiresLayout = true;
         }
 
         // Resets the list item in such a way that it cannot be accidentally interacted with
@@ -230,10 +224,13 @@ namespace Ship_Game
                 var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
                 batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
 
-                string open = Expanded ? "-" : "+";
-                textPos = new Vector2(r.Right - 15 - Fonts.Arial20Bold.MeasureString(open).X / 2f,
-                    r.Y + 10 + 6 - Fonts.Arial20Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
+                if (SubEntries != null && SubEntries.NotEmpty)
+                {
+                    string open = Expanded ? "-" : "+";
+                    textPos = new Vector2(r.Right - 15 - Fonts.Arial20Bold.MeasureString(open).X / 2f,
+                                          r.Y + 10 + 6 - Fonts.Arial20Bold.LineSpacing / 2);
+                    batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
+                }
             }
 
             if (DynamicElements != null)
