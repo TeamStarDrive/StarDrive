@@ -115,7 +115,6 @@ namespace Ship_Game
                 AddScreen(screen);
         }
 
-
         // exits all other screens and goes to specified screen
         public void GoToScreen(GameScreen screen, bool clear3DObjects)
         {
@@ -271,6 +270,8 @@ namespace Ship_Game
         {
             foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
                 screen.ExitScreen();
+
+            GameScreens.Clear(); // forcefully clear, since some screens have transition effects
 
             if (clear3DObjects)
             {
