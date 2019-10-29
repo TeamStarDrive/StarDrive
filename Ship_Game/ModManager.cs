@@ -76,7 +76,7 @@ namespace Ship_Game
         void LoadMods()
         {
             ModsList = Add(new ScrollList<ModsListItem>(AllSaves, 140));
-            ModsList.IsSelectable = true;
+            ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;
 
             var ser = new XmlSerializer(typeof(ModInformation));

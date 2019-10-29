@@ -11,17 +11,12 @@ namespace Ship_Game
 		private Vector2 TitlePos;
 		private Menu1 PlanetMenu;
 
-		private bool LowRes;
 		private Submenu PlanetInfo;
 		private Rectangle PlanetIcon;
 
 		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
 		{
 			this.p = p;
-			if (ScreenWidth <= 1280)
-			{
-				LowRes = true;
-			}
 			Rectangle titleRect = new Rectangle(5, 44, 405, 80);
 			if (LowRes)
 			{

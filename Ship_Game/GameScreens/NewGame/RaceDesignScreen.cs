@@ -28,12 +28,10 @@ namespace Ship_Game
         protected Vector2 TitlePos;
         protected Menu1 NameMenu;
 
-        protected bool LowRes;
-
         protected Submenu Traits;
         protected Submenu NameSub;
 
-        ScrollList<TraitsListItem> TraitsSL;
+        ScrollList<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
         protected UITextEntry RaceName = new UITextEntry();
@@ -56,7 +54,7 @@ namespace Ship_Game
 
         public Map<IEmpireData, SubTexture> TextureDict { get; } = new Map<IEmpireData, SubTexture>();
 
-        ScrollList<TextListItem> DescriptionSL;
+        ScrollList<TextListItem> DescriptionTextList;
         protected UIButton Engage;
         protected UIButton Abort;
 
@@ -119,12 +117,10 @@ namespace Ship_Game
             this.Mode         = mode;
         }
         
+        SpriteFont DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
+
         public override void LoadContent()
         {
-            if (ScreenWidth <= 1366 || ScreenHeight <= 720)
-            {
-                LowRes = true;
-            }
             TitleBar = new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             TitlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f,
                                    TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 2);
@@ -153,8 +149,9 @@ namespace Ship_Game
             int size = 55;
             if (GlobalStats.NotGerman && ScreenWidth <= 1280) size = 65;
             if (GlobalStats.IsRussian || GlobalStats.IsPolish) size = 70;
-            TraitsSL = Add(new ScrollList<TraitsListItem>(Traits, size));
-            TraitsSL.OnClick = OnTraitsListItemClicked;
+            TraitsList = Add(new ScrollList<TraitsListItem>(Traits, size));
+            TraitsList.EnableItemHighlight = true;
+            TraitsList.OnClick = OnTraitsListItemClicked;
 
             var chooseRace = new Menu1(5, traitsList.Y, traitsList.X - 10, traitsList.Height);
             ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
@@ -185,12 +182,12 @@ namespace Ship_Game
             ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
-            DescriptionSL = Add(new ScrollList<TextListItem>(description, Fonts.Arial12.LineSpacing));
+            DescriptionTextList = Add(new ScrollList<TextListItem>(description, DescriptionTextFont.LineSpacing));
             Add(new SelectedTraitsSummary(this));
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
-            DescriptionSL.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionSL.Width - 150, DescriptionSL.Height - 40);
+            DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 40);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -205,12 +202,12 @@ namespace Ship_Game
             Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
 
             ChooseRaceList.StartTransitionFrom(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOnTime);
-            DescriptionSL.StartTransitionFrom(DescriptionSL.Pos + new Vector2(DescriptionSL.Width, 0), TransitionOnTime);
+            DescriptionTextList.StartTransitionFrom(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOnTime);
 
             OnExit += () =>
             {
                 ChooseRaceList.StartTransitionTo(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOffTime);
-                DescriptionSL.StartTransitionTo(DescriptionSL.Pos + new Vector2(DescriptionSL.Width, 0), TransitionOffTime);
+                DescriptionTextList.StartTransitionTo(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOffTime);
             };
 
             base.LoadContent();
@@ -228,7 +225,7 @@ namespace Ship_Game
 
             TraitsListItem[] traits = AllTraits.FilterSelect(t => t.trait.Category == category,
                                                              t => new TraitsListItem(this, t));
-            TraitsSL.SetItems(traits);
+            TraitsList.SetItems(traits);
         }
 
         void OnRuleOptionsClicked(UIButton b)
@@ -734,9 +731,11 @@ namespace Ship_Game
         class SelectedTraitsSummary : UIElementV2
         {
             readonly RaceDesignScreen Screen;
+            readonly SpriteFont Font;
             public SelectedTraitsSummary(RaceDesignScreen screen)
             {
                 Screen = screen;
+                Font = screen.LowRes ? Fonts.Arial10 : Fonts.Arial14Bold;
             }
 
             public override bool HandleInput(InputState input)
@@ -746,33 +745,32 @@ namespace Ship_Game
 
             public override void Draw(SpriteBatch batch)
             {
-                float start = Screen.DescriptionSL.NumEntries > 0
-                            ? Screen.DescriptionSL.LastItem.Bottom
-                            : Screen.DescriptionSL.Y;
-                var rpos = new Vector2(Screen.DescriptionSL.X + 20, start + 20);
-                Vector2 drawCurs = rpos;
-                rpos = drawCurs;
-                rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
-                batch.DrawString(Fonts.Arial14Bold, $"{Localizer.Token(30)}: {Screen.TotalPointsUsed}", rpos, Color.White);
-                rpos.Y += (Fonts.Arial14Bold.LineSpacing + 8);
-                int numTraits = 0;
+                float start = Screen.DescriptionTextList.NumEntries > 0
+                            ? Screen.DescriptionTextList.LastItem.Bottom
+                            : Screen.DescriptionTextList.Y;
+
+                var r = new Vector2(Screen.DescriptionTextList.X + 20, start + 20);
+                string title = Localizer.Token(30);
+                batch.DrawString(Font, $"{title}: {Screen.TotalPointsUsed}", r, Color.White);
+                r.Y += (Font.LineSpacing + 8);
+                Vector2 cursor = r;
+
+                int line = 0;
+                int maxLines = Screen.LowRes ? 7 : 9;
                 foreach (TraitEntry t in Screen.AllTraits)
                 {
-                    if (numTraits == 9)
+                    if (line == maxLines)
                     {
-                        rpos = drawCurs;
-                        rpos.X += 145f;
-                        rpos.Y += (2 + Fonts.Arial14Bold.LineSpacing);
-                        rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
+                        line = 0;
+                        cursor.Y = r.Y;
+                        cursor.X += Font.TextWidth(title) + 8;
                     }
-
                     if (t.Selected)
                     {
-                        batch.DrawString(Fonts.Arial14Bold,
-                            $"{Localizer.Token(t.trait.TraitName)} {t.trait.Cost}", rpos,
-                            (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
-                        rpos.Y += (Fonts.Arial14Bold.LineSpacing + 2);
-                        numTraits++;
+                        batch.DrawString(Font, $"{Localizer.Token(t.trait.TraitName)} {t.trait.Cost}", cursor,
+                                               (t.trait.Cost > 0 ? new Color(59, 137, 59) : Color.Crimson));
+                        cursor.Y += (Font.LineSpacing + 2);
+                        line++;
                     }
                 }
             }

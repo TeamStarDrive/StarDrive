@@ -20,6 +20,9 @@ namespace Ship_Game
 
         public bool IsExiting { get; protected set; }
         public bool IsPopup   { get; protected set; }
+        
+        // LEGACY LAYOUT: Change layout and Font Size if ScreenWidth is too small
+        public bool LowRes { get; private set; }
 
         // @return TRUE if content was loaded this frame
         public bool DidLoadContent { get; private set; }
@@ -60,6 +63,7 @@ namespace Ship_Game
 
         public Matrix View, Projection;
 
+
         protected GameScreen(GameScreen parent, bool pause = true) 
             : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), pause)
         {
@@ -73,10 +77,18 @@ namespace Ship_Game
             UpdateViewport();
 
             if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
+            {
                 Empire.Universe.Paused = true;
-            else Pauses = false;
+            }
+            else
+            {
+                Pauses = false;
+            }
+
             if (Input == null)
                 Input = ScreenManager?.input;
+
+            LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
         }
 
         ~GameScreen() { Destroy(); }

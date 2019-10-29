@@ -13,7 +13,6 @@ namespace Ship_Game
 
         //private Rectangle titleRect;
 
-        private bool LowRes;
         private Submenu PlanetInfo;
         private Rectangle PlanetIcon;
 
@@ -21,10 +20,6 @@ namespace Ship_Game
         public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
         {
             this.p = p;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
-            {
-                LowRes = true;
-            }
             Rectangle titleRect = new Rectangle(5, 44, 405, 80);
             if (LowRes)
             {

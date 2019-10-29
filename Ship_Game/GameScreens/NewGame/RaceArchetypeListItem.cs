@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,18 +8,32 @@ namespace Ship_Game
     {
         public RaceDesignScreen Screen;
         public IEmpireData EmpireData;
+        public SubTexture Portrait;
+
         public RaceArchetypeListItem(RaceDesignScreen screen, IEmpireData empireData)
         {
             Screen = screen;
             EmpireData = empireData;
         }
 
+        public override void PerformLayout()
+        {
+            Portrait = Screen.TextureDict[EmpireData];
+
+            int width = (int)(List.Width * 0.8f);
+            int height = (int)(width / Portrait.AspectRatio);
+            List.ItemHeight = height;
+            base.PerformLayout();
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             base.Draw(batch);
 
-            var portrait = new Rectangle((int)CenterX - 176, (int)Y, 352, 128);
-            batch.Draw(Screen.TextureDict[EmpireData], portrait, Color.White);
+            int height = (int)Height - 8;
+            int width = (int)(height * Portrait.AspectRatio);
+            var portrait = new Rectangle((int)CenterX - width/2, (int)Y, width, height);
+            batch.Draw(Portrait, portrait, Color.White);
 
             if (Screen.SelectedData == EmpireData)
             {
