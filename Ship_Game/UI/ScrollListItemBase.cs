@@ -169,6 +169,9 @@ namespace Ship_Game
                         return true;
             }
 
+            if (base.HandleInput(input))
+                return true;
+
             if (Hovered)
             {
                 if (input.LeftMouseDoubleClick)
@@ -184,10 +187,9 @@ namespace Ship_Game
                     List.OnItemClicked(this);
                     return true;
                 }
-                return false;
             }
 
-            return base.HandleInput(input);
+            return false;
         }
 
         public override void Draw(SpriteBatch batch)

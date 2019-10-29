@@ -9,7 +9,6 @@ namespace Ship_Game
         readonly ResearchScreenNew Screen;
 
         readonly Submenu CurrentResearchPanel;
-        readonly Submenu ResearchQueuePanel;
         readonly UIPanel TimeLeft;
         readonly UILabel TimeLeftLabel;
 
@@ -37,10 +36,9 @@ namespace Ship_Game
             CurrentResearchPanel.AddTab(Localizer.Token(1405));
             
             var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
-            ResearchQueuePanel = Add(new Submenu(queue, SubmenuStyle.Blue));
-            ResearchQueuePanel.AddTab(Localizer.Token(1404));
-
-            ResearchQueueList = Add(new ScrollList<ResearchQItem>(ResearchQueuePanel, 125, ListStyle.Blue));
+            var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
+            queuePanel.AddTab(Localizer.Token(1404));
+            ResearchQueueList = Add(new ScrollList<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
             ReloadResearchQueue();
         }
 
@@ -63,13 +61,12 @@ namespace Ship_Game
 
             ResearchQueueList.Visible = visible;
             CurrentResearchPanel.Visible = visible;
-            ResearchQueuePanel.Visible = visible;
             BtnShowQueue.Text = Localizer.Token(ResearchQueueList.Visible ? 2136 : 2135);
         }
 
         public override bool HandleInput(InputState input)
         {
-            if ((ResearchQueueList.Visible && input.RightMouseClick && ResearchQueuePanel.HitTest(input.CursorPosition))
+            if ((ResearchQueueList.Visible && input.RightMouseClick && ResearchQueueList.HitTest(input.CursorPosition))
                 || input.Escaped)
             {
                 Screen.ExitScreen();

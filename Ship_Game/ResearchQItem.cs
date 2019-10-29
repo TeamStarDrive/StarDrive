@@ -26,7 +26,7 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
-            var r = new Rectangle((int)Pos.X, (int)Pos.Y, 320, 110);
+            var r = new Rectangle((int)X, (int)Y, 320, 110);
             Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
             BtnUp.Rect     = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33, 30, 30);
             BtnDown.Rect   = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33 + 36, 30, 30);
