@@ -87,7 +87,7 @@ namespace Ship_Game
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon);
                 CombatStatusButtons.Add(button);
                 button.State = state;
-                button.WhichToolTip = toolTip;
+                button.Tooltip = toolTip;
                 ordersBarPos.X += orderSize;
             }
 

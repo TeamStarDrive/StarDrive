@@ -299,7 +299,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_grid")
             {
                 Enabled = true;
-                WhichToolTip = 237;
+                Tooltip = 237;
             }
         }
     }
