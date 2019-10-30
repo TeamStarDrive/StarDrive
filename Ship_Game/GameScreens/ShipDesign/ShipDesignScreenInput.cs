@@ -734,7 +734,7 @@ namespace Ship_Game
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
                 {
                     State        = state,
-                    WhichToolTip = toolTip
+                    Tooltip = toolTip
                 };
                 button.OnClick = OnCombatButtonPressed;
                 Add(button);

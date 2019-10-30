@@ -1402,7 +1402,7 @@ namespace Ship_Game
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon, this)
                 {
                     State = state,
-                    WhichToolTip = toolTip
+                    Tooltip = toolTip
                 };
                 Add(button);
                 OrdersButtons.Add(button);

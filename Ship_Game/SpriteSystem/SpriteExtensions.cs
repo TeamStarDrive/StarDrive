@@ -18,6 +18,12 @@ namespace Ship_Game
                 throw new ObjectDisposedException($"SubTexture '{texture.Name}' in Texture2D '{texture.Texture.Name}'");
         }
 
+        public static void Draw(this SpriteBatch batch, SubTexture texture, float x, float y)
+        {
+            CheckSubTextureDisposed(texture);
+            batch.Draw(texture.Texture, new Vector2(x, y), texture.Rect, Color.White);
+        }
+
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 Vector2 position, Color color)
         {
@@ -121,6 +127,24 @@ namespace Ship_Game
             this SpriteBatch batch, SpriteFont font, string text, float x, float y)
         {
             batch.DrawString(font, text, new Vector2(x, y), Color.White);
+        }
+
+        public static void DrawString(
+            this SpriteBatch batch, SpriteFont font, string text, float x, float y, Color color)
+        {
+            batch.DrawString(font, text, new Vector2(x, y), color);
+        }
+
+        // Special Multi-Colored line draw
+        // batch.DrawLine(Fonts.Arial12, X, Y, ("A: ", Color.White), ("100", Color.Red));
+        public static void DrawLine(this SpriteBatch batch, SpriteFont font, float x, float y,
+                                    params (string Text, Color Color)[] textSequence)
+        {
+            for (int i = 0; i < textSequence.Length; ++i)
+            {
+                batch.DrawString(font, textSequence[i].Text, new Vector2(x, y), textSequence[i].Color);
+                x += font.TextWidth(textSequence[i].Text);
+            }
         }
     }
 }

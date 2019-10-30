@@ -362,9 +362,9 @@ namespace Ship_Game
                         GameAudio.ButtonMouseOver();
                     }
                     button.Hover = true;
-                    if (button.WhichToolTip != -1)
+                    if (button.Tooltip != -1)
                     {
-                        ToolTip.CreateTooltip(button.WhichToolTip);
+                        ToolTip.CreateTooltip(button.Tooltip);
                     }
                     if (input.InGameSelect)
                     {

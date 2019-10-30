@@ -8,10 +8,10 @@ namespace Ship_Game
     public class BuildableListItem : ScrollListItem<BuildableListItem>
     {
         public readonly ColonyScreen Screen;
-
         public Building Building;
         public Ship Ship;
         public Troop Troop;
+        SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
 
         public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
         {
@@ -36,8 +36,6 @@ namespace Ship_Game
             if (plus) AddPlus(new Vector2(-50, 0), /*Add to Q:*/51, OnPlusClicked);
             if (edit) AddEdit(new Vector2(-20, 0), /*Edit Ship:*/52, OnEditClicked);
         }
-
-        public override int ItemHeight => 40;
 
         void OnPlusClicked()
         {
@@ -80,6 +78,9 @@ namespace Ship_Game
             Troop?.Update(deltaTime);
             base.Update(deltaTime);
         }
+
+        // Give a custom height for this scroll list item
+        public override int ItemHeight => 40;
 
         public override void Draw(SpriteBatch batch)
         {
@@ -206,106 +207,40 @@ namespace Ship_Game
 
         void DrawShip(SpriteBatch batch, Ship ship)
         {
-            Planet p = Screen.P;
-            SpriteFont Font8 = Fonts.Arial8Bold;
-            SpriteFont Font12 = Fonts.Arial12Bold;
-            var topLeft =  new Vector2(List.X + 20, Y);
+            SpriteFont Font8 = Fonts.Arial8Bold, Font12 = Fonts.Arial12Bold;
 
-            if (!Hovered)
-            {
-                batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
-                var position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                batch.DrawString(Font12,
-                    (ship.IsPlatformOrStation ? ship.Name + " " + Localizer.Token(2041) : ship.Name), position, Color.White);
-                position.Y += Font12.LineSpacing;
+            // Everything from Left --> to --> Right 
+            batch.Draw(ship.BaseHull.Icon, new Vector2(X+4, Y+4), new Vector2(32));
+            batch.DrawString(Font12, GetShipName(ship), X+44, Y+4, Hovered ? Color.Green : Color.White);
+            batch.DrawLine(Font8, X+46, Y+20, 
+                (ship.BaseHull.Name+": ", Color.DarkGray),
+                ($"Base Strength: {ship.BaseStrength.String(0)}", Color.Orange));
 
-                var role = ship.BaseHull.Name;
-                batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
-                position.X = position.X + Font8.MeasureString(role).X + 8;
-                batch.DrawString(Font8,
-                    $"Base Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
+            float upkeepY = CenterY - Font12.LineSpacing/2f - 4;
+            batch.DrawString(Font12, GetShipUpkeep(ship).String(2)+" BC/Y", Right-184, upkeepY, Color.Salmon);
+            batch.DrawString(Font12, GetShipCost(ship).ToString(), Right-92, upkeepY);
+            batch.Draw(ProdIcon, Right - 120, CenterY - ProdIcon.CenterY - 4);
 
+            if (Hovered)
+                Screen.DrawSelectedShipInfo((int)X, (int)CenterY, ship, batch);
+        }
 
-                //Forgive my hacks this code of nightmare must GO!
-                position.X = (Right - 120);
-                var iconProd = ResourceManager.Texture("NewUI/icon_production");
-                var destinationRectangle2 = new Rectangle((int) position.X, (int)CenterY - iconProd.Height / 2 - 5,
-                    iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, destinationRectangle2, Color.White);
+        static string GetShipName(Ship ship)
+        {
+            return ship.IsPlatformOrStation ? ship.Name + " " + Localizer.Token(2041)
+                                            : ship.Name;
+        }
 
-                // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
+        float GetShipUpkeep(Ship ship)
+        {
+            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                return ship.GetMaintCostRealism(Screen.P.Owner);
+            return ship.GetMaintCost(Screen.P.Owner);
+        }
 
-                position = new Vector2((destinationRectangle2.X - 60),
-                    (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                // Use correct upkeep method depending on mod settings
-                string upkeep;
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                {
-                    upkeep = ship.GetMaintCostRealism(p.Owner).ToString("F2");
-                }
-                else
-                {
-                    upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
-                }
-
-                batch.DrawString(Font8, upkeep+" BC/Y", position, Color.Salmon);
-
-                // ~~~
-
-                position = new Vector2(destinationRectangle2.X + 26, destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                    Font12.LineSpacing / 2);
-                batch.DrawString(Font12, ((int) (ship.GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(), position, Color.White);
-            }
-            else
-            {
-                batch.Draw(ship.BaseHull.Icon, new Rectangle((int) topLeft.X, (int) topLeft.Y, 29, 30), Color.White);
-                Vector2 position = new Vector2(topLeft.X + 40f, topLeft.Y + 3f);
-                batch.DrawString(Font12,
-                    ship.IsPlatformOrStation
-                        ? ship.Name + " " + Localizer.Token(2041)
-                        : ship.Name, position, Color.Green);
-                position.Y += Font12.LineSpacing;
-                //var role = Localizer.GetRole(ship.shipData.HullRole, EmpireManager.Player);
-                var role = ship.BaseHull.Name;
-                batch.DrawString(Font8, role + ": ", position, Color.DarkGray);
-                position.X = position.X + Font8.MeasureString(role).X + 8;
-                batch.DrawString(Font8,
-                    $"Base Strength: {ship.BaseStrength.String(0)}", position, Color.Orange);
-
-                position.X = (Right - 120);
-                SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-                var destinationRectangle2 = new Rectangle((int) position.X, (int)CenterY - iconProd.Height / 2 - 5,
-                    iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, destinationRectangle2, Color.White);
-
-                // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
-
-                position = new Vector2((destinationRectangle2.X - 60),
-                    (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                // Use correct upkeep method depending on mod settings
-                string upkeep;
-                if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                {
-                    upkeep = ship.GetMaintCostRealism(p.Owner).ToString("F2");
-                }
-                else
-                {
-                    upkeep = ship.GetMaintCost(p.Owner).ToString("F2");
-                }
-
-                batch.DrawString(Font8, upkeep+" BC/Y", position, Color.Salmon);
-
-                // ~~~
-
-                position = new Vector2((destinationRectangle2.X + 26),
-                    (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                batch.DrawString(Font12, ((int) (ship.GetCost(p.Owner) * p.ShipBuildingModifier)).ToString(), position, Color.White);
-
-
-                //DrawPlusEdit(batch);
-
-                Screen.DrawSelectedShipInfo((int)position.X, (int)CenterY, ship, batch);
-            }
+        int GetShipCost(Ship ship)
+        {
+            return (int)(ship.GetCost(Screen.P.Owner) * Screen.P.ShipBuildingModifier);
         }
     }
 }
