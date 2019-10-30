@@ -716,7 +716,7 @@ namespace Ship_Game
 
         public bool Initialize(AgentMission TheMission, Empire Owner)
         {
-            float spyBudget =  Owner.GetEmpireAI().spyBudget;
+            float spyBudget =  Owner.GetEmpireAI().SpyBudget;
             if (Owner.isPlayer)
                 spyBudget = Owner.Money;
             bool returnvalue = false;            
@@ -820,7 +820,7 @@ namespace Ship_Game
                 Owner.AddMoney(-Owner.Money + spyBudget); // Fatbastard - refactor all this crappy copy paste function 
             else
             {
-                Owner.GetEmpireAI().spyBudget = spyBudget;
+                Owner.GetEmpireAI().SpyBudget = spyBudget;
             }
             return returnvalue;
         }
