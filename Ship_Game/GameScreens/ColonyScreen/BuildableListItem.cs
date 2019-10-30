@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class BuildListItem : ScrollListItem<BuildListItem>
+    public class BuildableListItem : ScrollListItem<BuildableListItem>
     {
         public readonly ColonyScreen Screen;
 
@@ -17,23 +13,28 @@ namespace Ship_Game
         public Ship Ship;
         public Troop Troop;
 
-        public BuildListItem(ColonyScreen screen, string headerText) : base(headerText)
+        public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
         {
             Screen = screen;
         }
-        public BuildListItem(ColonyScreen screen) : this(screen, false, false)
+        public BuildableListItem(ColonyScreen screen, Building b) : this(screen, false, false)
         {
+            Building = b;
         }
-        public BuildListItem(ColonyScreen screen, bool plusAndEdit) : this(screen, plusAndEdit, plusAndEdit)
+        public BuildableListItem(ColonyScreen screen, Ship s) : this(screen, false, false)
         {
-            // 50: Rush Production
-            // 53: CancelProduction
+            Ship = s;
         }
-        public BuildListItem(ColonyScreen screen, bool plus, bool edit)
+        public BuildableListItem(ColonyScreen screen, Troop t) : this(screen, true, false)
+        {
+            Troop = t;
+        }
+
+        BuildableListItem(ColonyScreen screen, bool plus, bool edit)
         {
             Screen = screen;
-            if (plus) AddPlus(new Vector2(-60, 0), /*Add to Q:*/51, OnPlusClicked);
-            if (edit) AddEdit(new Vector2(-30, 0), /*Edit Ship:*/52, OnEditClicked);
+            if (plus) AddPlus(new Vector2(-50, 0), /*Add to Q:*/51, OnPlusClicked);
+            if (edit) AddEdit(new Vector2(-20, 0), /*Edit Ship:*/52, OnEditClicked);
         }
 
         void OnPlusClicked()

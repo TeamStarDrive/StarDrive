@@ -34,7 +34,10 @@ namespace Ship_Game
 		//private Rectangle gTop;
 
 		//private Rectangle gBot;
-
+		public ProgressBar(float x, float y, float w, float h) : this(new Rectangle((int)x, (int)y, (int)w, (int)h))
+		{
+		}
+		
 		public ProgressBar(Rectangle r)
 		{
 			pBar = r;

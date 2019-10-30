@@ -180,6 +180,7 @@ namespace Ship_Game
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
             DescriptionTextList = Add(new ScrollList<TextListItem>(description, DescriptionTextFont.LineSpacing));
+            DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
@@ -210,11 +211,12 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        public void OnTraitsTabChanged(Submenu.Tab tab)
+        public void OnTraitsTabChanged(int tabIndex)
         {
-            string category = "";
-            switch (tab.Index)
+            string category;
+            switch (tabIndex)
             {
+                default:
                 case 0: category = "Physical"; break;
                 case 1: category = "Industry"; break;
                 case 2: category = "Special";  break;

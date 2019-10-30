@@ -40,7 +40,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    if (Screen.SubShips.Tabs[0].Selected)
+                    if (Screen.SubShips.SelectedIndex == 0)
                     {
                         batch.DrawString(Fonts.Arial12Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
                     }

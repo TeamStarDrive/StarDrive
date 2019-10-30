@@ -245,7 +245,7 @@ namespace Ship_Game
 
         // @note CloseButton automatically calls ExitScreen() on this screen
         public CloseButton CloseButton(float x, float y)
-            => Add(new CloseButton(this, new Rectangle((int)x, (int)y, 20, 20)));
+            => Add(new CloseButton(this, x, y));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

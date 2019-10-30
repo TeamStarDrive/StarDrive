@@ -108,7 +108,7 @@ namespace Ship_Game.Ships
             Vector2 gridRect = new Vector2(Housing.X + 16, screenHeight - 45);
             GridButton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
-                Active = true
+                Enabled = true
             };
             OrderButtons(spacing, pOrderRect);
         }
@@ -122,10 +122,9 @@ namespace Ship_Game.Ships
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
                     State        = state,
-                    HasToolTip   = true,
                     WhichToolTip = toolTip,
                 };
-                button.OnClick += OnOrderButtonClicked;
+                button.OnClick = OnOrderButtonClicked;
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 25f;
             }
@@ -170,7 +169,7 @@ namespace Ship_Game.Ships
         void UpdateOrderButtonToggles()
         {
             foreach (ToggleButton toggleButton in CombatStatusButtons)
-                toggleButton.Active = (Ship.AI.CombatState == (CombatState)toggleButton.State);
+                toggleButton.Enabled = (Ship.AI.CombatState == (CombatState)toggleButton.State);
         }
 
         bool OrderButtonInput(InputState input)
@@ -550,7 +549,7 @@ namespace Ship_Game.Ships
                 {
                     GameAudio.AcceptClick();
                     ShowModules = !ShowModules;
-                    GridButton.Active = ShowModules;
+                    GridButton.Enabled = ShowModules;
                 }
                 return true;
             }

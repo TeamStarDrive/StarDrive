@@ -119,10 +119,10 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.Active     = screen.showingFTLOverlay;
-            DeepSpaceBuild.Active = screen.showingDSBW;
-            AIScreen.Active       = screen.aw.IsOpen;
-            Fleets.Active         = screen.showingRangeOverlay;            
+            ShipScreen.Enabled     = screen.showingFTLOverlay;
+            DeepSpaceBuild.Enabled = screen.showingDSBW;
+            AIScreen.Enabled       = screen.aw.IsOpen;
+            Fleets.Enabled         = screen.showingRangeOverlay;            
             base.Draw(batch);
         }
 

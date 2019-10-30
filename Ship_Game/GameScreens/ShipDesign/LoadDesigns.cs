@@ -119,11 +119,11 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             ShipDesigns.OnClick = OnDesignListItemClicked;
             TitlePosition       = new Vector2(Window.X + 20, Window.Y + 20);
             PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Right - 44, SaveShips.Y)));
-            PlayerDesignsToggle.OnClick += p =>
+            PlayerDesignsToggle.OnClick = p =>
             {
                 GameAudio.AcceptClick();
                 ShowAllDesigns = !ShowAllDesigns;
-                PlayerDesignsToggle.Active = ShowAllDesigns;
+                PlayerDesignsToggle.Enabled = ShowAllDesigns;
                 ResetSL();
             };
 
@@ -298,7 +298,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {
             public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_grid")
             {
-                Active = true;
+                Enabled = true;
                 WhichToolTip = 237;
             }
         }

@@ -54,7 +54,7 @@ namespace Ship_Game
                 var tCursor = new Vector2(X + 40f, Y + 3f);
                 batch.DrawString(Fonts.Arial12Bold, Ship.Name, tCursor, Color.White);
 
-                if (Screen.sub_ships.Tabs[0].Selected)
+                if (Screen.sub_ships.SelectedIndex == 0)
                 {
                     tCursor.Y += Fonts.Arial12Bold.LineSpacing;
                     batch.DrawString(Fonts.Arial12Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);

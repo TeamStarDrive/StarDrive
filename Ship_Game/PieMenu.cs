@@ -165,11 +165,11 @@ namespace Ship_Game
             Show(position);
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float deltaTime)
         {
             if (!Visible)
                 return;
-            t.Update(gameTime.ElapsedGameTime.TotalSeconds);
+            t.Update(deltaTime);
         }
     }
 }

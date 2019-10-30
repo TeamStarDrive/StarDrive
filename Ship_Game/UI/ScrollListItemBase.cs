@@ -58,9 +58,11 @@ namespace Ship_Game
             if (Expanded != expanded && IsHeader && SubEntries != null && SubEntries.NotEmpty)
             {
                 Expanded = expanded;
-                List.RequiresLayout = true;
+                List.OnItemExpanded(this, expanded);
             }
         }
+
+        public int NumSubItems => SubEntries.Count;
 
         public void AddSubItem(ScrollListItemBase entry)
         {
@@ -156,7 +158,7 @@ namespace Ship_Game
             Hovered = Rect.HitTest(input.CursorPosition);
 
             // Mouse entered this Entry
-            if (!wasHovered && Hovered)
+            if (!wasHovered && Hovered && List.EnableItemEvents)
             {
                 GameAudio.ButtonMouseOver();
                 List.OnItemHovered(this);
@@ -172,7 +174,7 @@ namespace Ship_Game
             if (base.HandleInput(input))
                 return true;
 
-            if (Hovered)
+            if (Hovered && List.EnableItemEvents)
             {
                 if (input.LeftMouseDoubleClick)
                 {

@@ -68,7 +68,7 @@ namespace Ship_Game
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight -
                 (titleRect.Y + titleRect.Height) - 7);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+            close = new CloseButton(this, leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
             EMenu = new Menu2(leftRect);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40,

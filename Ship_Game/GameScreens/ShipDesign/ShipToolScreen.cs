@@ -362,7 +362,7 @@ namespace Ship_Game
                         GameAudio.ButtonMouseOver();
                     }
                     button.Hover = true;
-                    if (button.HasToolTip)
+                    if (button.WhichToolTip != -1)
                     {
                         ToolTip.CreateTooltip(button.WhichToolTip);
                     }
@@ -372,7 +372,7 @@ namespace Ship_Game
                         DesignState = (Restrictions)button.State;
                     }
                 }
-                button.Active = ((Restrictions)button.State == DesignState);
+                button.Enabled = ((Restrictions)button.State == DesignState);
             }
             if (input.C)
             {

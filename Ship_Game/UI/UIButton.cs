@@ -41,7 +41,7 @@ namespace Ship_Game
         public ButtonStyle Style = ButtonStyle.Default;
         public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
         public string Text;
-        public string Tooltip;
+        public ToolTipText Tooltip;
         public string ClickSfx = "echo_affirm";
 
         public Action<UIButton> OnClick;
@@ -81,6 +81,11 @@ namespace Ship_Game
         public UIButton(UIElementV2 parent, ButtonStyle style, in Rectangle rect) : base(parent, rect)
         {
             Style = style;
+        }
+
+        protected virtual void OnButtonClicked()
+        {
+            OnClick?.Invoke(this);
         }
 
         class StyleTextures
@@ -224,7 +229,7 @@ namespace Ship_Game
             if (State == PressState.Pressed && input.LeftMouseReleased)
             {
                 State = PressState.Hover;
-                OnClick?.Invoke(this);
+                OnButtonClicked();
                 if (ClickSfx.NotEmpty())
                     GameAudio.PlaySfxAsync(ClickSfx);
                 return true;
@@ -244,7 +249,7 @@ namespace Ship_Game
             // only trigger tooltip if we were hovering last frame as well as this one
             if (State == PressState.Hover)
             {
-                if (Tooltip.NotEmpty())
+                if (Tooltip.IsValid)
                 {
                     ToolTip.CreateTooltip(Tooltip);
                 }
@@ -259,6 +264,5 @@ namespace Ship_Game
             //         UIElementV2: true means input was handled/captured and should not propagate to other elements
             return false;
         }
-
     }
 }

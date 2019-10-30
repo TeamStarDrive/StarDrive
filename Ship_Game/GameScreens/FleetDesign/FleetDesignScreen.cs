@@ -740,13 +740,13 @@ namespace Ship_Game
                     button.Hover = true;
                     if (Input.LeftMouseClick)
                     {
-                        button.Active = false;
+                        button.Enabled = false;
                         foreach (ToggleButton b in OrdersButtons)
                         {
-                            b.Active = false;
+                            b.Enabled = false;
                         }
 
-                        button.Active = true;
+                        button.Enabled = true;
                         foreach (FleetDataNode node in SelectedNodeList)
                         {
                             node.CombatState = (CombatState) button.State;
@@ -757,7 +757,7 @@ namespace Ship_Game
                         if (SelectedNodeList[0].Ship != null)
                         {
                             SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
-                            button.Active = true;
+                            button.Enabled = true;
                             GameAudio.EchoAffirmative();
                             break;
                         }
@@ -888,10 +888,10 @@ namespace Ship_Game
                             }
                             foreach (ToggleButton b in OrdersButtons)
                             {
-                                b.Active = false;
+                                b.Enabled = false;
                             }
                             GameAudio.EchoAffirmative();
-                            button.Active = true;
+                            button.Enabled = true;
                             foreach (FleetDataNode node in SelectedNodeList)
                             {
                                 node.CombatState = (CombatState)button.State;
@@ -950,7 +950,7 @@ namespace Ship_Game
                         AvailableShips.Remove(ActiveShipDesign);                        
                         SelectedFleet.AddShip(node.Ship);                
                         
-                        if (SubShips.Tabs[1].Selected)
+                        if (SubShips.SelectedIndex == 1)
                         {
                             ShipSL.RemoveFirstIf(item => item.Ship != null && item.Ship == ActiveShipDesign);
                         }
@@ -1173,7 +1173,7 @@ namespace Ship_Game
                     }
                     foreach (ToggleButton button in OrdersButtons)
                     {
-                        button.Active = (node.NodeToClick.CombatState == (CombatState)button.State);
+                        button.Enabled = (node.NodeToClick.CombatState == (CombatState)button.State);
                     }
 
                     SliderArmor.SetAmount(node.NodeToClick.ArmoredWeight);
@@ -1362,7 +1362,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Close = new CloseButton(this, new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
+            Close = new CloseButton(this, ScreenWidth - 38, 97);
             AssignLightRig("example/ShipyardLightrig");
             StarField = new StarField(this);
             Rectangle titleRect = new Rectangle(2, 44, 250, 80);
@@ -1402,7 +1402,6 @@ namespace Ship_Game
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon, this)
                 {
                     State = state,
-                    HasToolTip   = true,
                     WhichToolTip = toolTip
                 };
                 Add(button);
@@ -1521,7 +1520,7 @@ namespace Ship_Game
             }
 
             ShipSL.Reset();
-            if (SubShips.Tabs[0].Selected)
+            if (SubShips.SelectedIndex == 0)
             {
                 var roles = new Array<string>();
                 foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
@@ -1543,7 +1542,7 @@ namespace Ship_Game
                     }
                 }
             }
-            else if (SubShips.Tabs[1].Selected)
+            else if (SubShips.SelectedIndex == 1)
             {
                 var roles = new Array<string>();
                 foreach (Ship ship in AvailableShips)
