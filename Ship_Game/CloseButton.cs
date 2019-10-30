@@ -4,17 +4,17 @@ namespace Ship_Game
 {
     public sealed class CloseButton : UIButton
     {
-        public CloseButton(UIElementV2 parent, Rectangle r)
-            : base(parent, ButtonStyle.Close, new Vector2(r.X, r.Y), "")
+        public CloseButton(UIElementV2 parent, float x, float y) 
+            : base(parent, ButtonStyle.Close, new Vector2(x, y), "")
         {
-            Tooltip = "Exit Screen";
-            OnClick = CloseButton_OnClick;
+            Tooltip = "Close this Screen";
         }
 
-        void CloseButton_OnClick(UIButton button)
+        protected override void OnButtonClicked()
         {
             if (Parent is GameScreen screen && !screen.IsExiting)
                 screen.ExitScreen();
+            base.OnButtonClicked();
         }
     }
 }

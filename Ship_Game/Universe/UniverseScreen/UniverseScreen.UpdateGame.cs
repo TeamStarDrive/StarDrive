@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        private void ProcessTurns()
+        void ProcessTurns()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
@@ -24,8 +24,8 @@ namespace Ship_Game
                     if (ProcessTurnsThread == null)
                         return; // this thread is aborting
 
-                    float deltaTime = (float)SimulationTime.ElapsedGameTime.TotalSeconds;
-                    pieMenu.Update(SimulationTime);
+                    float deltaTime = FrameDeltaTime;
+                    pieMenu.Update(deltaTime);
 
                     if (Paused)
                     {
@@ -63,7 +63,7 @@ namespace Ship_Game
                                 {
                                     ++FrameId;
                                     ProcessTurnDelta(deltaTime);
-                                    deltaTime = (float) SimulationTime.ElapsedGameTime.TotalSeconds;
+                                    deltaTime = FrameDeltaTime;
                                 }
                             }
                             if (GlobalStats.RestrictAIPlayerInteraction)
@@ -103,7 +103,7 @@ namespace Ship_Game
             }
         }
 
-        private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
+        void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
             int granularity = (int) (UniverseSize / PathMapReducer);
@@ -200,8 +200,7 @@ namespace Ship_Game
         void ProcessTurnUpdateMisc(float elapsedTime)
         {
             UpdateClickableItems();
-            if (LookingAtPlanet)
-                workersPanel.Update(elapsedTime);
+
             bool flag1 = false;
             lock (GlobalStats.ClickableSystemsLock)
             {
@@ -303,7 +302,7 @@ namespace Ship_Game
                 ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.
         }        
 
-        private void UpdateShipsAndFleets(float elapsedTime)
+        void UpdateShipsAndFleets(float elapsedTime)
         {
             perfavg4.Start();
 
@@ -351,7 +350,7 @@ namespace Ship_Game
             perfavg4.Stop();
         }
 
-        private void ProcessTurnShipsAndSystems(float elapsedTime)
+        void ProcessTurnShipsAndSystems(float elapsedTime)
         {
             Perfavg2.Start();
 #if !PLAYERONLY
@@ -373,7 +372,7 @@ namespace Ship_Game
             Perfavg2.Stop();
         }
 
-        private bool ProcessTurnEmpires(float elapsedTime)
+        bool ProcessTurnEmpires(float elapsedTime)
         {
             PreEmpirePerf.Start();
 
@@ -535,7 +534,7 @@ namespace Ship_Game
             }
         }
 
-        private void DeepSpaceThread(float elapsedTime)
+        void DeepSpaceThread(float elapsedTime)
         {
             SpaceManager.GetDeepSpaceShips(DeepSpaceShips);
 
@@ -554,7 +553,7 @@ namespace Ship_Game
                 system.Update(elapsedTime, this, realTime);
         }
 
-        private void HandleGameSpeedChange(InputState input)
+        void HandleGameSpeedChange(InputState input)
         {
             if (input.SpeedReset)
                 GameSpeed = 1f;
@@ -567,7 +566,7 @@ namespace Ship_Game
             }
         }
 
-        private float GetGameSpeedAdjust(bool increase)
+        float GetGameSpeedAdjust(bool increase)
         {
             return increase
                 ? GameSpeed <= 1 ? GameSpeed * 2 : GameSpeed + 1

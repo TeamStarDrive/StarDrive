@@ -229,11 +229,37 @@ namespace Ship_Game
                 if (array[i] == item) return true;
             return false;
         }
+
         public static bool ContainsRef<T>(this T[] array, int length, T item) where T : class
         {
             for (int i = 0; i < length; ++i)
                 if (array[i] == item) return true;
             return false;
+        }
+
+        // @return TRUE if a.Count == b.Count and all elements are equivalent
+        public static bool EqualElements<T>(this IReadOnlyList<T> a, IReadOnlyList<T> b)
+        {
+            int count = a.Count;
+            if (count != b.Count)
+                return false;
+
+            EqualityComparer<T> c = EqualityComparer<T>.Default;
+            for (int i = 0; i < count; ++i)
+                if (!c.Equals(a[i], b[i]))
+                    return false;
+            return true;
+        }
+
+        public static bool EqualElements<T>(this IReadOnlyList<T> a, IReadOnlyList<T> b, Func<T, T, bool> equals)
+        {
+            int count = a.Count;
+            if (count != b.Count)
+                return false;
+            for (int i = 0; i < count; ++i)
+                if (!equals(a[i], b[i]))
+                    return false;
+            return true;
         }
 
         /// <summary>

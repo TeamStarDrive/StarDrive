@@ -203,10 +203,10 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void UpdateSceneObjects(GameTime gameTime)
+        public void UpdateSceneObjects()
         {
             lock (InterfaceLock)
-                SceneInter.Update(gameTime);
+                SceneInter.Update(GameBase.Base.GameTime);
         }
 
         public void RenderSceneObjects()

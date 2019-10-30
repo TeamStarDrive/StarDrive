@@ -600,7 +600,7 @@ namespace Ship_Game
         void UpdateActiveCombatButton()
         {
             foreach (ToggleButton button in CombatStatusButtons)
-                button.Active = (ActiveHull.CombatState == (CombatState)button.State);
+                button.Enabled = (ActiveHull.CombatState == (CombatState)button.State);
         }
 
         void OnCombatButtonPressed(ToggleButton button)
@@ -734,10 +734,9 @@ namespace Ship_Game
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
                 {
                     State        = state,
-                    HasToolTip   = true,
                     WhichToolTip = toolTip
                 };
-                button.OnClick += OnCombatButtonPressed;
+                button.OnClick = OnCombatButtonPressed;
                 Add(button);
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 29f;

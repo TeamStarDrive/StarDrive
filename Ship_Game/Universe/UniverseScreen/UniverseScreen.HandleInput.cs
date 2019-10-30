@@ -141,39 +141,23 @@ namespace Ship_Game
                 ShowShipNames = !ShowShipNames;
 
             var colonyScreen = workersPanel as ColonyScreen;
-            if (colonyScreen?.ClickedTroop == true ||
-                (!input.Escaped && !input.RightMouseClick && colonyScreen?.close.HandleInput(input) != true))
-                return;
-
-            if (colonyScreen != null && colonyScreen.P.Owner == null)
+            bool dismiss = (input.Escaped || input.RightMouseClick) && colonyScreen?.ClickedTroop == false;
+            if (dismiss)
             {
                 AdjustCamTimer = 1f;
                 if (returnToShip)
                 {
-                    ViewingShip      = true;
-                    returnToShip     = false;
-                    snappingToShip   = true;
+                    ViewingShip = true;
+                    returnToShip = false;
+                    snappingToShip = true;
                     CamDestination.Z = transitionStartPosition.Z;
                 }
                 else
-                    CamDestination    = transitionStartPosition;
-                transitionElapsedTime = 0.0f;
-                LookingAtPlanet       = false;
-            }
-            else
-            {
-                AdjustCamTimer = 1f;
-                if (returnToShip)
                 {
-                    ViewingShip      = true;
-                    returnToShip     = false;
-                    snappingToShip   = true;
-                    CamDestination.Z = transitionStartPosition.Z;
+                    CamDestination = transitionStartPosition;
                 }
-                else
-                    CamDestination    = transitionStartPosition;
                 transitionElapsedTime = 0.0f;
-                LookingAtPlanet       = false;
+                LookingAtPlanet = false;
             }
         }
 
@@ -302,7 +286,6 @@ namespace Ship_Game
                 Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");
             }
 
-
             HandleGameSpeedChange(input);
 
             // fbedard: Click button to Cycle through ships in Combat
@@ -343,11 +326,8 @@ namespace Ship_Game
             ShipsInCombat.Visible   = !LookingAtPlanet;
             PlanetsInCombat.Visible = !LookingAtPlanet;
 
-            if (LookingAtPlanet)
-            {
-                if (workersPanel.HandleInput(input))
-                    return true;
-            }
+            if (LookingAtPlanet && workersPanel.HandleInput(input))
+                return true;
 
             if (IsActive)
                 EmpireUI.HandleInput(input);

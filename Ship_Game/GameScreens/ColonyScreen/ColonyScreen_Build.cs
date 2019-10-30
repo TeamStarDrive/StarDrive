@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
 using Ship_Game.Audio;
-using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -15,18 +10,104 @@ namespace Ship_Game
     public partial class ColonyScreen
     {
         Ship SelectedShip;
+        bool ResetBuildableList;
+
+        readonly string BuildingsTabText = Localizer.Token(334); // BUILDINGS
+        readonly string ShipsTabText = Localizer.Token(335); // SHIPS
+        readonly string TroopsTabText = Localizer.Token(336); // TROOPS
+
+        void OnBuildableTabChanged(int tabIndex)
+        {
+            PlayerDesignsToggle.Visible = BuildableTabs.IsSelected(ShipsTabText);
+            ResetBuildableList = true;
+        }
+
+        void OnPlayerDesignsToggleClicked(ToggleButton button)
+        {
+            GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
+            PlayerDesignsToggle.Enabled = GlobalStats.ShowAllDesigns;
+            ResetBuildableList = true;
+        }
+
+        void ResetBuildableTabs()
+        {
+            int selected = BuildableTabs.SelectedIndex;
+
+            BuildableTabs.Clear();
+            BuildableTabs.AddTab(BuildingsTabText);
+            if (P.HasSpacePort)     BuildableTabs.AddTab(ShipsTabText);
+            if (P.CanBuildInfantry) BuildableTabs.AddTab(TroopsTabText);
+
+            BuildableTabs.SelectedIndex = selected;
+        }
+
+        void UpdateBuildAndConstructLists(float elapsedTime)
+        {
+            if (P.HasSpacePort     && !BuildableTabs.ContainsTab(ShipsTabText) ||
+                P.CanBuildInfantry && !BuildableTabs.ContainsTab(TroopsTabText))
+            {
+                ResetBuildableTabs();
+            }
+
+            if (BuildableTabs.IsSelected(BuildingsTabText))
+            {
+                ResetBuildableList |= BuildableList.NumEntries != P.GetBuildingsCanBuild().Count;
+                if (ResetBuildableList)
+                {
+                    Building[] buildings = P.GetBuildingsCanBuild().Sorted(b => b.Name);
+                    BuildableList.SetItems(buildings.Select(b => new BuildableListItem(this, b)));
+                }
+            }
+            else if (BuildableTabs.IsSelected(ShipsTabText))
+            {
+                // NOTE: Ships list is hierarchical, so checking if buildable ships list
+                //       changed is also more complicated
+                TryPopulateBuildableShips();
+            }
+            else if (BuildableTabs.IsSelected(TroopsTabText))
+            {
+                string[] troopTypes = P.Owner.GetTroopsWeCanBuild();
+                ResetBuildableList |= BuildableList.NumEntries != troopTypes.Length;
+                if (ResetBuildableList)
+                {
+                    Troop[] troopTemplates = troopTypes.Select(ResourceManager.GetTroopTemplate);
+                    BuildableList.SetItems(troopTemplates.Select(t => new BuildableListItem(this, t)));
+                }
+            }
+
+            if (!ConstructionQueue.AllEntries.EqualElements(P.ConstructionQueue))
+            {
+                ConstructionQueue.SetItems(P.ConstructionQueue);
+            }
+
+            ResetBuildableList = false;
+        }
 
         class ShipCategory
         {
             public string Name;
-            public Array<Ship> Ships = new Array<Ship>();
+            public readonly Array<Ship> Ships = new Array<Ship>();
             public int Size;
-
             public override string ToString() => $"Category {Name} Size={Size} Count={Ships.Count}";
         }
 
-        void PopulateBuildableShips(Ship[] buildableShips)
+        ShipCategory[] BuildableShipHierarchy = Empty<ShipCategory>.Array;
+
+        bool BuildableShipsChanged(ShipCategory[] newHierarchy)
         {
+            return !BuildableShipHierarchy.EqualElements(newHierarchy, (catA, catB) =>
+            {
+                return catA.Name == catB.Name
+                    && catA.Ships.EqualElements(catB.Ships, (shipA, shipB) => shipA.Name == shipB.Name);
+            });
+        }
+
+        void TryPopulateBuildableShips()
+        {
+            Ship[] buildableShips = P.Owner.ShipsWeCanBuild
+                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
+                .Where(ship => ship.IsBuildableByPlayer).ToArray();
+
             var categoryMap = new Map<string, ShipCategory>();
 
             foreach (Ship ship in buildableShips)
@@ -42,51 +123,30 @@ namespace Ship_Game
 
             // first sort the categories by name:
             ShipCategory[] categories = categoryMap.Values.ToArray().Sorted(c => c.Name);
-            // and then sort each ship category individually by Strength
             foreach (ShipCategory category in categories)
             {
-                category.Ships.Sort((a, b) =>
+                category.Ships.Sort((a, b) => // rank better ships as first:
                 {
-                    // rank better ships as first:
                     float diff = b.BaseStrength - a.BaseStrength;
                     if (diff.NotEqual(0)) return (int)diff;
                     return string.CompareOrdinal(b.Name, a.Name);
                 });
+            }
 
+            if (!BuildableShipsChanged(categories))
+                return;
+            
+            BuildableShipHierarchy = categories;
+            BuildableList.Reset();
+
+            // and then sort each ship category individually by Strength
+            foreach (ShipCategory category in categories)
+            {
                 // and add to Build list
-                BuildListItem catHeader = buildSL.AddItem(new BuildListItem(this, category.Name));
+                BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
                 foreach (Ship ship in category.Ships)
-                    catHeader.AddSubItem(new BuildListItem(this, plusAndEdit: true){ Ship = ship });
+                    catHeader.AddSubItem(new BuildableListItem(this, ship));
             }
-        }
-
-        void DrawBuildingsWeCanBuild(SpriteBatch batch)
-        {
-            if (Reset || buildSL.NumEntries != P.GetBuildingsCanBuild().Count)
-            {
-                Reset = false;
-                Building[] buildings = P.GetBuildingsCanBuild().Sorted(b => b.Name);
-                BuildListItem[] items = buildings.Select(b => new BuildListItem(this){ Building = b });
-                buildSL.SetItems(items);
-            }
-            buildSL.Draw(batch);
-        }
-
-        void DrawBuildableShipsList(SpriteBatch batch)
-        {
-            Ship[] buildableShips = P.Owner.ShipsWeCanBuild
-                .Select(shipName => ResourceManager.GetShipTemplate(shipName))
-                .Where(ship => ship.IsBuildableByPlayer).ToArray();
-
-            if (Reset || buildSL.NumEntries != buildableShips.Length)
-            {
-                Reset = false;
-                buildSL.Reset();
-                PopulateBuildableShips(buildableShips);
-            }
-
-            buildSL.Draw(batch);
-            PlayerDesignsToggle.Draw(ScreenManager);
         }
 
         public void DrawSelectedShipInfo(int x, int y, Ship ship, SpriteBatch batch)
@@ -149,29 +209,6 @@ namespace Ship_Game
         void WriteLine(ref Vector2 cursor, SpriteFont font)
         {
             cursor.Y += font.LineSpacing + 2;
-        }
-
-        void DrawBuildTroopsList(SpriteBatch batch)
-        {
-            string[] troopTypes = P.Owner.GetTroopsWeCanBuild();
-            if (Reset || buildSL.NumEntries != troopTypes.Length)
-            {
-                foreach (string troopType in troopTypes)
-                {
-                    Troop troop = ResourceManager.GetTroopTemplate(troopType);
-                    buildSL.AddItem(new BuildListItem(this, plus:true, edit:false){ Troop = troop });
-                }
-            }
-            buildSL.Draw(batch);
-        }
-
-        void DrawConstructionQueue(SpriteBatch batch)
-        {
-            if (Reset || CQueue.NumEntries != P.ConstructionQueue.Count)
-            {
-                CQueue.SetItems(P.ConstructionQueue);
-            }
-            CQueue.Draw(batch);
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)

@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -133,17 +134,15 @@ namespace Ship_Game
         };
     }
 
+    // TODO: Replace with UIButton
     public class ToggleButton : UIElementV2
     {
         // user defined metadata
         public object State;
-
-        public bool Active;
         public bool Hover;
         bool Pressed;
 
         public int WhichToolTip;
-        public bool HasToolTip;
         public Color BaseColor = Color.White;
 
         readonly ToggleButtonStyle Style;
@@ -153,8 +152,7 @@ namespace Ship_Game
         string IconPath;
         Rectangle IconRect;
 
-        public delegate void ClickHandler(ToggleButton button);
-        public event ClickHandler OnClick;
+        public Action<ToggleButton> OnClick;
 
         public override string ToString() => $"{TypeName} {ElementDescr} Icon:{IconPath} Status:{State}";
 
@@ -169,16 +167,14 @@ namespace Ship_Game
             this.PerformLayout();
         }
 
-        public ToggleButton(ToggleButtonStyle style, string iconPath, ClickHandler onClick)
+        public ToggleButton(ToggleButtonStyle style, string iconPath, Action<ToggleButton> onClick)
         {
             Size = new Vector2(style.Width, style.Height);
             Style = style;
             IconPath = iconPath;
+            OnClick = onClick;
             UpdateStyle();
             this.PerformLayout();
-
-            if (onClick != null)
-                OnClick += onClick;
         }
 
         public override void PerformLayout()
@@ -215,6 +211,9 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             UpdateStyle();
 
             if (Pressed)
@@ -225,7 +224,7 @@ namespace Ship_Game
             {
                 batch.Draw(Style.Hover, Rect, Color.White);                
             }
-            else if (Active)
+            else if (Enabled)
             {
                 batch.Draw(Style.Active, Rect, Color.White);
             }
@@ -236,7 +235,7 @@ namespace Ship_Game
 
             if (IconTexture == null)
             {
-                if (Active)
+                if (Enabled)
                 {
                     batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
                     return;
@@ -253,6 +252,9 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (!Visible || !Enabled)
+                return false;
+
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
             {

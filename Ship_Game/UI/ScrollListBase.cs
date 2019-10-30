@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -58,6 +54,9 @@ namespace Ship_Game
         // If TRUE, automatically draws Selection highlight around each ScrollList Item
         public bool EnableItemHighlight;
 
+        // If TRUE, items will trigger click events
+        public bool EnableItemEvents = true;
+
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
         public UIElementV2 Background
@@ -84,6 +83,16 @@ namespace Ship_Game
         public abstract void OnItemClicked(ScrollListItemBase item);
         public abstract void OnItemDoubleClicked(ScrollListItemBase item);
         public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt);
+
+        public virtual void OnItemExpanded(ScrollListItemBase item, bool expanded)
+        {
+            // NOTE: This adds list index stability when closing items
+            if (!expanded)
+            {
+                VisibleItemsBegin = Math.Max(0, VisibleItemsBegin - item.NumSubItems);
+            }
+            RequiresLayout = true;
+        }
 
         #region ScrollList HandleInput
 
@@ -221,9 +230,9 @@ namespace Ship_Game
         // @return TRUE if this caused FirstVisibleIndex or LastVisibleIndex to change
         void UpdateVisibleIndex(float indexFraction, int maxVisibleItems)
         {
-            //ItemHeight = EntryHeight;
-            int begin = (int)Math.Floor(indexFraction);
-            int end   = (int)Math.Ceiling(indexFraction + 0.33f + maxVisibleItems);
+            float fraction = indexFraction.Clamped(0, FlatEntries.Count);
+            int begin = (int)Math.Floor(fraction);
+            int end   = (int)Math.Ceiling(fraction + 0.5f + maxVisibleItems);
             VisibleItemsBegin = begin.Clamped(0, Math.Max(0, FlatEntries.Count - maxVisibleItems));
             VisibleItemsEnd   = end.Clamped(0, Math.Max(0, FlatEntries.Count));
         }
@@ -273,12 +282,14 @@ namespace Ship_Game
                 float remainder = (scrolledIndexF - VisibleItemsBegin) % 1f;
                 int scrollOffset = (int)Math.Floor(remainder * EntryHeight);
                 nextItemY -= scrollOffset;
-                //Log.Info($"rpos={RelScrollPos} fidx={newIndexFraction} rem={remainder} offset={scrollOffset}");
+                Log.Info($"pos={relScrollPos} idxF={scrolledIndexF} rem={remainder} off={scrollOffset}");
             }
             else // otherwise, update/clamp visible indices and recalculate scrollbar
             {
-                UpdateVisibleIndex(VisibleItemsBegin, maxVisibleItems);
+                int begin = VisibleItemsBegin;
+                UpdateVisibleIndex(begin, maxVisibleItems);
                 UpdateScrollBarToCurrentIndex(maxVisibleItems);
+                Log.Info($"Before=[{begin},{VisibleItemsEnd}) After=[{VisibleItemsBegin},{VisibleItemsEnd})");
             }
 
             int visibleIndex = 0;
@@ -339,7 +350,7 @@ namespace Ship_Game
 
         #endregion
 
-        
+
         #region ScrollList Draw
 
         void DrawScrollBar(SpriteBatch batch)

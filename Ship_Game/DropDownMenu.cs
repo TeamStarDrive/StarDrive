@@ -30,6 +30,10 @@ namespace Ship_Game
 
 		private Array<string> Options = new Array<string>();
 
+		public DropDownMenu(float x, float y, float w, float h) : this(new Rectangle((int)x, (int)y, (int)w, (int)h))
+		{
+		}
+
 		public DropDownMenu(Rectangle r)
 		{
 			this.r = r;

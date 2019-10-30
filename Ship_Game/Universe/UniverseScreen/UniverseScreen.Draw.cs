@@ -426,8 +426,7 @@ namespace Ship_Game
 
             batch.Begin();
             DrawPlanetInfo();
-            if (LookingAtPlanet && SelectedPlanet != null)
-                workersPanel?.Draw(batch);
+            if (LookingAtPlanet) workersPanel?.Draw(batch);
 
             DrawShipsInRange(batch);
             DrawPlanetProjectiles(batch);
