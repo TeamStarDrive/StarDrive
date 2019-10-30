@@ -15,7 +15,7 @@ namespace Ship_Game
         public InputState Input;
         bool OtherScreenHasFocus;
 
-        public bool IsActive => !OtherScreenHasFocus && !IsExiting && 
+        public bool IsActive => Enabled && !IsExiting && !OtherScreenHasFocus && 
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
 
         public bool IsExiting { get; protected set; }
@@ -139,6 +139,9 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
+
+            Enabled = Visible = false;
+            ScreenState = ScreenState.Hidden;
             Empire.Universe?.ResetLighting();
             ScreenManager.RemoveScreen(this);
         }
@@ -182,26 +185,28 @@ namespace Ship_Game
             Update(FrameDeltaTime);
 
             OtherScreenHasFocus = otherScreenHasFocus;
-            if (!IsExiting)
-            {
-                if (coveredByOtherScreen)
-                {
-                    ScreenState = UpdateTransition(TransitionOffTime, 1)
-                                ? ScreenState.TransitionOff : ScreenState.Hidden;
-                }
-                else
-                {
-                    ScreenState = UpdateTransition(TransitionOnTime, -1)
-                                ? ScreenState.TransitionOn : ScreenState.Active;
-                }
-            }
-            else
+            if (IsExiting)
             {
                 ScreenState = ScreenState.TransitionOff;
                 if (!UpdateTransition(TransitionOffTime, 1))
                 {
                     ScreenManager.RemoveScreen(this);
                     IsExiting = false;
+                }
+            }
+            else
+            {
+                if (coveredByOtherScreen)
+                {
+                    ScreenState = UpdateTransition(TransitionOffTime, 1)
+                        ? ScreenState.TransitionOff
+                        : ScreenState.Hidden;
+                }
+                else
+                {
+                    ScreenState = UpdateTransition(TransitionOnTime, -1)
+                        ? ScreenState.TransitionOn
+                        : ScreenState.Active;
                 }
             }
 

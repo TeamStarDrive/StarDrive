@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
@@ -40,7 +39,6 @@ namespace Ship_Game
         UIButton BuildShipyard;
         UIButton CallTroops;  //fbedard
         DropOptions<int> GovernorDropdown;
-        CloseButton close;
         Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
         Rectangle GridPos;
         Submenu subColonyGrid;
@@ -68,7 +66,6 @@ namespace Ship_Game
         int EditHoverState;
 
         Rectangle EditNameButton;
-        static bool Popup;  //fbedard
         readonly SpriteFont Font8 = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
         readonly SpriteFont Font20 = Fonts.Arial20Bold;
@@ -87,7 +84,7 @@ namespace Ship_Game
             TitlePos = new Vector2(titleBar.X + titleBar.Width / 2 - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, titleBar.Y + titleBar.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
-            close = new CloseButton(this, RightMenu.Right - 52, RightMenu.Y + 22);
+            Add(new CloseButton(this, RightMenu.Right - 52, RightMenu.Y + 22));
             PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.25f * (LeftMenu.Height - 80)));
             PlanetInfo.AddTab(Localizer.Token(326));
             pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
@@ -233,73 +230,26 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            if (P.Owner == null)
+            if (P.Owner == null || !Visible)
                 return;
+
             P.UpdateIncomes(false);
             LeftMenu.Draw(batch);
             RightMenu.Draw(batch);
             TitleBar.Draw(batch);
-            LeftColony.Draw(ScreenManager);
-            RightColony.Draw(ScreenManager);
+            LeftColony.Draw(batch);
+            RightColony.Draw(batch);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, Colors.Cream);
-            if (!GlobalStats.HardcoreRuleset)
-            {
-                FoodStorage.Max = P.Storage.Max;
-                FoodStorage.Progress = P.FoodHere;
-                ProdStorage.Max = P.Storage.Max;
-                ProdStorage.Progress = P.ProdHere;
-            }
+
             PlanetInfo.Draw(batch);
             pDescription.Draw(batch);
             pLabor.Draw(batch);
             pStorage.Draw(batch);
             subColonyGrid.Draw(batch);
 
-            var destinationRectangle1 = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
-            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.PlanetTileId), destinationRectangle1, Color.White);
-            
-            foreach (PlanetGridSquare pgs in P.TilesList)
-            {
-                if (!pgs.Habitable)
-                    batch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
-
-                batch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
-                if (pgs.building != null)
-                {
-                    Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    if(pgs.building.IsPlayerAdded)
-                    {
-                        batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.WhiteSmoke);
-                    }
-                    else
-                        batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"), destinationRectangle2, Color.White);
-                }
-                else if (pgs.QItem != null)
-                {
-                    Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
-                    batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.QItem.Building.Icon + "_64x64"), destinationRectangle2, new Color(255, 255, 255, 128));
-                }
-
-                if (pgs.Biosphere && P.Owner != null)
-                {
-                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.5f));
-                }
-                DrawPGSIcons(pgs);
-            }
-
-            foreach (PlanetGridSquare planetGridSquare in P.TilesList)
-            {
-                if (planetGridSquare.Highlighted)
-                    batch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
-            }
-
+            DrawPlanetSurfaceGrid(batch);
             pFacilities.Draw(batch);
             DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
-            BuildableTabs.Draw(batch);
-            queue.Draw(batch);
-
-            base.Draw(batch);
-
             DrawSliders(batch);
 
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
@@ -314,7 +264,7 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
             else
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit_hover2"), EditNameButton, Color.White);
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 768)
+            if (ScreenHeight > 768)
                 vector2_2.Y += Font20.LineSpacing * 2;
             else
                 vector2_2.Y += Font20.LineSpacing;
@@ -348,7 +298,7 @@ namespace Ship_Game
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
-                Vector2 fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y);
+                var fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y);
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
             if (P.TerraformPoints > 0)
@@ -360,7 +310,7 @@ namespace Ship_Game
                 else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformTargetFertility))
                     terraformText = Localizer.Token(1919);
 
-                Vector2 terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
+                var terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
                 batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
             }
 
@@ -412,9 +362,6 @@ namespace Ship_Game
             batch.DrawString(Font12, Localizer.Token(387) + ":", vector2_2, Color.Orange);
             batch.DrawString(Font12, P.MineralRichness.String(), position3, Colors.Cream);
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(387) + ":").X, Font12.LineSpacing);
-
-
-            // The Doctor: For planet income breakdown
 
             string gIncome = Localizer.Token(6125);
             string gUpkeep = Localizer.Token(6126);
@@ -495,49 +442,86 @@ namespace Ship_Game
                     DontScrapBuildings.Draw(batch); 
             }
 
-            if (GlobalStats.HardcoreRuleset)
+            DrawFoodAndStorage(batch);
+            DrawOrbitalStats(batch);
+            DrawActiveBuildingEntry(batch); // draw dragged item as topmost
+
+            base.Draw(batch);
+        }
+
+        void DrawFoodAndStorage(SpriteBatch batch)
+        {
+            FoodStorage.Max = P.Storage.Max;
+            ProdStorage.Max = P.Storage.Max;
+            FoodStorage.Progress = P.FoodHere;
+            ProdStorage.Progress = P.ProdHere;
+            if (P.FS == Planet.GoodState.STORE) foodDropDown.ActiveIndex = 0;
+            else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
+            else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
+            if (P.NonCybernetic)
             {
-                foreach (ThreeStateButton threeStateButton in ResourceButtons)
-                    threeStateButton.Draw(ScreenManager, (int)P.GetGoodAmount(threeStateButton.Good));
+                FoodStorage.Draw(batch);
+                foodDropDown.Draw(batch);
             }
             else
             {
-                FoodStorage.Progress = P.FoodHere;
-                ProdStorage.Progress = P.ProdHere;
-                if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
-                else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
-                else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
-                if (P.NonCybernetic)
-                {
-                    FoodStorage.Draw(batch);
-                    foodDropDown.Draw(batch);
-                }
-                else
-                {
-                    FoodStorage.DrawGrayed(batch);
-                    foodDropDown.DrawGrayed(batch);
-                }
-                ProdStorage.Draw(batch);
-                if      (P.PS == Planet.GoodState.STORE)  prodDropDown.ActiveIndex = 0;
-                else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
-                else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
-                prodDropDown.Draw(batch);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
+                FoodStorage.DrawGrayed(batch);
+                foodDropDown.DrawGrayed(batch);
             }
 
-            DrawOrbitalStats(batch);
-
-            if (ScreenManager.NumScreens == 2)
-                Popup = true;
-
-            close.Draw(batch);
-            DrawActiveBuildingEntry(batch); // draw dragged item as topmost
+            ProdStorage.Draw(batch);
+            if (P.PS == Planet.GoodState.STORE) prodDropDown.ActiveIndex = 0;
+            else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
+            else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
+            prodDropDown.Draw(batch);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
             if (FoodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(73);
             if (ProfStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(74);
+        }
+
+        void DrawPlanetSurfaceGrid(SpriteBatch batch)
+        {
+            var planetGridRect = new Rectangle(GridPos.X, GridPos.Y + 1, GridPos.Width - 4, GridPos.Height - 3);
+            batch.Draw(ResourceManager.Texture("PlanetTiles/" + P.PlanetTileId), planetGridRect, Color.White);
+
+            foreach (PlanetGridSquare pgs in P.TilesList)
+            {
+                if (!pgs.Habitable)
+                    batch.FillRectangle(pgs.ClickRect, new Color(0, 0, 0, 200));
+
+                batch.DrawRectangle(pgs.ClickRect, new Color(211, 211, 211, 70), 2f);
+                if (pgs.building != null)
+                {
+                    var buildingIcon = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
+                        pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                    batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.building.Icon + "_64x64"),
+                        buildingIcon, pgs.building.IsPlayerAdded ? Color.WhiteSmoke : Color.White);
+                }
+                else if (pgs.QItem != null)
+                {
+                    Rectangle destinationRectangle2 = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32,
+                        pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
+                    batch.Draw(ResourceManager.Texture("Buildings/icon_" + pgs.QItem.Building.Icon + "_64x64"),
+                        destinationRectangle2, new Color(255, 255, 255, 128));
+                }
+
+                if (pgs.Biosphere && P.Owner != null)
+                {
+                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.5f));
+                }
+
+                DrawPGSIcons(pgs);
+            }
+
+            foreach (PlanetGridSquare planetGridSquare in P.TilesList)
+            {
+                if (planetGridSquare.Highlighted)
+                    batch.DrawRectangle(planetGridSquare.ClickRect, Color.White, 2f);
+            }
         }
 
         void DrawOrbitalStats(SpriteBatch batch)
@@ -1039,17 +1023,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (base.HandleInput(input))
-                return true;
-
-            if (Popup)
-            {
-                if (!input.RightMouseHeldUp)
-                    return true;
-                else
-                    Popup = false;
-            }
-            return false;
+            return base.HandleInput(input);
         }
 
         bool HandleTroopSelect(InputState input)
