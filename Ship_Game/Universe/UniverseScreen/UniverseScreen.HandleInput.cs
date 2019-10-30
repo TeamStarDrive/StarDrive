@@ -142,7 +142,7 @@ namespace Ship_Game
 
             var colonyScreen = workersPanel as ColonyScreen;
             bool dismiss = (input.Escaped || input.RightMouseClick) && colonyScreen?.ClickedTroop == false;
-            if (dismiss)
+            if (dismiss || !workersPanel.IsActive)
             {
                 AdjustCamTimer = 1f;
                 if (returnToShip)
