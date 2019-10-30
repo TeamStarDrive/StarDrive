@@ -142,7 +142,7 @@ namespace Ship_Game
         public bool Hover;
         bool Pressed;
 
-        public int WhichToolTip;
+        public int Tooltip;
         public Color BaseColor = Color.White;
 
         readonly ToggleButtonStyle Style;
@@ -264,8 +264,8 @@ namespace Ship_Game
             if (!Hover)
             {
                 GameAudio.ButtonMouseOver();
-                if (WhichToolTip != 0)
-                    ToolTip.CreateTooltip(WhichToolTip);
+                if (Tooltip != 0)
+                    ToolTip.CreateTooltip(Tooltip);
             }
             Hover = true;
 
