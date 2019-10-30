@@ -7,41 +7,41 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
-	public sealed class AgentComponent : UIElementContainer
-	{
-		public Agent SelectedAgent;
+    public sealed class AgentComponent : UIElementContainer
+    {
+        public Agent SelectedAgent;
 
-		public Rectangle ComponentRect;
+        public Rectangle ComponentRect;
 
-		public Rectangle SubRect;
+        public Rectangle SubRect;
 
-		public Rectangle OpsSubRect;
+        public Rectangle OpsSubRect;
 
-		public ScrollList AgentSL;
+        public ScrollList AgentSL;
 
-		public ScrollList OpsSL;
+        public ScrollList OpsSL;
 
-		private ScreenManager ScreenManager;
+        private ScreenManager ScreenManager;
 
-		public DanButton RecruitButton;
+        public DanButton RecruitButton;
 
         public EspionageScreen EspionageScreen;
 
-		private MissionEntry Training;
+        private MissionEntry Training;
 
-		private MissionEntry Infiltrate;
+        private MissionEntry Infiltrate;
 
-		private MissionEntry Assassinate;
+        private MissionEntry Assassinate;
 
-		private MissionEntry Sabotage;
+        private MissionEntry Sabotage;
 
-		private MissionEntry StealTech;
+        private MissionEntry StealTech;
 
-		private MissionEntry StealShip;
+        private MissionEntry StealShip;
 
-		private MissionEntry InciteRebellion;
+        private MissionEntry InciteRebellion;
 
-		private Selector selector;
+        private Selector selector;
         private int spyLimitCount;
         private int empirePlanetSpys;
 
@@ -126,85 +126,85 @@ namespace Ship_Game
             }
         }
 
-	    private static void DrawAgent(SpriteBatch batch, ScrollList.Entry e, Agent agent)
-	    {
+        private static void DrawAgent(SpriteBatch batch, ScrollList.Entry e, Agent agent)
+        {
             SubTexture spy  = ResourceManager.Texture("UI/icon_spy");
             SubTexture star = ResourceManager.Texture("UI/icon_star");
 
             var r = new Rectangle(e.X, e.Y, 25, 26);
-	        batch.Draw(spy, r, Color.White);
-	        var namecursor = new Vector2(r.X + 30, r.Y);
+            batch.Draw(spy, r, Color.White);
+            var namecursor = new Vector2(r.X + 30, r.Y);
 
-	        batch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
-	        namecursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
-	        batch.DrawString(Fonts.Arial12, Localizer.Token(agent.MissionNameIndex), namecursor, Color.Gray);
+            batch.DrawString(Fonts.Arial12Bold, agent.Name, namecursor, Color.White);
+            namecursor.Y += (Fonts.Arial12Bold.LineSpacing + 2);
+            batch.DrawString(Fonts.Arial12, Localizer.Token(agent.MissionNameIndex), namecursor, Color.Gray);
 
-	        for (int j = 0; j < agent.Level; j++)
-	        {
-	            var levelRect = new Rectangle(e.Right - 18 - 12 * j, e.Y, 12, 11);
-	            batch.Draw(star, levelRect, Color.White);
-	        }
+            for (int j = 0; j < agent.Level; j++)
+            {
+                var levelRect = new Rectangle(e.Right - 18 - 12 * j, e.Y, 12, 11);
+                batch.Draw(star, levelRect, Color.White);
+            }
 
-	        if (agent.Mission != AgentMission.Defending)
-	        {
-	            if (agent.TargetEmpire.NotEmpty() && agent.Mission != AgentMission.Training &&
-	                agent.Mission != AgentMission.Undercover)
-	            {
-	                Vector2 targetCursor = namecursor;
-	                targetCursor.X += 75f;
-	                string mission = Localizer.Token(2199) + ": " +
-	                                 EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
-	                batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
-	            }
-	            else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
-	            {
-	                Vector2 targetCursor = namecursor;
-	                targetCursor.X += 75f;
-	                string mission = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
-	                batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
-	            }
+            if (agent.Mission != AgentMission.Defending)
+            {
+                if (agent.TargetEmpire.NotEmpty() && agent.Mission != AgentMission.Training &&
+                    agent.Mission != AgentMission.Undercover)
+                {
+                    Vector2 targetCursor = namecursor;
+                    targetCursor.X += 75f;
+                    string mission = Localizer.Token(2199) + ": " +
+                                     EmpireManager.GetEmpireByName(agent.TargetEmpire).data.Traits.Plural;
+                    batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
+                }
+                else if (agent.TargetGUID != Guid.Empty && agent.Mission == AgentMission.Undercover)
+                {
+                    Vector2 targetCursor = namecursor;
+                    targetCursor.X += 75f;
+                    string mission = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
+                    batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
+                }
 
-	            if (agent.Mission != AgentMission.Undercover)
-	            {
-	                Vector2 turnsCursor = namecursor;
-	                turnsCursor.X += 193f;
-	                string mission = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
-	                batch.DrawString(Fonts.Arial12, mission, turnsCursor, Color.Gray);
-	            }
-	        }
-	    }
+                if (agent.Mission != AgentMission.Undercover)
+                {
+                    Vector2 turnsCursor = namecursor;
+                    turnsCursor.X += 193f;
+                    string mission = Localizer.Token(2200) + ": " + agent.TurnsRemaining;
+                    batch.DrawString(Fonts.Arial12, mission, turnsCursor, Color.Gray);
+                }
+            }
+        }
 
-	    public static string GetName(string[] tokens)
-		{
-			var firstNames = new Array<string>();
-			var lastNames = new Array<string>();
+        public static string GetName(string[] tokens)
+        {
+            var firstNames = new Array<string>();
+            var lastNames = new Array<string>();
             foreach (string t in tokens)
-			{
-				if (t.Split(' ').Length != 1)
-				{
-					lastNames.Add(t);
-				}
-				else
-				{
-					firstNames.Add(t);
-					lastNames.Add(t);
-				}
-			}
+            {
+                if (t.Split(' ').Length != 1)
+                {
+                    lastNames.Add(t);
+                }
+                else
+                {
+                    firstNames.Add(t);
+                    lastNames.Add(t);
+                }
+            }
 
             string first = RandomMath.RandItem(firstNames);
             string last  = RandomMath.RandItem(lastNames);
             return $"{first} {last}";
-		}
+        }
 
 
-	    string[] LoadNames()
-	    {
-	        string playerNames = $"Content/NameGenerators/spynames_{EmpireManager.Player.data.Traits.ShipType}.txt";
-	        string names = File.Exists(playerNames)
-	            ? File.ReadAllText(playerNames)
-	            : File.ReadAllText("Content/NameGenerators/spynames_Humans.txt");
-	        return names.Split(',');
-	    }
+        string[] LoadNames()
+        {
+            string playerNames = $"Content/NameGenerators/spynames_{EmpireManager.Player.data.Traits.ShipType}.txt";
+            string names = File.Exists(playerNames)
+                ? File.ReadAllText(playerNames)
+                : File.ReadAllText("Content/NameGenerators/spynames_Humans.txt");
+            return names.Split(',');
+        }
 
         //added by gremlin deveksmod Spy Handleinput
         public override bool HandleInput(InputState input)
@@ -275,12 +275,12 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-		public void Reinitialize()
-		{
-		    if (SelectedAgent == null)
-		        return;
-		    foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
-		        mission.UpdateMissionAvailability();
-		}
-	}
+        public void Reinitialize()
+        {
+            if (SelectedAgent == null)
+                return;
+            foreach (MissionEntry mission in OpsSL.AllItems<MissionEntry>())
+                mission.UpdateMissionAvailability();
+        }
+    }
 }
