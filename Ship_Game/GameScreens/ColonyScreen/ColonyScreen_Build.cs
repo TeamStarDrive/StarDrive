@@ -133,19 +133,19 @@ namespace Ship_Game
                 });
             }
 
-            if (!BuildableShipsChanged(categories))
-                return;
-            
-            BuildableShipHierarchy = categories;
-            BuildableList.Reset();
-
-            // and then sort each ship category individually by Strength
-            foreach (ShipCategory category in categories)
+            if (ResetBuildableList || BuildableShipsChanged(categories))
             {
-                // and add to Build list
-                BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
-                foreach (Ship ship in category.Ships)
-                    catHeader.AddSubItem(new BuildableListItem(this, ship));
+                BuildableShipHierarchy = categories;
+                BuildableList.Reset();
+
+                // and then sort each ship category individually by Strength
+                foreach (ShipCategory category in categories)
+                {
+                    // and add to Build list
+                    BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
+                    foreach (Ship ship in category.Ships)
+                        catHeader.AddSubItem(new BuildableListItem(this, ship));
+                }
             }
         }
 
@@ -209,6 +209,11 @@ namespace Ship_Game
         void WriteLine(ref Vector2 cursor, SpriteFont font)
         {
             cursor.Y += font.LineSpacing + 2;
+        }
+
+        void OnBuildableItemDoubleClicked(BuildableListItem item)
+        {
+            item.BuildIt(1);
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)

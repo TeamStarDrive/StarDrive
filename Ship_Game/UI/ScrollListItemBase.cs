@@ -200,7 +200,8 @@ namespace Ship_Game
 
             if (IsHeader)
             {
-                var r = new Rectangle((int)X, (int)Y, (int)Width - 40, (int)Height - 10);
+                int width = Math.Min(350, (int)Width - 40);
+                var r = new Rectangle((int)X, (int)Y, width, (int)Height - 10);
                 new Selector(r, (Hovered ? new Color(95, 82, 47) : new Color(32, 30, 18))).Draw(batch);
 
                 var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
@@ -215,7 +216,7 @@ namespace Ship_Game
                 }
             }
 
-            if (DynamicElements != null)
+            if (DynamicElements != null && Hovered)
             {
                 for (int i = 0; i < DynamicElements.Count; ++i)
                 {

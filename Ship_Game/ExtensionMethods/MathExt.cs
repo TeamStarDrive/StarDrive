@@ -192,6 +192,10 @@ namespace Ship_Game
         public static Rectangle Bevel(this Rectangle r, int bevel)
             => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
 
+        public static Rectangle Bevel(this Rectangle r, int bevelX, int bevelY)
+            => new Rectangle(r.X - bevelX, r.Y - bevelY, r.Width + bevelX*2, r.Height + bevelY*2);
+
+
         public static Rectangle Widen(this Rectangle r, int widen)
             => new Rectangle(r.X - widen, r.Y, r.Width + widen*2, r.Height);
 

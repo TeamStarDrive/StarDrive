@@ -21,7 +21,7 @@ namespace Ship_Game
     {
         // Top and Bottom padding for list items
         const int PaddingTop   = 24;
-        const int PaddingBot   = 8;
+        const int PaddingBot   = 12;
         const int PaddingLeft  = 12;
         const int PaddingRight = 24;
         const int PaddingItem  = 4;
@@ -42,7 +42,6 @@ namespace Ship_Game
 
         protected float ClickTimer;
         protected const float TimerDelay = 0.05f;
-        protected int EntryHeight;
         
         // this controls the visual style of the ScrollList
         // can be freely changed at any point
@@ -77,7 +76,7 @@ namespace Ship_Game
         }
 
         // If TRUE, allows automatic dragging of ScrollList Items
-        public bool IsDraggable = false;
+        public bool EnableDragEvents = false;
 
         public abstract void OnItemHovered(ScrollListItemBase item);
         public abstract void OnItemClicked(ScrollListItemBase item);
@@ -86,11 +85,20 @@ namespace Ship_Game
 
         public virtual void OnItemExpanded(ScrollListItemBase item, bool expanded)
         {
-            // NOTE: This adds list index stability when closing items
-            if (!expanded)
+            // NOTE: Modify the index when opening/closing headers, to make list usage more convenient
+            if (expanded)
             {
-                VisibleItemsBegin = Math.Max(0, VisibleItemsBegin - item.NumSubItems);
+                float relClickPos = (float) item.VisibleIndex / MaxVisibleItems;
+                if (relClickPos >= 0.5f)
+                {
+                    VisibleItemsBegin += Math.Min(MaxVisibleItems / 2, MaxVisibleItems);
+                }
             }
+            else
+            {
+                //VisibleItemsBegin = Math.Max(0, VisibleItemsBegin - item.NumSubItems);
+            }
+
             RequiresLayout = true;
         }
 
@@ -182,7 +190,7 @@ namespace Ship_Game
                     // only show selector if item is not a Header element
                     if (thisHovered && !item.IsHeader && EnableItemHighlight)
                     {
-                        SelectionBox = new Selector(item.Rect.Bevel(2), useRealRect:true);
+                        SelectionBox = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
                     }
                 }
             }
@@ -218,13 +226,17 @@ namespace Ship_Game
         
         public ScrollListStyleTextures GetStyle() => ScrollListStyleTextures.Get(Style);
 
+
         // flattened entries
         protected readonly Array<ScrollListItemBase> FlatEntries = new Array<ScrollListItemBase>();
         
-        protected abstract void FlattenEntries();
-
         // visible range is [begin, end)
         protected int VisibleItemsBegin, VisibleItemsEnd;
+
+        protected int EntryHeight;
+        protected int MaxVisibleItems;
+        
+        protected abstract void FlattenEntries();
 
         // Updates the visible index range
         // @return TRUE if this caused FirstVisibleIndex or LastVisibleIndex to change
@@ -265,9 +277,9 @@ namespace Ship_Game
                 if (height != 0) EntryHeight = height;
             }
 
-            // PaddingItem*2 -- this gives padding to top and bottom of the items when scrolling
-            float maxVisibleItemsF = (float)(ItemsRect.Height - PaddingItem*2) / (EntryHeight + PaddingItem);
-            int maxVisibleItems = (int)Math.Ceiling(maxVisibleItemsF);
+            // PaddingBot gives padding bottom of the items when scrolling
+            float maxVisibleItemsF = (float)(ItemsRect.Height - PaddingBot) / (EntryHeight + PaddingItem);
+            MaxVisibleItems = (int)Math.Ceiling(maxVisibleItemsF);
             ShouldDrawScrollBar = FlatEntries.Count > (int)Math.Floor(maxVisibleItemsF);
 
             int nextItemY = (ItemsRect.Y + PaddingItem);
@@ -277,19 +289,19 @@ namespace Ship_Game
                 // when scrollbar was moved being dragged by input, use it to update the visible index
                 float relScrollPos = GetRelativeScrollPosFromScrollBar();
                 float scrolledIndexF = Math.Max(0, FlatEntries.Count - maxVisibleItemsF) * relScrollPos;
-                UpdateVisibleIndex(scrolledIndexF, maxVisibleItems);
+                UpdateVisibleIndex(scrolledIndexF, MaxVisibleItems);
 
                 float remainder = (scrolledIndexF - VisibleItemsBegin) % 1f;
                 int scrollOffset = (int)Math.Floor(remainder * EntryHeight);
                 nextItemY -= scrollOffset;
-                Log.Info($"pos={relScrollPos} idxF={scrolledIndexF} rem={remainder} off={scrollOffset}");
+                //Log.Info($"pos={relScrollPos} idxF={scrolledIndexF} rem={remainder} off={scrollOffset}");
             }
             else // otherwise, update/clamp visible indices and recalculate scrollbar
             {
                 int begin = VisibleItemsBegin;
-                UpdateVisibleIndex(begin, maxVisibleItems);
-                UpdateScrollBarToCurrentIndex(maxVisibleItems);
-                Log.Info($"Before=[{begin},{VisibleItemsEnd}) After=[{VisibleItemsBegin},{VisibleItemsEnd})");
+                UpdateVisibleIndex(begin, MaxVisibleItems);
+                UpdateScrollBarToCurrentIndex(MaxVisibleItems);
+                //Log.Info($"Before=[{begin},{VisibleItemsEnd}) After=[{VisibleItemsBegin},{VisibleItemsEnd})");
             }
 
             int visibleIndex = 0;
@@ -347,6 +359,19 @@ namespace Ship_Game
 
         // move the scrollbar by requested amount of pixels up (-) or down (+)
         void ScrollByScrollBar(int deltaScroll) => SetScrollBarPosition(ScrollBar.Y + deltaScroll);
+
+        public override void Update(float deltaTime)
+        {
+            if (!Visible)
+                return;
+            
+            base.Update(deltaTime);
+
+            for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+            {
+                FlatEntries[i].Update(deltaTime);
+            }
+        }
 
         #endregion
 

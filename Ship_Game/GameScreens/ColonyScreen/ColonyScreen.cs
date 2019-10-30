@@ -170,11 +170,12 @@ namespace Ship_Game
             UpdateButtons();
 
             BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 20, 
-                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height - 60))
-            {
-                OnTabChange = OnBuildableTabChanged
-            };
+                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height - 60));
+            BuildableTabs.OnTabChange = OnBuildableTabChanged;
+
             BuildableList = Add(new ScrollList<BuildableListItem>(BuildableTabs));
+            BuildableList.EnableItemHighlight = true;
+            BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
                                                        ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
@@ -187,11 +188,9 @@ namespace Ship_Game
             queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - 40 - BuildableTabs.Height - 20 - 3);
             queue.AddTab(Localizer.Token(337));
 
-            ConstructionQueue = Add(new ScrollList<QueueItem>(queue)
-            {
-                EnableItemHighlight = true,
-                IsDraggable = true
-            });
+            ConstructionQueue = Add(new ScrollList<QueueItem>(queue));
+            ConstructionQueue.EnableItemHighlight = true;
+            ConstructionQueue.EnableDragEvents = true;
 
             PlanetIcon = new Rectangle((int)PlanetInfo.Right - 148, (int)PlanetInfo.Y + ((int)PlanetInfo.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
