@@ -69,6 +69,8 @@ namespace Ship_Game
             {
                 if (Screen.ActiveBuildingEntry == null && Building != null && input.LeftMouseHeld(0.1f))
                     Screen.ActiveBuildingEntry = this;
+
+                Screen.ShowSelectedShipOverlay(Pos, Ship);
             }
             return captured;
         }
@@ -220,9 +222,6 @@ namespace Ship_Game
             batch.DrawString(Font12, GetShipUpkeep(ship).String(2)+" BC/Y", Right-184, upkeepY, Color.Salmon);
             batch.DrawString(Font12, GetShipCost(ship).ToString(), Right-92, upkeepY);
             batch.Draw(ProdIcon, Right - 120, CenterY - ProdIcon.CenterY - 4);
-
-            if (Hovered)
-                Screen.DrawSelectedShipInfo((int)X, (int)CenterY, ship, batch);
         }
 
         static string GetShipName(Ship ship)

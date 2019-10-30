@@ -55,7 +55,7 @@ namespace Ship_Game
             {
                 foreach (FighterListItem e in AllEntries)
                     if (ActiveModule.hangarShipUID == e.Ship.Name)
-                        SelectionBox = new Selector(e.Rect);
+                        Highlight = new Selector(e.Rect);
             }
             base.OnItemHovered(item);
         }
