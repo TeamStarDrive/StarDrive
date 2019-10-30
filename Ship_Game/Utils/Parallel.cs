@@ -267,7 +267,7 @@ namespace Ship_Game
             return true;
         }
 
-        public static int PoolSize => Pool.Count;
+        public static int PoolSize { get { lock (Pool) { return Pool.Count; } } }
 
         static ParallelTask NextTask(ref int poolIndex)
         {
@@ -340,8 +340,6 @@ namespace Ship_Game
         /// will utilize all cores of the CPU at default affinity.
         /// Ranges are properly partitioned to avoid false sharing
         /// and process the items in batched to avoid delegate callback overhead
-        /// 
-        /// Parallel.For loops are forbidden (ThreadStateException)
         /// 
         /// In case of ParallelTasks encountering an exception, the first captured exception
         /// will be thrown once ALL loop branches are complete.
