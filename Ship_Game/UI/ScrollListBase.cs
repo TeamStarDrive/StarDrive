@@ -48,7 +48,10 @@ namespace Ship_Game
         public ListStyle Style;
 
         // Automatic Selection highlight
-        public Selector SelectionBox;
+        public Selector Highlight;
+
+        // Index of the currently highlighted ScrollList Item, -1 if no highlighted item
+        public int HighlightedIndex = -1;
 
         // If TRUE, automatically draws Selection highlight around each ScrollList Item
         public bool EnableItemHighlight;
@@ -190,7 +193,8 @@ namespace Ship_Game
                     // only show selector if item is not a Header element
                     if (thisHovered && !item.IsHeader && EnableItemHighlight)
                     {
-                        SelectionBox = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
+                        HighlightedIndex = i;
+                        Highlight = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
                     }
                 }
             }
@@ -198,7 +202,8 @@ namespace Ship_Game
             // Not hovering over any items? Clear the SelectionBox
             if (!anyHovered && EnableItemHighlight)
             {
-                SelectionBox = null;
+                HighlightedIndex = -1;
+                Highlight = null;
             }
             return anyCaptured;
         }
@@ -419,7 +424,7 @@ namespace Ship_Game
             //batch.DrawRectangle(ItemsRect, Color.Red);
 
             if (EnableItemHighlight)
-                SelectionBox?.Draw(batch);
+                Highlight?.Draw(batch);
 
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
             batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsRect.X - 10, ItemsRect.Y - 5, ItemsRect.Width + 20, ItemsRect.Height + 5);

@@ -24,6 +24,12 @@ namespace Ship_Game
             batch.Draw(texture.Texture, new Vector2(x, y), texture.Rect, Color.White);
         }
 
+        public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle destRect)
+        {
+            CheckSubTextureDisposed(texture);
+            batch.Draw(texture.Texture, destRect, texture.Rect, Color.White);
+        }
+
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
                                 Vector2 position, Color color)
         {

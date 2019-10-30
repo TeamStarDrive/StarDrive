@@ -9,7 +9,6 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
-        Ship SelectedShip;
         bool ResetBuildableList;
 
         readonly string BuildingsTabText = Localizer.Token(334); // BUILDINGS
@@ -149,68 +148,6 @@ namespace Ship_Game
             }
         }
 
-        public void DrawSelectedShipInfo(int x, int y, Ship ship, SpriteBatch batch)
-        {
-            if (ship != SelectedShip) // no need to do these calcs all the time for the same ship
-            {
-                // TODO: USE NEW FAST POWER RECALC FROM SHIP DESIGN SCREEN
-                ship.RecalculatePower();
-                ship.ShipStatusChange();
-                SelectedShip = ship;
-            }
-
-            var shipBackground  = new Rectangle(x - 840, y - 120, 360, 240);
-            var shipOverlay     = new Rectangle(x - 700, y - 100, 200, 200);
-            Vector2 cursor      = new Vector2(x - 815, y - 119);
-            float mass          = ship.Mass * EmpireManager.Player.data.MassModifier;
-            float subLightSpeed = ship.Thrust / mass; 
-            float warpSpeed     = ship.WarpThrust / mass * EmpireManager.Player.data.FTLModifier;
-            float turnRate      = ship.TurnThrust.ToDegrees() / mass / 700;
-            batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground, Color.White);
-            ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-            DrawShipValueLine(ship.Name, "", ref cursor, batch, Font12, Color.White);
-            DrawShipValueLine(ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", ref cursor, batch, Font8, Color.Gray);
-            WriteLine(ref cursor, Font8);
-            DrawShipValueLine("Weapons:", ship.Weapons.Count, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipValueLine("Max W.Range:", ship.WeaponsMaxRange, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipValueLine("Avr W.Range:", ship.WeaponsAvgRange, ref cursor, batch, Font8, Color.LightBlue);
-            DrawShipValueLine("Warp:", warpSpeed, ref cursor, batch, Font8, Color.LightGreen);
-            DrawShipValueLine("Speed:", subLightSpeed, ref cursor, batch, Font8, Color.LightGreen);
-            DrawShipValueLine("Turn Rate:", turnRate, ref cursor, batch, Font8, Color.LightGreen);
-            DrawShipValueLine("Repair:", ship.RepairRate, ref cursor, batch, Font8, Color.Goldenrod);
-            DrawShipValueLine("Shields:", ship.shield_max, ref cursor, batch, Font8, Color.Goldenrod);
-            DrawShipValueLine("EMP Def:", ship.EmpTolerance, ref cursor, batch, Font8, Color.Goldenrod);
-            DrawShipValueLine("Hangars:", ship.Carrier.AllFighterHangars.Length, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipValueLine("Troop Bays:", ship.Carrier.AllTroopBays.Length, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipValueLine("Troops:", ship.TroopCapacity, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipValueLine("Bomb Bays:", ship.BombBays.Count, ref cursor, batch, Font8, Color.IndianRed);
-            DrawShipValueLine("Cargo Space:", ship.CargoSpaceMax, ref cursor, batch, Font8, Color.Khaki);
-        }
-
-        void DrawShipValueLine(string description, string data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
-        {
-            WriteLine(ref cursor, font);
-            Vector2 ident = new Vector2(cursor.X + 80, cursor.Y);
-            batch.DrawString(font, description, cursor, color);
-            batch.DrawString(font, data, ident, color);
-        }
-
-        void DrawShipValueLine(string description, float data, ref Vector2 cursor, SpriteBatch batch, SpriteFont font, Color color)
-        {
-            if (data.LessOrEqual(0))
-                return;
-
-            WriteLine(ref cursor, font);
-            Vector2 ident = new Vector2(cursor.X + 80, cursor.Y);
-            batch.DrawString(font, description, cursor, color);
-            batch.DrawString(font, data.GetNumberString(), ident, color);
-        }
-
-        void WriteLine(ref Vector2 cursor, SpriteFont font)
-        {
-            cursor.Y += font.LineSpacing + 2;
-        }
-
         void OnBuildableItemDoubleClicked(BuildableListItem item)
         {
             item.BuildIt(1);
@@ -270,6 +207,42 @@ namespace Ship_Game
             }
             GameAudio.AcceptClick();
         }
+
+        bool BuildOrbital(Ship orbital)
+        {
+            if (orbital == null || P.IsOutOfOrbitalsLimit(orbital))
+                return false;
+
+            P.AddOrbital(orbital);
+            return true;
+        }
+
+        void OnBuildPlatformClick(UIButton b)
+        {
+            if (BuildOrbital(P.Owner.BestPlatformWeCanBuild))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnBuildStationClick(UIButton b)
+        {
+            if (BuildOrbital(P.Owner.BestStationWeCanBuild))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
+        void OnBuildShipyardClick(UIButton b)
+        {
+            string shipyardName = ResourceManager.ShipsDict[P.Owner.data.DefaultShipyard].Name;
+            Ship shipyard = ResourceManager.GetShipTemplate(shipyardName);
+            if (BuildOrbital(shipyard))
+                GameAudio.AffirmativeClick();
+            else
+                GameAudio.NegativeClick();
+        }
+
 
         void DrawActiveBuildingEntry(SpriteBatch batch)
         {
