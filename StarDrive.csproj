@@ -292,8 +292,12 @@
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\BuildableListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Draw.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_HandleInput.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Update.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ShipInfoOverlayComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignShipListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\GameBase.cs" />
