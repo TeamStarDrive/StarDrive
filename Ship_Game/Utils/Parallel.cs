@@ -12,8 +12,8 @@ namespace Ship_Game
     {
         bool IsComplete { get; }
         void SetResult(object value, Exception e);
-        bool Wait(int millisecondTimeout);
-        void CancelAndWait(int millisecondTimeout);
+        bool Wait(int millisecondTimeout = -1);
+        void CancelAndWait(int millisecondTimeout = -1);
     }
 
     public class TaskResult : ITaskResult
@@ -31,7 +31,9 @@ namespace Ship_Game
             Finished.Set();
         }
 
-        // wait until task has finished
+        // Wait until task has finished
+        // NOTE: Throws any unhandled exceptions caught from the task
+        // @return TRUE if task was completed
         public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
@@ -41,6 +43,7 @@ namespace Ship_Game
             return IsComplete;
         }
 
+        // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
             IsCancelRequested = true;
@@ -66,6 +69,7 @@ namespace Ship_Game
         }
 
         // Wait until task has finished
+        // NOTE: Throws any unhandled exceptions caught from the task
         // @return TRUE if task was completed
         public bool Wait(int millisecondTimeout = -1)
         {
@@ -75,7 +79,8 @@ namespace Ship_Game
                 throw Error;
             return IsComplete;
         }
-
+        
+        // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
             IsCancelRequested = true;
@@ -162,7 +167,8 @@ namespace Ship_Game
         void SetResult(object value, Exception e)
         {
             ITaskResult result = Result;
-            if (result == null) return;
+            if (result == null)
+                return;
             Result = null; // so if SetResult fails, we don't crash twice
             result.SetResult(value, e);
         }
@@ -269,19 +275,19 @@ namespace Ship_Game
 
         public static int PoolSize { get { lock (Pool) { return Pool.Count; } } }
 
-        static ParallelTask NextTask(ref int poolIndex)
+        // NOTE: This must be called in a `lock (Pool)` context,
+        //       Because there is a small race-condition between getting idle task and starting it
+        static ParallelTask NextTask()
         {
-            lock (Pool)
+            for (int poolIndex = 0; poolIndex < Pool.Count; ++poolIndex)
             {
-                for (; poolIndex < Pool.Count; ++poolIndex)
-                {
-                    ParallelTask task = Pool[poolIndex];
-                    if (!task.HasTasksToExecute()) return task;
-                }
-                var newTask = new ParallelTask(Pool.Count);
-                Pool.Add(newTask);
-                return newTask;
+                ParallelTask task = Pool[poolIndex];
+                if (!task.HasTasksToExecute())
+                    return task;
             }
+            var newTask = new ParallelTask(Pool.Count);
+            Pool.Add(newTask);
+            return newTask;
         }
 
         static int PhysicalCoreCount;
@@ -364,26 +370,25 @@ namespace Ship_Game
 
             int range = rangeEnd - rangeStart;
             int cores = Math.Min(range, MaxParallelism);
-            int len = range / cores;
-
-            // this can happen if the target CPU only has 1 core, or if the list has 1 item
-            if (cores == 1)
+            if (cores == 1) // this can happen if the target CPU only has 1 core, or if the list has 1 item
             {
                 body(rangeStart, rangeEnd);
                 return;
             }
 
             var tasks = new ParallelTask[cores];
-
-            int poolIndex = 0;
             int start = rangeStart;
-            for (int i = 0; i < cores; ++i, start += len)
+            int step = range / cores;
+            lock (Pool)
             {
-                int end = (i == cores - 1) ? rangeEnd : start + len;
+                for (int i = 0; i < cores; ++i, start += step)
+                {
+                    int end = (i == cores - 1) ? rangeEnd : start + step;
 
-                ParallelTask task = NextTask(ref poolIndex);
-                tasks[i] = task;
-                task.Start(start, end, body);
+                    ParallelTask task = NextTask();
+                    tasks[i] = task;
+                    task.Start(start, end, body);
+                }
             }
 
             Exception ex = null; // only store a single exception
@@ -415,10 +420,11 @@ namespace Ship_Game
 
         public static TaskResult Run(Action action)
         {
-            int poolIndex = 0;
-            ParallelTask task = NextTask(ref poolIndex);
             var result = new TaskResult();
-            task.Start(action, result);
+            lock (Pool)
+            {
+                NextTask().Start(action, result);
+            }
             return result;
         }
 
@@ -434,15 +440,11 @@ namespace Ship_Game
 
         public static TaskResult<T> Run<T>(Func<T> asyncFunc)
         {
-            int poolIndex = 0;
-            ParallelTask task = NextTask(ref poolIndex);
             var result = new TaskResult<T>();
-
-            object AsyncFunc()
+            lock (Pool)
             {
-                return asyncFunc();
+                NextTask().Start(() => asyncFunc(), result);
             }
-            task.Start(AsyncFunc, result);
             return result;
         }
     }
