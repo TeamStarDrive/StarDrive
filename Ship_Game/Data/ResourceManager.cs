@@ -729,13 +729,13 @@ namespace Ship_Game
                 "Textures/Troops",
                 "Textures/OrderButtons",
             };
-            foreach (string atlas in atlases)
+
+            Parallel.ForEach(atlases, atlas =>
             {
-                if (task?.IsCancelRequested == true)
-                    break;
-                LoadAtlas(atlas);
-            }
-            Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
+                if (task?.IsCancelRequested != true)
+                    LoadAtlas(atlas);
+            });
+            Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms  Total Parallel Tasks: {Parallel.PoolSize}");
         }
 
         public static ShipModule GetModuleTemplate(string uid) => ModuleTemplates[uid];
