@@ -118,13 +118,13 @@ namespace Ship_Game
 
             for (int i = 0; i < Elements.Count; ++i)
             {
-                UIElementV2 e = Elements[i];
-                if (e.Visible)
+                UIElementV2 element = Elements[i];
+                if (element.Visible)
                 {
-                    e.Update(deltaTime);
-                    if (e.DeferredRemove) { Remove(e); }
+                    element.Update(deltaTime);
+                    if (element.DeferredRemove) { Remove(element); }
                     // Update directly modified Elements array?
-                    else if (Elements[i] != e) { --i; }
+                    else if (Elements[i] != element) { --i; }
                 }
             }
 

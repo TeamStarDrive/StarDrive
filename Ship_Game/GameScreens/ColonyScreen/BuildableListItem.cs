@@ -21,7 +21,7 @@ namespace Ship_Game
         {
             Building = b;
         }
-        public BuildableListItem(ColonyScreen screen, Ship s) : this(screen, false, false)
+        public BuildableListItem(ColonyScreen screen, Ship s) : this(screen, true, true)
         {
             Ship = s;
         }
@@ -37,15 +37,14 @@ namespace Ship_Game
             if (edit) AddEdit(new Vector2(-20, 0), /*Edit Ship:*/52, OnEditClicked);
         }
 
+        public override int ItemHeight => 40;
+
         void OnPlusClicked()
         {
             int repeat = 1;
             if (Screen.Input.IsShiftKeyDown)     repeat = 5;
             else if (Screen.Input.IsCtrlKeyDown) repeat = 10;
-
-            if (Building != null) Screen.Build(Building);
-            else if (Ship != null) Screen.Build(Ship, repeat);
-            else if (Troop != null) Screen.Build(Troop, repeat);
+            BuildIt(repeat);
         }
 
         void OnEditClicked()
@@ -56,6 +55,13 @@ namespace Ship_Game
                 Screen.ScreenManager.AddScreen(sdScreen);
                 sdScreen.ChangeHull(Ship.shipData);
             }
+        }
+
+        public void BuildIt(int numItemsToBuild = 1)
+        {
+            if (Building != null) Screen.Build(Building);
+            else if (Ship != null) Screen.Build(Ship, numItemsToBuild);
+            else if (Troop != null) Screen.Build(Troop, numItemsToBuild);
         }
 
         public override bool HandleInput(InputState input)
@@ -72,6 +78,7 @@ namespace Ship_Game
         public override void Update(float deltaTime)
         {
             Troop?.Update(deltaTime);
+            base.Update(deltaTime);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -97,9 +104,9 @@ namespace Ship_Game
             string descr = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
             descr = Font8.ParseText(descr, 280f);
 
-            var position = new Vector2(List.X + 60f, Y - 4f);
+            var position = new Vector2(X + 60f, Y);
 
-            batch.Draw(icon, new Rectangle((int)X, (int)Y, 29, 30), buildColor);
+            batch.Draw(icon, new Rectangle((int)X + 12, (int)Y + 4, 32, 32), buildColor);
             batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), position, buildColor);
             position.Y += Font12.LineSpacing;
 

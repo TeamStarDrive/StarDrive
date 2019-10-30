@@ -182,7 +182,7 @@ namespace Ship_Game
 
         protected override void HandleDraggable(InputState input)
         {
-            if (IsDraggable && DraggedEntry == null)
+            if (EnableDragEvents && DraggedEntry == null)
             {
                 if (input.LeftMouseUp)
                 {
