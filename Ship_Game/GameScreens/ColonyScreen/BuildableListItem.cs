@@ -207,12 +207,12 @@ namespace Ship_Game
 
         void DrawShip(SpriteBatch batch, Ship ship)
         {
-            SpriteFont Font8 = Fonts.Arial8Bold, Font12 = Fonts.Arial12Bold;
+            SpriteFont Font12 = Fonts.Arial12Bold;
 
             // Everything from Left --> to --> Right 
             batch.Draw(ship.BaseHull.Icon, new Vector2(X+4, Y+4), new Vector2(32));
             batch.DrawString(Font12, GetShipName(ship), X+44, Y+4, Hovered ? Color.Green : Color.White);
-            batch.DrawLine(Font8, X+46, Y+20, 
+            batch.DrawLine(Fonts.Arial8Bold, X+46, Y+20, 
                 (ship.BaseHull.Name+": ", Color.DarkGray),
                 ($"Base Strength: {ship.BaseStrength.String(0)}", Color.Orange));
 
