@@ -41,11 +41,8 @@ namespace Ship_Game
         protected int DragStartMousePos;
         protected int DragStartScrollPos;
         protected bool DraggingScrollBar;
-        protected bool WasScrolled;
+        protected bool ScrollBarPosChanged;
         protected bool ShouldDrawScrollBar;
-
-        // The current scroll position of the scrollbar, clamped to [0, 1]
-        protected float RelScrollPos;
 
         protected float ClickTimer;
         protected const float TimerDelay = 0.05f;
@@ -265,15 +262,15 @@ namespace Ship_Game
             ShouldDrawScrollBar = FlatEntries.Count > (int)Math.Floor(maxVisibleItemsF);
 
             int nextItemY = (ItemsRect.Y + PaddingItem);
-            if (WasScrolled)
+            if (ScrollBarPosChanged)
             {
-                WasScrolled = false;
+                ScrollBarPosChanged = false;
                 // when scrollbar was moved being dragged by input, use it to update the visible index
-                RelScrollPos = GetRelativeScrollPosFromScrollBar();
-                float newIndexFraction = Math.Max(0, FlatEntries.Count - maxVisibleItemsF) * RelScrollPos;
-                UpdateVisibleIndex(newIndexFraction, maxVisibleItems);
+                float relScrollPos = GetRelativeScrollPosFromScrollBar();
+                float scrolledIndexF = Math.Max(0, FlatEntries.Count - maxVisibleItemsF) * relScrollPos;
+                UpdateVisibleIndex(scrolledIndexF, maxVisibleItems);
 
-                float remainder = (newIndexFraction - VisibleItemsBegin) % 1f;
+                float remainder = (scrolledIndexF - VisibleItemsBegin) % 1f;
                 int scrollOffset = (int)Math.Floor(remainder * EntryHeight);
                 nextItemY -= scrollOffset;
                 //Log.Info($"rpos={RelScrollPos} fidx={newIndexFraction} rem={remainder} offset={scrollOffset}");
@@ -281,7 +278,7 @@ namespace Ship_Game
             else // otherwise, update/clamp visible indices and recalculate scrollbar
             {
                 UpdateVisibleIndex(VisibleItemsBegin, maxVisibleItems);
-                UpdateScrollBar(maxVisibleItems);
+                UpdateScrollBarToCurrentIndex(maxVisibleItems);
             }
 
             int visibleIndex = 0;
@@ -302,7 +299,6 @@ namespace Ship_Game
             }
         }
 
-
         // this is the relative position of the scrollbar [0, 1] inside the scrollbar housing
         float GetRelativeScrollPosFromScrollBar()
         {
@@ -311,7 +307,7 @@ namespace Ship_Game
             return (scrollBarPos / scrollSpan);
         }
 
-        void UpdateScrollBar(int maxVisibleItems)
+        void UpdateScrollBarToCurrentIndex(int maxVisibleItems)
         {
             int startOffset = (int)(ScrollHousing.Height * (VisibleItemsBegin / (float)FlatEntries.Count));
             int barHeight   = (int)(ScrollHousing.Height * (maxVisibleItems / (float)FlatEntries.Count));
@@ -319,8 +315,6 @@ namespace Ship_Game
             ScrollBar = new Rectangle(ScrollHousing.X, ScrollHousing.Y + startOffset,
                                       GetStyle().ScrollBarMid.Normal.Width, barHeight);
             ScrollBarClickArea = ScrollBar.Widen(5);
-
-            RelScrollPos = GetRelativeScrollPosFromScrollBar();
         }
 
         // set scrollbar to requested position
@@ -336,7 +330,7 @@ namespace Ship_Game
             {
                 ScrollBar.Y = ScrollBarClickArea.Y = newScrollY;
                 RequiresLayout = true;
-                WasScrolled = true;
+                ScrollBarPosChanged = true;
             }
         }
 
