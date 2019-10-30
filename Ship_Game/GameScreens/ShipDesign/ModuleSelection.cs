@@ -119,7 +119,7 @@ namespace Ship_Game
             sel.Draw(ScreenManager.SpriteBatch);
             ShipModule mod = ParentScreen.ActiveModule ?? ParentScreen.HighlightedModule;
 
-            if (!ActiveModSubMenu.Tabs[0].Selected || mod == null)
+            if (ActiveModSubMenu.SelectedIndex != 0 || mod == null)
                 return;
 
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);

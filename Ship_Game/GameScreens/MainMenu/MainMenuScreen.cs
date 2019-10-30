@@ -240,7 +240,7 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.Update3DSound(CamPos);
             FTLManager.Update(this, FrameDeltaTime);
 
-            ScreenManager.UpdateSceneObjects(gameTime);
+            ScreenManager.UpdateSceneObjects();
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {

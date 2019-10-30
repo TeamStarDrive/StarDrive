@@ -85,7 +85,7 @@ namespace Ship_Game
 			}
             var center = ScreenManager.Center();
 			BridgeRect = new Rectangle((int)center.X - 640, (int)center.Y - 360, 1280, 720);
-			close = new CloseButton(this, new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
+			close = new CloseButton(this, BridgeRect.Right - 38, BridgeRect.Y + 15);
 			base.LoadContent();
 		}
 	}

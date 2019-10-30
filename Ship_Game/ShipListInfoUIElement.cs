@@ -74,7 +74,7 @@ namespace Ship_Game
             var gridPos = new Vector2(Housing.X + 16f, screenHeight - 45f);
             GridButton = new ToggleButton(gridPos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
-                Active = true
+                Enabled = true
             };
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
 
@@ -87,7 +87,6 @@ namespace Ship_Game
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon);
                 CombatStatusButtons.Add(button);
                 button.State = state;
-                button.HasToolTip = true;
                 button.WhichToolTip = toolTip;
                 ordersBarPos.X += orderSize;
             }
@@ -239,7 +238,7 @@ namespace Ship_Game
             {
                 GameAudio.AcceptClick();
                 ShowModules = !ShowModules;
-                GridButton.Active = ShowModules;
+                GridButton.Enabled = ShowModules;
                 return true;
             }
             if (AllShipsMine)
@@ -256,7 +255,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        button.Active = AllShipsInState(action);
+                        button.Enabled = AllShipsInState(action);
                     }
                 }
                 

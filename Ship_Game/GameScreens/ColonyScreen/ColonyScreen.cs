@@ -2,13 +2,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
-using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Linq.Expressions;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -16,59 +12,59 @@ namespace Ship_Game
     public partial class ColonyScreen : PlanetScreen
     {
         public Planet P;
-        private ToggleButton PlayerDesignsToggle;
+        ToggleButton PlayerDesignsToggle;
 
-        private Menu2 TitleBar;
-        private Vector2 TitlePos;
-        private Menu1 LeftMenu;
-        private Menu1 RightMenu;
-        private Submenu PlanetInfo;
-        private Submenu pDescription;
-        private Submenu pLabor;
-        private Submenu pStorage;
-        private Submenu pFacilities;
-        private Submenu build;
-        private Submenu queue;
-        private UICheckBox GovOrbitals;
-        private UICheckBox GovMilitia;
-        private UICheckBox DontScrapBuildings;
-        private UITextEntry PlanetName = new UITextEntry();
-        private Rectangle PlanetIcon;
+        Menu2 TitleBar;
+        Vector2 TitlePos;
+        Menu1 LeftMenu;
+        Menu1 RightMenu;
+        Submenu PlanetInfo;
+        Submenu pDescription;
+        Submenu pLabor;
+        Submenu pStorage;
+        Submenu pFacilities;
+        Submenu BuildableTabs;
+        Submenu queue;
+        UICheckBox GovOrbitals;
+        UICheckBox GovMilitia;
+        UICheckBox DontScrapBuildings;
+        UITextEntry PlanetName = new UITextEntry();
+        Rectangle PlanetIcon;
         public EmpireUIOverlay eui;
-        private ToggleButton LeftColony;
-        private ToggleButton RightColony;
-        private UIButton LaunchAllTroops;
-        private UIButton LaunchSingleTroop;
-        private UIButton BuildPlatform;
-        private UIButton BuildStation;
-        private UIButton BuildShipyard;
-        private UIButton CallTroops;  //fbedard
-        private DropOptions<int> GovernorDropdown;
-        public CloseButton close;
-        private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
-        private Rectangle GridPos;
-        private Submenu subColonyGrid;
-        private ScrollList<BuildListItem> buildSL;
-        private ScrollList<QueueItem> CQueue;
-        private DropDownMenu foodDropDown;
-        private DropDownMenu prodDropDown;
-        private ProgressBar FoodStorage;
-        private ProgressBar ProdStorage;
-        private Rectangle FoodStorageIcon;
-        private Rectangle ProfStorageIcon;
-        private float ButtonUpdateTimer;   // updates buttons once per second
-        private string PlatformsStats = "Platforms:";
-        private string StationsStats  = "Stations:";
-        private string ShipyardsStats = "Shipyards:";
+        ToggleButton LeftColony;
+        ToggleButton RightColony;
+        UIButton LaunchAllTroops;
+        UIButton LaunchSingleTroop;
+        UIButton BuildPlatform;
+        UIButton BuildStation;
+        UIButton BuildShipyard;
+        UIButton CallTroops;  //fbedard
+        DropOptions<int> GovernorDropdown;
+        CloseButton close;
+        Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
+        Rectangle GridPos;
+        Submenu subColonyGrid;
+
+        ScrollList<BuildableListItem> BuildableList;
+        ScrollList<QueueItem> ConstructionQueue;
+        DropDownMenu foodDropDown;
+        DropDownMenu prodDropDown;
+        ProgressBar FoodStorage;
+        ProgressBar ProdStorage;
+        Rectangle FoodStorageIcon;
+        Rectangle ProfStorageIcon;
+        float ButtonUpdateTimer;   // updates buttons once per second
+        string PlatformsStats = "Platforms:";
+        string StationsStats  = "Stations:";
+        string ShipyardsStats = "Shipyards:";
 
         ColonySliderGroup Sliders;
 
-        private object DetailInfo;
-        private Building ToScrap;
-        public BuildListItem ActiveBuildingEntry;
+        object DetailInfo;
+        Building ToScrap;
+        public BuildableListItem ActiveBuildingEntry;
 
         public bool ClickedTroop;
-        bool Reset;
         int EditHoverState;
 
         Rectangle EditNameButton;
@@ -81,91 +77,85 @@ namespace Ship_Game
         public ColonyScreen(GameScreen parent, Planet p, EmpireUIOverlay empUI) : base(parent)
         {
             P = p;
-            empUI.empire.UpdateShipsWeCanBuild();
             eui = empUI;
-            var theMenu1 = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
-            TitleBar = new Menu2(theMenu1);
-            LeftColony = new ToggleButton(new Vector2(theMenu1.X + 25, theMenu1.Y + 24), ToggleButtonStyle.ArrowLeft);
-            RightColony = new ToggleButton(new Vector2(theMenu1.X + theMenu1.Width - 39, theMenu1.Y + 24), ToggleButtonStyle.ArrowRight);
-            TitlePos = new Vector2(theMenu1.X + theMenu1.Width / 2 - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, theMenu1.Y + theMenu1.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            var theMenu2 = new Rectangle(2, theMenu1.Y + theMenu1.Height + 5, theMenu1.Width, ScreenHeight - (theMenu1.Y + theMenu1.Height) - 7);
-            LeftMenu = new Menu1(theMenu2);
-            var theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenWidth / 3 - 15, ScreenHeight - theMenu1.Y - 2);
-            RightMenu = new Menu1(theMenu3);
-            close = new CloseButton(this, new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
-            var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
-            PlanetInfo = new Submenu(theMenu4);
-            PlanetInfo.AddTab(Localizer.Token(326));
-            var theMenu5 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
-            pDescription = new Submenu(theMenu5);
+            empUI.empire.UpdateShipsWeCanBuild();
 
-            var laborPanel = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
-            pLabor = new Submenu(laborPanel);
+            var titleBar = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
+            TitleBar = new Menu2(titleBar);
+            LeftColony = new ToggleButton(new Vector2(titleBar.X + 25, titleBar.Y + 24), ToggleButtonStyle.ArrowLeft);
+            RightColony = new ToggleButton(new Vector2(titleBar.X + titleBar.Width - 39, titleBar.Y + 24), ToggleButtonStyle.ArrowRight);
+            TitlePos = new Vector2(titleBar.X + titleBar.Width / 2 - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, titleBar.Y + titleBar.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
+            RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
+            close = new CloseButton(this, RightMenu.Right - 52, RightMenu.Y + 22);
+            PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.25f * (LeftMenu.Height - 80)));
+            PlanetInfo.AddTab(Localizer.Token(326));
+            pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+
+            pLabor = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 20, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
             pLabor.AddTab(Localizer.Token(327));
 
-            CreateSliders(laborPanel);
+            CreateSliders(pLabor.Rect);
 
-            var theMenu7 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20 + theMenu4.Height + theMenu5.Height + laborPanel.Height + 40, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
-            pStorage = new Submenu(theMenu7);
+            pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + pLabor.Height + 40, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
             pStorage.AddTab(Localizer.Token(328));
 
             if (GlobalStats.HardcoreRuleset)
             {
-                int num2 = (theMenu7.Width - 40) / 4;
-                ResourceButtons.Add(new ThreeStateButton(p.FS, "Food", new Vector2(theMenu7.X + 20, theMenu7.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(p.PS, "Production", new Vector2(theMenu7.X + 20 + num2, theMenu7.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "Fissionables", new Vector2(theMenu7.X + 20 + num2 * 2, theMenu7.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "ReactorFuel", new Vector2(theMenu7.X + 20 + num2 * 3, theMenu7.Y + 30)));
+                float num2 = (pStorage.Width - 40) * 0.25f;
+                ResourceButtons.Add(new ThreeStateButton(p.FS, "Food", new Vector2(pStorage.X + 20, pStorage.Y + 30)));
+                ResourceButtons.Add(new ThreeStateButton(p.PS, "Production", new Vector2(pStorage.X + 20 + num2, pStorage.Y + 30)));
+                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "Fissionables", new Vector2(pStorage.X + 20 + num2 * 2, pStorage.Y + 30)));
+                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "ReactorFuel",  new Vector2(pStorage.X + 20 + num2 * 3, pStorage.Y + 30)));
             }
             else
             {
-                FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
+                FoodStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.33f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
                 FoodStorage.Max = p.Storage.Max;
                 FoodStorage.Progress = p.FoodHere;
                 FoodStorage.color = "green";
-                foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
+                foodDropDown = new DropDownMenu(pStorage.X + 100 + 0.4f * pStorage.Width + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*pStorage.Width, 18);
                 foodDropDown.AddOption(Localizer.Token(329));
                 foodDropDown.AddOption(Localizer.Token(330));
                 foodDropDown.AddOption(Localizer.Token(331));
                 foodDropDown.ActiveIndex = (int)p.FS;
                 var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
-                FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
-                ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
+                FoodStorageIcon = new Rectangle((int)pStorage.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
+                ProdStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.66f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
                 ProdStorage.Max = p.Storage.Max;
                 ProdStorage.Progress = p.ProdHere;
                 var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
-                ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
-                prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
+                ProfStorageIcon = new Rectangle((int)pStorage.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
+                prodDropDown = new DropDownMenu(pStorage.X + 100 + 0.4f*pStorage.Width + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*pStorage.Width, 18);
                 prodDropDown.AddOption(Localizer.Token(329));
                 prodDropDown.AddOption(Localizer.Token(330));
                 prodDropDown.AddOption(Localizer.Token(331));
                 prodDropDown.ActiveIndex = (int)p.PS;
             }
-            var theMenu8 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu4.Y, theMenu2.Width - 60 - theMenu4.Width, (int)(theMenu2.Height * 0.5));
-            subColonyGrid = new Submenu(theMenu8);
+
+            subColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             subColonyGrid.AddTab(Localizer.Token(332));
-            var theMenu9 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu8.Y + theMenu8.Height + 20, theMenu2.Width - 60 - theMenu4.Width, theMenu2.Height - 20 - theMenu8.Height - 40);
-            pFacilities = new Submenu(theMenu9);
+            pFacilities = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, subColonyGrid.Bottom + 20, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height - 20 - subColonyGrid.Height - 40);
             pFacilities.AddTab(Localizer.Token(333));
 
             ButtonUpdateTimer = 1;
-            LaunchAllTroops   = Button(theMenu8.X + theMenu8.Width - 175, theMenu8.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
-            LaunchSingleTroop = Button(theMenu8.X + theMenu8.Width - LaunchAllTroops.Rect.Width - 185,
-                                       theMenu8.Y - 5, "Launch Single Troop", OnLaunchSingleTroopClicked);
+            LaunchAllTroops   = Button(subColonyGrid.Right - 175, subColonyGrid.Y - 5, "Launch All Troops", OnLaunchTroopsClicked);
+            LaunchSingleTroop = Button(subColonyGrid.Right - LaunchAllTroops.Rect.Width - 185,
+                                       subColonyGrid.Y - 5, "Launch Single Troop", OnLaunchSingleTroopClicked);
 
-            CallTroops        = Button(theMenu8.X + theMenu8.Width - LaunchSingleTroop.Rect.Width - 365,
-                                       theMenu8.Y - 5, "Call Troops", OnSendTroopsClicked);
+            CallTroops        = Button(subColonyGrid.Right - LaunchSingleTroop.Rect.Width - 365,
+                                       subColonyGrid.Y - 5, "Call Troops", OnSendTroopsClicked);
 
             LaunchAllTroops.Tooltip   = Localizer.Token(1952);
             LaunchSingleTroop.Tooltip = Localizer.Token(1950);
             CallTroops.Tooltip        = Localizer.Token(1949);
 
-            BuildShipyard = Button(theMenu9.X + theMenu9.Width - 175, theMenu9.Y - 5, "Build Shipyard", OnBuildShipyardClick);
-            BuildStation  = Button(theMenu9.X + theMenu9.Width - LaunchAllTroops.Rect.Width - 185,
-                                   theMenu9.Y - 5, "Build Station", OnBuildStationClick);
+            BuildShipyard = Button(pFacilities.Right - 175, pFacilities.Y - 5, "Build Shipyard", OnBuildShipyardClick);
+            BuildStation  = Button(pFacilities.Right - LaunchAllTroops.Rect.Width - 185,
+                                   pFacilities.Y - 5, "Build Station", OnBuildStationClick);
 
-            BuildPlatform = Button(theMenu9.X + theMenu9.Width - LaunchSingleTroop.Rect.Width - 365,
-                                   theMenu9.Y - 5, "Build Platform", OnBuildPlatformClick);
+            BuildPlatform = Button(pFacilities.Right - LaunchSingleTroop.Rect.Width - 365,
+                                   pFacilities.Y - 5, "Build Platform", OnBuildPlatformClick);
 
             BuildShipyard.Tooltip = Localizer.Token(1948);
             BuildStation.Tooltip  = Localizer.Token(1947);
@@ -179,29 +169,31 @@ namespace Ship_Game
             UpdateGovOrbitalStats();
             UpdateButtons();
 
-            //new ScrollList(pFacilities, 40);
-            var theMenu10 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20, theMenu3.Width - 40, (int)(0.5 * (theMenu3.Height - 60)));
-            build = new Submenu(theMenu10);
-            build.AddTab(BuildingsTabText);
-            buildSL = new ScrollList<BuildListItem>(build);
-            PlayerDesignsToggle = new ToggleButton(new Vector2(build.Right - 270, build.Y),
-                                                   ToggleButtonStyle.Grid, "SelectionBox/icon_grid");
+            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 20, 
+                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height - 60))
+            {
+                OnTabChange = OnBuildableTabChanged
+            };
+            BuildableList = Add(new ScrollList<BuildableListItem>(BuildableTabs));
 
-            PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
-            if (p.HasSpacePort)
-                build.AddTab(Localizer.Token(335));
-            if (p.AllowInfantry)
-                build.AddTab(Localizer.Token(336));
-            var theMenu11 = new Rectangle(theMenu3.X + 20, theMenu3.Y + 20 + 20 + theMenu10.Height, theMenu3.Width - 40, theMenu3.Height - 40 - theMenu10.Height - 20 - 3);
-            queue = new Submenu(theMenu11);
+            PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
+                                                       ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
+            PlayerDesignsToggle.Enabled = GlobalStats.ShowAllDesigns;
+            PlayerDesignsToggle.WhichToolTip = 2225;
+            PlayerDesignsToggle.OnClick = OnPlayerDesignsToggleClicked;
+
+            ResetBuildableTabs();
+
+            queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - 40 - BuildableTabs.Height - 20 - 3);
             queue.AddTab(Localizer.Token(337));
 
-            CQueue = new ScrollList<QueueItem>(queue)
+            ConstructionQueue = Add(new ScrollList<QueueItem>(queue)
             {
+                EnableItemHighlight = true,
                 IsDraggable = true
-            };
+            });
 
-            PlanetIcon = new Rectangle(theMenu4.X + theMenu4.Width - 148, theMenu4.Y + (theMenu4.Height - 25) / 2 - 64 + 25, 128, 128);
+            PlanetIcon = new Rectangle((int)PlanetInfo.Right - 148, (int)PlanetInfo.Y + ((int)PlanetInfo.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
             int width = GridPos.Width / 7;
             int height = GridPos.Height / 5;
@@ -304,28 +296,10 @@ namespace Ship_Game
 
             pFacilities.Draw(batch);
             DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
-            build.Draw(batch);
+            BuildableTabs.Draw(batch);
             queue.Draw(batch);
 
-            if (build.Tabs[0].Selected)
-            {
-                DrawBuildingsWeCanBuild(batch);
-            }
-            else if (build.Tabs[1].Selected)
-            {
-                if (P.HasSpacePort)
-                    DrawBuildableShipsList(batch);
-                else if (P.AllowInfantry)
-                    DrawBuildTroopsList(batch);
-            }
-            else if (P.AllowInfantry && build.Tabs[2].Selected)
-            {
-                DrawBuildTroopsList(batch);
-            }
-
-            DrawConstructionQueue(batch);
-
-            buildSL.Draw(batch);
+            base.Draw(batch);
 
             DrawSliders(batch);
 
@@ -555,8 +529,6 @@ namespace Ship_Game
 
             DrawOrbitalStats(batch);
 
-            base.Draw(batch);
-
             if (ScreenManager.NumScreens == 2)
                 Popup = true;
 
@@ -660,7 +632,7 @@ namespace Ship_Game
 
         void DrawDetailInfo(SpriteBatch batch, Vector2 bCursor)
         {
-            if (pFacilities.Tabs.Count > 1 && pFacilities.Tabs[1].Selected)
+            if (pFacilities.NumTabs > 1 && pFacilities.SelectedIndex == 1)
             {
                 DrawCommoditiesArea(bCursor);
                 return;
@@ -1017,7 +989,7 @@ namespace Ship_Game
         void HandleDetailInfo()
         {
             DetailInfo = null;
-            foreach (BuildListItem e in buildSL.AllEntries)
+            foreach (BuildableListItem e in BuildableList.AllEntries)
             {
                 if (e.Hovered)
                 {
@@ -1041,11 +1013,6 @@ namespace Ship_Game
 
             P.UpdateIncomes(false);
 
-            if (build.HandleInput(input))
-                return true;
-            if (buildSL.HandleInput(input))
-                return true;
-
             HandleDetailInfo();
 
             // We are monitoring AI Colonies
@@ -1062,21 +1029,6 @@ namespace Ship_Game
 
             HandleSliders(input);
 
-            if (P.HasSpacePort && build.Tabs.Count > 1 && build.Tabs[1].Selected)
-            {
-                if (PlayerDesignsToggle.Rect.HitTest(input.CursorPosition))
-                {
-                    ToolTip.CreateTooltip(Localizer.Token(2225));
-                }
-                if (PlayerDesignsToggle.HandleInput(input) && !input.LeftMouseReleased)
-                {
-                    GameAudio.AcceptClick();
-                    GlobalStats.ShowAllDesigns = !GlobalStats.ShowAllDesigns;
-                    PlayerDesignsToggle.Active = GlobalStats.ShowAllDesigns;
-                    ResetLists();
-                }
-            }
-
             if (HandleTroopSelect(input))
                 return true;
 
@@ -1088,10 +1040,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (CQueue.HandleInput(input))
-                return true;
-
-            if (buildSL.HandleInput(input))
+            if (base.HandleInput(input))
                 return true;
 
             if (Popup)
@@ -1101,7 +1050,7 @@ namespace Ship_Game
                 else
                     Popup = false;
             }
-            return base.HandleInput(input);
+            return false;
         }
 
         bool HandleTroopSelect(InputState input)
@@ -1375,11 +1324,6 @@ namespace Ship_Game
             }
         }
 
-        public void ResetLists() // IListScreen.ResetLists()
-        {
-            Reset = true;
-        }
-
         void ScrapAccepted()
         {
             if (ToScrap != null)
@@ -1388,33 +1332,12 @@ namespace Ship_Game
             Update(0f);
         }
 
-        readonly string BuildingsTabText = Localizer.Token(334); // BUILDINGS
-        readonly string ShipsTabText = Localizer.Token(335); // SHIPS
-        readonly string TroopsTabText = Localizer.Token(336); // TROOPS
-
-        bool TabExists(string title) => build.Tabs.IndexOf(tab => tab.Title == title) != -1;
-
-        void ResetBuildTabs()
-        {
-            build.Tabs.Clear();
-            build.AddTab(BuildingsTabText);
-            if (P.HasSpacePort)     build.AddTab(ShipsTabText);
-            if (P.CanBuildInfantry) build.AddTab(TroopsTabText);
-        }
-
         public override void Update(float elapsedTime)
         {
             P.UpdateIncomes(false);
-
-            buildSL.Update(elapsedTime);
-
-            if (P.HasSpacePort && !TabExists(ShipsTabText) ||
-                P.CanBuildInfantry && !TabExists(TroopsTabText))
-            {
-                ResetBuildTabs();
-            }
-
+            UpdateBuildAndConstructLists(elapsedTime);
             UpdateButtonTimer(elapsedTime);
+            base.Update(elapsedTime);
         }
 
         void HandleSliders(InputState input)
@@ -1425,7 +1348,7 @@ namespace Ship_Game
 
         void CreateSliders(Rectangle laborPanel)
         {
-            int sliderW = ((int)(laborPanel.Width * 0.6)).RoundUpToMultipleOf(10);
+            int sliderW = ((int)(laborPanel.Width * 0.6f)).RoundUpToMultipleOf(10);
             int sliderX = laborPanel.X + 60;
             int sliderY = laborPanel.Y + 25;
             int slidersAreaH = laborPanel.Height - 25;
@@ -1443,7 +1366,7 @@ namespace Ship_Game
         void UpdateButtonTimer(float elapsedTime)
         {
             ButtonUpdateTimer -= elapsedTime;
-            if (ButtonUpdateTimer.Greater(0))
+            if (ButtonUpdateTimer > 0f)
                 return;
 
             ButtonUpdateTimer = 1;

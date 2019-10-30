@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -27,33 +28,12 @@ namespace Ship_Game
         readonly SpriteFont Font = Fonts.Pirulen12;
         readonly SubmenuStyle Style;
 
-        // EVT: Triggered when a tab is changed
-        public Action<Tab> OnTabChange;
-
-        Tab SelectedTabValue;
-
         // If set, draws a background element before the Submenu itself is drawn
         public UIElementV2 Background;
-
-        // Currently Active Tab
-        public Tab SelectedTab
-        {
-            get => SelectedTabValue;
-            set
-            {
-                for (int i = 0; i < Tabs.Count; ++i)
-                    Tabs[i].Selected = false;
-
-                Tab oldActive = SelectedTabValue;
-                SelectedTabValue = Tabs.Contains(value) ? value : null; // validate Tab
-
-                if (SelectedTabValue != null)
-                    SelectedTabValue.Selected = true;
-
-                if (SelectedTabValue != oldActive)
-                    OnTabChange?.Invoke(SelectedTabValue);
-            }
-        }
+        
+        // EVT: Triggered when a tab is changed
+        public Action<int> OnTabChange;
+        int CurSelectedIndex = -1;
 
         public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown) : base(null, theMenu)
         {
@@ -163,6 +143,7 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
+            RequiresLayout = false;
             Background?.PerformLayout();
 
             StyleTextures s = GetStyle();
@@ -178,22 +159,52 @@ namespace Ship_Game
             botHoriz = new Rectangle(r.X + BL.Width, r.Y + r.Height, r.Width - BL.Width - BR.Width, 2);
         }
 
+        public void Clear()
+        {
+            Tabs.Clear();
+            CurSelectedIndex = -1; // don't trigger event during Clear()
+        }
+
+        public int NumTabs => Tabs.Count;
+
+        int IndexOf(string title) => Tabs.FirstIndexOf(tab => tab.Title == title);
+        public bool IsSelected(string title) => SelectedIndex != -1 && IndexOf(title) == SelectedIndex;
+        public bool ContainsTab(string title) => IndexOf(title) != -1;
+
         public void AddTab(string title)
         {
-            StyleTextures s = GetStyle();
-            float tabX = UpperLeft.X + UpperLeft.Width;
-            foreach (Tab ta in Tabs)
-                tabX += ta.tabRect.Width + s.Right.Width;
-
-            var tabRect = new Rectangle((int)tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25);
+            int tabX = UpperLeft.Right + Tabs.Sum(t => t.Rect.Width + GetStyle().Right.Width);
             Tabs.Add(new Tab
             {
                 Index = Tabs.Count,
-                tabRect  = tabRect,
-                Title    = title,
-                Selected = Tabs.Count == 0,
-                Hover    = false
+                Title = title,
+                Rect  = new Rectangle(tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25),
             });
+        }
+
+        protected void OnTabChangedEvt(int newIndex)
+        {
+            if (CurSelectedIndex != newIndex)
+            {
+                CurSelectedIndex = newIndex;
+                OnTabChange?.Invoke(newIndex);
+            }
+        }
+
+        public int SelectedIndex
+        {
+            get => CurSelectedIndex;
+            set
+            {
+                int newIndex = -1;
+                for (int i = 0; i < Tabs.Count; ++i)
+                {
+                    Tab tab = Tabs[i];
+                    tab.Selected = (i == value);
+                    if (tab.Selected) newIndex = i;
+                }
+                OnTabChangedEvt(newIndex);
+            }
         }
 
         public override bool HandleInput(InputState input)
@@ -205,11 +216,11 @@ namespace Ship_Game
             for (int i = 0; i < Tabs.Count; i++)
             {
                 Tab tab = Tabs[i];
-                tab.Hover = tab.tabRect.HitTest(mousePos);
+                tab.Hover = tab.Rect.HitTest(mousePos);
                 if (tab.Hover && input.LeftMouseClick)
                 {
                     GameAudio.AcceptClick();
-                    SelectedTab = tab;
+                    SelectedIndex = i;
                     return true;
                 }
             }
@@ -219,8 +230,8 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
-            if (SelectedTab == null)
-                SelectedTab = Tabs.First;
+            if (SelectedIndex == -1 && Tabs.NotEmpty)
+                SelectedIndex = 0;
 
             Background?.Update(deltaTime);
             base.Update(deltaTime);
@@ -248,10 +259,10 @@ namespace Ship_Game
             {
                 foreach (Tab t in Tabs)
                 {
-                    var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.Right.Width, 25);
-                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - Font.LineSpacing / 2));
+                    var right = new Rectangle(t.Rect.X + t.Rect.Width, t.Rect.Y, s.Right.Width, 25);
+                    var textPos = new Vector2(t.Rect.X, (t.Rect.Y + t.Rect.Height / 2 - Font.LineSpacing / 2));
 
-                    batch.Draw(s.Middle, t.tabRect, Color.White);
+                    batch.Draw(s.Middle, t.Rect, Color.White);
                     batch.Draw(s.Right, right, Color.White);
                     batch.DrawString(Font, t.Title, textPos, Colors.Cream);
                 }
@@ -263,9 +274,9 @@ namespace Ship_Game
                     Tab t = Tabs[i];
                     if (t.Selected)
                     {
-                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.Right.Width, 25);
+                        var right = new Rectangle(t.Rect.X + t.Rect.Width, t.Rect.Y, s.Right.Width, 25);
 
-                        batch.Draw(s.Middle, t.tabRect, Color.White);
+                        batch.Draw(s.Middle, t.Rect, Color.White);
                         batch.Draw(s.Right, right, Color.White);
 
                         if (Tabs.Count - 1 > i && !Tabs[i + 1].Selected)
@@ -276,9 +287,9 @@ namespace Ship_Game
                     }
                     else if (!t.Hover)
                     {
-                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.RightUnsel.Width, 25);
+                        var right = new Rectangle(t.Rect.X + t.Rect.Width, t.Rect.Y, s.RightUnsel.Width, 25);
 
-                        batch.Draw(s.MiddleUnsel, t.tabRect, Color.White);
+                        batch.Draw(s.MiddleUnsel, t.Rect, Color.White);
                         batch.Draw(s.RightUnsel, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
@@ -290,9 +301,9 @@ namespace Ship_Game
                     }
                     else
                     {
-                        var right = new Rectangle(t.tabRect.X + t.tabRect.Width, t.tabRect.Y, s.HoverRight.Width, 25);
+                        var right = new Rectangle(t.Rect.X + t.Rect.Width, t.Rect.Y, s.HoverRight.Width, 25);
 
-                        batch.Draw(s.HoverMid, t.tabRect, Color.White);
+                        batch.Draw(s.HoverMid, t.Rect, Color.White);
                         batch.Draw(s.HoverRight, right, Color.White);
                         if (Tabs.Count - 1 > i)
                         {
@@ -302,7 +313,7 @@ namespace Ship_Game
                             batch.Draw(tex, right, Color.White);
                         }
                     }
-                    var textPos = new Vector2(t.tabRect.X, (t.tabRect.Y + t.tabRect.Height / 2 - Font.LineSpacing / 2));
+                    var textPos = new Vector2(t.Rect.X, (t.Rect.Y + t.Rect.Height / 2 - Font.LineSpacing / 2));
                     batch.DrawString(Font, t.Title, textPos, Colors.Cream);
                 }
             }
@@ -320,7 +331,7 @@ namespace Ship_Game
         {
             public int Index;
             public string Title;
-            public Rectangle tabRect;
+            public Rectangle Rect;
             public bool Selected;
             public bool Hover;
         }

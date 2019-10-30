@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -84,6 +83,7 @@ namespace Ship_Game
             OnDrag?.Invoke((T)item, evt);
         }
 
+        // Number of non-flattened entries
         public int NumEntries => Entries.Count;
         public IReadOnlyList<T> AllEntries => Entries;
 

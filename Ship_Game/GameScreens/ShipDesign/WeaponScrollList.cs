@@ -75,10 +75,13 @@ namespace Ship_Game
             {
                 Reset();
                 Categories.Clear();
-                if      (Screen.ModSel.Tabs[0].Selected) AddWeaponCategories();
-                else if (Screen.ModSel.Tabs[1].Selected) AddPowerCategories();
-                else if (Screen.ModSel.Tabs[2].Selected) AddDefenseCategories();
-                else if (Screen.ModSel.Tabs[3].Selected) AddSpecialCategories();
+                switch (Screen.ModSel.SelectedIndex)
+                {
+                    case 0: AddWeaponCategories();  break;
+                    case 1: AddPowerCategories();   break;
+                    case 2: AddDefenseCategories(); break;
+                    case 3: AddSpecialCategories(); break;
+                }
                 ResetOnNextDraw = false;
             }
 

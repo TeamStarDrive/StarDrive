@@ -62,7 +62,6 @@ namespace Ship_Game
         public Vector3 CamPos = Vector3.Zero;
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        GameTime SimulationTime = new GameTime();
         float TurnFlipCounter;
         int Auto = 1;
         AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
@@ -678,9 +677,9 @@ namespace Ship_Game
             base.UnloadContent();
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float deltaTime)
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (LookingAtPlanet) workersPanel.Update(deltaTime);
 
             if (viewState > UnivScreenState.ShipView)
             {
@@ -688,15 +687,13 @@ namespace Ship_Game
                     engineTrailParticles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
             }
 
-            SimulationTime = gameTime;
+            SelectedSomethingTimer -= deltaTime;
 
-            float gameTimeDelta = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            SelectedSomethingTimer -= gameTimeDelta;
+            if (++SelectorFrame > 299)
+                SelectorFrame = 0;
 
-            if (++SelectorFrame > 299) SelectorFrame = 0;
-
-            MusicCheckTimer -= gameTimeDelta;
-            if (MusicCheckTimer <= 0.0f)
+            MusicCheckTimer -= deltaTime;
+            if (MusicCheckTimer <= 0f)
             {
                 MusicCheckTimer = 2f;
                 if (ScreenManager.Music.IsStopped)
@@ -705,10 +702,10 @@ namespace Ship_Game
 
             GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
-            ScreenManager.UpdateSceneObjects(gameTime);
+            ScreenManager.UpdateSceneObjects();
             EmpireUI.Update(deltaTime);
 
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(deltaTime);
         }
 
         public void DoAutoSave()
