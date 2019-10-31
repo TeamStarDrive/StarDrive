@@ -412,7 +412,7 @@ namespace Ship_Game
                                 }
                                 //Added by McShooterz: new acquire method, unlocks targets bonuses as well
                                 us.AcquireTech(theUID, Target, TechUnlockType.Spy);
-                                if (!spyMute) 
+                                if (!spyMute)
                                 {
                                     var stoleTechText = string.Concat(Name, " ", Localizer.Token(6057), " ");
                                     var techStolen    = Localizer.Token(ResourceManager.TechTree[theUID].NameIndex);
@@ -702,7 +702,7 @@ namespace Ship_Game
                 #endregion
             }
             #region Mission Repeat
-            if (us == EmpireManager.Player 
+            if (us == EmpireManager.Player
                 && Mission == AgentMission.Defending //&& Owner.data.SpyBudget > 500
                 && us.data.SpyMissionRepeat
                 && (startingmission != AgentMission.Training || startingmission == AgentMission.Training && Level < 10))
@@ -716,10 +716,10 @@ namespace Ship_Game
 
         public bool Initialize(AgentMission TheMission, Empire Owner)
         {
-            float spyBudget =  Owner.GetEmpireAI().spyBudget;
+            float spyBudget =  Owner.GetEmpireAI().SpyBudget;
             if (Owner.isPlayer)
                 spyBudget = Owner.Money;
-            bool returnvalue = false;            
+            bool returnvalue = false;
             switch (TheMission)
             {
                 case AgentMission.Training:
@@ -811,16 +811,16 @@ namespace Ship_Game
                 {
                     return false;
                 }
-                 
+
             }
 
 
             if (Owner.isPlayer)
                 //Owner.Money = spyBudget;
-                Owner.AddMoney(-Owner.Money + spyBudget); // Fatbastard - refactor all this crappy copy paste function 
+                Owner.AddMoney(-Owner.Money + spyBudget); // Fatbastard - refactor all this crappy copy paste function
             else
             {
-                Owner.GetEmpireAI().spyBudget = spyBudget;
+                Owner.GetEmpireAI().SpyBudget = spyBudget;
             }
             return returnvalue;
         }
@@ -1448,7 +1448,7 @@ public void DoMissionorig(Empire Owner)
             if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(false, deathMessage, owner);
             return false;
         }
- * 
+ *
  * #region DefensiveRoll
             /*
             float DefensiveRoll = 0f;
@@ -1562,7 +1562,7 @@ public void DoMissionorig(Empire Owner)
 
 
             #endregion
- * 
+ *
  * /*
             IEnumerable<Agent> moleList = Owner.data.AgentList.Where(moles => moles.Mission == AgentMission.Undercover);
 

@@ -1,707 +1,424 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using Ship_Game.Gameplay;
+using System.IO;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     public sealed partial class EmpireAI
     {
-        private int DesiredAgentsPerHostile = 2;
-        private int DesiredAgentsPerNeutral = 1;
-        private int DesiredAgentCount;
-        private int BaseAgents;
-        public float spyBudget;
+        public float SpyBudget;
+        public int EmpireSpyLimit => OwnerEmpire.GetPlanets().Count / 3 + 3;
+        public const float SpyCost = 250;
 
-        private void DoAggRuthAgentManager()
-        {
-            string Names;
-
-            float income = spyBudget;
-
-
-            DesiredAgentsPerHostile = (int) (income * .08f) + 1;
-            DesiredAgentsPerNeutral = (int) (income * .03f) + 1;
-
-            //this.DesiredAgentsPerHostile = 5;
-            //this.DesiredAgentsPerNeutral = 2;
-            BaseAgents = OwnerEmpire.GetPlanets().Count / 2;
-            DesiredAgentCount = 0;
-            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
-            {
-                if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
-                {
-                    continue;
-                }
-                if (Relationship.Value.Posture == Posture.Hostile)
-                {
-                    EmpireAI desiredAgentCount = this;
-                    desiredAgentCount.DesiredAgentCount = desiredAgentCount.DesiredAgentCount +
-                                                          DesiredAgentsPerHostile;
-                }
-                if (Relationship.Value.Posture != Posture.Neutral)
-                {
-                    continue;
-                }
-                EmpireAI gSAI = this;
-                gSAI.DesiredAgentCount = gSAI.DesiredAgentCount + DesiredAgentsPerNeutral;
-            }
-            EmpireAI desiredAgentCount1 = this;
-            desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + BaseAgents;
-
-            int empirePlanetSpys =
-                OwnerEmpire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / (this.empire.GrossTaxes * 3));
-            int currentSpies = OwnerEmpire.data.AgentList.Count;
-            if (spyBudget >= 250f && currentSpies < empirePlanetSpys)
-            {
-                Names =
-                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", OwnerEmpire.data.Traits.ShipType,
-                    ".txt"))
-                    ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
-                    : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
-                        OwnerEmpire.data.Traits.ShipType, ".txt")));
-                string[] Tokens = Names.Split(',');
-                Agent a = new Agent();
-                a.Name = AgentComponent.GetName(Tokens);
-                OwnerEmpire.data.AgentList.Add(a);
-                spyBudget -= 250f;
-            }
-            int Defenders = 0;
-            int Offense = 0;
-            foreach (Agent a in OwnerEmpire.data.AgentList)
-            {
-                if (a.Mission == AgentMission.Defending)
-                {
-                    Defenders++;
-                }
-                else if (a.Mission != AgentMission.Undercover)
-                {
-                    Offense++;
-                }
-                if (a.Mission != AgentMission.Defending || a.Level >= 2 || spyBudget <= 50f)
-                {
-                    continue;
-                }
-                a.AssignMission(AgentMission.Training, OwnerEmpire, "");
-            }
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
-            int DesiredOffense = (int) (OwnerEmpire.data.AgentList.Count * offSpyModifier);
-            //int DesiredOffense = (int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .33f); // (int)(0.33f * (float)this.empire.data.AgentList.Count);
-            //int DesiredOffense = this.empire.data.AgentList.Count / 2;
-            foreach (Agent agent in OwnerEmpire.data.AgentList)
-            {
-                if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
-                    Offense >= DesiredOffense)
-                {
-                    continue;
-                }
-                Array<Empire> PotentialTargets = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Relationship> Relation in OwnerEmpire.AllRelations)
-                {
-                    if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated ||
-                        Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
-                    {
-                        continue;
-                    }
-                    PotentialTargets.Add(Relation.Key);
-                }
-                if (PotentialTargets.Count <= 0)
-                {
-                    continue;
-                }
-                HashSet<AgentMission> PotentialMissions = new HashSet<AgentMission>();
-                Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
-                if (OwnerEmpire.GetRelations(Target).AtWar)
-                {
-                    if (agent.Level >= 8)
-                    {
-                        PotentialMissions.Add(AgentMission.InciteRebellion);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-
-                        PotentialMissions.Add(AgentMission.StealTech);
-                    }
-                    if (agent.Level >= 4)
-                    {
-                        PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                    }
-                    if (agent.Level < 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        //PotentialMissions.Add(AgentMission.Infiltrate);
-                    }
-                }
-                if (OwnerEmpire.GetRelations(Target).Posture == Posture.Hostile)
-                {
-                    if (agent.Level >= 8)
-                    {
-                        PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-                    }
-                    if (agent.Level >= 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                    }
-                    if (agent.Level < 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                    }
-                }
-
-
-                if (OwnerEmpire.GetRelations(Target).SpiesDetected > 0)
-                {
-                    if (agent.Level >= 4) PotentialMissions.Add(AgentMission.Assassinate);
-                }
-                HashSet<AgentMission> remove = new HashSet<AgentMission>();
-                foreach (AgentMission mission in PotentialMissions)
-                {
-                    switch (mission)
-                    {
-                        case AgentMission.Defending:
-                        case AgentMission.Training:
-                            break;
-                        case AgentMission.Infiltrate:
-                            if (ResourceManager.AgentMissionData.InfiltrateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Assassinate:
-                            if (ResourceManager.AgentMissionData.AssassinateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Sabotage:
-                            if (ResourceManager.AgentMissionData.SabotageCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.StealTech:
-                            if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Robbery:
-                            if (ResourceManager.AgentMissionData.RobberyCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.InciteRebellion:
-                            if (ResourceManager.AgentMissionData.RebellionCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Undercover:
-                            if (ResourceManager.AgentMissionData.InfiltrateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Recovering:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                foreach (AgentMission removeMission in remove)
-                {
-                    PotentialMissions.Remove(removeMission);
-                }
-                if (PotentialMissions.Count <= 0)
-                {
-                    continue;
-                }
-                AgentMission am = PotentialMissions.Skip(RandomMath.InRange(PotentialMissions.Count)).FirstOrDefault();
-                agent.AssignMission(am, OwnerEmpire, Target.data.Traits.Name);
-                Offense++;
-            }
-        }
-
-        private void DoCunningAgentManager()
-        {
-            int income = (int) spyBudget;
-            string Names;
-            BaseAgents = OwnerEmpire.GetPlanets().Count / 2;
-            DesiredAgentsPerHostile = (int) (income * .010f); // +1;
-            DesiredAgentsPerNeutral = (int) (income * .05f); // +1;
-
-            DesiredAgentCount = 0;
-            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
-            {
-                if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
-                {
-                    continue;
-                }
-                if (Relationship.Value.Posture == Posture.Hostile)
-                {
-                    EmpireAI desiredAgentCount = this;
-                    desiredAgentCount.DesiredAgentCount = desiredAgentCount.DesiredAgentCount +
-                                                          DesiredAgentsPerHostile;
-                }
-                if (Relationship.Value.Posture != Posture.Neutral)
-                {
-                    continue;
-                }
-                EmpireAI gSAI = this;
-                gSAI.DesiredAgentCount = gSAI.DesiredAgentCount + DesiredAgentsPerNeutral;
-            }
-            EmpireAI desiredAgentCount1 = this;
-            desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + BaseAgents;
-            int empireSpyLimit =
-                OwnerEmpire.GetPlanets().Count() / 3 + 3; // (int)(this.spyBudget / this.empire.GrossTaxes);
-            int currentSpies = OwnerEmpire.data.AgentList.Count;
-            if (spyBudget >= 250f && currentSpies < empireSpyLimit)
-            {
-                Names =
-                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", OwnerEmpire.data.Traits.ShipType,
-                    ".txt"))
-                    ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
-                    : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
-                        OwnerEmpire.data.Traits.ShipType, ".txt")));
-                string[] Tokens = Names.Split(',');
-                Agent a = new Agent();
-                a.Name = AgentComponent.GetName(Tokens);
-                OwnerEmpire.data.AgentList.Add(a);
-                spyBudget -= 250f;
-            }
-            int Defenders = 0;
-            int Offense = 0;
-            foreach (Agent a in OwnerEmpire.data.AgentList)
-            {
-                if (a.Mission == AgentMission.Defending)
-                {
-                    Defenders++;
-                }
-                else if (a.Mission != AgentMission.Undercover)
-                {
-                    Offense++;
-                }
-
-                if (a.Mission != AgentMission.Defending || a.Level >= 2 || spyBudget <= 50f)
-                {
-                    continue;
-                }
-                a.AssignMission(AgentMission.Training, OwnerEmpire, "");
-            }
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.17f;
-
-            int DesiredOffense = (int) (OwnerEmpire.data.AgentList.Count * offSpyModifier);
-            foreach (Agent agent in OwnerEmpire.data.AgentList)
-            {
-                if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
-                    Offense >= DesiredOffense)
-                {
-                    continue;
-                }
-                Array<Empire> PotentialTargets = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Relationship> Relation in OwnerEmpire.AllRelations)
-                {
-                    if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated ||
-                        Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
-                    {
-                        continue;
-                    }
-                    PotentialTargets.Add(Relation.Key);
-                }
-                if (PotentialTargets.Count <= 0)
-                {
-                    continue;
-                }
-                Array<AgentMission> PotentialMissions = new Array<AgentMission>();
-                Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
-                if (OwnerEmpire.GetRelations(Target).AtWar)
-                {
-                    if (agent.Level >= 8)
-                    {
-                        PotentialMissions.Add(AgentMission.InciteRebellion);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                    }
-                    if (agent.Level >= 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-                    }
-                    if (agent.Level < 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        //PotentialMissions.Add(AgentMission.Infiltrate);
-                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count)
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                    }
-                }
-                if (OwnerEmpire.GetRelations(Target).Posture == Posture.Hostile)
-                {
-                    if (agent.Level >= 8)
-                    {
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                    }
-                    if (agent.Level >= 4)
-                    {
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
-                    }
-                    if (agent.Level < 4)
-                    {
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                    }
-                }
-                if (OwnerEmpire.GetRelations(Target).Posture == Posture.Neutral ||
-                    OwnerEmpire.GetRelations(Target).Posture == Posture.Friendly)
-                {
-                    if (agent.Level >= 8)
-                    {
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                    }
-                    if (agent.Level >= 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                    }
-                    if (agent.Level < 4)
-                    {
-                        if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            PotentialMissions.Add(AgentMission.StealTech);
-                        //if (this.empire.Money < 50 * this.empire.GetPlanets().Count) PotentialMissions.Add(AgentMission.Robbery);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                    }
-                }
-                if (OwnerEmpire.GetRelations(Target).SpiesDetected > 0)
-                {
-                    if (agent.Level >= 4) PotentialMissions.Add(AgentMission.Assassinate);
-                }
-                HashSet<AgentMission> remove = new HashSet<AgentMission>();
-                foreach (AgentMission mission in PotentialMissions)
-                {
-                    switch (mission)
-                    {
-                        case AgentMission.Defending:
-                        case AgentMission.Training:
-                            break;
-                        case AgentMission.Infiltrate:
-                            if (ResourceManager.AgentMissionData.InfiltrateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Assassinate:
-                            if (ResourceManager.AgentMissionData.AssassinateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Sabotage:
-                            if (ResourceManager.AgentMissionData.SabotageCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.StealTech:
-                            if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Robbery:
-                            if (ResourceManager.AgentMissionData.RobberyCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.InciteRebellion:
-                            if (ResourceManager.AgentMissionData.RebellionCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Undercover:
-                            if (ResourceManager.AgentMissionData.InfiltrateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Recovering:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                foreach (AgentMission removeMission in remove)
-                {
-                    PotentialMissions.Remove(removeMission);
-                }
-                if (PotentialMissions.Count <= 0)
-                {
-                    continue;
-                }
-                AgentMission am = PotentialMissions[RandomMath.InRange(PotentialMissions.Count)];
-                agent.AssignMission(am, OwnerEmpire, Target.data.Traits.Name);
-                Offense++;
-            }
-        }
-
-        private void DoHonPacAgentManager()
-        {
-            string Names;
-
-            int income = (int) spyBudget;
-
-
-            DesiredAgentsPerHostile = (int) (income * .05f) + 1;
-            DesiredAgentsPerNeutral = (int) (income * .02f) + 1;
-
-
-            //this.DesiredAgentsPerHostile = 5;
-            //this.DesiredAgentsPerNeutral = 1;
-            DesiredAgentCount = 0;
-            BaseAgents = OwnerEmpire.GetPlanets().Count / 2 + (int) (spyBudget / (OwnerEmpire.NetPlanetIncomes * 2));
-            foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
-            {
-                if (!Relationship.Value.Known || Relationship.Key.isFaction || Relationship.Key.data.Defeated)
-                {
-                    continue;
-                }
-                if (Relationship.Value.Posture == Posture.Hostile)
-                {
-                    EmpireAI desiredAgentCount = this;
-                    desiredAgentCount.DesiredAgentCount = desiredAgentCount.DesiredAgentCount +
-                                                          DesiredAgentsPerHostile;
-                }
-                if (Relationship.Value.Posture != Posture.Neutral)
-                {
-                    continue;
-                }
-                EmpireAI gSAI = this;
-                gSAI.DesiredAgentCount = gSAI.DesiredAgentCount + DesiredAgentsPerNeutral;
-            }
-            EmpireAI desiredAgentCount1 = this;
-            desiredAgentCount1.DesiredAgentCount = desiredAgentCount1.DesiredAgentCount + BaseAgents;
-            //int empirePlanetSpys = empire.GetPlanets().Where(canBuildTroops => canBuildTroops.CanBuildInfantry() == true).Count();
-            int empirePlanetSpys = OwnerEmpire.GetPlanets().Count() / 3 + 3;
-
-            if (spyBudget >= 250f && OwnerEmpire.data.AgentList.Count < empirePlanetSpys)
-            {
-                Names =
-                (!File.Exists(string.Concat("Content/NameGenerators/spynames_", OwnerEmpire.data.Traits.ShipType,
-                    ".txt"))
-                    ? File.ReadAllText("Content/NameGenerators/spynames_Humans.txt")
-                    : File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
-                        OwnerEmpire.data.Traits.ShipType, ".txt")));
-                string[] Tokens = Names.Split(',');
-                Agent a = new Agent();
-                a.Name = AgentComponent.GetName(Tokens);
-                OwnerEmpire.data.AgentList.Add(a);
-                spyBudget -= 250f;
-            }
-            int Defenders = 0;
-            int Offense = 0;
-            foreach (Agent a in OwnerEmpire.data.AgentList)
-            {
-                if (a.Mission == AgentMission.Defending)
-                {
-                    Defenders++;
-                }
-                else if (a.Mission != AgentMission.Undercover)
-                {
-                    Offense++;
-                }
-                if (a.Mission != AgentMission.Defending || a.Level >= 2 || spyBudget <= 200f)
-                {
-                    continue;
-                }
-                a.AssignMission(AgentMission.Training, OwnerEmpire, "");
-            }
-
-            float offSpyModifier = (int)CurrentGame.Difficulty * 0.08f;
-            int DesiredOffense =
-                (int) (OwnerEmpire.data.AgentList.Count *
-                       offSpyModifier); // /(int)(this.empire.data.AgentList.Count - empire.GetPlanets().Count * .4f);
-            foreach (Agent agent in OwnerEmpire.data.AgentList)
-            {
-                if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
-                    Offense >= DesiredOffense)
-                {
-                    continue;
-                }
-                Array<Empire> PotentialTargets = new Array<Empire>();
-                foreach (KeyValuePair<Empire, Relationship> Relation in OwnerEmpire.AllRelations)
-                {
-                    if (!Relation.Value.Known || Relation.Key.isFaction || Relation.Key.data.Defeated ||
-                        Relation.Value.Posture != Posture.Neutral && Relation.Value.Posture != Posture.Hostile)
-                    {
-                        continue;
-                    }
-                    PotentialTargets.Add(Relation.Key);
-                }
-                if (PotentialTargets.Count <= 0)
-                {
-                    continue;
-                }
-                Array<AgentMission> PotentialMissions = new Array<AgentMission>();
-                Empire Target = PotentialTargets[RandomMath.InRange(PotentialTargets.Count)];
-                if (OwnerEmpire.GetRelations(Target).AtWar)
-                {
-                    if (agent.Level >= 8)
-                    {
-                        PotentialMissions.Add(AgentMission.InciteRebellion);
-                        PotentialMissions.Add(AgentMission.Assassinate);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        //PotentialMissions.Add(AgentMission.StealTech);
-                    }
-                    if (agent.Level >= 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                    }
-                    if (agent.Level < 4)
-                    {
-                        PotentialMissions.Add(AgentMission.Sabotage);
-                        PotentialMissions.Add(AgentMission.Robbery);
-                        //PotentialMissions.Add(AgentMission.Infiltrate);
-                    }
-                }
-                if (OwnerEmpire.GetRelations(Target).SpiesDetected > 0)
-                {
-                    if (agent.Level >= 4) PotentialMissions.Add(AgentMission.Assassinate);
-                }
-                HashSet<AgentMission> remove = new HashSet<AgentMission>();
-                foreach (AgentMission mission in PotentialMissions)
-                {
-                    switch (mission)
-                    {
-                        case AgentMission.Defending:
-                        case AgentMission.Training:
-                            break;
-                        case AgentMission.Infiltrate:
-                            if (ResourceManager.AgentMissionData.InfiltrateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Assassinate:
-                            if (ResourceManager.AgentMissionData.AssassinateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Sabotage:
-                            if (ResourceManager.AgentMissionData.SabotageCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.StealTech:
-                            if (ResourceManager.AgentMissionData.StealTechCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Robbery:
-                            if (ResourceManager.AgentMissionData.RobberyCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.InciteRebellion:
-                            if (ResourceManager.AgentMissionData.RebellionCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Undercover:
-                            if (ResourceManager.AgentMissionData.InfiltrateCost > spyBudget)
-                            {
-                                remove.Add(mission);
-                            }
-                            break;
-                        case AgentMission.Recovering:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                foreach (AgentMission removeMission in remove)
-                {
-                    PotentialMissions.Remove(removeMission);
-                }
-                if (PotentialMissions.Count <= 0)
-                {
-                    continue;
-                }
-                AgentMission am = PotentialMissions[RandomMath.InRange(PotentialMissions.Count)];
-                agent.AssignMission(am, OwnerEmpire, Target.data.Traits.Name);
-                Offense++;
-            }
-        }
 
         private void RunAgentManager()
         {
             if (OwnerEmpire.isPlayer)
                 return;
-            spyBudget = OwnerEmpire.data.SpyBudget;
-            string name = OwnerEmpire.data.DiplomaticPersonality.Name;
-            if (spyBudget > 50 && name != null)
+            SpyBudget = OwnerEmpire.data.SpyBudget;
+
+            if (SpyBudget > 50 && OwnerEmpire.data.DiplomaticPersonality.Name != null)
             {
-                switch (name)
+                if (CanEmpireAffordSpy())
                 {
-                    case "Cunning":
-                        DoCunningAgentManager();
+                    CreateSpy();
+                    SpyBudget -= SpyCost;
+                }
+
+                CreateMissionsByTrait();
+            }
+            OwnerEmpire.AddMoney(-(OwnerEmpire.data.SpyBudget - SpyBudget));
+            SpyBudget = 0;
+        }
+
+        public void CreateMissionsByTrait()
+        {
+            switch (OwnerEmpire.data.DiplomaticPersonality.TraitName)
+            {
+                case DTrait.TraitType.Cunning:
+                case DTrait.TraitType.Xenophobic:
+                    DoCunningAgentManager();
+                    break;
+
+                case DTrait.TraitType.Ruthless:
+                case DTrait.TraitType.Aggressive:
+                    DoAggRuthAgentManager();
+                    break;
+
+                case DTrait.TraitType.Honorable:
+                case DTrait.TraitType.Pacifist:
+                    DoHonPacAgentManager();
+                    break;
+
+                default:
+                    DoCunningAgentManager();
+                    break;
+            }
+        }
+
+        private void DoAggRuthAgentManager()
+        {
+            int offense = CalculateSpyUsage(out int defenders);
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.1f;
+            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Aggressive);
+        }
+
+        private void DoCunningAgentManager()
+        {
+            int offense = CalculateSpyUsage(out int defenders);
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.17f;
+            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Cunning);
+        }
+
+        private void DoHonPacAgentManager()
+        {
+            int offense = CalculateSpyUsage(out int defenders);
+            float offSpyModifier = (int)CurrentGame.Difficulty * 0.08f;
+            int desiredOffense = (int)(OwnerEmpire.data.AgentList.Count * offSpyModifier);
+            AssignSpyMissions(offense, desiredOffense, DTrait.TraitType.Honorable);
+        }
+
+        private void AssignSpyMissions(int offense, int desiredOffense, DTrait.TraitType traitType)
+        {
+            Array<Empire> potentialTargets = FindEmpireTargets();
+            if (potentialTargets.Count <= 0) return;
+            foreach (Agent agent in OwnerEmpire.data.AgentList)
+            {
+                if (agent.Mission != AgentMission.Defending && agent.Mission != AgentMission.Undercover ||
+                    offense >= desiredOffense)
+                {
+                    continue;
+                }
+
+                Empire target = potentialTargets.RandItem();
+
+                Array<AgentMission> potentialMissions;
+                switch (traitType)
+                {
+                    case DTrait.TraitType.Honorable:
+                        potentialMissions = PotentialPeacefulMissions(agent, target);
                         break;
-                    case "Ruthless":
-                        DoAggRuthAgentManager();
+                    case DTrait.TraitType.Cunning:
+                        potentialMissions = PotentialCunningSpyMissions(agent, target);
                         break;
-                    case "Aggressive":
-                        DoAggRuthAgentManager();
-                        break;
-                    case "Honorable":
-                        DoHonPacAgentManager();
-                        break;
-                    case "Xenophobic":
-                        DoCunningAgentManager();
-                        break;
-                    case "Pacifist":
-                        DoHonPacAgentManager();
+                    case DTrait.TraitType.Aggressive:
+                        potentialMissions = PotentialAggressiveMissions(agent, target);
                         break;
                     default:
-                        DoCunningAgentManager();
-                        break;
+                        return;
+                }
+                if (potentialMissions.IsEmpty) continue;
+
+                for (int x = potentialMissions.Count - 1; x >= 0; x--)
+                {
+                    AgentMission mission = potentialMissions[x];
+                    switch (mission)
+                    {
+                        case AgentMission.Defending:
+                        case AgentMission.Training:
+                            break;
+
+                        case AgentMission.Infiltrate:
+                            if (ResourceManager.AgentMissionData.InfiltrateCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.Assassinate:
+                            if (ResourceManager.AgentMissionData.AssassinateCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.Sabotage:
+                            if (ResourceManager.AgentMissionData.SabotageCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.StealTech:
+                            if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.Robbery:
+                            if (ResourceManager.AgentMissionData.RobberyCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.InciteRebellion:
+                            if (ResourceManager.AgentMissionData.RebellionCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.Undercover:
+                            if (ResourceManager.AgentMissionData.InfiltrateCost > SpyBudget)
+                                potentialMissions.RemoveAtSwapLast(x);
+                            break;
+
+                        case AgentMission.Recovering:
+                            break;
+                    }
+                }
+
+                if (potentialMissions.NotEmpty)
+                {
+                    AgentMission am = potentialMissions.RandItem();
+                    agent.AssignMission(am, OwnerEmpire, target.data.Traits.Name);
+                    offense++;
                 }
             }
-            OwnerEmpire.AddMoney(-(OwnerEmpire.data.SpyBudget - spyBudget));
-            spyBudget = 0;
         }
+
+        private Array<AgentMission> PotentialAggressiveMissions(Agent agent, Empire target)
+        {
+            var potentialMissions = new Array<AgentMission>();
+            if (OwnerEmpire.GetRelations(target).AtWar)
+            {
+                if (agent.Level >= 8)
+                {
+                    potentialMissions.Add(AgentMission.InciteRebellion);
+                    potentialMissions.Add(AgentMission.Assassinate);
+                    potentialMissions.Add(AgentMission.StealTech);
+                }
+                if (agent.Level >= 4)
+                {
+                    potentialMissions.Add(AgentMission.StealTech);
+                    potentialMissions.Add(AgentMission.Robbery);
+                    potentialMissions.Add(AgentMission.Sabotage);
+                }
+                if (agent.Level < 4)
+                {
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.StealTech);
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+            }
+            if (OwnerEmpire.GetRelations(target).Posture == Posture.Hostile)
+            {
+                if (agent.Level >= 8)
+                {
+                    potentialMissions.Add(AgentMission.StealTech);
+                    potentialMissions.Add(AgentMission.Assassinate);
+                }
+                if (agent.Level >= 4)
+                {
+                    potentialMissions.Add(AgentMission.Robbery);
+                    potentialMissions.Add(AgentMission.Sabotage);
+                }
+                if (agent.Level < 4)
+                {
+                    potentialMissions.Add(AgentMission.Sabotage);
+                }
+            }
+
+
+            if (OwnerEmpire.GetRelations(target).SpiesDetected > 0)
+            {
+                if (agent.Level >= 4) potentialMissions.Add(AgentMission.Assassinate);
+            }
+            return potentialMissions;
+        }
+
+        private Array<AgentMission> PotentialCunningSpyMissions(Agent agent, Empire target)
+        {
+            var potentialMissions = new Array<AgentMission>();
+            if (OwnerEmpire.GetRelations(target).AtWar)
+            {
+                if (agent.Level >= 8)
+                {
+                    potentialMissions.Add(AgentMission.InciteRebellion);
+                    potentialMissions.Add(AgentMission.Assassinate);
+                    potentialMissions.Add(AgentMission.Robbery);
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+                }
+
+                if (agent.Level >= 4)
+                {
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.Robbery);
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Assassinate);
+                }
+
+                if (agent.Level < 4)
+                {
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.Robbery);
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+                }
+            }
+
+            if (OwnerEmpire.GetRelations(target).Posture == Posture.Hostile)
+            {
+                if (agent.Level >= 8)
+                {
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Assassinate);
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+
+                if (agent.Level >= 4)
+                {
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+
+                if (agent.Level < 4)
+                {
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+            }
+
+            if (OwnerEmpire.GetRelations(target).Posture == Posture.Neutral ||
+                OwnerEmpire.GetRelations(target).Posture == Posture.Friendly)
+            {
+                if (agent.Level >= 8)
+                {
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Assassinate);
+                    potentialMissions.Add(AgentMission.Robbery);
+                    potentialMissions.Add(AgentMission.Sabotage);
+                }
+
+                if (agent.Level >= 4)
+                {
+                    potentialMissions.Add(AgentMission.Robbery);
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Sabotage);
+                }
+
+                if (agent.Level < 4)
+                {
+                    if (ResourceManager.AgentMissionData.StealTechCost > SpyBudget)
+                        potentialMissions.Add(AgentMission.StealTech);
+
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+            }
+
+            if (OwnerEmpire.GetRelations(target).SpiesDetected > 0)
+            {
+                if (agent.Level >= 4) potentialMissions.Add(AgentMission.Assassinate);
+            }
+            return potentialMissions;
+        }
+
+        private Array<AgentMission> PotentialPeacefulMissions(Agent agent, Empire target)
+        {
+            var potentialMissions = new Array<AgentMission>();
+
+            if (OwnerEmpire.GetRelations(target).AtWar)
+            {
+                if (agent.Level >= 8)
+                {
+                    potentialMissions.Add(AgentMission.InciteRebellion);
+                    potentialMissions.Add(AgentMission.Assassinate);
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+
+                if (agent.Level >= 4)
+                {
+                    potentialMissions.Add(AgentMission.Robbery);
+                    potentialMissions.Add(AgentMission.Sabotage);
+                }
+
+                if (agent.Level < 4)
+                {
+                    potentialMissions.Add(AgentMission.Sabotage);
+                    potentialMissions.Add(AgentMission.Robbery);
+                }
+            }
+
+            if (OwnerEmpire.GetRelations(target).SpiesDetected > 0)
+            {
+                if (agent.Level >= 4) potentialMissions.Add(AgentMission.Assassinate);
+            }
+
+            return potentialMissions;
+        }
+
+        private int CalculateSpyUsage(out int defenders)
+        {
+            defenders = 0;
+            int offense = 0;
+            foreach (Agent a in OwnerEmpire.data.AgentList)
+            {
+                if (a.Mission == AgentMission.Defending)
+                {
+                    defenders++;
+                }
+                else if (a.Mission != AgentMission.Undercover)
+                {
+                    offense++;
+                }
+
+                if (a.Mission != AgentMission.Defending || a.Level >= 2 || SpyBudget <= 300f)
+                {
+                    continue;
+                }
+
+                a.AssignMission(AgentMission.Training, OwnerEmpire, "");
+            }
+
+            return offense;
+        }
+
+        private Array<Empire> FindEmpireTargets()
+        {
+            var potentialTargets = new Array<Empire>();
+            foreach (var relation in OwnerEmpire.AllRelations)
+            {
+                if (relation.Value.Known && !relation.Key.isFaction && !relation.Key.data.Defeated &&
+                    (relation.Value.Posture == Posture.Neutral || relation.Value.Posture == Posture.Hostile))
+                    potentialTargets.Add(relation.Key);
+            }
+
+            return potentialTargets;
+        }
+
+        public bool CanEmpireAffordSpy()
+        {
+            int income = (int)SpyBudget;
+            return SpyBudget >= SpyCost && OwnerEmpire.data.AgentList.Count < EmpireSpyLimit;
+        }
+
+        private Agent CreateSpy()
+        {
+            string[] spyNames = SpyNames();
+            Agent agent = new Agent { Name = AgentComponent.GetName(spyNames) };
+            OwnerEmpire.data.AgentList.Add(agent);
+            return agent;
+        }
+
+        private string[] SpyNames()
+        {
+            string names;
+            if (!File.Exists(string.Concat("Content/NameGenerators/spynames_"
+                , OwnerEmpire.data.Traits.ShipType,".txt")))
+                names = File.ReadAllText("Content/NameGenerators/spynames_Humans.txt");
+            else
+                names = File.ReadAllText(string.Concat("Content/NameGenerators/spynames_",
+                    OwnerEmpire.data.Traits.ShipType, ".txt"));
+            string[] tokens = names.Split(',');
+            return tokens;
+        }
+
     }
 }

@@ -47,6 +47,25 @@ namespace Ship_Game
         public bool IsTrusting => Trustworthiness >= 80;
         [XmlIgnore][JsonIgnore]
         public bool Careless   => Trustworthiness <= 60;
+        [XmlIgnore]
+        [JsonIgnore]
+        public TraitType TraitName
+        {
+            get
+            {
+                Enum.TryParse(Name, out TraitType traitType);
+                return traitType;
+            }
+        }
+        public enum TraitType
+        {
+            Cunning,
+            Ruthless,
+            Aggressive,
+            Honorable,
+            Xenophobic,
+            Pacifist
+        }
     }
 
     /// <summary>
