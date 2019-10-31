@@ -369,8 +369,16 @@ namespace Ship_Game
 
         public void ShowSelectedShipOverlay(Vector2 listItemPos, Ship ship)
         {
-            ShipInfoOverlay.Pos = listItemPos - new Vector2(400, 120);
-            ShipInfoOverlay.ShowShip(ship); // can be null
+            if (ship == null)
+            {
+                ShipInfoOverlay.Visible = false;
+                return;
+            }
+
+            float size = (Width * 0.16f).RoundTo10();
+            Vector2 pos = new Vector2(BuildableList.X - size*1.6f, listItemPos.Y - size/4).RoundTo10();
+            pos.Y = Math.Max(100f, pos.Y);
+            ShipInfoOverlay.ShowShip(ship, pos, size, lowRes: ScreenWidth <= 1920);
         }
     }
 }

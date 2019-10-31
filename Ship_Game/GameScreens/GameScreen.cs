@@ -22,7 +22,7 @@ namespace Ship_Game
         public bool IsPopup   { get; protected set; }
         
         // LEGACY LAYOUT: Change layout and Font Size if ScreenWidth is too small
-        public bool LowRes { get; private set; }
+        public readonly bool LowRes;
 
         // @return TRUE if content was loaded this frame
         public bool DidLoadContent { get; private set; }

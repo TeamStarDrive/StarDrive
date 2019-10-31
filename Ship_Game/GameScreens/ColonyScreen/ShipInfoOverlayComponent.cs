@@ -8,25 +8,35 @@ namespace Ship_Game
     public class ShipInfoOverlayComponent : UIElementV2
     {
         Ship SelectedShip;
+        bool LowRes;
+        SpriteFont TitleFont;
+        SpriteFont Font;
+        int TextWidth;
 
         public ShipInfoOverlayComponent()
         {
             Visible = false;
         }
 
-        public void ShowShip(Ship ship)
+        public void ShowShip(Ship ship, Vector2 screenPos, float shipRectSize, bool lowRes = true)
         {
             if (SelectedShip != ship)
             {
                 SelectedShip = ship;
-                if (ship != null)
-                {
-                    // TODO: USE NEW FAST POWER RECALC FROM SHIP DESIGN SCREEN
-                    ship.RecalculatePower();
-                    ship.ShipStatusChange();
-                }
+                // TODO: USE NEW FAST POWER RECALC FROM SHIP DESIGN SCREEN
+                ship.RecalculatePower(); // SLOOOOOOW
+                ship.ShipStatusChange();
             }
-            Visible = (SelectedShip != null);
+
+            LowRes = lowRes;
+            Visible = true;
+
+            TextWidth = (shipRectSize/2).RoundTo10();
+            Size = new Vector2(shipRectSize + TextWidth, shipRectSize);
+            Pos = screenPos;
+
+            TitleFont = LowRes ? Fonts.Arial12Bold : Fonts.Arial14Bold;
+            Font      = LowRes ? Fonts.Arial8Bold : Fonts.Arial11Bold;
         }
 
         public override bool HandleInput(InputState input)
@@ -40,45 +50,42 @@ namespace Ship_Game
             if (!Visible || ship == null)
                 return;
 
-            SpriteFont font8 = Fonts.Arial8Bold;
-            SpriteFont font12 = Fonts.Arial12Bold;
-            int x = (int)X;
-            int y = (int)Y;
+            int size = (int)(Height - 56);
+            var shipOverlay = new Rectangle((int)X + TextWidth, (int)Y + 40, size, size);
+            //batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), Rect);
+            new Menu2(Rect).Draw(batch);
 
-            var shipBackground = new Rectangle(x, y, 360, 240);
-            var shipOverlay = new Rectangle(x + 140, y + 20, 200, 200);
-            batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), shipBackground);
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
 
             float mass = ship.Mass * EmpireManager.Player.data.MassModifier;
             float subLightSpeed = ship.Thrust / mass;
-            float warpSpeed = ship.WarpThrust / mass * EmpireManager.Player.data.FTLModifier;
-            float turnRate = ship.TurnThrust.ToDegrees() / mass / 700;
+            float warpSpeed     = ship.WarpThrust / mass * EmpireManager.Player.data.FTLModifier;
+            float turnRate      = ship.TurnThrust.ToDegrees() / mass / 700;
 
-            var cursor = new Vector2(x + 25, y + 1);
-            DrawShipValueLine(batch, font12, ref cursor, ship.Name, "", Color.White);
-            DrawShipValueLine(batch, font8, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
-            WriteLine(ref cursor, font8);
-            DrawShipValueLine(batch, font8, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
-            DrawShipValueLine(batch, font8, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
-            DrawShipValueLine(batch, font8, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
-            DrawShipValueLine(batch, font8, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, font8, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, font8, ref cursor, "Turn Rate:", turnRate, Color.LightGreen);
-            DrawShipValueLine(batch, font8, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
-            DrawShipValueLine(batch, font8, ref cursor, "Shields:", ship.shield_max, Color.Goldenrod);
-            DrawShipValueLine(batch, font8, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);
-            DrawShipValueLine(batch, font8, ref cursor, "Hangars:", ship.Carrier.AllFighterHangars.Length, Color.IndianRed);
-            DrawShipValueLine(batch, font8, ref cursor, "Troop Bays:", ship.Carrier.AllTroopBays.Length, Color.IndianRed);
-            DrawShipValueLine(batch, font8, ref cursor, "Troops:", ship.TroopCapacity, Color.IndianRed);
-            DrawShipValueLine(batch, font8, ref cursor, "Bomb Bays:", ship.BombBays.Count, Color.IndianRed);
-            DrawShipValueLine(batch, font8, ref cursor, "Cargo Space:", ship.CargoSpaceMax, Color.Khaki);
+            var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
+            DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
+            DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
+            WriteLine(ref cursor, Font);
+            DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
+            DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
+            DrawShipValueLine(batch, Font, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
+            DrawShipValueLine(batch, Font, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRate, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
+            DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.shield_max, Color.Goldenrod);
+            DrawShipValueLine(batch, Font, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);
+            DrawShipValueLine(batch, Font, ref cursor, "Hangars:", ship.Carrier.AllFighterHangars.Length, Color.IndianRed);
+            DrawShipValueLine(batch, Font, ref cursor, "Troop Bays:", ship.Carrier.AllTroopBays.Length, Color.IndianRed);
+            DrawShipValueLine(batch, Font, ref cursor, "Troops:", ship.TroopCapacity, Color.IndianRed);
+            DrawShipValueLine(batch, Font, ref cursor, "Bomb Bays:", ship.BombBays.Count, Color.IndianRed);
+            DrawShipValueLine(batch, Font, ref cursor, "Cargo Space:", ship.CargoSpaceMax, Color.Khaki);
         }
 
         void DrawShipValueLine(SpriteBatch batch, SpriteFont font, ref Vector2 cursor, string description, string data, Color color)
         {
             WriteLine(ref cursor, font);
-            var ident = new Vector2(cursor.X + 80, cursor.Y);
+            var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
             batch.DrawString(font, description, cursor, color);
             batch.DrawString(font, data, ident, color);
         }
@@ -89,12 +96,12 @@ namespace Ship_Game
                 return;
 
             WriteLine(ref cursor, font);
-            var ident = new Vector2(cursor.X + 80, cursor.Y);
+            var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
             batch.DrawString(font, description, cursor, color);
             batch.DrawString(font, data.GetNumberString(), ident, color);
         }
 
-        void WriteLine(ref Vector2 cursor, SpriteFont font)
+        static void WriteLine(ref Vector2 cursor, SpriteFont font)
         {
             cursor.Y += font.LineSpacing + 2;
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Ship_Game.Audio;
 
 namespace Ship_Game
 {
@@ -65,6 +66,7 @@ namespace Ship_Game
 
         public override void OnItemHovered(ScrollListItemBase item)
         {
+            GameAudio.ButtonMouseOver();
             OnHovered?.Invoke((T)item);
         }
 
