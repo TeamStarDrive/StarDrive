@@ -11,7 +11,10 @@ namespace Ship_Game
         public Building Building;
         public Ship Ship;
         public Troop Troop;
-        SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
+        string BuildingDescr;
+        readonly SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
+        readonly SpriteFont Font8 = Fonts.Arial8Bold;
+        readonly SpriteFont Font12 = Fonts.Arial12Bold;
 
         public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
         {
@@ -92,136 +95,51 @@ namespace Ship_Game
             else if (Ship != null)   DrawShip(batch, Ship);
         }
 
-        void DrawBuilding(SpriteBatch batch, Building b)
+        void DrawProductionInfo(SpriteBatch batch, float maintenance, float cost)
         {
-            SubTexture icon = ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48");
-            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-
-            Planet p = Screen.P;
-            SpriteFont Font8 = Fonts.Arial8Bold;
-            SpriteFont Font12 = Fonts.Arial12Bold;
-
-            bool unprofitable = !p.WeCanAffordThis(b, p.colonyType) && b.Maintenance > 0f;
-            Color buildColor = unprofitable ? new Color(255,200,200) : Color.White;
-            if (Hovered) buildColor = Color.White; // hover color
-            string descr = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
-            descr = Font8.ParseText(descr, 280f);
-
-            var position = new Vector2(X + 60f, Y);
-
-            batch.Draw(icon, new Rectangle((int)X + 12, (int)Y + 4, 32, 32), buildColor);
-            batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), position, buildColor);
-            position.Y += Font12.LineSpacing;
-
-            if (!Hovered)
-            {
-                batch.DrawString(Font8, descr, position, unprofitable ? Color.Chocolate : Color.Green);
-                position.X = (Right - 100);
-                var r = new Rectangle((int) position.X, (int)CenterY - iconProd.Height / 2 - 5,
-                    iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, r, Color.White);
-
-                position = new Vector2((r.X - 60), (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                string maintenance = b.Maintenance.ToString("F2");
-                batch.DrawString(Font8, maintenance+" BC/Y", position, Color.Salmon);
-
-                position = new Vector2((r.X + 26), (r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
-            }
-            else
-            {
-                batch.DrawString(Font8, descr, position, Color.Orange);
-                position.X = (Right - 100);
-                var r = new Rectangle((int) position.X, (int)CenterY - iconProd.Height / 2 - 5,
-                    iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, r, Color.White);
-
-                position = new Vector2((r.X - 60), (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                float actualMaint = b.Maintenance + b.Maintenance * p.Owner.data.Traits.MaintMod;
-                string maintenance = actualMaint.ToString("F2");
-                batch.DrawString(Font8, maintenance+" BC/Y", position, Color.Salmon);
-
-                position = new Vector2((r.X + 26), (r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                batch.DrawString(Font12, b.ActualCost.String(), position, Color.White);
-            }
+            float upkeepY = CenterY - Font12.LineSpacing/2f - 4;
+            if (maintenance >= 0f)
+                batch.DrawString(Font12, maintenance.String(2)+" BC/Y", Right-184, upkeepY, Color.Salmon); // Maintenance
+            batch.Draw(ProdIcon, Right - 120, CenterY - ProdIcon.CenterY - 4); // Production Icon
+            batch.DrawString(Font12, cost.String(), Right-92, upkeepY); // Build Cost
         }
 
-        string BuildingShortDescription(Building b)
+        void DrawBuilding(SpriteBatch batch, Building b)
         {
-            string description = Localizer.Token(b.ShortDescriptionIndex);
-
             Planet p = Screen.P;
-            if (b.MaxFertilityOnBuild.NotZero())
-            {
-                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.RacialEnvModifer(p.Category)}";
-                if (b.MaxFertilityOnBuild.Greater(0))
-                    fertilityChange = $"+{fertilityChange}";
+            bool unprofitable = !p.WeCanAffordThis(b, p.colonyType) && b.Maintenance > 0f;
+            Color buildColor  = Hovered ? Color.White  : unprofitable ? new Color(255,200,200) : Color.White;
+            Color profitColor = Hovered ? Color.Orange : unprofitable ? Color.Chocolate : Color.Green;
 
-                description = $"{fertilityChange} {description}";
+            if (BuildingDescr == null)
+            {
+                string text = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
+                BuildingDescr = Font8.ParseText(text, 280f);
             }
 
-            if (b.IsBiospheres)
-                description = $"{(p.BasePopPerTile/1000).String(2) } {description}";
-            
-            return description;
+            batch.Draw(b.IconTex, new Vector2(X+4, Y+4), new Vector2(32), buildColor); // Icon
+            batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), X+44, Y+4, buildColor); // Title
+            batch.DrawString(Font8, BuildingDescr, X+46, Y+20, profitColor); // Description
+            DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost);
         }
 
         void DrawTroop(SpriteBatch batch, Troop troop)
         {
-            Planet p = Screen.P;
-            SpriteFont Font8 = Fonts.Arial8Bold;
-            SpriteFont Font12 = Fonts.Arial12Bold;
-
-            SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-            var tl = new Vector2(List.X + 20, Y);
-
-            if (!Hovered)
-            {
-                troop.Draw(batch, new Rectangle((int) tl.X, (int) tl.Y, 29, 30));
-                var position = new Vector2(tl.X + 40f, tl.Y + 3f);
-                batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                position.Y += Font12.LineSpacing;
-                batch.DrawString(Fonts.Arial8Bold, troop.Class, position, Color.Orange);
-
-                position.X = Right - 100;
-                var dest2 = new Rectangle((int) position.X, (int)CenterY - iconProd.Height / 2 - 5, iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, dest2, Color.White);
-                position = new Vector2(dest2.X + 26, dest2.Y + dest2.Height / 2 - Font12.LineSpacing / 2);
-                batch.DrawString(Font12, ((int)troop.ActualCost).ToString(), position, Color.White);
-            }
-            else
-            {
-                troop.Draw(batch, new Rectangle((int) tl.X, (int) tl.Y, 29, 30));
-                Vector2 position = new Vector2(tl.X + 40f, tl.Y + 3f);
-                batch.DrawString(Font12, troop.DisplayNameEmpire(p.Owner), position, Color.White);
-                position.Y += Font12.LineSpacing;
-                batch.DrawString(Font8, troop.Class, position, Color.Orange);
-                position.X = Right - 100;
-                Rectangle destinationRectangle2 = new Rectangle((int) position.X, (int)CenterY - iconProd.Height / 2 - 5,
-                    iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, destinationRectangle2, Color.White);
-                position = new Vector2(destinationRectangle2.X + 26,
-                    destinationRectangle2.Y + destinationRectangle2.Height / 2 -
-                    Font12.LineSpacing / 2);
-                batch.DrawString(Font12, ((int) troop.ActualCost).ToString(), position, Color.White);
-            }
+            troop.Draw(batch, new Vector2(X+4, Y+4), new Vector2(32)); // Icon
+            batch.DrawString(Font12, troop.DisplayNameEmpire(Screen.P.Owner), X+44, Y+4); // Title
+            batch.DrawString(Font8, troop.Class, X+46, Y+20, Color.Orange); // Description
+            DrawProductionInfo(batch, -1, troop.ActualCost);
         }
 
         void DrawShip(SpriteBatch batch, Ship ship)
         {
-            SpriteFont Font12 = Fonts.Arial12Bold;
-
             // Everything from Left --> to --> Right 
-            batch.Draw(ship.BaseHull.Icon, new Vector2(X+4, Y+4), new Vector2(32));
-            batch.DrawString(Font12, GetShipName(ship), X+44, Y+4, Hovered ? Color.Green : Color.White);
-            batch.DrawLine(Fonts.Arial8Bold, X+46, Y+20, 
+            batch.Draw(ship.BaseHull.Icon, new Vector2(X, Y), new Vector2(48)); // Icon
+            batch.DrawString(Font12, GetShipName(ship), X+60, Y+4, Hovered ? Color.Green : Color.White); // Title
+            batch.DrawLine(Font8, X+60, Y+20, 
                 (ship.BaseHull.Name+": ", Color.DarkGray),
-                ($"Base Strength: {ship.BaseStrength.String(0)}", Color.Orange));
-
-            float upkeepY = CenterY - Font12.LineSpacing/2f - 4;
-            batch.DrawString(Font12, GetShipUpkeep(ship).String(2)+" BC/Y", Right-184, upkeepY, Color.Salmon);
-            batch.DrawString(Font12, GetShipCost(ship).ToString(), Right-92, upkeepY);
-            batch.Draw(ProdIcon, Right - 120, CenterY - ProdIcon.CenterY - 4);
+                ($"Base Strength: {ship.BaseStrength.String(0)}", Color.Orange)); // Description
+            DrawProductionInfo(batch, GetShipUpkeep(ship), GetShipCost(ship));
         }
 
         static string GetShipName(Ship ship)
@@ -240,6 +158,27 @@ namespace Ship_Game
         int GetShipCost(Ship ship)
         {
             return (int)(ship.GetCost(Screen.P.Owner) * Screen.P.ShipBuildingModifier);
+        }
+
+        float GetMaintenance(Building b) => b.Maintenance + b.Maintenance * Screen.P.Owner.data.Traits.MaintMod;
+
+        string BuildingShortDescription(Building b)
+        {
+            string description = Localizer.Token(b.ShortDescriptionIndex);
+
+            Planet p = Screen.P;
+            if (b.MaxFertilityOnBuild.NotZero())
+            {
+                string fertilityChange = $"{b.MaxFertilityOnBuild * Screen.Player.RacialEnvModifer(p.Category)}";
+                if (b.MaxFertilityOnBuild.Greater(0))
+                    fertilityChange = $"+{fertilityChange}";
+                description = $"{fertilityChange} {description}";
+            }
+
+            if (b.IsBiospheres)
+                description = $"{(p.BasePopPerTile/1000).String(2) } {description}";
+            
+            return description;
         }
     }
 }
