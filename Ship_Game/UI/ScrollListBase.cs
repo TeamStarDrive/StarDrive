@@ -176,38 +176,6 @@ namespace Ship_Game
             return hit;
         }
 
-        bool HandleInputVisibleItems(InputState input)
-        {
-            // NOTE: We do not early return, because we want to update hover state for all ScrollList items
-            bool anyCaptured = false;
-            bool anyHovered = false;
-            if (Rect.HitTest(input.CursorPosition))
-            {
-                for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
-                {
-                    ScrollListItemBase item = FlatEntries[i];
-                    anyCaptured |= item.HandleInput(input);
-                    bool thisHovered = item.Hovered;
-                    anyHovered |= thisHovered;
-
-                    // only show selector if item is not a Header element
-                    if (thisHovered && !item.IsHeader && EnableItemHighlight)
-                    {
-                        HighlightedIndex = i;
-                        Highlight = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
-                    }
-                }
-            }
-
-            // Not hovering over any items? Clear the SelectionBox
-            if (!anyHovered && EnableItemHighlight)
-            {
-                HighlightedIndex = -1;
-                Highlight = null;
-            }
-            return anyCaptured;
-        }
-
         protected ScrollListItemBase DraggedEntry;
         protected Vector2 DraggedOffset;
 
@@ -221,8 +189,49 @@ namespace Ship_Game
 
             HandleDraggable(input);
             HandleElementDragging(input);
+            
+            // NOTE: We do not early return, because we want to update hover state for all ScrollList items
+            bool captured = base.HandleInput(input) || HandleInputScrollBar(input);
+            bool anyHovered = false;
 
-            return base.HandleInput(input) || HandleInputScrollBar(input) || HandleInputVisibleItems(input);
+            if (!captured && Rect.HitTest(input.CursorPosition))
+            {
+                // input wasn't captured by other items or scroll bar
+                // so update hover state of visible items
+                for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+                {
+                    ScrollListItemBase item = FlatEntries[i];
+                    if (item.UpdateHoverState(input))
+                    {
+                        anyHovered = true;
+                        if (!item.IsHeader && EnableItemHighlight)
+                        {
+                            HighlightedIndex = i;
+                            Highlight = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
+                        }
+                    }
+                }
+
+                // now capture input
+                for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+                {
+                    ScrollListItemBase item = FlatEntries[i];
+                    if (item.HandleInput(input))
+                    {
+                        captured = true;
+                        break; // it's safe to early break here
+                    }
+                }
+            }
+
+            // Not hovering over any items? Clear the SelectionBox
+            if (!anyHovered && EnableItemHighlight)
+            {
+                HighlightedIndex = -1;
+                Highlight = null;
+            }
+
+            return captured;
         }
 
         #endregion

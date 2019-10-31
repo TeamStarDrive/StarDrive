@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -152,18 +151,21 @@ namespace Ship_Game
             base.PerformLayout();
         }
 
-        public override bool HandleInput(InputState input)
+        public bool UpdateHoverState(InputState input)
         {
             bool wasHovered = Hovered;
-            Hovered = Rect.HitTest(input.CursorPosition);
-
-            // Mouse entered this Entry
-            if (!wasHovered && Hovered && List.EnableItemEvents)
+            bool isHovered = Rect.HitTest(input.CursorPosition);
+            Hovered = isHovered;
+            // Mouse entered:
+            if (!wasHovered && isHovered && List.EnableItemEvents)
             {
-                GameAudio.ButtonMouseOver();
                 List.OnItemHovered(this);
             }
+            return isHovered;
+        }
 
+        public override bool HandleInput(InputState input)
+        {
             if (DynamicElements != null)
             {
                 for (int i = 0; i < DynamicElements.Count; ++i)
