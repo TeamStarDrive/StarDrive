@@ -143,6 +143,11 @@ namespace Ship_Game
 
         public string StrengthText => $"Strength: {Strength:0.}";
 
+        public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size)
+        {
+            Draw(batch, new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y));
+        }
+
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
         // to a central location to be used by any animated image. 
         public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
