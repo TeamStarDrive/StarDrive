@@ -55,9 +55,6 @@ namespace Ship_Game
     //   +Z is out of the screen
     public static class MathExt
     {
-        // PI/2, 90 degrees
-        public const double HalfPI = 3.14159265358979 * 0.5;
-
         // clamp a value between [min, max]: min <= value <= max
         public static float Clamped(this float value, float min, float max)
         {
@@ -599,6 +596,17 @@ namespace Ship_Game
             if (rem != 0)
                 value += multipleOf - rem;
             return value;
+        }
+
+        // For example: 75.5f.RoundTo10  -->  80
+        public static int RoundTo10(this float value)
+        {
+            return (int)Round(value * 0.1f) * 10;
+        }
+
+        public static Vector2 RoundTo10(this Vector2 v)
+        {
+            return new Vector2(v.X.RoundTo10(), v.Y.RoundTo10());
         }
     }
 }

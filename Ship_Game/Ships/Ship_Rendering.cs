@@ -68,7 +68,7 @@ namespace Ship_Game.Ships
         //}
     #endif
 
-        private void DrawSparseModuleGrid(UniverseScreen us)
+        void DrawSparseModuleGrid(UniverseScreen us)
         {
             if (SparseModuleGrid.Length != 0)
             {
@@ -221,14 +221,14 @@ namespace Ship_Game.Ships
         }
 
 
-        private void DrawTactical(UniverseScreen us, Vector2 screenPos, float screenRadius, float minSize, float maxSize = 0f)
+        void DrawTactical(UniverseScreen us, Vector2 screenPos, float screenRadius, float minSize, float maxSize = 0f)
         {
             // try to scale the icon so its size remains consistent when zooming in/out
             float size = ScaleIconSize(screenRadius, minSize, maxSize);
             us.DrawTextureSized(GetTacticalIcon(), screenPos, Rotation, size, size, loyalty.EmpireColor);
         }
 
-        private void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
+        void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
         {            
             if (isColonyShip)
             {
@@ -239,7 +239,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
+        float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
         {            
             float size = screenRadius * 2 ;
             if (size < minSize && minSize != 0)
@@ -274,7 +274,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
+        void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
         {
             if (!HelperFunctions.DataVisibleToPlayer(loyalty, UniverseData.GameDifficulty.Easy))
                 return;
@@ -301,7 +301,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
+        void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
         {
             SubTexture statusIcon = ResourceManager.Texture(texture);
             float size = ScaleIconSize(screenRadius, 16f, 16f);
@@ -316,14 +316,13 @@ namespace Ship_Game.Ships
 
             if (drawIcon && hullData.SelectionGraphic.NotEmpty())// draw ship icon plus shields
             {
-                Rectangle destinationRectangle = drawRect;
-                destinationRectangle.X += 2;
-
-                batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destinationRectangle, Color.White);
+                Rectangle destRect = drawRect;
+                destRect.X += 2;
+                batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic), destRect, Color.White);
                 if (shield_power > 0.0)
                 {
                     byte alpha = (byte)(shield_percent * 255.0f);
-                    batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destinationRectangle, new Color(Color.White, alpha));
+                    batch.Draw(ResourceManager.Texture("SelectionBox Ships/" + hullData.SelectionGraphic + "_shields"), destRect, new Color(Color.White, alpha));
                 }
                 return;
             }
@@ -332,12 +331,7 @@ namespace Ship_Game.Ships
             Vector2 gridCenter = new Vector2(GridWidth, GridHeight) / 2f;
             Vector2 rectCenter = new Vector2(drawRect.Width, drawRect.Height) / 2f;
 
-            float moduleSize = (drawRect.Width / (maxSpan + 1f));
-            if (moduleSize < 2.0)
-                moduleSize = drawRect.Width / (float)(maxSpan + 1);
-            if (moduleSize > 10.0)
-                moduleSize = 10f;
-
+            float moduleSize = (drawRect.Width / (maxSpan + 1f)).Clamped(2f, 24f);
             var shipDrawRect = new Rectangle(
                     drawRect.X + (int)(rectCenter.X - (gridCenter.X * moduleSize)),
                     drawRect.Y + (int)(rectCenter.Y - (gridCenter.Y * moduleSize)),
@@ -346,9 +340,10 @@ namespace Ship_Game.Ships
             foreach (ShipModule m in ModuleSlotList)
             {
                 Vector2 modulePos = (m.Position - GridOrigin) / 16f * moduleSize;
-                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X, shipDrawRect.Y + (int)modulePos.Y,
-                                         (int)moduleSize * m.XSIZE, (int)moduleSize * m.YSIZE);
-                
+                var rect = new Rectangle(shipDrawRect.X + (int)modulePos.X,
+                                         shipDrawRect.Y + (int)modulePos.Y,
+                                         (int)moduleSize * m.XSIZE,
+                                         (int)moduleSize * m.YSIZE);
                 Color healthColor         = moduleHealthColor ? m.GetHealthStatusColor() : new Color(40,40,40);
                 Color moduleColorMultiply = healthColor.AddRgb(moduleHealthColor ? 0.66f : 1);
                 batch.FillRectangle(rect, healthColor);
