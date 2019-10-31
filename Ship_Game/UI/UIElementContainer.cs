@@ -155,6 +155,7 @@ namespace Ship_Game
 
         public virtual T Add<T>(T element) where T : UIElementV2
         {
+            RequiresLayout = true;
             if (element.Parent != null)
                 element.RemoveFromParent();
             Elements.Add(element);
@@ -234,18 +235,14 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        // Shared utility functions:
-        protected UIButton Button(Vector2 pos, string launches, int titleId)
-            => Add(new UIButton(this, pos, Localizer.Token(titleId)));
-        protected UIButton Button(Vector2 pos, string launches, string text)
-            => Add(new UIButton(this, pos, text));
+        protected UIButton Button(Vector2 pos, string launches, LocalizedText text)
+            => Add(new UIButton(pos, text));
 
-        public UIButton ButtonMediumMenu(float x, float y, string text)
+        public UIButton ButtonMediumMenu(float x, float y, LocalizedText text)
             => Add(new UIButton(this, ButtonStyle.MediumMenu, new Vector2(x, y), text));
 
         // @note CloseButton automatically calls ExitScreen() on this screen
-        public CloseButton CloseButton(float x, float y)
-            => Add(new CloseButton(this, x, y));
+        public CloseButton CloseButton(float x, float y) => Add(new CloseButton(x, y));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -257,54 +254,51 @@ namespace Ship_Game
         }
 
         public UIButton Button(ButtonStyle style, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(this, style), click, clickSfx);
+            => Button(new UIButton(style), click, clickSfx);
 
-        public UIButton Button(ButtonStyle style, Vector2 pos, string text, Action<UIButton> click, string clickSfx = null)
+
+        public UIButton Button(ButtonStyle style, Vector2 pos, LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(new UIButton(this, style, pos, text), click, clickSfx);
 
-        public UIButton Button(ButtonStyle style, float x, float y, string text, Action<UIButton> click, string clickSfx = null)
+
+        public UIButton Button(ButtonStyle style, float x, float y, LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
+
 
         public UIButton Button(ButtonStyle style, in Rectangle rect, Action<UIButton> click, string clickSfx = null)
             => Button(new UIButton(this, style, rect), click, clickSfx);
 
-        public UIButton Button(float x, float y, string text, Action<UIButton> click)
+
+        public UIButton Button(float x, float y, LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
-        public UIButton Button(float x, float y, int titleId, Action<UIButton> click)
-            => Button(ButtonStyle.Default, new Vector2(x, y), Localizer.Token(titleId), click);
 
-        public UIButton ButtonLow(float x, float y, string text, Action<UIButton> click)
+
+        public UIButton ButtonLow(float x, float y, LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Low80, new Vector2(x, y), text, click);
-        public UIButton ButtonLow(float x, float y, int titleId, Action<UIButton> click)
-            => Button(ButtonStyle.Low80, new Vector2(x, y), Localizer.Token(titleId), click);
 
-        public UIButton ButtonSmall(float x, float y, string text, Action<UIButton> click)
+
+        public UIButton ButtonSmall(float x, float y, LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), text, click);
-        public UIButton ButtonSmall(float x, float y, int titleId, Action<UIButton> click)
-            => Button(ButtonStyle.Small, new Vector2(x, y), Localizer.Token(titleId), click);
 
-        public UIButton ButtonMedium(float x, float y, int titleId, Action<UIButton> click)
-            => Button(ButtonStyle.Medium, new Vector2(x, y), Localizer.Token(titleId), click);
-        public UIButton ButtonMedium(float x, float y, string title, Action<UIButton> click)
+
+        public UIButton ButtonMedium(float x, float y, LocalizedText title, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), title, click);
 
 
         public UIButton Button(ButtonStyle style, LocalizedText text, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(this, style, text.Text), click, clickSfx);
+            => Button(new UIButton(style, text), click, clickSfx);
 
         public UIButton ButtonMedium(LocalizedText text, Action<UIButton> click, string clickSfx = null)
-            => Button(ButtonStyle.Medium, text.Text, click, clickSfx);
+            => Button(ButtonStyle.Medium, text, click, clickSfx);
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, string title, int tooltip)
-            => Add(new UICheckBox(this, pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
+        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
+            => Add(new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
 
-        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, string title, int tooltip)
-            => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
-        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, int title, int tooltip)
-            => Add(new UICheckBox(this, x, y, binding, Fonts.Arial12Bold, title, tooltip));
+        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
+            => Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

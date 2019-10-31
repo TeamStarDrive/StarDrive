@@ -40,7 +40,7 @@ namespace Ship_Game
         public PressState  State = PressState.Default;
         public ButtonStyle Style = ButtonStyle.Default;
         public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
-        public string Text;
+        public LocalizedText Text;
         public ToolTipText Tooltip;
         public string ClickSfx = "echo_affirm";
 
@@ -53,25 +53,26 @@ namespace Ship_Game
             Style = style;
         }
 
-        public UIButton(UIElementV2 parent, ButtonStyle style) : base(parent)
+        public UIButton(LocalizedText text)
         {
-            Style = style;
+            Text = text;
+            Size = ButtonTexture().SizeF;
         }
-
-        public UIButton(UIElementV2 parent, ButtonStyle style, string text) : base(parent)
+        
+        public UIButton(ButtonStyle style, LocalizedText text)
         {
             Style = style;
             Text = text;
             Size = ButtonTexture().SizeF;
         }
 
-        public UIButton(UIElementV2 parent, Vector2 pos, string text) : base(parent, pos)
+        public UIButton(Vector2 pos, LocalizedText text) : base(null, pos)
         {
             Text = text;
             Size = ButtonTexture().SizeF;
         }
 
-        public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, string text) : base(parent, pos)
+        public UIButton(UIElementV2 parent, ButtonStyle style, Vector2 pos, LocalizedText text) : base(parent, pos)
         {
             Style = style;
             Text  = text;
@@ -189,13 +190,13 @@ namespace Ship_Game
             Rectangle r = Rect;
             batch.Draw(ButtonTexture(), r, Color.White);
 
-            if (Text.NotEmpty())
+            if (Text.Text.NotEmpty())
             {
                 SpriteFont font = Fonts.Arial12Bold;
 
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
-                    textCursor.X = r.X + r.Width / 2 - font.MeasureString(Text).X / 2f;
+                    textCursor.X = r.X + r.Width / 2 - font.MeasureString(Text.Text).X / 2f;
                 else
                     textCursor.X = r.X + 25f;
 
@@ -203,7 +204,7 @@ namespace Ship_Game
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
-                batch.DrawString(font, Text, textCursor, Enabled ? TextColor() : Color.Gray);
+                batch.DrawString(font, Text.Text, textCursor, Enabled ? TextColor() : Color.Gray);
             }
         }
 

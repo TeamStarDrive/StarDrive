@@ -26,7 +26,6 @@ namespace Ship_Game
         SortButton sb_Rich;
         SortButton sb_Pop;
         SortButton sb_Owned;
-        CloseButton close;
 
         UICheckBox cb_hideOwned;
         UICheckBox cb_hideUninhabitable;
@@ -58,7 +57,7 @@ namespace Ship_Game
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
-            close = new CloseButton(this, leftRect.Right - 40, leftRect.Y + 20);
+            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
             sb_Sys = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
@@ -83,13 +82,13 @@ namespace Ship_Game
                 }
             }
 
-            cb_hideOwned = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+            cb_hideOwned = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
-                x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
+                x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0));
 
-            cb_hideUninhabitable = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+            cb_hideUninhabitable = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
-                x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0);
+                x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0));
         }
 
         public override void Draw(SpriteBatch batch)
@@ -180,9 +179,9 @@ namespace Ship_Game
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + 35));
                 batch.DrawLine(leftBot, botSL, lineColor);
             }
-            cb_hideUninhabitable.Draw(batch);
-            cb_hideOwned.Draw(batch);
-            close.Draw(batch);
+
+            base.Draw(batch);
+
             batch.End();
         }
 
@@ -240,7 +239,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (input.Escaped || input.RightMouseClick || close.HandleInput(input) )
+            if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
                 return true;

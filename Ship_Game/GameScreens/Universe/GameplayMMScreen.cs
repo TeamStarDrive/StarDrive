@@ -9,12 +9,12 @@ namespace Ship_Game
 {
     public sealed class GameplayMMScreen : GameScreen
     {
-        private UniverseScreen screen;
-        private GameScreen caller;
-        private Menu2 window;
-        private UIButton Save;
+        UniverseScreen screen;
+        GameScreen caller;
+        Menu2 window;
+        UIButton Save;
 
-        private GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
+        GameplayMMScreen(GameScreen parent) : base(parent, pause: true)
         {
             IsPopup = true;
             TransitionOnTime  = 0.25f;
@@ -70,13 +70,14 @@ namespace Ship_Game
         }
 
 
-        private void Save_OnClick(UIButton button)
+        void Save_OnClick(UIButton button)
         {
             if (SavedGame.NotSaving) // no save in progress
                 ScreenManager.AddScreen(new SaveGameScreen(Empire.Universe));
             else GameAudio.NegativeClick();
         }
-        private void Load_OnClick(UIButton button)
+
+        void Load_OnClick(UIButton button)
         {
             if (SavedGame.NotSaving)
             {
@@ -85,7 +86,8 @@ namespace Ship_Game
             }
             else GameAudio.NegativeClick();
         }
-        private void Options_OnClick(UIButton button)
+
+        void Options_OnClick(UIButton button)
         {
             ScreenManager.AddScreen(new OptionsScreen(universe: screen)
             {
@@ -93,11 +95,13 @@ namespace Ship_Game
                 MiddleText = Localizer.Token(4004)
             });
         }
-        private void Return_OnClick(UIButton button)
+
+        void Return_OnClick(UIButton button)
         {
             ExitScreen(); 
         }
-        private void ExitToMain_OnClick(UIButton button)
+
+        void ExitToMain_OnClick(UIButton button)
         {
             ExitScreen();
             if (caller != null)
@@ -105,7 +109,8 @@ namespace Ship_Game
             screen.ExitScreen();
             ScreenManager.AddScreen(new MainMenuScreen());
         }
-        private void Exit_OnClick(UIButton button)
+
+        void Exit_OnClick(UIButton button)
         {
             if (SavedGame.NotSaving) StarDriveGame.Instance.Exit();
             else GameAudio.NegativeClick();
@@ -124,11 +129,11 @@ namespace Ship_Game
             list.LayoutStyle = ListLayoutStyle.Resize;
 
             Save = list.AddButton(300, Save_OnClick);
-            list.AddButton(titleId: 2,   Load_OnClick);
-            list.AddButton(titleId: 4,   Options_OnClick);
-            list.AddButton(titleId: 301, Return_OnClick);
-            list.AddButton(titleId: 302, ExitToMain_OnClick);
-            list.AddButton(titleId: 303, Exit_OnClick);
+            list.AddButton(2,   Load_OnClick);
+            list.AddButton(4,   Options_OnClick);
+            list.AddButton(301, Return_OnClick);
+            list.AddButton(302, ExitToMain_OnClick);
+            list.AddButton(303, Exit_OnClick);
         }  
     }
 }

@@ -37,8 +37,6 @@ namespace Ship_Game
 
         private ScrollList<ArtifactItemListItem> ArtifactsSL;
 
-        private CloseButton close;
-
         //Added by CG: player empire
         Empire PlayerEmpire;
         Array<Empire> Friends;
@@ -644,7 +642,7 @@ namespace Ship_Game
                 if (SelectedEmpire.data.MissileDodgeChance != 0)
                     DrawStat(Localizer.Token(4035), SelectedEmpire.data.MissileDodgeChance, ref textCursor, false); 
             }
-            close.Draw(batch);
+            base.Draw(batch);
             batch.End();
         }
 
@@ -932,12 +930,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
-
             if (SelectedEmpire != EmpireManager.Player && !SelectedEmpire.data.Defeated && Contact.HandleInput(input))
             {
                 DiplomacyScreen.Show(SelectedEmpire, "Greeting", parent: this);
@@ -979,7 +971,7 @@ namespace Ship_Game
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(1600)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             Rectangle leftRect = new Rectangle((int)screenWidth / 2 - 640, (screenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
             DMenu = new Menu2(leftRect);
-            close = new CloseButton(this, leftRect.Right - 40, leftRect.Y + 20);
+            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
             SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);

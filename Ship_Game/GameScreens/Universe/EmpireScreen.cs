@@ -27,8 +27,6 @@ namespace Ship_Game
 
         private DropOptions<int> GovernorDropdown;
 
-        private CloseButton close;
-
         private Rectangle eRect;
 
         private SortButton pop;
@@ -68,7 +66,7 @@ namespace Ship_Game
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight -
                 (titleRect.Y + titleRect.Height) - 7);
-            close = new CloseButton(this, leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
+            Add(new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20));
             EMenu = new Menu2(leftRect);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40,
@@ -399,7 +397,7 @@ namespace Ship_Game
             batch.DrawLine(leftBot, botSL, lineColor);
             Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
-            close.Draw(batch);
+            base.Draw(batch);
             batch.End();
         }
 
@@ -514,7 +512,7 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }                
-            if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
                 return true;

@@ -84,7 +84,7 @@ namespace Ship_Game
             TitlePos = new Vector2(titleBar.X + titleBar.Width / 2 - Fonts.Laserian14.MeasureString("Colony Overview").X / 2f, titleBar.Y + titleBar.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             LeftMenu = new Menu1(2, titleBar.Y + titleBar.Height + 5, titleBar.Width, ScreenHeight - (titleBar.Y + titleBar.Height) - 7);
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
-            Add(new CloseButton(this, RightMenu.Right - 52, RightMenu.Y + 22));
+            Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
             PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.25f * (LeftMenu.Height - 80)));
             PlanetInfo.AddTab(Localizer.Token(326));
             pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
@@ -213,14 +213,14 @@ namespace Ship_Game
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                GovOrbitals  = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + Font12.LineSpacing + 5,
-                    () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
+                GovOrbitals  = Add(new UICheckBox(rectangle4.X - 3, rectangle5.Y + Font12.LineSpacing + 5,
+                    () => p.GovOrbitals, Fonts.Arial12Bold, title:1960, tooltip:1961));
 
-                GovMilitia   = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
-                    () => p.GovMilitia, Fonts.Arial12Bold, Localizer.Token(1956), 1957);
+                GovMilitia   = Add(new UICheckBox(rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
+                    () => p.GovMilitia, Fonts.Arial12Bold, title:1956, tooltip:1957));
 
-                DontScrapBuildings = new UICheckBox(this, rectangle4.X + 240, rectangle5.Y + (Font12.LineSpacing + 5),
-                    () => p.DontScrapBuildings, Fonts.Arial12Bold, Localizer.Token(1941), 1942);
+                DontScrapBuildings = Add(new UICheckBox(rectangle4.X + 240, rectangle5.Y + (Font12.LineSpacing + 5),
+                    () => p.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
             }
             else
             {
