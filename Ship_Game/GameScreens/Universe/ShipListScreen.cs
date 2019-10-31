@@ -26,8 +26,6 @@ namespace Ship_Game
 
         private Rectangle leftRect;
 
-        private CloseButton close;
-
         private DropOptions<int> ShowRoles;
 
         private SortButton SortSystem;
@@ -68,17 +66,17 @@ namespace Ship_Game
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
-            close = new CloseButton(this, leftRect.Right - 40, leftRect.Y + 20);
+            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             while (eRect.Height % 80 != 0)
             {
                 eRect.Height = eRect.Height - 1;
             }
             ShipSubMenu = new Submenu(eRect);
-            ShipSL = new ScrollList<ShipListScreenItem>(ShipSubMenu, 30);
+            ShipSL = Add(new ScrollList<ShipListScreenItem>(ShipSubMenu, 30));
             ShipSL.OnClick = OnShipListScreenItemClicked;
 
-            Add(new UICheckBox(this, TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
+            Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
                 () => PlayerDesignsOnly,
                 (x) => {
                     PlayerDesignsOnly = x;
@@ -120,8 +118,6 @@ namespace Ship_Game
             TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, Colors.Cream);
             EMenu.Draw(batch);
-            var textColor = new Color(118, 102, 67, 50);
-            ShipSL.Draw(batch);
 
             base.Draw(batch);
 
@@ -196,7 +192,6 @@ namespace Ship_Game
                 DrawHorizontalSeparator(eRect.Y + 35);
             }
             ShowRoles.Draw(batch);
-            close.Draw(batch);
             batch.End();
         }
         
@@ -295,7 +290,7 @@ namespace Ship_Game
                 return base.HandleInput(input);
             }
 
-            if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
                 Empire.Universe.SelectedShipList.Clear();

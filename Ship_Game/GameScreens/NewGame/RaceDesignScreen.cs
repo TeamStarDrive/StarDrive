@@ -183,8 +183,8 @@ namespace Ship_Game
             DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, title:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, title:23, click: OnAbortClicked);
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 40);
 
             DoRaceDescription();
@@ -197,7 +197,7 @@ namespace Ship_Game
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
+            Button(pos.X, pos.Y, text: 4006, click: OnRuleOptionsClicked);
 
             ChooseRaceList.StartTransitionFrom(ChooseRaceList.Pos - new Vector2(ChooseRaceList.Width, 0), TransitionOnTime);
             DescriptionTextList.StartTransitionFrom(DescriptionTextList.Pos + new Vector2(DescriptionTextList.Width, 0), TransitionOnTime);

@@ -280,7 +280,7 @@ namespace Ship_Game
                 right.AddCheckbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
                                     "Experimental and untested feature for complex Shield behaviors during Warp");
 
-            Add(new UIButton(this, new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
+            Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
                 .OnClick = button => ApplyOptions();
 
             RefreshZOrder();

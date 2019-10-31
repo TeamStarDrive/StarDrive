@@ -14,6 +14,12 @@ namespace Ship_Game
 
             ShipInfoOverlay.Visible = BuildableList.HighlightedIndex != -1;
 
+            GovOrbitals.Visible = P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0;
+            GovMilitia.Visible = GovOrbitals.Visible;
+
+            // not for trade hubs, which do not build structures anyway
+            DontScrapBuildings.Visible = GovOrbitals.Visible && P.colonyType != Planet.ColonyType.TradeHub;
+
             base.Update(elapsedTime);
         }
         

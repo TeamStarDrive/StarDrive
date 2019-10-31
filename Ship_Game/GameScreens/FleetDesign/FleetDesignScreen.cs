@@ -27,7 +27,6 @@ namespace Ship_Game
         private Menu1 RightMenu;
         public Fleet SelectedFleet;
         private ScrollList<FleetDesignShipListItem> ShipSL;
-        private CloseButton Close;
         private BlueButton RequisitionForces;
         private BlueButton SaveDesign;
         private BlueButton LoadDesign;
@@ -483,7 +482,6 @@ namespace Ship_Game
                 batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
             DrawSelectedData(batch);
-            Close.Draw(batch);
             batch.End();
 
             ScreenManager.EndFrameRendering();
@@ -778,11 +776,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (Close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
             if (Input.FleetExitScreen && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
@@ -1362,7 +1355,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Close = new CloseButton(this, ScreenWidth - 38, 97);
+            Add(new CloseButton(ScreenWidth - 38, 97));
             AssignLightRig("example/ShipyardLightrig");
             StarField = new StarField(this);
             Rectangle titleRect = new Rectangle(2, 44, 250, 80);

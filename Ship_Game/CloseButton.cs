@@ -4,8 +4,8 @@ namespace Ship_Game
 {
     public sealed class CloseButton : UIButton
     {
-        public CloseButton(UIElementV2 parent, float x, float y) 
-            : base(parent, ButtonStyle.Close, new Vector2(x, y), "")
+        public CloseButton(float x, float y) 
+            : base(null, ButtonStyle.Close, new Vector2(x, y), "")
         {
             Tooltip = "Close this Screen";
         }
