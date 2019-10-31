@@ -313,7 +313,6 @@ namespace Ship_Game.Ships
         {
             ShipData hullData = shipData.BaseHull;
             bool drawIcon = !showModules || ModuleSlotList.Length == 0;
-
             if (drawIcon && hullData.SelectionGraphic.NotEmpty())// draw ship icon plus shields
             {
                 Rectangle destRect = drawRect;
