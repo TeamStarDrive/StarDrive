@@ -31,11 +31,13 @@ namespace Ship_Game
             UICheckBox Check;
             DropOptions<int> Options;
             public CheckedDropdown(UIElementV2 parent) : base(parent) { }
+
             public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
                 => Create(binding, Localizer.Token(title), tooltip);
+
             public DropOptions<int> Create(Expression<Func<bool>> binding, string title, int tooltip)
             {
-                Check = new UICheckBox(Parent, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
+                Check = new UICheckBox(0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
                 Options = new DropOptions<int>(Parent, new Vector2(0f, 25f), 190, 18);
                 return Options;
             }

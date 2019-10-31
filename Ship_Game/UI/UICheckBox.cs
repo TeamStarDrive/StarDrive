@@ -10,8 +10,8 @@ namespace Ship_Game
     public sealed class UICheckBox : UIElementV2
     {
         readonly SpriteFont Font;
-        readonly string Text;
-        readonly string TipText;
+        readonly LocalizedText Text;
+        readonly ToolTipText TipText;
         Ref<bool> Binding;
 
         Vector2 TextPos;
@@ -19,9 +19,9 @@ namespace Ship_Game
         public bool Checked => Binding.Value;
         public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\" Checked={Checked}";
 
-        public UICheckBox(UIElementV2 parent, float x, float y, Ref<bool> binding, SpriteFont font, string title, string tooltip)
-            : base(parent, new Vector2(x,y))
+        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
         {
+            Pos = new Vector2(x, y);
             Binding = binding;
             Font    = font;
             Text    = title;
@@ -29,7 +29,7 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(BoolExpression binding, SpriteFont font, string title, string tooltip)
+        public UICheckBox(BoolExpression binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
         {
             Binding = new Ref<bool>(binding);
             Font    = font;
@@ -38,22 +38,16 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(UIElementV2 parent, float x, float y, BoolExpression binding, SpriteFont font, string title, int tooltip)
-            : this(parent, x, y, new Ref<bool>(binding), font, title, Localizer.Token(tooltip))
+        public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+            : this(x, y, new Ref<bool>(binding), font, title, tooltip)
         {
         }
-        public UICheckBox(UIElementV2 parent, float x, float y, BoolExpression binding, SpriteFont font, int title, int tooltip)
-            : this(parent, x, y, new Ref<bool>(binding), font, Localizer.Token(title), Localizer.Token(tooltip))
+
+        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+            : this(x, y, new Ref<bool>(getter, setter), font, title, tooltip)
         {
         }
-        public UICheckBox(UIElementV2 parent, float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, string title, int tooltip)
-            : this(parent, x, y, new Ref<bool>(getter, setter), font, title, Localizer.Token(tooltip))
-        {
-        }
-        public UICheckBox(UIElementV2 parent, float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, int title, int tooltip)
-            : this(parent, x, y, new Ref<bool>(getter, setter), font, Localizer.Token(title), Localizer.Token(tooltip))
-        {
-        }
+
 
         public void Bind(BoolExpression binding)
         {
@@ -66,8 +60,8 @@ namespace Ship_Game
             batch.DrawRectangle(checkRect, new Color(96, 81, 49));
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
-            if (Text.NotEmpty())
-                batch.DrawString(Font, Text, TextPos, Color.White);
+            if (Text.Text.NotEmpty())
+                batch.DrawString(Font, Text.Text, TextPos, Color.White);
 
             if (Binding.Value)
             {
@@ -82,7 +76,7 @@ namespace Ship_Game
 
             if (input.LeftMouseClick)
                 Binding.Value = !Binding.Value;
-            else if (!TipText.IsEmpty())
+            else if (TipText.IsValid)
                 ToolTip.CreateTooltip(TipText);
 
             // always capture input to prevent clicks from reaching elements under us
@@ -96,7 +90,7 @@ namespace Ship_Game
             Pos.Y = (int)Pos.Y;
             int h = Math.Max(10, Font.LineSpacing);
             int th = Font.LineSpacing / 2;
-            Size = new Vector2(h + Font.TextWidth(Text), h+1);
+            Size = new Vector2(h + Font.TextWidth(Text.Text), h+1);
             TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
             CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2, 
                                    Pos.Y + 5 - th);

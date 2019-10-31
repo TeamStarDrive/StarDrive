@@ -327,14 +327,6 @@ namespace Ship_Game
             string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText, description.Width);
             batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
             GovernorDropdown.Draw(batch); // draw dropdown on top of other text
-            if (P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0)
-            {
-                // only for Governor colonies
-                GovOrbitals.Draw(batch); 
-                GovMilitia.Draw(batch);
-                if (P.colonyType != Planet.ColonyType.TradeHub) // not for trade hubs, which do not build structures anyway
-                    DontScrapBuildings.Draw(batch); 
-            }
 
             DrawFoodAndStorage(batch);
             DrawOrbitalStats(batch);

@@ -24,9 +24,6 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             pFacilities.HandleInput(input);
-            GovOrbitals.HandleInput(input);
-            GovMilitia.HandleInput(input);
-            DontScrapBuildings.HandleInput(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;

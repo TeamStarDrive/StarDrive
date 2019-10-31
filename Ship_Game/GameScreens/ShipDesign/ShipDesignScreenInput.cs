@@ -757,7 +757,7 @@ namespace Ship_Game
             bottomList.LayoutStyle = ListLayoutStyle.Resize;
             bottomList.Direction = new Vector2(-1, 0);
             bottomList.Padding = new Vector2(16f, 2f);
-            bottomList.Add(ButtonStyle.Medium, titleId:105, click: b =>
+            bottomList.Add(ButtonStyle.Medium, 105, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
@@ -766,15 +766,15 @@ namespace Ship_Game
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
-            bottomList.Add(ButtonStyle.Medium, titleId:8, click: b =>
+            bottomList.Add(ButtonStyle.Medium, 8, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
-            bottomList.Add(ButtonStyle.Medium, titleId:106, click: b =>
+            bottomList.Add(ButtonStyle.Medium, 106, click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, titleId: 1985, click: b =>
+            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, 1985, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
