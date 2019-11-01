@@ -151,7 +151,7 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight > 766)
+            if (ScreenHeight > 766)
             {
                 TitleBar.Draw(batch);
                 batch.DrawString(Fonts.Laserian14, Localizer.Token(1600), TitlePos, Colors.Cream);
@@ -964,8 +964,8 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            float screenWidth = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            float screenWidth = ScreenWidth;
+            float screenHeight = ScreenHeight;
             Rectangle titleRect = new Rectangle((int)screenWidth / 2 - 200, 44, 400, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(1600)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);

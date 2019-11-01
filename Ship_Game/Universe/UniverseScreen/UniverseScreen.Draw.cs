@@ -340,8 +340,8 @@ namespace Ship_Game
                 Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
                     (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
                 ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0,
-                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight),
+                        ScreenWidth,
+                        ScreenHeight),
                     new Color(0, 0, 0, 170));
                 ScreenManager.SpriteBatch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }

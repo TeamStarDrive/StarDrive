@@ -56,10 +56,7 @@ namespace Ship_Game
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             TroopRect = new Rectangle(Housing.X + 13, Housing.Y + 137, 22, 22);
 
-
-            float screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-
-            var gridPos = new Vector2(Housing.X + 16f, screenHeight - 45f);
+            var gridPos = new Vector2(Housing.X + 16f, Screen.Height - 45f);
             GridButton = new ToggleButton(gridPos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 Enabled = true
@@ -68,7 +65,7 @@ namespace Ship_Game
 
             const float orderSize = 29f;
             float ordersStartX = Power.X - 3f;
-            var ordersBarPos = new Vector2(ordersStartX, screenHeight - 45f);
+            var ordersBarPos = new Vector2(ordersStartX, Screen.Height - 45f);
 
             void AddOrdersBarButton(CombatState state, string icon, int toolTip)
             {

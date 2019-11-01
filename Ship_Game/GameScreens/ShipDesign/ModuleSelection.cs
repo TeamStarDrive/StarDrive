@@ -13,7 +13,7 @@ namespace Ship_Game
     public class ModuleSelection : Submenu
     {
         WeaponScrollList WeaponSl;
-        readonly ShipDesignScreen ParentScreen;
+        readonly ShipDesignScreen Screen;
         public Rectangle Window;
         Submenu ActiveModSubMenu;
         readonly ScreenManager ScreenManager;
@@ -23,11 +23,11 @@ namespace Ship_Game
 
         public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
 
-        public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window)
+        public ModuleSelection(ShipDesignScreen screen, Rectangle window) : base(window)
         {
-            ParentScreen = parentScreen;
+            Screen = screen;
             Window = window;
-            ScreenManager = parentScreen.ScreenManager;
+            ScreenManager = screen.ScreenManager;
             LoadContent();
         }
 
@@ -37,7 +37,7 @@ namespace Ship_Game
             AddTab("Pwr");
             AddTab("Def");
             AddTab("Spc");
-            WeaponSl = new WeaponScrollList(this, ParentScreen);
+            WeaponSl = new WeaponScrollList(this, Screen);
             var active = new Rectangle(Window.X, Window.Y + Window.Height + 15, Window.Width, 300);
             //activeModWindow = new Menu1(ScreenManager, active);
             var acsub = new Rectangle(active.X, Window.Y + Window.Height + 15, 305, 370);
@@ -45,8 +45,7 @@ namespace Ship_Game
             ActiveModSubMenu = new Submenu(acsub);
             ActiveModSubMenu.AddTab("Active Module");
             Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            if (Choosefighterrect.Y + Choosefighterrect.Height >
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+            if (Choosefighterrect.Y + Choosefighterrect.Height > Screen.ScreenHeight)
             {
                 int diff = Choosefighterrect.Y + Choosefighterrect.Height - ScreenManager.GraphicsDevice
                                .PresentationParameters.BackBufferHeight;
@@ -55,7 +54,7 @@ namespace Ship_Game
             Choosefighterrect.Height = acsub.Height;
             ChooseFighterSub = new Submenu(Choosefighterrect);
             ChooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = new FighterScrollList(ChooseFighterSub, ParentScreen);
+            ChooseFighterSL = new FighterScrollList(ChooseFighterSub, Screen);
         }
 
         public bool HitTest(InputState input)
@@ -86,7 +85,7 @@ namespace Ship_Game
             sel.Draw(ScreenManager.SpriteBatch);
 
             WeaponSl.Draw(batch);
-            if (ParentScreen.ActiveModule != null || ParentScreen.HighlightedModule != null)
+            if (Screen.ActiveModule != null || Screen.HighlightedModule != null)
             {
                 ActiveModSubMenu.Draw(batch);
                 DrawActiveModuleData();
@@ -117,7 +116,7 @@ namespace Ship_Game
             r.Height -= down;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
             sel.Draw(ScreenManager.SpriteBatch);
-            ShipModule mod = ParentScreen.ActiveModule ?? ParentScreen.HighlightedModule;
+            ShipModule mod = Screen.ActiveModule ?? Screen.HighlightedModule;
 
             if (ActiveModSubMenu.SelectedIndex != 0 || mod == null)
                 return;
@@ -374,7 +373,7 @@ namespace Ship_Game
             modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
-            float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
+            float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
             DrawStat(ref modTitlePos, "Offense", strength, 227);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
@@ -390,21 +389,21 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+            Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+            Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Width * 0.33f, lineSpacing: 0);
+            Screen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Width * 0.33f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
 
@@ -412,7 +411,7 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+            Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
         }
 
         void DrawString(ref Vector2 cursor, string text, bool valueCheck)
@@ -492,7 +491,7 @@ namespace Ship_Game
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
             ShipModule[] modlist = { mod };
-            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, ParentScreen.ActiveHull.ShieldsBehavior, true);
+            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, Screen.ActiveHull.ShieldsBehavior, true);
             DrawStat(ref modTitlePos, Localizer.Token(6011), -modNetWarpPowerDraw.NetWarpPowerDraw, 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
@@ -735,7 +734,7 @@ namespace Ship_Game
         float GetHullDamageBonus()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
+                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f + bonus.DamageBonus;
             return 1f;
         }
@@ -743,7 +742,7 @@ namespace Ship_Game
         float GetHullFireRateBonus()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
+                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f - bonus.FireRateBonus;
             return 1f;
         }

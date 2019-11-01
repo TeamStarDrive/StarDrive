@@ -210,7 +210,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            FleetStatsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 172, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 345, 600);
+            FleetStatsRect = new Rectangle(ScreenWidth / 2 - 172, ScreenHeight / 2 - 300, 345, 600);
             AssignNow = new BlueButton(new Vector2(FleetStatsRect.X + 85, FleetStatsRect.Y + 225), "Assign Now")
             {
                 ToggleOn = true

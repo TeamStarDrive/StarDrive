@@ -49,7 +49,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 425, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 850, 600);
+            Window = new Rectangle(ScreenWidth / 2 - 425, ScreenHeight / 2 - 300, 850, 600);
             SaveMenu = new Menu1(Window);
             Rectangle sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             NameSave = new Submenu(sub);

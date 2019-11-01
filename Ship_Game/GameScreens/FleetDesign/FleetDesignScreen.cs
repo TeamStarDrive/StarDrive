@@ -168,10 +168,10 @@ namespace Ship_Game
                 i++;
             }
 
-            var shipRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 282, 140, 280, 80);
+            var shipRect = new Rectangle(ScreenWidth - 282, 140, 280, 80);
             ShipDesigns = new Menu2(shipRect);
             ShipDesignsTitlePos = new Vector2(shipRect.X + shipRect.Width / 2 - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            var shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
+            var shipDesignsRect = new Rectangle(ScreenWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
             RightMenu = new Menu1(shipDesignsRect);
 
             SubShips = new Submenu(shipDesignsRect);
@@ -183,7 +183,7 @@ namespace Ship_Game
             ShipSL.OnClick = OnDesignShipItemClicked;
 
             ResetLists();
-            SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
+            SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             void AddOrdersBtn(CombatState state, string icon, int toolTip)
