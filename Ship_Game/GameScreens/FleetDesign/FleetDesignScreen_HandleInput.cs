@@ -72,42 +72,22 @@ namespace Ship_Game
             }
         }
 
-        void InputCombatStateButtons()
+        void OnOrderButtonClicked(ToggleButton b, CombatState state)
         {
-            foreach (ToggleButton button in OrdersButtons)
+            foreach (ToggleButton other in OrdersButtons) // disable others
+                if (other != b) other.Pressed = false;
+
+            foreach (FleetDataNode node in SelectedNodeList)
             {
-                if (!button.Rect.HitTest(Input.CursorPosition))
-                {
-                    button.Hover = false;
-                }
-                else
-                {
-                    button.Hover = true;
-                    if (Input.LeftMouseClick)
-                    {
-                        button.Enabled = false;
-                        foreach (ToggleButton b in OrdersButtons)
-                        {
-                            b.Enabled = false;
-                        }
+                node.CombatState = state;
+                if (node.Ship != null)
+                    node.Ship.AI.CombatState = node.CombatState;
+            }
 
-                        button.Enabled = true;
-                        foreach (FleetDataNode node in SelectedNodeList)
-                        {
-                            node.CombatState = (CombatState) button.State;
-                            if (node.Ship != null)
-                                node.Ship.AI.CombatState = node.CombatState;
-                        }
-
-                        if (SelectedNodeList[0].Ship != null)
-                        {
-                            SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
-                            button.Enabled = true;
-                            GameAudio.EchoAffirmative();
-                            break;
-                        }
-                    }
-                }
+            if (SelectedNodeList[0].Ship != null)
+            {
+                SelectedNodeList[0].Ship.AI.CombatState = SelectedNodeList[0].CombatState;
+                GameAudio.EchoAffirmative();
             }
         }
 
@@ -217,41 +197,6 @@ namespace Ship_Game
                     SelectedNodeList[0].OrdersRadius = OperationalRadius.RelativeValue;
                     return true;
                 }
-
-                if (SelectedStuffRect.HitTest(input.CursorPosition))
-                {
-                    foreach (ToggleButton button in OrdersButtons)
-                    {
-                        if (!button.Rect.HitTest(input.CursorPosition))
-                        {
-                            button.Hover = false;
-                        }
-                        else
-                        {
-                            button.Hover = true;
-                            if (Input.LeftMouseHeldUp)
-                            {
-                                continue;
-                            }
-
-                            foreach (ToggleButton b in OrdersButtons)
-                            {
-                                b.Enabled = false;
-                            }
-
-                            GameAudio.EchoAffirmative();
-                            button.Enabled = true;
-                            foreach (FleetDataNode node in SelectedNodeList)
-                            {
-                                node.CombatState = (CombatState) button.State;
-                                if (node.Ship != null)
-                                    node.Ship.AI.CombatState = node.CombatState;
-                            }
-                        }
-                    }
-
-                    return false;
-                }
             }
             else if (FleetToEdit != -1 && SelectedNodeList.Count == 0 &&
                      SelectedStuffRect.HitTest(input.CursorPosition))
@@ -260,12 +205,10 @@ namespace Ship_Game
                 {
                     ScreenManager.AddScreen(new RequisitionScreen(this));
                 }
-
                 if (SaveDesign.HandleInput(input))
                 {
                     ScreenManager.AddScreen(new SaveFleetDesignScreen(this, SelectedFleet));
                 }
-
                 if (LoadDesign.HandleInput(input))
                 {
                     ScreenManager.AddScreen(new LoadSavedFleetDesignScreen(this));
@@ -449,7 +392,9 @@ namespace Ship_Game
 
         bool HandleSingleNodeSelection(InputState input, Vector2 mousePos)
         {
-            if (SelectedNodeList.Count != 1) return false;
+            if (SelectedNodeList.Count != 1)
+                return false;
+
             bool setReturn = false;
             setReturn |= SliderShield.HandleInput(input, ref SelectedNodeList[0].AttackShieldedWeight);
             setReturn |= SliderDps.HandleInput(input, ref SelectedNodeList[0].DPSWeight);
@@ -459,12 +404,12 @@ namespace Ship_Game
             setReturn |= SliderAssist.HandleInput(input, ref SelectedNodeList[0].AssistWeight);
             setReturn |= SliderSize.HandleInput(input, ref SelectedNodeList[0].SizeWeight);
             setReturn |= OperationalRadius.HandleInput(input, ref SelectedNodeList[0].OrdersRadius,
-                SelectedNodeList[0].Ship?.SensorRange ?? 500000);
-            if (setReturn) return false;
+            SelectedNodeList[0].Ship?.SensorRange ?? 500000);
+            if (setReturn)
+                return false;
+
             if (OperationsRect.HitTest(mousePos))
-            {
                 return true;
-            }
 
             if (PrioritiesRect.HitTest(mousePos))
             {
@@ -473,10 +418,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (!SelectedStuffRect.HitTest(mousePos)) return false;
-
-            InputCombatStateButtons();
-            return true;
+            return false;
         }
 
         void HandleSelectionBox(InputState input)
@@ -526,83 +468,7 @@ namespace Ship_Game
                 HoveredNodeList.Clear();
             }
 
-            bool hitsomething = false;
-            if (Input.LeftMouseClick)
-            {
-                SelectedSquad = null;
-                foreach (ClickableNode node in ClickableNodes)
-                {
-                    if (input.CursorPosition.OutsideRadius(node.ScreenPos, node.Radius))
-                    {
-                        continue;
-                    }
-
-                    if (SelectedNodeList.Count > 0 && !Input.IsShiftKeyDown)
-                    {
-                        SelectedNodeList.Clear();
-                    }
-
-                    GameAudio.FleetClicked();
-                    hitsomething = true;
-                    if (!SelectedNodeList.Contains(node.NodeToClick))
-                    {
-                        SelectedNodeList.Add(node.NodeToClick);
-                    }
-
-                    foreach (ToggleButton button in OrdersButtons)
-                    {
-                        button.Enabled = (node.NodeToClick.CombatState == (CombatState) button.State);
-                    }
-
-                    SliderArmor.SetAmount(node.NodeToClick.ArmoredWeight);
-                    SliderAssist.SetAmount(node.NodeToClick.AssistWeight);
-                    SliderDefend.SetAmount(node.NodeToClick.DefenderWeight);
-                    SliderDps.SetAmount(node.NodeToClick.DPSWeight);
-                    SliderShield.SetAmount(node.NodeToClick.AttackShieldedWeight);
-                    SliderVulture.SetAmount(node.NodeToClick.VultureWeight);
-                    OperationalRadius.RelativeValue = node.NodeToClick.OrdersRadius;
-                    SliderSize.SetAmount(node.NodeToClick.SizeWeight);
-                    break;
-                }
-
-                foreach (ClickableSquad squad in ClickableSquads)
-                {
-                    if (Vector2.Distance(input.CursorPosition, squad.ScreenPos) > 4f)
-                    {
-                        continue;
-                    }
-
-                    SelectedSquad = squad.Squad;
-                    if (SelectedNodeList.Count > 0 && !input.KeysCurr.IsKeyDown(Keys.LeftShift))
-                    {
-                        SelectedNodeList.Clear();
-                    }
-
-                    hitsomething = true;
-                    GameAudio.FleetClicked();
-                    SelectedNodeList.Clear();
-                    foreach (FleetDataNode node in SelectedSquad.DataNodes)
-                    {
-                        SelectedNodeList.Add(node);
-                    }
-
-                    SliderArmor.SetAmount(SelectedSquad.MasterDataNode.ArmoredWeight);
-                    SliderAssist.SetAmount(SelectedSquad.MasterDataNode.AssistWeight);
-                    SliderDefend.SetAmount(SelectedSquad.MasterDataNode.DefenderWeight);
-                    SliderDps.SetAmount(SelectedSquad.MasterDataNode.DPSWeight);
-                    SliderShield.SetAmount(SelectedSquad.MasterDataNode.AttackShieldedWeight);
-                    SliderVulture.SetAmount(SelectedSquad.MasterDataNode.VultureWeight);
-                    OperationalRadius.RelativeValue = SelectedSquad.MasterDataNode.OrdersRadius;
-                    SliderSize.SetAmount(SelectedSquad.MasterDataNode.SizeWeight);
-                    break;
-                }
-
-                if (!hitsomething)
-                {
-                    SelectedSquad = null;
-                    SelectedNodeList.Clear();
-                }
-            }
+            HandleInputShipSelect(input);
 
             if (SelectedSquad != null)
             {
@@ -761,6 +627,88 @@ namespace Ship_Game
                     }
 
                     cs.Squad.Ships.Add(SelectedNodeList[0].Ship);
+                }
+            }
+        }
+
+        void HandleInputShipSelect(InputState input)
+        {
+            if (!input.LeftMouseClick)
+                return;
+
+            bool hitSomething = false;
+            SelectedSquad = null;
+
+            foreach (ClickableNode node in ClickableNodes)
+            {
+                if (input.CursorPosition.InRadius(node.ScreenPos, node.Radius))
+                {
+                    if (SelectedNodeList.Count > 0 && !input.IsShiftKeyDown)
+                        SelectedNodeList.Clear();
+
+                    GameAudio.FleetClicked();
+                    hitSomething = true;
+                    if (!SelectedNodeList.Contains(node.NodeToClick))
+                        SelectedNodeList.Add(node.NodeToClick);
+
+                    SliderArmor.SetAmount(node.NodeToClick.ArmoredWeight);
+                    SliderAssist.SetAmount(node.NodeToClick.AssistWeight);
+                    SliderDefend.SetAmount(node.NodeToClick.DefenderWeight);
+                    SliderDps.SetAmount(node.NodeToClick.DPSWeight);
+                    SliderShield.SetAmount(node.NodeToClick.AttackShieldedWeight);
+                    SliderVulture.SetAmount(node.NodeToClick.VultureWeight);
+                    OperationalRadius.RelativeValue = node.NodeToClick.OrdersRadius;
+                    SliderSize.SetAmount(node.NodeToClick.SizeWeight);
+                    break;
+                }
+            }
+
+            foreach (ClickableSquad squad in ClickableSquads)
+            {
+                if (input.CursorPosition.InRadius(squad.ScreenPos, 4))
+                {
+                    SelectedSquad = squad.Squad;
+                    if (SelectedNodeList.Count > 0 && !input.IsShiftKeyDown)
+                        SelectedNodeList.Clear();
+
+                    hitSomething = true;
+                    GameAudio.FleetClicked();
+                    SelectedNodeList.Clear();
+                    SelectedNodeList.AddRange(SelectedSquad.DataNodes);
+
+                    SliderArmor.SetAmount(SelectedSquad.MasterDataNode.ArmoredWeight);
+                    SliderAssist.SetAmount(SelectedSquad.MasterDataNode.AssistWeight);
+                    SliderDefend.SetAmount(SelectedSquad.MasterDataNode.DefenderWeight);
+                    SliderDps.SetAmount(SelectedSquad.MasterDataNode.DPSWeight);
+                    SliderShield.SetAmount(SelectedSquad.MasterDataNode.AttackShieldedWeight);
+                    SliderVulture.SetAmount(SelectedSquad.MasterDataNode.VultureWeight);
+                    OperationalRadius.RelativeValue = SelectedSquad.MasterDataNode.OrdersRadius;
+                    SliderSize.SetAmount(SelectedSquad.MasterDataNode.SizeWeight);
+                    break;
+                }
+            }
+
+            if (!hitSomething)
+            {
+                SelectedSquad = null;
+                SelectedNodeList.Clear();
+            }
+
+            Log.Info("Reset OrdersButtons");
+
+            // reset the buttons
+            foreach (ToggleButton button in OrdersButtons)
+            {
+                button.Visible = SelectedNodeList.Count > 0;
+                button.Pressed = false;
+            }
+
+            // mark combined combat state statuses
+            foreach (FleetDataNode fleetNode in SelectedNodeList)
+            {
+                foreach (ToggleButton button in OrdersButtons)
+                {
+                    button.Pressed |= (fleetNode.CombatState == button.CombatState);
                 }
             }
         }
