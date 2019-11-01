@@ -15,7 +15,7 @@ namespace UnitTests.UI
             public int EventId, InputEventId, UpdateEventId, DrawEventId;
 
             public SimpleElement() {}
-            public SimpleElement(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size) {}
+            public SimpleElement(Vector2 pos, Vector2 size) : base(pos, size) {}
 
             public override bool HandleInput(InputState input)
             {
@@ -54,7 +54,7 @@ namespace UnitTests.UI
             Game.Manager.AddScreen(screen);
             InputProvider.MousePos = new Vector2(512, 512);
 
-            var element = new SimpleElement(screen, Vector2.Zero, new Vector2(100, 100));
+            var element = new SimpleElement(Vector2.Zero, new Vector2(100, 100));
             screen.Add(element);
 
             Game.Tick();

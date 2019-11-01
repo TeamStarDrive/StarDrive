@@ -67,7 +67,7 @@ namespace Ship_Game
                 leftRect.Height = 580;
 
             int x = leftRect.X + 60;
-            MainMenu = Add(new Menu2(this, leftRect, Color.Black));
+            MainMenu = Add(new Menu2(leftRect, Color.Black));
             CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
 
             var ftlRect = new Rectangle(x, leftRect.Y + 100, 270, 50);

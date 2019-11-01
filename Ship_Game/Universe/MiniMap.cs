@@ -29,7 +29,7 @@ namespace Ship_Game
         readonly float Scale;
         readonly Vector2 MiniMapZero;
 
-        public MiniMap(Rectangle housing) : base(null, housing)
+        public MiniMap(in Rectangle housing) : base(housing)
         {
             Housing        = housing;
             MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");

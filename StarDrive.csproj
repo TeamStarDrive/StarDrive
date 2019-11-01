@@ -299,6 +299,8 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ShipInfoOverlayComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Draw.cs" />
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_HandleInput.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignShipListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\GameBase.cs" />
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />

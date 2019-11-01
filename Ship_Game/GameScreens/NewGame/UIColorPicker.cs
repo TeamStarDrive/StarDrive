@@ -9,7 +9,7 @@ namespace Ship_Game
         public Color CurrentColor = Color.White;
         readonly Menu1 ColorSelectMenu;
 
-        public UIColorPicker(GameScreen parent, in Rectangle rect) : base(parent, rect)
+        public UIColorPicker(in Rectangle rect) : base(rect)
         {
             ColorSelectMenu = new Menu1(Rect);
         }

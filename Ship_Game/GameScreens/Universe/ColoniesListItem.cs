@@ -52,7 +52,7 @@ namespace Ship_Game
             int width = (int)(SliderRect.Width * 0.8f);
             width = width.RoundUpToMultipleOf(10);
 
-            Sliders = new ColonySliderGroup(null, SliderRect);
+            Sliders = new ColonySliderGroup(SliderRect);
             Sliders.Create(SliderRect.X + 10, SliderRect.Y, width, (int)(0.25 * SliderRect.Height), drawIcons:false);
             Sliders.SetPlanet(planet);
 

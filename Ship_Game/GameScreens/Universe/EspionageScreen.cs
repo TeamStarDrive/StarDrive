@@ -25,11 +25,11 @@ namespace Ship_Game
         public override void LoadContent()
         {
             var titleRect = new Rectangle(ScreenWidth / 2 - 200, 44, 400, 80);
-            Add(new Menu2(this, titleRect));
+            Add(new Menu2(titleRect));
 
             if (ScreenHeight > 766)
             {
-                Add(new Menu2(this, titleRect));
+                Add(new Menu2(titleRect));
 
                 // "Espionage"
                 string espionage = Localizer.Token(6089);
@@ -40,7 +40,7 @@ namespace Ship_Game
 
 
             var ourRect = new Rectangle(ScreenWidth / 2 - 640, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
-            Add(new Menu2(this, ourRect));
+            Add(new Menu2(ourRect));
 
             CloseButton(ourRect.Right - 40, ourRect.Y + 20);
 
@@ -107,7 +107,8 @@ namespace Ship_Game
             //    public Operation Operation;
             //}
 
-            public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
+            public EmpiresPanel(EspionageScreen screen, in Rectangle rect, Rectangle operationsRect) 
+                : base(rect)
             {
                 Screen = screen;
 
@@ -155,7 +156,8 @@ namespace Ship_Game
             readonly EspionageScreen Screen;
             readonly Action<EmpireButton> OnClick;
 
-            public EmpireButton(EspionageScreen screen, Empire e, Rectangle rect, Action<EmpireButton> onClick) : base(null, rect)
+            public EmpireButton(EspionageScreen screen, Empire e, in Rectangle rect, Action<EmpireButton> onClick)
+                : base(rect)
             {
                 Empire = e;
                 Screen = screen;
@@ -238,7 +240,7 @@ namespace Ship_Game
 
         class AgentsPanel : UIPanel
         {
-            public AgentsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
+            public AgentsPanel(EspionageScreen screen, in Rectangle rect) : base(rect, PanelBackground)
             {
                 Label(rect.X + 20, rect.Y + 10, 6090, Fonts.Arial20Bold);
             }
@@ -249,7 +251,7 @@ namespace Ship_Game
         class DossierPanel : UIPanel
         {
             readonly EspionageScreen Screen;
-            public DossierPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
+            public DossierPanel(EspionageScreen screen, in Rectangle rect) : base(rect, PanelBackground)
             {
                 Screen = screen;
                 Label(rect.X + 20, rect.Y + 10, 6092, Fonts.Arial20Bold);
@@ -303,7 +305,7 @@ namespace Ship_Game
             readonly EspionageScreen Screen;
             readonly UILabel AgentName;
             readonly UILabel AgentLevel;
-            public OperationsPanel(EspionageScreen screen, Rectangle rect) : base(screen, rect, PanelBackground)
+            public OperationsPanel(EspionageScreen screen, in Rectangle rect) : base(rect, PanelBackground)
             {
                 Screen = screen;
                 AgentName  = Label(rect.X + 20, rect.Y + 10, "", Fonts.Arial20Bold);

@@ -17,7 +17,7 @@ namespace Ship_Game.GameScreens.MainMenu
         float Rotation;
 
         public Comet(GameScreen screen)
-            : base(screen, new Vector2(RandomMath.RandomBetween(-100f, screen.ScreenWidth+100f), 0f))
+            : base(new Vector2(RandomMath.RandomBetween(-100f, screen.ScreenWidth+100f), 0f))
         {
             Screen = screen;
             Texture = screen.TransientContent.Load<SubTexture>("Textures/GameScreens/comet2");

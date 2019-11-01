@@ -23,12 +23,12 @@ namespace Ship_Game
         {
         }
 
-        public Menu1(in Rectangle theMenu) : base(null, theMenu)
+        public Menu1(in Rectangle theMenu) : base(theMenu)
         {
             this.PerformLayout();
         }
 
-        public Menu1(in Rectangle theMenu, bool withSub) : base(null, theMenu)
+        public Menu1(in Rectangle theMenu, bool withSub) : base(theMenu)
         {
             WithSubMenu = withSub;
             this.PerformLayout();

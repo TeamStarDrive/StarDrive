@@ -72,6 +72,8 @@ namespace Ship_Game
             if (SubEntries == null)
                 SubEntries = new Array<ScrollListItemBase>();
             SubEntries.Add(entry);
+            if (Expanded)
+                List.RequiresLayout = true;
         }
 
         public bool RemoveSub(ScrollListItemBase e)

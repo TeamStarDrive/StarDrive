@@ -150,23 +150,18 @@ namespace Ship_Game
         {
         }
 
-        protected UIElementV2(UIElementV2 parent)
-        {
-            Parent = parent;
-        }
-
-        protected UIElementV2(UIElementV2 parent, Vector2 pos) : this(parent)
+        protected UIElementV2(in Vector2 pos)
         {
             Pos = pos;
         }
 
-        protected UIElementV2(UIElementV2 parent, Vector2 pos, Vector2 size) : this(parent)
+        protected UIElementV2(in Vector2 pos, in Vector2 size)
         {
             Pos = pos;
             Size = size;
         }
 
-        protected UIElementV2(UIElementV2 parent, in Rectangle rect) : this(parent)
+        protected UIElementV2(in Rectangle rect)
         {
             SetAbsPos(rect.X, rect.Y);
             Size = new Vector2(rect.Width, rect.Height);

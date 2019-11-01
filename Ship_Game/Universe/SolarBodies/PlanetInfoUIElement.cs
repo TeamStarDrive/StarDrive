@@ -61,8 +61,8 @@ namespace Ship_Game
                 IsToggle = false
             };
 
-            Rectangle sliderRect = new Rectangle(r.Right - 100, r.Bottom - 40, 500, 40);
-            Sliders = new ColonySliderGroup(null, sliderRect);
+            var sliderRect = new Rectangle(r.Right - 100, r.Bottom - 40, 500, 40);
+            Sliders = new ColonySliderGroup(sliderRect);
             Sliders.Create(RightRect.X, Housing.Y + 120, 145, 40);
 
             FlagRect         = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
