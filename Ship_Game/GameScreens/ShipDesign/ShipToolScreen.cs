@@ -420,8 +420,8 @@ namespace Ship_Game
             }
             if (applyThruster)
             {
-                tPos = new Vector2(Input.MouseCurr.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, 
-                                        Input.MouseCurr.Y - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
+                tPos = new Vector2(Input.MouseCurr.X - ScreenWidth / 2, 
+                                        Input.MouseCurr.Y - ScreenHeight / 2);
             }
             if (ExistingHullsListMenu.HandleInput(Input))
             {
@@ -442,8 +442,8 @@ namespace Ship_Game
         public override void LoadContent()
         {
             ScreenManager.RemoveAllObjects();
-            int screenWidth  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            int screenWidth  = ScreenWidth;
+            int screenHeight = ScreenHeight;
 
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             aspect = new Vector2(screenWidth, screenHeight);
@@ -509,7 +509,7 @@ namespace Ship_Game
         void MarkThruster()
         {
             ThrusterZone z = new ThrusterZone();
-            Vector2 thrPos = (tPos + new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)) - new Vector2(border.X, border.Y);
+            Vector2 thrPos = (tPos + new Vector2(ScreenWidth / 2, ScreenHeight / 2)) - new Vector2(border.X, border.Y);
             z.Position = thrPos;
             z.Scale = tscale;
             TList.Add(z);

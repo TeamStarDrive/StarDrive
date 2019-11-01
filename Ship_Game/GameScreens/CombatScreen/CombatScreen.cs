@@ -50,8 +50,8 @@ namespace Ship_Game
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
             this.p                = p;
-            int screenWidth       = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
+            int screenWidth       = ScreenWidth;
+            GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
             TitleBar              = new Menu2(titleRect);
             TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);

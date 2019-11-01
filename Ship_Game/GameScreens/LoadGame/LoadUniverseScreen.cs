@@ -92,9 +92,9 @@ namespace Ship_Game
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             batch.Begin();
-            var artRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
+            var artRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
             batch.Draw(LoadingImage, artRect, Color.White);
-            var meterBar = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
+            var meterBar = new Rectangle(ScreenWidth / 2 - 150, ScreenHeight - 25, 300, 25);
 
             float percentLoaded = Progress.Percent;
             var pb = new ProgressBar(meterBar)

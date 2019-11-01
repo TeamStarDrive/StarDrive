@@ -63,8 +63,8 @@ namespace Ship_Game
 			desaturateEffect.Begin();
 			desaturateEffect.CurrentTechnique.Passes[0].Begin();
 			Rectangle? nullable = null;
-			ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
-			Vector2 vector2 = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Fonts.Arial20Bold.MeasureString(RememberedAs).X / 2f, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 + 50);
+			ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2(ScreenWidth / 2, ScreenHeight / 2), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
+			Vector2 vector2 = new Vector2(ScreenWidth / 2 - Fonts.Arial20Bold.MeasureString(RememberedAs).X / 2f, ScreenHeight / 2 + 50);
 			ScreenManager.SpriteBatch.End();
 			desaturateEffect.CurrentTechnique.Passes[0].End();
 			desaturateEffect.End();
@@ -94,11 +94,11 @@ namespace Ship_Game
 				{
 					if (!LowRes)
 					{
-						replay = new ReplayElement(new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 376, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 376, 752, 752));
+						replay = new ReplayElement(new Rectangle(ScreenWidth / 2 - 376, ScreenHeight / 2 - 376, 752, 752));
 					}
 					else
 					{
-						replay = new ReplayElement(new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 290, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 354, 580, 580));
+						replay = new ReplayElement(new Rectangle(ScreenWidth / 2 - 290, ScreenHeight / 2 - 354, 580, 580));
 					}
 				}
 				ShowingReplay = true;
@@ -122,16 +122,16 @@ namespace Ship_Game
 		{
 			LoseTexture = TransientContent.Load<Texture2D>("WinLose/groundbattle_final");
 			Reason = TransientContent.Load<Texture2D>("WinLose/YouLose");
-			ReasonRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Reason.Width / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - Reason.Height / 2 - 200, Reason.Width, Reason.Height);
+			ReasonRect = new Rectangle(ScreenWidth / 2 - Reason.Width / 2, ScreenHeight / 2 - Reason.Height / 2 - 200, Reason.Width, Reason.Height);
 			desaturateEffect = TransientContent.Load<Effect>("Effects/desaturate");
 			Portrait = new Rectangle(0, 0, 1920, 1080);
 			SourceRect = new Rectangle(864, 486, 192, 108);
-			while (Portrait.Width < ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth && Portrait.Height < ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+			while (Portrait.Width < ScreenWidth && Portrait.Height < ScreenHeight)
 			{
 				Portrait.Width = Portrait.Width + 19;
-				Portrait.X = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Portrait.Width / 2;
+				Portrait.X = ScreenWidth / 2 - Portrait.Width / 2;
 				Portrait.Height = Portrait.Height + 10;
-				Portrait.Y = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - Portrait.Height / 2;
+				Portrait.Y = ScreenHeight / 2 - Portrait.Height / 2;
 			}
             GameAudio.SwitchToRacialMusic();
 			Music    = GameAudio.PlayMusic("Female_02_loop");

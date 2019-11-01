@@ -48,17 +48,17 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             IsPopup = true;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            if (ScreenWidth <= 1280)
             {
                 //LowRes = true;
             }
-            Rectangle titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
+            Rectangle titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
+            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
+            eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 15);
             sb_Sys = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
             sb_Fert = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
