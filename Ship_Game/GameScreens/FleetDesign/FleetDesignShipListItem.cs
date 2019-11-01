@@ -15,11 +15,12 @@ namespace Ship_Game
             Screen = screen;
         }
 
-        public FleetDesignShipListItem(FleetDesignScreen screen)
+        public FleetDesignShipListItem(FleetDesignScreen screen, Ship ship)
         {
             Screen = screen;
-            AddPlus(new Vector2(30, 0), "FleetDesignShipListItem.Add");
-            AddEdit(new Vector2(60, 0), "FleetDesignShipListItem.Edit");
+            Ship = ship;
+            AddPlus(new Vector2(-50, 0), "FleetDesignShipListItem.Add");
+            AddEdit(new Vector2(-20, 0), "FleetDesignShipListItem.Edit");
         }
 
         public override void Draw(SpriteBatch batch)

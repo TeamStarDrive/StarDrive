@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -138,9 +139,10 @@ namespace Ship_Game
     public class ToggleButton : UIElementV2
     {
         // user defined metadata
-        public object State;
+        public CombatState CombatState; // TODO Move this somewhere else
         public bool Hover;
-        bool Pressed;
+        public bool Pressed;
+        bool WasClicked; // purely visual
 
         public int Tooltip;
         public Color BaseColor = Color.White;
@@ -154,11 +156,10 @@ namespace Ship_Game
 
         public Action<ToggleButton> OnClick;
 
-        public override string ToString() => $"{TypeName} {ElementDescr} Icon:{IconPath} Status:{State}";
+        public override string ToString() => $"{TypeName} [{(Pressed?"x":" ")}] {ElementDescr} Icon:{IconPath} Status:{CombatState}";
 
-        public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
+        public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "")
         {
-            Parent = container;
             Pos = pos;
             Size = new Vector2(style.Width, style.Height);
             Style = style;
@@ -181,14 +182,14 @@ namespace Ship_Game
         {
             if (IconTexture == null)
             {
-                WordPos = new Vector2(Pos.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f,
-                    Rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);             
+                WordPos = new Vector2(X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f,
+                                      Y + 12 - Fonts.Arial12Bold.LineSpacing / 2f);             
             }
             else
             {
-                IconRect = new Rectangle(Rect.X + Rect.Width  / 2 - IconTexture.Width  / 2,
-                    Rect.Y + Rect.Height / 2 - IconTexture.Height / 2,
-                    IconTexture.Width, IconTexture.Height);
+                IconRect = new Rectangle((int)CenterX - IconTexture.Width  / 2,
+                                         (int)CenterY - IconTexture.Height / 2,
+                                         IconTexture.Width, IconTexture.Height);
             }
         }
 
@@ -216,17 +217,18 @@ namespace Ship_Game
 
             UpdateStyle();
 
+            if (WasClicked)
+            {
+                WasClicked = false;
+                batch.Draw(Style.Press, Rect, Color.White);
+            }
             if (Pressed)
             {
-                batch.Draw(Style.Press, Rect, Color.White);
+                batch.Draw(Style.Active, Rect, Color.White);
             }
             else if (Hover)
             {
                 batch.Draw(Style.Hover, Rect, Color.White);                
-            }
-            else if (Enabled)
-            {
-                batch.Draw(Style.Active, Rect, Color.White);
             }
             else
             {
@@ -235,13 +237,7 @@ namespace Ship_Game
 
             if (IconTexture == null)
             {
-                if (Enabled)
-                {
-                    batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
-                    return;
-                }
-
-                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
+                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Enabled ? Color.White : Color.Gray);
             }
             else
             {
@@ -255,33 +251,30 @@ namespace Ship_Game
             if (!Visible || !Enabled)
                 return false;
 
-            Pressed = false;
-            if (!Rect.HitTest(input.CursorPosition))
+            bool wasHovered = Hover;
+            Hover = base.HitTest(input.CursorPosition);
+            if (Hover)
             {
-                Hover = false;
-                return false;
-            }
-            if (!Hover)
-            {
-                GameAudio.ButtonMouseOver();
-                if (Tooltip != 0)
-                    ToolTip.CreateTooltip(Tooltip);
-            }
-            Hover = true;
+                if (!wasHovered)
+                {
+                    GameAudio.ButtonMouseOver();
+                    if (Tooltip != 0)
+                        ToolTip.CreateTooltip(Tooltip);
+                }
 
-            if (input.LeftMouseClick)
-            {
-                if (OnClick != null)
+                if (input.LeftMouseClick)
                 {
                     GameAudio.AcceptClick();
-                    OnClick(this);
+                    Pressed = !Pressed;
+                    WasClicked = true;
+                    OnClick?.Invoke(this);
+                    return true;
                 }
-                Pressed = true;
-                return true;
-            }
 
-            // edge case: capture mouse release events
-            return input.LeftMouseReleased;
+                // edge case: capture mouse release events
+                return input.LeftMouseReleased;
+            }
+            return false;
         }
     }
 }

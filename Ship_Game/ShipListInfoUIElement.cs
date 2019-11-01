@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,31 +13,29 @@ namespace Ship_Game
     {
         public readonly UniverseScreen Screen;
         public Array<ToggleButton> CombatStatusButtons = new Array<ToggleButton>();
-        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-        private Array<Ship> ShipList = new Array<Ship>();
-        private readonly Selector Selector;
+        readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        Array<Ship> ShipList = new Array<Ship>();
+        readonly Selector Selector;
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        private readonly ScrollList<SelectedShipListItem> SelectedShipsSL;
+        readonly ScrollList<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public Rectangle Ordnance;
-        private ProgressBar pBar;
-        private ProgressBar sBar;
-        private ProgressBar oBar;
+        ProgressBar oBar;
         public ToggleButton GridButton;
-        private readonly Rectangle Housing;
-        private readonly SlidingElement SlidingElement;
+        readonly Rectangle Housing;
+        readonly SlidingElement SlidingElement;
         public Array<OrdersButton> Orders = new Array<OrdersButton>();
-        private readonly Rectangle DefenseRect;
-        private readonly Rectangle TroopRect;
-        private bool IsFleet;
-        private bool AllShipsMine = true;
-        private bool ShowModules = true;
+        readonly Rectangle DefenseRect;
+        readonly Rectangle TroopRect;
+        bool IsFleet;
+        bool AllShipsMine = true;
+        bool ShowModules = true;
         public Ship HoveredShip;
         public Ship HoveredShipLast;
-        private float HoverOff;
+        float HoverOff;
 
         public ShipListInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
@@ -47,24 +46,13 @@ namespace Ship_Game
             Selector = new Selector(r, Color.Black);
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            Rectangle sliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
+            var sliderRect = new Rectangle(r.X - 100, r.Y + r.Height - 140, 530, 130);
             LeftRect = new Rectangle(r.X, r.Y + 44, 180, r.Height - 44);
             SlidingElement = new SlidingElement(sliderRect);
             RightRect = new Rectangle(LeftRect.X + LeftRect.Width, LeftRect.Y, 220, LeftRect.Height);
             float spacing = LeftRect.Height - 26 - 96;
             Power = new Rectangle(RightRect.X, LeftRect.Y + 12, 20, 20);
-            var pbarrect = new Rectangle(Power.X + Power.Width + 15, Power.Y, 150, 18);
-            pBar = new ProgressBar(pbarrect)
-            {
-                color = "green"
-            };
-
             Shields = new Rectangle(RightRect.X, LeftRect.Y + 12 + 20 + (int)spacing, 20, 20);
-            var pshieldsrect = new Rectangle(Shields.X + Shields.Width + 15, Shields.Y, 150, 18);
-            sBar = new ProgressBar(pshieldsrect)
-            {
-                color = "blue"
-            };
             DefenseRect = new Rectangle(Housing.X + 13, Housing.Y + 112, 22, 22);
             TroopRect = new Rectangle(Housing.X + 13, Housing.Y + 137, 22, 22);
 
@@ -86,8 +74,9 @@ namespace Ship_Game
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon);
                 CombatStatusButtons.Add(button);
-                button.State = state;
+                button.CombatState = state;
                 button.Tooltip = toolTip;
+                button.OnClick = (b) => OnCombatStatusButtonClicked(state);
                 ordersBarPos.X += orderSize;
             }
 
@@ -105,6 +94,12 @@ namespace Ship_Game
 
             var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
             SelectedShipsSL = new ScrollList<SelectedShipListItem>(new Submenu(slsubRect), 24);
+        }
+
+        void OnCombatStatusButtonClicked(CombatState state)
+        {
+            foreach(Ship ship in ShipList)
+                ship.AI.CombatState = state;
         }
 
         public void ClearShipList()
@@ -212,6 +207,7 @@ namespace Ship_Game
             {
                 button.Draw(ScreenManager);
             }
+
             GridButton.Draw(ScreenManager);
         }
 
@@ -241,23 +237,17 @@ namespace Ship_Game
                 GridButton.Enabled = ShowModules;
                 return true;
             }
+
             if (AllShipsMine)
             {
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
-                    CombatState action = (CombatState)button.State;
-                    if (button.HandleInput(input))
-                    {
-                        GameAudio.AcceptClick();
-
-                        foreach(Ship ship in ShipList)
-                            ship.AI.CombatState = action;
-                    }
-                    else
-                    {
-                        button.Enabled = AllShipsInState(action);
-                    }
+                    button.Enabled = ShipList.All(ship => ship.AI.CombatState == button.CombatState);
                 }
+
+                foreach (ToggleButton button in CombatStatusButtons)
+                    if (button.HandleInput(input))
+                        return true;
                 
                 if (SlidingElement.HandleInput(input))
                 {
@@ -313,16 +303,6 @@ namespace Ship_Game
             if (SlidingElement.ButtonHousing.HitTest(input.CursorPosition))
                 return true;
             return false;
-        }
-
-        bool AllShipsInState(CombatState state)
-        {
-            foreach (Ship ship in ShipList)
-            {
-                if (ship.AI.CombatState != state)
-                    return false;
-            }
-            return true;
         }
 
         void OnSelectedShipsListButtonClicked(SkinnableButton button)
@@ -502,7 +482,7 @@ namespace Ship_Game
             }
         }
 
-        private struct TippedItem
+        struct TippedItem
         {
             public Rectangle r;
 

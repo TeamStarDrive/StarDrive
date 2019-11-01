@@ -61,7 +61,7 @@ namespace Ship_Game
             }
         }
 
-        public int NumSubItems => SubEntries.Count;
+        public int NumSubItems => SubEntries?.Count ?? 0;
 
         public void AddSubItem(ScrollListItemBase entry)
         {
