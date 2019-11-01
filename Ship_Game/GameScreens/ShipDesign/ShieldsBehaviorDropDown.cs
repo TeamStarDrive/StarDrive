@@ -6,9 +6,9 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        private class ShieldBehaviorDropDown : DropOptions<ShieldsWarpBehavior>
+        class ShieldBehaviorDropDown : DropOptions<ShieldsWarpBehavior>
         {
-            public ShieldBehaviorDropDown(UIElementV2 parent, Rectangle dropdownRect) : base(parent, dropdownRect)
+            public ShieldBehaviorDropDown(in Rectangle dropdownRect) : base(dropdownRect)
             {
             }
             public override bool HandleInput(InputState input)

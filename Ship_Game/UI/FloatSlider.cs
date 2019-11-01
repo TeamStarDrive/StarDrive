@@ -72,8 +72,8 @@ namespace Ship_Game
         static SubTexture SliderMinuteHover;
         static SubTexture SliderGradient;   // background gradient for the slider
 
-        public FloatSlider(UIElementV2 parent, Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
-            : base(parent, r)
+        public FloatSlider(Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
+            : base(r)
         {
             if (SliderKnob == null || ContentId != ResourceManager.ContentId)
             {
@@ -92,14 +92,14 @@ namespace Ship_Game
             UpdateSliderRect();
         }
 
-        public FloatSlider(UIElementV2 parent, SliderStyle style, Rectangle r, string text, float min, float max, float value)
-            : this(parent, r, text, min, max, value)
+        public FloatSlider(SliderStyle style, Rectangle r, string text, float min, float max, float value)
+            : this(r, text, min, max, value)
         {
             Style = style;
         }
 
-        public FloatSlider(UIElementV2 parent, SliderStyle style, Vector2 size, string text, float min, float max, float value)
-            : this(parent, new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
+        public FloatSlider(SliderStyle style, Vector2 size, string text, float min, float max, float value)
+            : this(new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
         {
             Style = style;
         }

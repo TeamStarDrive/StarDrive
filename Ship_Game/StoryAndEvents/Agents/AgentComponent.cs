@@ -43,7 +43,7 @@ namespace Ship_Game
         private int spyLimitCount;
         private int empirePlanetSpys;
 
-        public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(espionageScreen, r)
+        public AgentComponent(EspionageScreen espionageScreen, Rectangle r, Rectangle operationsRect) : base(r)
         {
             EspionageScreen = espionageScreen;
 

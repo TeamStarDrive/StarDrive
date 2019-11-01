@@ -11,7 +11,7 @@ namespace Ship_Game.UI
         readonly Array<UIElementV2> ForeElements = new Array<UIElementV2>();
         readonly Array<UIElementV2> ForeAdditive = new Array<UIElementV2>();
         
-        protected MultiLayerDrawContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
+        protected MultiLayerDrawContainer(in Rectangle rect) : base(rect)
         {
         }
 

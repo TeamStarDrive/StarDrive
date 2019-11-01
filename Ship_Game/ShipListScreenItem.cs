@@ -88,7 +88,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            SetNewPos((int)X + 2, (int)Y);
+            SetNewPos((int)X, (int)Y);
 
             if (Selected)
             {

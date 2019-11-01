@@ -20,16 +20,13 @@ namespace Ship_Game
         public bool Hollow;
         public Color Background;
 
-        public Menu2(in Rectangle theMenu) : this(null, theMenu, new Color(0, 0, 0, 240))
+        public Menu2(in Rectangle theMenu) : this(theMenu, new Color(0, 0, 0, 240))
         {
         }
         public Menu2(int x, int y, int width, int height) : this(new Rectangle(x, y, width, height))
         {
         }
-        public Menu2(UIElementV2 parent, in Rectangle theMenu) : this(parent, theMenu, new Color(0, 0, 0, 240))
-        {
-        }
-        public Menu2(UIElementV2 parent, in Rectangle theMenu, Color color) : base(parent, theMenu)
+        public Menu2(in Rectangle theMenu, Color color) : base(theMenu)
         {
             Menu = theMenu;
             Background = color; // transparent black

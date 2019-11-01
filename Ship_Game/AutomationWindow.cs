@@ -30,7 +30,6 @@ namespace Ship_Game
         {
             UICheckBox Check;
             DropOptions<int> Options;
-            public CheckedDropdown(UIElementV2 parent) : base(parent) { }
 
             public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
                 => Create(binding, Localizer.Token(title), tooltip);
@@ -38,7 +37,7 @@ namespace Ship_Game
             public DropOptions<int> Create(Expression<Func<bool>> binding, string title, int tooltip)
             {
                 Check = new UICheckBox(0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
-                Options = new DropOptions<int>(Parent, new Vector2(0f, 25f), 190, 18);
+                Options = new DropOptions<int>(new Vector2(0f, 25f), 190, 18);
                 return Options;
             }
             public override void PerformLayout()
@@ -79,16 +78,16 @@ namespace Ship_Game
             UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
 
-            ScoutDropDown = ticks.Add(new CheckedDropdown(this))
+            ScoutDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoExplore, title:305, tooltip:2226);
 
-            ColonyShipDropDown = ticks.Add(new CheckedDropdown(this))
+            ColonyShipDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
 
-            ConstructorDropDown = ticks.Add(new CheckedDropdown(this))
+            ConstructorDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
 
-            FreighterDropDown = ticks.Add(new CheckedDropdown(this))
+            FreighterDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoFreighters, title: 308, tooltip: 2229);
 
             // draw ordering is still imperfect, this is a hack

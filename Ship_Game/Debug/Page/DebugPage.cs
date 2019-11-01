@@ -5,7 +5,7 @@
         public DebugModes Mode { get; }
         protected Array<UILabel> TextColumns = new Array<UILabel>();
 
-        public DebugPage(GameScreen parent, DebugModes mode) : base(parent, parent.Rect)
+        public DebugPage(GameScreen parent, DebugModes mode) : base(parent.Rect)
         {
             Mode = mode;
         }

@@ -6,9 +6,9 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        private class HangarDesignationDropDown : DropOptions<ShipData.HangarOptions>
+        class HangarDesignationDropDown : DropOptions<ShipData.HangarOptions>
         {
-            public HangarDesignationDropDown(UIElementV2 parent, Rectangle hangarRect) : base(parent, hangarRect)
+            public HangarDesignationDropDown(in Rectangle hangarRect) : base(hangarRect)
             {
             }
             public override bool HandleInput(InputState input)

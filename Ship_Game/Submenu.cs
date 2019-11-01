@@ -12,7 +12,7 @@ namespace Ship_Game
         Blue,
     }
 
-    public class Submenu : UIElementV2
+    public class Submenu : UIPanel
     {
         public Array<Tab> Tabs = new Array<Tab>();
 
@@ -35,7 +35,8 @@ namespace Ship_Game
         public Action<int> OnTabChange;
         int CurSelectedIndex = -1;
 
-        public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown) : base(null, theMenu)
+        public Submenu(in Rectangle theMenu, SubmenuStyle style = SubmenuStyle.Brown)
+            : base(theMenu, Color.TransparentBlack)
         {
             Style = style;
             this.PerformLayout();
