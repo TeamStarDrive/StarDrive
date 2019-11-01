@@ -8,16 +8,14 @@ namespace Ship_Game
 {
     public class FighterScrollList : ScrollList<FighterListItem>
     {
-        Submenu FighterListContainer;
-        readonly GameScreen Screen;
+        readonly ShipDesignScreen Screen;
         public ShipModule ActiveHangarModule;
         public ShipModule ActiveModule;
         public string HangarShipUIDLast = "";
 
-        public FighterScrollList(Submenu fighterList, GameScreen shipDesignScreen) : base(fighterList, 40)
+        public FighterScrollList(Submenu fighterList, ShipDesignScreen shipDesignScreen) : base(fighterList, 40)
         {
             Screen = shipDesignScreen;
-            FighterListContainer = fighterList;
         }
 
         public bool HitTest(InputState input)
@@ -68,8 +66,11 @@ namespace Ship_Game
             base.OnItemClicked(item);
         }
 
-        public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
+        public override bool HandleInput(InputState input)
         {
+            ShipModule activeModule = Screen.ActiveModule;
+            ShipModule highlightedModule = Screen.HighlightedModule;
+
             activeModule = activeModule ?? highlightedModule;
             if (activeModule?.ModuleType == ShipModuleType.Hangar &&
                 !activeModule.IsTroopBay && !activeModule.IsSupplyBay)
@@ -112,7 +113,6 @@ namespace Ship_Game
                 return;
 
             Screen.DrawRectangle(Rect, Color.TransparentWhite, Color.Black);
-            FighterListContainer.Draw(batch);
             base.Draw(batch);
         }
     }

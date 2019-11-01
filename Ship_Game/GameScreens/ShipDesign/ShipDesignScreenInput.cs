@@ -22,8 +22,9 @@ namespace Ship_Game
         UICheckBox CarrierOnlyCheckBox;
         public void ChangeHull(ShipData hull)
         {
-            if (hull == null) return;
-            ModSel.ResetLists();
+            if (hull == null)
+                return;
+
             RemoveObject(shipSO);
             ActiveHull = new ShipData
             {
@@ -103,7 +104,6 @@ namespace Ship_Game
                 CategoryList.SetActiveValue(ActiveHull.ShipCategory);
             }
 
-
             HangarOptionsList.PropertyBinding = () => ActiveHull.HangarDesignation;
             HangarOptionsList.SetActiveValue(ActiveHull.HangarDesignation);
 
@@ -125,7 +125,6 @@ namespace Ship_Game
             }
             return (hasBridge || ActiveHull.Role == ShipData.RoleName.platform || ActiveHull.Role == ShipData.RoleName.station);
         }
-
 
         void CreateSOFromActiveHull()
         {
@@ -225,22 +224,13 @@ namespace Ship_Game
             if (HandleInputUndoRedo(input))
                 return true;
 
-            HandleInputZoom(input);
-            HandleInputDebug(input);
-
             EmpireUI.HandleInput(input, this);
 
             if (base.HandleInput(input)) // handle any buttons before any other selection logic
                 return true;
 
-            if (HullSL.HandleInput(input))
-                return true;
-
-            if (ModSel.HandleInput(input, ActiveModule, HighlightedModule))
-                return true;
-
-            if (input.LeftMouseDown && (HullSelectionRect.HitTest(input.CursorPosition) || ModSel.HitTest(input)))
-                return true;
+            HandleInputZoom(input);
+            HandleInputDebug(input);
 
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134);
@@ -576,8 +566,6 @@ namespace Ship_Game
 
         void HandleInputZoom(InputState input)
         {
-            if (ModSel.HitTest(input) || HullSelectionRect.HitTest(input.CursorPosition))
-                return;
             if (input.ScrollOut) TransitionZoom -= 0.1f;
             if (input.ScrollIn)  TransitionZoom += 0.1f;
             TransitionZoom = TransitionZoom.Clamped(0.3f, 2.65f);
@@ -654,206 +642,6 @@ namespace Ship_Game
                 }
             }
             ReallyExit();
-        }
-
-        public override void LoadContent()
-        {
-            Log.Info("ShipDesignScreen.LoadContent");
-            RemoveAll();
-            ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
-
-            var hulls = EmpireManager.Player.GetHDict();
-            foreach (KeyValuePair<string, bool> hull in hulls)
-                if (hull.Value)
-                    AvailableHulls.Add(ResourceManager.Hull(hull.Key));
-
-            PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
-            Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
-            Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-            float aspectRatio = (float)Viewport.Width / Viewport.Height;
-            Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
-            
-            ChangeHull(AvailableHulls[0]);
-
-            float lowestX  = ActiveHull.ModuleSlots[0].Position.X;
-            float highestX = lowestX;
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
-            {
-                if (slot.Position.X < lowestX)  lowestX  = slot.Position.X;
-                if (slot.Position.X > highestX) highestX = slot.Position.X;
-            }
-
-            // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
-            // Maybe because they are long and narrow. This code is an enigma.
-            float hullWidth = (highestX - lowestX) * 2;
-
-            // So, this attempts to zoom so the entire design is visible
-            float UpdateCameraMatrix()
-            {
-                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-
-                View = Matrix.CreateRotationY(180f.ToRadians())
-                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
-                return center.Distance(hullEdge) + 10f;
-            }
-
-            float visibleHullWidth = UpdateCameraMatrix();
-            if (visibleHullWidth >= hullWidth)
-            {
-                while (visibleHullWidth > hullWidth)
-                {
-                    CameraPosition.Z += 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            else
-            {
-                while (visibleHullWidth < hullWidth)
-                {
-                    CameraPosition.Z -= 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-
-            BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
-      
-            ClassifCursor = new Vector2(ScreenWidth * .5f,
-                    ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
-
-            float ordersBarX = ClassifCursor.X - 15;
-            var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
-            void AddCombatStatusBtn(CombatState state, string iconPath, int toolTip)
-            {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
-                {
-                    CombatState   = state,
-                    Tooltip = toolTip
-                };
-                button.OnClick = (b) => OnCombatButtonPressed(state);
-                Add(button);
-                CombatStatusButtons.Add(button);
-                ordersBarPos.X += 29f;
-            }
-
-            AddCombatStatusBtn(CombatState.AttackRuns,   "SelectionBox/icon_formation_headon", toolTip: 1);
-            AddCombatStatusBtn(CombatState.Artillery,    "SelectionBox/icon_formation_aft",    toolTip: 2);
-            AddCombatStatusBtn(CombatState.ShortRange,   "SelectionBox/icon_grid",             toolTip: 228);
-            AddCombatStatusBtn(CombatState.HoldPosition, "SelectionBox/icon_formation_x",      toolTip: 65);
-            AddCombatStatusBtn(CombatState.OrbitLeft,    "SelectionBox/icon_formation_left",   toolTip: 3);
-            AddCombatStatusBtn(CombatState.OrbitRight,   "SelectionBox/icon_formation_right",  toolTip: 4);
-            AddCombatStatusBtn(CombatState.Evade,        "SelectionBox/icon_formation_stop",   toolTip: 6);
-            ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
-            AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
-            AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
-            
-            UIList bottomList = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
-            bottomList.LayoutStyle = ListLayoutStyle.Resize;
-            bottomList.Direction = new Vector2(-1, 0);
-            bottomList.Padding = new Vector2(16f, 2f);
-            bottomList.Add(ButtonStyle.Medium, 105, click: b =>
-            {
-                if (!CheckDesign()) {
-                    GameAudio.NegativeClick();
-                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(2049)));
-                    return;
-                }
-                ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
-            });
-            bottomList.Add(ButtonStyle.Medium, 8, click: b =>
-            {
-                ScreenManager.AddScreen(new LoadDesigns(this));
-            });
-            bottomList.Add(ButtonStyle.Medium, 106, click: b =>
-            {
-                ToggleOverlay = !ToggleOverlay;
-            }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, 1985, click: b =>
-            {
-                OnSymmetricDesignToggle();
-            });
-            BtnSymmetricDesign.ClickSfx = "blip_click";
-            BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
-            BtnSymmetricDesign.Style    = ButtonStyle.Military;
-
-            SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
-            LoadContentFinish();
-            BindListsToActiveHull();
-
-            AssignLightRig("example/ShipyardLightrig");
-        }
-
-        void LoadContentFinish()
-        {
-            BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
-            HullSelectionRect = new Rectangle(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
-            HullSelectionSub = new Submenu(HullSelectionRect);
-            WeaponSL = new WeaponScrollList(ModSel, this);
-            HullSelectionSub.AddTab(Localizer.Token(107));
-            HullSL = new ScrollList<ShipHullListItem>(HullSelectionSub);
-            var categories = new Array<string>();
-            foreach (ShipData hull in ResourceManager.Hulls)
-            {
-                if ((hull.IsShipyard && !Empire.Universe.Debug) || !EmpireManager.Player.IsHullUnlocked(hull.Hull))
-                    continue;
-                string cat = Localizer.GetRole(hull.Role, EmpireManager.Player);
-                if (!categories.Contains(cat))
-                    categories.Add(cat);
-            }
-
-            categories.Sort();
-            foreach (string cat in categories)
-            {
-                var categoryItem = new ShipHullListItem(cat);
-                HullSL.AddItem(categoryItem);
-
-                foreach (ShipData hull in ResourceManager.Hulls)
-                {
-                    if ((!hull.IsShipyard || Empire.Universe.Debug) &&
-                        EmpireManager.Player.IsHullUnlocked(hull.Hull) &&
-                        cat == Localizer.GetRole(hull.Role, EmpireManager.Player))
-                    {
-                        categoryItem.AddSubItem(new ShipHullListItem(hull));
-                    }
-                }
-            }
-            HullSL.OnClick = OnHullListItemClicked;
-
-            var shipStatsPanel = new Rectangle(HullSelectionRect.X + 50,
-                HullSelectionRect.Y + HullSelectionRect.Height - 20, 280, 320);
-
-            var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
-
-            CategoryList = new CategoryDropDown(dropdownRect);
-            foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
-                CategoryList.AddOption(item.ToString(), item);
-
-            var hangarRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
-            HangarOptionsList = new HangarDesignationDropDown(hangarRect);
-            foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
-                HangarOptionsList.AddOption(item.ToString(), item);
-
-            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.15f), (int)ClassifCursor.Y + 50, 150, 18);
-            ShieldsBehaviorList = new ShieldBehaviorDropDown(behaviorRect);
-            foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
-                ShieldsBehaviorList.AddOption(item.ToString(), item);
-                
-            var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
-            CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
-
-            ShipStats  = new Menu1(shipStatsPanel);
-            StatsSub   = new Submenu(shipStatsPanel);
-            StatsSub.AddTab(Localizer.Token(108));
-            ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-
-            CloseButton(ScreenWidth - 27, 99);
-            OriginalZ = CameraPosition.Z;
         }
 
         void OnHullListItemClicked(ShipHullListItem item)
