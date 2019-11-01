@@ -271,13 +271,7 @@ namespace Ship_Game
             {
                 ShipDesigns.Draw(batch);
                 batch.DrawString(Fonts.Laserian14, "Ship Designs", ShipDesignsTitlePos, Colors.Cream);
-
-                batch.FillRectangle(SubShips.Rect, new Color(0, 0, 0, 130));
-                SubShips.Draw(batch);
-                ShipSL.Draw(batch);
             }
-
-            base.Draw(batch);
 
             EmpireUI.Draw(batch);
             foreach (FleetDataNode node in SelectedFleet.DataNodes)
@@ -387,6 +381,8 @@ namespace Ship_Game
             }
 
             DrawSelectedData(batch);
+            
+            base.Draw(batch); // draw automatic elements on top of everything else
             batch.End();
 
             ScreenManager.EndFrameRendering();
@@ -475,10 +471,6 @@ namespace Ship_Game
 
                 cursor.Y = OperationsRect.Y + 10;
                 batch.DrawString(Fonts.Pirulen12, "Movement Orders", cursor, Colors.Cream);
-                foreach (ToggleButton button in OrdersButtons)
-                {
-                    button.Draw(batch);
-                }
 
                 OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
                 OperationsSelector.Draw(batch);
@@ -521,10 +513,6 @@ namespace Ship_Game
 
                 cursor.Y = OperationsRect.Y + 10;
                 batch.DrawString(Fonts.Pirulen12, "Group Movement Orders", cursor, Colors.Cream);
-                foreach (ToggleButton button in OrdersButtons)
-                {
-                    button.Draw(ScreenManager);
-                }
 
                 OperationsSelector = new Selector(OperationsRect, new Color(0, 0, 0, 180));
                 OperationsSelector.Draw(batch);

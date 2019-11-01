@@ -13,7 +13,6 @@ namespace Ship_Game
     {
         public static bool Open;
         public Camera2D Camera;
-        public ShipData ActiveHull;
         //private Background bg = new Background();
         StarField StarField;
         public EmpireUIOverlay EmpireUI;
@@ -41,7 +40,7 @@ namespace Ship_Game
         FloatSlider OperationalRadius;
         SizeSlider SliderSize;
         public Submenu SubShips;
-        BatchRemovalCollection<Ship> AvailableShips = new BatchRemovalCollection<Ship>();
+        Array<Ship> AvailableShips = new Array<Ship>();
         Vector3 CamPos = new Vector3(0f, 0f, 14000f);
         readonly Map<int, Rectangle> FleetsRects = new Map<int, Rectangle>();
         readonly Array<ClickableSquad> ClickableSquads = new Array<ClickableSquad>();
@@ -68,11 +67,6 @@ namespace Ship_Game
             TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
             Open = true;
-        }
-
-        void AdjustCamera()
-        {
-            CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
         }
 
         public void ChangeFleet(int which)
@@ -110,15 +104,9 @@ namespace Ship_Game
                 {
                     foreach (Fleet.Squad squad in flanks)
                     {
-                        if (squad.DataNodes.Contains(node))
-                        {
-                            squad.DataNodes.Remove(node);
-                        }
-                        if (squad.DataNodes.Count != 0)
-                        {
-                            continue;
-                        }
-                        squadsToRemove.Add(squad);
+                        squad.DataNodes.Remove(node);
+                        if (squad.DataNodes.Count == 0)
+                            squadsToRemove.Add(squad);
                     }
                 }
             }
@@ -143,12 +131,8 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            lock (this)
-            {
-                StarField?.Dispose(ref StarField);
-                SelectedFleet = null;
-                AvailableShips?.Dispose(ref AvailableShips);
-            }
+            StarField?.Dispose(ref StarField);
+            SelectedFleet = null;
             base.Destroy();
         }
 
@@ -189,27 +173,27 @@ namespace Ship_Game
             ShipDesignsTitlePos = new Vector2(shipRect.X + shipRect.Width / 2 - Fonts.Laserian14.MeasureString("Ship Designs").X / 2f, shipRect.Y + shipRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             var shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - shipRect.Width - 2, shipRect.Y + shipRect.Height + 5, shipRect.Width, 500);
             RightMenu = new Menu1(shipDesignsRect);
+
             SubShips = new Submenu(shipDesignsRect);
+            SubShips.Color = new Color(0, 0, 0, 130);
             SubShips.AddTab("Designs");
             SubShips.AddTab("Owned");
+            SubShips.SelectedIndex = 0;
             ShipSL = Add(new ScrollList<FleetDesignShipListItem>(SubShips, 40));
             ShipSL.OnClick = OnDesignShipItemClicked;
 
-            foreach (Ship ship in EmpireManager.Player.GetShips())
-            {
-                if (ship.fleet == null && ship.Active)
-                    AvailableShips.Add(ship);
-            }
             ResetLists();
-            SelectedStuffRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 220, -13 + ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
+            SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 200, 440, 210);
 
             var ordersBarPos = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 65);
             void AddOrdersBtn(CombatState state, string icon, int toolTip)
             {
-                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon, this)
+                var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
-                    State = state,
-                    Tooltip = toolTip
+                    CombatState = state,
+                    Tooltip = toolTip,
+                    OnClick = (b) => OnOrderButtonClicked(b, state),
+                    Visible = false,
                 };
                 Add(button);
                 OrdersButtons.Add(button);
@@ -314,17 +298,11 @@ namespace Ship_Game
             SelectedFleet.FleetIconIndex = data.FleetIconIndex;
         }
 
-        public void ResetLists() // IListScreen.ResetLists()
+        public void ResetLists()
         {
             AvailableShips.Clear();
-            foreach (Ship ship in EmpireManager.Player.GetShips())
-            {
-                if (ship.fleet != null)
-                {
-                    continue;
-                }
-                AvailableShips.Add(ship);
-            }
+            AvailableShips.AddRange(EmpireManager.Player.GetShips()
+                                    .Filter(s => s.fleet == null && s.Active));
 
             ShipSL.Reset();
             if (SubShips.SelectedIndex == 0)
@@ -344,7 +322,7 @@ namespace Ship_Game
                         {
                             Ship ship2 = ResourceManager.ShipsDict[shipname2];
                             if (ship2.DesignRoleName == header.HeaderText)
-                                header.AddSubItem(new FleetDesignShipListItem(this){ Ship = ship });
+                                header.AddSubItem(new FleetDesignShipListItem(this, ship));
                         }
                     }
                 }
@@ -364,39 +342,11 @@ namespace Ship_Game
                         foreach (Ship ship2 in AvailableShips)
                         {
                             if (ship2.shipData.Role != ShipData.RoleName.troop && ship2.DesignRoleName == header.HeaderText)
-                                header.AddSubItem(new FleetDesignShipListItem(this){ Ship = ship2 });
+                                header.AddSubItem(new FleetDesignShipListItem(this, ship2));
                         }
                     }
                 }
             }
-        }
-
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            AdjustCamera();
-            CamPos.X = CamPos.X + CamVelocity.X;
-            CamPos.Y = CamPos.Y + CamVelocity.Y;
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
-            ClickableSquads.Clear();
-            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
-            {
-                foreach (Fleet.Squad squad in flank)
-                {
-                    Viewport viewport = Viewport;
-                    Vector3 pScreenSpace = viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
-                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
-                    ClickableSquad cs = new ClickableSquad
-                    {
-                        ScreenPos = pPos,
-                        Squad = squad
-                    };
-                    ClickableSquads.Add(cs);
-                }
-            }
-
-            SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public struct ClickableNode

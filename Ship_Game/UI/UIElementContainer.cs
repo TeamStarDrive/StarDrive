@@ -101,8 +101,8 @@ namespace Ship_Game
                 // iterate input in reverse, so we handle topmost objects before
                 for (int i = Elements.Count - 1; i >= 0; --i)
                 {
-                    UIElementV2 e = Elements[i];
-                    if (e.Visible && e.Enabled && e.HandleInput(input))
+                    UIElementV2 child = Elements[i];
+                    if (child.Visible && child.Enabled && child.HandleInput(input))
                         return true;
                 }
             }

@@ -600,15 +600,15 @@ namespace Ship_Game
         void UpdateActiveCombatButton()
         {
             foreach (ToggleButton button in CombatStatusButtons)
-                button.Enabled = (ActiveHull.CombatState == (CombatState)button.State);
+                button.Enabled = (ActiveHull.CombatState == button.CombatState);
         }
 
-        void OnCombatButtonPressed(ToggleButton button)
+        void OnCombatButtonPressed(CombatState state)
         {
             if (ActiveHull == null)
                 return;
             GameAudio.AcceptClick();
-            ActiveHull.CombatState = (CombatState)button.State;
+            ActiveHull.CombatState = state;
             UpdateActiveCombatButton();
         }
 
@@ -733,10 +733,10 @@ namespace Ship_Game
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
                 {
-                    State        = state,
+                    CombatState   = state,
                     Tooltip = toolTip
                 };
-                button.OnClick = OnCombatButtonPressed;
+                button.OnClick = (b) => OnCombatButtonPressed(state);
                 Add(button);
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 29f;

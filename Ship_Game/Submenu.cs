@@ -244,6 +244,7 @@ namespace Ship_Game
                 return;
             
             Background?.Draw(batch);
+            base.Draw(batch);
 
             StyleTextures s = GetStyle();
 

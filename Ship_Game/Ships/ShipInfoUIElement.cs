@@ -121,10 +121,10 @@ namespace Ship_Game.Ships
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
-                    State        = state,
+                    CombatState   = state,
                     Tooltip = toolTip,
                 };
-                button.OnClick = OnOrderButtonClicked;
+                button.OnClick = (b) => OnOrderButtonClicked(state);
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 25f;
             }
@@ -142,9 +142,8 @@ namespace Ship_Game.Ships
             AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: 160);
         }
 
-        void OnOrderButtonClicked(ToggleButton button)
+        void OnOrderButtonClicked(CombatState state)
         {
-            var state = (CombatState)button.State;
             Ship.AI.CombatState = state;
             if (state == CombatState.HoldPosition)
                 Ship.AI.OrderAllStop();
@@ -169,7 +168,7 @@ namespace Ship_Game.Ships
         void UpdateOrderButtonToggles()
         {
             foreach (ToggleButton toggleButton in CombatStatusButtons)
-                toggleButton.Enabled = (Ship.AI.CombatState == (CombatState)toggleButton.State);
+                toggleButton.Enabled = (Ship.AI.CombatState == toggleButton.CombatState);
         }
 
         bool OrderButtonInput(InputState input)
@@ -246,7 +245,7 @@ namespace Ship_Game.Ships
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
                     button.Draw(ScreenManager);
-                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, (CombatState)button.State);
+                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, button.CombatState);
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI
