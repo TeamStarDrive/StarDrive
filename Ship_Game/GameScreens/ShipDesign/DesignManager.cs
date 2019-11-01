@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -10,53 +9,56 @@ namespace Ship_Game
 {
     public sealed class DesignManager : GameScreen
     {
-        readonly ShipDesignScreen screen;
+        readonly ShipDesignScreen Screen;
         readonly string ShipName;
-        Submenu SaveShips;
-        Menu1 SaveMenu;
-        Rectangle Window;
-        Vector2 TitlePosition;
-        Vector2 EnternamePos;
-
-        readonly UITextEntry EnterNameArea = new UITextEntry();
-        UIButton Save;
+        UITextEntry EnterNameArea;
 
         Submenu subAllDesigns;
         ScrollList<ShipDesignListItem> ShipDesigns;
 
         public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
         {
+            Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             ShipName = txt;
-            this.screen = screen;
+            Screen = screen;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
         }
 
+        public class ShipDesignListItem : ScrollListItem<ShipDesignListItem>
+        {
+            public Ship Ship;
+            public ShipDesignListItem(Ship template) { Ship = template; }
+            public override void Draw(SpriteBatch batch)
+            {
+                batch.Draw(Ship.shipData.Icon, new Rectangle((int)X, (int)Y, 48, 48));
+                batch.DrawString(Fonts.Arial12Bold, Ship.Name, X+52, Y+4, Color.White);
+                batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), X+54, Y+18, Color.Orange);
+                base.Draw(batch);
+            }
+        }
+
         public override void LoadContent()
         {
-            Window = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
-            SaveMenu = new Menu1(Window);
-            var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
-            SaveShips = new Submenu(sub);
-            SaveShips.AddTab("Save Ship Design");
-            TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
-            var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
-            subAllDesigns = new Submenu(scrollList);
+            Submenu background = Add(new Submenu(Rect.X + 20, Rect.Y + 20, Rect.Width - 40, 80));
+            background.Background = new Menu1(Rect);
+            background.AddTab("Save Ship Design");
+
+            subAllDesigns = new Submenu(background.X, background.Y + 90, background.Width,
+                                        Rect.Height - background.Height - 50);
             subAllDesigns.AddTab("All Designs");
 
-            ShipDesigns = new ScrollList<ShipDesignListItem>(subAllDesigns);
-            foreach (KeyValuePair<string, Ship> Ship in ResourceManager.ShipsDict)
-            {
-                ShipDesigns.AddItem(new ShipDesignListItem(Ship.Value));
-            }
+            ShipDesigns = Add(new ScrollList<ShipDesignListItem>(subAllDesigns));
+            ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
+            ShipDesigns.SetItems(ResourceManager.ShipsDict.Values.Select(s => new ShipDesignListItem(s)));
 
-            EnternamePos = TitlePosition;
-            EnterNameArea.ClickableArea = new Rectangle((int)(EnternamePos.X + Fonts.Arial20Bold.MeasureString("Design Name: ").X), (int)EnternamePos.Y - 2, 256, Fonts.Arial20Bold.LineSpacing);
+            EnterNameArea = Add(new UITextEntry(background.Pos + new Vector2(20,40), "Design Name: "));
             EnterNameArea.Text = ShipName;
+            EnterNameArea.Color = Colors.Cream;
 
-            Save = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, "Save", OnSaveClicked);
+            ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, "Save", OnSaveClicked);
             base.LoadContent();
         }
 
@@ -72,38 +74,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-
-            if (ShipDesigns.HandleInput(input))
-                return true;
-
-            EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y, 200, 30);
-            if (!EnterNameArea.ClickableArea.HitTest(input.CursorPosition))
-            {
-                EnterNameArea.Hover = false;
-            }
-            else
-            {
-                EnterNameArea.Hover = true;
-                if (input.LeftMouseClick)
-                {
-                    EnterNameArea.HandlingInput = true;
-                }
-            }
-
-            if (!EnterNameArea.HandlingInput)
-            {
-                GlobalStats.TakingInput = false;
-            }
-            else
-            {
-                GlobalStats.TakingInput = true;
-                EnterNameArea.HandleTextInput(ref EnterNameArea.Text, input);
-                if (input.IsKeyDown(Keys.Enter))
-                {
-                    EnterNameArea.HandlingInput = false;
-                }
-            }
-
             return base.HandleInput(input);
         }
 
@@ -112,11 +82,6 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw(batch);
-            SaveShips.Draw(batch);
-            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Colors.Cream));
-            subAllDesigns.Draw(batch);
-            ShipDesigns.Draw(batch);
             base.Draw(batch);
             batch.End();
         }
@@ -131,7 +96,7 @@ namespace Ship_Game
         void OverWriteAccepted()
         {
             GameAudio.AffirmativeClick();
-            screen?.SaveShipDesign(EnterNameArea.Text);
+            Screen?.SaveShipDesign(EnterNameArea.Text);
 
             Empire emp = EmpireManager.Player;
             Ship ship = ResourceManager.ShipsDict[EnterNameArea.Text];
@@ -142,10 +107,11 @@ namespace Ship_Game
                 {
                     foreach (QueueItem qi in p.ConstructionQueue)
                     {
-                        if (!qi.isShip || qi.sData.Name != EnterNameArea.Text)
-                            continue;
-                        qi.sData = ship.shipData;
-                        qi.Cost = ship.GetCost(emp);
+                        if (qi.isShip && qi.sData.Name == EnterNameArea.Text)
+                        {
+                            qi.sData = ship.shipData;
+                            qi.Cost = ship.GetCost(emp);
+                        }
                     }
                 }
             }
@@ -162,10 +128,11 @@ namespace Ship_Game
             bool reserved = false;
             foreach (Ship ship in ResourceManager.ShipsDict.Values)
             {
-                if (EnterNameArea.Text != ship.Name)
-                    continue;
-                saveOk = false;
-                reserved |= ship.IsReadonlyDesign;
+                if (EnterNameArea.Text == ship.Name)
+                {
+                    saveOk = false;
+                    reserved |= ship.IsReadonlyDesign;
+                }
             }
 
             if (reserved && !Empire.Universe.Debug)
@@ -183,7 +150,7 @@ namespace Ship_Game
                 return;
             }
             GameAudio.AffirmativeClick();
-            screen?.SaveShipDesign(EnterNameArea.Text);
+            Screen?.SaveShipDesign(EnterNameArea.Text);
             ExitScreen();
         }
     }

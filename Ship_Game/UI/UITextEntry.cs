@@ -24,7 +24,7 @@ namespace Ship_Game
         // If TRUE, this text element will capture input
         public bool InputEnabled = true;
 
-        public SpriteFont Font;
+        public SpriteFont Font = Fonts.Arial20Bold;
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
 
@@ -32,12 +32,15 @@ namespace Ship_Game
         {
         }
 
+        public UITextEntry(Vector2 pos, string text) : this(pos, Fonts.Arial20Bold, text)
+        {
+        }
+
         public UITextEntry(Vector2 pos, SpriteFont font, string text)
         {
             Font = font;
             Text = text;
-            ClickableArea = new Rectangle((int)pos.X, (int)pos.Y - 2, 
-                (int)Fonts.Arial20Bold.MeasureString(Text).X + 20, Fonts.Arial20Bold.LineSpacing);
+            ClickableArea = new Rectangle((int)pos.X, (int)pos.Y - 2, font.TextWidth(Text) + 20, font.LineSpacing);
         }
 
         public bool HandleTextInput(ref string text, InputState input)
