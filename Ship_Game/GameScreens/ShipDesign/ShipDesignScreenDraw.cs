@@ -36,7 +36,7 @@ namespace Ship_Game
             }
 
             batch.Begin();
-            if (ActiveModule != null && !ModSel.HitTest(Input))
+            if (ActiveModule != null && !ModulesList.HitTest(Input))
                 DrawActiveModule(batch);
 
             DrawUi(batch);
@@ -367,17 +367,6 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawDropShadowText("Debug", pos, Fonts.Arial20Bold);
             pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
             ScreenManager.SpriteBatch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
-        }
-
-        void DrawHullSelection(SpriteBatch batch)
-        {
-            Rectangle  r = HullSelectionSub.Rect;
-            r.Y      += 25;
-            r.Height -= 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(batch);
-            HullSL.Draw(batch);
-            HullSelectionSub.Draw(batch);
         }
 
         // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
@@ -778,6 +767,13 @@ namespace Ship_Game
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
         }
+        
+        static void DrawTitle(SpriteBatch batch, float x, string title)
+        {
+            int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
+            var pos = new Vector2(x, buttonHeight);
+            batch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
+        }
 
         void DrawUi(SpriteBatch batch)
         {
@@ -786,14 +782,14 @@ namespace Ship_Game
 
             CategoryList.Draw(batch);
 
-            DrawTitle(ScreenWidth * 0.375f, "Repair Options");
-            DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
-            DrawTitle(ScreenWidth * 0.65f, "Hangar Designation");
+            DrawTitle(batch, ScreenWidth * 0.375f, "Repair Options");
+            DrawTitle(batch, ScreenWidth * 0.5f, "Behavior Presets");
+            DrawTitle(batch, ScreenWidth * 0.65f, "Hangar Designation");
             HangarOptionsList.Draw(batch);
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
-                DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
+                DrawTitle(batch, ScreenWidth * 0.65f, "Shields State At Warp");
                 ShieldsBehaviorList.Draw(batch);
             }
 
@@ -827,29 +823,8 @@ namespace Ship_Game
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);
             batch.FillRectangle(r, new Color(54, 54, 54));
 
-            {
-                var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
-            }
-
-            if (IsTransitioning)
-            {
-                //SaveButton.Y += (int)(transitionOffset * 50f);
-                //LoadButton.Y += (int)(transitionOffset * 50f);
-                //ToggleOverlayButton.Y += (int)(transitionOffset * 50f);
-                //SymmetricDesignButton.Y += (int)(transitionOffset * 50f);
-            }
-
-            ModSel.Draw(batch);
-
-            DrawHullSelection(batch);
-
-            void DrawTitle(float x, string title)
-            {
-                int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
-                var pos = new Vector2(x, buttonHeight);
-                batch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
-            }
+            var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
         }
 
         enum ValueTint

@@ -6,11 +6,11 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class WeaponListItem : ScrollListItem<WeaponListItem>
+    public class ModuleSelectListItem : ScrollListItem<ModuleSelectListItem>
     {
         public ShipModule Module;
-        public WeaponListItem(string headerText) : base(headerText) {}
-        public WeaponListItem(ShipModule module) { Module = module; }
+        public ModuleSelectListItem(string headerText) : base(headerText) {}
+        public ModuleSelectListItem(ShipModule module) { Module = module; }
 
         public override void Draw(SpriteBatch batch)
         {

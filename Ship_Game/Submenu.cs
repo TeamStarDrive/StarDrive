@@ -14,6 +14,15 @@ namespace Ship_Game
 
     public class Submenu : UIPanel
     {
+        public class Tab
+        {
+            public int Index;
+            public string Title;
+            public Rectangle Rect;
+            public bool Selected;
+            public bool Hover;
+        }
+
         public Array<Tab> Tabs = new Array<Tab>();
 
         Rectangle UpperLeft;
@@ -50,96 +59,6 @@ namespace Ship_Game
         public Submenu(float x, float y, float width, float height, SubmenuStyle style = SubmenuStyle.Brown)
             : this(new Rectangle((int)x, (int)y, (int)width, (int)height), style)
         {
-        }
-
-        public class StyleTextures
-        {
-            public SubTexture HorizVert;
-            public SubTexture CornerTL;
-            public SubTexture CornerTR;
-            public SubTexture CornerBR;
-            public SubTexture CornerBL;
-
-            public SubTexture Left;
-            public SubTexture LeftUnsel;
-            public SubTexture HoverLeftEdge;
-            public SubTexture HoverLeft;
-            public SubTexture HoverMid;
-            public SubTexture HoverRight;
-            public SubTexture Middle;
-            public SubTexture MiddleUnsel;
-            public SubTexture Right;
-            public SubTexture RightUnsel;
-            public SubTexture RightExt;
-            public SubTexture RightExtUnsel;
-
-            public StyleTextures(SubmenuStyle style)
-            {
-                switch (style)
-                {
-                    case SubmenuStyle.Brown:
-                        HorizVert       = ResourceManager.Texture("NewUI/submenu_horiz_vert");
-                        CornerTL        = ResourceManager.Texture("NewUI/submenu_corner_TL");
-                        CornerTR        = ResourceManager.Texture("NewUI/submenu_corner_TR");
-                        CornerBR        = ResourceManager.Texture("NewUI/submenu_corner_BR");
-                        CornerBL        = ResourceManager.Texture("NewUI/submenu_corner_BL");
-
-                        HoverLeftEdge = ResourceManager.Texture("NewUI/submenu_header_hover_leftedge");
-                        HoverLeft     = ResourceManager.Texture("NewUI/submenu_header_hover_left");
-                        HoverMid      = ResourceManager.Texture("NewUI/submenu_header_hover_mid");
-                        HoverRight    = ResourceManager.Texture("NewUI/submenu_header_hover_right");
-
-                        Left          = ResourceManager.Texture("NewUI/submenu_header_left");
-                        LeftUnsel     = ResourceManager.Texture("NewUI/submenu_header_left_unsel");
-                        Middle        = ResourceManager.Texture("NewUI/submenu_header_middle");
-                        MiddleUnsel   = ResourceManager.Texture("NewUI/submenu_header_middle_unsel");
-                        Right         = ResourceManager.Texture("NewUI/submenu_header_right");
-                        RightUnsel    = ResourceManager.Texture("NewUI/submenu_header_right_unsel");
-                        RightExt      = ResourceManager.Texture("NewUI/submenu_header_rightextend");
-                        RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel");
-                        break;
-                    
-                    case SubmenuStyle.Blue:
-                        HorizVert     = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert");
-                        CornerTL      = ResourceManager.Texture("ResearchMenu/submenu_corner_TL");
-                        CornerTR      = ResourceManager.Texture("ResearchMenu/submenu_corner_TR");
-                        CornerBR      = ResourceManager.Texture("ResearchMenu/submenu_corner_BR");
-                        CornerBL      = ResourceManager.Texture("ResearchMenu/submenu_corner_BL");
-
-                        // research menu doesn't have any hovers, so just reuse left/middle/right
-                        HoverLeftEdge = ResourceManager.Texture("ResearchMenu/submenu_header_left");
-                        HoverLeft     = ResourceManager.Texture("ResearchMenu/submenu_header_left");
-                        HoverMid      = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
-                        HoverRight    = ResourceManager.Texture("ResearchMenu/submenu_header_right");
-
-                        Left          = ResourceManager.Texture("ResearchMenu/submenu_header_left");
-                        LeftUnsel     = ResourceManager.Texture("ResearchMenu/submenu_header_left");
-                        Middle        = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
-                        MiddleUnsel   = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
-                        Right         = ResourceManager.Texture("ResearchMenu/submenu_header_right");
-                        RightUnsel    = ResourceManager.Texture("ResearchMenu/submenu_header_right");
-                        RightExt      = ResourceManager.Texture("ResearchMenu/submenu_transition_right");
-                        RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right");
-                        break;
-                }
-            }
-        }
-
-        static int ContentId;
-        static StyleTextures[] Styling;
-
-        StyleTextures GetStyle()
-        {
-            if (Styling == null || ContentId != ResourceManager.ContentId)
-            {
-                ContentId = ResourceManager.ContentId;
-                Styling = new[]
-                {
-                    new StyleTextures(SubmenuStyle.Brown),
-                    new StyleTextures(SubmenuStyle.Blue),
-                };
-            }
-            return Styling[(int)Style];
         }
 
         public override void PerformLayout()
@@ -183,7 +102,7 @@ namespace Ship_Game
             });
         }
 
-        protected void OnTabChangedEvt(int newIndex)
+        protected virtual void OnTabChangedEvt(int newIndex)
         {
             if (CurSelectedIndex != newIndex)
             {
@@ -226,7 +145,7 @@ namespace Ship_Game
                 }
             }
 
-            return false;
+            return base.HandleInput(input);
         }
 
         public override void Update(float deltaTime)
@@ -328,14 +247,96 @@ namespace Ship_Game
             batch.Draw(s.HorizVert, VL, Color.White);
         }
 
-
-        public class Tab
+        
+        public class StyleTextures
         {
-            public int Index;
-            public string Title;
-            public Rectangle Rect;
-            public bool Selected;
-            public bool Hover;
+            public SubTexture HorizVert;
+            public SubTexture CornerTL;
+            public SubTexture CornerTR;
+            public SubTexture CornerBR;
+            public SubTexture CornerBL;
+
+            public SubTexture Left;
+            public SubTexture LeftUnsel;
+            public SubTexture HoverLeftEdge;
+            public SubTexture HoverLeft;
+            public SubTexture HoverMid;
+            public SubTexture HoverRight;
+            public SubTexture Middle;
+            public SubTexture MiddleUnsel;
+            public SubTexture Right;
+            public SubTexture RightUnsel;
+            public SubTexture RightExt;
+            public SubTexture RightExtUnsel;
+
+            public StyleTextures(SubmenuStyle style)
+            {
+                switch (style)
+                {
+                    case SubmenuStyle.Brown:
+                        HorizVert       = ResourceManager.Texture("NewUI/submenu_horiz_vert");
+                        CornerTL        = ResourceManager.Texture("NewUI/submenu_corner_TL");
+                        CornerTR        = ResourceManager.Texture("NewUI/submenu_corner_TR");
+                        CornerBR        = ResourceManager.Texture("NewUI/submenu_corner_BR");
+                        CornerBL        = ResourceManager.Texture("NewUI/submenu_corner_BL");
+
+                        HoverLeftEdge = ResourceManager.Texture("NewUI/submenu_header_hover_leftedge");
+                        HoverLeft     = ResourceManager.Texture("NewUI/submenu_header_hover_left");
+                        HoverMid      = ResourceManager.Texture("NewUI/submenu_header_hover_mid");
+                        HoverRight    = ResourceManager.Texture("NewUI/submenu_header_hover_right");
+
+                        Left          = ResourceManager.Texture("NewUI/submenu_header_left");
+                        LeftUnsel     = ResourceManager.Texture("NewUI/submenu_header_left_unsel");
+                        Middle        = ResourceManager.Texture("NewUI/submenu_header_middle");
+                        MiddleUnsel   = ResourceManager.Texture("NewUI/submenu_header_middle_unsel");
+                        Right         = ResourceManager.Texture("NewUI/submenu_header_right");
+                        RightUnsel    = ResourceManager.Texture("NewUI/submenu_header_right_unsel");
+                        RightExt      = ResourceManager.Texture("NewUI/submenu_header_rightextend");
+                        RightExtUnsel = ResourceManager.Texture("NewUI/submenu_header_rightextend_unsel");
+                        break;
+                    
+                    case SubmenuStyle.Blue:
+                        HorizVert     = ResourceManager.Texture("ResearchMenu/submenu_horiz_vert");
+                        CornerTL      = ResourceManager.Texture("ResearchMenu/submenu_corner_TL");
+                        CornerTR      = ResourceManager.Texture("ResearchMenu/submenu_corner_TR");
+                        CornerBR      = ResourceManager.Texture("ResearchMenu/submenu_corner_BR");
+                        CornerBL      = ResourceManager.Texture("ResearchMenu/submenu_corner_BL");
+
+                        // research menu doesn't have any hovers, so just reuse left/middle/right
+                        HoverLeftEdge = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        HoverLeft     = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        HoverMid      = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
+                        HoverRight    = ResourceManager.Texture("ResearchMenu/submenu_header_right");
+
+                        Left          = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        LeftUnsel     = ResourceManager.Texture("ResearchMenu/submenu_header_left");
+                        Middle        = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
+                        MiddleUnsel   = ResourceManager.Texture("ResearchMenu/submenu_header_middle");
+                        Right         = ResourceManager.Texture("ResearchMenu/submenu_header_right");
+                        RightUnsel    = ResourceManager.Texture("ResearchMenu/submenu_header_right");
+                        RightExt      = ResourceManager.Texture("ResearchMenu/submenu_transition_right");
+                        RightExtUnsel = ResourceManager.Texture("ResearchMenu/submenu_transition_right");
+                        break;
+                }
+            }
         }
+
+        static int ContentId;
+        static StyleTextures[] Styling;
+
+        StyleTextures GetStyle()
+        {
+            if (Styling == null || ContentId != ResourceManager.ContentId)
+            {
+                ContentId = ResourceManager.ContentId;
+                Styling = new[]
+                {
+                    new StyleTextures(SubmenuStyle.Brown),
+                    new StyleTextures(SubmenuStyle.Blue),
+                };
+            }
+            return Styling[(int)Style];
+        }
+
     }
 }

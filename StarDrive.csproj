@@ -334,8 +334,8 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreen.CategoryDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponListItem.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelectListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelectScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\DialogOptionListItem.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
