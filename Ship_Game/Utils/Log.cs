@@ -495,17 +495,14 @@ namespace Ship_Game
             // Move the console window to a secondary screen if we have multiple monitors
             if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)
             {
-                foreach (Screen screen in Screen.AllScreens)
-                {
-                    if (screen.Primary)
-                        continue;
+                Screen primary = Screen.PrimaryScreen;
+                Screen[] screens = Screen.AllScreens;
+                Screen screen = screens.Find(s => s != primary && s.Bounds.Y == primary.Bounds.Y) ?? primary;
 
-                    GetWindowRect(handle, out RECT rect);
-                    var bounds = screen.Bounds;
-                    const int noResize = 0x0001;
-                    SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
-                    break;
-                }
+                GetWindowRect(handle, out RECT rect);
+                System.Drawing.Rectangle bounds = screen.Bounds;
+                const int noResize = 0x0001;
+                SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
             }
         }
 
