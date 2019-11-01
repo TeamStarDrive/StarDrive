@@ -14,7 +14,7 @@ namespace Ship_Game
         ColonySlider Food, Prod, Res;
         Planet P;
 
-        public ColonySliderGroup(UIElementV2 parent, Rectangle rect) : base(parent, rect)
+        public ColonySliderGroup(Rectangle rect) : base(rect)
         {
         }
 
@@ -22,7 +22,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < 3; ++i)
             {
-                Sliders[i] = Add(new ColonySlider(this, (ColonyResType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
+                Sliders[i] = Add(new ColonySlider((ColonyResType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
                 {
                     OnSliderChange = OnSliderChange
                 });

@@ -29,14 +29,14 @@ namespace Ship_Game
         }
 
         // Hint: use Color.TransparentBlack to create Panels with no fill
-        public UIPanel(UIElementV2 parent, in Rectangle rect, Color color, DrawableSprite sprite = null)
-            : base(parent, rect)
+        public UIPanel(in Rectangle rect, Color color, DrawableSprite sprite = null)
+            : base(rect)
         {
             Color = color;
             Sprite = sprite;
         }
 
-        public UIPanel(UIElementV2 parent, Vector2 pos, Vector2 size, Color color) : base(parent, pos, size)
+        public UIPanel(Vector2 pos, Vector2 size, Color color) : base(pos, size)
         {
             Color = color;
         }

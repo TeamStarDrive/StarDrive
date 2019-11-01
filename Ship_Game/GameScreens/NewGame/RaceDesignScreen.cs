@@ -129,7 +129,7 @@ namespace Ship_Game
             RaceNamePos = new Vector2(NameMenu.X + 40, NameMenu.Y + 30);
             FlagPos = new Vector2(NameMenu.Right - 80 - 100, NameMenu.Y + 30);
 
-            Picker = Add(new UIColorPicker(this, new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
+            Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
 
             var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 

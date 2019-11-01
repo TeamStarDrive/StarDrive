@@ -66,11 +66,11 @@ namespace Ship_Game
             Color = Color.TransparentBlack;
         }
 
-        public UIList(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size, Color.TransparentBlack)
+        public UIList(Vector2 pos, Vector2 size) : base(pos, size, Color.TransparentBlack)
         {
         }
 
-        public UIList(in Rectangle rect, Color color) : base(null, rect, color)
+        public UIList(in Rectangle rect, Color color) : base(rect, color)
         {
         }
 

@@ -64,52 +64,37 @@ namespace Ship_Game
         }
 
         public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\"";
-
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
+        
+        public UILabel(Vector2 pos, LocalizedText text) : this(pos, text, Fonts.Arial12Bold)
         {
-            LabelText = text;
+        }
+        public UILabel(Vector2 pos, LocalizedText text, Color color) : this(pos, text, Fonts.Arial12Bold)
+        {
+            Color = color;
+        }
+        public UILabel(Vector2 pos, LocalizedText text, SpriteFont font) : base(pos, font.MeasureString(text.Text))
+        {
+            LabelText = text.Text;
             LabelFont = font;
         }
-
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font) : this(parent, pos, Localizer.Token(titleId), font)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font, Color color) : this(parent, pos, Localizer.Token(titleId), font)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font, Color color) : this(parent, pos, text, font)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text) : this(parent, pos, text, Fonts.Arial12Bold)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, Color color) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, Color color) : this(parent, pos, text, Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, LocalizedText text, SpriteFont font, Color color) : this(pos, text, font)
         {
             Color = color;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UILabel(string text) : this(text, Fonts.Arial12Bold)
+        public UILabel(LocalizedText text) : this(text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(string text, Color color) : this(text, Fonts.Arial12Bold)
+        public UILabel(LocalizedText text, Color color) : this(text, Fonts.Arial12Bold)
         {
             Color = color;
         }
-        public UILabel(string text, SpriteFont font)
+        public UILabel(LocalizedText text, SpriteFont font)
         {
             LabelFont = font;
-            Text = text;
+            Text = text.Text;
         }
 
         public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)

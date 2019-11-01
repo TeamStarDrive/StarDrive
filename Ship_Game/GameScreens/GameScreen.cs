@@ -69,7 +69,7 @@ namespace Ship_Game
         {
         }
         
-        protected GameScreen(GameScreen parent, Rectangle rect, bool pause = true) : base(parent, rect)
+        protected GameScreen(GameScreen parent, in Rectangle rect, bool pause = true) : base(rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? GameBase.Base.Content, GetType().Name);

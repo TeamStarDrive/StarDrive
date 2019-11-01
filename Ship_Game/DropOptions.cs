@@ -55,12 +55,12 @@ namespace Ship_Game
         }
 
 
-        public DropOptions(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
+        public DropOptions(in Rectangle rect) : base(rect)
         {
             Reset();
         }
-        public DropOptions(UIElementV2 parent, Vector2 pos, int width, int height)
-            : base(parent, pos, new Vector2(width, height))
+        public DropOptions(Vector2 pos, int width, int height)
+            : base(pos, new Vector2(width, height))
         {
             Reset();
         }

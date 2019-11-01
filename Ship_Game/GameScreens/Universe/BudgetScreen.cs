@@ -55,7 +55,7 @@ namespace Ship_Game.GameScreens
             }
             public FloatSlider AddSlider(string title, float value)
             {
-                return Add(new FloatSlider(this, SliderStyle.Percent, new Vector2(100,32), title, 0f, 1f, value));
+                return Add(new FloatSlider(SliderStyle.Percent, new Vector2(100,32), title, 0f, 1f, value));
             }
         }
 
@@ -114,7 +114,7 @@ namespace Ship_Game.GameScreens
                 trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(), e.EmpireColor);
             trade.SetTotalFooter(() => Player.TotalAvgTradeIncome); // "Total"
 
-            EmpireNetIncome = Label(Window.Menu.Right - 200, Window.Menu.Bottom - 47, titleId:324, Fonts.Arial20Bold);
+            EmpireNetIncome = Label(Window.Menu.Right - 200, Window.Menu.Bottom - 47, text:324, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow = true;
             EmpireNetIncome.DynamicText = DynamicText(
                 () => Player.NetIncome,

@@ -202,7 +202,7 @@ namespace Ship_Game
                 DetailInfo = p.Description;
                 var rectangle4 = new Rectangle(pDescription.Rect.X + 10, pDescription.Rect.Y + 30, 124, 148);
                 var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
-                GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
+                GovernorDropdown = new DropOptions<int>(new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 GovernorDropdown.AddOption("--", 1);
                 GovernorDropdown.AddOption(Localizer.Token(4064), 0); // Core
                 GovernorDropdown.AddOption(Localizer.Token(4065), 2); // Industrial
@@ -362,7 +362,7 @@ namespace Ship_Game
             int sliderY = laborPanel.Y + 25;
             int slidersAreaH = laborPanel.Height - 25;
             int spacingY = (int)(0.25 * slidersAreaH);
-            Sliders = new ColonySliderGroup(this, laborPanel);
+            Sliders = new ColonySliderGroup(laborPanel);
             Sliders.Create(sliderX, sliderY, sliderW, spacingY);
             Sliders.SetPlanet(P);
         }

@@ -22,8 +22,6 @@ namespace Ship_Game
 
         public EmpireUIOverlay empUI;
 
-        private Submenu ShipSubMenu;
-
         private Rectangle leftRect;
 
         private DropOptions<int> ShowRoles;
@@ -72,8 +70,8 @@ namespace Ship_Game
             {
                 eRect.Height = eRect.Height - 1;
             }
-            ShipSubMenu = new Submenu(eRect);
-            ShipSL = Add(new ScrollList<ShipListScreenItem>(ShipSubMenu, 30));
+
+            ShipSL = Add(new ScrollList<ShipListScreenItem>(eRect, 30));
             ShipSL.OnClick = OnShipListScreenItemClicked;
 
             Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
@@ -83,7 +81,7 @@ namespace Ship_Game
                     ResetList(ShowRoles.ActiveValue);
                 }, Fonts.Arial12Bold, title: 191, tooltip: 191));
 
-            ShowRoles = new DropOptions<int>(this, new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
+            ShowRoles = new DropOptions<int>(new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
             ShowRoles.AddOption("All Ships", 1);
             ShowRoles.AddOption("Not in Fleets", 11);
             ShowRoles.AddOption("Fighters", 2);
@@ -121,25 +119,27 @@ namespace Ship_Game
 
             base.Draw(batch);
 
+            // Draw List Header
             if (ShipSL.NumEntries > 0)
             {
                 ShipListScreenItem e1 = ShipSL.FirstItem;
-                var cursor = new Vector2(e1.SysNameRect.CenterX() - Fonts.Arial20Bold.TextWidth(192) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
-                SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(192), Fonts.Arial20Bold.LineSpacing);
+                SpriteFont font = Fonts.Arial20Bold;
+                var cursor = new Vector2(e1.SysNameRect.CenterX() - font.TextWidth(192) / 2f, eRect.Y - font.LineSpacing + 28);
+                SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(192), font.LineSpacing);
                 
-                SortSystem.Draw(ScreenManager, Fonts.Arial20Bold);
-                cursor = new Vector2(e1.ShipNameRect.CenterX() - Fonts.Arial20Bold.TextWidth(193) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
-                SortName.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(193), Fonts.Arial20Bold.LineSpacing);
+                SortSystem.Draw(ScreenManager, font);
+                cursor = new Vector2(e1.ShipNameRect.CenterX() - font.TextWidth(193) / 2f, eRect.Y - font.LineSpacing + 28);
+                SortName.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(193), font.LineSpacing);
                 
-                SortName.Draw(ScreenManager, Fonts.Arial20Bold);
+                SortName.Draw(ScreenManager, font);
                 
-                cursor = new Vector2(e1.RoleRect.CenterX() - Fonts.Arial20Bold.TextWidth(194) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
-                SortRole.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(194), Fonts.Arial20Bold.LineSpacing);					
-                SortRole.Draw(ScreenManager, Fonts.Arial20Bold);
+                cursor = new Vector2(e1.RoleRect.CenterX() - font.TextWidth(194) / 2f, eRect.Y - font.LineSpacing + 28);
+                SortRole.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(194), font.LineSpacing);					
+                SortRole.Draw(ScreenManager, font);
 
-                cursor = new Vector2(e1.OrdersRect.CenterX() - Fonts.Arial20Bold.TextWidth(195) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 30);
-                SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(195), Fonts.Arial20Bold.LineSpacing);
-                SortOrder.Draw(ScreenManager, Fonts.Arial20Bold);
+                cursor = new Vector2(e1.OrdersRect.CenterX() - font.TextWidth(195) / 2f, eRect.Y - font.LineSpacing + 30);
+                SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(195), font.LineSpacing);
+                SortOrder.Draw(ScreenManager, font);
 
                 STRIconRect = new Rectangle(e1.STRRect.X + e1.STRRect.Width / 2 - 6, eRect.Y - 18 + 30, 18, 18);
                 SB_STR.rect = STRIconRect;

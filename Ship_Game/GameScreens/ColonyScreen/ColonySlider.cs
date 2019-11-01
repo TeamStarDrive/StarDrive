@@ -44,8 +44,8 @@ namespace Ship_Game
         public bool IsCrippled; // PRODUCTION resource: are we crippled?
         public bool IsInvasion; // PRODUCTION resource: invasion leaves us crippled as well?
 
-        public ColonySlider(UIElementV2 parent, ColonyResType type, Planet p, int x, int y, int width, bool drawIcons = true)
-            : base(parent, new Rectangle(x, y, width, 6))
+        public ColonySlider(ColonyResType type, Planet p, int x, int y, int width, bool drawIcons = true)
+            : base(new Rectangle(x, y, width, 6))
         {
             Type = type;
             P = p;

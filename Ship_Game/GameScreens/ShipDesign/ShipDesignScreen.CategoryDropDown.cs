@@ -6,10 +6,10 @@ namespace Ship_Game
 {
     public sealed partial class ShipDesignScreen
     {
-        private class CategoryDropDown : DropOptions<ShipData.Category>
-        {            
-            public CategoryDropDown(UIElementV2 parent, Rectangle dropdownRect) : base(parent, dropdownRect)
-            {                
+        class CategoryDropDown : DropOptions<ShipData.Category>
+        {
+            public CategoryDropDown(in Rectangle dropdownRect) : base(dropdownRect)
+            {
             }
             public override bool HandleInput(InputState input)
             {

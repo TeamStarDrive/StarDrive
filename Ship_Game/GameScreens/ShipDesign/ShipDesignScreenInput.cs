@@ -830,17 +830,17 @@ namespace Ship_Game
 
             var dropdownRect = new Rectangle((int)(ScreenWidth * 0.375f), (int)ClassifCursor.Y + 25, 125, 18);
 
-            CategoryList = new CategoryDropDown(this, dropdownRect);
+            CategoryList = new CategoryDropDown(dropdownRect);
             foreach (ShipData.Category item in Enum.GetValues(typeof(ShipData.Category)).Cast<ShipData.Category>())
                 CategoryList.AddOption(item.ToString(), item);
 
             var hangarRect = new Rectangle((int)(ScreenWidth * 0.65f), (int)ClassifCursor.Y + 25, 150, 18);
-            HangarOptionsList = new HangarDesignationDropDown(this, hangarRect);
+            HangarOptionsList = new HangarDesignationDropDown(hangarRect);
             foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
                 HangarOptionsList.AddOption(item.ToString(), item);
 
             var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.15f), (int)ClassifCursor.Y + 50, 150, 18);
-            ShieldsBehaviorList = new ShieldBehaviorDropDown(this, behaviorRect);
+            ShieldsBehaviorList = new ShieldBehaviorDropDown(behaviorRect);
             foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
                 ShieldsBehaviorList.AddOption(item.ToString(), item);
                 

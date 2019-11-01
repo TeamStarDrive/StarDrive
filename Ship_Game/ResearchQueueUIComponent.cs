@@ -16,7 +16,7 @@ namespace Ship_Game
         readonly ScrollList<ResearchQItem> ResearchQueueList;
         readonly UIButton BtnShowQueue;
 
-        public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
+        public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(container, Color.Black)
         {
             Screen = screen;
 

@@ -34,13 +34,13 @@ namespace Ship_Game
         protected UIElementContainer()
         {
         }
-        protected UIElementContainer(UIElementV2 parent, Vector2 pos) : base(parent, pos)
+        protected UIElementContainer(in Vector2 pos) : base(pos)
         {
         }
-        protected UIElementContainer(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size)
+        protected UIElementContainer(in Vector2 pos, in Vector2 size) : base(pos, size)
         {
         }
-        protected UIElementContainer(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
+        protected UIElementContainer(in Rectangle rect) : base(rect)
         {
         }
 
@@ -239,7 +239,7 @@ namespace Ship_Game
             => Add(new UIButton(pos, text));
 
         public UIButton ButtonMediumMenu(float x, float y, LocalizedText text)
-            => Add(new UIButton(this, ButtonStyle.MediumMenu, new Vector2(x, y), text));
+            => Add(new UIButton(ButtonStyle.MediumMenu, new Vector2(x, y), text));
 
         // @note CloseButton automatically calls ExitScreen() on this screen
         public CloseButton CloseButton(float x, float y) => Add(new CloseButton(x, y));
@@ -258,7 +258,7 @@ namespace Ship_Game
 
 
         public UIButton Button(ButtonStyle style, Vector2 pos, LocalizedText text, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(this, style, pos, text), click, clickSfx);
+            => Button(new UIButton(style, pos, text), click, clickSfx);
 
 
         public UIButton Button(ButtonStyle style, float x, float y, LocalizedText text, Action<UIButton> click, string clickSfx = null)
@@ -266,7 +266,7 @@ namespace Ship_Game
 
 
         public UIButton Button(ButtonStyle style, in Rectangle rect, Action<UIButton> click, string clickSfx = null)
-            => Button(new UIButton(this, style, rect), click, clickSfx);
+            => Button(new UIButton(style, rect), click, clickSfx);
 
 
         public UIButton Button(float x, float y, LocalizedText text, Action<UIButton> click)
@@ -304,10 +304,10 @@ namespace Ship_Game
 
 
         public FloatSlider Slider(Rectangle rect, string text, float min, float max, float value)
-            => Add(new FloatSlider(this, rect, text, min, max, value));
+            => Add(new FloatSlider(rect, text, min, max, value));
 
         public FloatSlider SliderPercent(Rectangle rect, string text, float min, float max, float value)
-            => Add(new FloatSlider(this, SliderStyle.Percent, rect, text, min, max, value));
+            => Add(new FloatSlider(SliderStyle.Percent, rect, text, min, max, value));
 
         public FloatSlider Slider(int x, int y, int w, int h, string text, float min, float max, float value)
             => Slider(new Rectangle(x, y, w, h), text, min, max, value);
@@ -318,33 +318,28 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UILabel Label(Vector2 pos, string text) => Add(new UILabel(this, pos, text));
-        public UILabel Label(Vector2 pos, int titleId) => Add(new UILabel(this, pos, titleId));
-        public UILabel Label(Vector2 pos, string text, SpriteFont font) => Add(new UILabel(this, pos, text, font));
-        public UILabel Label(Vector2 pos, int titleId, SpriteFont font) => Add(new UILabel(this, pos, titleId, font));
-        public UILabel Label(Vector2 pos, string text, SpriteFont font, Color color) => Add(new UILabel(this, pos, text, font,color));
-        public UILabel Label(Vector2 pos, int titleId, SpriteFont font, Color color) => Add(new UILabel(this, pos, titleId, font, color));
+        public UILabel Label(Vector2 pos, LocalizedText text) => Add(new UILabel(pos, text));
+        public UILabel Label(Vector2 pos, LocalizedText text, SpriteFont font) => Add(new UILabel(pos, text, font));
+        public UILabel Label(Vector2 pos, LocalizedText text, SpriteFont font, Color color) => Add(new UILabel(pos, text, font,color));
 
-        public UILabel Label(float x, float y, string text) => Label(new Vector2(x, y), text);
-        public UILabel Label(float x, float y, int titleId) => Label(new Vector2(x, y), titleId);
-        public UILabel Label(float x, float y, string text, SpriteFont font) => Label(new Vector2(x, y), text, font);
-        public UILabel Label(float x, float y, int titleId, SpriteFont font) => Label(new Vector2(x, y), titleId, font);
+        public UILabel Label(float x, float y, LocalizedText text) => Label(new Vector2(x, y), text);
+        public UILabel Label(float x, float y, LocalizedText text, SpriteFont font) => Label(new Vector2(x, y), text, font);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
         public UIPanel Panel(in Rectangle r, Color c, DrawableSprite s = null)
-            => Add(new UIPanel(this, r, c, s));
+            => Add(new UIPanel(r, c, s));
 
         public UIPanel Panel(in Rectangle r, Color c, SubTexture s)
             => Panel(r, c, new DrawableSprite(s));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UIList AddList(Vector2 pos, Vector2 size) => Add(new UIList(this, pos, size));
+        public UIList AddList(Vector2 pos, Vector2 size) => Add(new UIList(pos, size));
 
         public UIList AddList(Vector2 pos)
         {
-            UIList list = Add(new UIList(this, pos, new Vector2(100f, 100f)));
+            UIList list = Add(new UIList(pos, new Vector2(100f, 100f)));
             list.LayoutStyle = ListLayoutStyle.Resize;
             return list;
         }
