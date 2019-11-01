@@ -54,7 +54,7 @@ namespace Ship_Game
 
             GridHeight = (main.Height - 40) / numDiscoveredRoots;
             MainMenuOffset.Y = main.Y + GridHeight / 3;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
+            if (ScreenHeight <= 720)
             {
                 MainMenuOffset.Y = MainMenuOffset.Y + 8f;
             }

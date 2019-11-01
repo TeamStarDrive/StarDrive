@@ -70,7 +70,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            var shipDesignsRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 140, 100, 280, 500);
+            var shipDesignsRect = new Rectangle(ScreenWidth / 2 - 140, 100, 280, 500);
             sub_ships = new Submenu(shipDesignsRect);
             RefitShipList = new ScrollList<RefitShipListItem>(sub_ships, 40);
             sub_ships.AddTab("Refit to...");

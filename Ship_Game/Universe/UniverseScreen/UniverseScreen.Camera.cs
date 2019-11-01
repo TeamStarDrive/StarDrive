@@ -10,10 +10,10 @@ namespace Ship_Game
         private Vector2 CalculateCameraPositionOnMouseZoom(Vector2 MousePosition, float DesiredCamHeight)
         {
             Vector2 vector2_1 = new Vector2(
-                MousePosition.X - ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth /
+                MousePosition.X - ScreenWidth /
                 2,
                 MousePosition.Y -
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2);
+                ScreenHeight / 2);
             Vector3 position1 = Viewport.Unproject(
                 new Vector3(MousePosition.X, MousePosition.Y, 0.0f), Projection, this.View, Matrix.Identity);
             Vector3 direction1 =

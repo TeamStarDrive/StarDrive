@@ -102,7 +102,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
+            Window = new Rectangle(ScreenWidth / 2 - 300, ScreenHeight / 2 - 300, 600, 600);
             SaveMenu = new Menu1(Window);
             CloseButton(Window.X + Window.Width - 35, Window.Y + 10);
 

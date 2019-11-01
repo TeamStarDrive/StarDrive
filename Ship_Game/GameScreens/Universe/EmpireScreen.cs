@@ -50,27 +50,27 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
             IsPopup = true;
             eui = empUI;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
+            if (ScreenWidth <= 1280)
             {
                 //LowRes = true;
             }
 
             Rectangle titleRect = new Rectangle(2, 44,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
+                ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(
                 titleRect.X + titleRect.Width / 2 -
                 Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f,
                 titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight -
+                ScreenWidth - 10,
+                ScreenHeight -
                 (titleRect.Y + titleRect.Height) - 7);
             Add(new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20));
             EMenu = new Menu2(leftRect);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25,
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40,
-                (int) (0.66f * (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight -
+                ScreenWidth - 40,
+                (int) (0.66f * (ScreenHeight -
                                 (titleRect.Y + titleRect.Height) - 7)));
             while (eRect.Height % 80 != 0)
             {
@@ -122,7 +122,7 @@ namespace Ship_Game
             Color TextColor = new Color(118, 102, 67, 50);
             ColoniesList.Draw(batch);
             ColoniesListItem e1 = ColoniesList.FirstItem;
-            Rectangle PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 0.3f), ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - eRect.Y - eRect.Height - 22);
+            Rectangle PlanetInfoRect = new Rectangle(eRect.X + 22, eRect.Y + eRect.Height, (int)(ScreenWidth * 0.3f), ScreenHeight - eRect.Y - eRect.Height - 22);
             int iconSize = PlanetInfoRect.X + PlanetInfoRect.Height - (int)((PlanetInfoRect.X + PlanetInfoRect.Height) * 0.4f);
             Rectangle PlanetIconRect = new Rectangle(PlanetInfoRect.X + 10, PlanetInfoRect.Y + PlanetInfoRect.Height / 2 - iconSize / 2, iconSize, iconSize);
             batch.Draw(SelectedPlanet.PlanetTexture, PlanetIconRect, Color.White);
@@ -167,7 +167,7 @@ namespace Ship_Game
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
             string text = Fonts.Arial12Bold.ParseText(SelectedPlanet.Description, PlanetInfoRect.Width - PlanetIconRect.Width + 15);
-            if (Fonts.Arial12Bold.MeasureString(text).Y + PNameCursor.Y <= ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 20)
+            if (Fonts.Arial12Bold.MeasureString(text).Y + PNameCursor.Y <= ScreenHeight - 20)
             {
                 batch.DrawString(Fonts.Arial12Bold, text, PNameCursor, Color.White);
             }
@@ -220,8 +220,8 @@ namespace Ship_Game
             }
             batch.Draw(ResourceManager.Texture("PlanetTiles/"+SelectedPlanet.PlanetTileId), buildingsRect, Color.White);
     
-            int xpos = (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - MapRect.Width) / 2;
-            int ypos = (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - MapRect.Height) / 2;
+            int xpos = (ScreenWidth - MapRect.Width) / 2;
+            int ypos = (ScreenHeight - MapRect.Height) / 2;
             Rectangle rectangle = new Rectangle(xpos, ypos, MapRect.Width, MapRect.Height);
             batch.DrawRectangle(MapRect, new Color(118, 102, 67, 255));
             Rectangle GovernorRect = new Rectangle(MapRect.X + MapRect.Width, MapRect.Y, e1.TotalEntrySize.X + e1.TotalEntrySize.Width - (MapRect.X + MapRect.Width), MapRect.Height);
@@ -395,7 +395,7 @@ namespace Ship_Game
             leftBot = new Vector2(e1.TotalEntrySize.X, eRect.Y + 35);
             botSL = new Vector2(topLeftSL.X, eRect.Y + 35);
             batch.DrawLine(leftBot, botSL, lineColor);
-            Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
+            Vector2 pos = new Vector2(ScreenWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
             base.Draw(batch);
             batch.End();

@@ -110,7 +110,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public override void LoadContent()
         {
-            Window              = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 250, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 500, 600);
+            Window              = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
             loadMenu            = new Menu1(Window);
             Rectangle sub       = new Rectangle(Window.X + 20, Window.Y + 60, Window.Width - 40, Window.Height - 80);
             SaveShips           = new Submenu(sub);

@@ -47,7 +47,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Window = new Rectangle(0, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 400, 600);
+            Window = new Rectangle(0, ScreenHeight / 2 - 300, 400, 600);
             var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             var scrollList = new Rectangle(sub.X, sub.Y, sub.Width, Window.Height - 45);
 

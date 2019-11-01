@@ -422,7 +422,7 @@ namespace Ship_Game
             }
             float univSizeOnScreen = 10f;
             MaxCamHeight = 4E+07f;
-            while (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
+            while (univSizeOnScreen < (ScreenWidth + 50))
             {
                 float univRadius = UniverseSize / 2f;
                 Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
@@ -431,7 +431,7 @@ namespace Ship_Game
                 Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
                 Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
                 univSizeOnScreen = univBotRight.X - univTopLeft.X;
-                if (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
+                if (univSizeOnScreen < (ScreenWidth + 50))
                     MaxCamHeight -= 0.1f * MaxCamHeight;
             }
             if (MaxCamHeight > 23000000)

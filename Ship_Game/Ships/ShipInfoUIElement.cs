@@ -104,8 +104,7 @@ namespace Ship_Game.Ships
             };
             ToolTipItems.Add(ti);
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
-            int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            Vector2 gridRect = new Vector2(Housing.X + 16, screenHeight - 45);
+            Vector2 gridRect = new Vector2(Housing.X + 16, Screen.ScreenHeight - 45);
             GridButton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
                 Enabled = true
