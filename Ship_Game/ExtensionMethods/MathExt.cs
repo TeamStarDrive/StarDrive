@@ -192,9 +192,15 @@ namespace Ship_Game
         public static Rectangle Bevel(this Rectangle r, int bevelX, int bevelY)
             => new Rectangle(r.X - bevelX, r.Y - bevelY, r.Width + bevelX*2, r.Height + bevelY*2);
 
-
         public static Rectangle Widen(this Rectangle r, int widen)
             => new Rectangle(r.X - widen, r.Y, r.Width + widen*2, r.Height);
+
+        public static Rectangle Move(this Rectangle r, int dx, int dy)
+            => new Rectangle(r.X + dx, r.Y + dy, r.Width, r.Height);
+
+        // Cut a chunk off the top of the rectangle
+        public static Rectangle CutTop(this Rectangle r, int amount)
+            => new Rectangle(r.X, r.Y + amount, r.Width, r.Height - amount);
 
         public static Rectangle ScaledBy(this Rectangle r, float scale)
         {
