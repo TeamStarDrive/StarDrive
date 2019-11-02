@@ -74,9 +74,10 @@ namespace Ship_Game
                 }
             }
 
-            if (!ConstructionQueue.AllEntries.EqualElements(P.ConstructionQueue))
+            if (!ConstructionQueue.AllEntries.Select(item => item.Item).EqualElements(P.ConstructionQueue))
             {
-                ConstructionQueue.SetItems(P.ConstructionQueue);
+                var newItems = P.ConstructionQueue.Select(qi => new ConstructionQueueScrollListItem(qi));
+                ConstructionQueue.SetItems(newItems);
             }
 
             ResetBuildableList = false;
