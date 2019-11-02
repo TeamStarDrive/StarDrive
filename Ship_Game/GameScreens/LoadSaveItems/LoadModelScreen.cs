@@ -16,8 +16,6 @@ namespace Ship_Game
     {
         ShipToolScreen Screen;
         Rectangle Window;
-        Menu1 SaveMenu;
-        Submenu AllSaves;
         ScrollList<LoadModelListItem> SavesSL;
         FileInfo activeFile;
 
@@ -51,11 +49,11 @@ namespace Ship_Game
             var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             var scrollList = new Rectangle(sub.X, sub.Y, sub.Width, Window.Height - 45);
 
-            SaveMenu = new Menu1(Window);
-            AllSaves = new Submenu(scrollList);
-            AllSaves.AddTab("Load Model");
+            var allSaves = new Submenu(scrollList);
+            allSaves.Background = new Menu1(Window);
+            allSaves.AddTab("Load Model");
 
-            SavesSL = new ScrollList<LoadModelListItem>(AllSaves, 55);
+            SavesSL = Add(new ScrollList<LoadModelListItem>(allSaves, 55));
             SavesSL.OnClick = OnLoadModelClicked;
             SavesSL.AddItem(new LoadModelListItem("XNB Models"));
             SavesSL.AddItem(new LoadModelListItem("OBJ Models"));
@@ -87,9 +85,6 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
-            SaveMenu.Draw(batch);
-            AllSaves.Draw(batch);
-            SavesSL.Draw(batch);
             base.Draw(batch);
             batch.End();
         }
