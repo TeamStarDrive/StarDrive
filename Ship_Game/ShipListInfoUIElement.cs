@@ -59,7 +59,7 @@ namespace Ship_Game
             var gridPos = new Vector2(Housing.X + 16f, Screen.Height - 45f);
             GridButton = new ToggleButton(gridPos, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
-                Enabled = true
+                Pressed = true
             };
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
 
@@ -231,7 +231,7 @@ namespace Ship_Game
             {
                 GameAudio.AcceptClick();
                 ShowModules = !ShowModules;
-                GridButton.Enabled = ShowModules;
+                GridButton.Pressed = ShowModules;
                 return true;
             }
 
@@ -239,7 +239,7 @@ namespace Ship_Game
             {
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
-                    button.Enabled = ShipList.All(ship => ship.AI.CombatState == button.CombatState);
+                    button.Pressed = ShipList.All(ship => ship.AI.CombatState == button.CombatState);
                 }
 
                 foreach (ToggleButton button in CombatStatusButtons)

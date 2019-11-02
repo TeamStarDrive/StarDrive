@@ -75,7 +75,7 @@ namespace Ship_Game
         void OnOrderButtonClicked(ToggleButton b, CombatState state)
         {
             foreach (ToggleButton other in OrdersButtons) // disable others
-                if (other != b) other.Pressed = false;
+                if (other != b) other.IsToggled = false;
 
             foreach (FleetDataNode node in SelectedNodeList)
             {
@@ -700,7 +700,7 @@ namespace Ship_Game
             foreach (ToggleButton button in OrdersButtons)
             {
                 button.Visible = SelectedNodeList.Count > 0;
-                button.Pressed = false;
+                button.IsToggled = false;
             }
 
             // mark combined combat state statuses
@@ -708,7 +708,7 @@ namespace Ship_Game
             {
                 foreach (ToggleButton button in OrdersButtons)
                 {
-                    button.Pressed |= (fleetNode.CombatState == button.CombatState);
+                    button.IsToggled |= (fleetNode.CombatState == button.CombatState);
                 }
             }
         }

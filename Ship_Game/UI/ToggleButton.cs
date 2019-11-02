@@ -138,10 +138,12 @@ namespace Ship_Game
     // TODO: Replace with UIButton
     public class ToggleButton : UIElementV2
     {
+        // If TRUE, this ToggleButton is Toggled Active [x], if false, it is inactive [ ]
+        public bool IsToggled;
+
         // user defined metadata
         public CombatState CombatState; // TODO Move this somewhere else
         public bool Hover;
-        public bool Pressed;
         bool WasClicked; // purely visual
 
         public ToolTipText Tooltip;
@@ -156,7 +158,7 @@ namespace Ship_Game
 
         public Action<ToggleButton> OnClick;
 
-        public override string ToString() => $"{TypeName} [{(Pressed?"x":" ")}] {ElementDescr} Icon:{IconPath} Status:{CombatState}";
+        public override string ToString() => $"{TypeName} [{(IsToggled?"x":" ")}] {ElementDescr} Icon:{IconPath} Status:{CombatState}";
 
         public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "")
         {
@@ -222,7 +224,7 @@ namespace Ship_Game
                 WasClicked = false;
                 batch.Draw(Style.Press, Rect, Color.White);
             }
-            if (Pressed)
+            if (IsToggled)
             {
                 batch.Draw(Style.Active, Rect, Color.White);
             }
@@ -237,7 +239,7 @@ namespace Ship_Game
 
             if (IconTexture == null)
             {
-                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Enabled ? Color.White : Color.Gray);
+                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, IsToggled ? Color.White : Color.Gray);
             }
             else
             {
@@ -265,7 +267,7 @@ namespace Ship_Game
                 if (input.LeftMouseClick)
                 {
                     GameAudio.AcceptClick();
-                    Pressed = !Pressed;
+                    IsToggled = !IsToggled;
                     WasClicked = true;
                     OnClick?.Invoke(this);
                     return true;
