@@ -9,12 +9,10 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public sealed class DeepSpaceBuildingWindow
+    public sealed class DeepSpaceBuildingWindow : UIElementContainer
     {
+        readonly UniverseScreen Screen;
         ScrollList<ConstructionListItem> SL;
-        Submenu ConstructionSubMenu;
-        UniverseScreen screen;
-        Rectangle win;
         public Ship itemToBuild;
         Vector2 TetherOffset;
         Guid TargetPlanet = Guid.Empty;
@@ -22,14 +20,16 @@ namespace Ship_Game
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
         {
-            this.screen = screen;
-
+            Screen = screen;
             const int windowWidth = 320;
-            win = new Rectangle(screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 225);
-            ConstructionSubMenu = new Submenu(win);
-            ConstructionSubMenu.AddTab("Build Menu");
-            SL = new ScrollList<ConstructionListItem>(ConstructionSubMenu, 40);
+            Rect = new Rectangle(screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 225);
+
+            var background = new Submenu(Rect);
+            background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
+            background.AddTab("Build Menu");
+            SL = Add(new ScrollList<ConstructionListItem>(background, 40));
             SL.OnClick = (item) => { itemToBuild = item.Ship; };
+            SL.EnableItemHighlight = true;
 
             //The Doctor: Ensure Projector is always the first entry on the DSBW list so that the player never has to scroll to find it.
             foreach (string s in EmpireManager.Player.structuresWeCanBuild)
@@ -60,54 +60,70 @@ namespace Ship_Game
                 SubTexture projector = ResourceManager.Texture("ShipIcons/subspace_projector");
                 SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
 
-                batch.Draw(Ship.IsSubspaceProjector ? projector 
-                          : Ship.shipData.Icon, new Rectangle((int) X, (int) Y, 29, 30), Color.White);
+                SubTexture icon = Ship.IsSubspaceProjector ? projector : Ship.shipData.Icon;
+                float iconSize = Height;
+                batch.Draw(icon, new Vector2(X, Y), new Vector2(iconSize));
+          
+                batch.DrawString(Fonts.Arial10, Ship.Name, X+iconSize+2, Y+4);
+                batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), X+iconSize+2, Y+18, Color.Orange);
 
-                var tCursor = new Vector2(X + 40f, Y + 3f);
-                batch.DrawString(Fonts.Arial10, Ship.Name, tCursor, Color.White);
-                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                batch.DrawString(Fonts.Arial8Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
-                
-                var prodiconRect = new Rectangle((int)tCursor.X + 200, (int)tCursor.Y - Fonts.Arial12Bold.LineSpacing, iconProd.Width, iconProd.Height);
-                batch.Draw(iconProd, prodiconRect, Color.White);
-
-                tCursor = new Vector2(prodiconRect.X - 60, prodiconRect.CenterY() - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial8Bold, Ship.GetMaintCost(EmpireManager.Player).ToString("F2")+" BC/Y", tCursor, Color.Salmon);
-
-                tCursor = new Vector2(prodiconRect.X + 26, prodiconRect.Y + prodiconRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, Ship.GetCost(EmpireManager.Player).ToString("F2"), tCursor, Color.White);
+                float prodX = Right - 120;
+                batch.DrawString(Fonts.Arial8Bold, Ship.GetMaintCost(EmpireManager.Player).String(2)+" BC/Y", prodX, Y+4, Color.Salmon); // Maintenance Cost
+                batch.Draw(iconProd, new Vector2(prodX+50, Y+4), iconProd.SizeF); // Production Icon
+                batch.DrawString(Fonts.Arial12Bold, Ship.GetCost(EmpireManager.Player).String(1), prodX+50+iconProd.Width+2, Y+4); // Build Production Cost
             }
         }
 
-        public bool HandleInput(InputState input)
+        public override bool HandleInput(InputState input)
         {
-            if (SL.HandleInput(input))
+            // only capture input from window UI if we haven't made a selection
+            if (itemToBuild == null)
+            {
+                return base.HandleInput(input);
+            }
+
+            // we have itemToBuild, so we are in placement mode
+
+            bool hovered = Rect.HitTest(input.CursorPosition);
+            if (hovered) // disallow input while in placement and hovering our window
                 return true;
 
-            if (itemToBuild == null || win.HitTest(input.CursorPosition) || input.MouseCurr.LeftButton != ButtonState.Pressed || input.MousePrev.LeftButton != ButtonState.Released)
+            // right mouse click, we cancel the placement mode
+            if (input.RightMouseClick)
             {
-                if (input.RightMouseClick)
-                {
-                    itemToBuild = null;
-                }
-                if (!ConstructionSubMenu.HitTest(input.CursorPosition) || !input.RightMouseClick)
-                {
-                    return false;
-                }
-                screen.showingDSBW = false;
+                itemToBuild = null;
                 return true;
             }
 
-            Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0f), screen.Projection, screen.View, Matrix.Identity);
-            Vector3 farPoint = screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f), screen.Projection, screen.View, Matrix.Identity);
-            Vector3 direction = farPoint - nearPoint;
-            direction.Normalize();
-            Ray pickRay = new Ray(nearPoint, direction);
+            // left mouse clicked while not hovering our window? place it!
+            if (input.LeftMouseClick)
+            {
+                TryPlaceBuildable(input);
+
+                if (input.IsShiftKeyDown) // if we hold down shift, continue placing next frame
+                    return true;
+
+                itemToBuild = null;
+                return true;
+            }
+
+            return false;
+        }
+
+        void TryPlaceBuildable(InputState input)
+        {
+            Vector3 nearPoint = Screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 0f),
+                Screen.Projection, Screen.View, Matrix.Identity);
+            Vector3 farPoint = Screen.Viewport.Unproject(new Vector3(input.MouseCurr.X, input.MouseCurr.Y, 1f),
+                Screen.Projection, Screen.View, Matrix.Identity);
+            var pickRay = new Ray(nearPoint, nearPoint.DirectionToTarget(farPoint));
             float k = -pickRay.Position.Z / pickRay.Direction.Z;
-            Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
+            var pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X,
+                pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
 
             bool okToBuild = TargetPlanet == Guid.Empty
-                              || TargetPlanet != Guid.Empty && !Empire.Universe.PlanetsDict[TargetPlanet].IsOutOfOrbitalsLimit(itemToBuild);
+                             || TargetPlanet != Guid.Empty &&
+                             !Empire.Universe.PlanetsDict[TargetPlanet].IsOutOfOrbitalsLimit(itemToBuild);
 
             if (okToBuild)
             {
@@ -123,35 +139,20 @@ namespace Ship_Game
             }
             else
                 GameAudio.NegativeClick();
-            
-            lock (GlobalStats.ClickableItemLocker)
-            {
-                screen.UpdateClickableItems();
-            }
-            if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && (!input.KeysCurr.IsKeyDown(Keys.RightShift)))
-            {
-                itemToBuild = null;
-            }
-            return true;
+
+            Screen.UpdateClickableItems();
         }
 
-        public void Draw(SpriteBatch batch)
+        public override void Draw(SpriteBatch batch)
         {
-            Rectangle r = ConstructionSubMenu.Rect;
-            r.Y += 25;
-            r.Height -= 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-
-            sel.Draw(batch);
-            ConstructionSubMenu.Draw(batch);
-            SL.Draw(batch);
+            base.Draw(batch);
 
             if (itemToBuild != null)
             {
                 var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
                 float scale = (float)itemToBuild.SurfaceArea / platform.Width;
                 Vector2 IconOrigin = new Vector2((platform.Width / 2f), (platform.Width / 2f));
-                scale = scale * 4000f / screen.CamHeight;
+                scale = scale * 4000f / Screen.CamHeight;
                 if (scale > 1f)
                 {
                     scale = 1f;
@@ -161,8 +162,8 @@ namespace Ship_Game
                     scale = 0.15f;
                 }
 
-                Vector3 nearPoint = screen.Viewport.Unproject(new Vector3(screen.Input.CursorPosition, 0f), screen.Projection, screen.View, Matrix.Identity);
-                Vector3 farPoint = screen.Viewport.Unproject(new Vector3(screen.Input.CursorPosition, 1f), screen.Projection, screen.View, Matrix.Identity);
+                Vector3 nearPoint = Screen.Viewport.Unproject(new Vector3(Screen.Input.CursorPosition, 0f), Screen.Projection, Screen.View, Matrix.Identity);
+                Vector3 farPoint = Screen.Viewport.Unproject(new Vector3(Screen.Input.CursorPosition, 1f), Screen.Projection, Screen.View, Matrix.Identity);
                 Vector3 direction = farPoint - nearPoint;
                 direction.Normalize();
                 Ray pickRay = new Ray(nearPoint, direction);
@@ -173,7 +174,7 @@ namespace Ship_Game
                 TetherOffset = Vector2.Zero;
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    foreach (UniverseScreen.ClickablePlanets p in screen.ClickPlanetList)
+                    foreach (UniverseScreen.ClickablePlanets p in Screen.ClickPlanetList)
                     {
                         if (Vector2.Distance(p.planetToClick.Center, pp) > (2500f * p.planetToClick.Scale))
                         {
@@ -181,12 +182,12 @@ namespace Ship_Game
                         }
                         TetherOffset = pp - p.planetToClick.Center;
                         TargetPlanet = p.planetToClick.guid;
-                        batch.DrawLine(p.ScreenPos, screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
+                        batch.DrawLine(p.ScreenPos, Screen.Input.CursorPosition, new Color(255, 165, 0, 150), 3f);
                         batch.DrawString(Fonts.Arial20Bold, "Will Orbit "+p.planetToClick.Name,
-                            new Vector2(screen.Input.CursorX, screen.Input.CursorY + 34f), Color.White);
+                            new Vector2(Screen.Input.CursorX, Screen.Input.CursorY + 34f), Color.White);
                     }
                 }
-                batch.Draw(platform, screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
         }
     }
