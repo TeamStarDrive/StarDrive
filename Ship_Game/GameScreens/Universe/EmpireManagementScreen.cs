@@ -229,17 +229,21 @@ namespace Ship_Game
             topLeftSL = new Vector2(e1.QueueRect.X, eRect.Y + 35);
             botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
             batch.DrawLine(topLeftSL, botSL, lineColor);
-            topLeftSL = new Vector2(e1.TotalEntrySize.X, eRect.Y + 35);
+
+            topLeftSL = new Vector2(e1.X, eRect.Y + 35);
             botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
-            batch.DrawLine(topLeftSL, botSL, lineColor);
-            topLeftSL = new Vector2(e1.TotalEntrySize.X + e1.TotalEntrySize.Width, eRect.Y + 35);
+            batch.DrawLine(topLeftSL, botSL, Color.Red);
+
+            topLeftSL = new Vector2(e1.Right, eRect.Y + 35);
             botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
-            batch.DrawLine(topLeftSL, botSL, lineColor);
-            var leftBot = new Vector2(e1.TotalEntrySize.X, PlanetInfoRect.Y);
-            batch.DrawLine(leftBot, botSL, lineColor);
-            leftBot = new Vector2(e1.TotalEntrySize.X, eRect.Y + 35);
+            batch.DrawLine(topLeftSL, botSL, Color.Magenta);
+
+            var leftBot = new Vector2(e1.X, PlanetInfoRect.Y);
+            batch.DrawLine(leftBot, botSL, Color.Blue);
+            leftBot = new Vector2(e1.X, eRect.Y + 35);
             botSL = new Vector2(topLeftSL.X, eRect.Y + 35);
-            batch.DrawLine(leftBot, botSL, lineColor);
+            batch.DrawLine(leftBot, botSL, Color.Red);
+
             var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth("Paused") - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
             batch.End();

@@ -22,7 +22,8 @@ namespace Ship_Game
             Planet p, in Rectangle rect, bool governorVideo) : base(rect)
         {
             Screen = screen;
-            UseVideo = governorVideo;
+            // Memory usage is too intensive
+            UseVideo = false; // governorVideo;
             SetPlanetDetails(p);
         }
 
@@ -35,9 +36,10 @@ namespace Ship_Game
             Planet = p;
             RemoveAll(); // delete all components
 
+            // NOTE: Using RootContent here to avoid lag from resource unloading and reloading
             PortraitSprite = UseVideo && p.Owner.data.Traits.VideoPath.NotEmpty()
-                ? DrawableSprite.Video(Screen.TransientContent, p.Owner.data.Traits.VideoPath, looping:true)
-                : DrawableSprite.SubTex(Screen.TransientContent, $"Portraits/{Planet.Owner.data.PortraitName}");
+                ? DrawableSprite.Video(ResourceManager.RootContent, p.Owner.data.Traits.VideoPath, looping:true)
+                : DrawableSprite.SubTex(ResourceManager.RootContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
             Portrait  = Add(new UIPanel(PortraitSprite) {Border = Color.Orange});
             WorldType = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
