@@ -59,6 +59,7 @@ namespace Ship_Game
 
         void Initialize(Rectangle theMenu)
         {
+            theMenu.Height = System.Math.Max(12, theMenu.Height); // height must be at least 12px
             Rect = theMenu;
             int x = theMenu.X,     y = theMenu.Y;
             int w = theMenu.Width, h = theMenu.Height;
@@ -72,10 +73,10 @@ namespace Ship_Game
                     CornerTR = ResourceManager.Texture("NewUI/submenu_corner_TR"),
                     CornerBL = ResourceManager.Texture("NewUI/submenu_corner_BL"),
                     CornerBR = ResourceManager.Texture("NewUI/submenu_corner_BR"),
-                    RoundTL  = ResourceManager.Texture("NewUI/rounded_upperLeft"),
-                    RoundTR  = ResourceManager.Texture("NewUI/rounded_upperRight"),
-                    RoundBL  = ResourceManager.Texture("NewUI/rounded_lowerLeft"),
-                    RoundBR  = ResourceManager.Texture("NewUI/rounded_lowerRight"),
+                    RoundTL  = ResourceManager.Texture("NewUI/rounded_TL"),
+                    RoundTR  = ResourceManager.Texture("NewUI/rounded_TR"),
+                    RoundBL  = ResourceManager.Texture("NewUI/rounded_BL"),
+                    RoundBR  = ResourceManager.Texture("NewUI/rounded_BR"),
                     HoriVert = ResourceManager.Texture("NewUI/submenu_horiz_vert")
                 };
             }
@@ -92,27 +93,39 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
-            int x = (int)X,     y = (int)Y;
-            int w = (int)Width, h = (int)Height;
-            var upperleft  = new Rectangle(x, y, 24, 24);
-            var upperRight = new Rectangle(x + w - 24, y, 24, 24);
-            var lowerLeft  = new Rectangle(x, y + h - 24, 24, 24);
-            var lowerRight = new Rectangle(x + w - 24, y + h - 24, 24, 24);
-            var top        = new Rectangle(x + 24, y, w - 48, 24);
-            var bottom     = new Rectangle(x + 24, y + h - 24, w - 48, 24);
-            var right      = new Rectangle(x + w - 24, y + 24, 24, h - 48);
-            var left       = new Rectangle(x, y + 24, 24, h - 48);
-            var middle     = new Rectangle(x + 24, y + 24, w - 48, h - 48);
+            if (Fill.A > 0)
+            {
+                int x = (int)X,     y = (int)Y;
+                int w = (int)Width, h = (int)Height;
 
-            batch.Draw(Tex.RoundTL, upperleft,  Fill);
-            batch.Draw(Tex.RoundTR, upperRight, Fill);
-            batch.Draw(Tex.RoundBL, lowerLeft,  Fill);
-            batch.Draw(Tex.RoundBR, lowerRight, Fill);
-            batch.FillRectangle(top,    Fill);
-            batch.FillRectangle(bottom, Fill);
-            batch.FillRectangle(right,  Fill);
-            batch.FillRectangle(left,   Fill);
-            batch.FillRectangle(middle, Fill);
+                // fill Left, Middle, Right
+                //  ______________
+                // |__|        |__|
+                // |le|        |ri|
+                // |ft| middle |gt|
+                // |__|        |__|
+                // |__|________|__|
+                var middle = new Rectangle(x+8, y, w-16, h);
+                batch.FillRectangle(middle, Fill);
+                int h2 = BL.Top-TL.Bottom;
+                if (h2 > 0)
+                {
+                    var left   = new Rectangle(x,     TL.Bottom, 8, h2);
+                    var right  = new Rectangle(x+w-8, TL.Bottom, 8, h2);
+                    batch.FillRectangle(left, Fill);
+                    batch.FillRectangle(right, Fill);
+                }
+
+                // draw rounded TL, TR, BL, BR
+                //    ______
+                // (TL|    |TR)
+                // |          |
+                // (BL|____|BR)
+                batch.Draw(Tex.RoundTL, TL, Fill);
+                batch.Draw(Tex.RoundTR, TR, Fill);
+                batch.Draw(Tex.RoundBL, BL, Fill);
+                batch.Draw(Tex.RoundBR, BR, Fill);
+            }
 
             batch.Draw(Tex.HoriVert, HT, EdgeColor);
             batch.Draw(Tex.HoriVert, HB, EdgeColor);
