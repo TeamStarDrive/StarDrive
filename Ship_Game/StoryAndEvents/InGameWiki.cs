@@ -91,7 +91,11 @@ namespace Ship_Game
         void OnHelpCategoryClicked(WikiHelpCategoryListItem item)
         {
             if (item.Topic == null)
+            {
+                Player.Stop();
+                Player.Visible = false;
                 return;
+            }
 
             HelpEntries.Reset();
             ActiveTopic = item.Topic;
@@ -118,11 +122,13 @@ namespace Ship_Game
             if (ActiveTopic.VideoPath == null)
             {
                 Player.Stop();
+                Player.Visible = false;
             }
             else
             {
                 HelpEntries.Reset();
                 Player.PlayVideo(ActiveTopic.VideoPath, looping: false, startPaused: true);
+                Player.Visible = true;
             }
         }
         
