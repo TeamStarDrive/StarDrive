@@ -70,15 +70,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            bool captured = base.HandleInput(input);
-            if (Hovered)
-            {
-                if (Screen.ActiveBuildingEntry == null && Building != null && input.LeftMouseHeld(0.1f))
-                    Screen.ActiveBuildingEntry = this;
-
-                Screen.ShowSelectedShipOverlay(Pos, Ship);
-            }
-            return captured;
+            return base.HandleInput(input);
         }
 
         public override void Update(float deltaTime)
