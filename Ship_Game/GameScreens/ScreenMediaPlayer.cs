@@ -19,6 +19,8 @@ namespace Ship_Game.GameScreens
         readonly GameContentManager Content;
         Texture2D Frame; // last good frame, used for looping video transition delay
 
+        public bool Visible = true;
+
         /// <summary>
         /// Default display rectangle. Reset to video dimensions every time `PlayVideo` is called.
         /// </summary>
@@ -51,9 +53,13 @@ namespace Ship_Game.GameScreens
         // Stops audio and music, then disposes any graphics resources
         public void Dispose()
         {
-            Stop();
-            Video = null;
-            Player.Dispose();
+            if (Video != null) // avoid double dispose issue
+            {
+                Stop();
+                Video = null;
+            }
+            if (Player?.IsDisposed == false)
+                Player.Dispose();
         }
 
         public void PlayVideo(string videoPath, bool looping = true, bool startPaused = false)
@@ -155,6 +161,9 @@ namespace Ship_Game.GameScreens
         public bool HandleInput(InputState input)
         {
             IsHovered = false;
+            if (!Visible)
+                return false;
+
             if (EnableInteraction)
             {
                 IsHovered = Rect.HitTest(input.CursorPosition);
@@ -206,6 +215,13 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, Color color)
         {
+            if (!Visible)
+            {
+                if (IsPlaying)
+                    Stop();
+                return;
+            }
+
             if (Video != null && Player.State != MediaState.Stopped)
             {
                 // don't grab lo-fi default video thumbnail while video is looping around
