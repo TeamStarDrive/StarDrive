@@ -588,7 +588,7 @@ namespace Ship_Game
         void UpdateActiveCombatButton()
         {
             foreach (ToggleButton button in CombatStatusButtons)
-                button.Pressed = (ActiveHull.CombatState == button.CombatState);
+                button.IsToggled = (ActiveHull.CombatState == button.CombatState);
         }
 
         void OnCombatButtonPressed(CombatState state)
