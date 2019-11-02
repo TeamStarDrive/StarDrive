@@ -227,10 +227,11 @@ namespace Ship_Game
             }
 
             // Not hovering over any items? Clear the SelectionBox
-            if (!createdSelector && EnableItemHighlight)
+            if (!createdSelector && EnableItemHighlight && HighlightedIndex != -1 )
             {
                 HighlightedIndex = -1;
                 Highlight = null;
+                OnItemHovered(null); // no longer hovering on anything
             }
 
             return captured;

@@ -16,15 +16,10 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         bool ShowAllDesigns = true;
 
         readonly Ship_Game.ShipDesignScreen Screen;
-        Rectangle Window;
-        Vector2 TitlePosition;
 
-        Vector2 EnternamePos;
-        UITextEntry EnterNameArea = new UITextEntry();
-
-        Menu1 loadMenu;
-        Submenu SaveShips;
-        ScrollList<DesignListItem> ShipDesigns;
+        UITextEntry EnterNameArea;
+        ScrollList<DesignListItem> AvailableDesignsList;
+        ShipInfoOverlayComponent ShipInfoOverlay;
 
         public string ShipToDelete = "";
 
@@ -110,15 +105,16 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public override void LoadContent()
         {
-            Window              = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
-            loadMenu            = new Menu1(Window);
-            Rectangle sub       = new Rectangle(Window.X + 20, Window.Y + 60, Window.Width - 40, Window.Height - 80);
-            SaveShips           = new Submenu(sub);
-            SaveShips.AddTab(Localizer.Token(198));
-            ShipDesigns = new ScrollList<DesignListItem>(SaveShips);
-            ShipDesigns.OnClick = OnDesignListItemClicked;
-            TitlePosition       = new Vector2(Window.X + 20, Window.Y + 20);
-            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(SaveShips.Right - 44, SaveShips.Y)));
+            Rect = new Rectangle(ScreenWidth / 2 - 250, ScreenHeight / 2 - 300, 500, 600);
+            var background = new Submenu(X + 20, Y + 60, Width - 40, Height - 80);
+            background.Background = new Menu1(Rect);
+            background.AddTab(Localizer.Token(198));
+
+            AvailableDesignsList = Add(new ScrollList<DesignListItem>(background));
+            AvailableDesignsList.EnableItemHighlight = true;
+            AvailableDesignsList.OnClick = OnDesignListItemClicked;
+
+            PlayerDesignsToggle = Add(new PlayerDesignToggleButton(new Vector2(background.Right - 44, background.Y)));
             PlayerDesignsToggle.OnClick = p =>
             {
                 GameAudio.AcceptClick();
@@ -126,14 +122,19 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 PlayerDesignsToggle.Enabled = ShowAllDesigns;
                 ResetSL();
             };
-
+            
             PopulateEntries();
-            EnternamePos = TitlePosition;
-            EnterNameArea.Text = Localizer.Token(199);
-            ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, text:8, click: b =>
+            EnterNameArea = Add(new UITextEntry(new Vector2(X + 20, Y + 20), Localizer.Token(199)));
+            ButtonSmall(background.Right - 88, EnterNameArea.Y - 2, text:8, click: b =>
             {
                 LoadShipToScreen();
             });
+
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            AvailableDesignsList.OnHovered = (item) =>
+            {
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+            };
 
             base.LoadContent();
         }
@@ -158,19 +159,20 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 ExitScreen();
                 return true;
             }
-
-            if (ShipDesigns.HandleInput(input))
-                return true;
-
             return base.HandleInput(input);
         }
-        
+
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+        }
+
         void DeleteAccepted()
         {            
             GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[ShipToDelete].Deleted = true;
             ShipsToLoad.Clear();
-            ShipDesigns.Reset();
+            AvailableDesignsList.Reset();
             ResourceManager.DeleteShip(ShipToDelete);
             LoadContent();
         }
@@ -179,7 +181,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {
             GameAudio.EchoAffirmative();
             ShipsToLoad.Clear();
-            ShipDesigns.Reset();
+            AvailableDesignsList.Reset();
             ResourceManager.DeleteShip(ShipToDelete);
             LoadContent();
         }
@@ -188,10 +190,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();            
-            loadMenu.Draw(batch);
-            SaveShips.Draw(batch);
-            ShipDesigns.Draw(batch);
-            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Colors.Cream));
             base.Draw(batch);
             PlayerDesignsToggle.Draw(ScreenManager);
             batch.End();
@@ -233,7 +231,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
                     string headerText = Localizer.GetRole(Ship.Value.DesignRole, EmpireManager.Player);
                     shipRoles.Add(headerText);
-                    ShipDesigns.AddItem(new DesignListItem(this, headerText));
+                    AvailableDesignsList.AddItem(new DesignListItem(this, headerText));
                 }
                 catch
                 {
@@ -244,7 +242,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             if (WIPs.Count > 0)
             {
                 shipRoles.Add("WIP");
-                ShipDesigns.AddItem(new DesignListItem(this, "WIP"));
+                AvailableDesignsList.AddItem(new DesignListItem(this, "WIP"));
             }
 
             KeyValuePair<string, Ship>[] ships = ResourceManager.ShipsDict
@@ -255,7 +253,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 .ThenBy(kv => kv.Value.Name)
                 .ToArray();
 
-            foreach (DesignListItem headerItem in ShipDesigns.AllEntries.ToArray())
+            foreach (DesignListItem headerItem in AvailableDesignsList.AllEntries.ToArray())
             {
                 foreach (KeyValuePair<string, Ship> ship in ships)
                 {
@@ -290,7 +288,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         void ResetSL()
         {
-            ShipDesigns.Reset();
+            AvailableDesignsList.Reset();
             PopulateEntries();            
         }
 
