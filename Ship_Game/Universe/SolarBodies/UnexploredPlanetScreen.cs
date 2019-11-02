@@ -103,49 +103,15 @@ namespace Ship_Game
             PNameCursor.Y = PlanetIcon.Y + PlanetIcon.Height + 20;
             string desc = Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40);
             batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, Colors.Cream);
-            /*if (this.p.Special != "None")     //This was removed, because the string "Special" was never assigned a valus other than "None" -Gretman
-            {
-                PNameCursor.Y = PNameCursor.Y + (Fonts.Arial12Bold.MeasureString(desc).Y + 10f);
-                string special = this.p.Special;
-                string str1 = special;
-                if (special != null)
-                {
-                    if (str1 == "Gold Deposits")
-                    {
-                        d = this.parseText("This planet has extensive gold deposits and would produce +5 credits per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
-                        return;
-                    }
-                    if (str1 == "Platinum Deposits")
-                    {
-                        d = this.parseText("This planet has extensive platinum deposits and would produce +10 credits per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
-                        return;
-                    }
-                    if (str1 == "Artifacts")
-                    {
-                        d = this.parseText("This planet has extensive archaeological curosities, and would provide +2 research points per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
-                        return;
-                    }
-                    if (str1 == "Ancient Machinery")
-                    {
-                        d = this.parseText("This planet has a cache of ancient but functional alien machinery, and would reap +2 production per turn if colonized.", (float)(this.PlanetInfo.Menu.Width - 40));
-                        spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
-                        return;
-                    }
-                    if (str1 != "Spice")
-                    {
-                        return;
-                    }
-                    d = this.parseText("The native creatures of this planet secrete an incredible spice-like element with brain-enhancing properties.  If colonized, this planet would produce +5 research per turn", (float)(this.PlanetInfo.Menu.Width - 40));
-                    spriteBatch.DrawString(Fonts.Arial12Bold, d, PNameCursor, Colors.Cream);
-                }
-            }*/
         }
 
         public override bool HandleInput(InputState input)
         {
+            if (input.Escaped || input.RightMouseClick)
+            {
+                ExitScreen();
+                return true;
+            }
             return base.HandleInput(input);
         }
     }
