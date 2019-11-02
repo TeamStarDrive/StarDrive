@@ -1,54 +1,29 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.GameScreens.ShipDesign
 {
-    public class HullsListMenu
+    public class HullsListMenu : UIElementContainer
     {
+        ShipToolScreen Screen;
         public ShipData Changeto { get; private set; }
         public ShipData ActiveHull { get; private set; }
         ScrollList<HullListItem> HullSL;
-        Submenu HullSelectionSub;
-        Rectangle HullSelectionRect;
 
-        public int ScreenWidth => GameBase.ScreenWidth;
-        public int ScreenHeight => GameBase.ScreenHeight;
-        public Vector2 ScreenArea => GameBase.ScreenSize;
-        public Vector2 ScreenCenter => GameBase.ScreenCenter;
+        public Action<ShipData> OnHullChange;
 
-        class HullListItem : ScrollListItem<HullListItem>
+        public HullsListMenu(ShipToolScreen screen)
         {
-            public ShipData Hull;
-            public HullListItem(string headerText) : base(headerText) {}
-            public HullListItem(ShipData hull) { Hull = hull; }
-            public override void Draw(SpriteBatch batch)
-            {
-                base.Draw(batch);
-                if (Hull != null)
-                {
-                    var bCursor = new Vector2(X, Y);
-                    batch.Draw(Hull.Icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, Hull.Name, tCursor, Color.White);
-
-                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(Hull.HullRole, Hull.ShipStyle), tCursor, Color.Orange);
-                }
-            }
-        }
-        
-        public void LoadContent()
-        {
-            HullSelectionRect = new Rectangle(ScreenWidth - 285, 100, 280, 400);
-            HullSelectionSub = new Submenu(HullSelectionRect);
-            HullSelectionSub.AddTab(Localizer.Token(107));
-            HullSL = new ScrollList<HullListItem>(HullSelectionSub);
-            HullSL.OnClick = OnHullListItemClicked;
+            Screen = screen;
+            var background = new Submenu(Screen.ScreenWidth - 285, 100, 280, 400);
+            background.Background = new Selector(background.Rect.CutTop(25), new Color(0, 0, 0, 210)); // black background
+            background.AddTab(Localizer.Token(107));
+            HullSL = Add(new ScrollList<HullListItem>(background));
+            HullSL.EnableItemHighlight = true;
+            HullSL.OnClick = (item) => ChangeHull(item.Hull);
 
             var categories = new Array<string>();
             foreach (ShipData hull in ResourceManager.Hulls)
@@ -70,19 +45,29 @@ namespace Ship_Game.GameScreens.ShipDesign
             }
         }
 
-        void OnHullListItemClicked(HullListItem item)
+        class HullListItem : ScrollListItem<HullListItem>
         {
-            ChangeHull(item.Hull);
-        }
-
-        public bool HandleInput(InputState input)
-        {
-            return HullSL.HandleInput(input);
+            public ShipData Hull;
+            public HullListItem(string headerText) : base(headerText) {}
+            public HullListItem(ShipData hull) { Hull = hull; }
+            public override void Draw(SpriteBatch batch)
+            {
+                base.Draw(batch);
+                if (Hull != null)
+                {
+                    float iconSize = Height;
+                    batch.Draw(Hull.Icon, new Vector2(X, Y), new Vector2(iconSize));
+                    batch.DrawString(Fonts.Arial12Bold, Hull.Name, X+iconSize+4, Y+4);
+                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(Hull.HullRole, Hull.ShipStyle), X+iconSize+4, Y+18, Color.Orange);
+                }
+            }
         }
 
         void ChangeHull(ShipData hull)
         {
-            if (hull == null) return;
+            if (hull == null)
+                return;
+
             ActiveHull = new ShipData
             {
                 Animated = hull.Animated,
@@ -100,6 +85,7 @@ namespace Ship_Game.GameScreens.ShipDesign
                 CarrierShip = hull.CarrierShip,
                 BaseHull = hull.BaseHull
             };
+
             ActiveHull.UpdateBaseHull();
 
             ActiveHull.ModuleSlots = new ModuleSlotData[hull.ModuleSlots.Length];
@@ -117,18 +103,8 @@ namespace Ship_Game.GameScreens.ShipDesign
                 };
                 ActiveHull.ModuleSlots[i] = data;
             }
-        }
 
-        public void Draw(SpriteBatch batch)
-        {
-            Rectangle r = HullSelectionSub.Rect;
-            r.Y += 25;
-            r.Height -= 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(batch);
-            HullSL.Draw(batch);
-            HullSelectionSub.Draw(batch);
+            OnHullChange?.Invoke(ActiveHull);
         }
-
     }
 }
