@@ -22,10 +22,6 @@ namespace Ship_Game
         Submenu pStorage;
         Submenu pFacilities;
         Submenu BuildableTabs;
-        Submenu queue;
-        UICheckBox GovOrbitals;
-        UICheckBox GovMilitia;
-        UICheckBox DontScrapBuildings;
         UITextEntry PlanetName = new UITextEntry();
         Rectangle PlanetIcon;
         public EmpireUIOverlay eui;
@@ -37,8 +33,6 @@ namespace Ship_Game
         UIButton BuildStation;
         UIButton BuildShipyard;
         UIButton CallTroops;  //fbedard
-        DropOptions<int> GovernorDropdown;
-        Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
         Rectangle GridPos;
         Submenu subColonyGrid;
 
@@ -57,6 +51,7 @@ namespace Ship_Game
 
         ColonySliderGroup Sliders;
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
+        readonly GovernorDetailsComponent GovernorDetails;
 
         object DetailInfo;
         Building ToScrap;
@@ -97,38 +92,27 @@ namespace Ship_Game
             pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + pLabor.Height + 40, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
             pStorage.AddTab(Localizer.Token(328));
 
-            if (GlobalStats.HardcoreRuleset)
-            {
-                float num2 = (pStorage.Width - 40) * 0.25f;
-                ResourceButtons.Add(new ThreeStateButton(p.FS, "Food", new Vector2(pStorage.X + 20, pStorage.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(p.PS, "Production", new Vector2(pStorage.X + 20 + num2, pStorage.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "Fissionables", new Vector2(pStorage.X + 20 + num2 * 2, pStorage.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "ReactorFuel",  new Vector2(pStorage.X + 20 + num2 * 3, pStorage.Y + 30)));
-            }
-            else
-            {
-                FoodStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.33f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
-                FoodStorage.Max = p.Storage.Max;
-                FoodStorage.Progress = p.FoodHere;
-                FoodStorage.color = "green";
-                foodDropDown = new DropDownMenu(pStorage.X + 100 + 0.4f * pStorage.Width + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*pStorage.Width, 18);
-                foodDropDown.AddOption(Localizer.Token(329));
-                foodDropDown.AddOption(Localizer.Token(330));
-                foodDropDown.AddOption(Localizer.Token(331));
-                foodDropDown.ActiveIndex = (int)p.FS;
-                var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
-                FoodStorageIcon = new Rectangle((int)pStorage.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
-                ProdStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.66f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
-                ProdStorage.Max = p.Storage.Max;
-                ProdStorage.Progress = p.ProdHere;
-                var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
-                ProfStorageIcon = new Rectangle((int)pStorage.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
-                prodDropDown = new DropDownMenu(pStorage.X + 100 + 0.4f*pStorage.Width + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*pStorage.Width, 18);
-                prodDropDown.AddOption(Localizer.Token(329));
-                prodDropDown.AddOption(Localizer.Token(330));
-                prodDropDown.AddOption(Localizer.Token(331));
-                prodDropDown.ActiveIndex = (int)p.PS;
-            }
+            FoodStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.33f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
+            FoodStorage.Max = p.Storage.Max;
+            FoodStorage.Progress = p.FoodHere;
+            FoodStorage.color = "green";
+            foodDropDown = new DropDownMenu(pStorage.X + 100 + 0.4f * pStorage.Width + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*pStorage.Width, 18);
+            foodDropDown.AddOption(Localizer.Token(329));
+            foodDropDown.AddOption(Localizer.Token(330));
+            foodDropDown.AddOption(Localizer.Token(331));
+            foodDropDown.ActiveIndex = (int)p.FS;
+            var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
+            FoodStorageIcon = new Rectangle((int)pStorage.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
+            ProdStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.66f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
+            ProdStorage.Max = p.Storage.Max;
+            ProdStorage.Progress = p.ProdHere;
+            var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
+            ProfStorageIcon = new Rectangle((int)pStorage.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
+            prodDropDown = new DropDownMenu(pStorage.X + 100 + 0.4f*pStorage.Width + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, 0.2f*pStorage.Width, 18);
+            prodDropDown.AddOption(Localizer.Token(329));
+            prodDropDown.AddOption(Localizer.Token(330));
+            prodDropDown.AddOption(Localizer.Token(331));
+            prodDropDown.ActiveIndex = (int)p.PS;
 
             subColonyGrid = new Submenu(LeftMenu.X + 20 + PlanetInfo.Width + 20, PlanetInfo.Y, LeftMenu.Width - 60 - PlanetInfo.Width, LeftMenu.Height * 0.5f);
             subColonyGrid.AddTab(Localizer.Token(332));
@@ -182,7 +166,7 @@ namespace Ship_Game
 
             ResetBuildableTabs();
 
-            queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - 40 - BuildableTabs.Height - 20 - 3);
+            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 63);
             queue.AddTab(Localizer.Token(337));
 
             ConstructionQueue = Add(new ScrollList<QueueItem>(queue));
@@ -195,32 +179,14 @@ namespace Ship_Game
             int height = GridPos.Height / 5;
             foreach (PlanetGridSquare planetGridSquare in p.TilesList)
                 planetGridSquare.ClickRect = new Rectangle(GridPos.X + planetGridSquare.x * width, GridPos.Y + planetGridSquare.y * height, width, height);
+            
             PlanetName.Text = p.Name;
             PlanetName.MaxCharacters = 12;
+
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                var rectangle4 = new Rectangle(pDescription.Rect.X + 10, pDescription.Rect.Y + 30, 124, 148);
-                var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
-                GovernorDropdown = new DropOptions<int>(new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
-                GovernorDropdown.AddOption("--", 1);
-                GovernorDropdown.AddOption(Localizer.Token(4064), 0); // Core
-                GovernorDropdown.AddOption(Localizer.Token(4065), 2); // Industrial
-                GovernorDropdown.AddOption(Localizer.Token(4066), 4); // Agricultural
-                GovernorDropdown.AddOption(Localizer.Token(4067), 3); // Research
-                GovernorDropdown.AddOption(Localizer.Token(4068), 5); // Military
-                GovernorDropdown.AddOption(Localizer.Token(5087), 6); // Trade Hub
-                GovernorDropdown.ActiveIndex = GetIndex(p);
-
-                P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                GovOrbitals  = Add(new UICheckBox(rectangle4.X - 3, rectangle5.Y + Font12.LineSpacing + 5,
-                    () => p.GovOrbitals, Fonts.Arial12Bold, title:1960, tooltip:1961));
-
-                GovMilitia   = Add(new UICheckBox(rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
-                    () => p.GovMilitia, Fonts.Arial12Bold, title:1956, tooltip:1957));
-
-                DontScrapBuildings = Add(new UICheckBox(rectangle4.X + 240, rectangle5.Y + (Font12.LineSpacing + 5),
-                    () => p.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
+                GovernorDetails = Add(new GovernorDetailsComponent(p, pDescription.Rect));
             }
             else
             {
@@ -277,21 +243,6 @@ namespace Ship_Game
             }
 
             return text;
-        }
-
-        public static int GetIndex(Planet p)
-        {
-            switch (p.colonyType)
-            {
-                case Planet.ColonyType.Colony: return 0;
-                case Planet.ColonyType.Core: return 1;
-                case Planet.ColonyType.Industrial: return 2;
-                case Planet.ColonyType.Agricultural: return 3;
-                case Planet.ColonyType.Research: return 4;
-                case Planet.ColonyType.Military: return 5;
-                case Planet.ColonyType.TradeHub: return 6;
-            }
-            return 0;
         }
 
         void OnSendTroopsClicked(UIButton b)

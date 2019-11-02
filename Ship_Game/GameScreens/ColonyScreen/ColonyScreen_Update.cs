@@ -11,13 +11,6 @@ namespace Ship_Game
             P.UpdateIncomes(false);
             UpdateBuildAndConstructLists(elapsedTime);
             UpdateButtonTimer(elapsedTime);
-
-            GovOrbitals.Visible = P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0;
-            GovMilitia.Visible = GovOrbitals.Visible;
-
-            // not for trade hubs, which do not build structures anyway
-            DontScrapBuildings.Visible = GovOrbitals.Visible && P.colonyType != Planet.ColonyType.TradeHub;
-
             base.Update(elapsedTime);
         }
         

@@ -17,6 +17,9 @@ namespace Ship_Game
         public DrawableSprite Sprite { get; set; }
         public Color Color { get; set; } = Color.White;
 
+        // If set to a color, will draw a colored border around the panel
+        public Color Border = Color.TransparentBlack;
+
         public override string ToString()
         {
             return Sprite == null
@@ -28,11 +31,20 @@ namespace Ship_Game
         {
         }
 
+        public UIPanel(DrawableSprite sprite)
+        {
+            Sprite = sprite;
+        }
+
         // Hint: use Color.TransparentBlack to create Panels with no fill
-        public UIPanel(in Rectangle rect, Color color, DrawableSprite sprite = null)
-            : base(rect)
+        public UIPanel(in Rectangle rect, Color color, DrawableSprite sprite = null)  : base(rect)
         {
             Color = color;
+            Sprite = sprite;
+        }
+
+        public UIPanel(float x, float y, float w, float h, DrawableSprite sprite) : base(x, y, w, h)
+        {
             Sprite = sprite;
         }
 
@@ -56,6 +68,11 @@ namespace Ship_Game
             else if (Color.A > 0)
             {
                 batch.FillRectangle(Rect, Color);
+            }
+
+            if (Border.A > 0)
+            {
+                batch.DrawRectangle(Rect, Border);
             }
 
             base.Draw(batch);

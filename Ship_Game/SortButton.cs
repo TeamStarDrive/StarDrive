@@ -7,38 +7,34 @@ namespace Ship_Game
 	public sealed class SortButton
 	{
 		public string Text;
-
 		public Rectangle rect;
 
 		public bool Ascending = true;
-
 		public bool Hover;
-
 		public bool Selected;
-        public bool saved;
-        private SortButton saveButton;
+		public bool saved;
+		SortButton saveButton;
 
 		public SortButton()
 		{
 		}
-        public SortButton(SortButton sb, string text)
-        {
-            Text = text;
-            if(sb!=null && sb.Text == Text)
-            {
-                Ascending = sb.Ascending;
-                saved = true;
-            }
-            saveButton = sb;
-            
-        }
+		public SortButton(SortButton sb, string text)
+		{
+			Text = text;
+			if (sb != null && sb.Text == Text)
+			{
+				Ascending = sb.Ascending;
+				saved = true;
+			}
+			saveButton = sb;
+		}
 		public void Draw(ScreenManager ScreenManager)
 		{
 			Color orange;
 			SpriteBatch spriteBatch = ScreenManager.SpriteBatch;
 			SpriteFont arial20Bold = Fonts.Arial20Bold;
 			string text = Text;
-			Vector2 vector2 = new Vector2(rect.X, rect.Y);
+			var vector2 = new Vector2(rect.X, rect.Y);
 			if (Selected)
 			{
 				orange = Color.Orange;
@@ -70,14 +66,13 @@ namespace Ship_Game
 
 		public bool HandleInput(InputState input)
 		{
-            if (saved)
-            {
-                saved = false;
+			if (saved)
+			{
+				saved = false;
+				return true;
+			}
 
-                return true;
-            }
-
-            if (!rect.HitTest(input.CursorPosition))
+			if (!rect.HitTest(input.CursorPosition))
 			{
 				Hover = false;
 			}
@@ -91,13 +86,13 @@ namespace Ship_Game
 				if (input.InGameSelect)
 				{
 					
-                    GameAudio.MouseOver();
-                    if (saveButton != null)
-                    {
-                        saveButton.saved = true;
-                        saveButton.Text = Text;
-                        saveButton.Ascending = Ascending;
-                    }
+					GameAudio.MouseOver();
+					if (saveButton != null)
+					{
+						saveButton.saved = true;
+						saveButton.Text = Text;
+						saveButton.Ascending = Ascending;
+					}
 					return true;
 				}
 			}

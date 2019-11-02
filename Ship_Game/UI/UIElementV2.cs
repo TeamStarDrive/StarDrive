@@ -149,22 +149,24 @@ namespace Ship_Game
         protected UIElementV2()
         {
         }
-
         protected UIElementV2(in Vector2 pos)
         {
             Pos = pos;
         }
-
         protected UIElementV2(in Vector2 pos, in Vector2 size)
         {
             Pos = pos;
             Size = size;
         }
-
         protected UIElementV2(in Rectangle rect)
         {
-            SetAbsPos(rect.X, rect.Y);
+            Pos = new Vector2(rect.X, rect.Y);
             Size = new Vector2(rect.Width, rect.Height);
+        }
+        protected UIElementV2(float x, float y, float w, float h)
+        {
+            Pos = new Vector2(x, y);
+            Size = new Vector2(w, h);
         }
 
         protected virtual int NextZOrder() { return ZOrder + 1; }

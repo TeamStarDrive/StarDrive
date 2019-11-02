@@ -24,7 +24,6 @@ namespace Ship_Game
         const int PaddingBot   = 12;
         const int PaddingLeft  = 12;
         const int PaddingRight = 24;
-        const int PaddingItem  = 4;
 
         protected Rectangle ItemsRect; // inner housing rect for scroll list items
         protected Rectangle ScrollUp, ScrollUpClickArea;
@@ -42,6 +41,9 @@ namespace Ship_Game
 
         protected float ClickTimer;
         protected const float TimerDelay = 0.05f;
+
+        // By default, 4px padding between items, 0px from edges
+        public Vector2 ItemPadding = new Vector2(0f, 4f);
         
         // this controls the visual style of the ScrollList
         // can be freely changed at any point
@@ -91,7 +93,7 @@ namespace Ship_Game
             // NOTE: Modify the index when opening/closing headers, to make list usage more convenient
             if (expanded)
             {
-                float relClickPos = (float) item.VisibleIndex / MaxVisibleItems;
+                float relClickPos = (float)item.VisibleIndex / MaxVisibleItems;
                 if (relClickPos >= 0.5f)
                 {
                     VisibleItemsBegin += Math.Min(MaxVisibleItems / 2, MaxVisibleItems);
@@ -242,8 +244,7 @@ namespace Ship_Game
         #region ScrollList Update / PerformLayout
         
         public ScrollListStyleTextures GetStyle() => ScrollListStyleTextures.Get(Style);
-
-
+        
         // flattened entries
         protected readonly Array<ScrollListItemBase> FlatEntries = new Array<ScrollListItemBase>();
         
@@ -295,11 +296,14 @@ namespace Ship_Game
             }
 
             // PaddingBot gives padding bottom of the items when scrolling
-            float maxVisibleItemsF = (float)(ItemsRect.Height - PaddingBot) / (EntryHeight + PaddingItem);
+            float maxVisibleItemsF = (ItemsRect.Height - PaddingBot) / (EntryHeight + ItemPadding.Y);
             MaxVisibleItems = (int)Math.Ceiling(maxVisibleItemsF);
             ShouldDrawScrollBar = FlatEntries.Count > (int)Math.Floor(maxVisibleItemsF);
 
-            int nextItemY = (ItemsRect.Y + PaddingItem);
+            int itemX = (int)Math.Round(ItemsRect.X + ItemPadding.X);
+            int itemY = (int)Math.Round(ItemsRect.Y + ItemPadding.Y);
+            int itemW = (int)Math.Round(ItemsRect.Width - ItemPadding.X*2);
+
             if (ScrollBarPosChanged)
             {
                 ScrollBarPosChanged = false;
@@ -310,7 +314,7 @@ namespace Ship_Game
 
                 float remainder = (scrolledIndexF - VisibleItemsBegin) % 1f;
                 int scrollOffset = (int)Math.Floor(remainder * EntryHeight);
-                nextItemY -= scrollOffset;
+                itemY -= scrollOffset;
                 //Log.Info($"pos={relScrollPos} idxF={scrolledIndexF} rem={remainder} off={scrollOffset}");
             }
             else // otherwise, update/clamp visible indices and recalculate scrollbar
@@ -327,10 +331,11 @@ namespace Ship_Game
                 ScrollListItemBase e = FlatEntries[i];
                 if (VisibleItemsBegin <= i && i < VisibleItemsEnd)
                 {
+                    e.ItemIndex = i;
                     e.VisibleIndex = visibleIndex++;
-                    e.Rect = new Rectangle(ItemsRect.X, nextItemY, ItemsRect.Width, EntryHeight);
+                    e.Rect = new Rectangle(itemX, itemY, itemW, EntryHeight);
                     e.PerformLayout();
-                    nextItemY += (EntryHeight + PaddingItem);
+                    itemY += (int)Math.Round(EntryHeight + ItemPadding.Y);
                 }
                 else
                 {

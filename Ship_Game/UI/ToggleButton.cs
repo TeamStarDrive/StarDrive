@@ -144,7 +144,7 @@ namespace Ship_Game
         public bool Pressed;
         bool WasClicked; // purely visual
 
-        public int Tooltip;
+        public ToolTipText Tooltip;
         public Color BaseColor = Color.White;
 
         readonly ToggleButtonStyle Style;
@@ -258,7 +258,7 @@ namespace Ship_Game
                 if (!wasHovered)
                 {
                     GameAudio.ButtonMouseOver();
-                    if (Tooltip != 0)
+                    if (Tooltip.IsValid)
                         ToolTip.CreateTooltip(Tooltip);
                 }
 

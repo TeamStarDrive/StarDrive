@@ -18,8 +18,11 @@ namespace Ship_Game
         // true if item is currently being hovered over with mouse cursor
         public bool Hovered { get; protected set; }
 
-        // The current visible index of this Entry
-        public int VisibleIndex { get; set; }
+        // Absolute index of this item in the ScrollList
+        public int ItemIndex;
+
+        // Visible index of this item, where 0 is the topmost visible item
+        public int VisibleIndex;
 
         // If TRUE, this entry acts as a special ScrollList Item Header
         // Which can be expanded and collapsed

@@ -623,25 +623,7 @@ namespace Ship_Game
 
             void DrawPropulsion()
             {
-                if (GlobalStats.HardcoreRuleset)
-                {
-                    string massstring = mass.GetNumberString();
-                    string wmassstring = warpableMass.GetNumberString();
-                    string warpmassstring = string.Concat(massstring, "/", wmassstring);
-                    if (mass > warpableMass)
-                        DrawStatBad(ref cursor, "Warpable Mass:", warpmassstring, 153);
-                    else
-                        DrawStat(ref cursor, "Warpable Mass:", warpmassstring, 153);
-
-                    DrawRequirement(ref cursor, "Warp Capable", mass <= warpableMass);
-                    if (ftlCount > 0f)
-                    {
-                        float harcoreSpeed = ftlSpeed / ftlCount;
-                        DrawStatColor(ref cursor, TintedValue(2170, harcoreSpeed, 135, Color.LightSkyBlue));
-                    }
-                }
-                else
-                    DrawStatPropulsion(ref cursor, Localizer.Token(2170)+":", warpString, 135);
+                DrawStatPropulsion(ref cursor, Localizer.Token(2170)+":", warpString, 135);
 
                 if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
             }

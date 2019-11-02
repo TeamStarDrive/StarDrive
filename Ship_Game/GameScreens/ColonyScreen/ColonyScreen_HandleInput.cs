@@ -40,10 +40,6 @@ namespace Ship_Game
             }
 
             HandlePlanetNameChangeTextBox(input);
-
-            GovernorDropdown.HandleInput(input);
-            P.colonyType = (Planet.ColonyType) GovernorDropdown.ActiveValue;
-
             HandleSliders(input);
 
             if (HandleTroopSelect(input))
@@ -223,30 +219,22 @@ namespace Ship_Game
 
         void HandleExportImportButtons(InputState input)
         {
-            if (!GlobalStats.HardcoreRuleset)
+            if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    foodDropDown.Toggle();
-                    GameAudio.AcceptClick();
-                    P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
-                    if (P.FS > Planet.GoodState.EXPORT)
-                        P.FS = Planet.GoodState.STORE;
-                }
-
-                if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    prodDropDown.Toggle();
-                    GameAudio.AcceptClick();
-                    P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
-                    if (P.PS > Planet.GoodState.EXPORT)
-                        P.PS = Planet.GoodState.STORE;
-                }
+                foodDropDown.Toggle();
+                GameAudio.AcceptClick();
+                P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
+                if (P.FS > Planet.GoodState.EXPORT)
+                    P.FS = Planet.GoodState.STORE;
             }
-            else
+
+            if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                foreach (ThreeStateButton b in ResourceButtons)
-                    b.HandleInput(input, ScreenManager);
+                prodDropDown.Toggle();
+                GameAudio.AcceptClick();
+                P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
+                if (P.PS > Planet.GoodState.EXPORT)
+                    P.PS = Planet.GoodState.STORE;
             }
         }
     }
