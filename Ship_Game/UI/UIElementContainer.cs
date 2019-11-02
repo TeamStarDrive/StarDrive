@@ -43,6 +43,9 @@ namespace Ship_Game
         protected UIElementContainer(in Rectangle rect) : base(rect)
         {
         }
+        protected UIElementContainer(float x, float y, float w, float h) : base(x, y, w, h)
+        {
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

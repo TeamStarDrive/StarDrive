@@ -42,9 +42,9 @@ namespace Ship_Game
         Rectangle Attitude_Respectful_Rect;
         Rectangle Attitude_Threaten_Rect;
 
-        GenericButton ap;
-        GenericButton ar;
-        GenericButton at;
+        GenericButton OurAttitudeBtn_Pleading;
+        GenericButton OurAttitudeBtn_Respectful;
+        GenericButton OurAttitudeBtn_Threaten;
         Vector2 EmpireNamePos;
         ScrollList<TextListItem> OfferTextSL;
 
@@ -268,32 +268,11 @@ namespace Ship_Game
 
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 4 / 5);
             batch.Begin();
-            if (RacialVideo.IsPlaying)
-            {
-                Color color = Color.White;
-                if (WarDeclared || UsAndThem.AtWar)
-                {
-                    color.B = 100;
-                    color.G = 100;
-                }
-                RacialVideo.Draw(batch, color);
-            }
-            else
-            {
-                batch.Draw(ResourceManager.Texture("Portraits/"+Them.PortraitName), Portrait, Color.White);
-            }
 
-            HelperFunctions.DrawDropShadowText(batch, Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
-            if (dState == DialogState.Negotiate)
-            {
-                batch.FillRectangle(new Rectangle(0, R.Y, 1920, R.Height), new Color(0, 0, 0, 150));
-            }
-            else
-            {
-                batch.FillRectangle(new Rectangle(0, DialogRect.Y, 1920, R.Height), new Color(0, 0, 0, 150));
-            }
+            DrawBackground(batch);
 
-            batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
+            base.Draw(batch);
+
             foreach (GenericButton taf in TAFButtons)
             {
                 taf.DrawWithShadowCaps(batch);
@@ -307,6 +286,9 @@ namespace Ship_Game
                 FearRect.Width = (int)ThemAndUs.Threat.Clamped(1, 100);
                 batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
             }
+
+            OfferTextSL.Visible = TheirItemsSL.Visible = OurItemsSL.Visible = false;
+
             switch (dState)
             {
                 case DialogState.Them:
@@ -315,58 +297,20 @@ namespace Ship_Game
                     var position = new Vector2((ScreenWidth / 2f) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
-                    goto case DialogState.Choosing;
-                }
-                case DialogState.Choosing:
-                {
-                    if (dState == DialogState.End || dState == DialogState.TheirOffer)
-                    {
-                        Exit.DrawWithShadowCaps(batch);
-                    }
-                    else
-                    {
-                        int numEntries = 4;
-                        int k = 4;
-                        foreach (GenericButton b in GenericButtons)
-                        {
-                            Rectangle r = b.R;
-                            float transitionOffset = ((TransitionPosition - 0.5f * k / numEntries) / 0.5f).Clamped(0f, 1f);
-                            k--;
-                            if (ScreenState != ScreenState.TransitionOn)
-                            {
-                                r.X += (int)transitionOffset * 512;
-                            }
-                            else
-                            {
-                                r.X += (int)(transitionOffset * 512f);
-                            }
-                            b.TransitionCaps(r);
-                            b.DrawWithShadowCaps(batch);
-                        }
-                    }
-                    var pos = new Vector2((Portrait.X + 200), (Portrait.Y + 200));
-                    pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
-                    pos.X -= 8f;
-                    pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
-                    pos.X -= 8f;
-                    pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
-                    pos.X -= 8f;
-
-                    batch.End();
-                    return;
+                    break;
                 }
                 case DialogState.Discuss:
                 {
                     StatementsSL.Draw(batch);
-                    goto case DialogState.Choosing;
+                    break;
                 }
                 case DialogState.Negotiate:
                 {
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
                     OfferTextSL.ResetWithParseText(Fonts.Consolas18, txt, DialogRect.Width - 30);
-                    OfferTextSL.Draw(batch);
-                    
+                    OfferTextSL.Visible = TheirItemsSL.Visible = OurItemsSL.Visible = true;
+
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
                         SendOffer.DrawWithShadow(batch);
@@ -374,21 +318,16 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Right"), Negotiate_Right, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Left"), Negotiate_Left, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Tone"), ToneContainerRect, Color.White);
-                    OurItemsSL.Draw(batch);
-                    TheirItemsSL.Draw(batch);
-                    OfferTextSL.Draw(batch);
-                    ap.Transition(Attitude_Pleading_Rect);
-                    ap.Draw(ScreenManager);
-                    at.Transition(Attitude_Threaten_Rect);
-                    at.Draw(ScreenManager);
-                    ar.Transition(Attitude_Respectful_Rect);
-                    ar.Draw(ScreenManager);
+
+                    OurAttitudeBtn_Pleading.Draw(ScreenManager);
+                    OurAttitudeBtn_Threaten.Draw(ScreenManager);
+                    OurAttitudeBtn_Respectful.Draw(ScreenManager);
 
                     var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
                     batch.DrawString(Fonts.Pirulen12, Localizer.Token(1221), drawCurs, Color.White);
                     drawCurs = new Vector2((ThemRect.X + 10), (ThemRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
                     batch.DrawString(Fonts.Pirulen12, Localizer.Token(1222), drawCurs, Color.White);
-                    goto case DialogState.Choosing;
+                    break;
                 }
                 case DialogState.TheirOffer:
                 {
@@ -398,7 +337,7 @@ namespace Ship_Game
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
                     Reject.DrawWithShadow(batch);
-                    goto case DialogState.Choosing;
+                    break;
                 }
                 case DialogState.End:
                 {
@@ -406,13 +345,70 @@ namespace Ship_Game
                     var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
-                    goto case DialogState.Choosing;
-                }
-                default:
-                {
-                    goto case DialogState.Choosing;
+                    break;
                 }
             }
+
+            if (dState == DialogState.End || dState == DialogState.TheirOffer)
+            {
+                Exit.DrawWithShadowCaps(batch);
+            }
+            else
+            {
+                int numEntries = 4;
+                int k = 4;
+                foreach (GenericButton b in GenericButtons)
+                {
+                    Rectangle r = b.R;
+                    float transitionOffset = ((TransitionPosition - 0.5f * k / numEntries) / 0.5f).Clamped(0f, 1f);
+                    k--;
+                    if (ScreenState != ScreenState.TransitionOn)
+                    {
+                        r.X += (int)transitionOffset * 512;
+                    }
+                    else
+                    {
+                        r.X += (int)(transitionOffset * 512f);
+                    }
+                    b.TransitionCaps(r);
+                    b.DrawWithShadowCaps(batch);
+                }
+            }
+
+            var pos = new Vector2((Portrait.X + 200), (Portrait.Y + 200));
+            pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
+            pos.X -= 8f;
+            pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
+            pos.X -= 8f;
+            pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
+            pos.X -= 8f;
+                
+            batch.End();
+        }
+
+        void DrawBackground(SpriteBatch batch)
+        {
+            if (RacialVideo.IsPlaying)
+            {
+                Color color = Color.White;
+                if (WarDeclared || UsAndThem.AtWar)
+                {
+                    color.B = 100;
+                    color.G = 100;
+                }
+
+                RacialVideo.Draw(batch, color);
+            }
+            else
+            {
+                batch.Draw(ResourceManager.Texture("Portraits/" + Them.PortraitName), Portrait, Color.White);
+            }
+
+            batch.DrawDropShadowText(Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
+            batch.FillRectangle(dState == DialogState.Negotiate
+                ? new Rectangle(0, R.Y, 1920, R.Height)
+                : new Rectangle(0, DialogRect.Y, 1920, R.Height), new Color(0, 0, 0, 150));
+            batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
         }
 
         void DrawDropShadowText(string Text, Vector2 Pos, SpriteFont Font)
@@ -689,25 +685,25 @@ namespace Ship_Game
                     if (TheirItemsSL.HandleInput(input))
                         return true;
 
-                    if (ap.HandleInput(input))
+                    if (OurAttitudeBtn_Pleading.HandleInput(input))
                     {
-                        ap.ToggleOn = true;
-                        ar.ToggleOn = false;
-                        at.ToggleOn = false;
+                        OurAttitudeBtn_Pleading.ToggleOn = true;
+                        OurAttitudeBtn_Respectful.ToggleOn = false;
+                        OurAttitudeBtn_Threaten.ToggleOn = false;
                         Attitude = Offer.Attitude.Pleading;
                     }
-                    if (ar.HandleInput(input))
+                    if (OurAttitudeBtn_Respectful.HandleInput(input))
                     {
-                        ar.ToggleOn = true;
-                        ap.ToggleOn = false;
-                        at.ToggleOn = false;
+                        OurAttitudeBtn_Respectful.ToggleOn = true;
+                        OurAttitudeBtn_Pleading.ToggleOn = false;
+                        OurAttitudeBtn_Threaten.ToggleOn = false;
                         Attitude = Offer.Attitude.Respectful;
                     }
-                    if (at.HandleInput(input))
+                    if (OurAttitudeBtn_Threaten.HandleInput(input))
                     {
-                        at.ToggleOn = true;
-                        ap.ToggleOn = false;
-                        ar.ToggleOn = false;
+                        OurAttitudeBtn_Threaten.ToggleOn = true;
+                        OurAttitudeBtn_Pleading.ToggleOn = false;
+                        OurAttitudeBtn_Respectful.ToggleOn = false;
                         Attitude = Offer.Attitude.Threaten;
                     }
                 }
@@ -856,9 +852,9 @@ namespace Ship_Game
             Attitude_Respectful_Rect = new Rectangle(R.X + 250 + 5,  R.Y + R.Height - 48, 180, 48);
             Attitude_Threaten_Rect   = new Rectangle(R.X + 450 + 15, R.Y + R.Height - 48, 180, 48);
             ToneContainerRect = new Rectangle(ScreenWidth / 2 - 324, Attitude_Pleading_Rect.Y, 648, 48);
-            ap = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(1207), Fonts.Pirulen12);
-            ar = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12) { ToggleOn = true };
-            at = new GenericButton(Attitude_Threaten_Rect,   Localizer.Token(1208), Fonts.Pirulen12);
+            OurAttitudeBtn_Pleading   = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(1207), Fonts.Pirulen12);
+            OurAttitudeBtn_Respectful = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12) { ToggleOn = true };
+            OurAttitudeBtn_Threaten   = new GenericButton(Attitude_Threaten_Rect,   Localizer.Token(1208), Fonts.Pirulen12);
             AccRejRect = new Rectangle(R.X + R.Width / 2 - 220, R.Y + R.Height - 48, 440, 48);
             Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
             Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
@@ -872,10 +868,10 @@ namespace Ship_Game
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
             
             var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 40));
-            OfferTextSL = new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2);
-            StatementsSL = new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2);
-            OurItemsSL   = new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5);
-            TheirItemsSL = new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5);
+            OfferTextSL = Add(new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
+            StatementsSL = Add(new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
+            OurItemsSL   = Add(new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
+            TheirItemsSL = Add(new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
             
             OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
             TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);

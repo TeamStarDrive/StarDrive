@@ -9,19 +9,37 @@ namespace Ship_Game
     {
         public int Id; // Tooltip ID
         public string Text; // custom text
-
         public static readonly ToolTipText None = new ToolTipText();
-
         public bool IsValid => Id > 0 || !string.IsNullOrEmpty(Text);
 
         public static implicit operator ToolTipText(int id)
         {
             return new ToolTipText{ Id = id };
         }
-        
         public static implicit operator ToolTipText(string text)
         {
             return new ToolTipText{ Text = text };
+        }
+
+        // intentional lazy lookup for tooltips
+        public string LocalizedText
+        {
+            get
+            {
+                if (Id > 0)
+                {
+                    ToolTip tooltip = ResourceManager.GetToolTip(Id);
+                    if (tooltip != null)
+                    {
+                        return Localizer.Token(tooltip.Data);
+                    }
+                    if (Text.IsEmpty()) // try to recover.. somehow
+                    {
+                        return Localizer.Token(Id);
+                    }
+                }
+                return Text;
+            }
         }
     }
 
@@ -50,30 +68,12 @@ namespace Ship_Game
         public static void PlanetLandingSpotsTip(string locationText, int spots)
             => CreateTooltip($"{locationText}\n{spots} Landing Spots");
 
-
-        static string GetRawText(in ToolTipText tip)
-        {
-            if (tip.Id > 0)
-            {
-                ToolTip tooltip = ResourceManager.GetToolTip(tip.Id);
-                if (tooltip != null)
-                {
-                    return Localizer.Token(tooltip.Data);
-                }
-                if (tip.Text.IsEmpty()) // try to recover.. somehow
-                {
-                    return Localizer.Token(tip.Id);
-                }
-            }
-            return tip.Text;
-        }
-
         /**
          * Sets the currently active ToolTip
          */
-        public static void CreateTooltip(ToolTipText tip, string hotKey, Vector2? position)
+        public static void CreateTooltip(in ToolTipText tip, string hotKey, Vector2? position)
         {
-            string rawText = GetRawText(tip);
+            string rawText = tip.LocalizedText;
             if (rawText.IsEmpty())
             {
                 Log.Error($"Invalid Tooltip: tip.Id={tip.Id} tip.Text={tip.Text}");
@@ -111,8 +111,8 @@ namespace Ship_Game
             tipItem.Rect = tipRect;
         }
 
-        public static void CreateTooltip(ToolTipText tip, string hotKey) => CreateTooltip(tip, hotKey, null);
-        public static void CreateTooltip(ToolTipText tip) => CreateTooltip(tip, "", null);
+        public static void CreateTooltip(in ToolTipText tip, string hotKey) => CreateTooltip(tip, hotKey, null);
+        public static void CreateTooltip(in ToolTipText tip) => CreateTooltip(tip, "", null);
         
         // Clears the current tooltip (if any)
         public static void Clear()

@@ -6,7 +6,7 @@ namespace Ship_Game
     public class TextListItem : ScrollListItem<TextListItem>
     {
         public UILabel TextLabel;
-        public string Text => TextLabel.Text;
+        public string Text => TextLabel.Text.Text;
 
         public TextListItem(string text, SpriteFont font)
         {

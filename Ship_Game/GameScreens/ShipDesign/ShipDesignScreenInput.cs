@@ -628,7 +628,7 @@ namespace Ship_Game
                         GameAudio.EchoAffirmative();
                         break;
                     case "Empire":
-                        ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, EmpireUI));
+                        ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, EmpireUI));
                         GameAudio.EchoAffirmative();
                         break;
                     case "Diplomacy":
