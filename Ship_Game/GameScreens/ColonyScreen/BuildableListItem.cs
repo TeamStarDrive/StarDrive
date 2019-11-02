@@ -16,13 +16,11 @@ namespace Ship_Game
         readonly SpriteFont Font8 = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
         readonly bool LowRes;
-        readonly bool ShipHeader;
 
         public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
         {
             Screen = screen;
             LowRes = screen.LowRes;
-            ShipHeader = true;
         }
         public BuildableListItem(ColonyScreen screen, Building b) : this(screen, false, false)
         {
@@ -90,17 +88,9 @@ namespace Ship_Game
         }
 
         // Give a custom height for this scroll list item
-        public override int ItemHeight
-        {
-            get
-            {
-                if (ShipHeader)
-                    return LowRes ? 32 : 42;
-                return LowRes ? 30 : 42;
-            }
-        }
+        public override int ItemHeight => LowRes ? 32 : 42;
 
-        float IconSize  => LowRes ? 32 : 48;
+        float IconSize  => LowRes ? 36 : 48;
         float ProdWidth => LowRes ? 90 : 120;
         float TextWidth => Width - IconSize - ProdWidth;
         float TextX     => X + IconSize;
@@ -117,11 +107,12 @@ namespace Ship_Game
         {
             SpriteFont font = LowRes ? Fonts.Arial10 : Font12;
             float x = Right - ProdWidth;
-            Vector2 iconSize = (ProdIcon.SizeF * (LowRes ? 0.75f : 1.0f)).Rounded();
-            batch.Draw(ProdIcon, new Vector2(x, Y+4), iconSize); // Production Icon
-            batch.DrawString(font, cost.String(), x + iconSize.X + 2, Y+4); // Build Cost
-            if (maintenance >= 0f)
-                batch.DrawString(font, maintenance.String(2)+" BC/Y", x, Y+20, Color.Salmon); // Maintenance
+            float y = Y+4;
+            var iconSize = new Vector2(font.LineSpacing+2);
+            batch.Draw(ProdIcon, new Vector2(x, y), iconSize); // Production Icon
+            batch.DrawString(font, cost.String(), x + iconSize.X + 2, y); // Build Cost
+            if (maintenance > 0f)
+                batch.DrawString(font, maintenance.String(2)+" BC/Y", x, y+iconSize.Y, Color.Salmon); // Maintenance
         }
 
         void DrawBuilding(SpriteBatch batch, Building b)

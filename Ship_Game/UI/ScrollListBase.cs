@@ -194,7 +194,7 @@ namespace Ship_Game
             
             // NOTE: We do not early return, because we want to update hover state for all ScrollList items
             bool captured = base.HandleInput(input) || HandleInputScrollBar(input);
-            bool anyHovered = false;
+            bool createdSelector = false;
 
             if (!captured && Rect.HitTest(input.CursorPosition))
             {
@@ -205,9 +205,9 @@ namespace Ship_Game
                     ScrollListItemBase item = FlatEntries[i];
                     if (item.UpdateHoverState(input))
                     {
-                        anyHovered = true;
                         if (!item.IsHeader && EnableItemHighlight)
                         {
+                            createdSelector = true;
                             HighlightedIndex = i;
                             Highlight = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
                         }
@@ -227,7 +227,7 @@ namespace Ship_Game
             }
 
             // Not hovering over any items? Clear the SelectionBox
-            if (!anyHovered && EnableItemHighlight)
+            if (!createdSelector && EnableItemHighlight)
             {
                 HighlightedIndex = -1;
                 Highlight = null;
