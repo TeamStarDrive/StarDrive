@@ -375,7 +375,7 @@ namespace Ship_Game
                 return;
             }
 
-            float size = (Width * 0.16f).RoundTo10();
+            float size = Math.Max(256, (Width * 0.16f).RoundTo10());
             Vector2 pos = new Vector2(BuildableList.X - size*1.6f, listItemPos.Y - size/4).RoundTo10();
             pos.Y = Math.Max(100f, pos.Y);
             ShipInfoOverlay.ShowShip(ship, pos, size, lowRes: ScreenWidth <= 1920);
