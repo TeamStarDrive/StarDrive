@@ -84,6 +84,11 @@ namespace Ship_Game
 
 		public override bool HandleInput(InputState input)
 		{
+            if (input.Escaped || input.RightMouseClick)
+            {
+                ExitScreen();
+                return true;
+            }
             return base.HandleInput(input);
 		}
 	}
