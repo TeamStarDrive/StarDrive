@@ -163,6 +163,7 @@ namespace Ship_Game
             {
                 List.OnItemHovered(this);
             }
+            // Mouse Leave event is handled in List.HandleInput 
             return isHovered;
         }
 

@@ -227,7 +227,8 @@ namespace Ship_Game
                 Empire.Universe.LookingAtPlanet = false;
             }
 
-            ShipInfoOverlay = Add(new ShipInfoOverlayComponent());
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
+            BuildableList.OnHovered = OnBuildableHoverChange;
         }
 
         public float PositiveTerraformTargetFertility()
@@ -367,18 +368,15 @@ namespace Ship_Game
             Sliders.SetPlanet(P);
         }
 
-        public void ShowSelectedShipOverlay(Vector2 listItemPos, Ship ship)
+        void OnBuildableHoverChange(BuildableListItem item)
         {
-            if (ship == null)
-            {
-                ShipInfoOverlay.Visible = false;
-                return;
-            }
+            ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item?.Y ?? 0f), item?.Ship);
 
-            float size = Math.Max(256, (Width * 0.16f).RoundTo10());
-            Vector2 pos = new Vector2(BuildableList.X - size*1.6f, listItemPos.Y - size/4).RoundTo10();
-            pos.Y = Math.Max(100f, pos.Y);
-            ShipInfoOverlay.ShowShip(ship, pos, size, lowRes: ScreenWidth <= 1920);
+            if (item != null)
+            {
+                if (ActiveBuildingEntry == null && item.Building != null && Input.LeftMouseHeld(0.1f))
+                    ActiveBuildingEntry = item;
+            }
         }
     }
 }

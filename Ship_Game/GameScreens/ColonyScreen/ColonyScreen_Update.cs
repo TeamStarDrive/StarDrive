@@ -12,9 +12,6 @@ namespace Ship_Game
             UpdateBuildAndConstructLists(elapsedTime);
             UpdateButtonTimer(elapsedTime);
 
-            if (ShipInfoOverlay.Visible && BuildableList.HighlightedIndex == -1)
-                ShipInfoOverlay.Visible = false;
-
             GovOrbitals.Visible = P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0;
             GovMilitia.Visible = GovOrbitals.Visible;
 

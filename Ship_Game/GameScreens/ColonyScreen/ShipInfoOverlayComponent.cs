@@ -7,18 +7,35 @@ namespace Ship_Game
 {
     public class ShipInfoOverlayComponent : UIElementV2
     {
+        GameScreen Screen;
         Ship SelectedShip;
         bool LowRes;
         SpriteFont TitleFont;
         SpriteFont Font;
         int TextWidth;
 
-        public ShipInfoOverlayComponent()
+        public ShipInfoOverlayComponent(GameScreen screen)
         {
             Visible = false;
+            Screen = screen;
+            LowRes = screen.LowRes;
         }
 
-        public void ShowShip(Ship ship, Vector2 screenPos, float shipRectSize, bool lowRes = true)
+        public void ShowToLeftOf(Vector2 leftOf, Ship ship)
+        {
+            if (ship == null)
+            {
+                Visible = false;
+                return;
+            }
+
+            float size = Math.Max(256, (Screen.Width * 0.16f).RoundTo10());
+            Vector2 pos = new Vector2(leftOf.X - size*1.6f, leftOf.Y - size/4).RoundTo10();
+            pos.Y = Math.Max(100f, pos.Y);
+            ShowShip(ship, pos, size);
+        }
+
+        public void ShowShip(Ship ship, Vector2 screenPos, float shipRectSize)
         {
             if (SelectedShip != ship)
             {
@@ -28,7 +45,6 @@ namespace Ship_Game
                 ship.ShipStatusChange();
             }
 
-            LowRes = lowRes;
             Visible = true;
 
             TextWidth = (shipRectSize/2).RoundTo10();
