@@ -114,15 +114,6 @@ namespace Ship_Game
             if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
 
             base.Draw(batch);
-
-            batch.Begin();
-            UnlockSL.Draw(batch);
-            batch.End();
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            return UnlockSL.HandleInput(input) && base.HandleInput(input);
         }
 
         public override void LoadContent()
@@ -130,10 +121,10 @@ namespace Ship_Game
             base.LoadContent();
 
             var rect = new Rectangle(MidContainer.X + 20, 
-                                    MidContainer.Y + MidContainer.Height - 20, 
-                                    Rect.Width - 40, 
-                                    Rect.Height - MidContainer.Height - TitleRect.Height - 20);
-            UnlockSL = new ScrollList<UnlockListItem>(new Submenu(rect), 100);
+                                     MidContainer.Y + MidContainer.Height - 20, 
+                                     Rect.Width - 40, 
+                                     Rect.Height - MidContainer.Height - TitleRect.Height - 20);
+            UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
 
             // @todo What is this?
             bool IsShipType(string type)
