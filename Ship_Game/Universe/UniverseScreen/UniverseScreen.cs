@@ -680,6 +680,7 @@ namespace Ship_Game
         public override void Update(float deltaTime)
         {
             if (LookingAtPlanet) workersPanel.Update(deltaTime);
+            if (showingDSBW) dsbw.Update(deltaTime);
 
             if (viewState > UnivScreenState.ShipView)
             {
