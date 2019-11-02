@@ -103,6 +103,8 @@ namespace Ship_Game
             }
 
             RequiresLayout = true;
+            HighlightedIndex = -1; // remove highlight when closing/expanding
+            Highlight = null;
         }
 
         #region ScrollList HandleInput

@@ -68,7 +68,7 @@ namespace Ship_Game
             Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
             orbitalResourcesSub   = new Submenu(psubRect);
 
-            OrbitSL = new ScrollList<CombatScreenOrbitListItem>(orbitalResourcesSub);
+            OrbitSL = Add(new ScrollList<CombatScreenOrbitListItem>(orbitalResourcesSub));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDrag = OnTroopItemDrag;
 
@@ -262,18 +262,15 @@ namespace Ship_Game
                 }
             }
             
-            if (assetsUI.LandTroops.Toggled)
-            {
-                OrbitSL.Draw(batch);
-            }
-
+            base.Draw(batch);
             batch.End();
 
             batch.Begin(SpriteBlendMode.Additive);
             using (Explosions.AcquireReadLock())
+            {
                 foreach (SmallExplosion exp in Explosions)
                     exp.Draw(batch);
-
+            }
             batch.End();
 
             batch.Begin();
@@ -448,7 +445,6 @@ namespace Ship_Game
             {
                 item.Troop.TryLandTroop(p);
             }
-
             OrbitSL.Reset();
         }
 
@@ -522,6 +518,7 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             bool selectedSomethingThisFrame = false;
+
             assetsUI.HandleInput(input);
             if (Empire.Universe?.Debug == true && input.SpawnRemnant)
             {
@@ -547,11 +544,34 @@ namespace Ship_Game
 
             UpdateLaunchAllButton(p.TroopsHere.Count(t => t.Loyalty == Empire.Universe.player && t.CanMove));
 
-            if (assetsUI.LandTroops.Toggled)
-            {
-                OrbitSL.HandleInput(input);
-            }
+            selectedSomethingThisFrame |= HandleInputPlanetGridSquares();
+            
+            if (ActiveTile != null && !selectedSomethingThisFrame && Input.LeftMouseClick && !SelectedItemRect.HitTest(input.CursorPosition))
+                ActiveTile = null;
 
+            if (ActiveTile != null)
+                tInfo.pgs = ActiveTile;
+
+            DetermineAttackAndMove();
+            hInfo.SetPGS(HoveredSquare);
+
+            if (popup)
+            {
+                if (input.RightMouseHeldDown)
+                    return true;
+                popup = false;
+            }
+            else if (input.RightMouseHeldDown)
+            {
+                Empire.Universe.ShipsInCombat.Visible = true;
+                Empire.Universe.PlanetsInCombat.Visible = true;
+            }
+            return base.HandleInput(input);
+        }
+
+        bool HandleInputPlanetGridSquares()
+        {
+            bool capturedInput = false;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 if (!pgs.ClickRect.HitTest(Input.CursorPosition))
@@ -573,7 +593,8 @@ namespace Ship_Game
                         pgs.ShowAttackHover = false;
                     else if (ActiveTile.NoTroopsOnTile)
                     {
-                        if (ActiveTile.NoBuildingOnTile || ActiveTile.building.CombatStrength <= 0 || !ActiveTile.building.CanAttack || p.Owner == null || p.Owner != EmpireManager.Player)
+                        if (ActiveTile.NoBuildingOnTile || ActiveTile.building.CombatStrength <= 0 ||
+                            !ActiveTile.building.CanAttack || p.Owner == null || p.Owner != EmpireManager.Player)
                             continue;
 
                         if (Input.LeftMouseClick)
@@ -592,7 +613,7 @@ namespace Ship_Game
 
                         if (Input.LeftMouseClick)
                         {
-                            if      (pgs.x > ActiveTile.x) ActiveTile.SingleTroop.facingRight = true;
+                            if (pgs.x > ActiveTile.x) ActiveTile.SingleTroop.facingRight = true;
                             else if (pgs.x < ActiveTile.x) ActiveTile.SingleTroop.facingRight = false;
 
                             Troop item = ActiveTile.SingleTroop;
@@ -617,7 +638,7 @@ namespace Ship_Game
                             {
                                 ActiveTile = pgs;
                                 tInfo.SetPGS(pgs);
-                                selectedSomethingThisFrame = true;
+                                capturedInput = true;
                             }
                             else
                             {
@@ -630,17 +651,18 @@ namespace Ship_Game
 
                                 ActiveTile = pgs;
                                 tInfo.SetPGS(pgs);
-                                selectedSomethingThisFrame = true;
+                                capturedInput = true;
                             }
                         }
                     }
-                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.TroopClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
+                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.TroopClickRect.HitTest(Input.CursorPosition) &&
+                             Input.LeftMouseClick)
                     {
                         if (p.Owner != EmpireManager.Player)
                         {
                             ActiveTile = pgs;
                             tInfo.SetPGS(pgs);
-                            selectedSomethingThisFrame = true;
+                            capturedInput = true;
                         }
                         else
                         {
@@ -650,12 +672,17 @@ namespace Ship_Game
                                 p1.CanMoveTo = false;
                                 p1.ShowAttackHover = false;
                             }
+
                             ActiveTile = pgs;
                             tInfo.SetPGS(pgs);
-                            selectedSomethingThisFrame = true;
+                            capturedInput = true;
                         }
                     }
-                    if (ActiveTile == null || !pgs.CanMoveTo || ActiveTile.NoTroopsOnTile || !pgs.ClickRect.HitTest(Input.CursorPosition) || ActiveTile.SingleTroop.Loyalty != EmpireManager.Player || Input.LeftMouseReleased || !ActiveTile.SingleTroop.CanMove)
+
+                    if (ActiveTile == null || !pgs.CanMoveTo || ActiveTile.NoTroopsOnTile ||
+                        !pgs.ClickRect.HitTest(Input.CursorPosition) ||
+                        ActiveTile.SingleTroop.Loyalty != EmpireManager.Player || Input.LeftMouseReleased ||
+                        !ActiveTile.SingleTroop.CanMove)
                         continue;
 
                     if (Input.LeftMouseClick)
@@ -676,31 +703,12 @@ namespace Ship_Game
                         ActiveTile = null;
                         ActiveTile = pgs;
                         pgs.CanMoveTo = false;
-                        selectedSomethingThisFrame = true;
+                        capturedInput = true;
                     }
                 }
             }
-            if (ActiveTile != null && !selectedSomethingThisFrame && Input.LeftMouseClick && !SelectedItemRect.HitTest(input.CursorPosition))
-                ActiveTile = null;
 
-            if (ActiveTile != null)
-                tInfo.pgs = ActiveTile;
-
-            DetermineAttackAndMove();
-            hInfo.SetPGS(HoveredSquare);
-
-            if (popup)
-            {
-                if (input.RightMouseHeldDown)
-                    return true;
-                popup = false;
-            }
-            else if (input.RightMouseHeldDown)
-            {
-                Empire.Universe.ShipsInCombat.Visible = true;
-                Empire.Universe.PlanetsInCombat.Visible = true;
-            }
-            return base.HandleInput(input);
+            return capturedInput;
         }
 
         public void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender)
@@ -740,15 +748,17 @@ namespace Ship_Game
                 OrbitalAssetsTimer = 2;
                 ResetNextFrame     = false;
             }
+
+            OrbitSL.Visible = assetsUI.LandTroops.Toggled;
+
             UpdateOrbitalAssets(elapsedTime);
 
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                if (pgs.NoTroopsOnTile)
-                    continue;
-
-                pgs.SingleTroop.Update(elapsedTime);
+                if (!pgs.NoTroopsOnTile)
+                    pgs.SingleTroop.Update(elapsedTime);
             }
+
             using (Explosions.AcquireWriteLock())
             {
                 foreach (SmallExplosion exp in Explosions)
@@ -759,16 +769,18 @@ namespace Ship_Game
                 Explosions.ApplyPendingRemovals();
             }
             p.ActiveCombats.ApplyPendingRemovals();
+
             base.Update(elapsedTime);
         }
 
-        public void UpdateOrbitalAssets(float elapsedTime)
+        void UpdateOrbitalAssets(float elapsedTime)
         {
             OrbitalAssetsTimer -= elapsedTime;
-            if (OrbitalAssetsTimer.Greater(0))
+            if (OrbitalAssetsTimer > 0f)
                 return;
 
             OrbitalAssetsTimer = 2;
+
             OrbitSL.Reset();
             using (EmpireManager.Player.GetShips().AcquireReadLock())
             {

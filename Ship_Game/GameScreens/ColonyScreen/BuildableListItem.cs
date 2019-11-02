@@ -15,10 +15,14 @@ namespace Ship_Game
         readonly SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
         readonly SpriteFont Font8 = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
+        readonly bool LowRes;
+        readonly bool ShipHeader;
 
         public BuildableListItem(ColonyScreen screen, string headerText) : base(headerText)
         {
             Screen = screen;
+            LowRes = screen.LowRes;
+            ShipHeader = true;
         }
         public BuildableListItem(ColonyScreen screen, Building b) : this(screen, false, false)
         {
@@ -36,8 +40,9 @@ namespace Ship_Game
         BuildableListItem(ColonyScreen screen, bool plus, bool edit)
         {
             Screen = screen;
-            if (plus) AddPlus(new Vector2(-50, 0), /*Add to Q:*/51, OnPlusClicked);
-            if (edit) AddEdit(new Vector2(-20, 0), /*Edit Ship:*/52, OnEditClicked);
+            LowRes = screen.LowRes;
+            if (plus) AddPlus(new Vector2(LowRes ? -36 : -50, 0), /*Add to Q: */51, OnPlusClicked);
+            if (edit) AddEdit(new Vector2(LowRes ? -14 : -20, 0), /*Edit Ship:*/52, OnEditClicked);
         }
 
         void OnPlusClicked()
@@ -85,7 +90,20 @@ namespace Ship_Game
         }
 
         // Give a custom height for this scroll list item
-        public override int ItemHeight => 40;
+        public override int ItemHeight
+        {
+            get
+            {
+                if (ShipHeader)
+                    return LowRes ? 32 : 42;
+                return LowRes ? 30 : 42;
+            }
+        }
+
+        float IconSize  => LowRes ? 32 : 48;
+        float ProdWidth => LowRes ? 90 : 120;
+        float TextWidth => Width - IconSize - ProdWidth;
+        float TextX     => X + IconSize;
 
         public override void Draw(SpriteBatch batch)
         {
@@ -97,11 +115,13 @@ namespace Ship_Game
 
         void DrawProductionInfo(SpriteBatch batch, float maintenance, float cost)
         {
-            float upkeepY = CenterY - Font12.LineSpacing/2f - 4;
+            SpriteFont font = LowRes ? Fonts.Arial10 : Font12;
+            float x = Right - ProdWidth;
+            Vector2 iconSize = (ProdIcon.SizeF * (LowRes ? 0.75f : 1.0f)).Rounded();
+            batch.Draw(ProdIcon, new Vector2(x, Y+4), iconSize); // Production Icon
+            batch.DrawString(font, cost.String(), x + iconSize.X + 2, Y+4); // Build Cost
             if (maintenance >= 0f)
-                batch.DrawString(Font12, maintenance.String(2)+" BC/Y", Right-184, upkeepY, Color.Salmon); // Maintenance
-            batch.Draw(ProdIcon, Right - 120, CenterY - ProdIcon.CenterY - 4); // Production Icon
-            batch.DrawString(Font12, cost.String(), Right-92, upkeepY); // Build Cost
+                batch.DrawString(font, maintenance.String(2)+" BC/Y", x, Y+20, Color.Salmon); // Maintenance
         }
 
         void DrawBuilding(SpriteBatch batch, Building b)
@@ -112,33 +132,29 @@ namespace Ship_Game
             Color profitColor = Hovered ? Color.Orange : unprofitable ? Color.Chocolate : Color.Green;
 
             if (BuildingDescr == null)
-            {
-                string text = BuildingShortDescription(b) + (unprofitable ? " (unprofitable)" : "");
-                BuildingDescr = Font8.ParseText(text, 280f);
-            }
+                BuildingDescr = Font8.ParseText(BuildingShortDescription(b), TextWidth);
 
-            batch.Draw(b.IconTex, new Vector2(X+4, Y+4), new Vector2(32), buildColor); // Icon
-            batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), X+44, Y+4, buildColor); // Title
-            batch.DrawString(Font8, BuildingDescr, X+46, Y+20, profitColor); // Description
+            batch.Draw(b.IconTex, new Vector2(X, Y-2), new Vector2(IconSize), buildColor); // Icon
+            batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), TextX+2, Y+2, buildColor); // Title
+            batch.DrawString(Font8, BuildingDescr, TextX+4, Y+16, profitColor); // Description
             DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost);
         }
 
         void DrawTroop(SpriteBatch batch, Troop troop)
         {
-            troop.Draw(batch, new Vector2(X+4, Y+4), new Vector2(32)); // Icon
-            batch.DrawString(Font12, troop.DisplayNameEmpire(Screen.P.Owner), X+44, Y+4); // Title
-            batch.DrawString(Font8, troop.Class, X+46, Y+20, Color.Orange); // Description
+            troop.Draw(batch, new Vector2(X, Y-2), new Vector2(IconSize)); // Icon
+            batch.DrawString(Font12, troop.DisplayNameEmpire(Screen.P.Owner), TextX+2, Y+2); // Title
+            batch.DrawString(Font8, troop.Class, TextX+4, Y+16, Color.Orange); // Description
             DrawProductionInfo(batch, -1, troop.ActualCost);
         }
 
         void DrawShip(SpriteBatch batch, Ship ship)
         {
             // Everything from Left --> to --> Right 
-            batch.Draw(ship.BaseHull.Icon, new Vector2(X, Y), new Vector2(48)); // Icon
-            batch.DrawString(Font12, GetShipName(ship), X+60, Y+4, Hovered ? Color.Green : Color.White); // Title
-            batch.DrawLine(Font8, X+60, Y+20, 
-                (ship.BaseHull.Name+": ", Color.DarkGray),
-                ($"Base Strength: {ship.BaseStrength.String(0)}", Color.Orange)); // Description
+            batch.Draw(ship.BaseHull.Icon, new Vector2(X, Y-2), new Vector2(IconSize)); // Icon
+            batch.DrawString(Font12, GetShipName(ship), TextX+2, Y+2, Hovered ? Color.Green : Color.White); // Title
+            batch.DrawLine(Font8, TextX+4, Y+16, 
+                (ship.BaseHull.Name, Color.DarkGray), ($" strength:{ship.BaseStrength.String(0)}", Color.Orange)); // Description
             DrawProductionInfo(batch, GetShipUpkeep(ship), GetShipCost(ship));
         }
 
