@@ -616,7 +616,7 @@ namespace Ship_Game
         // For example: 75.5f.RoundTo10  -->  80
         public static int RoundTo10(this float value)
         {
-            return (int)Round(value * 0.1f) * 10;
+            return (int)Ceiling(value * 0.1f) * 10;
         }
 
         public static Vector2 RoundTo10(this Vector2 v)
