@@ -297,6 +297,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Update.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySlider.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\ConstructionQueueScrollListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\GovernorDetailsComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ShipInfoOverlayComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
@@ -828,7 +829,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\QueueItem.cs">
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\QueueItem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
