@@ -23,6 +23,7 @@ namespace Ship_Game
         
         // LEGACY LAYOUT: Change layout and Font Size if ScreenWidth is too small
         public readonly bool LowRes;
+        public readonly bool HiRes;
 
         // @return TRUE if content was loaded this frame
         public bool DidLoadContent { get; private set; }
@@ -89,6 +90,7 @@ namespace Ship_Game
                 Input = ScreenManager?.input;
 
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
+            HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
         }
 
         ~GameScreen() { Destroy(); }
