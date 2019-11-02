@@ -186,7 +186,7 @@ namespace Ship_Game
             if (p.Owner != null)
             {
                 DetailInfo = p.Description;
-                GovernorDetails = Add(new GovernorDetailsComponent(p, pDescription.Rect));
+                GovernorDetails = Add(new GovernorDetailsComponent(this, p, pDescription.Rect, governorVideo: !LowRes));
             }
             else
             {

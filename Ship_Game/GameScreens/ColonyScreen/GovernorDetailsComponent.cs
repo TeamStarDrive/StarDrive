@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.SpriteSystem;
@@ -11,32 +7,39 @@ namespace Ship_Game
 {
     class GovernorDetailsComponent : UIElementContainer
     {
+        readonly GameScreen Screen;
         Planet Planet;
-        SubTexture PortraitTex;
+        DrawableSprite PortraitSprite;
         readonly SubTexture PortraitShine = ResourceManager.Texture("Portraits/portrait_shine");
         readonly SubTexture PortraitRedX  = ResourceManager.Texture("NewUI/x_red");
         UIPanel Portrait;
         UILabel WorldType, WorldDescription;
         DropOptions<Planet.ColonyType> ColonyTypeList;
         UICheckBox GovOrbitals, GovMilitia, GovNoScrap;
+        readonly bool UseVideo;
 
-        public GovernorDetailsComponent(Planet p, in Rectangle rect) : base(rect)
+        public GovernorDetailsComponent(GameScreen screen, 
+            Planet p, in Rectangle rect, bool governorVideo) : base(rect)
         {
+            Screen = screen;
+            UseVideo = governorVideo;
             SetPlanetDetails(p);
         }
 
         public void SetPlanetDetails(Planet p)
         {
             Log.Assert(p != null, "GovernorDetailsComponent Planet cannot be null");
-            if (Planet == p)
+            if (Planet == p || p == null)
                 return;
 
             Planet = p;
             RemoveAll(); // delete all components
 
-            PortraitTex   = ResourceManager.Texture($"Portraits/{Planet.Owner.data.PortraitName}");
+            PortraitSprite = UseVideo && p.Owner.data.Traits.VideoPath.NotEmpty()
+                ? DrawableSprite.Video(Screen.TransientContent, p.Owner.data.Traits.VideoPath, looping:true)
+                : DrawableSprite.SubTex(Screen.TransientContent, $"Portraits/{Planet.Owner.data.PortraitName}");
 
-            Portrait = Add(new UIPanel(new DrawableSprite(PortraitTex)) {Border = Color.Orange});
+            Portrait  = Add(new UIPanel(PortraitSprite) {Border = Color.Orange});
             WorldType = Add(new UILabel(Planet.WorldType, Fonts.Arial12Bold));
             WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
             
@@ -61,22 +64,19 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
-            Portrait.Pos = Pos + new Vector2(10, 30);
-            Portrait.Size = new Vector2(124, 148);
-            while (Portrait.Bottom > Bottom) // make it fit!
-            {
-                Portrait.Height -= (int)(0.1f * Portrait.Height);
-                Portrait.Width  -= (int)(0.1f * Portrait.Width);
-            }
+            float aspect = PortraitSprite.Size.X / PortraitSprite.Size.Y;
+            float height = (float)Math.Round(Height * 0.6f);
+            Portrait.Size = new Vector2((float)Math.Round(aspect*height), height);
+            Portrait.Pos = new Vector2(X + 10, Y + 30);
 
             WorldType.Pos         = new Vector2(Portrait.Right + 10, Portrait.Y);
             ColonyTypeList.Pos    = new Vector2(WorldType.X, Portrait.Y + 16);
             WorldDescription.Pos  = new Vector2(WorldType.X, Portrait.Y + 40);
             WorldDescription.Text = GetParsedDescription();
 
-            GovOrbitals.Pos = new Vector2(Portrait.X, Portrait.Bottom + 4);
-            GovMilitia.Pos  = new Vector2(Portrait.X, Portrait.Bottom + 20);
-            GovNoScrap.Pos  = new Vector2(Portrait.X + 240, Portrait.Bottom + 4);
+            GovOrbitals.Pos = new Vector2(Portrait.X, Bottom - 40);
+            GovMilitia.Pos  = new Vector2(Portrait.X, Bottom - 24);
+            GovNoScrap.Pos  = new Vector2(Portrait.X + 240, Bottom - 40);
 
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }

@@ -415,6 +415,7 @@
     <Compile Include="Ship_Game\UI\ScrollListItemBase.cs" />
     <Compile Include="Ship_Game\UI\ScrollListStyleTextures.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
+    <Compile Include="Ship_Game\UI\UIButton_Style.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />

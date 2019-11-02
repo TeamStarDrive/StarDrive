@@ -40,6 +40,9 @@ namespace Ship_Game.GameScreens
         // Video play status changed
         public Action OnPlayStatusChange;
 
+        public string Name { get; private set; } = "";
+        public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
+
         public ScreenMediaPlayer(GameContentManager content, bool looping = true)
         {
             Content = content;
@@ -67,6 +70,7 @@ namespace Ship_Game.GameScreens
             try
             {
                 Video = ResourceManager.LoadVideo(Content, videoPath);
+                Name = videoPath;
                 Rect = new Rectangle(0, 0, Video.Width, Video.Height);
                 Player.IsLooped = looping;
 
@@ -213,7 +217,13 @@ namespace Ship_Game.GameScreens
             Draw(batch, Color.White);
         }
 
+        
         public void Draw(SpriteBatch batch, Color color)
+        {
+            Draw(batch, Rect, color, 0f, SpriteEffects.None);
+        }
+
+        public void Draw(SpriteBatch batch, in Rectangle rect, Color color, float rotation, SpriteEffects effects)
         {
             if (!Visible)
             {
@@ -229,15 +239,15 @@ namespace Ship_Game.GameScreens
                     Frame = Player.GetTexture();
 
                 if (Frame != null)
-                    batch.Draw(Frame, Rect, color);
+                    batch.Draw(Frame, rect, null, color, rotation, Vector2.Zero, effects, 0.9f);
             }
             
             if (EnableInteraction)
             {
-                batch.DrawRectangle(Rect, new Color(32, 30, 18));
+                batch.DrawRectangle(rect, new Color(32, 30, 18));
                 if (IsHovered && Player.State != MediaState.Playing)
                 {
-                    var playIcon = new Rectangle(Rect.CenterX() - 64, Rect.CenterY() - 64, 128, 128);
+                    var playIcon = new Rectangle(rect.CenterX() - 64, rect.CenterY() - 64, 128, 128);
                     batch.Draw(ResourceManager.Texture("icon_play"), playIcon, new Color(255, 255, 255, 200));
                 }
             }

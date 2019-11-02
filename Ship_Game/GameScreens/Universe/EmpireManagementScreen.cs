@@ -59,10 +59,9 @@ namespace Ship_Game
             money = new SortButton(eui.empire.data.ESSort, "money");
 
             var planets = EmpireManager.Player.GetPlanets();
-
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
             var governorRect = new Rectangle(eRect.Right - sidePanelWidths - 20, eRect.Bottom, sidePanelWidths, ScreenHeight - eRect.Bottom - 22);
-            GovernorDetails = Add(new GovernorDetailsComponent(planets[0], governorRect));
+            GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect, governorVideo: false));
             ResetColoniesList(planets);
         }
 
