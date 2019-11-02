@@ -43,6 +43,9 @@ namespace Ship_Game.GameScreens
         public string Name { get; private set; } = "";
         public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
 
+        // Player.Play() is too slow, so we start it in a background thread
+        TaskResult BeginPlayTask;
+
         public ScreenMediaPlayer(GameContentManager content, bool looping = true)
         {
             Content = content;
@@ -77,12 +80,16 @@ namespace Ship_Game.GameScreens
                 if (Player.Volume.NotEqual(GlobalStats.MusicVolume))
                     Player.Volume = GlobalStats.MusicVolume;
 
-                Player.Play(Video);
-                if (startPaused)
+                BeginPlayTask = Parallel.Run(() =>
                 {
-                    CaptureThumbnail = true;
-                    Player.Pause();
-                }
+                    Player.Play(Video);
+                    if (startPaused)
+                    {
+                        CaptureThumbnail = true;
+                        Player.Pause();
+                    }
+                });
+
                 OnPlayStatusChange?.Invoke();
             }
             catch (Exception ex)
@@ -193,6 +200,9 @@ namespace Ship_Game.GameScreens
 
         public void Update(GameScreen screen)
         {
+            if (BeginPlayTask?.IsComplete != true)
+                return;
+
             if (Video != null && Player.State != MediaState.Stopped)
             {
                 // pause video when game screen goes inactive
@@ -225,6 +235,9 @@ namespace Ship_Game.GameScreens
 
         public void Draw(SpriteBatch batch, in Rectangle rect, Color color, float rotation, SpriteEffects effects)
         {
+            if (BeginPlayTask?.IsComplete != true)
+                return;
+            
             if (!Visible)
             {
                 if (IsPlaying)

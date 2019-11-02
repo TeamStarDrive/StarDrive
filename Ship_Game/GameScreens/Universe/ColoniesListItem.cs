@@ -8,7 +8,6 @@ namespace Ship_Game
     public sealed class ColoniesListItem : ScrollListItem<ColoniesListItem>
     {
         public Planet p;
-        public Rectangle TotalEntrySize { get => Rect; set => Rect = value; }
         public Rectangle SysNameRect;
         public Rectangle PlanetNameRect;
         public Rectangle SliderRect;
@@ -95,17 +94,16 @@ namespace Ship_Game
             int sliderWidth = Screen.ScreenWidth <= 1366 ? 250 : 375;
 
             p.UpdateIncomes(false);
-            TotalEntrySize = new Rectangle(x, y, TotalEntrySize.Width, TotalEntrySize.Height);
-            SysNameRect    = new Rectangle(x, y, (int)((TotalEntrySize.Width - (sliderWidth + 150)) * 0.17f) - 30, TotalEntrySize.Height);
-            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((TotalEntrySize.Width - (sliderWidth + 150)) * 0.17f), TotalEntrySize.Height);
-            PopRect     = new Rectangle(PlanetNameRect.Right,      y, 30, TotalEntrySize.Height);
-            FoodRect    = new Rectangle(PlanetNameRect.Right + 30, y, 30, TotalEntrySize.Height);
-            ProdRect    = new Rectangle(PlanetNameRect.Right + 60, y, 30, TotalEntrySize.Height);
-            ResRect     = new Rectangle(PlanetNameRect.Right + 90, y, 30, TotalEntrySize.Height);
-            MoneyRect   = new Rectangle(PlanetNameRect.Right + 120, y, 30, TotalEntrySize.Height);
-            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y, SliderRect.Width, TotalEntrySize.Height);
-            StorageRect = new Rectangle(PlanetNameRect.Right + SliderRect.Width + 150, y, StorageRect.Width, TotalEntrySize.Height);
-            QueueRect   = new Rectangle(PlanetNameRect.Right + SliderRect.Width + StorageRect.Width + 150, y, QueueRect.Width, TotalEntrySize.Height);
+            SysNameRect    = new Rectangle(x, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f) - 30, Rect.Height);
+            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f), Rect.Height);
+            PopRect     = new Rectangle(PlanetNameRect.Right,      y, 30, Rect.Height);
+            FoodRect    = new Rectangle(PlanetNameRect.Right + 30, y, 30, Rect.Height);
+            ProdRect    = new Rectangle(PlanetNameRect.Right + 60, y, 30, Rect.Height);
+            ResRect     = new Rectangle(PlanetNameRect.Right + 90, y, 30, Rect.Height);
+            MoneyRect   = new Rectangle(PlanetNameRect.Right + 120, y, 30, Rect.Height);
+            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y, SliderRect.Width, Rect.Height);
+            StorageRect = new Rectangle(PlanetNameRect.Right + SliderRect.Width + 150, y, StorageRect.Width, Rect.Height);
+            QueueRect   = new Rectangle(PlanetNameRect.Right + SliderRect.Width + StorageRect.Width + 150, y, QueueRect.Width, Rect.Height);
             Sliders.UpdatePos(SliderRect.X + 10, SliderRect.Y);
 
             FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
@@ -192,11 +190,11 @@ namespace Ship_Game
             var smallHighlight = new Color(118, 102, 67, 25);
             if (ItemIndex % 2 == 0)
             {
-                batch.FillRectangle(TotalEntrySize, smallHighlight);
+                batch.FillRectangle(Rect, smallHighlight);
             }
             if (p == Screen.SelectedPlanet)
             {
-                batch.FillRectangle(TotalEntrySize, TextColor2);
+                batch.FillRectangle(Rect, TextColor2);
             }
 
             Color TextColor = Colors.Cream;
@@ -297,7 +295,7 @@ namespace Ship_Game
                 batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
             }
             
-            batch.DrawRectangle(TotalEntrySize, TextColor2);
+            batch.DrawRectangle(Rect, TextColor2);
         }
     }
 }
