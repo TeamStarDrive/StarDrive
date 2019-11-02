@@ -119,7 +119,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             {
                 GameAudio.AcceptClick();
                 ShowAllDesigns = !ShowAllDesigns;
-                PlayerDesignsToggle.Enabled = ShowAllDesigns;
+                PlayerDesignsToggle.Pressed = ShowAllDesigns;
                 ResetSL();
             };
             
@@ -296,7 +296,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {
             public PlayerDesignToggleButton(Vector2 pos) : base(pos, ToggleButtonStyle.PlayerDesigns, "SelectionBox/icon_grid")
             {
-                Enabled = true;
+                Pressed = true;
                 Tooltip = 237;
             }
         }

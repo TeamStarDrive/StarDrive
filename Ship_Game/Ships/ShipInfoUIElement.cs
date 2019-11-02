@@ -107,7 +107,7 @@ namespace Ship_Game.Ships
             Vector2 gridRect = new Vector2(Housing.X + 16, Screen.ScreenHeight - 45);
             GridButton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
-                Enabled = true
+                Pressed = true
             };
             OrderButtons(spacing, pOrderRect);
         }
@@ -167,7 +167,7 @@ namespace Ship_Game.Ships
         void UpdateOrderButtonToggles()
         {
             foreach (ToggleButton toggleButton in CombatStatusButtons)
-                toggleButton.Enabled = (Ship.AI.CombatState == toggleButton.CombatState);
+                toggleButton.Pressed = (Ship.AI.CombatState == toggleButton.CombatState);
         }
 
         bool OrderButtonInput(InputState input)
@@ -547,7 +547,7 @@ namespace Ship_Game.Ships
                 {
                     GameAudio.AcceptClick();
                     ShowModules = !ShowModules;
-                    GridButton.Enabled = ShowModules;
+                    GridButton.Pressed = ShowModules;
                 }
                 return true;
             }
