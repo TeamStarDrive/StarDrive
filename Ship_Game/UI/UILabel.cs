@@ -24,13 +24,13 @@ namespace Ship_Game
         // Versus normal text alignment:             x TEXT
         public bool AlignRight = false;
 
-        public string Text
+        public LocalizedText Text
         {
             get => LabelText;
             set
             {
-                LabelText = value;
-                Size = LabelFont.MeasureString(value);
+                LabelText = value.Text;
+                Size = LabelFont.MeasureString(LabelText);
             }
         }
 
@@ -65,6 +65,14 @@ namespace Ship_Game
 
         public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\"";
         
+        public UILabel(SpriteFont font)
+        {
+            LabelFont = font;
+            Size = new Vector2(font.LineSpacing); // give it a mock size to ease debugging
+        }
+        public UILabel(float x, float y, LocalizedText text) : this(new Vector2(x,y), text, Fonts.Arial12Bold)
+        {
+        }
         public UILabel(Vector2 pos, LocalizedText text) : this(pos, text, Fonts.Arial12Bold)
         {
         }

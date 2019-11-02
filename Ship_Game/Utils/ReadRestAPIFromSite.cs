@@ -118,7 +118,7 @@ namespace Ship_Game.Utils
                 if (!version.HitTest(input.CursorPosition)) continue;
                 foreach (var kv in FilesAvailable)
                 {
-                    if (!version.Text.Contains(kv.Key)) continue;
+                    if (!version.Text.Text.Contains(kv.Key)) continue;
                     Log.OpenURL(downLoadSite);
                     Log.OpenURL(kv.Value);
                     return true;

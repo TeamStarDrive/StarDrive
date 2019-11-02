@@ -414,11 +414,11 @@ namespace Ship_Game
 
             float ordersBarX = ClassifCursor.X - 15;
             var ordersBarPos = new Vector2(ordersBarX, ClassifCursor.Y + 20);
-            void AddCombatStatusBtn(CombatState state, string iconPath, int toolTip)
+            void AddCombatStatusBtn(CombatState state, string iconPath, ToolTipText toolTip)
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, iconPath)
                 {
-                    CombatState   = state,
+                    CombatState = state,
                     Tooltip = toolTip
                 };
                 button.OnClick = (b) => OnCombatButtonPressed(state);

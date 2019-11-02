@@ -18,7 +18,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             batch.DrawString(Fonts.Arial12Bold,
-                $"{VisibleIndex+1}. {Response.Text}", Pos,
+                $"{ItemIndex+1}. {Response.Text}", Pos,
                 (Hovered ? Color.LightGray : Color.White));
         }
     }

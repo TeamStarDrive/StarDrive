@@ -33,7 +33,6 @@ namespace Ship_Game
 
         public static int ComparisonCounter = 1;
         public static int Comparisons = 0;
-        public static bool HardcoreRuleset = false;
         public static bool TakingInput = false;
         public static bool WarpInSystem = true;
         public static float FTLInSystemModifier = 1f;

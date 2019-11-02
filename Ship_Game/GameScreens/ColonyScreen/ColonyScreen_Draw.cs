@@ -297,37 +297,6 @@ namespace Ship_Game
             if (rect.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
                 ToolTip.CreateTooltip(21);
 
-            var portrait = new Rectangle(pDescription.Rect.X + 10, pDescription.Rect.Y + 30, 124, 148);
-            while (portrait.Bottom > pDescription.Rect.Bottom)
-            {
-                portrait.Height -= (int)(0.1 * portrait.Height);
-                portrait.Width  -= (int)(0.1 * portrait.Width);
-            }
-            batch.Draw(ResourceManager.Texture($"Portraits/{P.Owner.data.PortraitName}"), portrait, Color.White);
-            batch.Draw(ResourceManager.Texture("Portraits/portrait_shine"), portrait, Color.White);
-            batch.DrawRectangle(portrait, Color.Orange);
-            if (P.colonyType == Planet.ColonyType.Colony)
-                batch.Draw(ResourceManager.Texture("NewUI/x_red"), portrait, Color.White);
-
-            // WorldType
-            // [dropdown]
-            // ColonTypeInfoText
-            var description = new Rectangle(portrait.Right + 15, portrait.Y,
-                pDescription.Rect.Right - portrait.Right - 20,
-                pDescription.Rect.Height - 60);
-
-            var descCursor = new Vector2(description.X, description.Y);
-            batch.DrawString(Font12, P.WorldType, descCursor, Color.White);
-            descCursor.Y += Font12.LineSpacing + 5;
-
-            GovernorDropdown.Pos = descCursor;
-            GovernorDropdown.Reset();
-            descCursor.Y += GovernorDropdown.Height + 5;
-
-            string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText, description.Width);
-            batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
-            GovernorDropdown.Draw(batch); // draw dropdown on top of other text
-
             DrawFoodAndStorage(batch);
             DrawOrbitalStats(batch);
             DrawActiveBuildingEntry(batch); // draw dragged item as topmost

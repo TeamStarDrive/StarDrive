@@ -75,7 +75,7 @@ namespace Ship_Game
             var textColor = new Color(118, 102, 67, 50);
             var smallHighlight = new Color(118, 102, 67, 25);
 
-            if (VisibleIndex % 2 == 0)
+            if (ItemIndex % 2 == 0)
             {
                 batch.FillRectangle(TotalEntrySize, smallHighlight);
             }

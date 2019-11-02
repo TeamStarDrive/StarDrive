@@ -521,11 +521,13 @@ namespace Ship_Game
             return degrees.AngleToDirection() * circleRadius;
         }
 
+        public const float DefaultTolerance = 0.000001f;
+
         // Returns true if a is almost equal to b, within float epsilon error margin
         public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
-            return -0.000001f <= delta && delta <= +0.000001f;
+            return -DefaultTolerance <= delta && delta <= DefaultTolerance;
         }
         public static bool AlmostEqual(this float a, float b, float tolerance)
         {
@@ -535,18 +537,18 @@ namespace Ship_Game
         public static bool NotEqual(this float a, float b)
         {
             float delta = a - b;
-            return delta < -0.000001f || +0.000001f <= delta;
+            return delta < -DefaultTolerance || DefaultTolerance <= delta;
         }
 
 
         public static bool AlmostZero(this float a)
         {
-            return -0.000001f <= a && a <= +0.000001f;
+            return -DefaultTolerance <= a && a <= DefaultTolerance;
         }
 
         public static bool NotZero(this float a)
         {
-            return a < -0.000001f || +0.000001f < a;
+            return a < -DefaultTolerance || DefaultTolerance < a;
         }
 
         /// <summary>Returns true if a less than b or almost equal</summary>
@@ -579,7 +581,6 @@ namespace Ship_Game
             return (min - 0.000001f) <= x && x <= (max + 0.000001f);
         }
 
-
         public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
 
         // compute the next highest power of 2 of 32-bit v
@@ -601,6 +602,14 @@ namespace Ship_Game
             int rem = value % multipleOf;
             if (rem != 0)
                 value += multipleOf - rem;
+            return value;
+        }
+
+        public static int RoundDownToMultipleOf(this int value, int multipleOf)
+        {
+            int rem = value % multipleOf;
+            if (rem != 0)
+                return value - rem;
             return value;
         }
 

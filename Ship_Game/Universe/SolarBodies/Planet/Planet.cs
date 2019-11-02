@@ -16,13 +16,13 @@ namespace Ship_Game
     {
         public enum ColonyType
         {
-            Core,
-            Colony,
-            Industrial,
-            Research,
-            Agricultural,
-            Military,
-            TradeHub
+            Core = 0,
+            Colony = 1,
+            Industrial = 2,
+            Research = 3,
+            Agricultural = 4,
+            Military = 5,
+            TradeHub = 6,
         }
 
         public override string ToString() =>
@@ -625,37 +625,41 @@ namespace Ship_Game
                 DevelopmentStatus += Localizer.Token(1779); // military culture
         }
 
-        int ColonyTypeLocId()
+        public LocalizedText ColonyTypeInfoText
         {
-            switch (colonyType)
+            get
             {
-                default:
-                case ColonyType.Core:         return 378;
-                case ColonyType.Colony:       return 382;
-                case ColonyType.Industrial:   return 379;
-                case ColonyType.Research:     return 381;
-                case ColonyType.Agricultural: return 377;
-                case ColonyType.Military:     return 380;
-                case ColonyType.TradeHub:     return 394;
+                switch (colonyType)
+                {
+                    default:
+                    case ColonyType.Core:         return 378;
+                    case ColonyType.Colony:       return 382;
+                    case ColonyType.Industrial:   return 379;
+                    case ColonyType.Research:     return 381;
+                    case ColonyType.Agricultural: return 377;
+                    case ColonyType.Military:     return 380;
+                    case ColonyType.TradeHub:     return 394;
+                }
             }
         }
-        public string ColonyTypeInfoText => Localizer.Token(ColonyTypeLocId());
 
-        int WorldTypeLocId()
+        public LocalizedText WorldType
         {
-            switch (colonyType)
+            get
             {
-                default:
-                case ColonyType.Core:         return 372;
-                case ColonyType.Colony:       return 376;
-                case ColonyType.Industrial:   return 373;
-                case ColonyType.Research:     return 375;
-                case ColonyType.Agricultural: return 371;
-                case ColonyType.Military:     return 374;
-                case ColonyType.TradeHub:     return 393;
+                switch (colonyType)
+                {
+                    default:
+                    case ColonyType.Core:         return 372;
+                    case ColonyType.Colony:       return 376;
+                    case ColonyType.Industrial:   return 373;
+                    case ColonyType.Research:     return 375;
+                    case ColonyType.Agricultural: return 371;
+                    case ColonyType.Military:     return 374;
+                    case ColonyType.TradeHub:     return 393;
+                }
             }
         }
-        public string WorldType => Localizer.Token(WorldTypeLocId());
 
         void UpdateBaseFertility()
         {
