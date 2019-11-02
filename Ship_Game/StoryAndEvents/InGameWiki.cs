@@ -174,11 +174,5 @@ namespace Ship_Game
             Player.Stop();
             base.ExitScreen();
         }
-
-        protected override void Destroy()
-        {
-            Player?.Dispose(ref Player);
-            base.Destroy();
-        }
     }
 }

@@ -147,7 +147,6 @@ namespace Ship_Game
         bool WasClicked; // purely visual
 
         public ToolTipText Tooltip;
-        public Color BaseColor = Color.White;
 
         readonly ToggleButtonStyle Style;
         SubTexture IconTexture, IconActive;

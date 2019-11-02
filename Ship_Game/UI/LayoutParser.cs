@@ -188,8 +188,8 @@ namespace Ship_Game.UI
             int texWidth = 0, texHeight = 0;
             if (info.Spr != null)
             {
-                texWidth  = info.Spr.Width;
-                texHeight = info.Spr.Height;
+                texWidth  = (int)info.Spr.Size.X;
+                texHeight = (int)info.Spr.Size.Y;
             }
             else if (info.Tex != null)
             {
