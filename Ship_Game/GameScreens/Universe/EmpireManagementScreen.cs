@@ -46,10 +46,9 @@ namespace Ship_Game
 
             EMenu = new Menu2(LeftRect);
             Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
-            eRect = new Rectangle(LeftRect.X + 20, titleRect.Bottom + 25,
+            eRect = new Rectangle(LeftRect.X + 20, titleRect.Bottom + 30,
                                   ScreenWidth - 40,
-                                  (int)(0.66f * (ScreenHeight - titleRect.Bottom - 7)));
-            eRect.Height = eRect.Height.RoundDownToMultipleOf(80);
+                                  (int)(0.66f * LeftRect.Height));
 
             ColoniesList = Add(new ScrollList<ColoniesListItem>(eRect, 80));
             ColoniesList.OnClick = OnColonyListItemClicked;
@@ -128,7 +127,7 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12, Fonts.Arial12.ParseText(SelectedPlanet.Description, PlanetInfoRect.Width - PlanetIconRect.Width + 15), PNameCursor, Color.White);
             }
 
-            ColoniesListItem e1 = ColoniesList.FirstItem;
+            ColoniesListItem e1 = ColoniesList.ItemAtTop;
             var MapRect = new Rectangle(PlanetInfoRect.Right, PlanetInfoRect.Y, e1.QueueRect.X - PlanetInfoRect.Right, PlanetInfoRect.Height);
             int desiredWidth = 700;
             int desiredHeight = 500;
@@ -178,7 +177,7 @@ namespace Ship_Game
 
             if (ColoniesList.NumEntries > 0)
             {
-                ColoniesListItem entry = ColoniesList.FirstItem;
+                ColoniesListItem entry = ColoniesList.ItemAtTop;
                 var TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, Colors.Cream);
                 TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
@@ -233,7 +232,7 @@ namespace Ship_Game
             botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
             batch.DrawLine(topLeftSL, botSL, lineColor);
 
-            batch.DrawRectangle(ColoniesList.ItemsHousing, lineColor); // ColoniesList items housing border
+            batch.DrawRectangle(ColoniesList.ItemsHousing, lineColor); // items housing border
 
             var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth("Paused") - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);

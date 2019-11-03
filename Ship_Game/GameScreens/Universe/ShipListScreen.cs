@@ -122,7 +122,7 @@ namespace Ship_Game
             // Draw List Header
             if (ShipSL.NumEntries > 0)
             {
-                ShipListScreenItem e1 = ShipSL.FirstItem;
+                ShipListScreenItem e1 = ShipSL.ItemAtTop;
                 SpriteFont font = Fonts.Arial20Bold;
                 var cursor = new Vector2(e1.SysNameRect.CenterX() - font.TextWidth(192) / 2f, eRect.Y - font.LineSpacing + 28);
                 SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(192), font.LineSpacing);

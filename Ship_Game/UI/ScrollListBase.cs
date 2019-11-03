@@ -436,11 +436,14 @@ namespace Ship_Game
 
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
             {
-                FlatEntries[i].Draw(batch);
+                var e = FlatEntries[i];
+                e.Draw(batch);
+                // DEBUG:
+                batch.DrawRectangle(e.Rect, i % 2 == 0 ? Color.Green.Alpha(0.5f) : Color.Blue.Alpha(0.5f));
             }
 
             //batch.DrawRectangle(ScrollHousing, Color.Red);
-            //batch.DrawRectangle(ItemsRect, Color.Red);
+            batch.DrawRectangle(ItemsHousing, Color.Magenta);
 
             if (EnableItemHighlight)
                 Highlight?.Draw(batch);
