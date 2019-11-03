@@ -8,50 +8,26 @@ namespace Ship_Game
 {
 	public sealed class YouLoseScreen : GameScreen
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
-		//private GameScreen caller;
-
-		private Effect desaturateEffect;
-
-		//private Menu2 window;
-
-		private Rectangle Portrait;
-
-		private Rectangle SourceRect;
-
-		private Texture2D LoseTexture;
-
-		private Texture2D Reason;
-
-		private Rectangle ReasonRect;
-
-		//private Rectangle RememberRect;
-
-		private ReplayElement replay;
-
+        Effect desaturateEffect;
+        Rectangle Portrait;
+        Rectangle SourceRect;
+        Texture2D LoseTexture;
+        Texture2D Reason;
+        Rectangle ReasonRect;
+        ReplayElement replay;
 		AudioHandle Music = new AudioHandle();
 		AudioHandle Ambient = new AudioHandle();
-
-		private Vector2 Origin = new Vector2(960f, 540f);
-
-		private int width = 192;
-
-		private int height = 108;
-
-		private float scale = 20f;
-
-		private float Saturation = 255f;
-
-		private bool ShowingReplay;
-
-		private string RememberedAs = "A footnote in a treatise on failed governance.";
-
-		//private float transitionElapsedTime;
+        Vector2 Origin = new Vector2(960f, 540f);
+        int width = 192;
+        int height = 108;
+        float scale = 20f;
+        float Saturation = 255f;
+        bool ShowingReplay;
+        //string RememberedAs = "A footnote in a treatise on failed governance.";
 
 		public YouLoseScreen(GameScreen parent) : base(parent)
 		{
-			IsPopup = true;
+			IsPopup = false;
 			TransitionOnTime = 30f;
 			TransitionOffTime = 0.25f;
 		}
@@ -59,22 +35,20 @@ namespace Ship_Game
 		public override void Draw(SpriteBatch batch)
 		{
 			ScreenManager.GraphicsDevice.Clear(Color.Black);
-			ScreenManager.SpriteBatch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
+			batch.Begin(SpriteBlendMode.None, SpriteSortMode.Immediate, SaveStateMode.None);
 			desaturateEffect.Begin();
 			desaturateEffect.CurrentTechnique.Passes[0].Begin();
-			Rectangle? nullable = null;
-			ScreenManager.SpriteBatch.Draw(LoseTexture, new Vector2(ScreenWidth / 2, ScreenHeight / 2), nullable, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
-			Vector2 vector2 = new Vector2(ScreenWidth / 2 - Fonts.Arial20Bold.MeasureString(RememberedAs).X / 2f, ScreenHeight / 2 + 50);
-			ScreenManager.SpriteBatch.End();
+			batch.Draw(LoseTexture, ScreenCenter, null, new Color(255, 255, 255, (byte)Saturation), 0f, Origin, scale, SpriteEffects.None, 1f);
+			batch.End();
 			desaturateEffect.CurrentTechnique.Passes[0].End();
 			desaturateEffect.End();
-			ScreenManager.SpriteBatch.Begin();
-			ScreenManager.SpriteBatch.Draw(Reason, ReasonRect, Color.White);
+			batch.Begin();
+			batch.Draw(Reason, ReasonRect, Color.White);
 			if (!IsExiting && ShowingReplay)
 			{
 				replay.Draw(ScreenManager);
 			}
-			ScreenManager.SpriteBatch.End();
+			batch.End();
 		}
 
 		public override void ExitScreen()
@@ -111,10 +85,6 @@ namespace Ship_Game
 			{
 				ShowingReplay = false;
 			}
-			if (input.Escaped)
-			{
-				ExitScreen();
-			}
 			return base.HandleInput(input);
 		}
 
@@ -128,9 +98,9 @@ namespace Ship_Game
 			SourceRect = new Rectangle(864, 486, 192, 108);
 			while (Portrait.Width < ScreenWidth && Portrait.Height < ScreenHeight)
 			{
-				Portrait.Width = Portrait.Width + 19;
+				Portrait.Width += 19;
 				Portrait.X = ScreenWidth / 2 - Portrait.Width / 2;
-				Portrait.Height = Portrait.Height + 10;
+				Portrait.Height += 10;
 				Portrait.Y = ScreenHeight / 2 - Portrait.Height / 2;
 			}
             GameAudio.SwitchToRacialMusic();

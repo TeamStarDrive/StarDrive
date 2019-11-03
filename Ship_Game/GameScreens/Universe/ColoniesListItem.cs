@@ -7,6 +7,7 @@ namespace Ship_Game
 {
     public sealed class ColoniesListItem : ScrollListItem<ColoniesListItem>
     {
+        readonly EmpireManagementScreen Screen;
         public Planet p;
         public Rectangle SysNameRect;
         public Rectangle PlanetNameRect;
@@ -19,7 +20,7 @@ namespace Ship_Game
         public Rectangle ResRect;
         public Rectangle MoneyRect;
 
-        ColonySliderGroup Sliders;
+        AssignLaborComponent AssignLabor;
 
         ProgressBar FoodStorage;
         ProgressBar ProdStorage;
@@ -28,70 +29,27 @@ namespace Ship_Game
         DropDownMenu prodDropDown;
         Rectangle foodStorageIcon;
         Rectangle prodStorageIcon;
-        EmpireManagementScreen Screen;
 
         bool ApplyProdHover;
 
-        public ColoniesListItem(Planet planet, int x, int y, int width1, int height, EmpireManagementScreen screen)
+        public ColoniesListItem(EmpireManagementScreen screen, Planet planet)
         {
-            int sliderWidth = 375;
             Screen = screen;
             p = planet;
-            Rect = new Rectangle(x, y, width1 - 60, height);
-            SysNameRect = new Rectangle(x, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f) - 30, height);
-            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f), height);
-            PopRect     = new Rectangle(PlanetNameRect.Right,      y, 30, height);
-            FoodRect    = new Rectangle(PlanetNameRect.Right + 30, y, 30, height);
-            ProdRect    = new Rectangle(PlanetNameRect.Right + 60, y, 30, height);
-            ResRect     = new Rectangle(PlanetNameRect.Right + 90, y, 30, height);
-            MoneyRect   = new Rectangle(PlanetNameRect.Right + 120, y, 30, height);
-            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y, sliderWidth, height);
-            StorageRect = new Rectangle(PlanetNameRect.Right + SliderRect.Width + 150, y, (int)((Rect.Width - (sliderWidth + 120)) * 0.33f), height);
-            QueueRect = new Rectangle(PlanetNameRect.Right + SliderRect.Width + StorageRect.Width + 150, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.33f), height);
-            int width = (int)(SliderRect.Width * 0.8f);
-            width = width.RoundUpToMultipleOf(10);
 
-            Sliders = Add(new ColonySliderGroup(SliderRect));
-            Sliders.Create(SliderRect.X + 10, SliderRect.Y, width, (int)(0.25 * SliderRect.Height), drawIcons:false);
-            Sliders.SetPlanet(planet);
-
-            FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
-            {
-                Max = p.Storage.Max,
-                Progress = p.FoodHere,
-                color = "green"
-            };
-            int ddwidth = (int)(0.2f * StorageRect.Width);
-            if (GlobalStats.IsGermanOrPolish)
-            {
-                ddwidth = (int)Fonts.Arial12.MeasureString(Localizer.Token(330)).X + 22;
-            }
-            foodDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
-            foodDropDown.AddOption(Localizer.Token(329));
-            foodDropDown.AddOption(Localizer.Token(330));
-            foodDropDown.AddOption(Localizer.Token(331));
-            foodDropDown.ActiveIndex = (int)p.FS;
-            foodStorageIcon = new Rectangle(StorageRect.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_food").Height / 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            ProdStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, FoodStorage.pBar.Y + FoodStorage.pBar.Height + 10, (int)(0.4f * StorageRect.Width), 18))
-            {
-                Max = p.Storage.Max,
-                Progress = p.ProdHere
-            };
-            prodStorageIcon = new Rectangle(StorageRect.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - ResourceManager.Texture("NewUI/icon_production").Height / 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
-            prodDropDown = new DropDownMenu(new Rectangle(StorageRect.X + 50 + (int)(0.4f * StorageRect.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, ddwidth, 18));
-            prodDropDown.AddOption(Localizer.Token(329));
-            prodDropDown.AddOption(Localizer.Token(330));
-            prodDropDown.AddOption(Localizer.Token(331));
-            prodDropDown.ActiveIndex = (int)p.PS;
-            ApplyProductionRect = new Rectangle(QueueRect.X + QueueRect.Width - 50, QueueRect.Y + QueueRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height);
+            //UIList columns = Add(new UIList());
+            //foreach (int columnWidth in new [] { 200, 200, 30, 30, 30, 30, 30, 375, 375 } )
+            //{
+            //    columns.Add(new UIPanel(0, 0, columnWidth, 80)).Border = ;
+            //}
+            //columns.PerformLayout();
         }
 
         public override void PerformLayout()
         {
-            base.PerformLayout();
             int x = (int)X;
             int y = (int)Y;
-            int sliderWidth = Screen.ScreenWidth <= 1366 ? 250 : 375;
+            int sliderWidth = Screen.LowRes ? 250 : 375;
 
             p.UpdateIncomes(false);
             SysNameRect    = new Rectangle(x, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f) - 30, Rect.Height);
@@ -101,10 +59,14 @@ namespace Ship_Game
             ProdRect    = new Rectangle(PlanetNameRect.Right + 60, y, 30, Rect.Height);
             ResRect     = new Rectangle(PlanetNameRect.Right + 90, y, 30, Rect.Height);
             MoneyRect   = new Rectangle(PlanetNameRect.Right + 120, y, 30, Rect.Height);
-            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y, SliderRect.Width, Rect.Height);
-            StorageRect = new Rectangle(PlanetNameRect.Right + SliderRect.Width + 150, y, StorageRect.Width, Rect.Height);
-            QueueRect   = new Rectangle(PlanetNameRect.Right + SliderRect.Width + StorageRect.Width + 150, y, QueueRect.Width, Rect.Height);
-            Sliders.UpdatePos(SliderRect.X + 10, SliderRect.Y);
+            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y, sliderWidth, Rect.Height);
+            StorageRect = new Rectangle(PlanetNameRect.Right + sliderWidth + 150, y, (int)((Rect.Width - (sliderWidth + 120)) * 0.33f), Rect.Height);
+            QueueRect   = new Rectangle(PlanetNameRect.Right + sliderWidth + StorageRect.Width + 150, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.33f), Rect.Height);
+            
+            if (AssignLabor == null)
+            {
+                AssignLabor = Add(new AssignLaborComponent(p, new RectF(SliderRect), useTitleFrame: false));
+            }
 
             FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
             {
@@ -137,6 +99,8 @@ namespace Ship_Game
             prodDropDown.AddOption(Localizer.Token(331));
             prodDropDown.ActiveIndex = (int)p.PS;
             ApplyProductionRect = new Rectangle(QueueRect.X + QueueRect.Width - 50, QueueRect.Y + QueueRect.Height / 2 - ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height / 2, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Width, ResourceManager.Texture("NewUI/icon_queue_rushconstruction").Height);
+            
+            base.PerformLayout();
         }
 
         public override bool HandleInput(InputState input)
@@ -261,6 +225,21 @@ namespace Ship_Game
 
             base.Draw(batch);
 
+            DrawStorage(batch);
+
+            if (p.ConstructionQueue.Count > 0)
+            {
+                QueueItem qi = p.ConstructionQueue[0];
+                qi.DrawAt(batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 15));
+
+                batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
+            }
+            
+            batch.DrawRectangle(Rect, TextColor2);
+        }
+
+        void DrawStorage(SpriteBatch batch)
+        {
             if (p.Owner.data.Traits.Cybernetic != 0)
             {
                 FoodStorage.DrawGrayed(batch);
@@ -274,7 +253,8 @@ namespace Ship_Game
 
             ProdStorage.Draw(batch);
             prodDropDown.Draw(batch);
-            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), foodStorageIcon, (p.Owner.NonCybernetic ? Color.White : new Color(110, 110, 110, 255)));
+            batch.Draw(ResourceManager.Texture("NewUI/icon_food"), foodStorageIcon,
+                (p.Owner.NonCybernetic ? Color.White : new Color(110, 110, 110, 255)));
             batch.Draw(ResourceManager.Texture("NewUI/icon_production"), prodStorageIcon, Color.White);
 
             if (foodStorageIcon.HitTest(Screen.Input.CursorPosition))
@@ -286,16 +266,6 @@ namespace Ship_Game
             {
                 ToolTip.CreateTooltip(74);
             }
-
-            if (p.ConstructionQueue.Count > 0)
-            {
-                QueueItem qi = p.ConstructionQueue[0];
-                qi.DrawAt(batch, new Vector2(QueueRect.X + 10, QueueRect.Y + QueueRect.Height / 2 - 15));
-
-                batch.Draw((ApplyProdHover ? ResourceManager.Texture("NewUI/icon_queue_rushconstruction_hover1") : ResourceManager.Texture("NewUI/icon_queue_rushconstruction")), ApplyProductionRect, Color.White);
-            }
-            
-            batch.DrawRectangle(Rect, TextColor2);
         }
     }
 }

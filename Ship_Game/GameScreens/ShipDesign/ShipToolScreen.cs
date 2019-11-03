@@ -72,6 +72,7 @@ namespace Ship_Game
             TransitionOnTime  = 0f;
             TransitionOffTime = 0f;
             IsPopup = true;
+            ActiveModule = null;
         }
 
         void OnExistingHullClicked(ShipData hull)
@@ -281,17 +282,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (!IsActive)
-            {
-                return false;
-            }
-
-            if (input.Escaped)
-            {
-                ActiveModule = null;
-                ExitScreen();
-            }
-            
             if (base.HandleInput(input))
                 return true;
 

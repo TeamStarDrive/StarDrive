@@ -13,31 +13,31 @@ namespace Ship_Game
 {
     public sealed class PlanetInfoUIElement : UIElement
     {
-        public Planet P;
-        private Rectangle ClickRect;
-        private readonly UniverseScreen Screen;
-        private Rectangle MoneyRect;
-        private Rectangle SendTroops;
-        private Rectangle PopRect;
-        private string PlanetTypeRichness;
-        private Vector2 PlanetTypeCursor;
-        private readonly Selector Sel;
-        private readonly SkinnableButton Inspect;
-        private readonly SkinnableButton Invade;
-        private readonly ColonySliderGroup Sliders;
-        private readonly Rectangle Housing;
-        private readonly Rectangle DefenseRect;
-        private readonly Rectangle InjuryRect;
-        private readonly Rectangle OffenseRect;
-        private readonly Rectangle ShieldRect;
-        private readonly Rectangle DefenseShipsRect;
-        private readonly Rectangle RightRect;
-        private readonly Rectangle PlanetIconRect;
-        private readonly Rectangle FlagRect;
-        private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
-        private Rectangle Mark;
+        Planet P;
+        readonly UniverseScreen Screen;
+        Rectangle MoneyRect;
+        Rectangle SendTroops;
+        Rectangle PopRect;
+        string PlanetTypeRichness;
+        Vector2 PlanetTypeCursor;
+        readonly Selector Sel;
+        readonly SkinnableButton Inspect;
+        readonly SkinnableButton Invade;
+        readonly Rectangle Housing;
+        readonly Rectangle DefenseRect;
+        readonly Rectangle InjuryRect;
+        readonly Rectangle OffenseRect;
+        readonly Rectangle ShieldRect;
+        readonly Rectangle DefenseShipsRect;
+        readonly Rectangle RightRect;
+        readonly Rectangle PlanetIconRect;
+        readonly Rectangle FlagRect;
+        readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
+        Rectangle Mark;
+        AssignLaborComponent AssignLabor;
 
-        public PlanetInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
+
+        public PlanetInfoUIElement(in Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
             this.Screen = screen;
             ScreenManager = sm;
@@ -46,8 +46,7 @@ namespace Ship_Game
             Housing = r;
             TransitionOnTime = TimeSpan.FromSeconds(0.25);
             TransitionOffTime = TimeSpan.FromSeconds(0.25);
-            ClickRect = new Rectangle(ElementRect.Right - 16, ElementRect.CenterY() - 11, 11, 22);
-            Rectangle leftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
+            var leftRect = new Rectangle(r.X, r.Y + 44, 200, r.Height - 44);
             RightRect = new Rectangle(r.X + 200, r.Y + 44, 200, r.Height - 44);
             PlanetIconRect = new Rectangle(leftRect.X + 75, Housing.Y + 120, 80, 80);
             Inspect = new SkinnableButton(new Rectangle(PlanetIconRect.CenterX() - 16, PlanetIconRect.Y, 32, 32), "UI/viewPlanetIcon")
@@ -61,16 +60,18 @@ namespace Ship_Game
                 IsToggle = false
             };
 
-            var sliderRect = new Rectangle(r.Right - 100, r.Bottom - 40, 500, 40);
-            Sliders = new ColonySliderGroup(sliderRect);
-            Sliders.Create(RightRect.X, Housing.Y + 120, 145, 40);
-
             FlagRect         = new Rectangle(r.X + r.Width - 60, Housing.Y + 63, 26, 26);
             DefenseRect      = new Rectangle(leftRect.X + 13, Housing.Y + 114, 22, 22);
             OffenseRect      = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 22, 22, 22);
             InjuryRect       = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
             ShieldRect       = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
             DefenseShipsRect = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 88, 22, 22);
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            AssignLabor?.Update(Screen.FrameDeltaTime);
+            base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
@@ -180,6 +181,8 @@ namespace Ship_Game
             }
             Inspect.Draw(batch);
             Invade.Draw(batch);
+
+            AssignLabor?.Draw(batch);
         }
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)
@@ -345,7 +348,7 @@ namespace Ship_Game
             return false;
         }
 
-        private void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
+        void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
         {
             SpriteFont font = Fonts.Arial12Bold;
             Vector2 pos     = new Vector2((rect.X + rect.Width + 2), (rect.Y + 11 - font.LineSpacing / 2));
@@ -439,21 +442,33 @@ namespace Ship_Game
             {
                 return false;
             }
-            if (P.Owner != null && P.Owner == EmpireManager.Player)
-            {
-                P.UpdateIncomes(false);
-                Sliders.HandleInput(input);
-            }
+
+            if (AssignLabor != null && AssignLabor.HandleInput(input))
+                return true;
+
             return true;
         }
 
         public void SetPlanet(Planet p)
         {
-            this.P = p;
-            Sliders.SetPlanet(p);
+            if (P != p)
+            {
+                P = p;
+                if (p != null && P.Owner == EmpireManager.Player)
+                {
+                    int x = PlanetIconRect.Right + 20;
+                    var sliderRect = new RectF(x, PlanetIconRect.Y-40,
+                                               ElementRect.Right-x-20, PlanetIconRect.Height+50);
+                    AssignLabor = new AssignLaborComponent(p, sliderRect, useTitleFrame: false);
+                }
+                else
+                {
+                    AssignLabor = null;
+                }
+            };
         }
 
-        private struct TippedItem
+        struct TippedItem
         {
             public Rectangle r;
             public int TIP_ID;

@@ -239,7 +239,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped || input.ResearchExitScreen)
+            if (input.ResearchExitScreen)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

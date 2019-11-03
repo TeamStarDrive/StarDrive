@@ -8,47 +8,25 @@ namespace Ship_Game
 {
 	public sealed class YouWinScreen : GameScreen
 	{
-		private Vector2 Cursor = Vector2.Zero;
-
-		private string txt;
-
-		//private GameScreen caller;
-
-		private Effect desaturateEffect;
-
-		//private Menu2 window;
-
-		private Rectangle Portrait;
-
-		private Rectangle SourceRect;
-
-		private Texture2D LoseTexture;
-
-		private Texture2D Reason;
-
-		private Rectangle ReasonRect;
-
-		//private Rectangle RememberRect;
-
-		private ReplayElement replay;
-
+        string txt;
+        Effect desaturateEffect;
+        Rectangle Portrait;
+        Rectangle SourceRect;
+        Texture2D LoseTexture;
+        Texture2D Reason;
+        Rectangle ReasonRect;
+        ReplayElement replay;
 		AudioHandle Music = new AudioHandle();
-
-		private Vector2 Origin = new Vector2(960f, 540f);
-
-		private int width = 192;
-
-		private int height = 108;
-
-		private float scale = 20f;
-
-		private float Saturation = 255f;
-
-		private bool ShowingReplay;
+        Vector2 Origin = new Vector2(960f, 540f);
+        int width = 192;
+        int height = 108;
+        float scale = 20f;
+        float Saturation = 255f;
+        bool ShowingReplay;
 
 		public YouWinScreen(GameScreen parent) : base(parent)
 		{
-			IsPopup = true;
+			IsPopup = false;
 			TransitionOnTime = 30f;
 			TransitionOffTime = 0.25f;
 		}
@@ -57,7 +35,7 @@ namespace Ship_Game
         {
             txt = text;
             txt = Fonts.Arial20Bold.ParseText(txt, 500f);
-			IsPopup = true;
+			IsPopup = false;
 			TransitionOnTime = 30f;
 			TransitionOffTime = 0.25f;
 		}
@@ -89,7 +67,7 @@ namespace Ship_Game
                     Vector2 pos = ScreenCenter;
                     pos.X -= 250;
                     pos.Y -= 50;
-                    HelperFunctions.DrawDropShadowText(batch, txt, pos, Fonts.Arial20Bold);
+                    batch.DrawDropShadowText(txt, pos, Fonts.Arial20Bold);
                 }
                 batch.Draw(Reason, ReasonRect, Color.White);
                 if (!IsExiting && ShowingReplay)

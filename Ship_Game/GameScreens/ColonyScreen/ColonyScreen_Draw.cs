@@ -137,14 +137,12 @@ namespace Ship_Game
 
             PlanetInfo.Draw(batch);
             pDescription.Draw(batch);
-            pLabor.Draw(batch);
             pStorage.Draw(batch);
             subColonyGrid.Draw(batch);
 
             DrawPlanetSurfaceGrid(batch);
             pFacilities.Draw(batch);
             DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
-            Sliders.Draw(batch);
 
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
             float num5 = 80f;

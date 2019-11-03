@@ -9,14 +9,11 @@ using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
+    // TODO: GroundCombatScreen
     public sealed class CombatScreen : PlanetScreen
     {
         public Planet p;
-        Menu2 TitleBar;
-        Vector2 TitlePos;
-        Menu2 CombatField;
         Rectangle gridPos;
-        Menu1 OrbitalResources;
         Submenu orbitalResourcesSub;
 
         ScrollList<CombatScreenOrbitListItem> OrbitSL;
@@ -45,28 +42,26 @@ namespace Ship_Game
         float[] startXByRow    =  { 254f, 222f, 181f, 133f, 74f, 0f };
 
 
-        static bool popup;  //fbedard
-
         public CombatScreen(GameScreen parent, Planet p) : base(parent)
         {
             this.p                = p;
             int screenWidth       = ScreenWidth;
             GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
-            TitleBar              = new Menu2(titleRect);
-            TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            var TitleBar              = new Menu2(titleRect);
+            var TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             SelectedItemRect      = new Rectangle(screenWidth - 240, 100, 225, 205);
             AssetsRect            = new Rectangle(10, 48, 225, 200);
             HoveredItemRect       = new Rectangle(10, 248, 225, 200);
             assetsUI              = new OrbitalAssetsUIElement(AssetsRect, ScreenManager, Empire.Universe, p);
             tInfo                 = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
             hInfo                 = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
-            Rectangle colonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
-            CombatField           = new Menu2(colonyGrid);
-            Rectangle orbitalRect = new Rectangle(5, colonyGrid.Y, (screenWidth - colonyGrid.Width) / 2 - 20, colonyGrid.Height+20);
-            OrbitalResources      = new Menu1(orbitalRect);
-            Rectangle psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
-            orbitalResourcesSub   = new Submenu(psubRect);
+            var colonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
+            var CombatField = new Menu2(colonyGrid);
+            var orbitalRect = new Rectangle(5, colonyGrid.Y, (screenWidth - colonyGrid.Width) / 2 - 20, colonyGrid.Height+20);
+            var OrbitalResources = new Menu1(orbitalRect);
+            var psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
+            orbitalResourcesSub = new Submenu(psubRect);
 
             OrbitSL = Add(new ScrollList<CombatScreenOrbitListItem>(orbitalResourcesSub));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
@@ -274,9 +269,6 @@ namespace Ship_Game
             batch.End();
 
             batch.Begin();
-
-            if (ScreenManager.NumScreens == 2)
-                popup = true;
         }
 
         void DrawCombatInfo(PlanetGridSquare pgs)
@@ -555,17 +547,6 @@ namespace Ship_Game
             DetermineAttackAndMove();
             hInfo.SetPGS(HoveredSquare);
 
-            if (popup)
-            {
-                if (input.RightMouseHeldDown)
-                    return true;
-                popup = false;
-            }
-            else if (input.RightMouseHeldDown)
-            {
-                Empire.Universe.ShipsInCombat.Visible = true;
-                Empire.Universe.PlanetsInCombat.Visible = true;
-            }
             return base.HandleInput(input);
         }
 

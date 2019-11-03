@@ -105,7 +105,6 @@ namespace Ship_Game
         {
             if (Input.FleetExitScreen && !GlobalStats.TakingInput)
             {
-                GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }
@@ -378,13 +377,6 @@ namespace Ship_Game
                     SelectedNodeList.Clear();
                     ResetLists();
                 }
-            }
-
-            if (input.Escaped)
-            {
-                Open = false;
-                ExitScreen();
-                return true;
             }
 
             return false;

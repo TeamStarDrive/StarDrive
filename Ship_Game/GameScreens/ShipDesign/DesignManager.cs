@@ -67,17 +67,6 @@ namespace Ship_Game
             EnterNameArea.Text = item.Ship.Name;
         }
 
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
-        }
-
-
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);

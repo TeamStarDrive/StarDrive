@@ -104,15 +104,5 @@ namespace Ship_Game
             string desc = Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40);
             batch.DrawString(Fonts.Arial12Bold, desc, PNameCursor, Colors.Cream);
         }
-
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
-        }
     }
 }
