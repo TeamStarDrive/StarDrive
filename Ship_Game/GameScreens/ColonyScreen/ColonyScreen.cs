@@ -18,7 +18,6 @@ namespace Ship_Game
         Menu1 RightMenu;
         Submenu PlanetInfo;
         Submenu pDescription;
-        Submenu pLabor;
         Submenu pStorage;
         Submenu pFacilities;
         Submenu BuildableTabs;
@@ -49,7 +48,7 @@ namespace Ship_Game
         string StationsStats  = "Stations:";
         string ShipyardsStats = "Shipyards:";
 
-        ColonySliderGroup Sliders;
+        AssignLaborComponent AssignLabor;
         readonly ShipInfoOverlayComponent ShipInfoOverlay;
         readonly GovernorDetailsComponent GovernorDetails;
 
@@ -81,16 +80,16 @@ namespace Ship_Game
             RightMenu = new Menu1(titleBar.Right + 10, titleBar.Y, ScreenWidth / 3 - 15, ScreenHeight - titleBar.Y - 2);
             Add(new CloseButton(RightMenu.Right - 52, RightMenu.Y + 22));
             PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.25f * (LeftMenu.Height - 80)));
-            PlanetInfo.AddTab(Localizer.Token(326));
+            PlanetInfo.AddTab(title:326);
             pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
-            pLabor = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 20, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
-            pLabor.AddTab(Localizer.Token(327));
+            var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 20,
+                                  0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
 
-            CreateSliders(pLabor.Rect);
+            AssignLabor = Add(new AssignLaborComponent(P, labor, useTitleFrame: true));
 
-            pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + pLabor.Height + 40, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
-            pStorage.AddTab(Localizer.Token(328));
+            pStorage = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + labor.H + 40, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+            pStorage.AddTab(title:328);
 
             FoodStorage = new ProgressBar(pStorage.X + 100, pStorage.Y + 25 + 0.33f*(pStorage.Height - 25), 0.4f*pStorage.Width, 18);
             FoodStorage.Max = p.Storage.Max;
@@ -299,24 +298,6 @@ namespace Ship_Game
                 P.ScrapBuilding(ToScrap);
 
             Update(0f);
-        }
-
-        void HandleSliders(InputState input)
-        {
-            Sliders.HandleInput(input);
-            P.UpdateIncomes(false);
-        }
-
-        void CreateSliders(Rectangle laborPanel)
-        {
-            int sliderW = ((int)(laborPanel.Width * 0.6f)).RoundUpToMultipleOf(10);
-            int sliderX = laborPanel.X + 60;
-            int sliderY = laborPanel.Y + 25;
-            int slidersAreaH = laborPanel.Height - 25;
-            int spacingY = (int)(0.25 * slidersAreaH);
-            Sliders = new ColonySliderGroup(laborPanel);
-            Sliders.Create(sliderX, sliderY, sliderW, spacingY);
-            Sliders.SetPlanet(P);
         }
 
         void OnBuildableHoverChange(BuildableListItem item)

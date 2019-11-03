@@ -923,7 +923,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.KeysCurr.IsKeyDown(Keys.I) && !input.KeysPrev.IsKeyDown(Keys.I) && !GlobalStats.TakingInput)
+            if (input.KeyPressed(Keys.I) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
@@ -954,11 +954,6 @@ namespace Ship_Game
             if (ArtifactsSL.HandleInput(input))
                 return true;
 
-            if (input.Escaped || input.MouseCurr.RightButton == ButtonState.Pressed)
-            {
-                ExitScreen();
-                return true;
-            }
             return base.HandleInput(input);
         }
 

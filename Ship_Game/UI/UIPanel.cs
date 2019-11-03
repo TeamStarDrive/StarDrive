@@ -43,7 +43,7 @@ namespace Ship_Game
             Sprite = sprite;
         }
 
-        public UIPanel(float x, float y, float w, float h, DrawableSprite sprite) : base(x, y, w, h)
+        public UIPanel(float x, float y, float w, float h, DrawableSprite sprite = null) : base(x, y, w, h)
         {
             Sprite = sprite;
         }

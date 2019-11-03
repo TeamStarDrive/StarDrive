@@ -152,21 +152,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             }
         }
 
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
-        }
-
-        public override void Update(float deltaTime)
-        {
-            base.Update(deltaTime);
-        }
-
         void DeleteAccepted()
         {            
             GameAudio.EchoAffirmative();

@@ -25,7 +25,9 @@ namespace Ship_Game
         const int PaddingLeft  = 12;
         const int PaddingRight = 24;
 
-        protected Rectangle ItemsRect; // inner housing rect for scroll list items
+        // inner housing rect for scroll list items
+        // available for reading, BUT it will be recalculated in every PerformLayout()
+        public Rectangle ItemsHousing;
         protected Rectangle ScrollUp, ScrollUpClickArea;
         protected Rectangle ScrollDown, ScrollDownClickArea;
         protected Rectangle ScrollBar, ScrollBarClickArea;
@@ -273,7 +275,7 @@ namespace Ship_Game
 
             ScrollListStyleTextures s = GetStyle();
 
-            ItemsRect = new Rectangle((int)X + PaddingLeft,
+            ItemsHousing = new Rectangle((int)X + PaddingLeft,
                                       (int)Y + PaddingTop,
                                       (int)Width - (PaddingLeft + PaddingRight),
                                       (int)Height - (PaddingTop + PaddingBot));
@@ -296,13 +298,13 @@ namespace Ship_Game
             }
 
             // PaddingBot gives padding bottom of the items when scrolling
-            float maxVisibleItemsF = (ItemsRect.Height - PaddingBot) / (EntryHeight + ItemPadding.Y);
+            float maxVisibleItemsF = (ItemsHousing.Height - PaddingBot) / (EntryHeight + ItemPadding.Y);
             MaxVisibleItems = (int)Math.Ceiling(maxVisibleItemsF);
             ShouldDrawScrollBar = FlatEntries.Count > (int)Math.Floor(maxVisibleItemsF);
 
-            int itemX = (int)Math.Round(ItemsRect.X + ItemPadding.X);
-            int itemY = (int)Math.Round(ItemsRect.Y + ItemPadding.Y);
-            int itemW = (int)Math.Round(ItemsRect.Width - ItemPadding.X*2);
+            int itemX = (int)Math.Round(ItemsHousing.X + ItemPadding.X);
+            int itemY = (int)Math.Round(ItemsHousing.Y + ItemPadding.Y);
+            int itemW = (int)Math.Round(ItemsHousing.Width - ItemPadding.X*2);
 
             if (ScrollBarPosChanged)
             {
@@ -444,7 +446,7 @@ namespace Ship_Game
                 Highlight?.Draw(batch);
 
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
-            batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsRect.X - 10, ItemsRect.Y - 5, ItemsRect.Width + 20, ItemsRect.Height + 5);
+            batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5);
             batch.End();
             batch.Begin();
             batch.GraphicsDevice.RenderState.ScissorTestEnable = false;

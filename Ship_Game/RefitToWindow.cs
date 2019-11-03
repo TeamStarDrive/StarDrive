@@ -72,7 +72,9 @@ namespace Ship_Game
         {
             var shipDesignsRect = new Rectangle(ScreenWidth / 2 - 140, 100, 280, 500);
             sub_ships = new Submenu(shipDesignsRect);
-            RefitShipList = new ScrollList<RefitShipListItem>(sub_ships, 40);
+            sub_ships.Background = new Selector(sub_ships.Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
+            
+            RefitShipList = Add(new ScrollList<RefitShipListItem>(sub_ships, 40));
             sub_ships.AddTab("Refit to...");
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
@@ -103,39 +105,17 @@ namespace Ship_Game
             RefitAll.Enabled = RefitTo != null;
         }
 
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-
-            if (RefitShipList.HandleInput(input))
-                return true;
-
-            return base.HandleInput(input);
-        }
-
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            sub_ships.Draw(batch);
-            Rectangle r = sub_ships.Rect;
-            r.Y += 25;
-            r.Height -= 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(batch);
-            RefitShipList.Draw(batch);
-
+            base.Draw(batch);
             if (RefitTo != null)
             {
                 var cursor = new Vector2(ConfirmRefit.r.X, (ConfirmRefit.r.Y + 30));
                 string text = Fonts.Arial12Bold.ParseText($"Refit {ShipToRefit.Name} to {RefitTo.Name}", 270f);
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
-            base.Draw(batch);
             batch.End();
         }
 

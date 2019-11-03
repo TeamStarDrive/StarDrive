@@ -11,7 +11,6 @@ namespace Ship_Game
 {
     public sealed partial class FleetDesignScreen : GameScreen
     {
-        public static bool Open;
         public Camera2D Camera;
         //private Background bg = new Background();
         StarField StarField;
@@ -66,7 +65,6 @@ namespace Ship_Game
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
-            Open = true;
         }
 
         public void ChangeFleet(int which)

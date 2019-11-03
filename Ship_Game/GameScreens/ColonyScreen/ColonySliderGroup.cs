@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -14,31 +9,42 @@ namespace Ship_Game
         ColonySlider Food, Prod, Res;
         Planet P;
 
-        public ColonySliderGroup(Rectangle rect) : base(rect)
+        public bool DrawIcons; // draw resource icons or not?
+        public Action OnSlidersChanged;
+
+        public ColonySliderGroup(Planet p, in Rectangle housing, bool drawIcons)
+            : base(housing)
         {
+            P = p;
+            DrawIcons = drawIcons;
         }
 
-        public void Create(int x, int y, int width, int spacingY, bool drawIcons=true)
+        public override void PerformLayout()
         {
-            for (int i = 0; i < 3; ++i)
+            if (Food == null)
             {
-                Sliders[i] = Add(new ColonySlider((ColonyResType)i, null, x, y + (spacingY * (i+1)), width, drawIcons)
+                for (int i = 0; i < 3; ++i)
                 {
-                    OnSliderChange = OnSliderChange
-                });
+                    Sliders[i] = Add(new ColonySlider((ColonyResType)i, P, DrawIcons)
+                    {
+                        OnSliderChange = OnSliderChanged
+                    });
+                }
+                Food = Sliders[(int)ColonyResType.Food];
+                Prod = Sliders[(int)ColonyResType.Prod];
+                Res  = Sliders[(int)ColonyResType.Res];
+                SetPlanet(P);
             }
-            Food = Sliders[(int)ColonyResType.Food];
-            Prod = Sliders[(int)ColonyResType.Prod];
-            Res  = Sliders[(int)ColonyResType.Res];
-        }
 
-        public void UpdatePos(int x, int y)
-        {
-            int spacingY = (int)(Sliders[1].Y - Sliders[0].Y);
+            
+            int spacingY = (int)(0.25f * Height);
             for (int i = 0; i < 3; ++i)
             {
-                Sliders[i].UpdatePos(x, y + spacingY * (i+1));
+                Sliders[i].Pos = new Vector2(X, Y + spacingY*(i+1));
+                Sliders[i].Width = Width;
             }
+
+            base.PerformLayout();
         }
 
         public void SetPlanet(Planet p)
@@ -56,7 +62,7 @@ namespace Ship_Game
         }
 
         // solve 3-way slider change
-        void OnSliderChange(ColonySlider a, float difference)
+        void OnSliderChanged(ColonySlider a, float difference)
         {
             ColonySlider b = Sliders.Find(s => s != a && !s.LockedByUser); // always unlocked
             ColonySlider c = Sliders.Find(s => s != a && s != b);    // maybe locked
@@ -88,6 +94,8 @@ namespace Ship_Game
             float sum = Sliders.Sum(s => s.Value);
             if (!sum.AlmostEqual(1f))
                 Log.Warning($"ColonySlider bad sum {sum} ==> F:{Food.Value} P:{Prod.Value} R:{Res.Value}");
+
+            OnSlidersChanged?.Invoke();
         }
 
         public override bool HandleInput(InputState input)

@@ -81,15 +81,5 @@ namespace Ship_Game
 			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
 			batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 		}
-
-		public override bool HandleInput(InputState input)
-		{
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
-		}
 	}
 }

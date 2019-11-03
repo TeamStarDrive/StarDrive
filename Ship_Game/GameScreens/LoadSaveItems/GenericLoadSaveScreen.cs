@@ -148,17 +148,6 @@ namespace Ship_Game
             EnterNameArea.Text = file.FileName;
         }
 
-
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
-        }
-
         void OverWriteAccepted()
         {
             DoSave();

@@ -257,12 +257,6 @@ namespace Ship_Game
 
             HandleCameraMovement(input);
 
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
-
             if (HighlightedModule != null && HandleInputMoveArcs(input, HighlightedModule))
                 return true;
 

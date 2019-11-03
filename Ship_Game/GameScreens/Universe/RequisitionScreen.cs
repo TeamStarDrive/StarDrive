@@ -200,11 +200,6 @@ namespace Ship_Game
                 CreateFleetRequisitionGoals();
                 UpdateRequisitionStatus();
             }
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
             return base.HandleInput(input);
         }
 

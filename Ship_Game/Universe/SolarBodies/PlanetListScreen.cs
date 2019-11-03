@@ -239,11 +239,6 @@ namespace Ship_Game
                 ExitScreen();
                 return true;
             }
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
             return base.HandleInput(input);
         }
 

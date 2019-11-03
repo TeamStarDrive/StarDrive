@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -44,9 +40,9 @@ namespace Ship_Game
         public bool IsCrippled; // PRODUCTION resource: are we crippled?
         public bool IsInvasion; // PRODUCTION resource: invasion leaves us crippled as well?
 
-        public ColonySlider(ColonyResType type, Planet p, int x, int y, int width, bool drawIcons = true)
-            : base(new Rectangle(x, y, width, 6))
+        public ColonySlider(ColonyResType type, Planet p, bool drawIcons = true)
         {
+            Height = 6;
             Type = type;
             P = p;
             var sliders = new[]{ "green", "brown", "blue" };
@@ -54,17 +50,17 @@ namespace Ship_Game
             Slider    = ResourceManager.Texture($"NewUI/slider_grd_{sliders[(int)type]}");
             Icon      = ResourceManager.Texture($"NewUI/icon_{icons[(int)type]}");
             DrawIcons = drawIcons;
-            UpdatePos(x, y);
+            RequiresLayout = true;
         }
 
-        public void UpdatePos(int x, int y)
+        public override void PerformLayout()
         {
-            SetAbsPos(x, y);
+            base.PerformLayout();
             LockRect = new Rectangle(Rect.Right + 10, 
-                Rect.Center.Y + 2 - Lock.Height / 2, Lock.Width, Lock.Height);
+                                     Rect.Center.Y + 2 - Lock.Height / 2, Lock.Width, Lock.Height);
         }
 
-        int Tooltip()
+        ToolTipText Tooltip()
         {
             switch (Type)
             {

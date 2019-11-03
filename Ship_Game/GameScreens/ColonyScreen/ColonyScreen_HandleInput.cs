@@ -40,7 +40,6 @@ namespace Ship_Game
             }
 
             HandlePlanetNameChangeTextBox(input);
-            HandleSliders(input);
 
             if (HandleTroopSelect(input))
                 return true;
@@ -129,8 +128,8 @@ namespace Ship_Game
 
         bool HandleCycleColoniesLeftRight(InputState input)
         {
-            if (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(Localizer.Token(2279));
-            else if (LeftColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(Localizer.Token(2280));
+            if     (RightColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(2279);
+            else if (LeftColony.Rect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(2280);
 
             bool canView = (Empire.Universe.Debug || P.Owner == EmpireManager.Player);
             if (!canView)

@@ -163,6 +163,11 @@ namespace Ship_Game
             Pos = new Vector2(rect.X, rect.Y);
             Size = new Vector2(rect.Width, rect.Height);
         }
+        protected UIElementV2(in RectF rect)
+        {
+            Pos = new Vector2(rect.X, rect.Y);
+            Size = new Vector2(rect.W, rect.H);
+        }
         protected UIElementV2(float x, float y, float w, float h)
         {
             Pos = new Vector2(x, y);
