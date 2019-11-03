@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.Data;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Lights;
@@ -168,7 +169,15 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            // TODO: if (IsPopup) auto-dismiss the screen
+            if (!Visible || !Enabled || !IsActive)
+                return false;
+
+            if (input.Escaped || (IsPopup && input.RightMouseClick))
+            {
+                GameAudio.EchoAffirmative();
+                ExitScreen();
+                return true;
+            }
             return base.HandleInput(input);
         }
 

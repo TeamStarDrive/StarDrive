@@ -18,7 +18,7 @@ namespace Ship_Game
 
         ScrollList<ColoniesListItem> ColoniesList;
         GovernorDetailsComponent GovernorDetails;
-        Rectangle leftRect;
+        Rectangle LeftRect;
         Rectangle eRect;
 
         SortButton pop;
@@ -41,11 +41,14 @@ namespace Ship_Game
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.CenterX() - Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f,
                                    titleRect.CenterY() - Fonts.Laserian14.LineSpacing / 2);
-            leftRect = new Rectangle(2, titleRect.Bottom + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
 
-            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            EMenu = new Menu2(leftRect);
-            eRect = new Rectangle(2, titleRect.Bottom + 25, ScreenWidth - 40, (int)(0.66f * (ScreenHeight - titleRect.Bottom - 7)));
+            LeftRect = new Rectangle(2, titleRect.Bottom + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
+
+            EMenu = new Menu2(LeftRect);
+            Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
+            eRect = new Rectangle(LeftRect.X + 20, titleRect.Bottom + 25,
+                                  ScreenWidth - 40,
+                                  (int)(0.66f * (ScreenHeight - titleRect.Bottom - 7)));
             eRect.Height = eRect.Height.RoundDownToMultipleOf(80);
 
             ColoniesList = Add(new ScrollList<ColoniesListItem>(eRect, 80));
@@ -176,7 +179,7 @@ namespace Ship_Game
             if (ColoniesList.NumEntries > 0)
             {
                 ColoniesListItem entry = ColoniesList.FirstItem;
-                Vector2 TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
+                var TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, Colors.Cream);
                 TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(389), TextCursor, Colors.Cream);
@@ -230,19 +233,7 @@ namespace Ship_Game
             botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
             batch.DrawLine(topLeftSL, botSL, lineColor);
 
-            topLeftSL = new Vector2(e1.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
-            batch.DrawLine(topLeftSL, botSL, Color.Red);
-
-            topLeftSL = new Vector2(e1.Right, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
-            batch.DrawLine(topLeftSL, botSL, Color.Magenta);
-
-            var leftBot = new Vector2(e1.X, PlanetInfoRect.Y);
-            batch.DrawLine(leftBot, botSL, Color.Blue);
-            leftBot = new Vector2(e1.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, eRect.Y + 35);
-            batch.DrawLine(leftBot, botSL, Color.Red);
+            batch.DrawRectangle(ColoniesList.ItemsHousing, lineColor); // ColoniesList items housing border
 
             var pos = new Vector2(ScreenWidth - Fonts.Pirulen16.TextWidth("Paused") - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
@@ -286,7 +277,7 @@ namespace Ship_Game
             float totalSpace = pgs.ClickRect.Width - 30;
             float spacing = totalSpace / total;
             Rectangle rect = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y + pgs.ClickRect.Height - ResourceManager.Texture("NewUI/icon_food").Height, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
-            for (int i = 0; (float)i < numFood; i++)
+            for (int i = 0; i < numFood; i++)
             {
                 if (numFood - i <= 0f || numFood - i >= 1f)
                 {
@@ -298,7 +289,7 @@ namespace Ship_Game
                 }
                 rect.X = rect.X + (int)spacing;
             }
-            for (int i = 0; (float)i < numProd; i++)
+            for (int i = 0; i < numProd; i++)
             {
                 if (numProd - i <= 0f || numProd - i >= 1f)
                 {
@@ -310,7 +301,7 @@ namespace Ship_Game
                 }
                 rect.X = rect.X + (int)spacing;
             }
-            for (int i = 0; (float)i < numRes; i++)
+            for (int i = 0; i < numRes; i++)
             {
                 if (numRes - i <= 0f || numRes - i >= 1f)
                 {
@@ -343,11 +334,6 @@ namespace Ship_Game
             if (input.KeyPressed(Keys.U) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
-                ExitScreen();
-                return true;
-            }
-            if (input.Escaped || input.RightMouseClick)
-            {
                 ExitScreen();
                 return true;
             }
@@ -384,7 +370,7 @@ namespace Ship_Game
             ColoniesList.Reset();
             foreach (Planet p in sortedList)
             {
-                ColoniesList.AddItem(new ColoniesListItem(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 80, this));
+                ColoniesList.AddItem(new ColoniesListItem(this, p));
             }
 
             SelectedPlanet = ColoniesList.AllEntries[0].p;

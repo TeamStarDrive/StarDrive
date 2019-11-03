@@ -103,16 +103,6 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return SavesSL.HandleInput(input) && base.HandleInput(input);
-        }
-
         bool LoadModel(ModelData modelData)
         {
             try

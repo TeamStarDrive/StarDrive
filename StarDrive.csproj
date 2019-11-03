@@ -282,6 +282,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\RadMath.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\RectF.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
@@ -290,6 +291,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
     <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
+    <Compile Include="Ship_Game\GameScreens\ColonyScreen\AssignLaborComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\BuildableListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Draw.cs" />

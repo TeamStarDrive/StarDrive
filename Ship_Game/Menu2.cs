@@ -19,6 +19,7 @@ namespace Ship_Game
 
         public bool Hollow;
         public Color Background;
+        public Color Border = Color.TransparentBlack; // mostly for debugging
 
         public Menu2(in Rectangle theMenu) : this(theMenu, new Color(0, 0, 0, 240))
         {
@@ -86,6 +87,11 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/menu_2_corner_TR"), corner_TR, Color.White);
                 batch.Draw(ResourceManager.Texture("NewUI/menu_2_corner_BL"), corner_BL, Color.White);
                 batch.Draw(ResourceManager.Texture("NewUI/menu_2_corner_BR"), corner_BR, Color.White);
+            }
+
+            if (Border.A > 0)
+            {
+                batch.DrawRectangle(Rect, Border);
             }
         }
 

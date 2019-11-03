@@ -736,11 +736,6 @@ namespace Ship_Game
                     TheirText = GetDialogueByName(TheirOffer.RejectDL);
                 }
             }
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
             return base.HandleInput(input);
         }
 

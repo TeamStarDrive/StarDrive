@@ -267,12 +267,6 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
-
             if (base.HandleInput(input))
                 return true;
 

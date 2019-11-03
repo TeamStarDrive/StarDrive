@@ -84,8 +84,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped || input.RightMouseClick ||
-                (input.KeyPressed(Keys.E) && !GlobalStats.TakingInput))
+            if (input.KeyPressed(Keys.E) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();

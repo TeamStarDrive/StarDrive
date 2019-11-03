@@ -55,9 +55,9 @@ namespace Ship_Game
 			container.Add(Bot);
 		}
 
-		public void AddOption(string option)
+		public void AddOption(LocalizedText option)
 		{
-			Options.Add(option);
+			Options.Add(option.Text);
 		}
 
 		public void Draw(SpriteBatch spriteBatch)

@@ -91,14 +91,14 @@ namespace Ship_Game
         public bool IsSelected(string title) => SelectedIndex != -1 && IndexOf(title) == SelectedIndex;
         public bool ContainsTab(string title) => IndexOf(title) != -1;
 
-        public void AddTab(string title)
+        public void AddTab(LocalizedText title)
         {
             int tabX = UpperLeft.Right + Tabs.Sum(t => t.Rect.Width + GetStyle().Right.Width);
             Tabs.Add(new Tab
             {
                 Index = Tabs.Count,
-                Title = title,
-                Rect  = new Rectangle(tabX, UpperLeft.Y, (int)Font.MeasureString(title).X + 2, 25),
+                Title = title.Text,
+                Rect  = new Rectangle(tabX, UpperLeft.Y, (int)Font.MeasureString(title.Text).X + 2, 25),
             });
         }
 
