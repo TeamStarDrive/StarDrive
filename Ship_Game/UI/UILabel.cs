@@ -5,6 +5,23 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
+    public enum TextAlign
+    {
+        // normal text alignment:
+        //    x
+        //      TEXT
+        Default,
+
+        // Text will be flipped on the X axis:
+        //       x
+        // TEXT
+        Right,
+
+        // Text will be drawn to the center of pos:
+        //  TE x XT
+        Center,
+    }
+
     public class UILabel : UIElementV2, IColorElement
     {
         string LabelText; // Simple Text
@@ -20,9 +37,8 @@ namespace Ship_Game
         public bool DropShadow = false;
         public bool IsMouseOver { get; private set; }
 
-        // Text will be flipped on the X axis:  TEXT x
-        // Versus normal text alignment:             x TEXT
-        public bool AlignRight = false;
+        // Text Alignment will change the alignment axis along which the text is drawn
+        public TextAlign Align;
 
         public LocalizedText Text
         {
@@ -123,7 +139,23 @@ namespace Ship_Game
 
         void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {
-            if (AlignRight) pos.X -= Size.X;
+            switch (Align)
+            {
+                default:
+                case TextAlign.Default:
+                    pos.X = (int)Math.Round(pos.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Right:
+                    pos.X = (int)Math.Round(pos.X - Size.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Center:
+                    pos.X = (int)Math.Round(pos.X - Size.X*0.5f); // NOTE: Text pos MUST be rounded to pixel boundaries
+                    pos.Y = (int)Math.Round(pos.Y - Size.Y*0.5f);
+                    break;
+            }
+
             if (DropShadow)
                 batch.DrawDropShadowText(text, pos, LabelFont, color);
             else

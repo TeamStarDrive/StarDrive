@@ -613,7 +613,13 @@ namespace Ship_Game
             return value;
         }
 
-        // For example: 75.5f.RoundTo10  -->  80
+        // For example: 75.5f.RoundUpTo(40)  -->  80
+        public static int RoundUpTo(this float value, int multipleOf)
+        {
+            return (int)Ceiling(value / multipleOf) * multipleOf;
+        }
+
+        // For example: 75.5f.RoundTo10()  -->  80
         public static int RoundTo10(this float value)
         {
             return (int)Ceiling(value * 0.1f) * 10;

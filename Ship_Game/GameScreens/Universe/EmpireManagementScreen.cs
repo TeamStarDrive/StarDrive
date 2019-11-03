@@ -11,14 +11,8 @@ namespace Ship_Game
     public sealed class EmpireManagementScreen : GameScreen
     {
         EmpireUIOverlay eui;
-
-        Menu2 TitleBar;
-        Vector2 TitlePos;
-        Menu2 EMenu;
-
         ScrollList<ColoniesListItem> ColoniesList;
         GovernorDetailsComponent GovernorDetails;
-        Rectangle LeftRect;
         Rectangle eRect;
 
         SortButton pop;
@@ -38,21 +32,18 @@ namespace Ship_Game
             eui = empUI;
 
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
-            TitleBar = new Menu2(titleRect);
-            TitlePos = new Vector2(titleRect.CenterX() - Fonts.Laserian14.MeasureString(Localizer.Token(383)).X / 2f,
-                                   titleRect.CenterY() - Fonts.Laserian14.LineSpacing / 2);
+            Menu2 titleBkg = Add(new Menu2(titleRect));
+            Add(new UILabel(titleBkg.Center, text:383, Fonts.Laserian14, Colors.Cream) { Align = TextAlign.Center });
 
-            LeftRect = new Rectangle(2, titleRect.Bottom + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
+            var mainBkg = new Rectangle(2, titleRect.Bottom + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
+            Add(new Menu2(mainBkg));
+            Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
-            EMenu = new Menu2(LeftRect);
-            Add(new CloseButton(LeftRect.Right - 40, LeftRect.Y + 20));
-            eRect = new Rectangle(LeftRect.X + 20, titleRect.Bottom + 30,
-                                  ScreenWidth - 40,
-                                  (int)(0.66f * LeftRect.Height));
-
-            ColoniesList = Add(new ScrollList<ColoniesListItem>(eRect, 80));
-            ColoniesList.OnClick = OnColonyListItemClicked;
+            ColoniesList = Add(new ScrollList<ColoniesListItem>(mainBkg.X + 20, titleRect.Bottom + 30,
+                                                                ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40), 80));
+            ColoniesList.OnClick       = OnColonyListItemClicked;
             ColoniesList.OnDoubleClick = OnColonyListItemDoubleClicked;
+            eRect = ColoniesList.Rect;
 
             pop   = new SortButton(eui.empire.data.ESSort, "pop");
             food  = new SortButton(eui.empire.data.ESSort, "food");
@@ -62,7 +53,7 @@ namespace Ship_Game
 
             var planets = EmpireManager.Player.GetPlanets();
             int sidePanelWidths = (int)(ScreenWidth * 0.3f);
-            var governorRect = new Rectangle(eRect.Right - sidePanelWidths - 20, eRect.Bottom, sidePanelWidths, ScreenHeight - eRect.Bottom - 22);
+            var governorRect = new RectF(ColoniesList.Right - sidePanelWidths - 20, ColoniesList.Bottom, sidePanelWidths, ScreenHeight - ColoniesList.Bottom - 22);
             GovernorDetails = Add(new GovernorDetailsComponent(this, planets[0], governorRect, governorVideo: false));
             ResetColoniesList(planets);
         }
@@ -71,9 +62,6 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(383), TitlePos, Colors.Cream);
-            EMenu.Draw(batch);
 
             base.Draw(batch);
             
