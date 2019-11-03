@@ -814,14 +814,7 @@ namespace Ship_Game
             }
             if (OpenBorders)
             {
-                if (!TheirOffer.OpenBorders)
-                {
-                    text.Append(Localizer.Token(3046));
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3045));
-                }
+                text.Append(TheirOffer.OpenBorders ? Localizer.Token(3045) : Localizer.Token(3046));
                 if (NAPact)
                 {
                     text.Append(Localizer.Token(3047));

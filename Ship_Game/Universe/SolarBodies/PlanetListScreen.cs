@@ -17,7 +17,6 @@ namespace Ship_Game
         public Planet SelectedPlanet { get; private set; }
         ScrollList<PlanetListScreenItem> PlanetSL;
         public EmpireUIOverlay EmpireUI;
-        Submenu ShipSubMenu;
         Rectangle leftRect;
 
         SortButton sb_Sys;
@@ -55,23 +54,20 @@ namespace Ship_Game
             Rectangle titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
-            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
+            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             EMenu = new Menu2(leftRect);
             Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
-            eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 15);
+            eRect = new Rectangle(leftRect.X + 20, titleRect.Bottom + 30,
+                                  ScreenWidth - 40,
+                                  leftRect.Bottom - (titleRect.Bottom + 30) - 15);
+            PlanetSL = Add(new ScrollList<PlanetListScreenItem>(eRect, 40));
+
             sb_Sys = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
             sb_Fert = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
             sb_Rich = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(387));
             sb_Pop = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(1403));
             sb_Owned = new SortButton(empireUi.empire.data.PLSort, "Owner");
-            
-            while (eRect.Height % 40 != 0)
-                eRect.Height -= 1;
-            eRect.Height -= 20;
-
-            ShipSubMenu = new Submenu(eRect);
-            PlanetSL = new ScrollList<PlanetListScreenItem>(ShipSubMenu, 40);
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.GetWeightedCenter())))
             {
@@ -99,11 +95,11 @@ namespace Ship_Game
             batch.DrawString(Fonts.Laserian14, Localizer.Token(1402), TitlePos, Colors.Cream);
             EMenu.Draw(batch);
 
-            PlanetSL.Draw(batch);
+            base.Draw(batch);
 
             if (PlanetSL.NumEntries > 0)
             {
-                PlanetListScreenItem e1 = PlanetSL.FirstItem;
+                PlanetListScreenItem e1 = PlanetSL.ItemAtTop;
                 var textCursor = new Vector2(e1.SysNameRect.X + e1.SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(192)).X / 2f, (eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
                 
                 sb_Sys.Update(textCursor);
@@ -113,34 +109,18 @@ namespace Ship_Game
                 sb_Name.Update(textCursor);
                 sb_Name.Draw(ScreenManager);
                 textCursor = new Vector2(e1.FertRect.X + e1.FertRect.Width / 2 - Fonts.Arial20Bold.MeasureString(Localizer.Token(386)).X / 2f, (eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                if (GlobalStats.IsGermanOrPolish)
-                {
-                    textCursor = textCursor + new Vector2(10f, 10f);
-                }
-                
+
                 sb_Fert.Update(textCursor);
                 sb_Fert.Draw(ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
                 textCursor = new Vector2((e1.RichRect.X + e1.RichRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(387)).X / 2f, (eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                if (GlobalStats.IsGermanOrPolish)
-                {
-                    textCursor = textCursor + new Vector2(10f, 10f);
-                }
-                
+
                 sb_Rich.Update(textCursor);
                 sb_Rich.Draw(ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
                 textCursor = new Vector2((e1.PopRect.X + e1.PopRect.Width / 2) - Fonts.Arial20Bold.MeasureString(Localizer.Token(1403)).X / 2f, (eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                if (GlobalStats.IsGermanOrPolish)
-                {
-                    textCursor = textCursor + new Vector2(15f, 10f);
-                }
-                
+
                 sb_Pop.Update(textCursor);
                 sb_Pop.Draw(ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
                 textCursor = new Vector2((e1.OwnerRect.X + e1.OwnerRect.Width / 2) - Fonts.Arial20Bold.MeasureString("Owner").X / 2f, (eRect.Y - Fonts.Arial20Bold.LineSpacing + 28));
-                if (GlobalStats.IsGermanOrPolish)
-                {
-                    textCursor = textCursor + new Vector2(10f, 10f);
-                }
                 
                 sb_Owned.Update(textCursor);
                 sb_Owned.Draw(ScreenManager, (GlobalStats.IsGermanOrPolish ? Fonts.Arial12Bold : Fonts.Arial20Bold));
@@ -167,20 +147,9 @@ namespace Ship_Game
                 topLeftSL = new Vector2((e1.OwnerRect.X + e1.OwnerRect.Width), (eRect.Y + 35));
                 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2(e1.TotalEntrySize.X, (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height - 35));
-                batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((e1.TotalEntrySize.X + e1.TotalEntrySize.Width), (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
-                batch.DrawLine(topLeftSL, botSL, lineColor);
-                Vector2 leftBot = new Vector2(e1.TotalEntrySize.X, (eRect.Y + eRect.Height));
-                batch.DrawLine(leftBot, botSL, lineColor);
-                leftBot = new Vector2(e1.TotalEntrySize.X, (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + 35));
-                batch.DrawLine(leftBot, botSL, lineColor);
-            }
 
-            base.Draw(batch);
+                batch.DrawRectangle(PlanetSL.ItemsHousing, lineColor); // items housing border
+            }
 
             batch.End();
         }
@@ -197,7 +166,7 @@ namespace Ship_Game
             {
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
-                var e = new PlanetListScreenItem(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                var e = new PlanetListScreenItem(this, p);
                 PlanetSL.AddItem(e);
             }
         }
@@ -219,9 +188,6 @@ namespace Ship_Game
         {
             if (PlanetSL.NumEntries == 0)
                 ResetList();
-
-            if (PlanetSL.HandleInput(input))
-                return true;
 
             cb_hideOwned.HandleInput(input);
             cb_hideUninhabitable.HandleInput(input);
@@ -246,10 +212,10 @@ namespace Ship_Game
         {
             ExitScreen();
             GameAudio.AcceptClick();
-            Empire.Universe.SelectedPlanet = item.planet;
+            Empire.Universe.SelectedPlanet = item.Planet;
             Empire.Universe.ViewingShip = false;
             Empire.Universe.returnToShip = false;
-            Empire.Universe.CamDestination = new Vector3(item.planet.Center, 10000f);
+            Empire.Universe.CamDestination = new Vector3(item.Planet.Center, 10000f);
         }
 
         public void ResetList()
@@ -265,7 +231,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    var entry = new PlanetListScreenItem(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                    var entry = new PlanetListScreenItem(this, p);
                     PlanetSL.AddItem(entry);
                 }
             }
@@ -279,7 +245,7 @@ namespace Ship_Game
                 ResetButton(sb_Owned, p => p.GetOwnerName());
             }
 
-            SelectedPlanet = PlanetSL.NumEntries > 0 ? PlanetSL.FirstItem.planet : null;
+            SelectedPlanet = PlanetSL.NumEntries > 0 ? PlanetSL.AllEntries[0].Planet : null;
         }
     }
 }
