@@ -12,8 +12,7 @@ namespace Ship_Game
 {
     public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem>
     {
-        public Planet planet;
-        public Rectangle TotalEntrySize;
+        public Planet Planet;
         public Rectangle SysNameRect;
         public Rectangle PlanetNameRect;
         public Rectangle FertRect;
@@ -26,67 +25,66 @@ namespace Ship_Game
         UITextEntry ShipNameEntry = new UITextEntry();
         UIButton Colonize;
         UIButton SendTroops;
-        public PlanetListScreen screen;
+        PlanetListScreen Screen;
         bool MarkedForColonization;
 
-        public PlanetListScreenItem(Planet p, int x, int y, int width, int height, PlanetListScreen caller)
+        public PlanetListScreenItem(PlanetListScreen screen, Planet planet)
         {
-            Rect = new Rectangle(x, y, width, height);
-            screen = caller;
-            planet = p;
-            TotalEntrySize = new Rectangle(x, y, width - 60, height);
-            SysNameRect = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.12f), height);
-            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(TotalEntrySize.Width * 0.25f), height);
-            FertRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, height);
-            RichRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, height);
-            PopRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, height);
-            OwnerRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, height);
-            OrdersRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width + OwnerRect.Width, y, 100, height);
-            //this.Status_Text = "";
-            ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
-            string shipName = planet.Name;
-            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-            ShipNameEntry.Text = shipName;
+            Screen = screen;
+            Planet = planet;
 
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
-                if (g.ColonizationTarget == null || g.ColonizationTarget != p)
-                {
-                    continue;
-                }
-                MarkedForColonization = true;
+                if (g.ColonizationTarget != null && g.ColonizationTarget == planet)
+                    MarkedForColonization = true;
             }
 
             ButtonStyle style = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
             string colonizeText = !MarkedForColonization ? Localizer.Token(1425) : "Cancel Colonize";
-            Colonize = Button(style, 0f, 0f, colonizeText, OnColonizeClicked);
-            Colonize.SetAbsPos(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height - Colonize.Size.Y);
-            SendTroops = Button(ButtonStyle.BigDip, OrdersRect.X + Colonize.Rect.Width + 10, 0f, "", OnSendTroopsClicked);
+            Colonize   = Button(style, colonizeText, OnColonizeClicked);
+            SendTroops = Button(ButtonStyle.BigDip, "", OnSendTroopsClicked);
         }
 
-        public override bool HandleInput(InputState input)
+        public override void PerformLayout()
         {
-            SetNewPos((int)X + 22, (int)Y);
-            return base.HandleInput(input);
+            int x = (int)X;
+            int y = (int)Y;
+            Rect = new Rectangle(x, y, Rect.Width, Rect.Height);
+            SysNameRect = new Rectangle(x, y, (int)(Rect.Width * 0.12f), Rect.Height);
+            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(Rect.Width * 0.25f), Rect.Height);
+            FertRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, Rect.Height);
+            RichRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, Rect.Height);
+            PopRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, Rect.Height);
+            OwnerRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, Rect.Height);
+            OrdersRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width + OwnerRect.Width, y, 100, Rect.Height);
+            ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
+            ShipNameEntry.Text = Planet.Name;
+            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
+            Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+            SendTroops.Rect = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
+            
+            base.PerformLayout();
         }
 
         public override void Draw(SpriteBatch batch)
         {
+            base.Draw(batch);
+
             var textColor = new Color(118, 102, 67, 50);
             var smallHighlight = new Color(118, 102, 67, 25);
 
             if (ItemIndex % 2 == 0)
             {
-                batch.FillRectangle(TotalEntrySize, smallHighlight);
+                batch.FillRectangle(Rect, smallHighlight);
             }
-            if (planet == screen.SelectedPlanet)
+            if (Planet == Screen.SelectedPlanet)
             {
-                batch.FillRectangle(TotalEntrySize, textColor);
+                batch.FillRectangle(Rect, textColor);
             }
 
             string singular;
             var TextColor = Colors.Cream;
-            string sysname = planet.ParentSystem.Name;
+            string sysname = Planet.ParentSystem.Name;
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
             {
                 var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
@@ -98,28 +96,28 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
             }
 
-            if (planet.ParentSystem.HostileForcesPresent(EmpireManager.Player))
+            if (Planet.ParentSystem.HostileForcesPresent(EmpireManager.Player))
             {
                 var flashRect = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, ResourceManager.Texture("Ground_UI/Ground_Attack").Width, ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                batch.Draw(ResourceManager.Texture("Ground_UI/EnemyHere"), flashRect, screen.CurrentFlashColor);
-                if (flashRect.HitTest(screen.Input.CursorPosition))
+                batch.Draw(ResourceManager.Texture("Ground_UI/EnemyHere"), flashRect, Screen.CurrentFlashColor);
+                if (flashRect.HitTest(Screen.Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(123);
                 }
             }
             var planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            batch.Draw(planet.PlanetTexture, planetIconRect, Color.White);
-            if (planet.Owner != null)
+            batch.Draw(Planet.PlanetTexture, planetIconRect, Color.White);
+            if (Planet.Owner != null)
             {
-                batch.Draw(ResourceManager.Flag(planet.Owner), planetIconRect, planet.Owner.EmpireColor);
+                batch.Draw(ResourceManager.Flag(Planet.Owner), planetIconRect, Planet.Owner.EmpireColor);
             }
             int i = 0;
             var StatusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIconRect.Y + 10);
-            if (planet.RecentCombat)
+            if (Planet.RecentCombat)
             {
                 Rectangle statusRect = new Rectangle((int)StatusIcons.X - 18, (int)StatusIcons.Y, 16, 16);
                 batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), statusRect, Color.White);
-                if (statusRect.HitTest(screen.Input.CursorPosition))
+                if (statusRect.HitTest(Screen.Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip(119);
                 }
@@ -128,12 +126,12 @@ namespace Ship_Game
             {
                 foreach (Mole m in EmpireManager.Player.data.MoleList)
                 {
-                    if (m.PlanetGuid == planet.guid)
+                    if (m.PlanetGuid == Planet.guid)
                     {
                         StatusIcons.X -= 20f;
                         var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
                         batch.Draw(ResourceManager.Texture("UI/icon_spy_small"), statusRect, Color.White);
-                        if (statusRect.HitTest(screen.Input.CursorPosition))
+                        if (statusRect.HitTest(Screen.Input.CursorPosition))
                         {
                             ToolTip.CreateTooltip(120);
                         }
@@ -142,20 +140,20 @@ namespace Ship_Game
                 }
             }
             //Building lastBuilding;
-            foreach (Building b in planet.BuildingList)
+            foreach (Building b in Planet.BuildingList)
             {
-                if (b.EventHere && (planet.Owner == null || !planet.Owner.GetBDict()[b.Name]))
+                if (b.EventHere && (Planet.Owner == null || !Planet.Owner.GetBDict()[b.Name]))
                 {
                     StatusIcons.X -= 20f;
                     var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
                     batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
                     i++;
-                    if (statusRect.HitTest(screen.Input.CursorPosition))
+                    if (statusRect.HitTest(Screen.Input.CursorPosition))
                         ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 }
             }
 
-            foreach (Building b in planet.BuildingList)
+            foreach (Building b in Planet.BuildingList)
             {
                 if (b.IsCommodity)
                 {
@@ -163,19 +161,19 @@ namespace Ship_Game
                     var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
                     batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
                     i++;
-                    if (statusRect.HitTest(screen.Input.CursorPosition))
+                    if (statusRect.HitTest(Screen.Input.CursorPosition))
                         ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
                 }
             }
 
-            int troops = planet.TroopsHere.Count(t => t.Loyalty.isPlayer);
+            int troops = Planet.TroopsHere.Count(t => t.Loyalty.isPlayer);
             if (troops > 0)
             {
                 StatusIcons.X -= 20f;// (float)(18 * i);
 
                 var statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), statusRect, new Color(255, 255, 255, 255));//Color..White);
-                if (statusRect.HitTest(screen.Input.CursorPosition))
+                if (statusRect.HitTest(Screen.Input.CursorPosition))
                 {
                     ToolTip.CreateTooltip($"{Localizer.Token(336)}: {troops}");
                 }
@@ -186,42 +184,42 @@ namespace Ship_Game
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y - 10
             };
-            batch.DrawString(Fonts.Arial20Bold, planet.Name, rpos, TextColor);
+            batch.DrawString(Fonts.Arial20Bold, Planet.Name, rpos, TextColor);
             rpos.Y = rpos.Y + (Fonts.Arial20Bold.LineSpacing - 3);
             Vector2 FertilityCursor = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, planet.FertilityFor(EmpireManager.Player).String(), FertilityCursor, (planet.Habitable ? Color.White : Color.LightPink));
+            batch.DrawString(Fonts.Arial12Bold, Planet.FertilityFor(EmpireManager.Player).String(), FertilityCursor, (Planet.Habitable ? Color.White : Color.LightPink));
             Vector2 RichCursor = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, planet.MineralRichness.String(1), RichCursor, (planet.Habitable ? Color.White : Color.LightPink));
+            batch.DrawString(Fonts.Arial12Bold, Planet.MineralRichness.String(1), RichCursor, (Planet.Habitable ? Color.White : Color.LightPink));
             Vector2 PopCursor = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, planet.PopulationStringForPlayer, PopCursor, (planet.Habitable ? Color.White : Color.LightPink));
+            batch.DrawString(Fonts.Arial12Bold, Planet.PopulationStringForPlayer, PopCursor, (Planet.Habitable ? Color.White : Color.LightPink));
             Vector2 OwnerCursor = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             SpriteBatch spriteBatch2 = batch;
             SpriteFont spriteFont = Fonts.Arial12Bold;
-            if (planet.Owner != null)
+            if (Planet.Owner != null)
             {
-                singular = planet.Owner.data.Traits.Singular;
+                singular = Planet.Owner.data.Traits.Singular;
             }
             else
             {
-                singular = (planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
+                singular = (Planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
             }
-            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, planet.Owner?.EmpireColor ?? Color.Gray);
-            batch.DrawString(Fonts.Arial12Bold, planet.LocalizedRichness, rpos, TextColor);
-            if (planet.Habitable && planet.Owner == null)
+            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, Planet.Owner?.EmpireColor ?? Color.Gray);
+            batch.DrawString(Fonts.Arial12Bold, Planet.LocalizedRichness, rpos, TextColor);
+            if (Planet.Habitable && Planet.Owner == null)
             {
                 Colonize.Draw(batch);
             }
 
-            if (planet.Owner == null && planet.Habitable)  //fbedard: can send troop anywhere
+            if (Planet.Owner == null && Planet.Habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = 0;
-                BatchRemovalCollection<Ship> ships = screen.EmpireUI.empire.GetShips();
+                BatchRemovalCollection<Ship> ships = Screen.EmpireUI.empire.GetShips();
                 for (int z = 0; z < ships.Count; z++)
                 {
                     Ship ship = ships[z];
                     ShipAI ai = ship?.AI;                    
                     if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.IsEmpty || ai.OrderQueue.IsEmpty) continue;
-                    if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet))
+                    if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet))
                         troopsInvading = ship.TroopList.Count;
                 }
 
@@ -238,11 +236,11 @@ namespace Ship_Game
                 SendTroops.Draw(batch);
             }
             //fbedard : Add Send Button for your planets
-            if (planet.Owner == Empire.Universe.player)
+            if (Planet.Owner == Empire.Universe.player)
             {
-                int troopsInvading = screen.EmpireUI.empire.GetShips()
+                int troopsInvading = Screen.EmpireUI.empire.GetShips()
                  .Where(troop => troop.TroopList.Count > 0)
-                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet));
+                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet));
                 if (troopsInvading > 0)
                 {
                     SendTroops.Text = "Landing: " + troopsInvading;
@@ -256,15 +254,15 @@ namespace Ship_Game
                 SendTroops.Draw(batch);
             }
 
-            batch.DrawRectangle(TotalEntrySize, textColor);
+            batch.DrawRectangle(Rect, textColor);
         }
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (screen.EmpireUI.empire.GetTroopShipForRebase(out Ship troopShip, planet))
+            if (Screen.EmpireUI.empire.GetTroopShipForRebase(out Ship troopShip, Planet))
             {
                 GameAudio.EchoAffirmative();
-                troopShip.AI.OrderLandAllTroops(planet);
+                troopShip.AI.OrderLandAllTroops(Planet);
             }
             else
                 GameAudio.NegativeClick();
@@ -276,7 +274,7 @@ namespace Ship_Game
             {
                 GameAudio.EchoAffirmative();
                 Empire.Universe.player.GetEmpireAI().Goals.Add(
-                    new MarkForColonization(planet, Empire.Universe.player));
+                    new MarkForColonization(Planet, Empire.Universe.player));
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;
                 MarkedForColonization = true;
@@ -286,7 +284,7 @@ namespace Ship_Game
             // @todo this is so hacky
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
-                if (g.ColonizationTarget == null || g.ColonizationTarget != planet)
+                if (g.ColonizationTarget == null || g.ColonizationTarget != Planet)
                 {
                     continue;
                 }
@@ -299,23 +297,6 @@ namespace Ship_Game
                 break;
             }
             Empire.Universe.player.GetEmpireAI().Goals.ApplyPendingRemovals();
-        }
-
-        void SetNewPos(int x, int y)
-        {
-            TotalEntrySize = new Rectangle(x, y, TotalEntrySize.Width, TotalEntrySize.Height);
-            SysNameRect = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.12f), TotalEntrySize.Height);
-            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(TotalEntrySize.Width * 0.25f), TotalEntrySize.Height);
-            FertRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, TotalEntrySize.Height);
-            RichRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, TotalEntrySize.Height);
-            PopRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, TotalEntrySize.Height);
-            OwnerRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, TotalEntrySize.Height);
-            OrdersRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width + OwnerRect.Width, y, 100, TotalEntrySize.Height);
-            ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
-            string shipName = planet.Name;
-            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
-            Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
-            SendTroops.Rect = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
         }
     }
 }

@@ -739,7 +739,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch)
             {
                 float start = Screen.DescriptionTextList.NumEntries > 0
-                            ? Screen.DescriptionTextList.LastItem.Bottom
+                            ? Screen.DescriptionTextList.ItemAtBottom.Bottom
                             : Screen.DescriptionTextList.Y;
 
                 var r = new Vector2(Screen.DescriptionTextList.X + 20, start + 20);

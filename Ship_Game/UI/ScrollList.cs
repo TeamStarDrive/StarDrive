@@ -92,9 +92,11 @@ namespace Ship_Game
         // Item at non-flattened index: doesn't index hierarchical elements
         public T this[int index] => Entries[index];
 
-        // @return The first visible item
-        public T FirstItem => (T)FlatEntries[VisibleItemsBegin];
-        public T LastItem  => (T)FlatEntries[VisibleItemsEnd - 1];
+        // @return The first currently visible item
+        public T ItemAtTop => (T)FlatEntries[VisibleItemsBegin];
+
+        // @return The last currently visible item
+        public T ItemAtBottom  => (T)FlatEntries[VisibleItemsEnd - 1];
 
         public T AddItem(T entry)
         {
