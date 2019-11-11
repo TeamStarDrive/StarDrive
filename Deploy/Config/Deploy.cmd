@@ -25,6 +25,7 @@ echo copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "%hgr
 
 REM Always remove sd.7z otherwise we'll get nasty bugs / redundant files
 del /f sd.7z
+mkdir ..\upload
 ..\7-Zip\7z a sd.7z @"%1deploy\Config\include_%name%"
-copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "%hgrev%.exe"
+copy /b "..\7-Zip\7ZSD.sfx" + "%1deploy\Config\config_%name%" + sd.7z "../upload/%hgrev%.exe"
 REM ..\7-Zip\7z a -sfx7zSD.sfx "%hgrev%.exe" @"%1deploy\Config\include_%name%"
