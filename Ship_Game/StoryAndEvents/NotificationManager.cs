@@ -268,14 +268,20 @@ namespace Ship_Game
 
         public void AddResearchComplete(string unlocked, Empire emp)
         {
+            if (!ResourceManager.TryGetTech(unlocked, out Technology tech))
+            {
+                Log.Error($"Invalid Tech Notification: '{unlocked}'");
+                return;
+            }
+
             // Techs using Icon Path need this for notifications
-            string techIcon = "TechIcons/" + ResourceManager.TechTree[unlocked].IconPath;
+            string techIcon = "TechIcons/" + tech.IconPath;
             bool hasTechIcon = ResourceManager.TextureLoaded(techIcon);
 
             AddNotification(new Notification
             {
                 Tech            = true,
-                Message         = Localizer.Token(ResourceManager.TechTree[unlocked].NameIndex) + Localizer.Token(1514),
+                Message         = Localizer.Token(tech.NameIndex) + Localizer.Token(1514),
                 ReferencedItem1 = unlocked,
                 IconPath        = hasTechIcon ? techIcon : "TechIcons/" + unlocked,
                 Action          = "ResearchScreen"
