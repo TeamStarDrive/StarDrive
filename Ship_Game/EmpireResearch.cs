@@ -82,9 +82,12 @@ namespace Ship_Game
 
             if (unLocked)
             {
-                Empire.UnlockTech(Topic, TechUnlockType.Normal);
+                string topic = Topic; // NOTE: Topic will be auto-cleared by UnlockTech
+                Empire.UnlockTech(topic, TechUnlockType.Normal);
                 if (Empire.isPlayer)
-                    Empire.Universe.NotificationManager.AddResearchComplete(Topic, Empire);
+                {
+                    Empire.Universe.NotificationManager.AddResearchComplete(topic, Empire);
+                }
             }
         }
 
