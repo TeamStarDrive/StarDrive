@@ -939,11 +939,13 @@ namespace Ship_Game
             TriggerFreightersRefit();
         }
 
-        public void AssimilateTech(Empire servantEmpire)
+        public void AssimilateTech(Empire conqueredEmpire)
         {
-            Empire masterEmpire = this;
-            foreach (TechEntry masterTech in masterEmpire.TechEntries)
-                masterTech.UnlockByConquest(this, servantEmpire);
+            foreach (TechEntry conquered in conqueredEmpire.TechEntries)
+            {
+                TechEntry ourTech = GetTechEntry(conquered);
+                ourTech.UnlockByConquest(this, conqueredEmpire, conquered);
+            }
         }
 
         //Added by McShooterz: this is for techs obtain via espionage or diplomacy
