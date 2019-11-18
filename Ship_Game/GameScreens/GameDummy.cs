@@ -48,6 +48,7 @@ namespace Ship_Game
             ScreenManager = new ScreenManager(this, Graphics);
             base.Initialize();
         }
+
         /// <summary>
         /// Currently broken Due to sun resource loading. 
         /// </summary>
@@ -57,7 +58,7 @@ namespace Ship_Game
         {
             var system = new SolarSystem();
             system.Position = new Vector2(0, 0);
-            system.GenerateStartingSystem(empire.data.Traits.HomeSystemName, data, 1f, empire);
+            system.GenerateStartingSystem(empire.data.Traits.HomeSystemName, 1f, empire);
             system.OwnerList.Add(empire);
             data.SolarSystemsList.Add(system);
         }

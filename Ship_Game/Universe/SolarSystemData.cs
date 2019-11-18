@@ -21,8 +21,10 @@ namespace Ship_Game
             public Array<string> BuildingList; //buildings on planet.
             public Array<string> Guardians; //ships that guard it. 
             public float MaxPopDefined; // pop per tile, disregarding planet scale
+            public int OrbitalDistance; // custom orbital radius override
+            public int OrbitalWidth; // custom orbital spacing override
             //Using a separate boolean to ensure that modders can define an unusual 0-habitability planet (e.g. 0 tile Terran); otherwise would have to disregard 0.
-            public bool UniqueHabitat; 
+            public bool UniqueHabitat;
             public int UniqueHabPC;
 
             public override string ToString()
