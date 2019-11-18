@@ -1491,7 +1491,7 @@ namespace Ship_Game
                 TechTree[fileUid] = tech;
 
                 // categorize extra techs
-                Technology.GetTechnologyTypesFromUnlocks(tech, tech.TechnologyTypes);
+                tech.UpdateTechnologyTypesFromUnlocks();
             }
 
             foreach (Technology tech in TechTree.Values)

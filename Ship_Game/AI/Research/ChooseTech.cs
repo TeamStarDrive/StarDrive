@@ -271,11 +271,10 @@ namespace Ship_Game.AI.Research
 
         string DoesCostCompare(ref int previousCost, TechEntry researchTech, TechnologyType techType, bool isCheaper)
         {
-
             string testResearchTopic = researchTech?.UID ?? string.Empty;
             if (testResearchTopic.IsEmpty()) return testResearchTopic;
             int currentCost = 0;
-            if (researchTech.TechnologyTypes.Contains(techType))
+            if (researchTech.IsTechnologyType(techType))
                 currentCost = NormalizeTechCost(researchTech.TechCost);
             else if(!techType.ToString().Contains("Ship"))
                 currentCost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
@@ -323,7 +322,7 @@ namespace Ship_Game.AI.Research
             {
                 if (!wantsShipTech && tech.IsShipTech()) return false;
                 if (wantsShipTech && !tech.IsShipTech()) return false;
-                if (tech.TechnologyTypes.Contains(techType)) return true;
+                if (tech.IsTechnologyType(techType)) return true;
                 if (tech.CostOfNextTechWithType(techType) > 0) return true;
                 return false;
             });
@@ -349,7 +348,7 @@ namespace Ship_Game.AI.Research
             if (command1 == "CHEAPEST")
                 researchTech = filteredTechs.FindMin(cost =>
                 {
-                    if (cost.TechnologyTypes.Contains(techType))
+                    if (cost.IsTechnologyType(techType))
                         return cost.TechCost;
                     return cost.CostOfNextTechWithType(techType);
                 });
