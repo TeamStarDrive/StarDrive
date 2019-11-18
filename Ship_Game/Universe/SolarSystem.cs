@@ -25,7 +25,14 @@ namespace Ship_Game
         public Array<Ship> ShipList = new Array<Ship>();
         public bool isVisible;
         public Vector2 Position;
-        public float Radius = 150000f; // solar system radius
+
+        // this is the minimum solar system radius
+        // needs to be big enough to properly trigger system-radius related events
+        const float MinRadius = 150000f;
+
+        // solar system radius
+        public float Radius = MinRadius;
+
         public Array<Planet> PlanetList = new Array<Planet>();
         public Array<Asteroid> AsteroidsList = new Array<Asteroid>();
         public Array<Moon> MoonList = new Array<Moon>();
@@ -46,7 +53,7 @@ namespace Ship_Game
         }
 
         public Array<Ring> RingList = new Array<Ring>();
-        private int NumberOfRings;
+        int NumberOfRings;
         public Array<SolarSystem> FiveClosestSystems = new Array<SolarSystem>();
         public Array<string> ShipsToSpawn = new Array<string>();
         public Array<FleetAndPos> FleetsToSpawn = new Array<FleetAndPos>();
@@ -193,10 +200,9 @@ namespace Ship_Game
             }
         }
 
-        private bool ShipWithinRadiationRadius(Ship ship, out float distance)
+        bool ShipWithinRadiationRadius(Ship ship, out float distance)
         {
             distance = ship.Center.Distance(Position);
-
             return distance < Sun.RadiationRadius;
         }
 
@@ -232,13 +238,6 @@ namespace Ship_Game
                 Status.Add(empire, status);
             }
             return status;
-        }
-
-        public float GetCombatTimer(Empire empire)
-        {
-            if (empire == null)
-                return 0f;
-            return GetStatus(empire).CombatTimer;
         }
 
         public bool HostileForcesPresent(Empire empire)
@@ -313,16 +312,18 @@ namespace Ship_Game
                     PlanetList.Add(newOrbital);
                     var ring = new Ring
                     {
-                        Distance  = ringRadius,
+                        OrbitalDistance  = ringRadius,
                         Asteroids = false,
                         planet    = newOrbital
                     };
                     RingList.Add(ring);
                 }
             }
+
+            UpdateSystemRadius();
         }
 
-        public void GenerateRandomSystem(string name, UniverseData data, float systemScale, Empire owner = null)
+        public void GenerateRandomSystem(string name, float systemScale, Empire owner = null)
         {
             // Changed by RedFox: 2% chance to get a tri-sun "star_binary"
             Sun = RollDice(percent:2)
@@ -368,7 +369,7 @@ namespace Ship_Game
                     ringRadius += newOrbital.ObjectRadius;
                     var ring = new Ring
                     {
-                        Distance  = ringRadius,
+                        OrbitalDistance  = ringRadius,
                         Asteroids = false,
                         planet    = newOrbital
                     };
@@ -385,33 +386,38 @@ namespace Ship_Game
             {
                 Sun = SunType.RandomBarrenSun();
             }
+
+            UpdateSystemRadius();
         }
 
-        public void GenerateStartingSystem(string name, UniverseData data, float systemScale, Empire owner)
+        public void GenerateStartingSystem(string name, float systemScale, Empire owner)
         {
             isStartingSystem = true;
-            GenerateRandomSystem(name, data, systemScale, owner);
+            GenerateRandomSystem(name, systemScale, owner);
         }
 
-        public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
+        void GenerateFromData(SolarSystemData data, Empire owner)
         {
-            var newSys = new SolarSystem
+            int numberOfRings = data.RingList.Count;
+            int fixedSpacing  = IntBetween(50, 500);
+
+            int GetRingWidth(int orbitalWidth)
             {
-                Sun  = SunType.FindSun(data.SunPath),
-                Name = data.Name
-            };
-            newSys.RingList.Capacity = data.RingList.Count;
-            int numberOfRings        = data.RingList.Count;
-            int randomBetween        = IntBetween(50, 500);
+                return orbitalWidth > 0 ? orbitalWidth : fixedSpacing + IntBetween(10500, 12000);
+            }
+
+            int nextDistance = 10000 + GetRingWidth(0);
 
             for (int i = 0; i < numberOfRings; i++)
             {
                 SolarSystemData.Ring ringData = data.RingList[i];
-                float ringRadius = 10000f + (randomBetween + RandomBetween(10500f, 12000f)) * (i+1);
+
+                int orbitalDistance = ringData.OrbitalDistance > 0 ? ringData.OrbitalDistance : nextDistance;
+                nextDistance = orbitalDistance + GetRingWidth(ringData.OrbitalWidth);
 
                 if (ringData.Asteroids != null)
                 {
-                    newSys.GenerateAsteroidRing(ringRadius, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
+                    GenerateAsteroidRing(orbitalDistance, spread: 3000f, scaleMin: 1.2f, scaleMax: 4.6f);
                     continue;
                 }
 
@@ -432,11 +438,11 @@ namespace Ship_Game
                 {
                     Name               = ringData.Planet,
                     OrbitalAngle       = randomAngle,
-                    ParentSystem       = newSys,
+                    ParentSystem       = this,
                     SpecialDescription = ringData.SpecialDescription,
-                    Center             = MathExt.PointOnCircle(randomAngle, ringRadius),
+                    Center             = MathExt.PointOnCircle(randomAngle, orbitalDistance),
                     ObjectRadius       = planetRadius,
-                    OrbitalRadius      = ringRadius,
+                    OrbitalRadius      = orbitalDistance,
                     PlanetTilt         = RandomBetween(45f, 135f)
                 };
 
@@ -478,19 +484,40 @@ namespace Ship_Game
                         OrbitalAngle = RandomBetween(0f, 360f),
                         Position     = newOrbital.Center.GenerateRandomPointOnCircle(radius)
                     };
-                    newSys.MoonList.Add(moon);
+                    MoonList.Add(moon);
                 }
 
-                newSys.PlanetList.Add(newOrbital);
-                Ring ring = new Ring
+                PlanetList.Add(newOrbital);
+                RingList.Add(new Ring
                 {
-                    Distance  = ringRadius,
+                    OrbitalDistance = orbitalDistance,
                     Asteroids = false,
-                    planet    = newOrbital
-                };
-                newSys.RingList.Add(ring);
+                    planet = newOrbital
+                });
             }
+            
+            UpdateSystemRadius();
+        }
+
+        public static SolarSystem GenerateSystemFromData(SolarSystemData data, Empire owner)
+        {
+            var newSys = new SolarSystem
+            {
+                Sun  = SunType.FindSun(data.SunPath),
+                Name = data.Name
+            };
+            newSys.GenerateFromData(data, owner);
             return newSys;
+        }
+
+        void UpdateSystemRadius()
+        {
+            Radius = MinRadius;
+            if (!RingList.IsEmpty)
+            {
+                int enclosingRadius = ((int)RingList.Last.OrbitalDistance + 10000).RoundUpToMultipleOf(10000);
+                Radius = Math.Max(MinRadius, enclosingRadius);
+            }
         }
 
         public float GetActualStrengthPresent(Empire e)
@@ -525,21 +552,21 @@ namespace Ship_Game
             return Vector3.Zero; // should never reach this point, but if it does... we don't care, just don't crash or freeze
         }
 
-        private void GenerateAsteroidRing(float ringRadius, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
+        void GenerateAsteroidRing(float orbitalDistance, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
         {
-            int numberOfAsteroids   = IntBetween(150, 250);
+            int numberOfAsteroids = IntBetween(150, 250);
             AsteroidsList.Capacity += numberOfAsteroids;
             for (int i = 0; i < numberOfAsteroids; ++i)
             {
                 AsteroidsList.Add(new Asteroid
                 {
                     Scale      = RandomBetween(scaleMin, scaleMax),
-                    Position3D = GenerateAsteroidPos(ringRadius, spread)
+                    Position3D = GenerateAsteroidPos(orbitalDistance, spread)
                 });
             }
             RingList.Add(new Ring
             {
-                Distance  = ringRadius,
+                OrbitalDistance = orbitalDistance,
                 Asteroids = true
             });
         }
@@ -552,7 +579,7 @@ namespace Ship_Game
 
         public struct Ring
         {
-            public float Distance;
+            public float OrbitalDistance;
             public bool Asteroids;
             public Planet planet;
 
@@ -561,7 +588,7 @@ namespace Ship_Game
                 var ringSave = new SavedGame.RingSave
                 {
                     Asteroids = Asteroids,
-                    OrbitalDistance = Distance
+                    OrbitalDistance = OrbitalDistance
                 };
 
                 if (planet == null)
