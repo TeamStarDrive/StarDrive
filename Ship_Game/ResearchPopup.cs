@@ -99,9 +99,12 @@ namespace Ship_Game
                     }
                     case UnlockType.HULL:
                     {
-                        var r = new Rectangle(UnlocksRect.X, entry.Y, 96, 96);
-                        batch.Draw(ResourceManager.Hull(unlockItem.privateName).Icon, r, Color.White);
-                        DrawTitleAndDescr(unlockItem.HullUnlocked, unlockItem.Description);
+                        if (ResourceManager.Hull(unlockItem.privateName, out ShipData hull))
+                        {
+                            var r = new Rectangle(UnlocksRect.X, entry.Y, 96, 96);
+                            batch.Draw(hull.Icon, r, Color.White);
+                            DrawTitleAndDescr(unlockItem.HullUnlocked, unlockItem.Description);
+                        }
                         break;
                     }
                     case UnlockType.ADVANCE:
@@ -167,15 +170,15 @@ namespace Ship_Game
             }
             foreach (Technology.UnlockedHull hull in Technology.HullsUnlocked)
             {
-                if (!IsShipType(hull.ShipType))
+                if (!IsShipType(hull.ShipType) || !ResourceManager.Hull(hull.Name, out ShipData hullData))
                     continue;
                 var unlock = new UnlockItem
                 {
                     Type = UnlockType.HULL,
                     privateName = hull.Name,
-                    HullUnlocked = ResourceManager.Hull(hull.Name).Name
+                    HullUnlocked = hullData.Name
                 };
-                unlock.Description = Localizer.Token(4042) + " " + Localizer.GetRole(ResourceManager.Hull(hull.Name).Role, EmpireManager.Player);
+                unlock.Description = Localizer.Token(4042) + " " + Localizer.GetRole(hullData.Role, EmpireManager.Player);
                 UnlockSL.AddItem(unlock);
             }
             foreach (Technology.UnlockedBuilding building in Technology.BuildingsUnlocked)
