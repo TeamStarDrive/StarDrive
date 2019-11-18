@@ -87,7 +87,8 @@ namespace Ship_Game
                         batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlock.building.Icon}_64x64"), gi.rect, Color.White);
                         break;
                     case UnlockType.HULL:
-                        batch.Draw(ResourceManager.Hull(unlock.privateName).Icon, gi.rect, Color.White);
+                        if (ResourceManager.Hull(unlock.privateName, out ShipData hullData))
+                            batch.Draw(hullData.Icon, gi.rect, Color.White);
                         break;
                     case UnlockType.ADVANCE:
                         batch.Draw(ResourceManager.Texture("TechIcons/star"), gi.rect, Color.White);
