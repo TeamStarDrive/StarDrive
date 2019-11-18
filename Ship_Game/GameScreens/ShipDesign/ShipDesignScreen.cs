@@ -349,8 +349,8 @@ namespace Ship_Game
 
             var hulls = EmpireManager.Player.GetHDict();
             foreach (KeyValuePair<string, bool> hull in hulls)
-                if (hull.Value)
-                    AvailableHulls.Add(ResourceManager.Hull(hull.Key));
+                if (hull.Value && ResourceManager.Hull(hull.Key, out ShipData hullData))
+                    AvailableHulls.Add(hullData);
 
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
