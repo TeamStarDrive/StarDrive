@@ -976,7 +976,6 @@ namespace Ship_Game
         static readonly Array<ShipData> HullsList       = new Array<ShipData>();
 
         public static bool Hull(string shipHull, out ShipData hullData) => HullsDict.Get(shipHull, out hullData);
-        public static ShipData Hull(string shipHull)                    => HullsDict[shipHull];
         public static IReadOnlyList<ShipData> Hulls                     => HullsList;
 
         static void LoadHullBonuses()

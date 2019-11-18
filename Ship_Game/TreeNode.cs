@@ -343,11 +343,9 @@ namespace Ship_Game
                         {
                             ToolTip.CreateTooltip(tip);
                         }
-                        else
+                        else if (ResourceManager.Hull(gi.item.HullUnlocked, out ShipData unlocked))
                         {
-                            ShipData unlocked = ResourceManager.Hull(gi.item.HullUnlocked);
-                            ToolTip.CreateTooltip(
-                                $"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
+                            ToolTip.CreateTooltip($"{unlocked.Name} ({Localizer.GetRole(unlocked.Role, EmpireManager.Player)})");
                         }
                     }
                 }

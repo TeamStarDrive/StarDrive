@@ -173,27 +173,27 @@ namespace Ship_Game
         {
             if (tech.ModulesUnlocked.Count > 0)
             {
-                foreach (var mType in GetModuleTechnologyType(tech))
-                technologyTypes.AddUnique(mType);
+                foreach (TechnologyType mType in GetModuleTechnologyType(tech))
+                    technologyTypes.AddUnique(mType);
             }
 
             if (tech.HullsUnlocked.Count > 0)
-                foreach (var hType in GetHullTechnologyType(tech))
+                foreach (TechnologyType hType in GetHullTechnologyType(tech))
                     technologyTypes.AddUnique(hType);
 
             if (tech.BonusUnlocked.Count > 0)
-                foreach (var uType in GetBonusTechnologyType(tech))
+                foreach (TechnologyType uType in GetBonusTechnologyType(tech))
                     technologyTypes.AddUnique(uType);
 
             if (tech.BuildingsUnlocked.Count > 0)
                 technologyTypes.AddUnique(GetBuildingTechnologyType(tech));
 
             if (tech.TroopsUnlocked.Count > 0)
-                technologyTypes.AddUnique(Ship_Game.TechnologyType.GroundCombat);
+                technologyTypes.AddUnique(TechnologyType.GroundCombat);
 
             if (tech.ModulesUnlocked.Count == 0 && tech.HullsUnlocked.Count == 0 && tech.BonusUnlocked.Count == 0
                 && tech.BuildingsUnlocked.Count == 0 && tech.TroopsUnlocked.Count == 0)
-                technologyTypes.AddUnique(Ship_Game.TechnologyType.General);
+                technologyTypes.AddUnique(TechnologyType.General);
         }
 
         static TechnologyType GetBuildingTechnologyType(Technology tech)
@@ -237,10 +237,10 @@ namespace Ship_Game
                 switch (unlockedBonus.Type)
                 {
                     case "SHIPMODULE":
-                    case "HULL": techTypes.AddUnique(TechnologyType.ShipGeneral); break;
-                    case "TROOP": techTypes.AddUnique(TechnologyType.GroundCombat); break;
+                    case "HULL":     techTypes.AddUnique(TechnologyType.ShipGeneral);  break;
+                    case "TROOP":    techTypes.AddUnique(TechnologyType.GroundCombat); break;
                     case "BUILDING": techTypes.AddUnique(TechnologyType.Colonization); break;
-                    case "ADVANCE": techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                    case "ADVANCE":  techTypes.AddUnique(TechnologyType.ShipGeneral);  break;
                 }
 
                 switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
@@ -341,13 +341,19 @@ namespace Ship_Game
             var techTypes = new Array<TechnologyType>();
             foreach (UnlockedHull unlockedHull in tech.HullsUnlocked)
             {
-                var hull = ResourceManager.Hull(unlockedHull.Name);
-                var role = hull.Role;
+                if (!ResourceManager.Hull(unlockedHull.Name, out ShipData hull))
+                    continue;
+
                 if (hull.IsShipyard)
                     techTypes.AddUnique(TechnologyType.Industry);
-                if (role == ShipData.RoleName.construction || role == ShipData.RoleName.freighter)
+
+                if (hull.Role == ShipData.RoleName.construction ||
+                    hull.Role == ShipData.RoleName.freighter)
                     techTypes.AddUnique(TechnologyType.Industry);
-                if (role == ShipData.RoleName.station || role == ShipData.RoleName.platform || role == ShipData.RoleName.freighter)
+
+                if (hull.Role == ShipData.RoleName.station ||
+                    hull.Role == ShipData.RoleName.platform ||
+                    hull.Role == ShipData.RoleName.freighter)
                     techTypes.AddUnique(TechnologyType.ShipHull);
             }
 
