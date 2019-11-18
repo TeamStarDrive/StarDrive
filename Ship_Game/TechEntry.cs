@@ -21,9 +21,11 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
+
+        [XmlIgnore][JsonIgnore]
         public float PercentResearched => Progress / TechCost;
 
-        //add initializer for tech
+        // add initializer for tech
         [XmlIgnore][JsonIgnore]
         public Technology Tech { get; private set; }
 
@@ -32,9 +34,15 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore]
         public Array<string> ConqueredSource = new Array<string>();
-        public TechnologyType TechnologyType => Tech.TechnologyType;
-        [XmlIgnore][JsonIgnore] public Array<TechnologyType>  TechnologyTypes => Tech.TechnologyTypes;
+
+        [XmlIgnore][JsonIgnore]
+        public TechnologyType TechnologyType => Tech.TechnologyTypes.First();
+
+        public bool IsTechnologyType(TechnologyType type) => Tech.TechnologyTypes.Contains(type);
+        
+        [XmlIgnore][JsonIgnore]
         public int MaxLevel => Tech.MaxLevel;
+
         [XmlIgnore][JsonIgnore]
         readonly Dictionary<TechnologyType, float> TechTypeCostLookAhead = new Dictionary<TechnologyType, float>();
 
@@ -115,17 +123,10 @@ namespace Ship_Game
 
         public bool IsShipTech()
         {
-
-            if (IsTechnologyType(TechnologyType.ShipDefense)) return true;
-            if (IsTechnologyType(TechnologyType.ShipHull))    return true;
-            if (IsTechnologyType(TechnologyType.ShipWeapons)) return true;
-            if (IsTechnologyType(TechnologyType.ShipGeneral)) return true;
-            return false;
-        }
-
-        public bool IsTechnologyType(TechnologyType techType)
-        {
-            return TechnologyTypes.Contains(techType);
+            return IsTechnologyType(TechnologyType.ShipDefense)
+                || IsTechnologyType(TechnologyType.ShipHull)
+                || IsTechnologyType(TechnologyType.ShipWeapons)
+                || IsTechnologyType(TechnologyType.ShipGeneral);
         }
 
         public float CostOfNextTechWithType(TechnologyType techType) => TechTypeCostLookAhead[techType];
@@ -165,23 +166,25 @@ namespace Ship_Game
 
         float LookAheadCost(TechnologyType techType, Empire empire)
         {
-            if (!Discovered) return 0;
+            if (!Discovered)
+                return 0;
 
-            //if current tech == wanted type return this techs cost
-            if (!Unlocked && Tech.TechnologyTypes.Contains(techType))
+            // if current tech == wanted type return this techs cost
+            if (!Unlocked && IsTechnologyType(techType))
                 return TechCost;
 
-            //look through all leadtos and find a future tech with this type.
-            //return the cost to get to this tech
-            float cost = 0;
+            // look through all leadtos and find a future tech with this type.
+            // return the cost to get to this tech
             if (Tech.LeadsTo.Count == 0)
                 return 0;
+
+            float cost = 0;
             foreach (Technology.LeadsToTech leadsTo in Tech.LeadsTo)
             {
                 float tempCost = empire.GetTechEntry(leadsTo.UID).LookAheadCost(techType, empire);
                 if (tempCost > 0) cost = cost > 0 ? Math.Min(tempCost, cost) : tempCost;
             }
-            return cost == 0 ? 0 : TechCost + cost;
+            return cost.AlmostZero() ? 0 : TechCost + cost;
         }
 
         bool CheckSource(string unlockType, Empire empire)
