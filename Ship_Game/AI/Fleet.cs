@@ -504,7 +504,7 @@ namespace Ship_Game.AI
                     }
                     if (Ships.Any(ship => ship.InCombat))
                         break;
-                    AssembleFleet2(Vector2.Zero);
+                    AssembleFleet2(new Vector2(1, 0));
                     break;
             }
         }
