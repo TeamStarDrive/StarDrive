@@ -82,9 +82,9 @@ namespace Ship_Game
 
             if (unLocked)
             {
-                Empire.UnlockTech(Topic, TechUnlockType.Normal);
+                Empire.UnlockTech(tech, TechUnlockType.Normal);
                 if (Empire.isPlayer)
-                    Empire.Universe.NotificationManager.AddResearchComplete(Topic, Empire);
+                    Empire.Universe.NotificationManager.AddResearchComplete(tech.UID, Empire);
             }
         }
 

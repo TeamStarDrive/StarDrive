@@ -38,21 +38,21 @@ namespace Ship_Game.AI
 
         public void SetFleetRatios()
         {
-            //fighters: 1, corvettes: 4, frigates: 8, cruisers: 6, capitals: 1, bombers: 1f, carriers: 1f, support: 1f, troopShip: 1f
+            //fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
             if (OwnerEmpire.canBuildCapitals)
-                SetCounts(new[] { 1, 20, 10, 3, 1, 1, 1, 1, 1 });
+                SetCounts(new[] { 6, 3, 3, 3, 1, 1, 5, 1, 1 });
 
             else if (OwnerEmpire.canBuildCruisers)
-                SetCounts(new[] { 6, 16, 8, 2, 0, 1, 1, 1, 1 });
+                SetCounts(new[] { 6, 3, 3, 3, 0, 1, 5, 1, 1 });
 
             else if (OwnerEmpire.canBuildFrigates)
-                SetCounts(new[] { 10, 15, 5, 0, 0, 1, 1, 1, 1 });
+                SetCounts(new[] { 12, 6, 3, 0, 0, 1, 5, 1, 1 });
 
             else if (OwnerEmpire.canBuildCorvettes)
-                SetCounts(new[] { 10, 5, 0, 0, 0, 1, 1, 1, 1 });
+                SetCounts(new[] { 12, 6, 0, 0, 0, 1, 2, 1, 1 });
 
             else
-                SetCounts(new[] { 20, 0, 0, 0, 0, 1, 1, 1, 1 });
+                SetCounts(new[] { 12, 0, 0, 0, 0, 1, 2, 1, 1 });
         }
 
         private void SetCounts(int[] counts)
@@ -84,32 +84,15 @@ namespace Ship_Game.AI
             float totalRatio = MinFighters + MinCorvettes + MinFrigates + MinCruisers
                                + MinCapitals;
             TotalCount = totalRatio + MinSupport + MinCarriers + MinBombers + MinTroopShip;
+            
         }
 
-
-        public int ApplyFighterRatio(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinFighters);
-        public int ApplyRatioCorvettes(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinCorvettes);
-        public int ApplyRatioFrigates(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinFrigates);
-        public int ApplyRatioCruisers(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinCruisers);
-        public int ApplyRatioCapitals(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinCapitals);
-        public int ApplyRatioTroopShip(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinTroopShip);
-        public int ApplyRatioBombers(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinBombers);
-        public int ApplyRatioCarriers(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinCarriers);
-        public int ApplyRatioSupport(float roleCount, float roleUpkeep, float capacity) => ApplyRatio(roleCount, roleUpkeep, capacity, MinSupport);
-
-        private int ApplyRatio(float roleCount, float roleUpkeep, float totalCapacity, float wantedMin)
+        public int ApplyRatio(float totalPerUnitMaintenance, float roleUpkeep, float totalCapacity, float wantedMin)
         {
             if (wantedMin < .01f) return 0;
-            float possible = totalCapacity / roleUpkeep;
-            float ratio = wantedMin / TotalCount;
-            float desired = possible * ratio;
-            //get an average of maintainence used for the role.
-            //float shipUpkeep = Math.Max(roleUpkeep, .01f) / Math.Max(roleCount, 1);
-            //figure the possible number of ships in role based on capacity and upkeep
-            //float possible   = totalCapacity / shipUpkeep;
-
-
-
+            float maintenanceRatio = roleUpkeep * wantedMin / totalPerUnitMaintenance;
+            float maintenanceForRole = totalCapacity * maintenanceRatio;
+            float desired = maintenanceForRole / roleUpkeep;
             return (int)desired;
         }
     }

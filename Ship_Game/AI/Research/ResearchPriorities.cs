@@ -47,7 +47,7 @@ namespace Ship_Game.AI.Research
                 //use stddev of techcost to determine how behind we are in tech
 
                 float techCostRatio = avgTechCost / empire.Research.NetResearch;
-                ResearchDebt = techCostRatio / 100f; //divide by 100 turns.
+                ResearchDebt = techCostRatio / 50f; //divide by 100 turns.
 
                 ResearchDebt = ResearchDebt.Clamped(0, 1);
             }
