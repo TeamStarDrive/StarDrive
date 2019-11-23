@@ -1274,6 +1274,8 @@ namespace Ship_Game
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
+        //Using memory to save CPU time. the question is how often is the value used and
+        //How often would it be calculated. 
         private void UpdateMaxColonyValue()
         {
             if (OwnedPlanets.Count > 0)
@@ -1495,7 +1497,7 @@ namespace Ship_Game
                     {
                         structuresWeCanBuild.Add(ship.Name);
                     }
-                    else
+                    
                     {
                         ShipsWeCanBuild.Add(ship.Name);
                     }

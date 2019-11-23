@@ -21,28 +21,63 @@ namespace Ship_Game.AI
 
         private void RunEconomicPlanner()
         {
-            float risk         = GetRisk();
-            float money        = Math.Max(OwnerEmpire.Money, 1);
-            float treasuryGoal = TreasuryGoal();
-            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio   = (strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio) /2f;
-
+            float money                    = OwnerEmpire.Money.ClampMin(1.0f);
+            float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
-            SetBudgetForeArea(0.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, strat.MilitaryRatio));            
-            SetBudgetForeArea(0.01f, ref OwnerEmpire.data.SSPBudget, strat.IndustryRatio + strat.ExpansionRatio);
-            SetBudgetForeArea(0.02f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(0.15f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, strat.MilitaryRatio));
-            SetBudgetForeArea(0.1f,  ref OwnerEmpire.data.ColonyBudget, strat.IndustryRatio + strat.ExpansionRatio);
 
-#if DEBUG
+            float risk = GetRisk();
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(risk);
+            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget();
+            BuildCapacity                  = DetermineBuildCapacity(risk);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(risk);
+            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget();
+
+
+            PlanetBudgetDebugInfo();
+        }
+        float DetermineDefenseBudget(float risk)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            return SetBudgetForeArea(0.0025f, Math.Max(risk, strat.MilitaryRatio));
+        }
+        float DetermineSSPBudget()
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            float risk = strat.IndustryRatio + strat.ExpansionRatio;
+            return SetBudgetForeArea(0.0025f, risk);
+        }
+
+        float DetermineBuildCapacity(float risk)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            float buildRatio = (strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio) / 2f;
+
+            return  SetBudgetForeArea(0.01f, Math.Max(risk, buildRatio));
+
+        }
+
+        float DetermineColonyBudget()
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            return SetBudgetForeArea(0.01f, strat.IndustryRatio + strat.ExpansionRatio);
+        }
+        float DetermineSpyBudget(float risk)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            return SetBudgetForeArea(0.1500f, Math.Max(risk, strat.MilitaryRatio));
+        }
+        private void PlanetBudgetDebugInfo()
+        {
+            if (!Empire.Universe.Debug) return;
+
             var pBudgets = new Array<PlanetBudget>();
             foreach (var planet in OwnerEmpire.GetPlanets())
             {
                 var planetBudget = new PlanetBudget(planet);
                 pBudgets.Add(planetBudget);
             }
+
             PlanetBudgets = pBudgets;
-#endif
         }
 
         private float TreasuryGoal()
@@ -80,20 +115,19 @@ namespace Ship_Game.AI
         public Array<PlanetBudget> PlanetBudgets;
 #endif
 
-        private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
+        private float SetBudgetForeArea(float percentOfIncome, float risk)
         {
             float budget = OwnerEmpire.Money * percentOfIncome * risk;
-            
             budget = Math.Max(1, budget);
-            area = budget;
             return budget;
         }
-        public float GetRisk(float riskLimit =.75f)
+        public float GetRisk(float riskLimit = 2f)
         {
             float risk = 0;
             foreach (var kv in OwnerEmpire.AllRelations)
             {
-                risk += kv.Value.Risk.MaxRisk >  riskLimit ? 0 :kv.Value.Risk.MaxRisk;
+                var tRisk = kv.Value.Risk.Risk;
+                risk      = Math.Max(tRisk, risk);
             }
             return risk;
         }
