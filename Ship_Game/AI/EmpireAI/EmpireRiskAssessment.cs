@@ -64,7 +64,7 @@ namespace Ship_Game.AI
             {
                 strength += us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
             }
-            strength = ((strength - us.currentMilitaryStrength) / strength).Clamped(0,1);
+            strength = ((strength - us.currentMilitaryStrength) / strength.ClampMin(1)).Clamped(0,1);
             return strength; 
         }
 
