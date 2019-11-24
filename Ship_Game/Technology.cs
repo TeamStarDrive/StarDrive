@@ -25,8 +25,7 @@ namespace Ship_Game
         public bool Discovered;
         public bool Unlockable;
 
-        [XmlIgnore] public Array<TechnologyType> TechnologyTypes = new Array<TechnologyType>();
-        public TechnologyType TechnologyType { get => TechnologyTypes[0]; set => TechnologyTypes.Add(value); }
+        [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
 
         public int NameIndex;
         public int DescriptionIndex;
@@ -72,8 +71,6 @@ namespace Ship_Game
 
         public bool AnyChildrenDiscovered(Empire empire)
             => Children.Any(tech => empire.GetTechEntry(tech.UID).Discovered);
-        public Technology[] DiscoveredChildren(Empire empire)
-        => Children.Filter(tech => empire.GetTechEntry(tech.UID).Discovered);
 
         public class UnlockedBonus
         {
@@ -169,40 +166,26 @@ namespace Ship_Game
             Parents  = ResolveLeadsToTechs("ComesFrom", ComesFrom);
         }
 
-        public static void GetTechnologyTypesFromUnlocks(Technology tech, Array<TechnologyType> technologyTypes)
+        public void UpdateTechnologyTypesFromUnlocks()
         {
-            if (tech.ModulesUnlocked.Count > 0)
-            {
-                foreach (var mType in GetModuleTechnologyType(tech))
-                technologyTypes.AddUnique(mType);
-            }
+            ISet<TechnologyType> types = TechnologyTypes;
+            if (ModulesUnlocked.Count > 0) GetModuleTechTypes(types);
+            if (HullsUnlocked.Count > 0)   GetHullTechTypes(types);
+            if (BonusUnlocked.Count > 0)   GetBonusTechTypes(types);
+            if (BuildingsUnlocked.Count > 0) types.Add(GetBuildingTechnologyType());
+            if (TroopsUnlocked.Count > 0)    types.Add(TechnologyType.GroundCombat);
 
-            if (tech.HullsUnlocked.Count > 0)
-                foreach (var hType in GetHullTechnologyType(tech))
-                    technologyTypes.AddUnique(hType);
-
-            if (tech.BonusUnlocked.Count > 0)
-                foreach (var uType in GetBonusTechnologyType(tech))
-                    technologyTypes.AddUnique(uType);
-
-            if (tech.BuildingsUnlocked.Count > 0)
-                technologyTypes.AddUnique(GetBuildingTechnologyType(tech));
-
-            if (tech.TroopsUnlocked.Count > 0)
-                technologyTypes.AddUnique(Ship_Game.TechnologyType.GroundCombat);
-
-            if (tech.ModulesUnlocked.Count == 0 && tech.HullsUnlocked.Count == 0 && tech.BonusUnlocked.Count == 0
-                && tech.BuildingsUnlocked.Count == 0 && tech.TroopsUnlocked.Count == 0)
-                technologyTypes.AddUnique(Ship_Game.TechnologyType.General);
+            if (types.Count == 0)
+                types.Add(TechnologyType.General);
         }
 
-        static TechnologyType GetBuildingTechnologyType(Technology tech)
+        TechnologyType GetBuildingTechnologyType()
         {
-            foreach (UnlockedBuilding buildingU in tech.BuildingsUnlocked)
+            foreach (UnlockedBuilding buildingU in BuildingsUnlocked)
             {
                 if (!ResourceManager.GetBuilding(buildingU.Name, out Building building))
                 {
-                    Log.Warning($"Tech {tech.UID} unlock unavailable : {buildingU.Name}");
+                    Log.Warning($"Tech {UID} unlock unavailable : {buildingU.Name}");
                     continue;
                 }
 
@@ -229,25 +212,24 @@ namespace Ship_Game
             return TechnologyType.General;
         }
 
-        static Array<TechnologyType> GetBonusTechnologyType(Technology tech)
+        void GetBonusTechTypes(ISet<TechnologyType> types)
         {
-            var techTypes = new Array<TechnologyType>();
-            foreach (UnlockedBonus unlockedBonus in tech.BonusUnlocked)
+            foreach (UnlockedBonus unlockedBonus in BonusUnlocked)
             {
                 switch (unlockedBonus.Type)
                 {
                     case "SHIPMODULE":
-                    case "HULL": techTypes.AddUnique(TechnologyType.ShipGeneral); break;
-                    case "TROOP": techTypes.AddUnique(TechnologyType.GroundCombat); break;
-                    case "BUILDING": techTypes.AddUnique(TechnologyType.Colonization); break;
-                    case "ADVANCE": techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                    case "HULL":     types.Add(TechnologyType.ShipGeneral);  break;
+                    case "TROOP":    types.Add(TechnologyType.GroundCombat); break;
+                    case "BUILDING": types.Add(TechnologyType.Colonization); break;
+                    case "ADVANCE":  types.Add(TechnologyType.ShipGeneral);  break;
                 }
 
                 switch (unlockedBonus.BonusType ?? unlockedBonus.Name)
                 {
                     case "Xeno Compilers":
                     case "Research Bonus":
-                        techTypes.AddUnique(TechnologyType.Research); break;
+                        types.Add(TechnologyType.Research); break;
                     case "FTL Spool Bonus":
                     case "Set FTL Drain Modifier":
                     case "Trade Tariff":
@@ -265,21 +247,21 @@ namespace Ship_Game
                     case "Consumption Bonus":
                     case "Tax Bonus":
                     case "Maintenance Bonus":
-                        techTypes.AddUnique(TechnologyType.Economic); break;
+                        types.Add(TechnologyType.Economic); break;
                     case "Top Guns":
                     case "Bonus Fighter Levels":
                     case "Mass Reduction":
                     case "Percent Mass Adjustment":
                     case "STL Speed Bonus":
                     case "ArmourMass":
-                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break;
                     case "Resistance is Futile":
                     case "Super Soldiers":
                     case "Troop Strength Modifier Bonus":
                     case "Allow Assimilation":
-                        techTypes.AddUnique(TechnologyType.GroundCombat); break;
+                        types.Add(TechnologyType.GroundCombat); break;
                     case "Cryogenic Suspension":
-                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break;
                     case "Increased Lifespans":
                     case "Population Growth Bonus":
                     case "Set Population Growth Min":
@@ -291,7 +273,7 @@ namespace Ship_Game
                     case "Xenolinguistic Nuance":
                     case "Diplomacy Bonus":
                     case "Passenger Modifier":
-                        techTypes.AddUnique(TechnologyType.Colonization); break;
+                        types.Add(TechnologyType.Colonization); break;
                     case "Ordnance Effectiveness":
                     case "Ordnance Effectiveness Bonus":
                     case "Tachyons":
@@ -301,7 +283,7 @@ namespace Ship_Game
                     case "Power Flow Bonus":
                     case "Shield Power Bonus":
                     case "Fuel Cell Bonus":
-                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break;
                     case "Missile Armor":
                     case "Missile HP Bonus":
                     case "Hull Strengthening":
@@ -313,7 +295,7 @@ namespace Ship_Game
                     case "Repair Bonus":
                     case "Kulrathi Might":
                     case "Armor Explosion Reduction":
-                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break;
                     case "Armor Piercing":
                     case "Armor Phasing":
                     case "Weapon_Speed":
@@ -327,69 +309,63 @@ namespace Ship_Game
                     case "Weapon_HP":
                     case "Weapon_ShieldPenetration":
                     case "Weapon_ArmourPenetration":
-                        techTypes.AddUnique(TechnologyType.ShipGeneral); break;
+                        types.Add(TechnologyType.ShipGeneral); break;
                     default:
-                        techTypes.AddUnique(TechnologyType.General); break;
+                        types.Add(TechnologyType.General); break;
                 }
             }
-
-            return techTypes;
         }
 
-        static Array<TechnologyType> GetHullTechnologyType(Technology tech)
+        void GetHullTechTypes(ISet<TechnologyType> types)
         {
-            var techTypes = new Array<TechnologyType>();
-            foreach (UnlockedHull unlockedHull in tech.HullsUnlocked)
+            foreach (UnlockedHull unlockedHull in HullsUnlocked)
             {
-                var hull = ResourceManager.Hull(unlockedHull.Name);
-                var role = hull.Role;
-                if (hull.IsShipyard)
-                    techTypes.AddUnique(TechnologyType.Industry);
-                if (role == ShipData.RoleName.construction || role == ShipData.RoleName.freighter)
-                    techTypes.AddUnique(TechnologyType.Industry);
-                if (role == ShipData.RoleName.station || role == ShipData.RoleName.platform || role == ShipData.RoleName.freighter)
-                    techTypes.AddUnique(TechnologyType.ShipHull);
-            }
-
-            return techTypes;
-        }
-
-        static Array<TechnologyType> GetModuleTechnologyType(Technology tech)
-        {
-            var techTypes = new Array<TechnologyType>();
-            foreach (UnlockedMod moduleU in tech.ModulesUnlocked)
-            {
-                if (!ResourceManager.GetModuleTemplate(moduleU.ModuleUID, out ShipModule module))
+                if (ResourceManager.Hull(unlockedHull.Name, out ShipData hull))
                 {
-                    Log.Warning($"Tech {tech.UID} unlock unavailable : {moduleU.ModuleUID}");
-                    continue;
+                    if (hull.IsShipyard)
+                        types.Add(TechnologyType.Industry);
+
+                    if (hull.Role == ShipData.RoleName.construction ||
+                        hull.Role == ShipData.RoleName.freighter)
+                        types.Add(TechnologyType.Industry);
+
+                    if (hull.Role == ShipData.RoleName.station ||
+                        hull.Role == ShipData.RoleName.platform ||
+                        hull.Role == ShipData.RoleName.freighter)
+                        types.Add(TechnologyType.ShipHull);
                 }
-
-                ModuleTechType(module,techTypes);
             }
-
-            return techTypes;
         }
 
-        private static void ModuleTechType(ShipModule module, Array<TechnologyType> techTypes)
+        void GetModuleTechTypes(ISet<TechnologyType> types)
         {
-            bool General = true;
-            if (module.InstalledWeapon != null
-                || module.MaximumHangarShipSize > 0
-                || module.Is(ShipModuleType.Hangar))
+            foreach (UnlockedMod moduleU in ModulesUnlocked)
             {
-                techTypes.AddUnique(TechnologyType.ShipWeapons);
-                General = false;
+                if (ResourceManager.GetModuleTemplate(moduleU.ModuleUID, out ShipModule module))
+                {
+                    bool genericShipTech = true;
+                    if (module.InstalledWeapon != null
+                        || module.MaximumHangarShipSize > 0
+                        || module.Is(ShipModuleType.Hangar))
+                    {
+                        types.Add(TechnologyType.ShipWeapons);
+                        genericShipTech = false;
+                    }
+                    if (module.shield_power_max >= 1f
+                        || module.Is(ShipModuleType.Armor)
+                        || module.Is(ShipModuleType.Countermeasure)
+                        || module.Is(ShipModuleType.Shield))
+                    {
+                        types.Add(TechnologyType.ShipDefense);
+                        genericShipTech = false;
+                    }
+
+                    if (genericShipTech)
+                        types.Add(TechnologyType.ShipGeneral);
+                }
+                else
+                    Log.Warning($"Tech {UID} unlock unavailable : {moduleU.ModuleUID}");
             }
-            if (module.shield_power_max >= 1f
-                || module.Is(ShipModuleType.Armor)
-                || module.Is(ShipModuleType.Countermeasure)
-                || module.Is(ShipModuleType.Shield))
-            {
-                techTypes.AddUnique(TechnologyType.ShipDefense);
-                General = false;
-            }
-            if(General) techTypes.AddUnique(TechnologyType.ShipGeneral);
         }
     }
 }
