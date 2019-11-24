@@ -68,7 +68,7 @@
   </PropertyGroup>
   <PropertyGroup />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Deploy|x86'">
-    <OutputPath>Deploy\upload\</OutputPath>
+    <OutputPath>Deploy\Temp\</OutputPath>
     <DefineConstants>STEAM</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>

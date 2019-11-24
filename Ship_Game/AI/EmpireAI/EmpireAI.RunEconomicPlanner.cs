@@ -112,9 +112,7 @@ namespace Ship_Game.AI
             OwnerEmpire.data.TaxRate  = (normalTaxRate + desiredTaxRate).Clamped(0.01f,0.95f);
         }
 
-#if DEBUG
         public Array<PlanetBudget> PlanetBudgets;
-#endif
 
         private float SetBudgetForeArea(float percentOfIncome, float risk, float money)
         {
