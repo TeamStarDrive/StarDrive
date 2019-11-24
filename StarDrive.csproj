@@ -73,7 +73,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
@@ -5130,11 +5130,15 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>REM call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
-REM echo "Setting /LARGEADDRESSAWARE"
-REM editbin /largeaddressaware $(TargetPath)
-REM dumpbin /headers $(TargetPath)
-if "$(ConfigurationName)" == "Deploy"  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)</PostBuildEvent>
+    <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  (
+  call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
+  dumpbin /headers $(TargetPath) | find "Application"
+  echo "Setting /LARGEADDRESSAWARE"
+  editbin /nologo /largeaddressaware $(TargetPath)
+  dumpbin /headers $(TargetPath) | find "Application"
+
+  $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)
+)</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>cd $(ProjectDir) &amp;&amp; if "$(ConfigurationName)" == "Deploy"   powershell -ExecutionPolicy ByPass  -file Deploy\Config\UpdateAssemblyInfo.ps1</PreBuildEvent>

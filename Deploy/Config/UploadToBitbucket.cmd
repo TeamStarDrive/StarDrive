@@ -5,7 +5,7 @@ if not defined BB_UPLOAD_PASS ( echo envvar BB_UPLOAD_PASS undefined && goto err
 
 for /f %%b in ('git name-rev --name-only HEAD') do set BRANCH_NAME=%%b
 echo BRANCH_NAME=%BRANCH_NAME%
-if "%BRANCH_NAME%" NEQ "develop" ( echo Auto-Deploy is only enabled for develop branch && goto error )
+if "%BRANCH_NAME%" NEQ "develop" ( echo Auto-Deploy is only enabled for develop branch && goto :eof )
 
 for /f %%r in ('dir /B /O-D C:\Projects\BlackBox\Deploy\upload') do set file=%%r
 set file=C:/Projects/BlackBox/Deploy/upload/%file%
