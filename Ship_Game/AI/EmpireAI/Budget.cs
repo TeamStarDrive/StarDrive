@@ -44,7 +44,10 @@ namespace Ship_Game.AI.Budget
             EmpireRatio          = SysCom.PercentageOfValue * planetRatio;
             Budget               = EmpireColonizationBudget * EmpireRatio;
             Orbitals = PlanetDefenseBudget  = EmpireDefenseBudget * EmpireRatio;
-            Buildings = Budget              += planet.ColonyDebtTolerance - planet.ColonyMaintenance;
+            Budget -= planet.ColonyMaintenance;
+            if (Budget < 0)
+                Budget = (Budget + planet.ColonyDebtTolerance).Clamped(-float.MaxValue, 0);
+            Buildings = Budget;
             Initialized          = true;
 
         }

@@ -50,7 +50,7 @@ namespace Ship_Game.AI
             {
                 usStrength += p.ColonyValue;
             }
-            float strength = themStrength / usStrength;
+            float strength = ((themStrength - usStrength) / themStrength).Clamped(0,1);
             return strength;
         }
 
@@ -64,7 +64,7 @@ namespace Ship_Game.AI
             {
                 strength += us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
             }
-            strength /= Math.Max(us.currentMilitaryStrength, 100);
+            strength = ((strength - us.currentMilitaryStrength) / strength).Clamped(0,1);
             return strength; 
         }
 

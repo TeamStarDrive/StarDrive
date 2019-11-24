@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace UnitTests.Planets
 {
@@ -58,6 +53,11 @@ namespace UnitTests.Planets
         {
             for (int i = 0; i < 100; ++i)
             {
+                var tile = FindHabitableTargetTile;
+                //do until bombs have made the planet tile uninhabitable
+                //but make sure it dropped at least 1 bomb.
+                if (tile == null && i > 0)
+                    break;
                 CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindHabitableTargetTile);
                 float expectedPop = P.Population - B.PopKilled * 1000;
                 orbitalDrop.DamageColonySurface(B);

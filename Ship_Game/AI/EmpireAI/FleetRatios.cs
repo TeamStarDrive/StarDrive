@@ -5,7 +5,7 @@ namespace Ship_Game.AI
 {
     public struct FleetRatios
     {
-        public float TotalCount     { get; set; }
+        public float TotalCount { get; set; }
         public float MinFighters { get; set; }
         public float MinCorvettes { get; set; }
         public float MinFrigates { get; set; }
@@ -22,7 +22,7 @@ namespace Ship_Game.AI
         {
             OwnerEmpire    = empire;
 
-            TotalCount     = 0;
+            TotalCount   = 0;
             MinFighters  = 0;
             MinCorvettes = 0;
             MinFrigates  = 0;
@@ -40,13 +40,13 @@ namespace Ship_Game.AI
         {
             //fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
             if (OwnerEmpire.canBuildCapitals)
-                SetCounts(new[] { 6, 3, 3, 3, 1, 1, 5, 1, 1 });
+                SetCounts(new[] { 6, 3, 3, 3, 1, 1, 5, 2, 3 });
 
             else if (OwnerEmpire.canBuildCruisers)
-                SetCounts(new[] { 6, 3, 3, 3, 0, 1, 5, 1, 1 });
+                SetCounts(new[] { 6, 3, 3, 3, 0, 1, 5, 2, 2 });
 
             else if (OwnerEmpire.canBuildFrigates)
-                SetCounts(new[] { 12, 6, 3, 0, 0, 1, 5, 1, 1 });
+                SetCounts(new[] { 12, 6, 3, 0, 0, 1, 5, 2, 1 });
 
             else if (OwnerEmpire.canBuildCorvettes)
                 SetCounts(new[] { 12, 6, 0, 0, 0, 1, 2, 1, 1 });
@@ -84,16 +84,7 @@ namespace Ship_Game.AI
             float totalRatio = MinFighters + MinCorvettes + MinFrigates + MinCruisers
                                + MinCapitals;
             TotalCount = totalRatio + MinSupport + MinCarriers + MinBombers + MinTroopShip;
-            
-        }
 
-        public int ApplyRatio(float totalPerUnitMaintenance, float roleUpkeep, float totalCapacity, float wantedMin)
-        {
-            if (wantedMin < .01f) return 0;
-            float maintenanceRatio = roleUpkeep * wantedMin / totalPerUnitMaintenance;
-            float maintenanceForRole = totalCapacity * maintenanceRatio;
-            float desired = maintenanceForRole / roleUpkeep;
-            return (int)desired;
         }
     }
 

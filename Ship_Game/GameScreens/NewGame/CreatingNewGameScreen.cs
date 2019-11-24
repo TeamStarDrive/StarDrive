@@ -359,7 +359,7 @@ namespace Ship_Game
                 if (systemData == null)
                 {
                     sys = new SolarSystem();
-                    sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, Data, Scale, e);
+                    sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, Scale, e);
                 }
                 else sys = SolarSystem.GenerateSystemFromData(systemData, e);
 
@@ -391,7 +391,7 @@ namespace Ship_Game
             for (; systemCount < NumSystems; ++systemCount)
             {
                 var solarSystem2 = new SolarSystem();
-                solarSystem2.GenerateRandomSystem(nameGenerator.NextName, Data, Scale);
+                solarSystem2.GenerateRandomSystem(nameGenerator.NextName, Scale);
                 Data.SolarSystemsList.Add(solarSystem2);
                 step.Advance();
             }
