@@ -50,16 +50,16 @@ namespace Ship_Game.AI
         float DetermineBuildCapacity(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio = (strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio) / 2f;
-
-            return  SetBudgetForeArea(0.01f, Math.Max(risk, buildRatio), money);
+            float buildRatio = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
+            buildRatio /= 2;
+            return  SetBudgetForeArea(0.01f, buildRatio + risk, money);
 
         }
 
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.01f, strat.IndustryRatio + strat.ExpansionRatio, money);
+            return SetBudgetForeArea(0.0075f, strat.IndustryRatio + strat.ExpansionRatio, money);
         }
         float DetermineSpyBudget(float risk, float money)
         {
