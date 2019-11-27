@@ -73,11 +73,11 @@ namespace Ship_Game
                     break;
             } // End Gov type Switch
 
-            BuildPlatformsAndStations(budget.PlanetDefenseBudget);
+            BuildPlatformsAndStations(budget);
             BuildMilitia();
         }
 
-        private void BuildPlatformsAndStations(float budget) // Rewritten by Fat Bastard
+        private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
             if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
                                                 || SpaceCombatNearPlanet
@@ -86,16 +86,23 @@ namespace Ship_Game
             {
                 return;
             }
-
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
-            int rank             = FindColonyRank(log: true);
+
+            float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
+            float ratioValue     = ColonyValue / maxSystemValue.ClampMin(1);
+            int rank             = (int)(budget.SystemRank * ratioValue) + 3;
             var wantedOrbitals   = new WantedOrbitals(rank);
 
             BuildOrScrapShipyard(wantedOrbitals.Shipyards);
-            BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
-            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank, budget);
+            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, rank, budget.Orbitals);
+            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
         }
+
+        private void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
+        => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
+        private void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
@@ -238,7 +245,7 @@ namespace Ship_Game
                 return orbital;
 
             // we cannot build the best in the empire, lets try building something cheaper for now
-            float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
+            float maxCost = budget / ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
             return orbital == null || orbital.IsSubspaceProjector ? null : orbital;
         }
@@ -448,12 +455,7 @@ namespace Ship_Game
             return prodToSpend;
         }
 
-        PlanetBudget AllocateColonyBudget()
-        {
-            PlanetBudget colonyBudget = Owner.GetEmpireAI().PlanetBudget(this);
-            //var colonyBudget     = new ColonyBudget(budget, colonyType, Owner, GovOrbitals);
-            return colonyBudget;
-        }
+        PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
 
         struct ColonyBudget
         {

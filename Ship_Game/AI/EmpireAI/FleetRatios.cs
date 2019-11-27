@@ -40,13 +40,13 @@ namespace Ship_Game.AI
         {
             //fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
             if (OwnerEmpire.canBuildCapitals)
-                SetCounts(new[] { 6, 3, 3, 3, 1, 1, 5, 2, 3 });
+                SetCounts(new[] { 6, 3, 3, 3, 1, 1, 2, 3, 2 });
 
             else if (OwnerEmpire.canBuildCruisers)
-                SetCounts(new[] { 6, 3, 3, 3, 0, 1, 5, 2, 2 });
+                SetCounts(new[] { 6, 3, 3, 3, 0, 1, 2, 3, 2 });
 
             else if (OwnerEmpire.canBuildFrigates)
-                SetCounts(new[] { 12, 6, 3, 0, 0, 1, 5, 2, 1 });
+                SetCounts(new[] { 12, 6, 3, 0, 0, 1, 2, 3, 1 });
 
             else if (OwnerEmpire.canBuildCorvettes)
                 SetCounts(new[] { 12, 6, 0, 0, 0, 1, 2, 1, 1 });

@@ -48,25 +48,20 @@ namespace Ship_Game.AI
                     PlanetTracker.Add(p, trackedPlanet);
                 }
                 ValueToUs += trackedPlanet.UpdateValue();
+                if (p.Owner != Us && Us.IsEmpireAttackable(p.Owner))
+                    ValueToUs += 100;
             }
-            foreach (SolarSystem fiveClosestSystem in System.FiveClosestSystems)
-            {
-                bool noEnemies = false;
-                if (!fiveClosestSystem.IsExploredBy(Us))
-                    continue;
-                foreach (Empire e in fiveClosestSystem.OwnerList)
-                {
-                    if (e == Us) continue;
-                    bool attack = Us.IsEmpireAttackable(e);
-                    if (attack) ValueToUs += 5f;
-                    else        ValueToUs += 1f;
-                    noEnemies = noEnemies || !attack;
-                }
-                if (!noEnemies) continue;
-                ValueToUs *= 2;
-                ValueToUs /= 3;
-            }
+            CheckNearBySystemsForEnemies();
             return ValueToUs;
+        }
+
+        private void CheckNearBySystemsForEnemies()
+        {
+            foreach (SolarSystem system in System.FiveClosestSystems)
+                if (system.IsExploredBy(Us))
+                    foreach (Empire e in system.OwnerList)
+                        if (e != Us)
+                            ValueToUs += Us.IsEmpireAttackable(e) ? 5 : 0;
         }
 
         // @return Ships that were removed or empty array
