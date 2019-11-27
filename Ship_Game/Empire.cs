@@ -2589,6 +2589,10 @@ namespace Ship_Game
 
             if (target == null)
                 return true; // this is an inanimate check, so it won't cause trouble?
+            //CG:there is an additional check that can be done for the ship itself. 
+            //if no target is applied then it is assumed the target is attackable at this point. 
+            //but an additional check can be done if a gameplay object is passed. 
+            //maybe its a freighter or something along those lines which might not be attackable. 
             return target.IsAttackable(this, rel);
         }
 

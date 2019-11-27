@@ -139,7 +139,11 @@ namespace Ship_Game.AI
         void ResetFlankLists()
         {
             ClearFlankList();
-
+            if (Ships.IsEmpty)
+            {
+                Log.Error($"Fleet ships was empty! Fleet: {Name}");
+                return;
+            }
             var mainShipList = new Array<Ship>(Ships);
             var largestShip = mainShipList.FindMax(ship => (int)(ship.DesignRole));
             ShipData.RoleName largestCombat = largestShip.DesignRole;

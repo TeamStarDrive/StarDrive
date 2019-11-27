@@ -105,7 +105,7 @@ namespace Ship_Game.AI
                 }
                 foreach (var kv in ShipCounts)
                 {
-                    kv.Value.CalculateDesiredShips(ratios, capacity);
+                    kv.Value.CalculateDesiredShips(ratios, capacity, TotalFleetMaintenanceMin);
                     if (!ignoreDebt)
                         kv.Value.ScrapAsNeeded(OwnerEmpire);
                 }
@@ -185,6 +185,7 @@ namespace Ship_Game.AI
                 public CombatRole Role { get;}
                 readonly Array<Ship> BuildableShips;
                 readonly Array<Ship> CurrentShips;
+                private const float MinimumMaintenance = 0.25f;
 
                 public RoleCounts (CombatRole role, Empire empire)
                 {
@@ -211,17 +212,21 @@ namespace Ship_Game.AI
                     FleetRatioMaintenance = PerUnitMaintenanceAverage * minimum;
                 }
 
-                public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity)
+                public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
                 {
                     float minimum = CombatRoleToRatioMin(ratio);
-                    CalculateBuildCapacity(buildCapacity, minimum);
-                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceAverage.ClampMin(1));
+                    if (minimum.AlmostZero())
+                        return;
+                    CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
+                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceAverage.ClampMin(0.001f)); // MinimumMaintenance));
+                    if (Role < CombatRole.Frigate)
+                        DesiredCount = Math.Min(50, DesiredCount);
                 }
 
-                private void CalculateBuildCapacity(float totalCapacity, float wantedMin)
+                private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
                 {
                     if (wantedMin < .01f) return;
-                    float maintenanceRatio = PerUnitMaintenanceAverage * wantedMin / FleetRatioMaintenance;
+                    float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
                     RoleBuildBudget = totalCapacity * maintenanceRatio;
                 }
 
@@ -284,7 +289,7 @@ namespace Ship_Game.AI
                 public void ScrapAsNeeded(Empire empire)
                 {
                     if (CurrentCount <= DesiredCount + 1
-                        || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceAverage)
+                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceAverage)
                         return;
 
                     foreach (var ship in CurrentShips
@@ -332,6 +337,7 @@ namespace Ship_Game.AI
                         case ShipData.RoleName.troop:
                         case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.prototype:
+                        case ShipData.RoleName.scout:
                             return CombatRole.Disabled;
                         case ShipData.RoleName.support:
                             return CombatRole.Support;
@@ -340,8 +346,6 @@ namespace Ship_Game.AI
                         case ShipData.RoleName.carrier:
                             return CombatRole.Carrier;
                         case ShipData.RoleName.fighter:
-                            return CombatRole.Fighter;
-                        case ShipData.RoleName.scout:
                             return CombatRole.Fighter;
                         case ShipData.RoleName.gunboat:
                             return CombatRole.Corvette;
