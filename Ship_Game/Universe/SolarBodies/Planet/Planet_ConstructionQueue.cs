@@ -105,5 +105,62 @@ namespace Ship_Game
         {
             return ConstructionQueue.Filter(qi => qi.isTroop).Sum(qi => qi.Cost);
         }
+
+        public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);
+
+        public bool IsColonyShipInQueue() => FirstShipRoleInQueue(ShipData.RoleName.colony) != null;
+
+        public Array<Ship> ShipRolesInQueue(ShipData.RoleName[] roles)
+        {
+            var ships = new Array<Ship>();
+            foreach (var s in ConstructionQueue)
+            {
+                if (s.isShip)
+                {
+                    var ship = ResourceManager.GetShipTemplate(s.sData.Name);
+                    if (roles == null || roles.Contains(ship.DesignRole))
+                        ships.Add(ship);
+                }
+
+            }
+            return ships;
+        }
+        public Ship FirstShipRoleInQueue(ShipData.RoleName role)
+        {
+            foreach (var s in ConstructionQueue)
+            {
+                if (s.isShip)
+                {
+                    var ship = ResourceManager.GetShipTemplate(s.sData.Name);
+                    if (ship.DesignRole == role)
+                        return ship;
+                }
+
+            }
+            return null;
+        }
+
+        public float MaintenanceCostOfShipsInQueue() => MaintenanceCostOfShipRolesInQueue(null);
+        public float MaintenanceCostOfDefensiveOrbitalsInQueue()
+        {
+            var roles = new[]
+            {
+                ShipData.RoleName.station,
+                ShipData.RoleName.platform
+            };
+            return MaintenanceCostOfShipRolesInQueue(roles);
+        }
+
+        public float MaintenanceCostOfShipRolesInQueue(ShipData.RoleName[] roles)
+        {
+            float cost =0 ;
+            var ships = GetAllShipsInQueue();
+            foreach(Ship ship in ships)
+            {
+                if (roles == null || roles.Contains(ship.DesignRole))
+                    cost += ship.GetMaintCost(Owner);
+            }
+            return cost;
+        }
     }
 }

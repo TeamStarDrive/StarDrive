@@ -539,7 +539,7 @@ namespace Ship_Game.AI
                 .ThenBy(planet => GetDistanceFromOurAO(planet) / 150000f)
                 .ThenByDescending(planet =>
                     empire.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander scom)
-                    ? scom.PlanetTracker[planet].Value : 0)
+                    ? scom.PlanetValues[planet].Value : 0)
                 .ToArray();
         }
     }

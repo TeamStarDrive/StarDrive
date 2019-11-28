@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Ship_Game.AI;
+using Ship_Game.AI.Budget;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -30,12 +31,12 @@ namespace Ship_Game
             Prod.Percent = 0;
             Res.Percent  = 0;
 
-            ColonyBudget budget = AllocateColonyBudget();
-            switch (colonyType) // New resource management by Gretman 
+            PlanetBudget budget = AllocateColonyBudget();
+            switch (colonyType) // New resource management by Gretman
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
-                    DetermineFoodState(0.15f, 0.15f); 
+                    DetermineFoodState(0.15f, 0.15f);
                     DetermineProdState(0.15f, 0.15f);
                     break;
                 case ColonyType.Core:
@@ -72,11 +73,11 @@ namespace Ship_Game
                     break;
             } // End Gov type Switch
 
-            BuildPlatformsAndStations(budget.Orbitals);
+            BuildPlatformsAndStations(budget);
             BuildMilitia();
         }
 
-        private void BuildPlatformsAndStations(float budget) // Rewritten by Fat Bastard
+        private void BuildPlatformsAndStations(PlanetBudget budget) // Rewritten by Fat Bastard
         {
             if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
                                                 || SpaceCombatNearPlanet
@@ -85,16 +86,23 @@ namespace Ship_Game
             {
                 return;
             }
-
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
-            int rank             = FindColonyRank(log: true);
+
+            float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
+            float ratioValue     = ColonyValue / maxSystemValue.ClampMin(1);
+            int rank             = (int)(budget.SystemRank * ratioValue) + 3;
             var wantedOrbitals   = new WantedOrbitals(rank);
 
             BuildOrScrapShipyard(wantedOrbitals.Shipyards);
-            BuildOrScrapOrbitals(currentStations, wantedOrbitals.Stations, ShipData.RoleName.station, rank, budget);
-            BuildOrScrapOrbitals(currentPlatforms, wantedOrbitals.Platforms, ShipData.RoleName.platform, rank, budget);
+            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, rank, budget.Orbitals);
+            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
         }
+
+        private void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
+        private void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
@@ -194,7 +202,7 @@ namespace Ship_Game
         private int TimeVsCostThreshold => 50 + (int)(Owner.Money / 1000);
 
         // Adds an Orbital to ConstructionQueue
-        public void AddOrbital(Ship orbital) 
+        public void AddOrbital(Ship orbital)
         {
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
@@ -218,7 +226,7 @@ namespace Ship_Game
                 return;
 
             ScrapOrbital(weakestWeHave);
-            AddOrbital(bestWeCanBuild); 
+            AddOrbital(bestWeCanBuild);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
                          $"STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
@@ -237,7 +245,7 @@ namespace Ship_Game
                 return orbital;
 
             // we cannot build the best in the empire, lets try building something cheaper for now
-            float maxCost = (Prod.NetMaxPotential / 2 * (50 + colonyRank) + Storage.Prod) / ShipBuildingModifier;
+            float maxCost = budget / ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
             return orbital == null || orbital.IsSubspaceProjector ? null : orbital;
         }
@@ -447,21 +455,21 @@ namespace Ship_Game
             return prodToSpend;
         }
 
-        ColonyBudget AllocateColonyBudget()
-        {
-            float budget         = Owner.GetEmpireAI().PlanetBudget(this).Budget;
-            var colonyBudget     = new ColonyBudget(budget, colonyType, Owner, GovOrbitals);
-            return colonyBudget;
-        }
+        PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
 
         struct ColonyBudget
         {
             public readonly float Buildings;
             public readonly float Orbitals;
+            public readonly float DefenseBudget;
+            public readonly PlanetBudget EmpirePlanetBudget;
 
-            public ColonyBudget(float totalBudget, ColonyType colonyType, Empire owner, bool govOrbitals)
+            public ColonyBudget(PlanetBudget empirePlanetBudget, ColonyType colonyType, Empire owner, bool govOrbitals)
             {
                 float buildingsBudget;
+                float totalBudget = empirePlanetBudget.Budget;
+                DefenseBudget = empirePlanetBudget.PlanetDefenseBudget;
+                EmpirePlanetBudget = empirePlanetBudget;
                 if (colonyType == ColonyType.Colony || owner.isPlayer && !govOrbitals)
                     buildingsBudget = totalBudget; // Governor does not manage orbitals
                 else
@@ -481,12 +489,12 @@ namespace Ship_Game
             }
         }
 
-        public float ColonyMaintenance => Money.Maintenance + Construction.TotalQueuedBuildingMaintenance() + OrbitalsMaintenance;
+        public float ColonyMaintenance => Money.Maintenance + Construction.TotalQueuedBuildingMaintenance();
         public float ColonyDebtTolerance
         {
             get
             {
-                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money 
+                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
                 if (MaxPopulationBillion < 2)
                     debtTolerance += 2f - MaxPopulationBillion;
 
