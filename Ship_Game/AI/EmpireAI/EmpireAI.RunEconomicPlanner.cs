@@ -6,7 +6,7 @@ using System;
 namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
-    {        
+    {
         private float FindTaxRateToReturnAmount(float amount)
         {
             for (int i = 0; i < 100; i++)
@@ -21,39 +21,75 @@ namespace Ship_Game.AI
 
         private void RunEconomicPlanner()
         {
-            float risk         = GetRisk();
-            float money        = Math.Max(OwnerEmpire.Money, 1);
-            float treasuryGoal = TreasuryGoal();
-            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio   = (strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio) /2f;
-
+            float money                    = OwnerEmpire.Money.ClampMin(1.0f);
+            float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
-            SetBudgetForeArea(0.01f, ref OwnerEmpire.data.DefenseBudget, Math.Max(risk, strat.MilitaryRatio));            
-            SetBudgetForeArea(0.01f, ref OwnerEmpire.data.SSPBudget, strat.IndustryRatio + strat.ExpansionRatio);
-            SetBudgetForeArea(0.02f, ref BuildCapacity, Math.Max(risk, buildRatio));           
-            SetBudgetForeArea(0.15f, ref OwnerEmpire.data.SpyBudget, Math.Max(risk, strat.MilitaryRatio));
-            SetBudgetForeArea(0.1f,  ref OwnerEmpire.data.ColonyBudget, strat.IndustryRatio + strat.ExpansionRatio);
 
-#if DEBUG
+            float risk = GetRisk();
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(risk, treasuryGoal);
+            OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
+            BuildCapacity                  = DetermineBuildCapacity(risk, treasuryGoal);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(risk, treasuryGoal);
+            OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
+
+
+            PlanetBudgetDebugInfo();
+        }
+        float DetermineDefenseBudget(float risk, float money)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            return SetBudgetForeArea(0.0025f, Math.Max(risk, strat.MilitaryRatio), money);
+        }
+        float DetermineSSPBudget(float money)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            float risk = strat.IndustryRatio + strat.ExpansionRatio;
+            return SetBudgetForeArea(0.0025f, risk, money);
+        }
+
+        float DetermineBuildCapacity(float risk, float money)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            float buildRatio = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
+            buildRatio /= 2;
+            return  SetBudgetForeArea(0.01f, buildRatio + risk, money);
+
+        }
+
+        float DetermineColonyBudget(float money)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            return SetBudgetForeArea(0.0075f, strat.IndustryRatio + strat.ExpansionRatio, money);
+        }
+        float DetermineSpyBudget(float risk, float money)
+        {
+            EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            return SetBudgetForeArea(0.1500f, Math.Max(risk, strat.MilitaryRatio), money);
+        }
+        private void PlanetBudgetDebugInfo()
+        {
+            if (!Empire.Universe.Debug) return;
+
             var pBudgets = new Array<PlanetBudget>();
             foreach (var planet in OwnerEmpire.GetPlanets())
             {
                 var planetBudget = new PlanetBudget(planet);
                 pBudgets.Add(planetBudget);
             }
+
             PlanetBudgets = pBudgets;
-#endif
         }
 
         private float TreasuryGoal()
         {
-            float treasuryGoal = OwnerEmpire.data.treasuryGoal;
+             float treasuryGoal = OwnerEmpire.data.treasuryGoal;
             if (!OwnerEmpire.isPlayer || OwnerEmpire.data.AutoTaxes)
             {
                 //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
                 treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
                                + OwnerEmpire.data.FlatMoneyBonus
-                               + OwnerEmpire.TotalShipMaintenance / 5; //more savings than GDP 
+                               + OwnerEmpire.BuildingAndShipMaint /5
+                    ; //more savings than GDP
             }
             treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
             treasuryGoal = Math.Max(1000, treasuryGoal);
@@ -73,31 +109,28 @@ namespace Ship_Game.AI
             else
                 desiredTaxRate = (float)Math.Round(1 - treasuryGoalRatio, 2); // this will increase tax based on opposite ratio
 
-            OwnerEmpire.data.TaxRate  = (normalTaxRate + desiredTaxRate).Clamped(0.05f,0.95f);
+            OwnerEmpire.data.TaxRate  = (normalTaxRate + desiredTaxRate).Clamped(0.01f,0.95f);
         }
 
-#if DEBUG
         public Array<PlanetBudget> PlanetBudgets;
-#endif
 
-        private float SetBudgetForeArea(float percentOfIncome, ref float area, float risk)
+        private float SetBudgetForeArea(float percentOfIncome, float risk, float money)
         {
-            float budget = OwnerEmpire.Money * percentOfIncome * risk;
-            
+            float budget = money * percentOfIncome * risk;
             budget = Math.Max(1, budget);
-            area = budget;
             return budget;
         }
-        public float GetRisk(float riskLimit =.75f)
+        public float GetRisk(float riskLimit = 2f)
         {
             float risk = 0;
             foreach (var kv in OwnerEmpire.AllRelations)
             {
-                risk += kv.Value.Risk.MaxRisk >  riskLimit ? 0 :kv.Value.Risk.MaxRisk;
+                var tRisk = kv.Value.Risk.Risk;
+                risk      = Math.Max(tRisk, risk);
             }
             return risk;
         }
 
-        public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);        
+        public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);
     }
 }
