@@ -100,7 +100,7 @@ namespace Ship_Game
         }
 
         private void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
-        => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
         private void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
