@@ -10,7 +10,10 @@ namespace Ship_Game.AI
     public sealed class SystemCommander
     {
         public SolarSystem System;
-        public float ValueToUs;
+        public float TotalValueToUs;
+        public float OurPlanetsTotalValue { get; private set; }
+        public float OurPlanetsMaxValue { get; private set; }
+        public float MaxValueToUs;
         public int IdealTroopCount = 1;
         public float TroopStrengthNeeded;
         public int IdealShipStrength;
@@ -25,7 +28,7 @@ namespace Ship_Game.AI
         public Map<Guid, Ship> OurShips         = new Map<Guid, Ship>();
         public ICollection<Ship> GetShipList => OurShips.Values;
         readonly Empire Us;
-        public Map<Planet, PlanetTracker> PlanetTracker = new Map<Planet, PlanetTracker>();
+        public Map<Planet, PlanetTracker> PlanetValues = new Map<Planet, PlanetTracker>();
         private readonly int GameDifficultyModifier;
 
         public SystemCommander(Empire e, SolarSystem system)
@@ -39,29 +42,49 @@ namespace Ship_Game.AI
         {
             IdealShipStrength = 0;
             PercentageOfValue = 0f;
-            ValueToUs = System.HostileForcesPresent(Us) ? 5 : 0;
+            OurPlanetsTotalValue = 0;
+            OurPlanetsMaxValue = 0;
+            TotalValueToUs = System.HostileForcesPresent(Us) ? 5 : 0;
             foreach (Planet p in System.PlanetList)
             {
-                if (!PlanetTracker.TryGetValue(p, out PlanetTracker trackedPlanet))
+                if (!PlanetValues.TryGetValue(p, out PlanetTracker trackedPlanet))
                 {
                     trackedPlanet = new PlanetTracker(p, Us);
-                    PlanetTracker.Add(p, trackedPlanet);
+                    PlanetValues.Add(p, trackedPlanet);
                 }
-                ValueToUs += trackedPlanet.UpdateValue();
+                TotalValueToUs += trackedPlanet.UpdateValue();
+
+                if (p.Owner == Us)
+                {
+                    OurPlanetsTotalValue += trackedPlanet.Value;
+                    OurPlanetsMaxValue = Math.Max(OurPlanetsMaxValue, trackedPlanet.Value);
+                }
+
                 if (p.Owner != Us && Us.IsEmpireAttackable(p.Owner))
-                    ValueToUs += 100;
+                    TotalValueToUs += 100;
             }
-            CheckNearBySystemsForEnemies();
-            return ValueToUs;
+            CreatePlanetRatio();
+            CheckNearbySystemsForEnemies();
+            return TotalValueToUs;
         }
 
-        private void CheckNearBySystemsForEnemies()
+        private void CreatePlanetRatio()
+        {
+
+            foreach (var kv in PlanetValues)
+            {
+                kv.Value.CalculateRankInSystem(OurPlanetsMaxValue);
+                kv.Value.CalculateRatioInSystem(OurPlanetsTotalValue);
+            }
+        }
+
+        private void CheckNearbySystemsForEnemies()
         {
             foreach (SolarSystem system in System.FiveClosestSystems)
                 if (system.IsExploredBy(Us))
                     foreach (Empire e in system.OwnerList)
                         if (e != Us)
-                            ValueToUs += Us.IsEmpireAttackable(e) ? 5 : 0;
+                            TotalValueToUs += Us.IsEmpireAttackable(e) ? 5 : 0;
         }
 
         // @return Ships that were removed or empty array
@@ -128,7 +151,7 @@ namespace Ship_Game.AI
 
         public Planet AssignIdleDuties(Ship ship)
         {
-            PlanetTracker best = PlanetTracker.FindMinValue(p => p.Value);
+            PlanetTracker best = PlanetValues.FindMinValue(p => p.Value);
             return best.Planet;
         }
 
@@ -227,17 +250,23 @@ namespace Ship_Game.AI
             Planet[] ourPlanets = System.PlanetList.Filter(planet => planet.Owner == Us);
             foreach(Planet planet in  ourPlanets)
             {
-                if (!PlanetTracker.TryGetValue(planet, out PlanetTracker currentValue))
+                if (!PlanetValues.TryGetValue(planet, out PlanetTracker currentValue))
                 {
                     var newEntry = new PlanetTracker(planet,Us);
-                    PlanetTracker.Add(planet, newEntry);
+                    PlanetValues.Add(planet, newEntry);
                     continue;
                 }
                 if (currentValue.Planet.Owner != Us)
                 {
-                    PlanetTracker.Remove(currentValue.Planet);
+                    PlanetValues.Remove(currentValue.Planet);
                 }
             }
+        }
+
+        public PlanetTracker GetPlanetValues(Planet planet)
+        {
+            PlanetValues.TryGetValue(planet, out PlanetTracker planetTracker);
+            return planetTracker;
         }
         public void Dispose()
         {
@@ -249,7 +278,7 @@ namespace Ship_Game.AI
         void Destroy()
         {
             Clear();
-            PlanetTracker.Clear();
+            PlanetValues.Clear();
             System = null;
         }
     }
@@ -258,9 +287,11 @@ namespace Ship_Game.AI
     {
         public float Value;
         public int TroopsHere;
-        public Planet Planet;
+        public readonly Planet Planet;
         readonly Empire Owner;
         public float Distance;
+        public float RankInSystem { get; private set; }
+        public float RatioInSystem { get; private set; }
 
         public PlanetTracker(Planet toTrack, Empire empire)
         {
@@ -295,6 +326,14 @@ namespace Ship_Game.AI
 
             return Value;
         }
+
+        public void CalculateRankInSystem(float maxValue) => RankInSystem = CalculateRatio(maxValue);
+        public void CalculateRatioInSystem(float totalValue) => RatioInSystem = CalculateRatio(totalValue);
+        private float CalculateRatio(float value)
+        {
+            return Value / value.ClampMin(1);
+        }
+
     }
 
 }

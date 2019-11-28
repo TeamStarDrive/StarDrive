@@ -142,6 +142,7 @@ namespace Ship_Game.AI
             if (Ships.IsEmpty)
             {
                 Log.Error($"Fleet ships was empty! Fleet: {Name}");
+
                 return;
             }
             var mainShipList = new Array<Ship>(Ships);

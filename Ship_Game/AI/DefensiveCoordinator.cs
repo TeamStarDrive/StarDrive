@@ -164,7 +164,7 @@ namespace Ship_Game.AI
                 TotalValue += (int)kv.Value.UpdateSystemValue();
 
             foreach (var kv in DefenseDict)
-                kv.Value.PercentageOfValue = kv.Value.ValueToUs / TotalValue.ClampMin(1);
+                kv.Value.PercentageOfValue = kv.Value.TotalValueToUs / TotalValue.ClampMin(1);
 
             int ranker = 0;
             int split = DefenseDict.Count / 10;
@@ -277,7 +277,7 @@ namespace Ship_Game.AI
                        && com.System.PlanetList.Count > 0
                        && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0,
                 com => (1f - ((float)com.TroopCount / com.IdealTroopCount ))
-                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
+                       * com.TotalValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
             );
         }
 
@@ -405,6 +405,12 @@ namespace Ship_Game.AI
             CalculateSystemImportance();
             ManageShips();
             ManageTroops();
+        }
+
+        public SystemCommander GetSystemCommander(SolarSystem system)
+        {
+            DefenseDict.TryGetValue(system, out SystemCommander systemCommander);
+            return systemCommander;
         }
     }
 }

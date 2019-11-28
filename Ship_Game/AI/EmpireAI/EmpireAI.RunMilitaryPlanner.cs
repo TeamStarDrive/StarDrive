@@ -81,21 +81,20 @@ namespace Ship_Game.AI
             private readonly EmpireAI EmpireAI;
             private Empire OwnerEmpire => EmpireAI.OwnerEmpire;
 
-            Map<RoleCounts.CombatRole, RoleCounts> ShipCounts;
+            Map<RoleCounts.CombatRole, RoleCounts> ShipCounts = new Map<RoleCounts.CombatRole, RoleCounts>();
             public float TotalFleetMaintenanceMin { get; private set; }
 
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {
                 EmpireAI = eAI;
-                ShipCounts = new Map<RoleCounts.CombatRole, RoleCounts>();
                 foreach (RoleCounts.CombatRole role in Enum.GetValues(typeof(RoleCounts.CombatRole)))
                 {
                     if (role != RoleCounts.CombatRole.Disabled)
                         ShipCounts.Add(role, new RoleCounts(role, OwnerEmpire));
                 }
-                CurrentShips(OwnerEmpire, ShipCounts);
-                BuildableShips(OwnerEmpire, ShipCounts);
-                ShipsUnderConstruction(eAI, ShipCounts);
+                PopulateRoleCountWithActiveShips(OwnerEmpire, ShipCounts);
+                PopulateRoleCountWithBuildableShips(OwnerEmpire, ShipCounts);
+                MaintenanceOfShipsUnderConstruction(eAI, ShipCounts);
 
                 var ratios = new FleetRatios(OwnerEmpire);
                 foreach (var kv in ShipCounts)
@@ -112,19 +111,20 @@ namespace Ship_Game.AI
 
             }
 
-            public void CurrentShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> currentShips)
+            public void PopulateRoleCountWithActiveShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> currentShips)
             {
                 foreach (var ship in empire.GetShips())
                 {
-                    if (ship == null || !ship.Active || ship.Mothership != null || ship.AI.State == AIState.Scrap)
-                        continue;
-                    var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
-                    if (currentShips.TryGetValue(combatRole, out RoleCounts roleCounts))
-                        roleCounts.AddToCurrentShips(ship);
+                    if (ship != null && ship.Active && ship.Mothership == null && ship.AI.State != AIState.Scrap)
+                    {
+                        var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+                        if (currentShips.TryGetValue(combatRole, out RoleCounts roleCounts))
+                            roleCounts.AddToCurrentShips(ship);
+                    }
                 }
             }
 
-            public void BuildableShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> buildableShips)
+            public void PopulateRoleCountWithBuildableShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> buildableShips)
             {
                 foreach (var shipName in empire.ShipsWeCanBuild)
                 {
@@ -135,7 +135,7 @@ namespace Ship_Game.AI
                 }
             }
 
-            public void ShipsUnderConstruction(EmpireAI eAI, Map<RoleCounts.CombatRole, RoleCounts> shipsBuilding)
+            public void MaintenanceOfShipsUnderConstruction(EmpireAI eAI, Map<RoleCounts.CombatRole, RoleCounts> shipsBuilding)
             {
                 IReadOnlyList<Goal> goals = eAI.SearchForGoals(GoalType.BuildOffensiveShips);
                 foreach (Goal goal in goals)
@@ -183,21 +183,14 @@ namespace Ship_Game.AI
                 public float RoleBuildBudget { get; private set; }
                 public float MaintenanceInConstruction { get; private set; }
                 public CombatRole Role { get;}
-                readonly Array<Ship> BuildableShips;
-                readonly Array<Ship> CurrentShips;
-                private const float MinimumMaintenance = 0.25f;
+                readonly Array<Ship> BuildableShips = new Array<Ship>();
+                readonly Array<Ship> CurrentShips   = new Array<Ship>();
 
-                public RoleCounts (CombatRole role, Empire empire)
+                public RoleCounts(CombatRole role, Empire empire)
                 {
-                    Role                      = role;
-                    PerUnitMaintenanceAverage = 0;
-                    CurrentMaintenance        = 0;
-                    CurrentCount              = 0;
-                    DesiredCount              = 0;
-                    MaintenanceInConstruction = 0;
-                    BuildableShips            = new Array<Ship>();
-                    CurrentShips              = new Array<Ship>();
+                    Role = role;
                 }
+
                 public void CalculateBasicCounts(FleetRatios ratio, float buildCapacity)
                 {
                     if (CurrentShips.NotEmpty)
@@ -235,43 +228,24 @@ namespace Ship_Game.AI
                     float minimum = 0;
                     switch (Role)
                     {
-                        case CombatRole.Disabled:
-                            break;
-                        case CombatRole.Fighter:
-                            minimum = ratio.MinFighters;
-                            break;
-                        case CombatRole.Corvette:
-                            minimum = ratio.MinCorvettes;
-                            break;
-                        case CombatRole.Frigate:
-                            minimum = ratio.MinFrigates;
-                            break;
-                        case CombatRole.Cruiser:
-                            minimum = ratio.MinCruisers;
-                            break;
-                        case CombatRole.Capital:
-                            minimum = ratio.MinCapitals;
-                            break;
-                        case CombatRole.Carrier:
-                            minimum = ratio.MinCarriers;
-                            break;
-                        case CombatRole.Bomber:
-                            minimum = ratio.MinBombers;
-                            break;
-                        case CombatRole.Support:
-                            minimum = ratio.MinSupport;
-                            break;
-                        case CombatRole.TroopShip:
-                            minimum = ratio.MinTroopShip;
-                            break;
-                        default:
-                            minimum = 0;
-                            break;
+                        case CombatRole.Disabled: return 0;
+                        case CombatRole.Fighter:  return ratio.MinFighters;
+                        case CombatRole.Corvette: return ratio.MinCorvettes;
+                        case CombatRole.Frigate:  return ratio.MinFrigates;
+                        case CombatRole.Cruiser:  return ratio.MinCruisers;
+                        case CombatRole.Capital:  return ratio.MinCapitals;
+                        case CombatRole.Carrier:  return ratio.MinCarriers;
+                        case CombatRole.Bomber:   return ratio.MinBombers;
+                        case CombatRole.Support:  return ratio.MinSupport;
+                        case CombatRole.TroopShip:return ratio.MinTroopShip;
+                        default:                  return 0;
                     }
-                    return minimum;
                 }
+
                 public void AddToCurrentShips(Ship ship) => CurrentShips.Add(ship);
+
                 public void AddToBuildableShips(Ship ship) => BuildableShips.Add(ship);
+
                 public void AddToBuildingCost(float cost)
                 {
                     MaintenanceInConstruction += cost;
@@ -337,32 +311,19 @@ namespace Ship_Game.AI
                         case ShipData.RoleName.troop:
                         case ShipData.RoleName.troopShip:
                         case ShipData.RoleName.prototype:
-                        case ShipData.RoleName.scout:
-                            return CombatRole.Disabled;
-                        case ShipData.RoleName.support:
-                            return CombatRole.Support;
-                        case ShipData.RoleName.bomber:
-                            return CombatRole.Bomber;
-                        case ShipData.RoleName.carrier:
-                            return CombatRole.Carrier;
-                        case ShipData.RoleName.fighter:
-                            return CombatRole.Fighter;
-                        case ShipData.RoleName.gunboat:
-                            return CombatRole.Corvette;
-                        case ShipData.RoleName.drone:
-                            return CombatRole.Fighter;
-                        case ShipData.RoleName.corvette:
-                            return CombatRole.Corvette;
-                        case ShipData.RoleName.frigate:
-                            return CombatRole.Frigate;
-                        case ShipData.RoleName.destroyer:
-                            return CombatRole.Frigate;
-                        case ShipData.RoleName.cruiser:
-                            return CombatRole.Cruiser;
-                        case ShipData.RoleName.capital:
-                            return CombatRole.Capital;
-                        default:
-                            return CombatRole.Disabled;
+                        case ShipData.RoleName.scout:    return CombatRole.Disabled;
+                        case ShipData.RoleName.support:  return CombatRole.Support;
+                        case ShipData.RoleName.bomber:   return CombatRole.Bomber;
+                        case ShipData.RoleName.carrier:  return CombatRole.Carrier;
+                        case ShipData.RoleName.fighter:  return CombatRole.Fighter;
+                        case ShipData.RoleName.gunboat:  return CombatRole.Corvette;
+                        case ShipData.RoleName.drone:    return CombatRole.Fighter;
+                        case ShipData.RoleName.corvette: return CombatRole.Corvette;
+                        case ShipData.RoleName.frigate:  return CombatRole.Frigate;
+                        case ShipData.RoleName.destroyer:return CombatRole.Frigate;
+                        case ShipData.RoleName.cruiser:  return CombatRole.Cruiser;
+                        case ShipData.RoleName.capital:  return CombatRole.Capital;
+                        default:                         return CombatRole.Disabled;
                     }
                 }
             }

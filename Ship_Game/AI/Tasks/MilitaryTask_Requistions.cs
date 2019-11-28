@@ -297,7 +297,8 @@ namespace Ship_Game.AI.Tasks
             Array<Ship> potentialAssaultShips = fleetShips.GetTroops(enemyTroopCount * 2);
             Array<Ship> potentialCombatShips = fleetShips.GetFleetByStrength(MinimumTaskForceStrength * 2);
             Array<Ship> potentialBombers = fleetShips.GetBombers(bombersWanted);
-            
+            if (potentialCombatShips.IsEmpty)
+                return;
             Planet rallypoint = Owner.FindNearestRallyPoint(AO);
             if (rallypoint == null)
                 return;
