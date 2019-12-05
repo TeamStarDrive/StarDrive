@@ -161,15 +161,16 @@ namespace Ship_Game.AI
             }
 
             foreach (var kv in DefenseDict)
-                kv.Value.UpdateSystemValue();
+                TotalValue += (int)kv.Value.UpdateSystemValue();
+
+            foreach (var kv in DefenseDict)
+                kv.Value.PercentageOfValue = kv.Value.TotalValueToUs / TotalValue.ClampMin(1);
 
             int ranker = 0;
             int split = DefenseDict.Count / 10;
             int splitStore = split;
-            //@Complex Double orderBy is not simple.
-            SystemCommander[] commanders = DefenseDict.Select(kv=>kv.Value)
-                                       .OrderBy(com => com.PercentageOfValue)
-                                       .ThenBy(com => com.SystemDevelopmentlevel).ToArray();
+            SystemCommander[] commanders = DefenseDict.Select(kv => kv.Value)
+                                       .OrderBy(com => com.PercentageOfValue).ToArray();
             foreach (SystemCommander com in commanders)
             {
                 split--;
@@ -185,7 +186,6 @@ namespace Ship_Game.AI
             foreach (SystemCommander com in commanders)
             {
                 com.RankImportance = (int) (10 * (com.RankImportance / ranker));
-                TotalValue += (int) com.ValueToUs;
                 com.CalculateShipNeeds();
                 com.CalculateTroopNeeds();
             }
@@ -207,7 +207,6 @@ namespace Ship_Game.AI
 
             foreach (var kv in DefenseDict)
             {
-                kv.Value.PercentageOfValue = kv.Value.ValueToUs / TotalValue;
                 int min = (int) (strToAssign * kv.Value.PercentageOfValue);
                 if (kv.Value.IdealShipStrength < min) kv.Value.IdealShipStrength = min;
             }
@@ -278,7 +277,7 @@ namespace Ship_Game.AI
                        && com.System.PlanetList.Count > 0
                        && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots()) > 0,
                 com => (1f - ((float)com.TroopCount / com.IdealTroopCount ))
-                       * com.ValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
+                       * com.TotalValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
             );
         }
 
@@ -406,6 +405,12 @@ namespace Ship_Game.AI
             CalculateSystemImportance();
             ManageShips();
             ManageTroops();
+        }
+
+        public SystemCommander GetSystemCommander(SolarSystem system)
+        {
+            DefenseDict.TryGetValue(system, out SystemCommander systemCommander);
+            return systemCommander;
         }
     }
 }

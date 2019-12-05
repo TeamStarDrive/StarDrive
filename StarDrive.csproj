@@ -1773,6 +1773,12 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\ShipRoles\Shipyard.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipRoles\SSP.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\StarterShips\Shipyard.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -5131,11 +5137,11 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>if "$(ConfigurationName)" == "Deploy"  (
-  call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
-  dumpbin /headers $(TargetPath) | find "Application"
-  echo "Setting /LARGEADDRESSAWARE"
-  editbin /nologo /largeaddressaware $(TargetPath)
-  dumpbin /headers $(TargetPath) | find "Application"
+REM call "$(DevEnvDir)..\tools\vsdevcmd.bat" -no_logo -arch=x86
+REM dumpbin /headers $(TargetPath) | find "Application"
+REM echo "Setting /LARGEADDRESSAWARE"
+REM editbin /nologo /largeaddressaware $(TargetPath)
+REM dumpbin /headers $(TargetPath) | find "Application"
 
   $(ProjectDir)Deploy\Config\Deploy.cmd $(ProjectDir)
 )</PostBuildEvent>

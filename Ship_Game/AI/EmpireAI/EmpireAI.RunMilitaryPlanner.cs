@@ -57,7 +57,7 @@ namespace Ship_Game.AI
         private void BuildWarShips(int goalsInConstruction)
         {
             int shipCountLimit = GlobalStats.ShipCountLimit;
-            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, false);
+            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
 
 
             while (goalsInConstruction < NumberOfShipGoals
@@ -78,219 +78,254 @@ namespace Ship_Game.AI
 
         public class RoleBuildInfo
         {
-            public float CapFighters;
-            public float CapCorvettes;
-            public float CapFrigates;
-            public float CapCruisers;
-            public float CapCapitals;
-            public float CapBombers;
-            public float CapCarriers;
-            public float CapSupport;
-            public float CapTroops;
-            public float NumFighters;
-            public float NumCorvettes;
-            public float NumFrigates;
-            public float NumCruisers;
-            public float NumCarriers;
-            public float NumBombers;
-            public float NumCapitals;
-            public float NumTroops;
-            public float NumSupport;
-            public float TotalUpkeep =1;
-            public float TotalMilShipCount;
             private readonly EmpireAI EmpireAI;
-            private Empire OwnerEmpire  => EmpireAI.OwnerEmpire;
-            public float DesiredFighters;
-            public float DesiredCorvettes;
-            public float DesiredFrigates;
-            public float DesiredCruisers;
-            public float DesiredCapitals;
-            public float DesiredCarriers;
-            public float DesiredBombers;
-            public float DesiredSupport;
-            public float DesiredTroops;
+            private Empire OwnerEmpire => EmpireAI.OwnerEmpire;
+
+            Map<RoleCounts.CombatRole, RoleCounts> ShipCounts = new Map<RoleCounts.CombatRole, RoleCounts>();
+            public float TotalFleetMaintenanceMin { get; private set; }
 
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {
                 EmpireAI = eAI;
-
-                var availableShips = OwnerEmpire.GetShips().Filter(item =>
-                    !( item == null || !item.Active || item.Mothership != null || item.AI.State == AIState.Scrap
-                    || item.shipData.Role == ShipData.RoleName.prototype
-                    || item.shipData.Role < ShipData.RoleName.troopShip
-                    ));
-
-                for (int i = 0; i < availableShips.Length; i++)
+                foreach (RoleCounts.CombatRole role in Enum.GetValues(typeof(RoleCounts.CombatRole)))
                 {
-                    Ship item = availableShips[i];
+                    if (role != RoleCounts.CombatRole.Disabled)
+                        ShipCounts.Add(role, new RoleCounts(role, OwnerEmpire));
+                }
+                PopulateRoleCountWithActiveShips(OwnerEmpire, ShipCounts);
+                PopulateRoleCountWithBuildableShips(OwnerEmpire, ShipCounts);
+                MaintenanceOfShipsUnderConstruction(eAI, ShipCounts);
 
-                    ShipData.RoleName roleName = item.DesignRole;
-                    float upkeep = item.GetMaintCost();
-                    CountShips(upkeep, roleName);
+                var ratios = new FleetRatios(OwnerEmpire);
+                foreach (var kv in ShipCounts)
+                {
+                    kv.Value.CalculateBasicCounts(ratios, capacity);
+                    TotalFleetMaintenanceMin += kv.Value.FleetRatioMaintenance;
+                }
+                foreach (var kv in ShipCounts)
+                {
+                    kv.Value.CalculateDesiredShips(ratios, capacity, TotalFleetMaintenanceMin);
+                    if (!ignoreDebt)
+                        kv.Value.ScrapAsNeeded(OwnerEmpire);
                 }
 
+            }
+
+            public void PopulateRoleCountWithActiveShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> currentShips)
+            {
+                foreach (var ship in empire.GetShips())
+                {
+                    if (ship != null && ship.Active && ship.Mothership == null && ship.AI.State != AIState.Scrap)
+                    {
+                        var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+                        if (currentShips.TryGetValue(combatRole, out RoleCounts roleCounts))
+                            roleCounts.AddToCurrentShips(ship);
+                    }
+                }
+            }
+
+            public void PopulateRoleCountWithBuildableShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> buildableShips)
+            {
+                foreach (var shipName in empire.ShipsWeCanBuild)
+                {
+                    var ship = ResourceManager.GetShipTemplate(shipName);
+                    var combatRole = RoleCounts.ShipRoleToCombatRole(ship.DesignRole);
+                    if (buildableShips.TryGetValue(combatRole, out RoleCounts roleCounts))
+                        roleCounts.AddToBuildableShips(ship);
+                }
+            }
+
+            public void MaintenanceOfShipsUnderConstruction(EmpireAI eAI, Map<RoleCounts.CombatRole, RoleCounts> shipsBuilding)
+            {
                 IReadOnlyList<Goal> goals = eAI.SearchForGoals(GoalType.BuildOffensiveShips);
                 foreach (Goal goal in goals)
                 {
-                    var shipInfo = new BuildOffensiveShips.ShipInfo(goal);
-                    if (shipInfo.Role != ShipData.RoleName.disabled)
-                        CountShips(shipInfo.Upkeep, shipInfo.Role);
+                    var ship = new BuildOffensiveShips.ShipInfo(goal);
+                    var combatRole = RoleCounts.ShipRoleToCombatRole(ship.Role);
+                    if (shipsBuilding.TryGetValue(combatRole, out RoleCounts roleCounts))
+                    {
+                        roleCounts.AddToBuildingCost(ship.Upkeep);
+                    }
                 }
-
-                var ratios = new FleetRatios(OwnerEmpire);
-                float upKeepAllotment = Math.Max(TotalUpkeep, 1f) / Math.Max(TotalMilShipCount, 1);
-                DesiredFighters  = ratios.ApplyFighterRatio(NumFighters, upKeepAllotment, capacity);
-                DesiredCorvettes = ratios.ApplyRatioCorvettes(NumCorvettes, upKeepAllotment, capacity);
-                DesiredFrigates  = ratios.ApplyRatioFrigates(NumFrigates, upKeepAllotment, capacity);
-                DesiredCruisers  = ratios.ApplyRatioCruisers(NumCruisers, upKeepAllotment, capacity);
-                DesiredCapitals  = ratios.ApplyRatioCapitals(NumCapitals, upKeepAllotment, capacity);
-                DesiredCarriers  = ratios.ApplyRatioCarriers(NumCarriers, upKeepAllotment, capacity);
-                DesiredBombers   = ratios.ApplyRatioBombers(NumBombers, upKeepAllotment, capacity);
-                DesiredSupport   = ratios.ApplyRatioSupport(NumSupport, upKeepAllotment, capacity);
-                DesiredTroops    = ratios.ApplyRatioTroopShip(NumTroops, upKeepAllotment, capacity);
-
-                KeepRoleRatios(DesiredFighters, DesiredCorvettes, DesiredFrigates, DesiredCruisers
-                    , DesiredCarriers, DesiredBombers, DesiredCapitals, DesiredTroops, DesiredSupport);
             }
 
-            private void CountShips(float upkeep, ShipData.RoleName roleName)
+            public Map<ShipData.RoleName, float> CreateBuildPriorities()
             {
-                if (upkeep < .01)
-                    return;
-                //carrier
-                switch (roleName)
+                var priorities = new Map<ShipData.RoleName, float>();
+                foreach(ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
                 {
-                    case ShipData.RoleName.carrier:
-                        SetCountsTrackRole(ref NumCarriers, ref CapCarriers, upkeep);
-                        break;
-                    case ShipData.RoleName.troopShip:
-                        SetCountsTrackRole(ref NumTroops, ref CapTroops, upkeep);
-                        break;
-                    case ShipData.RoleName.support:
-                        SetCountsTrackRole(ref NumSupport, ref CapSupport, upkeep);
-                        break;
-                    case ShipData.RoleName.bomber:
-                        SetCountsTrackRole(ref NumBombers, ref CapBombers, upkeep);
-                        break;
-                    case ShipData.RoleName.capital:
-                        SetCountsTrackRole(ref NumCapitals, ref CapCapitals, upkeep);
-                        break;
-                    case ShipData.RoleName.fighter:
-                        SetCountsTrackRole(ref NumFighters, ref CapFighters, upkeep);
-                        break;
-                    case ShipData.RoleName.corvette:
-                    case ShipData.RoleName.gunboat:
-                        SetCountsTrackRole(ref NumCorvettes, ref CapCorvettes, upkeep);
-                        break;
-                    case ShipData.RoleName.frigate:
-                    case ShipData.RoleName.destroyer:
-                        SetCountsTrackRole(ref NumFrigates, ref CapFrigates, upkeep);
-                        break;
-                    case ShipData.RoleName.cruiser:
-                        SetCountsTrackRole(ref NumCruisers, ref CapCruisers, upkeep);
-                        break;
+                    var combatRole = RoleCounts.ShipRoleToCombatRole(role);
+                    if (combatRole == RoleCounts.CombatRole.Disabled) continue;
+                    float priority = ShipCounts[combatRole].BuildPriority();
+                    if (priority > 0)
+                        priorities.Add(role, priority);
                 }
-            }
-
-            private void SetCountsTrackRole(ref float roleCount, ref float roleMaint, float upkeep)
-            {
-                roleCount++;
-                roleMaint += upkeep;
-                TotalMilShipCount++;
-                TotalUpkeep += upkeep;
+                return priorities;
             }
 
             public void IncrementShipCount(ShipData.RoleName role)
             {
-                switch (role)
+                var combatRole = RoleCounts.ShipRoleToCombatRole(role);
+                if (combatRole == RoleCounts.CombatRole.Disabled)
                 {
-                    case ShipData.RoleName.troopShip:
-                        NumTroops++;
-                        break;
-                    case ShipData.RoleName.support:
-                        NumSupport++;
-                        break;
-                    case ShipData.RoleName.bomber:
-                        NumBombers++;
-                        break;
-                    case ShipData.RoleName.fighter:
-                        NumFighters++;
-                        break;
-                    case ShipData.RoleName.corvette:
-                        NumCorvettes++;
-                        break;
-                    case ShipData.RoleName.frigate:
-                        NumFrigates++;
-                        break;
-                    case ShipData.RoleName.cruiser:
-                        NumCruisers++;
-                        break;
-                    case ShipData.RoleName.carrier:
-                        NumCarriers++;
-                        break;
-                    case ShipData.RoleName.capital:
-                        NumCapitals++;
-                        break;
+                    Log.Error($"Invalid Role: {role}");
+                    return;
                 }
+                ShipCounts[combatRole].AddToCurrentShipCount(1);
             }
-
-            private bool KeepRoleRatios(float desiredFighters, float desiredCorvettes,
-            float desiredFrigates, float desiredCruisers, float desiredCarriers, float desiredBombers, float desiredCapitals,
-            float desiredTroops, float desiredSupport)
+            public class RoleCounts
             {
-                //Scrap ships when over building by class
+                public float PerUnitMaintenanceAverage { get; private set; }
+                public float FleetRatioMaintenance { get; private set; }
+                public float CurrentMaintenance { get; private set; }
+                public float CurrentCount { get; private set; }
+                public int DesiredCount { get; private set; }
+                public float RoleBuildBudget { get; private set; }
+                public float MaintenanceInConstruction { get; private set; }
+                public CombatRole Role { get;}
+                readonly Array<Ship> BuildableShips = new Array<Ship>();
+                readonly Array<Ship> CurrentShips   = new Array<Ship>();
 
-                if (NumFighters <= desiredFighters && NumCorvettes <= desiredCorvettes &&
-                    NumFrigates <= desiredFrigates && NumCruisers <= desiredCruisers &&
-                    NumCarriers <= desiredCarriers && NumBombers <= desiredBombers &&
-                    NumCapitals <= desiredCapitals && NumTroops <= desiredTroops && NumSupport <= desiredSupport)
+                public RoleCounts(CombatRole role, Empire empire)
                 {
-                    return false;
+                    Role = role;
                 }
-                foreach (var ship in OwnerEmpire.GetShips()
+
+                public void CalculateBasicCounts(FleetRatios ratio, float buildCapacity)
+                {
+                    if (CurrentShips.NotEmpty)
+                    {
+                        CurrentMaintenance = CurrentShips.Sum(ship => ship.GetMaintCost());
+                        CurrentCount += CurrentShips.Count;
+                    }
+                    CurrentMaintenance += MaintenanceInConstruction;
+                    if (BuildableShips.NotEmpty)
+                        PerUnitMaintenanceAverage = BuildableShips.Average(ship => ship.GetMaintCost());
+                    float minimum = CombatRoleToRatioMin(ratio);
+                    FleetRatioMaintenance = PerUnitMaintenanceAverage * minimum;
+                }
+
+                public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
+                {
+                    float minimum = CombatRoleToRatioMin(ratio);
+                    if (minimum.AlmostZero())
+                        return;
+                    CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
+                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceAverage.ClampMin(0.001f)); // MinimumMaintenance));
+                    if (Role < CombatRole.Frigate)
+                        DesiredCount = Math.Min(50, DesiredCount);
+                }
+
+                private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
+                {
+                    if (wantedMin < .01f) return;
+                    float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
+                    RoleBuildBudget = totalCapacity * maintenanceRatio;
+                }
+
+                private float CombatRoleToRatioMin(FleetRatios ratio)
+                {
+                    float minimum = 0;
+                    switch (Role)
+                    {
+                        case CombatRole.Disabled: return 0;
+                        case CombatRole.Fighter:  return ratio.MinFighters;
+                        case CombatRole.Corvette: return ratio.MinCorvettes;
+                        case CombatRole.Frigate:  return ratio.MinFrigates;
+                        case CombatRole.Cruiser:  return ratio.MinCruisers;
+                        case CombatRole.Capital:  return ratio.MinCapitals;
+                        case CombatRole.Carrier:  return ratio.MinCarriers;
+                        case CombatRole.Bomber:   return ratio.MinBombers;
+                        case CombatRole.Support:  return ratio.MinSupport;
+                        case CombatRole.TroopShip:return ratio.MinTroopShip;
+                        default:                  return 0;
+                    }
+                }
+
+                public void AddToCurrentShips(Ship ship) => CurrentShips.Add(ship);
+
+                public void AddToBuildableShips(Ship ship) => BuildableShips.Add(ship);
+
+                public void AddToBuildingCost(float cost)
+                {
+                    MaintenanceInConstruction += cost;
+                    CurrentCount++;
+                }
+
+                public void AddToCurrentShipCount(int value) => CurrentCount += value;
+
+                public float BuildPriority()
+                {
+                    if (CurrentCount >= DesiredCount || CurrentMaintenance > RoleBuildBudget)
+                        return 0;
+                    return CurrentCount.ClampMin(1) / DesiredCount;
+                }
+                public void ScrapAsNeeded(Empire empire)
+                {
+                    if (CurrentCount <= DesiredCount + 1
+                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceAverage)
+                        return;
+
+                    foreach (var ship in CurrentShips
                         .Filter(ship => !ship.InCombat &&
-                                          (!ship.fleet?.IsCoreFleet ?? true)
-                                          && ship.AI.State != AIState.Scrap && ship.AI.State != AIState.Scuttle && ship.AI.State != AIState.Resupply
-                                          && ship.Mothership == null && ship.Active
-                                          && ship.shipData.HullRole >= ShipData.RoleName.fighter &&
-                                          ship.GetMaintCost(OwnerEmpire) > 0)
-                        .OrderBy(ship => ship.shipData.TechsNeeded.Count)
-
-                )
-                {
-                    if (!CheckRoleAndScrap(ref NumFighters , desiredFighters, ship, ShipData.RoleName.fighter) &&
-                        !CheckRoleAndScrap(ref NumCarriers , desiredCarriers, ship, ShipData.RoleName.carrier) &&
-                        !CheckRoleAndScrap(ref NumTroops   , desiredTroops, ship, ShipData.RoleName.troopShip) &&
-                        !CheckRoleAndScrap(ref NumBombers  , desiredBombers, ship, ShipData.RoleName.bomber) &&
-                        !CheckRoleAndScrap(ref NumCorvettes, desiredCorvettes, ship, ShipData.RoleName.corvette) &&
-                        !CheckRoleAndScrap(ref NumFrigates , desiredFrigates, ship, ShipData.RoleName.frigate) &&
-                        !CheckRoleAndScrap(ref NumCruisers , desiredCruisers, ship, ShipData.RoleName.cruiser) &&
-                        !CheckRoleAndScrap(ref NumCapitals , desiredCapitals, ship, ShipData.RoleName.capital) &&
-                        !CheckRoleAndScrap(ref NumSupport  , desiredSupport, ship, ShipData.RoleName.support))
-                        continue;
-                    if (NumFighters <= desiredFighters
-                        && NumCorvettes <= desiredCorvettes
-                        && NumFrigates <= desiredFrigates
-                        && NumCruisers <= desiredCruisers
-                        && NumCarriers <= desiredCarriers
-                        && NumBombers <= desiredBombers
-                        && NumCapitals <= desiredCapitals
-                        && NumTroops <= desiredTroops
-                        && NumSupport <= desiredSupport)
-                        return false;
+                                        (!ship.fleet?.IsCoreFleet ?? true)
+                                        && ship.AI.State != AIState.Scrap
+                                        && ship.AI.State != AIState.Scuttle
+                                        && ship.AI.State != AIState.Resupply
+                                        && ship.Mothership == null && ship.Active
+                                        && ship.GetMaintCost(empire) > 0)
+                        .OrderBy(ship => ship.shipData.TechsNeeded.Count))
+                    {
+                        CurrentCount--;
+                        CurrentMaintenance -= ship.GetMaintCost();
+                        ship.AI.OrderScrapShip();
+                    }
                 }
 
-                return true;
-
-            }
-
-            private static bool CheckRoleAndScrap(ref float numShips, float desiredShips, Ship ship, ShipData.RoleName role)
-            {
-                if (numShips <= desiredShips + 1 || ship.DesignRole != role || ship.fleet?.IsCoreFleet == false)
-                    return false;
-                numShips--;
-                ship.AI.OrderScrapShip();
-                return true;
+                public enum CombatRole
+                {
+                    Disabled,
+                    Fighter,
+                    Corvette,
+                    Frigate,
+                    Cruiser,
+                    Capital,
+                    Carrier,
+                    Bomber,
+                    Support,
+                    TroopShip
+                }
+                public static CombatRole ShipRoleToCombatRole(ShipData.RoleName role)
+                {
+                    switch (role)
+                    {
+                        case ShipData.RoleName.disabled:
+                        case ShipData.RoleName.shipyard:
+                        case ShipData.RoleName.ssp:
+                        case ShipData.RoleName.platform:
+                        case ShipData.RoleName.station:
+                        case ShipData.RoleName.construction:
+                        case ShipData.RoleName.colony:
+                        case ShipData.RoleName.supply:
+                        case ShipData.RoleName.freighter:
+                        case ShipData.RoleName.troop:
+                        case ShipData.RoleName.troopShip:
+                        case ShipData.RoleName.prototype:
+                        case ShipData.RoleName.scout:    return CombatRole.Disabled;
+                        case ShipData.RoleName.support:  return CombatRole.Support;
+                        case ShipData.RoleName.bomber:   return CombatRole.Bomber;
+                        case ShipData.RoleName.carrier:  return CombatRole.Carrier;
+                        case ShipData.RoleName.fighter:  return CombatRole.Fighter;
+                        case ShipData.RoleName.gunboat:  return CombatRole.Corvette;
+                        case ShipData.RoleName.drone:    return CombatRole.Fighter;
+                        case ShipData.RoleName.corvette: return CombatRole.Corvette;
+                        case ShipData.RoleName.frigate:  return CombatRole.Frigate;
+                        case ShipData.RoleName.destroyer:return CombatRole.Frigate;
+                        case ShipData.RoleName.cruiser:  return CombatRole.Cruiser;
+                        case ShipData.RoleName.capital:  return CombatRole.Capital;
+                        default:                         return CombatRole.Disabled;
+                    }
+                }
             }
         }
 
@@ -301,21 +336,13 @@ namespace Ship_Game.AI
 
             //Find ship to build
 
-            var pickRoles = new Map<ShipData.RoleName, float>();
-            PickRoles(ref buildRatios.NumCarriers    , buildRatios.DesiredCarriers, ShipData.RoleName.carrier, pickRoles);
-            PickRoles(ref buildRatios.NumTroops      , buildRatios.DesiredTroops, ShipData.RoleName.troopShip, pickRoles);
-            PickRoles(ref buildRatios.NumSupport     , buildRatios.DesiredSupport, ShipData.RoleName.support, pickRoles);
-            PickRoles(ref buildRatios.NumFrigates    , buildRatios.DesiredFrigates, ShipData.RoleName.frigate, pickRoles);
-            PickRoles(ref buildRatios.NumBombers     , buildRatios.DesiredBombers, ShipData.RoleName.bomber, pickRoles);
-            PickRoles(ref buildRatios.NumCruisers    , buildRatios.DesiredCruisers, ShipData.RoleName.cruiser, pickRoles);
-            PickRoles(ref buildRatios.NumCapitals    , buildRatios.DesiredCapitals, ShipData.RoleName.capital, pickRoles);
-            PickRoles(ref buildRatios.NumFighters    , buildRatios.DesiredFighters, ShipData.RoleName.fighter, pickRoles);
-            PickRoles(ref buildRatios.NumCorvettes   , buildRatios.DesiredCorvettes, ShipData.RoleName.corvette, pickRoles);
+            Map<ShipData.RoleName, float> pickRoles = buildRatios.CreateBuildPriorities();
 
             foreach (var kv in pickRoles.OrderBy(val => val.Value))
             {
                 string buildThis = PickFromCandidates(kv.Key, OwnerEmpire);
-                if (string.IsNullOrEmpty(buildThis)) continue;
+                if (buildThis.IsEmpty())
+                    continue;
                 buildRatios.IncrementShipCount(kv.Key);
                 return buildThis;
             }
