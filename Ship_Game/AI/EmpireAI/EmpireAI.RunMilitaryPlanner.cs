@@ -225,7 +225,6 @@ namespace Ship_Game.AI
 
                 private float CombatRoleToRatioMin(FleetRatios ratio)
                 {
-                    float minimum = 0;
                     switch (Role)
                     {
                         case CombatRole.Disabled: return 0;
