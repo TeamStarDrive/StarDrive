@@ -335,6 +335,8 @@ namespace Ship_Game.Ships
         public enum RoleName
         {
             disabled = 1,
+            shipyard,
+            ssp,
             platform,
             station,
             construction,
