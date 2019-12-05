@@ -1,11 +1,6 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
 using Ship_Game;
-using Ship_Game.AI;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace UnitTests.Planets
 {
@@ -32,9 +27,12 @@ namespace UnitTests.Planets
             B = new Bomb(Vector3.Zero, TestEmpire, "NuclearBomb");
         }
 
-        PlanetGridSquare FindHabitableTargetTile   => P.TilesList.Find(tile => tile.Habitable && !tile.Biosphere);
-        PlanetGridSquare FindUnhabitableTargetTile => P.TilesList.Find(tile => !tile.Habitable);
-        PlanetGridSquare FindBiospheres            => P.TilesList.Find(tile => tile.Biosphere);
+        PlanetGridSquare FindHabitableTargetTile(SolarSystemBody p)
+            => p.TilesList.Find(tile => tile.Habitable && !tile.Biosphere);
+        PlanetGridSquare FindUnhabitableTargetTile(SolarSystemBody p) 
+            => p.TilesList.Find(tile => !tile.Habitable);
+        PlanetGridSquare FindBiospheres(SolarSystemBody p)
+            => p.TilesList.Find(tile => tile.Biosphere);
 
         void CreateOrbitalDrop(out OrbitalDrop ob, PlanetGridSquare tile)
         {
@@ -58,7 +56,12 @@ namespace UnitTests.Planets
         {
             for (int i = 0; i < 100; ++i)
             {
-                CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindHabitableTargetTile);
+                var tile = FindHabitableTargetTile(P);
+                //do until bombs have made the planet tile uninhabitable
+                //but make sure it dropped at least 1 bomb.
+                if (tile == null && i > 0)
+                    break;
+                CreateOrbitalDrop(out OrbitalDrop orbitalDrop, tile);
                 float expectedPop = P.Population - B.PopKilled * 1000;
                 orbitalDrop.DamageColonySurface(B);
                 Assert.That.Equal(expectedPop, P.Population, $"At index {i}");
@@ -69,7 +72,7 @@ namespace UnitTests.Planets
         public void TestPopKilledUnhabitable()
         {
 
-            CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile);
+            CreateOrbitalDrop(out OrbitalDrop orbitalDrop, FindUnhabitableTargetTile(P));
             float expectedPop = P.Population - B.PopKilled * 100; // 0.1 of pop killed potential. the usual is * 1000
             orbitalDrop.DamageColonySurface(B);
             Assert.That.Equal(expectedPop, P.Population);
@@ -79,14 +82,14 @@ namespace UnitTests.Planets
         public void TestTileDestruction()
         {
             float expectedMaxPop = P.MaxPopulation - P.BasePopPerTile * TestEmpire.RacialEnvModifer(P.Category);
-            P.DestroyTile(FindHabitableTargetTile);
+            P.DestroyTile(FindHabitableTargetTile(P));
             Assert.That.Equal(expectedMaxPop, P.MaxPopulation);
         }
 
         [TestMethod]
         public void TestBiospheresDestruction()
         {
-            PlanetGridSquare bioTile = FindUnhabitableTargetTile;
+            PlanetGridSquare bioTile = FindUnhabitableTargetTile(P);
             ResourceManager.GetBuilding(Building.BiospheresId, out Building bioSpheres);
             bioTile.PlaceBuilding(bioSpheres, P);
             P.UpdateMaxPopulation();

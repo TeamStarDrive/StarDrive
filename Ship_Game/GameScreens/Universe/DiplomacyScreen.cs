@@ -809,7 +809,7 @@ namespace Ship_Game
         {
             BridgeRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
             Portrait = new Rectangle(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
-            
+
             var cursor = new Vector2(Portrait.X + Portrait.Width - 85, Portrait.Y + 140);
             EmpireNamePos = new Vector2(cursor.X - Fonts.Pirulen20.MeasureString(Them.data.Traits.Name).X, Portrait.Y + 40);
             if (!UsAndThem.AtWar)
@@ -853,24 +853,24 @@ namespace Ship_Game
             AccRejRect = new Rectangle(R.X + R.Width / 2 - 220, R.Y + R.Height - 48, 440, 48);
             Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
             Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
-            
+
             Negotiate_Right = new Rectangle(ScreenWidth - 242, ScreenHeight - 280, 192, 280);
             Negotiate_Left = new Rectangle(0, ScreenHeight - 280, 192, 280);
             BigTradeRect = new Rectangle(DialogRect.X + 75, DialogRect.Y - 202, DialogRect.Width - 150, 200);
-            
+
             UsRect = new Rectangle(Negotiate_Right.X + 20, Negotiate_Right.Y + 35, BigTradeRect.Width / 2 - 9, 300);
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
-            
+
             var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 40));
-            OfferTextSL = Add(new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
+            OfferTextSL  = Add(new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
             StatementsSL = Add(new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
             OurItemsSL   = Add(new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
             TheirItemsSL = Add(new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
             
             OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
             TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);
-            
+
             TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
             PlayRaceVideoAndMusic();
         }
@@ -1235,7 +1235,7 @@ namespace Ship_Game
 
         protected override void Destroy()
         {
-            RacialVideo.Dispose();
+            RacialVideo?.Dispose();
             base.Destroy();
         }
 
