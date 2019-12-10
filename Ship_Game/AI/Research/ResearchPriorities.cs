@@ -21,7 +21,7 @@ namespace Ship_Game.AI.Research
             float shipBuildBonus = 0;
             BuildCapacity = buildCapacity;
             Command = command;
-            Command2 = command2;            
+            Command2 = command2;
 
             //create a booster for some values when things are slack.
             //so the empire will keep building new ships and researching new science.
