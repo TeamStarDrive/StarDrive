@@ -1798,7 +1798,7 @@ namespace Ship_Game
             foreach (Mole mole in data.MoleList)
                 SensorNodes.Add(new InfluenceNode
                 {
-                    Position = Universe.PlanetsDict[mole.PlanetGuid].Center,
+                    Position = Universe.Planets(mole.PlanetGuid).Center,
                     Radius   = ProjectorRadius * data.SensorModifier,
                     Known    = true
                 });

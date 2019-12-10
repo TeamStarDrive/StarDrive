@@ -144,7 +144,7 @@ namespace Ship_Game
                             AddExperience(ResourceManager.AgentMissionData.InfiltrateExpGood, us);
                             Mole m = Mole.PlantMole(us, Target);
                             TargetGUID = m.PlanetGuid;
-                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6030), " ", Empire.Universe.PlanetsDict[m.PlanetGuid].Name, Localizer.Token(6031)), us);
+                            if (!spyMute) Empire.Universe.NotificationManager.AddAgentResultNotification(true, string.Concat(Name, " ", Localizer.Token(6030), " ", Empire.Universe.Planets(m.PlanetGuid).Name, Localizer.Token(6031)), us);
                             Infiltrations++;
                             break;
                         }
