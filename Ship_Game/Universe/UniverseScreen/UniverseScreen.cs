@@ -252,6 +252,14 @@ namespace Ship_Game
 
         public void ResetLighting() => SetLighting(UseRealLights);
 
+        public Planet Planets(Guid guid)
+        {
+            if (PlanetsDict.TryGetValue(guid, out Planet planet))
+                return planet;
+            Log.Error($"Guid for planet not found guid: {guid}");
+            return null;
+        }
+
         void SetLighting(bool useRealLights)
         {
             if (!useRealLights)
@@ -459,7 +467,7 @@ namespace Ship_Game
             foreach (Ship ship in MasterShipList)
             {
                 if (ship.TetherGuid != Guid.Empty)
-                    ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
+                    ship.TetherToPlanet(Planets(ship.TetherGuid));
             }
 
             foreach (Empire empire in EmpireManager.Empires)
