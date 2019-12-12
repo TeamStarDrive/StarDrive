@@ -154,7 +154,7 @@ namespace Ship_Game
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
         {
             CreateManagers();
-            
+
             Name = name;
             OrbitalAngle = randomAngle;
             ParentSystem = system;
@@ -497,7 +497,7 @@ namespace Ship_Game
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateBaseFertility();
-            InitResources(); // must be done before Governing            
+            InitResources(); // must be done before Governing
             UpdateOrbitalsMaint();
             NotifyEmptyQueue();
             RechargePlanetaryShields();
@@ -568,7 +568,7 @@ namespace Ship_Game
             if (Type.Habitable)
             {
                 numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-                PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease) 
+                PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
                                     + BuildingList.Count(b => b.IsBiospheres) * BasePopPerTile;
             }
 
@@ -673,7 +673,7 @@ namespace Ship_Game
             BaseMaxFertility = maxFertility;
             BaseFertility = fertility;
         }
-        
+
         public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility);
 
         public void AddMaxBaseFertility(float amount)
@@ -691,7 +691,7 @@ namespace Ship_Game
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
         // FB: @todo - this needs refactoring - its too long
-        public void UpdateIncomes(bool loadUniverse) 
+        public void UpdateIncomes(bool loadUniverse)
         {
             if (Owner == null)
                 return;
@@ -709,7 +709,7 @@ namespace Ship_Game
 
             if (!loadUniverse) // FB - this is needed since OrbitalStations from save has only GUID, so we must not use this when loading a game
             {
-                var deadShipyards = new Array<Guid>(); 
+                var deadShipyards = new Array<Guid>();
                 NumShipyards      = 0; // reset NumShipyards since we are not loading it from a save
 
                 foreach (KeyValuePair<Guid, Ship> orbitalStation in OrbitalStations)
@@ -752,6 +752,7 @@ namespace Ship_Game
             // Added by Gretman -- This will keep a planet from still having shields even after the shield building has been scrapped.
             ShieldStrengthCurrent = ShieldStrengthCurrent.Clamped(0,ShieldStrengthMax);
             HasSpacePort          = spacePort && (colonyType != ColonyType.Research || Owner.isPlayer); // FB todo - why research Governor is omitted here?
+            //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
             Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
@@ -774,7 +775,7 @@ namespace Ship_Game
             for (int i = 0; i < numShipyards; ++i)
             {
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.ShipyardBonus > 0)
-                    shipBuildingModifier *= 1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyardDiminishedReturn); 
+                    shipBuildingModifier *= 1 - (GlobalStats.ActiveModInfo.ShipyardBonus / shipyardDiminishedReturn);
                 else
                     shipBuildingModifier *= 1 - (0.25f / shipyardDiminishedReturn);
 
@@ -831,7 +832,7 @@ namespace Ship_Game
                 if (GovMilitia && colonyType != ColonyType.Colony)
                     return 0; // Player Governor will replace garrisoned troops with new ones
 
-                return 5; // Default value for non Governor Player Colonies 
+                return 5; // Default value for non Governor Player Colonies
             }
         }
 
@@ -860,8 +861,8 @@ namespace Ship_Game
                 Population        = Math.Max(Population - popToRemove, MaxPopulation);
             }
             else if (IsStarving)
-                Population += Unfed * 10f; // Reduces population depending on starvation severity. 
-            else 
+                Population += Unfed * 10f; // Reduces population depending on starvation severity.
+            else
             {
                 // population is increased
                 float balanceGrowth = (1 - PopulationRatio).Clamped(0.1f, 1f);

@@ -25,7 +25,7 @@ namespace Ship_Game.AI
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
-            float risk = GetRisk();
+            float risk = GetRisk().Clamped(0,1);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(risk, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(risk, treasuryGoal);
@@ -38,7 +38,7 @@ namespace Ship_Game.AI
         float DetermineDefenseBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.0025f, Math.Max(risk, strat.MilitaryRatio), money);
+            return SetBudgetForeArea(0.0025f, risk + strat.MilitaryRatio, money);
         }
         float DetermineSSPBudget(float money)
         {
