@@ -16,7 +16,7 @@ PlanetType: 4
   MeshPath: Model/SpaceObjects/planet_4
   Habitable: true
   HabitableTileChance: 2
-  PopPerTile: [50, 100]
+  PopPerTile: [50, 150]
   BaseFertility: 0
 
 PlanetType: 5 # Venus
@@ -28,7 +28,7 @@ PlanetType: 5 # Venus
   EarthLike: true # Give it earthlike clouds
   Habitable: true
   HabitableTileChance: 1
-  PopPerTile: [50, 100]
+  PopPerTile: [50, 200]
   BaseFertility: 0
 
 PlanetType: 7 # Mercury
@@ -50,7 +50,7 @@ PlanetType: 8 # Mars
   Glow: Red
   Habitable: true
   HabitableTileChance: 5
-  PopPerTile: [50, 100]
+  PopPerTile: [150, 300]
   BaseFertility: 0
 
 # Barren Planet with some chance for habitable tiles
@@ -109,7 +109,7 @@ PlanetType: 17 # Kholin:Jasnah
   Glow: White
   Habitable: true
   HabitableTileChance: [35, 75]
-  PopPerTile: [100, 250]
+  PopPerTile: [250, 400]
   BaseFertility: [0.5, 1.0]
   MinBaseFertility: 0.7
 
@@ -122,7 +122,7 @@ PlanetType: 32
   Glow: White
   Habitable: true
   HabitableTileChance: [25, 60]
-  PopPerTile: [50, 150]
+  PopPerTile: [100, 300]
   BaseFertility: [-0.25, 0.5]
 
 # Ice, almost barren
@@ -134,7 +134,7 @@ PlanetType: 33
   Glow: White
   Habitable: true
   HabitableTileChance: [20, 50]
-  PopPerTile: [50, 100]
+  PopPerTile: [50, 150]
   BaseFertility: [-0.5, 0.25]
 
 # Swamp
@@ -147,7 +147,7 @@ PlanetType: 19 # Polmar:Sporl
   EarthLike: true
   Habitable: true
   HabitableTileChance: [35, 70]
-  PopPerTile: [100, 200]
+  PopPerTile: [200, 400]
   BaseFertility: [0.5, 1.5]
   MinBaseFertility: 1.0
 
@@ -161,7 +161,7 @@ PlanetType: 34
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
-  PopPerTile: [50, 100]
+  PopPerTile: [100, 200]
   BaseFertility: [-1.0, 1.5]
   MinBaseFertility: 0.25
 
@@ -175,7 +175,7 @@ PlanetType: 35
   EarthLike: true
   Habitable: true
   HabitableTileChance: 40
-  PopPerTile: [50, 250]
+  PopPerTile: [100, 500]
   BaseFertility: [-0.5, 0.5]
   MinBaseFertility: 0.25
 
@@ -189,7 +189,7 @@ PlanetType: 21
   EarthLike: true
   Habitable: true
   HabitableTileChance: [40, 60]
-  PopPerTile: [100, 200]
+  PopPerTile: [200, 400]
   BaseFertility: [-1.5, 2.5]
   MinBaseFertility: 0.5
     
@@ -203,7 +203,7 @@ PlanetType: 36
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
-  PopPerTile: [75, 175]
+  PopPerTile: [100, 300]
   BaseFertility: [-1, 2]
   MinBaseFertility: 0.3
 
@@ -217,7 +217,7 @@ PlanetType: 37
   EarthLike: true
   Habitable: true
   HabitableTileChance: [50, 85]
-  PopPerTile: [50, 125]
+  PopPerTile: [150, 250]
   BaseFertility: [0.25, 1]
 
 # Desert
@@ -229,7 +229,7 @@ PlanetType: 14 # Mradeep:Arrachus
   Glow: Orange
   Habitable: true
   HabitableTileChance: [10, 45]
-  PopPerTile: [100, 200]
+  PopPerTile: [100, 450]
   BaseFertility: [-1.0, 1]
   MinBaseFertility: 0.4
   
@@ -242,7 +242,7 @@ PlanetType: 30
   Glow: Orange
   Habitable: true
   HabitableTileChance: [45, 75]
-  PopPerTile: [75, 150]
+  PopPerTile: [75, 300]
   BaseFertility: [-0.4, 0.4]
   MinBaseFertility: 0.25
 
@@ -255,7 +255,7 @@ PlanetType: 38
   Glow: Orange
   Habitable: true
   HabitableTileChance: [5, 40]
-  PopPerTile: [50, 90]
+  PopPerTile: [50, 600]
   BaseFertility: [-0.4, 0.25]
   MinBaseFertility: 0.1
   Scale: 1.5
@@ -269,8 +269,8 @@ PlanetType: 11 # Pandora, Rathi:Bul
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [45, 75]
-  PopPerTile: [100, 200]
+  HabitableTileChance: [15, 20]
+  PopPerTile: [300, 500]
   BaseFertility: [0.5, 1.0]
   
 # Tundra, harsg
@@ -282,8 +282,8 @@ PlanetType: 39
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [15, 20]
-  PopPerTile: [50, 200]
+  HabitableTileChance: [20, 45]
+  PopPerTile: [150, 600]
   BaseFertility: [0.25, 0.5]
 
 # Tundra, dense
@@ -309,7 +309,7 @@ PlanetType: 18
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
-  PopPerTile: [100, 200]
+  PopPerTile: [150, 600]
   BaseFertility: [0.0, 2.1]
   MinBaseFertility: 0.8
   
@@ -323,7 +323,7 @@ PlanetType: 41
   EarthLike: true
   Habitable: true
   HabitableTileChance: [15, 45]
-  PopPerTile: [75, 150]
+  PopPerTile: [200, 400]
   BaseFertility: [0.0, 1.0]
 
 # Steppe
@@ -336,7 +336,7 @@ PlanetType: 42
   EarthLike: true
   Habitable: true
   HabitableTileChance: [35, 80]
-  PopPerTile: [50, 250]
+  PopPerTile: [300, 500]
   BaseFertility: [-0.5, 1.5]
 
 # Terran
@@ -349,7 +349,7 @@ PlanetType: 1
   EarthLike: true
   Habitable: true
   HabitableTileChance: 10
-  PopPerTile: [30, 75]
+  PopPerTile: [200, 500]
   BaseFertility: [0.4, 0.75]
 
 PlanetType: 13
@@ -361,8 +361,8 @@ PlanetType: 13
   PlanetTile: Terran_2
   EarthLike: true
   Habitable: true
-  HabitableTileChance: 65
-  PopPerTile: [100, 200]
+  HabitableTileChance: 75
+  PopPerTile: [500, 750]
   BaseFertility: [0.5, 1.5]
 
 PlanetType: 22 # Kholin:Adolin
@@ -374,8 +374,8 @@ PlanetType: 22 # Kholin:Adolin
   PlanetTile: Terran_3
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [40, 70]
-  PopPerTile: [75, 175]
+  HabitableTileChance: [60, 90]
+  PopPerTile: [300, 600]
   BaseFertility: [0.0, 1.5]
   MinBaseFertility: 0.5
 
@@ -387,8 +387,8 @@ PlanetType: 25
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [30, 50]
-  PopPerTile: [100, 200]
+  HabitableTileChance: [60, 90]
+  PopPerTile: [300, 600]
   BaseFertility: [-0.25, 1.5]
   MinBaseFertility: 0.5
 
@@ -400,8 +400,8 @@ PlanetType: 27 # Rathi:Tor
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [40, 70]
-  PopPerTile: [50, 150]
+  HabitableTileChance: [60, 90]
+  PopPerTile: [450, 700]
   BaseFertility: [-10.0, 3.0]
   MinBaseFertility: 1.0
 
@@ -413,8 +413,8 @@ PlanetType: 29
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [20, 50]
-  PopPerTile: [70, 120]
+  HabitableTileChance: [50, 80]
+  PopPerTile: [300, 500]
   BaseFertility: [-5.0, 1.2]
   MinBaseFertility: 0.5
 
