@@ -126,7 +126,7 @@ namespace Ship_Game.AI
             Planet target = g.TargetPlanet;
             if (target == null && g.Goal.TetherTarget != Guid.Empty)
             {
-                Empire.Universe.PlanetsDict.TryGetValue(g.Goal.TetherTarget, out target);
+                target = Empire.Universe.Planets(g.Goal.TetherTarget);
             }
 
             if (target != null && (target.Center + g.Goal.TetherOffset).Distance(Owner.Center) > 200f)
@@ -144,7 +144,7 @@ namespace Ship_Game.AI
 
             if (g.Goal.TetherTarget != Guid.Empty)
             {
-                Planet planetToTether = Empire.Universe.PlanetsDict[g.Goal.TetherTarget];
+                Planet planetToTether = Empire.Universe.Planets(g.Goal.TetherTarget);
                 orbital.TetherToPlanet(planetToTether);
                 orbital.TetherOffset = g.Goal.TetherOffset;
                 planetToTether.OrbitalStations.Add(orbital.guid, orbital);

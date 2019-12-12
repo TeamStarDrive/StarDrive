@@ -231,7 +231,8 @@ namespace Ship_Game
             Vector3 pickedPosition = new Vector3(pickRay.Position.X + k * pickRay.Direction.X, pickRay.Position.Y + k * pickRay.Direction.Y, 0f);
 
             bool okToBuild = TargetPlanet == Guid.Empty
-                              || TargetPlanet != Guid.Empty && !Empire.Universe.PlanetsDict[TargetPlanet].IsOutOfOrbitalsLimit(itemToBuild);
+                              || TargetPlanet != Guid.Empty 
+                              && !Empire.Universe.Planets(TargetPlanet).IsOutOfOrbitalsLimit(itemToBuild, EmpireManager.Player);
 
             if (okToBuild)
             {

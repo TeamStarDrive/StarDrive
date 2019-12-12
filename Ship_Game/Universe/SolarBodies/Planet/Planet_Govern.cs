@@ -118,11 +118,13 @@ namespace Ship_Game
             return orbitalList;
         }
 
-        private int OrbitalsBeingBuilt(ShipData.RoleName role)
+        int OrbitalsBeingBuilt(ShipData.RoleName role) => OrbitalsBeingBuilt(role, Owner);
+
+        int OrbitalsBeingBuilt(ShipData.RoleName role, Empire owner)
         {
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
-            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role)
@@ -132,10 +134,12 @@ namespace Ship_Game
             return numOrbitals;
         }
 
-        private int ShipyardsBeingBuilt()
+        int ShipyardsBeingBuilt() => ShipyardsBeingBuilt(Owner);
+
+        private int ShipyardsBeingBuilt(Empire owner)
         {
             int shipyardsInQ = 0;
-            foreach (Goal goal in Owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
+            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
             {
                 if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship shipyard) && shipyard.shipData.IsShipyard)
@@ -511,10 +515,12 @@ namespace Ship_Game
             return new WantedOrbitals(rank);
         }
 
-        public bool IsOutOfOrbitalsLimit(Ship ship)
+        public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner);
+
+        public bool IsOutOfOrbitalsLimit(Ship ship, Empire owner)
         {
-            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role);
-            int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt();
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
+            int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
                 return true;
 
