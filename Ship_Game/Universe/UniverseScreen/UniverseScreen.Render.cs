@@ -517,7 +517,7 @@ namespace Ship_Game
                 {
                     foreach (Guid planetGuid in SelectedShip.TradeRoutes)
                     {
-                        Planet planet = PlanetsDict[planetGuid];
+                        Planet planet = Planets(planetGuid);
                         if (planet.Owner != null)
                         {
                             DrawLineToPlanet(SelectedShip.Center, planet.Center, planet.Owner.EmpireColor);

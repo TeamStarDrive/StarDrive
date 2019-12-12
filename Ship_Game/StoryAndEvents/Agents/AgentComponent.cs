@@ -160,7 +160,7 @@ namespace Ship_Game
 	            {
 	                Vector2 targetCursor = namecursor;
 	                targetCursor.X += 75f;
-	                string mission = Localizer.Token(2199) + ": " + Empire.Universe.PlanetsDict[agent.TargetGUID].Name;
+	                string mission = Localizer.Token(2199) + ": " + Empire.Universe.Planets(agent.TargetGUID).Name;
 	                batch.DrawString(Fonts.Arial12, mission, targetCursor, Color.Gray);
 	            }
 

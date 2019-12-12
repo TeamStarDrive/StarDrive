@@ -60,7 +60,7 @@ namespace Ship_Game.AI
             RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
 
 
-            while (goalsInConstruction < NumberOfShipGoals
+            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
                        || OwnerEmpire.empireShipTotal < OwnerEmpire.EmpireShipCountReserve))
             {
@@ -84,6 +84,8 @@ namespace Ship_Game.AI
             Map<RoleCounts.CombatRole, RoleCounts> ShipCounts = new Map<RoleCounts.CombatRole, RoleCounts>();
             public float TotalFleetMaintenanceMin { get; private set; }
 
+            public bool OverBudget { get; private set; }
+
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {
                 EmpireAI = eAI;
@@ -96,11 +98,14 @@ namespace Ship_Game.AI
                 PopulateRoleCountWithBuildableShips(OwnerEmpire, ShipCounts);
                 MaintenanceOfShipsUnderConstruction(eAI, ShipCounts);
 
+                float totalMaintenance =0;
+
                 var ratios = new FleetRatios(OwnerEmpire);
                 foreach (var kv in ShipCounts)
                 {
                     kv.Value.CalculateBasicCounts(ratios, capacity);
                     TotalFleetMaintenanceMin += kv.Value.FleetRatioMaintenance;
+                    totalMaintenance += kv.Value.CurrentMaintenance;
                 }
                 foreach (var kv in ShipCounts)
                 {
@@ -108,7 +113,7 @@ namespace Ship_Game.AI
                     if (!ignoreDebt)
                         kv.Value.ScrapAsNeeded(OwnerEmpire);
                 }
-
+                OverBudget = capacity < totalMaintenance;
             }
 
             public void PopulateRoleCountWithActiveShips(Empire empire, Map<RoleCounts.CombatRole, RoleCounts> currentShips)
