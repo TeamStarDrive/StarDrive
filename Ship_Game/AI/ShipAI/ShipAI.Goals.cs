@@ -178,9 +178,19 @@ namespace Ship_Game.AI
                                             0f, variableString, variableNumber));
         }
 
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, Goal empireGoal)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f));
+        }
+
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit)
         {
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
+        }
+
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, float speedLimit)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal)
@@ -232,7 +242,12 @@ namespace Ship_Game.AI
             bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
             public readonly Plan Plan;
-            public readonly Vector2 MovePosition;
+            private Vector2 ShipGoalMovePosition;
+            public Vector2 MovePosition
+            {
+                get => Goal?.MovePosition ?? TargetPlanet?.Center ?? ShipGoalMovePosition;
+                set => ShipGoalMovePosition = value;
+            }
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;
             public readonly Goal Goal; // Empire AI Goal

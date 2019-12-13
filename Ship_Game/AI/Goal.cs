@@ -38,13 +38,40 @@ namespace Ship_Game.AI
         public Guid guid = Guid.NewGuid();
         public Empire empire;
         public GoalType type;
+        public Vector2? MovePosition
+        {
+            get
+            {
+                Vector2? planetPos = TetherPlanet?.Center 
+                                     ?? ColonizationTarget?.Center 
+                                     ?? PlanetBuildingAt?.Center;
+                if (planetPos != null)
+                    planetPos += TetherOffset;
+                else planetPos = BuildPosition;
+                return planetPos;
+            }
+        }
         public int Step { get; private set; }
         public Fleet Fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
+        public Planet TetherPlanet => TetherTarget != Guid.Empty 
+            ? Empire.Universe.Planets(TetherTarget) : null;
+
         public bool Held;
-        public Vector2 BuildPosition;
-        public string ToBuildUID;
+        Vector2 BuildPositionBacker;
+        public Vector2 BuildPosition
+        {
+            get
+            {
+                Vector2? buildPosition = TetherPlanet?.Center;
+                if (buildPosition != null)
+                    return (Vector2)(buildPosition + TetherOffset);
+                return BuildPositionBacker;
+            }
+            set => BuildPositionBacker = value;
+        }
+public string ToBuildUID;
         public string VanityName;
         public int ShipLevel;
         public Planet PlanetBuildingAt;

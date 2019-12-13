@@ -79,7 +79,7 @@ namespace Ship_Game.AI
             ClearOrders(State, priority:true);
             Vector2 pos = goal.BuildPosition;
             Vector2 dir = Owner.Center.DirectionToTarget(pos);
-            OrderMoveTowardsPosition(pos, dir, true, null);
+            OrderMoveTowardsPosition(pos, dir, true, goal.PlanetBuildingAt, goal);
             if (goal.type == GoalType.DeepSpaceConstruction) // deep space structures
                 AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f);
             else // orbitals for planet defense
@@ -165,38 +165,43 @@ namespace Ship_Game.AI
             GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed);
         }
 
+        public void OrderMoveTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, Planet targetPlanet, Goal goal)
+        {
+            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed, goal);
+        }
+
         void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection,
-                                         Planet targetPlanet, bool clearOrders, float speedLimit)
+                                         Planet targetPlanet, bool clearOrders, float speedLimit, Goal goal = null)
         {
             if (!finalDirection.IsUnitVector())
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDirection} must be a direction unit vector!");
 
+            PrepareForNewOrders(clearOrders);
+
+            WayPoints.Enqueue(position);
+            MovePosition = position;
+
+            Vector2[] wayPoints = WayPoints.ToArray();
+            AddShipGoal(Plan.RotateToFaceMovePosition, WayPoints.PeekFirst, finalDirection);
+            for (int i = 1; i < wayPoints.Length - 1; ++i)
+            {
+                Vector2 wp = wayPoints[i];
+                AddShipGoal(Plan.MoveToWithin1000, wp, finalDirection, speedLimit);
+            }
+            Vector2 lastWayPoint = WayPoints.PeekLast;
+            AddShipGoal(Plan.MoveToWithin1000, lastWayPoint, finalDirection, targetPlanet, speedLimit, goal);
+            AddShipGoal(Plan.MakeFinalApproach, lastWayPoint, finalDirection, targetPlanet, speedLimit, goal);
+            AddShipGoal(Plan.RotateToDesiredFacing, lastWayPoint, finalDirection, targetPlanet, goal);
+            
+        }
+
+        private void PrepareForNewOrders(bool clearOrders)
+        {
             Target = null;
 
             if (clearOrders)
                 ClearWayPoints();
             ClearOrders(AIState.MoveTo, Owner.loyalty == EmpireManager.Player);
-            WayPoints.Enqueue(position);
-
-            MovePosition = position;
-
-            Vector2[] wayPoints = WayPoints.ToArray();
-            for (int i = 0; i < wayPoints.Length; ++i)
-            {
-                Vector2 wp = wayPoints[i];
-                bool isLast = wayPoints.Length - 1 == i;
-                Planet p = isLast ? targetPlanet : null; // only set planet for final waypoint
-
-                if (i == 0)
-                    AddShipGoal(Plan.RotateToFaceMovePosition, wp, finalDirection);
-                AddShipGoal(Plan.MoveToWithin1000, wp, finalDirection, p, speedLimit);
-
-                if (isLast)
-                {
-                    AddShipGoal(Plan.MakeFinalApproach, wp, finalDirection, p, speedLimit);
-                    AddShipGoal(Plan.RotateToDesiredFacing, wp, finalDirection);
-                }
-            }
         }
 
         public void OrderOrbitNearest(bool clearOrders)
