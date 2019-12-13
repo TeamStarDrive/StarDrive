@@ -42,8 +42,8 @@ namespace Ship_Game.AI
         {
             get
             {
-                Vector2? planetPos = TetherPlanet?.Center 
-                                     ?? ColonizationTarget?.Center 
+                Vector2? planetPos = TetherPlanet?.Center
+                                     ?? ColonizationTarget?.Center
                                      ?? PlanetBuildingAt?.Center;
                 if (planetPos != null)
                     planetPos += TetherOffset;
@@ -55,7 +55,7 @@ namespace Ship_Game.AI
         public Fleet Fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
-        public Planet TetherPlanet => TetherTarget != Guid.Empty 
+        public Planet TetherPlanet => TetherTarget != Guid.Empty
             ? Empire.Universe.Planets(TetherTarget) : null;
 
         public bool Held;
@@ -71,7 +71,7 @@ namespace Ship_Game.AI
             }
             set => BuildPositionBacker = value;
         }
-public string ToBuildUID;
+        public string ToBuildUID;
         public string VanityName;
         public int ShipLevel;
         public Planet PlanetBuildingAt;
