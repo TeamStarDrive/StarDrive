@@ -171,12 +171,12 @@ namespace Ship_Game.AI
         }
 
         void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection,
-                                         Planet targetPlanet, bool clearOrders, float speedLimit, Goal goal = null)
+                                         Planet targetPlanet, bool clearMoveOrders, float speedLimit, Goal goal = null)
         {
             if (!finalDirection.IsUnitVector())
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDirection} must be a direction unit vector!");
 
-            PrepareForNewOrders(clearOrders);
+            ClearMoveOrders(clearMoveOrders);
 
             WayPoints.Enqueue(position);
             MovePosition = position;
@@ -195,7 +195,7 @@ namespace Ship_Game.AI
             
         }
 
-        private void PrepareForNewOrders(bool clearOrders)
+        private void ClearMoveOrders(bool clearOrders)
         {
             Target = null;
 

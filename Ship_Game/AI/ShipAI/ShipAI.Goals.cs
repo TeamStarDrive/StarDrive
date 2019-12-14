@@ -242,11 +242,11 @@ namespace Ship_Game.AI
             bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
             public readonly Plan Plan;
-            private Vector2 ShipGoalMovePosition;
+            private Vector2 StaticMovePosition;
             public Vector2 MovePosition
             {
-                get => Goal?.MovePosition ?? TargetPlanet?.Center ?? ShipGoalMovePosition;
-                set => ShipGoalMovePosition = value;
+                get => Goal?.MovePosition ?? TargetPlanet?.Center ?? StaticMovePosition;
+                set => StaticMovePosition = value;
             }
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;

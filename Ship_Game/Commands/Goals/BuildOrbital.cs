@@ -80,22 +80,22 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
-                float distance = 2000 + (1000 * ring * TetherPlanet.Scale);
+                float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
                 TetherOffset    = MathExt.PointOnCircle(degrees * 40, distance);
-                Vector2 pos = TetherPlanet.Center + TetherOffset;
+                Vector2 pos = GetTetherPlanet.Center + TetherOffset;
                 if (BuildPositionFree(pos))
                     return pos;
 
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
                     TetherOffset = MathExt.PointOnCircle(i * 40, distance);
-                    pos = TetherPlanet.Center + TetherOffset;
+                    pos = GetTetherPlanet.Center + TetherOffset;
                     if (BuildPositionFree(pos))
                         return pos;
                 }
             }
 
-            return TetherPlanet.Center; // There is a limit on orbitals number
+            return GetTetherPlanet.Center; // There is a limit on orbitals number
         }
 
         bool BuildPositionFree(Vector2 position)
@@ -105,7 +105,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool IsOrbitalAlreadyPresentAt(Vector2 position)
         {
-            foreach (Ship orbital in TetherPlanet.OrbitalStations.Values)
+            foreach (Ship orbital in GetTetherPlanet.OrbitalStations.Values)
             {
                 Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
