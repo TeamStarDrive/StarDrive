@@ -39,40 +39,12 @@ namespace Ship_Game.AI
         public Guid guid = Guid.NewGuid();
         public Empire empire;
         public GoalType type;
-        [XmlIgnore]
-        public Vector2? MovePosition
-        {
-            get
-            {
-                Vector2? planetPos = TetherPlanet?.Center
-                                     ?? ColonizationTarget?.Center
-                                     ?? PlanetBuildingAt?.Center;
-                if (planetPos != null)
-                    planetPos += TetherOffset;
-                else planetPos = BuildPosition;
-                return planetPos;
-            }
-        }
         public int Step { get; private set; }
         public Fleet Fleet;
         public Vector2 TetherOffset;
         public Guid TetherTarget;
-        public Planet TetherPlanet => TetherTarget != Guid.Empty
-            ? Empire.Universe.Planets(TetherTarget) : null;
-
         public bool Held;
-        Vector2 BuildPositionBacker;
-        public Vector2 BuildPosition
-        {
-            get
-            {
-                Vector2? buildPosition = TetherPlanet?.Center;
-                if (buildPosition != null)
-                    return (Vector2)(buildPosition + TetherOffset);
-                return BuildPositionBacker;
-            }
-            set => BuildPositionBacker = value;
-        }
+        Vector2 StaticBuildPosition;
         public string ToBuildUID;
         public string VanityName;
         public int ShipLevel;
@@ -85,7 +57,32 @@ namespace Ship_Game.AI
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
+        public Vector2 MovePosition
+        {
+            get
+            {
+                Planet targetPlanet = GetTetherPlanet;
+                targetPlanet = targetPlanet ?? ColonizationTarget;
+                targetPlanet = targetPlanet ?? PlanetBuildingAt;
 
+                if (targetPlanet != null)
+                    return targetPlanet.Center + TetherOffset;
+                return BuildPosition;
+            }
+        }
+
+        public Vector2 BuildPosition
+        {
+            get
+            {
+                if (GetTetherPlanet != null)
+                    return GetTetherPlanet.Center + TetherOffset;
+                return StaticBuildPosition;
+            }
+            set => StaticBuildPosition = value;
+        }
+        public Planet GetTetherPlanet => TetherTarget != Guid.Empty
+            ? Empire.Universe.Planets(TetherTarget) : null;
         public abstract string UID { get; }
 
         public Ship FinishedShip
