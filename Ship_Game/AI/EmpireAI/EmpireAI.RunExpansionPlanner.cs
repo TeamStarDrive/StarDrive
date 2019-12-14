@@ -4,6 +4,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -51,8 +52,11 @@ namespace Ship_Game.AI
 
             Planet[] markedPlanets = GetMarkedPlanets();
             int desired = DesiredColonyGoals;
-            if (markedPlanets.Length >= desired)
-                return;            
+            int difficulty = (int)CurrentGame.Difficulty * 2;
+            int colonyEscorts = GetMarkedPlanetEscorts().Clamped(0, difficulty);
+
+            if (markedPlanets.Length >= desired + colonyEscorts)
+                return;
 
             Array<Goal.PlanetRanker> allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
             if (allPlanetsRanker.IsEmpty)
@@ -127,6 +131,22 @@ namespace Ship_Game.AI
 
             return true;
             
+        }
+
+        int GetMarkedPlanetEscorts()
+        {
+
+            int taskCount = 0;
+            foreach (MilitaryTask escort in OwnerEmpire.GetEmpireAI().TaskList)
+            {
+                foreach (Guid held in escort.HeldGoals)
+                {
+                    if (held != Guid.Empty && OwnerEmpire.GetEmpireAI().
+                            Goals.Any(g=> g.guid == held && g is MarkForColonization) )
+                        taskCount++;
+                }
+            }
+            return taskCount;
         }
 
         Planet[] GetMarkedPlanets()
