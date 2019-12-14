@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game.AI
 {
@@ -38,6 +39,7 @@ namespace Ship_Game.AI
         public Guid guid = Guid.NewGuid();
         public Empire empire;
         public GoalType type;
+        [XmlIgnore]
         public Vector2? MovePosition
         {
             get
@@ -127,6 +129,8 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
+            g.TetherTarget  = gsave.TetherTarget == Guid.Empty ? gsave.planetWhereBuildingAtGuid : gsave.TetherTarget;
+            g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {
                 Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
