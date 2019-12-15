@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game.AI
 {
@@ -43,7 +44,7 @@ namespace Ship_Game.AI
         public Vector2 TetherOffset;
         public Guid TetherTarget;
         public bool Held;
-        public Vector2 BuildPosition;
+        Vector2 StaticBuildPosition;
         public string ToBuildUID;
         public string VanityName;
         public int ShipLevel;
@@ -56,7 +57,32 @@ namespace Ship_Game.AI
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
+        public Vector2 MovePosition
+        {
+            get
+            {
+                Planet targetPlanet = GetTetherPlanet;
+                targetPlanet = targetPlanet ?? ColonizationTarget;
+                targetPlanet = targetPlanet ?? PlanetBuildingAt;
 
+                if (targetPlanet != null)
+                    return targetPlanet.Center + TetherOffset;
+                return BuildPosition;
+            }
+        }
+
+        public Vector2 BuildPosition
+        {
+            get
+            {
+                if (GetTetherPlanet != null)
+                    return GetTetherPlanet.Center + TetherOffset;
+                return StaticBuildPosition;
+            }
+            set => StaticBuildPosition = value;
+        }
+        public Planet GetTetherPlanet => TetherTarget != Guid.Empty
+            ? Empire.Universe.GetPlanet(TetherTarget) : null;
         public abstract string UID { get; }
 
         public Ship FinishedShip
@@ -100,6 +126,8 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
+            g.TetherTarget  = gsave.TetherTarget == Guid.Empty ? gsave.planetWhereBuildingAtGuid : gsave.TetherTarget;
+            g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {
                 Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
