@@ -304,25 +304,25 @@ namespace Ship_Game.AI
             Empire planetOwner = Planet.Owner;
             Value = 0;
             bool enemy = Owner.IsEmpireAttackable(Planet.Owner);
-            if (Planet.Owner == Owner || !enemy)
-            {
-                Value += Planet.PopulationBillion / 10f;
-                Value += Planet.GovBuildings ? 1 : 0;
-                Value += Planet.HasSpacePort ? 5 : 0;
-                Value += Planet.Level;
-                if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
-            }
-            Value += Planet.EmpireBaseValue(Owner) *.1f;
+            //if (Planet.Owner == Owner || !enemy)
+            //{
+            //    Value += Planet.PopulationBillion / 10f;
+            //    Value += Planet.GovBuildings ? 1 : 0;
+            //    Value += Planet.HasSpacePort ? 5 : 0;
+            //    Value += Planet.Level;
+            //    if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
+            //}
+            Value = Planet.ColonyBaseValue(Owner);
 
             if (planetOwner == null || !enemy)
                 return Value;
 
             var them = Owner.GetRelations(planetOwner);
             if (them == null || !them.Known) return Value;
-            if (them.Trust < 50f) Value += 2.5f;
-            if (them.Trust < 10f) Value += 2.5f;
-            if (them.TotalAnger > 2.5f) Value += 2.5f;
-            if (them.TotalAnger <= 30f) Value += 2.5f;
+            if (them.Trust < 50f) Value += 10f;
+            if (them.Trust < 10f) Value += 10f;
+            if (them.TotalAnger > 2.5f) Value += 10f;
+            if (them.TotalAnger <= 30f) Value += 10f;
 
             return Value;
         }
