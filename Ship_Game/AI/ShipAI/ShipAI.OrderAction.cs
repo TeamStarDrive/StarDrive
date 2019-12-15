@@ -192,7 +192,6 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.MoveToWithin1000, lastWayPoint, finalDirection, targetPlanet, speedLimit, goal);
             AddShipGoal(Plan.MakeFinalApproach, lastWayPoint, finalDirection, targetPlanet, speedLimit, goal);
             AddShipGoal(Plan.RotateToDesiredFacing, lastWayPoint, finalDirection, targetPlanet, goal);
-            
         }
 
         private void ClearMoveOrders(bool clearOrders)
@@ -378,7 +377,7 @@ namespace Ship_Game.AI
         }
 
         public void OrderReturnToHangar()
-        {            
+        {
             ClearOrders(AIState.ReturnToHangar, priority: true);
             AddShipGoal(Plan.ReturnToHangar);
         }
@@ -420,9 +419,9 @@ namespace Ship_Game.AI
         {
             IgnoreCombat = true;
             ClearOrders(AIState.Ferrying);
-            //Clearorders wipes stored ordnance data if state is ferrying.             
+            //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
-            AddShipGoal(Plan.SupplyShip);            
+            AddShipGoal(Plan.SupplyShip);
         }
         public void OrderSystemDefense(SolarSystem system)
         {
