@@ -304,15 +304,9 @@ namespace Ship_Game.AI
             Empire planetOwner = Planet.Owner;
             Value = 0;
             bool enemy = Owner.IsEmpireAttackable(Planet.Owner);
-            //if (Planet.Owner == Owner || !enemy)
-            //{
-            //    Value += Planet.PopulationBillion / 10f;
-            //    Value += Planet.GovBuildings ? 1 : 0;
-            //    Value += Planet.HasSpacePort ? 5 : 0;
-            //    Value += Planet.Level;
-            //    if (Owner.data.Traits.Cybernetic > 0) Value += Planet.MineralRichness;
-            //}
-            Value = Planet.ColonyBaseValue(Owner);
+
+            if (Planet.Owner == Owner || !enemy)
+                Value = Planet.ColonyBaseValue(Owner);
 
             if (planetOwner == null || !enemy)
                 return Value;
