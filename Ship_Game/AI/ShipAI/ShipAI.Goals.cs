@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.Ships;
+using System;
+using System.Collections.Generic;
 
-namespace Ship_Game.AI 
+namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
@@ -28,7 +28,7 @@ namespace Ship_Game.AI
             foreach (ShipGoal g in OrderQueue)
                 g.Dispose();
             ChangeAIState(newState);
-            OrderQueue.Clear();            
+            OrderQueue.Clear();
             HasPriorityOrder = priority;
         }
 
@@ -171,16 +171,26 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f));
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal, 
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
                          string variableString, float variableNumber)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, theGoal, 
+            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, theGoal,
                                             0f, variableString, variableNumber));
+        }
+
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, Goal empireGoal)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit)
         {
             OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
+        }
+
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, float speedLimit)
+        {
+            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal)
@@ -202,7 +212,7 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            OrderQueue.Enqueue(new ShipGoal(plan, target.Center, Vectors.Up, 
+            OrderQueue.Enqueue(new ShipGoal(plan, target.Center, Vectors.Up,
                                target, theGoal, 0f, "", 0f));
             return true;
         }
@@ -232,7 +242,17 @@ namespace Ship_Game.AI
             bool IsDisposed;
             // ship goal variables are read-only by design, do not allow writes!
             public readonly Plan Plan;
-            public readonly Vector2 MovePosition;
+            private Vector2 StaticMovePosition;
+            public Vector2 MovePosition
+            {
+                get
+                {
+                    if (Goal != null) return Goal.MovePosition;
+                    if (TargetPlanet != null) return TargetPlanet.Center;
+                    return StaticMovePosition;
+                }
+                set => StaticMovePosition = value;
+            }
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;
             public readonly Goal Goal; // Empire AI Goal
@@ -280,7 +300,7 @@ namespace Ship_Game.AI
                 SpeedLimit = sg.SpeedLimit;
 
                 Empire loyalty = ship.loyalty;
-                
+
                 if (sg.fleetGuid != Guid.Empty)
                 {
                     foreach (KeyValuePair<int, Fleet> empireFleet in loyalty.GetFleetsDict())
@@ -354,7 +374,7 @@ namespace Ship_Game.AI
                 BlockadeTimer = save.BlockadeTimer;
                 Freighter     = freighter;
             }
-            
+
             public void UnRegisterTrade(Ship freighter)
             {
                 ExportFrom.RemoveFromOutgoingFreighterList(freighter);

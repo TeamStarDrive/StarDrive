@@ -4,13 +4,14 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.Tasks;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
 {
     public sealed partial class EmpireAI
     {
-        /// This uses difficulty and empire personality to set the colonization goal count. 
+        /// This uses difficulty and empire personality to set the colonization goal count.
         int DesiredColonyGoals
         {
             get
@@ -26,11 +27,11 @@ namespace Ship_Game.AI
         Planet[] DesiredPlanets = Empty<Planet>.Array;
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
-        {        
-            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction) 
+        {
+            if (OwnerEmpire.isPlayer || OwnerEmpire.isFaction)
                 return;
 
-            if (!thiefRelationship.Known)            
+            if (!thiefRelationship.Known)
                 return;
 
             if (claimedPlanet.Owner != thievingEmpire || thiefRelationship.AtWar)
@@ -51,8 +52,11 @@ namespace Ship_Game.AI
 
             Planet[] markedPlanets = GetMarkedPlanets();
             int desired = DesiredColonyGoals;
-            if (markedPlanets.Length >= desired)
-                return;            
+            int difficulty = (int)CurrentGame.Difficulty * 2;
+            int colonyEscorts = CountMarkedPlanetEscorts().Clamped(0, difficulty);
+
+            if (markedPlanets.Length >= desired + colonyEscorts)
+                return;
 
             Array<Goal.PlanetRanker> allPlanetsRanker = GatherAllPlanetRanks(markedPlanets);
             if (allPlanetsRanker.IsEmpty)
@@ -65,17 +69,17 @@ namespace Ship_Game.AI
             Goals.Add(new MarkForColonization(DesiredPlanets[0], OwnerEmpire));
         }
 
-        /// Go through all known planets. filter planets by colonization rules. Rank remaining ones. 
+        /// Go through all known planets. filter planets by colonization rules. Rank remaining ones.
         Array<Goal.PlanetRanker> GatherAllPlanetRanks(Planet[] markedPlanets)
         {
             //need a better way to find biosphere
             bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.IsCybernetic;
-            
+
             var allPlanetsRanker = new Array<Goal.PlanetRanker>();
             Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();
             // Here we should be using the building score that the governors use to determine is a planet is viable i think.
             // bool foodBonus = OwnerEmpire.GetTDict()["Aeroponics"].Unlocked || OwnerEmpire.data.Traits.Cybernetic > 0;
-            
+
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem sys = UniverseScreen.SolarSystemList[i];
@@ -117,7 +121,7 @@ namespace Ship_Game.AI
                 return false;
             bool atWar = OwnerEmpire.AllRelations.Any(war => war.Value.AtWar);
             bool trusting = OwnerEmpire.data.DiplomaticPersonality.IsTrusting ;
-            bool careless = OwnerEmpire.data.DiplomaticPersonality.Careless ;            
+            bool careless = OwnerEmpire.data.DiplomaticPersonality.Careless ;
 
             if (atWar && careless) return false;
 
@@ -126,14 +130,30 @@ namespace Ship_Game.AI
                     return false;
 
             return true;
-            
+
+        }
+
+        int CountMarkedPlanetEscorts()
+        {
+
+            int taskCount = 0;
+            foreach (MilitaryTask escort in OwnerEmpire.GetEmpireAI().TaskList)
+            {
+                foreach (Guid held in escort.HeldGoals)
+                {
+                    if (held != Guid.Empty && OwnerEmpire.GetEmpireAI().
+                            Goals.Any(g=> g.guid == held && g is MarkForColonization) )
+                        taskCount++;
+                }
+            }
+            return taskCount;
         }
 
         Planet[] GetMarkedPlanets()
-        {            
+        {
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
-                if (g.type == GoalType.Colonize) 
+                if (g.type == GoalType.Colonize)
                     list.Add(g.ColonizationTarget);
             return list.ToArray();
         }

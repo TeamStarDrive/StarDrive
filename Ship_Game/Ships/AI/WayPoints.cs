@@ -34,6 +34,8 @@ namespace Ship_Game.Ships.AI
         {
             return ActiveWayPoints.ToArray();
         }
+        public Vector2 PeekFirst => ActiveWayPoints.PeekFirst;
+        public Vector2 PeekLast => ActiveWayPoints.PeekLast;
     }        
 
 }

@@ -583,6 +583,8 @@ namespace Ship_Game
             [Serialize(11)] public Guid OldShipGuid;
             [Serialize(12)] public string VanityName;
             [Serialize(13)] public int ShipLevel;
+            [Serialize(14)] public Guid TetherTarget;
+            [Serialize(15)] public Vector2 TetherOffset;
         }
 
         public class GSAISAVE
