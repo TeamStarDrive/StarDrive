@@ -82,7 +82,7 @@ namespace Ship_Game.AI
             set => StaticBuildPosition = value;
         }
         public Planet GetTetherPlanet => TetherTarget != Guid.Empty
-            ? Empire.Universe.Planets(TetherTarget) : null;
+            ? Empire.Universe.GetPlanet(TetherTarget) : null;
         public abstract string UID { get; }
 
         public Ship FinishedShip
