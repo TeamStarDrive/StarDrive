@@ -252,14 +252,21 @@ namespace Ship_Game
         }
 
         public float EmpireFertility(Empire empire) =>
-            (empire.data?.Traits.Cybernetic ?? 0) > 0 ? MineralRichness : FertilityFor(empire);
+            empire.IsCybernetic ? MineralRichness : FertilityFor(empire);
 
-        public float EmpireBaseValue(Empire empire) => (
-            10 * Storage.CommoditiesCount +
-            (0.01f + EmpireFertility(empire))
-            * (0.1f + MineralRichness)
-            * (float)Math.Ceiling(MaxPopulationBillionFor(empire))
-            );
+        public float ColonyBaseValue(Empire empire)
+        {
+            float value = 0;
+            value += Storage.CommoditiesCount * 30;
+            value += EmpireFertility(empire) * 10;
+            value += MineralRichness * 10;
+            value += MaxPopulationBillionFor(empire) * 5;
+            value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
+            value += BuildingList.Sum(b => b.ActualCost) / 10;
+            value += PopulationBillion * 5;
+
+            return value;
+        }
 
         public void AddProjectile(Projectile projectile)
         {
@@ -536,17 +543,7 @@ namespace Ship_Game
             ShieldStrengthCurrent = (ShieldStrengthCurrent + rechargeRate).Clamped(0, ShieldStrengthMax);
         }
 
-        private void UpdateColonyValue()
-        {
-            ColonyValue = 0;
-            if (Owner == null)
-                return;
-
-            ColonyValue  = BuildingList.Any(b => b.IsCapital) ? 100 : 0;
-            ColonyValue += BuildingList.Sum(b => b.ActualCost) / 10;
-            ColonyValue += (PopulationBillion + MaxPopulationBillion) * 5;
-            ColonyValue += IsCybernetic ? MineralRichness * 20 : MineralRichness * 10 + Fertility * 10;
-        }
+        private void UpdateColonyValue() => ColonyValue = Owner != null ? ColonyBaseValue(Owner) : 0;
 
         public float PopPerTileFor(Empire empire) => BasePopPerTile * empire?.RacialEnvModifer(Category) ?? BasePopPerTile;
 
