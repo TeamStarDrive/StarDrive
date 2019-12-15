@@ -252,7 +252,7 @@ namespace Ship_Game
 
         public void ResetLighting() => SetLighting(UseRealLights);
 
-        public Planet Planets(Guid guid)
+        public Planet GetPlanet(Guid guid)
         {
             if (PlanetsDict.TryGetValue(guid, out Planet planet))
                 return planet;
@@ -388,7 +388,7 @@ namespace Ship_Game
                         {
                             Ship.CreateShipAt(key, p.Owner, p, true);
                         }
-                        
+
                         continue;
                     }
                     // Added by McShooterz: alternate hostile fleets populate universe
@@ -467,7 +467,7 @@ namespace Ship_Game
             foreach (Ship ship in MasterShipList)
             {
                 if (ship.TetherGuid != Guid.Empty)
-                    ship.TetherToPlanet(Planets(ship.TetherGuid));
+                    ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
             }
 
             foreach (Empire empire in EmpireManager.Empires)

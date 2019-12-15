@@ -232,7 +232,7 @@ namespace Ship_Game
 
             bool okToBuild = TargetPlanet == Guid.Empty
                               || TargetPlanet != Guid.Empty 
-                              && !Empire.Universe.Planets(TargetPlanet).IsOutOfOrbitalsLimit(itemToBuild, EmpireManager.Player);
+                              && !Empire.Universe.GetPlanet(TargetPlanet).IsOutOfOrbitalsLimit(itemToBuild, EmpireManager.Player);
 
             if (okToBuild)
             {
