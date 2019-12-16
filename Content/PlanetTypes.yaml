@@ -269,7 +269,7 @@ PlanetType: 11 # Pandora, Rathi:Bul
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [15, 20]
+  HabitableTileChance: [15, 30]
   PopPerTile: [300, 500]
   BaseFertility: [0.5, 1.0]
   
@@ -295,7 +295,7 @@ PlanetType: 40
   Glow: Terran
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [25, 45]
+  HabitableTileChance: [35, 65]
   PopPerTile: [125, 250]
   BaseFertility: [0.25, 1.5]
   
@@ -335,8 +335,8 @@ PlanetType: 42
   Glow: Orange
   EarthLike: true
   Habitable: true
-  HabitableTileChance: [35, 80]
-  PopPerTile: [300, 500]
+  HabitableTileChance: [35, 70]
+  PopPerTile: [200, 500]
   BaseFertility: [-0.5, 1.5]
 
 # Terran
