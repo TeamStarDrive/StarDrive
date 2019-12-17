@@ -92,7 +92,7 @@ namespace Ship_Game.AI
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {
                     Planet p = sys.PlanetList[y];
-                    if (p.Habitable && p.Owner == null && !markedPlanets.Any(planet => planet == p))
+                    if (p.Habitable && p.Owner == null && !markedPlanets.ContainsRef(p))
                     {
                         var r2 = new PlanetRanker(OwnerEmpire, p, canColonizeBarren, weightedCenter, systemEnemyStrength);
                         if (!r2.CantColonize)
