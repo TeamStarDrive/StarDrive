@@ -3,8 +3,14 @@ if not exist ..\Config ( echo UploadToBitbucket.cmd working directory must be in
 if not defined BB_UPLOAD_USER ( echo envvar BB_UPLOAD_USER undefined && goto error )
 if not defined BB_UPLOAD_PASS ( echo envvar BB_UPLOAD_PASS undefined && goto error )
 
-for /f %%b in ('git name-rev --name-only HEAD') do set BRANCH_NAME=%%b
-echo BRANCH_NAME=%BRANCH_NAME%
+echo APPVEYOR_REPO_BRANCH=%APPVEYOR_REPO_BRANCH%
+echo APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT%
+echo APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH=%APPVEYOR_PULL_REQUEST_HEAD_REPO_BRANCH%
+git name-rev --name-only %APPVEYOR_REPO_COMMIT%
+git name-rev --name-only HEAD
+
+::for /f %%b in ('git name-rev --name-only HEAD') do set BRANCH_NAME=%%b
+echo BRANCH_NAME=%APPVEYOR_REPO_BRANCH%
 if "%BRANCH_NAME%" NEQ "develop" ( echo Auto-Deploy is only enabled for develop branch && goto :eof )
 
 for /f %%r in ('dir /B /O-D C:\Projects\BlackBox\Deploy\upload') do set file=%%r
