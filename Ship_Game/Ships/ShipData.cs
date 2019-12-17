@@ -227,7 +227,6 @@ namespace Ship_Game.Ships
                     slot.Position              = new Vector2(msd->PosX, msd->PosY);
                     // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
                     slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
-                    slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health                = msd->Health;
                     slot.ShieldPower           = msd->ShieldPower;
                     slot.ShieldUpChance        = msd->ShieldUpChance;
