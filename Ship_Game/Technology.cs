@@ -331,7 +331,8 @@ namespace Ship_Game
 
                     if (hull.Role == ShipData.RoleName.station ||
                         hull.Role == ShipData.RoleName.platform ||
-                        hull.Role == ShipData.RoleName.freighter)
+                        hull.Role == ShipData.RoleName.freighter ||
+                        hull.Role >= ShipData.RoleName.fighter)
                         types.Add(TechnologyType.ShipHull);
                 }
             }
