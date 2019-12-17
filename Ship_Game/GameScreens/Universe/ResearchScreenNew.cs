@@ -388,7 +388,6 @@ namespace Ship_Game
                 us.GetEmpireAI().DebugRunResearchPlanner();
                 EmpireManager.Player.UpdateShipsWeCanBuild();
                 ReloadContent();
-
             }
 
             return false;
