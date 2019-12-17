@@ -173,29 +173,47 @@ namespace Ship_Game.AI
             public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
             {
                 Planet          = planet;
-                Distance        = empireCenter.Distance(planet.Center);
+                OutOfRange = ClosestAOTooFar(planet, empire, out Distance, out float aoStrength, out float aoRadius);
                 CantColonize    = IsBadWorld(planet, canColonizeBarren);
-                float jumpRange = Math.Max(Distance / 600000, 1);
-                Value           = planet.ColonyBaseValue(empire) / jumpRange;
-                OutOfRange      = PlanetTooFarToColonize(planet, empire);
-
+                int rangeReduction = (int)Math.Ceiling(Distance / aoRadius);
+                Value           = planet.ColonyBaseValue(empire) / rangeReduction;
 
                 if (enemyStr > 0)
-                    Value *= ((empire.currentMilitaryStrength - enemyStr) / empire.currentMilitaryStrength).ClampMin(0);
+                    Value *= ((aoStrength - enemyStr) / aoStrength).ClampMin(0);
 
                 int difficultyBonus = (int)Math.Pow((int)CurrentGame.Difficulty, 2.5f);
-                if (Value + difficultyBonus < 20f)
+                if (Value + difficultyBonus < 30f)
                     CantColonize = true;
             }
 
             static bool IsBadWorld(Planet planet, bool canColonizeBarren)
                 => planet.IsBarrenType && !canColonizeBarren && planet.Storage.CommoditiesCount == 0;
 
-            static bool PlanetTooFarToColonize(Planet p, Empire empire)
+            static bool ClosestAOTooFar(Planet planet, Empire empire, out float aoDistance, out float aoStrength, out float aoRadius)
             {
-                AO closestAO = empire.GetEmpireAI().AreasOfOperations.FindMin(ao => ao.Center.SqDist(p.Center));
-                return closestAO != null
-                       && p.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f);
+                aoDistance = float.MaxValue;
+                AO closestAO = null;
+                foreach (var ao in empire.GetEmpireAI().AreasOfOperations)
+                {
+                    float distance = ao.Center.Distance(planet.Center);
+                    if (distance < aoDistance)
+                    {
+                        aoDistance = distance;
+                        closestAO = ao;
+                    }
+
+                }
+                if (closestAO == null)
+                {
+                    aoStrength = empire.currentMilitaryStrength;
+                    aoDistance = empire.GetWeightedCenter().Distance(planet.Center);
+                    aoRadius = 600000f;
+                    return false;
+                }
+
+                aoStrength = closestAO.OffensiveForcePoolStrength;
+                aoRadius   = closestAO.Radius;
+                return planet.Center.OutsideRadius(closestAO.Center, closestAO.Radius);
             }
 
         }

@@ -37,7 +37,7 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
         }
-        
+
         public override void LoadContent()
         {
             camera = new Camera2D { Pos = new Vector2(Viewport.Width, Viewport.Height) / 2f };
@@ -77,8 +77,8 @@ namespace Ship_Game
 
             RootNode root = RootNodes[GlobalStats.ResearchRootUIDToDisplay];
             PopulateNodesFromRoot(root);
-            
-            // Create queue once all techs are populated            
+
+            // Create queue once all techs are populated
             var queue = new Rectangle(main.X + main.Width - 355, main.Y + 40, 330, main.Height - 100);
             Queue = Add(new ResearchQueueUIComponent(this, queue));
 
@@ -249,7 +249,7 @@ namespace Ship_Game
 
             if (input.RightMouseHeldDown)
                 camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
-            
+
             if (Empire.Universe.Debug && HandleDebugInput(input)) // DEBUG unlock inputs
                 return true;
 
@@ -327,13 +327,21 @@ namespace Ship_Game
                 {
                     bool shift = input.IsShiftKeyDown;
                     Empire us = EmpireManager.Player;
-                    techEntry.DebugUnlockFromTechScreen(us, us, !shift);
-
-                    foreach (var them in EmpireManager.Empires)
+                    if (!techEntry.Unlocked)
                     {
-                        if (them != EmpireManager.Player)
-                            techEntry.UnlockWithNoBonusOption(us, them, !shift );
+                        techEntry.DebugUnlockFromTechScreen(us, us, !shift);
+                        GameAudio.EchoAffirmative();
                     }
+                    else
+                        foreach (var them in EmpireManager.Empires)
+                        {
+                            if (them != EmpireManager.Player && !techEntry.SpiedFrom(them))
+                            {
+                                techEntry.DebugUnlockFromTechScreen(us, them, !shift);
+                                GameAudio.AffirmativeClick();
+                                break;
+                            }
+                        }
                 }
                 ReloadContent();
                 EmpireManager.Player.UpdateShipsWeCanBuild();
@@ -359,14 +367,28 @@ namespace Ship_Game
             //Added by McShooterz: Cheat ot unlock non bonus tech
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F3))
             {
+                bool unlockBonus = input.IsShiftKeyDown;
                 foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
                 {
                     Empire us = EmpireManager.Player;
-                    techEntry.UnlockWithNoBonusOption(us, us, false);
+                    techEntry.UnlockWithNoBonusOption(us, us, !unlockBonus);
+                    if (!unlockBonus && techEntry.Tech.BonusUnlocked.NotEmpty)
+                        techEntry.Unlocked = false;
                     EmpireManager.Player.UpdateShipsWeCanBuild();
                     ReloadContent();
                 }
                 return true;
+            }
+
+            if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F4))
+            {
+                Empire us = EmpireManager.Player;
+                us.AutoResearch = true;
+                us.Research.Reset();
+                us.GetEmpireAI().DebugRunResearchPlanner();
+                EmpireManager.Player.UpdateShipsWeCanBuild();
+                ReloadContent();
+
             }
 
             return false;
