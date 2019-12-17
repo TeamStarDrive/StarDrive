@@ -7,7 +7,6 @@ using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Ship_Game
@@ -257,7 +256,7 @@ namespace Ship_Game
         public float ColonyBaseValue(Empire empire)
         {
             float value = 0;
-            value += Storage.CommoditiesCount * 30;
+            value += BuildingList.Count(b => b.IsCommodity) * 30;
             value += EmpireFertility(empire) * 10;
             value += MineralRichness * 10;
             value += MaxPopulationBillionFor(empire) * 5;
