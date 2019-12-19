@@ -281,7 +281,6 @@ namespace Ship_Game.AI
                 };
                 DataNodes.Add(node);
             }
-            ship.RelativeFleetOffset = node.FleetOffset;
 
             node.Ship           = ship;
             node.ShipName       = ship.Name;
@@ -1397,24 +1396,46 @@ namespace Ship_Game.AI
 
         public float FormationWarpSpeed(Ship ship)
         {
-            float distance = ship.Center.Distance(Position);
+            // this is the desired position inside the fleet formation
+            Vector2 desiredFormationPos = AveragePosition() + ship.FleetOffset - AverageOffsetFromZero;
+            Vector2 desiredFinalPos = Position + ship.FleetOffset;
 
-            float distanceFleetCenterToDistance = StoredFleetDistanceToMove
-                                                  - Position.Distance(Position + ship.FleetOffset);
-            float shipSpeedLimit = Speed;
-            if (distance <= distanceFleetCenterToDistance)
+            float distFromFinal = ship.Center.Distance(desiredFinalPos);
+            float distFromFormation = ship.Center.Distance(desiredFormationPos);
+            float shipSpeed = Speed;
+
+            // FINAL APPROACH
+            if (distFromFinal < ship.FleetOffset.Length()
+                // NON FINAL: we are much further from the formation
+                || distFromFormation > distFromFinal)
             {
-                float reduction = distanceFleetCenterToDistance - distance;
-                shipSpeedLimit = Math.Max(1, Speed - reduction);
-                if (shipSpeedLimit > Speed)
-                    shipSpeedLimit = Speed;
+                shipSpeed = ship.velocityMaximum; // UNLIMITED SPEED
             }
-            else if (distance > distanceFleetCenterToDistance)
+            // CLOSER TO FORMATION: we are too far from desired position
+            else if (distFromFormation > Speed)
             {
-                float speedIncrease = distance - distanceFleetCenterToDistance;
-                shipSpeedLimit = Speed + speedIncrease;
+                shipSpeed += (distFromFormation - Speed); // hurry up!
             }
-            return shipSpeedLimit;
+            // getting close to our formation pos
+            else if (distFromFormation < Speed)
+            {
+                shipSpeed = Math.Max(distFromFormation, 200);
+            }
+
+            if (false && DebugInfoScreen.Mode == DebugModes.PathFinder
+                && Empire.Universe.DebugWin?.Visible == true
+                && Empire.Universe.Paused == false)
+            {
+                Empire.Universe.DebugWin?.DrawLine(DebugModes.PathFinder, ship.Center, ship.Center+ship.Direction*distFromFormation, 1, Color.Magenta, 0f);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, Position, 30, Color.Red);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, desiredFinalPos, ship.Radius-5, Color.Red);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, AveragePosition(), 30, Color.Magenta);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, desiredFormationPos, ship.Radius-10, Color.Magenta);
+                Empire.Universe.DebugWin?.DrawLine(DebugModes.PathFinder, ship.Center, desiredFormationPos, 2, Color.Magenta, 0f);
+                Empire.Universe.DebugWin?.DrawText(DebugModes.PathFinder, ship.Center,
+                    $"D:{distFromFormation:0}  S:{shipSpeed:0}  FS:{Speed:0}", Color.IndianRed, 0f);
+            }
+            return shipSpeed;
         }
 
         public bool FindShipNode(Ship ship, out FleetDataNode node)

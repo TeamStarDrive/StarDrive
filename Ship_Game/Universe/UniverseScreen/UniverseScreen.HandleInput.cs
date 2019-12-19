@@ -444,13 +444,12 @@ namespace Ship_Game
 
                 Fleet fleet = player.GetFleetsDict()[index];
                 foreach (Ship ship in SelectedShipList)
-                {
-                    if (ship.fleet != fleet)
-                        ship.ClearFleet();
-                }
+                    ship.ClearFleet();
 
+                // TODO: Is there a good reason why we abandon the fleet?
                 if (fleet != null && fleet.Ships.Count > 0)
                 {
+                    fleet.Reset();
                     fleet = new Fleet();
                     fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
                     fleet.Owner = player;
