@@ -355,9 +355,13 @@ namespace Ship_Game.Debug
                     DrawString(fleet.Name);
                     DrawString("Ships: " + fleet.Ships.Count);
                     DrawString("Strength: " + fleet.GetStrength());
+                    DrawString("FleetSpeed: " + fleet.Speed);
+                    DrawString("Distance: " + fleet.Position.Distance(fleet.AveragePosition()));
 
                     string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
+                    DrawCircleImm(fleet.AveragePosition(), 30, Color.Magenta);
+                    DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }
             }
             else if (Screen.CurrentGroup != null)
@@ -379,7 +383,7 @@ namespace Ship_Game.Debug
                 Ship ship = Screen.SelectedShip;
 
                 DrawString($"Ship {Screen.SelectedShip.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
-                DrawString($"Ship velocity: {ship.Velocity.Length()}");
+                DrawString($"Ship velocity: {ship.Velocity.Length()}  speedLimit: {ship.Speed}  {ship.WarpState}");
                 VisualizeShipOrderQueue(ship);
 
                 DrawString($"On Defense: {ship.DoingSystemDefense}");
@@ -419,7 +423,7 @@ namespace Ship_Game.Debug
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
                 DrawString($"Strength: {ship.BaseStrength}");
-                DrawString($"Max Velocity {ship.velocityMaximum}");
+                DrawString($"VelocityMax: {ship.velocityMaximum}  FTLMax: {ship.maxFTLSpeed}");
                 DrawString($"HP: {ship.Health} / {ship.HealthMax}");
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
@@ -494,8 +498,15 @@ namespace Ship_Game.Debug
             if (ship.AI.HasWayPoints)
             {
                 Vector2[] wayPoints = ship.AI.CopyWayPoints();
-                for (int i = 1; i < wayPoints.Length; ++i) // draw waypoints chain
+                for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
                     DrawLineImm(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
+            }
+            if (ship.fleet != null)
+            {
+                Vector2 formationPos = ship.fleet.GetFormationPos(ship);
+                Color color = Color.Magenta.Alpha(0.5f);
+                DrawCircleImm(formationPos, ship.Radius-10, color, 0.8f);
+                DrawLineImm(ship.Center, formationPos, color, 0.8f);
             }
         }
 
