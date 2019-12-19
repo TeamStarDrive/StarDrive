@@ -86,7 +86,7 @@ namespace Ship_Game.Ships
 
         public float BestFreighterValue(Empire empire, float fastVsBig)
         {
-            float warpK          = maxFTLSpeed / 1000;
+            float warpK          = MaxFTLSpeed / 1000;
             float movementWeight = warpK + MaxSTLSpeed / 10 + rotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
             float cargoWeight    = CargoSpaceMax.Clamped(0, 80) - (float)SurfaceArea / 25;
 

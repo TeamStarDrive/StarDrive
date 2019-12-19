@@ -150,7 +150,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int FixedTrackingPower;
         public bool ShipInitialized;
-        public float maxFTLSpeed;
+        public float MaxFTLSpeed;
         public float MaxSTLSpeed;
         public float NormalWarpThrust;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
@@ -585,7 +585,7 @@ namespace Ship_Game.Ships
         {
             float distanceFTL = Math.Max(distance - distanceSTL, 0);
             float travelSTL   = distanceSTL / MaxSTLSpeed;
-            float travelFTL   = distanceFTL / maxFTLSpeed;
+            float travelFTL   = distanceFTL / MaxFTLSpeed;
             return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
 
@@ -614,10 +614,10 @@ namespace Ship_Game.Ships
             FTLModifier *= projectorBonus;
             FTLModifier *= loyalty.data.FTLModifier;
 
-            maxFTLSpeed = (WarpThrust / Mass) * FTLModifier;
+            MaxFTLSpeed = (WarpThrust / Mass) * FTLModifier;
         }
 
-        public float GetmaxFTLSpeed => maxFTLSpeed;
+        public float GetmaxFTLSpeed => MaxFTLSpeed;
 
         void SetMaxSTLSpeed()
         {
@@ -901,7 +901,7 @@ namespace Ship_Game.Ships
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
-            if (isSpooling || engineState == MoveState.Warp || maxFTLSpeed <= 2500)
+            if (isSpooling || engineState == MoveState.Warp || MaxFTLSpeed <= 2500)
             {
                 if (engineState == MoveState.Warp)
                 {
@@ -920,7 +920,7 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (velocityMaximum <= maxFTLSpeed &&
+            if (velocityMaximum <= MaxFTLSpeed &&
                 engineState == MoveState.Sublight &&
                 !isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) > 0.1f)
             {
@@ -972,7 +972,7 @@ namespace Ship_Game.Ships
             if (engineState == MoveState.Warp)
             {
                 const float accelerationTime = 2f;
-                return (maxFTLSpeed / accelerationTime);
+                return (MaxFTLSpeed / accelerationTime);
             }
             return (Thrust / Mass) * 0.5f;
         }
@@ -986,7 +986,7 @@ namespace Ship_Game.Ships
 
         void WarpAccelerate(float elapsedTime)
         {
-            ApplyThrust(elapsedTime, maxFTLSpeed, +1f);
+            ApplyThrust(elapsedTime, MaxFTLSpeed, +1f);
         }
 
         void ApplyThrust(float elapsedTime, float speedLimit, float thrustDirection)
@@ -1063,7 +1063,7 @@ namespace Ship_Game.Ships
             switch (engineState)
             {
                 case MoveState.Sublight: velocityMaximum = MaxSTLSpeed; break;
-                case MoveState.Warp:     velocityMaximum = maxFTLSpeed;   break;
+                case MoveState.Warp:     velocityMaximum = MaxFTLSpeed;   break;
             }
 
             Speed = velocityMaximum;
@@ -1100,7 +1100,7 @@ namespace Ship_Game.Ships
             Acceleration = PreviousVelocity.Acceleration(Velocity, elapsedTime);
             PreviousVelocity = Velocity;
 
-            if (isSpooling && !Inhibited && maxFTLSpeed > 2500f)
+            if (isSpooling && !Inhibited && MaxFTLSpeed > 2500f)
             {
                 JumpTimer -= elapsedTime;
 
@@ -2205,14 +2205,14 @@ namespace Ship_Game.Ships
             float powerDuration = NetPower.PowerDuration(this, MoveState.Warp);
             if (powerDuration.AlmostEqual(float.MaxValue))
                 return ShipStatus.Excellent;
-            if (powerDuration * maxFTLSpeed < neededRange)
+            if (powerDuration * MaxFTLSpeed < neededRange)
                 return ShipStatus.Critical;
             return ShipStatus.Good;
         }
 
         public ShipStatus ShipReadyForWarp()
         {
-            if (maxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active)
+            if (MaxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active)
                 return ShipStatus.NotApplicable;
 
             if (AI.HasPriorityOrder || AI.State == AIState.Resupply)
@@ -2433,7 +2433,7 @@ namespace Ship_Game.Ships
             float powerTime = GlobalStats.MinimumWarpRange;
             if (goodPowerSupply <0)
             {
-                powerTime = PowerStoreMax / -goodPowerSupply * maxFTLSpeed;
+                powerTime = PowerStoreMax / -goodPowerSupply * MaxFTLSpeed;
             }
 
             bool warpTimeGood = goodPowerSupply >= 0 || powerTime >= GlobalStats.MinimumWarpRange;
