@@ -79,7 +79,7 @@ namespace Ship_Game.AI
 
             UpdateOurFleetShip(newShip);
             AddShipToNodes(newShip);
-            AssignPositions(Direction);
+            AssignPositionTo(newShip);
         }
 
         void UpdateOurFleetShip(Ship ship)
@@ -98,7 +98,6 @@ namespace Ship_Game.AI
         {
             base.AddShip(shipToAdd);
             shipToAdd.fleet = this;
-            SetSpeed();
             AddShipToDataNode(shipToAdd);
         }
 
