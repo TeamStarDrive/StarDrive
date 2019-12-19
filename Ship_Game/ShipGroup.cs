@@ -61,7 +61,7 @@ namespace Ship_Game
 
         public bool ContainsShip(Ship ship)
         {
-            return Ships.Contains(ship);
+            return Ships.ContainsRef(ship);
         }
 
         public virtual void AddShip(Ship ship)
@@ -74,6 +74,13 @@ namespace Ship_Game
         {
             Ships.AddRange(ships);
             LastAveragePosUpdate = -1; // deferred position refresh
+        }
+
+        protected void AssignPositionTo(Ship ship)
+        {
+            float angle = ship.RelativeFleetOffset.ToRadians() + Direction.ToRadians();
+            float distance = ship.RelativeFleetOffset.Length();
+            ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
         }
 
         public void AssignPositions(Vector2 newDirection)
@@ -103,11 +110,12 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                if (ship.AI.State != AIState.AwaitingOrders && !forceAssembly)
-                    continue;
-                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                float distance = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                if (ship.AI.State == AIState.AwaitingOrders || forceAssembly)
+                {
+                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                    float distance = ship.RelativeFleetOffset.Length();
+                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                }
             }
         }
 
