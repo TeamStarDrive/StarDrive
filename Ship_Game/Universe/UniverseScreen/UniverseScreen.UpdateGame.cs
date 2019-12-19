@@ -342,7 +342,6 @@ namespace Ship_Game
                         continue;
                     using (fleet.Ships.AcquireReadLock())
                     {
-                        fleet.CalculateDistanceToMove();
                         fleet.SetSpeed();
                     }
                 }

@@ -403,7 +403,6 @@ namespace Ship_Game
                     }
 
                     e.GetFleetsDict()[fleetsave.Key].SetSpeed();
-                    fleet.CalculateDistanceToMove();
                 }
             }
         }

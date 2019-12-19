@@ -355,9 +355,11 @@ namespace Ship_Game.Debug
                     DrawString(fleet.Name);
                     DrawString("Ships: " + fleet.Ships.Count);
                     DrawString("Strength: " + fleet.GetStrength());
+                    DrawString("FleetSpeed: " + fleet.Speed);
 
                     string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
                     DrawString("Ship State: " + shipAI);
+                    DrawCircle(fleet.AveragePosition(), 30, Color.Magenta);
                 }
             }
             else if (Screen.CurrentGroup != null)

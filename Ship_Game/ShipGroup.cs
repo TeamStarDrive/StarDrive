@@ -22,8 +22,8 @@ namespace Ship_Game
         public Vector2 GoalMovePosition;
         public Array<Ship> FleetTargetList = new Array<Ship>();
         Vector2 AveragePos;
+        protected Vector2 AverageOffsetFromZero;
         int LastAveragePosUpdate = -1;
-        public float StoredFleetDistanceToMove;
 
         public Fleet.FleetGoal PopGoalStack() => GoalStack.Pop();
         public int CountShips => Ships.Count;
@@ -239,14 +239,38 @@ namespace Ship_Game
             }
         }
 
-        public static Vector2 AveragePosition(Array<Ship> ships)
+        public static Vector2 GetAveragePosition(Array<Ship> ships)
         {
-            if (ships.Count == 0)
+            int count = ships.Count;
+            if (count == 0)
                 return Vector2.Zero;
-            Vector2 pos = ships[0].Position;
-            for (int i = 1; i < ships.Count; ++i)
-                pos = (ships[i].Position + pos) * 0.5f;
-            return pos;
+
+            Ship[] items = ships.GetInternalArrayItems();
+            Vector2 avg = items[0].Center;
+            for (int i = 1; i < count; ++i)
+            {
+                Vector2 p = items[i].Center;
+                avg.X += p.X;
+                avg.Y += p.Y;
+            }
+            return avg / count;
+        }
+
+        static Vector2 GetAverageOffsetFromZero(Array<Ship> ships)
+        {
+            int count = ships.Count;
+            if (count == 0)
+                return Vector2.Zero;
+
+            Ship[] items = ships.GetInternalArrayItems();
+            Vector2 avg = items[0].FleetOffset;
+            for (int i = 1; i < count; ++i)
+            {
+                Vector2 p = items[i].FleetOffset;
+                avg.X += p.X;
+                avg.Y += p.Y;
+            }
+            return avg / count;
         }
 
         public Vector2 AveragePosition()
@@ -255,32 +279,10 @@ namespace Ship_Game
             if (LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance.FrameId;
-                AveragePos = AveragePosition(Ships);
+                AveragePos = GetAveragePosition(Ships);
+                AverageOffsetFromZero = GetAverageOffsetFromZero(Ships);
             }
             return AveragePos;
-        }
-
-        public void CalculateDistanceToMove()
-        {
-            var distances = new Array<float>();
-            using (Ships.AcquireReadLock())
-            {
-                foreach (Ship ship in Ships)
-                {
-                    if (ship.Active && !ship.EnginesKnockedOut && !ship.InCombat)
-                        distances.Add(ship.Center.Distance(Position + ship.FleetOffset) - 100);
-                }
-            }
-
-            if (distances.Count <= 2)
-            {
-                StoredFleetDistanceToMove = AveragePosition().Distance(Position);
-                return;
-            }
-            float avgDistance = distances.Average();
-            float sum = distances.Sum(d => (d - avgDistance)*(d - avgDistance));
-            float stddev = (float)Math.Sqrt(sum / (distances.Count - 1)) + Speed;
-            StoredFleetDistanceToMove = distances.Filter(distance => distance <= avgDistance + stddev).Average();
         }
 
         protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
@@ -460,15 +462,16 @@ namespace Ship_Game
         {
             if (Ships.Count == 0)
                 return;
-            float slowestSpeed = float.MaxValue;
+
+            float slowestSpeed = Ships[0].velocityMaximum;
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
 
                 if (ShipFleetMoveReady(ship))
-                    slowestSpeed = Math.Min(ship.Speed, slowestSpeed);
+                    slowestSpeed = Math.Min(ship.velocityMaximum, slowestSpeed);
             }
-            Speed = Math.Max(200, slowestSpeed);
+            Speed = Math.Max(200, (float)Math.Round(slowestSpeed));
         }
 
         bool ShipFleetMoveReady(Ship ship)
@@ -477,8 +480,6 @@ namespace Ship_Game
             if (warpStatus < ShipStatus.Good || warpStatus == ShipStatus.NotApplicable)
                 return false;
             return true;
-
-
         }
     }
 }

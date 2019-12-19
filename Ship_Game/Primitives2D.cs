@@ -47,16 +47,22 @@ namespace Ship_Game
             Pixel.SetData(new []{ Color.White });
         }
 
-        static bool IsIntersectingScreen(Vector2 a, Vector2 b)
+        public static bool IsIntersectingScreen(in Vector2 a, in Vector2 b)
         {
             return Min(a.X, b.X) < GlobalStats.XRES && 0 < Max(a.X, b.X)
                 && Min(a.Y, b.Y) < GlobalStats.YRES && 0 < Max(a.Y, b.Y);
         }
 
-        static bool IsIntersectingScreen(Vector2 pos, float radius)
+        public static bool IsIntersectingScreen(in Vector2 pos, float radius)
         {
             return (pos.X-radius) < GlobalStats.XRES && 0 < (pos.X+radius)
                 && (pos.Y-radius) < GlobalStats.YRES && 0 < (pos.Y+radius);
+        }
+
+        public static bool IsIntersectingScreenPosSize(in Vector2 pos, in Vector2 size)
+        {
+            return (pos.X) < GlobalStats.XRES && 0 < (pos.X+size.X)
+                && (pos.Y) < GlobalStats.YRES && 0 < (pos.Y+size.Y);
         }
 
         public static void DrawCircle(this SpriteBatch batch, Vector2 posOnScreen, float radius, Color color, float thickness = 1f)
@@ -110,7 +116,7 @@ namespace Ship_Game
         public static void DrawCircle(this SpriteBatch batch, float x, float y, float radius, Color color, float thickness = 1f)
             => batch.DrawCircle(new Vector2(x, y), radius, color, thickness);
 
-        public static void DrawLine(this SpriteBatch batch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f)
+        public static void DrawLine(this SpriteBatch batch, in Vector2 point1, in Vector2 point2, Color color, float thickness = 1f)
         {
             // intersection tests will eliminate up to 95% of all lines, leading to much faster rendering performance
             if (!IsIntersectingScreen(point1, point2))
