@@ -392,17 +392,8 @@ namespace Ship_Game
                     fleet.TaskStep = fleetsave.TaskStep;
                     fleet.Owner = e;
                     fleet.Position = fleetsave.Position;
-
-                    if (e.GetFleetsDict().ContainsKey(fleetsave.Key))
-                    {
-                        e.GetFleetsDict()[fleetsave.Key] = fleet;
-                    }
-                    else
-                    {
-                        e.GetFleetsDict().Add(fleetsave.Key, fleet);
-                    }
-
-                    e.GetFleetsDict()[fleetsave.Key].SetSpeed();
+                    fleet.SetSpeed();
+                    e.GetFleetsDict()[fleetsave.Key] = fleet;
                 }
             }
         }
