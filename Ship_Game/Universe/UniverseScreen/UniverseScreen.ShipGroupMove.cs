@@ -274,7 +274,7 @@ namespace Ship_Game
 
             // right mouse was clicked
             Vector2 start = UnprojectToWorldPosition(Input.CursorPosition);
-            Vector2 fleetCenter = ShipGroup.AveragePosition(SelectedShipList);
+            Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
             Vector2 direction = fleetCenter.DirectionToTarget(start);
 
             if (CurrentGroup == null || !CurrentGroup.IsShipListEqual(SelectedShipList))
