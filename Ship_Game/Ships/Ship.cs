@@ -994,16 +994,15 @@ namespace Ship_Game.Ships
             float acceleration = elapsedTime * GetThrustAcceleration();
             isThrusting = true;
 
-            // apply speed limit by decelerating like mad
-            if (Velocity.Length() > speedLimit)
+            Velocity += Direction * acceleration * thrustDirection;
+            float vel = Velocity.Length();
+            if (vel > speedLimit)
             {
-                Velocity -= Velocity.Normalized() * acceleration; // decelerate
-            }
-            else
-            {
-                Velocity += Direction * acceleration * thrustDirection;
-                if (Velocity.Length() > speedLimit)
-                    Velocity -= Velocity.Normalized() * acceleration * 0.5f; // decelerate @50%
+                // apply speed limit by decelerating like mad
+                if ((vel-speedLimit) > acceleration*0.5f)
+                    Velocity -= Velocity.Normalized() * acceleration*0.5f; // decelerate @50%
+                else
+                    Velocity = Velocity.Normalized() * speedLimit;
             }
         }
 
