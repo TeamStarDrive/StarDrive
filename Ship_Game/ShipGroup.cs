@@ -472,11 +472,5 @@ namespace Ship_Game
             }
             Speed = Math.Max(200, (float)Math.Round(slowestSpeed));
         }
-
-        static bool ShipFleetMoveReady(Ship ship)
-        {
-            ShipStatus warpStatus = ship.ShipReadyForWarp();
-            return warpStatus >= ShipStatus.Good && warpStatus != ShipStatus.NotApplicable;
-        }
     }
 }

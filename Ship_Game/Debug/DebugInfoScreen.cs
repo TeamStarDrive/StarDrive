@@ -383,7 +383,7 @@ namespace Ship_Game.Debug
                 Ship ship = Screen.SelectedShip;
 
                 DrawString($"Ship {Screen.SelectedShip.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
-                DrawString($"Ship velocity: {ship.Velocity.Length()}  speedLimit: {ship.Speed}  {ship.engineState}");
+                DrawString($"Ship velocity: {ship.Velocity.Length()}  speedLimit: {ship.Speed}  {ship.WarpState}");
                 VisualizeShipOrderQueue(ship);
 
                 DrawString($"On Defense: {ship.DoingSystemDefense}");
