@@ -464,11 +464,10 @@ namespace Ship_Game
                 return;
 
             float slowestSpeed = Ships[0].velocityMaximum;
-            for (int i = 0; i < Ships.Count; i++)
+            for (int i = 1; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-
-                if (ShipFleetMoveReady(ship))
+                if (!ship.EnginesKnockedOut)
                     slowestSpeed = Math.Min(ship.velocityMaximum, slowestSpeed);
             }
             Speed = Math.Max(200, (float)Math.Round(slowestSpeed));
@@ -476,7 +475,7 @@ namespace Ship_Game
 
         static bool ShipFleetMoveReady(Ship ship)
         {
-            var warpStatus = ship.ShipReadyForWarp();
+            ShipStatus warpStatus = ship.ShipReadyForWarp();
             return warpStatus >= ShipStatus.Good && warpStatus != ShipStatus.NotApplicable;
         }
     }

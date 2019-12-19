@@ -1415,13 +1415,13 @@ namespace Ship_Game.AI
                 // NON FINAL: we are much further from the formation
                 || distFromFormation > distToFinalPos)
             {
-                shipSpeed = ship.velocityMaximum; // UNLIMITED SPEED
+                shipSpeed = Speed*2;
             }
             // formation is behind us? We are going way too fast
             else if (distFromFormationToFinal > distToFinalPos)
             {
-                // SLOW DOWN MAN! but never slower than 25% of fleet speed
-                shipSpeed = Math.Max(Speed - distFromFormation, Speed*0.25f);
+                // SLOW DOWN MAN! but never slower than 50% of fleet speed
+                shipSpeed = Math.Max(Speed - distFromFormation, Speed*0.5f);
             }
             // CLOSER TO FORMATION: we are too far from desired position
             else if (distFromFormation > Speed)
