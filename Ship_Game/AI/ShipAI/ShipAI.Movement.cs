@@ -323,8 +323,11 @@ namespace Ship_Game.AI
                     EngageFormationWarp();
                 }
                 else
+                {
                     DisEngageFormationWarp();
-                speedLimit = FormationWarpSpeed(speedLimit);
+                }
+
+                //speedLimit = FormationWarpSpeed(speedLimit);
                 Owner.SubLightAccelerate(deltaTime, speedLimit);
             }
         }
