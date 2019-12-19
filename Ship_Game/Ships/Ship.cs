@@ -899,7 +899,7 @@ namespace Ship_Game.Ships
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
-            if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500 )
+            if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500)
             {
                 if (engineState == MoveState.Warp)
                 {
@@ -908,16 +908,19 @@ namespace Ship_Game.Ships
                 }
                 return;
             }
+
             if (Carrier.RecallingFighters())
                 return;
+
             if (EnginesKnockedOut || Inhibited)
             {
                 HyperspaceReturn();
                 return;
             }
-            if (velocityMaximum > GetmaxFTLSpeed)
-                return;
-            if (engineState == MoveState.Sublight && !isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) > 0.1f)
+
+            if (velocityMaximum <= GetmaxFTLSpeed &&
+                engineState == MoveState.Sublight &&
+                !isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) > 0.1f)
             {
                 isSpooling = true;
                 ResetJumpTimer();
@@ -926,7 +929,7 @@ namespace Ship_Game.Ships
 
         public void HyperspaceReturn()
         {
-            if (Empire.Universe == null || engineState == MoveState.Sublight)
+            if (engineState == MoveState.Sublight || Empire.Universe == null)
                 return;
 
             if (JumpSfx.IsPlaying)
@@ -936,7 +939,6 @@ namespace Ship_Game.Ships
                 Center.InRadius(Empire.Universe.CamPos.ToVec2(), 100000f) && Empire.Universe.CamHeight < 250000)
             {
                 GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-
                 FTLManager.ExitFTL(GetPosition3D, Direction3D, Radius);
             }
 
@@ -985,15 +987,24 @@ namespace Ship_Game.Ships
             ApplyThrust(elapsedTime, maxFTLSpeed, +1f);
         }
 
-        void ApplyThrust(float elapsedTime, float speedLimit, float direction)
+        void ApplyThrust(float elapsedTime, float speedLimit, float thrustDirection)
         {
             speedLimit = AdjustedSpeedLimit(speedLimit);
-            float acceleration = (direction >= 0f ? 1f : -1f) * GetThrustAcceleration();
-
+            thrustDirection = (thrustDirection >= 0f ? 1f : -1f);
+            float acceleration = elapsedTime * GetThrustAcceleration();
             isThrusting = true;
-            Velocity += Direction * (elapsedTime * acceleration);
+
+            // apply speed limit by decelerating like mad
             if (Velocity.Length() > speedLimit)
-                Velocity = Velocity.Normalized() * speedLimit;
+            {
+                Velocity -= Velocity.Normalized() * acceleration; // decelerate
+            }
+            else
+            {
+                Velocity += Direction * acceleration * thrustDirection;
+                if (Velocity.Length() > speedLimit)
+                    Velocity -= Velocity.Normalized() * acceleration * 0.5f; // decelerate @50%
+            }
         }
 
         // simulates navigational thrusting to remove sideways or reverse travel
@@ -2192,11 +2203,20 @@ namespace Ship_Game.Ships
 
         public ShipStatus ShipReadyForWarp()
         {
-            if (maxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active) return ShipStatus.NotApplicable;
-            if (AI.HasPriorityOrder || AI.State == AIState.Resupply) return ShipStatus.NotApplicable;
-            if (!isSpooling && WarpDuration() < ShipStatus.Good ) return ShipStatus.Critical;
-            if (engineState == MoveState.Warp) return ShipStatus.Good;
-            if (Carrier.HasActiveHangars) return ShipStatus.Poor;
+            if (maxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active)
+                return ShipStatus.NotApplicable;
+
+            if (AI.HasPriorityOrder || AI.State == AIState.Resupply)
+                return ShipStatus.NotApplicable;
+
+            if (!isSpooling && WarpDuration() < ShipStatus.Good)
+                return ShipStatus.Critical;
+
+            if (engineState == MoveState.Warp)
+                return ShipStatus.Good;
+
+            if (Carrier.HasActiveHangars)
+                return ShipStatus.Poor;
             return ShipStatus.Excellent;
         }
 
