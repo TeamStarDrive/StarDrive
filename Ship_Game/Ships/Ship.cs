@@ -35,11 +35,11 @@ namespace Ship_Game.Ships
         public Vector2 projectedPosition;
         private readonly Array<Thruster> ThrusterList = new Array<Thruster>();
 
-        public Array<Weapon> Weapons      = new Array<Weapon>();
-        private float JumpTimer           = 3f;
-        public AudioEmitter SoundEmitter  = new AudioEmitter();
+        public Array<Weapon> Weapons = new Array<Weapon>();
+        private float JumpTimer = 3f;
+        public AudioEmitter SoundEmitter = new AudioEmitter();
         public Vector2 ScreenPosition;
-        public float ScuttleTimer         = -1f;
+        public float ScuttleTimer = -1f;
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         private ShipModule[] Shields;
@@ -47,7 +47,7 @@ namespace Ship_Game.Ships
         public CarrierBays Carrier;
         public ShipResupply Supply;
         public bool shipStatusChanged;
-        public Guid guid                  = Guid.NewGuid();
+        public Guid guid = Guid.NewGuid();
         public bool AddedOnLoad;
         public bool IsPlayerDesign;
         public bool IsSupplyShip;
@@ -101,10 +101,11 @@ namespace Ship_Game.Ships
         public float rotationRadiansPerSecond;
         public bool FromSave;
         public bool HasRepairModule;
-        readonly AudioHandle Afterburner  = new AudioHandle();
+        readonly AudioHandle Afterburner = new AudioHandle();
         public bool isSpooling;
-        readonly AudioHandle JumpSfx      = new AudioHandle();
+        readonly AudioHandle JumpSfx = new AudioHandle();
         public float InhibitedTimer;
+        private float FTLUpdateTimer;
         public int Level;
         private int MaxHealthRevision;
         public float HealthMax { get; private set; }
@@ -150,6 +151,7 @@ namespace Ship_Game.Ships
         public int FixedTrackingPower;
         public bool ShipInitialized;
         public float maxFTLSpeed;
+        public float MaxSTLSpeed;
         public float NormalWarpThrust;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
         public Array<Empire> BorderCheck  = new Array<Empire>();
@@ -582,12 +584,12 @@ namespace Ship_Game.Ships
         private float GetAstrogateTime(float distance, float distanceSTL)
         {
             float distanceFTL = Math.Max(distance - distanceSTL, 0);
-            float travelSTL   = distanceSTL / GetSTLSpeed();
-            float travelFTL   = distanceFTL / GetmaxFTLSpeed;
+            float travelSTL   = distanceSTL / MaxSTLSpeed;
+            float travelFTL   = distanceFTL / maxFTLSpeed;
             return (travelFTL + travelSTL) / GlobalStats.TurnTimer;
         }
 
-        public void SetmaxFTLSpeed()
+        void SetMaxFTLSpeed()
         {
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
             {
@@ -602,7 +604,7 @@ namespace Ship_Game.Ships
             {
                 if (IsInFriendlySpace)
                     projectorBonus = Empire.Universe.FTLModifier;
-                else if (IsIndangerousSpace || !Empire.Universe.FTLInNuetralSystems)
+                else if (!Empire.Universe.FTLInNuetralSystems || IsIndangerousSpace)
                     projectorBonus = Empire.Universe.EnemyFTLModifier;
             }
 
@@ -610,18 +612,18 @@ namespace Ship_Game.Ships
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
+            FTLModifier *= loyalty.data.FTLModifier;
 
-            float thrust = (WarpThrust / Mass) * (loyalty?.data?.FTLModifier ?? 35);
-            maxFTLSpeed = thrust * FTLModifier;
+            maxFTLSpeed = (WarpThrust / Mass) * FTLModifier;
         }
 
         public float GetmaxFTLSpeed => maxFTLSpeed;
 
-        public float GetSTLSpeed()
+        void SetMaxSTLSpeed()
         {
             float thrustWeightRatio = Thrust / Mass;
             float speed = thrustWeightRatio * loyalty.data.SubLightModifier;
-            return Math.Min(speed, 2500);
+            MaxSTLSpeed = Math.Min(speed, 2500);
         }
 
         public void TetherToPlanet(Planet p)
@@ -895,11 +897,11 @@ namespace Ship_Game.Ships
         }
 
         // safe Warp out distance so the ship still has time to slow down
-        public float WarpOutDistance => 3200f + GetSTLSpeed() * 3f;
+        public float WarpOutDistance => 3200f + MaxSTLSpeed * 3f;
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
-            if (isSpooling || engineState == MoveState.Warp || GetmaxFTLSpeed <= 2500)
+            if (isSpooling || engineState == MoveState.Warp || maxFTLSpeed <= 2500)
             {
                 if (engineState == MoveState.Warp)
                 {
@@ -918,7 +920,7 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (velocityMaximum <= GetmaxFTLSpeed &&
+            if (velocityMaximum <= maxFTLSpeed &&
                 engineState == MoveState.Sublight &&
                 !isSpooling && PowerCurrent / (PowerStoreMax + 0.01f) > 0.1f)
             {
@@ -945,7 +947,7 @@ namespace Ship_Game.Ships
             engineState = MoveState.Sublight;
             ResetJumpTimer();
             isSpooling = false;
-            velocityMaximum = GetSTLSpeed();
+            velocityMaximum = MaxSTLSpeed;
             if (Velocity != Vector2.Zero) // return from warp with max STL speed
                 Velocity = Velocity.Normalized() * velocityMaximum;
             Speed = velocityMaximum;
@@ -1051,12 +1053,17 @@ namespace Ship_Game.Ships
         // called from Ship.Update
         void UpdateEnginesAndVelocity(float elapsedTime)
         {
-            SetmaxFTLSpeed();
+            FTLUpdateTimer -= elapsedTime;
+            if (FTLUpdateTimer <= 0f)
+            {
+                FTLUpdateTimer = 0.25f;
+                SetMaxFTLSpeed();
+            }
 
             switch (engineState)
             {
-                case MoveState.Sublight: velocityMaximum = GetSTLSpeed(); break;
-                case MoveState.Warp:     velocityMaximum = GetmaxFTLSpeed; break;
+                case MoveState.Sublight: velocityMaximum = MaxSTLSpeed; break;
+                case MoveState.Warp:     velocityMaximum = maxFTLSpeed;   break;
             }
 
             Speed = velocityMaximum;
@@ -1093,7 +1100,7 @@ namespace Ship_Game.Ships
             Acceleration = PreviousVelocity.Acceleration(Velocity, elapsedTime);
             PreviousVelocity = Velocity;
 
-            if (isSpooling && !Inhibited && GetmaxFTLSpeed > 2500f)
+            if (isSpooling && !Inhibited && maxFTLSpeed > 2500f)
             {
                 JumpTimer -= elapsedTime;
 
@@ -1313,7 +1320,7 @@ namespace Ship_Game.Ships
         {
             // if no offensive weapons, default to ship speed
             if (offensive.Length == 0)
-                return GetSTLSpeed();
+                return MaxSTLSpeed;
 
             // @note beam weapon speeds need special treatment, since they are currently instantaneous
             float[] speeds = offensive.Select(w => w.isBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
@@ -1369,7 +1376,7 @@ namespace Ship_Game.Ships
             updateTimer -= deltaTime;
             if (updateTimer <= 0)
             {
-                updateTimer = 1f; // update the ship only once per second
+                updateTimer = 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus();
             }
 
@@ -1945,6 +1952,8 @@ namespace Ship_Game.Ships
 
             CurrentStrength = CalculateShipStrength();
             UpdateWeaponRanges();
+            SetMaxFTLSpeed();
+            SetMaxSTLSpeed();
         }
 
         public bool IsTethered => TetheredTo != null;

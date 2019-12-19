@@ -215,7 +215,7 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
-            if (!Empire.Universe.GravityWells || ship.IsInFriendlySpace)
+            if (!Empire.Universe.GravityWells)
                 return null;
 
             for (int i = 0; i < PlanetList.Count; i++)
