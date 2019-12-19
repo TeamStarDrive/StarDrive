@@ -28,27 +28,27 @@ namespace Ship_Game
         public string ThemName;
         private Empire Them;
         public int StartingNumContestedSystems;
-        SolarSystem[] ContestedSystemList;
-        public SolarSystem[] ContestedSystems
+        SolarSystem[] ContestedSystem;
+        public SolarSystem[] GetContestedSystems
         {
             get
             {
                 //Compatibility hack remove this at first save version change.
                 Log.Assert(SavedGame.SaveGameVersion == 4
                     , $"This prop is not needed as a prop once the save version changes.");
-                if (ContestedSystemList.Length == 0 && ContestedSystemsGUIDs.NotEmpty)
+                if (ContestedSystem.Length == 0 && ContestedSystemsGUIDs.NotEmpty)
                 {
-                    ContestedSystemList = new SolarSystem[ContestedSystemList.Length];
+                    ContestedSystem = new SolarSystem[ContestedSystem.Length];
                     for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
                     {
                         var guid = ContestedSystemsGUIDs[i];
                         SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
-                        ContestedSystemList[i] = solarSystem;
+                        ContestedSystem[i] = solarSystem;
                     }
                 }
-                return ContestedSystemList;
+                return ContestedSystem;
             }
-            set => ContestedSystemList = value;
+            set => ContestedSystem = value;
         }
         public float LostColonyPercent => Us.GetPlanets().Count / (OurStartingColonies + 0.01f);
         public float TotalThreatAgainst => TotalThreatAgainstUs() / Us.MilitaryScore.ClampMin(0.01f);
@@ -71,7 +71,7 @@ namespace Ship_Game
             OurStartingColonies         = us.GetPlanets().Count;
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
-            ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
+            GetContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
         }
@@ -79,7 +79,7 @@ namespace Ship_Game
         Array<Guid> FindContestedSystemGUIDs()
         {
             var contestedSystemGUIDs = new Array<Guid>();
-            var systems = ContestedSystems;
+            var systems = GetContestedSystems;
             for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].guid);
             return contestedSystemGUIDs;
         }
@@ -124,10 +124,10 @@ namespace Ship_Game
                         offeredCleanSystems++;
                 }
 
-            int reclaimedSystems = offeredCleanSystems + ContestedSystemList
+            int reclaimedSystems = offeredCleanSystems + ContestedSystem
                                        .Count(s => !s.OwnerList.Contains(Them) && s.OwnerList.Contains(Us));
 
-            int lostSystems = ContestedSystemList
+            int lostSystems = ContestedSystem
                 .Count(s => !s.OwnerList.Contains(Us) && s.OwnerList.Contains(Them));
 
             return reclaimedSystems - lostSystems;
