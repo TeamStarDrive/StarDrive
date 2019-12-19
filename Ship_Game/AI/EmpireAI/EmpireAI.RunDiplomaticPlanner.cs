@@ -260,7 +260,7 @@ namespace Ship_Game.AI {
                 {
                     continue;
                 }
-                numberofWars += (int) Relationship.Key.currentMilitaryStrength * 2; //++;
+                numberofWars += (int) Relationship.Key.CurrentMilitaryStrength * 2; //++;
             }
             //Label0:
             foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
@@ -311,7 +311,7 @@ namespace Ship_Game.AI {
                 if (Relationship.Value.Threat > 0f || Relationship.Value.TurnsKnown <= SecondDemand ||
                     Relationship.Value.Treaty_Alliance)
                 {
-                    if (Relationship.Value.Threat > -45f || numberofWars > OwnerEmpire.currentMilitaryStrength) //!= 0)
+                    if (Relationship.Value.Threat > -45f || numberofWars > OwnerEmpire.CurrentMilitaryStrength) //!= 0)
                     {
                         continue;
                     }
@@ -341,7 +341,7 @@ namespace Ship_Game.AI {
 
                 }
             }
-            if (PotentialTargets.Count > 0 && numberofWars <= OwnerEmpire.currentMilitaryStrength) //1)
+            if (PotentialTargets.Count > 0 && numberofWars <= OwnerEmpire.CurrentMilitaryStrength) //1)
             {
                 IOrderedEnumerable<Empire> sortedList =
                     from target in PotentialTargets
@@ -493,7 +493,7 @@ namespace Ship_Game.AI {
                     continue;
                 }
                 //numberofWars++;
-                numberofWars += (int) Relationship.Key.currentMilitaryStrength;
+                numberofWars += (int) Relationship.Key.CurrentMilitaryStrength;
             }
             AssessTeritorialConflicts(OwnerEmpire.data.DiplomaticPersonality.Territorialism / 10f);
             foreach (KeyValuePair<Empire, Relationship> Relationship in OwnerEmpire.AllRelations)
@@ -676,7 +676,7 @@ namespace Ship_Game.AI {
                     }
                 }
             }
-            if (PotentialTargets.Count > 0 && numberofWars * 2 < OwnerEmpire.currentMilitaryStrength) //<= 1)
+            if (PotentialTargets.Count > 0 && numberofWars * 2 < OwnerEmpire.CurrentMilitaryStrength) //<= 1)
             {
                 Empire ToAttack = PotentialTargets.First();
                 OwnerEmpire.GetRelations(ToAttack).PreparingForWar = true;
@@ -919,7 +919,7 @@ namespace Ship_Game.AI {
                                 if (!check.Known || check.Treaty_Alliance)
                                     continue;
 
-                                weight *= (OwnerEmpire.currentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (OwnerEmpire.currentMilitaryStrength + 1);
+                                weight *= (OwnerEmpire.CurrentMilitaryStrength + closeenemies.GetActualStrengthPresent(enemy)) / (OwnerEmpire.CurrentMilitaryStrength + 1);
 
                                 if (check.Treaty_OpenBorders)
                                 {
