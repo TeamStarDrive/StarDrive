@@ -296,7 +296,7 @@ namespace Ship_Game
             if (SB_FTL.HandleInput(input)) Sort(SB_FTL, sl => sl.ship.GetmaxFTLSpeed);
             else if (SB_FTL.Hover) ToolTip.CreateTooltip("Faster Than Light Speed of Ship");
 
-            if (SB_STL.HandleInput(input)) Sort(SB_STL, sl => sl.ship.GetSTLSpeed());
+            if (SB_STL.HandleInput(input)) Sort(SB_STL, sl => sl.ship.MaxSTLSpeed);
             else if (SB_STL.Hover) ToolTip.CreateTooltip("Sublight Speed of Ship");
 
             if (Maint.HandleInput(input)) Sort(Maint, sl => sl.ship.GetMaintCost());

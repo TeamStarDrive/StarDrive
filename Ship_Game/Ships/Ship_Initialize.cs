@@ -406,7 +406,6 @@ namespace Ship_Game.Ships
             RecalculatePower();
             ShipStatusChange();
             InitializeThrusters();
-            SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
             ShipInitialized = true;
         }
@@ -506,7 +505,8 @@ namespace Ship_Game.Ships
                 FTLSpoolTime = 3f;
 
             UpdateShields();
-            SetmaxFTLSpeed();
+            SetMaxFTLSpeed();
+            SetMaxSTLSpeed();
         }
 
         void InitializeStatusFromModules(bool fromSave)
