@@ -292,8 +292,10 @@ namespace Ship_Game.AI
             }
             else
             {
-                for (int x = 0; x < Owner.Weapons.Count; x++)
-                    Owner.Weapons[x].ClearFireTarget();
+                int count = Owner.Weapons.Count;
+                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                for (int x = 0; x < count; x++)
+                    items[x].ClearFireTarget();
 
                 if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
                 {
@@ -660,14 +662,14 @@ namespace Ship_Game.AI
         {
             if (Owner.loyalty == EmpireManager.Player &&
                 (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f 
-				|| State == AIState.Bombard 
-				|| State == AIState.AssaultPlanet 
-				|| State == AIState.BombardTroops 
-				|| State == AIState.Rebase 
-				|| State == AIState.Scrap 
-				|| State == AIState.Resupply 
-				|| State == AIState.Refit 
-				|| State == AIState.FormationWarp))
+                || State == AIState.Bombard 
+                || State == AIState.AssaultPlanet 
+                || State == AIState.BombardTroops 
+                || State == AIState.Rebase 
+                || State == AIState.Scrap 
+                || State == AIState.Resupply 
+                || State == AIState.Refit 
+                || State == AIState.FormationWarp))
             {
                 HasPriorityOrder = true;
                 HadPO = false;
