@@ -423,7 +423,7 @@ namespace Ship_Game.Debug
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
                 DrawString($"Strength: {ship.BaseStrength}");
-                DrawString($"VelocityMax: {ship.velocityMaximum}  FTLMax: {ship.maxFTLSpeed}");
+                DrawString($"VelocityMax: {ship.velocityMaximum}  FTLMax: {ship.MaxFTLSpeed}");
                 DrawString($"HP: {ship.Health} / {ship.HealthMax}");
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);

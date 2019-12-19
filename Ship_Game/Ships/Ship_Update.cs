@@ -65,7 +65,7 @@ namespace Ship_Game.Ships
             ShieldRechargeTimer += elapsedTime;
             InhibitedTimer      -= elapsedTime;
             Inhibited = InhibitedTimer > 0f;
-            if ((Inhibited || maxFTLSpeed < 2500f) && engineState == MoveState.Warp)
+            if ((Inhibited || MaxFTLSpeed < 2500f) && engineState == MoveState.Warp)
                 HyperspaceReturn();
 
             if (TetheredTo != null)
