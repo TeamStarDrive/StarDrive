@@ -151,7 +151,7 @@ namespace Ship_Game.AI
                 colonyShip = ShipsWeCanBuild(empire).FindMaxFiltered(s => s.isColonyShip,
                                                                      s => s.StartingColonyGoods() + 
                                                                           s.NumBuildingsDeployedOnColonize() * 20 + 
-                                                                          s.GetmaxFTLSpeed / 1000);
+                                                                          s.MaxFTLSpeed / 1000);
             }
 
             if (colonyShip == null)

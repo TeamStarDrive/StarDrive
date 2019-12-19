@@ -168,12 +168,12 @@ namespace Ship_Game
             Vector2 FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float x1 = FTLPos.X;
             SpriteFont spriteFont = Fonts.Arial12;
-            float fTLSpeed = ship.GetmaxFTLSpeed / 1000f;
+            float fTLSpeed = ship.MaxFTLSpeed / 1000f;
             FTLPos.X = x1 - spriteFont.MeasureString(string.Concat(fTLSpeed.ToString("0"), "k")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref FTLPos);
             SpriteBatch spriteBatch1 = ScreenManager.SpriteBatch;
             SpriteFont arial121 = Fonts.Arial12;
-            float fTLSpeed1 = ship.GetmaxFTLSpeed / 1000f;
+            float fTLSpeed1 = ship.MaxFTLSpeed / 1000f;
             spriteBatch1.DrawString(arial121, string.Concat(fTLSpeed1.ToString("0"), "k"), FTLPos, Color.White);
             Vector2 STLPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float single1 = STLPos.X;
