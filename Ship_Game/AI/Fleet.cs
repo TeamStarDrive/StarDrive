@@ -308,7 +308,7 @@ namespace Ship_Game.AI
                 switch (sort)
                 {
                     case SquadSortType.Size:  return ship.SurfaceArea;
-                    case SquadSortType.Speed: return (int)ship.GetSTLSpeed();
+                    case SquadSortType.Speed: return (int)ship.MaxSTLSpeed;
                     default:                  return 0;
                 }
             }
