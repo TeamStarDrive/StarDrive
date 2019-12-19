@@ -474,12 +474,10 @@ namespace Ship_Game
             Speed = Math.Max(200, (float)Math.Round(slowestSpeed));
         }
 
-        bool ShipFleetMoveReady(Ship ship)
+        static bool ShipFleetMoveReady(Ship ship)
         {
             var warpStatus = ship.ShipReadyForWarp();
-            if (warpStatus < ShipStatus.Good || warpStatus == ShipStatus.NotApplicable)
-                return false;
-            return true;
+            return warpStatus >= ShipStatus.Good && warpStatus != ShipStatus.NotApplicable;
         }
     }
 }
