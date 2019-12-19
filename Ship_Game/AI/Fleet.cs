@@ -1393,22 +1393,35 @@ namespace Ship_Game.AI
             return false;
         }
 
+        // @return The desired formation pos for this ship
+        public Vector2 GetFormationPos(Ship ship) => AveragePosition() + ship.FleetOffset - AverageOffsetFromZero;
+
+        // @return The Final destination position for this ship
+        public Vector2 GetFinalPos(Ship ship) => Position + ship.FleetOffset;
+
         public float FormationWarpSpeed(Ship ship)
         {
             // this is the desired position inside the fleet formation
-            Vector2 desiredFormationPos = AveragePosition() + ship.FleetOffset - AverageOffsetFromZero;
-            Vector2 desiredFinalPos = Position + ship.FleetOffset;
+            Vector2 desiredFormationPos = GetFormationPos(ship);
+            Vector2 desiredFinalPos = GetFinalPos(ship);
 
-            float distFromFinal = ship.Center.Distance(desiredFinalPos);
+            float distToFinalPos = ship.Center.Distance(desiredFinalPos);
             float distFromFormation = ship.Center.Distance(desiredFormationPos);
+            float distFromFormationToFinal = desiredFormationPos.Distance(desiredFinalPos);
             float shipSpeed = Speed;
 
             // FINAL APPROACH
-            if (distFromFinal < ship.FleetOffset.Length()
+            if (distToFinalPos < ship.FleetOffset.Length()
                 // NON FINAL: we are much further from the formation
-                || distFromFormation > distFromFinal)
+                || distFromFormation > distToFinalPos)
             {
                 shipSpeed = ship.velocityMaximum; // UNLIMITED SPEED
+            }
+            // formation is behind us? We are going way too fast
+            else if (distFromFormationToFinal > distToFinalPos)
+            {
+                // SLOW DOWN MAN! but never slower than 25% of fleet speed
+                shipSpeed = Math.Max(Speed - distFromFormation, Speed*0.25f);
             }
             // CLOSER TO FORMATION: we are too far from desired position
             else if (distFromFormation > Speed)
@@ -1422,20 +1435,6 @@ namespace Ship_Game.AI
             {
                 // we are in formation, CRUISING SPEED
                 shipSpeed = Speed;
-            }
-
-            if (false && DebugInfoScreen.Mode == DebugModes.PathFinder
-                && Empire.Universe.DebugWin?.Visible == true
-                && Empire.Universe.Paused == false)
-            {
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.PathFinder, ship.Center, ship.Center+ship.Direction*distFromFormation, 1, Color.Magenta, 0f);
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, Position, 30, Color.Red);
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, desiredFinalPos, ship.Radius-5, Color.Red);
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, AveragePosition(), 30, Color.Magenta);
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, desiredFormationPos, ship.Radius-10, Color.Magenta);
-                Empire.Universe.DebugWin?.DrawLine(DebugModes.PathFinder, ship.Center, desiredFormationPos, 2, Color.Magenta, 0f);
-                Empire.Universe.DebugWin?.DrawText(DebugModes.PathFinder, ship.Center,
-                    $"D:{distFromFormation:0}  S:{shipSpeed:0}  FS:{Speed:0}", Color.IndianRed, 0f);
             }
             return shipSpeed;
         }
