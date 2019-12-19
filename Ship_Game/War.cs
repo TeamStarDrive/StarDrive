@@ -33,6 +33,9 @@ namespace Ship_Game
         {
             get
             {
+                //Compatibility hack remove this at first save version change.
+                Log.Assert(SavedGame.SaveGameVersion == 4
+                    , $"This prop is not needed as a prop once the save version changes.");
                 if (ContestedSystemList.Length == 0 && ContestedSystemsGUIDs.NotEmpty)
                 {
                     ContestedSystemList = new SolarSystem[ContestedSystemList.Length];
