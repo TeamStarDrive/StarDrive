@@ -786,10 +786,12 @@ namespace Ship_Game
             return -1;
         }
 
-        public static void RemoveRef<T>(this Array<T> list, T item) where T : class
+        public static bool RemoveRef<T>(this Array<T> list, T item) where T : class
         {
             int index = list.IndexOfRef(item);
-            if (index != -1) list.RemoveAtSwapLast(index);
+            if (index == -1) return false;
+            list.RemoveAtSwapLast(index);
+            return true;
         }
 
         public static int RemoveDuplicateRefs<T>(this Array<T> list) where T : class
