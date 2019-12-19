@@ -238,7 +238,7 @@ namespace Ship_Game.AI
                     CantColonize = true;
 
                 if (enemyStr > 0)
-                    Value *= (empire.currentMilitaryStrength - enemyStr) / empire.currentMilitaryStrength;
+                    Value *= (empire.CurrentMilitaryStrength - enemyStr) / empire.CurrentMilitaryStrength;
             }
 
             static bool IsBadWorld(Planet planet, bool canColonizeBarren, int commodities)

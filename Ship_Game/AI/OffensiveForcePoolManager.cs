@@ -18,7 +18,7 @@ namespace Ship_Game.AI
         }
         public void ManageAOs()
         {
-            float ownerStr = Owner.currentMilitaryStrength;
+            float ownerStr = Owner.CurrentMilitaryStrength;
             for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
             {
                 AO areasOfOperation = AreasOfOperations[index];
