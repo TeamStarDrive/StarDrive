@@ -617,8 +617,6 @@ namespace Ship_Game.Ships
             MaxFTLSpeed = (WarpThrust / Mass) * FTLModifier;
         }
 
-        public float GetmaxFTLSpeed => MaxFTLSpeed;
-
         void SetMaxSTLSpeed()
         {
             float thrustWeightRatio = Thrust / Mass;
