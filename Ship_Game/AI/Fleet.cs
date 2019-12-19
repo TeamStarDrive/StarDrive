@@ -227,7 +227,6 @@ namespace Ship_Game.AI
         public void AutoArrange()
         {
             ResetFlankLists(); // set up center, left, right, screen, rear...
-
             SetSpeed();
 
             CenterFlank = SortSquadBySize(CenterShips);
@@ -1414,12 +1413,15 @@ namespace Ship_Game.AI
             // CLOSER TO FORMATION: we are too far from desired position
             else if (distFromFormation > Speed)
             {
-                shipSpeed += (distFromFormation - Speed); // hurry up!
+                // hurry up! set a really high speed
+                // but at least fleet speed, not less in case we get really close
+                shipSpeed =  Math.Max(distFromFormation - Speed, Speed);
             }
             // getting close to our formation pos
-            else if (distFromFormation < Speed)
+            else if (distFromFormation < (Speed*0.5f))
             {
-                shipSpeed = Math.Max(distFromFormation, 200);
+                // we are in formation, CRUISING SPEED
+                shipSpeed = Speed;
             }
 
             if (false && DebugInfoScreen.Mode == DebugModes.PathFinder
