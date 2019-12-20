@@ -709,6 +709,8 @@ namespace Ship_Game.Ships
         // This is used by Beam weapons and by Testing
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
+            ++GlobalStats.WeaponArcChecks;
+
             ShipModule m = w.Module;
             return RadMath.IsTargetInsideArc(m.Center, pickedPos,
                                              Rotation + m.FacingRadians, m.FieldOfFire);
