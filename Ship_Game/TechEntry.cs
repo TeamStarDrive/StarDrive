@@ -129,6 +129,21 @@ namespace Ship_Game
                 || IsTechnologyType(TechnologyType.ShipGeneral);
         }
 
+        public bool HasNonShipTech()
+        {
+            foreach (TechnologyType techType in Tech.TechnologyTypes)
+            {
+                if (techType == TechnologyType.ShipDefense ||
+                    techType == TechnologyType.ShipHull ||
+                    techType == TechnologyType.ShipWeapons ||
+                    techType == TechnologyType.ShipGeneral)
+                    continue;
+                
+                return true;
+            }
+            return false;
+        }
+
         public float CostOfNextTechWithType(TechnologyType techType) => TechTypeCostLookAhead[techType];
 
         public void SetLookAhead(Empire empire)
@@ -139,7 +154,7 @@ namespace Ship_Game
             }
         }
 
-        bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
 
         public bool CanBeTakenFrom(Empire them)
         {
@@ -364,6 +379,8 @@ namespace Ship_Game
   
             unlockBonus = SetUnlockFlag() && unlockBonus;
             UnlockTechContentOnly(us, them, unlockBonus);
+            if (them != us)
+                WasAcquiredFrom.AddUnique(them.data.Traits.ShipType);
         }
 
         public void UnlockByConquest(Empire us, Empire conqueredEmpire, TechEntry conqueredTech)
