@@ -330,7 +330,7 @@ namespace Ship_Game.Debug
 
         void ShipInfo()
         {
-            SetTextCursor(Win.X + 10, 500f, Color.White);
+            SetTextCursor(Win.X + 10, 400f, Color.White);
 
             if (Screen.SelectedFleet != null)
             {
@@ -382,8 +382,8 @@ namespace Ship_Game.Debug
             {
                 Ship ship = Screen.SelectedShip;
 
-                DrawString($"Ship {Screen.SelectedShip.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
-                DrawString($"Ship velocity: {ship.Velocity.Length()}  speedLimit: {ship.Speed}  {ship.WarpState}");
+                DrawString($"Ship {ship.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
+                DrawString($"Ship velocity: {(int)ship.Velocity.Length()}  speedLimit: {(int)ship.Speed}  {ship.WarpState}");
                 VisualizeShipOrderQueue(ship);
 
                 DrawString($"On Defense: {ship.DoingSystemDefense}");
@@ -393,16 +393,20 @@ namespace Ship_Game.Debug
                     DrawString($"Fleet speed: {ship.fleet.Speed}");
                 }
 
-                DrawString(!Screen.SelectedShip.loyalty.ForcePoolContains(Screen.SelectedShip)
-                           ? "NOT In Force Pool" : "In Force Pool");
+                DrawString(!ship.loyalty.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
 
-                if (Screen.SelectedShip.AI.State == AIState.SystemDefender)
+                if (ship.AI.State == AIState.SystemDefender)
                 {
-                    SolarSystem systemToDefend = Screen.SelectedShip.AI.SystemToDefend;
+                    SolarSystem systemToDefend = ship.AI.SystemToDefend;
                     DrawString($"Defending {systemToDefend?.Name ?? "Awaiting Order"}");
                 }
 
                 DrawString(ship.System == null ? "Deep Space" : $"{ship.System.Name} system");
+                string[] influence = ship.GetProjectorInfluenceEmpires().Select(e=>e.Name).ToArray();
+                DrawString("Influences: " + string.Join(",", influence));
+                DrawString("InfluenceType: " + (ship.IsInFriendlyProjectorRange ? "Friendly"
+                                             :  ship.IsInHostileProjectorRange  ? "Hostile" : "Neutral"));
+                DrawString($"GravityWell: {ship?.System?.IdentifyGravityWell(ship)?.Name}   Inhibited:{ship.IsInhibitedByUnfriendlyGravityWell}");
 
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
                            ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");
@@ -423,7 +427,7 @@ namespace Ship_Game.Debug
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
                 DrawString($"Strength: {ship.BaseStrength}");
-                DrawString($"VelocityMax: {ship.velocityMaximum}  FTLMax: {ship.maxFTLSpeed}");
+                DrawString($"VelocityMax: {ship.velocityMaximum}  FTLMax: {ship.MaxFTLSpeed}");
                 DrawString($"HP: {ship.Health} / {ship.HealthMax}");
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);
