@@ -154,7 +154,6 @@ namespace Ship_Game.Ships
         public float MaxSTLSpeed;
         public float NormalWarpThrust;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
-        public Array<Empire> BorderCheck  = new Array<Empire>();
 
         public float FTLModifier { get; private set; } = 1f;
         public float BaseCost    { get; private set; }
@@ -183,48 +182,12 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
-        public bool IsInNeutralSpace
-        {
-            get
-            {
-                for (int i = 0; i < BorderCheck.Count; ++i)
-                {
-                    Empire e = BorderCheck[i];
-                    if (e == loyalty)
-                        return false;
-                    Relationship rel = loyalty.GetRelations(e);
-                    if (rel.AtWar || rel.Treaty_Alliance)
-                        return false;
-                }
-                return true;
-            }
-        }
-        public bool IsInFriendlySpace
-        {
-            get
-            {
-                for (int i = 0; i < BorderCheck.Count; ++i)
-                {
-                    Empire e = BorderCheck[i];
-                    if (e == loyalty) return true;
-                    var rel = loyalty.GetRelations(e);
-                    if (rel.Treaty_Alliance || IsFreighter && rel.Treaty_Trade)
-                        return true;
-                }
-                return false;
-            }
-        }
+        // This bit field marks all the empires which are influencing
+        // us within their borders via Subspace projectors
 
-        public bool IsIndangerousSpace
-        {
-            get
-            {
-                for (int i = 0; i < BorderCheck.Count; ++i)
-                    if (loyalty?.GetRelations(BorderCheck[i])?.AtWar == true)
-                        return true;
-                return false;
-            }
-        }
+        // Somewhat ugly, but optimized book-keeping of projector influences
+        // for every ship.
+        // Each bit in the bitfield marks whether an empire is influencing us or not
 
         public void UpdateHomePlanet(Planet planet)
         {
@@ -553,10 +516,14 @@ namespace Ship_Game.Ships
             set => Empire.Universe.ScreenManager.AddScreenDeferred(new RefitToWindow(Empire.Universe, this));
         }
 
-        public bool IsWithinPlanetaryGravityWell
+        public bool IsInhibitedByUnfriendlyGravityWell
         {
             get
             {
+                // friendly projectors disable gravity wells
+                if (IsInFriendlyProjectorRange)
+                    return false;
+
                 Planet planet = System?.IdentifyGravityWell(this);
                 return planet != null;
             }
@@ -593,7 +560,7 @@ namespace Ship_Game.Ships
         {
             if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
             {
-                if (IsWithinPlanetaryGravityWell) InhibitedTimer = 0.3f;
+                if (IsInhibitedByUnfriendlyGravityWell) InhibitedTimer = 0.3f;
                 else if (InhibitedTimer < 0.0f)   InhibitedTimer = 0.0f;
             }
 
@@ -602,9 +569,9 @@ namespace Ship_Game.Ships
             // Change FTL modifier for ship based on solar system
             if (System != null)
             {
-                if (IsInFriendlySpace)
+                if (IsInFriendlyProjectorRange)
                     projectorBonus = Empire.Universe.FTLModifier;
-                else if (!Empire.Universe.FTLInNuetralSystems || IsIndangerousSpace)
+                else if (!Empire.Universe.FTLInNuetralSystems || IsInHostileProjectorRange)
                     projectorBonus = Empire.Universe.EnemyFTLModifier;
             }
 
@@ -989,20 +956,26 @@ namespace Ship_Game.Ships
 
         void ApplyThrust(float elapsedTime, float speedLimit, float thrustDirection)
         {
-            speedLimit = AdjustedSpeedLimit(speedLimit);
+            float actualSpeedLimit = AdjustedSpeedLimit(speedLimit);
             thrustDirection = (thrustDirection >= 0f ? 1f : -1f);
             float acceleration = elapsedTime * GetThrustAcceleration();
             isThrusting = true;
 
+            // in Warp, we cannot go slower than 2500
+            if (engineState == MoveState.Warp)
+                actualSpeedLimit = Math.Max(actualSpeedLimit, 2500);
+            
+            float maxVel = actualSpeedLimit + Math.Abs(acceleration);
+
             // apply speed limit by decelerating like mad
-            if (Velocity.Length() > speedLimit)
+            if (Velocity.Length() > maxVel)
             {
                 Velocity -= Velocity.Normalized() * acceleration; // decelerate
             }
             else
             {
                 Velocity += Direction * acceleration * thrustDirection;
-                if (Velocity.Length() > speedLimit)
+                if (Velocity.Length() > maxVel)
                     Velocity -= Velocity.Normalized() * acceleration * 0.5f; // decelerate @50%
             }
         }
@@ -2079,7 +2052,7 @@ namespace Ship_Game.Ships
                 else                        dieSoundEffect = "sd_explosion_ship_det_large";
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
-            for (int index = 0; index < EmpireManager.Empires.Count; index++)
+            for (int index = 0; index < EmpireManager.NumEmpires; index++)
             {
                 EmpireManager.Empires[index].GetEmpireAI().ThreatMatrix.RemovePin(this);
             }
@@ -2088,7 +2061,7 @@ namespace Ship_Game.Ships
             SparseModuleGrid   = Empty<ShipModule>.Array;
             ExternalModuleGrid = Empty<ShipModule>.Array;
             NumExternalSlots   = 0;
-            BorderCheck.Clear();
+            ResetProjectorInfluence();
             ThrusterList.Clear();
             AI.PotentialTargets.Clear();
             Velocity = Vector2.Zero;
