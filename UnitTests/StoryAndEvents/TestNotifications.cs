@@ -55,15 +55,15 @@ namespace UnitTests.NotificationTests
         {
             CreateTestEnv(out Empire empire);
             AddNotifications(empire);
-            Assert.That.Equal(12, NotificationManager.NumberOfNotifications);
+            Assert.AreEqual(12, NotificationManager.NumberOfNotifications);
             NotificationManager.Update(10);
-            Assert.That.Equal(11, NotificationManager.NumberOfNotifications);
+            Assert.AreEqual(11, NotificationManager.NumberOfNotifications);
             NotificationManager.Update(10);
-            Assert.That.Equal(10, NotificationManager.NumberOfNotifications);
+            Assert.AreEqual(10, NotificationManager.NumberOfNotifications);
             NotificationManager.Update(10);
             NotificationManager.Update(10);
             NotificationManager.Update(10);
-            Assert.That.Equal(7, NotificationManager.NumberOfNotifications);
+            Assert.AreEqual(7, NotificationManager.NumberOfNotifications);
         }
     }
 }
