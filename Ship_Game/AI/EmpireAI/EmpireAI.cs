@@ -172,7 +172,7 @@ namespace Ship_Game.AI
             if (baseDefensePct > 0.35f)            
                 baseDefensePct = 0.35f;            
             
-            bool needDef = OwnerEmpire.currentMilitaryStrength * baseDefensePct - DefStr >0 && DefensiveCoordinator.DefenseDeficit >0;
+            bool needDef = OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr >0 && DefensiveCoordinator.DefenseDeficit >0;
 
             if (needDef)
             {

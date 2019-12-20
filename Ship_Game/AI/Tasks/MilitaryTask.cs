@@ -72,7 +72,7 @@ namespace Ship_Game.AI.Tasks
                 HeldGoals.Add(g.guid);
             }
 
-            EnemyStrength = owner.currentMilitaryStrength * .001f;
+            EnemyStrength = owner.CurrentMilitaryStrength * .001f;
             if (InitialEnemyStrength < 1)
                 InitialEnemyStrength = owner.GetEmpireAI().ThreatMatrix.PingRadarStr(location, radius, owner);
 
@@ -88,7 +88,7 @@ namespace Ship_Game.AI.Tasks
             AO = target.Center;
             AORadius = 35000f;
             Owner = owner;
-            MinimumTaskForceStrength = owner.currentMilitaryStrength *.05f;
+            MinimumTaskForceStrength = owner.CurrentMilitaryStrength *.05f;
         }
 
         public MilitaryTask(Empire owner)

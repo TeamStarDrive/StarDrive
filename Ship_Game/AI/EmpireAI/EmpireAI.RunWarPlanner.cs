@@ -436,7 +436,7 @@ namespace Ship_Game.AI
                     }
                 }
                 //switching to godSight. 
-                float killableMod = 1 + (int)OwnerEmpire.currentMilitaryStrength / (anger.Key.currentMilitaryStrength + 1);//    (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
+                float killableMod = 1 + (int)OwnerEmpire.CurrentMilitaryStrength / (anger.Key.CurrentMilitaryStrength + 1);//    (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
                 return (anger.Value.TotalAnger + 1) * angerMod * killableMod;
             }).ToArray(); 
         }

@@ -1,328 +1,185 @@
+using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
-	public sealed class War
-	{
-		public WarType WarType;
-		public float OurStartingStrength;
-		public float TheirStartingStrength;
-		public float OurStartingGroundStrength;
-		public int OurStartingColonies;
-		public float TheirStartingGroundStrength;
-		public float StrengthKilled;
-		public float StrengthLost;
-		public float TroopsKilled;
-		public float TroopsLost;
-		public int ColoniesWon;
-		public int ColoniesLost;
-		public Array<string> AlliesCalled = new Array<string>();
-		public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();
-		public float TurnsAtWar;
-		public float EndStarDate;
-		public float StartDate;
-		private Empire Us;
-		public string UsName;
-		public string ThemName;
-		private Empire Them;
-		public int StartingNumContestedSystems;
+    public sealed class War
+    {
+        public WarType WarType;
+        public float OurStartingStrength;
+        public float TheirStartingStrength;
+        public float OurStartingGroundStrength;
+        public int OurStartingColonies;
+        public float TheirStartingGroundStrength;
+        public float StrengthKilled;
+        public float StrengthLost;
+        public float TroopsKilled;
+        public float TroopsLost;
+        public int ColoniesWon;
+        public int ColoniesLost;
+        public Array<string> AlliesCalled = new Array<string>();
+        public Array<Guid> ContestedSystemsGUIDs = new Array<Guid>();
+        public float TurnsAtWar;
+        public float EndStarDate;
+        public float StartDate;
+        private Empire Us;
+        public string UsName;
+        public string ThemName;
+        private Empire Them;
+        public int StartingNumContestedSystems;
+        [JsonIgnore][XmlIgnore]
+        public SolarSystem[] ContestedSystems { get; private set; }
+        [JsonIgnore][XmlIgnore]
+        public float LostColonyPercent => Us.GetPlanets().Count / (OurStartingColonies + 0.01f);
+        [JsonIgnore][XmlIgnore]
+        public float TotalThreatAgainst => TotalThreatAgainstUs() / Us.MilitaryScore.ClampMin(0.01f);
+        [JsonIgnore][XmlIgnore]
+        public float SpaceWarKd => StrengthKilled / (StrengthLost + 0.01f);
 
-		public War()
-		{
-		}
+        public War()
+        {
+        }
 
-		public War(Empire us, Empire them, float StarDate)
-		{
-			StartDate = StarDate;
-			Us = us;
-			Them = them;
-			UsName = us.data.Traits.Name;
-			ThemName = them.data.Traits.Name;
-			foreach (Ship ship in us.GetShips())
-			{
-				War ourStartingStrength = this;
-				ourStartingStrength.OurStartingStrength = ourStartingStrength.OurStartingStrength + ship.GetStrength();
-				foreach (Troop t in ship.TroopList)
-				{
-					War ourStartingGroundStrength = this;
-					ourStartingGroundStrength.OurStartingGroundStrength = ourStartingGroundStrength.OurStartingGroundStrength + t.Strength;
-				}
-			}
-			foreach (Planet p in us.GetPlanets())
-			{
-				War ourStartingColonies = this;
-				ourStartingColonies.OurStartingColonies = ourStartingColonies.OurStartingColonies + 1;
-                using (p.TroopsHere.AcquireReadLock())
-                    foreach (Troop t in p.TroopsHere)
-                    {
-                        if (t.Loyalty != us)
-                        {
-                            continue;
-                        }
-                        War war = this;
-                        war.OurStartingGroundStrength = war.OurStartingGroundStrength + t.Strength;
+        public War(Empire us, Empire them, float starDate)
+        {
+            StartDate = starDate;
+            Us        = us;
+            Them      = them;
+            UsName    = us.data.Traits.Name;
+            ThemName  = them.data.Traits.Name;
 
-                    }
-			}
-			foreach (Ship ship in them.GetShips())
-			{
-				War theirStartingStrength = this;
-				theirStartingStrength.TheirStartingStrength = theirStartingStrength.TheirStartingStrength + ship.GetStrength();
-				foreach (Troop t in ship.TroopList)
-				{
-					War theirStartingGroundStrength = this;
-					theirStartingGroundStrength.TheirStartingGroundStrength = theirStartingGroundStrength.TheirStartingGroundStrength + t.Strength;
-				}
-			}
-			foreach (Planet p in them.GetPlanets())
-			{
-                using (p.TroopsHere.AcquireReadLock())
-                foreach (Troop t in p.TroopsHere)
-				{
-					if (t.Loyalty != them)
-					{
-						continue;
-					}
-					War theirStartingGroundStrength1 = this;
-					theirStartingGroundStrength1.TheirStartingGroundStrength = theirStartingGroundStrength1.TheirStartingGroundStrength + t.Strength;
-				}
-			}
-			foreach (KeyValuePair<Guid, SolarSystem> system in Empire.Universe.SolarSystemDict)
-			{
-				bool WeAreThere = false;
-				bool TheyAreThere = false;
-				if (system.Value.OwnerList.Contains(Us))
-				{
-					WeAreThere = true;
-				}
-				if (system.Value.OwnerList.Contains(Them))
-				{
-					TheyAreThere = true;
-				}
-				if (!WeAreThere || !TheyAreThere)
-				{
-					continue;
-				}
-				War startingNumContestedSystems = this;
-				startingNumContestedSystems.StartingNumContestedSystems = startingNumContestedSystems.StartingNumContestedSystems + 1;
-				ContestedSystemsGUIDs.Add(system.Key);
-			}
-		}
+            OurStartingStrength         = us.CurrentMilitaryStrength;
+            OurStartingGroundStrength   = us.CurrentTroopStrength;
+            OurStartingColonies         = us.GetPlanets().Count;
+            TheirStartingStrength       = them.CurrentMilitaryStrength;
+            TheirStartingGroundStrength = them.CurrentTroopStrength;
+            ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
+            ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
+            StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
+        }
 
-		public WarState GetBorderConflictState()
-		{
-			float strengthKilled = StrengthKilled / (StrengthLost + 0.01f);
-			if (StartingNumContestedSystems == 0)
-			{
-				return GetWarScoreState();
-			}
-			if (GetContestedSystemDifferential() == StartingNumContestedSystems && StartingNumContestedSystems > 0)
-			{
-				return WarState.EvenlyMatched;
-			}
-			if (GetContestedSystemDifferential() > 0)
-			{
-				if (GetContestedSystemDifferential() == StartingNumContestedSystems)
-				{
-					return WarState.Dominating;
-				}
-				return WarState.WinningSlightly;
-			}
-			if (GetContestedSystemDifferential() == -StartingNumContestedSystems)
-			{
-				return WarState.LosingBadly;
-			}
-			return WarState.LosingSlightly;
-		}
+        Array<Guid> FindContestedSystemGUIDs()
+        {
+            var contestedSystemGUIDs = new Array<Guid>();
+            var systems = ContestedSystems;
+            for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].guid);
+            return contestedSystemGUIDs;
+        }
 
-		public WarState GetBorderConflictState(Array<Planet> ColoniesOffered)
-		{
-			float strengthKilled = StrengthKilled / (StrengthLost + 0.01f);
-			if (StartingNumContestedSystems == 0)
-			{
-				return GetWarScoreState();
-			}
-			if (GetContestedSystemDifferential(ColoniesOffered) == StartingNumContestedSystems && StartingNumContestedSystems > 0)
-			{
-				return WarState.EvenlyMatched;
-			}
-			if (GetContestedSystemDifferential(ColoniesOffered) > 0)
-			{
-				if (GetContestedSystemDifferential(ColoniesOffered) == StartingNumContestedSystems)
-				{
-					return WarState.Dominating;
-				}
-				return WarState.WinningSlightly;
-			}
-			if (GetContestedSystemDifferential(ColoniesOffered) == -StartingNumContestedSystems)
-			{
-				return WarState.LosingBadly;
-			}
-			return WarState.LosingSlightly;
-		}
+        public WarState GetBorderConflictState() => GetBorderConflictState(null);
 
-		public int GetContestedSystemDifferential(Array<Planet> ColoniesOffered)
-		{
-			Array<Guid> guids = ContestedSystemsGUIDs;
-			foreach (Planet p in ColoniesOffered)
-			{
-				if (guids.Contains(p.ParentSystem.guid))
-				{
-					continue;
-				}
-				guids.Add(p.ParentSystem.guid);
-			}
-			int num = 0;
-			foreach (Guid guid in guids)
-			{
-				bool WeAreThere = false;
-				bool TheyAreThere = false;
-				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(Us))
-				{
-					WeAreThere = true;
-				}
-				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(Them))
-				{
-					TheyAreThere = true;
-				}
-				if (!WeAreThere || TheyAreThere)
-				{
-					if (!TheyAreThere || WeAreThere)
-					{
-						continue;
-					}
-					num--;
-				}
-				else
-				{
-					num++;
-				}
-			}
-			return num;
-		}
+        public WarState GetBorderConflictState(Array<Planet> coloniesOffered)
+        {
+            if (StartingNumContestedSystems == 0)
+                return GetWarScoreState();
 
-		public int GetContestedSystemDifferential()
-		{
-			int num = 0;
-			foreach (Guid guid in ContestedSystemsGUIDs)
-			{
-				bool WeAreThere = false;
-				bool TheyAreThere = false;
-				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(Us))
-				{
-					WeAreThere = true;
-				}
-				if (Empire.Universe.SolarSystemDict[guid].OwnerList.Contains(Them))
-				{
-					TheyAreThere = true;
-				}
-				if (!WeAreThere || TheyAreThere)
-				{
-					if (!TheyAreThere || WeAreThere)
-					{
-						continue;
-					}
-					num--;
-				}
-				else
-				{
-					num++;
-				}
-			}
-			return num;
-		}
+            int contestedSystemDifference = GetContestedSystemDifferential(coloniesOffered);
 
-		public WarState GetWarScoreState()
-		{
-			float totalThreatAgainstUs = 0f;
-			foreach (KeyValuePair<Empire, Relationship> r in Us.AllRelations)
-			{
-				if (r.Key.isFaction || r.Key.data.Defeated || !r.Value.AtWar)
-				{
-					continue;
-				}
-				totalThreatAgainstUs = totalThreatAgainstUs + r.Key.MilitaryScore;
-			}
-			if (totalThreatAgainstUs / (Us.MilitaryScore + 0.01f) <= 1f)
-			{
-				float ColonyPercentage = Us.GetPlanets().Count / (0.01f + OurStartingColonies);
-				if (ColonyPercentage > 1.25f)
-				{
-					return WarState.Dominating;
-				}
-				if (ColonyPercentage < 0.75f)
-				{
-					return WarState.LosingSlightly;
-				}
-				if (ColonyPercentage < 0.5f)
-				{
-					return WarState.LosingBadly;
-				}
-				float SpaceWarKD = StrengthKilled / (StrengthLost + 0.01f);
-				float troopsKilled = TroopsKilled / (TroopsLost + 0.01f);
-				if (SpaceWarKD == 0f)
-				{
-					return WarState.Dominating;
-				}
-				if (SpaceWarKD > 1.5f)
-				{
-					return WarState.Dominating;
-				}
-				if (SpaceWarKD > 0.75f)
-				{
-					return WarState.WinningSlightly;
-				}
-				if (SpaceWarKD > 0.35f)
-				{
-					return WarState.EvenlyMatched;
-				}
-				if (SpaceWarKD > 0.15)
-				{
-					return WarState.LosingSlightly;
-				}
-				return WarState.LosingBadly;
-			}
-			float ColonyPercentage0 = Us.GetPlanets().Count / (0.01f + OurStartingColonies);
-			if (ColonyPercentage0 < 0.75f)
-			{
-				return WarState.LosingSlightly;
-			}
-			if (ColonyPercentage0 < 0.5f)
-			{
-				return WarState.LosingBadly;
-			}
-			if (StrengthKilled < 250f && StrengthLost < 250f && Us.GetPlanets().Count == OurStartingColonies)
-			{
-				return WarState.ColdWar;
-			}
-			float SpaceWarKD0 = StrengthKilled / (StrengthLost + 0.01f);
-			float single = TroopsKilled / (TroopsLost + 0.01f);
-			if (SpaceWarKD0 > 2f)
-			{
-				return WarState.Dominating;
-			}
-			if (SpaceWarKD0 > 1.15f)
-			{
-				return WarState.WinningSlightly;
-			}
-			if (SpaceWarKD0 > 0.85f)
-			{
-				return WarState.EvenlyMatched;
-			}
-			if (SpaceWarKD0 > 0.5)
-			{
-				return WarState.LosingSlightly;
-			}
-			return WarState.LosingBadly;
-		}
+            if (contestedSystemDifference == StartingNumContestedSystems)
+                return WarState.EvenlyMatched;
 
-		public void SetCombatants(Empire u, Empire t)
-		{
-			Us = u;
-			Them = t;
-		}
-	}
+            //winning
+            if (contestedSystemDifference > 0)
+            {
+                if (contestedSystemDifference == StartingNumContestedSystems)
+                    return WarState.Dominating;
+                return WarState.WinningSlightly;
+            }
+
+            //losing
+            if (contestedSystemDifference == -StartingNumContestedSystems)
+                return WarState.LosingBadly;
+
+            return WarState.LosingSlightly;
+        }
+
+        public int GetContestedSystemDifferential(Array<Planet> coloniesOffered)
+        {
+            // -- if we arent there
+            // ++ if they arent there but we are
+            int offeredCleanSystems = 0;
+            if (coloniesOffered != null)
+                foreach (Planet planet in coloniesOffered)
+                {
+                    var system = planet.ParentSystem;
+                    if (!system.OwnerList.Contains(Them))
+                        offeredCleanSystems++;
+                }
+
+            int reclaimedSystems = offeredCleanSystems + ContestedSystems
+                                       .Count(s => !s.OwnerList.Contains(Them) && s.OwnerList.Contains(Us));
+
+            int lostSystems = ContestedSystems
+                .Count(s => !s.OwnerList.Contains(Us) && s.OwnerList.Contains(Them));
+
+            return reclaimedSystems - lostSystems;
+        }
+
+        public WarState GetWarScoreState()
+        {
+            float lostColonyPercent = LostColonyPercent;
+            float spaceWarKd        = SpaceWarKd;
+
+            if (TotalThreatAgainst <= 1f)
+            {
+                if (lostColonyPercent > 1.25f) return WarState.Dominating;
+                if (lostColonyPercent < 0.75f) return WarState.LosingSlightly;
+                if (lostColonyPercent < 0.5f)  return WarState.LosingBadly;
+                if (spaceWarKd.AlmostZero())   return WarState.Dominating;
+                if (spaceWarKd > 1.5f)         return WarState.Dominating;
+                if (spaceWarKd > 0.75f)        return WarState.WinningSlightly;
+                if (spaceWarKd > 0.35f)        return WarState.EvenlyMatched;
+                if (spaceWarKd > 0.15)         return WarState.LosingSlightly;
+                return WarState.LosingBadly;
+            }
+
+            if (lostColonyPercent < 0.75f) return WarState.LosingSlightly;
+            if (lostColonyPercent < 0.5f)  return WarState.LosingBadly;
+            if (StrengthKilled < 250f && StrengthLost < 250f && Us.GetPlanets().Count == OurStartingColonies)
+                return WarState.ColdWar;
+
+            if (spaceWarKd > 2f)    return WarState.Dominating;
+            if (spaceWarKd > 1.15f) return WarState.WinningSlightly;
+            if (spaceWarKd > 0.85f) return WarState.EvenlyMatched;
+            if (spaceWarKd > 0.5)   return WarState.LosingSlightly;
+
+            return WarState.LosingBadly;
+        }
+
+        private float TotalThreatAgainstUs()
+        {
+            float totalThreatAgainstUs = 0f;
+            foreach (KeyValuePair<Empire, Relationship> r in Us.AllRelations)
+            {
+                if (r.Key.isFaction || r.Key.data.Defeated || !r.Value.AtWar)
+                {
+                    continue;
+                }
+
+                totalThreatAgainstUs = totalThreatAgainstUs + r.Key.MilitaryScore;
+            }
+
+            return totalThreatAgainstUs;
+        }
+
+        public void SetCombatants(Empire u, Empire t)
+        {
+            Us = u;
+            Them = t;
+        }
+
+        public void RestoreFromSave()
+        {
+            ContestedSystems = new SolarSystem[ContestedSystemsGUIDs.Count];
+            for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
+            {
+                var guid = ContestedSystemsGUIDs[i];
+                SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
+                ContestedSystems[i] = solarSystem;
+            }
+        }
+    }
 }

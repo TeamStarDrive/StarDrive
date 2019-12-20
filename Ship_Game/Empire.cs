@@ -112,7 +112,8 @@ namespace Ship_Game
         public bool CanBuildPlatforms;
         public bool CanBuildStations;
         public bool CanBuildShipyards;
-        public float currentMilitaryStrength;
+        public float CurrentMilitaryStrength;
+        public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
         public Color ThrustColor1;
         public float MaxColonyValue          { get; private set; }
@@ -1140,17 +1141,8 @@ namespace Ship_Game
             #endif
 
             UpdateTimer -= elapsedTime;
-            currentMilitaryStrength = 0;
-            for (int index = 0; index < OwnedShips.Count; ++index)
-            {
-                Ship ship = OwnedShips[index];
-                if (ship != null)
-                {
-                    if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    currentMilitaryStrength += ship.GetStrength();
-                }
+            UpdateMilitaryStrengths();
 
-            }
             if (UpdateTimer <= 0f && !data.Defeated)
             {
                 if (this == Universe.PlayerEmpire )
@@ -1271,6 +1263,30 @@ namespace Ship_Game
             UpdateFleets(elapsedTime);
             OwnedShips.ApplyPendingRemovals();
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
+        }
+
+        private void UpdateMilitaryStrengths()
+        {
+            CurrentMilitaryStrength = 0;
+            CurrentTroopStrength    = 0;
+
+            for (int index = 0; index < OwnedShips.Count; ++index)
+            {
+                Ship ship = OwnedShips[index];
+                if (ship != null)
+                {
+                    if (ship.DesignRoleType == ShipData.RoleType.Troop)
+                        foreach (Troop t in ship.TroopList)
+                            CurrentTroopStrength += t.Strength;
+                    CurrentMilitaryStrength += ship.GetStrength();
+                }
+            }
+
+            for (int x = 0; x < OwnedPlanets.Count; x++)
+            {
+                var planet = OwnedPlanets[x];
+                CurrentTroopStrength += planet.TroopManager.OwnerTroopStrength;
+            }
         }
 
         //Using memory to save CPU time. the question is how often is the value used and
@@ -2241,7 +2257,7 @@ namespace Ship_Game
             }
 
 
-            data.MilitaryScoreTotal += currentMilitaryStrength;
+            data.MilitaryScoreTotal += CurrentMilitaryStrength;
             TotalScore = (int)(MilitaryScore / 100.0 + IndustrialScore + TechScore + ExpansionScore);
             MilitaryScore = data.ScoreAverage == 0 ? 0f : data.MilitaryScoreTotal / data.ScoreAverage;
             ++data.ScoreAverage;
@@ -2657,6 +2673,16 @@ namespace Ship_Game
                 DrewThisTurn  = false;
                 Radius        = 0;
                 Known         = false;
+            }
+        }
+
+        public void RestoreUnserializableDataFromSave()
+        {
+            //restore relationShipData
+            foreach(var kv in Relationships)
+            {
+                var relationship = kv.Value;
+                relationship.RestoreWarsFromSave();
             }
         }
 

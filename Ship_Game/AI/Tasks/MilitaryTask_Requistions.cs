@@ -266,7 +266,7 @@ namespace Ship_Game.AI.Tasks
           
             int landingSpots = TargetPlanet.GetGroundLandingSpots();
           
-            MinimumTaskForceStrength = GetEnemyStrAtTarget(Owner.currentMilitaryStrength * .05f);
+            MinimumTaskForceStrength = GetEnemyStrAtTarget(Owner.CurrentMilitaryStrength * .05f);
             
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
             
