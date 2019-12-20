@@ -10,23 +10,22 @@ namespace Ship_Game.AI
 {
     public sealed partial class Fleet : ShipGroup
     {
-        public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
+        public readonly  Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
         public Guid Guid = Guid.NewGuid();
         public string Name = "";
 
-        Array<Ship> CenterShips = new Array<Ship>();
-        Array<Ship> LeftShips = new Array<Ship>();
-        Array<Ship> RightShips = new Array<Ship>();
-        Array<Ship> RearShips = new Array<Ship>();
-        Array<Ship> ScreenShips = new Array<Ship>();
+        readonly Array<Ship> CenterShips = new Array<Ship>();
+        readonly Array<Ship> LeftShips = new Array<Ship>();
+        readonly Array<Ship> RightShips = new Array<Ship>();
+        readonly Array<Ship> RearShips = new Array<Ship>();
+        readonly Array<Ship> ScreenShips = new Array<Ship>();
         public Array<Squad> CenterFlank = new Array<Squad>();
         public Array<Squad> LeftFlank = new Array<Squad>();
         public Array<Squad> RightFlank = new Array<Squad>();
         public Array<Squad> ScreenFlank = new Array<Squad>();
         public Array<Squad> RearFlank = new Array<Squad>();
-        public Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
+        public readonly Array<Array<Squad>> AllFlanks = new Array<Array<Squad>>();
 
-        Map<Ship, Array<Ship>> InterceptorDict = new Map<Ship, Array<Ship>>();
         int DefenseTurns = 50;
         public MilitaryTask FleetTask;
         MilitaryTask CoreFleetSubTask;
@@ -59,49 +58,33 @@ namespace Ship_Game.AI
             Name = index + suffix + " fleet";
         }
 
-        public override void AddShip(Ship ship) => AddShip(ship, false);
-
-        public void AddShip(Ship newShip, bool updateOnly)
+        public override void AddShip(Ship newShip)
         {
             if (newShip == null) // Added ship should never be null
             {
                 Log.Error($"Ship Was Null for {Name}");
                 return;
             }
-
-            using (Ships.AcquireWriteLock())
+            // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
+            // This should likely be two different checks. There is also the possibilty that the ship is in another
+            // Fleet ship list.
+            if (newShip.fleet != null || Ships.ContainsRef(newShip))
             {
-                if (newShip.IsPlatformOrStation)
-                    return;
-
-                FleetShipAddsRepair(newShip);
-                FleetShipAddsOrdnanceSupplyShuttles(newShip);
-
-                if (updateOnly && Ships.Contains(newShip))
-                    return;
-
-                // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
-                // This should likely be two different checks. There is also the possibilty that the ship is in another
-                // Fleet ship list.
-                if (newShip.fleet != null || Ships.Contains(newShip))
-                {
-                    Log.Warning($"{newShip}: already in a fleet");
-                    return; // recover
-                }
-
-                AddShipToNodes(newShip);
-                AssignPositions(Direction);
+                Log.Warning($"{newShip}: already in a fleet");
+                return; // recover
             }
 
+            if (newShip.IsPlatformOrStation)
+                return;
+
+            UpdateOurFleetShip(newShip);
+            AddShipToNodes(newShip);
+            AssignPositionTo(newShip);
         }
 
-        void FleetShipAddsRepair(Ship ship)
+        void UpdateOurFleetShip(Ship ship)
         {
             HasRepair = HasRepair || ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0);
-        }
-
-        void FleetShipAddsOrdnanceSupplyShuttles( Ship ship)
-        {
             HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
         }
 
@@ -115,12 +98,8 @@ namespace Ship_Game.AI
         {
             base.AddShip(shipToAdd);
             shipToAdd.fleet = this;
-            SetSpeed();
             AddShipToDataNode(shipToAdd);
         }
-
-
-        public int CountCombatSquads => CenterFlank.Count + LeftFlank.Count + RightFlank.Count + ScreenFlank.Count;
 
         void ClearFlankList()
         {
@@ -329,7 +308,9 @@ namespace Ship_Game.AI
             {
                 if (squad.Ships.Count < 4)
                     squad.Ships.Add(allShips[x]);
-                if (squad.Ships.Count != 4 && x != allShips.Count - 1) continue;
+
+                if (squad.Ships.Count != 4 && x != allShips.Count - 1)
+                    continue;
 
                 squad = new Squad { Fleet = this };
                 destSquad.Add(squad);
@@ -981,8 +962,6 @@ namespace Ship_Game.AI
                 return false;
 
             HoldFleetPosition();
-
-            InterceptorDict.Clear();
             return true;
         }
 
@@ -1230,7 +1209,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int LandingspotsNeeded =5)
+        bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int landingspotsNeeded =5)
         {
             int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots();
             if (freeLandingSpots < 1)
@@ -1245,9 +1224,9 @@ namespace Ship_Game.AI
                 DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
                 return false;
             }
-            if (freeLandingSpots < LandingspotsNeeded)
+            if (freeLandingSpots < landingspotsNeeded)
             {
-                DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {LandingspotsNeeded}");
+                DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {landingspotsNeeded}");
                 return false;
             }
 
@@ -1346,28 +1325,27 @@ namespace Ship_Game.AI
 
         void RemoveFromAllSquads(Ship ship)
         {
-            if (DataNodes != null)
+            for (int i = 0; i < DataNodes.Count; ++i)
             {
-                using (DataNodes.AcquireWriteLock())
-                    foreach (FleetDataNode fleetDataNode in DataNodes)
-                        if (fleetDataNode.Ship == ship)
-                            fleetDataNode.Ship = null;
+                FleetDataNode node = DataNodes[i];
+                if (node.Ship == ship)
+                    node.Ship = null;
             }
+
             if (AllFlanks == null)
                 return;
+
             foreach (Array<Squad> flank in AllFlanks)
             {
                 foreach (Squad squad in flank)
                 {
-                    if (squad.Ships.Contains(ship))
-                        squad.Ships.QueuePendingRemoval(ship);
-                    if (squad.DataNodes == null) continue;
-                    using (squad.DataNodes.AcquireWriteLock())
-                        foreach (FleetDataNode fleetDataNode in squad.DataNodes)
-                        {
-                            if (fleetDataNode.Ship == ship)
-                                fleetDataNode.Ship = null;
-                        }
+                    squad.Ships.RemoveRef(ship);
+                    for (int nodeId = 0; nodeId < squad.DataNodes.Count; ++nodeId)
+                    {
+                        FleetDataNode node = squad.DataNodes[nodeId];
+                        if (node.Ship == ship)
+                            node.Ship = null;
+                    }
                 }
             }
         }
@@ -1381,14 +1359,25 @@ namespace Ship_Game.AI
 
         public bool RemoveShip(Ship ship)
         {
-            if (ship == null) return false;
+            if (ship == null)
+            {
+                Log.Error($"Attempted to remove a null ship from Fleet {Name}");
+                return false;
+            }
+
             if (ship.Active && ship.fleet != this)
+            {
                 Log.Warning($"{ship.fleet?.Name ?? "No Fleet"} : not equal {Name}");
+            }
+
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
                 Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);
+            
             ship.fleet = null;
             RemoveFromAllSquads(ship);
-            if (Ships.Remove(ship) || !ship.Active) return true;
+            if (Ships.RemoveRef(ship) || !ship.Active)
+                return true;
+
             Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", DebugModes.Normal);
             return false;
         }
@@ -1476,8 +1465,7 @@ namespace Ship_Game.AI
 
         public void AssignGoalGuid(FleetDataNode node, Guid goalGuid)
         {
-            using (DataNodes.AcquireWriteLock())
-                node.GoalGUID = goalGuid;
+            node.GoalGUID = goalGuid;
         }
 
         public void RemoveGoalGuid(FleetDataNode node)
@@ -1494,8 +1482,7 @@ namespace Ship_Game.AI
 
         public void AssignShipName(FleetDataNode node, string name)
         {
-            using (DataNodes.AcquireWriteLock())
-                node.ShipName = name;
+            node.ShipName = name;
         }
 
         public void Update(float elapsedTime)
@@ -1510,19 +1497,19 @@ namespace Ship_Game.AI
                     RemoveShip(ship);
                     continue;
                 }
+
                 if (ship.AI.State == AIState.FormationWarp)
                 {
                     SetCombatMoveAtPosition(ship, Position, 7500);
                     Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, Position, 100000, Color.Yellow);
                 }
-                AddShip(ship, true);
+
+                UpdateOurFleetShip(ship);
                 ReadyForWarp = ReadyForWarp && ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
             }
-            Ships.ApplyPendingRemovals();
 
-            if (Ships.Count <= 0 || GoalStack.Count <= 0)
-                return;
-            GoalStack.Peek().Evaluate(elapsedTime);
+            if (Ships.Count > 0 && GoalStack.Count > 0)
+                GoalStack.Peek().Evaluate(elapsedTime);
         }
 
         public enum FleetCombatStatus
@@ -1532,58 +1519,19 @@ namespace Ship_Game.AI
             Free
         }
 
-        public sealed class Squad : IDisposable
+        public sealed class Squad
         {
             public FleetDataNode MasterDataNode = new FleetDataNode();
-            public BatchRemovalCollection<FleetDataNode> DataNodes = new BatchRemovalCollection<FleetDataNode>();
-            public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
+            public Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
+            public Array<Ship> Ships = new Array<Ship>();
             public Fleet Fleet;
             public Vector2 Offset;
-
-            public void Dispose()
-            {
-                Destroy();
-                GC.SuppressFinalize(this);
-            }
-            ~Squad() { Destroy(); }
-
-            void Destroy()
-            {
-                DataNodes?.Dispose(ref DataNodes);
-                Ships?.Dispose(ref Ships);
-            }
         }
 
         public enum FleetGoalType
         {
             AttackMoveTo,
             MoveTo
-        }
-
-        protected override void Destroy()
-        {
-            if (Ships != null)
-                for (int x = Ships.Count - 1; x >= 0; x--)
-                {
-                    var ship = Ships[x];
-                    RemoveShip(ship);
-                }
-
-            DataNodes?.Dispose(ref DataNodes);
-            CenterShips     = null;
-            LeftShips       = null;
-            RightShips      = null;
-            RearShips       = null;
-            ScreenShips     = null;
-            CenterFlank     = null;
-            LeftFlank       = null;
-            RightFlank      = null;
-            ScreenFlank     = null;
-            RearFlank       = null;
-            AllFlanks       = null;
-            InterceptorDict = null;
-            FleetTask       = null;
-            base.Destroy();
         }
 
         public static string GetDefaultFleetNames(int index)

@@ -46,8 +46,7 @@ namespace Ship_Game
             var fleet = new Fleet
             {
                 Position = position,
-                Owner = owner,
-                DataNodes = new BatchRemovalCollection<FleetDataNode>()
+                Owner = owner
             };
             foreach (FleetDataNode node in data.Data)
             {
@@ -58,17 +57,16 @@ namespace Ship_Game
             fleet.Name = data.Name;
             fleet.FleetIconIndex = data.FleetIconIndex;
 
-            using (fleet.DataNodes.AcquireWriteLock())
-                foreach (FleetDataNode node in fleet.DataNodes)
-                {
-                    Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
-                    if (s == null) continue;
-                    s.AI.CombatState = node.CombatState;
-                    s.RelativeFleetOffset = node.FleetOffset;
-                    node.Ship = s;
-                    node.OrdersRadius = node.OrdersRadius > 1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
-                    fleet.AddShip(s);
-                }
+            foreach (FleetDataNode node in fleet.DataNodes)
+            {
+                Ship s = Ship.CreateShipAtPoint(node.ShipName, owner, position + node.FleetOffset);
+                if (s == null) continue;
+                s.AI.CombatState = node.CombatState;
+                s.RelativeFleetOffset = node.FleetOffset;
+                node.Ship = s;
+                node.OrdersRadius = node.OrdersRadius > 1 ? node.OrdersRadius : s.SensorRange * node.OrdersRadius;
+                fleet.AddShip(s);
+            }
             return fleet;
         }
 

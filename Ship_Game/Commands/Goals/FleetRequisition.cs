@@ -66,30 +66,27 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            using (Fleet.DataNodes.AcquireWriteLock())
+            foreach (FleetDataNode node in Fleet.DataNodes)
             {
-                foreach (FleetDataNode node in Fleet.DataNodes)
-                {
-                    if (node.GoalGUID != guid)
-                        continue;
+                if (node.GoalGUID != guid)
+                    continue;
 
-                    Ship ship = FinishedShip;
-                    node.Ship = ship;
-                    node.GoalGUID = Guid.Empty;
+                Ship ship = FinishedShip;
+                node.Ship = ship;
+                node.GoalGUID = Guid.Empty;
 
-                    if (Fleet.Ships.Count == 0)
-                        Fleet.Position = ship.Position + RandomMath.Vector2D(3000f);        
-                    if (Fleet.Position == Vector2.Zero)
-                        Fleet.Position = empire.FindNearestRallyPoint(ship.Center).Center;
+                if (Fleet.Ships.Count == 0)
+                    Fleet.Position = ship.Position + RandomMath.Vector2D(3000f);        
+                if (Fleet.Position == Vector2.Zero)
+                    Fleet.Position = empire.FindNearestRallyPoint(ship.Center).Center;
 
-                    ship.RelativeFleetOffset = node.FleetOffset;
+                ship.RelativeFleetOffset = node.FleetOffset;
 
-                    Fleet.AddShip(ship);
-                    ship.AI.SetPriorityOrder(false);
-                    ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.RelativeFleetOffset, ship.fleet.Direction, true, null);
-                    return GoalStep.GoalComplete;
-                } 
-            }
+                Fleet.AddShip(ship);
+                ship.AI.SetPriorityOrder(false);
+                ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.RelativeFleetOffset, ship.fleet.Direction, true, null);
+                return GoalStep.GoalComplete;
+            } 
             return GoalStep.GoalComplete;
         }
     }
