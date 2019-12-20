@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         struct CThrusterZone
         {
-            public readonly float X, Y, Scale;
+            public readonly float X, Y, Z, Scale;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -252,7 +252,7 @@ namespace Ship_Game.Ships
                     CThrusterZone* zone = &s->Thrusters[i];
                     ship.ThrusterList.Add(new ShipToolScreen.ThrusterZone
                     {
-                        Position = new Vector2(zone->X, zone->Y),
+                        Position = new Vector3(zone->X, zone->Y, zone->Z),
                         Scale = zone->Scale
                     });
                 }
