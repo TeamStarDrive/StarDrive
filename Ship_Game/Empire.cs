@@ -1144,7 +1144,7 @@ namespace Ship_Game
             #endif
 
             UpdateTimer -= elapsedTime;
-            CalculateMilitaryStrengths();
+            UpdateMilitaryStrengths();
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
@@ -1268,7 +1268,7 @@ namespace Ship_Game
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
-        private void CalculateMilitaryStrengths()
+        private void UpdateMilitaryStrengths()
         {
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
