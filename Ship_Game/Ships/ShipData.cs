@@ -358,5 +358,54 @@ namespace Ship_Game.Ships
             capital,
             prototype
         }
+        public enum RoleType
+        {
+            Orbital,
+            EmpireSupport,
+            Warship,
+            WwarSupport,
+            Troop,
+            NotApplicable
+        }
+
+        public static RoleType ShipRoleToRoleType(RoleName role)
+        {
+            switch (role)
+            {
+                case RoleName.disabled:
+                    return RoleType.NotApplicable;
+                case RoleName.shipyard:
+                case RoleName.construction:
+                case RoleName.ssp:
+                case RoleName.colony:
+                case RoleName.freighter:
+                    return RoleType.EmpireSupport;
+                case RoleName.platform:
+                case RoleName.station:
+                    return RoleType.Orbital;
+                case RoleName.supply:
+                case RoleName.scout:
+                case RoleName.support:
+                case RoleName.bomber:
+                    return RoleType.WwarSupport;
+                case RoleName.troop:
+                case RoleName.troopShip:
+                    return RoleType.Troop;
+
+                case RoleName.carrier:
+                case RoleName.fighter:
+                case RoleName.gunboat:
+                case RoleName.drone:
+                case RoleName.corvette:
+                case RoleName.frigate:
+                case RoleName.destroyer:
+                case RoleName.cruiser:
+                case RoleName.capital:
+                case RoleName.prototype:
+                    return RoleType.Warship;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(role), role, null);
+            }
+        }
     }
 }
