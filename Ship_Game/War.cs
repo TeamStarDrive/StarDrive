@@ -1,6 +1,8 @@
 using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace Ship_Game
 {
@@ -28,31 +30,14 @@ namespace Ship_Game
         public string ThemName;
         private Empire Them;
         public int StartingNumContestedSystems;
-        SolarSystem[] ContestedSystem;
-        public SolarSystem[] GetContestedSystems
-        {
-            get
-            {
-                //Compatibility hack remove this at first save version change.
-                Log.Assert(SavedGame.SaveGameVersion == 4
-                    , $"This prop is not needed as a prop once the save version changes.");
-                if (ContestedSystem.Length == 0 && ContestedSystemsGUIDs.NotEmpty)
-                {
-                    ContestedSystem = new SolarSystem[ContestedSystem.Length];
-                    for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
-                    {
-                        var guid = ContestedSystemsGUIDs[i];
-                        SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
-                        ContestedSystem[i] = solarSystem;
-                    }
-                }
-                return ContestedSystem;
-            }
-            set => ContestedSystem = value;
-        }
+        [JsonIgnore][XmlIgnore]
+        public SolarSystem[] ContestedSystems { get; private set; }
+        [JsonIgnore][XmlIgnore]
         public float LostColonyPercent => Us.GetPlanets().Count / (OurStartingColonies + 0.01f);
+        [JsonIgnore][XmlIgnore]
         public float TotalThreatAgainst => TotalThreatAgainstUs() / Us.MilitaryScore.ClampMin(0.01f);
-        float SpaceWarKd => StrengthKilled / (StrengthLost + 0.01f);
+        [JsonIgnore][XmlIgnore]
+        public float SpaceWarKd => StrengthKilled / (StrengthLost + 0.01f);
 
         public War()
         {
@@ -71,7 +56,7 @@ namespace Ship_Game
             OurStartingColonies         = us.GetPlanets().Count;
             TheirStartingStrength       = them.CurrentMilitaryStrength;
             TheirStartingGroundStrength = them.CurrentTroopStrength;
-            GetContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
+            ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
         }
@@ -79,7 +64,7 @@ namespace Ship_Game
         Array<Guid> FindContestedSystemGUIDs()
         {
             var contestedSystemGUIDs = new Array<Guid>();
-            var systems = GetContestedSystems;
+            var systems = ContestedSystems;
             for (int x = 0; x < systems.Length; x++) contestedSystemGUIDs.Add(systems[x].guid);
             return contestedSystemGUIDs;
         }
@@ -124,10 +109,10 @@ namespace Ship_Game
                         offeredCleanSystems++;
                 }
 
-            int reclaimedSystems = offeredCleanSystems + ContestedSystem
+            int reclaimedSystems = offeredCleanSystems + ContestedSystems
                                        .Count(s => !s.OwnerList.Contains(Them) && s.OwnerList.Contains(Us));
 
-            int lostSystems = ContestedSystem
+            int lostSystems = ContestedSystems
                 .Count(s => !s.OwnerList.Contains(Us) && s.OwnerList.Contains(Them));
 
             return reclaimedSystems - lostSystems;
@@ -184,6 +169,20 @@ namespace Ship_Game
         {
             Us = u;
             Them = t;
+        }
+
+        public void RestoreFromSave()
+        {
+            if (ContestedSystems.Length == 0 && ContestedSystemsGUIDs.NotEmpty)
+            {
+                ContestedSystems = new SolarSystem[ContestedSystems.Length];
+                for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
+                {
+                    var guid = ContestedSystemsGUIDs[i];
+                    SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
+                    ContestedSystems[i] = solarSystem;
+                }
+            }
         }
     }
 }
