@@ -20,6 +20,7 @@ namespace Ship_Game.Ships
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
 
+        // @note This is always Normalized to [0; +2PI] by FacingDegrees setter
         public float FacingRadians;
         public float FacingDegrees
         {

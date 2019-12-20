@@ -524,7 +524,7 @@ namespace Ship_Game
 
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
-            Vector2 screenPos = ProjectToScreenPosition(posInWorld);
+            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
@@ -535,8 +535,8 @@ namespace Ship_Game
 
         public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text)
         {
-            Vector2 screenPos = ProjectToScreenPosition(posInWorld);
-            Vector2 screenPos2 = ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
+            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
+            Vector2 screenPos2 = Empire.Universe.ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
 
             float widthOnScreen = Math.Abs(screenPos2.X - screenPos.X);
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);

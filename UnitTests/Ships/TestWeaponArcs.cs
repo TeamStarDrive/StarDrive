@@ -30,9 +30,8 @@ namespace UnitTests.Ships
             weapon.Module.AccuracyPercent = 1f; // No targeting errors or jitters
         }
 
-
         [TestMethod]
-        public void TestFiringInsideArc()
+        public void FiringInsideArc()
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
             Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, -1000f)); // in front of us
@@ -42,7 +41,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void TestFiringOutsideOfArc()
+        public void FiringOutsideOfArc()
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
             Ship target = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
@@ -52,7 +51,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void TestFiringTargetOfOpportunity()
+        public void FiringTargetOfOpportunity()
         {
             CreateShipWithFieldOfFire(45, out Ship ship, out Weapon weapon);
             Ship main = SpawnShip("Vulcan Scout", Enemy, new Vector2(0, 1000f)); // behind us
@@ -65,7 +64,7 @@ namespace UnitTests.Ships
         }
 
         [TestMethod]
-        public void TestFiringPointDefenseAtMissiles()
+        public void FiringPointDefenseAtMissiles()
         {
             CreateShipWithFieldOfFire(45, out Ship us, out Weapon weapon);
             weapon.TruePD = true;

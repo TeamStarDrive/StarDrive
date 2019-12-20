@@ -7,8 +7,10 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Ships
 {
@@ -679,12 +681,28 @@ namespace Ship_Game.Ships
             return target.Center.InRadius(w.Module.Center, range);
         }
 
-        bool IsPosInsideArc(Weapon w, Vector2 pos)
+        // for public alias, @see IsInsideFiringArc
+        bool IsPosInsideArc(ShipModule m, Vector2 pos)
         {
-            float angleToTarget = w.Origin.RadiansToTarget(pos);
-            float facing = w.Module.FacingRadians + Rotation;
-            float difference = Math.Abs(facing - angleToTarget);
-            return difference < (w.Module.FieldOfFire * 0.5f);
+            Vector2 origin = m.Center;
+            // NOTE: Atan2 y,x swapped to x,y rotates radians -90, because StarDrive uses UP=-Y
+            // This is also turns it into a relative angle: [-PI; +PI]
+            float radsToTarget = (float)Math.Atan2(pos.X - origin.X, origin.Y - pos.Y);
+            // Ship.Rotation and FacingRadians are normalized to [0; +2PI]
+            float facing = (m.FacingRadians + Rotation); // so this can be 2PI + 2PI
+            if (facing > RadMath.TwoPI)  // normalize again [0; +2PI]
+                facing -= RadMath.TwoPI;
+            if (facing > RadMath.PI) // to relative [-PI; +PI]
+                facing -= RadMath.TwoPI;
+
+            // Visual Debugging 
+            //Vector2 dir1 = radsToTarget.RadiansToDirection();
+            //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir1 * 500f, 2, Color.Blue, 0f);
+            //Vector2 dir2 = radsToTarget.RadiansToDirection();
+            //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir2 * 500f, 2, Color.Green, 0f);
+
+            float difference = Math.Abs(facing - radsToTarget);
+            return difference < (m.FieldOfFire * 0.5f);
         }
 
         // Added by McShooterz
@@ -707,14 +725,14 @@ namespace Ship_Game.Ships
                     return false;
             }
 
-            return IsPosInsideArc(w, target.Center);
+            return IsPosInsideArc(w.Module, target.Center);
         }
 
-        // This is used by Beam weapons
+        // This is used by Beam weapons and by Testing
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
             ++GlobalStats.WeaponArcChecks;
-            return IsPosInsideArc(w, pickedPos);
+            return IsPosInsideArc(w.Module, pickedPos);
         }
 
         public SceneObject GetSO()

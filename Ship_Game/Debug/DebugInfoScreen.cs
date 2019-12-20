@@ -301,6 +301,7 @@ namespace Ship_Game.Debug
                 Ship ship = Screen.MasterShipList[i];
                 if (ship == null || !ship.InFrustum || ship.AI.Target == null)
                     continue;
+
                 foreach (Weapon weapon in ship.Weapons)
                 {
                     var module = weapon.FireTarget as ShipModule;
@@ -324,6 +325,46 @@ namespace Ship_Game.Debug
                         Screen.DrawLineProjected(projectile.Center, projectile.Center + projectile.Velocity, Color.Red);
                     }
                     break;
+                }
+            }
+        }
+
+        void DrawWeaponArcs(Ship ship)
+        {
+            foreach (Weapon w in ship.Weapons)
+            {
+                ShipModule m = w.Module;
+                float facing = ship.Rotation + m.FacingRadians;
+                Vector2 dir = facing.RadiansToDirection();
+                float size = w.GetActualRange();
+
+                Screen.ProjectToScreenCoords(m.Center, size, 
+                                      out Vector2 posOnScreen, out float sizeOnScreen);
+                ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
+                                      ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f);
+
+                DrawLineImm(m.Center, m.Center + facing.RadiansToDirection() * size, Color.Crimson);
+                if (m.FieldOfFire <= RadMath.HalfPI)
+                {
+                    Vector2 left = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
+                    Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
+                    DrawLineImm(m.Center, m.Center + left * size, Color.Crimson);
+                    DrawLineImm(m.Center, m.Center + right * size, Color.Crimson);
+                }
+                else
+                {
+                    DrawCircleImm(w.Origin, size, Color.Crimson);
+                }
+
+                DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
+
+                Ship target = ship.AI.Target;
+                if (target != null)
+                {
+                    bool inRange = ship.CheckRangeToTarget(w, target);
+                    bool inArc = ship.IsInsideFiringArc(w, target.Center);
+                    DrawStringProjected(m.Center+dir*m.Radius, 0f, 1f, Color.LightCyan, 
+                        $"Target: {target.Name}\nInRange: {inRange}\nInArc: {inArc}");
                 }
             }
         }
@@ -385,6 +426,7 @@ namespace Ship_Game.Debug
                 DrawString($"Ship {ship.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
                 DrawString($"Ship velocity: {(int)ship.Velocity.Length()}  speedLimit: {(int)ship.Speed}  {ship.WarpState}");
                 VisualizeShipOrderQueue(ship);
+                DrawWeaponArcs(ship);
 
                 DrawString($"On Defense: {ship.DoingSystemDefense}");
                 if (ship.fleet != null)
@@ -422,7 +464,7 @@ namespace Ship_Game.Debug
 
                 if (ship.AI.Target is Ship shipTarget)
                 {
-                    SetTextCursor(Win.X + 150, 600f, Color.White);
+                    SetTextCursor(Win.X + 200, 620f, Color.White);
                     DrawString("Target: "+ shipTarget.Name);
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
