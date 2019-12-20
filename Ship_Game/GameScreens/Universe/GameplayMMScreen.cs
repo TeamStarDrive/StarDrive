@@ -43,7 +43,7 @@ namespace Ship_Game
             batch.Begin();
             if (SavedGame.IsSaving)
             {
-                var pausePos = new Vector2(ScreenManager.Center().X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
+                var pausePos = new Vector2(ScreenCenter.X - Fonts.Pirulen16.MeasureString("Paused").X / 2f, 45 + Fonts.Pirulen16.LineSpacing * 2 + 4);
                 batch.DrawString(Fonts.Pirulen16, "Saving...", pausePos, CurrentFlashColor);
             }
             window.Draw(batch);

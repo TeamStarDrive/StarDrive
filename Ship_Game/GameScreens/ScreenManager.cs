@@ -46,6 +46,8 @@ namespace Ship_Game
         public GameScreen Current => GameScreens[GameScreens.Count-1];
         public IReadOnlyList<GameScreen> Screens => GameScreens;
 
+        public Vector2 ScreenCenter => GameBase.ScreenCenter;
+
         public static ScreenManager Instance { get; private set; }
         public static GameScreen CurrentScreen => Instance.Current;
 

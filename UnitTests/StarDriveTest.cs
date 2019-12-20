@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -45,7 +46,7 @@ namespace UnitTests
             StarDriveAbsolutePath = Directory.GetCurrentDirectory();
         }
 
-        public GameDummy Game { get; private set; }
+        public TestGameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
@@ -53,7 +54,8 @@ namespace UnitTests
 
         public void CreateGameInstance()
         {
-            Game = new GameDummy();
+            var started = new AutoResetEvent(false);
+            Game = new TestGameDummy(started, show:false);
             Game.Create();
             Content = Game.Content;
         }
@@ -75,9 +77,10 @@ namespace UnitTests
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
         }
 
-        public void LoadStarterShips(string[] shipList = null)
+        public void LoadStarterShips(params string[] shipList)
         {
-            ResourceManager.LoadStarterShipsForTesting(shipList);
+            ResourceManager.LoadStarterShipsForTesting(
+                shipList.Length == 0 ? null : shipList);
         }
 
         public void LoadStarterShipVulcan()
@@ -108,7 +111,7 @@ namespace UnitTests
             ResourceManager.LoadTechContentForTesting();
         }
 
-        private static void AddDummyPlanet(out Planet p)
+        static void AddDummyPlanet(out Planet p)
         {
             p = new Planet();
             var s = new SolarSystem();

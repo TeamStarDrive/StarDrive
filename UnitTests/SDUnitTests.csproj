@@ -79,12 +79,14 @@
     <Compile Include="Planets\TestOrbitalBomb.cs" />
     <Compile Include="Ships\TestSupplyShuttles.cs" />
     <Compile Include="Ships\TestWeaponArcs.cs" />
+    <Compile Include="Ships\TestIsInsideFiringArc.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
     <Compile Include="Ships\TestWeaponMunition.cs" />
     <Compile Include="Ships\TestWeaponModifiers.cs" />
     <Compile Include="Technologies\TestTechnologyUnlock.cs" />
+    <Compile Include="TestGameComponent.cs" />
     <Compile Include="TestImpactPredictor.Scenario.cs" />
     <Compile Include="LinearAlgebra\TestMathExt.cs" />
     <Compile Include="Collections\TestSafeQueueT.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="TestImpactPredictor.cs" />
     <Compile Include="Serialization\TestYamlSerializer.cs" />
     <Compile Include="Serialization\TestBinarySerializer.cs" />
+    <Compile Include="TestGameDummy.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

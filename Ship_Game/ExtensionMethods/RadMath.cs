@@ -133,7 +133,16 @@ namespace Ship_Game
         {
             float ratio = radians / TwoPI;
             ratio -= (int)ratio;
-            if (ratio < 0f) ratio = -ratio;
+            if (ratio < 0f) ratio = 1f + ratio;
+            return ratio * TwoPI;
+        }
+
+        // Converts radians angle to always be in a normalized relative [-PI, +PI] range
+        public static float ToRelativeRadians(this float radians)
+        {
+            float ratio = radians / TwoPI;
+            ratio -= (int)ratio;
+            if (ratio < 0f) ratio = 1f + ratio;
             return ratio * TwoPI;
         }
 
