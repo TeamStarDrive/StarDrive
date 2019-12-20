@@ -539,9 +539,9 @@ namespace Ship_Game
             Vector2 size = Fonts.Arial12Bold.MeasureString(text);
             if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
                     screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
                     screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
             }
         }
