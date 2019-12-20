@@ -40,6 +40,7 @@ namespace Ship_Game
         [Serialize(2)] public Vector2 Velocity;
 
         // rotation in RADIANS
+        // MUST be normalized to [0; +2PI]
         [Serialize(3)] public float Rotation;
 
         [Serialize(4)] public Vector2 Dimensions;
@@ -64,6 +65,12 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
         [XmlIgnore][JsonIgnore] public Vector3 Direction3D => Rotation.RadiansToDirection3D();
 
+        // gets/set the Rotation in Degrees; Properly normalizes input degrees to [0; +2PI]
+        [XmlIgnore][JsonIgnore] public float RotationDegrees
+        {
+            get => Rotation.ToDegrees();
+            set => Rotation = value.FromDegreesToNormalizedRadians();
+        }
 
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
