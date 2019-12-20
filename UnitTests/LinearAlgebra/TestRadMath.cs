@@ -145,15 +145,14 @@ namespace UnitTests.LinearAlgebra
         {
             Assert.AreEqual(0f, (0f).ToNormalizedRadians(), Tolerance);
             Assert.AreEqual(1f, (1f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(1f, (-1f).ToNormalizedRadians(), Tolerance);
             Assert.AreEqual(3f, (3f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(3f, (-3f).ToNormalizedRadians(), Tolerance);
-            
             Assert.AreEqual(8f % RadMath.TwoPI, (8f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(8f % RadMath.TwoPI, (-8f).ToNormalizedRadians(), Tolerance);
-
             Assert.AreEqual(64f % RadMath.TwoPI, (64f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(64f % RadMath.TwoPI, (-64f).ToNormalizedRadians(), Tolerance);
+
+            Assert.AreEqual(RadMath.TwoPI-1f, (-1f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-3f, (-3f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-(8f % RadMath.TwoPI), (-8f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-(64f % RadMath.TwoPI), (-64f).ToNormalizedRadians(), Tolerance);
         }
 
         static Vector2 OriginalOrbitPos(Vector2 orbitAround, float orbitalRadians, float orbitRadius)
