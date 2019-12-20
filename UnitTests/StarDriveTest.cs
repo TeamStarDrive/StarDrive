@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -53,12 +54,20 @@ namespace UnitTests
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
 
+        // @note: This is slow! It can take 500-1000ms
+        // So don't create it if you don't need a valid GraphicsDevice
+        // Cases where you need this:
+        //  -- You need to create a new Universe
+        //  -- You need to load textures
+        //  -- You need to test any kind of GameScreen instance
+        //  -- You want to test a Ship
         public void CreateGameInstance(int width=800, int height=600, bool show=false)
         {
-            var started = new AutoResetEvent(false);
-            Game = new TestGameDummy(started, width, height, show);
+            var sw = Stopwatch.StartNew();
+            Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
             Content = Game.Content;
+            Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 
         public void Dispose()

@@ -11,7 +11,7 @@ namespace UnitTests.Ships
     [TestClass]
     public class TestIsInsideFiringArcs : StarDriveTest
     {
-        public static bool EnableVisualization = true;
+        public static bool EnableVisualization = false;
 
         public TestIsInsideFiringArcs()
         {
@@ -73,7 +73,7 @@ namespace UnitTests.Ships
                    $"ship rotation: {sr.String(3)} rads {sr.ToDegrees().String(3)} degrees\n"+
                    $"module pos:    {m.Center}\n"+
                    $"module local  facing: {mf.String(3)} rads {mf.ToDegrees().String(3)} degrees\n"+
-                   $"module global facing: {gf.String(3)} rads {gf.ToDegrees().String(3)}\n"+
+                   $"module global facing: {gf.String(3)} rads {gf.ToDegrees().String(3)} degrees\n"+
                    $"module arc:    {ff.String(3)} rads {ff.ToDegrees().String(3)} degrees\n"+
                    $"target point:  {point}\n";
         }
@@ -117,47 +117,51 @@ namespace UnitTests.Ships
             Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
             
+            const int fireArc = 90;
+            void Inside(float f, float x, float y)  =>  InsideFiringArc(ship, w, f, fireArc, new Vector2(x,y));
+            void Outside(float f, float x, float y) => OutsideFiringArc(ship, w, f, fireArc, new Vector2(x,y));
+
             // Up
-            InsideFiringArc(ship, w, facing:0, fireArc:90, point:new Vector2(0, -100));
-            InsideFiringArc(ship, w, facing:0, fireArc:90, point:new Vector2(-95, -100));
-            InsideFiringArc(ship, w, facing:0, fireArc:90, point:new Vector2(+95, -100));
-            OutsideFiringArc(ship, w, facing:0, fireArc:90, point:new Vector2(-105, -100));
-            OutsideFiringArc(ship, w, facing:0, fireArc:90, point:new Vector2(+105, -100));
+            Inside(f:0, x:0, y:-100);
+            Inside(f:0, x:-95, y:-100);
+            Inside(f:0, x:+95, y:-100);
+            Outside(f:0, x:-105, y:-100);
+            Outside(f:0, x:+105, y:-100);
 
             // Up (360)
-            InsideFiringArc(ship, w, facing:360, fireArc:90, point:new Vector2(0, -100));
-            InsideFiringArc(ship, w, facing:360, fireArc:90, point:new Vector2(-95, -100));
-            InsideFiringArc(ship, w, facing:360, fireArc:90, point:new Vector2(+95, -100));
-            OutsideFiringArc(ship, w, facing:360, fireArc:90, point:new Vector2(-105, -100));
-            OutsideFiringArc(ship, w, facing:360, fireArc:90, point:new Vector2(+105, -100));
+            Inside(f:360, x:0, y:-100);
+            Inside(f:360, x:-95, y:-100);
+            Inside(f:360, x:+95, y:-100);
+            Outside(f:360, x:-105, y:-100);
+            Outside(f:360, x:+105, y:-100);
 
             // Right
-            InsideFiringArc(ship, w, facing:90, fireArc:90, point:new Vector2(+100, 0));
-            InsideFiringArc(ship, w, facing:90, fireArc:90, point:new Vector2(+100, -95));
-            InsideFiringArc(ship, w, facing:90, fireArc:90, point:new Vector2(+100, +95));
-            OutsideFiringArc(ship, w, facing:90, fireArc:90, point:new Vector2(+100, -105));
-            OutsideFiringArc(ship, w, facing:90, fireArc:90, point:new Vector2(+100, +105));
+            Inside(f:90, x:+100, y:0);
+            Inside(f:90, x:+100, y:-95);
+            Inside(f:90, x:+100, y:+95);
+            Outside(f:90, x:+100, y:-105);
+            Outside(f:90, x:+100, y:+105);
 
             // Right (negative facing)
-            InsideFiringArc(ship, w, facing:-270, fireArc:90, point:new Vector2(+100, 0));
-            InsideFiringArc(ship, w, facing:-270, fireArc:90, point:new Vector2(+100, -95));
-            InsideFiringArc(ship, w, facing:-270, fireArc:90, point:new Vector2(+100, +95));
-            OutsideFiringArc(ship, w, facing:-270, fireArc:90, point:new Vector2(+100, -105));
-            OutsideFiringArc(ship, w, facing:-270, fireArc:90, point:new Vector2(+100, +105));
+            Inside(f:-270, x:+100, y:0);
+            Inside(f:-270, x:+100, y:-95);
+            Inside(f:-270, x:+100, y:+95);
+            Outside(f:-270, x:+100, y:-105);
+            Outside(f:-270, x:+100, y:+105);
 
             // Left
-            InsideFiringArc(ship, w, facing:270, fireArc:90, point:new Vector2(-100, 0));
-            InsideFiringArc(ship, w, facing:270, fireArc:90, point:new Vector2(-100, -95));
-            InsideFiringArc(ship, w, facing:270, fireArc:90, point:new Vector2(-100, +95));
-            OutsideFiringArc(ship, w, facing:270, fireArc:90, point:new Vector2(-100, -105));
-            OutsideFiringArc(ship, w, facing:270, fireArc:90, point:new Vector2(-100, +105));
+            Inside(f:270, x:-100, y:0);
+            Inside(f:270, x:-100, y:-95);
+            Inside(f:270, x:-100, y:+95);
+            Outside(f:270, x:-100, y:-105);
+            Outside(f:270, x:-100, y:+105);
             
             // Left (negative facing)
-            InsideFiringArc(ship, w, facing:-90, fireArc:90, point:new Vector2(-100, 0));
-            InsideFiringArc(ship, w, facing:-90, fireArc:90, point:new Vector2(-100, -95));
-            InsideFiringArc(ship, w, facing:-90, fireArc:90, point:new Vector2(-100, +95));
-            OutsideFiringArc(ship, w, facing:-90, fireArc:90, point:new Vector2(-100, -105));
-            OutsideFiringArc(ship, w, facing:-90, fireArc:90, point:new Vector2(-100, +105));
+            Inside(f:-90, x:-100, y:0);
+            Inside(f:-90, x:-100, y:-95);
+            Inside(f:-90, x:-100, y:+95);
+            Outside(f:-90, x:-100, y:-105);
+            Outside(f:-90, x:-100, y:+105);
         }
 
         // This covers several real world cases which were identified as bugs
@@ -173,25 +177,70 @@ namespace UnitTests.Ships
             InsideFiringArc(ship, w, facing:0, fireArc:23, point:new Vector2(0, 0));
         }
 
-        [TestMethod]
-        public void InFrontOfUs720Loop()
+        static Vector2 PointOnCircle(float rotation, float radius) => MathExt.PointOnCircle(rotation, 100);
+
+        void Run360Loop(int turretFacing, int targetRotationOffset)
         {
             Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
-
-            for (int rotation = -720; rotation < +720; ++rotation)
+            for (int shipRotation = 0; shipRotation < 360; shipRotation += 1)
             {
-                SetShipPosAndFacing(ship, Vector2.Zero, rotation:rotation);
-                InsideFiringArc(ship, w, facing:0, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                InsideFiringArc(ship, w, facing:+4, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                InsideFiringArc(ship, w, facing:-4, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                OutsideFiringArc(ship, w, facing:+90, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                OutsideFiringArc(ship, w, facing:+180, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                OutsideFiringArc(ship, w, facing:+270, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                OutsideFiringArc(ship, w, facing:-90, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                OutsideFiringArc(ship, w, facing:-180, fireArc:10, MathExt.PointOnCircle(rotation, 100));
-                OutsideFiringArc(ship, w, facing:-270, fireArc:10, MathExt.PointOnCircle(rotation, 100));
+                int fireArc = 10;
+                int targetRotation = shipRotation + targetRotationOffset; // IN FRONT OF US
+                SetShipPosAndFacing(ship, Vector2.Zero, shipRotation);
+                void Inside(float f)  =>  InsideFiringArc(ship, w, f, fireArc, PointOnCircle(targetRotation, 100));
+                void Outside(float f) => OutsideFiringArc(ship, w, f, fireArc, PointOnCircle(targetRotation, 100));
+
+                int facing = turretFacing;
+                Inside(facing);
+                Inside(facing + (fireArc/2 - 1)); // still within the fire arc, but close to arc edge
+                Inside(facing - (fireArc/2 - 1)); // still within the fire arc, but close to arc edge
+
+                // Negative tests make sure that out of arc points are reported correctly as outside
+                Outside(facing+90);  // negative test: turret is facing 90 degrees to the RIGHT
+                Outside(facing+180); // negative test: turret is facing 180 degrees away
+                Outside(facing+270); // negative test: turret is facing 90 degrees to the LEFT
+
+                Outside(facing-90);  // negative test: turret is facing 90 degrees to the LEFT
+                Outside(facing-180); // negative test: turret is facing 180 degrees away
+                Outside(facing-270); // negative test: turret is facing 90 degrees to the RIGHT
             }
+        }
+
+        [TestMethod]
+        public void TurretFacingForward_TargetInFront_360Loop()
+        {
+            Run360Loop(turretFacing: 0 /*turret facing forward*/,  targetRotationOffset: 0 /*target in front of the ship*/);
+        }
+        [TestMethod]
+        public void TurretFacingBehind_TargetToBehind_360Loop()
+        {
+            Run360Loop(turretFacing: 180 /*turret facing backward*/, targetRotationOffset: 180 /*target behind the ship*/);
+            Run360Loop(turretFacing: -180 /*turret facing backward*/, targetRotationOffset: -180 /*target behind the ship*/);
+        }
+        [TestMethod]
+        public void TurretFacingRight_TargetToRight_360Loop()
+        {
+            Run360Loop(turretFacing: 90 /*turret facing right*/,  targetRotationOffset: 90 /*target to the right*/);
+            Run360Loop(turretFacing: -270 /*turret facing right*/, targetRotationOffset: -270 /*target to the right*/);
+        }
+        [TestMethod]
+        public void TurretFacingLeft_TargetToLeft_360Loop()
+        {
+            Run360Loop(turretFacing: 270 /*turret facing left*/, targetRotationOffset: 270 /*target to the left*/);
+            Run360Loop(turretFacing: -90 /*turret facing left*/, targetRotationOffset: -90 /*target to the left*/);
+        }
+        [TestMethod]
+        public void TurretFacingTopRight_TargetToTopRight_360Loop()
+        {
+            Run360Loop(turretFacing: 45 /*turret facing top right*/, targetRotationOffset: 45 /*target to top right*/);
+            Run360Loop(turretFacing: 45-360 /*turret facing top right*/, targetRotationOffset: 45-360 /*target to top right*/);
+        }
+        [TestMethod]
+        public void TurretFacingTopLeft_TargetToTopLeft_360Loop()
+        {
+            Run360Loop(turretFacing: -45 /*turret facing top left*/, targetRotationOffset: -45 /*target to top left*/);
+            Run360Loop(turretFacing: 360-45 /*turret facing top left*/, targetRotationOffset: 360-45 /*target to top left*/);
         }
     }
 }
