@@ -2683,6 +2683,16 @@ namespace Ship_Game
             }
         }
 
+        public void RestoreUnserializableDataFromSave()
+        {
+            //restore relationShipData
+            foreach(var kv in Relationships)
+            {
+                var relationship = kv.Value;
+                relationship.RestoreWarsFromSave();
+            }
+        }
+
         public void Dispose()
         {
             Dispose(true);
