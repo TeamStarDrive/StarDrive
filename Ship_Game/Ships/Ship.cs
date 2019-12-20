@@ -1335,8 +1335,7 @@ namespace Ship_Game.Ships
                 EMPdisabled = EMPDamage > EmpTolerance;
             }
 
-            if (Rotation > RadMath.TwoPI) Rotation -= RadMath.TwoPI;
-            else if (Rotation < 0f)       Rotation += RadMath.TwoPI;
+            Rotation = Rotation.AsNormalizedRadians();
 
             if (AI.BadGuysNear ||
                 (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))

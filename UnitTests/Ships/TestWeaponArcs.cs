@@ -72,7 +72,7 @@ namespace UnitTests.Ships
 
             Vector2 inFrontOfUs = new Vector2(0, -1000f);
             Vector2 lookingAtUs = inFrontOfUs.DirectionToTarget(us.Center);
-            Ship enemy = SpawnShip("Rocket Scout", Enemy, inFrontOfUs, lookingAtUs.ToRadians());
+            Ship enemy = SpawnShip("Rocket Scout", Enemy, inFrontOfUs, lookingAtUs);
 
             Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
             Assert.IsTrue(rockets.UpdateAndFireAtTarget(us, NoProjectiles, NoShips), "Fire at target must succeed");
