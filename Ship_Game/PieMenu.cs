@@ -64,7 +64,7 @@ namespace Ship_Game
             if (0.3f <= distance && distance <= 1.5f)
             {
                 float angle = selectionOffset.Normalized().ToDegrees() + SectorDegrees*0.5f;
-                float relativeAngle = (angle.FromDegreesToNormalizedRadians() / RadMath.TwoPI);
+                float relativeAngle = (angle.ToRadians() / RadMath.TwoPI);
                 HoveredIndex = (int)(relativeAngle * RootNode.Children.Count);
             }
         }

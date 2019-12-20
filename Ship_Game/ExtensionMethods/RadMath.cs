@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -89,8 +82,8 @@ namespace Ship_Game
         public static float RadiansDown  = PI;
         public static float RadiansLeft  = PI + HalfPI;
 
-        const float RadianToDegree = 180.0f / PI;
-        const float DegreeToRadian = PI / 180.0f;
+        public const float RadianToDegree = 180.0f / PI;
+        public const float DegreeToRadian = PI / 180.0f;
 
         // Converts a radian float to degrees
         public static float ToDegrees(this float radians)
@@ -98,18 +91,18 @@ namespace Ship_Game
             return radians * RadianToDegree;
         }
 
-        // Converts a degree float to radians
-        // WARNING: no sanitation is done, so this can be [-X*PI; +X*PI]
+        // Converts DEGREES angle to radians
+        // Always in a normalized absolute [0, 2PI] range
         public static float ToRadians(this float degrees)
         {
-            #if DEBUG
-            if (degrees < 0f || 360f < degrees)
-                Log.Error("ToRadians() precondition failed: degrees must be in [0; 360] but was "+degrees);
-            #endif
-            return degrees * DegreeToRadian;
+            float ratio = degrees / 360f;
+            ratio -= (int)ratio;
+            if (ratio < 0f) ratio = 1f + ratio;
+            return ratio * TwoPI;
         }
 
         // Converts a direction vector to radians
+        // Always in a normalized absolute [0, 2PI] range
         public static float ToRadians(this Vector2 direction)
         {
             if (direction.X == 0f && direction.Y == 0f)
@@ -120,24 +113,6 @@ namespace Ship_Game
             // so we rotate the result 90 degrees
             float radians = (float)Math.Atan2(direction.Y, direction.X) + HalfPI;
             return radians;
-        }
-
-        // Converts radians angle to always be in a normalized absolute [0, 2PI] range
-        public static float AsNormalizedRadians(this float radians)
-        {
-            float ratio = radians / TwoPI;
-            ratio -= (int)ratio;
-            if (ratio < 0f) ratio = 1f + ratio;
-            return ratio * TwoPI;
-        }
-
-        // Converts DEGREES angle to always be in a normalized absolute [0, 2PI] range
-        public static float FromDegreesToNormalizedRadians(this float degrees)
-        {
-            float ratio = degrees / 360f;
-            ratio -= (int)ratio;
-            if (ratio < 0f) ratio = 1f + ratio;
-            return ratio * TwoPI;
         }
 
         // Converts a direction vector to degrees
