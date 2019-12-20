@@ -90,7 +90,7 @@ namespace UnitTests
 
         public ImpactSimulation(TestImpactPredictor.Scenario s, SimParameters sim)
         {
-            Owner = TestGameDummy.GetOrStartInstance();
+            Owner = TestGameDummy.GetOrStartInstance(1024, 1024);
             Sim   = sim;
             var us = new SimObject("Us", s.Us, s.UsVel, Color.Green, 32);
             Target = new SimObject("Target", s.Tgt, s.TgtVel, Color.Red, 32);

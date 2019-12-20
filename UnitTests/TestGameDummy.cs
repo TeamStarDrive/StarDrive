@@ -14,8 +14,8 @@ namespace UnitTests
         bool CachedVisibility;
         public bool Visible;
 
-        public TestGameDummy(AutoResetEvent started, bool show)
-            : base(1024, 1024, show)
+        public TestGameDummy(AutoResetEvent started, int width, int height, bool show)
+            : base(width, height, show)
         {
             Started = started;
             CachedVisibility = Visible = show;
@@ -105,7 +105,7 @@ namespace UnitTests
 
         static TestGameDummy Instance;
 
-        public static TestGameDummy GetOrStartInstance()
+        public static TestGameDummy GetOrStartInstance(int width, int height, bool show=true)
         {
             if (Instance != null)
                 return Instance;
@@ -115,7 +115,7 @@ namespace UnitTests
             {
                 try
                 {
-                    Instance = new TestGameDummy(started, show:true);
+                    Instance = new TestGameDummy(started, width, height, show);
                     Instance.Run(); // this will only return once the window is closed
                 }
                 finally

@@ -52,10 +52,10 @@ namespace UnitTests
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
 
-        public void CreateGameInstance()
+        public void CreateGameInstance(int width=800, int height=600, bool show=false)
         {
             var started = new AutoResetEvent(false);
-            Game = new TestGameDummy(started, show:false);
+            Game = new TestGameDummy(started, width, height, show);
             Game.Create();
             Content = Game.Content;
         }
