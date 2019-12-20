@@ -1,18 +1,15 @@
 using Microsoft.Xna.Framework;
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public class ShipGroup : IDisposable
+    public class ShipGroup
     {
-        public BatchRemovalCollection<Ship> Ships = new BatchRemovalCollection<Ship>();
+        public Array<Ship> Ships = new Array<Ship>();
         public Vector2 ProjectedDirection;
         public float Speed;
         public Empire Owner;
@@ -44,8 +41,10 @@ namespace Ship_Game
         {
             ProjectedDirection = direction;
             float facing = direction.ToRadians();
-            foreach (Ship ship in Ships)
+
+            for (int i = 0; i < Ships.Count; ++i)
             {
+                Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
                 ship.projectedPosition = projectedPos + Vector2.Zero.PointFromRadians(angle, distance);
@@ -56,13 +55,13 @@ namespace Ship_Game
         public void ProjectPosNoOffset(Vector2 projectedPos, Vector2 direction)
         {
             ProjectedDirection = direction;
-            foreach (Ship ship in Ships)
-                ship.projectedPosition = projectedPos + direction;
+            for (int i = 0; i < Ships.Count; ++i)
+                Ships[i].projectedPosition = projectedPos + direction;
         }
 
         public bool ContainsShip(Ship ship)
         {
-            return Ships.Contains(ship);
+            return Ships.ContainsRef(ship);
         }
 
         public virtual void AddShip(Ship ship)
@@ -77,14 +76,24 @@ namespace Ship_Game
             LastAveragePosUpdate = -1; // deferred position refresh
         }
 
+        protected void AssignPositionTo(Ship ship)
+        {
+            float angle = ship.RelativeFleetOffset.ToRadians() + Direction.ToRadians();
+            float distance = ship.RelativeFleetOffset.Length();
+            ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+        }
+
         public void AssignPositions(Vector2 newDirection)
         {
             if (!newDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
+
             Direction = newDirection;
             float facing = newDirection.ToRadians();
-            foreach (Ship ship in Ships) // rotate the existing fleet offsets
+
+            for (int i = 0; i < Ships.Count; ++i) // rotate the existing fleet offsets
             {
+                Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
                 ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
@@ -97,13 +106,16 @@ namespace Ship_Game
                 Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
             Direction = newDirection;
             float facing = newDirection.ToRadians();
-            foreach (Ship ship in Ships)
+
+            for (int i = 0; i < Ships.Count; ++i)
             {
-                if (ship.AI.State != AIState.AwaitingOrders && !forceAssembly)
-                    continue;
-                float angle = ship.RelativeFleetOffset.ToRadians() + facing;
-                float distance = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                Ship ship = Ships[i];
+                if (ship.AI.State == AIState.AwaitingOrders || forceAssembly)
+                {
+                    float angle = ship.RelativeFleetOffset.ToRadians() + facing;
+                    float distance = ship.RelativeFleetOffset.Length();
+                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                }
             }
         }
 
@@ -228,15 +240,12 @@ namespace Ship_Game
 
         public bool IsShipListEqual(Array<Ship> ships)
         {
-            using (Ships.AcquireReadLock())
-            {
-                if (Ships.Count != ships.Count)
+            if (Ships.Count != ships.Count)
+                return false;
+            for (int i = 0; i < Ships.Count; ++i)
+                if (!ships.ContainsRef(Ships[i]))
                     return false;
-                foreach (Ship ship in Ships)
-                    if (!ships.Contains(ship))
-                        return false;
-                return true;
-            }
+            return true;
         }
 
         public static Vector2 GetAveragePosition(Array<Ship> ships)
@@ -332,9 +341,9 @@ namespace Ship_Game
             GoalStack?.Clear();
             Position = movePosition;
             AssembleFleet(facingDir, !queueOrder);
-            using(Ships.AcquireReadLock())
-            foreach (Ship ship in Ships)
+            for (int i = 0; i < Ships.Count; ++i)
             {
+                Ship ship = Ships[i];
                 ship.AI.SetPriorityOrder(!queueOrder);
                 if (queueOrder)
                     ship.AI.OrderFormationWarpQ(Position + ship.FleetOffset, facingDir);
@@ -444,18 +453,6 @@ namespace Ship_Game
             if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
             return CombatStatus.ClearSpace;
-        }
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-        ~ShipGroup() { Destroy(); }
-
-        protected virtual void Destroy()
-        {
-            Ships?.Dispose(ref Ships);
         }
 
         public void SetSpeed()

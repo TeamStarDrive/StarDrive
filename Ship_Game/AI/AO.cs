@@ -365,8 +365,6 @@ namespace Ship_Game.AI
                     break;
                 }
             }
-
-            CoreFleet?.Dispose(ref CoreFleet);
         }
        
     }
