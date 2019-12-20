@@ -55,7 +55,7 @@ namespace Ship_Game
             GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
             TitleBar              = new Menu2(titleRect);
-            TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             SelectedItemRect      = new Rectangle(screenWidth - 240, 100, 225, 205);
             AssetsRect            = new Rectangle(10, 48, 225, 200);
             HoveredItemRect       = new Rectangle(10, 248, 225, 200);
@@ -144,7 +144,7 @@ namespace Ship_Game
                 pgs.CanAttack = false;
                 pgs.CanMoveTo = false;
                 if (ActiveTile == null)
-                pgs.ShowAttackHover = false;
+                    pgs.ShowAttackHover = false;
             }
             if (ActiveTile == null)
             {
@@ -227,11 +227,14 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial8Bold, t.StrengthText + ", Level: " + t.Level, tCursor, statsColor);
         }
 
+        private Color OwnerColor => p.Owner?.EmpireColor ?? Color.Gray;
+
         public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = StarDriveGame.Instance.GameTime;
             batch.Draw(ResourceManager.Texture($"PlanetTiles/{p.PlanetTileId}_tilt"), GridRect, Color.White);
             batch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
+            batch.DrawString(Fonts.Arial20Bold, p.Name, TitlePos, OwnerColor);
 
             if (assetsUI.LandTroops.Toggled)
             {

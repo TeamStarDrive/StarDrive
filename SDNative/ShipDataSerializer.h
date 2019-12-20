@@ -13,7 +13,7 @@ namespace SDNative
 
     struct ThrusterZone
     {
-        float X, Y, Scale;
+        float X, Y, Z, Scale;
     };
 
     static const strview Empty = "";
