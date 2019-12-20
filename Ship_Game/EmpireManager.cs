@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 
@@ -6,7 +6,8 @@ namespace Ship_Game
 {
     public class EmpireManager
     {
-        static readonly Array<Empire> EmpireList = new Array<Empire>();
+        public static readonly Array<Empire> Empires = new Array<Empire>();
+        public static int NumEmpires => Empires.Count;
         static readonly Map<string, Empire> EmpireDict = new Map<string, Empire>();
 
         static Empire PlayerEmpire;
@@ -16,9 +17,6 @@ namespace Ship_Game
         static Empire UnknownFaction;
         static Empire CorsairsFaction;
         static Empire DummyEmpire;
-
-        public static IReadOnlyList<Empire> Empires => EmpireList;
-        public static int NumEmpires => EmpireList.Count;
 
         /// @todo These should be initialized ONCE during loading, leaving like this for future refactor
         public static Empire Player     => PlayerEmpire     ?? (PlayerEmpire     = FindPlayerEmpire());
@@ -34,12 +32,12 @@ namespace Ship_Game
         public static Empire Void => DummyEmpire ?? (DummyEmpire = CreateVoidEmpire());
 
         public static Empire[] AIEmpires =>
-            EmpireList.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
+            Empires.Filter(empire => !empire.isFaction && !empire.data.Defeated && !empire.isPlayer);
 
 
         public static Empire FindDuplicateEmpire(Empire empire)
         {
-            if (EmpireList.Contains(empire))
+            if (Empires.ContainsRef(empire))
                 return empire;
             return GetEmpireByName(empire.data.Traits.Name);
         }
@@ -50,13 +48,13 @@ namespace Ship_Game
             if (FindDuplicateEmpire(e) != null)
                 return;
 
-            EmpireList.Add(e);
-            e.Id = EmpireList.Count;
+            Empires.Add(e);
+            e.Id = NumEmpires;
         }
 
         public static void Clear()
         {
-            EmpireList.Clear();
+            Empires.Clear();
             EmpireDict.Clear();
             PlayerEmpire     = null;
             CordrazineEmpire = null;
@@ -68,7 +66,7 @@ namespace Ship_Game
         
         public static Empire GetEmpireById(int empireId)
         {
-            return empireId == 0 ? null : EmpireList[empireId-1];
+            return empireId == 0 ? null : Empires[empireId-1];
         }
 
         public static Empire GetEmpireByName(string name)
@@ -77,7 +75,7 @@ namespace Ship_Game
                 return null;
             if (EmpireDict.TryGetValue(name, out Empire e))
                 return e;
-            foreach (Empire empire in EmpireList)
+            foreach (Empire empire in Empires)
             {
                 if (empire.data.Traits.Name == name)
                 {
@@ -90,7 +88,7 @@ namespace Ship_Game
 
         static Empire FindPlayerEmpire()
         {
-            foreach (Empire empire in EmpireList)
+            foreach (Empire empire in Empires)
                 if (empire.isPlayer)
                     return empire;
             return null;
@@ -102,7 +100,7 @@ namespace Ship_Game
             if (e.isFaction)
                 return allies;
 
-            foreach (Empire empire in EmpireList)
+            foreach (Empire empire in Empires)
                 if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Alliance)
                     allies.Add(empire);
             return allies;
@@ -114,7 +112,7 @@ namespace Ship_Game
             if (e.isFaction)
                 return allies;
 
-            foreach (Empire empire in EmpireList)
+            foreach (Empire empire in Empires)
                 if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Trade)
                     allies.Add(empire);
             return allies;
