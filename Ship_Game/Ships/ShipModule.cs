@@ -25,7 +25,7 @@ namespace Ship_Game.Ships
         public float FacingDegrees
         {
             get => FacingRadians.ToDegrees();
-            set => FacingRadians = value.FromDegreesToNormalizedRadians();
+            set => FacingRadians = value.ToRadians();
         }
         public bool CheckedConduits;
         public bool Powered;
