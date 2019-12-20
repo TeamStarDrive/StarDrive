@@ -373,7 +373,8 @@ namespace Ship_Game
             BorderNodes.Clear();
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
-            foreach (var kv in FleetsDict) kv.Value.Dispose();
+            foreach (var kv in FleetsDict)
+                kv.Value.Reset();
             FleetsDict.Clear();
             UnlockedBuildingsDict.Clear();
             UnlockedHullsDict.Clear();
@@ -2675,14 +2676,13 @@ namespace Ship_Game
 
         ~Empire() { Dispose(false); }
 
-        private void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             ForcePool = null;
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
             OwnedShips?.Dispose(ref OwnedShips);
-            DefensiveFleet?.Dispose(ref DefensiveFleet);
             EmpireAI?.Dispose(ref EmpireAI);
             if (data != null)
             {
