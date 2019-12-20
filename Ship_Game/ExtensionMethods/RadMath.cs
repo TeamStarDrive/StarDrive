@@ -99,8 +99,13 @@ namespace Ship_Game
         }
 
         // Converts a degree float to radians
+        // WARNING: no sanitation is done, so this can be [-X*PI; +X*PI]
         public static float ToRadians(this float degrees)
         {
+            #if DEBUG
+            if (degrees < 0f || 360f < degrees)
+                Log.Error("ToRadians() precondition failed: degrees must be in [0; 360] but was "+degrees);
+            #endif
             return degrees * DegreeToRadian;
         }
 
@@ -117,19 +122,8 @@ namespace Ship_Game
             return radians;
         }
 
-        // Almost identical to `ToRadians()`,
-        // but converts the angle to always be in a normalized absolute [0, 2PI] range
-        public static float ToNormalizedRadians(this Vector2 direction)
-        {
-            if (direction.X == 0f && direction.Y == 0f)
-                return 0f; // Up
-
-            float radians = (float)Math.Atan2(direction.Y, direction.X) + HalfPI;
-            return ToNormalizedRadians(radians);
-        }
-
         // Converts radians angle to always be in a normalized absolute [0, 2PI] range
-        public static float ToNormalizedRadians(this float radians)
+        public static float AsNormalizedRadians(this float radians)
         {
             float ratio = radians / TwoPI;
             ratio -= (int)ratio;
@@ -137,10 +131,10 @@ namespace Ship_Game
             return ratio * TwoPI;
         }
 
-        // Converts radians angle to always be in a normalized relative [-PI, +PI] range
-        public static float ToRelativeRadians(this float radians)
+        // Converts DEGREES angle to always be in a normalized absolute [0, 2PI] range
+        public static float FromDegreesToNormalizedRadians(this float degrees)
         {
-            float ratio = radians / TwoPI;
+            float ratio = degrees / 360f;
             ratio -= (int)ratio;
             if (ratio < 0f) ratio = 1f + ratio;
             return ratio * TwoPI;
