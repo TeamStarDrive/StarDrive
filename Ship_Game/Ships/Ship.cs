@@ -715,7 +715,7 @@ namespace Ship_Game.Ships
         bool IsPosInsideArc(Weapon w, Vector2 pos)
         {
             float angleToTarget = w.Origin.RadiansToTarget(pos);
-            float facing = w.Module.Facing.ToRadians() + Rotation;
+            float facing = w.Module.FacingRadians + Rotation;
             float difference = Math.Abs(facing - angleToTarget);
             return difference < (w.Module.FieldOfFire * 0.5f);
         }
@@ -1170,7 +1170,7 @@ namespace Ship_Game.Ships
                     Health                = module.Health,
                     ShieldPower           = module.ShieldPower,
                     ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
-                    Facing                = module.Facing,
+                    Facing                = module.FacingDegrees,
                     Restrictions          = module.Restrictions
                 };
 
