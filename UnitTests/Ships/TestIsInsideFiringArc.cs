@@ -41,7 +41,7 @@ namespace UnitTests.Ships
                 Vector2 c = Game.Manager.ScreenCenter;
                 ShipModule m = Wep.Module;
                 Vector2 mc = c + m.Center;
-                float facing = (m.FacingRadians + Ship.Rotation);
+                float facing = (Ship.Rotation + m.FacingRadians);
                 Vector2 md = facing.RadiansToDirection();
                 batch.DrawCircle(mc, m.Radius, Color.Yellow, 2);
                 batch.DrawLine(mc, mc + md*m.Radius, Color.Yellow, 2);

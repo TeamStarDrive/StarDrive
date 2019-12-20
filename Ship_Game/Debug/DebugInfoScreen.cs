@@ -335,7 +335,6 @@ namespace Ship_Game.Debug
             {
                 ShipModule m = w.Module;
                 float facing = ship.Rotation + m.FacingRadians;
-                Vector2 dir = facing.RadiansToDirection();
                 float size = w.GetActualRange();
 
                 Screen.ProjectToScreenCoords(m.Center, size, 
@@ -343,28 +342,38 @@ namespace Ship_Game.Debug
                 ShipDesignScreen.DrawWeaponArcs(ScreenManager.SpriteBatch,
                                       ship.Rotation, w, m, posOnScreen, sizeOnScreen*0.25f);
 
-                DrawLineImm(m.Center, m.Center + facing.RadiansToDirection() * size, Color.Crimson);
-                if (m.FieldOfFire <= RadMath.HalfPI)
-                {
-                    Vector2 left = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
-                    Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
-                    DrawLineImm(m.Center, m.Center + left * size, Color.Crimson);
-                    DrawLineImm(m.Center, m.Center + right * size, Color.Crimson);
-                }
-                else
-                {
-                    DrawCircleImm(w.Origin, size, Color.Crimson);
-                }
-
                 DrawCircleImm(w.Origin, m.Radius/(float)Math.Sqrt(2), Color.Crimson);
 
-                Ship target = ship.AI.Target;
-                if (target != null)
+                Ship targetShip = ship.AI.Target;
+                GameplayObject target = targetShip;
+                if (w.FireTarget is ShipModule sm)
+                {
+                    targetShip = sm.GetParent();
+                    target = sm;
+                }
+
+                if (targetShip != null)
                 {
                     bool inRange = ship.CheckRangeToTarget(w, target);
-                    bool inArc = ship.IsInsideFiringArc(w, target.Center);
-                    DrawStringProjected(m.Center+dir*m.Radius, 0f, 1f, Color.LightCyan, 
-                        $"Target: {target.Name}\nInRange: {inRange}\nInArc: {inArc}");
+                    float bigArc = m.FieldOfFire*1.2f;
+                    bool inBigArc = RadMath.IsTargetInsideArc(m.Center, target.Center,
+                                                    ship.Rotation + m.FacingRadians, bigArc);
+                    if (inRange && inBigArc) // show arc lines if we are close to arc edges
+                    {
+                        bool inArc = ship.IsInsideFiringArc(w, target.Center);
+
+                        Color inArcColor = inArc ? Color.LawnGreen : Color.Orange;
+                        DrawLineImm(m.Center, target.Center, inArcColor, 3f);
+
+                        DrawLineImm(m.Center, m.Center + facing.RadiansToDirection() * size, Color.Crimson);
+                        Vector2 left  = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
+                        Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
+                        DrawLineImm(m.Center, m.Center + left * size, Color.Crimson);
+                        DrawLineImm(m.Center, m.Center + right * size, Color.Crimson);
+
+                        string text = $"Target: {targetShip.Name}\nInArc: {inArc}";
+                        DrawShadowStringProjected(m.Center, 0f, 1f, inArcColor, text);
+                    }
                 }
             }
         }
