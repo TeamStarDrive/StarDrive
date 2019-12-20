@@ -373,7 +373,8 @@ namespace Ship_Game
             BorderNodes.Clear();
             TechnologyDict.Clear();
             SpaceRoadsList.Clear();
-            foreach (var kv in FleetsDict) kv.Value.Dispose();
+            foreach (var kv in FleetsDict)
+                kv.Value.Reset();
             FleetsDict.Clear();
             UnlockedBuildingsDict.Clear();
             UnlockedHullsDict.Clear();
@@ -969,39 +970,38 @@ namespace Ship_Game
             }
         }
 
-        public void UpdateKnownShips()
+        void UpdateKnownShips()
         {
             KnownShips.Clear();
-            if (data.Defeated)
-                return;
+            InfluenceNode[] influenceNodes = SensorNodes.ToArray();
 
             if (isPlayer && Universe.Debug) // if Debug overlay is enabled, make all ships visible
             {
-                using (Universe.MasterShipList.AcquireReadLock())
-                    foreach (Ship nearby in Universe.MasterShipList)
+                for (int i = 0; i < Universe.MasterShipList.Count; ++i)
+                {
+                    Ship nearby = Universe.MasterShipList[i];
+                    if (nearby.Active)
                     {
                         nearby.inSensorRange = true;
+                        UpdateShipInfluence(nearby, influenceNodes);
                         KnownShips.Add(nearby);
                         EmpireAI.ThreatMatrix.UpdatePin(nearby);
                     }
-                return;
+                }
             }
-
-            InfluenceNode[] influenceNodes = SensorNodes.ToArray();
-
-            for (int i = 0; i < Universe.MasterShipList.Count; ++i)
+            else
             {
-                Ship nearby = Universe.MasterShipList[i];
-                if (nearby.Active && IsShipInsideInfluence(nearby, influenceNodes))
-                    KnownShips.Add(nearby);
+                for (int i = 0; i < Universe.MasterShipList.Count; ++i)
+                {
+                    Ship nearby = Universe.MasterShipList[i];
+                    if (nearby.Active && UpdateShipInfluence(nearby, influenceNodes))
+                        KnownShips.Add(nearby);
+                }
             }
-
         }
 
-        private bool IsShipInsideInfluence(Ship nearby, InfluenceNode[] influenceNodes)
+        bool UpdateShipInfluence(Ship nearby, InfluenceNode[] influenceNodes)
         {
-            nearby.BorderCheck.Remove(this);
-
             if (nearby.loyalty != this) // update from another empire
             {
                 bool inSensorRadius = false;
@@ -1010,66 +1010,63 @@ namespace Ship_Game
                 for (int i = 0; i < influenceNodes.Length; i++)
                 {
                     InfluenceNode node = influenceNodes[i];
-                    if (nearby.Center.OutsideRadius(node.Position, node.Radius))
-                        continue;
-
-                    if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
-                        DoFirstContact(nearby.loyalty);
-
-                    inSensorRadius = true;
-                    if (node.SourceObject is Ship shipKey && (shipKey.inborders || shipKey.IsSubspaceProjector) ||
-                        node.SourceObject is SolarSystem || node.SourceObject is Planet)
+                    if (nearby.Center.InRadius(node.Position, node.Radius))
                     {
-                        border = true;
-                        nearby.BorderCheck.Add(this);
+                        if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
+                            DoFirstContact(nearby.loyalty);
+
+                        inSensorRadius = true;
+                        if (node.SourceObject is Ship shipKey && (shipKey.inborders || shipKey.IsSubspaceProjector) ||
+                            node.SourceObject is SolarSystem || node.SourceObject is Planet)
+                        {
+                            border = true;
+                        }
+                        nearby.inSensorRange |= isPlayer;
+                        break;
                     }
-
-                    if (!isPlayer)
-                        break;
-
-                    nearby.inSensorRange = true;
-                    if (nearby.System == null || !isFaction && !nearby.loyalty.isFaction && !loyalty.AtWar)
-                        break;
-
-                    break;
                 }
 
+                nearby.SetProjectorInfluence(this, border);
                 EmpireAI.ThreatMatrix.UpdatePin(nearby, border, inSensorRadius);
                 return inSensorRadius;
             }
 
             // update our own empire ships
             EmpireAI.ThreatMatrix.ClearPinsInSensorRange(nearby.Center, nearby.SensorRange);
-            if (isPlayer)
-                nearby.inSensorRange = true;
+            nearby.inSensorRange |= isPlayer;
             nearby.inborders = false;
 
-            using (BorderNodes.AcquireReadLock())
-                foreach (InfluenceNode node in BorderNodes)
+            for (int i = 0; i < BorderNodes.Count; ++i)
+            {
+                InfluenceNode node = BorderNodes[i];
+                if (node.Position.InRadius(nearby.Center, node.Radius))
                 {
-                    if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
                     nearby.inborders = true;
-                    nearby.BorderCheck.Add(this);
                     break;
                 }
+            }
 
             if (!nearby.inborders)
             {
-                foreach (var relationship in Relationships)
+                foreach (KeyValuePair<Empire, Relationship> relationship in Relationships)
                 {
-                    if (!relationship.Value.Treaty_Alliance)
-                        continue;
-
-                    using (relationship.Key.BorderNodes.AcquireReadLock())
-                        foreach (InfluenceNode node in relationship.Key.BorderNodes)
+                    if (relationship.Value.Treaty_Alliance)
+                    {
+                        Empire e = relationship.Key;
+                        for (int i = 0; i < e.BorderNodes.Count; ++i)
                         {
-                            if (node.Position.OutsideRadius(nearby.Center, node.Radius)) continue;
-                            nearby.inborders = true;
-                            nearby.BorderCheck.Add(this);
-                            break;
+                            InfluenceNode node = e.BorderNodes[i];
+                            if (node.Position.InRadius(nearby.Center, node.Radius))
+                            {
+                                nearby.inborders = true;
+                                break;
+                            }
                         }
+                    }
                 }
             }
+
+            nearby.SetProjectorInfluence(this, nearby.inborders);
             return true; // always add, because this ship is from our own empire
         }
 
@@ -1774,7 +1771,7 @@ namespace Ship_Game
             return maxDesireType;
         }
 
-        public void ResetBorders()
+        void ResetBorders()
         {
             BorderNodes.ClearAndRecycle();
             SensorNodes.ClearAndRecycle();
@@ -2609,13 +2606,9 @@ namespace Ship_Game
             bool bordersChanged = false;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
-                int check = BorderNodes.Count;
+                int oldBorderNodesCount = BorderNodes.Count;
                 ResetBorders();
-                Universe.RemoveEmpireFromAllShipsBorderList(this);
-                if (BorderNodes.Count != check)
-                {
-                    bordersChanged = true;
-                }
+                bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
 
                 UpdateKnownShips();
                 updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
@@ -2675,14 +2668,13 @@ namespace Ship_Game
 
         ~Empire() { Dispose(false); }
 
-        private void Dispose(bool disposing)
+        void Dispose(bool disposing)
         {
             ForcePool = null;
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
             OwnedShips?.Dispose(ref OwnedShips);
-            DefensiveFleet?.Dispose(ref DefensiveFleet);
             EmpireAI?.Dispose(ref EmpireAI);
             if (data != null)
             {
