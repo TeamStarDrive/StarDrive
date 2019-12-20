@@ -69,7 +69,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public float RotationDegrees
         {
             get => Rotation.ToDegrees();
-            set => Rotation = value.FromDegreesToNormalizedRadians();
+            set => Rotation = value.ToRadians();
         }
 
         private static int GameObjIds;
