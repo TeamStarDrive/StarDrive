@@ -20,7 +20,13 @@ namespace Ship_Game.Ships
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
 
-        public float Facing; // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
+        // @note This is always Normalized to [0; +2PI] by FacingDegrees setter
+        public float FacingRadians;
+        public float FacingDegrees
+        {
+            get => FacingRadians.ToDegrees();
+            set => FacingRadians = value.ToRadians();
+        }
         public bool CheckedConduits;
         public bool Powered;
         public int quadrant = -1;
@@ -273,7 +279,7 @@ namespace Ship_Game.Ships
             Mass                  = template.Mass;
             Powered               = template.Powered;
             FieldOfFire           = template.FieldOfFire.ToRadians(); // @note Convert to radians for higher PERF
-            Facing                = template.facing;
+            FacingDegrees         = template.facing;
             XMLPosition           = template.XMLPosition;
             NameIndex             = template.NameIndex;
             DescriptionIndex      = template.DescriptionIndex;
@@ -459,7 +465,7 @@ namespace Ship_Game.Ships
             Center3D.Z = tan * (256f - XMLPosition.X);
 
             UpdateDamageVisualization(elapsedTime);
-            Rotation = Parent.Rotation;
+            Rotation = Parent.Rotation; // assume parent rotation is already normalized
         }
 
         // radius padding for collision detection
@@ -1296,7 +1302,7 @@ namespace Ship_Game.Ships
 
         public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
         {
-            Facing = facing;
+            FacingDegrees = facing;
             switch (orientation)
             {
                 case ModuleOrientation.Normal:

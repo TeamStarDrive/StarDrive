@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.Audio;
-using Ship_Game.Data;
-using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -18,6 +8,7 @@ namespace Ship_Game
     // for minimal testing
     public class GameDummy : GameBase
     {
+        public ScreenManager Manager => ScreenManager;
         public SpriteBatch Batch => ScreenManager.SpriteBatch;
 
         public GameDummy(int width = 800, int height = 600, bool show = false)
@@ -28,17 +19,7 @@ namespace Ship_Game
             settings.Mode = WindowMode.Borderless;
             ApplyGraphics(settings);
             InitializeAudio();
-            if (show) Show();
-        }
-
-        public void Show()
-        {
-            Form.Visible = true;
-        }
-
-        public void Hide()
-        {
-            Form.Visible = false;
+            if (show) Form.Visible = true;
         }
 
         public void Create()

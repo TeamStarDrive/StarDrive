@@ -7,8 +7,10 @@ using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.Ships
 {
@@ -679,14 +681,6 @@ namespace Ship_Game.Ships
             return target.Center.InRadius(w.Module.Center, range);
         }
 
-        bool IsPosInsideArc(Weapon w, Vector2 pos)
-        {
-            float angleToTarget = w.Origin.RadiansToTarget(pos);
-            float facing = w.Module.Facing.ToRadians() + Rotation;
-            float difference = Math.Abs(facing - angleToTarget);
-            return difference < (w.Module.FieldOfFire * 0.5f);
-        }
-
         // Added by McShooterz
         public bool IsTargetInFireArcRange(Weapon w, GameplayObject target)
         {
@@ -707,14 +701,19 @@ namespace Ship_Game.Ships
                     return false;
             }
 
-            return IsPosInsideArc(w, target.Center);
+            ShipModule m = w.Module;
+            return RadMath.IsTargetInsideArc(m.Center, target.Center,
+                                             Rotation + m.FacingRadians, m.FieldOfFire);
         }
 
-        // This is used by Beam weapons
+        // This is used by Beam weapons and by Testing
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
             ++GlobalStats.WeaponArcChecks;
-            return IsPosInsideArc(w, pickedPos);
+
+            ShipModule m = w.Module;
+            return RadMath.IsTargetInsideArc(m.Center, pickedPos,
+                                             Rotation + m.FacingRadians, m.FieldOfFire);
         }
 
         public SceneObject GetSO()
@@ -1148,7 +1147,7 @@ namespace Ship_Game.Ships
                     Health                = module.Health,
                     ShieldPower           = module.ShieldPower,
                     ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
-                    Facing                = module.Facing,
+                    Facing                = module.FacingDegrees,
                     Restrictions          = module.Restrictions
                 };
 
@@ -1314,8 +1313,7 @@ namespace Ship_Game.Ships
                 EMPdisabled = EMPDamage > EmpTolerance;
             }
 
-            if (Rotation > RadMath.TwoPI) Rotation -= RadMath.TwoPI;
-            else if (Rotation < 0f)       Rotation += RadMath.TwoPI;
+            Rotation = Rotation.AsNormalizedRadians();
 
             if (AI.BadGuysNear ||
                 (InFrustum && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView))
