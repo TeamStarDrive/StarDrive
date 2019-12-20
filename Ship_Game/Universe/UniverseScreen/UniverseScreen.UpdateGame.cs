@@ -297,13 +297,7 @@ namespace Ship_Game
             }
         }
 
-        public void RemoveEmpireFromAllShipsBorderList(Empire empire)
-        {
-            foreach (Ship ship in MasterShipList)
-                ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.
-        }        
-
-        private void UpdateShipsAndFleets(float elapsedTime)
+        void UpdateShipsAndFleets(float elapsedTime)
         {
             perfavg4.Start();
 
@@ -333,7 +327,7 @@ namespace Ship_Game
                 }
             }
 
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
                 foreach (var kv in EmpireManager.Empires[i].GetFleetsDict())
                 {
@@ -421,13 +415,12 @@ namespace Ship_Game
             bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
             if (IsActive)
             {
-                for (int i = 0; i < EmpireManager.Empires.Count; i++)
+                for (int i = 0; i < EmpireManager.NumEmpires; i++)
                 {
                     Empire empire = EmpireManager.Empires[i];
 
                     empire.ResetForcePool();
                     empire.AddShipsToForcePoolFromShipsToAdd();
-
                     rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }
             }
@@ -441,7 +434,7 @@ namespace Ship_Game
                 return true;
 
             EmpireUpdatePerf.Start();
-            for (var i = 0; i < EmpireManager.Empires.Count; i++)
+            for (var i = 0; i < EmpireManager.NumEmpires; i++)
             {
                 Empire empire = EmpireManager.Empires[i];
                 empire.Update(elapsedTime);
@@ -510,7 +503,7 @@ namespace Ship_Game
                 }
             }
 
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
                 var empire = EmpireManager.Empires[i];
 
