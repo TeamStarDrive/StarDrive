@@ -684,16 +684,19 @@ namespace Ship_Game.Ships
         // for public alias, @see IsInsideFiringArc
         bool IsPosInsideArc(ShipModule m, Vector2 pos)
         {
-            Vector2 origin = m.Center;
-            // NOTE: Atan2 y,x swapped to x,y rotates radians -90, because StarDrive uses UP=-Y
-            // This is also turns it into a relative angle: [-PI; +PI]
-            float radsToTarget = (float)Math.Atan2(pos.X - origin.X, origin.Y - pos.Y);
+            Vector2 o = m.Center;
+            // NOTE: Atan2(dy,dx) swapped to Atan2(dx,dy)
+            // rotates radians -90, because StarDrive uses UP=-Y
+            float radsToTarget = RadMath.PI - (float)Math.Atan2(pos.X-o.X, pos.Y-o.Y); // [0; +2PI]
+
             // Ship.Rotation and FacingRadians are normalized to [0; +2PI]
-            float facing = (m.FacingRadians + Rotation); // so this can be 2PI + 2PI
-            if (facing > RadMath.TwoPI)  // normalize again [0; +2PI]
-                facing -= RadMath.TwoPI;
-            if (facing > RadMath.PI) // to relative [-PI; +PI]
-                facing -= RadMath.TwoPI;
+            float radsFacing = (m.FacingRadians + Rotation); // so this can be 2PI + 2PI
+            if (radsFacing > RadMath.TwoPI)  // normalize back to [0; +2PI]
+                radsFacing -= RadMath.TwoPI;
+
+            // in order to compare the angles, we must get abs distance from 0 Rads
+            float radsFromZero1 = Math.Min(radsToTarget, RadMath.TwoPI - radsToTarget);
+            float radsFromZero2 = Math.Min(radsFacing,   RadMath.TwoPI - radsFacing);
 
             // Visual Debugging 
             //Vector2 dir1 = radsToTarget.RadiansToDirection();
@@ -701,7 +704,7 @@ namespace Ship_Game.Ships
             //Vector2 dir2 = radsToTarget.RadiansToDirection();
             //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir2 * 500f, 2, Color.Green, 0f);
 
-            float difference = Math.Abs(facing - radsToTarget);
+            float difference = Math.Abs(radsFromZero1 - radsFromZero2);
             return difference < (m.FieldOfFire * 0.5f);
         }
 
