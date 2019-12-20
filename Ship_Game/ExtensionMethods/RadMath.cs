@@ -125,6 +125,25 @@ namespace Ship_Game
             return ratio * TwoPI;
         }
 
+        public static bool IsTargetInsideArc(Vector2 origin, Vector2 target,
+            float arcFacingRads, float arcSizeRadians)
+        {
+            // NOTE: Atan2(dy,dx) swapped to Atan2(dx,dy)
+            // rotates radians -90, because StarDrive uses UP=-Y
+            float radsToTarget = PI - (float)Math.Atan2(target.X-origin.X, target.Y-origin.Y); // [0; +2PI]
+
+            // Ship.Rotation and FacingRadians are normalized to [0; +2PI]
+            float radsFacing = arcFacingRads; // so this can be 2PI + 2PI
+            if (radsFacing > TwoPI)  // normalize back to [0; +2PI]
+                radsFacing -= TwoPI;
+
+            // comparing angles is a bit more complicated, due to 0 and 2PI being equivalent
+            // so this 180 degree subtraction is needed to constrain the comparison to half circle sector
+            // https://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
+            float difference = PI - Math.Abs(Math.Abs(radsToTarget - radsFacing) - PI);
+            return difference < (arcSizeRadians * 0.5f);
+        }
+
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
         {
