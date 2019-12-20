@@ -80,6 +80,18 @@ namespace Ship_Game.AI
             RunWarPlanner();                        
         }
 
+        public void DebugRunResearchPlanner()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                RunResearchPlanner();
+                OwnerEmpire.Research.Update();
+                OwnerEmpire.Research.Current.Unlock(OwnerEmpire);
+                OwnerEmpire.Research.Reset();
+                OwnerEmpire.UpdateShipsWeCanBuild();
+            }
+        }
+
         public Array<Planet> GetKnownPlanets()
         {
             var knownPlanets = new Array<Planet>();
