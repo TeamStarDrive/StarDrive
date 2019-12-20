@@ -83,6 +83,12 @@ namespace UnitTests.Ships
                 $"arc:{w.Module.FieldOfFire.ToDegrees()}  point:{point}");
         }
 
+        void SetShipPosAndFacing(Ship ship, Vector2 center, float rotation)
+        {
+            ship.Center = ship.Position = center;
+            ship.Rotation = rotation.ToRadians();
+        }
+
         [TestMethod]
         public void ShipFiringArc()
         {
@@ -132,5 +138,17 @@ namespace UnitTests.Ships
             OutsideFiringArc(ship, w, facing:-90, fireArc:90, point:new Vector2(-100, +105));
         }
 
+        // This covers several real world cases which were identified as bugs
+        // They are here to prevent any regressions
+        [TestMethod]
+        public void ShipRealUseCases()
+        {
+            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Weapon w = ship.Weapons.First;
+
+            // ship is at 24,-1008 and looking DOWN at us at 0,0, fire arc is 23 degrees
+            SetShipPosAndFacing(ship, new Vector2(24, -1008), rotation:180);
+            InsideFiringArc(ship, w, facing:0, fireArc:23, point:new Vector2(0, 0));
+        }
     }
 }
