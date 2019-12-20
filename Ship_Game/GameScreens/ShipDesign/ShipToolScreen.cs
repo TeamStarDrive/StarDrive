@@ -537,7 +537,7 @@ namespace Ship_Game
         {
             ThrusterZone z = new ThrusterZone();
             Vector2 thrPos = (tPos + new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2)) - new Vector2(border.X, border.Y);
-            z.Position = thrPos;
+            z.Position = new Vector3(thrPos,0);
             z.Scale = tscale;
             TList.Add(z);
         }
@@ -622,7 +622,7 @@ namespace Ship_Game
 
         public struct ThrusterZone
         {
-            public Vector2 Position;
+            public Vector3 Position;
             [XmlElement(ElementName = "scale")]
             public float Scale;
         }

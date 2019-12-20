@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Ship_Game;
@@ -20,6 +22,7 @@ namespace UnitTests
         public static string StarDriveAbsolutePath { get; private set; }
         static StarDriveTest()
         {
+            Log.VerboseLogging = true;
             SetGameDirectory();
             try
             {
@@ -45,17 +48,26 @@ namespace UnitTests
             StarDriveAbsolutePath = Directory.GetCurrentDirectory();
         }
 
-        public GameDummy Game { get; private set; }
+        public TestGameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
 
-        public void CreateGameInstance()
+        // @note: This is slow! It can take 500-1000ms
+        // So don't create it if you don't need a valid GraphicsDevice
+        // Cases where you need this:
+        //  -- You need to create a new Universe
+        //  -- You need to load textures
+        //  -- You need to test any kind of GameScreen instance
+        //  -- You want to test a Ship
+        public void CreateGameInstance(int width=800, int height=600, bool show=false)
         {
-            Game = new GameDummy();
+            var sw = Stopwatch.StartNew();
+            Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
             Content = Game.Content;
+            Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 
         public void Dispose()
@@ -75,9 +87,10 @@ namespace UnitTests
             Enemy = EmpireManager.CreateRebelsFromEmpireData(ResourceManager.MajorRaces[0], Player);
         }
 
-        public void LoadStarterShips(string[] shipList = null)
+        public void LoadStarterShips(params string[] shipList)
         {
-            ResourceManager.LoadStarterShipsForTesting(shipList);
+            ResourceManager.LoadStarterShipsForTesting(
+                shipList.Length == 0 ? null : shipList);
         }
 
         public void LoadStarterShipVulcan()
@@ -89,10 +102,10 @@ namespace UnitTests
             });
         }
         
-        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, float rotation = 0f)
+        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
-            target.Rotation = rotation;
+            target.Rotation = shipDirection.Normalized().ToRadians();
             target.InFrustum = true; // force module pos update
             target.UpdateShipStatus(0.01f); // update module pos
             return target;
@@ -108,7 +121,7 @@ namespace UnitTests
             ResourceManager.LoadTechContentForTesting();
         }
 
-        private static void AddDummyPlanet(out Planet p)
+        static void AddDummyPlanet(out Planet p)
         {
             p = new Planet();
             var s = new SolarSystem();

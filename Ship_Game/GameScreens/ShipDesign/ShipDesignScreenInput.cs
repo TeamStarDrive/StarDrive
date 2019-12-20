@@ -369,9 +369,9 @@ namespace Ship_Game
 
         void SetFiringArc(SlotStruct slot, float arc)
         {
-            slot.Module.Facing = arc;
+            slot.Module.FacingDegrees = arc;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
-                mirrored.Facing = 360 - arc;
+                mirrored.FacingDegrees = 360 - arc;
         }
 
         void HandleCameraMovement(InputState input)
@@ -529,7 +529,7 @@ namespace Ship_Game
                     {
                         if (slot.Module?.ModuleType == ShipModuleType.Turret)
                         {
-                            float facing = slot.Module.Facing;
+                            float facing = slot.Module.FacingDegrees;
                             if (float.IsNaN(minFacing)) minFacing = maxFacing = facing;
                             if (facing > minFacing && facing < arc) minFacing = facing;
                             if (facing < maxFacing && facing > arc) maxFacing = facing;
@@ -538,7 +538,7 @@ namespace Ship_Game
 
                     if (!float.IsNaN(minFacing))
                     {
-                        highlighted.Facing = (arc - minFacing) < (maxFacing - arc) ? minFacing : maxFacing;
+                        highlighted.FacingDegrees = (arc - minFacing) < (maxFacing - arc) ? minFacing : maxFacing;
                     }
                     changedArcs = true;
                 }
@@ -923,7 +923,7 @@ namespace Ship_Game
                 };
                 if (slot.Module != null)
                 {
-                    savedSlot.Facing = slot.Module.Facing;
+                    savedSlot.Facing = slot.Module.FacingDegrees;
                     if (slot.Module.ModuleType == ShipModuleType.Hangar)
                         savedSlot.SlotOptions = slot.Module.hangarShipUID;
                 }

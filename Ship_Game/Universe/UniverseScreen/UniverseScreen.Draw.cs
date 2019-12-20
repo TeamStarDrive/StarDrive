@@ -257,13 +257,9 @@ namespace Ship_Game
                                 continue;
 
                             Vector2 endPos = ProjectToScreenPosition(influ2.Position);
-
-
                             float rotation = nodePos.RadiansToTarget(endPos);
-                            rect = new Rectangle((int)endPos.X, (int)endPos.Y, size * 3 / 2,
-                                (int)Vector2.Distance(nodePos, endPos));
-                            spriteBatch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f),
-                                SpriteEffects.None, 1f);
+                            rect = new Rectangle((int)endPos.X, (int)endPos.Y, size * 3 / 2, (int)nodePos.Distance(endPos));
+                            spriteBatch.Draw(nodeConnect, rect, empireColor, rotation, new Vector2(2f, 2f), SpriteEffects.None, 1f);
                         }
                     }
                 }
