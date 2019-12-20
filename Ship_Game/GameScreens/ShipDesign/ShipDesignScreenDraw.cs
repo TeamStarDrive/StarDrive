@@ -231,7 +231,7 @@ namespace Ship_Game
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
             DrawRectangle(slot.ModuleRect, edge, fill);
-            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
+            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.ToString(CultureInfo.CurrentCulture));
         }
 
         void DrawHangarShipText(SlotStruct s)
@@ -250,7 +250,7 @@ namespace Ship_Game
             var size       = new Vector2(500f, 500f);
             Rectangle rect = slot.Center.ToRect((int)size.X, (int)size.Y);
 
-            float radians = slot.Module.Facing.ToRadians();
+            float radians = slot.Module.FacingDegrees.ToRadians();
             batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
 
             Vector2 direction = radians.RadiansToDirection();
