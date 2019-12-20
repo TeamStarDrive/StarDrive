@@ -694,18 +694,18 @@ namespace Ship_Game.Ships
             if (radsFacing > RadMath.TwoPI)  // normalize back to [0; +2PI]
                 radsFacing -= RadMath.TwoPI;
 
-            // in order to compare the angles, we must get abs distance from 0 Rads
-            float radsFromZero1 = Math.Min(radsToTarget, RadMath.TwoPI - radsToTarget);
-            float radsFromZero2 = Math.Min(radsFacing,   RadMath.TwoPI - radsFacing);
+            // comparing angles is a bit more complicated, due to 0 and 2PI being equivalent
+            // so this 180 degree subtraction is needed to constrain the comparison to half circle sector
+            // https://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
+            float difference = RadMath.PI - Math.Abs(Math.Abs(radsToTarget - radsFacing) - RadMath.PI);
+            bool inside = difference < (m.FieldOfFire * 0.5f);
 
             // Visual Debugging 
-            //Vector2 dir1 = radsToTarget.RadiansToDirection();
+            //Vector2 dir1 = radsFacing.RadiansToDirection();
             //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir1 * 500f, 2, Color.Blue, 0f);
             //Vector2 dir2 = radsToTarget.RadiansToDirection();
-            //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir2 * 500f, 2, Color.Green, 0f);
-
-            float difference = Math.Abs(radsFromZero1 - radsFromZero2);
-            return difference < (m.FieldOfFire * 0.5f);
+            //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir2 * 500f, 2, inside ? Color.Green : Color.Red, 0f);
+            return inside;
         }
 
         // Added by McShooterz

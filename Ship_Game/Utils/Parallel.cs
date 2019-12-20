@@ -402,8 +402,6 @@ namespace Ship_Game
                 result.WaitNoThrow();
                 if (ex == null && result.Error != null)
                     ex = result.Error;
-
-                Log.Info($"PFor result[{i}]: Complete={result.IsComplete} Ex={result.Error}");
             }
 
             // from the first ParallelTask that threw an exception:

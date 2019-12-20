@@ -141,18 +141,33 @@ namespace UnitTests.LinearAlgebra
         }
         
         [TestMethod]
-        public void ToNormalizedRadians()
+        public void AsNormalizedRadians()
         {
-            Assert.AreEqual(0f, (0f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(1f, (1f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(3f, (3f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(8f % RadMath.TwoPI, (8f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(64f % RadMath.TwoPI, (64f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(0f, (0f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(1f, (1f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(3f, (3f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(8f % RadMath.TwoPI, (8f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(64f % RadMath.TwoPI, (64f).AsNormalizedRadians(), Tolerance);
 
-            Assert.AreEqual(RadMath.TwoPI-1f, (-1f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(RadMath.TwoPI-3f, (-3f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(RadMath.TwoPI-(8f % RadMath.TwoPI), (-8f).ToNormalizedRadians(), Tolerance);
-            Assert.AreEqual(RadMath.TwoPI-(64f % RadMath.TwoPI), (-64f).ToNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-1f, (-1f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-3f, (-3f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-(8f % RadMath.TwoPI), (-8f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI-(64f % RadMath.TwoPI), (-64f).AsNormalizedRadians(), Tolerance);
+        }
+
+        [TestMethod]
+        public void FromDegreesToNormalizedRadians()
+        {
+            Assert.AreEqual((0f).ToRadians(),   (0f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((115f).ToRadians(), (115f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((345f).ToRadians(), (345f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((920f % 360f).ToRadians(),  (920f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((7300f % 360f).ToRadians(), (7300f).FromDegreesToNormalizedRadians(), Tolerance);
+
+            Assert.AreEqual((360f-115f).ToRadians(), (-115f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((360f-345f).ToRadians(), (-345f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((360f-(920f % 360f)).ToRadians(),  (-920f).FromDegreesToNormalizedRadians(), Tolerance);
+            Assert.AreEqual((360f-(7300f % 360f)).ToRadians(), (-7300f).FromDegreesToNormalizedRadians(), Tolerance);
         }
 
         static Vector2 OriginalOrbitPos(Vector2 orbitAround, float orbitalRadians, float orbitRadius)
