@@ -559,6 +559,7 @@ namespace Ship_Game.Gameplay
                     rotationRadsPerSec = Speed / 350f;
 
                 Rotation += rotationDir * Math.Min(angleDiff, elapsedTime*rotationRadsPerSec);
+                Rotation = Rotation.AsNormalizedRadians();
             }
 
             if (angleDiff < 0.3f) // mostly facing our target

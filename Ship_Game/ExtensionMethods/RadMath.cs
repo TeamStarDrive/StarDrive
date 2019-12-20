@@ -115,6 +115,16 @@ namespace Ship_Game
             return radians;
         }
 
+        // Converts existing unbounded RADIANS angle to
+        // a normalized absolute [0, 2PI] range
+        public static float AsNormalizedRadians(this float radians)
+        {
+            float ratio = radians / TwoPI;
+            ratio -= (int)ratio;
+            if (ratio < 0f) ratio = 1f + ratio;
+            return ratio * TwoPI;
+        }
+
         // Converts a direction vector to degrees
         public static float ToDegrees(this Vector2 direction)
         {

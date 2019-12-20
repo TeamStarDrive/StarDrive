@@ -465,7 +465,7 @@ namespace Ship_Game.Ships
             Center3D.Z = tan * (256f - XMLPosition.X);
 
             UpdateDamageVisualization(elapsedTime);
-            Rotation = Parent.Rotation;
+            Rotation = Parent.Rotation; // assume parent rotation is already normalized
         }
 
         // radius padding for collision detection

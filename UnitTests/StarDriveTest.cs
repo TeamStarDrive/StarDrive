@@ -93,10 +93,10 @@ namespace UnitTests
             });
         }
         
-        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, float rotation = 0f)
+        public Ship SpawnShip(string shipName, Empire empire, Vector2 position, Vector2 shipDirection = default)
         {
             var target = Ship.CreateShipAtPoint(shipName, empire, position);
-            target.Rotation = rotation;
+            target.Rotation = shipDirection.Normalized().ToRadians();
             target.InFrustum = true; // force module pos update
             target.UpdateShipStatus(0.01f); // update module pos
             return target;
