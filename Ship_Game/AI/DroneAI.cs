@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
-using System;
 
 namespace Ship_Game.AI
 {
@@ -95,12 +94,12 @@ namespace Ship_Game.AI
 
         public void DrawBeams(GameScreen screen)
         {
-            using (Beams.AcquireReadLock())
-                for (int i = 0; i < Beams.Count; i++)
-                {
-                    DroneBeam beam = Beams[i];
+            for (int i = 0; i < Beams.Count; i++)
+            {
+                DroneBeam beam = Beams[i];
+                if (beam != null && beam.Active)
                     beam.Draw(screen);
-                }
+            }
         }      
     }
 }
