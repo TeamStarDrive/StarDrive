@@ -207,13 +207,12 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ClickPlanetList.Count; ++i)
                 {
-                    ClickablePlanets local_12 = ClickPlanetList[i];
-                    if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
-                            local_12.ScreenPos) <= local_12.Radius)
+                    ClickablePlanets planet = ClickPlanetList[i];
+                    if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
                     {
                         flag1 = true;
                         TooltipTimer -= 0.01666667f;
-                        tippedPlanet = local_12;
+                        tippedPlanet = planet;
                     }
                 }
             }
@@ -225,27 +224,27 @@ namespace Ship_Game
                 TooltipTimer = 0.5f;
             }
 
-            bool flag2 = false;
+            bool clickedOnSystem = false;
             if (viewState > UnivScreenState.SectorView)
             {
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    for (int local_15 = 0; local_15 < ClickableSystems.Count; ++local_15)
+                    for (int i = 0; i < ClickableSystems.Count; ++i)
                     {
-                        ClickableSystem local_16 = ClickableSystems[local_15];
-                        if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
-                                local_16.ScreenPos) <= local_16.Radius)
+                        ClickableSystem system = ClickableSystems[i];
+                        if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
                         {
                             sTooltipTimer -= 0.01666667f;
-                            tippedSystem = local_16;
-                            flag2 = true;
+                            tippedSystem = system;
+                            clickedOnSystem = true;
                         }
                     }
                 }
                 if (sTooltipTimer <= 0f)
                     sTooltipTimer = 0.5f;
             }
-            if (!flag2)
+
+            if (!clickedOnSystem)
                 ShowingSysTooltip = false;
 
             JunkList.ApplyPendingRemovals();
@@ -335,15 +334,9 @@ namespace Ship_Game
 
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
-                foreach (var kv in EmpireManager.Empires[i].GetFleetsDict())
+                foreach (KeyValuePair<int, Fleet> kv in EmpireManager.Empires[i].GetFleetsDict())
                 {
-                    var fleet = kv.Value;
-                    if (fleet.Ships.Count <= 0)
-                        continue;
-                    using (fleet.Ships.AcquireReadLock())
-                    {
-                        fleet.SetSpeed();
-                    }
+                    kv.Value.SetSpeed();
                 }
             }
 
