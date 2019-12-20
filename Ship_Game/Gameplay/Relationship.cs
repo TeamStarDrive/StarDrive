@@ -447,7 +447,7 @@ namespace Ship_Game.Gameplay
             Trust = n;
             InitialStrength = 50f + n;
         }
-        
+
         private void UpdateIntelligence(Empire us, Empire them)
         {
             if (!(us.Money > IntelligenceBudget) || !(IntelligencePenetration < 100f))
@@ -473,7 +473,7 @@ namespace Ship_Game.Gameplay
         public void UpdatePlayerRelations(Empire us, Empire them)
         {
             UpdateIntelligence(us, them);
-            
+
             if (Treaty_Trade)
             {
                 Treaty_Trade_TurnsExisted++;
@@ -521,7 +521,7 @@ namespace Ship_Game.Gameplay
                     }
                     else if (Empire.Universe.PlayerEmpire.GetRelations(enemyEmpire).Treaty_Alliance)
                     {
-                        DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend", 
+                        DiplomacyScreen.ShowEndOnly(us, Empire.Universe.PlayerEmpire, "Federation_YouDidIt_AllyFriend",
                                              EmpireManager.GetEmpireByName(FedQuest.EnemyName));
                         Empire.Universe.PlayerEmpire.AbsorbEmpire(us);
                         FedQuest = null;
@@ -680,10 +680,10 @@ namespace Ship_Game.Gameplay
 
         }
         public void KilledAShip(Ship theirShip)
-        {            
-            if (!AtWar)                            
+        {
+            if (!AtWar)
                 return;
-            
+
             ActiveWar.StrengthKilled += theirShip.BaseStrength;
         }
 
@@ -714,6 +714,13 @@ namespace Ship_Game.Gameplay
             FearEntries?.Dispose(ref FearEntries);
         }
 
+        public void RestoreWarsFromSave()
+        {
+            ActiveWar?.RestoreFromSave();
+            foreach (var war in WarHistory)
+                war.RestoreFromSave();
+        }
+
         public void ResetRelation()
         {
             Treaty_Alliance    = false;
@@ -721,6 +728,6 @@ namespace Ship_Game.Gameplay
             Treaty_OpenBorders = false;
             Treaty_Peace       = false;
             Treaty_Trade       = false;
-        }       
+        }
     }
 }
