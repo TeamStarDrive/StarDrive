@@ -681,33 +681,6 @@ namespace Ship_Game.Ships
             return target.Center.InRadius(w.Module.Center, range);
         }
 
-        // for public alias, @see IsInsideFiringArc
-        bool IsPosInsideArc(ShipModule m, Vector2 pos)
-        {
-            Vector2 o = m.Center;
-            // NOTE: Atan2(dy,dx) swapped to Atan2(dx,dy)
-            // rotates radians -90, because StarDrive uses UP=-Y
-            float radsToTarget = RadMath.PI - (float)Math.Atan2(pos.X-o.X, pos.Y-o.Y); // [0; +2PI]
-
-            // Ship.Rotation and FacingRadians are normalized to [0; +2PI]
-            float radsFacing = (m.FacingRadians + Rotation); // so this can be 2PI + 2PI
-            if (radsFacing > RadMath.TwoPI)  // normalize back to [0; +2PI]
-                radsFacing -= RadMath.TwoPI;
-
-            // comparing angles is a bit more complicated, due to 0 and 2PI being equivalent
-            // so this 180 degree subtraction is needed to constrain the comparison to half circle sector
-            // https://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
-            float difference = RadMath.PI - Math.Abs(Math.Abs(radsToTarget - radsFacing) - RadMath.PI);
-            bool inside = difference < (m.FieldOfFire * 0.5f);
-
-            // Visual Debugging 
-            //Vector2 dir1 = radsFacing.RadiansToDirection();
-            //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir1 * 500f, 2, Color.Blue, 0f);
-            //Vector2 dir2 = radsToTarget.RadiansToDirection();
-            //Empire.Universe.DebugWin?.DrawLine(DebugModes.Targeting, origin, origin + dir2 * 500f, 2, inside ? Color.Green : Color.Red, 0f);
-            return inside;
-        }
-
         // Added by McShooterz
         public bool IsTargetInFireArcRange(Weapon w, GameplayObject target)
         {
@@ -728,14 +701,17 @@ namespace Ship_Game.Ships
                     return false;
             }
 
-            return IsPosInsideArc(w.Module, target.Center);
+            ShipModule m = w.Module;
+            return RadMath.IsTargetInsideArc(m.Center, target.Center,
+                                             Rotation + m.FacingRadians, m.FieldOfFire);
         }
 
         // This is used by Beam weapons and by Testing
         public bool IsInsideFiringArc(Weapon w, Vector2 pickedPos)
         {
-            ++GlobalStats.WeaponArcChecks;
-            return IsPosInsideArc(w.Module, pickedPos);
+            ShipModule m = w.Module;
+            return RadMath.IsTargetInsideArc(m.Center, pickedPos,
+                                             Rotation + m.FacingRadians, m.FieldOfFire);
         }
 
         public SceneObject GetSO()
