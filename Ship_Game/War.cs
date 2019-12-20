@@ -173,15 +173,12 @@ namespace Ship_Game
 
         public void RestoreFromSave()
         {
-            if (ContestedSystems.Length == 0 && ContestedSystemsGUIDs.NotEmpty)
+            ContestedSystems = new SolarSystem[ContestedSystemsGUIDs.Count];
+            for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
             {
-                ContestedSystems = new SolarSystem[ContestedSystems.Length];
-                for (int i = 0; i < ContestedSystemsGUIDs.Count; i++)
-                {
-                    var guid = ContestedSystemsGUIDs[i];
-                    SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
-                    ContestedSystems[i] = solarSystem;
-                }
+                var guid = ContestedSystemsGUIDs[i];
+                SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
+                ContestedSystems[i] = solarSystem;
             }
         }
     }

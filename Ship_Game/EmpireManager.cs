@@ -237,5 +237,15 @@ namespace Ship_Game
             }
             return null;
         }
+
+        public static void RestoreUnserializableDataFromSave()
+        {
+            if (EmpireList.IsEmpty)
+                Log.Error($"must be called after empireList is populated.");
+            foreach(Empire empire in EmpireList)
+            {
+                empire.RestoreUnserializableDataFromSave();
+            }
+        }
     }
 }

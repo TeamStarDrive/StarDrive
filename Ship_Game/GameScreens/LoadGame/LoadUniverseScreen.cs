@@ -179,6 +179,7 @@ namespace Ship_Game
             CreateTasksGoalsRoads(saveData, data);             step.Advance();
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
             RestoreSolarSystemCQs(saveData, data); step.Finish();
+            EmpireManager.RestoreUnserializableDataFromSave();
             return data;
         }
 
