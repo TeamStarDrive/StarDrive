@@ -326,6 +326,7 @@
     <Compile Include="Ship_Game\PathFinder\NodeVector.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\Ship_ProjectorInfluence.cs" />
     <Compile Include="Ship_Game\Ships\SupplyShuttles.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Trade.cs" />
     <Compile Include="Ship_Game\Ships\IShipTemplate.cs" />

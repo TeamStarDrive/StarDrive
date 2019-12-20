@@ -2,25 +2,32 @@
 
 namespace Ship_Game
 {
-    public static class SparseEmpireMap
+    public static class EmpireFlatMap
     {
-        public static bool IsSet(this Empire[] empires, Empire empire)
+        public static bool FlatMapIsSet(this Empire[] empires, Empire empire)
         {
             int idx = empire.Id - 1;
             if (empires.Length <= idx)
                 return false; // out of bounds, thus not set
 
-            bool explored = empires[idx] != null;
-            return explored;
+            bool exists = empires[idx] != null; // is it set?
+            return exists;
         }
-        public static void Set(this Empire[] emps, ref Empire[] empires, Empire empire)
+        public static void FlatMapSet(this Empire[] emps, ref Empire[] empires, Empire empire)
         {
-            int idx = empire.Id - 1;
             if (empires.Length < EmpireManager.NumEmpires)
-            {
                 Array.Resize(ref empires, EmpireManager.NumEmpires);
-            }
-            empires[idx] = empire;
+
+            int idx = empire.Id - 1;
+            empires[idx] = empire; // set it so
+        }
+        public static void FlatMapUnset(this Empire[] emps, ref Empire[] empires, Empire empire)
+        {
+            if (empires.Length < EmpireManager.NumEmpires)
+                Array.Resize(ref empires, EmpireManager.NumEmpires);
+            
+            int idx = empire.Id - 1;
+            empires[idx] = null; // clear it
         }
     }
 
@@ -29,8 +36,8 @@ namespace Ship_Game
         // this is a sparse map where [Empire.Id-1] is the index
         Empire[] ExploredBy = Empty<Empire>.Array;
 
-        public bool IsExploredBy(Empire empire)  => ExploredBy.IsSet(empire);
-        public void SetExploredBy(Empire empire) => ExploredBy.Set(ref ExploredBy, empire);
+        public bool IsExploredBy(Empire empire)  => ExploredBy.FlatMapIsSet(empire);
+        public void SetExploredBy(Empire empire) => ExploredBy.FlatMapSet(ref ExploredBy, empire);
         public void SetExploredBy(string empireName) => SetExploredBy(EmpireManager.GetEmpireByName(empireName));
         public void SetExploredBy(string[] empireNames)
         {
