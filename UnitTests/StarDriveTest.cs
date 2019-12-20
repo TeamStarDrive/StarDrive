@@ -21,6 +21,7 @@ namespace UnitTests
         public static string StarDriveAbsolutePath { get; private set; }
         static StarDriveTest()
         {
+            Log.VerboseLogging = true;
             SetGameDirectory();
             try
             {
