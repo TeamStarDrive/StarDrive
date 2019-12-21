@@ -49,6 +49,21 @@ namespace Ship_Game.AI.Tasks
             militaryTask.type = TaskType.DefendPostInvasion;
             return militaryTask;
         }
+
+        public static MilitaryTask CreatePostInvasion(Planet planet, int fleetId, Empire owner)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO           = planet.Center,
+                AORadius     = 10000f,
+                WhichFleet   = fleetId,
+                TargetPlanet = planet
+            };
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.DefendPostInvasion;
+            return militaryTask;
+        }
+
         public MilitaryTask(AO ao)
         {
             AO = ao.Center;
