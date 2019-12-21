@@ -24,6 +24,7 @@ namespace Ship_Game
         static Thread LogThread;
         static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
         public static readonly bool HasDebugger = Debugger.IsAttached;
+        public static bool VerboseLogging;
 
         // sentry.io automatic crash reporting
         static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
@@ -36,7 +37,6 @@ namespace Ship_Game
         static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         const int ErrorThreshold = 100;
         static bool IsTerminating;
-        //public static bool FatalError = true;
 
         static Log()
         {
@@ -57,6 +57,7 @@ namespace Ship_Game
             Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
+                VerboseLogging = true;
                 Raven.Environment = "Staging";
 
                 // if Console output is redirected, all console text is sent to VS Output instead
@@ -147,8 +148,8 @@ namespace Ship_Game
         {
             if (GlobalStats.VerboseLogging)
                 WriteToLog(text);
-            if (!HasDebugger) return;
-            WriteToConsole(DefaultColor, text);
+            if (VerboseLogging)
+                WriteToConsole(DefaultColor, text);
         }
         [Conditional("DEBUG")] public static void Info(string format, params object[] args)
         {
@@ -157,14 +158,14 @@ namespace Ship_Game
 
         [Conditional("DEBUG")] public static void Info(ConsoleColor color, string text)
         {
-            if (!HasDebugger) return;
-            WriteToConsole(color, text);
+            if (VerboseLogging)
+                WriteToConsole(color, text);
         }
 
         public static void DebugInfo(ConsoleColor color, string text)
         {
-            if (!HasDebugger) return;
-            WriteToConsole(color, text);
+            if (VerboseLogging)
+                WriteToConsole(color, text);
         }
 
         // write a warning to logfile and debug console
@@ -178,16 +179,16 @@ namespace Ship_Game
         public static void Write(ConsoleColor color, string message)
         {
             WriteToLog(message);
-            if (!HasDebugger) return;
-            WriteToConsole(color, message);
+            if (VerboseLogging)
+                WriteToConsole(color, message);
         }
 
         // Always write a neutral message to both log file and console
         public static void Write(string message)
         {
             WriteToLog(message);
-            if (!HasDebugger) return;
-            WriteToConsole(DefaultColor, message);
+            if (VerboseLogging)
+                WriteToConsole(DefaultColor, message);
         }
 
         public static void Warning(string warning)
@@ -204,8 +205,8 @@ namespace Ship_Game
         {
             string text = "Warning: " + warning;
             WriteToLog(text);
-            if (!HasDebugger) return;
-            WriteToConsole(color, text);
+            if (VerboseLogging)
+                WriteToConsole(color, text);
         }
 
         public static bool TestMessage(string testMessage,

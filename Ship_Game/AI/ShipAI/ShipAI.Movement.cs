@@ -323,15 +323,18 @@ namespace Ship_Game.AI
                     EngageFormationWarp();
                 }
                 else
+                {
                     DisEngageFormationWarp();
-                speedLimit = FormationWarpSpeed(speedLimit);
+                }
+
+                //speedLimit = FormationWarpSpeed(speedLimit);
                 Owner.SubLightAccelerate(deltaTime, speedLimit);
             }
         }
 
         float EstimateMaxTurn(float distance)
         {
-            float timeToTarget = distance / (Owner.maxFTLSpeed);
+            float timeToTarget = distance / (Owner.MaxFTLSpeed);
             float maxTurn = Owner.rotationRadiansPerSecond * timeToTarget;
             maxTurn *= 0.4f; // ships can't really turn as numbers would predict...
             // and we don't allow over certain degrees either

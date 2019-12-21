@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
@@ -64,89 +59,6 @@ namespace UnitTests
         }
     }
 
-    internal class ImpactSimWindow : GameDummy
-    {
-        readonly AutoResetEvent Started;
-        public KeyboardState Keys;
-        bool CachedVisibility;
-        public bool Visible;
-
-        ImpactSimWindow(AutoResetEvent started) : base(1024, 1024, true)
-        {
-            Started = started;
-            CachedVisibility = Visible = true;
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
-            GlobalStats.XRES = (int)ScreenSize.X; // Required for DrawLine...
-            GlobalStats.YRES = (int)ScreenSize.Y;
-            ScreenCenter = ScreenSize * 0.5f;
-            IsFixedTimeStep = false;
-        }
-        
-        protected override void BeginRun()
-        {
-            base.BeginRun();
-            Fonts.LoadContent(Content);
-            Started.Set();
-        }
-
-        protected override void Update(GameTime time)
-        {
-            if (CachedVisibility != Visible)
-            {
-                CachedVisibility = Visible;
-                Form.Visible = Visible;
-            }
-            if (!Visible)
-                return;
-
-            Keys = Keyboard.GetState();
-            base.Update(time);
-        }
-
-        protected override void Draw(GameTime time)
-        {
-            if (!Visible)
-                return;
-
-            GraphicsDevice.Clear(Color.Black);
-
-            try
-            {
-                Batch.Begin();
-                base.Draw(time);
-            }
-            finally
-            {
-                Batch.End();
-            }
-        }
-
-        static ImpactSimWindow Instance;
-
-        public static ImpactSimWindow GetOrStartInstance()
-        {
-            if (Instance != null)
-                return Instance;
-
-            var started = new AutoResetEvent(false);
-            new Thread(() =>
-            {
-                try
-                {
-                    Instance = new ImpactSimWindow(started);
-                    Instance.Run(); // this will only return once the window is closed
-                }
-                finally
-                {
-                    Instance = null; // clean up
-                }
-            }) { Name = "ImpactSimThread" }.Start();
-
-            started.WaitOne(); // wait until Instance.BeginRun() is finished
-            return Instance;
-        }
-    }
-
     internal enum SimState
     {
         Starting, Running, Exiting
@@ -164,7 +76,7 @@ namespace UnitTests
         readonly AutoResetEvent Exit = new AutoResetEvent(false);
         SimResult Result;
 
-        readonly ImpactSimWindow Owner;
+        readonly TestGameDummy Owner;
         readonly SimParameters Sim;
 
         float Time;
@@ -176,10 +88,9 @@ namespace UnitTests
         public int  DrawOrder   { get; } = 0;
         public int  UpdateOrder { get; } = 0;
 
-
         public ImpactSimulation(TestImpactPredictor.Scenario s, SimParameters sim)
         {
-            Owner = ImpactSimWindow.GetOrStartInstance();
+            Owner = TestGameDummy.GetOrStartInstance(1024, 1024);
             Sim   = sim;
             var us = new SimObject("Us", s.Us, s.UsVel, Color.Green, 32);
             Target = new SimObject("Target", s.Tgt, s.TgtVel, Color.Red, 32);
@@ -189,7 +100,7 @@ namespace UnitTests
             PrevDistance = float.MaxValue;
             UpdateSimScaleAndBounds();
         }
-                
+        
         public void Initialize()
         {
         }
@@ -313,10 +224,7 @@ namespace UnitTests
             }
         }
 
-        void DrawText(float x, float y, string text)
-        {
-            Owner.Batch.DrawString(Fonts.Arial14Bold, text, new Vector2(x,y), Color.White);
-        }
+        void DrawText(float x, float y, string text) => Owner.DrawText(x, y, text);
         
         void UpdateSimScaleAndBounds()
         {

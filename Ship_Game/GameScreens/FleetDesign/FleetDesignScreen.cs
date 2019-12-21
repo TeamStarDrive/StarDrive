@@ -86,12 +86,9 @@ namespace Ship_Game
             {
                 foreach (var kv in EmpireManager.Player.GetFleetsDict())
                 {
-                    using (kv.Value.Ships.AcquireReadLock())
+                    foreach (Ship ship in kv.Value.Ships)
                     {
-                        foreach (Ship ship in kv.Value.Ships)
-                        {
-                            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                        }
+                        ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
                     }
                 }
             }
@@ -133,13 +130,10 @@ namespace Ship_Game
                 }
             }
             SelectedFleet = EmpireManager.Player.GetFleetsDict()[which];
-            using (SelectedFleet.Ships.AcquireReadLock())
+            foreach (Ship ship in SelectedFleet.Ships)
             {
-                foreach (Ship ship in SelectedFleet.Ships)
-                {
-                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-                    ship.GetSO().Visibility = ObjectVisibility.Rendered;
-                }
+                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                ship.GetSO().Visibility = ObjectVisibility.Rendered;
             }
         }
 
@@ -1085,19 +1079,13 @@ namespace Ship_Game
                         {
                             foreach (FleetDataNode node in SelectedNodeList)
                             {
-                                if (!squad.DataNodes.Contains(node))
+                                if (squad.DataNodes.Contains(node))
                                 {
-                                    continue;
+                                    squad.DataNodes.RemoveRef(node);
+                                    if (node.Ship != null)
+                                        squad.Ships.RemoveRef(node.Ship);
                                 }
-                                squad.DataNodes.QueuePendingRemoval(node);
-                                if (node.Ship == null)
-                                {
-                                    continue;
-                                }
-                                squad.Ships.QueuePendingRemoval(node.Ship);
                             }
-                            squad.DataNodes.ApplyPendingRemovals();
-                            squad.Ships.ApplyPendingRemovals();
                         }
                     }
                     foreach (FleetDataNode node in SelectedNodeList)
@@ -1530,7 +1518,6 @@ namespace Ship_Game
             StarField = new StarField(this);
             //bg = new Background();
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
-            using (SelectedFleet.Ships.AcquireReadLock())
             foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
