@@ -48,6 +48,8 @@ namespace Ship_Game
                     Progress.Finish();
 
                     Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
+
+                    EmpireManager.RestoreUnserializableDataFromSave();
                 }
                 catch (Exception e)
                 {
@@ -179,7 +181,6 @@ namespace Ship_Game
             CreateTasksGoalsRoads(saveData, data);             step.Advance();
             CreatePlanetImportExportShipLists(saveData, data); step.Advance();
             RestoreSolarSystemCQs(saveData, data); step.Finish();
-            EmpireManager.RestoreUnserializableDataFromSave();
             return data;
         }
 
