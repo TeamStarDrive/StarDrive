@@ -7,6 +7,7 @@ namespace Ship_Game
 		LosingSlightly,
 		EvenlyMatched,
 		WinningSlightly,
-		Dominating
+		Dominating,
+		NotApplicable
 	}
 }

@@ -92,7 +92,7 @@ namespace Ship_Game.AI
         {
             node.Ship = ship;
             AddShipToNodes(ship);
-        } 
+        }
 
         void AddShipToNodes(Ship shipToAdd)
         {
@@ -493,16 +493,23 @@ namespace Ship_Game.AI
             }
         }
 
+        public static void CreatePostInvasionFromCurrentTask(Fleet fleet, MilitaryTask task, Empire owner)
+        {
+            fleet.TaskStep = 0;
+            var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
+            owner.GetEmpireAI().RemoveFromTaskList(task);
+            fleet.FleetTask = postInvasion;
+            owner.GetEmpireAI().AddToTaskList(postInvasion);
+        }
+
         void DoAssaultPlanet(MilitaryTask task)
         {
             if (!Owner.IsEmpireAttackable(task.TargetPlanet.Owner))
             {
                 if (task.TargetPlanet.Owner == Owner || task.TargetPlanet.AnyOfOurTroops(Owner))
                 {
-                    var militaryTask = MilitaryTask.CreatePostInvasion(task.TargetPlanet.Center, task.WhichFleet, Owner);
-                    Owner.GetEmpireAI().RemoveFromTaskList(task);
-                    FleetTask = militaryTask;
-                    Owner.GetEmpireAI().AddToTaskList(militaryTask);
+                    CreatePostInvasionFromCurrentTask(this, task, Owner);
+
                     for (int x =0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
@@ -1074,13 +1081,14 @@ namespace Ship_Game.AI
             }
         }
 
+        bool FleetHasBombs => Ships.Any(s => s.HasBombs);
 
         void WaitingForPlanetAssault(MilitaryTask task)
         {
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
             bool invading = IsInvading(theirGroundStrength, ourGroundStrength, task);
-            bool bombing  = BombPlanet(ourGroundStrength, task);
+            bool bombing  = BombPlanet(ourGroundStrength, task, invading);
             if (!bombing && !invading)
                 EndInvalidTask(true);
         }
@@ -1127,29 +1135,55 @@ namespace Ship_Game.AI
             {
                 ShipAI ai = ship.AI;
                 ai.CombatState = ship.shipData.CombatState;
-                if (!ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
+                if (ship.AI.State == AIState.Resupply || !ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
                     continue;
 
                 ai.CancelIntercept();
-                ai.FleetNode.AssistWeight = 1f;
+                ai.FleetNode.AssistWeight   = 1f;
                 ai.FleetNode.DefenderWeight = 1f;
-                ai.FleetNode.OrdersRadius = ship.WeaponsMaxRange;
-                switch (type) {
+                ai.FleetNode.VultureWeight  = 0;
+                ai.FleetNode.DPSWeight      = 1;
+                ai.FleetNode.SizeWeight     = 0.25f;
+                ai.FleetNode.OrdersRadius   = ship.WeaponsMaxRange;
+                switch (type)
+                {
                     case InvasionTactics.Screen:
+                        ai.FleetNode.DefenderWeight = 1;
+                        ai.FleetNode.AssistWeight   = 0;
+                        ai.FleetNode.VultureWeight  = 0f;
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false);
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, true);
                         break;
+
                     case InvasionTactics.Rear:
                         if (!ai.HasPriorityOrder)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false, Speed * 0.75f);
+                        {
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset
+                                , Direction, true, Speed * 0.75f);
+                        }
                         break;
+
                     case InvasionTactics.Center:
+                        ai.FleetNode.DefenderWeight       = 0.25f;
+                        ai.FleetNode.AssistWeight         = 1;
+                        ai.FleetNode.SizeWeight           = 0.75f;
+                        ai.FleetNode.DPSWeight            = 1;
+                        ai.FleetNode.ArmoredWeight        = 1;
+                        ai.FleetNode.AttackShieldedWeight = 1;
+
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false);
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, true);
                         break;
+
                     case InvasionTactics.Side:
+                        ai.FleetNode.DefenderWeight       = 0;
+                        ai.FleetNode.AssistWeight         = 1;
+                        ai.FleetNode.SizeWeight           = 0;
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, false);
+                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, Direction, true);
+                        break;
+
+                    case InvasionTactics.Wait:
                         break;
                 }
             }
@@ -1160,7 +1194,8 @@ namespace Ship_Game.AI
             Screen,
             Center,
             Side,
-            Rear
+            Rear,
+            Wait
         }
 
         bool EscortingToPlanet(MilitaryTask task)
@@ -1169,8 +1204,8 @@ namespace Ship_Game.AI
             AttackEnemyStrengthClumpsInAO(task);
             InvadeTactics(ScreenShips, InvasionTactics.Screen, targetPos);
             InvadeTactics(CenterShips, InvasionTactics.Center, targetPos);
-            InvadeTactics(RearShips, InvasionTactics.Rear, targetPos);
-            InvadeTactics(RightShips, InvasionTactics.Rear, targetPos);
+            InvadeTactics(RearShips, InvasionTactics.Wait, targetPos);
+            InvadeTactics(RightShips, InvasionTactics.Side, targetPos);
             InvadeTactics(LeftShips, InvasionTactics.Side, targetPos);
 
             return !task.TargetPlanet.AnyOfOurTroops(Owner) || Ships.Any(bombers => bombers.AI.State == AIState.Bombard);
@@ -1188,22 +1223,24 @@ namespace Ship_Game.AI
         bool StartBombing(MilitaryTask task)
         {
             bool anyShipsBombing = false;
-            foreach (Ship ship in Ships.Filter(ship => ship.BombBays.Count > 0))
+            Ship[] ships = Ships.Filter(ship => ship.BombsGoodFor60Secs > 1);
+            for (int x = 0; x < ships.Length; x++)
             {
+                Ship ship = ships[x];
                 if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Bombard)
                     ship.AI.OrderBombardPlanet(task.TargetPlanet);
                 anyShipsBombing |= ship.AI.State == AIState.Bombard;
             }
+
             return anyShipsBombing;
         }
 
         // @return TRUE if any ships are bombing planet
         // Bombing is done if we have no ground strength or if
         // there are more than provided free spaces (???)
-        bool BombPlanet(float ourGroundStrength, MilitaryTask task , int freeSpacesNeeded = 5)
+        bool BombPlanet(float ourGroundStrength, MilitaryTask task , bool troopsInvading)
         {
-            bool doBombs = ourGroundStrength <= 0 || task.TargetPlanet.GetGroundLandingSpots() >= freeSpacesNeeded;
-            if (doBombs)
+            if (!troopsInvading)
                 return StartBombing(task);
             StopBombPlanet();
             return false;
@@ -1219,6 +1256,7 @@ namespace Ship_Game.AI
                 planetAssaultStrength += ship.Carrier.PlanetAssaultStrength;
 
             planetAssaultStrength += ourGroundStrength;
+
             if (planetAssaultStrength < theirGroundStrength * 0.75f)
             {
                 DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
@@ -1234,14 +1272,18 @@ namespace Ship_Game.AI
                 StopBombPlanet();
             float ourForcesWithinAO = (task.AORadius - task.TargetPlanet.GravityWellRadius).ClampMin(2000) / 2;
             if (Ships.Any(ship => ship.Center.InRadius(task.TargetPlanet.Center, ourForcesWithinAO)))
-                OrderShipsToInvade(RearShips, task);
+                OrderShipsToInvade(RearShips, task, freeLandingSpots + 3);
             return true;
         }
 
-        void OrderShipsToInvade(Array<Ship> ships, MilitaryTask task)
+        void OrderShipsToInvade(Array<Ship> ships, MilitaryTask task, int numberOfShipsToSend)
         {
-            foreach (Ship ship in ships)
+            int shipsInvading = RearShips.Count(s => s.AI.State == AIState.AssaultPlanet);
+            numberOfShipsToSend = Math.Min(numberOfShipsToSend - shipsInvading, RearShips.Count);
+
+            for (int x = 0; x < numberOfShipsToSend; x++)
             {
+                Ship ship = ships[x];
                 ship.AI.OrderLandAllTroops(task.TargetPlanet);
                 ship.AI.SetPriorityOrder(false);
             }
@@ -1372,7 +1414,7 @@ namespace Ship_Game.AI
 
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
                 Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);
-            
+
             ship.fleet = null;
             RemoveFromAllSquads(ship);
             if (Ships.RemoveRef(ship) || !ship.Active)
