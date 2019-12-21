@@ -455,7 +455,12 @@ namespace Ship_Game
                 }
 
                 if (b?.CombatStrength > 0)
+                {
                     enemyTroopStrength += b.CombatStrength;
+                    enemyTroopStrength += b.InvadeInjurePoints * 10;
+                    enemyTroopStrength += b.isWeapon ? 50 : 0;
+                }
+                
             }
             return enemyTroopStrength;            
         }

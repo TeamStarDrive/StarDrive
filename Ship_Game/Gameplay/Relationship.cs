@@ -671,20 +671,22 @@ namespace Ship_Game.Gameplay
         public void LostAShip(Ship ourShip)
         {
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
-            if (!AtWar)
-            {
-                Anger_MilitaryConflict += killedExpSettings.KillExp;
-                return;
-            }
-            ActiveWar.StrengthLost += ourShip.BaseStrength;
+
+            Anger_MilitaryConflict += killedExpSettings.KillExp;
+            ActiveWar?.ShipWeLost(ourShip);
 
         }
-        public void KilledAShip(Ship theirShip)
-        {
-            if (!AtWar)
-                return;
+        public void KilledAShip(Ship theirShip) => ActiveWar?.ShipWeKilled(theirShip);
 
-            ActiveWar.StrengthKilled += theirShip.BaseStrength;
+        public void LostAColony(Planet colony, Empire attacker)
+        {
+            ActiveWar?.PlanetWeLost(attacker, colony);
+            Anger_MilitaryConflict += colony.ColonyValue;
+        }
+
+        public void WonAColony(Planet colony, Empire loser)
+        {
+            ActiveWar?.PlanetWeWon(loser, colony);
         }
 
         public static bool DoWeShareATradePartner(Empire them, Empire us)

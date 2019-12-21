@@ -580,6 +580,12 @@ namespace Ship_Game
             return solarSystems.ToArray();
         }
 
+        public void RemovePlanet(Planet planet, Empire attacker)
+        {
+            GetRelations(attacker).LostAColony(planet, attacker);
+            RemovePlanet(planet);
+        }
+
         public void RemovePlanet(Planet planet)
         {
             OwnedPlanets.Remove(planet);
@@ -591,6 +597,12 @@ namespace Ship_Game
         {
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
+        }
+
+        public void AddPlanet(Planet planet, Empire loser)
+        {
+            GetRelations(loser).WonAColony(planet, loser);
+            AddPlanet(planet);
         }
 
         public void AddPlanet(Planet planet)

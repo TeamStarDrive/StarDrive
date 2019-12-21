@@ -275,7 +275,7 @@ namespace Ship_Game
         // added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
-        public void ApplyBombEnvEffects(float amount) // added by Fat Bastard
+        public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
             Population -= 1000f * amount;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
@@ -283,7 +283,7 @@ namespace Ship_Game
                 AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
 
             if (MaxPopulation.AlmostZero())
-                WipeOutColony();
+                WipeOutColony(attacker);
         }
 
         public void Update(float elapsedTime)
@@ -876,14 +876,14 @@ namespace Ship_Game
             Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
         }
 
-        public void WipeOutColony()
+        public void WipeOutColony(Empire attacker)
         {
             Population = 0f;
             if (Owner == null)
                 return;
 
             UpdateTerraformPoints(0);
-            Owner.RemovePlanet(this);
+            Owner.RemovePlanet(this, attacker);
             if (IsExploredBy(Empire.Universe.PlayerEmpire))
                 Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
 

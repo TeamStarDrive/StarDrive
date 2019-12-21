@@ -876,7 +876,7 @@ namespace Ship_Game.AI
         bool EndInvalidTask(bool condition)
         {
             if (!condition) return false;
-            FleetTask.EndTask();
+             FleetTask.EndTask();
             return true;
         }
 
@@ -1232,8 +1232,8 @@ namespace Ship_Game.AI
 
             if (ourGroundStrength < 1)
                 StopBombPlanet();
-
-            if (Ships.Any(ship => ship.Center.InRadius(task.AO, task.AORadius)))
+            float ourForcesWithinAO = (task.AORadius - task.TargetPlanet.GravityWellRadius).ClampMin(2000) / 2;
+            if (Ships.Any(ship => ship.Center.InRadius(task.TargetPlanet.Center, ourForcesWithinAO)))
                 OrderShipsToInvade(RearShips, task);
             return true;
         }
