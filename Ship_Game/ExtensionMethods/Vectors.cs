@@ -318,14 +318,6 @@ namespace Ship_Game
         public static Vector2 Position(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
         public static Vector2 Pos(this MouseState ms) => new Vector2(ms.X, ms.Y);
 
-
-        // Center of the screen
-        public static Vector2 Center(this ScreenManager screenMgr)
-        {
-            var p = screenMgr.GraphicsDevice.PresentationParameters;
-            return new Vector2(p.BackBufferWidth / 2f, p.BackBufferHeight / 2f);
-        }
-
         public static Vector2 Size(this Texture2D texture) => new Vector2(texture.Width, texture.Height);
 
         
@@ -335,28 +327,11 @@ namespace Ship_Game
             return (float)(180 - Atan2(target.X - origin.X, target.Y - origin.Y) * 180.0 / PI);
         }
 
-        // result from [0, +180, -181, -359]  it's kind of weird, but this is the essential logic from SD source code 
-        public static float AngleToTargetSigned(this Vector2 origin, Vector2 target)
-        {
-            double n = Atan2(target.X - origin.X, target.Y - origin.Y) * 180 / PI;
-            double s = n >= 0.0 ? 1.0 : -1.0;
-            return (float)((180 - n) * s);
-        }
-
-        // result between [0, 2rad)
+        // result between [0, +2PI)
         public static float RadiansToTarget(this Vector2 origin, Vector2 target)
         {
             return (float)(PI - Atan2(target.X - origin.X, target.Y - origin.Y));
         }
-
-        // result between [0, 1rad, -1rad, -2rad)  this kinda weird logic again, seems to be used for module overlay rendering
-        public static float RadiansToTargetSigned(this Vector2 origin, Vector2 target)
-        {
-            double n = Atan2(target.X - origin.X, target.Y - origin.Y);
-            double s = n >= 0.0 ? 1.0 : -1.0;
-            return (float)((PI - n) * s);
-        }
-
 
         // how many radian difference from our current direction
         // versus when looking towards position

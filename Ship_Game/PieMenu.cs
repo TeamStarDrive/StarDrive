@@ -46,7 +46,7 @@ namespace Ship_Game
             t.Reset(Direction.Descending);
         }
 
-        float SectorRadians => RadMath.TwoPI / RootNode.Children.Count;
+        float SectorDegrees => 360f / RootNode.Children.Count;
 
         void UpdateHoverIndex(InputState input)
         {
@@ -63,8 +63,8 @@ namespace Ship_Game
 
             if (0.3f <= distance && distance <= 1.5f)
             {
-                float angle = selectionOffset.Normalized().ToRadians() + SectorRadians*0.5f;
-                float relativeAngle = (angle.ToNormalizedRadians() / RadMath.TwoPI);
+                float angle = selectionOffset.Normalized().ToDegrees() + SectorDegrees*0.5f;
+                float relativeAngle = (angle.ToRadians() / RadMath.TwoPI);
                 HoveredIndex = (int)(relativeAngle * RootNode.Children.Count);
             }
         }

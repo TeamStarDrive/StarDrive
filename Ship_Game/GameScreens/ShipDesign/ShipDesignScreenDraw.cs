@@ -231,7 +231,7 @@ namespace Ship_Game
             Color fill = Color.Black.Alpha(0.33f);
             Color edge = (slot.Module == HighlightedModule) ? Color.DarkOrange : fill;
             DrawRectangle(slot.ModuleRect, edge, fill);
-            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.Facing.ToString(CultureInfo.CurrentCulture));
+            DrawString(slot.Center, 0, 1, Color.Orange, slot.Module.FacingDegrees.ToString(CultureInfo.CurrentCulture));
         }
 
         void DrawHangarShipText(SlotStruct s)
@@ -242,28 +242,28 @@ namespace Ship_Game
             DrawString(s.Center, 0, 0.4f, textC, s.Module.hangarShipUID.ToString(CultureInfo.CurrentCulture));
         }
 
-        void DrawArc(SpriteBatch batch, Weapon w, SlotStruct slot, Color color)
+        static void DrawArc(SpriteBatch batch, float shipFacing, Weapon w, ShipModule m,
+                            Vector2 posOnScreen, float sizeOnScreen, Color color)
         {
-            SubTexture arcTexture = Empire.Universe.GetArcTexture(slot.Module.FieldOfFire.ToDegrees());
+            SubTexture arcTexture = Empire.Universe.GetArcTexture(m.FieldOfFire.ToDegrees());
 
-            var texOrigin  = new Vector2(250f, 250f);
-            var size       = new Vector2(500f, 500f);
-            Rectangle rect = slot.Center.ToRect((int)size.X, (int)size.Y);
+            var texOrigin = new Vector2(250f, 250f);
+            Rectangle rect = posOnScreen.ToRect((int)sizeOnScreen, (int)sizeOnScreen);
 
-            float radians = slot.Module.Facing.ToRadians();
+            float radians = (shipFacing + m.FacingRadians);
             batch.Draw(arcTexture, rect, color.Alpha(0.75f), radians, texOrigin, SpriteEffects.None, 1f);
 
             Vector2 direction = radians.RadiansToDirection();
-            Vector2 start     = slot.Center;
-            Vector2 end       = start + direction * 1250;
+            Vector2 start     = posOnScreen;
+            Vector2 end       = start + direction * sizeOnScreen;
             batch.DrawLine(start, end, color.Alpha(0.1f), 5);
 
             Vector2 textPos = start.LerpTo(end, 0.16f);
-            float textRot   = radians + (float)(Math.PI / 2);
+            float textRot   = radians + RadMath.HalfPI;
             Vector2 offset  = direction.RightVector() * 6f;
             if (direction.X > 0f)
             {
-                textRot -= (float)Math.PI;
+                textRot -= RadMath.PI;
                 offset = -offset;
             }
 
@@ -274,16 +274,25 @@ namespace Ship_Game
                 textRot, new Vector2(textWidth / 2, 10f), 1f, SpriteEffects.None, 1f);
         }
 
-        void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
+        // @note This is reused in DebugInfoScreen as well
+        public static void DrawWeaponArcs(SpriteBatch batch, float shipFacing, 
+            Weapon w, ShipModule module, Vector2 posOnScreen, float sizeOnScreen)
+        {
+            Color color;
+            if (w.Tag_Cannon && !w.Tag_Energy)        color = new Color(255, 255, 0, 255);
+            else if (w.Tag_Railgun || w.Tag_Subspace) color = new Color(255, 0, 255, 255);
+            else if (w.Tag_Cannon)                    color = new Color(0, 255, 0, 255);
+            else if (!w.isBeam)                       color = new Color(255, 0, 0, 255);
+            else                                      color = new Color(0, 0, 255, 255);
+            DrawArc(batch, shipFacing, w, module, posOnScreen, sizeOnScreen, color);
+        }
+
+        public static void DrawWeaponArcs(SpriteBatch batch, SlotStruct slot)
         {
             Weapon w = slot.Module.InstalledWeapon;
             if (w == null)
                 return;
-            if (w.Tag_Cannon && !w.Tag_Energy)        DrawArc(batch, w, slot, new Color(255, 255, 0, 255));
-            else if (w.Tag_Railgun || w.Tag_Subspace) DrawArc(batch, w, slot, new Color(255, 0, 255, 255));
-            else if (w.Tag_Cannon)                    DrawArc(batch, w, slot, new Color(0, 255, 0, 255));
-            else if (!w.isBeam)                       DrawArc(batch, w, slot, new Color(255, 0, 0, 255));
-            else                                      DrawArc(batch, w, slot, new Color(0, 0, 255, 255));
+            DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f);
         }
 
         void DrawActiveModule(SpriteBatch spriteBatch)

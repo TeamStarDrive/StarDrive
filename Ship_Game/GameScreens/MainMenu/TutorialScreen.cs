@@ -5,69 +5,69 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class TutorialScreen : GameScreen
-	{
-		private Map<string, Texture2D> TexDict = new Map<string, Texture2D>();
+    public sealed class TutorialScreen : GameScreen
+    {
+        private Map<string, Texture2D> TexDict = new Map<string, Texture2D>();
 
-		private Rectangle BridgeRect;
+        private Rectangle BridgeRect;
 
-		private int Index;
+        private int Index;
 
-		private CloseButton close;
+        private CloseButton close;
 
-		public TutorialScreen(GameScreen parent) : base(parent)
-		{
-			IsPopup = true;
-			TransitionOnTime = 0.25f;
-			TransitionOffTime = 0.25f;
-		}
+        public TutorialScreen(GameScreen parent) : base(parent)
+        {
+            IsPopup = true;
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0.25f;
+        }
 
-	
+    
 
-		public override void Draw(SpriteBatch batch)
-		{
-			ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-		    batch.Begin();
-		    batch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
-			close.Draw(batch);
-		    batch.End();
-		}
+        public override void Draw(SpriteBatch batch)
+        {
+            ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            batch.Begin();
+            batch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
+            close.Draw(batch);
+            batch.End();
+        }
 
-		public override bool HandleInput(InputState input)
-		{
-			if (close.HandleInput(input))
-			{
-				ExitScreen();
-				return true;
-			}
-			if (input.Escaped)
-			{
-				ExitScreen();
+        public override bool HandleInput(InputState input)
+        {
+            if (close.HandleInput(input))
+            {
+                ExitScreen();
                 return true;
-			}
-			if (input.Right || input.InGameSelect)
-			{
-				TutorialScreen index = this;
-				index.Index = index.Index + 1;
-				if (Index > TexDict.Count - 1)
-				{
-					Index = 0;
-				}
-			}
-			if (input.Left || input.RightMouseClick)
-			{
-				TutorialScreen tutorialScreen = this;
-				tutorialScreen.Index = tutorialScreen.Index - 1;
-				if (Index < 0)
-				{
-					Index = TexDict.Count - 1;
-				}
-			}
+            }
+            if (input.Escaped)
+            {
+                ExitScreen();
+                return true;
+            }
+            if (input.Right || input.InGameSelect)
+            {
+                TutorialScreen index = this;
+                index.Index = index.Index + 1;
+                if (Index > TexDict.Count - 1)
+                {
+                    Index = 0;
+                }
+            }
+            if (input.Left || input.RightMouseClick)
+            {
+                TutorialScreen tutorialScreen = this;
+                tutorialScreen.Index = tutorialScreen.Index - 1;
+                if (Index < 0)
+                {
+                    Index = TexDict.Count - 1;
+                }
+            }
             return base.HandleInput(input);
-		}
+        }
 
-		public override void LoadContent()
-		{
+        public override void LoadContent()
+        {
             FileInfo[] textList;
             try
             {
@@ -77,16 +77,15 @@ namespace Ship_Game
             {
                  textList = Dir.GetFiles("Content/Tutorials/English/", "xnb");
             }
-			foreach (FileInfo info in textList)
-			{
-			    string name = Path.GetFileNameWithoutExtension(info.Name);
-			    Texture2D tex = StarDriveGame.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
-			    TexDict[name] = tex;
-			}
-            var center = ScreenManager.Center();
-			BridgeRect = new Rectangle((int)center.X - 640, (int)center.Y - 360, 1280, 720);
-			close = new CloseButton(this, new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
-			base.LoadContent();
-		}
-	}
+            foreach (FileInfo info in textList)
+            {
+                string name = Path.GetFileNameWithoutExtension(info.Name);
+                Texture2D tex = StarDriveGame.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
+                TexDict[name] = tex;
+            }
+            BridgeRect = new Rectangle((int)ScreenCenter.X - 640, (int)ScreenCenter.Y - 360, 1280, 720);
+            close = new CloseButton(this, new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
+            base.LoadContent();
+        }
+    }
 }
