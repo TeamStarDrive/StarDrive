@@ -91,6 +91,20 @@ namespace Ship_Game.AI.Tasks
             MinimumTaskForceStrength = owner.CurrentMilitaryStrength *.05f;
         }
 
+        public MilitaryTask(Planet target, Empire owner, float strWanted)
+        {
+            type = TaskType.AssaultPlanet;
+            TargetPlanet = target;
+            TargetPlanetGuid = target.guid;
+            AO = target.Center;
+            AORadius = 35000f;
+            Owner = owner;
+
+            strWanted = strWanted.ClampMin(owner.CurrentMilitaryStrength * .05f);
+            MinimumTaskForceStrength = strWanted;
+        }
+
+
         public MilitaryTask(Empire owner)
         {
             Owner = owner;

@@ -536,6 +536,11 @@ namespace Ship_Game.AI
 
         void DoRebaseToShip(float elapsedTime)
         {
+            if (Owner.TroopList.IsEmpty && Owner.Carrier != null)
+            {
+                OrderReturnToHangar();
+                return;
+            }
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit)
