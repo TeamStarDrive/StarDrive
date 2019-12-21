@@ -211,48 +211,5 @@ namespace Ship_Game.AI
             FinishedShip = ship;
             AdvanceToNextStep();
         }
-
-        public struct PlanetRanker
-        {
-            public Planet Planet;
-            public float Value;
-            public float Distance;
-            public bool OutOfRange;
-            public bool CantColonize;
-
-            public override string ToString()
-            {
-                return $"{Planet.Name} Value={Value} Distance={Distance}";
-            }
-
-            public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
-            {
-                Planet       = planet;
-                Distance     = empireCenter.Distance(planet.Center);
-                CantColonize = IsBadWorld(planet, canColonizeBarren, planet.Storage.CommoditiesCount);
-                float jumpRange = Math.Max(Distance / 600000, 1);
-                Value      = planet.EmpireBaseValue(empire) / jumpRange;
-                OutOfRange = PlanetTooFarToColonize(planet, empire);
-
-                if (Value < 0.3f)
-                    CantColonize = true;
-
-                if (enemyStr > 0)
-                    Value *= (empire.CurrentMilitaryStrength - enemyStr) / empire.CurrentMilitaryStrength;
-            }
-
-            static bool IsBadWorld(Planet planet, bool canColonizeBarren, int commodities)
-            {
-                return planet.IsBarrenType && !canColonizeBarren && commodities == 0;
-            }
-
-            static bool PlanetTooFarToColonize(Planet p, Empire empire)
-            {
-                AO closestAO = empire.GetEmpireAI().AreasOfOperations.FindMin(ao => ao.Center.SqDist(p.Center));
-                return closestAO != null
-                    && p.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f);
-            }
-
-        }
     }
 }
