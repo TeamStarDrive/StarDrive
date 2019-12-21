@@ -222,6 +222,7 @@ namespace Ship_Game.Ships
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
 
         public ShipData.RoleName DesignRole { get; private set; }
+        public ShipData.RoleType DesignRoleType => ShipData.ShipRoleToRoleType(DesignRole);
         public string DesignRoleName => ShipData.GetRole(DesignRole);
         public SubTexture GetTacticalIcon()
         {

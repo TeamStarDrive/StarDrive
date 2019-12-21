@@ -29,7 +29,7 @@ namespace Ship_Game.AI.Research
                 shipBuildBonus = 0.5f;
 
             float enemyThreats = empire.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireThreats(empire);
-            Wars = enemyThreats / (empire.currentMilitaryStrength + 1);
+            Wars = enemyThreats / (empire.CurrentMilitaryStrength + 1);
             Wars = Wars.Clamped(0, 1);
             if (Wars < 0.5f)
                 Wars = shipBuildBonus;
