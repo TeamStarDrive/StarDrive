@@ -132,10 +132,14 @@ namespace Ship_Game
 
             if (TotalThreatAgainst <= 1f)
             {
-                if (lostColonyPercent > 1.25f) return WarState.Dominating;
-                if (lostColonyPercent < 0.75f) return WarState.LosingSlightly;
-                if (lostColonyPercent < 0.5f)  return WarState.LosingBadly;
-                if (spaceWarKd.AlmostZero())   return WarState.Dominating;
+                if (ColoniesLost > 0)
+                {
+                    if (lostColonyPercent.AlmostZero()) return WarState.ColdWar;
+                    if (lostColonyPercent > 1.25f) return WarState.Dominating;
+                    if (lostColonyPercent < 0.5f) return WarState.LosingSlightly;
+                    if (lostColonyPercent < 0.75f) return WarState.LosingBadly;
+                }
+                if (spaceWarKd.AlmostZero())   return WarState.ColdWar;
                 if (spaceWarKd > 1.5f)         return WarState.Dominating;
                 if (spaceWarKd > 0.75f)        return WarState.WinningSlightly;
                 if (spaceWarKd > 0.35f)        return WarState.EvenlyMatched;
@@ -143,11 +147,14 @@ namespace Ship_Game
                 return WarState.LosingBadly;
             }
 
-            if (lostColonyPercent < 0.75f) return WarState.LosingSlightly;
-            if (lostColonyPercent < 0.5f)  return WarState.LosingBadly;
+            if (ColoniesLost > 0)
+            {
+                if (lostColonyPercent < 0.5f) return WarState.LosingSlightly;
+                if (lostColonyPercent < 0.75f) return WarState.LosingBadly;
+            }
             if (StrengthKilled < 250f && StrengthLost < 250f && Us.GetPlanets().Count == OurStartingColonies)
                 return WarState.ColdWar;
-
+            if (spaceWarKd.AlmostZero()) return WarState.ColdWar;
             if (spaceWarKd > 2f)    return WarState.Dominating;
             if (spaceWarKd > 1.15f) return WarState.WinningSlightly;
             if (spaceWarKd > 0.85f) return WarState.EvenlyMatched;
@@ -252,7 +259,7 @@ namespace Ship_Game
 
         public void ShipWeLost(Ship target)
         {
-            if (Them != target.LastDamagedBy.GetLoyalty()) return;
+            if (Them != target.LastDamagedBy?.GetLoyalty()) return;
             StrengthLost += target.GetStrength();
         }
 

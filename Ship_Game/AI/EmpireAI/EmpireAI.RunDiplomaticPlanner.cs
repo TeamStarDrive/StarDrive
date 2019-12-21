@@ -820,7 +820,7 @@ namespace Ship_Game.AI {
                                         case WarType.BorderConflict:
                                             if (Relationship.Value.Anger_FromShipsInOurBorders +
                                                 Relationship.Value.Anger_TerritorialConflict >
-                                                (double) OwnerEmpire.data.DiplomaticPersonality.Territorialism)
+                                                OwnerEmpire.data.DiplomaticPersonality.Territorialism)
                                                 return;
                                             switch (Relationship.Value.ActiveWar.GetBorderConflictState())
                                             {

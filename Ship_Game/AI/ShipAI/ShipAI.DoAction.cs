@@ -80,22 +80,37 @@ namespace Ship_Game.AI
             {
                 // need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
-                { if (Target == null)
+                {
+                    if (Target == null)
                         Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
-                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                    if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
+                    if (Owner.fleet.FleetTask == null)
                     {
-                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                        Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                        if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                         {
-                            ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+
+                            if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                            {
+                                ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                            }
+                            else
+                            {
+                                DoHoldPositionCombat(elapsedTime);
+                            }
+
+                            return;
                         }
-                        else
+                    }
+                    else
+                    {
+                        var task = Owner.fleet.FleetTask;
+                        if (Target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
                         {
-                            DoHoldPositionCombat(elapsedTime);
+                            OrderQueue.Dequeue();
                         }
-                        return;
                     }
                 }
+
                 if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
                 {
                     if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
