@@ -205,7 +205,7 @@ namespace Ship_Game.AI
                 }
                 if (closestAO == null)
                 {
-                    aoStrength = empire.currentMilitaryStrength;
+                    aoStrength = empire.CurrentMilitaryStrength;
                     aoDistance = empire.GetWeightedCenter().Distance(planet.Center);
                     aoRadius = 600000f;
                     return false;
