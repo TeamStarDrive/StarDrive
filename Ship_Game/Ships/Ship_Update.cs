@@ -260,6 +260,7 @@ namespace Ship_Game.Ships
             yRotation += DieRotation.X * elapsedTime;
             xRotation += DieRotation.Y * elapsedTime;
             Rotation  += DieRotation.Z * elapsedTime;
+            Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
             if (ShipSO == null)
                 return;

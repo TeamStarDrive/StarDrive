@@ -29,9 +29,7 @@ namespace Ship_Game.Ships
             }
 
             Rotation += rotAmount;
-            //Log.Info($"RotateToFacing diff:{angleDiff} amount:{rotAmount} rotation:{Owner.Rotation}");
-            if (Rotation > (float)Math.PI*2f)
-                Rotation -= (float)Math.PI*2f;
+            Rotation = Rotation.AsNormalizedRadians();
         }
 
         public void RestoreYBankRotation()

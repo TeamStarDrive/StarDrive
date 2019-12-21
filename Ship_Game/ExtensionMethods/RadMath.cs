@@ -1,13 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -89,8 +82,8 @@ namespace Ship_Game
         public static float RadiansDown  = PI;
         public static float RadiansLeft  = PI + HalfPI;
 
-        const float RadianToDegree = 180.0f / PI;
-        const float DegreeToRadian = PI / 180.0f;
+        public const float RadianToDegree = 180.0f / PI;
+        public const float DegreeToRadian = PI / 180.0f;
 
         // Converts a radian float to degrees
         public static float ToDegrees(this float radians)
@@ -98,13 +91,18 @@ namespace Ship_Game
             return radians * RadianToDegree;
         }
 
-        // Converts a degree float to radians
+        // Converts DEGREES angle to radians
+        // Always in a normalized absolute [0, 2PI] range
         public static float ToRadians(this float degrees)
         {
-            return degrees * DegreeToRadian;
+            float ratio = degrees / 360f;
+            ratio -= (int)ratio;
+            if (ratio < 0f) ratio = 1f + ratio;
+            return ratio * TwoPI;
         }
 
         // Converts a direction vector to radians
+        // Always in a normalized absolute [0, 2PI] range
         public static float ToRadians(this Vector2 direction)
         {
             if (direction.X == 0f && direction.Y == 0f)
@@ -117,24 +115,33 @@ namespace Ship_Game
             return radians;
         }
 
-        // Almost identical to `ToRadians()`,
-        // but converts the angle to always be in a normalized absolute [0, 2PI] range
-        public static float ToNormalizedRadians(this Vector2 direction)
-        {
-            if (direction.X == 0f && direction.Y == 0f)
-                return 0f; // Up
-
-            float radians = (float)Math.Atan2(direction.Y, direction.X) + HalfPI;
-            return ToNormalizedRadians(radians);
-        }
-
-        // Converts radians angle to always be in a normalized absolute [0, 2PI] range
-        public static float ToNormalizedRadians(this float radians)
+        // Converts existing unbounded RADIANS angle to
+        // a normalized absolute [0, 2PI] range
+        public static float AsNormalizedRadians(this float radians)
         {
             float ratio = radians / TwoPI;
             ratio -= (int)ratio;
-            if (ratio < 0f) ratio = -ratio;
+            if (ratio < 0f) ratio = 1f + ratio;
             return ratio * TwoPI;
+        }
+
+        public static bool IsTargetInsideArc(Vector2 origin, Vector2 target,
+            float arcFacingRads, float arcSizeRadians)
+        {
+            // NOTE: Atan2(dy,dx) swapped to Atan2(dx,dy)
+            // rotates radians -90, because StarDrive uses UP=-Y
+            float radsToTarget = PI - (float)Math.Atan2(target.X-origin.X, target.Y-origin.Y); // [0; +2PI]
+
+            // Ship.Rotation and FacingRadians are normalized to [0; +2PI]
+            float radsFacing = arcFacingRads; // so this can be 2PI + 2PI
+            if (radsFacing > TwoPI)  // normalize back to [0; +2PI]
+                radsFacing -= TwoPI;
+
+            // comparing angles is a bit more complicated, due to 0 and 2PI being equivalent
+            // so this 180 degree subtraction is needed to constrain the comparison to half circle sector
+            // https://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
+            float difference = PI - Math.Abs(Math.Abs(radsToTarget - radsFacing) - PI);
+            return difference < (arcSizeRadians * 0.5f);
         }
 
         // Converts a direction vector to degrees

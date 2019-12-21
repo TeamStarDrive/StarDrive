@@ -271,7 +271,7 @@ namespace Ship_Game
             slot.ModuleUID   = newModule.UID;
             slot.Module      = newModule;
             slot.Orientation = orientation;
-            slot.Facing      = newModule.Facing;
+            slot.Facing      = newModule.FacingDegrees;
             slot.Tex         = newModule.ModuleTexture;
             slot.Module.SetAttributes();
 
