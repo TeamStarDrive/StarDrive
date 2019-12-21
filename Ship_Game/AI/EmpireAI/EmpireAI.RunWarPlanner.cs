@@ -446,36 +446,47 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            int warWeight = (int)Math.Ceiling(1 + 5 * (OwnerEmpire.Research.Strategy.MilitaryRatio + OwnerEmpire.Research.Strategy.ExpansionRatio));
-            var weightedTargets = EmpireAttackWeights();
-            foreach (KeyValuePair<Empire, Relationship> kv in weightedTargets)
+            foreach(var kv in OwnerEmpire.AllRelations.Sorted
+                (r=> r.Value.ActiveWar?.StartDate ?? float.MaxValue))
             {
-                if (warWeight <= 0) break;
-                if (!kv.Value.Known) continue;
-                if (kv.Key.data.Defeated) continue;
-                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
-                if (kv.Key.isFaction)
-                {
-                    foreach (var planet in kv.Key.GetPlanets())
-                    {
-                        if (!planet.ParentSystem.OwnerList.Contains(OwnerEmpire) && !IsInOurAOs(planet.Center)) continue;
-                        FightBrutalWar(kv);
-                        //kv.Value.AtWar = false;
-                        break;
-                    }
-                    continue;
-                }
-                warWeight--;
-                if (kv.Value.AtWar)
-                {
-                    FightDefaultWar(kv, warWeight);
-                    continue;
-                }
-
-                if (!kv.Value.PreparingForWar) continue;
-                WarTargets(kv, warWeight);
-                return;
+                var relation = kv.Value;
+                var warState = relation.ActiveWar?.ConductWar() ?? WarState.Dominating;
+                if (warState < WarState.EvenlyMatched)
+                    break;
             }
+
+
+
+            //int warWeight = (int)Math.Ceiling(1 + 5 * (OwnerEmpire.Research.Strategy.MilitaryRatio + OwnerEmpire.Research.Strategy.ExpansionRatio));
+            //var weightedTargets = EmpireAttackWeights();
+            //foreach (KeyValuePair<Empire, Relationship> kv in weightedTargets)
+            //{
+            //    if (warWeight <= 0) break;
+            //    if (!kv.Value.Known) continue;
+            //    if (kv.Key.data.Defeated) continue;
+            //    if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
+            //    if (kv.Key.isFaction)
+            //    {
+            //        foreach (var planet in kv.Key.GetPlanets())
+            //        {
+            //            if (!planet.ParentSystem.OwnerList.Contains(OwnerEmpire) && !IsInOurAOs(planet.Center)) continue;
+            //            FightBrutalWar(kv);
+            //            //kv.Value.AtWar = false;
+            //            break;
+            //        }
+            //        continue;
+            //    }
+            //    warWeight--;
+            //    if (kv.Value.AtWar)
+            //    {
+            //        FightDefaultWar(kv, warWeight);
+            //        continue;
+            //    }
+
+            //    if (!kv.Value.PreparingForWar) continue;
+            //    WarTargets(kv, warWeight);
+            //    return;
+            //}
         }
 
         public bool IsAlreadyAssaultingPlanet(Planet planet)
