@@ -444,13 +444,12 @@ namespace Ship_Game
 
                 Fleet fleet = player.GetFleetsDict()[index];
                 foreach (Ship ship in SelectedShipList)
-                {
-                    if (ship.fleet != fleet)
-                        ship.ClearFleet();
-                }
+                    ship.ClearFleet();
 
+                // TODO: Is there a good reason why we abandon the fleet?
                 if (fleet != null && fleet.Ships.Count > 0)
                 {
+                    fleet.Reset();
                     fleet = new Fleet();
                     fleet.Name = Fleet.GetDefaultFleetNames(index) + " Fleet";
                     fleet.Owner = player;
@@ -602,9 +601,8 @@ namespace Ship_Game
         {
             if (planetClicked == null || fleet == null) return false;
             fleet.Position = planetClicked.Center; //fbedard: center fleet on planet
-            using (fleet.Ships.AcquireReadLock())
-                foreach (Ship ship2 in fleet.Ships)
-                    RightClickOnPlanet(ship2, planetClicked, false);
+            foreach (Ship ship2 in fleet.Ships)
+                RightClickOnPlanet(ship2, planetClicked, false);
             return true;
         }
 
@@ -625,9 +623,8 @@ namespace Ship_Game
             if (!Input.QueueAction || !fleet.Ships[0].AI.HasWayPoints)
                 return false;
 
-            using (fleet.Ships.AcquireReadLock())
-                foreach (var ship in fleet.Ships)
-                    ship.AI.ClearOrderIfCombat();
+            foreach (var ship in fleet.Ships)
+                ship.AI.ClearOrderIfCombat();
 
             fleet.FormationWarpTo(movePosition, direction, true);
             return true;
@@ -639,12 +636,11 @@ namespace Ship_Game
             fleet?.FleetTargetList.Clear();
             GameAudio.AffirmativeClick();
 
-            using (fleet.Ships.AcquireReadLock())
-                foreach (var ship in fleet.Ships)
-                {
-                    ship.AI.Target = null;
-                    ship.AI.SetPriorityOrder(!Input.QueueAction);
-                }
+            foreach (var ship in fleet.Ships)
+            {
+                ship.AI.Target = null;
+                ship.AI.SetPriorityOrder(!Input.QueueAction);
+            }
             PlayerEmpire.GetEmpireAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
 
             if (TryFleetAttackShip(fleet, shipClicked))
@@ -656,9 +652,8 @@ namespace Ship_Game
             if (QueueFleetMovement(movePosition, facingDir, fleet))
                 return;
 
-            using (fleet.Ships.AcquireReadLock())
-                foreach (var ship in fleet.Ships)
-                    ship.AI.ClearOrders();
+            foreach (var ship in fleet.Ships)
+                ship.AI.ClearOrders();
 
             if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
                 fleet.MoveToNow(movePosition, facingDir);
@@ -1446,20 +1441,18 @@ namespace Ship_Game
 
         void AddSelectedShipsToFleet(Fleet fleet)
         {
-            using (fleet.Ships.AcquireWriteLock())
+            foreach (Ship ship in SelectedShipList)
             {
-                foreach (Ship ship in SelectedShipList)
+                ship.ClearFleet();
+                if (ship.loyalty == player && !ship.IsConstructor && ship.Mothership == null)
+                    //fbedard: cannot add ships from hangar in fleet
                 {
-                    ship.ClearFleet();
-                    if (ship.loyalty == player && !ship.IsConstructor && ship.Mothership == null)  //fbedard: cannot add ships from hangar in fleet
-                    {
-                        ship.AI.ClearOrdersAndWayPoints();
-                        ship.AI.ClearPriorityOrder();
-                        fleet.AddShip(ship);
-                    }
+                    ship.AI.ClearOrdersAndWayPoints();
+                    ship.AI.ClearPriorityOrder();
+                    fleet.AddShip(ship);
                 }
-                fleet.AutoArrange();
             }
+            fleet.AutoArrange();
             InputCheckPreviousShip();
 
             SelectedShip = null;

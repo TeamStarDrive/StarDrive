@@ -576,7 +576,7 @@ namespace Ship_Game
             DrawStat(ref shipSelectionPos, "LaunchCost", ship.ShipOrdLaunchCost, -1);
             DrawStat(ref shipSelectionPos, "Weapons", ship.Weapons.Count, -1);
             DrawStat(ref shipSelectionPos, "Health", ship.HealthMax, -1);
-            DrawStat(ref shipSelectionPos, "FTL", ship.maxFTLSpeed, -1);
+            DrawStat(ref shipSelectionPos, "FTL", ship.MaxFTLSpeed, -1);
 
             string GetDynamicHangarText()
             {

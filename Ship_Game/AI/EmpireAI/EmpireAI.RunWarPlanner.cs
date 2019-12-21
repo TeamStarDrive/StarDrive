@@ -250,7 +250,7 @@ namespace Ship_Game.AI
 
             foreach (MilitaryTask task in TaskList.AtomicCopy())
             {
-                if (OwnerEmpire.GetFleetsDict().ContainsKey(task.WhichFleet) &&
+                if (OwnerEmpire.GetFleetsDict().Get(task.WhichFleet, out Fleet fleet) &&
                     OwnerEmpire.data.Traits.Name == "Corsairs")
                 {
                     bool foundhome = false;
@@ -259,7 +259,7 @@ namespace Ship_Game.AI
                         if (ship.IsPlatformOrStation)
                         {
                             foundhome = true;
-                            foreach (Ship fship in OwnerEmpire.GetFleetsDict()[task.WhichFleet].Ships)
+                            foreach (Ship fship in fleet.Ships)
                             {
                                 fship.AI.ClearOrders();
                                 fship.DoEscort(ship);
@@ -270,10 +270,8 @@ namespace Ship_Game.AI
 
                     if (!foundhome)
                     {
-                        foreach (Ship ship in OwnerEmpire.GetFleetsDict()[task.WhichFleet].Ships)
-                        {
+                        foreach (Ship ship in fleet.Ships)
                             ship.AI.ClearOrders();
-                        }
                     }
                 }
                 task.EndTaskWithMove();

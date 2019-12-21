@@ -215,16 +215,16 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
-            if (!Empire.Universe.GravityWells || ship.IsInFriendlySpace)
-                return null;
-
-            for (int i = 0; i < PlanetList.Count; i++)
+            if (Empire.Universe.GravityWells)
             {
-                Planet planet = PlanetList[i];
-                if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
-                    return planet;
+                // @todo QuadTree
+                for (int i = 0; i < PlanetList.Count; i++)
+                {
+                    Planet planet = PlanetList[i];
+                    if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
+                        return planet;
+                }
             }
-
             return null;
         }
 
@@ -247,7 +247,7 @@ namespace Ship_Game
             return GetStatus(empire).HostileForcesPresent;
         }
 
-        public bool IsFullyExploredBy(Empire empire) => FullyExplored.IsSet(empire);
+        public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);
         public void UpdateFullyExploredBy(Empire empire)
         {
             if (IsFullyExploredBy(empire))
@@ -257,7 +257,7 @@ namespace Ship_Game
                 if (!PlanetList[i].IsExploredBy(empire))
                     return;
 
-            FullyExplored.Set(ref FullyExplored, empire);
+            FullyExplored.FlatMapSet(ref FullyExplored, empire);
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 

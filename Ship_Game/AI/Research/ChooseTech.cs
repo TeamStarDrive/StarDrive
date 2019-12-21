@@ -274,10 +274,16 @@ namespace Ship_Game.AI.Research
             string testResearchTopic = researchTech?.UID ?? string.Empty;
             if (testResearchTopic.IsEmpty()) return testResearchTopic;
             int currentCost = 0;
+            
             if (researchTech.IsTechnologyType(techType))
                 currentCost = NormalizeTechCost(researchTech.TechCost);
             else if(!techType.ToString().Contains("Ship"))
                 currentCost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
+
+            if (researchTech.IsTechnologyType(TechnologyType.Industry)
+                                              && researchTech.IsTechnologyType(TechnologyType.ShipHull))
+                currentCost *= 2;
+                
 
             if (currentCost > 0)
                 if (isCheaper)

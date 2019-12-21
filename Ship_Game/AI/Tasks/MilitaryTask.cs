@@ -481,32 +481,24 @@ namespace Ship_Game.AI.Tasks
                             return;
                     }
                 }
-            } 
+            }
             
-            if (Owner.GetFleetOrNull(WhichFleet)?.FleetTask == null )
+            Fleet fleet = Owner.GetFleetOrNull(WhichFleet);
+            if (fleet?.FleetTask == null)
             {
                 EndTask();
                 return;
             }
             
             float currentStrength = 0f;
-            foreach (Ship ship in Owner.GetFleetsDict()[WhichFleet].Ships)
+            foreach (Ship ship in fleet.Ships)
             {
+                // remove dead or scrapping ships
                 if (!ship.Active || ship.InCombat && Step < 1 || ship.AI.State == AIState.Scrap)
                 {
-                    Owner.GetFleetsDict()[WhichFleet].Ships.QueuePendingRemoval(ship);
+                    fleet.RemoveShip(ship);
                     if (ship.Active && ship.AI.State != AIState.Scrap)
-                    {
-                        if (ship.fleet != null)
-                            Owner.GetFleetsDict()[WhichFleet].Ships.QueuePendingRemoval(ship);
-                        
                         Owner.ForcePoolAdd(ship);
-                    }
-                    else if (ship.AI.State == AIState.Scrap)
-                    {
-                        if (ship.fleet != null)
-                            Owner.GetFleetsDict()[WhichFleet].Ships.QueuePendingRemoval(ship);
-                    }
                 }
                 else
                 {
@@ -514,7 +506,6 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            Owner.GetFleetOrNull(WhichFleet).Ships.ApplyPendingRemovals();
             float currentEnemyStrength = 0f;
 
             foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetEmpireAI().ThreatMatrix.Pins)
