@@ -242,7 +242,7 @@ namespace Ship_Game.AI {
             }
             if (!r.WarnedAboutShips || r.AtWar || !OwnerEmpire.IsEmpireAttackable(them)) return;
 
-            if (them.currentMilitaryStrength < OwnerEmpire.currentMilitaryStrength * (1f - OwnerEmpire.data.DiplomaticPersonality.Territorialism * .01f))
+            if (them.CurrentMilitaryStrength < OwnerEmpire.CurrentMilitaryStrength * (1f - OwnerEmpire.data.DiplomaticPersonality.Territorialism * .01f))
             {
                 DeclareWarOn(them, WarType.ImperialistWar);
             }

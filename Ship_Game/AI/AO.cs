@@ -111,7 +111,7 @@ namespace Ship_Game.AI
             if (ship.fleet != null)
                 Log.Error("corefleet ship in {0}" , ship.fleet.Name);
             Owner.GetEmpireAI().RemoveShipFromForce(ship);
-            if (IsCoreFleetFull() || GetPoolStrength() < Owner.currentMilitaryStrength * .05f) 
+            if (IsCoreFleetFull() || GetPoolStrength() < Owner.CurrentMilitaryStrength * .05f) 
             {
                 OffensiveForcePool.Add(ship);
 

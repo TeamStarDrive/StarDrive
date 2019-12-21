@@ -63,7 +63,7 @@ namespace Ship_Game
             CorsairsFaction  = null;
         }
 
-        
+
         public static Empire GetEmpireById(int empireId)
         {
             return empireId == 0 ? null : Empires[empireId-1];
@@ -142,9 +142,9 @@ namespace Ship_Game
                 if (!rebelEmpire.WeCanBuildTroop(troopType))
                     continue;
 
-                Troop troop = ResourceManager.CreateTroop(troopType, rebelEmpire);                
+                Troop troop = ResourceManager.CreateTroop(troopType, rebelEmpire);
                 troop.Description = Localizer.Token(rebelEmpire.data.TroopDescriptionIndex);
-                return troop;                
+                return troop;
             }
             return null;
         }
@@ -206,7 +206,7 @@ namespace Ship_Game
             empire.EmpireColor         = new Color(128, 128, 128, 255);
 
             empire.InitializeFromSave();
-            
+
             data.IsRebelFaction  = true;
             data.Traits.Name     = data.RebelName;
             data.Traits.Singular = data.RebelSing;
@@ -219,7 +219,7 @@ namespace Ship_Game
                 empire.AddRelation(key);
             }
             data.RebellionLaunched = true;
-         
+
             return empire;
         }
 
@@ -234,6 +234,16 @@ namespace Ship_Game
                 }
             }
             return null;
+        }
+
+        public static void RestoreUnserializableDataFromSave()
+        {
+            if (Empires.IsEmpty)
+                Log.Error($"must be called after empireList is populated.");
+            foreach(Empire empire in Empires)
+            {
+                empire.RestoreUnserializableDataFromSave();
+            }
         }
     }
 }

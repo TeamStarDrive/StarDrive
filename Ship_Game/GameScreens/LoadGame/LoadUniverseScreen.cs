@@ -48,6 +48,8 @@ namespace Ship_Game
                     Progress.Finish();
 
                     Log.Info(ConsoleColor.DarkRed, $"TOTAL LoadUniverseScreen elapsed: {Progress.ElapsedMillis}ms");
+
+                    EmpireManager.RestoreUnserializableDataFromSave();
                 }
                 catch (Exception e)
                 {
