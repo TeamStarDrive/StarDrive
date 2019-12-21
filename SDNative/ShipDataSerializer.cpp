@@ -38,16 +38,29 @@ namespace SDNative
         }
         return sb.str();
     }
-
-    static FINLINE void ParsePosition(NodeParser& elem, float& posX, float& posY)
+    // FB - this is almost a copy of the PasrPostion for ship modules. 
+    // I added the Z for Thrusters and figured its better to seperate these as this is called very rarely vs. modules.
+    static FINLINE void ParsePositionThruster(NodeParser& elem, float& posX, float& posY, float& posZ)
     {
         elem.parseChildren("Position", [&](NodeParser subdefs)
         {
             for (; subdefs.node; subdefs.next()) {
                 subdefs.parse("X", posX);
                 subdefs.parse("Y", posY);
+                subdefs.parse("Z", posZ);
             }
         });
+    }
+
+    static FINLINE void ParsePosition(NodeParser& elem, float& posX, float& posY)
+    {
+        elem.parseChildren("Position", [&](NodeParser subdefs)
+            {
+                for (; subdefs.node; subdefs.next()) {
+                    subdefs.parse("X", posX);
+                    subdefs.parse("Y", posY);
+                }
+            });
     }
 
     bool ShipData::LoadFromFile(const wchar_t* filename)
@@ -93,7 +106,7 @@ namespace SDNative
                     {
                         ThrusterList.emplace_back();
                         auto& tz = ThrusterList.back();
-                        ParsePosition(thrusterZone, tz.X, tz.Y);
+                        ParsePositionThruster(thrusterZone, tz.X, tz.Y, tz.Z);
                         thrusterZone.parse("scale", tz.Scale);
                     }
                 });

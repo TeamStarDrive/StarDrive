@@ -317,7 +317,7 @@ namespace Ship_Game.AI.Research
             {
                 if (techEntry.IsShipTech() && (techEntry.Tech.ModulesUnlocked.NotEmpty || techEntry.Tech.HullsUnlocked.NotEmpty))
                     shipTechs.Add(techEntry.UID);
-                else
+                if (techEntry.HasNonShipTech())
                     nonShipTechs.Add(techEntry.UID);
             }
             //if not researching shiptechs then dont research any shiptechs.
