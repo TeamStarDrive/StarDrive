@@ -336,11 +336,13 @@ namespace Ship_Game.AI
                 return;
 
             foreach(var kv in OwnerEmpire.AllRelations.Sorted
-                (r=> r.Value.ActiveWar?.StartDate ?? float.MaxValue))
+                (r=> (int?)r.Value.ActiveWar?.GetWarScoreState() ?? (int)WarState.NotApplicable))
             {
                 var relation = kv.Value;
+                
+                    
                 var warState = relation.ActiveWar?.ConductWar() ?? WarState.NotApplicable;
-                if (warState < WarState.EvenlyMatched)
+                if (!relation.PreparingForWar)
                     if (relation.ActiveWar?.TasksForThisWar().Length > 0)
                         break;
             }
