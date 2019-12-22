@@ -159,9 +159,9 @@ namespace Ship_Game
                 DrawPlanetStats(InjuryRect, ((float)P.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
 
             // Added by Fat Bastard - display total space offense of the planet
-            if (P.TotalSpaceOffense > 0)
+            if (P.GeodeticOffense > 0)
             {
-                string offenseNumberString = ((float) Math.Round(P.TotalSpaceOffense,0)).GetNumberString();
+                string offenseNumberString = ((float) Math.Round(P.GeodeticOffense, 0)).GetNumberString();
                 DrawPlanetStats(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
             }
 
