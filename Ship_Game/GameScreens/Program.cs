@@ -8,7 +8,7 @@ namespace Ship_Game
 {
     internal static class Program
     {
-        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             GraphicsDeviceManager graphicsMgr = StarDriveGame.Instance?.Graphics;
             if (graphicsMgr != null && graphicsMgr.IsFullScreen)
@@ -25,10 +25,40 @@ namespace Ship_Game
             }
         }
 
+        // in case of abnormal termination, run cleanup tasks during process exit
+        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            RunCleanupTasks();
+        }
+
+        static bool HasRunCleanupTasks;
+        
+        static void RunCleanupTasks()
+        {
+            if (HasRunCleanupTasks)
+                return;
+            try
+            {
+                HasRunCleanupTasks = true;
+                Log.Write("RunCleanupTasks()");
+                Log.StopLogThread();
+                Parallel.ClearPool(); // Dispose all thread pool Threads
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Error while trying to exit the process");
+            }
+            finally
+            {
+                Log.FlushAllLogs();
+            }
+        }
+
         [STAThread]
-        private static void Main(string[] args)
+        static void Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            AppDomain.CurrentDomain.ProcessExit        += CurrentDomain_ProcessExit;
             Thread.CurrentThread.CurrentCulture   = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentCulture   = CultureInfo.InvariantCulture;
@@ -47,17 +77,16 @@ namespace Ship_Game
                     using (var game = new StarDriveGame())
                         game.Run();
                 }
+
+                Log.Write("The game exited normally.");
             }
             catch (Exception ex)
             {
-                Log.WarningVerbose($"FailSafe log {ex.InnerException}");
                 Log.ErrorDialog(ex, "Fatal main loop failure");
             }
             finally
             {
-                Parallel.ClearPool();
-                Log.FlushAllLogs();
-                Environment.Exit(0);
+                RunCleanupTasks();
             }
         }
     }

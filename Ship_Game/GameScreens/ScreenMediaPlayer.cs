@@ -114,7 +114,8 @@ namespace Ship_Game.GameScreens
 
         public bool IsPlaying => Video != null && Player.State == MediaState.Playing;
         public bool IsPaused  => Video != null && Player.State == MediaState.Paused;
-        public bool IsStopped => Video == null || Player.State == MediaState.Stopped;
+        public bool IsStopped => Video == null || Player.IsDisposed ||
+                                                  Player.State == MediaState.Stopped;
 
         public void Stop()
         {
