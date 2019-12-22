@@ -5,6 +5,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.AI.Budget;
 
 namespace Ship_Game
 {
@@ -267,38 +268,47 @@ namespace Ship_Game
             spriteBatch.End();
         }
 
-        private void DrawMain(GameTime gameTime)
+        void DrawDebugPlanetBudgets()
         {
-            Render(gameTime);
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            ExplosionManager.DrawExplosions(ScreenManager.SpriteBatch, View, Projection);
-#if DEBUG
             if (viewState < UnivScreenState.SectorView)
-            foreach (Empire empire in EmpireManager.Empires)
             {
-                var pBudget = empire.GetEmpireAI()?.PlanetBudgets;
-                if (pBudget != null)
-                    foreach (var budget in pBudget)
+                foreach (Empire empire in EmpireManager.Empires)
+                {
+                    if (empire.GetEmpireAI().PlanetBudgets != null)
                     {
-                        budget.DrawBudgetInfo(this);
+                        foreach (var budget in empire.GetEmpireAI().PlanetBudgets)
+                            budget.DrawBudgetInfo(this);
                     }
-
+                }
             }
-#endif
-            ScreenManager.SpriteBatch.End();
-            if (!ShowShipNames || LookingAtPlanet)
-                return;
-            foreach (ClickableShip clickableShip in ClickableShipsList)
-                if (clickableShip.shipToClick.InFrustum)
-                    clickableShip.shipToClick.DrawShieldBubble(this);
         }
 
-        private void DrawLights(GameTime gameTime)
+        void DrawMain(SpriteBatch batch, GameTime gameTime)
         {
-            ScreenManager.GraphicsDevice.SetRenderTarget(0, FogMapTarget);
-            ScreenManager.GraphicsDevice.Clear(Color.TransparentWhite);
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.Additive);
-            ScreenManager.SpriteBatch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
+            Render(batch, gameTime);
+
+            batch.Begin(SpriteBlendMode.Additive);
+            ExplosionManager.DrawExplosions(batch, View, Projection);
+            #if DEBUG
+            DrawDebugPlanetBudgets();
+            #endif
+            batch.End();
+
+            if (ShowShipNames && !LookingAtPlanet)
+            {
+                foreach (ClickableShip clickable in ClickableShipsList)
+                    if (clickable.shipToClick.InFrustum)
+                        clickable.shipToClick.DrawShieldBubble(this);
+            }
+        }
+
+        void DrawLights(SpriteBatch batch)
+        {
+            var device = ScreenManager.GraphicsDevice;
+            device.SetRenderTarget(0, FogMapTarget);
+            device.Clear(Color.TransparentWhite);
+            batch.Begin(SpriteBlendMode.Additive);
+            batch.Draw(FogMap, new Rectangle(0, 0, 512, 512), Color.White);
             float num = 512f / UniverseSize;
             var uiNode = ResourceManager.Texture("UI/node");
             foreach (Ship ship in player.GetShips())
@@ -314,36 +324,23 @@ namespace Ship_Game
                         uiNode.CenterF, SpriteEffects.None, 1f);
                 }
             }
-            ScreenManager.SpriteBatch.End();
-            ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
+            batch.End();
+            device.SetRenderTarget(0, null);
             FogMap = FogMapTarget.GetTexture();
 
-            ScreenManager.GraphicsDevice.SetRenderTarget(0, LightsTarget);
-            ScreenManager.GraphicsDevice.Clear(Color.White);
+            device.SetRenderTarget(0, LightsTarget);
+            device.Clear(Color.White);
 
-            Viewport.Project(new Vector3(UniverseSize / 2f, UniverseSize / 2f, 0.0f),
-                Projection, View, Matrix.Identity);
-            ScreenManager.SpriteBatch.Begin(SpriteBlendMode.AlphaBlend);
+            batch.Begin(SpriteBlendMode.AlphaBlend);
             if (!Debug) // don't draw fog of war in debug
             {
-                Vector3 vector3_1 =
-                    Viewport.Project(Vector3.Zero, Projection, View,
-                        Matrix.Identity);
-                Vector3 vector3_2 =
-                    Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f),
-                        Projection, View, Matrix.Identity);
-
-                Rectangle fogRect = new Rectangle((int) vector3_1.X, (int) vector3_1.Y,
-                    (int) vector3_2.X - (int) vector3_1.X, (int) vector3_2.Y - (int) vector3_1.Y);
-                ScreenManager.SpriteBatch.FillRectangle(new Rectangle(0, 0,
-                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                        ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight),
-                    new Color(0, 0, 0, 170));
-                ScreenManager.SpriteBatch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
+                Rectangle fogRect = ProjectToScreenCoords(Vector2.Zero, UniverseSize);
+                batch.FillRectangle(new Rectangle(0, 0, ScreenWidth, ScreenHeight), new Color(0, 0, 0, 170));
+                batch.Draw(FogMap, fogRect, new Color(255, 255, 255, 55));
             }
             DrawFogNodes();
             DrawInfluenceNodes();
-            ScreenManager.SpriteBatch.End();
+            batch.End();
             ScreenManager.GraphicsDevice.SetRenderTarget(0, null);
         }
 
@@ -372,9 +369,9 @@ namespace Ship_Game
 
             var graphics = ScreenManager.GraphicsDevice;
             graphics.SetRenderTarget(0, MainTarget);
-            DrawMain(gameTime);
+            DrawMain(batch, gameTime);
             graphics.SetRenderTarget(0, null);
-            DrawLights(gameTime);
+            DrawLights(batch);
 
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
             {
@@ -389,6 +386,7 @@ namespace Ship_Game
             graphics.SetRenderTarget(0, null);
             graphics.Clear(Color.Black);
             basicFogOfWarEffect.Parameters["LightsTexture"].SetValue(texture2);
+
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate,
                 SaveStateMode.SaveState);
             basicFogOfWarEffect.Begin();
@@ -399,8 +397,11 @@ namespace Ship_Game
             basicFogOfWarEffect.CurrentTechnique.Passes[0].End();
             basicFogOfWarEffect.End();
             batch.End();
+
             View = matrix;
-            if (drawBloom) bloomComponent.Draw(gameTime);
+            if (drawBloom)
+                bloomComponent.Draw(gameTime);
+
             batch.Begin(SpriteBlendMode.AlphaBlend);
 
             if (viewState >= UnivScreenState.SectorView) // draw colored empire borders only if zoomed out
