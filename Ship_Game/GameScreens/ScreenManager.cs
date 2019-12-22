@@ -243,20 +243,21 @@ namespace Ship_Game
         public void Draw()
         {
             SpriteBatch batch = SpriteBatch;
-            try
+            for (int i = 0; i < GameScreens.Count; ++i)
             {
-                for (int i = 0; i < GameScreens.Count; ++i)
+                GameScreen screen = GameScreens[i];
+                if (screen.Visible)
                 {
-                    if (GameScreens[i].Visible)
+                    try
                     {
-                        GameScreens[i].Draw(batch);
+                        screen.Draw(batch);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"Draw Screen failed: {screen.GetType().GenericName()}");
+                        try { batch.End(); } catch { }
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "ScreenManager.Draw Crashed");
-                try { batch.End(); } catch { }
             }
         }
 
