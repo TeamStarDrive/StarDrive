@@ -421,7 +421,7 @@ namespace Ship_Game
         {
             float strength = 0;
             if (Owner == empire)
-                strength += BuildingList.Sum(offense => offense.CombatStrength);
+                strength += BuildingList.Sum(BuildingCombatStrength);
 
             using (TroopList.AcquireReadLock())
                 strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.Strength);
@@ -441,7 +441,9 @@ namespace Ship_Game
 
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            float enemyTroopStrength = TroopList.Where(t => t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
+            float enemyTroopStrength = TroopList.Where(t => 
+                t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
+
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b;
@@ -453,16 +455,21 @@ namespace Ship_Game
                 {
                     continue;
                 }
-
-                if (b?.CombatStrength > 0)
-                {
-                    enemyTroopStrength += b.CombatStrength;
-                    enemyTroopStrength += b.InvadeInjurePoints * 10;
-                    enemyTroopStrength += b.isWeapon ? 50 : 0;
-                }
-                
+                enemyTroopStrength += BuildingCombatStrength(b);
             }
             return enemyTroopStrength;            
+        }
+
+        float BuildingCombatStrength(Building b)
+        {
+            float strength = 0;
+            if (b?.CombatStrength > 0)
+            {
+                strength += b.CombatStrength;
+                strength += b.InvadeInjurePoints * 5;
+                strength += b.isWeapon ? 10 : 0;
+            }
+            return strength;
         }
 
         public bool TroopsHereAreEnemies(Empire empire)

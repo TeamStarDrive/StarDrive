@@ -71,6 +71,13 @@ namespace Ship_Game
 
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
+
+        public int GetEstimatedTroopsToInvade(int bestTroopStrength = 10)
+        {
+            float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);
+            return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.ClampMin(1)) : 0;
+
+        }
         public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
         public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
 

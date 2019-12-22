@@ -1201,7 +1201,7 @@ namespace Ship_Game.AI
         bool EscortingToPlanet(MilitaryTask task)
         {
             Vector2 targetPos = task.TargetPlanet.Center;
-            AttackEnemyStrengthClumpsInAO(task);
+
             InvadeTactics(ScreenShips, InvasionTactics.Screen, targetPos);
             InvadeTactics(CenterShips, InvasionTactics.Center, targetPos);
             InvadeTactics(RearShips, InvasionTactics.Wait, targetPos);
@@ -1257,12 +1257,12 @@ namespace Ship_Game.AI
 
             planetAssaultStrength += ourGroundStrength;
 
-            if (planetAssaultStrength < theirGroundStrength * 0.75f)
+            if (ourGroundStrength < 1 && planetAssaultStrength < theirGroundStrength * 0.75f)
             {
                 DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
                 return false;
             }
-            if (freeLandingSpots < landingspotsNeeded)
+            if (ourGroundStrength < 1 && freeLandingSpots < landingspotsNeeded)
             {
                 DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {landingspotsNeeded}");
                 return false;
@@ -1539,6 +1539,12 @@ namespace Ship_Game.AI
                     RemoveShip(ship);
                     continue;
                 }
+                if (ship.fleet != this)
+                {
+                    RemoveShip(ship);
+                    Log.Error($"Fleet Update. Ship in fleet was not assigned to this fleet");
+                }
+
 
                 if (ship.AI.State == AIState.FormationWarp)
                 {
