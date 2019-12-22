@@ -268,13 +268,8 @@ namespace Ship_Game
             spriteBatch.End();
         }
 
-        void DrawMain(SpriteBatch batch, GameTime gameTime)
+        void DrawDebugPlanetBudgets()
         {
-            Render(batch, gameTime);
-
-            batch.Begin(SpriteBlendMode.Additive);
-            ExplosionManager.DrawExplosions(batch, View, Projection);
-        #if DEBUG
             if (viewState < UnivScreenState.SectorView)
             {
                 foreach (Empire empire in EmpireManager.Empires)
@@ -285,8 +280,18 @@ namespace Ship_Game
                             budget.DrawBudgetInfo(this);
                     }
                 }
-        #endif
             }
+        }
+
+        void DrawMain(SpriteBatch batch, GameTime gameTime)
+        {
+            Render(batch, gameTime);
+
+            batch.Begin(SpriteBlendMode.Additive);
+            ExplosionManager.DrawExplosions(batch, View, Projection);
+            #if DEBUG
+            DrawDebugPlanetBudgets();
+            #endif
             batch.End();
 
             if (ShowShipNames && !LookingAtPlanet)
