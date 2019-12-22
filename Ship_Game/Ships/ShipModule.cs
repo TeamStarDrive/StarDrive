@@ -1210,21 +1210,22 @@ namespace Ship_Game.Ships
             float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
-                def                 += shieldsMax / 50;
-                float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
+                float shieldDef      = shieldsMax / 50;
+                float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14159f) / 256f / slotCount;
 
-                def *= shieldCoverage < 1 ? shieldCoverage : 1f;
-                def *= 1 + shield_kinetic_resist / 5;
-                def *= 1 + shield_energy_resist / 5;
-                def *= 1 + shield_beam_resist / 5;
-                def *= 1 + shield_missile_resist / 5;
-                def *= 1 + shield_explosive_resist / 5;
+                shieldDef *= shieldCoverage < 1 ? shieldCoverage : 1f;
+                shieldDef *= 1 + shield_kinetic_resist / 5;
+                shieldDef *= 1 + shield_energy_resist / 5;
+                shieldDef *= 1 + shield_beam_resist / 5;
+                shieldDef *= 1 + shield_missile_resist / 5;
+                shieldDef *= 1 + shield_explosive_resist / 5;
 
-                def *= shield_recharge_rate > 0 ? shield_recharge_rate / (shieldsMax / 100) : 1f;
-                def *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
-                def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
+                shieldDef *= shield_recharge_rate > 0 ? shield_recharge_rate / (shieldsMax / 100) : 1f;
+                shieldDef *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
+                shieldDef *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
 
-                def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
+                shieldDef *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
+                def       += shieldDef;
             }
 
             // FB: all resists are divided by 5 since there are 5-6 weapon types
