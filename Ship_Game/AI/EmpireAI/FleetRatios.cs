@@ -172,12 +172,12 @@ namespace Ship_Game.AI
             GetShipsByFeaturesAndRole(Ships, assaultCount, s => s.Carrier.PlanetAssaultCount,
                 r=> r.DesignRole == ShipData.RoleName.troop || r.DesignRole == ShipData.RoleName.troopShip);
 
-        public Array<Ship> GetBombers(int bombCount)
+        public Array<Ship> GetBombers(int bombSecsWanted)
         {
             //Array<Ship> ships = new Array<Ship>();
-            if (bombCount < 1 || Ratios.MinBombers < 1)
+            if (bombSecsWanted < 1 || Ratios.MinBombers < 1)
                 return new Array<Ship>();
-            return GetShipsByFeaturesAndRole(Ships, bombCount, s => s.BombsGoodFor60Secs,
+            return GetShipsByFeaturesAndRole(Ships, bombSecsWanted, s => s.BombsGoodFor60Secs,
                 r => r?.DesignRole == ShipData.RoleName.bomber);
         }
 
@@ -205,8 +205,12 @@ namespace Ship_Game.AI
 
             return shipSet;
         }
-
-        private Array<Ship> GetShipsByFeaturesAndRole(Array<Ship> ships, float wanted, Func<Ship, int> featureCount, Func<Ship, bool> roleFilter)
+        /// <summary>
+        /// Wanted is the number of featureCount total wanted.
+        /// filter by the role and the want is the count of features wanted. 
+        /// </summary>
+        private Array<Ship> GetShipsByFeaturesAndRole(Array<Ship> ships, float wanted
+            , Func<Ship, int> featureCount, Func<Ship, bool> roleFilter)
         {
             var shipSet = new Array<Ship>();
             if (wanted < 1) return shipSet;
@@ -217,14 +221,15 @@ namespace Ship_Game.AI
                 if (!roleFilter(ship))
                     continue;
                 int count = featureCount(ship);
-                if (count <= 0)
-                    continue;
-                Ships.RemoveSwapLast(ship);
-                shipSet.Add(ship);
-                AccumulatedStrength += ship.GetStrength();
-                wanted -= count;
-                if (wanted <= 0)
-                    break;
+                if (count > 0)
+                {
+                    Ships.RemoveSwapLast(ship);
+                    shipSet.Add(ship);
+                    AccumulatedStrength += ship.GetStrength();
+                    wanted -= count;
+                    if (wanted <= 0)
+                        break;
+                }
             }
 
             return shipSet;

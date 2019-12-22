@@ -286,15 +286,15 @@ namespace Ship_Game.AI.Tasks
 
             float enemyTroopStrength = TargetPlanet.GetGroundStrengthOther(Owner);
 
-            if (enemyTroopStrength < 100f)
-                enemyTroopStrength = 100f;
+            if (enemyTroopStrength < 200f)
+                enemyTroopStrength = 200f;
             int enemyTroopCount = TargetPlanet.GetDefendingTroopCount();
             FleetShips fleetShips = GatherFleetReadyShips(closestAO);
 
             int bombersWanted = TargetPlanet.GetGroundLandingSpots() < 15 ? 30 : 0;
             bombersWanted += TargetPlanet.ShieldStrengthMax > 0 ? 30 : 0;
 
-            Array<Ship> potentialAssaultShips = fleetShips.GetTroops(enemyTroopCount * 2);
+            Array<Ship> potentialAssaultShips = fleetShips.GetTroops(enemyTroopCount * 3);
             Array<Ship> potentialCombatShips = fleetShips.GetFleetByStrength(MinimumTaskForceStrength * 2);
             Array<Ship> potentialBombers = fleetShips.GetBombers(bombersWanted);
             if (potentialCombatShips.IsEmpty)

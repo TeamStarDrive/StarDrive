@@ -315,7 +315,7 @@ namespace Ship_Game
             debug.AddLine($"{pad}KillDeath: {(int)StrengthKilled} / {(int)StrengthLost} = % {(int)(SpaceWarKd * 100)}");
             debug.AddLine($"{pad}Colonies Lost : {ColoniesLost}");
             debug.AddLine($"{pad}Colonies Won : {ColoniesWon}");
-            debug.AddLine($"{pad}Colonies Lost Percentage : {LostColonyPercent}");
+            debug.AddLine($"{pad}Colonies Lost Percentage :% {(int)(LostColonyPercent * 100)}.00");
 
             foreach (var system in ContestedSystems)
             {
@@ -329,6 +329,7 @@ namespace Ship_Game
             foreach (var fleet in TasksForThisWar())
             {
                 debug.AddLine($"{pad} Type:{fleet.type}");
+                debug.AddLine($"{pad2} System: {fleet.TargetPlanet.ParentSystem.Name}");
                 debug.AddLine($"{pad2} Has Fleet: {fleet.WhichFleet}");
                 debug.AddLine($"{pad2} Fleet MinStr: {(int)fleet.MinimumTaskForceStrength}");
                 
