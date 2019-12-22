@@ -29,6 +29,7 @@ namespace Ship_Game.Debug
         input,
         Tech,
         Solar, // Sun timers, black hole data, pulsar radiation radius...
+        RelationsWar,
         Last // dummy value
     }
 
@@ -165,6 +166,7 @@ namespace Ship_Game.Debug
                     case DebugModes.Trade:   Page = Add(new TradeDebug(Screen, this)); break;
                     case DebugModes.Planets: Page = Add(new PlanetDebug(Screen,this)); break;
                     case DebugModes.Solar:   Page = Add(new SolarDebug(Screen, this)); break;
+                    case DebugModes.RelationsWar: Page = Add(new DebugWar(Screen, this)); break;
                 }
             }
 
