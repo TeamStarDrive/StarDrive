@@ -382,6 +382,12 @@ namespace Ship_Game
             sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
+        public Rectangle ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld)
+        {
+            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out Vector2 pos, out float size);
+            return new Rectangle((int)pos.X, (int)pos.Y, (int)size, (int)size);
+        }
+
         public float ProjectToScreenSize(float sizeInWorld)
         {
             Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
