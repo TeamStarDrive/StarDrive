@@ -271,15 +271,15 @@ namespace Ship_Game
 
         public static void Error(string error)
         {
-            if (!HasDebugger && ShouldIgnoreErrorText(error))
-                return;
-
             string text = "(!) Error: " + error;
             WriteToLog(text);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                var ex = new StackTraceEx(new StackTrace(1).ToString());
-                CaptureEvent(text, ErrorLevel.Error, ex);
+                if (!ShouldIgnoreErrorText(error))
+                {
+                    var ex = new StackTraceEx(new StackTrace(1).ToString());
+                    CaptureEvent(text, ErrorLevel.Error, ex);
+                }
                 return;
             }
 
@@ -299,14 +299,14 @@ namespace Ship_Game
         public static void Error(Exception ex, string error = null, ErrorLevel errorLevel = ErrorLevel.Error)
         {
             string text = CurryExceptionMessage(ex, error);
-            if (!HasDebugger && ShouldIgnoreErrorText(text))
-                return;
-
             string withStack = text + "\n" + CleanStackTrace(ex);
             WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text, errorLevel, ex);
+                if (!ShouldIgnoreErrorText(text))
+                {
+                    CaptureEvent(text, errorLevel, ex);
+                }
                 return;
             }
 
