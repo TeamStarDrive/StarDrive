@@ -36,7 +36,7 @@ namespace Ship_Game
         [JsonIgnore][XmlIgnore]
         public SolarSystem[] ContestedSystems { get; private set; }
         [JsonIgnore][XmlIgnore]
-        public float LostColonyPercent =>  ColoniesLost / (OurStartingColonies+ ColoniesWon + 0.01f);
+        public float LostColonyPercent => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore]
         public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.ClampMin(0.01f);
         [JsonIgnore][XmlIgnore]
@@ -131,15 +131,13 @@ namespace Ship_Game
             float lostColonyPercent = LostColonyPercent;
             float spaceWarKd        = SpaceWarKd;
 
+            //They Are weaker than us
             if (TotalThreatAgainst <= 1f)
             {
-                if (ColoniesLost > 0)
-                {
-                    if (lostColonyPercent.AlmostZero()) return WarState.ColdWar;
-                    if (lostColonyPercent > 1.25f) return WarState.Dominating;
-                    if (lostColonyPercent < 0.5f) return WarState.LosingSlightly;
-                    if (lostColonyPercent < 0.75f) return WarState.LosingBadly;
-                }
+                if (lostColonyPercent > 0.5f) return WarState.LosingBadly;
+                if (lostColonyPercent > 0.25f) return WarState.LosingSlightly;
+                if (lostColonyPercent > 0.1f) return WarState.EvenlyMatched;
+
                 if (spaceWarKd.AlmostZero())   return WarState.ColdWar;
                 if (spaceWarKd > 1.5f)         return WarState.Dominating;
                 if (spaceWarKd > 0.75f)        return WarState.WinningSlightly;
@@ -148,16 +146,14 @@ namespace Ship_Game
                 return WarState.LosingBadly;
             }
 
-            if (ColoniesLost > 0)
-            {
-                if (lostColonyPercent < 0.5f) return WarState.LosingSlightly;
-                if (lostColonyPercent < 0.75f) return WarState.LosingBadly;
-            }
-            if (StrengthKilled < 250f && StrengthLost < 250f && Us.GetPlanets().Count == OurStartingColonies)
+            if (lostColonyPercent > 0.5f) return WarState.LosingBadly;
+
+            if (lostColonyPercent.AlmostZero() && spaceWarKd.AlmostZero())
                 return WarState.ColdWar;
+
             if (spaceWarKd.AlmostZero()) return WarState.ColdWar;
-            if (spaceWarKd > 2f)    return WarState.Dominating;
-            if (spaceWarKd > 1.15f) return WarState.WinningSlightly;
+            if (spaceWarKd > 1.25f)    return WarState.Dominating;
+            if (spaceWarKd > 1.0f) return WarState.WinningSlightly;
             if (spaceWarKd > 0.85f) return WarState.EvenlyMatched;
             if (spaceWarKd > 0.5)   return WarState.LosingSlightly;
 
@@ -186,7 +182,7 @@ namespace Ship_Game
             switch(WarType)
             {
                 case WarType.DefensiveWar:
-                case WarType.BorderConflict: return ConductBorderConflict();
+                case WarType.BorderConflict: return ConductBorderConflictWar();
                 
                 case WarType.SkirmishWar:    return ConductSkirmishWar();
 
@@ -196,15 +192,23 @@ namespace Ship_Game
             return WarState.ColdWar;
         }
 
-        private WarState ConductBorderConflict()
+        private WarState AttackContestedSystems()
         {
-            if (ContestedSystemCount == 0) return ConductSkirmishWar();
+            if (ContestedSystemCount == 0) return WarState.NotApplicable;
 
             var sortedContestSystems = ContestedSystems;
             sortedContestSystems.Sort(s => !Us.GetEmpireAI().IsInOurAOs(s.Position));
-            StandardAssault(sortedContestSystems, int.MaxValue);
+            StandardAssault(sortedContestSystems);
 
             return GetWarScoreState();
+        }
+
+        WarState ConductBorderConflictWar()
+        {
+            var warState = AttackContestedSystems();
+            if (warState != WarState.NotApplicable)
+                return warState;
+            return ConductSkirmishWar();
         }
 
         WarState ConductSkirmishWar()
@@ -213,25 +217,27 @@ namespace Ship_Game
             var targetSystemsNotInAO = Us.GetBorderSystems(Them).Filter(s => !Us.GetEmpireAI().IsInOurAOs(s.Position));
             targetSystemsNotInAO.Sorted(s => Us.GetEmpireAI().DistanceToClosestAO(s.Position));
 
-            StandardAssault(targetSystemsInAO, int.MaxValue);
-            StandardAssault(targetSystemsNotInAO, 3);
+            
+            if (!StandardAssault(targetSystemsInAO) && !StandardAssault(targetSystemsNotInAO))
+                ConductImperialisticWar();
             return GetWarScoreState();
         }
 
         WarState ConductImperialisticWar()
         {
-            ConductBorderConflict();
+            AttackContestedSystems();
             var targetSystems = Them.GetOwnedSystems().SortedDescending(s =>
                 {
                     return s.PlanetList.Sum(p => p.ColonyBaseValue(Us));
                 });
-            StandardAssault(targetSystems, 5);
+            StandardAssault(targetSystems);
             return GetWarScoreState();
         }
 
-        void StandardAssault(SolarSystem[] systemsToAttack, int maxInvasions)
+        bool StandardAssault(SolarSystem[] systemsToAttack)
         {
             var threatMatrix = Us.GetEmpireAI().ThreatMatrix;
+            bool targetFound = false;
             foreach (var system in systemsToAttack)
             {
                 if (!IsAlreadyAssaultingSystem(system))
@@ -242,9 +248,11 @@ namespace Ship_Game
                         float AORadius = 3500f;
                         float strWanted = threatMatrix.PingRadarStr(planet.Center, AORadius, Us);
                         Us.GetEmpireAI().TaskList.Add(new MilitaryTask(planet, Us, strWanted));
+                        targetFound = true;
                     }
                 }
             }
+            return targetFound;
         }
 
         bool IsAlreadyAssaultingSystem(SolarSystem system)
@@ -275,7 +283,16 @@ namespace Ship_Game
         public void PlanetWeLost(Empire attacker, Planet colony)
         {
             if (attacker == Them)
+            {
                 ColoniesLost++;
+                if(ContestedSystemsGUIDs.AddUnique(colony.ParentSystem.guid))
+                {
+                    var contested = new SolarSystem[ContestedSystemsGUIDs.Count];
+                    ContestedSystems.CopyTo(contested, 0);
+                    contested[ContestedSystemsGUIDs.Count -1] = colony.ParentSystem;
+                    ContestedSystems = contested;
+                }
+            }
         }
 
         public void PlanetWeWon(Empire loser, Planet colony)
