@@ -341,7 +341,8 @@ namespace Ship_Game.AI
                 var relation = kv.Value;
                 var warState = relation.ActiveWar?.ConductWar() ?? WarState.NotApplicable;
                 if (warState < WarState.EvenlyMatched)
-                    break;
+                    if (relation.ActiveWar?.TasksForThisWar().Length > 0)
+                        break;
             }
         }
     }

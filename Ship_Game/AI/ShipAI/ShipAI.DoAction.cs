@@ -80,7 +80,7 @@ namespace Ship_Game.AI
             {
                 // need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
-                {
+                { 
                     if (Target == null)
                         Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
                     if (Owner.fleet.FleetTask == null)
@@ -110,7 +110,6 @@ namespace Ship_Game.AI
                         }
                     }
                 }
-
                 if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
                 {
                     if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
@@ -358,7 +357,7 @@ namespace Ship_Game.AI
         {
             if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
-                Owner.TroopList[0].TryLandTroop(planet); // This will vanish default single Troop Ship
+                Owner.TroopList[0]?.TryLandTroop(planet); // This will vanish default single Troop Ship
                 if (Owner.IsDefaultAssaultShuttle)
                     Owner.AI.OrderReturnToHangar();
             }
@@ -551,11 +550,6 @@ namespace Ship_Game.AI
 
         void DoRebaseToShip(float elapsedTime)
         {
-            if (Owner.TroopList.IsEmpty && Owner.Carrier != null)
-            {
-                OrderReturnToHangar();
-                return;
-            }
             if (EscortTarget == null || !EscortTarget.Active
                                      || EscortTarget.AI.State == AIState.Scrap
                                      || EscortTarget.AI.State == AIState.Refit)
