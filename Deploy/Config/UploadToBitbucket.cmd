@@ -14,7 +14,7 @@ set file=C:/Projects/BlackBox/Deploy/upload/%file_name%
 echo Bitbucket Upload: %file%
 
 curl --silent --head --fail "https://bitbucket.org/CrunchyGremlin/stardrive-blackbox/downloads/%file_name%"
-if %ERRORLEVEL% 0 (
+if %ERRORLEVEL% EQU 0 (
   echo "File has already been uploaded to BitBucket?"
   goto :eof
 )
