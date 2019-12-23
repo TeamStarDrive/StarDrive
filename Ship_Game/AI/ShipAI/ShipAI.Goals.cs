@@ -149,6 +149,8 @@ namespace Ship_Game.AI
 
         void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false)
         {
+            Vector2 finalDirection = Owner.Center.DirectionToTarget(planet.Center);
+            AddShipGoal(Plan.MoveToWithin1000, planet.Center, finalDirection, planet, 0f);
             if (AddShipGoal(plan, planet, null))
             {
                 State       = newState;
