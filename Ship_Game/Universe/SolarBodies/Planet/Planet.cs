@@ -931,10 +931,11 @@ namespace Ship_Game
             return randomEnemyTroop.Launch() != null;
         }
 
-        public int TotalInvadeInjure   => BuildingList.Sum(b => b.InvadeInjurePoints);
-        public float TotalSpaceOffense => BuildingList.Sum(b => b.Offense) + OrbitalStations.Values.Sum(o => o.BaseStrength);
-        public int MaxDefenseShips     => BuildingList.Sum(b => b.DefenseShipsCapacity);
-        public int CurrentDefenseShips => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
+        public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
+        public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
+        public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
+        public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
 
         public int AvailableTiles      => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);

@@ -291,26 +291,13 @@ namespace Ship_Game
 
         static void TestHullLoad()
         {
-            if (!Log.TestMessage("TEST - LOAD ALL HULL MODELS\n", waitForYes: true))
-                return;
-
             bool oldValue = RootContent.EnableLoadInfoLog;
             RootContent.EnableLoadInfoLog = true;
             foreach (ShipData hull in HullsList.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
             {
-                try
-                {
-                    Log.TestMessage($"Loading model {hull.ModelPath} for hull {hull.Name}\n", Log.Importance.Regular);
-                    hull.PreLoadModel();
-                }
-                catch (Exception e)
-                {
-                    Log.TestMessage($"Failure loading model {hull.ModelPath} for hull {hull.Name}\n{e}", Log.Importance.Critical);
-                }
-
+                hull.PreLoadModel();
             }
             HelperFunctions.CollectMemory();
-            Log.TestMessage("Hull Model Load Finished", waitForEnter: true);
             RootContent.EnableLoadInfoLog = oldValue;
         }
 
