@@ -424,7 +424,7 @@ namespace Ship_Game
 
             CollectMessages(sb, ex);
             CollectExData(sb, ex);
-            sb.AppendLine("StackTrace:");
+            sb.AppendLine("\nStackTrace:");
             CollectCleanStackTrace(sb, ex);
             return sb.ToString();
         }
@@ -499,10 +499,10 @@ namespace Ship_Game
                     int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
                     string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
 
-                    sb.Append(method).Append(" in ").Append(file).AppendLine();
+                    sb.Append(method).Append(" in ").Append(file).Append('\n');
                 }
                 else if (line.Contains("System.Windows.Forms")) continue; // ignore winforms
-                else sb.AppendLine(line);
+                else sb.Append(line).Append('\n'); ;
             }
         }
 
