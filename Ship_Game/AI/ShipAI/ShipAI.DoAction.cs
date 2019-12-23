@@ -654,5 +654,49 @@ namespace Ship_Game.AI
                 Orbit.Orbit(EscortTarget, elapsedTime);
             }
         }
+
+        bool DoBombard(float elapsedTime, ShipGoal goal)
+        {
+            Planet planet = goal.TargetPlanet;
+            if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
+                || planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
+                || (planet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
+                <= planet.GetGroundStrength(Owner.loyalty)
+                || (planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
+                )
+                //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
+            {
+                //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
+                //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
+                //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
+                //but having even 1 allied troop will cause the bombing action to abort.
+                ClearOrders();
+                AddOrbitPlanetGoal(planet); // Stay in Orbit
+            }
+            Orbit.Orbit(planet, elapsedTime);
+            float radius = planet.ObjectRadius + Owner.Radius + 1500;
+            if (planet.Owner == Owner.loyalty)
+            {
+                ClearOrders();
+                return true; // skip combat rest of the update
+            }
+            DropBombsAtGoal(goal, radius);
+            return false;
+        }
+
+        bool DoExterminate(float elapsedTime, ShipGoal goal)
+        {
+            Planet planet = goal.TargetPlanet;
+            Orbit.Orbit(planet, elapsedTime);
+            if (planet.Owner == Owner.loyalty || planet.Owner == null)
+            {
+                ClearOrders();
+                OrderFindExterminationTarget();
+                return true;
+            }
+            float radius = planet.ObjectRadius + Owner.Radius + 1500;
+            DropBombsAtGoal(goal, radius);
+            return false;
+        }
     }
 }
