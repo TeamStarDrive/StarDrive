@@ -124,15 +124,17 @@ namespace Ship_Game.AI
                 Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
+        // WayPoint move system
         void MoveToWithin1000(float elapsedTime, ShipGoal goal)
         {
             // we cannot give a speed limit here, because thrust will
             // engage warp drive and we would be limiting warp speed (baaaad)
-            ThrustOrWarpToPosCorrected(goal.MovePosition, elapsedTime);
+            Vector2 movePos = goal.MovePosition; // dynamic move position
+            ThrustOrWarpToPosCorrected(movePos, elapsedTime);
 
-            float distance = Owner.Center.Distance(goal.MovePosition);
+            float distance = Owner.Center.Distance(movePos);
 
-            // during warp, we need to bail out way earlier
+            // we need to bail out way earlier when warping
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
