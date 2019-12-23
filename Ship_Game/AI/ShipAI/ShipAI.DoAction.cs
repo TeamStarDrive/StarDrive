@@ -343,7 +343,7 @@ namespace Ship_Game.AI
         {
             if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
-                Owner.LandTroops(Owner.TroopList.ToArray(), planet); // This will vanish default single Troop Ship
+                Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
                 OrderQueue.Dequeue(); // make sure to clear this order, so we don't try to unload troops again
                 
                 // if it came from a mothership, return to hangar
@@ -358,7 +358,7 @@ namespace Ship_Game.AI
             if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
-                    Owner.LandTroops(Owner.TroopList.ToArray(), planet); // We can land all our troops without assault bays since its our planet with space port
+                    Owner.LandAllTroopsAt(planet); // We can land all our troops without assault bays since its our planet with space port
                 else
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
