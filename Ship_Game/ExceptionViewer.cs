@@ -46,15 +46,8 @@ namespace Ship_Game
 
         void btOpenBugTracker_Click(object sender, EventArgs e)
         {
-            if (!ExceptionTracker.Kudos)
-            {
-                Process.Start(ExceptionTracker.BugtrackerURL);
-            }
-            else
-            {
-                ExceptionTracker.Kudos = false;
-                Process.Start(ExceptionTracker.KudosURL);
-            }
+            const string discordTestingAndIssuesInvite = "https://discord.gg/9qCCgkR";
+            Process.Start(discordTestingAndIssuesInvite);
         }
 
         public static void ShowExceptionDialog(string dialogText, bool autoReport)
