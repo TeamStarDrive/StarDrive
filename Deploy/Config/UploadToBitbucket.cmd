@@ -5,17 +5,16 @@ if not defined BB_UPLOAD_PASS ( echo envvar BB_UPLOAD_PASS undefined && goto err
 
 echo APPVEYOR_REPO_BRANCH=%APPVEYOR_REPO_BRANCH%
 echo APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT%
-git name-rev --name-only %APPVEYOR_REPO_COMMIT%
+::git name-rev --name-only %APPVEYOR_REPO_COMMIT%
 ::for /f %%b in ('git name-rev --name-only HEAD') do set BRANCH_NAME=%%b
-echo BRANCH_NAME=%APPVEYOR_REPO_BRANCH%
-if "%BRANCH_NAME%" NEQ "develop" ( echo Auto-Deploy is only enabled for develop branch && goto :eof )
+if "%APPVEYOR_REPO_BRANCH%" NEQ "develop" ( echo Auto-Deploy is only enabled for develop branch && goto :eof )
 
 for /f %%r in ('dir /B /O-D C:\Projects\BlackBox\Deploy\upload') do set file_name=%%r
 set file=C:/Projects/BlackBox/Deploy/upload/%file_name%
 echo Bitbucket Upload: %file%
 
 curl --silent --head --fail "https://bitbucket.org/CrunchyGremlin/stardrive-blackbox/downloads/%file_name%"
-if %ERRORLEVEL% EQ 0 (
+if %ERRORLEVEL% EQU 0 (
   echo "File has already been uploaded to BitBucket?"
   goto :eof
 )
