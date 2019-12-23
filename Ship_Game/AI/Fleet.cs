@@ -1386,7 +1386,16 @@ namespace Ship_Game.AI
                     {
                         FleetDataNode node = squad.DataNodes[nodeId];
                         if (node.Ship == ship)
+                        {
                             node.Ship = null;
+                            //dont know which one its in... so this this dumb.
+                            //this will be fixed later when flank stuff is refactored.
+                            ScreenShips.RemoveRef(ship);
+                            CenterShips.RemoveRef(ship);
+                            LeftShips.Remove(ship);
+                            RightShips.RemoveRef(ship);
+                            RearShips.RemoveRef(ship);
+                        }
                     }
                 }
             }
