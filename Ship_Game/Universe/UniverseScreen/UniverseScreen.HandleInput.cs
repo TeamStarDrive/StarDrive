@@ -623,8 +623,8 @@ namespace Ship_Game
             if (!Input.QueueAction || !fleet.Ships[0].AI.HasWayPoints)
                 return false;
 
-            foreach (var ship in fleet.Ships)
-                ship.AI.ClearOrderIfCombat();
+            foreach (Ship ship in fleet.Ships)
+                ship.AI.ClearOrdersIfCombat();
 
             fleet.FormationWarpTo(movePosition, direction, true);
             return true;
@@ -633,10 +633,10 @@ namespace Ship_Game
         void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
         {
             fleet = fleet ?? SelectedFleet;
-            fleet?.FleetTargetList.Clear();
+            fleet.FleetTargetList.Clear();
             GameAudio.AffirmativeClick();
 
-            foreach (var ship in fleet.Ships)
+            foreach (Ship ship in fleet.Ships)
             {
                 ship.AI.Target = null;
                 ship.AI.SetPriorityOrder(!Input.QueueAction);
