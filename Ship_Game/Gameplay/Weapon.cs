@@ -573,10 +573,9 @@ namespace Ship_Game.Gameplay
             return pip;
         }
 
-        public bool ProjectedImpactPointNoError(GameplayObject target, out Vector2 pip)
+        public Vector2 ProjectedImpactPointNoError(GameplayObject target)
         {
-            pip = Predict(Origin, target, advancedTargeting: true);
-            return pip != Vector2.Zero;
+            return Predict(Origin, target, advancedTargeting: true);
         }
 
         bool ProjectedImpactPoint(GameplayObject target, out Vector2 pip)
