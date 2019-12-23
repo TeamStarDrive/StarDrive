@@ -343,7 +343,10 @@ namespace Ship_Game.AI
         {
             if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
-                Owner.TroopList[0].TryLandTroop(planet); // This will vanish default single Troop Ship
+                Owner.LandTroops(Owner.TroopList.ToArray(), planet); // This will vanish default single Troop Ship
+                OrderQueue.Dequeue(); // make sure to clear this order, so we don't try to unload troops again
+                
+                // if it came from a mothership, return to hangar
                 if (Owner.IsDefaultAssaultShuttle)
                     Owner.AI.OrderReturnToHangar();
             }
