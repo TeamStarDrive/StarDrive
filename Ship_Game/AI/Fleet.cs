@@ -92,7 +92,7 @@ namespace Ship_Game.AI
         {
             node.Ship = ship;
             AddShipToNodes(ship);
-        } 
+        }
 
         void AddShipToNodes(Ship shipToAdd)
         {
@@ -1344,7 +1344,16 @@ namespace Ship_Game.AI
                     {
                         FleetDataNode node = squad.DataNodes[nodeId];
                         if (node.Ship == ship)
+                        {
                             node.Ship = null;
+                            //dont know which one its in... so this this dumb.
+                            //this will be fixed later when flank stuff is refactored.
+                            ScreenShips.RemoveRef(ship);
+                            CenterShips.RemoveRef(ship);
+                            LeftShips.Remove(ship);
+                            RightShips.RemoveRef(ship);
+                            RearShips.RemoveRef(ship);
+                        }
                     }
                 }
             }
@@ -1372,7 +1381,7 @@ namespace Ship_Game.AI
 
             if (ship.AI.State != AIState.AwaitingOrders && ship.Active)
                 Empire.Universe.DebugWin?.DebugLogText($"Fleet RemoveShip: Ship not awaiting orders and removed from fleet State: {ship.AI.State}", DebugModes.Normal);
-            
+
             ship.fleet = null;
             RemoveFromAllSquads(ship);
             if (Ships.RemoveRef(ship) || !ship.Active)
