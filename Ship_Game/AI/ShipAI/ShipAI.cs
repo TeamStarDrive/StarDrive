@@ -44,6 +44,23 @@ namespace Ship_Game.AI
             Orbit = new OrbitPlan(this);
         }
 
+        // Resets all important state of the AI
+        public void Reset()
+        {
+            Target = null;
+            ColonizeTarget = null;
+            ResupplyTarget = null;
+            EscortTarget = null;
+            SystemToDefend = null;
+            ExplorationTarget = null;
+
+            PotentialTargets.Clear();
+            TrackProjectiles.Clear();
+            OrderQueue.Clear();
+            NearByShips.Clear();
+            FriendliesNearby.Clear();
+        }
+
         public Vector2 GoalTarget
         {
             get

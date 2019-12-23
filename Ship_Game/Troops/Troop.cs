@@ -51,11 +51,11 @@ namespace Ship_Game
         [Serialize(39)] public string Type;
 
         [XmlIgnore][JsonIgnore] public Planet HostPlanet { get; private set; }
-        [XmlIgnore][JsonIgnore] private Empire Owner;
+        [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
 
-        [XmlIgnore][JsonIgnore] private float UpdateTimer;
+        [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
         [XmlIgnore] [JsonIgnore] public float ActualCost     => Cost * CurrentGame.Pace;
         [XmlIgnore] [JsonIgnore] public bool CanMove         => AvailableMoveActions > 0;
@@ -67,15 +67,15 @@ namespace Ship_Game
 
         [XmlIgnore] [JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
 
-        private string WhichFrameString => WhichFrame.ToString("00");
+        string WhichFrameString => WhichFrame.ToString("00");
 
         //@HACK the animation index and firstframe value are coming up with bad values for some reason. i could not figure out why
         //so here i am forcing it to draw troop template first frame if it hits a problem. in the update method i am refreshing the firstframe value as well. 
-        private SubTexture TextureIdleAnim => ResourceManager.TextureOrDefault(
+        SubTexture TextureIdleAnim => ResourceManager.TextureOrDefault(
             "Troops/" + idle_path + WhichFrameString,
             "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
-        private SubTexture TextureAttackAnim => ResourceManager.TextureOrDefault(
+        SubTexture TextureAttackAnim => ResourceManager.TextureOrDefault(
             "Troops/" + attack_path + WhichFrameString,
             "Troops/" + idle_path + ResourceManager.GetTroopTemplate(Name).first_frame.ToString("0000"));
 
@@ -134,11 +134,6 @@ namespace Ship_Game
         public void ResetAttackTimer()
         {
             AttackTimer = Math.Max(AttackTimerBase - (int)(Level * 0.5), 5);
-        }
-
-        public void ResetLaunchTimer()
-        {
-            Launchtimer = MoveTimerBase; // FB -  yup, MoveTimerBase
         }
 
         public string StrengthText => $"Strength: {Strength:0.}";
@@ -252,8 +247,9 @@ namespace Ship_Game
             UpdateTimer -= elapsedTime;
             if (UpdateTimer > 0f)
                 return;
+
             first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
-            int whichFrame    = WhichFrame;
+            int whichFrame = WhichFrame;
             if (!Idle)
             {
                 UpdateTimer = 0.75f / num_attack_frames;                
@@ -317,10 +313,8 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare tile in HostPlanet.TilesList)
             {
-                if (!tile.TroopsHere.Contains(this))
-                    continue;
-
-                return LaunchToSpace(tile);
+                if (tile.TroopsHere.ContainsRef(this))
+                    return LaunchToSpace(tile);
             }
             // Tile not found
             return null;
@@ -338,7 +332,7 @@ namespace Ship_Game
             return CreateShipForTroop(planet);
         }
 
-        private Ship LaunchToSpace(PlanetGridSquare tile)
+        Ship LaunchToSpace(PlanetGridSquare tile)
         {
             if (!CanMove)
                 return null;
@@ -357,7 +351,7 @@ namespace Ship_Game
             }
         }
 
-        private Ship CreateShipForTroop(Planet planet)
+        Ship CreateShipForTroop(Planet planet)
         {
             Vector2 createAt = planet.Center + RandomMath.Vector2D(planet.ObjectRadius * 2);
             return Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
@@ -367,7 +361,7 @@ namespace Ship_Game
         public bool TryLandTroop(Planet planet)
         {
             planet = planet ?? HostPlanet;
-            return planet.FreeTiles > 0 && AssignTroopToTile(planet);
+            return planet.FreeTiles > 0 && AssignTroopToRandomFreeTile(planet);
         }
 
         // FB - this is the main logic for land troops if they need the nearest tile from a target tile 
@@ -380,58 +374,49 @@ namespace Ship_Game
         // FB - For newly recruited troops (so they will be able to launch or move immediately)
         public bool PlaceNewTroop(Planet planet)
         {
-            return planet.FreeTiles > 0 && AssignTroopToTile(planet, resetMove: false);
+            return planet.FreeTiles > 0 && AssignTroopToRandomFreeTile(planet, resetMove: false);
         }
 
-        private bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet)
+        bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet)
         {
             if (tile.IsTileFree)
-                AssignTroop(planet, tile);
-            else
             {
-                Array<PlanetGridSquare> list = new Array<PlanetGridSquare>();
-                foreach (PlanetGridSquare pgs in planet.TilesList)
-                {
-                    if (pgs.IsTileFree && tile.InRangeOf(pgs, 1))
-                        list.Add(pgs);
-                }
-
-                if (list.Count == 0)
-                    return AssignTroopToTile(planet); // Fallback to assign troop to any available tile if no close tile available
-
-                PlanetGridSquare selectedTile = list.RandItem();
-                AssignTroop(planet, selectedTile);
+                AssignTroopToTile(planet, tile);
+                return true;
             }
+
+            PlanetGridSquare[] nearbyFreeTiles = planet.TilesList.Filter(
+                pgs => pgs.IsTileFree && tile.InRangeOf(pgs, 1));
+
+            if (nearbyFreeTiles.Length == 0)
+                return AssignTroopToRandomFreeTile(planet); // Fallback to assign troop to any available tile if no close tile available
+
+            PlanetGridSquare randomNearbyFreeTile = nearbyFreeTiles.RandItem();
+            AssignTroopToTile(planet, randomNearbyFreeTile);
             return true;
         }
 
-        private bool AssignTroopToTile(Planet planet, bool resetMove = true)
+        bool AssignTroopToRandomFreeTile(Planet planet, bool resetMove = true)
         {
-            var list = new Array<PlanetGridSquare>();
-            foreach (PlanetGridSquare tile in planet.TilesList)
-            {
-                if (tile.IsTileFree)
-                    list.Add(tile);
-            }
-
-            if (list.Count <= 0)
+            PlanetGridSquare[] freeTiles = planet.TilesList.Filter(t => t.IsTileFree);
+            if (freeTiles.Length == 0)
                 return false;
 
-            PlanetGridSquare selectedTile = list.RandItem();
-            AssignTroop(planet, selectedTile, resetMove);
+            PlanetGridSquare randFreeTile = freeTiles.RandItem();
+            AssignTroopToTile(planet, randFreeTile, resetMove);
             // some buildings can injure landing troops
             if (Owner != planet.Owner)
                 DamageTroop(planet.TotalInvadeInjure);
 
-            selectedTile.CheckAndTriggerEvent(planet, Loyalty);
+            randFreeTile.CheckAndTriggerEvent(planet, Loyalty);
             return true;
         }
 
-        private void AssignTroop(Planet planet, PlanetGridSquare tile, bool resetMove = true)
+        void AssignTroopToTile(Planet planet, PlanetGridSquare tile, bool resetMove = true)
         {
             tile.TroopsHere.Add(this);
             planet.TroopsHere.Add(this);
-            RemoveHostShip();
+            RemoveTroopFromHostShip();
             SetPlanet(planet);
             facingRight = tile.x < planet.TileMaxX / 2;
             if (resetMove)
@@ -443,12 +428,13 @@ namespace Ship_Game
             }
         }
 
-        private void RemoveHostShip()
+        void RemoveTroopFromHostShip()
         {
             if (HostShip == null)
                 return;
 
-            HostShip.TroopList.Remove(this);
+            HostShip.TroopList.RemoveRef(this);
+
             // Remove the ship if it was the default single troop. They are designed to vanish once landing the troop.
             // Assault Shuttles are designed to try to get back to their hangars 
             if (HostShip.IsDefaultTroopShip || HostShip.IsDefaultAssaultShuttle && HostShip.Mothership == null)
@@ -460,8 +446,8 @@ namespace Ship_Game
 
         public void LandOnShip(Ship ship)
         {
+            RemoveTroopFromHostShip();
             ship.TroopList.Add(this);
-            RemoveHostShip();
             HostShip = ship; // new host ship since the troop has landed on a new ship
         }
     }
