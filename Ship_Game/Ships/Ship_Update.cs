@@ -61,12 +61,7 @@ namespace Ship_Game.Ships
             }
 
             UpdateVisibility();
-
             ShieldRechargeTimer += elapsedTime;
-            InhibitedTimer      -= elapsedTime;
-            Inhibited = InhibitedTimer > 0f;
-            if ((Inhibited || MaxFTLSpeed < 2500f) && engineState == MoveState.Warp)
-                HyperspaceReturn();
 
             if (TetheredTo != null)
             {
@@ -133,6 +128,7 @@ namespace Ship_Game.Ships
             Position += Velocity * elapsedTime;
             Center   += Velocity * elapsedTime;
             UpdateShipStatus(elapsedTime);
+            UpdateEnginesAndVelocity(elapsedTime);
 
             if (InFrustum && ShipSO != null)
             {
