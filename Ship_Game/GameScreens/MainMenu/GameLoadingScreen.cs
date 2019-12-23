@@ -67,7 +67,7 @@ namespace Ship_Game
 
         bool LoadingFinished()
         {
-            bool ready = LoadResult?.Wait(1) == true;
+            bool ready = LoadResult?.WaitNoThrow(1) == true;
             if (ready && (Input.InGameSelect ||  SplashPlayer?.IsPlaying != true))
             {
                 ScreenManager.GoToScreen(new MainMenuScreen(), clear3DObjects:true);
@@ -115,9 +115,9 @@ namespace Ship_Game
                 ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod, reset:false);
                 Log.Write($"Finished loading 'Root' Assets {GameBase.GameContent.GetLoadedAssetMegabytes():0.0}MB");
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Log.Error(e, "Failed to load game data!");
+                Log.ErrorDialog(ex, "Failed to load game data!", isFatal:true);
                 throw;
             }
         }
