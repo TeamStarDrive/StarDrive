@@ -107,7 +107,6 @@ namespace Ship_Game.Ships
         public bool isSpooling;
         readonly AudioHandle JumpSfx = new AudioHandle();
         public float InhibitedTimer;
-        private float FTLUpdateTimer;
         public int Level;
         private int MaxHealthRevision;
         public float HealthMax { get; private set; }
@@ -561,12 +560,6 @@ namespace Ship_Game.Ships
 
         void SetMaxFTLSpeed()
         {
-            if (InhibitedTimer < -0.25f || Inhibited || System != null && engineState == MoveState.Warp)
-            {
-                if (IsInhibitedByUnfriendlyGravityWell) InhibitedTimer = 0.3f;
-                else if (InhibitedTimer < 0.0f)   InhibitedTimer = 0.0f;
-            }
-
             float projectorBonus = 1f;
 
             // Change FTL modifier for ship based on solar system
@@ -1021,21 +1014,43 @@ namespace Ship_Game.Ships
             }
         }
 
+        void UpdateHyperspaceInhibited(float elapsedTime)
+        {
+            InhibitedTimer -= elapsedTime;
+            if (InhibitedTimer <= 0f) // timer has run out, lets do the expensive inhibit check
+            {
+                // if we're inside a system, check every frame
+                if (System != null && IsInhibitedByUnfriendlyGravityWell)
+                {
+                    InhibitedTimer = 0.5f;
+                }
+
+                Inhibited = InhibitedTimer > 0f;
+            }
+            // already inhibited, just wait for the timer to run out before checking again
+            else
+            {
+                // @note InhibitedTimer might be set from where ever
+                Inhibited = true;
+            }
+
+            if ((Inhibited || MaxFTLSpeed < 2500f) && engineState == MoveState.Warp)
+                HyperspaceReturn();
+        }
+
         // called from Ship.Update
         void UpdateEnginesAndVelocity(float elapsedTime)
         {
-            FTLUpdateTimer -= elapsedTime;
-            if (FTLUpdateTimer <= 0f)
-            {
-                FTLUpdateTimer = 0.25f;
-                SetMaxFTLSpeed();
-            }
+            UpdateHyperspaceInhibited(elapsedTime);
+            SetMaxFTLSpeed();
 
             switch (engineState)
             {
                 case MoveState.Sublight: velocityMaximum = MaxSTLSpeed; break;
                 case MoveState.Warp:     velocityMaximum = MaxFTLSpeed;   break;
             }
+
+
 
             Speed = velocityMaximum;
             if (AI.State == AIState.FormationWarp)
@@ -1375,8 +1390,6 @@ namespace Ship_Game.Ships
             PowerCurrent = Math.Min(PowerCurrent, PowerStoreMax);
 
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
-
-            UpdateEnginesAndVelocity(deltaTime);
         }
 
         void UpdateTroopBoardingDefense()
@@ -1414,7 +1427,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (InhibitedTimer < 2f)
+            if (InhibitedTimer < 1f)
             {
                 foreach (Empire e in EmpireManager.Empires)
                 {
