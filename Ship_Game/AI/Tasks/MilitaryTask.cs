@@ -338,7 +338,7 @@ namespace Ship_Game.AI.Tasks
                         {
                             if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
                             {
-                                if (fleet.Ships.Count != 0)
+                                if (fleet.Ships.Count > 0)
                                     break;
                             }
 
