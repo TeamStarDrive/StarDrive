@@ -23,7 +23,7 @@ namespace Ship_Game.AI.CombatTactics
             {
                 avgDir /= count;
                 Vector2 evadeOffset = avgDir.Normalized() * -7500f;
-                AI.ThrustOrWarpToPosCorrected(Owner.Center + evadeOffset, elapsedTime);
+                AI.ThrustOrWarpToPos(Owner.Center + evadeOffset, elapsedTime);
 
             }
         }
