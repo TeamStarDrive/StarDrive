@@ -332,19 +332,14 @@ namespace Ship_Game.AI
 
         private void RunWarPlanner()
         {
-            if (OwnerEmpire.isPlayer)
+            if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
 
             foreach(var kv in OwnerEmpire.AllRelations.Sorted
                 (r=> (int?)r.Value.ActiveWar?.GetWarScoreState() ?? (int)WarState.NotApplicable))
             {
                 var relation = kv.Value;
-                
-                    
                 var warState = relation.ActiveWar?.ConductWar() ?? WarState.NotApplicable;
-                if (!relation.PreparingForWar)
-                    if (relation.ActiveWar?.TasksForThisWar().Length > 0)
-                        break;
             }
         }
     }

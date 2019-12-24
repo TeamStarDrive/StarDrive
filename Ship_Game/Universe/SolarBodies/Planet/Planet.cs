@@ -72,7 +72,7 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
-        public int GetEstimatedTroopsToInvade(int bestTroopStrength = 10)
+        public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
         {
             float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);
             return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.ClampMin(1)) : 0;
@@ -91,6 +91,7 @@ namespace Ship_Game
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
+        public Troop[] GetOwnersLaunchReadyTroops(int maxToTake) => TroopManager.TroopsReadForLaunch(maxToTake);
 
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
 
@@ -933,6 +934,7 @@ namespace Ship_Game
 
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
+        public int BuildingGeodeticCount     => BuildingList.Count(b => b.Offense > 0);
         public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);

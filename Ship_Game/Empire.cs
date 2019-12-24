@@ -2596,6 +2596,17 @@ namespace Ship_Game
             ship.ClearFleet();
         }
 
+        public void RemoveShipFromAOs(Ship ship)
+        {
+            Array<AO> aos = GetEmpireAI().AreasOfOperations;
+            for (int x = 0; x < aos.Count; x++)
+            {
+                var ao = aos[x];
+                if (ao.RemoveShip(ship))
+                    break;
+            }
+        }
+
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
         {
             if (targetEmpire == this || targetEmpire == null)
