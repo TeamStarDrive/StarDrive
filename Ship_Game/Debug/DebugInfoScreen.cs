@@ -313,7 +313,7 @@ namespace Ship_Game.Debug
                     Screen.DrawCircleProjected(module.Center, 8f, 6, Color.MediumVioletRed);
                     if (weapon.DebugLastImpactPredict.NotZero())
                     {
-                        weapon.ProjectedImpactPointNoError(module, out Vector2 impactNoError);
+                        Vector2 impactNoError = weapon.ProjectedImpactPointNoError(module);
                         Screen.DrawLineProjected(weapon.Origin, weapon.DebugLastImpactPredict, Color.Yellow);
 
                         Screen.DrawCircleProjected(impactNoError, 22f, 10, Color.BlueViolet, 2f);

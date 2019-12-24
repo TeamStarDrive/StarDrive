@@ -24,7 +24,7 @@ namespace Ship_Game
 
         struct LogEntry
         {
-            public TimeSpan Time;
+            public DateTime Time;
             public string Message;
             public ConsoleColor Color;
             public LogTarget Target;
@@ -34,6 +34,9 @@ namespace Ship_Game
         static Thread LogThread;
         static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
         public static readonly bool HasDebugger;
+
+        // Either there is an active Console Window
+        // OR Console output is redirected to some pipe, like VS Debug Output
         public static bool HasActiveConsole { get; private set; }
 
         const ConsoleColor DefaultColor = ConsoleColor.Gray;
@@ -78,6 +81,8 @@ namespace Ship_Game
                 // we should enable the console window
                 if (Console.IsOutputRedirected == false)
                     ShowConsoleWindow();
+                else
+                    HasActiveConsole = true;
             }
             else
             {
@@ -154,7 +159,7 @@ namespace Ship_Game
 
         static void WriteLogEntry(LogStringBuffer sb, in LogEntry log)
         {
-            TimeSpan t = log.Time;
+            TimeSpan t = log.Time.TimeOfDay;
             sb.Clear();
             sb.AppendInt2Chars(t.Hours);
             sb.Append(':');
@@ -184,25 +189,15 @@ namespace Ship_Game
 
         static readonly LogStringBuffer LogBuffer = new LogStringBuffer();
 
-        static void FlushAllLogsUnlocked()
-        {
-            foreach (LogEntry log in LogQueue.TakeAll())
-                WriteLogEntry(LogBuffer, log);
-            LogFile.Flush();
-            SetConsoleColor(DefaultColor, force: true);
-        }
-
         public static void FlushAllLogs()
         {
             lock (Sync) // synchronize with LogAsyncWriter()
             {
-                FlushAllLogsUnlocked();
+                foreach (LogEntry log in LogQueue.TakeAll())
+                    WriteLogEntry(LogBuffer, log);
+                LogFile.Flush();
+                SetConsoleColor(DefaultColor, force: true);
             }
-        }
-
-        public static void StopLogThread()
-        {
-            LogThread = null;
         }
 
         static void LogAsyncWriter()
@@ -216,11 +211,15 @@ namespace Ship_Game
                         WriteLogEntry(LogBuffer, log);
                         foreach (LogEntry log2 in LogQueue.TakeAll())
                             WriteLogEntry(LogBuffer, log2);
-                        LogFile.Flush();
                     }
                 }
                 Thread.Sleep(1);
             }
+        }
+
+        public static void StopLogThread()
+        {
+            LogThread = null;
         }
 
         static void LogWriteAsync(string text, ConsoleColor color, LogTarget target = LogTarget.ConsoleAndLog)
@@ -229,7 +228,7 @@ namespace Ship_Game
             // ReSharper disable once InconsistentlySynchronizedField
             LogQueue.Enqueue(new LogEntry
             {
-                Time = DateTime.UtcNow.TimeOfDay,
+                Time = DateTime.UtcNow,
                 Message = text,
                 Color = color,
                 Target = target,
@@ -374,8 +373,6 @@ namespace Ship_Game
             Debugger.Break();
         }
 
-        public static void Fatal(Exception ex, string error = null) => Error(ex, error, ErrorLevel.Fatal);
-
         public static void ErrorDialog(Exception ex, string error = null, bool isFatal = true)
         {
             if (IsTerminating)
@@ -390,11 +387,10 @@ namespace Ship_Game
             if (!HasDebugger && isFatal) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
-                return;
             }
 
             ExceptionViewer.ShowExceptionDialog(text, GlobalStats.AutoErrorReport);
-            if (isFatal) Environment.Exit(-1);
+            if (isFatal) Program.RunCleanupAndExit(Program.UNHANDLED_EXCEPTION);
         }
 
         [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
@@ -409,12 +405,17 @@ namespace Ship_Game
                 Message = text,
                 Level   = level
             };
+
             if (GlobalStats.HasMod)
             {
                 evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModName;
                 evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
             }
-            Raven.CaptureAsync(evt);
+
+            if (level == ErrorLevel.Fatal) // for fatal errors, we can't do ASYNC reports
+                Raven.Capture(evt);
+            else
+                Raven.CaptureAsync(evt);
         }
 
         static string ExceptionString(Exception ex, string title, string details = null)
@@ -424,7 +425,7 @@ namespace Ship_Game
 
             CollectMessages(sb, ex);
             CollectExData(sb, ex);
-            sb.AppendLine("StackTrace:");
+            sb.AppendLine("\nStackTrace:");
             CollectCleanStackTrace(sb, ex);
             return sb.ToString();
         }
@@ -499,10 +500,10 @@ namespace Ship_Game
                     int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
                     string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
 
-                    sb.Append(method).Append(" in ").Append(file).AppendLine();
+                    sb.Append(method).Append(" in ").Append(file).Append('\n');
                 }
                 else if (line.Contains("System.Windows.Forms")) continue; // ignore winforms
-                else sb.AppendLine(line);
+                else sb.Append(line).Append('\n'); ;
             }
         }
 

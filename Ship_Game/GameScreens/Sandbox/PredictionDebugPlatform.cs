@@ -71,8 +71,9 @@ namespace Ship_Game.GameScreens.Sandbox
                         {
                             weapon.UpdateAndFireAtTarget(null, noProjectiles, nearbyShips);
                         }
-                        else if (weapon.ProjectedImpactPointNoError(ship, out Vector2 pip))
+                        else
                         {
+                            Vector2 pip = weapon.ProjectedImpactPointNoError(ship);
                             PredictResults.Add(new PredictedLine{ Start = weapon.Origin, End = pip });
                             if (weapon.ManualFireTowardsPos(pip))
                                 NumShotsFired++;

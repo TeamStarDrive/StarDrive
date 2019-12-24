@@ -38,22 +38,29 @@ namespace Ship_Game.AI
                 OrderReturnToHangar();
         }
 
-        void DoCombat(float elapsedTime)
+        Ship UpdateCombatTarget()
         {
             if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight
                                        || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
-                                                              t.Center.InRadius(Owner.Center, Owner.SensorRange));
-                if (Target == null)
-                {
-                    DequeueCurrentOrder();
-                    State = DefaultAIState;
-                    return;
-                }
+                                                         t.Center.InRadius(Owner.Center, Owner.SensorRange));
+            }
+            return Target;
+        }
+
+        void DoCombat(float elapsedTime)
+        {
+            Ship target = UpdateCombatTarget();
+            if (target == null)
+            {
+                DequeueCurrentOrder();
+                State = DefaultAIState;
+                Owner.InCombat = false;
+                return;
             }
 
-            AwaitClosest = null;
+            AwaitClosest = null; // TODO: Why is this set here?
             State = AIState.Combat;
             Owner.InCombat = true;
             Owner.InCombatTimer = 15f;
@@ -63,13 +70,9 @@ namespace Ship_Game.AI
 
             if (Owner.System != null && Owner.Carrier.HasActiveTroopBays)
                 CombatState = CombatState.AssaultShip;
-            if (Target == null)
-            {
-                Log.Error($"Target went null in DoCombat. How?");
-                return;
-            }
+
             // in range:
-            if (Target.Center.InRadius(Owner.Center, 7500f))
+            if (target.Center.InRadius(Owner.Center, 7500f))
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
@@ -78,7 +81,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                // need to move this into fleet.
+                // TODO: need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
                 { 
                     if (Target == null)
@@ -112,17 +115,21 @@ namespace Ship_Game.AI
                 }
                 if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
                 {
-                    if (Owner.FastestWeapon.ProjectedImpactPointNoError(Target, out Vector2 prediction) == false)
-                        prediction = Target.Center;
+                    Vector2 prediction = target.Center;
+                    Weapon fastestWeapon = Owner.FastestWeapon;
+                    if (fastestWeapon != null) // if we have a weapon
+                    {
+                        prediction = fastestWeapon.ProjectedImpactPointNoError(target);
+                    }
                     ThrustOrWarpToPosCorrected(prediction, elapsedTime);
                     return;
                 }
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(Target.Center, Owner.DesiredCombatRange * 3f))
+                && Owner.Center.OutsideRadius(target.Center, Owner.DesiredCombatRange * 3f))
             {
-                ThrustOrWarpToPosCorrected(Target.Center, elapsedTime);
+                ThrustOrWarpToPosCorrected(target.Center, elapsedTime);
                 return;
             }
 
@@ -357,7 +364,10 @@ namespace Ship_Game.AI
         {
             if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
-                Owner.TroopList[0]?.TryLandTroop(planet); // This will vanish default single Troop Ship
+                Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
+                DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                
+                // if it came from a mothership, return to hangar
                 if (Owner.IsDefaultAssaultShuttle)
                     Owner.AI.OrderReturnToHangar();
             }
@@ -369,7 +379,7 @@ namespace Ship_Game.AI
             if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
-                    Owner.LandTroops(Owner.TroopList.ToArray(), planet); // We can land all our troops without assault bays since its our planet with space port
+                    Owner.LandAllTroopsAt(planet); // We can land all our troops without assault bays since its our planet with space port
                 else
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
