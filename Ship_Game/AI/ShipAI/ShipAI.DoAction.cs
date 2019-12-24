@@ -334,20 +334,35 @@ namespace Ship_Game.AI
             }
         }
 
+        Vector2 LandingOffset;
+
         void DoLandTroop(float elapsedTime, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
-            ThrustOrWarpToPosCorrected(planet.Center, elapsedTime);
-            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, 50);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, 300);
-            else                                    LandTroopsViaTroopShip(planet, 2000, elapsedTime);
+            if (LandingOffset.AlmostZero())
+                LandingOffset = RandomMath.Vector2D(planet.ObjectRadius);
+
+            Vector2 landingSpot = planet.Center + LandingOffset;
+            // force the ship out of warp if we get too close
+            // this is a balance feature
+            if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                float distance = Owner.Center.Distance(landingSpot);
+                if (distance <= Owner.WarpOutDistance)
+                    Owner.HyperspaceReturn();
+            }
+
+            ThrustOrWarpToPosCorrected(landingSpot, elapsedTime);
+            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot);
+            else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
         // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
-        void LandTroopsViaSingleTransport(Planet planet, float distance)
+        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot)
         {
-            if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
+            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 20f))
             {
                 Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
                 DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
@@ -359,9 +374,9 @@ namespace Ship_Game.AI
         }
         
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
-        void LandTroopsViaTroopShip(Planet planet, float distance, float elapsedTime)
+        void LandTroopsViaTroopShip(float elapsedTime, Planet planet, Vector2 landingSpot)
         {
-            if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
+            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 100f))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
                     Owner.LandAllTroopsAt(planet); // We can land all our troops without assault bays since its our planet with space port
