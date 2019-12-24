@@ -112,7 +112,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
-            ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
+            ThrustOrWarpToPos(MovePosition, elapsedTime);
             return false;
         }
 
@@ -126,7 +126,7 @@ namespace Ship_Game.AI
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime, 200f);
+                ThrustOrWarpToPos(goal.TargetPlanet.Center, elapsedTime, 200f);
                 return;
             }
             ClearOrders(State);
@@ -468,7 +468,7 @@ namespace Ship_Game.AI
             {
                 //check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                    ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
+                    ThrustOrWarpToPos(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
                 else
                     WarpToFleet();
             }

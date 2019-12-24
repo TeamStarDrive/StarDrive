@@ -27,7 +27,7 @@ namespace Ship_Game.AI
                 }
                 return;
             }
-            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             float distance = Owner.Center.Distance(EscortTarget.Center);
             if (distance < EscortTarget.Radius + 300f)
             {
@@ -89,7 +89,7 @@ namespace Ship_Game.AI
                     {
                         if (Owner.Center.OutsideRadius(nodePos, 1000f))
                         {
-                            ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                            ThrustOrWarpToPos(nodePos, elapsedTime);
                         }
                         else
                         {
@@ -106,7 +106,7 @@ namespace Ship_Game.AI
                     {
                         prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                     }
-                    ThrustOrWarpToPosCorrected(prediction, elapsedTime);
+                    ThrustOrWarpToPos(prediction, elapsedTime);
                     return;
                 }
             }
@@ -114,7 +114,7 @@ namespace Ship_Game.AI
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
                 && Owner.Center.OutsideRadius(target.Center, Owner.DesiredCombatRange * 3f))
             {
-                ThrustOrWarpToPosCorrected(target.Center, elapsedTime);
+                ThrustOrWarpToPos(target.Center, elapsedTime);
                 return;
             }
 
@@ -298,11 +298,11 @@ namespace Ship_Game.AI
                     if (distanceToTarget >= 5500f)
                     {
                         float speedLimit = Owner.Speed.Clamped(distanceToTarget, Owner.velocityMaximum);
-                        ThrustOrWarpToPosCorrected(MovePosition, elapsedTime, speedLimit);
+                        ThrustOrWarpToPos(MovePosition, elapsedTime, speedLimit);
                     }
                     else
                     {
-                        ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
+                        ThrustOrWarpToPos(MovePosition, elapsedTime);
                         if (distanceToTarget < 500f)
                         {
                             PatrolTarget.SetExploredBy(Owner.loyalty);
@@ -345,14 +345,7 @@ namespace Ship_Game.AI
             Vector2 landingSpot = planet.Center + LandingOffset;
             // force the ship out of warp if we get too close
             // this is a balance feature
-            if (Owner.engineState == Ship.MoveState.Warp)
-            {
-                float distance = Owner.Center.Distance(landingSpot);
-                if (distance <= Owner.WarpOutDistance)
-                    Owner.HyperspaceReturn();
-            }
-
-            ThrustOrWarpToPosCorrected(landingSpot, elapsedTime);
+            ThrustOrWarpToPos(landingSpot, elapsedTime, warpExitDistance: Owner.WarpOutDistance);
             if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot);
             else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot);
             else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
@@ -362,7 +355,7 @@ namespace Ship_Game.AI
         // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
         void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot)
         {
-            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 20f))
+            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
                 Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
                 DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
@@ -503,7 +496,7 @@ namespace Ship_Game.AI
                     GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
-            ThrustOrWarpToPosCorrected(Owner.Mothership.Center, elapsedTime);
+            ThrustOrWarpToPos(Owner.Mothership.Center, elapsedTime);
 
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
@@ -546,7 +539,7 @@ namespace Ship_Game.AI
                     return;
                 }
             }
-            ThrustOrWarpToPosCorrected(Owner.HomePlanet.Center, elapsedTime);
+            ThrustOrWarpToPos(Owner.HomePlanet.Center, elapsedTime);
             if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 150f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.GetCost(Owner.loyalty), Owner.HealthPercent);
@@ -568,7 +561,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 if (EscortTarget.TroopCapacity == EscortTarget.TroopList.Count)
@@ -592,7 +585,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 // how much the target did not take. 
@@ -628,7 +621,7 @@ namespace Ship_Game.AI
                 escortVelocity = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
 
             if (distanceToEscortSpot > 50)
-                ThrustOrWarpToPosCorrected(escortVector, elapsedTime, escortVelocity);
+                ThrustOrWarpToPos(escortVector, elapsedTime, escortVelocity);
             else
                 Owner.Velocity = Vector2.Zero;
 
