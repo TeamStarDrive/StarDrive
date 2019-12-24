@@ -44,6 +44,23 @@ namespace Ship_Game.AI
             Orbit = new OrbitPlan(this);
         }
 
+        // Resets all important state of the AI
+        public void Reset()
+        {
+            Target = null;
+            ColonizeTarget = null;
+            ResupplyTarget = null;
+            EscortTarget = null;
+            SystemToDefend = null;
+            ExplorationTarget = null;
+
+            PotentialTargets.Clear();
+            TrackProjectiles.Clear();
+            OrderQueue.Clear();
+            NearByShips.Clear();
+            FriendliesNearby.Clear();
+        }
+
         public Vector2 GoalTarget
         {
             get
@@ -270,23 +287,21 @@ namespace Ship_Game.AI
             TriggerDelay -= elapsedTime;
             if (BadGuysNear && !IgnoreCombat)
             {
-                using (OrderQueue.AcquireWriteLock())
+                if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                 {
-                    ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
+                    ShipGoal goal = OrderQueue.PeekFirst;
+                    if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
+                        (goal == null || goal.Plan != Plan.DoCombat
+                                      && goal.Plan != Plan.Bombard
+                                      && goal.Plan != Plan.BoardShip))
                     {
-                        if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
-                            (OrderQueue.IsEmpty ||
-                             firstgoal != null && firstgoal.Plan != Plan.DoCombat && firstgoal.Plan != Plan.Bombard &&
-                             firstgoal.Plan != Plan.BoardShip))
-                        {
-                            OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
-                        }
-                        if (TriggerDelay < 0)
-                        {
-                            TriggerDelay = elapsedTime * 2;
-                            FireOnTarget();
-                        }
+                        OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
+                    }
+
+                    if (TriggerDelay < 0)
+                    {
+                        TriggerDelay = elapsedTime * 2;
+                        FireOnTarget();
                     }
                 }
             }
@@ -311,20 +326,20 @@ namespace Ship_Game.AI
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip == null
-                            || hangarShip.AI.State == AIState.ReturnToHangar
-                            || hangarShip.AI.HasPriorityTarget
-                            || hangarShip.AI.HasPriorityOrder)
-                                continue;
-
-                        if (Owner.FightersLaunched)
-                            hangarShip.DoEscort(Owner);
-                        else
-                            hangarShip.AI.OrderReturnToHangar();
+                        if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
+                            !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
+                        {
+                            if (Owner.FightersLaunched)
+                                hangarShip.DoEscort(Owner);
+                            else
+                                hangarShip.AI.OrderReturnToHangar();
+                        }
                     }
                 }
             }
-            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear) //fbedard: civilian will evade
+
+            // fbedard: civilian ships will evade combat (nice target practice)
+            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
                 CombatState = CombatState.Evade;
         }
 
@@ -545,19 +560,10 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
-
-        public bool ClearOrdersConditional(Plan plan)
+        // @note This is only called via user interaction, so not performance critical
+        public bool ClearOrdersIfCombat()
         {
-            bool clearOrders = false;
-            foreach (ShipGoal order in OrderQueue)
-            {
-                if (order.Plan == plan)
-                {
-                    clearOrders = true;
-                    break;
-                }
-            }
+            bool clearOrders = OrderQueue.Any(goal => goal.Plan == Plan.DoCombat);
             if (clearOrders)
                 ClearOrders();
             return clearOrders;

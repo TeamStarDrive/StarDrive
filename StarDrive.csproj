@@ -355,7 +355,6 @@
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadSetupScreen.cs" />
     <Compile Include="Ship_Game\RaceSave.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\SaveRaceScreen.cs" />
-    <Compile Include="Ship_Game\ExceptionTracker.cs" />
     <Compile Include="Ship_Game\ExceptionViewer.cs">
       <SubType>Form</SubType>
     </Compile>
