@@ -58,6 +58,16 @@ namespace Ship_Game.AI
             Name = index + suffix + " fleet";
         }
 
+        public void AddShips(Array<Ship> ships)
+        {
+            for (int x = 0; x < ships.Count; x++)
+            {
+                var ship = ships[x];
+                AddShip(ship);
+            }
+        }
+
+
         public override void AddShip(Ship newShip)
         {
             if (newShip == null) // Added ship should never be null
@@ -1223,7 +1233,7 @@ namespace Ship_Game.AI
         bool StartBombing(MilitaryTask task)
         {
             bool anyShipsBombing = false;
-            Ship[] ships = Ships.Filter(ship => ship.BombsGoodFor60Secs > 1);
+            Ship[] ships = Ships.Filter(ship => ship.HasBombs);
             for (int x = 0; x < ships.Length; x++)
             {
                 Ship ship = ships[x];
@@ -1246,7 +1256,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int landingspotsNeeded =5)
+        bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int landingSpotsNeeded =5)
         {
             int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots();
             if (freeLandingSpots < 1)
@@ -1257,18 +1267,25 @@ namespace Ship_Game.AI
 
             planetAssaultStrength += ourGroundStrength;
 
-            if (ourGroundStrength < 1 && planetAssaultStrength < theirGroundStrength * 0.75f)
-            {
-                DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
-                return false;
-            }
-            if (ourGroundStrength < 1 && freeLandingSpots < landingspotsNeeded)
-            {
-                DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {landingspotsNeeded}");
-                return false;
-            }
+            //if (ourGroundStrength < 1 && planetAssaultStrength < theirGroundStrength * 0.75f)
+            //{
+            //    DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
+            //    return false;
+            //}
+            //if (ourGroundStrength < 1 && freeLandingSpots < landingSpotsNeeded)
+            //{
+            //    DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {landingSpotsNeeded}");
+            //    return false;
+            //}
 
-            if (ourGroundStrength < 1)
+            if (task.TargetPlanet.TotalGeodeticOffense > 0) 
+                return false;
+            if (freeLandingSpots < 20)
+                return false;
+            if (planetAssaultStrength < theirGroundStrength)
+                return false;
+
+            if (ourGroundStrength > 1)
                 StopBombPlanet();
             float ourForcesWithinAO = (task.AORadius - task.TargetPlanet.GravityWellRadius).ClampMin(2000) / 2;
             if (Ships.Any(ship => ship.Center.InRadius(task.TargetPlanet.Center, ourForcesWithinAO)))

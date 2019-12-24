@@ -206,9 +206,9 @@ namespace Ship_Game
         WarState ConductBorderConflictWar()
         {
             var warState = AttackContestedSystems();
-            if (warState != WarState.NotApplicable)
-                return warState;
-            return ConductSkirmishWar();
+            if (warState == WarState.NotApplicable)
+                warState = ConductSkirmishWar();
+            return warState;
         }
 
         WarState ConductSkirmishWar()
@@ -247,6 +247,7 @@ namespace Ship_Game
                     {
                         float AORadius = 3500f;
                         float strWanted = threatMatrix.PingRadarStr(planet.Center, AORadius, Us);
+                        strWanted += planet.TotalGeodeticOffense;
                         Us.GetEmpireAI().TaskList.Add(new MilitaryTask(planet, Us, strWanted));
                         targetFound = true;
                     }
