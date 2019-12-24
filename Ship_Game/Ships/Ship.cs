@@ -1982,8 +1982,11 @@ namespace Ship_Game.Ships
         }
 
         // This will launch troops without having issues with modifying it's own TroopsHere
-        public void LandTroops(Troop[] troopsToLand, Planet planet)
+        public void LandAllTroopsAt(Planet planet)
         {
+            // @note: Need to create a copy of TroopList here,
+            // because `TryLandTroop` will modify TroopList if landing is successful
+            Troop[] troopsToLand = TroopList.ToArray();
             foreach (Troop troop in troopsToLand)
                 troop.TryLandTroop(planet);
         }
@@ -2010,8 +2013,6 @@ namespace Ship_Game.Ships
         // cleanupOnly: for tumbling ships that are already dead
         public override void Die(GameplayObject source, bool cleanupOnly)
         {
-            RemoveBeams();
-
             ++DebugInfoScreen.ShipsDied;
             Projectile psource = source as Projectile;
             if (!cleanupOnly)
@@ -2019,6 +2020,8 @@ namespace Ship_Game.Ships
                 psource?.Module?.GetParent().UpdateEmpiresOnKill(this);
                 psource?.Module?.GetParent().AddKill(this);
             }
+
+            RemoveBeams();
 
             // 35% the ship will not explode immediately, but will start tumbling out of control
             // we mark the ship as dying and the main update loop will set reallyDie
@@ -2032,10 +2035,14 @@ namespace Ship_Game.Ships
                 if (psource != null && psource.Explodes && psource.DamageAmount > 100.0)
                     reallyDie = true;
             }
-            else reallyDie = true;
+            else
+            {
+                reallyDie = true;
+            }
 
             if (dying && !reallyDie)
                 return;
+
             if (psource?.Owner != null)
             {
                 float amount = 1f;
@@ -2051,21 +2058,13 @@ namespace Ship_Game.Ships
                 else                        dieSoundEffect = "sd_explosion_ship_det_large";
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
-            for (int index = 0; index < EmpireManager.NumEmpires; index++)
-            {
-                EmpireManager.Empires[index].GetEmpireAI().ThreatMatrix.RemovePin(this);
-            }
+
             Carrier.ScuttleNonWarpHangarShips();
-            ModuleSlotList     = Empty<ShipModule>.Array;
-            SparseModuleGrid   = Empty<ShipModule>.Array;
-            ExternalModuleGrid = Empty<ShipModule>.Array;
-            NumExternalSlots   = 0;
             ResetProjectorInfluence();
-            ThrusterList.Clear();
-            AI.PotentialTargets.Clear();
             Velocity = Vector2.Zero;
-            velocityMaximum = 0.0f;
-            float size = Radius  * (shipData.EventOnDeath?.NotEmpty() == true? 3 :1);// Math.Max(GridHeight, GridWidth);
+            velocityMaximum = 0f;
+
+            float size = Radius * (shipData.EventOnDeath?.NotEmpty() == true? 3 :1);// Math.Max(GridHeight, GridWidth);
             if (Active)
             {
                 Active = false;
@@ -2105,6 +2104,7 @@ namespace Ship_Game.Ships
                 Empire.Universe.ScreenManager.AddScreenDeferred(
                     new EventPopup(Empire.Universe, EmpireManager.Player, evt, evt.PotentialOutcomes[0], true));
             }
+
             QueueTotalRemoval();
 
             base.Die(source, cleanupOnly);
@@ -2112,24 +2112,21 @@ namespace Ship_Game.Ships
 
         public void QueueTotalRemoval()
         {
-            SetSystem(null);
+            Active = false;
             Empire.Universe.QueueGameplayObjectRemoval(this);
+
+            AI.ClearOrdersAndWayPoints();
+            SetSystem(null);
         }
 
         public override void RemoveFromUniverseUnsafe()
         {
-            Active            = false;
-            AI.Target         = null;
-            AI.ColonizeTarget = null;
-            AI.EscortTarget   = null;
-            AI.PotentialTargets.Clear();
-            AI.TrackProjectiles.Clear();
-            AI.NearByShips.Clear();
-            AI.FriendliesNearby.Clear();
+            AI.Reset();
+
             Empire.Universe.MasterShipList.QueuePendingRemoval(this);
             if (Empire.Universe.SelectedShip == this)
                 Empire.Universe.SelectedShip = null;
-            Empire.Universe.SelectedShipList.Remove(this);
+            Empire.Universe.SelectedShipList.RemoveRef(this);
 
             if (Mothership != null)
             {
@@ -2137,11 +2134,13 @@ namespace Ship_Game.Ships
                     if (shipModule.GetHangarShip() == this)
                         shipModule.SetHangarShip(null);
             }
-            foreach (ShipModule hanger in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
+
+            foreach (ShipModule hangar in Carrier.AllHangars) // FB: use here all hangars and not just active hangars
             {
-                if (hanger.GetHangarShip() != null)
-                    hanger.GetHangarShip().Mothership = null;
+                if (hangar.GetHangarShip() != null)
+                    hangar.GetHangarShip().Mothership = null;
             }
+
             foreach (Empire empire in EmpireManager.Empires)
             {
                 empire.GetEmpireAI().ThreatMatrix.RemovePin(this);
@@ -2155,17 +2154,18 @@ namespace Ship_Game.Ships
             ExternalModuleGrid = Empty<ShipModule>.Array;
             NumExternalSlots   = 0;
             Shields            = Empty<ShipModule>.Array;
-
+            ThrusterList.Clear();
             BombBays.Clear();
             TroopList.Clear();
+            RepairBeams.Clear();
+
             ClearFleet();
-            ShipSO?.Clear();
-            Empire.Universe.RemoveObject(ShipSO);
             loyalty.RemoveShip(this);
             SetSystem(null);
             TetheredTo = null;
-            RepairBeams.Clear();
-            Empire.Universe.MasterShipList.QueuePendingRemoval(this);
+
+            ShipSO?.Clear();
+            Empire.Universe.RemoveObject(ShipSO);
         }
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;

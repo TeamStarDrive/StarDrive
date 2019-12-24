@@ -8,39 +8,35 @@ namespace Ship_Game
 {
     internal static class Program
     {
+        public const int MAIN_LOOP_FAILURE = -1;
+        public const int UNHANDLED_EXCEPTION = -2;
+
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             GraphicsDeviceManager graphicsMgr = StarDriveGame.Instance?.Graphics;
             if (graphicsMgr != null && graphicsMgr.IsFullScreen)
                 graphicsMgr.ToggleFullScreen();
 
-            try
-            {
-                var ex = e.ExceptionObject as Exception;
-                Log.ErrorDialog(ex, "Program.CurrentDomain_UnhandledException");
-            }
-            finally
-            {
-                StarDriveGame.Instance?.Exit();
-            }
+            var ex = e.ExceptionObject as Exception;
+            Log.ErrorDialog(ex, "Program.CurrentDomain_UnhandledException", isFatal: true);
         }
 
         // in case of abnormal termination, run cleanup tasks during process exit
         static void CurrentDomain_ProcessExit(object sender, EventArgs e)
         {
-            RunCleanupTasks();
+            RunCleanupAndExit(Environment.ExitCode);
         }
 
         static bool HasRunCleanupTasks;
         
-        static void RunCleanupTasks()
+        public static void RunCleanupAndExit(int exitCode)
         {
             if (HasRunCleanupTasks)
                 return;
             try
             {
                 HasRunCleanupTasks = true;
-                Log.Write("RunCleanupTasks()");
+                Log.Write($"RunCleanupAndExit({exitCode})");
                 Log.StopLogThread();
                 Parallel.ClearPool(); // Dispose all thread pool Threads
             }
@@ -51,6 +47,7 @@ namespace Ship_Game
             finally
             {
                 Log.FlushAllLogs();
+                Environment.Exit(exitCode);
             }
         }
 
@@ -79,14 +76,12 @@ namespace Ship_Game
                 }
 
                 Log.Write("The game exited normally.");
+                RunCleanupAndExit(0);
             }
             catch (Exception ex)
             {
                 Log.ErrorDialog(ex, "Fatal main loop failure");
-            }
-            finally
-            {
-                RunCleanupTasks();
+                RunCleanupAndExit(MAIN_LOOP_FAILURE);
             }
         }
     }
