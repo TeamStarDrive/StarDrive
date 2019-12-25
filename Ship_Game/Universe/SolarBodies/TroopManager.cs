@@ -25,7 +25,14 @@ namespace Ship_Game
         public bool WeAreInvadingHere(Empire us)  => WeHaveTroopsHere(us) && Ground.Owner != us;
         public bool ForeignTroopHere(Empire us)   => TroopList.Any(t => t.Loyalty != null && t.Loyalty != us);
         public bool MightBeAWarZone(Empire us)    => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
+        public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
         public float OwnerTroopStrength => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
+
+        public Troop[] TroopsReadForLaunch(int maxToTake)
+        {
+            if (MightBeAWarZone()) return new Troop[0];
+            return TroopList.Filter(t => t.CanMove && t.Loyalty == Ground.Owner && maxToTake-- >=0);
+        }
 
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
@@ -421,7 +428,7 @@ namespace Ship_Game
         {
             float strength = 0;
             if (Owner == empire)
-                strength += BuildingList.Sum(offense => offense.CombatStrength);
+                strength += BuildingList.Sum(BuildingCombatStrength);
 
             using (TroopList.AcquireReadLock())
                 strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.Strength);
@@ -441,7 +448,9 @@ namespace Ship_Game
 
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
-            float enemyTroopStrength = TroopList.Where(t => t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
+            float enemyTroopStrength = TroopList.Where(t => 
+                t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
+
             for (int i = 0; i < BuildingList.Count; i++)
             {
                 Building b;
@@ -453,11 +462,20 @@ namespace Ship_Game
                 {
                     continue;
                 }
-
-                if (b?.CombatStrength > 0)
-                    enemyTroopStrength += b.CombatStrength;
+                enemyTroopStrength += BuildingCombatStrength(b);
             }
             return enemyTroopStrength;            
+        }
+
+        float BuildingCombatStrength(Building b)
+        {
+            float strength = 0;
+            if (b?.CombatStrength > 0)
+            {
+                strength += b.CombatStrength;
+                strength += b.InvadeInjurePoints * 5;
+            }
+            return strength;
         }
 
         public bool TroopsHereAreEnemies(Empire empire)
@@ -489,13 +507,15 @@ namespace Ship_Game
         public Array<Troop> EmpireTroops(Empire empire, int maxToTake)
         {
             var troops = new Array<Troop>();
-            foreach (Troop troop in TroopList)
+            for (int x = 0; x < TroopList.Count; x++)
             {
+                Troop troop = TroopList[x];
                 if (troop.Loyalty != empire) continue;
 
                 if (maxToTake-- < 0)
                     troops.Add(troop);
             }
+
             return troops;
         }
 

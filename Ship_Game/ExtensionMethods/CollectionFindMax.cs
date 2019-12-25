@@ -165,6 +165,16 @@ namespace Ship_Game
             return found;
         }
 
+        public static TKey FindFirstKeyForValue<TKey, TValue>(this Map<TKey, TValue> map,
+            TValue wantedValue)
+        {
+            foreach (KeyValuePair<TKey, TValue> kv in map)
+            {
+                if (kv.Value.Equals(wantedValue))
+                    return kv.Key;
+            }
+            return default;
+        }
 
         // @return NULL if list is empty! Or the item with smallest selected value
         public static TValue FindMaxValue<TKey, TValue>(this Map<TKey, TValue> map, 

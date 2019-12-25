@@ -405,7 +405,7 @@ namespace Ship_Game.Ships
                 amount = (amount + incomingAmount).Clamped(0, OrdinanceMax);
             return ToShipStatus(amount, OrdinanceMax);
         }
-        public int BombsUseful
+        public int BombsGoodFor60Secs
         {
             get
             {

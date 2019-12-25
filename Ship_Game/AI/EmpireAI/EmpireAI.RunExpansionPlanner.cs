@@ -179,7 +179,7 @@ namespace Ship_Game.AI
                 Value           = planet.ColonyBaseValue(empire) / rangeReduction;
 
                 if (enemyStr > 0)
-                    Value *= ((aoStrength - enemyStr) / aoStrength).ClampMin(0);
+                    Value *= (aoStrength / enemyStr).Clamped(0.1f, 1f);
 
                 int difficultyBonus = (int)Math.Pow((int)CurrentGame.Difficulty, 2.5f);
                 if (Value + difficultyBonus < 30f)
