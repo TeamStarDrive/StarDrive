@@ -307,9 +307,10 @@ namespace Ship_Game
 
             batch.Begin(SpriteBlendMode.Additive);
             using (Explosions.AcquireReadLock())
-            foreach (SmallExplosion exp in Explosions)
-                exp.Draw(batch);
-
+            {
+                foreach (SmallExplosion exp in Explosions)
+                    exp.Draw(batch);
+            }
             batch.End();
 
             batch.Begin();
@@ -868,37 +869,46 @@ namespace Ship_Game
             return landingLimit;
         }
 
-        private void UpdateLandAllButton(int numTroops)
+        void UpdateLandAllButton(int numTroops)
         {
-            string text;
             if (numTroops > 0)
             {
                 LandAll.Enabled = true;
-                text            = $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})";
+                LandAll.Text = $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})";
             }
             else
             {
                 LandAll.Enabled = false;
-                text            = "Land All";
+                LandAll.Text = "Land All";
             }
-
-            LandAll.Text = text;
         }
 
-        private void UpdateLaunchAllButton(int numTroopsCanLaunch)
+        void UpdateLaunchAllButton(int numTroopsCanLaunch)
         {
-            string text;
             if (numTroopsCanLaunch > 0)
             {
                 LaunchAll.Enabled = true;
-                text              = $"Launch All ({numTroopsCanLaunch})";
+                LaunchAll.Text = $"Launch All ({numTroopsCanLaunch})";
             }
             else
             {
                 LaunchAll.Enabled = false;
-                text              = "Launch All";
+                LaunchAll.Text = "Launch All";
             }
-            LaunchAll.Text = text;
+        }
+
+        public bool TryLaunchTroopFromActiveTile()
+        {
+            PlanetGridSquare tile = ActiveTile;
+            if (tile == null || tile.TroopsHere.Count < 1)
+                return false;
+
+            Ship launched = tile.TroopsHere[0].Launch(tile);
+            if (launched == null)
+                return false;
+            
+            ActiveTile = null; // TODO: Handle ActiveTile in a better way?
+            return true;
         }
 
         public void AddExplosion(Rectangle grid, int size)
