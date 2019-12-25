@@ -459,7 +459,9 @@ namespace Ship_Game.Debug
                 DrawString("Influences: " + string.Join(",", influence));
                 DrawString("InfluenceType: " + (ship.IsInFriendlyProjectorRange ? "Friendly"
                                              :  ship.IsInHostileProjectorRange  ? "Hostile" : "Neutral"));
-                DrawString($"GravityWell: {ship?.System?.IdentifyGravityWell(ship)?.Name}   Inhibited:{ship.IsInhibitedByUnfriendlyGravityWell}");
+
+                string gravityWell = Empire.Universe.GravityWells ? ship?.System?.IdentifyGravityWell(ship)?.Name : "disabled";
+                DrawString($"GravityWell: {gravityWell}   Inhibited:{ship.IsInhibitedByUnfriendlyGravityWell}");
 
                 DrawString(ship.InCombat ? Color.Green : Color.LightPink,
                            ship.InCombat ? ship.AI.BadGuysNear ? "InCombat" : "ERROR" : "Not in Combat");

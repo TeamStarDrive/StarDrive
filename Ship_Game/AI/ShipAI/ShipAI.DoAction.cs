@@ -27,7 +27,7 @@ namespace Ship_Game.AI
                 }
                 return;
             }
-            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             float distance = Owner.Center.Distance(EscortTarget.Center);
             if (distance < EscortTarget.Radius + 300f)
             {
@@ -119,7 +119,7 @@ namespace Ship_Game.AI
                     {
                         prediction = fastestWeapon.ProjectedImpactPointNoError(target);
                     }
-                    ThrustOrWarpToPosCorrected(prediction, elapsedTime);
+                    ThrustOrWarpToPos(prediction, elapsedTime);
                     return;
                 }
             }
@@ -127,7 +127,7 @@ namespace Ship_Game.AI
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
                 && Owner.Center.OutsideRadius(target.Center, Owner.DesiredCombatRange * 3f))
             {
-                ThrustOrWarpToPosCorrected(target.Center, elapsedTime);
+                ThrustOrWarpToPos(target.Center, elapsedTime);
                 return;
             }
 
@@ -311,11 +311,11 @@ namespace Ship_Game.AI
                     if (distanceToTarget >= 5500f)
                     {
                         float speedLimit = Owner.Speed.Clamped(distanceToTarget, Owner.velocityMaximum);
-                        ThrustOrWarpToPosCorrected(MovePosition, elapsedTime, speedLimit);
+                        ThrustOrWarpToPos(MovePosition, elapsedTime, speedLimit);
                     }
                     else
                     {
-                        ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
+                        ThrustOrWarpToPos(MovePosition, elapsedTime);
                         if (distanceToTarget < 500f)
                         {
                             PatrolTarget.SetExploredBy(Owner.loyalty);
@@ -347,20 +347,28 @@ namespace Ship_Game.AI
             }
         }
 
+        Vector2 LandingOffset;
+
         void DoLandTroop(float elapsedTime, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
-            ThrustOrWarpToPosCorrected(planet.Center, elapsedTime);
-            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, 50);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, 300);
-            else                                    LandTroopsViaTroopShip(planet, 2000, elapsedTime);
+            if (LandingOffset.AlmostZero())
+                LandingOffset = RandomMath.Vector2D(planet.ObjectRadius);
+
+            Vector2 landingSpot = planet.Center + LandingOffset;
+            // force the ship out of warp if we get too close
+            // this is a balance feature
+            ThrustOrWarpToPos(landingSpot, elapsedTime, warpExitDistance: Owner.WarpOutDistance);
+            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot);
+            else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
         // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
-        void LandTroopsViaSingleTransport(Planet planet, float distance)
+        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot)
         {
-            if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
+            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
                 Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
                 DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
@@ -372,9 +380,9 @@ namespace Ship_Game.AI
         }
         
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
-        void LandTroopsViaTroopShip(Planet planet, float distance, float elapsedTime)
+        void LandTroopsViaTroopShip(float elapsedTime, Planet planet, Vector2 landingSpot)
         {
-            if (Owner.Center.InRadius(planet.Center, planet.ObjectRadius + distance))
+            if (landingSpot.InRadius(Owner.Center, Owner.Radius + 100f))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
                     Owner.LandAllTroopsAt(planet); // We can land all our troops without assault bays since its our planet with space port
@@ -501,7 +509,7 @@ namespace Ship_Game.AI
                     GoOrbitNearestPlanetAndResupply(true);
                 return;
             }
-            ThrustOrWarpToPosCorrected(Owner.Mothership.Center, elapsedTime);
+            ThrustOrWarpToPos(Owner.Mothership.Center, elapsedTime);
 
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
@@ -544,7 +552,7 @@ namespace Ship_Game.AI
                     return;
                 }
             }
-            ThrustOrWarpToPosCorrected(Owner.HomePlanet.Center, elapsedTime);
+            ThrustOrWarpToPos(Owner.HomePlanet.Center, elapsedTime);
             if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 150f))
             {
                 Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.GetCost(Owner.loyalty), Owner.HealthPercent);
@@ -566,7 +574,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 if (EscortTarget.TroopCapacity == EscortTarget.TroopList.Count)
@@ -590,7 +598,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            ThrustOrWarpToPosCorrected(EscortTarget.Center, elapsedTime);
+            ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
                 // how much the target did not take. 
@@ -626,7 +634,7 @@ namespace Ship_Game.AI
                 escortVelocity = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
 
             if (distanceToEscortSpot > 50)
-                ThrustOrWarpToPosCorrected(escortVector, elapsedTime, escortVelocity);
+                ThrustOrWarpToPos(escortVector, elapsedTime, escortVelocity);
             else
                 Owner.Velocity = Vector2.Zero;
 
@@ -666,6 +674,50 @@ namespace Ship_Game.AI
                 }
                 Orbit.Orbit(EscortTarget, elapsedTime);
             }
+        }
+
+        bool DoBombard(float elapsedTime, ShipGoal goal)
+        {
+            Planet planet = goal.TargetPlanet;
+            if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
+                || planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
+                || (planet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
+                <= planet.GetGroundStrength(Owner.loyalty)
+                || (planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
+                )
+                //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
+            {
+                //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
+                //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
+                //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
+                //but having even 1 allied troop will cause the bombing action to abort.
+                ClearOrders();
+                AddOrbitPlanetGoal(planet); // Stay in Orbit
+            }
+            Orbit.Orbit(planet, elapsedTime);
+            float radius = planet.ObjectRadius + Owner.Radius + 1500;
+            if (planet.Owner == Owner.loyalty)
+            {
+                ClearOrders();
+                return true; // skip combat rest of the update
+            }
+            DropBombsAtGoal(goal, radius);
+            return false;
+        }
+
+        bool DoExterminate(float elapsedTime, ShipGoal goal)
+        {
+            Planet planet = goal.TargetPlanet;
+            Orbit.Orbit(planet, elapsedTime);
+            if (planet.Owner == Owner.loyalty || planet.Owner == null)
+            {
+                ClearOrders();
+                OrderFindExterminationTarget();
+                return true;
+            }
+            float radius = planet.ObjectRadius + Owner.Radius + 1500;
+            DropBombsAtGoal(goal, radius);
+            return false;
         }
     }
 }

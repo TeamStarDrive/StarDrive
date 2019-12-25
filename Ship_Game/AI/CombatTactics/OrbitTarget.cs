@@ -15,7 +15,7 @@ namespace Ship_Game.AI.CombatTactics
 
             Vector2 predictedTarget = AI.Owner.PredictImpact(AI.Target);
             UpdateOrbitPos(predictedTarget, radius, elapsedTime);
-            AI.ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime);
+            AI.ThrustOrWarpToPos(OrbitPos, elapsedTime);
         }
     }
 }
