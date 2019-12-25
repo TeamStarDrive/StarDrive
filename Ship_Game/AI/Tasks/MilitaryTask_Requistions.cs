@@ -12,24 +12,34 @@ namespace Ship_Game.AI.Tasks
     {
         //public Planet TargetPlanet => TargetPlanet;
 
-        Array<Troop> GetTroopsOnPlanets(Vector2 rallyPoint, int needed = 0)
+        Array<Troop> GetTroopsOnPlanets(Vector2 rallyPoint, float strengthNeeded)
         {
             var potentialTroops = new Array<Troop>();
-            var defenseDict = Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict;
-            var troopSystems = Owner.GetOwnedSystems().Sorted(dist => dist.Position.SqDist(rallyPoint));
+            var defenseDict     = Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict;
+            var troopSystems    = Owner.GetOwnedSystems().Sorted(dist => dist.Position.SqDist(rallyPoint));
+            
             for (int x = 0; x < troopSystems.Length; x++)
             {
                 SolarSystem system = troopSystems[x];
-                int rank = (int) defenseDict[system].RankImportance;
+                SystemCommander sysCom = defenseDict[system];
+                if (!sysCom.IsEnoughTroopStrength) 
+                    continue;
+                
                 for (int i = 0; i < system.PlanetList.Count; i++)
                 {
                     Planet planet = system.PlanetList[i];
+
                     if (planet.Owner != Owner) continue;
-                    if (planet.RecentCombat) continue;
-                    potentialTroops.AddRange(planet.GetOwnersLaunchReadyTroops(20 - rank));
+                    if (planet.RecentCombat)   continue;
+
+                    float planetMinStr = sysCom.TroopStrengthMin(planet);
+
+                    potentialTroops.AddRange(planet.GetOwnersLaunchReadyTroops(strengthNeeded - planetMinStr));
+                    strengthNeeded -= potentialTroops.Sum(t => t.Strength);
+                    if (strengthNeeded <= 0) break;
                 }
 
-                if (potentialTroops.Count > 50)
+                if (potentialTroops.Count > 50 || strengthNeeded <= 0)
                     break;
             }
 
@@ -175,18 +185,6 @@ namespace Ship_Game.AI.Tasks
             newFleet.AutoArrange();
         }
 
-        private FleetShips GatherFleetReadyShips(AO ao)
-        {
-            FleetShips fleetShips = ao.GetFleetShips();
-            Ship[] sorted = Owner.GetForcePool().Sorted(s => s.Center.SqDist(ao.Center));
-            foreach (Ship ship in sorted)
-            {
-                if (!ship.InCombat && !ship.AI.BadGuysNear)
-                    fleetShips.AddShip(ship);
-            }
-            return fleetShips;
-        }
-
         private FleetShips AllFleetReadyShipsNearestTarget(Vector2 targetPosition)
         {
             //Get all available ships from AO's
@@ -209,6 +207,7 @@ namespace Ship_Game.AI.Tasks
             return fleetShips;
         }
 
+        //not deleting yet. need to investigate usability
         private Array<Ship> GetShipsFromDefense(float tfstrength, float minimumEscortStrength)
         {
             Array<Ship> elTaskForce = new Array<Ship>();
@@ -265,32 +264,33 @@ namespace Ship_Game.AI.Tasks
             if (rallyPoint == null)
                 return;
 
-            FleetShips fleetShips = AllFleetReadyShipsNearestTarget(TargetPlanet.Center);
-            AO = TargetPlanet.Center;
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(TargetPlanet.Center, AORadius * 2, Owner);
-            
+            AO                    = TargetPlanet.Center;
+            EnemyStrength         = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+            NeededTroopStrength   = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(100);
+            FleetShips fleetShips = AllFleetReadyShipsNearestTarget(rallyPoint.Center);
+            int bombTimeNeeded    = BombTimeNeeded();
+
+            //if we cant build bombers then convert bombtime to troops. 
+            //This is hacky but we need a way to figure out what the best numbers are here. 
+            if (!Owner.canBuildBombers)
+                NeededTroopStrength += bombTimeNeeded * 10;
+            else
+            {
+                //if have bombers but not enough... wait for more.
+                if (fleetShips.BombSecsAvailable < bombTimeNeeded)
+                    return;
+            }
+
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
+                //send a core fleet and wait.
                 SendSofteningFleet(closestAO);
                 return; 
             }
 
-            NeededTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(100);
-
-            //Bomb time is number of bombing minutes wanted. 
-            int bombTimeNeeded = BombTimeNeeded();
-            if (fleetShips.BombSecsAvailable < bombTimeNeeded)
-                return;
-
             //See if we need to gather troops from planets. Bail if not enough
-            var troopsOnPlanets = new Array<Troop>();
-            if (fleetShips.InvasionTroopStrength < NeededTroopStrength)
-            {
-                troopsOnPlanets = GetTroopsOnPlanets(TargetPlanet.Center);
-                float troopsOnPlanetsStrength = troopsOnPlanets.Sum(t => t.Strength);
-                if (fleetShips.InvasionTroopStrength + troopsOnPlanetsStrength < NeededTroopStrength)
-                    return;
-            }
+            if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center)) 
+                return;
 
             //All's Good... Make a fleet
             var ships = fleetShips.CollectShipSet(EnemyStrength, bombTimeNeeded
@@ -305,12 +305,38 @@ namespace Ship_Game.AI.Tasks
             Step = 1;
         }
 
+        private bool AreThereEnoughTroopsToInvade(FleetShips fleetShips, out Array<Troop> troopsOnPlanetNeeded,
+                                                  Vector2 rallyPoint)
+        {
+            troopsOnPlanetNeeded = new Array<Troop>();
+            if (fleetShips.InvasionTroopStrength < NeededTroopStrength)
+            {
+                troopsOnPlanetNeeded = GetTroopsOnPlanets(rallyPoint, NeededTroopStrength);
+                float troopsOnPlanetsStrength = troopsOnPlanetNeeded.Sum(t => t.Strength);
+                if (fleetShips.InvasionTroopStrength + troopsOnPlanetsStrength < NeededTroopStrength)
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// The concept here is to calculate how much bomb power is needed.
+        /// this set into minutes of bombing. 
+        /// </summary>
+        /// <returns></returns>
         private int BombTimeNeeded()
         {
-            int bombersWanted = TargetPlanet.BuildingGeodeticCount * 5;
-            bombersWanted += TargetPlanet.GetGroundLandingSpots() < 25 ? 1 : 0;
-            bombersWanted += TargetPlanet.ShieldStrengthMax > 0 ? 10 : 0;
-            return bombersWanted;
+            //we cant easily say what the strength of the of the defensive systems yet. 
+            //this just counts how many there are and want 5 minutes per building.
+            int bombTime = TargetPlanet.BuildingGeodeticCount * 5;
+
+            //ground landing spots. if we dont have a significant space to land troops. create them. 
+            bombTime    += TargetPlanet.GetGroundLandingSpots() < 25 ? 1 : 0;
+
+            //shields are a real pain. this may need a lot more code to deal with. 
+            bombTime    += TargetPlanet.ShieldStrengthMax > 0 ? 10 : 0;
+            return bombTime;
         }
 
         bool SendSofteningFleet(AO closestAO)
@@ -471,7 +497,7 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = EnemyStrength;
 
-            Array<Troop> potentialTroops = GetTroopsOnPlanets(closestAO.GetPlanet().Center);
+            Array<Troop> potentialTroops = GetTroopsOnPlanets(rallyPoint.Center, NeededTroopStrength);
             if (potentialTroops.Count < 4)
             {
                 NeededTroopStrength = 20;

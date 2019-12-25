@@ -222,6 +222,13 @@ namespace Ship_Game.AI
             return Math.Max(1, troopMin);
         }
 
+        public float TroopStrengthMin(Planet planet)
+        {
+            float troopMin = MinPlanetTroopLevel * planet.Level / SystemDevelopmentlevel;
+
+            return Math.Max(1, troopMin) * 10f;
+        }
+
         public void CalculateTroopNeeds()
         {
             // find max number of troops for system.

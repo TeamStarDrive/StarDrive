@@ -15,6 +15,9 @@ namespace Ship_Game.AI
         public Array<Ship> DefensiveForcePool = new Array<Ship>();
         int TotalValue;
         public float TroopsToTroopsWantedRatio;
+        public float PlanetTroopStrengthWanted(Planet planet) 
+            => DefenseDict[planet.ParentSystem].PlanetTroopMin(planet) * 10f;
+
 
         public DefensiveCoordinator(Empire e)
         {
