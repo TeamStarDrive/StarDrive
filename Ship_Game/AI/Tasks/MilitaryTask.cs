@@ -49,6 +49,21 @@ namespace Ship_Game.AI.Tasks
             militaryTask.type = TaskType.DefendPostInvasion;
             return militaryTask;
         }
+
+        public static MilitaryTask CreatePostInvasion(Planet planet, int fleetId, Empire owner)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                AO           = planet.Center,
+                AORadius     = 10000f,
+                WhichFleet   = fleetId,
+                TargetPlanet = planet
+            };
+            militaryTask.SetEmpire(owner);
+            militaryTask.type = TaskType.DefendPostInvasion;
+            return militaryTask;
+        }
+
         public MilitaryTask(AO ao)
         {
             AO = ao.Center;
@@ -90,6 +105,20 @@ namespace Ship_Game.AI.Tasks
             Owner = owner;
             MinimumTaskForceStrength = owner.CurrentMilitaryStrength *.05f;
         }
+
+        public MilitaryTask(Planet target, Empire owner, float strWanted)
+        {
+            type = TaskType.AssaultPlanet;
+            TargetPlanet = target;
+            TargetPlanetGuid = target.guid;
+            AO = target.Center;
+            AORadius = 35000f;
+            Owner = owner;
+
+            strWanted = strWanted.ClampMin(owner.CurrentMilitaryStrength * .05f);
+            MinimumTaskForceStrength = strWanted;
+        }
+
 
         public MilitaryTask(Empire owner)
         {
@@ -164,6 +193,7 @@ namespace Ship_Game.AI.Tasks
                     if (ship?.Active ?? false)
                         Owner.ForcePoolAdd(ship);
                 }
+                fleet.Reset();
                 return;
             }
 
@@ -309,7 +339,7 @@ namespace Ship_Game.AI.Tasks
                         {
                             if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
                             {
-                                if (fleet.Ships.Count != 0)
+                                if (fleet.Ships.Count > 0)
                                     break;
                             }
 
@@ -594,14 +624,14 @@ namespace Ship_Game.AI.Tasks
             TargetPlanetGuid = p.guid;
         }
 
-        int FindFleetNumber()
+        //need to examine this fleet key thing. i believe there is a leak. 
+        int FindUnusedFleetNumber()
         {
-            for (int i = 1; i < 10; i++)
-            {
-                if (!Owner.GetEmpireAI().UsedFleets.Contains(i))
-                    return i;
-            }
-            return -1;
+            var used = Owner.GetEmpireAI().UsedFleets;
+            int key = 1;
+            while (used.Contains(key))
+                ++key;
+            return key;
         }
 
         public enum TaskType

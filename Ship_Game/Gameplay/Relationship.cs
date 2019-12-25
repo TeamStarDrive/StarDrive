@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Debug;
 
 namespace Ship_Game.Gameplay
 {
@@ -671,20 +672,22 @@ namespace Ship_Game.Gameplay
         public void LostAShip(Ship ourShip)
         {
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(ourShip);
-            if (!AtWar)
-            {
-                Anger_MilitaryConflict += killedExpSettings.KillExp;
-                return;
-            }
-            ActiveWar.StrengthLost += ourShip.BaseStrength;
+
+            Anger_MilitaryConflict += killedExpSettings.KillExp;
+            ActiveWar?.ShipWeLost(ourShip);
 
         }
-        public void KilledAShip(Ship theirShip)
-        {
-            if (!AtWar)
-                return;
+        public void KilledAShip(Ship theirShip) => ActiveWar?.ShipWeKilled(theirShip);
 
-            ActiveWar.StrengthKilled += theirShip.BaseStrength;
+        public void LostAColony(Planet colony, Empire attacker)
+        {
+            ActiveWar?.PlanetWeLost(attacker, colony);
+            Anger_MilitaryConflict += colony.ColonyValue;
+        }
+
+        public void WonAColony(Planet colony, Empire loser)
+        {
+            ActiveWar?.PlanetWeWon(loser, colony);
         }
 
         public static bool DoWeShareATradePartner(Empire them, Empire us)
@@ -728,6 +731,22 @@ namespace Ship_Game.Gameplay
             Treaty_OpenBorders = false;
             Treaty_Peace       = false;
             Treaty_Trade       = false;
+        }
+
+        public DebugTextBlock DebugWar()
+        {
+            var debug = new DebugTextBlock();
+            debug.Header = $"RelationShip Status: {Name}";
+            debug.HeaderColor = EmpireManager.GetEmpireByName(Name).EmpireColor;
+            debug.AddLine($"Total Anger: {(int)TotalAnger}");
+            debug.AddLine($"Anger From Ships in Borders: {(int)Anger_FromShipsInOurBorders}");
+            debug.AddLine($"Anger From Military: {(int)Anger_MilitaryConflict}");
+            debug.AddLine($"Anger From Territory Violation: {(int)Anger_TerritorialConflict}");
+            debug.AddLine($"Anger From Diplomatic Faux pas: {(int)Anger_DiplomaticConflict}");
+            debug.AddLine($"Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
+
+            ActiveWar?.WarDebugData(debug);
+            return debug;
         }
     }
 }

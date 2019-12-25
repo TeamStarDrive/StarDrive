@@ -83,19 +83,32 @@ namespace Ship_Game.AI
             {
                 // TODO: need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
-                { 
-                    Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                    if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
+                {
+                    if (Owner.fleet.FleetTask == null)
                     {
-                        if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                        Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
+                        if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                         {
-                            ThrustOrWarpToPos(nodePos, elapsedTime);
+
+                            if (Owner.Center.OutsideRadius(nodePos, 1000f))
+                            {
+                                ThrustOrWarpToPos(nodePos, elapsedTime);
+                            }
+                            else
+                            {
+                                DoHoldPositionCombat(elapsedTime);
+                            }
+
+                            return;
                         }
-                        else
+                    }
+                    else
+                    {
+                        var task = Owner.fleet.FleetTask;
+                        if (Target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
                         {
-                            DoHoldPositionCombat(elapsedTime);
+                            DequeueCurrentOrder();
                         }
-                        return;
                     }
                 }
                 if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)

@@ -71,6 +71,13 @@ namespace Ship_Game
 
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
+
+        public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
+        {
+            float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);
+            return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.ClampMin(1)) : 0;
+
+        }
         public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
         public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
 
@@ -84,6 +91,7 @@ namespace Ship_Game
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
+        public Troop[] GetOwnersLaunchReadyTroops(int maxToTake) => TroopManager.TroopsReadForLaunch(maxToTake);
 
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
 
@@ -275,7 +283,7 @@ namespace Ship_Game
         // added by gremlin deveks drop bomb
         public void DropBomb(Bomb bomb) => GeodeticManager.DropBomb(bomb);
 
-        public void ApplyBombEnvEffects(float amount) // added by Fat Bastard
+        public void ApplyBombEnvEffects(float amount, Empire attacker) // added by Fat Bastard
         {
             Population -= 1000f * amount;
             AddBaseFertility(amount * -0.25f); // environment suffers temp damage
@@ -283,7 +291,7 @@ namespace Ship_Game
                 AddMaxBaseFertility(-0.02f); // permanent damage to Max Fertility
 
             if (MaxPopulation.AlmostZero())
-                WipeOutColony();
+                WipeOutColony(attacker);
         }
 
         public void Update(float elapsedTime)
@@ -876,14 +884,14 @@ namespace Ship_Game
             Population = Math.Max(10, Population); // over population will decrease in time, so this is not clamped to max pop
         }
 
-        public void WipeOutColony()
+        public void WipeOutColony(Empire attacker)
         {
             Population = 0f;
             if (Owner == null)
                 return;
 
             UpdateTerraformPoints(0);
-            Owner.RemovePlanet(this);
+            Owner.RemovePlanet(this, attacker);
             if (IsExploredBy(Empire.Universe.PlayerEmpire))
                 Empire.Universe.NotificationManager.AddPlanetDiedNotification(this, Empire.Universe.PlayerEmpire);
 
@@ -926,6 +934,7 @@ namespace Ship_Game
 
         public int TotalInvadeInjure         => BuildingList.Sum(b => b.InvadeInjurePoints);
         public float BuildingGeodeticOffense => BuildingList.Sum(b => b.Offense);
+        public int BuildingGeodeticCount     => BuildingList.Count(b => b.Offense > 0);
         public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);

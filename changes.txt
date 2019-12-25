@@ -1,0 +1,52 @@
+ (origin/refactor/war, refactor/war) - make sure to restore save data ID's to their onject reference after universe creation.
+ (origin/Fat_Bastard/360_Arc_Issues_And_More) - Added an option to include Z thruster for ships.
+ - Minor fixes
+ - Final visualization and cleanup pass
+ - Finalized 360 Arc fixes
+ - Ensure all Rotation radians are bounded to [0; 2PI] in all parts of the game
+ - Make `ToRadians()` always normalize the degrees into [0; +2PI]
+ - Expanded unit tests, fixed more bugs.
+ - Fix a bug with Parallel.For implementation
+ - Fix notification test failing due to game dummy size
+ - Finally figured out what the bug was with angle comparison
+ - Put the war contested system restorer after relationships have been restored.
+ - change calculate to updateMilitaryStrengths
+ - Add unserializable restoration chain  for empire from loadSave. Currently only restoring war contested systems.
+ - Major fix for IsInFiringArc. It was broken for high rotation angles, such as > 2PI.
+ - changed facing to FacingRadians and FacingDegrees
+ - Heavily optimize influence lookup
+ - Fixed biosphere tile alpha (requested by Crunchy). Added planet name with owner color in combat screen (requested by testers).
+ - change name of contestedSystems
+ - Removed `GetMaxSTLSpeed`
+ - Renamed `maxFTLSpeed` to `MaxFTLSpeed`
+ - add a saftey cache to remove compatability code
+ - Make War clean and slightly more understandable.
+ (origin/perf/fleet-update-performance) - Fix a small acceleration bug
+ - More fleet-related optimizations
+ - Removing BatchRemovalCollections from Fleet
+ (origin/perf/remove-projectile-update-locks) - These spinlocks are way too slow. Need to figure out a way around them.
+ - Reduced FTL and STL speed calculation intervals -- they are quite heavy calculations
+ (origin/fix/fleet-performance-and-fixes) - Enforce speed limit by using actual deceleration, instead of using magic-stop
+ - More fleet movement tweaks
+ - Even better fleet movement adjustments and fixes
+ - Additional fixes to fleet ship speeds
+ - Performance improvements to Fleet update. Fixed several bugs with fleet formation warp. Fix fleet group reassign bug.
+ - Remove unused hangarship guid usage
+ (origin/refactor/MoveCodeFromGoal, refactor/MoveCodeFromGoal) - remove white space
+ - Ok its been a while.. i just forgot about the contains...
+ - switch a count of commodity types to a count of buildings that are commodites.
+ - add debug alt f4 in tech screen to us AI logic to unlock 10 techs. alt f1 with unlock an empires tech content at each press. alt f3 will unlock tech content but not bonuses and set any tech with bonuses to locked after unlocking its content.
+ - Check if file has already been uploaded to BitBucket
+ - Testing out APPVEYOR auto-deploy
+ - finetuning of planttypes.yaml
+ - remove remarked code.
+ - update colony planetRanker and colony value.
+ (origin/fix/AddGoalsToMovementCalcs, fix/AddGoalsToMovementCalcs) - fix spacing issue.
+ - Rename planets to GetPlanet
+ - change reability of ShipGoal MovePosition.
+ - PR Comments applied
+ - Change method name from get to count
+ - Add save logic for thether guid, add quick hack to ignore some stuck colony goals based on remnants.
+ - fix spaceing issue
+ - Fixed extra planets to be also the minimum planets. Limited them to 3.  Added better text for the player. Change sun zone data to have less chance of dead systems.
+ - create properties to get current planet position + offset. shipgoal moveposition is goal.moveposition or targetplanet posistion or static build position. goal moveposistion  is tetherplanet,   Colonizationtarget planetbuildingat buildposition
