@@ -950,7 +950,6 @@ namespace Ship_Game.Ships
         void ApplyThrust(float elapsedTime, float speedLimit, float thrustDirection)
         {
             float actualSpeedLimit = AdjustedSpeedLimit(speedLimit);
-            thrustDirection = (thrustDirection >= 0f ? 1f : -1f);
             float acceleration = elapsedTime * GetThrustAcceleration();
             isThrusting = true;
 
@@ -958,18 +957,25 @@ namespace Ship_Game.Ships
             if (engineState == MoveState.Warp)
                 actualSpeedLimit = Math.Max(actualSpeedLimit, 2500);
             
-            float maxVel = actualSpeedLimit + Math.Abs(acceleration);
+            const float decelerationRate = 0.5f; // 50%
+            float maxVel = actualSpeedLimit + acceleration;
 
-            // apply speed limit by decelerating like mad
+            // we are already over max vel? forget about accelerating, slow down!
             if (Velocity.Length() > maxVel)
             {
-                Velocity -= Velocity.Normalized() * acceleration; // decelerate
+                // we don't know which direction we were thrusting before, so simply negate the velocity vector
+                Velocity -= Velocity.Normalized() * acceleration * decelerationRate;
             }
             else
             {
-                Velocity += Direction * acceleration * thrustDirection;
-                if (Velocity.Length() > maxVel)
-                    Velocity -= Velocity.Normalized() * acceleration * 0.5f; // decelerate @50%
+                if (thrustDirection >= 0f) // accelerating
+                    Velocity += Direction * acceleration;
+                else // decelerating
+                    Velocity -= Direction * acceleration * decelerationRate; 
+                
+                // cap the speed immediately so we never go past the speed limit
+                if (Velocity.Length() > actualSpeedLimit)
+                    Velocity = Velocity.Normalized() * actualSpeedLimit;
             }
         }
 
@@ -2074,10 +2080,8 @@ namespace Ship_Game.Ships
 
             Carrier.ScuttleNonWarpHangarShips();
             ResetProjectorInfluence();
-            Velocity = Vector2.Zero;
-            velocityMaximum = 0f;
 
-            float size = Radius * (shipData.EventOnDeath?.NotEmpty() == true? 3 :1);// Math.Max(GridHeight, GridWidth);
+            float size = Radius * (shipData.EventOnDeath?.NotEmpty() == true ? 3 : 1);
             if (Active)
             {
                 Active = false;
@@ -2107,7 +2111,8 @@ namespace Ship_Game.Ships
                     for (int x = 0; x < 3; ++x)
                     {
                         int howMuchJunk = (int)RandomMath.RandomBetween(Radius * 0.05f, Radius * 0.15f);
-                        SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius/2), this, Radius, junkScale, true);
+                        SpaceJunk.SpawnJunk(howMuchJunk, Center.GenerateRandomPointOnCircle(Radius/2),
+                            Velocity, this, Radius, junkScale, true);
                     }
                 }
             }
