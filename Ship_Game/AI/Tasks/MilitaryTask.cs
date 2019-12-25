@@ -193,6 +193,7 @@ namespace Ship_Game.AI.Tasks
                     if (ship?.Active ?? false)
                         Owner.ForcePoolAdd(ship);
                 }
+                fleet.Reset();
                 return;
             }
 
@@ -623,14 +624,14 @@ namespace Ship_Game.AI.Tasks
             TargetPlanetGuid = p.guid;
         }
 
-        int FindFleetNumber()
+        //need to examine this fleet key thing. i believe there is a leak. 
+        int FindUnusedFleetNumber()
         {
-            for (int i = 1; i < 10; i++)
-            {
-                if (!Owner.GetEmpireAI().UsedFleets.Contains(i))
-                    return i;
-            }
-            return -1;
+            var used = Owner.GetEmpireAI().UsedFleets;
+            int key = 1;
+            while (used.Contains(key))
+                ++key;
+            return key;
         }
 
         public enum TaskType
