@@ -812,7 +812,7 @@ namespace Ship_Game.Ships
             if (debrisCount != 0)
             {
                 float debrisScale = size * 0.033f;
-                SpaceJunk.SpawnJunk(debrisCount, Center, this, 1.0f, debrisScale);
+                SpaceJunk.SpawnJunk(debrisCount, Center, Parent.Velocity, this, 1.0f, debrisScale);
             }
         }
 

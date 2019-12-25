@@ -68,7 +68,7 @@ namespace Ship_Game.AI.CombatTactics
                 else 
                 {
                     // we are too close, back away.
-                    Owner.Velocity -= Owner.Direction * elapsedTime * Owner.MaxSTLSpeed * 0.50f;
+                    Owner.SubLightAccelerate(elapsedTime, direction: -1f);
                 }
             }
         }
