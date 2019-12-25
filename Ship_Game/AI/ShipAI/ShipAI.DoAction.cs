@@ -92,7 +92,7 @@ namespace Ship_Game.AI
 
                             if (Owner.Center.OutsideRadius(nodePos, 1000f))
                             {
-                                ThrustOrWarpToPosCorrected(nodePos, elapsedTime);
+                                ThrustOrWarpToPos(nodePos, elapsedTime);
                             }
                             else
                             {
