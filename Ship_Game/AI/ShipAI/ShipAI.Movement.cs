@@ -230,14 +230,13 @@ namespace Ship_Game.AI
                 return true;
 
             float deceleration = Owner.velocityMaximum * elapsedTime;
-            if (Owner.Velocity.Length() < deceleration)
+            if (Owner.CurrentVelocity < deceleration) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
                 return true; // stopped
             }
 
-            // continue breaking velocity
-            Owner.Velocity -= Owner.Velocity.Normalized() * deceleration;
+            Owner.SubLightAccelerate(elapsedTime, direction: -1f);
             return false;
         }
 

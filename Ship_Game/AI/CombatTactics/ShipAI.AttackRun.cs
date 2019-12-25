@@ -186,7 +186,7 @@ namespace Ship_Game.AI.CombatTactics
 
         float GetStrafeSpeed(float distance, out bool cantCatchUp, out string debugStatus)
         {
-            float targetSpeed = AI.Target.Velocity.Length();
+            float targetSpeed = AI.Target.CurrentVelocity;
             cantCatchUp = false;
             if (targetSpeed > 50f)
             {
