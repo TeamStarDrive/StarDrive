@@ -170,7 +170,6 @@ namespace Ship_Game
         {
             foreach (KeyValuePair<TKey, TValue> kv in map)
             {
-                TKey item = kv.Key;
                 if (kv.Value.Equals(wantedValue))
                     return kv.Key;
             }

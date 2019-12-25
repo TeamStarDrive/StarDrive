@@ -83,13 +83,11 @@ namespace Ship_Game.AI
             {
                 // TODO: need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
-                { 
-                    if (Target == null)
-                        Log.Error("doCombat: Target was null? : https://sentry.io/blackboxmod/blackbox/issues/628107403/");
+                {
                     if (Owner.fleet.FleetTask == null)
                     {
                         Vector2 nodePos = Owner.fleet.AveragePosition() + FleetNode.FleetOffset;
-                        if (Target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
+                        if (target.Center.OutsideRadius(nodePos, FleetNode.OrdersRadius))
                         {
 
                             if (Owner.Center.OutsideRadius(nodePos, 1000f))
@@ -109,7 +107,7 @@ namespace Ship_Game.AI
                         var task = Owner.fleet.FleetTask;
                         if (Target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
                         {
-                            OrderQueue.Dequeue();
+                            DequeueCurrentOrder();
                         }
                     }
                 }

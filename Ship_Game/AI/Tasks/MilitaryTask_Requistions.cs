@@ -104,7 +104,7 @@ namespace Ship_Game.AI.Tasks
                 Name = fleetName
             };
 
-            int FleetNum = FindFleetNumber();
+            
             float ForceStrength = 0f;
 
             foreach (Ship ship in potentialAssaultShips)
@@ -136,6 +136,7 @@ namespace Ship_Game.AI.Tasks
                 ForceStrength += t.Strength;
             }
 
+            int FleetNum = FindUnusedFleetNumber();
             Owner.GetFleetsDict()[FleetNum] = newFleet;
             Owner.GetEmpireAI().UsedFleets.Add(FleetNum);
             WhichFleet = FleetNum;
@@ -150,18 +151,16 @@ namespace Ship_Game.AI.Tasks
             Step = 1;
         }
 
-        private void CreateFleet(Array<Ship> ships, AO ao, string Name)
+        private void CreateFleet(Array<Ship> ships, string Name)
         {
             var newFleet = new Fleet
             {
                 Name = Name,
                 Owner = Owner
-
-
             };
             ///// asdaljksdjalsdkjal;sdkjla;sdkjasl;dkj i will rebuild this better.
             ///// this is acessing a lot of other classes stuff.
-            int fleetNum = FindFleetNumber();
+            int fleetNum = FindUnusedFleetNumber();
             Owner.GetFleetsDict()[fleetNum] = newFleet;
             Owner.GetEmpireAI().UsedFleets.Add(fleetNum);
             WhichFleet = fleetNum;
@@ -254,7 +253,7 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            AO closestAO = FindClosestAO(MinimumTaskForceStrength); //  Owner.GetEmpireAI().FindClosestAOTo(AO);
+            AO closestAO = FindClosestAO(MinimumTaskForceStrength);
 
             if (closestAO == null)
             {
@@ -278,44 +277,29 @@ namespace Ship_Game.AI.Tasks
 
             NeededTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(100);
 
-            //do we need bombers for this work?
-            int bombersWanted = BombTimeNeeded();
-            if (fleetShips.BombSecsAvailable < bombersWanted)
+            //Bomb time is number of bombing minutes wanted. 
+            int bombTimeNeeded = BombTimeNeeded();
+            if (fleetShips.BombSecsAvailable < bombTimeNeeded)
                 return;
 
             //See if we need to gather troops from planets. Bail if not enough
             var troopsOnPlanets = new Array<Troop>();
-            if (fleetShips.TroopAssaultStrength < NeededTroopStrength)
+            if (fleetShips.InvasionTroopStrength < NeededTroopStrength)
             {
                 troopsOnPlanets = GetTroopsOnPlanets(TargetPlanet.Center);
                 float troopsOnPlanetsStrength = troopsOnPlanets.Sum(t => t.Strength);
-                if (fleetShips.TroopAssaultStrength + troopsOnPlanetsStrength < NeededTroopStrength)
+                if (fleetShips.InvasionTroopStrength + troopsOnPlanetsStrength < NeededTroopStrength)
                     return;
             }
 
             //All's Good... Make a fleet
-            var newFleet = fleetShips.CreateInvasionFleet(EnemyStrength, bombersWanted
+            var ships = fleetShips.CollectShipSet(EnemyStrength, bombTimeNeeded
                 , NeededTroopStrength, troopsOnPlanets);
-            if (newFleet == null)
-                return;
-            if (newFleet.CountShips == 0)
+            if (ships.IsEmpty)
                 return;
 
-            int fleetNum = FindFleetNumber();
-            Owner.GetFleetsDict()[fleetNum] = newFleet;
-            WhichFleet                      = fleetNum;
-            newFleet.FleetTask              = this;
+            CreateFleet(ships, "Invasion Fleet");
 
-            Owner.GetEmpireAI().UsedFleets.Add(fleetNum);
-
-            foreach (Ship ship in newFleet.Ships)
-            {
-                newFleet.AddShip(ship);
-                ship.AI.ClearOrders();
-                Owner.GetEmpireAI().RemoveShipFromForce(ship);
-            }
-
-            newFleet.AutoArrange();
             if (Step > 0)
                 DeclareWar();
             Step = 1;
@@ -377,7 +361,7 @@ namespace Ship_Game.AI.Tasks
 
             TaskForce = elTaskForce;
             StartingStrength = tfstrength;
-            int fleetId = FindFleetNumber();
+            int fleetId = FindUnusedFleetNumber();
 
             var newFleet = new Fleet();
 
@@ -420,12 +404,12 @@ namespace Ship_Game.AI.Tasks
             foreach (var ship in forcePool)
                 fleetShips.AddShip(ship);
 
-            fleetShips.GetFleetByStrength(strengthNeeded, out Array<Ship> ships);
+            fleetShips.GatherSetsOfFleetShipsUpToStrength(strengthNeeded,0.2f , out Array<Ship> ships);
 
             if (ships.Count < 3 || fleetShips.AccumulatedStrength < strengthNeeded * 0.9f)
                 return false;
 
-            CreateFleet( ships, ao, "Scout Fleet");
+            CreateFleet( ships, "Scout Fleet");
             StartingStrength = fleetShips.AccumulatedStrength;
 
             return true;
@@ -501,7 +485,7 @@ namespace Ship_Game.AI.Tasks
 
             FleetShips fleet = GetAvailableShips(closestAO);
             Array<Ship> potentialAssaultShips = fleet.GetTroops(4);
-            fleet.GetFleetByStrength(EnemyStrength, out Array<Ship> potentialCombatShips);
+            fleet.GatherSetsOfFleetShipsUpToStrength(EnemyStrength, 0.25f, out Array<Ship> potentialCombatShips);
 
             float ourAvailableStrength = 0f;
             CountShipTroopAndStrength(potentialAssaultShips, out float troopStrength);
