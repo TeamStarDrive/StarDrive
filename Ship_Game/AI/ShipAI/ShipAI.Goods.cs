@@ -22,7 +22,7 @@ namespace Ship_Game.AI
             if (AI.WaitForBlockadeRemoval(g, exportPlanet, elapsedTime))
                 return;
 
-            AI.ThrustOrWarpToPosCorrected(exportPlanet.Center, elapsedTime);
+            AI.ThrustOrWarpToPos(exportPlanet.Center, elapsedTime);
             if (!Owner.Center.InRadius(exportPlanet.Center, exportPlanet.ObjectRadius + 300f))
                 return;
 
@@ -103,7 +103,7 @@ namespace Ship_Game.AI
             if (AI.WaitForBlockadeRemoval(g, importPlanet, elapsedTime))
                 return;
 
-            AI.ThrustOrWarpToPosCorrected(importPlanet.Center, elapsedTime);
+            AI.ThrustOrWarpToPos(importPlanet.Center, elapsedTime);
             if (!Owner.Center.InRadius(importPlanet.Center, importPlanet.ObjectRadius + 300f))
                 return;
 
