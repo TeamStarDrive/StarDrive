@@ -200,7 +200,6 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\DefaultWar.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />

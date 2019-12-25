@@ -40,7 +40,7 @@ namespace Ship_Game.AI
         public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
-        public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid}";
+        public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid} index {FleetTask?.WhichFleet}";
 
         public Fleet()
         {
@@ -78,9 +78,9 @@ namespace Ship_Game.AI
             // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
             // This should likely be two different checks. There is also the possibilty that the ship is in another
             // Fleet ship list.
-            if (newShip.fleet != null || Ships.ContainsRef(newShip))
+             if (newShip.fleet != null || Ships.ContainsRef(newShip))
             {
-                Log.Warning($"{newShip}: already in a fleet");
+                Log.Warning($"{newShip}: \n already in fleet:\n{newShip.fleet}\nthis fleet:\n{this}");
                 return; // recover
             }
 
@@ -893,7 +893,7 @@ namespace Ship_Game.AI
         bool EndInvalidTask(bool condition)
         {
             if (!condition) return false;
-             FleetTask.EndTask();
+            FleetTask.EndTask();
             return true;
         }
 

@@ -146,17 +146,6 @@ namespace Ship_Game.AI
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
 
-            //if (State == AIState.Resupply)
-            //{
-            //    HasPriorityOrder = true;
-            //    if (Owner.Supply.DoneResupplying(SupplyType.All))
-            //    if (Owner.Ordinance >= Owner.OrdinanceMax && Owner.Health >= Owner.HealthMax) //fbedard: consider health also
-            //    {
-            //        HasPriorityOrder = false;
-            //        State = AIState.AwaitingOrders;
-            //    }
-            //}
-
             ResetStateFlee();
             ScanForThreat(elapsedTime);
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);

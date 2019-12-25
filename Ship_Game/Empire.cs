@@ -351,11 +351,12 @@ namespace Ship_Game
             return null;
         }
 
-        public int GetUnusedKeyForFleet()
+        public int CreateFleetKey()
         {
-            int key = 0;
-            while (FleetsDict.ContainsKey(key))
+            int key = 1;
+            while (EmpireAI.UsedFleets.Contains(key))
                 ++key;
+            EmpireAI.UsedFleets.Add(key);
             return key;
         }
 
