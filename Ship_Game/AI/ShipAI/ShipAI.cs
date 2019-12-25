@@ -112,7 +112,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
-            ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
+            ThrustOrWarpToPos(MovePosition, elapsedTime);
             return false;
         }
 
@@ -126,7 +126,7 @@ namespace Ship_Game.AI
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime, 200f);
+                ThrustOrWarpToPos(goal.TargetPlanet.Center, elapsedTime, 200f);
                 return;
             }
             ClearOrders(State);
@@ -145,17 +145,6 @@ namespace Ship_Game.AI
             PrioritizePlayerCommands();
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
-
-            //if (State == AIState.Resupply)
-            //{
-            //    HasPriorityOrder = true;
-            //    if (Owner.Supply.DoneResupplying(SupplyType.All))
-            //    if (Owner.Ordinance >= Owner.OrdinanceMax && Owner.Health >= Owner.HealthMax) //fbedard: consider health also
-            //    {
-            //        HasPriorityOrder = false;
-            //        State = AIState.AwaitingOrders;
-            //    }
-            //}
 
             ResetStateFlee();
             ScanForThreat(elapsedTime);
@@ -373,75 +362,41 @@ namespace Ship_Game.AI
 
         bool EvaluateNextOrderQueueItem(float elapsedTime)
         {
-            ShipGoal toEvaluate = OrderQueue.PeekFirst;
-            Planet planet = toEvaluate.TargetPlanet;
-            switch (toEvaluate.Plan)
+            ShipGoal goal = OrderQueue.PeekFirst;
+            Planet planet = goal.TargetPlanet;
+            switch (goal.Plan)
             {
                 case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
                     if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }
                     break;
-                case Plan.Scrap: ScrapShip(elapsedTime, toEvaluate); break;
-                case Plan.Bombard: //Modified by Gretman
-                    if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
-                        || planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
-                        || (planet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
-                        <= planet.GetGroundStrength(Owner.loyalty)
-                        || (planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
-                        )
-                        //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
-                    {
-                        //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
-                        //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
-                        //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
-                        //but having even 1 allied troop will cause the bombine action to abort.
-                        ClearOrders();
-                        AddOrbitPlanetGoal(toEvaluate.TargetPlanet); // Stay in Orbit
-                    }
-                    Orbit.Orbit(toEvaluate.TargetPlanet, elapsedTime);
-                    float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
-                    if (toEvaluate.TargetPlanet.Owner == Owner.loyalty)
-                    {
-                        ClearOrders();
-                        return true;
-                    }
-                    DropBombsAtGoal(toEvaluate, radius);
-                    break;
-                case Plan.Exterminate:
-                    Orbit.Orbit(planet, elapsedTime);
-                    radius = planet.ObjectRadius + Owner.Radius + 1500;
-                    if (planet.Owner == Owner.loyalty || planet.Owner == null)
-                    {
-                        ClearOrders();
-                        OrderFindExterminationTarget();
-                        return true;
-                    }
-                    DropBombsAtGoal(toEvaluate, radius);
-                    break;
-                case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, toEvaluate); break;
-                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate);    break;
-                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);         break;
-                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
-                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
-                case Plan.Orbit:                    Orbit.Orbit(planet, elapsedTime);                break;
-                case Plan.Colonize:                 Colonize(planet, toEvaluate);                      break;
-                case Plan.Explore:                  DoExplore(elapsedTime);                            break;
-                case Plan.Rebase:                   DoRebase(toEvaluate);                              break;
-                case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                      break;
-                case Plan.DoCombat:                 DoCombat(elapsedTime);                             break;
-                case Plan.DeployStructure:          DoDeploy(toEvaluate);                              break;
-                case Plan.DeployOrbital:            DoDeployOrbital(toEvaluate);                       break;
-                case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, toEvaluate);      break;
-                case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, toEvaluate);     break;
-                case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);                     break;
-                case Plan.TroopToShip:              DoTroopToShip(elapsedTime, toEvaluate);            break;
-                case Plan.BoardShip:                DoBoardShip(elapsedTime);                          break;
-                case Plan.SupplyShip:               DoSupplyShip(elapsedTime);                         break;
-                case Plan.Refit:                    DoRefit(toEvaluate);                               break;
-                case Plan.LandTroop:                DoLandTroop(elapsedTime, toEvaluate);              break;
-                case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, toEvaluate);         break;
-                case Plan.ReturnHome:               DoReturnHome(elapsedTime);                         break;
-                case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                       break;
+                case Plan.Scrap:                    ScrapShip(elapsedTime, goal); break;
+                case Plan.Bombard:           return DoBombard(elapsedTime, goal);
+                case Plan.Exterminate:       return DoExterminate(elapsedTime, goal);
+                case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, goal); break;
+                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, goal);    break;
+                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, goal);         break;
+                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, goal);        break;
+                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);       break;
+                case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, elapsedTime); break;
+                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
+                case Plan.Explore:                  DoExplore(elapsedTime);                      break;
+                case Plan.Rebase:                   DoRebase(goal);                              break;
+                case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                break;
+                case Plan.DoCombat:                 DoCombat(elapsedTime);                       break;
+                case Plan.DeployStructure:          DoDeploy(goal);                              break;
+                case Plan.DeployOrbital:            DoDeployOrbital(goal);                       break;
+                case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, goal);      break;
+                case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, goal);     break;
+                case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);               break;
+                case Plan.TroopToShip:              DoTroopToShip(elapsedTime, goal);            break;
+                case Plan.BoardShip:                DoBoardShip(elapsedTime);                    break;
+                case Plan.SupplyShip:               DoSupplyShip(elapsedTime);                   break;
+                case Plan.Refit:                    DoRefit(goal);                               break;
+                case Plan.LandTroop:                DoLandTroop(elapsedTime, goal);              break;
+                case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, goal);         break;
+                case Plan.ReturnHome:               DoReturnHome(elapsedTime);                   break;
+                case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
             }
 
             return false;
@@ -513,7 +468,7 @@ namespace Ship_Game.AI
             {
                 //check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                    ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
+                    ThrustOrWarpToPos(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
                 else
                     WarpToFleet();
             }

@@ -96,6 +96,7 @@ namespace Ship_Game
             EmpireManager.Clear();
 
             var sandbox = new UniverseData();
+            sandbox.GravityWells = true;
             CurrentGame.StartNew(sandbox, pace:1f);
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));

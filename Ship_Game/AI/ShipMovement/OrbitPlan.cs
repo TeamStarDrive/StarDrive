@@ -63,7 +63,7 @@ namespace Ship_Game.AI.ShipMovement
 
             if (distance > 15000f) // we are still far away, thrust towards the planet
             {
-                AI.ThrustOrWarpToPosCorrected(orbitTarget.Center, elapsedTime);
+                AI.ThrustOrWarpToPos(orbitTarget.Center, elapsedTime);
                 OrbitPos = orbitTarget.Center + OrbitOffset;
                 OrbitUpdateTimer = 0f;
                 return;
@@ -108,14 +108,14 @@ namespace Ship_Game.AI.ShipMovement
                     precisionSpeed = Math.Max(precisionSpeed, 100);
                 }
 
-                AI.ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, precisionSpeed);
+                AI.ThrustOrWarpToPos(OrbitPos, elapsedTime, precisionSpeed);
             }
         }
 
         public void Orbit(Ship ship, float elapsedTime)
         {
             UpdateOrbitPos(ship.Center, 1500f, elapsedTime);
-            AI.ThrustOrWarpToPosCorrected(OrbitPos, elapsedTime, OrbitalSpeedLimit);
+            AI.ThrustOrWarpToPos(OrbitPos, elapsedTime, OrbitalSpeedLimit);
         }
     }
 }

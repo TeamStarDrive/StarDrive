@@ -163,7 +163,7 @@ namespace Ship_Game.AI.CombatTactics
                 // we can't catch these bastards! use warp
                 Vector2 pip = Owner.FastestWeapon.ProjectedImpactPointNoError(AI.Target);
                 DrawDebugTarget(pip, Owner.Radius);
-                AI.ThrustOrWarpToPosCorrected(pip, elapsedTime);
+                AI.ThrustOrWarpToPos(pip, elapsedTime);
                 DrawDebugText("CatchUp");
                 return;
             }
