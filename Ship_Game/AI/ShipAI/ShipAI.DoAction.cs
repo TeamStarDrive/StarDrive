@@ -105,7 +105,7 @@ namespace Ship_Game.AI
                     else
                     {
                         var task = Owner.fleet.FleetTask;
-                        if (Target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
+                        if (target.Center.OutsideRadius(task.AO, task.AORadius + FleetNode.OrdersRadius))
                         {
                             DequeueCurrentOrder();
                         }
@@ -372,13 +372,13 @@ namespace Ship_Game.AI
             {
                 Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
                 DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
-                
+
                 // if it came from a mothership, return to hangar
                 if (Owner.IsDefaultAssaultShuttle)
                     Owner.AI.OrderReturnToHangar();
             }
         }
-        
+
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
         void LandTroopsViaTroopShip(float elapsedTime, Planet planet, Vector2 landingSpot)
         {
@@ -519,7 +519,7 @@ namespace Ship_Game.AI
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
 
                 Owner.Mothership.ChangeOrdnance(Owner.ShipRetrievalOrd); // Get back the ordnance it took to launch the ship
-                // Set up repair and rearm times 
+                // Set up repair and rearm times
                 float missingHealth   = Owner.HealthMax - Owner.Health;
                 float missingOrdnance = Owner.OrdinanceMax - Owner.Ordinance;
                 float repairTime      = missingHealth / (Owner.Mothership.RepairRate + Owner.RepairRate + Owner.Mothership.Level * 10);
@@ -533,7 +533,7 @@ namespace Ship_Game.AI
 
                     hangar.SetHangarShip(null);
                     // FB - Here we are setting the hangar timer according to the R&R time. Cant be over the time to rebuild the ship
-                    hangar.hangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, hangar.hangarTimerConstant); 
+                    hangar.hangarTimer = (repairTime + rearmTime + shuttlePrepTime).Clamped(5, hangar.hangarTimerConstant);
                     hangar.HangarShipGuid = Guid.Empty;
                 }
             }
@@ -601,11 +601,11 @@ namespace Ship_Game.AI
             ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                // how much the target did not take. 
+                // how much the target did not take.
                 float leftOverOrdnance = EscortTarget.ChangeOrdnance(Owner.Ordinance);
-                // how much the target did take. 
+                // how much the target did take.
                 float ordnanceDelivered = Owner.Ordinance - leftOverOrdnance;
-                // remove amount from incoming supply 
+                // remove amount from incoming supply
                 EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, -ordnanceDelivered);
                 Owner.ChangeOrdnance(-ordnanceDelivered);
                 EscortTarget.AI.TerminateResupplyIfDone();
