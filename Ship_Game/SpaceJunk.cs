@@ -26,7 +26,7 @@ namespace Ship_Game
         {
         }
 
-        public SpaceJunk(Vector2 pos, GameplayObject source, float spawnRadius, float scaleMod, bool useStaticSmoke)
+        public SpaceJunk(Vector2 pos, Vector2 vel, float spawnRadius, float scaleMod, bool useStaticSmoke)
         {
             float radius = spawnRadius + 25f;
             ScaleMod = scaleMod;                        
@@ -36,8 +36,8 @@ namespace Ship_Game
             Position.Z = RandomMath2.RandomBetween(-radius*0.5f, radius*0.5f);
             CreateSceneObject(pos);
 
-            Velocity.X += source.Velocity.X;
-            Velocity.Y += source.Velocity.Y;
+            Velocity.X += vel.X;
+            Velocity.Y += vel.Y;
         }
 
         private void RandomValues(Vector2 center, float velMin, float velMax, float spinMin, float spinMax, float scaleMin, float scaleMax)
@@ -107,7 +107,7 @@ namespace Ship_Game
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
-        public static void SpawnJunk(int howMuchJunk, Vector2 position, 
+        public static void SpawnJunk(int howMuchJunk, Vector2 position, Vector2 velocity,
                                      GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f, bool staticSmoke = false)
         {
             if (Empire.Universe == null)
@@ -125,7 +125,7 @@ namespace Ship_Game
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {
-                junk[i] = new SpaceJunk(position, source, spawnRadius, scaleMod, staticSmoke);
+                junk[i] = new SpaceJunk(position, velocity, spawnRadius, scaleMod, staticSmoke);
             }
 
             // now lock and add to scene
