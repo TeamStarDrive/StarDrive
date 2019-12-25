@@ -124,15 +124,17 @@ namespace Ship_Game.AI
                 Owner.SubLightAccelerate(elapsedTime, speedLimit);
         }
 
+        // WayPoint move system
         void MoveToWithin1000(float elapsedTime, ShipGoal goal)
         {
             // we cannot give a speed limit here, because thrust will
             // engage warp drive and we would be limiting warp speed (baaaad)
-            ThrustOrWarpToPosCorrected(goal.MovePosition, elapsedTime);
+            Vector2 movePos = goal.MovePosition; // dynamic move position
+            ThrustOrWarpToPos(movePos, elapsedTime);
 
-            float distance = Owner.Center.Distance(goal.MovePosition);
+            float distance = Owner.Center.Distance(movePos);
 
-            // during warp, we need to bail out way earlier
+            // we need to bail out way earlier when warping
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
@@ -251,25 +253,23 @@ namespace Ship_Game.AI
             return prediction;
         }
 
-        internal void ThrustOrWarpToPosCorrected(Vector2 pos, float elapsedTime, float speedLimit = 0f)
-        {
-            ThrustOrWarpToPos(pos, elapsedTime, speedLimit, velocityCorrect: true);
-        }
-
-        void ThrustOrWarpToPosNoCorrections(Vector2 pos, float elapsedTime)
-        {
-            ThrustOrWarpToPos(pos, elapsedTime, 0f, velocityCorrect: false);
-        }
-
         /**
          * Thrusts towards a position and engages StarDrive if needed
+         * Thrust direction will be adjusted according to current velocity,
+         * towards predicted interception point
+         * @param pos Target position where we want to arrive at
+         * @param deltaTime Time elapsed since last frame for Velocity change calculation
          * @param speedLimit Can control the max movement speed (it even caps FTL speed)
          *                   if speedLimit == 0f, then Ship.velocityMaximum is used
          *                   during Warp, velocityMaximum is set to FTLMax
-         * @param velocityCorrect If true, thrust direction will be adjusted
-         *                        according to current velocity, towards predicted interception point
+         * @param warpExitDistance [0] If set to nonzero, ships will exit warp at this distance
+         *                   but only if this is the last WayPoint
          */
-        void ThrustOrWarpToPos(Vector2 pos, float deltaTime, float speedLimit, bool velocityCorrect)
+        internal void ThrustOrWarpToPos(
+            Vector2 pos,
+            float deltaTime,
+            float speedLimit = 0f,
+            float warpExitDistance = 0f)
         {
             if (Owner.EnginesKnockedOut)
                 return;
@@ -282,21 +282,28 @@ namespace Ship_Game.AI
             if (UpdateWarpThrust(deltaTime, actualDiff, distance))
                 return; // WayPoint short-cut
 
-            // if chasing something, and within weapons range
-            if (HasPriorityTarget && distance < Owner.DesiredCombatRange * 0.85f)
+            if (Owner.engineState == Ship.MoveState.Warp)
             {
-                if (Owner.engineState == Ship.MoveState.Warp)
+                // if chasing something, and within weapons range
+                if (HasPriorityTarget && distance < Owner.DesiredCombatRange * 0.85f)
+                {
                     Owner.HyperspaceReturn();
-            }
-            // we are overshooting the target!!
-            else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1500f &&
-                     WayPoints.Count <= 1 && Owner.engineState == Ship.MoveState.Warp)
-            {
-                Owner.HyperspaceReturn();
+                }
+                // we are overshooting the target!!
+                else if (!HasPriorityOrder && !HasPriorityTarget && distance < 1500f &&
+                         WayPoints.Count <= 1)
+                {
+                    Owner.HyperspaceReturn();
+                }
+                // warpExitDistance is set and we are closing in on the target
+                else if (warpExitDistance > 0f && distance < warpExitDistance)
+                {
+                    Owner.HyperspaceReturn();
+                }
             }
 
             // prediction to enhance movement precision
-            Vector2 predictedPoint = velocityCorrect ? PredictThrustPosition(pos) : pos;
+            Vector2 predictedPoint = PredictThrustPosition(pos);
             Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
 
             if (predictionDiff > 0.025f) // do we need to rotate ourselves before thrusting?
@@ -380,7 +387,6 @@ namespace Ship_Game.AI
                 float tooSharp = Math.Max(1f, maxTurn*1.25f);
                 if (angleDiff > tooSharp || angleDiff > (float)Math.PI)
                 {
-                    Log.Info(ConsoleColor.Red, $"TurnWhileWarping TOO SHARP: {angleDiff}rads {angleDiff.ToDegrees()}° Exit Warp.");
                     Owner.HyperspaceReturn(); // Too sharp of a turn. Drop out of warp
                     return false;
                 }
