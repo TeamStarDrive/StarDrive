@@ -278,90 +278,6 @@ namespace Ship_Game.AI
             }
         }
 
-        void FightBrutalWar(KeyValuePair<Empire, Relationship> r)
-        {
-            var invasionTargets = new Array<Planet>();
-            Vector2 ownerCenter = OwnerEmpire.GetWeightedCenter();
-            foreach (Planet p in OwnerEmpire.GetPlanets())
-            {
-                foreach (Planet toCheck in p.ParentSystem.PlanetList)
-                {
-                    if (toCheck.Owner == null || toCheck.Owner == OwnerEmpire || !toCheck.Owner.isFaction &&
-                        !OwnerEmpire.GetRelations(toCheck.Owner).AtWar)
-                    {
-                        continue;
-                    }
-                    invasionTargets.Add(toCheck);
-                }
-            }
-
-            if (invasionTargets.Count > 0)
-            {
-                Planet target = invasionTargets.FindMin(distance => distance.Center.SqDist(ownerCenter));
-                TryAssaultPlanet(target);
-            }
-
-            var planetsWeAreInvading = new HashSet<Planet>();
-
-            using (TaskList.AcquireReadLock())
-            {
-                foreach (MilitaryTask task in TaskList)
-                {
-                    if (task.type == MilitaryTask.TaskType.AssaultPlanet && task.TargetPlanet.Owner != null && task.TargetPlanet.Owner == r.Key)
-                        planetsWeAreInvading.Add(task.TargetPlanet);
-                }
-            }
-
-            if (planetsWeAreInvading.Count < 3 && OwnerEmpire.GetPlanets().Count > 0)
-            {
-                Vector2 empireCenter = FindAveragePosition(OwnerEmpire);
-                Planet[] planetsByDistance = r.Key.GetPlanets().Sorted(p => empireCenter.SqDist(p.Center));
-                foreach (Planet p in planetsByDistance)
-                {
-                    if (planetsWeAreInvading.Count >= 3)
-                        break;
-
-                    if (planetsWeAreInvading.Add(p)) // true: planet doesn't exist yet
-                        TaskList.Add(new MilitaryTask(p, OwnerEmpire));
-                }
-            }
-        }
-
-        private void FightDefaultWar(KeyValuePair<Empire, Relationship> r, int warWeight)
-        {
-            foreach (MilitaryTask militaryTask in TaskList)
-            {
-                if (militaryTask.type == MilitaryTask.TaskType.AssaultPlanet)
-                    warWeight--;
-                if (warWeight < 0)
-                    return;
-            }
-
-            WarTargets(r, warWeight);
-        }
-
-        void WarTargets(KeyValuePair<Empire, Relationship> r, int warWeight)
-        {
-            var warType = r.Value.ActiveWar?.WarType ?? r.Value.PreparingForWarType;
-            switch (warType)
-            {
-                case WarType.BorderConflict:
-                    AssignTargets(r, warWeight);
-                    break;
-                case WarType.ImperialistWar:
-                    AssignTargets(r, warWeight);
-                    break;
-                case WarType.GenocidalWar:
-                    break;
-                case WarType.DefensiveWar:
-                    break;
-                case WarType.SkirmishWar:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
         public void GetWarDeclaredOnUs(Empire warDeclarant, WarType wt)
         {
             Relationship relations = OwnerEmpire.GetRelations(warDeclarant);
@@ -413,132 +329,18 @@ namespace Ship_Game.AI
             }
         }
 
-        IEnumerable<KeyValuePair<Empire, Relationship>> EmpireAttackWeights()
-        {
-            return OwnerEmpire.AllRelations.OrderByDescending(anger =>
-            {
-                if (!anger.Value.Known) return 0;
-                float angerMod = anger.Key.GetWeightedCenter().Distance(OwnerEmpire.GetWeightedCenter());
-                angerMod = (Empire.Universe.UniverseSize * 2 - angerMod) / (Empire.Universe.UniverseSize * 2);
-                if (anger.Value.AtWar)
-                    angerMod *= 100;
-                angerMod += anger.Key.GetPlanets().Any(p => IsInOurAOs(p.Center)) ? 1 : 0;
-                if (anger.Value.Treaty_Trade)
-                    angerMod *= .5f;
-                if (anger.Value.Treaty_Alliance)
-                    angerMod *= .5f;
-                foreach (var s in OwnerEmpire.GetOwnedSystems())
-                {
-                    if (s.OwnerList.Contains(anger.Key))
-                    {
-                        angerMod *= 2;
-                        break;
-                    }
-                }
-                //switching to godSight. 
-                float killableMod = 1 + (int)OwnerEmpire.CurrentMilitaryStrength / (anger.Key.CurrentMilitaryStrength + 1);//    (ThreatMatrix.StrengthOfEmpire(anger.Key) +1);
-                return (anger.Value.TotalAnger + 1) * angerMod * killableMod;
-            }).ToArray(); 
-        }
 
         private void RunWarPlanner()
         {
-            if (OwnerEmpire.isPlayer)
+            if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
 
-            int warWeight = (int)Math.Ceiling(1 + 5 * (OwnerEmpire.Research.Strategy.MilitaryRatio + OwnerEmpire.Research.Strategy.ExpansionRatio));
-            var weightedTargets = EmpireAttackWeights();
-            foreach (KeyValuePair<Empire, Relationship> kv in weightedTargets)
+            foreach(var kv in OwnerEmpire.AllRelations.Sorted
+                (r=> (int?)r.Value.ActiveWar?.GetWarScoreState() ?? (int)WarState.NotApplicable))
             {
-                if (warWeight <= 0) break;
-                if (!kv.Value.Known) continue;
-                if (kv.Key.data.Defeated) continue;
-                if (!OwnerEmpire.IsEmpireAttackable(kv.Key)) continue;
-                if (kv.Key.isFaction)
-                {
-                    foreach (var planet in kv.Key.GetPlanets())
-                    {
-                        if (!planet.ParentSystem.OwnerList.Contains(OwnerEmpire) && !IsInOurAOs(planet.Center)) continue;
-                        FightBrutalWar(kv);
-                        //kv.Value.AtWar = false;
-                        break;
-                    }
-                    continue;
-                }
-                warWeight--;
-                if (kv.Value.AtWar)
-                {
-                    FightDefaultWar(kv, warWeight);
-                    continue;
-                }
-
-                if (!kv.Value.PreparingForWar) continue;
-                WarTargets(kv, warWeight);
-                return;
+                var relation = kv.Value;
+                var warState = relation.ActiveWar?.ConductWar() ?? WarState.NotApplicable;
             }
-        }
-
-        public bool IsAlreadyAssaultingPlanet(Planet planet)
-        {
-            using (TaskList.AcquireReadLock())
-                return TaskList.Any(task => task.TargetPlanet == planet 
-                                         && task.type == MilitaryTask.TaskType.AssaultPlanet);
-        }
-
-        void TryAssaultPlanet(Planet planet)
-        {
-            if (!IsAlreadyAssaultingPlanet(planet))
-                TaskList.Add(new MilitaryTask(planet, OwnerEmpire));
-        }
-
-        void AssignTargets(KeyValuePair<Empire, Relationship> kv, float warWeight, WarType warType = WarType.BorderConflict)
-        {
-            if (warWeight <= 0)
-                return;
-
-            Planet[] priorityTargets = PlanetTargetPriority(kv.Key, warType);
-            if (priorityTargets.Length == 0)
-                return;
-
-            // so what this is trying to do here is take the best system and attack
-            // all planets in that system to try and completely flip the system.
-
-            SolarSystem targetSystem = priorityTargets[0].ParentSystem;
-            Planet[] targetPlanetsInSystem = priorityTargets.Filter(p => p.ParentSystem == targetSystem);
-
-            foreach (Planet planet in targetPlanetsInSystem)
-            {
-                TryAssaultPlanet(planet);
-                if (warWeight-- <= 0)
-                    break;
-            }
-        }
-
-        private Planet[] PlanetTargetPriority(Empire empire, WarType warType)
-        {
-            switch (warType)
-            {
-                case WarType.BorderConflict:
-                {
-                    var planets = new Array<Planet>();
-                    var targetSystems = OwnerEmpire.GetBorderSystems(empire);
-                    foreach (var s in targetSystems)
-                        foreach (var p in s.PlanetList)
-                        {
-                            if (p.Owner == empire)
-                                planets.Add(p);
-                        }
-                    return planets.ToArray();
-                }
-            }
-            
-            return empire.GetPlanets()
-                .OrderBy(insystem => !insystem.ParentSystem.OwnerList.Contains(OwnerEmpire))
-                .ThenBy(planet => GetDistanceFromOurAO(planet) / 150000f)
-                .ThenByDescending(planet =>
-                    empire.GetEmpireAI().DefensiveCoordinator.DefenseDict.TryGetValue(planet.ParentSystem, out SystemCommander scom)
-                    ? scom.PlanetValues[planet].Value : 0)
-                .ToArray();
         }
     }
 }

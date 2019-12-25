@@ -351,11 +351,12 @@ namespace Ship_Game
             return null;
         }
 
-        public int GetUnusedKeyForFleet()
+        public int CreateFleetKey()
         {
-            int key = 0;
-            while (FleetsDict.ContainsKey(key))
+            int key = 1;
+            while (EmpireAI.UsedFleets.Contains(key))
                 ++key;
+            EmpireAI.UsedFleets.Add(key);
             return key;
         }
 
@@ -580,6 +581,12 @@ namespace Ship_Game
             return solarSystems.ToArray();
         }
 
+        public void RemovePlanet(Planet planet, Empire attacker)
+        {
+            GetRelations(attacker).LostAColony(planet, attacker);
+            RemovePlanet(planet);
+        }
+
         public void RemovePlanet(Planet planet)
         {
             OwnedPlanets.Remove(planet);
@@ -591,6 +598,12 @@ namespace Ship_Game
         {
             OwnedPlanets.Clear();
             OwnedSolarSystems.Clear();
+        }
+
+        public void AddPlanet(Planet planet, Empire loser)
+        {
+            GetRelations(loser).WonAColony(planet, loser);
+            AddPlanet(planet);
         }
 
         public void AddPlanet(Planet planet)
@@ -2582,6 +2595,17 @@ namespace Ship_Game
 
             ship.AI.ClearOrders();
             ship.ClearFleet();
+        }
+
+        public void RemoveShipFromAOs(Ship ship)
+        {
+            Array<AO> aos = GetEmpireAI().AreasOfOperations;
+            for (int x = 0; x < aos.Count; x++)
+            {
+                var ao = aos[x];
+                if (ao.RemoveShip(ship))
+                    break;
+            }
         }
 
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)

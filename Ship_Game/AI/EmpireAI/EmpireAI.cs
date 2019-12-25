@@ -173,11 +173,10 @@ namespace Ship_Game.AI
             
             float baseDefensePct = 0.1f;
             baseDefensePct = baseDefensePct + 0.15f * numWars;
-            if((toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0 
-                || toAdd.WarpThrust <= 0f || toAdd.GetStrength() < toAdd.BaseStrength || !toAdd.BaseCanWarp )
-                && !OwnerEmpire.ForcePoolContains(toAdd))
+            if(toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0 
+                                                            || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
             {
-                OwnerEmpire.GetForcePool().Add(toAdd);
+                OwnerEmpire.GetForcePool().AddUnique(toAdd);
                 return;
             }
 
@@ -223,12 +222,32 @@ namespace Ship_Game.AI
             return Vector2.Distance(p.Center, sortedList.First().Center);
         }
 
-        public AO InOurAOs(Vector2 location)
+        public AO FindClosestAOTo(Vector2 position)
+        {
+            var aos = AreasOfOperations;
+            if (aos.Count == 0)
+            {
+                Log.Info($"{OwnerEmpire.Name} has no areas of operation");
+                return null;
+            }
+
+            AO closestAO = aos.FindMin(ao => ao.Center.SqDist(position));
+            return closestAO;
+        }
+
+        public float DistanceToClosestAO(Vector2 position)
+        {
+            AO ao = FindClosestAOTo(position);
+            if (ao == null) return OwnerEmpire.GetWeightedCenter().Distance(position);
+            return ao.Center.Distance(position);
+        }
+
+        public AO AoContainingPosition(Vector2 location)
         {
             return AreasOfOperations.Find(ao => location.InRadius(ao.Center, ao.Radius));
         }
 
-        public bool IsInOurAOs(Vector2 location) => InOurAOs(location) != null;
+        public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
         
         public void InitialzeAOsFromSave(UniverseData data)
         {

@@ -48,7 +48,7 @@ namespace Ship_Game.AI
             ship.AI.SystemToDefendGuid = Guid.Empty;
             ship.AI.HasPriorityOrder   = false;
             DefenseDeficit            -= ship.GetStrength();
-            DefensiveForcePool.Add(ship);
+            DefensiveForcePool.AddUnique(ship);
         }
 
         //added by gremlin parallel forcepool

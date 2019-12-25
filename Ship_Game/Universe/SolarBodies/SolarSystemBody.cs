@@ -56,7 +56,7 @@ namespace Ship_Game
             DamageTroops(softDamage);
             DamageBuildings(hardDamage);
 
-            Surface.ApplyBombEnvEffects(popKilled); // Fertility and pop loss
+            Surface.ApplyBombEnvEffects(popKilled, bomb.Owner); // Fertility and pop loss
         }
 
         private void DamageTile(int hardDamage)
@@ -431,17 +431,12 @@ namespace Ship_Game
         {
             var thisPlanet = (Planet)this;
 
-            if (newOwner.TryGetRelations(Owner, out Relationship rel) && rel.AtWar && rel.ActiveWar != null)
-                ++rel.ActiveWar.ColoniesWon;
-            if (Owner.TryGetRelations(newOwner, out Relationship rel2) && rel2.AtWar && rel2.ActiveWar != null)
-                ++rel2.ActiveWar.ColoniesLost;
-
             ConstructionQueue.Clear();
             thisPlanet.UpdateTerraformPoints(0);
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
 
-            Owner.RemovePlanet(thisPlanet);
+            Owner.RemovePlanet(thisPlanet, newOwner);
             if (newOwner.isPlayer && Owner == EmpireManager.Cordrazine)
                 GlobalStats.IncrementCordrazineCapture();
 
@@ -499,9 +494,9 @@ namespace Ship_Game
                 kv.Value.ChangeLoyalty(newOwner);             
                 Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
             }
+            newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
             TurnsSinceTurnover = 0;
-            Owner.AddPlanet(thisPlanet);
             ConstructionQueue.Clear();
             ParentSystem.OwnerList.Clear();
 
