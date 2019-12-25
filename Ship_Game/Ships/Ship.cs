@@ -87,6 +87,8 @@ namespace Ship_Game.Ships
         public float OrdinanceMax;
         public ShipAI AI { get; private set; }
         public float Speed; // current speed limit; reset every update
+        // Velocity magnitude (scalar), always absolute
+        public float CurrentVelocity => Velocity.Length();
         public float Thrust;
         public float velocityMaximum; // maximum speed
         public double shield_percent;
