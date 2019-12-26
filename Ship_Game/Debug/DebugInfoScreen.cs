@@ -184,7 +184,7 @@ namespace Ship_Game.Debug
             if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                ship.Speed = speedLimiter * ship.velocityMaximum;
+                ship.SpeedLimit = speedLimiter * ship.VelocityMaximum;
             }
 
             foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
@@ -435,7 +435,7 @@ namespace Ship_Game.Debug
                 Ship ship = Screen.SelectedShip;
 
                 DrawString($"Ship {ship.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
-                DrawString($"Ship velocity: {(int)ship.Velocity.Length()}  speedLimit: {(int)ship.Speed}  {ship.WarpState}");
+                DrawString($"Ship velocity: {(int)ship.Velocity.Length()}  speedLimit: {(int)ship.SpeedLimit}  {ship.WarpState}");
                 VisualizeShipOrderQueue(ship);
                 DrawWeaponArcs(ship);
 
@@ -482,7 +482,7 @@ namespace Ship_Game.Debug
                     DrawString(shipTarget.Active ? "Active" : "Error - Active");
                 }
                 DrawString($"Strength: {ship.BaseStrength}");
-                DrawString($"VelocityMax: {ship.velocityMaximum}  FTLMax: {ship.MaxFTLSpeed}");
+                DrawString($"VelocityMax: {ship.VelocityMaximum}  FTLMax: {ship.MaxFTLSpeed}");
                 DrawString($"HP: {ship.Health} / {ship.HealthMax}");
                 DrawString("Ship Mass: " + ship.Mass);
                 DrawString("EMP Damage: " + ship.EMPDamage + " / " + ship.EmpTolerance + " :Recovery: " + ship.EmpRecovery);

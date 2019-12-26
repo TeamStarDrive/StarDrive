@@ -54,7 +54,7 @@ namespace Ship_Game.AI
             LargeAttackWeight  = mains > 2 ? 3 : fireRate > 0.5 ? 2 : 0;
             SmallAttackWeight  = mains == 0 && fireRate < .1 && pd > 1 ? 3 : 0;
             MediumAttackWeight = mains < 3 && fireRate > .1 ? 3 : 0;
-            if (ship.loyalty.isFaction || ship.velocityMaximum > 500)
+            if (ship.loyalty.isFaction || ship.VelocityMaximum > 500)
                 VultureWeight  = 2;
             if (ship.loyalty.isFaction)
                 PirateWeight   = 3;
@@ -103,11 +103,11 @@ namespace Ship_Game.AI
                                                    Vector2.Distance(Owner.Center, nearbyShip.Center))
                                                   / PreferredEngagementDistance));
             }
-            else if (rangeToTarget > PreferredEngagementDistance + Owner.velocityMaximum * 5)
+            else if (rangeToTarget > PreferredEngagementDistance + Owner.VelocityMaximum * 5)
             {
                 weight += weight - 2.5f * (rangeToTarget /
                                            (PreferredEngagementDistance +
-                                            Owner.velocityMaximum * 5));
+                                            Owner.VelocityMaximum * 5));
             }
             if (Owner.Mothership != null)
             {

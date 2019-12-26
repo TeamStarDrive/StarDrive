@@ -310,7 +310,7 @@ namespace Ship_Game.AI
 
                     if (distanceToTarget >= 5500f)
                     {
-                        float speedLimit = Owner.Speed.Clamped(distanceToTarget, Owner.velocityMaximum);
+                        float speedLimit = Owner.SpeedLimit.Clamped(distanceToTarget, Owner.VelocityMaximum);
                         ThrustOrWarpToPos(MovePosition, elapsedTime, speedLimit);
                     }
                     else
@@ -629,11 +629,11 @@ namespace Ship_Game.AI
             var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, goal.Direction);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
             float supplyShipVelocity   = EscortTarget.CurrentVelocity;
-            float escortVelocity       = Owner.velocityMaximum;
+            float escortVelocity       = Owner.VelocityMaximum;
             if (distanceToEscortSpot < 50)
                 escortVelocity = distanceToEscortSpot;
             else if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
-                escortVelocity = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
+                escortVelocity = distanceToEscortSpot / 2000 * Owner.VelocityMaximum + supplyShipVelocity + 25;
 
             ThrustOrWarpToPos(escortVector, elapsedTime, escortVelocity);
 

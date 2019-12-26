@@ -31,8 +31,7 @@ namespace Ship_Game.AI
 
         public void HoldPosition()
         {
-            if (Owner.isSpooling || Owner.engineState == Ship.MoveState.Warp)
-                Owner.HyperspaceReturn();
+            Owner.HyperspaceReturn();
             State = AIState.HoldPosition;
             CombatState = CombatState.HoldPosition;
             Owner.isThrusting = false;
@@ -80,7 +79,7 @@ namespace Ship_Game.AI
 
             if (RotateToDirection(direction, elapsedTime, 0.15f))
             {
-                if (speedLimit <= 0) speedLimit = Owner.Speed;
+                if (speedLimit <= 0) speedLimit = Owner.SpeedLimit;
                 speedLimit *= 0.75f; // uh-oh we're going too fast
             }
             Owner.SubLightAccelerate(elapsedTime, speedLimit);
@@ -95,7 +94,7 @@ namespace Ship_Game.AI
                 Log.Error($"SubLightMoveTowardsPosition: invalid position {position}");
 
             if (speedLimit <= 0f)
-                speedLimit = Owner.Speed;
+                speedLimit = Owner.SpeedLimit;
 
             if (autoSlowDown)
             {
@@ -192,7 +191,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!RotateToDirection(Owner.Velocity.Normalized(), elapsedTime, 0.1f))
+            if (!RotateToDirection(Owner.VelocityDirection, elapsedTime, 0.1f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
@@ -229,7 +228,7 @@ namespace Ship_Game.AI
             if (Owner.Velocity.AlmostZero())
                 return true;
 
-            float deceleration = Owner.velocityMaximum * elapsedTime;
+            float deceleration = Owner.VelocityMaximum * elapsedTime;
             if (Owner.CurrentVelocity < deceleration) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
@@ -341,10 +340,12 @@ namespace Ship_Game.AI
         float EstimateMaxTurn(float distance)
         {
             float timeToTarget = distance / (Owner.MaxFTLSpeed);
-            float maxTurn = Owner.rotationRadiansPerSecond * timeToTarget;
+            float maxTurn = Owner.RotationRadiansPerSecond * timeToTarget;
             maxTurn *= 0.4f; // ships can't really turn as numbers would predict...
             // and we don't allow over certain degrees either
-            return maxTurn.Clamped(5f.ToRadians(), 60f.ToRadians());
+            const float minAngle = 5f  * RadMath.DegreeToRadian;
+            const float maxAngle = 60f * RadMath.DegreeToRadian;
+            return maxTurn.Clamped(minAngle, maxAngle);
         }
 
         bool UpdateWarpThrust(float elapsedTime, float angleDiff, float distance)

@@ -65,6 +65,9 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
         [XmlIgnore][JsonIgnore] public Vector3 Direction3D => Rotation.RadiansToDirection3D();
 
+        // Current direction of the Velocity vector, or Vector2.Zero if Velocity is Zero
+        [XmlIgnore][JsonIgnore] public Vector2 VelocityDirection => Velocity.Normalized();
+
         // gets/set the Rotation in Degrees; Properly normalizes input degrees to [0; +2PI]
         [XmlIgnore][JsonIgnore] public float RotationDegrees
         {
