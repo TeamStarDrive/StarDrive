@@ -122,6 +122,17 @@ namespace Ship_Game.Ships
             return (Thrust / Mass) * 0.5f;
         }
 
+        public float GetMinDecelerationDistance(float velocity)
+        {
+            float a = GetThrustAcceleration() * DecelerationRate;
+
+            // general formula for stopping distance:
+            // https://www.johannes-strommer.com/diverses/pages-in-english/stopping-distance-acceleration-speed/#formel
+            // s = v^2 / 2a
+            float distance = (velocity*velocity) / (2*a);
+            return distance;
+        }
+
         public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
         {
             if (engineState == MoveState.Warp)
@@ -151,14 +162,27 @@ namespace Ship_Game.Ships
             else
             {
                 if (thrustDirection >= 0f) // accelerating
+                {
                     Velocity += Direction * acceleration;
+                }
                 else // decelerating
+                {
                     Velocity -= Direction * acceleration * DecelerationRate; 
+                }
                 
                 // cap the speed immediately so we never go past the speed limit
                 if (Velocity.Length() > actualSpeedLimit)
+                {
                     Velocity = Velocity.Normalized() * actualSpeedLimit;
+                }
             }
+        }
+
+        public void Decelerate(float elapsedTime)
+        {
+            float acceleration = elapsedTime * GetThrustAcceleration();
+            // we don't know which direction we were thrusting before, so simply negate the velocity vector
+            Velocity -= Velocity.Normalized() * acceleration * DecelerationRate;
         }
 
         // simulates navigational thrusting to remove sideways or reverse travel

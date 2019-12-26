@@ -160,6 +160,7 @@ namespace Ship_Game.AI
             {
                 CurrentCombatStance = combatState;
                 CombatTactic = null;
+                Owner.shipStatusChanged = true; // FIX: force DesiredCombatRange update
             }
 
             if (CombatTactic == null)

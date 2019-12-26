@@ -22,12 +22,11 @@ namespace Ship_Game.AI.CombatTactics
         // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
-            float maxDistance = Owner.DesiredCombatRange;
+            float maxDistance = Owner.DesiredCombatRange - ((int)Owner.Radius).RoundUpToMultipleOf(10);
             float minDistance = Math.Max(Owner.DesiredCombatRange - 500f, Owner.DesiredCombatRange * 0.9f);
 
             // in general, arty stance is what you use for long range ships.
             // This is fail safe distance logic for large ships with super short range going up against other large ships.
-
             Ship target = AI.Target;
             float collisionRange = Owner.Radius + target.Radius;
             if (minDistance <= collisionRange)       minDistance = collisionRange;
@@ -65,10 +64,11 @@ namespace Ship_Game.AI.CombatTactics
                     // stop, we are close enough.
                     AI.ReverseThrustUntilStopped(elapsedTime);
                 }
-                else 
+                else if (distanceToTarget < (maxDistance - 150f))
                 {
                     // we are too close, back away.
-                    Owner.SubLightAccelerate(elapsedTime, direction: -1f);
+                    float distanceToBackPedal = (maxDistance - 150f) - distanceToTarget;
+                    Owner.SubLightAccelerate(elapsedTime, speedLimit: distanceToBackPedal, direction: -1f);
                 }
             }
         }
