@@ -98,7 +98,7 @@ namespace Ship_Game.Ships
             IsSpooling = false;
             VelocityMaximum = MaxSTLSpeed;
             // feature: exit from hyperspace at ridiculous speeds
-            Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed*RadMath.PI, MaxSubLightSpeed);
+            Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
             SpeedLimit = VelocityMaximum;
         }
 
