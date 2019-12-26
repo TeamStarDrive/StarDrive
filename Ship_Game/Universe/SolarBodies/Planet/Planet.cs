@@ -409,7 +409,7 @@ namespace Ship_Game
             else
             {
                 defenseShip.Level = 3;
-                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.Speed;
+                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.SpeedLimit;
                 empire.AddMoney(-defenseShip.GetCost(Owner) / 10);
             }
         }

@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
             {
                 Position = TetheredTo.Center + TetherOffset;
                 Center   = TetheredTo.Center + TetherOffset;
-                velocityMaximum = 0;
+                VelocityMaximum = 0;
             }
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
@@ -97,8 +97,10 @@ namespace Ship_Game.Ships
                 isTurning = true;
             }
 
-            if (!isSpooling && Afterburner.IsPlaying)
+            if (!IsSpooling && Afterburner.IsPlaying)
+            {
                 Afterburner.Stop();
+            }
 
             if (elapsedTime > 0f)
             {
@@ -126,7 +128,7 @@ namespace Ship_Game.Ships
             }
 
             Position += Velocity * elapsedTime;
-            Center   += Velocity * elapsedTime;
+            Center = Position;
             UpdateShipStatus(elapsedTime);
             UpdateEnginesAndVelocity(elapsedTime);
 
@@ -187,7 +189,7 @@ namespace Ship_Game.Ships
         void UpdateThruster(Thruster thruster, Color thrust0, Color thrust1)
         {
             thruster.UpdatePosition();
-            float velocityPercent = Velocity.Length() / velocityMaximum;
+            float velocityPercent = Velocity.Length() / VelocityMaximum;
             if (isThrusting)
             {
                 if (engineState == MoveState.Warp)
@@ -234,8 +236,8 @@ namespace Ship_Game.Ships
             if (Velocity.Length() < 5f)
                 Velocity = RandomMath.Vector2D(200);
 
-            if (Velocity.Length() > velocityMaximum)
-                Velocity = Velocity.Normalized() * velocityMaximum;
+            if (Velocity.Length() > VelocityMaximum)
+                Velocity = Velocity.Normalized() * VelocityMaximum;
 
             Vector2 deltaMove = Velocity * elapsedTime;
             Position += deltaMove;

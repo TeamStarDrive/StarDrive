@@ -460,12 +460,12 @@ namespace Ship_Game
             if (Ships.Count == 0)
                 return;
 
-            float slowestSpeed = Ships[0].velocityMaximum;
+            float slowestSpeed = Ships[0].VelocityMaximum;
             for (int i = 1; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
                 if (!ship.EnginesKnockedOut)
-                    slowestSpeed = Math.Min(ship.velocityMaximum, slowestSpeed);
+                    slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
             }
             Speed = Math.Max(200, (float)Math.Round(slowestSpeed));
         }

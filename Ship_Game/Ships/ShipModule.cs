@@ -840,9 +840,9 @@ namespace Ship_Game.Ships
                 hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
-                if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+                hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.SpeedLimit + Parent.Velocity;
+                if (hangarShip.Velocity.Length() > hangarShip.VelocityMaximum)
+                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.SpeedLimit;
 
                 HangarShipGuid = hangarShip.guid;
                 hangarTimer = hangarTimerConstant;
@@ -877,9 +877,9 @@ namespace Ship_Game.Ships
             }
 
             hangarShip.DoEscort(Parent);
-            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
-            if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit + Parent.Velocity;
+            if (hangarShip.Velocity.Length() > hangarShip.VelocityMaximum)
+                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.SpeedLimit;
 
             hangarShip.Mothership = Parent;
             HangarShipGuid = GetHangarShip().guid;
