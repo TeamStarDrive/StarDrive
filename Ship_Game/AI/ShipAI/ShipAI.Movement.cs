@@ -105,7 +105,7 @@ namespace Ship_Game.AI
                     return;
                 }
                 if (distance < speedLimit)
-                    speedLimit = distance;
+                    speedLimit = distance*0.5f;
             }
 
             Vector2 predictedPoint;
@@ -157,8 +157,11 @@ namespace Ship_Game.AI
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
-            if (distance <= 75f)
+            if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
+                Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
+                    $"STOPPING",
+                    Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -169,7 +172,6 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float speedLimit = goal.SpeedLimit.Clamped(5f, distance);
             if (distance > Owner.Radius)
             {
                 // prediction to enhance movement precision
@@ -177,9 +179,31 @@ namespace Ship_Game.AI
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
             }
 
-            if (!RotateToDirection(direction, elapsedTime, 0.05f))
+            bool isFacingTarget = !RotateToDirection(direction, elapsedTime, 0.05f);
+
+            float vel = (float)Math.Round(Owner.CurrentVelocity + 10f);
+            float stoppingDistance = Owner.GetMinDecelerationDistance(vel);
+            if (distance <= stoppingDistance*2f)
             {
-                Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                ReverseThrustUntilStopped(elapsedTime);
+                Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
+                    $"Reverse {distance:0} <= {stoppingDistance:0} ",
+                    Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
+            }
+            else if (isFacingTarget)
+            {
+                if (vel < 25f || distance > stoppingDistance)
+                {
+                    float speedLimit = (distance * 0.4f);
+                    if (goal.SpeedLimit > 0f)
+                        speedLimit = Math.Max(speedLimit, goal.SpeedLimit);
+                    speedLimit = Math.Max(speedLimit, 25f);
+
+                    Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                    Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
+                        $"Accelerate {distance:0}  {speedLimit:0} ",
+                        Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
+                }
             }
         }
 
@@ -235,7 +259,7 @@ namespace Ship_Game.AI
                 return true; // stopped
             }
 
-            Owner.SubLightAccelerate(elapsedTime, direction: -1f);
+            Owner.Decelerate(elapsedTime);
             return false;
         }
 
