@@ -29,8 +29,6 @@ namespace Ship_Game.Ships
         public float SensorRange = 20000f;
         public float yBankAmount = 0.007f;
         public float MaxBank     = 0.5235988f;
-        public Vector2 Acceleration { get; private set; }
-        Vector2 PreviousVelocity; // used for calculating Acceleration
 
         public Vector2 projectedPosition;
         readonly Array<Thruster> ThrusterList = new Array<Thruster>();
@@ -76,7 +74,6 @@ namespace Ship_Game.Ships
         public bool ManualHangarOverride;
         public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
-        public bool isThrusting;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
         public Empire loyalty;

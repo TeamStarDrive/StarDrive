@@ -97,7 +97,7 @@ namespace Ship_Game.AI.ShipMovement
             if (Owner.Center.InRadius(OrbitPos, radius * 1.2f))
             {
                 AI.RotateTowardsPosition(OrbitPos, elapsedTime, 0.01f);
-                Owner.SubLightAccelerate(elapsedTime, precisionSpeed);
+                Owner.SubLightAccelerate(speedLimit: precisionSpeed);
                 Owner.RestoreYBankRotation();
             }
             else // we are still not there yet, so find a meaningful orbit position
