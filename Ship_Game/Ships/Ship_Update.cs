@@ -127,8 +127,6 @@ namespace Ship_Game.Ships
                 }
             }
 
-            Position += Velocity * elapsedTime;
-            Center = Position;
             UpdateShipStatus(elapsedTime);
             UpdateEnginesAndVelocity(elapsedTime);
 
@@ -140,6 +138,7 @@ namespace Ship_Game.Ships
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);
+            ResetFrameThrustState();
         }
 
         void ExploreCurrentSystem(float elapsedTime)
@@ -182,35 +181,34 @@ namespace Ship_Game.Ships
 
         void UpdateThrusters()
         {
+            Color thrust0 = loyalty.ThrustColor0;
+            Color thrust1 = loyalty.ThrustColor1;
             foreach (Thruster thruster in ThrusterList)
-                UpdateThruster(thruster, loyalty.ThrustColor0, loyalty.ThrustColor1);
-        }
-
-        void UpdateThruster(Thruster thruster, Color thrust0, Color thrust1)
-        {
-            thruster.UpdatePosition();
-            float velocityPercent = Velocity.Length() / VelocityMaximum;
-            if (isThrusting)
             {
-                if (engineState == MoveState.Warp)
+                thruster.UpdatePosition();
+                float velocityPercent = Velocity.Length() / VelocityMaximum;
+                if (ThrustThisFrame != 0)
                 {
-                    if (thruster.heat < velocityPercent)
-                        thruster.heat += 0.06f;
-                    thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
+                    if (engineState == MoveState.Warp)
+                    {
+                        if (thruster.heat < velocityPercent)
+                            thruster.heat += 0.06f;
+                        thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
+                    }
+                    else
+                    {
+                        if (thruster.heat < velocityPercent)
+                            thruster.heat += 0.06f;
+                        if (thruster.heat > 0.600000023841858)
+                            thruster.heat = 0.6f;
+                        thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
+                    }
                 }
                 else
                 {
-                    if (thruster.heat < velocityPercent)
-                        thruster.heat += 0.06f;
-                    if (thruster.heat > 0.600000023841858)
-                        thruster.heat = 0.6f;
-                    thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
+                    thruster.heat = 0.01f;
+                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
-            }
-            else
-            {
-                thruster.heat = 0.01f;
-                thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
             }
         }
 

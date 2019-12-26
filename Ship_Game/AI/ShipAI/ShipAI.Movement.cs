@@ -34,7 +34,6 @@ namespace Ship_Game.AI
             Owner.HyperspaceReturn();
             State = AIState.HoldPosition;
             CombatState = CombatState.HoldPosition;
-            Owner.isThrusting = false;
         }
 
         internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
@@ -82,7 +81,7 @@ namespace Ship_Game.AI
                 if (speedLimit <= 0) speedLimit = Owner.SpeedLimit;
                 speedLimit *= 0.75f; // uh-oh we're going too fast
             }
-            Owner.SubLightAccelerate(elapsedTime, speedLimit);
+            Owner.SubLightAccelerate(speedLimit: speedLimit);
         }
 
         internal void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
@@ -120,7 +119,7 @@ namespace Ship_Game.AI
             }
 
             if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
-                Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                Owner.SubLightAccelerate(speedLimit: speedLimit);
         }
 
         // WayPoint move system
@@ -199,7 +198,7 @@ namespace Ship_Game.AI
                         speedLimit = Math.Max(speedLimit, goal.SpeedLimit);
                     speedLimit = Math.Max(speedLimit, 25f);
 
-                    Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                    Owner.SubLightAccelerate(speedLimit: speedLimit);
                     Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
                         $"Accelerate {distance:0}  {speedLimit:0} ",
                         Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
@@ -259,7 +258,7 @@ namespace Ship_Game.AI
                 return true; // stopped
             }
 
-            Owner.Decelerate(elapsedTime);
+            Owner.Decelerate();
             return false;
         }
 
@@ -343,7 +342,7 @@ namespace Ship_Game.AI
                     if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
                 }
-                Owner.SubLightAccelerate(deltaTime, speedLimit);
+                Owner.SubLightAccelerate(speedLimit: speedLimit);
             }
             else // In a fleet
             {
@@ -357,7 +356,7 @@ namespace Ship_Game.AI
                 }
 
                 //speedLimit = FormationWarpSpeed(speedLimit);
-                Owner.SubLightAccelerate(deltaTime, speedLimit);
+                Owner.SubLightAccelerate(speedLimit: speedLimit);
             }
         }
 

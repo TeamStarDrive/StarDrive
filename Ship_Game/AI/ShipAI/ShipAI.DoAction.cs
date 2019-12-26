@@ -310,8 +310,7 @@ namespace Ship_Game.AI
 
                     if (distanceToTarget >= 5500f)
                     {
-                        float speedLimit = Owner.SpeedLimit.Clamped(distanceToTarget, Owner.VelocityMaximum);
-                        ThrustOrWarpToPos(MovePosition, elapsedTime, speedLimit);
+                        ThrustOrWarpToPos(MovePosition, elapsedTime, distanceToTarget);
                     }
                     else
                     {

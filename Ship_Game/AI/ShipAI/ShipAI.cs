@@ -154,7 +154,6 @@ namespace Ship_Game.AI
             if (State == AIState.ManualControl)
                 return;
 
-            Owner.isThrusting = false;
             Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 

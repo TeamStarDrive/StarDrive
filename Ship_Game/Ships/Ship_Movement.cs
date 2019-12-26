@@ -9,13 +9,25 @@ namespace Ship_Game.Ships
         public float MaxFTLSpeed;
         public float MaxSTLSpeed;
         
-        public float SpeedLimit; // current speed limit; reset every update
-        // Velocity magnitude (scalar), always absolute
-        public float CurrentVelocity => Velocity.Length();
+        // default speed limit; reset every update
+        public float SpeedLimit;
         public float VelocityMaximum; // maximum velocity magnitude
         public float Thrust;
         public float TurnThrust;
         public float RotationRadiansPerSecond;
+
+        // Velocity magnitude (scalar), always absolute
+        public float CurrentVelocity => Velocity.Length();
+
+        // we need to store the applied thrust for correct
+        // VelocityVerlet integration
+        // > 0: forward/acceleration
+        // < 0: reverse/deceleration
+        int ThrustThisFrame;
+        float ThrustSpeedLimitThisFrame;
+
+        // this is an important variable for hi-precision impact predictor
+        public Vector2 Acceleration { get; private set; }
 
         const float DecelerationRate = 0.5f; // Reverse thrusters work at 50% total engine thrust
         const float SASThrusterPower = 0.25f; // Stability Assist thrusters work at 25% total engine thrust
@@ -96,32 +108,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        float AdjustedSpeedLimit(float speedLimit = 0f)
-        {
-            float limit;
-            // use [Speed], but still cap it to velocityMaximum
-            if (speedLimit <= 0f || speedLimit > SpeedLimit)
-                limit = Math.Min(SpeedLimit, VelocityMaximum);
-            else
-                limit = Math.Min(speedLimit, VelocityMaximum);
-
-            // in Warp, we cannot go slower than LightSpeed
-            if (engineState == MoveState.Warp)
-                limit = Math.Max(limit, LightSpeedConstant);
-
-            return limit;
-        }
-
-        float GetThrustAcceleration()
-        {
-            if (engineState == MoveState.Warp)
-            {
-                const float accelerationTime = 2f;
-                return (MaxFTLSpeed / accelerationTime);
-            }
-            return (Thrust / Mass) * 0.5f;
-        }
-
         public float GetMinDecelerationDistance(float velocity)
         {
             float a = GetThrustAcceleration() * DecelerationRate;
@@ -133,106 +119,170 @@ namespace Ship_Game.Ships
             return distance;
         }
 
-        public void SubLightAccelerate(float elapsedTime, float speedLimit = 0f, float direction = +1f)
+        public void SubLightAccelerate(float speedLimit = 0f, int direction = +1)
         {
             if (engineState == MoveState.Warp)
                 return; // Warp speed is updated in UpdateEnginesAndVelocity
-            ApplyThrust(elapsedTime, speedLimit, direction);
+            ApplyThrust(speedLimit, direction);
         }
 
-        void WarpAccelerate(float elapsedTime)
+        void ApplyThrust(float speedLimit, int direction)
         {
-            ApplyThrust(elapsedTime, MaxFTLSpeed, +1f);
+            ThrustThisFrame = direction;
+            ThrustSpeedLimitThisFrame = speedLimit;
         }
 
-
-        void ApplyThrust(float elapsedTime, float speedLimit, float thrustDirection)
+        public void Decelerate()
         {
-            float actualSpeedLimit = AdjustedSpeedLimit(speedLimit);
-            float acceleration = elapsedTime * GetThrustAcceleration();
-            isThrusting = true;
-
-            // we are already over max vel? forget about accelerating, slow down!
-            // this if check is needed to retain high velocities and visually decelerate
-            if (Velocity.Length() > actualSpeedLimit)
-            {
-                // we don't know which direction we were thrusting before, so simply negate the velocity vector
-                Velocity -= Velocity.Normalized() * acceleration * DecelerationRate;
-            }
-            else
-            {
-                if (thrustDirection >= 0f) // accelerating
-                {
-                    Velocity += Direction * acceleration;
-                }
-                else // decelerating
-                {
-                    Velocity -= Direction * acceleration * DecelerationRate; 
-                }
-                
-                // cap the speed immediately so we never go past the speed limit
-                if (Velocity.Length() > actualSpeedLimit)
-                {
-                    Velocity = Velocity.Normalized() * actualSpeedLimit;
-                }
-            }
-        }
-
-        public void Decelerate(float elapsedTime)
-        {
-            float acceleration = elapsedTime * GetThrustAcceleration();
-            // we don't know which direction we were thrusting before, so simply negate the velocity vector
-            Velocity -= Velocity.Normalized() * acceleration * DecelerationRate;
+            ThrustThisFrame = -1;
         }
 
         // simulates navigational thrusting to remove sideways or reverse travel
-        void RemoveVelocityDriftAndApplyVelocityLimit(float elapsedTime)
+        // @param dt Delta Time for the Simulation
+        void UpdateVelocityAndPosition(float dt)
         {
+            // Velocity Verlet integration method
+            // significantly more stable and accurate than ExplicitEuler or SemiImplicitEuler
+            // 1. Get the new acceleration for this frame
+            // 2. Update the current position
+            //     -- using previous frame's acceleration
+            //     -- using previous frames' velocity
+            // 3. Update the velocity
+
+            Vector2 newAcc = GetNewAccelerationForThisFrame();
+            if (newAcc.AlmostZero())
+                newAcc = default;
+
+
+
+            // integrate position using Velocity Verlet method:
+            // x' = x + v*dt + (a*dt^2)/2
+            Vector2 oldAcc = Acceleration;
+            float dt2 = dt*dt*0.5f;
+            Position.X += (Velocity.X*dt + oldAcc.X*dt2);
+            Position.Y += (Velocity.Y*dt + oldAcc.Y*dt2);
+            Center = Position;
+
+            // integrate velocity using Velocity Verlet method:
+            // v' = v + (a0+a1)*0.5*dt
+            Velocity.X += (oldAcc.X+newAcc.X)*0.5f*dt;
+            Velocity.Y += (oldAcc.Y+newAcc.Y)*0.5f*dt;
+
+            Acceleration = newAcc;
+        }
+
+        // @note This function is a bit longer than normal because it's very math
+        //       heavy and we want to avoid too many function call overheads,
+        //       hoping for better CLR optimization
+        Vector2 GetNewAccelerationForThisFrame()
+        {
+            if (TetheredTo == null && (Thrust <= 0f || Mass <= 0f))
+            {
+                EnginesKnockedOut = true;
+                if (engineState == MoveState.Warp)
+                    HyperspaceReturn();
+                // no magic stop or anything, we just stop acceleration
+                return default;
+            }
+
+            EnginesKnockedOut = false;
+
+            float thrustAcceleration = GetThrustAcceleration();
+            Vector2 newAcc = default;
+
+            // inline velocity magnitude and dir (speed optimization)
+            float vx = Velocity.X, vy = Velocity.Y;
+            float velocity = (float)Math.Sqrt(vx*vx + vy*vy);
+            Vector2 velocityDir = velocity > 0.0001f
+                                ? new Vector2(vx/velocity, vy/velocity)
+                                : default;
+
             // compare ship velocity vector against where it is pointing
             // if +1 then ship is going forward as intended
             // if  0 then ship is drifting sideways
             // if -1 then ship is drifting reverse
-            float velocity = Velocity.Length();
-            if (velocity.AlmostZero())
-            {
-                Velocity = Vector2.Zero;
-                return;
-            }
-
-            float actualSpeedLimit = AdjustedSpeedLimit();
-            float acceleration = elapsedTime * GetThrustAcceleration();
-
             Vector2 forward = Direction;
-            Vector2 velocityDir = Velocity.Normalized();
             float travel = velocityDir.Dot(forward);
-            if (travel <= 0.99f)
+            if (velocity > 0.0001f && travel <= 0.99f)
             {
-
                 // remove sideways drift
                 Vector2 left = forward.LeftVector();
                 float drift = velocityDir.Dot(left);
                 if (drift > 0f) // leftwards drift
                 {
-                    Velocity -= left * acceleration * SASThrusterPower;
+                    newAcc -= left * thrustAcceleration * SASThrusterPower;
                 }
                 else if (drift < 0f) // rightward drift
                 {
-                    Velocity += left * acceleration * SASThrusterPower;
+                    newAcc += left * thrustAcceleration * SASThrusterPower;
                 }
-                else if (travel < -0.5f && engineState != MoveState.Warp)
+                else if (ThrustThisFrame == 0 && // no thrust this frame?
+                         travel < -0.5f && engineState != MoveState.Warp)
                 {
                     // we are drifting reverse, accelerate forward!
-                    isThrusting = true;
-                    Velocity += forward * acceleration * SASThrusterPower;
+                    ThrustThisFrame = +1;
+                    ThrustSpeedLimitThisFrame = 0f;
                 }
             }
 
-            // we are already over max vel? forget about accelerating, slow down!
-            if (Velocity.Length() > actualSpeedLimit)
+            // Get the real speed limit
+            float speedLimit;
+            if (ThrustSpeedLimitThisFrame > 0f)
+                speedLimit = Math.Min(ThrustSpeedLimitThisFrame, VelocityMaximum);
+            else if (SpeedLimit > 0f)
+                speedLimit = Math.Min(SpeedLimit, VelocityMaximum);
+            else
+                speedLimit = VelocityMaximum;
+
+            // in Warp, we cannot go slower than LightSpeed
+            if (engineState == MoveState.Warp)
+                speedLimit = Math.Max(speedLimit, LightSpeedConstant);
+
+            // Main ACCELERATE / DECELERATE
+            // we are pretty much at the speed limit already, don't do anything
+            if (velocity.AlmostEqual(speedLimit))
             {
-                // we don't know which direction we were thrusting before, so simply negate the velocity vector
-                Velocity -= Velocity.Normalized() * acceleration * DecelerationRate;
+                ThrustThisFrame = 0; // turn off engine VFX
             }
+            // we are already over max vel? forget about accelerating, slow down!
+            else if (velocity > speedLimit)
+            {
+                if (travel > 0.2f) // we are traveling forward, decelerate normally
+                {
+                    newAcc -= forward * thrustAcceleration * DecelerationRate;
+                }
+                else if (travel < -0.2f) // we are traveling reverse, accelerate to slow down
+                {
+                    newAcc += forward * thrustAcceleration;
+                }
+            }
+            else if (ThrustThisFrame > 0)
+            {
+                newAcc += forward * thrustAcceleration;
+            }
+            else if (ThrustThisFrame < 0)
+            {
+                newAcc -= forward * thrustAcceleration * DecelerationRate;
+            }
+            return newAcc;
+        }
+
+        float GetThrustAcceleration()
+        {
+            if (engineState == MoveState.Warp)
+            {
+                const float accelerationTime = 2f;
+                return (MaxFTLSpeed / accelerationTime);
+            }
+            return (Thrust / Mass);
+        }
+
+        // these variables are only valid once per frame
+        // and must be reset after every update
+        void ResetFrameThrustState()
+        {
+            ThrustThisFrame = 0;
+            ThrustSpeedLimitThisFrame = 0f;
         }
 
         // called from Ship.Update
@@ -256,26 +306,10 @@ namespace Ship_Game.Ships
 
             if (engineState == MoveState.Warp)
             {
-                WarpAccelerate(elapsedTime);
+                ApplyThrust(MaxFTLSpeed, +1);
             }
 
-            if ((Thrust <= 0f || Mass <= 0f) && !IsTethered)
-            {
-                EnginesKnockedOut = true;
-                VelocityMaximum = Velocity.Length();
-                Velocity -= Velocity * (elapsedTime * 0.1f);
-                if (engineState == MoveState.Warp)
-                    HyperspaceReturn();
-            }
-            else
-            {
-                EnginesKnockedOut = false;
-            }
-
-            RemoveVelocityDriftAndApplyVelocityLimit(elapsedTime);
-
-            Acceleration = PreviousVelocity.Acceleration(Velocity, elapsedTime);
-            PreviousVelocity = Velocity;
+            UpdateVelocityAndPosition(elapsedTime);
 
             if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
                 UpdateWarpSpooling(elapsedTime);
