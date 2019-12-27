@@ -55,9 +55,9 @@ namespace UnitTests.Ships
         {
             Ship ship = CreateWarpTestShip();
             // inhibit while spooling
-            ship.InhibitedTimer = 4f;
+            ship.InhibitedTimer = 3f;
             ship.EngageStarDrive();
-            ship.Update(4f);
+            ship.Update(2f);
             Assert.IsFalse(ship.IsSpoolingOrInWarp);
             Assert.IsFalse(ship.IsInWarp);
         }
