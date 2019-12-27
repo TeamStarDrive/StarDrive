@@ -225,7 +225,6 @@ namespace Ship_Game.AI.Tasks
                 ship.AI.CombatState = ship.shipData.CombatState;
                 Fleet.RemoveShip(ship);
                 ship.HyperspaceReturn();
-                ship.isSpooling = false;
                 if (ship.shipData.Role == ShipData.RoleName.troop)
                     ship.AI.OrderRebaseToNearest();
                 else
@@ -575,7 +574,6 @@ namespace Ship_Game.AI.Tasks
                         ship.AI.ClearOrders();
                         Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);
                         ship.HyperspaceReturn();
-                        ship.isSpooling = false;
 
                         if (ship.shipData.Role != ShipData.RoleName.troop)
                         {
