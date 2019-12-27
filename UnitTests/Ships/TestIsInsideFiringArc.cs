@@ -177,16 +177,15 @@ namespace UnitTests.Ships
             InsideFiringArc(ship, w, facing:0, fireArc:23, point:new Vector2(0, 0));
         }
 
-        static Vector2 PointOnCircle(float rotation, float radius) => MathExt.PointOnCircle(rotation, 100);
+        static Vector2 PointOnCircle(float rotation, float radius) => MathExt.PointOnCircle(rotation, radius);
 
-        void Run360Loop(int turretFacing, int targetRotationOffset)
+        void Run360Loop(int turretFacing, int targetRotationOffset, int fireArc = 10)
         {
             Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
             for (int shipRotation = 0; shipRotation < 360; shipRotation += 1)
             {
-                int fireArc = 10;
-                int targetRotation = shipRotation + targetRotationOffset; // IN FRONT OF US
+                int targetRotation = shipRotation + targetRotationOffset;
                 SetShipPosAndFacing(ship, Vector2.Zero, shipRotation);
                 void Inside(float f)  =>  InsideFiringArc(ship, w, f, fireArc, PointOnCircle(targetRotation, 100));
                 void Outside(float f) => OutsideFiringArc(ship, w, f, fireArc, PointOnCircle(targetRotation, 100));
@@ -241,6 +240,30 @@ namespace UnitTests.Ships
         {
             Run360Loop(turretFacing: -45 /*turret facing top left*/, targetRotationOffset: -45 /*target to top left*/);
             Run360Loop(turretFacing: 360-45 /*turret facing top left*/, targetRotationOffset: 360-45 /*target to top left*/);
+        }
+
+        [TestMethod]
+        // This runs a complete rotational loop of 360 turrets:
+        // - All 4 turret facings: 0, 90, 180, 270
+        //   - All 360 degree angle rotations of our Ship
+        //     - All 360 degree angle target positions from our Ship
+        public void TurretAllFacings_ShipRotate360Loop_Target360Loop()
+        {
+            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Weapon w = ship.Weapons.First;
+            int fireArc = 360;
+            for (int turretFacing = 0; turretFacing < 360; turretFacing += 90)
+            {
+                for (int shipRotation = 0; shipRotation < 360; shipRotation += 1)
+                {
+                    for (int targetRotationOffset = 0; targetRotationOffset < 360; targetRotationOffset += 1)
+                    {
+                        int targetRotation = shipRotation + targetRotationOffset;
+                        SetShipPosAndFacing(ship, Vector2.Zero, shipRotation);
+                        InsideFiringArc(ship, w, turretFacing, fireArc, PointOnCircle(targetRotation, 100));
+                    }
+                }
+            }
         }
     }
 }
