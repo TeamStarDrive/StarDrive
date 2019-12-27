@@ -154,12 +154,14 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
+            bool debug = Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
+
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
             if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
-                Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center, "STOPPING", Color.Red, 0f);
+                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -184,8 +186,7 @@ namespace Ship_Game.AI
             if (distance <= stoppingDistance)
             {
                 ReverseThrustUntilStopped(elapsedTime);
-                Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
-                    $"Reverse {distance:0} <= {stoppingDistance:0} ", Color.Red, 0f);
+                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
             }
             else if (isFacingTarget)
             {
@@ -197,8 +198,7 @@ namespace Ship_Game.AI
                     speedLimit = Math.Max(speedLimit, 25f);
 
                     Owner.SubLightAccelerate(speedLimit);
-                    Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
-                        $"Accelerate {distance:0}  {speedLimit:0} ", Color.Red, 0f);
+                    if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
                 }
             }
         }
