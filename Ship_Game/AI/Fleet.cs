@@ -1372,7 +1372,6 @@ namespace Ship_Game.AI
 
                     s.AI.ClearOrders();
                     s.HyperspaceReturn();
-                    s.isSpooling = false;
                     if (s.shipData.Role == ShipData.RoleName.troop)
                         s.AI.OrderRebaseToNearest();
                     else

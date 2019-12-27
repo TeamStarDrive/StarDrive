@@ -11,8 +11,8 @@ using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
-	internal static class FTLManager
-	{
+    internal static class FTLManager
+    {
         static FTLLayerData[] FTLLayers;
         static bool EnableDebugGraph = false;
         static UIGraphView DebugGraph;
@@ -165,7 +165,7 @@ namespace Ship_Game
             }
         }
 
-		static readonly Array<FTLInstance> Effects = new Array<FTLInstance>();
+        static readonly Array<FTLInstance> Effects = new Array<FTLInstance>();
         static readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
 
         public static void LoadContent(GameScreen screen)
@@ -197,6 +197,8 @@ namespace Ship_Game
 
         public static void EnterFTL(Vector3 position, in Vector3 forward, float radius)
         {
+            if (FTLLayers == null)
+                return;
             var f = new FTLInstance(() => position, forward*(radius*1.5f), radius);
             using (Lock.AcquireWriteLock())
                 Effects.Add(f);
@@ -204,6 +206,8 @@ namespace Ship_Game
 
         public static void ExitFTL(Func<Vector3> getPosition, in Vector3 forward, float radius)
         {
+            if (FTLLayers == null)
+                return;
             var f = new FTLInstance(getPosition, forward*(radius*-2f), radius);
             using (Lock.AcquireWriteLock())
                 Effects.Add(f);
@@ -242,8 +246,8 @@ namespace Ship_Game
             return graph;
         }
 
-		public static void Update(GameScreen screen, float deltaTime)
-		{
+        public static void Update(GameScreen screen, float deltaTime)
+        {
             if (deltaTime <= 0f)
                 return;
 
@@ -255,13 +259,13 @@ namespace Ship_Game
             using (Lock.AcquireWriteLock())
             {
                 for (int i = 0; i < Effects.Count; ++i)
-			    {
+                {
                     if (Effects[i].Update(deltaTime))
                     {
                         Effects.RemoveAtSwapLast(i--);
                     }
-			    }
+                }
             }
-		}
-	}
+        }
+    }
 }
