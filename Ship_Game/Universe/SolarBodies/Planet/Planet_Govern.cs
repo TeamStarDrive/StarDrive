@@ -99,10 +99,13 @@ namespace Ship_Game
             BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
         }
 
-        private void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
+        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
-        private void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
+
+        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
+
+        bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings; 
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
