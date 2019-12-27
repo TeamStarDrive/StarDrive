@@ -97,28 +97,19 @@ namespace Ship_Game.AI.Tasks
 
         public MilitaryTask(Planet target, Empire owner)
         {
-            type = TaskType.AssaultPlanet;
-            TargetPlanet = target;
-            TargetPlanetGuid = target.guid;
-            AO = target.Center;
-            AORadius = 35000f;
-            Owner = owner;
-            MinimumTaskForceStrength = owner.CurrentMilitaryStrength *.05f;
-        }
+            var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
+            float radius     = 3500f;
+            float strWanted  = threatMatrix.PingRadarStr(target.Center, radius, owner);
+            strWanted       += target.TotalGeodeticOffense;
 
-        public MilitaryTask(Planet target, Empire owner, float strWanted)
-        {
-            type = TaskType.AssaultPlanet;
-            TargetPlanet = target;
-            TargetPlanetGuid = target.guid;
-            AO = target.Center;
-            AORadius = 35000f;
-            Owner = owner;
-
-            strWanted = strWanted.ClampMin(owner.CurrentMilitaryStrength * .05f);
+            type                     = TaskType.AssaultPlanet;
+            TargetPlanet             = target;
+            TargetPlanetGuid         = target.guid;
+            AO                       = target.Center;
+            AORadius                 = radius;
+            Owner                    = owner;
             MinimumTaskForceStrength = strWanted;
         }
-
 
         public MilitaryTask(Empire owner)
         {
@@ -318,10 +309,13 @@ namespace Ship_Game.AI.Tasks
             Owner = e;
             if (WhichFleet >-1)
             {
-                if (!e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet) || fleet == null )
+                if (!e.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet) || fleet == null || fleet.Ships.Count == 0)
                 {
-                    Log.Warning($"MilitaryTask Evaluate found task with missing fleet {type}");
-                    EndTask();
+                    if (fleet?.IsCoreFleet != true)
+                    {
+                        Log.Warning($"MilitaryTask Evaluate found task with missing fleet {type}");
+                        EndTask();
+                    }
                 }
             }
             switch (type)
@@ -415,9 +409,10 @@ namespace Ship_Game.AI.Tasks
                                 }                                
                             case 1:
                                 {
-                                    if (Owner.GetFleetsDict().ContainsKey(WhichFleet))
+                                    var fleetDictionary = Owner.GetFleetsDict();
+                                    if (fleetDictionary.TryGetValue(WhichFleet, out Fleet fleet))
                                     {
-                                        if (Owner.GetFleetsDict()[WhichFleet].Ships.Count == 0)
+                                        if (fleet.Ships.Count == 0)
                                         {
                                             EndTask();
                                             return;
