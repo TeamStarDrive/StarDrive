@@ -11,7 +11,7 @@ namespace UnitTests.Ships
     [TestClass]
     public class TestIsInsideFiringArcs : StarDriveTest
     {
-        public static bool EnableVisualization = false;
+        public static bool EnableVisualizationOnFailure = false;
 
         public TestIsInsideFiringArcs()
         {
@@ -50,11 +50,18 @@ namespace UnitTests.Ships
                 Color color = inArc == Expected ? Color.Green : Color.Red;
                 batch.DrawCircle(c + Point, 10, color, 2);
 
-                Vector2 left = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
-                Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
-                batch.DrawLine(mc, mc + left * 500, Color.Orange);
-                batch.DrawLine(mc, mc + right * 500, Color.Orange);
-                
+                if (m.FieldOfFire < RadMath.TwoPI)
+                {
+                    Vector2 left = (facing - m.FieldOfFire * 0.5f).RadiansToDirection();
+                    Vector2 right = (facing + m.FieldOfFire * 0.5f).RadiansToDirection();
+                    batch.DrawLine(mc, mc + left * 500, Color.Orange);
+                    batch.DrawLine(mc, mc + right * 500, Color.Orange);
+                }
+                else
+                {
+                    batch.DrawCircle(mc, 500, Color.Orange);
+                }
+
                 Game.DrawText(5, 10, What);
                 Game.DrawText(5, 30, $" InsideArc: {inArc}", color);
                 Game.DrawText(5, 50, $" Expected:  {Expected}", color);
@@ -84,7 +91,7 @@ namespace UnitTests.Ships
             w.Module.FacingDegrees = facing;
             w.Module.FieldOfFire = fireArc.ToRadians();
             bool result = ship.IsInsideFiringArc(w, point);
-            if (EnableVisualization && result != expectedResult)
+            if (EnableVisualizationOnFailure && result != expectedResult)
             {
                 var vis = new ArcVisualization(what, ship, w, point, expectedResult);
                 Game.ShowAndRun(vis);
@@ -103,6 +110,18 @@ namespace UnitTests.Ships
         void OutsideFiringArc(Ship ship, Weapon w, float facing, float fireArc, Vector2 point)
         {
             CheckArc("OutsideFiringArc", ship, w, facing, fireArc, point, expectedResult:false);
+        }
+
+        static Vector2 PointOnCircle(float rotation, float radius) => MathExt.PointOnCircle(rotation, radius);
+
+        void InsideArc(Ship ship, Weapon w, float facing, float fireArc, float targetRotation, float targetDistance = 100f)
+        {
+            CheckArc("InsideFiringArc", ship, w, facing, fireArc, PointOnCircle(targetRotation, targetDistance), expectedResult:true);
+        }
+        
+        void OutsideArc(Ship ship, Weapon w, float facing, float fireArc, float targetRotation, float targetDistance = 100f)
+        {
+            CheckArc("OutsideFiringArc", ship, w, facing, fireArc, PointOnCircle(targetRotation, targetDistance), expectedResult:false);
         }
 
         void SetShipPosAndFacing(Ship ship, Vector2 center, float rotation)
@@ -177,8 +196,6 @@ namespace UnitTests.Ships
             InsideFiringArc(ship, w, facing:0, fireArc:23, point:new Vector2(0, 0));
         }
 
-        static Vector2 PointOnCircle(float rotation, float radius) => MathExt.PointOnCircle(rotation, radius);
-
         void Run360Loop(int turretFacing, int targetRotationOffset, int fireArc = 10)
         {
             Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
@@ -187,8 +204,8 @@ namespace UnitTests.Ships
             {
                 int targetRotation = shipRotation + targetRotationOffset;
                 SetShipPosAndFacing(ship, Vector2.Zero, shipRotation);
-                void Inside(float f)  =>  InsideFiringArc(ship, w, f, fireArc, PointOnCircle(targetRotation, 100));
-                void Outside(float f) => OutsideFiringArc(ship, w, f, fireArc, PointOnCircle(targetRotation, 100));
+                void Inside(float f)  =>  InsideArc(ship, w, f, fireArc, targetRotation);
+                void Outside(float f) => OutsideArc(ship, w, f, fireArc, targetRotation);
 
                 int facing = turretFacing;
                 Inside(facing);
@@ -247,7 +264,7 @@ namespace UnitTests.Ships
         // - All 4 turret facings: 0, 90, 180, 270
         //   - All 360 degree angle rotations of our Ship
         //     - All 360 degree angle target positions from our Ship
-        public void TurretAllFacings_ShipRotate360Loop_Target360Loop()
+        public void Turret360_AllFacings_ShipRotate360Loop_Target360Loop()
         {
             Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
             Weapon w = ship.Weapons.First;
@@ -260,8 +277,36 @@ namespace UnitTests.Ships
                     {
                         int targetRotation = shipRotation + targetRotationOffset;
                         SetShipPosAndFacing(ship, Vector2.Zero, shipRotation);
-                        InsideFiringArc(ship, w, turretFacing, fireArc, PointOnCircle(targetRotation, 100));
+                        InsideArc(ship, w, turretFacing, fireArc, targetRotation);
                     }
+                }
+            }
+        }
+
+        [TestMethod]
+        // This runs a complete rotational loop of 180 turrets:
+        // - All 4 turret facings: 0, 90, 180, 270
+        //   - All 360 degree angle rotations of our Ship
+        public void Turret180_AllFacings_ShipRotate360Loop_Target360Loop()
+        {
+            Ship ship = SpawnShip("Flak Fang", Player, Vector2.Zero);
+            Weapon w = ship.Weapons.First;
+            int fireArc = 180;
+            for (int turretFacing = 0; turretFacing < 360; turretFacing += 90)
+            {
+                for (int shipRotation = 0; shipRotation < 360; shipRotation += 1)
+                {
+                    int targetRot = shipRotation + turretFacing; // always in front of the turret
+                    SetShipPosAndFacing(ship, Vector2.Zero, shipRotation);
+
+                    InsideArc(ship, w, turretFacing, fireArc, targetRot);
+                    InsideArc(ship, w, turretFacing, fireArc, targetRot+89);
+                    InsideArc(ship, w, turretFacing, fireArc, targetRot-89);
+
+                    OutsideArc(ship, w, turretFacing, fireArc, targetRot+91);
+                    OutsideArc(ship, w, turretFacing, fireArc, targetRot-91);
+                    OutsideArc(ship, w, turretFacing, fireArc, targetRot+180);
+                    OutsideArc(ship, w, turretFacing, fireArc, targetRot-180);
                 }
             }
         }
