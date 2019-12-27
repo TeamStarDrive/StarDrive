@@ -257,14 +257,6 @@ namespace Ship_Game
             return new Vector2(dx / len, dy / len);
         }
 
-        public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
-        {
-            Vector2 deltaV = (endVel - startVel);
-            if (deltaV.X.AlmostEqual(0f, 0.001f) && deltaV.Y.AlmostEqual(0f, 0.001f))
-                return Vector2.Zero;
-            return deltaV / deltaTime;
-        }
-
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
             return new ImpactPredictor(ourShip, target)

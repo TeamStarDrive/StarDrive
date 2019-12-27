@@ -80,6 +80,7 @@
     <Compile Include="Ships\TestSupplyShuttles.cs" />
     <Compile Include="Ships\TestWeaponArcs.cs" />
     <Compile Include="Ships\TestIsInsideFiringArc.cs" />
+    <Compile Include="Ships\TestShipWarpStates.cs" />
     <Compile Include="StoryAndEvents\TestNotifications.cs" />
     <Compile Include="Ships\TestShipRanges.cs" />
     <Compile Include="StarDriveTest.cs" />
