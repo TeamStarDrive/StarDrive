@@ -35,6 +35,7 @@ namespace Ship_Game.Ships
         {
             VelocityMaximum = Thrust / Mass;
             RotationRadiansPerSecond = TurnThrust / Mass / 700f;
+            RotationRadiansPerSecond += RotationRadiansPerSecond * Level * 0.05f;
             SpeedLimit = VelocityMaximum; // This is overwritten at the end of Update
         }
 
@@ -294,8 +295,6 @@ namespace Ship_Game.Ships
                 case MoveState.Warp:     VelocityMaximum = MaxFTLSpeed; break;
             }
 
-            RotationRadiansPerSecond = TurnThrust / Mass / 700f;
-            RotationRadiansPerSecond += RotationRadiansPerSecond * Level * 0.05f;
             yBankAmount = GetyBankAmount(RotationRadiansPerSecond * elapsedTime);
 
             if (engineState == MoveState.Warp)
