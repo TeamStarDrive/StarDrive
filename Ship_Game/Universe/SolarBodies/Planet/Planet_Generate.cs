@@ -101,7 +101,7 @@ namespace Ship_Game
                 if (preDefinedPop > 0)
                     BasePopPerTile = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
-                    BasePopPerTile = (int)(type.PopPerTile.Generate() * scale);
+                    BasePopPerTile = ((int)(type.PopPerTile.Generate() * scale)).RoundUpToMultipleOf(10);
 
                 BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
