@@ -235,12 +235,12 @@ namespace Ship_Game
                 return; // No Terraformers or No owner (Terraformers cannot continue working)
             }
 
-            // Remove negative effect buildings
-            if (ScrapNegativeEnvBuilding())
-                return;
-
             // First, make un-habitable tiles habitable
             if (TerraformTiles()) 
+                return;
+
+            // Remove negative effect buildings
+            if (ScrapNegativeEnvBuilding())
                 return;
 
             // Then, if all tiles are habitable, proceed to Planet Terraform
@@ -291,6 +291,13 @@ namespace Ship_Game
             if (negativeEnvBuildings.Length > 0)
             {
                 ScrapBuilding(negativeEnvBuildings[0]);
+                if (Owner.isPlayer) // Notify player that the planet a harmful building was removed as part of terraforming
+                {
+                    string messageText = negativeEnvBuildings[0].Name + Localizer.Token(1930);
+                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                        Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
+                }
+
                 return true;
             }
 
