@@ -35,7 +35,7 @@ namespace Ship_Game.Ships
         {
             VelocityMaximum = Thrust / Mass;
             RotationRadiansPerSecond = TurnThrust / Mass / 700f;
-            SpeedLimit = VelocityMaximum; // This is overwritten inside Update
+            SpeedLimit = VelocityMaximum; // This is overwritten at the end of Update
         }
 
         void SetMaxFTLSpeed()
@@ -135,22 +135,25 @@ namespace Ship_Game.Ships
             ThrustThisFrame = -1;
         }
 
-        // simulates navigational thrusting to remove sideways or reverse travel
-        // @param dt Delta Time for the Simulation
-        void UpdateVelocityAndPosition(float dt)
+        void UpdateVelocityAndPosition(float elapsedTime)
         {
-            // Velocity Verlet integration method
-            // significantly more stable and accurate than ExplicitEuler or SemiImplicitEuler
-            // 1. Get the new acceleration for this frame
-            // 2. Update the current position
-            //     -- using previous frame's acceleration
-            //     -- using previous frames' velocity
-            // 3. Update the velocity
-
             Vector2 newAcc = GetNewAccelerationForThisFrame();
             if (newAcc.AlmostZero())
                 newAcc = default;
 
+            IntegratePosVelocityVerlet(elapsedTime, newAcc);
+        }
+
+        // Velocity Verlet integration method
+        // significantly more stable and accurate than ExplicitEuler or SemiImplicitEuler
+        // 1. Get the new acceleration for this frame
+        // 2. Update the current position
+        //     -- using previous frame's acceleration
+        //     -- using previous frames' velocity
+        // 3. Update the velocity using old and new acceleration
+        // @param dt Delta Time for the Simulation
+        void IntegratePosVelocityVerlet(float dt, Vector2 newAcc)
+        {
             // integrate position using Velocity Verlet method:
             // x' = x + v*dt + (a*dt^2)/2
             Vector2 oldAcc = Acceleration;
@@ -193,6 +196,7 @@ namespace Ship_Game.Ships
                                 ? new Vector2(vx/velocity, vy/velocity)
                                 : default;
 
+            // simulates navigational thrusting to remove sideways or reverse travel
             // compare ship velocity vector against where it is pointing
             // if +1 then ship is going forward as intended
             // if  0 then ship is drifting sideways

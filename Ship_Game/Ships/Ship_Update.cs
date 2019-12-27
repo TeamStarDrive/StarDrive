@@ -183,10 +183,10 @@ namespace Ship_Game.Ships
         {
             Color thrust0 = loyalty.ThrustColor0;
             Color thrust1 = loyalty.ThrustColor1;
+            float velocityPercent = Velocity.Length() / VelocityMaximum;
             foreach (Thruster thruster in ThrusterList)
             {
                 thruster.UpdatePosition();
-                float velocityPercent = Velocity.Length() / VelocityMaximum;
                 if (ThrustThisFrame != 0)
                 {
                     if (engineState == MoveState.Warp)
@@ -232,14 +232,8 @@ namespace Ship_Game.Ships
             }
 
             if (Velocity.Length() < 5f)
-                Velocity = RandomMath.Vector2D(200);
-
-            if (Velocity.Length() > VelocityMaximum)
-                Velocity = Velocity.Normalized() * VelocityMaximum;
-
-            Vector2 deltaMove = Velocity * elapsedTime;
-            Position += deltaMove;
-            Center   += deltaMove;
+                Velocity = RandomMath.Vector2D(100);
+            IntegratePosVelocityVerlet(elapsedTime, Vector2.Zero);
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
