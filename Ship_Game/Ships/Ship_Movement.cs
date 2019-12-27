@@ -9,7 +9,7 @@ namespace Ship_Game.Ships
         public float MaxFTLSpeed;
         public float MaxSTLSpeed;
         
-        // default speed limit; reset every update
+        // reset at the end of each update
         public float SpeedLimit;
         public float VelocityMaximum; // maximum velocity magnitude
         public float Thrust;
@@ -24,7 +24,6 @@ namespace Ship_Game.Ships
         // > 0: forward/acceleration
         // < 0: reverse/deceleration
         int ThrustThisFrame;
-        float ThrustSpeedLimitThisFrame;
 
         // this is an important variable for hi-precision impact predictor
         public Vector2 Acceleration { get; private set; }
@@ -110,12 +109,11 @@ namespace Ship_Game.Ships
 
         public float GetMinDecelerationDistance(float velocity)
         {
-            float a = GetThrustAcceleration() * DecelerationRate;
-
             // general formula for stopping distance:
             // https://www.johannes-strommer.com/diverses/pages-in-english/stopping-distance-acceleration-speed/#formel
             // s = v^2 / 2a
-            float distance = (velocity*velocity) / (2*a);
+            float acc = GetThrustAcceleration() * DecelerationRate;
+            float distance = (velocity*velocity) / (2*acc);
             return distance;
         }
 
@@ -128,8 +126,8 @@ namespace Ship_Game.Ships
 
         void ApplyThrust(float speedLimit, int direction)
         {
+            SpeedLimit = speedLimit;
             ThrustThisFrame = direction;
-            ThrustSpeedLimitThisFrame = speedLimit;
         }
 
         public void Decelerate()
@@ -152,8 +150,6 @@ namespace Ship_Game.Ships
             Vector2 newAcc = GetNewAccelerationForThisFrame();
             if (newAcc.AlmostZero())
                 newAcc = default;
-
-
 
             // integrate position using Velocity Verlet method:
             // x' = x + v*dt + (a*dt^2)/2
@@ -220,19 +216,14 @@ namespace Ship_Game.Ships
                          travel < -0.5f && engineState != MoveState.Warp)
                 {
                     // we are drifting reverse, accelerate forward!
-                    ThrustThisFrame = +1;
-                    ThrustSpeedLimitThisFrame = 0f;
+                    ApplyThrust(0f, direction: +1);
                 }
             }
 
             // Get the real speed limit
-            float speedLimit;
-            if (ThrustSpeedLimitThisFrame > 0f)
-                speedLimit = Math.Min(ThrustSpeedLimitThisFrame, VelocityMaximum);
-            else if (SpeedLimit > 0f)
-                speedLimit = Math.Min(SpeedLimit, VelocityMaximum);
-            else
-                speedLimit = VelocityMaximum;
+            float speedLimit = SpeedLimit > 0f
+                             ? Math.Min(SpeedLimit, VelocityMaximum)
+                             : VelocityMaximum;
 
             // in Warp, we cannot go slower than LightSpeed
             if (engineState == MoveState.Warp)
@@ -282,7 +273,9 @@ namespace Ship_Game.Ships
         void ResetFrameThrustState()
         {
             ThrustThisFrame = 0;
-            ThrustSpeedLimitThisFrame = 0f;
+            SpeedLimit = VelocityMaximum;
+            if (AI.State == AIState.FormationWarp)
+                SpeedLimit = AI.FormationWarpSpeed(VelocityMaximum);
         }
 
         // called from Ship.Update
@@ -297,16 +290,15 @@ namespace Ship_Game.Ships
                 case MoveState.Warp:     VelocityMaximum = MaxFTLSpeed; break;
             }
 
-            SpeedLimit = AI.State == AIState.FormationWarp
-                ? AI.FormationWarpSpeed(VelocityMaximum) : VelocityMaximum;
-
             RotationRadiansPerSecond = TurnThrust / Mass / 700f;
             RotationRadiansPerSecond += RotationRadiansPerSecond * Level * 0.05f;
             yBankAmount = GetyBankAmount(RotationRadiansPerSecond * elapsedTime);
 
             if (engineState == MoveState.Warp)
             {
-                ApplyThrust(MaxFTLSpeed, +1);
+                // enable full thrust, but don't touch the SpeedLimit
+                // so that FormationWarp can work correctly
+                ThrustThisFrame = +1;
             }
 
             UpdateVelocityAndPosition(elapsedTime);
@@ -314,6 +306,5 @@ namespace Ship_Game.Ships
             if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
                 UpdateWarpSpooling(elapsedTime);
         }
-
     }
 }
