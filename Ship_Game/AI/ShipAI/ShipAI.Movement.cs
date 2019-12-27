@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI
 {
@@ -81,7 +82,7 @@ namespace Ship_Game.AI
                 if (speedLimit <= 0) speedLimit = Owner.SpeedLimit;
                 speedLimit *= 0.75f; // uh-oh we're going too fast
             }
-            Owner.SubLightAccelerate(speedLimit: speedLimit);
+            Owner.SubLightAccelerate(speedLimit);
         }
 
         internal void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
@@ -119,7 +120,7 @@ namespace Ship_Game.AI
             }
 
             if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
-                Owner.SubLightAccelerate(speedLimit: speedLimit);
+                Owner.SubLightAccelerate(speedLimit);
         }
 
         // WayPoint move system
@@ -158,9 +159,7 @@ namespace Ship_Game.AI
             float distance = Owner.Center.Distance(targetPos);
             if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
-                Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
-                    $"STOPPING",
-                    Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
+                Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center, "STOPPING", Color.Red, 0f);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -180,14 +179,13 @@ namespace Ship_Game.AI
 
             bool isFacingTarget = !RotateToDirection(direction, elapsedTime, 0.05f);
 
-            float vel = (float)Math.Round(Owner.CurrentVelocity + 10f);
+            float vel = Owner.CurrentVelocity;
             float stoppingDistance = Owner.GetMinDecelerationDistance(vel);
-            if (distance <= stoppingDistance*2f)
+            if (distance <= stoppingDistance)
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
-                    $"Reverse {distance:0} <= {stoppingDistance:0} ",
-                    Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
+                    $"Reverse {distance:0} <= {stoppingDistance:0} ", Color.Red, 0f);
             }
             else if (isFacingTarget)
             {
@@ -198,10 +196,9 @@ namespace Ship_Game.AI
                         speedLimit = Math.Max(speedLimit, goal.SpeedLimit);
                     speedLimit = Math.Max(speedLimit, 25f);
 
-                    Owner.SubLightAccelerate(speedLimit: speedLimit);
+                    Owner.SubLightAccelerate(speedLimit);
                     Empire.Universe.DebugWin?.DrawText(Debug.DebugModes.PathFinder, Owner.Center,
-                        $"Accelerate {distance:0}  {speedLimit:0} ",
-                        Microsoft.Xna.Framework.Graphics.Color.Red, 0f);
+                        $"Accelerate {distance:0}  {speedLimit:0} ", Color.Red, 0f);
                 }
             }
         }
@@ -342,7 +339,7 @@ namespace Ship_Game.AI
                     if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
                 }
-                Owner.SubLightAccelerate(speedLimit: speedLimit);
+                Owner.SubLightAccelerate(speedLimit);
             }
             else // In a fleet
             {
@@ -356,13 +353,13 @@ namespace Ship_Game.AI
                 }
 
                 //speedLimit = FormationWarpSpeed(speedLimit);
-                Owner.SubLightAccelerate(speedLimit: speedLimit);
+                Owner.SubLightAccelerate(speedLimit);
             }
         }
 
         float EstimateMaxTurn(float distance)
         {
-            float timeToTarget = distance / (Owner.MaxFTLSpeed);
+            float timeToTarget = distance / Owner.MaxFTLSpeed;
             float maxTurn = Owner.RotationRadiansPerSecond * timeToTarget;
             maxTurn *= 0.4f; // ships can't really turn as numbers would predict...
             // and we don't allow over certain degrees either
