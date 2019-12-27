@@ -14,10 +14,10 @@ namespace Ship_Game.AI.CombatTactics
 
         public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
         {
-            if (Owner.isSpooling)
+            if (Owner.IsSpoolingOrInWarp)
                 return;
 
-            Target = AI.Target as Ship;
+            Target = AI.Target;
 
             Artillery.Execute(elapsedTime, null);
             if (!Owner.Carrier.HasActiveTroopBays || Owner.Carrier.NumTroopsInShipAndInSpace <= 0)

@@ -154,7 +154,6 @@ namespace Ship_Game.AI
             if (State == AIState.ManualControl)
                 return;
 
-            Owner.isThrusting = false;
             Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 
@@ -435,7 +434,7 @@ namespace Ship_Game.AI
 
         bool DoNearFleetOffset(float elapsedTime)
         {
-            if (Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75))
+            if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
@@ -446,15 +445,17 @@ namespace Ship_Game.AI
 
         bool ShouldReturnToFleet()
         {
-            //separated for clarity as this section can be very confusing.
-            //we might need a toggle for the player action here.
+            // separated for clarity as this section can be very confusing.
+            // we might need a toggle for the player action here.
             if (State == AIState.FormationWarp)
                 return true;
             if (HasPriorityOrder || HadPO)
                 return false;
             if (BadGuysNear)
                 return false;
-            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders || State == AIState.AwaitingOrders)
+            if (State == AIState.Orbit ||
+                State == AIState.AwaitingOffenseOrders ||
+                State == AIState.AwaitingOrders)
                 return true;
             return false;
         }
@@ -466,23 +467,30 @@ namespace Ship_Game.AI
 
             if (ShouldReturnToFleet())
             {
-                //check if inside minimum warp jump range. If not do a full warp process.
+                // check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                    ThrustOrWarpToPos(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
+                {
+                    HasPriorityOrder = true;
+                    State = AIState.AwaitingOrders;
+                    AddShipGoal(Plan.MakeFinalApproach,
+                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.Direction);
+                }
                 else
+                {
                     WarpToFleet();
+                }
             }
         }
 
         void WarpToFleet()
         {
             ClearWayPoints();
-            WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+            WayPoints.Enqueue(Owner.fleet.GetFinalPos(Owner));
             State = AIState.AwaitingOrders;
             if (Owner.fleet?.GoalStack.Count > 0)
                 WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
             else
-                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
+                OrderMoveTowardsPosition(Owner.fleet.GetFinalPos(Owner), Owner.fleet.Direction, true, null);
         }
 
         public bool HasTradeGoal(Goods goods)
