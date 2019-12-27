@@ -175,6 +175,7 @@
     <Compile Include="Ship_Game\AI\CombatTactics\OrbitTarget.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Artillery.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\FleetShips.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
@@ -189,8 +190,8 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunResearchPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
-    <Compile Include="Ship_Game\AI\EmpireAI\FleetRatios.cs" />
-    <Compile Include="Ship_Game\AI\Fleet.FleetGoal.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\FleetRatios.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\Fleet.FleetGoal.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\AssaultShipCombat.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\ShipAI.AttackRun.cs" />
     <Compile Include="Ship_Game\AI\Research\ChooseTech.cs" />
