@@ -75,9 +75,7 @@ namespace Ship_Game.AI.CombatTactics
         {
             State = RunState.Disengage1;
 
-            float turnAboutTime = (float)Math.PI / Owner.rotationRadiansPerSecond;
-
-            float dot = Owner.Direction.Dot(AI.Target.Velocity.Normalized());
+            float dot = Owner.Direction.Dot(AI.Target.VelocityDirection);
             float rotation = dot > -0.25f // we are chasing them, so only disengage left or right
                 ? (RandomMath.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
                 : RandomMath.RandomBetween(-1.57f, 1.57f); // from -90 to +90 degrees
@@ -97,7 +95,7 @@ namespace Ship_Game.AI.CombatTactics
             float disengageLimit = DisengageStart.Distance(disengagePos) + 20f;
             float distance = DisengageStart.Distance(Owner.Center);
 
-            float disengageSpeed = (Owner.velocityMaximum*0.8f).Clamped(200f, 1000f);
+            float disengageSpeed = (Owner.VelocityMaximum*0.8f).Clamped(200f, 1000f);
             if (State == RunState.Disengage1)
             {
                 if (distance > disengageLimit) // Disengage1 success
@@ -186,16 +184,16 @@ namespace Ship_Game.AI.CombatTactics
 
         float GetStrafeSpeed(float distance, out bool cantCatchUp, out string debugStatus)
         {
-            float targetSpeed = AI.Target.Velocity.Length();
+            float targetSpeed = AI.Target.CurrentVelocity;
             cantCatchUp = false;
             if (targetSpeed > 50f)
             {
                 // figure out if the target ship is drifting towards our facing or if it's drifting away
-                float dot = Owner.Direction.Dot(AI.Target.Velocity.Normalized());
+                float dot = Owner.Direction.Dot(AI.Target.VelocityDirection);
                 if (dot > -0.25f) // they are trying to escape us
                 {
                     // we can't catch these bastards, so we need some jump drive assistance
-                    if (targetSpeed > Owner.velocityMaximum && distance > Owner.DesiredCombatRange)
+                    if (targetSpeed > Owner.VelocityMaximum && distance > Owner.DesiredCombatRange)
                     {
                         cantCatchUp = true;
                         debugStatus = "";
@@ -204,19 +202,19 @@ namespace Ship_Game.AI.CombatTactics
                     
                     debugStatus = "Chase";
                     return (distance - Owner.DesiredCombatRange*0.6f)
-                        .Clamped(targetSpeed + Owner.velocityMaximum*0.05f, Owner.velocityMaximum);
+                        .Clamped(targetSpeed + Owner.VelocityMaximum*0.05f, Owner.VelocityMaximum);
                 }
                 
                 // they are coming towards us or just flew past us
                 debugStatus = "Strafe";
-                return Owner.Speed * 0.75f;
+                return Owner.SpeedLimit * 0.75f;
             }
 
             // enemy is really slow, so we're not in a hurry
             // using distance gives a nice slow-down effect when we get closer to the target
             debugStatus = "SlowStrafe";
-            return (distance - Owner.velocityMaximum*0.4f)
-                .Clamped(Owner.velocityMaximum*0.15f, Owner.velocityMaximum*0.9f);
+            return (distance - Owner.VelocityMaximum*0.4f)
+                .Clamped(Owner.VelocityMaximum*0.15f, Owner.VelocityMaximum*0.9f);
         }
 
         void DrawDebugTarget(Vector2 pip, float radius)

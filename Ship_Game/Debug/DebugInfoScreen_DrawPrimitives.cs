@@ -18,6 +18,11 @@ namespace Ship_Game.Debug
             return mode != Mode || !Visible || Empire.Universe.Paused;
         }
 
+        bool ShouldNotAddPrimitive()
+        {
+            return !Visible || Empire.Universe.Paused;
+        }
+
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
         {
             if (ShouldNotAddPrimitive(mode)) return;
@@ -47,6 +52,12 @@ namespace Ship_Game.Debug
         {
             if (ShouldNotAddPrimitive(mode) || !obj.IsInFrustum) return;
             AddPrimitive(new DebugGameObject(obj, Color.Red, 0f /*transient*/));
+        }
+
+        public void DrawText(Vector2 posInWorld, string text, Color color, float lifeTime = 0f)
+        {
+            if (ShouldNotAddPrimitive()) return;
+            AddPrimitive(new DebugText(posInWorld, text, color, lifeTime));
         }
 
         public void DrawText(DebugModes mode, Vector2 posInWorld, string text, Color color, float lifeTime)
