@@ -125,7 +125,7 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
-            g.TetherTarget  = gsave.TetherTarget; //== Guid.Empty ? gsave.planetWhereBuildingAtGuid : gsave.TetherTarget;
+            g.TetherTarget  = gsave.TetherTarget;
             g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {
