@@ -152,7 +152,7 @@ namespace Ship_Game.AI
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders)
         {
-            GenerateOrdersFromWayPoints(position, finalDirection, null, clearOrders, Owner.Speed);
+            GenerateOrdersFromWayPoints(position, finalDirection, null, clearOrders, Owner.SpeedLimit);
         }
 
         public void OrderMoveDirectlyTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, float speedLimit)
@@ -162,12 +162,12 @@ namespace Ship_Game.AI
 
         public void OrderMoveTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, Planet targetPlanet)
         {
-            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed);
+            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.SpeedLimit);
         }
 
         public void OrderMoveTowardsPosition(Vector2 position, Vector2 finalDirection, bool clearOrders, Planet targetPlanet, Goal goal)
         {
-            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.Speed, goal);
+            GenerateOrdersFromWayPoints(position, finalDirection, targetPlanet, clearOrders, Owner.SpeedLimit, goal);
         }
 
         void GenerateOrdersFromWayPoints(Vector2 position, Vector2 finalDirection,

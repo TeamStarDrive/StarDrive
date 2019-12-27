@@ -144,7 +144,7 @@ namespace Ship_Game.Ships
 
         public void ScrambleFighters()
         {
-            if (Owner == null || Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
+            if (Owner == null || Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
                 return;
 
             PrepShipHangars(Owner.loyalty);
@@ -182,7 +182,7 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.TroopList.Count <= 0)
                 return;
 
-            if (Owner.engineState == Ship.MoveState.Warp || Owner.isSpooling || RecallingShipsBeforeWarp)
+            if (Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
                 return;
 
             bool limitAssaultSize = strengthNeeded > 0; // if Strength needed is 0,  this will be false and the ship will launch all troops
@@ -340,11 +340,11 @@ namespace Ship_Game.Ships
             if (Owner == null || !Owner.RecallFightersBeforeFTL || !HasActiveHangars)
                 return false;
 
-            bool recallFighters               = false;
-            float jumpDistance                = Owner.Center.Distance(Owner.AI.MovePosition);
-            float slowestFighterSpeed         = Owner.Speed * 2;
+            bool recallFighters       = false;
+            float jumpDistance        = Owner.Center.Distance(Owner.AI.MovePosition);
+            float slowestFighterSpeed = Owner.SpeedLimit * 2;
 
-            RecallingShipsBeforeWarp          = true;
+            RecallingShipsBeforeWarp = true;
             if (jumpDistance > 7500f)
             {
                 recallFighters = true;
@@ -356,7 +356,7 @@ namespace Ship_Game.Ships
                         recallFighters = false;
                         continue;
                     }
-                    slowestFighterSpeed = Math.Min(slowestFighterSpeed, hangarShip.Speed);
+                    slowestFighterSpeed = Math.Min(slowestFighterSpeed, hangarShip.SpeedLimit);
 
                     float rangeTocarrier = hangarShip.Center.Distance(Owner.Center);
                     if (hangarShip.EMPdisabled
@@ -387,8 +387,8 @@ namespace Ship_Game.Ships
                 RecallingShipsBeforeWarp = false;
                 return false;
             }
-            if (Owner.Speed * 2 > slowestFighterSpeed)
-                Owner.Speed = slowestFighterSpeed * 0.25f;
+            if (Owner.SpeedLimit * 2 > slowestFighterSpeed)
+                Owner.SpeedLimit = slowestFighterSpeed * 0.25f;
             return true;
         }
 

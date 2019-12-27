@@ -445,7 +445,7 @@ namespace Ship_Game.Gameplay
             {
                 if (ParticleDelay <= 0.0f && Duration > 0.5)
                 {
-                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + Velocity.Normalized() * Speed * 1.75f);
+                    FiretrailEmitter.UpdateProjectileTrail(elapsedTime, newPosition, Velocity + VelocityDirection * Speed * 1.75f);
                 }
             }
             if (TrailEmitter != null && InFrustum)
@@ -717,8 +717,7 @@ namespace Ship_Game.Gameplay
                 return;
             var projectedModules = new Array<ShipModule>();
             projectedModules.Add(module);
-            Vector2 projectileDir = Velocity.Normalized();
-            projectedModules = parent.RayHitTestModules(module.Center, projectileDir, distance:parent.Radius, rayRadius:Radius);
+            projectedModules = parent.RayHitTestModules(module.Center, VelocityDirection, distance:parent.Radius, rayRadius:Radius);
             if (projectedModules == null)
                 return;
             DebugTargetCircle();
