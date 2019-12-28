@@ -144,99 +144,85 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
+            TaskForce.Clear();
             ClearHoldOnGoal();
 
             if (WhichFleet == -1) return;
             if (Fleet == null)    return;
 
-            AO closestAo = FindClosestAO();
-            if (closestAo == null)
+            if (Fleet != null && !Fleet.IsCoreFleet)
+                Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
+
+            if (FindClosestAO() == null)
             {
                 if (Fleet.IsCoreFleet  || Owner == Empire.Universe.player) return;
                 DisbandFleet(Fleet);
                 return;
             }
 
-            if (ClearCoreFleetTask()) return;
+            if (IsCoreFleetTask)
+            {
+                ClearCoreFleetTask();
+                return;
+            }
 
-            TaskForce.Clear();
             if (Fleet.IsCoreFleet || Owner.isPlayer)
                 return;
 
             if (Fleet == null)
                 return;
 
-            for (int i = Fleet.Ships.Count - 1; i >= 0; i--)
-            {
-                Ship ship = Fleet.Ships[i];
-                ship.AI.ClearOrders();
-                ship.AI.CombatState = ship.shipData.CombatState;
-                Fleet.RemoveShip(ship);
-                ship.HyperspaceReturn();
-                if (ship.shipData.Role == ShipData.RoleName.troop)
-                    ship.AI.OrderRebaseToNearest();
-                else
-                {
-                    Owner.ForcePoolAdd(ship);
-                    ship.AI.GoOrbitNearestPlanetAndResupply(false);
-                }
-            }
+            DisbandFleet(Fleet);
 
-            Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
-            Fleet.Reset();
-
-            if (type == TaskType.Exploration)
-            {
-                Array<Troop> toLaunch = new Array<Troop>();
-                for (int index = TargetPlanet.TroopsHere.Count - 1; index >= 0; index--)
-                {
-                    Troop t = TargetPlanet.TroopsHere[index];
-                    if (t.Loyalty != Owner
-                        || TargetPlanet.EnemyInRange()
-                        || t.AvailableAttackActions == 0
-                        || t.MoveTimer > 0)
-                        continue;
-
-                    toLaunch.Add(t);
-                }
-
-                foreach (Troop t in toLaunch)
-                {
-                    Ship troopship = t.Launch();
-                    troopship?.AI.OrderRebaseToNearest();
-                }
-
-                toLaunch.Clear();
-            }
+            if (type == TaskType.Exploration && TargetPlanet != null) 
+                RemoveTaskTroopsFromPlanet();
         }
 
-        private bool ClearCoreFleetTask()
+        private void RemoveTaskTroopsFromPlanet()
         {
-            if (IsCoreFleetTask)
+            Array<Troop> toLaunch = new Array<Troop>();
+            for (int index = TargetPlanet.TroopsHere.Count - 1; index >= 0; index--)
             {
-                for (int i = 0; i < Fleet.Ships.Count; i++)
-                {
-                    Ship ship = Fleet.Ships[i];
-                    ship.AI.CombatState = ship.shipData.CombatState;
-                }
+                Troop t = TargetPlanet.TroopsHere[index];
+                if (t.Loyalty != Owner
+                    || TargetPlanet.EnemyInRange()
+                    || t.AvailableAttackActions == 0
+                    || t.MoveTimer > 0)
+                    continue;
 
-                Fleet.FleetTask = null;
-                return true;
+                toLaunch.Add(t);
             }
 
-            return false;
+            foreach (Troop t in toLaunch)
+            {
+                Ship troopship = t.Launch();
+                troopship?.AI.OrderRebaseToNearest();
+            }
+
+            toLaunch.Clear();
+        }
+
+        private void ClearCoreFleetTask()
+        {
+            for (int i = 0; i < Fleet.Ships.Count; i++)
+            {
+                Ship ship = Fleet.Ships[i];
+                ship.AI.CombatState = ship.shipData.CombatState;
+                ship.AI.ClearOrders();
+                ship.HyperspaceReturn();
+            }
+
+            Fleet.FleetTask = null;
         }
 
         private void DisbandFleet(Fleet fleet)
         {
-            foreach (Ship ship in fleet.Ships)
+            for (int i = Fleet.Ships.Count - 1; i >= 0; i--)
             {
-                Fleet.RemoveShip(ship);
-                if (ship?.Active ?? false)
-                    Owner.ForcePoolAdd(ship);
+                Ship ship = Fleet.Ships[i];
+                ship.RemoveFromFleetAndAddBackToPools();
+                Fleet.Reset();
             }
-
-            fleet.Reset();
         }
 
         private void Debug_TallyFailedTasks()
@@ -309,21 +295,21 @@ namespace Ship_Game.AI.Tasks
             {
                 if (IsCoreFleetTask)
                 {
-                    Owner.GetFleetOrNull(WhichFleet).FleetTask = null;
-                    Owner.GetFleetOrNull(WhichFleet).MoveToDirectly(closestAo.Center, Vectors.Up);
+                    Fleet?.ClearFleetTask();
+                    Fleet?.MoveToDirectly(closestAo.Center, Vectors.Up);
                 }
                 else
                 {
-                    foreach (Ship ship in Owner.GetFleetsDict()[WhichFleet].Ships)
+                    foreach (Ship ship in Fleet.Ships)
                     {
-                        Owner.GetFleetOrNull(WhichFleet).RemoveShip(ship);
+                        Fleet.RemoveShip(ship);
                         closestAo.AddShip(ship);
                         closestAo.TurnsToRelax = 0;
                     }
 
                     TaskForce.Clear();
                     Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
-                    Owner.GetFleetOrNull(WhichFleet).Reset();
+                    Fleet?.Reset();
                 }
             }
         }
