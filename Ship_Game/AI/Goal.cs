@@ -63,7 +63,6 @@ namespace Ship_Game.AI
             {
                 Planet targetPlanet = GetTetherPlanet;
                 targetPlanet = targetPlanet ?? ColonizationTarget;
-                targetPlanet = targetPlanet ?? PlanetBuildingAt;
 
                 if (targetPlanet != null)
                     return targetPlanet.Center + TetherOffset;
@@ -126,7 +125,7 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
-            g.TetherTarget  = gsave.TetherTarget == Guid.Empty ? gsave.planetWhereBuildingAtGuid : gsave.TetherTarget;
+            g.TetherTarget  = gsave.TetherTarget;
             g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {

@@ -144,7 +144,11 @@ namespace UnitTests.LinearAlgebra
         public void FromDegreesToNormalizedRadians()
         {
             const float ToRad = RadMath.DegreeToRadian;
+
+            // special cases, 0 must be 0 and 360 must be 2PI
             Assert.AreEqual(ToRad*(0f),     (0f).ToRadians(), Tolerance);
+            Assert.AreEqual(ToRad*(360f), (360f).ToRadians(), Tolerance);
+            
             Assert.AreEqual(ToRad*(115f), (115f).ToRadians(), Tolerance);
             Assert.AreEqual(ToRad*(345f), (345f).ToRadians(), Tolerance);
             Assert.AreEqual(ToRad*(920f  % 360f), (920f).ToRadians(), Tolerance);
@@ -160,6 +164,8 @@ namespace UnitTests.LinearAlgebra
         public void AsNormalizedRadians()
         {
             Assert.AreEqual(0f, (0f).AsNormalizedRadians(), Tolerance);
+            Assert.AreEqual(RadMath.TwoPI, RadMath.TwoPI.AsNormalizedRadians(), Tolerance);
+
             Assert.AreEqual(1f, (1f).AsNormalizedRadians(), Tolerance);
             Assert.AreEqual(3f, (3f).AsNormalizedRadians(), Tolerance);
             Assert.AreEqual(8f % RadMath.TwoPI, (8f).AsNormalizedRadians(), Tolerance);
