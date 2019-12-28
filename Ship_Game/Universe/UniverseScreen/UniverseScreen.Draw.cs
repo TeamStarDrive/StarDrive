@@ -2,7 +2,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
-using Ship_Game.AI.Budget;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
