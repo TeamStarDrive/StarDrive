@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using System;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -84,7 +84,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
-                 float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
+                float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
                 TetherOffset    = MathExt.PointOnCircle(degrees * 40, distance);
                 Vector2 pos = GetTetherPlanet.Center + TetherOffset;
                 if (BuildPositionFree(pos))
