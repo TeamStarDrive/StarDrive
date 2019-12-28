@@ -228,7 +228,9 @@ namespace Ship_Game
                         GoalGuid      = g.guid,
                         GoalName      = g.UID,
                         ShipLevel     = g.ShipLevel,
-                        VanityName    = g.VanityName
+                        VanityName    = g.VanityName,
+                        TetherTarget  = g.TetherTarget,
+                        TetherOffset  = g.TetherOffset
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
