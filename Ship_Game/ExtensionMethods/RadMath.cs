@@ -9,12 +9,22 @@ namespace Ship_Game
     /// </summary>
     public static class RadMath
     {
-        public const float  PI      = 3.14159265358979f;        // 180 degrees
-        public const float  TwoPI   = 3.14159265358979f * 2.0f; // 360 degrees
-        public const double TwoPID  = 3.14159265358979  * 2.0;  // 360 degrees
-        public const float  HalfPI  = 3.14159265358979f * 0.5f; // 90 degrees
-        public const double HalfPID = 3.14159265358979  * 0.5;   // 90 degrees
-        public const float  InvTwoPI = 1.0f / TwoPI;
+        public const double PID       = 3.14159265358979;        // 180 degrees
+        public const double TwoPID    = 3.14159265358979 * 2.0;  // 360 degrees
+        public const double HalfPID   = 3.14159265358979 * 0.5;  // 90 degrees
+        public const double InvTwoPID = 1.0 / TwoPID;
+        public const double Inv360D   = 1.0 / 360.0;
+        public const double RadianToDegreeD = 180.0 / PID;
+        public const double DegreeToRadianD = PID / 180.0;
+
+        public const float PI        = (float)PID;     // 180 degrees
+        public const float TwoPI     = (float)TwoPID;  // 360 degrees
+        public const float HalfPI    = (float)HalfPID; // 90 degrees
+        public const float InvTwoPI  = (float)InvTwoPID;
+        public const float Inv360    = (float)Inv360D;
+        public const float RadianToDegree = (float)RadianToDegreeD;
+        public const float DegreeToRadian = (float)DegreeToRadianD;
+
 
         const int TableSize = 2000;
         const double TableSizeD = TableSize;
@@ -77,14 +87,10 @@ namespace Ship_Game
         //////////////////////////////////////////////////////////////////////
 
         // @note This is the StarDrive radian/coordinate system
-        public static float RadiansUp    = 0f;
-        public static float RadiansRight = HalfPI;
-        public static float RadiansDown  = PI;
-        public static float RadiansLeft  = PI + HalfPI;
-        public const float Inv360 = 1f / 360f;
-
-        public const float RadianToDegree = 180.0f / PI;
-        public const float DegreeToRadian = PI / 180.0f;
+        public const float RadiansUp    = 0f;
+        public const float RadiansRight = HalfPI;
+        public const float RadiansDown  = PI;
+        public const float RadiansLeft  = PI + HalfPI;
 
         // Converts a radian float to degrees
         public static float ToDegrees(this float radians)
@@ -96,24 +102,44 @@ namespace Ship_Game
         // Always in a normalized absolute [0, 2PI] range
         public static float ToRadians(this float degrees)
         {
+            // BEWARE! Floating point nasal demons lie here!
             float ratio = degrees * Inv360;
-            if (ratio > 1f)
-                ratio -= (int)ratio;
-            else if (ratio < 0f)
-                ratio = 1f + ratio - (int)ratio;
-            return ratio * TwoPI;
+            // compare degrees, because Inv360 isn't accurate in
+            // case: ToRadians(360f) expected: 2PI
+            if (degrees > 360f)
+            {
+                return (ratio - (int)ratio) * TwoPI; 
+            }
+            else if (degrees < 0f)
+            {
+                return (1f + ratio - (int)ratio) * TwoPI;
+            }
+            else
+            {
+                return ratio * TwoPI;
+            }
         }
 
         // Converts existing unbounded RADIANS angle to
         // a normalized absolute [0, 2PI] range
         public static float AsNormalizedRadians(this float radians)
         {
-            float ratio = radians / TwoPI;
-            if (ratio > 1f)
-                ratio -= (int)ratio;
-            else if (ratio < 0f)
-                ratio = 1f + ratio - (int)ratio;
-            return ratio * TwoPI;
+            // BEWARE! Floating point nasal demons lie here!
+            float ratio = radians * InvTwoPI;
+            // compare radians, because InvTwoPI isn't accurate in
+            // case: AsNormalizedRadians(2PI) expected: 2PI
+            if (radians > TwoPI)
+            {
+                return (ratio - (int)ratio) * TwoPI;
+            }
+            else if (radians < 0f)
+            {
+                return (1f + ratio - (int)ratio) * TwoPI;
+            }
+            else
+            {
+                return ratio * TwoPI;
+            }
         }
 
         // Converts a direction vector to radians
@@ -134,7 +160,9 @@ namespace Ship_Game
             float arcFacingRads, float arcSizeRadians)
         {
             // For 360 Arc Sizes, the target is always inside the arc
-            if (arcSizeRadians >= TwoPI)
+            // Using Epsilon comparison here because of float imprecision
+            const float almost360 = TwoPI - 0.001f; // 0.05 degrees tolerance
+            if (arcSizeRadians > almost360)
                 return true;
 
             // NOTE: Atan2(dy,dx) swapped to Atan2(dx,dy)
@@ -150,7 +178,7 @@ namespace Ship_Game
             // so this 180 degree subtraction is needed to constrain the comparison to half circle sector
             // https://gamedev.stackexchange.com/questions/4467/comparing-angles-and-working-out-the-difference
             float difference = PI - Math.Abs(Math.Abs(radsToTarget - radsFacing) - PI);
-            return difference < (arcSizeRadians * 0.5f);
+            return difference <= (arcSizeRadians * 0.5f);
         }
 
         // Converts a direction vector to degrees
