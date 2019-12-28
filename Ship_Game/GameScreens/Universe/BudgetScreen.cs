@@ -100,6 +100,8 @@ namespace Ship_Game.GameScreens
                     TaxSlider.RelativeValue = Player.data.TaxRate;
                 }
                 TaxSlider.Enabled = !cb.Checked;
+                var taxChange = Player.data.AutoTaxes ? 6138 : 311;
+                TaxSlider.Text = Localizer.Token(taxChange);
             };
 
             // background panels for TaxRate, incomes, cost, trade: 6138
