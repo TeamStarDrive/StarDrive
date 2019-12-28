@@ -354,6 +354,8 @@ namespace Ship_Game
             if (Owner.isPlayer) // Notify player that the planet was terraformed
                 Empire.Universe.NotificationManager.AddRandomEventNotification(
                     Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
+            else // re-assess colony type after terraform, this might change for the AI
+                colonyType = Owner.AssessColonyNeeds(this);
         }
 
         private void RemoveTerraformers()
