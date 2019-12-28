@@ -36,11 +36,11 @@ namespace Ship_Game
 
             if (budget < -0.1f)
             {
-                ScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
+                TryScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
                 return;
             }
 
-            ScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building
+            TryScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building if allowed to
             if (AvailableTiles > 0)
             {
                 if (SimpleBuild(budget)) // lets try to build something within our debt tolerance
@@ -446,6 +446,9 @@ namespace Ship_Game
             if (b.IsTerraformer) // Terraformers get different logic
                 return 0;
 
+            if (b.MaxFertilityOnBuild < 0 && TerraformingHere)
+                return 0; // Do not build environmental harmful buildings while terraforming
+
             float score = 0;
             if (checkCosts) // we want to also check the cost to build and maintain something we dont have yet
             {
@@ -662,7 +665,10 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (b.IsBiospheres || !b.Scrappable || b.IsPlayerAdded || b.IsTerraformer)
+                if (b.IsBiospheres 
+                    || !b.Scrappable 
+                    || b.IsPlayerAdded && Owner.isPlayer 
+                    || b.IsTerraformer)
                     continue;
 
                 int desiredMilitary  = DesiredMilitaryBuildings;
@@ -703,7 +709,7 @@ namespace Ship_Game
             if (!BuildingInTheWorks && !TerraformerInTheWorks && NumWantedTerraformers() > 0)
             {
                 if (BuildingList.Filter(b => !b.IsBiospheres).Length == TileArea)
-                    ScrapBuilding(budget);  // scrap something to make room for terraformers
+                    TryScrapBuilding(budget);  // scrap something to make room for terraformers
 
                 Construction.AddBuilding(TerraformersWeCanBuild);
             }
@@ -748,9 +754,9 @@ namespace Ship_Game
             return false;
         }
 
-        bool ScrapBuilding(float budget, float scoreThreshold = float.MaxValue)
+        bool TryScrapBuilding(float budget, float scoreThreshold = float.MaxValue)
         {
-            if (Owner.isPlayer && DontScrapBuildings)
+            if (GovernorShouldNotScrapBuilding)
                 return false;  // Player decided not to allow governors to scrap buildings
 
             Building worstBuilding = ChooseWorstBuilding(BuildingList, budget, out float worstWeHave, scoreThreshold);
@@ -758,13 +764,13 @@ namespace Ship_Game
                 return false;
 
             Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {worstBuilding.Name} on planet {Name}   value: {worstWeHave}");
-            ScrapBuilding(worstBuilding); // scrap the worst building  we have on the planet
+            ScrapBuilding(worstBuilding); // scrap the worst building we have on the planet
             return true;
         }
 
         bool ReplaceBuilding(float budget)
         {
-            if (BuildingInTheWorks)
+            if (BuildingInTheWorks || GovernorShouldNotScrapBuilding)
                 return false;
 
             Building bestBuilding  = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
@@ -775,8 +781,10 @@ namespace Ship_Game
             // the best building we can build is better than the worst building we have, let's replace it if the military approves
             if (!MilitaryApprovesReplacement(worstBuilding, bestBuilding))
                 return false; // No approval from the military
+
             Log.Info(ConsoleColor.Cyan, $"{Owner.PortraitName} REPLACED {worstBuilding.Name} on planet {Name}" +
                                         $" value: {worstValue} with {bestBuilding.Name} value: {bestValue}");
+
             ScrapBuilding(worstBuilding);
             Construction.AddBuilding(bestBuilding);
             return true;
@@ -790,10 +798,10 @@ namespace Ship_Game
             if (toScrap.IsMilitary && toBuild.IsMilitary)
                 return true; // Military always likes to upgrade it's buildings
 
-            if (DesiredMilitaryBuildings < ExistingMilitaryBuildings)
-                return true; // Military has too many buildings
+            if (ExistingMilitaryBuildings < DesiredMilitaryBuildings)
+                return true; // Military needs more buildings
 
-            return false; //Military won't replace it's buildings with civilian ones
+            return false; // Military won't replace it's buildings with civilian ones
         }
 
         bool OutpostBuiltOrInQueue()

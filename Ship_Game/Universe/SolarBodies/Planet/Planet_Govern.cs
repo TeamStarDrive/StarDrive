@@ -16,11 +16,11 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
+
+            if (colonyType == ColonyType.Colony || RecentCombat)
+                return; // No Governor or combat on planet? Nevermind!
+
             BuildOutpostIfAble();   //If there is no Outpost or Capital, build it
-
-            if (colonyType == ColonyType.Colony)
-                return; // No Governor? Nevermind!
-
             bool noResearch = Owner.Research.NoTopic;
 
             // Switch to Core if there is nothing in the research queue (Does not actually change assigned Governor)
@@ -81,8 +81,7 @@ namespace Ship_Game
         {
             if (colonyType == ColonyType.Colony || Owner.isPlayer && !GovOrbitals
                                                 || SpaceCombatNearPlanet
-                                                || !HasSpacePort
-                                                || RecentCombat)
+                                                || !HasSpacePort)
             {
                 return;
             }
@@ -99,10 +98,13 @@ namespace Ship_Game
             BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
         }
 
-        private void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
+        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
-        private void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
+
+        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
+
+        bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings; 
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
         {
