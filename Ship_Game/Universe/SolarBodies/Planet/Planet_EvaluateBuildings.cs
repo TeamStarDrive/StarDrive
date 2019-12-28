@@ -665,11 +665,13 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (b.IsBiospheres 
-                    || !b.Scrappable 
-                    || b.IsPlayerAdded && Owner.isPlayer 
+                if (b.IsBiospheres
+                    || !b.Scrappable
+                    || b.IsPlayerAdded && Owner.isPlayer
                     || b.IsTerraformer)
+                {
                     continue;
+                }
 
                 int desiredMilitary  = DesiredMilitaryBuildings;
                 int existingMilitary = ExistingMilitaryBuildings;

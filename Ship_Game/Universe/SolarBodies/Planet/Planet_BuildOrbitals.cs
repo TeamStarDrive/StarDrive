@@ -18,12 +18,12 @@ namespace Ship_Game
                 return;
             }
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
-            var currentStations = FilterOrbitals(ShipData.RoleName.station);
+            var currentStations  = FilterOrbitals(ShipData.RoleName.station);
 
             float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
-            float ratioValue = ColonyValue / maxSystemValue.ClampMin(1);
-            int rank = (int)(budget.SystemRank * ratioValue) + 3;
-            var wantedOrbitals = new WantedOrbitals(rank);
+            float ratioValue     = ColonyValue / maxSystemValue.ClampMin(1);
+            int rank             = (int)(budget.SystemRank * ratioValue) + 3;
+            var wantedOrbitals   = new WantedOrbitals(rank);
 
             BuildOrScrapShipyard(wantedOrbitals.Shipyards);
             BuildOrScrapStations(currentStations, wantedOrbitals.Stations, rank, budget.Orbitals);
@@ -154,7 +154,7 @@ namespace Ship_Game
             if (OrbitalsInTheWorks)
                 return;
 
-            Ship weakestWeHave = orbitalList.FindMin(s => s.BaseStrength);
+            Ship weakestWeHave  = orbitalList.FindMin(s => s.BaseStrength);
             Ship bestWeCanBuild = PickOrbitalToBuild(role, rank, budget);
 
             if (bestWeCanBuild == null)
@@ -195,7 +195,7 @@ namespace Ship_Game
             switch (role)
             {
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station: orbital = Owner.BestStationWeCanBuild; break;
+                case ShipData.RoleName.station: orbital  = Owner.BestStationWeCanBuild; break;
             }
             if (orbital != null && orbitalsBudget - orbital.GetMaintCost(Owner) < 0)
                 return null;
@@ -232,22 +232,22 @@ namespace Ship_Game
             {
                 switch (rank)
                 {
-                    case 1: Platforms = 0; Stations = 0; Shipyards = 0; break;
-                    case 2: Platforms = 0; Stations = 0; Shipyards = 0; break;
-                    case 3: Platforms = 3; Stations = 0; Shipyards = 0; break;
-                    case 4: Platforms = 5; Stations = 0; Shipyards = 0; break;
-                    case 5: Platforms = 7; Stations = 0; Shipyards = 0; break;
-                    case 6: Platforms = 2; Stations = 1; Shipyards = 1; break;
-                    case 7: Platforms = 3; Stations = 2; Shipyards = 1; break;
-                    case 8: Platforms = 5; Stations = 2; Shipyards = 1; break;
-                    case 9: Platforms = 2; Stations = 3; Shipyards = 1; break;
-                    case 10: Platforms = 5; Stations = 3; Shipyards = 2; break;
-                    case 11: Platforms = 5; Stations = 4; Shipyards = 2; break;
-                    case 12: Platforms = 2; Stations = 5; Shipyards = 2; break;
-                    case 13: Platforms = 5; Stations = 6; Shipyards = 2; break;
-                    case 14: Platforms = 9; Stations = 7; Shipyards = 2; break;
+                    case 1: Platforms  = 0;  Stations = 0; Shipyards = 0; break;
+                    case 2: Platforms  = 0;  Stations = 0; Shipyards = 0; break;
+                    case 3: Platforms  = 3;  Stations = 0; Shipyards = 0; break;
+                    case 4: Platforms  = 5;  Stations = 0; Shipyards = 0; break;
+                    case 5: Platforms  = 7;  Stations = 0; Shipyards = 0; break;
+                    case 6: Platforms  = 2;  Stations = 1; Shipyards = 1; break;
+                    case 7: Platforms  = 3;  Stations = 2; Shipyards = 1; break;
+                    case 8: Platforms  = 5;  Stations = 2; Shipyards = 1; break;
+                    case 9: Platforms  = 2;  Stations = 3; Shipyards = 1; break;
+                    case 10: Platforms = 5;  Stations = 3; Shipyards = 2; break;
+                    case 11: Platforms = 5;  Stations = 4; Shipyards = 2; break;
+                    case 12: Platforms = 2;  Stations = 5; Shipyards = 2; break;
+                    case 13: Platforms = 5;  Stations = 6; Shipyards = 2; break;
+                    case 14: Platforms = 9;  Stations = 7; Shipyards = 2; break;
                     case 15: Platforms = 12; Stations = 8; Shipyards = 2; break;
-                    default: Platforms = 0; Stations = 0; Shipyards = 0; break;
+                    default: Platforms = 0;  Stations = 0; Shipyards = 0; break;
                 }
             }
         }
@@ -306,7 +306,7 @@ namespace Ship_Game
         }
 
         public int NumPlatforms => FilterOrbitals(ShipData.RoleName.platform).Count;
-        public int NumStations => FilterOrbitals(ShipData.RoleName.station).Count;
+        public int NumStations  => FilterOrbitals(ShipData.RoleName.station).Count;
 
         public WantedOrbitals GovernorWantedOrbitals()
         {
@@ -318,7 +318,7 @@ namespace Ship_Game
 
         public bool IsOutOfOrbitalsLimit(Ship ship, Empire owner)
         {
-            int numOrbitals = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
+            int numOrbitals  = OrbitalStations.Count + OrbitalsBeingBuilt(ship.shipData.Role, owner);
             int numShipyards = OrbitalStations.Values.Count(s => s.shipData.IsShipyard) + ShipyardsBeingBuilt(owner);
             if (numOrbitals >= ShipBuilder.OrbitalsLimit && ship.IsPlatformOrStation)
                 return true;
