@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -81,6 +81,7 @@ namespace Ship_Game
         public static float RadiansRight = HalfPI;
         public static float RadiansDown  = PI;
         public static float RadiansLeft  = PI + HalfPI;
+        public const float Inv360 = 1f / 360f;
 
         public const float RadianToDegree = 180.0f / PI;
         public const float DegreeToRadian = PI / 180.0f;
@@ -95,9 +96,23 @@ namespace Ship_Game
         // Always in a normalized absolute [0, 2PI] range
         public static float ToRadians(this float degrees)
         {
-            float ratio = degrees / 360f;
-            ratio -= (int)ratio;
-            if (ratio < 0f) ratio = 1f + ratio;
+            float ratio = degrees * Inv360;
+            if (ratio > 1f)
+                ratio -= (int)ratio;
+            else if (ratio < 0f)
+                ratio = 1f + ratio - (int)ratio;
+            return ratio * TwoPI;
+        }
+
+        // Converts existing unbounded RADIANS angle to
+        // a normalized absolute [0, 2PI] range
+        public static float AsNormalizedRadians(this float radians)
+        {
+            float ratio = radians / TwoPI;
+            if (ratio > 1f)
+                ratio -= (int)ratio;
+            else if (ratio < 0f)
+                ratio = 1f + ratio - (int)ratio;
             return ratio * TwoPI;
         }
 
@@ -115,19 +130,13 @@ namespace Ship_Game
             return radians;
         }
 
-        // Converts existing unbounded RADIANS angle to
-        // a normalized absolute [0, 2PI] range
-        public static float AsNormalizedRadians(this float radians)
-        {
-            float ratio = radians / TwoPI;
-            ratio -= (int)ratio;
-            if (ratio < 0f) ratio = 1f + ratio;
-            return ratio * TwoPI;
-        }
-
         public static bool IsTargetInsideArc(Vector2 origin, Vector2 target,
             float arcFacingRads, float arcSizeRadians)
         {
+            // For 360 Arc Sizes, the target is always inside the arc
+            if (arcSizeRadians >= TwoPI)
+                return true;
+
             // NOTE: Atan2(dy,dx) swapped to Atan2(dx,dy)
             // rotates radians -90, because StarDrive uses UP=-Y
             float radsToTarget = PI - (float)Math.Atan2(target.X-origin.X, target.Y-origin.Y); // [0; +2PI]
