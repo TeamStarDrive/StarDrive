@@ -1074,7 +1074,7 @@ namespace Ship_Game
             for (int index = 0; index < EmpireManager.Player.GetEmpireAI().Goals.Count; ++index)
             {
                 Goal goal = player.GetEmpireAI().Goals[index];
-                if (!(goal is BuildConstructionShip || goal is BuildOrbital))
+                if (!goal.IsDeploymentGoal)
                     continue;
                 const float radius = 100f;
                 Vector2 buildPos = Viewport.Project(new Vector3(goal.BuildPosition, 0.0f), Projection, View, Matrix.Identity).ToVec2();
