@@ -2399,23 +2399,6 @@ namespace Ship_Game
                     // added by gremlin Do not include 0 strength ships in defensive force pool
                     s.AI.ClearOrders();
                 }
-
-                if (IsCybernetic)
-                {
-                    foreach (Planet planet in OwnedPlanets)
-                    {
-                        Array<Building> list = new Array<Building>();
-                        foreach (Building building in planet.BuildingList)
-                        {
-                            if (building.PlusFlatFoodAmount > 0.0 || building.PlusFoodPerColonist > 0.0 ||
-                                building.PlusTerraformPoints > 0.0)
-                                list.Add(building);
-                        }
-
-                        foreach (Building b in list)
-                            planet.ScrapBuilding(b);
-                    }
-                }
             }
 
             foreach (Agent agent in target.data.AgentList)
