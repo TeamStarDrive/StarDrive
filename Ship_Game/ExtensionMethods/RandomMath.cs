@@ -61,6 +61,12 @@ namespace Ship_Game
         {
             return IntBetween(1, dieSize);
         }
+
+        public static bool RollDiceAvg(float percent)
+        {
+            float result = RandomBetween(0f, 100f) + RandomBetween(0f, 100f) + RandomBetween(0f, 100f);
+            return result < percent;
+        }
         
         public static T RandItem<T>(IReadOnlyList<T> items)
         {

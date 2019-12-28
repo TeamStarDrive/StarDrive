@@ -8657,5 +8657,17 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>7091</Index>
       <Text>This is this ship's self-repair rate per tick - it can self repair this many hitpoints of a module per tick when outside of combat. Better command and engineering modules improve this.</Text>
     </Token>
+    <Token>
+      <Index>7092</Index>
+      <Text>Governor Budget</Text>
+    </Token>
+    <Token>
+      <Index>7093</Index>
+      <Text>Treasury Goal</Text>
+    </Token>
+    <Token>
+      <Index>7094</Index>
+      <Text>Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 year projection. This can cause massive empire overspending. </Text>
+    </Token>
   </TokenList>
 </LocalizationFile>

@@ -2035,7 +2035,7 @@ namespace Ship_Game
             }
             if (isPlayer)
             {
-                if (Universe.StarDate > 1060.0f)
+                if (Universe.StarDate > 1005.0f)
                 {
                     float aiTotalScore = 0.0f;
                     float score = 0.0f;
@@ -2088,7 +2088,7 @@ namespace Ship_Game
                 }
 
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero == 5 && Money < 0.0)
+                if (data.TurnsBelowZero > 3 && Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
 
                 if (!Universe.NoEliminationVictory)
@@ -2164,7 +2164,7 @@ namespace Ship_Game
 
         void Bankruptcy()
         {
-            if (data.TurnsBelowZero >= 25)
+            if (data.TurnsBelowZero >= RandomMath.RollDie(8))
             {
                 Log.Info($"Rebellion for: {data.Traits.Name}");
 
@@ -2180,14 +2180,29 @@ namespace Ship_Game
                         if (isPlayer)
                             Universe.NotificationManager.AddRebellionNotification(planet,
                                 rebels);
+
                         for (int index = 0; index < planet.PopulationBillion; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
-                            if (planet.FreeTiles == 0 && !planet.BumpOutTroop(EmpireManager.Corsairs)
-                                                      && !troop.TryLandTroop(planet)) // Let's say the rebels are pirates :)
+
+                            var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
+                            
+                            if (RandomMath.RollDiceAvg(chance * 50))
                             {
-                                troop.Launch(planet); // launch the rebels
+                                var t = RandomMath.RandItem(planet.TroopsHere);
+                                if (t != null)
+                                    troop.ChangeLoyalty(rebels);
                             }
+
+                            if (RandomMath.RollDiceAvg(chance * 50))
+                            {
+                                var building = RandomMath.RandItem(planet.BuildingList
+                                                                   .Filter(b=> !b.IsBiospheres));
+                                if (building != null)
+                                    planet.ScrapBuilding(building);
+                            }
+
+                            troop.TryLandTroop(planet);
                         }
                     }
 
