@@ -16,7 +16,7 @@ namespace Ship_Game.AI
     {
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
-        private float BuildCapacity;
+        public float BuildCapacity { get; private set; }
         
         private readonly Empire OwnerEmpire;
         private readonly BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();

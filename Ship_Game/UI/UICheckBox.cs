@@ -61,6 +61,8 @@ namespace Ship_Game
             Binding = new Ref<bool>(binding);
         }
 
+        public Action<UICheckBox> OnChange;
+
         public override void Draw(SpriteBatch batch)
         {
             var checkRect = new Rectangle((int)CheckPos.X, (int)CenterY - 6, 10, 12);
@@ -85,7 +87,10 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(TipText);
 
             if (input.LeftMouseClick)
+            {
                 Binding.Value = !Binding.Value;
+                OnChange?.Invoke(this);
+            }
 
             // always capture input to prevent clicks from reaching elements under us
             return true;
