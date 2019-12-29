@@ -109,6 +109,8 @@ namespace Ship_Game
         public static string GovernorBudget => Token(7092);
         public static string TreasuryGoal => Token(7093);
 
+        public static string AutoTaxes => Token(6138);
+        public static string BudgetScreenTaxSlider => Token(311);
 
         private static string[] Strings = new string[0];
 
