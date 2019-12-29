@@ -600,7 +600,7 @@ namespace Ship_Game
         bool MoveFleetToPlanet(Planet planetClicked, ShipGroup fleet)
         {
             if (planetClicked == null || fleet == null) return false;
-            fleet.Position = planetClicked.Center; //fbedard: center fleet on planet
+            fleet.FinalPosition = planetClicked.Center; //fbedard: center fleet on planet
             foreach (Ship ship2 in fleet.Ships)
                 RightClickOnPlanet(ship2, planetClicked, false);
             return true;
@@ -611,7 +611,7 @@ namespace Ship_Game
             if (shipToAttack == null || shipToAttack.loyalty == player)
                 return false;
 
-            fleet.Position = shipToAttack.Center;
+            fleet.FinalPosition = shipToAttack.Center;
             fleet.AssignPositions(Vectors.Up);
             foreach (Ship fleetShip in fleet.Ships)
                 AttackSpecificShip(fleetShip, shipToAttack);
@@ -620,20 +620,20 @@ namespace Ship_Game
 
         bool QueueFleetMovement(Vector2 movePosition, Vector2 direction, ShipGroup fleet)
         {
-            if (!Input.QueueAction || !fleet.Ships[0].AI.HasWayPoints)
-                return false;
+            if (Input.QueueAction && fleet.Ships[0].AI.HasWayPoints)
+            {
+                foreach (Ship ship in fleet.Ships)
+                    ship.AI.ClearOrdersIfCombat();
 
-            foreach (Ship ship in fleet.Ships)
-                ship.AI.ClearOrdersIfCombat();
-
-            fleet.FormationWarpTo(movePosition, direction, true);
-            return true;
+                fleet.FormationWarpTo(movePosition, direction, true);
+                return true;
+            }
+            return false;
         }
 
         void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
         {
             fleet = fleet ?? SelectedFleet;
-            fleet.FleetTargetList.Clear();
             GameAudio.AffirmativeClick();
 
             foreach (Ship ship in fleet.Ships)
@@ -655,7 +655,7 @@ namespace Ship_Game
             foreach (var ship in fleet.Ships)
                 ship.AI.ClearOrders();
 
-            if (Input.KeysCurr.IsKeyDown(Keys.LeftAlt))
+            if (Input.IsAltKeyDown)
                 fleet.MoveToNow(movePosition, facingDir);
             else
                 fleet.FormationWarpTo(movePosition, facingDir, Input.QueueAction);
