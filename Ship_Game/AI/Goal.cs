@@ -63,7 +63,6 @@ namespace Ship_Game.AI
             {
                 Planet targetPlanet = GetTetherPlanet;
                 targetPlanet = targetPlanet ?? ColonizationTarget;
-                targetPlanet = targetPlanet ?? PlanetBuildingAt;
 
                 if (targetPlanet != null)
                     return targetPlanet.Center + TetherOffset;
@@ -83,6 +82,8 @@ namespace Ship_Game.AI
         }
         public Planet GetTetherPlanet => TetherTarget != Guid.Empty
             ? Empire.Universe.GetPlanet(TetherTarget) : null;
+
+        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
         public abstract string UID { get; }
 
         public Ship FinishedShip
@@ -126,7 +127,7 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
-            g.TetherTarget  = gsave.TetherTarget == Guid.Empty ? gsave.planetWhereBuildingAtGuid : gsave.TetherTarget;
+            g.TetherTarget  = gsave.TetherTarget;
             g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {
