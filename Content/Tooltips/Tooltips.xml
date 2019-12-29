@@ -1280,5 +1280,10 @@
       <Title>Population vs. Max Population</Title>
       <Data>1929</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>255</TIP_ID>
+      <Title>Treasury Goal Projection</Title>
+      <Data>1918</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
