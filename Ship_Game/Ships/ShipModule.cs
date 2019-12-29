@@ -812,7 +812,7 @@ namespace Ship_Game.Ships
             if (debrisCount != 0)
             {
                 float debrisScale = size * 0.033f;
-                SpaceJunk.SpawnJunk(debrisCount, Center, this, 1.0f, debrisScale);
+                SpaceJunk.SpawnJunk(debrisCount, Center, Parent.Velocity, this, 1.0f, debrisScale);
             }
         }
 
@@ -840,9 +840,7 @@ namespace Ship_Game.Ships
                 hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
-                if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+                hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
 
                 HangarShipGuid = hangarShip.guid;
                 hangarTimer = hangarTimerConstant;
@@ -877,9 +875,7 @@ namespace Ship_Game.Ships
             }
 
             hangarShip.DoEscort(Parent);
-            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
-            if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+            hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
 
             hangarShip.Mothership = Parent;
             HangarShipGuid = GetHangarShip().guid;

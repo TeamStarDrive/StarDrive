@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using Ship_Game.Ships.AI;
 using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game.AI
 {
@@ -31,11 +32,9 @@ namespace Ship_Game.AI
 
         public void HoldPosition()
         {
-            if (Owner.isSpooling || Owner.engineState == Ship.MoveState.Warp)
-                Owner.HyperspaceReturn();
+            Owner.HyperspaceReturn();
             State = AIState.HoldPosition;
             CombatState = CombatState.HoldPosition;
-            Owner.isThrusting = false;
         }
 
         internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
@@ -80,10 +79,10 @@ namespace Ship_Game.AI
 
             if (RotateToDirection(direction, elapsedTime, 0.15f))
             {
-                if (speedLimit <= 0) speedLimit = Owner.Speed;
+                if (speedLimit <= 0) speedLimit = Owner.SpeedLimit;
                 speedLimit *= 0.75f; // uh-oh we're going too fast
             }
-            Owner.SubLightAccelerate(elapsedTime, speedLimit);
+            Owner.SubLightAccelerate(speedLimit);
         }
 
         internal void SubLightMoveTowardsPosition(Vector2 position, float elapsedTime, float speedLimit = 0f, bool predictPos = true, bool autoSlowDown = true)
@@ -95,7 +94,7 @@ namespace Ship_Game.AI
                 Log.Error($"SubLightMoveTowardsPosition: invalid position {position}");
 
             if (speedLimit <= 0f)
-                speedLimit = Owner.Speed;
+                speedLimit = Owner.SpeedLimit;
 
             if (autoSlowDown)
             {
@@ -106,7 +105,7 @@ namespace Ship_Game.AI
                     return;
                 }
                 if (distance < speedLimit)
-                    speedLimit = distance;
+                    speedLimit = distance*0.5f;
             }
 
             Vector2 predictedPoint;
@@ -121,7 +120,7 @@ namespace Ship_Game.AI
             }
 
             if (!RotateTowardsPosition(predictedPoint, elapsedTime, 0.02f))
-                Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                Owner.SubLightAccelerate(speedLimit);
         }
 
         // WayPoint move system
@@ -155,11 +154,14 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
+            bool debug = Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
+
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
-            if (distance <= 75f)
+            if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
+                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -170,7 +172,6 @@ namespace Ship_Game.AI
                 return;
             }
 
-            float speedLimit = goal.SpeedLimit.Clamped(5f, distance);
             if (distance > Owner.Radius)
             {
                 // prediction to enhance movement precision
@@ -178,9 +179,27 @@ namespace Ship_Game.AI
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
             }
 
-            if (!RotateToDirection(direction, elapsedTime, 0.05f))
+            bool isFacingTarget = !RotateToDirection(direction, elapsedTime, 0.05f);
+
+            float vel = Owner.CurrentVelocity;
+            float stoppingDistance = Owner.GetMinDecelerationDistance(vel);
+            if (distance <= stoppingDistance)
             {
-                Owner.SubLightAccelerate(elapsedTime, speedLimit);
+                ReverseThrustUntilStopped(elapsedTime);
+                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
+            }
+            else if (isFacingTarget)
+            {
+                if (vel < 25f || distance > stoppingDistance)
+                {
+                    float speedLimit = (distance * 0.4f);
+                    if (goal.SpeedLimit > 0f)
+                        speedLimit = Math.Max(speedLimit, goal.SpeedLimit);
+                    speedLimit = Math.Max(speedLimit, 25f);
+
+                    Owner.SubLightAccelerate(speedLimit);
+                    if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
+                }
             }
         }
 
@@ -192,7 +211,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (!RotateToDirection(Owner.Velocity.Normalized(), elapsedTime, 0.1f))
+            if (!RotateToDirection(Owner.VelocityDirection, elapsedTime, 0.1f))
             {
                 DequeueCurrentOrder(); // rotation complete
             }
@@ -229,15 +248,14 @@ namespace Ship_Game.AI
             if (Owner.Velocity.AlmostZero())
                 return true;
 
-            float deceleration = Owner.velocityMaximum * elapsedTime;
-            if (Owner.Velocity.Length() < deceleration)
+            float deceleration = Owner.VelocityMaximum * elapsedTime;
+            if (Owner.CurrentVelocity < deceleration) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
                 return true; // stopped
             }
 
-            // continue breaking velocity
-            Owner.Velocity -= Owner.Velocity.Normalized() * deceleration;
+            Owner.Decelerate();
             return false;
         }
 
@@ -321,7 +339,7 @@ namespace Ship_Game.AI
                     if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
                 }
-                Owner.SubLightAccelerate(deltaTime, speedLimit);
+                Owner.SubLightAccelerate(speedLimit);
             }
             else // In a fleet
             {
@@ -335,17 +353,19 @@ namespace Ship_Game.AI
                 }
 
                 //speedLimit = FormationWarpSpeed(speedLimit);
-                Owner.SubLightAccelerate(deltaTime, speedLimit);
+                Owner.SubLightAccelerate(speedLimit);
             }
         }
 
         float EstimateMaxTurn(float distance)
         {
-            float timeToTarget = distance / (Owner.MaxFTLSpeed);
-            float maxTurn = Owner.rotationRadiansPerSecond * timeToTarget;
+            float timeToTarget = distance / Owner.MaxFTLSpeed;
+            float maxTurn = Owner.RotationRadiansPerSecond * timeToTarget;
             maxTurn *= 0.4f; // ships can't really turn as numbers would predict...
             // and we don't allow over certain degrees either
-            return maxTurn.Clamped(5f.ToRadians(), 60f.ToRadians());
+            const float minAngle = 5f  * RadMath.DegreeToRadian;
+            const float maxAngle = 60f * RadMath.DegreeToRadian;
+            return maxTurn.Clamped(minAngle, maxAngle);
         }
 
         bool UpdateWarpThrust(float elapsedTime, float angleDiff, float distance)

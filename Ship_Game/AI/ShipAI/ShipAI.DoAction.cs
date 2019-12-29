@@ -310,8 +310,7 @@ namespace Ship_Game.AI
 
                     if (distanceToTarget >= 5500f)
                     {
-                        float speedLimit = Owner.Speed.Clamped(distanceToTarget, Owner.velocityMaximum);
-                        ThrustOrWarpToPos(MovePosition, elapsedTime, speedLimit);
+                        ThrustOrWarpToPos(MovePosition, elapsedTime, distanceToTarget);
                     }
                     else
                     {
@@ -335,7 +334,7 @@ namespace Ship_Game.AI
 
         void DoHoldPositionCombat(float elapsedTime)
         {
-            if (Owner.Velocity.Length() > 0f)
+            if (Owner.CurrentVelocity > 0f)
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 Vector2 interceptPoint = Owner.PredictImpact(Target);
@@ -628,15 +627,14 @@ namespace Ship_Game.AI
 
             var escortVector = EscortTarget.FindStrafeVectorFromTarget(goal.VariableNumber, goal.Direction);
             float distanceToEscortSpot = Owner.Center.Distance(escortVector);
-            float supplyShipVelocity   = EscortTarget.Velocity.Length();
-            float escortVelocity       = Owner.velocityMaximum;
-            if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
-                escortVelocity = distanceToEscortSpot / 2000 * Owner.velocityMaximum + supplyShipVelocity + 25;
+            float supplyShipVelocity   = EscortTarget.CurrentVelocity;
+            float escortVelocity       = Owner.VelocityMaximum;
+            if (distanceToEscortSpot < 50)
+                escortVelocity = distanceToEscortSpot;
+            else if (distanceToEscortSpot < 2000) // ease up thrust on approach to escort spot
+                escortVelocity = distanceToEscortSpot / 2000 * Owner.VelocityMaximum + supplyShipVelocity + 25;
 
-            if (distanceToEscortSpot > 50)
-                ThrustOrWarpToPos(escortVector, elapsedTime, escortVelocity);
-            else
-                Owner.Velocity = Vector2.Zero;
+            ThrustOrWarpToPos(escortVector, elapsedTime, escortVelocity);
 
             switch (goal.VariableString)
             {
