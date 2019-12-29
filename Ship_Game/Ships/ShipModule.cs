@@ -594,11 +594,12 @@ namespace Ship_Game.Ships
             if (!TryDamageModule(source, damageAmount * damageModifier))
             {
                 damageRemainder = 0f;
-                if (source != null) EvtDamageInflicted(source, 0f);
+                if (source != null)
                 {
-                    Deflect(source); // FB: the projectile was deflected
-                    return; 
+                    EvtDamageInflicted(source, 0f);
                 }
+                Deflect(source); // FB: the projectile was deflected
+                return; 
             }
 
             DebugDamageCircle();
