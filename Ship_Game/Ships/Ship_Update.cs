@@ -231,9 +231,9 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (Velocity.Length() < 5f)
-                Velocity = RandomMath.Vector2D(100);
-            IntegratePosVelocityVerlet(elapsedTime, Vector2.Zero);
+            // for a cool death effect, make the ship accelerate out of control:
+            ApplyThrust(200f, +1);
+            UpdateVelocityAndPosition(elapsedTime);
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
