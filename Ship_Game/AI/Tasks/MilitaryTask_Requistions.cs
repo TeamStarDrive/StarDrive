@@ -293,7 +293,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             //All's Good... Make a fleet
-            var ships = fleetShips.CollectShipSet(EnemyStrength, bombTimeNeeded
+            var ships = fleetShips.ExtractShipSet(EnemyStrength, bombTimeNeeded
                 , NeededTroopStrength, troopsOnPlanets);
             if (ships.IsEmpty)
                 return;
@@ -430,7 +430,7 @@ namespace Ship_Game.AI.Tasks
             foreach (var ship in forcePool)
                 fleetShips.AddShip(ship);
 
-            fleetShips.GatherSetsOfFleetShipsUpToStrength(strengthNeeded,0.2f , out Array<Ship> ships);
+            fleetShips.ExtractFleetShipsUpToStrength(strengthNeeded,0.2f , out Array<Ship> ships);
 
             if (ships.Count < 3 || fleetShips.AccumulatedStrength < strengthNeeded * 0.9f)
                 return false;
@@ -510,8 +510,8 @@ namespace Ship_Game.AI.Tasks
             }
 
             FleetShips fleet = GetAvailableShips(closestAO);
-            Array<Ship> potentialAssaultShips = fleet.GetTroops(4);
-            fleet.GatherSetsOfFleetShipsUpToStrength(EnemyStrength, 0.25f, out Array<Ship> potentialCombatShips);
+            Array<Ship> potentialAssaultShips = fleet.ExtractTroops(4);
+            fleet.ExtractFleetShipsUpToStrength(EnemyStrength, 0.25f, out Array<Ship> potentialCombatShips);
 
             float ourAvailableStrength = 0f;
             CountShipTroopAndStrength(potentialAssaultShips, out float troopStrength);

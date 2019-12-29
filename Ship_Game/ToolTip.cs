@@ -31,6 +31,8 @@ namespace Ship_Game
         public static void ShipYardArcTip() => CreateTooltip("Shift for fine tune\nAlt for previous arcs");
         public static void PlanetLandingSpotsTip(string locationText, int spots) => CreateTooltip($"{locationText}\n{spots} Landing Spots",alwaysShow:true);
 
+        public static int AutoTaxToolTip => 7040;
+
         /**
          * @todo tooltip issues
          * Main issue here. 
