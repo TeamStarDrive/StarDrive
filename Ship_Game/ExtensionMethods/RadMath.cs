@@ -106,17 +106,17 @@ namespace Ship_Game
             float ratio = degrees * Inv360;
             // compare degrees, because Inv360 isn't accurate in
             // case: ToRadians(360f) expected: 2PI
-            if (degrees > 360.000001f) // NOTE: .000001f is important!
+            if (degrees > 360.001f) // NOTE: .001f is important for rounding 360+EPSILON as TwoPI
             {
-                return (ratio - (int)ratio) * TwoPI; 
+                return Math.Min((ratio - (int)ratio) * TwoPI, TwoPI); 
             }
             else if (degrees < 0f)
             {
-                return (1f + ratio - (int)ratio) * TwoPI;
+                return Math.Min((1f + ratio - (int)ratio) * TwoPI, TwoPI);
             }
             else
             {
-                return ratio * TwoPI;
+                return Math.Min(ratio * TwoPI, TwoPI);
             }
         }
 
@@ -128,17 +128,18 @@ namespace Ship_Game
             float ratio = radians * InvTwoPI;
             // compare radians, because InvTwoPI isn't accurate in
             // case: AsNormalizedRadians(2PI) expected: 2PI
-            if (radians > TwoPI)
+            const float nearlyTwoPI = TwoPI + 0.001f; // 0.05degrees tolerance
+            if (radians > nearlyTwoPI)
             {
-                return (ratio - (int)ratio) * TwoPI;
+                return Math.Min((ratio - (int)ratio) * TwoPI, TwoPI);
             }
             else if (radians < 0f)
             {
-                return (1f + ratio - (int)ratio) * TwoPI;
+                return Math.Min((1f + ratio - (int)ratio) * TwoPI, TwoPI);
             }
             else
             {
-                return ratio * TwoPI;
+                return Math.Min(ratio * TwoPI, TwoPI);
             }
         }
 
