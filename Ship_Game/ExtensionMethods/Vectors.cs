@@ -266,19 +266,19 @@ namespace Ship_Game
         public static Vector2 Normalized(this Vector2 v)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y);
-            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
+            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : default;
         }
 
         public static Vector2 Normalized(this Vector2 v, float newMagnitude)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y) / newMagnitude;
-            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : new Vector2();
+            return len > 0.0000001f ? new Vector2(v.X / len, v.Y / len) : default;
         }
 
         public static Vector3 Normalized(this Vector3 v)
         {
             float len = (float)Sqrt(v.X*v.X + v.Y*v.Y + v.Z*v.Z);
-            return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : new Vector3();
+            return len > 0.0000001f ? new Vector3(v.X / len, v.Y / len, v.Z / len) : default;
         }
 
         
