@@ -236,32 +236,51 @@ namespace Ship_Game
 
         bool StandardAssault(SolarSystem[] systemsToAttack)
         {
-            var threatMatrix = Us.GetEmpireAI().ThreatMatrix;
             bool targetFound = false;
+            systemsToAttack.Sort(s => s.PlanetList.Sum(p => p.ColonyBaseValue(Us)));
+
             foreach (var system in systemsToAttack)
             {
-                if (!IsAlreadyAssaultingSystem(system))
+                foreach(var planet in system.PlanetList.SortedDescending(p=> p.ColonyBaseValue(Us)))
                 {
-                    var theirPlanets = system.PlanetList.Filter(p => p.Owner == Them);
-                    foreach (var planet in theirPlanets.Sorted(p => p.ColonyBaseValue(Us)))
+                    if (planet.Owner == Them)
                     {
-                        float AORadius = 3500f;
-                        float strWanted = threatMatrix.PingRadarStr(planet.Center, AORadius, Us);
-                        strWanted += planet.TotalGeodeticOffense;
-                        Us.GetEmpireAI().TaskList.Add(new MilitaryTask(planet, Us, strWanted));
-                        targetFound = true;
+                        if (!IsAlreadyAssaultingPlanet(planet))
+                        {
+                            Us.GetEmpireAI().TaskList.Add(new MilitaryTask(planet, Us));
+                            targetFound = true;
+                        }
                     }
                 }
             }
+
             return targetFound;
         }
 
         bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
             using (Us.GetEmpireAI().TaskList.AcquireReadLock())
-                return Us.GetEmpireAI().TaskList.Any(task => task.type == MilitaryTask.TaskType.AssaultPlanet && 
-                                                             task.TargetPlanet?.ParentSystem == system);
+                return Us.GetEmpireAI().TaskList.Any(task =>
+                {
+                    if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
+                        task.TargetPlanet?.ParentSystem == system) 
+                        return true;
+                    return false;
+                });
         }
+
+        bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
+        {
+            using (Us.GetEmpireAI().TaskList.AcquireReadLock())
+                return Us.GetEmpireAI().TaskList.Any(task =>
+                {
+                    if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
+                        task.TargetPlanet == planetToAssault)
+                        return true;
+                    return false;
+                });
+        }
+
         public MilitaryTask[] TasksForThisWar()
         {
             using (Us.GetEmpireAI().TaskList.AcquireReadLock())

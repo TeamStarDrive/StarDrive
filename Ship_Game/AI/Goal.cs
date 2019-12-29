@@ -82,6 +82,8 @@ namespace Ship_Game.AI
         }
         public Planet GetTetherPlanet => TetherTarget != Guid.Empty
             ? Empire.Universe.GetPlanet(TetherTarget) : null;
+
+        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
         public abstract string UID { get; }
 
         public Ship FinishedShip

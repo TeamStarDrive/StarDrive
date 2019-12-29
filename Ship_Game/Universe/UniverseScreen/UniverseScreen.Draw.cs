@@ -5,7 +5,6 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using Ship_Game.AI.Budget;
 
 namespace Ship_Game
 {
@@ -759,7 +758,8 @@ namespace Ship_Game
         {
             var goal = SelectedItem?.AssociatedGoal;
             if (goal == null) return;
-            DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
+            if (!LookingAtPlanet)
+                DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
         }
 
         void DrawShipUI(GameTime gameTime)
@@ -879,33 +879,33 @@ namespace Ship_Game
 
             DrawProjectedGroup();
 
-            var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
-
-            lock (GlobalStats.ClickableItemLocker)
-            {
-                for (int i = 0; i < ItemsToBuild.Count; ++i)
+            if (showingDSBW && !LookingAtPlanet)
+                lock (GlobalStats.ClickableItemLocker)
                 {
-                    ClickableItemUnderConstruction item = ItemsToBuild[i];
-
-                    if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
+                    var platform = ResourceManager.Texture("TacticalIcons/symbol_platform");
+                    for (int i = 0; i < ItemsToBuild.Count; ++i)
                     {
-                        //float scale2 = 0.07f;
-                        float scale = ((float) buildTemplate.SurfaceArea / platform.Width) * 4000f / CamHeight;
-                        DrawTextureProjected(platform, item.BuildPos, scale, 0.0f, new Color(0, 255, 0, 100));
-                        if (showingDSBW)
+                        ClickableItemUnderConstruction item = ItemsToBuild[i];
+
+                        if (ResourceManager.GetShipTemplate(item.UID, out Ship buildTemplate))
                         {
+                            ProjectToScreenCoords(item.BuildPos, platform.Width, out Vector2 posOnScreen, out float size);
+
+                            float scale = ScaleIconSize(size, 0.01f, 0.125f);
+                            DrawTextureSized(platform, posOnScreen, 0.0f, platform.Width * scale,
+                                       platform.Height * scale, new Color(0, 255, 0, 100));
+
                             if (item.UID == "Subspace Projector")
                             {
-                                DrawCircleProjected(item.BuildPos, EmpireManager.Player.ProjectorRadius, Color.Orange, 2f);
+                                DrawCircle(posOnScreen, EmpireManager.Player.ProjectorRadius, Color.Orange, 2f);
                             }
                             else if (buildTemplate.SensorRange > 0f)
                             {
-                                DrawCircleProjected(item.BuildPos, buildTemplate.SensorRange, Color.Blue, 2f);
+                                DrawCircle(posOnScreen, buildTemplate.SensorRange, Color.Orange, 2f);
                             }
                         }
                     }
                 }
-            }
 
             // show the object placement/build circle
             if (showingDSBW && dsbw.itemToBuild != null && dsbw.itemToBuild.IsSubspaceProjector &&
@@ -916,7 +916,15 @@ namespace Ship_Game
                 DrawCircle(center, MathExt.SmoothStep(ref radlast, screenRadius, .3f), Color.Orange, 2f); //
             }
         }
-
+        private float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
+        {
+            float size = screenRadius * 2;
+            if (size < minSize && minSize != 0)
+                size = minSize;
+            else if (maxSize > 0f && size > maxSize)
+                size = maxSize;
+            return size + GlobalStats.IconSize;
+        }
         void DrawPlanetProjectiles(SpriteBatch batch)
         {
             foreach (SolarSystem sys in SolarSystemList)
