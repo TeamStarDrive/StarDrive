@@ -38,7 +38,7 @@ namespace Ship_Game
         int LastAveragePosUpdate = -1;
 
         public int CountShips => Ships.Count;
-        public override string ToString() => $"FleetGroup size={Ships.Count}";
+        public override string ToString() => $"FleetGroup ships={Ships.Count}";
 
         //// Fleet Goal Access | We don't want to expose the inner details ////
         public bool HasFleetGoal => GoalStack.Count > 0;
@@ -101,7 +101,7 @@ namespace Ship_Game
         public void AssignPositions(Vector2 newDirection)
         {
             if (!newDirection.IsUnitVector())
-                Log.Error($"AssembleFleet newDirection {newDirection} must be a direction unit vector!");
+                Log.Error($"AssignPositions newDirection {newDirection} must be a direction unit vector!");
 
             FinalDirection = newDirection;
             float facing = newDirection.ToRadians();
@@ -120,7 +120,7 @@ namespace Ship_Game
             if (!finalDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {finalDirection} must be a direction unit vector!");
             
-            FinalPosition = finalPosition;
+            FinalPosition  = finalPosition;
             FinalDirection = finalDirection;
             float facing = finalDirection.ToRadians();
 
@@ -312,6 +312,11 @@ namespace Ship_Game
             return AveragePos;
         }
 
+        public Ship GetClosestShipTo(Vector2 worldPos)
+        {
+            return Ships.FindMin(ship => ship.Center.SqDist(worldPos));
+        }
+
         protected bool IsFleetSupplied(float wantedSupplyRatio =.1f)
         {
             float currentAmmo = 0.0f;
@@ -343,7 +348,7 @@ namespace Ship_Game
 
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
         {
-            GoalStack?.Clear();
+            GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection, !queueOrder);
 
             for (int i = 0; i < Ships.Count; ++i)
@@ -359,10 +364,7 @@ namespace Ship_Game
 
         public void MoveToDirectly(Vector2 finalPosition, Vector2 finalDirection)
         {
-            if (!finalDirection.IsUnitVector())
-                Log.Error($"MoveDirectlyNow direction {finalDirection} must be a direction unit vector!");
-            
-            GoalStack?.Clear();
+            GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection);
             
             foreach (Ship ship in Ships)
@@ -405,7 +407,7 @@ namespace Ship_Game
         /// </summary>
         internal void DoOrbitAreaRestricted(Planet planet, Vector2 position, float radius)
         {
-            foreach (var ship in Ships)
+            foreach (Ship ship in Ships)
             {
                 if (ship.AI.State != AIState.Orbit && ship.Center.InRadius(ship.Center, radius))
                     ship.OrderToOrbit(planet);

@@ -94,7 +94,6 @@ namespace Ship_Game.Ships
         public Power NetPower { get; private set; }
         public bool FromSave;
         public bool HasRepairModule;
-        readonly AudioHandle Afterburner = new AudioHandle();
         readonly AudioHandle JumpSfx = new AudioHandle();
 
         public int Level;
