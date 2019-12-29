@@ -95,6 +95,11 @@ namespace Ship_Game
             return t;
         }
 
+        public void ChangeLoyalty(Empire newOwner)
+        {
+            Owner = newOwner;
+        }
+
         public void DoAttack()
         {
             Idle       = false;
