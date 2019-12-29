@@ -106,7 +106,7 @@ namespace Ship_Game
             float ratio = degrees * Inv360;
             // compare degrees, because Inv360 isn't accurate in
             // case: ToRadians(360f) expected: 2PI
-            if (degrees > 360f)
+            if (degrees > 360.000001f) // NOTE: .000001f is important!
             {
                 return (ratio - (int)ratio) * TwoPI; 
             }
