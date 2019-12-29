@@ -947,17 +947,22 @@ namespace Ship_Game
 
         public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
 
-        public float TerraformTargetFertility
+        // FB - This will give the Max Fertility the planet should have after terraforming is complete
+        public float TerraformMaxFertilityTarget
         {
             get
             {
-                float fertilityAddition = 1; 
-                foreach (Building b in BuildingList)
+                float sumPositiveFertilityChange = 1;
+
+                for (int i = 0; i < BuildingList.Count; i++)
                 {
+                    Building b = BuildingList[i];
                     if (b.MaxFertilityOnBuild > 0)
-                        fertilityAddition += b.MaxFertilityOnBuild;
+                        sumPositiveFertilityChange += b.MaxFertilityOnBuild;
                 }
-                return fertilityAddition + 1 / (Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1);
+
+                float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
+                return racialEnvDivider + sumPositiveFertilityChange;
             }
         }
 
