@@ -447,8 +447,13 @@ namespace Ship_Game
             float score = 0;
             if (checkCosts) // we want to also check the cost to build and maintain something we dont have yet
             {
-                if (b.ActualMaintenance(this).GreaterOrEqual(budget) && (!b.IsMoneyBuilding || b.IsMoneyBuilding && b.IsHarmfulToEnv))
-                    return -1; // building cannot be built since it has higher maintenance than the budget, unless they are Env friendly money buildings
+                if (b.ActualMaintenance(this).GreaterOrEqual(budget)
+                    && (!b.IsMoneyBuilding || b.IsMoneyBuilding && b.IsHarmfulToEnv))
+                {
+                    return -1; 
+                    // building cannot be built since it has higher maintenance than the budget
+                    // unless they are Env friendly money buildings
+                }
 
                 score = EvalMaintenance(b, budget);
                 score += EvalCostVsBuildTime(b);
