@@ -19,26 +19,26 @@ namespace Ship_Game.AI
             return 1;
         }
 
-        private void RunEconomicPlanner()
+        public void RunEconomicPlanner()
         {
             float money                    = OwnerEmpire.Money.ClampMin(1.0f);
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
-            float risk = GetRisk().Clamped(0,1);
-            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(risk, treasuryGoal);
+            float gameState                = GetRisk().Clamped(0,1);
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(gameState, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
-            BuildCapacity                  = DetermineBuildCapacity(risk, treasuryGoal);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(risk, treasuryGoal);
+            BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(gameState, treasuryGoal);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
-
 
             PlanetBudgetDebugInfo();
         }
         float DetermineDefenseBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.0025f, risk + strat.MilitaryRatio, money);
+            float adjustor = risk + strat.MilitaryRatio;
+            return SetBudgetForeArea(0.0025f, adjustor, money);
         }
         float DetermineSSPBudget(float money)
         {
@@ -80,19 +80,16 @@ namespace Ship_Game.AI
             PlanetBudgets = pBudgets;
         }
 
-        private float TreasuryGoal()
+        public float TreasuryGoal()
         {
-             float treasuryGoal = OwnerEmpire.data.treasuryGoal;
-            if (!OwnerEmpire.isPlayer || OwnerEmpire.data.AutoTaxes)
-            {
-                //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
-                treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
-                               + OwnerEmpire.data.FlatMoneyBonus
-                               + OwnerEmpire.BuildingAndShipMaint /5
-                    ; //more savings than GDP
-            }
+            //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
+            float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
+                                 + OwnerEmpire.data.FlatMoneyBonus
+                                 + OwnerEmpire.BuildingAndShipMaint / 5;
+
             treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
-            treasuryGoal = Math.Max(1000, treasuryGoal);
+            float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
+            treasuryGoal = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;
         }
 
@@ -116,6 +113,7 @@ namespace Ship_Game.AI
 
         private float SetBudgetForeArea(float percentOfIncome, float risk, float money)
         {
+            risk = OwnerEmpire.isPlayer ? 1 : risk;
             float budget = money * percentOfIncome * risk;
             budget = Math.Max(1, budget);
             return budget;

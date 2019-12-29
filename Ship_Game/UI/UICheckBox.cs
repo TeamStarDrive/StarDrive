@@ -1,8 +1,7 @@
-using System;
-using System.Linq.Expressions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
+using System;
+using System.Linq.Expressions;
 
 namespace Ship_Game
 {
@@ -17,6 +16,9 @@ namespace Ship_Game
 
         Vector2 TextPos;
         Vector2 CheckPos;
+
+        public Action<UICheckBox> OnChange;
+
         public bool Checked => Binding.Value;
         public override string ToString() => $"Checkbox {ElementDescr} Text=\"{Text}\" Checked={Checked}";
 
@@ -85,7 +87,10 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(TipText);
 
             if (input.LeftMouseClick)
+            {
                 Binding.Value = !Binding.Value;
+                OnChange?.Invoke(this);
+            }
 
             // always capture input to prevent clicks from reaching elements under us
             return true;
@@ -100,7 +105,7 @@ namespace Ship_Game
             int th = Font.LineSpacing / 2;
             Size = new Vector2(h + Font.TextWidth(Text), h+1);
             TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
-            CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2, 
+            CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2,
                                    Pos.Y + 5 - th);
         }
     }
