@@ -8,7 +8,6 @@ namespace Ship_Game.AI.Budget
     {
         //if not initialized then it is not safe to use. 
         public bool Initialized { get; }
-        public readonly float PlanetDefenseBudget;
         public readonly float Budget;
         public readonly float EmpireRatio;
         public float SystemRank => SysCom?.RankImportance ?? 0;
@@ -20,8 +19,9 @@ namespace Ship_Game.AI.Budget
         private SolarSystem System;
         private readonly Planet Planet;
 
-        public float Buildings;
-        public float Orbitals;
+        public readonly float Buildings;
+        public readonly float Orbitals;
+        public readonly float PlanetDefenseBudget;
 
         public PlanetBudget(Planet planet)
         {
@@ -29,16 +29,18 @@ namespace Ship_Game.AI.Budget
                 DefensiveCoordinator.GetSystemCommander(planet.ParentSystem);
             if (planet != null && SysCom != null)
             {
-                Planet = planet;
-                System = planet.ParentSystem;
-                Owner = planet.Owner;
-                PlanetValues = SysCom.GetPlanetValues(planet);
-                EmpireRatio = SysCom.PercentageOfValue * PlanetValues.RatioInSystem;
-                Budget = EmpireColonizationBudget * EmpireRatio;
-                Orbitals = PlanetDefenseBudget = EmpireDefenseBudget * EmpireRatio;
-                Budget -= planet.ColonyMaintenance;
+                Planet              = planet;
+                System              = planet.ParentSystem;
+                Owner               = planet.Owner;
+                PlanetValues        = SysCom.GetPlanetValues(planet);
+                EmpireRatio         = SysCom.PercentageOfValue * PlanetValues.RatioInSystem;
+                Budget              = EmpireColonizationBudget * EmpireRatio;
+                Orbitals            = (EmpireDefenseBudget * EmpireRatio) - planet.OrbitalsMaintenance;
+                PlanetDefenseBudget = (EmpireDefenseBudget * EmpireRatio) - planet.MilitaryBuildingsMaintenance;
+                Budget             -= planet.ColonyMaintenance;
                 if (Budget < 0)
                     Budget = (Budget + planet.ColonyDebtTolerance).Clamped(-float.MaxValue, 0);
+
                 Buildings = Budget;
 
                 Initialized = true;
