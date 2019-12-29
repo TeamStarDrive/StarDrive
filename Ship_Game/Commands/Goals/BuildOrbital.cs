@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using System;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -69,7 +69,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep WaitForDeployment()
         {
-            // FB - must keep this goal until the ship deployed it's structure. 
+            // FB - must keep this goal until the ship deployed it's structure.
             // If the goal is not kept, load game construction ships lose the empire goal and get stuck
             return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
         }
@@ -77,6 +77,10 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         Vector2 FindNewOrbitalLocation()
         {
             const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
+            //save game compatibility hack to make up for the missing tether target in save.
+            //remove this later
+            if (TetherTarget == Guid.Empty)
+                TetherTarget = PlanetBuildingAt.guid;
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees    = (int)RandomMath.RandomBetween(0f, 9f);

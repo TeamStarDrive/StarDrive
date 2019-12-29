@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
@@ -24,8 +23,6 @@ namespace Ship_Game
 
     public abstract class GameplayObject
     {
-        public static GraphicsDevice device;
-
         /**
          *  @note Careful! Any property/variable that doesn't have [XmlIgnore][JsonIgnore]
          *        will be accidentally serialized!
@@ -35,6 +32,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx = new AudioHandle();
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
+        // TODO: Position and Center are duplicates. One of them should be removed eventually.
         [Serialize(0)] public Vector2 Position;
         [Serialize(1)] public Vector2 Center;
         [Serialize(2)] public Vector2 Velocity;
@@ -64,6 +62,9 @@ namespace Ship_Game
         // current rotation converted into a direction vector
         [XmlIgnore][JsonIgnore] public Vector2 Direction   => Rotation.RadiansToDirection();
         [XmlIgnore][JsonIgnore] public Vector3 Direction3D => Rotation.RadiansToDirection3D();
+
+        // Current direction of the Velocity vector, or Vector2.Zero if Velocity is Zero
+        [XmlIgnore][JsonIgnore] public Vector2 VelocityDirection => Velocity.Normalized();
 
         // gets/set the Rotation in Degrees; Properly normalizes input degrees to [0; +2PI]
         [XmlIgnore][JsonIgnore] public float RotationDegrees

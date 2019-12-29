@@ -55,7 +55,7 @@ namespace Ship_Game.AI.ShipMovement
         // orbit around a planet
         public void Orbit(Planet orbitTarget, float elapsedTime)
         {
-            if (Owner.velocityMaximum < 1 || Owner.EnginesKnockedOut)
+            if (Owner.VelocityMaximum < 1 || Owner.EnginesKnockedOut)
                 return;
           
             float radius = orbitTarget.ObjectRadius + Owner.Radius;
@@ -90,14 +90,14 @@ namespace Ship_Game.AI.ShipMovement
             UpdateOrbitPos(orbitTarget.Center, radius, elapsedTime);
 
             // precision move, this fixes uneven thrusting while orbiting
-            float maxVel = (float)Math.Floor(Owner.velocityMaximum*0.95f);
+            float maxVel = (float)Math.Floor(Owner.VelocityMaximum*0.95f);
             float precisionSpeed = Math.Min(OrbitalSpeedLimit, maxVel);
 
             // We are within orbit radius, so do actual orbiting:
             if (Owner.Center.InRadius(OrbitPos, radius * 1.2f))
             {
                 AI.RotateTowardsPosition(OrbitPos, elapsedTime, 0.01f);
-                Owner.SubLightAccelerate(elapsedTime, precisionSpeed);
+                Owner.SubLightAccelerate(speedLimit: precisionSpeed);
                 Owner.RestoreYBankRotation();
             }
             else // we are still not there yet, so find a meaningful orbit position
