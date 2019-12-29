@@ -1267,17 +1267,6 @@ namespace Ship_Game.AI
 
             planetAssaultStrength += ourGroundStrength;
 
-            //if (ourGroundStrength < 1 && planetAssaultStrength < theirGroundStrength * 0.75f)
-            //{
-            //    DebugInfo(task, $"Fail insufficient forces. us: {planetAssaultStrength} them:{theirGroundStrength}");
-            //    return false;
-            //}
-            //if (ourGroundStrength < 1 && freeLandingSpots < landingSpotsNeeded)
-            //{
-            //    DebugInfo(task,$"Fail insufficient landing space. planetHas: {freeLandingSpots} Needed: {landingSpotsNeeded}");
-            //    return false;
-            //}
-
             if (task.TargetPlanet.TotalGeodeticOffense > 0) 
                 return false;
             if (freeLandingSpots < 20)
