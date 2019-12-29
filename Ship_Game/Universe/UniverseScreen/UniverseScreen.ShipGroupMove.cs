@@ -225,6 +225,15 @@ namespace Ship_Game
             ShipPieMenu(SelectedShip);
         }
 
+        // depending on current input state, either gives straight direction from center to final pos
+        // or if queueing waypoints, gives direction from last waypoint to final pos
+        Vector2 GetDirectionToFinalPos(Ship ship, Vector2 finalPos)
+        {
+            Vector2 fleetPos = Input.QueueAction && ship.AI.HasWayPoints
+                             ? ship.AI.MovePosition : ship.Center;
+            Vector2 finalDir = fleetPos.DirectionToTarget(finalPos);
+            return finalDir;
+        }
 
         void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
         {
@@ -234,9 +243,10 @@ namespace Ship_Game
             }
             else
             {
-                Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-                Vector2 dir = fleet.FinalPosition.DirectionToTarget(start);
-                MoveFleetToLocation(targetShip, targetPlanet, start, dir, fleet);
+                Vector2 finalPos = UnprojectToWorldPosition(Input.StartRightHold);
+                Ship centerMost = fleet.GetClosestShipTo(fleet.AveragePosition());
+                Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
+                MoveFleetToLocation(targetShip, targetPlanet, finalPos, finalDir, fleet);
             }
         }
 
@@ -248,9 +258,9 @@ namespace Ship_Game
             }
             else
             {
-                Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-                Vector2 dir = selectedShip.Position.DirectionToTarget(start);
-                MoveShipToLocation(start, dir, selectedShip);
+                Vector2 finalPos = UnprojectToWorldPosition(Input.StartRightHold);
+                Vector2 finalDir = GetDirectionToFinalPos(selectedShip, finalPos);
+                MoveShipToLocation(finalPos, finalDir, selectedShip);
             }
         }
 
