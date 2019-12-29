@@ -92,7 +92,7 @@ namespace Ship_Game.Universe.SolarBodies
             // apply production to specified item
             if (ConstructionQueue.Count > itemIndex)
             {
-                SpendProduction(ConstructionQueue[itemIndex], maxAmount);                            
+                SpendProduction(ConstructionQueue[itemIndex], maxAmount);
             }
 
             for (int i = 0; i < ConstructionQueue.Count; )
@@ -190,7 +190,7 @@ namespace Ship_Game.Universe.SolarBodies
             SurplusThisTurn = surplusFromPlanet;
             if (ConstructionQueue.IsEmpty)
                 return;
-            
+
             float percentToApply = 1f;
             if      (P.CrippledTurns > 0) percentToApply = 0.05f; // massive sabotage to planetary facilities
             else if (P.RecentCombat)      percentToApply = 0.2f;  // ongoing combat is hindering logistics
