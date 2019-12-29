@@ -106,8 +106,8 @@ namespace Ship_Game
         public static string HullRepairBonus => Token(6013);
         public static string HullCostBonus => Token(6021);
         public static string Trade => Token(321);
-        public static string GovernorBudget => Token(7092);
-        public static string TreasuryGoal => Token(7093);
+        public static string GovernorBudget => Token(1916);
+        public static string TreasuryGoal => Token(1917);
 
         public static string AutoTaxes => Token(6138);
         public static string BudgetScreenTaxSlider => Token(311);
