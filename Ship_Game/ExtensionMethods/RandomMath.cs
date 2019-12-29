@@ -1,6 +1,6 @@
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
@@ -61,7 +61,13 @@ namespace Ship_Game
         {
             return IntBetween(1, dieSize);
         }
-        
+
+        public static bool RollDiceAvg(float percent)
+        {
+            float result = RandomBetween(0f, 100f) + RandomBetween(0f, 100f) + RandomBetween(0f, 100f);
+            return result / 3 < percent;
+        }
+
         public static T RandItem<T>(IReadOnlyList<T> items)
         {
             return items[InRange(items.Count)];
@@ -92,14 +98,14 @@ namespace Ship_Game
         // Generates a Vector3 with X Y Z in range [-radius, +radius]
         public static Vector3 Vector3D(float radius)
         {
-            return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 
+            return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius),
                                RandomBetween(-radius, +radius));
         }
 
         // Generates a Vector3 with X Y Z in range [minradius, maxradius]
         public static Vector3 Vector3D(float minradius, float maxradius)
         {
-            return new Vector3(RandomBetween(minradius, maxradius), RandomBetween(minradius, maxradius), 
+            return new Vector3(RandomBetween(minradius, maxradius), RandomBetween(minradius, maxradius),
                                RandomBetween(minradius, maxradius));
         }
 
