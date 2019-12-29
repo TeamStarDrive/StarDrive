@@ -269,7 +269,7 @@ namespace Ship_Game
 
         private bool TerraformPlanet()
         {
-            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformTargetFertility))
+            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformMaxFertilityTarget))
                 return false;
 
             TerraformPoints += TerraformToAdd;
@@ -338,7 +338,7 @@ namespace Ship_Game
             if (Owner.NonCybernetic)
             {
                 float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
-                BaseMaxFertility              = Math.Max(TerraformTargetFertility, BaseMaxFertility);
+                BaseMaxFertility              = Math.Max(TerraformMaxFertilityTarget, BaseMaxFertility);
                 BaseFertility                 = fertilityAfterTerraform;
             }
             else

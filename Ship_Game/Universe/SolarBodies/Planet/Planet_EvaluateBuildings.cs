@@ -40,7 +40,6 @@ namespace Ship_Game
                 return;
             }
 
-            TryScrapBuilding(budget, scoreThreshold: 0); // scrap a negative value building if allowed to
             if (AvailableTiles > 0)
             {
                 if (SimpleBuild(budget)) // lets try to build something within our debt tolerance
@@ -371,19 +370,15 @@ namespace Ship_Game
 
             float score = 0;
             if (b.MaxFertilityOnBuild.Greater(0))
-                score = b.MaxFertilityOnBuild * 2; 
+                score = b.MaxFertilityOnBuild * MaxFertility; 
             else
-            {   
-                // How much fertility will actually be lost
-                // @todo food calculation is a bit dodgy
-                float fertLost      = Math.Min(Fertility, -b.MaxFertilityOnBuild);
-                float foodFromLabor = MaxPopulationBillion * ((Fertility - fertLost));
-                float foodFromFlat  = Food.FlatBonus + b.PlusFlatFoodAmount;
-                // Will we still be able to feed ourselves?
-                if (foodFromFlat + foodFromLabor < MaxConsumption)
-                    score -= fertLost * 20;
-                else 
-                    score -= fertLost * 4;
+            {
+                if (MaxFertility - b.MaxFertilityOnBuild <= 0)
+                    score -= 20;
+                else if (MaxFertility - b.MaxFertilityOnBuild < 1)
+                    score -= 10;
+
+                score -= 5;
             }
 
             DebugEvalBuild(b, "FertLossOnBuild", score);
@@ -452,8 +447,13 @@ namespace Ship_Game
             float score = 0;
             if (checkCosts) // we want to also check the cost to build and maintain something we dont have yet
             {
-                if (b.ActualMaintenance(this).GreaterOrEqual(budget) && !b.IsMoneyBuilding)
-                    return -1; // building cannot be built since it has higher maint than budget
+                if (b.ActualMaintenance(this).GreaterOrEqual(budget)
+                    && (!b.IsMoneyBuilding || b.IsMoneyBuilding && b.IsHarmfulToEnv))
+                {
+                    return -1; 
+                    // building cannot be built since it has higher maintenance than the budget
+                    // unless they are Env friendly money buildings
+                }
 
                 score = EvalMaintenance(b, budget);
                 score += EvalCostVsBuildTime(b);
@@ -668,6 +668,7 @@ namespace Ship_Game
                 if (b.IsBiospheres
                     || !b.Scrappable
                     || b.IsPlayerAdded && Owner.isPlayer
+                    || b.IsMoneyBuilding
                     || b.IsTerraformer)
                 {
                     continue;
@@ -729,7 +730,7 @@ namespace Ship_Game
             if (TilesList.Any(t => t.Biosphere))
                 ++num;
 
-            if (Category != Owner.data.PreferredEnv || BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
+            if (Category != Owner.data.PreferredEnv || Owner.NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
                 ++num;
 
             num -= Math.Max(BuildingList.Count(b => b.IsTerraformer), 0);
