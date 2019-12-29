@@ -76,7 +76,8 @@ namespace Ship_Game
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
-        [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; } 
+        [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
+        [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
 
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
@@ -118,7 +119,7 @@ namespace Ship_Game
             return b;
         }
 
-        public void CreateWeapon()
+        private void CreateWeapon()
         {
             if (!isWeapon)
                 return;
@@ -283,6 +284,42 @@ namespace Ship_Game
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
                 u.ScreenManager.AddScreenDeferred(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true));
             }
+        }
+
+        public void CalcMilitaryStrength()
+        {
+            CreateWeapon();
+            float score = 0;
+            if (CanAttack)
+            {
+                score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
+                score += PlanetaryShieldStrengthAdded / 100;
+                score += InvadeInjurePoints * 10;
+                if (AllowInfantry)
+                    score += 50;
+
+                score += CalcDefenseShipScore();
+            }
+
+            MilitaryStrength = score + Offense/10;
+        }
+
+        float CalcDefenseShipScore()
+        {
+            if (DefenseShipsCapacity <= 0 || DefenseShipsRole == 0)
+                return 0;
+
+            float defenseShipScore;
+            switch (DefenseShipsRole)
+            {
+                case ShipData.RoleName.drone:    defenseShipScore = 3f;  break;
+                case ShipData.RoleName.fighter:  defenseShipScore = 5f;  break;
+                case ShipData.RoleName.corvette: defenseShipScore = 10f; break;
+                case ShipData.RoleName.frigate:  defenseShipScore = 20f; break;
+                default:                         defenseShipScore = 50f; break;
+            }
+
+            return defenseShipScore * DefenseShipsCapacity;
         }
     }
 }
