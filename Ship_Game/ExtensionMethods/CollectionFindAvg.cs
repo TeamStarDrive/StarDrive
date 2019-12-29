@@ -45,7 +45,12 @@ namespace Ship_Game
         }
 
         // @note Hand-crafted Avg() extension for float arrays
-        public static float Avg(this float[] floats) => Sum(floats) / floats.Length;
+        public static float Avg(this float[] floats)
+        {
+            if (floats.Length == 0)
+                return 0f;
+            return Sum(floats) / floats.Length;
+        }
 
         // @note Hand-crafted Avg(filter) extension for float arrays
         public static float Avg(this float[] floats, Predicate<float> filter)
