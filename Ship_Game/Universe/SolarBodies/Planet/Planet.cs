@@ -943,6 +943,7 @@ namespace Ship_Game
         public int AvailableTiles      => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
         public float BuiltCoverage     => TotalBuildings / (float)TileArea;
+        public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
 
         public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
 
@@ -959,8 +960,6 @@ namespace Ship_Game
                 return fertilityAddition + 1 / (Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1);
             }
         }
-
-        public bool TerraformingHere          => BuildingList.Any(b => b.IsTerraformer);
 
         public int DesiredMilitaryBuildings
         {
