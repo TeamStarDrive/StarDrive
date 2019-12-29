@@ -9,10 +9,11 @@ namespace Ship_Game
 {
     public class ShipGroup
     {
-        public Array<Ship> Ships = new Array<Ship>();
-        public Vector2 ProjectedDirection;
-        public float Speed;
+        public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
+
+        // Speed LIMIT of the entire ship group, so the ships can stay together
+        public float SpeedLimit { get; private set; }
 
         // FINAL DESTINATION center position of the ship group
         public Vector2 FinalPosition;
@@ -20,9 +21,17 @@ namespace Ship_Game
         // FINAL direction facing of this ship group
         public Vector2 FinalDirection = Vectors.Up;
 
+        // Holo-Projection direction of the ship group
+        public Vector2 ProjectedDirection;
+
+        // WORK IN PROGRESS
         protected readonly Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
 
+        // cached average position of the fleet
         Vector2 AveragePos;
+
+        // entire ship group average offset from [0,0]
+        // this is relevant because ships are not perfectly aligned
         protected Vector2 AverageOffsetFromZero;
         int LastAveragePosUpdate = -1;
 
@@ -310,40 +319,27 @@ namespace Ship_Game
             float maxAmmo = 0.0f;
             float ammoDps = 0.0f;
             float energyDps = 0.0f;
+
             //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
             for (int index = 0; index < Ships.Count; index++)
             {
                 Ship ship = Ships[index];
-                if (ship.AI.HasPriorityOrder) continue;
-                currentAmmo += ship.Ordinance;
-                maxAmmo += ship.OrdinanceMax;
-                foreach (Weapon weapon in ship.Weapons)
+                if (!ship.AI.HasPriorityOrder)
                 {
-                    if (weapon.OrdinanceRequiredToFire > 0.0)
-                        ammoDps = weapon.DamageAmount / weapon.fireDelay;
-                    if (weapon.PowerRequiredToFire > 0.0)
-                        energyDps = weapon.DamageAmount / weapon.fireDelay;
+                    currentAmmo += ship.Ordinance;
+                    maxAmmo += ship.OrdinanceMax;
+                    foreach (Weapon weapon in ship.Weapons)
+                    {
+                        if (weapon.OrdinanceRequiredToFire > 0.0)
+                            ammoDps = weapon.DamageAmount / weapon.fireDelay;
+                        if (weapon.PowerRequiredToFire > 0.0)
+                            energyDps = weapon.DamageAmount / weapon.fireDelay;
+                    }
                 }
             }
-            return !(maxAmmo > 0) || !(ammoDps >= (ammoDps + energyDps) * 0.5f) || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
-        }
-
-        public void MoveDirectlyNow(Vector2 finalPosition, Vector2 finalDirection)
-        {
-            if (!finalDirection.IsUnitVector())
-                Log.Error($"MoveDirectlyNow direction {finalDirection} must be a direction unit vector!");
-            FinalPosition = finalPosition;
-            FinalDirection = finalDirection;
-            AssembleFleet(finalDirection);
-            foreach (Ship ship in Ships)
-            {
-                //Prevent fleets with no tasks from and are near their distination from being dumb.
-                if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
-                {
-                    ship.AI.SetPriorityOrder(true);
-                    ship.AI.OrderMoveDirectlyTowardsPosition(FinalPosition + ship.FleetOffset, finalDirection, true);
-                }
-            }
+            return !(maxAmmo > 0)
+                || !(ammoDps >= (ammoDps + energyDps) * 0.5f)
+                || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
         }
 
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
@@ -365,7 +361,21 @@ namespace Ship_Game
         public void MoveToDirectly(Vector2 finalPosition, Vector2 finalDirection)
         {
             GoalStack?.Clear();
-            MoveDirectlyNow(finalPosition, finalDirection);
+
+            if (!finalDirection.IsUnitVector())
+                Log.Error($"MoveDirectlyNow direction {finalDirection} must be a direction unit vector!");
+            FinalPosition = finalPosition;
+            FinalDirection = finalDirection;
+            AssembleFleet(finalDirection);
+            foreach (Ship ship in Ships)
+            {
+                //Prevent fleets with no tasks from and are near their distination from being dumb.
+                if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
+                {
+                    ship.AI.SetPriorityOrder(true);
+                    ship.AI.OrderMoveDirectlyTowardsPosition(FinalPosition + ship.FleetOffset, finalDirection, true);
+                }
+            }
         }
 
         public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection)
@@ -415,21 +425,25 @@ namespace Ship_Game
         {
             if (position == default)
                 position = FinalPosition;
+
             MoveStatus moveStatus = MoveStatus.Assembled;
             bool inCombat = false;
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.EMPdisabled || !ship.hasCommand || !ship.Active)
-                    continue;
-                inCombat |= ship.InCombat;
-                if (ship.Center.InRadius(position + ship.FleetOffset, radius)) continue;
-                moveStatus = MoveStatus.Dispersed;
-                if (inCombat)
-                    break;
+                if (!ship.EMPdisabled && ship.hasCommand && ship.Active)
+                {
+                    inCombat |= ship.InCombat;
+                    if (!ship.Center.InRadius(position + ship.FleetOffset, radius))
+                    {
+                        moveStatus = MoveStatus.Dispersed;
+                        if (inCombat)
+                            break;
+                    }
+                }
             }
-            moveStatus = inCombat && moveStatus == MoveStatus.Dispersed ? MoveStatus.InCombat : moveStatus;
 
+            moveStatus = (inCombat && moveStatus == MoveStatus.Dispersed) ? MoveStatus.InCombat : moveStatus;
             return moveStatus;
         }
 
@@ -477,7 +491,7 @@ namespace Ship_Game
                 if (!ship.EnginesKnockedOut)
                     slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
             }
-            Speed = Math.Max(200, (float)Math.Round(slowestSpeed));
+            SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));
         }
     }
 }
