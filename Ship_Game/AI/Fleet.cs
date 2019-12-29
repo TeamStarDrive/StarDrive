@@ -42,6 +42,7 @@ namespace Ship_Game.AI
         public bool ReadyForWarp { get; private set; }
         public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={Position} guid={Guid} index {FleetTask?.WhichFleet}";
 
+        public void ClearFleetTask() => FleetTask = null;
         public Fleet()
         {
             FleetIconIndex = RandomMath.IntBetween(1, 10);

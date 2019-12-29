@@ -1858,6 +1858,22 @@ namespace Ship_Game.Ships
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
 
+        public void RemoveFromFleetAndAddBackToPools()
+        {
+            AI.CombatState = shipData.CombatState;
+            AI.ClearOrders();
+            HyperspaceReturn();
+            if (fleet?.IsCoreFleet ?? false)
+                ClearFleet();
+            if (shipData.Role == ShipData.RoleName.troop)
+                AI.OrderRebaseToNearest();
+            else
+            {
+                loyalty.ForcePoolAdd(this);
+                AI.GoOrbitNearestPlanetAndResupply(false);
+            }
+        }
+
         public void Dispose()
         {
             Dispose(true);
