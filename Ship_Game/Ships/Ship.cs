@@ -72,7 +72,6 @@ namespace Ship_Game.Ships
         public bool IsGuardian; // Remnant Guardian created at game start
         SceneObject ShipSO;
         public bool ManualHangarOverride;
-        public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
