@@ -295,13 +295,26 @@ namespace Ship_Game
             DrawWeaponArcs(batch, 0f, w, slot.Module, slot.Center, 500f);
         }
 
+        void DrawWeaponArcs(SpriteBatch batch, ShipModule module, Vector2 screenPos, float facing = 0f)
+        {
+            Weapon w = module.InstalledWeapon;
+            if (w == null)
+                return;
+
+            int cx = (int)(8f * module.XSIZE * Camera.Zoom);
+            int cy = (int)(8f * module.YSIZE * Camera.Zoom);
+            DrawWeaponArcs(batch, facing, module.InstalledWeapon, ActiveModule, screenPos + new Vector2(cx, cy), 500f);
+        }
+
         void DrawActiveModule(SpriteBatch spriteBatch)
         {
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(ActiveModule.UID);
-            var r = new Rectangle((int)Input.CursorPosition.X, (int)Input.CursorPosition.Y,
-                          (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
-                          (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
+            int width  = (int)(16f * ActiveModule.XSIZE * Camera.Zoom);
+            int height = (int)(16f * ActiveModule.YSIZE * Camera.Zoom);
+            var r = new Rectangle((int)Input.CursorX, (int)Input.CursorY, width, height);
             DrawModuleTex(ActiveModState, spriteBatch, null, r, moduleTemplate);
+            DrawWeaponArcs(spriteBatch, ActiveModule, r.PosVec());
+
             int mirrorX = DrawActiveMirrorModule(spriteBatch, moduleTemplate, r.X);
 
             if (ActiveModule.shield_power_max.AlmostZero())
@@ -310,9 +323,9 @@ namespace Ship_Game
             Vector2 normalizeShieldCircle;;
             var center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
             if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
-                normalizeShieldCircle = new Vector2(moduleTemplate.XSIZE * 16 / 2f, moduleTemplate.YSIZE * 16 / 2f);
+                normalizeShieldCircle = new Vector2(moduleTemplate.XSIZE * 8f, moduleTemplate.YSIZE * 8f);
             else
-                normalizeShieldCircle = new Vector2(moduleTemplate.YSIZE * 16 / 2f, moduleTemplate.XSIZE * 16 / 2f);
+                normalizeShieldCircle = new Vector2(moduleTemplate.YSIZE * 8f, moduleTemplate.XSIZE * 8f);
 
             center += normalizeShieldCircle;
             DrawCircle(center, ActiveModule.ShieldHitRadius * Camera.Zoom, Color.LightGreen);
@@ -324,7 +337,7 @@ namespace Ship_Game
             }
         }
 
-        int  DrawActiveMirrorModule(SpriteBatch spriteBatch, ShipModule moduleTemplate, int activeModuleX)
+        int DrawActiveMirrorModule(SpriteBatch spriteBatch, ShipModule moduleTemplate, int activeModuleX)
         {
             if (!IsSymmetricDesignMode)
                 return 0;
@@ -343,18 +356,25 @@ namespace Ship_Game
                 return 0;
 
             // Log.Info($"x: {Input.CursorPosition.X} Zoom: {Camera.Zoom} Mirror: {x} Camera: {CameraPosition.X}");
-            var rMir = new Rectangle(mirrorX, (int)Input.CursorPosition.Y,
-            (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
-            (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
-            ModuleOrientation orientation;
+            var rMir = new Rectangle(mirrorX, (int)Input.CursorY,
+                                    (int)(16 * ActiveModule.XSIZE * Camera.Zoom),
+                                    (int)(16 * ActiveModule.YSIZE * Camera.Zoom));
+            ModuleOrientation orientation = ActiveModState;
             switch (ActiveModState)
             {
                 case ModuleOrientation.Left:  orientation = ModuleOrientation.Right; break;
                 case ModuleOrientation.Right: orientation = ModuleOrientation.Left;  break;
-                default:                      orientation = ActiveModState;          break;
             }
 
             DrawModuleTex(orientation, spriteBatch, null, rMir, moduleTemplate, 0.5f);
+            float mirroredFacingOffset = 0f;
+            if (orientation != ActiveModState)
+            {
+                // this is a hack... we pretend the ship is rotated 180 degrees to draw the arcs facing
+                // the correct direction.... :D
+                mirroredFacingOffset = ActiveModule.FacingRadians - ConvertOrientationToFacing(orientation).ToRadians();
+            }
+            DrawWeaponArcs(spriteBatch, ActiveModule, rMir.PosVec(), mirroredFacingOffset);
             return mirrorX;
         }
 
