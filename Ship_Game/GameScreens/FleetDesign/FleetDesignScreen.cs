@@ -970,7 +970,7 @@ namespace Ship_Game
                     {
                         if (SelectedFleet.Ships.Count == 0)
                         {
-                            SelectedFleet.Position = ActiveShipDesign.Position;
+                            SelectedFleet.FinalPosition = ActiveShipDesign.Position;
                         }
                         node.Ship = ActiveShipDesign;
                         node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.FleetOffset, 0f));
@@ -1633,7 +1633,7 @@ namespace Ship_Game
                 }
             }
 
-            SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
+            SelectedFleet.AssembleFleet2(SelectedFleet.FinalDirection);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

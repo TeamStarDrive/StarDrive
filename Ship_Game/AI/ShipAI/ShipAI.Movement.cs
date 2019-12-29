@@ -149,7 +149,7 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null) targetPos = goal.Fleet.Position + Owner.FleetOffset;
+            if (goal.Fleet != null) targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
 
             if (Owner.EnginesKnockedOut)
                 return;

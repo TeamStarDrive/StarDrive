@@ -76,15 +76,15 @@ namespace Ship_Game.Commands.Goals
                 node.GoalGUID = Guid.Empty;
 
                 if (Fleet.Ships.Count == 0)
-                    Fleet.Position = ship.Position + RandomMath.Vector2D(3000f);        
-                if (Fleet.Position == Vector2.Zero)
-                    Fleet.Position = empire.FindNearestRallyPoint(ship.Center).Center;
+                    Fleet.FinalPosition = ship.Position + RandomMath.Vector2D(3000f);        
+                if (Fleet.FinalPosition == Vector2.Zero)
+                    Fleet.FinalPosition = empire.FindNearestRallyPoint(ship.Center).Center;
 
                 ship.RelativeFleetOffset = node.FleetOffset;
 
                 Fleet.AddShip(ship);
                 ship.AI.SetPriorityOrder(false);
-                ship.AI.OrderMoveTowardsPosition(Fleet.Position + ship.RelativeFleetOffset, ship.fleet.Direction, true, null);
+                ship.AI.OrderMoveTowardsPosition(Fleet.FinalPosition + ship.RelativeFleetOffset, ship.fleet.FinalDirection, true, null);
                 return GoalStep.GoalComplete;
             } 
             return GoalStep.GoalComplete;

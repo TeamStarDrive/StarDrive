@@ -351,7 +351,7 @@ namespace Ship_Game
                     {
                         Guid = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
-                        Direction = fleetsave.facing.RadiansToDirection() // @note savegame compatibility uses facing in radians
+                        FinalDirection = fleetsave.facing.RadiansToDirection() // @note savegame compatibility uses facing in radians
                     };
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
@@ -387,11 +387,11 @@ namespace Ship_Game
                         }
                     }
 
-                    fleet.AssignPositions(fleet.Direction);
+                    fleet.AssignPositions(fleet.FinalDirection);
                     fleet.Name = fleetsave.Name;
                     fleet.TaskStep = fleetsave.TaskStep;
                     fleet.Owner = e;
-                    fleet.Position = fleetsave.Position;
+                    fleet.FinalPosition = fleetsave.Position;
                     fleet.SetSpeed();
                     e.GetFleetsDict()[fleetsave.Key] = fleet;
                 }

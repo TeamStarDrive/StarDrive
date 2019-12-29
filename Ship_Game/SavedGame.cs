@@ -160,9 +160,9 @@ namespace Ship_Game
                         IsCoreFleet = fleet.Value.IsCoreFleet,
                         TaskStep    = fleet.Value.TaskStep,
                         Key         = fleet.Key,
-                        facing      = fleet.Value.Direction.ToRadians(), // @note Save game compatibility uses radians
+                        facing      = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
                         FleetGuid   = fleet.Value.Guid,
-                        Position    = fleet.Value.Position,
+                        Position    = fleet.Value.FinalPosition,
                         ShipsInFleet = new Array<FleetShipSave>()
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
