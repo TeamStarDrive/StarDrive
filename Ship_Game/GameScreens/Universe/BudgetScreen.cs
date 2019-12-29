@@ -85,9 +85,9 @@ namespace Ship_Game.GameScreens
             var taxRect    = new Rectangle(Window.Menu.X + 20, Window.Menu.Y + 37, 350, 84); // top area for tax rate slider
             var incomeRect = new Rectangle(taxRect.X, taxRect.Bottom + 6, 168, 112); // Middle-Left
             var costRect   = new Rectangle(incomeRect.Right + 12, incomeRect.Y, 168, 112); // Middle-Right
-            var tradeRect  = new Rectangle(taxRect.X, incomeRect.Bottom + 6, 168, 112); // Bottom left
+            var tradeRect  = new Rectangle(taxRect.X, incomeRect.Bottom + 6, 168, 188); // Bottom left
             var budgetRect = new Rectangle(costRect.X, costRect.Bottom + 6, 168, 112); // Bottom right
-            var footerRect = new Rectangle(taxRect.X, budgetRect.Bottom + 6, 168, 86);
+            var footerRect = new Rectangle(budgetRect.X, budgetRect.Bottom + 6, 168, 86);
 
             //Screen Title
             string title   = Localizer.Token(310);
