@@ -130,8 +130,8 @@ namespace Ship_Game.GameScreens
         {
             var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y)
                 , () => Player.data.AutoTaxes
-                , Localizer.Token(6138)
-                , 7040);
+                , Localizer.AutoTaxes
+                , ToolTip.AutoTaxToolTip);
 
             autoTax.OnChange = cb =>
             {
@@ -142,50 +142,55 @@ namespace Ship_Game.GameScreens
                 }
 
                 TaxSlider.Enabled = !cb.Checked;
-                var taxChange = Player.data.AutoTaxes ? 6138 : 311;
-                TaxSlider.Text = Localizer.Token(taxChange);
+                var taxChange = Player.data.AutoTaxes ? Localizer.AutoTaxes : Localizer.BudgetScreenTaxSlider;
+                TaxSlider.Text = taxChange;
             };
         }
 
         private void BudgetTab(Rectangle budgetRect)
         {
             SummaryPanel budget = Add(new SummaryPanel(Localizer.GovernorBudget, budgetRect, new Color(30, 26, 19)));
-            budget.AddItem("Colony", () => Player.data.ColonyBudget);
+            budget.AddItem("Colony", ()    => Player.data.ColonyBudget);
             budget.AddItem("SpaceRoad", () => Player.data.SSPBudget);
-            budget.AddItem("Defense", () => Player.data.DefenseBudget);
-            budget.SetTotalFooter(() => Player.data.ColonyBudget
-                                        + Player.data.SSPBudget
-                                        + Player.data.DefenseBudget);
+            budget.AddItem("Defense", ()   => Player.data.DefenseBudget);
+            budget.SetTotalFooter(()       => Player.data.ColonyBudget
+                                                    + Player.data.SSPBudget
+                                                    + Player.data.DefenseBudget);
         }
 
         private void TradeTab(Rectangle tradeRect)
         {
             SummaryPanel trade = Add(new SummaryPanel(Localizer.Trade, tradeRect, new Color(30, 26, 19)));
+
             trade.AddItem(322, () => Player.AverageTradeIncome); // "Mercantilism (Avg)"
             trade.AddItem(323, () => Player.TotalTradeTreatiesIncome()); // "Trade Treaties"
+
             var traders = Player.AllRelations.Where(kv => kv.Value.Treaty_Trade)
                 .Select(kv => (Empire: kv.Key, Relation: kv.Value));
 
             foreach ((Empire e, Relationship r) in traders)
                 trade.AddItem($"   {e.data.Traits.Plural}", () => r.TradeIncome(), e.EmpireColor);
+
             trade.SetTotalFooter(() => Player.TotalAvgTradeIncome); // "Total"
         }
 
         private void CostsTab(Rectangle costRect)
         {
             SummaryPanel costs = Add(new SummaryPanel(315, costRect, new Color(27, 22, 25)));
-            costs.AddItem(316, () => -Player.TotalBuildingMaintenance); // "Building Maint."
-            costs.AddItem(317, () => -Player.TotalShipMaintenance); // "Ship Maint."
-            costs.SetTotalFooter(() => -Player.BuildingAndShipMaint); // "Total"
+
+            costs.AddItem(316, ()   => -Player.TotalBuildingMaintenance); // "Building Maint."
+            costs.AddItem(317, ()   => -Player.TotalShipMaintenance); // "Ship Maint."
+            costs.SetTotalFooter(()       => -Player.BuildingAndShipMaint); // "Total"
         }
 
         private void IncomesTab(Rectangle incomeRect)
         {
             SummaryPanel income = Add(new SummaryPanel(312, incomeRect, new Color(18, 29, 29)));
-            income.AddItem(313, () => Player.GrossPlanetIncome); // "Planetary Taxes"
-            income.AddItem("Other", () => Player.data.FlatMoneyBonus);
+
+            income.AddItem(313, ()          => Player.GrossPlanetIncome); // "Planetary Taxes"
+            income.AddItem("Other", ()        => Player.data.FlatMoneyBonus);
             income.AddItem("Excess Goods", () => Player.ExcessGoodsMoneyAddedThisTurn);
-            income.SetTotalFooter(() => Player.GrossIncome); // "Total"
+            income.SetTotalFooter(()               => Player.GrossIncome); // "Total"
         }
 
         private void TaxSliderOnChange(FloatSlider s)
@@ -197,11 +202,12 @@ namespace Ship_Game.GameScreens
         private void TreasurySliderOnChange(FloatSlider s)
         {
             Player.data.treasuryGoal = s.RelativeValue;
-            int goal = (int) Player.GetEmpireAI().TreasuryGoal();
+            int goal                 = (int) Player.GetEmpireAI().TreasuryGoal();
+            s.Text                   = $"{Localizer.TreasuryGoal} : {goal}";
             Player.GetEmpireAI().RunEconomicPlanner();
+
             if (Player.data.AutoTaxes)
                 TaxSlider.RelativeValue = Player.data.TaxRate;
-            s.Text = $"{Localizer.TreasuryGoal} : {goal}";
         }
 
         // Dynamic Text label; this is invoked every time MoneyLabels are drawn
