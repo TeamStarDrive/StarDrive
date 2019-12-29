@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Ship_Game.AI.Budget;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -29,30 +30,32 @@ namespace Ship_Game
         }
 
         //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings(float budget)
+        void BuildAndScrapBuildings(PlanetBudget colonyBudget)
         {
             if (RecentCombat)
                 return; // Do not build / scrap when in combat
 
-            if (budget < -0.1f)
+            float buildingBudget = colonyBudget.Buildings;
+            float militaryBudget = colonyBudget.PlanetDefenseBudget;
+            if (buildingBudget < 0f)
             {
-                TryScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
+                TryScrapBuilding(buildingBudget); // we must scrap something to bring us above of our debt tolerance
                 return;
             }
 
             if (AvailableTiles > 0)
             {
-                if (SimpleBuild(budget)) // lets try to build something within our debt tolerance
+                if (SimpleBuild(buildingBudget)) // lets try to build something within our debt tolerance
                     return;
             }
             else
             {
-                if (BuildBiospheres(budget))
+                if (BuildBiospheres(buildingBudget))
                     return;
             }
 
-            ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
-            BuildTerraformers(budget); // Build Terraformers if needed
+            ReplaceBuilding(buildingBudget); // we don't have room for expansion. Let's see if we can replace to a better value building
+            BuildTerraformers(buildingBudget); // Build Terraformers if needed
         }
 
         float EvalMaintenance(Building b, float budget)

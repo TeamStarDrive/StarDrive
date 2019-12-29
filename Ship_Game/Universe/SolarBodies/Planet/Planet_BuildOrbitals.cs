@@ -25,9 +25,9 @@ namespace Ship_Game
             int rank             = (int)(budget.SystemRank * ratioValue) + 3;
             var wantedOrbitals   = new WantedOrbitals(rank);
 
+            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
             BuildOrScrapShipyard(wantedOrbitals.Shipyards);
             BuildOrScrapStations(currentStations, wantedOrbitals.Stations, rank, budget.Orbitals);
-            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
         }
 
         void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
@@ -36,6 +36,7 @@ namespace Ship_Game
         void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
+        float AverageProductionPercent      => Prod.NetMaxPotential / 3;
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -122,6 +123,7 @@ namespace Ship_Game
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"SCRAPPED Orbital ----- {orbital.Name}, STR: {orbital.BaseStrength}");
+
             orbital.QueueTotalRemoval();
         }
 
@@ -137,7 +139,7 @@ namespace Ship_Game
             AddOrbital(orbital);
         }
 
-        private int TimeVsCostThreshold => 50 + (int)(Owner.Money / 1000);
+        private int TimeVsCostThreshold => 25 + (int)(Owner.Money / 1000);
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(Ship orbital)
@@ -176,16 +178,19 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"Orbitals Budget: {budget}");
 
-            if (orbital == null)
-                return null;
+            if (orbital != null)
+            {
+                // If we can build the selected orbital in a timely manner at full production potential, select it.
+                if (LogicalBuiltTimeVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
+                    return orbital;
+            }
 
-            if (LogicalBuiltTimeVsCost(orbital.GetCost(Owner), TimeVsCostThreshold))
-                return orbital;
+            // We cannot build the best in the empire, lets try building something cheaper for now
+            // and check if this can be built in a timely manner.
+            float maxCost = (AverageProductionPercent * TimeVsCostThreshold) / ShipBuildingModifier;
+            orbital       = GetBestOrbital(role, budget, maxCost);
 
-            // we cannot build the best in the empire, lets try building something cheaper for now
-            float maxCost = budget / ShipBuildingModifier;
-            orbital = GetBestOrbital(role, budget, maxCost);
-            return orbital == null || orbital.IsSubspaceProjector ? null : orbital;
+            return orbital;
         }
 
         // This returns the best orbital the empire can build
@@ -218,7 +223,7 @@ namespace Ship_Game
         private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
             float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
-            float ratio = netCost / Prod.NetMaxPotential;
+            float ratio   = netCost / AverageProductionPercent;
             return ratio < threshold;
         }
 
@@ -327,6 +332,21 @@ namespace Ship_Game
                 return true;
 
             return false;
+        }
+
+        public void BuildAndScrapMilitaryBuildings(float budget)
+        {
+            if (BuildingInTheWorks || Prod.NetMaxPotential < 2)
+                return;
+
+            // if budget < 0 scrap
+            // build
+            // replace
+        }
+
+        void BuildMilitaryBuilding(float budget)
+        {
+            BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) > budget, b => b.MilitaryStrength);
         }
     }
 }

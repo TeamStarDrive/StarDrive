@@ -51,6 +51,7 @@ namespace Ship_Game.AI.Budget
             string drawText = $"<\nBudget: {Budget.String(2)}" +
                               $"\nImportance: {EmpireRatio.String(2)}" +
                               $"\nColonyBudget: {Budget.String(2)}" +
+                              $"\nOrbitals: {Orbitals.String(2)}" +
                               $"\nDefenseBudget: {PlanetDefenseBudget.String(2)}" +
                               $"\nSystem Rank: {SystemRank}" +
                               $"\nIn SysTem Rank: {(int)(PlanetValues.RankInSystem * 10)}" +
