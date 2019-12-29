@@ -912,6 +912,39 @@ namespace Ship_Game.Ships
         // @return Filtered list of purely offensive weapons
         public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
 
+        Array<Weapon> GetActiveWeapons()
+        {
+            var weapons = new Array<Weapon>();
+            // prefer offensive weapons:
+            for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
+            {
+                Weapon w = Weapons[i];
+                if (w.Module.Active && w.DamageAmount > 0.1f && !w.TruePD)
+                    weapons.Add(w);
+            }
+
+            // maybe we are equipped with Phalanx PD's only?
+            // just us any active weapon then
+            if (weapons.Count == 0)
+            {
+                for (int i = 0; i < Weapons.Count; ++i) // using raw loops for perf
+                {
+                    Weapon w = Weapons[i];
+                    if (w.Module.Active)
+                        weapons.Add(w);
+                }
+            }
+            return weapons;
+        }
+
+        static float[] GetWeaponsRanges(Array<Weapon> weapons)
+        {
+            var ranges = new float[weapons.Count];
+            for (int i = 0; i < ranges.Length; ++i) // using raw loops for perf
+                ranges[i] = weapons[i].GetActualRange();
+            return ranges;
+        }
+
         /**
          * Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
          * weapons installed, Not utility/repair/truePD
@@ -920,18 +953,18 @@ namespace Ship_Game.Ships
          */
         void UpdateWeaponRanges()
         {
-            Weapon[] offensive = OffensiveWeapons;
-            float[] ranges = offensive.Select(w => w.GetActualRange());
+            Array<Weapon> weapons = GetActiveWeapons();
+            float[] ranges = GetWeaponsRanges(weapons);
             WeaponsMinRange = ranges.Min();
             WeaponsMaxRange = ranges.Max();
             WeaponsAvgRange = (int)ranges.Avg();
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
-            InterceptSpeed = CalcInterceptSpeed(offensive);
+            InterceptSpeed = CalcInterceptSpeed(weapons);
         }
 
         public float GetDesiredCombatRangeForState(CombatState state)
         {
-            float[] ranges = OffensiveWeapons.Select(w => w.GetActualRange());
+            float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
@@ -965,14 +998,14 @@ namespace Ship_Game.Ships
         // This calculates our Ship's interception speed
         //   If we have weapons, then let the weapons do the talking
         //   If no weapons, give max ship speed instead
-        float CalcInterceptSpeed(Weapon[] offensive)
+        float CalcInterceptSpeed(Array<Weapon> weapons)
         {
             // if no offensive weapons, default to ship speed
-            if (offensive.Length == 0)
+            if (weapons.Count == 0)
                 return MaxSTLSpeed;
 
             // @note beam weapon speeds need special treatment, since they are currently instantaneous
-            float[] speeds = offensive.Select(w => w.isBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
+            float[] speeds = weapons.Select(w => w.isBeam ? w.GetActualRange() * 1.5f : w.ProjectileSpeed);
             return speeds.Avg();
         }
 
