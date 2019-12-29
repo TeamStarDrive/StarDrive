@@ -10,7 +10,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class Fleet : ShipGroup
     {
-        public readonly  Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
+        public readonly Array<FleetDataNode> DataNodes = new Array<FleetDataNode>();
         public Guid Guid = Guid.NewGuid();
         public string Name = "";
 
@@ -57,16 +57,6 @@ namespace Ship_Game.AI
             }
             Name = index + suffix + " fleet";
         }
-
-        public void AddShips(Array<Ship> ships)
-        {
-            for (int x = 0; x < ships.Count; x++)
-            {
-                var ship = ships[x];
-                AddShip(ship);
-            }
-        }
-
 
         public override void AddShip(Ship newShip)
         {
@@ -123,6 +113,7 @@ namespace Ship_Game.AI
             RightFlank.Clear();
             ScreenFlank.Clear();
             RearFlank.Clear();
+            AllFlanks.Clear();
         }
 
         void ResetFlankLists()
@@ -131,9 +122,9 @@ namespace Ship_Game.AI
             if (Ships.IsEmpty)
             {
                 Log.Error($"Fleet ships was empty! Fleet: {Name}");
-
                 return;
             }
+
             var mainShipList = new Array<Ship>(Ships);
             var largestShip = mainShipList.FindMax(ship => (int)(ship.DesignRole));
             ShipData.RoleName largestCombat = largestShip.DesignRole;
@@ -175,19 +166,18 @@ namespace Ship_Game.AI
             int totalShips = CenterShips.Count;
             foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.SurfaceArea))
             {
-                if (totalShips < 4) CenterShips.Add(ship);
-                else if (totalShips < 8) LeftShips.Add(ship);
+                if      (totalShips < 4)  CenterShips.Add(ship);
+                else if (totalShips < 8)  LeftShips.Add(ship);
                 else if (totalShips < 12) RightShips.Add(ship);
                 else if (totalShips < 16) ScreenShips.Add(ship);
                 else if (totalShips < 20 && RearShips.Count == 0) RearShips.Add(ship);
 
                 ++totalShips;
-                if (totalShips != 16) continue;
-                //so far as i can tell this has zero effect.
-                ship.FleetCombatStatus = FleetCombatStatus.Maintain;
-                totalShips = 0;
+                if (totalShips == 16)
+                {
+                    totalShips = 0;
+                }
             }
-
         }
 
         enum FlankType
@@ -364,21 +354,22 @@ namespace Ship_Game.AI
                         switch (index)
                         {
                             default:
-                            case 0: radiansAngle = Vectors.Up.ToRadians();    break;
-                            case 1: radiansAngle = Vectors.Left.ToRadians();  break;
-                            case 2: radiansAngle = Vectors.Right.ToRadians(); break;
-                            case 3: radiansAngle = Vectors.Down.ToRadians();  break;
+                            case 0: radiansAngle = RadMath.RadiansUp;    break;
+                            case 1: radiansAngle = RadMath.RadiansLeft;  break;
+                            case 2: radiansAngle = RadMath.RadiansRight; break;
+                            case 3: radiansAngle = RadMath.RadiansDown;  break;
                         }
 
-                        Vector2 offset = Vector2.Zero.PointFromRadians((squad.Offset.ToRadians() + facing), squad.Offset.Length());
-                        ship.FleetOffset = offset + Vector2.Zero.PointFromRadians(radiansAngle + facing, 500f);
-                        ship.RelativeFleetOffset = squad.Offset + Vector2.Zero.PointFromRadians(radiansAngle, 500f);
+                        Vector2 offset = (facing + squad.Offset.ToRadians()).RadiansToDirection()*squad.Offset.Length();
+                        ship.FleetOffset = offset + (facing + radiansAngle).RadiansToDirection()*500f;
+                        ship.RelativeFleetOffset = squad.Offset + radiansAngle.RadiansToDirection()*500f;
                     }
                 }
             }
         }
 
-        public void AssembleFleet2(Vector2 facingVec) => AssembleFleet(facingVec, IsCoreFleet);
+        public void AssembleFleet2(Vector2 finalPosition, Vector2 finalDirection)
+            => AssembleFleet(finalPosition, finalDirection, IsCoreFleet);
 
         public void Reset()
         {
@@ -465,8 +456,8 @@ namespace Ship_Game.AI
                     {
                         Ships[i].AI.OrderLandAllTroops(task.TargetPlanet);
                     }
-                    FinalPosition = task.TargetPlanet.Center;
-                    AssembleFleet2(AveragePosition().DirectionToTarget(FinalPosition));
+                    AssembleFleet2(task.TargetPlanet.Center,
+                                   AveragePosition().DirectionToTarget(FinalPosition));
                     break;
             }
         }
@@ -494,11 +485,11 @@ namespace Ship_Game.AI
                     if (PostInvasionAnyShipsOutOfAO(task))
                     {
                         TaskStep = 1;
-                        break;
                     }
-                    if (Ships.Any(ship => ship.InCombat))
-                        break;
-                    AssembleFleet2(new Vector2(1, 0));
+                    else if (!Ships.Any(ship => ship.InCombat))
+                    {
+                        AssembleFleet2(FinalPosition, new Vector2(1, 0));
+                    }
                     break;
             }
         }
@@ -560,9 +551,8 @@ namespace Ship_Game.AI
                 case 2:
                     if (!ArrivedAtOffsetRally(task)) break;
                     TaskStep = 3;
-
-                    FinalPosition = task.TargetPlanet.Center;
-                    AssembleFleet2(AveragePosition().DirectionToTarget(FinalPosition));
+                    AssembleFleet2(task.TargetPlanet.Center, 
+                                   AveragePosition().DirectionToTarget(FinalPosition));
                     break;
                 case 3:
                     EscortingToPlanet(task);
@@ -595,9 +585,10 @@ namespace Ship_Game.AI
                 EndInvalidTask(Ships.Count == 0);
                 return;
             }
-            if (EndInvalidTask(station == null)) return;
+            if (EndInvalidTask(station == null))
+                return;
 
-            AssembleFleet2(Vector2.One);
+            AssembleFleet2(FinalPosition, Vector2.One);
             // ReSharper disable once PossibleNullReferenceException station should never be null here
             FormationWarpTo(station.Position, Vector2.One);
             FleetTask.EndTaskWithMove();
@@ -860,8 +851,7 @@ namespace Ship_Game.AI
                     if (!ArrivedAtCombatRally(task))
                         break;
                     TaskStep = 3;
-                    FinalPosition = task.AO;
-                    AssembleFleet2(AveragePosition().DirectionToTarget(FinalPosition));
+                    AssembleFleet2(task.AO, AveragePosition().DirectionToTarget(FinalPosition));
                     break;
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))
@@ -1218,7 +1208,8 @@ namespace Ship_Game.AI
             InvadeTactics(RightShips, InvasionTactics.Side, targetPos);
             InvadeTactics(LeftShips, InvasionTactics.Side, targetPos);
 
-            return !task.TargetPlanet.AnyOfOurTroops(Owner) || Ships.Any(bombers => bombers.AI.State == AIState.Bombard);
+            return !task.TargetPlanet.AnyOfOurTroops(Owner)
+                || Ships.Any(bomber => bomber.AI.State == AIState.Bombard);
         }
 
         void StopBombPlanet()
@@ -1342,9 +1333,9 @@ namespace Ship_Game.AI
             {
                 EvaluateTask(elapsedTime);
             }
-            else
+            else // no fleet task
             {
-                if (EmpireManager.Player == Owner || IsCoreFleet )
+                if (EmpireManager.Player == Owner || IsCoreFleet)
                 {
                     if (!IsCoreFleet) return;
                     foreach (Ship ship in Ships)
@@ -1353,6 +1344,7 @@ namespace Ship_Game.AI
                     }
                     return;
                 }
+
                 Owner.GetEmpireAI().UsedFleets.Remove(which);
                 for (int i = 0; i < Ships.Count; ++i)
                 {
@@ -1379,9 +1371,6 @@ namespace Ship_Game.AI
                     node.Ship = null;
             }
 
-            if (AllFlanks == null)
-                return;
-
             foreach (Array<Squad> flank in AllFlanks)
             {
                 foreach (Squad squad in flank)
@@ -1393,11 +1382,11 @@ namespace Ship_Game.AI
                         if (node.Ship == ship)
                         {
                             node.Ship = null;
-                            //dont know which one its in... so this this dumb.
+                            //dont know which one it's in... so this this dumb.
                             //this will be fixed later when flank stuff is refactored.
                             ScreenShips.RemoveRef(ship);
                             CenterShips.RemoveRef(ship);
-                            LeftShips.Remove(ship);
+                            LeftShips.RemoveRef(ship);
                             RightShips.RemoveRef(ship);
                             RearShips.RemoveRef(ship);
                         }

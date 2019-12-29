@@ -481,11 +481,6 @@ namespace Ship_Game
             return center + center.DirectionToTarget(target) * distance;
         }
 
-        public static Vector2 RandomOffset(this Vector2 center, float distance)
-        {
-            return center + RandomMath.RandomDirection() * distance;
-        }
-
         // Gives a random point from a vector within a specified distance
         public static Vector2 RandomOffsetAndDistance(Vector2 center, float distance)
         {

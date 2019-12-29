@@ -1385,9 +1385,10 @@ namespace Ship_Game
             FleetUpdateTimer -= elapsedTime;
             foreach (var kv in FleetsDict)
             {
-                kv.Value.Update(elapsedTime);
+                Fleet fleet = kv.Value;
+                fleet.Update(elapsedTime);
                 if (FleetUpdateTimer <= 0f)
-                    kv.Value.UpdateAI(elapsedTime, kv.Key);
+                    fleet.UpdateAI(elapsedTime, kv.Key);
             }
             if (FleetUpdateTimer < 0.0)
                 FleetUpdateTimer = 5f;

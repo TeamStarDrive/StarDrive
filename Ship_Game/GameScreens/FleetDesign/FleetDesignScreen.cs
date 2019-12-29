@@ -1612,8 +1612,8 @@ namespace Ship_Game
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
             AdjustCamera();
-            CamPos.X = CamPos.X + CamVelocity.X;
-            CamPos.Y = CamPos.Y + CamVelocity.Y;
+            CamPos.X += CamVelocity.X;
+            CamPos.Y += CamVelocity.Y;
             View = Matrix.CreateRotationY(180f.ToRadians())
                 * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
             ClickableSquads.Clear();
@@ -1633,7 +1633,7 @@ namespace Ship_Game
                 }
             }
 
-            SelectedFleet.AssembleFleet2(SelectedFleet.FinalDirection);
+            SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

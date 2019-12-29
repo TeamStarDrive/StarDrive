@@ -16,6 +16,8 @@ namespace Ship_Game
         public float SpeedLimit { get; private set; }
 
         // FINAL DESTINATION center position of the ship group
+        // This can also be considered as the ASSEMBLY POSITION
+        // If you set this to X location, ships will gather around it when idle
         public Vector2 FinalPosition;
 
         // FINAL direction facing of this ship group
@@ -89,12 +91,6 @@ namespace Ship_Game
             LastAveragePosUpdate = -1; // deferred position refresh
         }
 
-        void AddShips(IReadOnlyList<Ship> ships)
-        {
-            Ships.AddRange(ships);
-            LastAveragePosUpdate = -1; // deferred position refresh
-        }
-
         protected void AssignPositionTo(Ship ship)
         {
             float angle = ship.RelativeFleetOffset.ToRadians() + FinalDirection.ToRadians();
@@ -119,10 +115,12 @@ namespace Ship_Game
             }
         }
 
-        public void AssembleFleet(Vector2 finalDirection, bool forceAssembly = false)
+        public void AssembleFleet(Vector2 finalPosition, Vector2 finalDirection, bool forceAssembly = false)
         {
             if (!finalDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {finalDirection} must be a direction unit vector!");
+            
+            FinalPosition = finalPosition;
             FinalDirection = finalDirection;
             float facing = finalDirection.ToRadians();
 
@@ -182,7 +180,8 @@ namespace Ship_Game
                 return start;
 
             Ship[] ships = ConsistentSort(shipList);
-            AddShips(ships);
+            Ships.AddRange(ships);
+            LastAveragePosUpdate = -1; // deferred position refresh
 
             float shipSpacing = GetMaxRadius(ships) + 500f;
             float fleetWidth = start.Distance(end);
@@ -345,8 +344,8 @@ namespace Ship_Game
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
         {
             GoalStack?.Clear();
-            FinalPosition = finalPosition;
-            AssembleFleet(finalDirection, !queueOrder);
+            AssembleFleet(finalPosition, finalDirection, !queueOrder);
+
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
@@ -360,13 +359,12 @@ namespace Ship_Game
 
         public void MoveToDirectly(Vector2 finalPosition, Vector2 finalDirection)
         {
-            GoalStack?.Clear();
-
             if (!finalDirection.IsUnitVector())
                 Log.Error($"MoveDirectlyNow direction {finalDirection} must be a direction unit vector!");
-            FinalPosition = finalPosition;
-            FinalDirection = finalDirection;
-            AssembleFleet(finalDirection);
+            
+            GoalStack?.Clear();
+            AssembleFleet(finalPosition, finalDirection);
+            
             foreach (Ship ship in Ships)
             {
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
@@ -380,8 +378,8 @@ namespace Ship_Game
 
         public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection)
         {
-            FinalPosition = finalPosition;
-            AssembleFleet(finalDirection, true);
+            AssembleFleet(finalPosition, finalDirection, true);
+
             foreach (Ship ship in Ships)
             {
                 ship.AI.SetPriorityOrder(false);

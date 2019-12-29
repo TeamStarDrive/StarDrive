@@ -35,24 +35,32 @@ namespace Ship_Game.AI
 
             void DoAttackMove(float elapsedTime)
             {
-                Fleet.FinalPosition += Fleet.FinalPosition.DirectionToTarget(MovePosition) * Fleet.SpeedLimit * elapsedTime;
-                Fleet.AssembleFleet(FinalDirection);
-                if (Vector2.Distance(Fleet.FinalPosition, MovePosition) >= 100.0f)
-                    return;
-                Fleet.FinalPosition = MovePosition;
-                Fleet.PopGoalStack();
+                Vector2 fleetPos = Fleet.AveragePosition();
+                Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
+                Vector2 finalPos = fleetPos + towardsFleetGoal * Fleet.SpeedLimit * elapsedTime;
+
+                if (finalPos.InRadius(MovePosition, 100f))
+                {
+                    finalPos = MovePosition;
+                    Fleet.PopGoalStack();
+                }
+
+                Fleet.AssembleFleet(finalPos, FinalDirection);
             }
 
             void DoMove(float elapsedTime)
             {
-                Vector2 dir = Fleet.FinalPosition.DirectionToTarget(MovePosition);
-                Fleet.FinalPosition += dir * (Fleet.SpeedLimit + 75f) * elapsedTime;
-                Fleet.AssembleFleet(FinalDirection);
-                if (Fleet.FinalPosition.InRadius(MovePosition, 100f))
+                Vector2 fleetPos = Fleet.AveragePosition();
+                Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
+                Vector2 finalPos = fleetPos + towardsFleetGoal * (Fleet.SpeedLimit+75f) * elapsedTime;
+                
+                if (finalPos.InRadius(MovePosition, 100f))
                 {
-                    Fleet.FinalPosition = MovePosition;
+                    finalPos = MovePosition;
                     Fleet.PopGoalStack();
                 }
+
+                Fleet.AssembleFleet(finalPos, FinalDirection);
             }
         }
     }
