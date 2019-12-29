@@ -96,6 +96,7 @@ namespace Ship_Game
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
 
         public float Fertility                      => FertilityFor(Owner);
+        public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
         public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
 
@@ -942,10 +943,28 @@ namespace Ship_Game
         public int AvailableTiles      => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
         public float BuiltCoverage     => TotalBuildings / (float)TileArea;
+        public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
 
         public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
-        public float TerraformTargetFertility => BuildingList.Sum(b => b.MaxFertilityOnBuild) + 1 / (Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1);
-        public bool TerraformingHere          => BuildingList.Any(b => b.IsTerraformer);
+
+        // FB - This will give the Max Fertility the planet should have after terraforming is complete
+        public float TerraformMaxFertilityTarget
+        {
+            get
+            {
+                float sumPositiveFertilityChange = 1;
+
+                for (int i = 0; i < BuildingList.Count; i++)
+                {
+                    Building b = BuildingList[i];
+                    if (b.MaxFertilityOnBuild > 0)
+                        sumPositiveFertilityChange += b.MaxFertilityOnBuild;
+                }
+
+                float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
+                return racialEnvDivider + sumPositiveFertilityChange;
+            }
+        }
 
         public int DesiredMilitaryBuildings
         {
