@@ -35,7 +35,7 @@ namespace Ship_Game.AI
 
             void DoAttackMove(float elapsedTime)
             {
-                Fleet.FinalPosition += Fleet.FinalPosition.DirectionToTarget(MovePosition) * Fleet.Speed * elapsedTime;
+                Fleet.FinalPosition += Fleet.FinalPosition.DirectionToTarget(MovePosition) * Fleet.SpeedLimit * elapsedTime;
                 Fleet.AssembleFleet(FinalDirection);
                 if (Vector2.Distance(Fleet.FinalPosition, MovePosition) >= 100.0f)
                     return;
@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             void DoMove(float elapsedTime)
             {
                 Vector2 dir = Fleet.FinalPosition.DirectionToTarget(MovePosition);
-                Fleet.FinalPosition += dir * (Fleet.Speed + 75f) * elapsedTime;
+                Fleet.FinalPosition += dir * (Fleet.SpeedLimit + 75f) * elapsedTime;
                 Fleet.AssembleFleet(FinalDirection);
                 if (Fleet.FinalPosition.InRadius(MovePosition, 100f))
                 {

@@ -1169,7 +1169,7 @@ namespace Ship_Game.AI
                         if (!ai.HasPriorityOrder)
                         {
                             ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset
-                                , FinalDirection, true, Speed * 0.75f);
+                                , FinalDirection, true, SpeedLimit * 0.75f);
                         }
                         break;
 
@@ -1453,33 +1453,33 @@ namespace Ship_Game.AI
             float distToFinalPos = ship.Center.Distance(desiredFinalPos);
             float distFromFormation = ship.Center.Distance(desiredFormationPos);
             float distFromFormationToFinal = desiredFormationPos.Distance(desiredFinalPos);
-            float shipSpeed = Speed;
+            float shipSpeed = SpeedLimit;
 
             // FINAL APPROACH
             if (distToFinalPos < ship.FleetOffset.Length()
                 // NON FINAL: we are much further from the formation
                 || distFromFormation > distToFinalPos)
             {
-                shipSpeed = Speed*2;
+                shipSpeed = SpeedLimit*2;
             }
             // formation is behind us? We are going way too fast
             else if (distFromFormationToFinal > distToFinalPos)
             {
                 // SLOW DOWN MAN! but never slower than 50% of fleet speed
-                shipSpeed = Math.Max(Speed - distFromFormation, Speed*0.5f);
+                shipSpeed = Math.Max(SpeedLimit - distFromFormation, SpeedLimit*0.5f);
             }
             // CLOSER TO FORMATION: we are too far from desired position
-            else if (distFromFormation > Speed)
+            else if (distFromFormation > SpeedLimit)
             {
                 // hurry up! set a really high speed
                 // but at least fleet speed, not less in case we get really close
-                shipSpeed =  Math.Max(distFromFormation - Speed, Speed);
+                shipSpeed =  Math.Max(distFromFormation - SpeedLimit, SpeedLimit);
             }
             // getting close to our formation pos
-            else if (distFromFormation < (Speed*0.5f))
+            else if (distFromFormation < (SpeedLimit*0.5f))
             {
                 // we are in formation, CRUISING SPEED
-                shipSpeed = Speed;
+                shipSpeed = SpeedLimit;
             }
             return shipSpeed;
         }

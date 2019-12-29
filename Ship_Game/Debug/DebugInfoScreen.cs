@@ -407,7 +407,7 @@ namespace Ship_Game.Debug
                     DrawString(fleet.Name);
                     DrawString("Ships: " + fleet.Ships.Count);
                     DrawString("Strength: " + fleet.GetStrength());
-                    DrawString("FleetSpeed: " + fleet.Speed);
+                    DrawString("FleetSpeed: " + fleet.SpeedLimit);
                     DrawString("Distance: " + fleet.FinalPosition.Distance(fleet.AveragePosition()));
 
                     string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
@@ -443,7 +443,7 @@ namespace Ship_Game.Debug
                 if (ship.fleet != null)
                 {
                     DrawString($"Fleet {ship.fleet.Name}  {(int)ship.fleet.FinalPosition.X}x{(int)ship.fleet.FinalPosition.Y}");
-                    DrawString($"Fleet speed: {ship.fleet.Speed}");
+                    DrawString($"Fleet speed: {ship.fleet.SpeedLimit}");
                 }
 
                 DrawString(!ship.loyalty.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
