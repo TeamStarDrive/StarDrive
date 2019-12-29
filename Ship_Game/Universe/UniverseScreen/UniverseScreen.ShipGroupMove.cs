@@ -235,7 +235,7 @@ namespace Ship_Game
             else
             {
                 Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-                Vector2 dir = fleet.Position.DirectionToTarget(start);
+                Vector2 dir = fleet.FinalPosition.DirectionToTarget(start);
                 MoveFleetToLocation(targetShip, targetPlanet, start, dir, fleet);
             }
         }

@@ -135,6 +135,7 @@ namespace Ship_Game.Ships
                     && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                     && !Empire.Universe.Paused && JumpSfx.IsStopped)
                 {
+                    Log.Info($"PlaySfxAsync: JumpSfx {GetStartWarpCue()}");
                     JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
                 }
             }

@@ -267,7 +267,7 @@ namespace Ship_Game.AI
 
             DequeueCurrentOrder();
             if (Owner.fleet != null)
-                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.RelativeFleetOffset, Owner.fleet.Direction, true, null);
+                OrderMoveTowardsPosition(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
@@ -437,7 +437,7 @@ namespace Ship_Game.AI
             if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
             {
                 ReverseThrustUntilStopped(elapsedTime);
-                RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
+                RotateToDirection(Owner.fleet.FinalDirection, elapsedTime, 0.02f);
                 return true;
             }
             return false;
@@ -468,12 +468,12 @@ namespace Ship_Game.AI
             if (ShouldReturnToFleet())
             {
                 // check if inside minimum warp jump range. If not do a full warp process.
-                if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
+                if (Owner.fleet.FinalPosition.InRadius(Owner.Center, 7500))
                 {
                     HasPriorityOrder = true;
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
-                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.Direction);
+                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection);
                 }
                 else
                 {
@@ -487,10 +487,10 @@ namespace Ship_Game.AI
             ClearWayPoints();
             WayPoints.Enqueue(Owner.fleet.GetFinalPos(Owner));
             State = AIState.AwaitingOrders;
-            if (Owner.fleet?.GoalStack.Count > 0)
-                WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
+            if (Owner.fleet?.HasFleetGoal == true)
+                WayPoints.Enqueue(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset);
             else
-                OrderMoveTowardsPosition(Owner.fleet.GetFinalPos(Owner), Owner.fleet.Direction, true, null);
+                OrderMoveTowardsPosition(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
         }
 
         public bool HasTradeGoal(Goods goods)
