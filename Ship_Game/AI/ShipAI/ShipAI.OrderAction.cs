@@ -125,13 +125,13 @@ namespace Ship_Game.AI
         {
             ClearWayPoints();
             ClearOrders();
-            OrderMoveDirectlyTowardsPosition(destination, direction, true, Owner.fleet.Speed);
+            OrderMoveDirectlyTowardsPosition(destination, direction, true, Owner.fleet.SpeedLimit);
             State = AIState.FormationWarp;
         }
 
         public void OrderFormationWarpQ(Vector2 destination, Vector2 direction)
         {
-            OrderMoveDirectlyTowardsPosition(destination, direction, false, Owner.fleet.Speed);
+            OrderMoveDirectlyTowardsPosition(destination, direction, false, Owner.fleet.SpeedLimit);
             State = AIState.FormationWarp;
         }
 
