@@ -1,12 +1,11 @@
-using System;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Ship_Game.AI.Budget;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.UI;
+using System;
+using System.Linq;
 
 namespace Ship_Game.GameScreens
 {
@@ -22,7 +21,7 @@ namespace Ship_Game.GameScreens
         public BudgetScreen(UniverseScreen screen) : base(screen)
         {
             Player            = screen.player;
-            IsPopup           = true;          
+            IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
         }
@@ -59,12 +58,12 @@ namespace Ship_Game.GameScreens
             public void AddItem(string text, Func<float> getValue) => AddItem(text, getValue, Color.White);
             public void AddItem(string text, Func<float> getValue, Color keyColor)
             {
-                AddSplit(new UILabel($"{text}:", keyColor), 
+                AddSplit(new UILabel($"{text}:", keyColor),
                          new UILabel(DynamicText(getValue, f => f.MoneyString())) );
             }
             public void SetTotalFooter(Func<float> getValue)
             {
-                Footer = new SplitElement(new UILabel($"{Localizer.Token(320)}:"), 
+                Footer = new SplitElement(new UILabel($"{Localizer.Token(320)}:"),
                                           new UILabel(DynamicText(getValue, f => f.MoneyString())) );
             }
             public FloatSlider AddSlider(string title, float value)
@@ -86,12 +85,12 @@ namespace Ship_Game.GameScreens
             var footerRect = new Rectangle(taxRect.X, budgetRect.Bottom + 6, 168, 86);
             string title = Localizer.Token(310);
             Label(Window.Menu.CenterTextX(title), Window.Menu.Y + 20, title);
-            
+
             var autoTax = Checkbox(new Vector2(footerRect.X, footerRect.Y)
                                    , () => Player.data.AutoTaxes
                                    , Localizer.Token(6138)
                                    , 7040);
-            
+
             autoTax.OnChange = cb =>
             {
                 if (cb.Checked)
@@ -124,7 +123,6 @@ namespace Ship_Game.GameScreens
             TaxSlider.OnChange = (s) => {
                 Player.data.TaxRate = s.RelativeValue;
                 Player.UpdateNetPlanetIncomes();
-                TaxSlider.Enabled = !Player.data.AutoTaxes;
             };
             TreasuryGoal.RelativeValue = Player.data.treasuryGoal; // trigger updates
             TaxSlider.RelativeValue    = Player.data.TaxRate;
@@ -170,13 +168,13 @@ namespace Ship_Game.GameScreens
         }
 
         // Dynamic Text label; this is invoked every time MoneyLabels are drawn
-        static Func<UILabel, string> DynamicText(Func<float> getValue, 
+        static Func<UILabel, string> DynamicText(Func<float> getValue,
                                                  Func<float, string> stringify)
         {
             return (label) =>
             {
                 float f = getValue(); // update money color based on value:
-                label.Color = f > 0f ? Color.ForestGreen : 
+                label.Color = f > 0f ? Color.ForestGreen :
                               f < 0f ? Color.Red : Color.Gray;
                 return stringify(f);
             };
