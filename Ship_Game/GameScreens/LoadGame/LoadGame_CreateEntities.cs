@@ -146,7 +146,7 @@ namespace Ship_Game
                 var template = ResourceManager.GetBuildingTemplate(pgs.building.Name);
                 pgs.building.AssignBuildingId(template.BID);
                 pgs.building.Scrappable = template.Scrappable;
-                pgs.building.CreateWeapon();
+                pgs.building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.building);
             }
             return p;
