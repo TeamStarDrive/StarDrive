@@ -25,9 +25,9 @@ namespace Ship_Game
             int rank             = (int)(budget.SystemRank * ratioValue) + 3;
             var wantedOrbitals   = new WantedOrbitals(rank);
 
-            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
             BuildOrScrapShipyard(wantedOrbitals.Shipyards);
             BuildOrScrapStations(currentStations, wantedOrbitals.Stations, rank, budget.Orbitals);
+            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
         }
 
         void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)

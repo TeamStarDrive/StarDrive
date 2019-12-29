@@ -60,7 +60,8 @@ namespace Ship_Game
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
-        public float OrbitalsMaintenance;
+        public float OrbitalsMaintenance { get; private set; }
+        public float MilitaryBuildingsMaintenance { get; private set; }
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -513,7 +514,8 @@ namespace Ship_Game
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateBaseFertility();
             InitResources(); // must be done before Governing
-            UpdateOrbitalsMaint();
+            UpdateOrbitalsMaintenance();
+            UpdateMilitaryBuildingMaintenance();
             NotifyEmptyQueue();
             RechargePlanetaryShields();
             ApplyResources();
@@ -628,6 +630,26 @@ namespace Ship_Game
 
             if (AllowInfantry && TroopsHere.Count > 6)
                 DevelopmentStatus += Localizer.Token(1779); // military culture
+        }
+
+        private void UpdateOrbitalsMaintenance()
+        {
+            OrbitalsMaintenance = 0;
+            foreach (Ship orbital in OrbitalStations.Values)
+            {
+                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
+            }
+        }
+
+        private void UpdateMilitaryBuildingMaintenance()
+        {
+            MilitaryBuildingsMaintenance = 0;
+            for (int i = 0; i < BuildingList.Count; i++)
+            {
+                Building b = BuildingList[i];
+                if (b.IsMilitary)
+                    MilitaryBuildingsMaintenance += b.ActualMaintenance(this);
+            }
         }
 
         int ColonyTypeLocId()
