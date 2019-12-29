@@ -1972,8 +1972,7 @@ namespace Ship_Game
                     //loop over all ALLIED projectors
                     InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
                     influenceNode.Position = ship.Center;
-                    influenceNode.Radius =
-                        ProjectorRadius; //projectors currently use their projection radius as sensors
+                    influenceNode.Radius = ProjectorRadius; //projectors currently use their projection radius as sensors
                     SensorNodes.Add(influenceNode);
                     influenceNode.SourceObject = ship;
                     influenceNode.Known = wellKnown;
@@ -2569,6 +2568,12 @@ namespace Ship_Game
 
         public void RemoveShip(Ship ship)
         {
+            if (ship == null)
+            {
+                Log.Error($"Empire '{Name}' RemoveShip failed: ship was null");
+                return;
+            }
+
             if (ship.IsSubspaceProjector)
                 OwnedProjectors.RemoveRef(ship);
             else
@@ -2695,13 +2700,13 @@ namespace Ship_Game
 
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~Empire() { Dispose(false); }
+        ~Empire() { Destroy(); }
 
-        void Dispose(bool disposing)
+        void Destroy()
         {
             ForcePool = null;
             BorderNodes?.Dispose(ref BorderNodes);

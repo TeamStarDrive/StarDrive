@@ -26,7 +26,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public GameplayObject Target { get; }
 
         // Create a beam with an initial destination position that optionally follows GameplayObject [target]
-        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null) : base(GameObjectType.Beam)
+        public Beam(Weapon weapon, Vector2 source, Vector2 destination, GameplayObject target = null)
+            : base(weapon.Owner.loyalty, GameObjectType.Beam)
         {
             // there is an error here in beam creation where the weapon has no module.
             // i am setting these values in the weapon CreateDroneBeam where possible.
@@ -61,7 +62,8 @@ namespace Ship_Game
 
         // Create a spatially fixed beam spawned from a ship center
         // Used by DIMENSIONAL PRISON
-        public Beam(Ship ship, Vector2 destination, int thickness) : base(GameObjectType.Beam)
+        public Beam(Ship ship, Vector2 destination, int thickness)
+            : base(ship.loyalty, GameObjectType.Beam)
         {
             Owner       = ship;
             Source      = ship.Center;
