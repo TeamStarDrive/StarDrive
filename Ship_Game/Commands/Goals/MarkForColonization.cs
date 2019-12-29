@@ -61,11 +61,12 @@ namespace Ship_Game.Commands.Goals
             {
                 foreach (MilitaryTask escort in empire.GetEmpireAI().TaskList)
                 {
-                    foreach (Guid held in escort.HeldGoals)
-                    {
-                        if (held == guid)
-                            return escort;
-                    }
+                    if (escort.type == MilitaryTask.TaskType.DefendClaim)
+                        foreach (Guid held in escort.HeldGoals)
+                        {
+                            if (held == guid)
+                                return escort;
+                        }
                 }
             }
             return null;
@@ -97,16 +98,13 @@ namespace Ship_Game.Commands.Goals
             if (empire.isPlayer || empire.isFaction)
                 return false;
             var escortTask = GetClaimTask();
-            if (escortTask != null)
+            if (escortTask?.Fleet != null)
             {
-                if (escortTask.Fleet != null)
-                {
-                    var fleet = escortTask.Fleet;
-                    if (fleet.TaskStep < 3)
-                        return true;
-                    if (fleet.TaskCombatStatus > ShipGroup.CombatStatus.InCombat)
-                        return false;
-                }
+                var fleet = escortTask.Fleet;
+                if (fleet.TaskStep < 3)
+                    return true;
+                if (fleet.TaskCombatStatus > ShipGroup.CombatStatus.InCombat)
+                    return false;
             }
 
             float radius = escortTask?.AORadius ?? 125000f;
@@ -138,11 +136,11 @@ namespace Ship_Game.Commands.Goals
 
             var militaryTask = new MilitaryTask
             {
-                AO = ColonizationTarget.Center
+                AO = ColonizationTarget.Center,
+                type = MilitaryTask.TaskType.DefendClaim,
+                AORadius = 75000f,
+                MinimumTaskForceStrength = str
             };
-            militaryTask.type                     = MilitaryTask.TaskType.DefendClaim;
-            militaryTask.AORadius                 = 75000f;
-            militaryTask.MinimumTaskForceStrength = str;
             militaryTask.SetEmpire(empire);
             militaryTask.SetTargetPlanet(ColonizationTarget);
             militaryTask.HeldGoals.Add(guid);
