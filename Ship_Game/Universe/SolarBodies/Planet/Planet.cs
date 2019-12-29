@@ -96,6 +96,7 @@ namespace Ship_Game
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
 
         public float Fertility                      => FertilityFor(Owner);
+        public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
         public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
 
@@ -944,7 +945,21 @@ namespace Ship_Game
         public float BuiltCoverage     => TotalBuildings / (float)TileArea;
 
         public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
-        public float TerraformTargetFertility => BuildingList.Sum(b => b.MaxFertilityOnBuild) + 1 / (Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1);
+
+        public float TerraformTargetFertility
+        {
+            get
+            {
+                float fertilityAddition = 1; 
+                foreach (Building b in BuildingList)
+                {
+                    if (b.MaxFertilityOnBuild > 0)
+                        fertilityAddition += b.MaxFertilityOnBuild;
+                }
+                return fertilityAddition + 1 / (Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1);
+            }
+        }
+
         public bool TerraformingHere          => BuildingList.Any(b => b.IsTerraformer);
 
         public int DesiredMilitaryBuildings
