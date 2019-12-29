@@ -4687,6 +4687,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1916</Index>
+      <Text>Governor Budget</Text>
+    </Token>
+    <Token>
+      <Index>1917</Index>
+      <Text>Treasury Goal</Text>
+    </Token>
+    <Token>
+      <Index>1918</Index>
+      <Text>Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 year projection. This can cause massive empire overspending. </Text>
+    </Token>
+    <Token>
       <Index>1919</Index>
       <Text>Removing Biospheres</Text>
     </Token>
