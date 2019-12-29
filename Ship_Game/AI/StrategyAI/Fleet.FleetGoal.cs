@@ -25,15 +25,15 @@ namespace Ship_Game.AI
                 switch (Type)
                 {
                     case FleetGoalType.AttackMoveTo:
-                        DoAttackMove(elapsedTime);
+                        AttackMoveTo(elapsedTime);
                         break;
                     case FleetGoalType.MoveTo:
-                        DoMove(elapsedTime);
+                        MoveTo(elapsedTime);
                         break;
                 }
             }
 
-            void DoAttackMove(float elapsedTime)
+            void AttackMoveTo(float elapsedTime)
             {
                 Vector2 fleetPos = Fleet.AveragePosition();
                 Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
@@ -48,7 +48,7 @@ namespace Ship_Game.AI
                 Fleet.AssembleFleet(finalPos, FinalDirection);
             }
 
-            void DoMove(float elapsedTime)
+            void MoveTo(float elapsedTime)
             {
                 Vector2 fleetPos = Fleet.AveragePosition();
                 Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);

@@ -625,7 +625,7 @@ namespace Ship_Game
                 foreach (Ship ship in fleet.Ships)
                     ship.AI.ClearOrdersIfCombat();
 
-                fleet.FormationWarpTo(movePosition, direction, true);
+                fleet.FormationWarpTo(movePosition, direction, queueOrder:true);
                 return true;
             }
             return false;
@@ -658,7 +658,7 @@ namespace Ship_Game
             if (Input.IsAltKeyDown)
                 fleet.MoveToNow(movePosition, facingDir);
             else
-                fleet.FormationWarpTo(movePosition, facingDir, Input.QueueAction);
+                fleet.FormationWarpTo(movePosition, facingDir);
         }
 
         void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)

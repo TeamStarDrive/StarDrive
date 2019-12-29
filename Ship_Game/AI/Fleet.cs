@@ -40,7 +40,9 @@ namespace Ship_Game.AI
         public bool HasRepair { get; private set; }  //fbedard: ships in fleet with repair capability will not return for repair.
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
-        public override string ToString() => $"Fleet {Name} size={Ships.Count} pos={FinalPosition} guid={Guid} index {FleetTask?.WhichFleet}";
+
+        public override string ToString()
+            => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
 
         public Fleet()
         {
@@ -1344,6 +1346,8 @@ namespace Ship_Game.AI
                     }
                     return;
                 }
+
+                //Log.Warning($"Fleet.UpdateAI reset fleet (no fleet task): {this}");
 
                 Owner.GetEmpireAI().UsedFleets.Remove(which);
                 for (int i = 0; i < Ships.Count; ++i)

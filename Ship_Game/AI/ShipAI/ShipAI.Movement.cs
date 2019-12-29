@@ -10,6 +10,10 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
+        // NOTE: This is the final move position
+        //     For example, if you have several waypoints, this is the pos of the final waypoint
+        //     And for other Ship AI Plans, this is used to store the current/default waypoint
+        //     i.e. ExploreSystem sets MovePosition to next planet it likes
         public Vector2 MovePosition;
         public Planet OrbitTarget;
 
