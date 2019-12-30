@@ -205,14 +205,15 @@ namespace Ship_Game.Universe.SolarBodies
         {
             var qi = new QueueItem(P)
             {
-                IsPlayerAdded = playerAdded,
-                isBuilding = true,
-                Building = b,
-                pgs = where,
-                Cost = b.ActualCost,
+                IsPlayerAdded   = playerAdded,
+                isBuilding      = true,
+                IsMilitary      = b.IsMilitary,
+                Building        = b,
+                pgs             = where,
+                Cost            = b.ActualCost,
                 ProductionSpent = 0.0f,
-                NotifyOnEmpty = false,
-                QueueNumber = ConstructionQueue.Count
+                NotifyOnEmpty   = false,
+                QueueNumber     = ConstructionQueue.Count
             };
 
                 if (b.AssignBuildingToTile(b, ref where, P))
@@ -306,31 +307,6 @@ namespace Ship_Game.Universe.SolarBodies
             }
             P.ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: false);
-        }
-
-
-        public bool TryBiosphereBuild(Building b, QueueItem qi)
-        {
-            if (!b.IsBiospheres)
-                return false;
-            if (qi.isBuilding == false && P.ShortOnFood())
-                return false;
-
-            PlanetGridSquare[] list = P.TilesList.Filter(
-                g => !g.Habitable && g.building == null && !g.Biosphere && g.QItem == null);
-
-            if (list.Length == 0)
-                return false;
-
-            qi.pgs = RandomMath.RandItem(list);
-            qi.pgs.QItem = qi;
-            qi.Building = b;
-            qi.isBuilding = true;
-            qi.Cost = b.ActualCost;
-            qi.ProductionSpent = 0.0f;
-            qi.NotifyOnEmpty = false;
-            ConstructionQueue.Add(qi);
-            return true;
         }
 
         // Returns maintenance as a positive number
