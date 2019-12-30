@@ -74,21 +74,17 @@ namespace Ship_Game.Gameplay
 
         public override IDamageModifier DamageMod => Weapon;
 
-        public Projectile() : base(GameObjectType.Proj)
+        public Projectile(Empire loyalty, GameObjectType typeFlags) : base(typeFlags | GameObjectType.Proj)
         {
-        }
-
-        public Projectile(GameObjectType typeFlags) : base(typeFlags | GameObjectType.Proj)
-        {
+            Loyalty = loyalty;
         }
 
         public static Projectile Create(Weapon weapon, Vector2 origin, Vector2 direction, GameplayObject target, bool playSound)
         {
-            var projectile = new Projectile
+            var projectile = new Projectile(weapon.Owner.loyalty, GameObjectType.Proj)
             {
                 Weapon  = weapon,
                 Owner   = weapon.Owner,
-                Loyalty = weapon.Owner.loyalty,
                 Module  = weapon.Module
             };
             projectile.Initialize(origin, direction, target, playSound);
@@ -97,11 +93,10 @@ namespace Ship_Game.Gameplay
 
         public static Projectile Create(Weapon weapon, Planet planet, Vector2 direction, GameplayObject target)
         {
-            var projectile = new Projectile
+            var projectile = new Projectile(planet.Owner, GameObjectType.Proj)
             {
                 Weapon  = weapon,
                 Planet  = planet,
-                Loyalty = planet.Owner,
                 ZStart  = -2500f
             };
             projectile.Initialize(planet.Center, direction, target, playSound: true);
@@ -112,11 +107,10 @@ namespace Ship_Game.Gameplay
         public static Projectile Create(Ship owner, SavedGame.ProjectileSaveData pdata)
         {
             Weapon weapon = ResourceManager.CreateWeapon(pdata.Weapon);
-            var projectile = new Projectile
+            var projectile = new Projectile(owner.loyalty, GameObjectType.Proj)
             {
                 Weapon  = weapon,
                 Owner   = owner,
-                Loyalty = owner.loyalty,
                 Module  = weapon.Module
             };
             projectile.Initialize(pdata.Position, pdata.Velocity, null, playSound: false);
@@ -177,13 +171,11 @@ namespace Ship_Game.Gameplay
 
             if (Owner != null)
             {
-                Loyalty = Owner.loyalty;
                 SetSystem(Owner.System);
                 Owner.AddProjectile(this);
             }
             else if (Planet != null)
             {
-                Loyalty = Planet.Owner;
                 SetSystem(Planet.ParentSystem);
                 Planet.AddProjectile(this);
             }
