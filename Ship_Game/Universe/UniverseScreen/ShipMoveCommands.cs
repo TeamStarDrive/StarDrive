@@ -258,7 +258,5 @@ namespace Ship_Game.Universe
                 ship.AI.OrderMoveTo(pos, direction, true, null);
             }
         }
-
-
     }
 }
