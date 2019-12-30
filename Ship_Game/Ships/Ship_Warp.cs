@@ -79,8 +79,8 @@ namespace Ship_Game.Ships
             if (!IsSpoolingOrInWarp)
                 return;
 
-            if (JumpSfx.IsPlaying)
-                JumpSfx.Stop();
+            // stop the SFX and always reset the replay timeout
+            JumpSfx.Stop();
 
             if (engineState == MoveState.Warp && InFrustum &&
                 Empire.Universe != null &&
@@ -133,10 +133,9 @@ namespace Ship_Game.Ships
             {
                 if (InFrustum
                     && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                    && !Empire.Universe.Paused && JumpSfx.IsStopped)
+                    && !Empire.Universe.Paused && JumpSfx.IsStopped && JumpSfx.IsReadyToReplay)
                 {
-                    Log.Info($"PlaySfxAsync: JumpSfx {GetStartWarpCue()}");
-                    JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter);
+                    JumpSfx.PlaySfxAsync(GetStartWarpCue(), SoundEmitter, replayTimeout:4.0f);
                 }
             }
             if (JumpTimer <= 0.1f)

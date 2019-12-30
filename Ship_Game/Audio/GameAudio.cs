@@ -26,7 +26,23 @@ namespace Ship_Game.Audio
         static AudioCategory RacialMusic;
         static AudioCategory CombatMusic;
 
-        static Array<IAudioInstance> TrackedInstances;
+        struct TrackedHandle
+        {
+            public IAudioHandle Handle;
+            public IAudioInstance Instance;
+            public bool IsStopped()
+            {
+                if (Handle != null) return Handle.IsStopped;
+                return Instance.IsStopped;
+            }
+            public void DestroyInstance()
+            {
+                if (Handle != null) Handle.Destroy();
+                else Instance.Dispose();
+            }
+        }
+
+        static Array<TrackedHandle> TrackedInstances;
         static int ThisFrameSfxCount; // Limit the number of Cues that can be loaded per frame. 
 
         struct QueuedSfx
@@ -70,7 +86,7 @@ namespace Ship_Game.Audio
                 AudioEngine  = new AudioEngine(settingsFile, TimeSpan.FromMilliseconds(250), device.ID);
                 WaveBank     = new WaveBank(AudioEngine, waveBankFile, 0, 16);
                 SoundBank    = new SoundBank(AudioEngine, soundBankFile);
-                TrackedInstances = new Array<IAudioInstance>();
+                TrackedInstances = new Array<TrackedHandle>();
 
                 while (!WaveBank.IsPrepared)
                     AudioEngine.Update();
@@ -111,7 +127,7 @@ namespace Ship_Game.Audio
             if (TrackedInstances != null) lock (TrackedInstances)
             {
                 for (int i = 0; i < TrackedInstances.Count; ++i)
-                    TrackedInstances[i].Dispose();
+                    TrackedInstances[i].DestroyInstance();
                 TrackedInstances.Clear();
             }
             SoundBank?.Dispose(ref SoundBank);
@@ -124,11 +140,12 @@ namespace Ship_Game.Audio
         public static void Update()
         {
             ThisFrameSfxCount = 0;
-            DisposeStoppedInstances();
 
             AudioDevices.HandleEvents();
 
             AudioEngine?.Update();
+
+            DisposeStoppedInstances();
         }
 
         public static void Update3DSound(in Vector3 listenerPosition)
@@ -248,13 +265,26 @@ namespace Ship_Game.Audio
                 instance = new CueInstance(cue);
             }
 
-            handle?.OnLoaded(instance);
-            lock (TrackedInstances) TrackedInstances.Add(instance);
+            TrackedHandle tracked;
+            if (handle != null)
+            {
+                handle.OnLoaded(instance);
+                tracked = new TrackedHandle { Handle = handle };
+            }
+            else
+            {
+                tracked = new TrackedHandle { Instance = instance };
+            }
+
+            lock (TrackedInstances)
+            {
+                TrackedInstances.Add(tracked);
+            }
         }
 
         public static bool CantPlaySfx(string cueName)
         {
-            const int frameSfxLimit = 1; // @ 60fps, this is max 60 samples per second
+            const int frameSfxLimit = 1; // @ 60fps, this is max 60 SFX per second
             return AudioDisabled || EffectsDisabled || ThisFrameSfxCount > frameSfxLimit || cueName.IsEmpty();
         }
 
@@ -287,7 +317,7 @@ namespace Ship_Game.Audio
             }
         }
 
-        public static bool CantPlayMusic(string music)
+        static bool CantPlayMusic(string music)
         {
             return AudioDisabled || MusicDisabled || music.IsEmpty();
         }
@@ -295,14 +325,14 @@ namespace Ship_Game.Audio
         public static AudioHandle PlayMusic(string cueName)
         {
             if (CantPlayMusic(cueName))
-                return AudioHandle.Dummy;
+                return AudioHandle.DoNotPlay;
             return new AudioHandle(new CueInstance(SoundBank.GetCue(cueName)));
         }
 
         public static AudioHandle PlayMp3(string mp3File)
         {
             if (CantPlayMusic(mp3File))
-                return AudioHandle.Dummy;
+                return AudioHandle.DoNotPlay;
             return new AudioHandle(new Mp3Instance(mp3File));
         }
 
@@ -312,10 +342,10 @@ namespace Ship_Game.Audio
             {
                 for (int i = 0; i < TrackedInstances.Count; i++)
                 {
-                    IAudioInstance audio = TrackedInstances[i];
-                    if (audio.IsStopped)
+                    TrackedHandle audio = TrackedInstances[i];
+                    if (audio.IsStopped())
                     {
-                        audio.Dispose();
+                        audio.DestroyInstance();
                         TrackedInstances.RemoveAtSwapLast(i--);
                     }
                 }
