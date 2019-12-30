@@ -325,9 +325,9 @@ namespace Ship_Game
             float energyDps = 0.0f;
 
             //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
-            for (int index = 0; index < Ships.Count; index++)
+            for (int i = 0; i < Ships.Count; ++i)
             {
-                Ship ship = Ships[index];
+                Ship ship = Ships[i];
                 if (!ship.AI.HasPriorityOrder)
                 {
                     currentAmmo += ship.Ordinance;
@@ -373,7 +373,7 @@ namespace Ship_Game
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
                     ship.AI.SetPriorityOrder(true);
-                    ship.AI.OrderMoveDirectlyTowardsPosition(FinalPosition + ship.FleetOffset, finalDirection, true);
+                    ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true);
                 }
             }
         }
@@ -385,7 +385,7 @@ namespace Ship_Game
             foreach (Ship ship in Ships)
             {
                 ship.AI.SetPriorityOrder(false);
-                ship.AI.OrderMoveTowardsPosition(FinalPosition + ship.FleetOffset, finalDirection, true, null);
+                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null);
             }
         }
 

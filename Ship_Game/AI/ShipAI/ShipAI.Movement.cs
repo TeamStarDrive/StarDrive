@@ -22,7 +22,7 @@ namespace Ship_Game.AI
         public bool HasWayPoints => WayPoints.Count > 0;
         public Vector2[] CopyWayPoints() => WayPoints.ToArray();
 
-        public void ClearWayPoints()
+        void ClearWayPoints()
         {
             WayPoints.Clear();
         }
