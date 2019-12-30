@@ -335,19 +335,69 @@ namespace Ship_Game
             return false;
         }
 
-        public void BuildAndScrapMilitaryBuildings(float budget)
+        public void BuildMilitia()
         {
-            if (BuildingInTheWorks || Prod.NetMaxPotential < 2)
+            if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
                 return;
 
-            // if budget < 0 scrap
-            // build
-            // replace
+            if (CanBuildInfantry)
+            {
+                int troopsWeWant = TroopsWeWant();
+                int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
+
+                if (troopsWeHave < troopsWeWant)
+                    BuildSingleMilitiaTroop();
+            }
+
+            // local function
+            int TroopsWeWant()
+            {
+                switch (colonyType)
+                {
+                    case ColonyType.Research: return 4;
+                    case ColonyType.Core:     return 6;
+                    case ColonyType.Military: return 7;
+                    default:                  return 5;
+                }
+            }
         }
 
-        void BuildMilitaryBuilding(float budget)
+        void BuildSingleMilitiaTroop()
         {
-            BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) > budget, b => b.MilitaryStrength);
+            if (TroopsInTheWorks)
+                return;  // Build one militia at a time
+
+            Troop cheapestTroop = ResourceManager.GetTroopTemplatesFor(Owner).First();
+            Construction.AddTroop(cheapestTroop);
+        }
+
+        void BuildAndScrapMilitaryBuildings(float budget)
+        {
+            if (MilitaryBuildingInTheWorks)
+                return;
+
+            if (budget < 0)
+                TryScrapMilitaryBuilding();
+            else
+                TryBuildMilitaryBuilding(budget);
+        }
+
+        void TryBuildMilitaryBuilding(float budget)
+        {
+            Building building =  BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) > budget
+                                 , b => b.MilitaryStrength);
+
+            if (building != null)
+                Construction.AddBuilding(building);
+        }
+        
+        void TryScrapMilitaryBuilding()
+        {
+            Building weakest = BuildingList.FindMinFiltered(b => b.IsMilitary && b.ActualMaintenance(this) > 0
+                               , b => b.MilitaryStrength);
+
+            if (weakest != null)
+                ScrapBuilding(weakest);
         }
     }
 }

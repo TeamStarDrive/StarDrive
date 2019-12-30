@@ -256,17 +256,20 @@ namespace Ship_Game
                 var qi = new QueueItem(p);
                 if (qisave.isBuilding)
                 {
-                    qi.isBuilding = true;
-                    qi.Building = ResourceManager.CreateBuilding(qisave.UID);
-                    qi.Cost = qi.Building.ActualCost;
+                    qi.isBuilding    = true;
+                    qi.IsMilitary    = qisave.IsMilitary;
+                    qi.Building      = ResourceManager.CreateBuilding(qisave.UID);
+                    qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.isPlayerAdded;
+
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
                         if (pgs.x != (int) qisave.pgsVector.X || pgs.y != (int) qisave.pgsVector.Y)
                             continue;
+
                         pgs.QItem = qi;
-                        qi.pgs = pgs;
+                        qi.pgs    = pgs;
                         break;
                     }
                 }

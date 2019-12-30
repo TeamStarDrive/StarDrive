@@ -77,38 +77,29 @@ namespace Ship_Game
             BuildMilitia();
         }
 
-        public void BuildMilitia()
-        {
-            if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
-                return;
-            if (CanBuildInfantry)
-            {
-                int troopsWeWant = TroopsWeWant();
-                int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
+        PlanetBudget AllocateColonyBudget()       => Owner.GetEmpireAI().PlanetBudget(this);
+        public float CivilianBuildingsMaintenance => Money.Maintenance - MilitaryBuildingsMaintenance;
 
-                if (troopsWeHave < troopsWeWant)
-                    BuildSingleMilitiaTroop();
+        public float ColonyDebtTolerance
+        {
+            get
+            {
+                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
+                if (MaxPopulationBillion < 2)
+                    debtTolerance += 2f - MaxPopulationBillion;
+
+                return debtTolerance;
             }
         }
 
-        int TroopsWeWant()
+        //New Build Logic by Gretman, modified by Fat Bastard
+        void BuildAndScrapBuildings(PlanetBudget colonyBudget)
         {
-            switch (colonyType)
-            {
-                case ColonyType.Research: return 4;
-                case ColonyType.Core:     return 6;
-                case ColonyType.Military: return 7;
-                default:                  return 5;
-            }
-        }
+            if (RecentCombat)
+                return; // Do not build or scrap when in combat
 
-        void BuildSingleMilitiaTroop()
-        {
-            if (TroopsInTheWorks)
-                return;  // Build one militia at a time
-
-            Troop cheapestTroop = ResourceManager.GetTroopTemplatesFor(Owner).First();
-            Construction.AddTroop(cheapestTroop);
+            BuildAndScrapCivilianBuildings(colonyBudget.CivilianBuildings);
+            BuildAndScrapMilitaryBuildings(colonyBudget.MilitaryBuildings);
         }
 
         // returns the amount of production to spend in the build queue based on import/export state
@@ -162,22 +153,8 @@ namespace Ship_Game
                         break;
                 }
             }
+
             return prodToSpend;
-        }
-
-        PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
-
-        public float ColonyMaintenance => Money.Maintenance + Construction.TotalQueuedBuildingMaintenance();
-        public float ColonyDebtTolerance
-        {
-            get
-            {
-                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
-                if (MaxPopulationBillion < 2)
-                    debtTolerance += 2f - MaxPopulationBillion;
-
-                return debtTolerance;
-            }
         }
     }
 }
