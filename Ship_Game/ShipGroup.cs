@@ -70,7 +70,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.projectedPosition = projectedPos + Vector2.Zero.PointFromRadians(angle, distance);
+                ship.projectedPosition = projectedPos + angle.RadiansToDirection()*distance;
             }
         }
 
@@ -98,7 +98,7 @@ namespace Ship_Game
         {
             float angle = ship.RelativeFleetOffset.ToRadians() + FinalDirection.ToRadians();
             float distance = ship.RelativeFleetOffset.Length();
-            ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+            ship.FleetOffset = angle.RadiansToDirection()*distance;
         }
 
         public void AssignPositions(Vector2 newDirection)
@@ -114,7 +114,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                ship.FleetOffset = angle.RadiansToDirection()*distance;
             }
         }
 
@@ -134,7 +134,7 @@ namespace Ship_Game
                 {
                     float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                     float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                    ship.FleetOffset = angle.RadiansToDirection()*distance;
                 }
             }
         }
@@ -352,7 +352,7 @@ namespace Ship_Game
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
         {
             GoalStack.Clear();
-            AssembleFleet(finalPosition, finalDirection, !queueOrder);
+            AssembleFleet(finalPosition, finalDirection, forceAssembly:true);
 
             for (int i = 0; i < Ships.Count; ++i)
             {
