@@ -16,6 +16,7 @@ namespace Ship_Game.AI
         {
             Drone = drone;
             DroneWeapon = ResourceManager.CreateWeapon("RepairBeam");
+            DroneWeapon.Owner = drone.Owner;
         }
 
         public void ChooseTarget()
