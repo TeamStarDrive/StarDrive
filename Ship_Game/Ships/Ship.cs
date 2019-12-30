@@ -1849,11 +1849,12 @@ namespace Ship_Game.Ships
 
             ClearFleet();
             loyalty.RemoveShip(this);
-            SetSystem(null);
+            SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
 
             ShipSO?.Clear();
             Empire.Universe.RemoveObject(ShipSO);
+            base.RemoveFromUniverseUnsafe();
         }
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;

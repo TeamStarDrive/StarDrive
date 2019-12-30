@@ -753,9 +753,9 @@ namespace Ship_Game
             StarField?.Dispose();
 
             ShipToView = null;
-            foreach (Ship ship in MasterShipList)
-                ship?.RemoveFromUniverseUnsafe();
-            MasterShipList.ApplyPendingRemovals();
+            for (int i = 0; i < MasterShipList.Count; ++i)
+                MasterShipList[i]?.RemoveFromUniverseUnsafe();
+            MasterShipList.ClearPendingRemovals();
             MasterShipList.Clear();
 
             foreach (SolarSystem solarSystem in SolarSystemList)
