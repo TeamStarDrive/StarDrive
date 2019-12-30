@@ -29,33 +29,27 @@ namespace Ship_Game
                     $"Eval VALUE  {b.Name,-20}  {what,-16} {(+score).SignString()}");
         }
 
-        //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings(PlanetBudget colonyBudget)
+        void BuildAndScrapCivilianBuildings(float budget)
         {
-            if (RecentCombat)
-                return; // Do not build / scrap when in combat
-
-            float buildingBudget = colonyBudget.Buildings;
-            float militaryBudget = colonyBudget.PlanetDefenseBudget;
-            if (buildingBudget < 0f)
+            if (budget < 0f)
             {
-                TryScrapBuilding(buildingBudget); // we must scrap something to bring us above of our debt tolerance
+                TryScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
                 return;
             }
 
-            if (AvailableTiles > 0)
+            if (FreeHabitableTiles > 0)
             {
-                if (SimpleBuild(buildingBudget)) // lets try to build something within our debt tolerance
+                if (SimpleBuild(budget)) // lets try to build something within our debt tolerance
                     return;
             }
             else
             {
-                if (BuildBiospheres(buildingBudget))
+                if (BuildBiospheres(budget))
                     return;
             }
 
-            ReplaceBuilding(buildingBudget); // we don't have room for expansion. Let's see if we can replace to a better value building
-            BuildTerraformers(buildingBudget); // Build Terraformers if needed
+            ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
+            BuildTerraformers(budget); // Build Terraformers if needed
         }
 
         float EvalMaintenance(Building b, float budget)

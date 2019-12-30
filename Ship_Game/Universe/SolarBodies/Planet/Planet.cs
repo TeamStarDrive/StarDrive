@@ -632,7 +632,7 @@ namespace Ship_Game
                 DevelopmentStatus += Localizer.Token(1779); // military culture
         }
 
-        private void UpdateOrbitalsMaintenance()
+        void UpdateOrbitalsMaintenance()
         {
             OrbitalsMaintenance = 0;
             foreach (Ship orbital in OrbitalStations.Values)
@@ -641,7 +641,7 @@ namespace Ship_Game
             }
         }
 
-        private void UpdateMilitaryBuildingMaintenance()
+        void UpdateMilitaryBuildingMaintenance()
         {
             MilitaryBuildingsMaintenance = 0;
             for (int i = 0; i < BuildingList.Count; i++)
@@ -961,8 +961,9 @@ namespace Ship_Game
         public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
-        public int AvailableTiles      => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        public int FreeHabitableTiles  => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
         public float BuiltCoverage     => TotalBuildings / (float)TileArea;
         public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
