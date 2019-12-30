@@ -239,16 +239,14 @@ namespace Ship_Game
 
         void MoveShipGroupToMouse(bool wasProjecting)
         {
+            bool queue = Input.QueueAction;
             if (wasProjecting) // dragging right mouse
             {
                 if (CurrentGroup == null)
                     return; // projection is not valid YET, come back next update
 
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
-                foreach (Ship selectedShip in SelectedShipList)
-                {
-                    ShipCommands.MoveShipToLocation(selectedShip.projectedPosition, CurrentGroup.ProjectedDirection, selectedShip);
-                }
+                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, CurrentGroup.ProjectedDirection, queue);
                 return;
             }
 
@@ -262,15 +260,13 @@ namespace Ship_Game
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
                 CurrentGroup = new ShipGroup(SelectedShipList, start, start, direction, player);
-                foreach (Ship selectedShip in SelectedShipList)
-                    ShipCommands.MoveShipToLocation(selectedShip.projectedPosition, direction, selectedShip);
+                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, direction, queue);
             }
             else // move existing group
             {
                 Log.Info("MoveShipGroupToMouse (existing)");
-                CurrentGroup.MoveToNow(start, direction);
+                CurrentGroup.FormationWarpTo(start, direction, queue);
             }
         }
-
     }
 }

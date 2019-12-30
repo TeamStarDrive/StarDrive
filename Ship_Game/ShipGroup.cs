@@ -23,7 +23,8 @@ namespace Ship_Game
         // FINAL direction facing of this ship group
         public Vector2 FinalDirection = Vectors.Up;
 
-        // Holo-Projection direction of the ship group
+        // Holo-Projection of the ship group
+        public Vector2 ProjectedPos;
         public Vector2 ProjectedDirection;
 
         // WORK IN PROGRESS
@@ -60,6 +61,7 @@ namespace Ship_Game
 
         public void ProjectPos(Vector2 projectedPos, Vector2 direction)
         {
+            ProjectedPos = projectedPos;
             ProjectedDirection = direction;
             float facing = direction.ToRadians();
 
@@ -75,6 +77,7 @@ namespace Ship_Game
         // This is used for single-ship groups
         public void ProjectPosNoOffset(Vector2 projectedPos, Vector2 direction)
         {
+            ProjectedPos = projectedPos;
             ProjectedDirection = direction;
             for (int i = 0; i < Ships.Count; ++i)
                 Ships[i].projectedPosition = projectedPos + direction;
