@@ -206,11 +206,11 @@ namespace Ship_Game.AI.Tasks
             return closestAo.GetCoreFleet();
         }
 
-        bool SendSofteningFleet(AO closestAO)
+        void SendSofteningFleet(AO closestAO)
         {
             Fleet closestCoreFleet = FindClosestCoreFleet(MinimumTaskForceStrength);
             if (closestCoreFleet == null || closestCoreFleet.FleetTask != null)
-                return false;
+                return;
             var clearArea = new MilitaryTask(closestCoreFleet.Owner)
             {
                 AO = TargetPlanet.Center,
@@ -222,157 +222,14 @@ namespace Ship_Game.AI.Tasks
 
 
             closestCoreFleet.Owner.GetEmpireAI().TasksToAdd.Add(clearArea);
-            clearArea.WhichFleet = Owner.GetFleetsDict().FindFirstKeyForValue(closestCoreFleet);
+            clearArea.WhichFleet       = Owner.GetFleetsDict().FindFirstKeyForValue(closestCoreFleet);
             closestCoreFleet.FleetTask = clearArea;
-            clearArea.IsCoreFleetTask = true;
-            closestCoreFleet.TaskStep = 1;
-            clearArea.Step = 1;
-
-            return true;
+            clearArea.IsCoreFleetTask  = true;
+            closestCoreFleet.TaskStep  = 1;
+            clearArea.Step             = 1;
         }
 
-        bool RequisitionDefenseForce()
-        {
-            AO closestAO = FindClosestAO();
-            if (closestAO == null || closestAO.NumOffensiveForcePoolShips < 1)
-            {
-                return false;
-            }
-
-            Planet rallyPoint = closestAO.GetPlanets().Intersect(Owner.RallyPoints)
-                .ToArrayList().FindMin(p => p.Center.SqDist(AO));
-            if (rallyPoint == null)
-            {
-                return false;
-            }
-
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
-            NeededTroopStrength = 0;
-            FleetShips fleetShips = AllFleetReadyShipsNearestTarget(rallyPoint.Center);
-            MinimumTaskForceStrength = EnemyStrength;
-            int bombTimeNeeded = 0;
-
-            if (fleetShips.AccumulatedStrength < EnemyStrength)
-            {
-                //send a core fleet and wait.
-                SendSofteningFleet(closestAO);
-                return false;
-            }
-
-            //See if we need to gather troops from planets. Bail if not enough
-            if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center))
-                return false;
-
-            //All's Good... Make a fleet
-            var ships = fleetShips.ExtractShipSet(EnemyStrength, bombTimeNeeded
-                , NeededTroopStrength, troopsOnPlanets);
-            if (ships.IsEmpty)
-                return false;
-
-            CreateFleet(ships, "Defensive Fleet");
-
-            Step = 1;
-            return true;
-        }
-
-        bool RequisitionClaimForce()
-        {
-            AO closestAO = FindClosestAO();
-            if (closestAO == null || closestAO.NumOffensiveForcePoolShips < 1)
-            {
-                return false;
-            }
-
-            Planet rallyPoint = closestAO.GetPlanets().Intersect(Owner.RallyPoints)
-                                .ToArrayList().FindMin(p => p.Center.SqDist(AO));
-            if (rallyPoint == null)
-            {
-                return false;
-            }
-
-            AO = TargetPlanet.Center;
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner).ClampMin(100);
-            NeededTroopStrength = 0;
-            FleetShips fleetShips = AllFleetReadyShipsNearestTarget(rallyPoint.Center);
-            MinimumTaskForceStrength = EnemyStrength;
-            int bombTimeNeeded = 0;
-
-            if (fleetShips.AccumulatedStrength < EnemyStrength)
-            {
-                //send a core fleet and wait.
-                SendSofteningFleet(closestAO);
-                return false;
-            }
-
-            //See if we need to gather troops from planets. Bail if not enough
-            if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center))
-                return false;
-
-            //All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(EnemyStrength, bombTimeNeeded
-                , NeededTroopStrength, troopsOnPlanets);
-            if (TaskForce.IsEmpty || TaskForce.Count < 4)
-                return false;
-
-            CreateFleet(TaskForce, "Scout Fleet");
-
-            Step = 1;
-            return true;
-        }
-
-        void RequisitionExplorationForce()
-        {
-            AO closestAO = FindClosestAO();
-            if (closestAO == null)
-            {
-                //EndTask();
-                return;
-            }
-
-            Planet rallyPoint = closestAO.GetPlanets().Intersect(Owner.RallyPoints)
-                                .ToArrayList().FindMin(p => p.Center.SqDist(AO));
-            if (rallyPoint == null)
-            {
-                //EndTask();
-                return;
-            }
-
-            AO                       = TargetPlanet.Center;
-            EnemyStrength            = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
-            NeededTroopStrength      = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(40);
-            FleetShips fleetShips    = AllFleetReadyShipsNearestTarget(rallyPoint.Center);
-            int bombTimeNeeded       = BombTimeNeeded();
-            MinimumTaskForceStrength = EnemyStrength;
-
-            if (Owner.canBuildBombers && fleetShips.BombSecsAvailable < bombTimeNeeded)
-                return;
-
-            if (!Owner.canBuildBombers)
-                NeededTroopStrength += bombTimeNeeded * 10;
-
-            if (fleetShips.AccumulatedStrength < EnemyStrength)
-            {
-                //send a core fleet and wait.
-                SendSofteningFleet(closestAO);
-                return;
-            }
-
-            //See if we need to gather troops from planets. Bail if not enough
-            if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center))
-                return;
-
-            //All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(EnemyStrength, bombTimeNeeded
-                , NeededTroopStrength, troopsOnPlanets);
-            if (TaskForce.IsEmpty)
-                return;
-
-            CreateFleet(TaskForce, "Exploration Force");
-
-            Step = 1;
-        }
-
-        void RequisitionForces()
+        void RequisitionCoreFleet()
         {
             AO[] sorted = Owner.GetEmpireAI().AreasOfOperations
                 .OrderByDescending(ao => ao.OffensiveForcePoolStrength >= MinimumTaskForceStrength)
@@ -382,12 +239,11 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             AO closestAO = sorted[0];
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner,factionOnly:false);
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner, factionOnly: false);
 
             MinimumTaskForceStrength = EnemyStrength;
             if (MinimumTaskForceStrength < 1f)
             {
-                //EndTask();
                 return;
             }
 
@@ -402,8 +258,77 @@ namespace Ship_Game.AI.Tasks
             }
         }
 
+        void RequisitionDefenseForce()
+        {
+            if (AO.AlmostZero())
+                throw new Exception();
+
+            AO = TargetPlanet?.Center ?? AO;
+
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner).
+                ClampMin(100);
+            NeededTroopStrength = 0;
+            TaskBombTimeNeeded = 0;
+
+            if (CreateTaskFleet("Defensive Fleet") == RequisitionStatus.Complete)
+            {
+                Step = 1;
+            }
+        }
+
+        void RequisitionClaimForce()
+        {
+            if (AO.AlmostZero())
+                throw new Exception();
+
+            AO closestAO = FindClosestAO();
+            if (closestAO == null || closestAO.NumOffensiveForcePoolShips < 1)
+            {
+                return;
+            }
+
+            AO = TargetPlanet?.Center ?? AO;
+
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner).
+                                                                             ClampMin(100);
+            NeededTroopStrength = 0;
+            TaskBombTimeNeeded = 0;
+
+            if (CreateTaskFleet("Scout Fleet") == RequisitionStatus.Complete)
+            {
+                Step = 1;
+            }
+        }
+
+
+        void RequisitionExplorationForce()
+        {
+            if (AO.AlmostZero())
+                throw new Exception();
+
+            if (TargetPlanet.Owner != null && !Owner.IsEmpireAttackable(TargetPlanet.Owner))
+            {
+                EndTask();
+                return;
+            }
+
+            AO = TargetPlanet.Center;
+
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+            NeededTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(40);
+            TaskBombTimeNeeded = BombTimeNeeded();
+
+            if (CreateTaskFleet("Exploration Force") == RequisitionStatus.Complete)
+            {
+                Step = 1;
+            }
+        }
+
         void RequisitionAssaultForces()
         {
+            if (AO.AlmostZero())
+                throw new Exception();
+
             if (TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
                 Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
             {
@@ -411,56 +336,77 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
+            AO = TargetPlanet.Center;
+
+            EnemyStrength       = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner).
+                                                                                   ClampMin(100);
+
+            NeededTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(100);
+            TaskBombTimeNeeded  = BombTimeNeeded();
+            
+            if (CreateTaskFleet("Invasion Fleet") == RequisitionStatus.Complete)
+            {
+                Step = 1;
+            }
+        }
+
+        RequisitionStatus CreateTaskFleet(string fleetName)
+        {
+            //
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
 
             if (closestAO == null)
             {
-                EndTask();
-                return;
+                return RequisitionStatus.NoEmpireAreasOfOperation;
             }
 
-            Planet rallyPoint = Owner.FindNearestRallyPoint(TargetPlanet.Center);
+            Planet rallyPoint = Owner.FindNearestRallyPoint(AO);
             if (rallyPoint == null)
-                return;
+                return RequisitionStatus.NoRallyPoint;
 
-            AO                    = TargetPlanet.Center;
-            EnemyStrength         = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
-            NeededTroopStrength   = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(100);
+
             FleetShips fleetShips = AllFleetReadyShipsNearestTarget(rallyPoint.Center);
-            int bombTimeNeeded    = BombTimeNeeded();
 
             //if we cant build bombers then convert bombtime to troops. 
             //This is hacky but we need a way to figure out what the best numbers are here. 
 
             //if have bombers but not enough... wait for more.
-            if (Owner.canBuildBombers && fleetShips.BombSecsAvailable < bombTimeNeeded)
-                return;
+            if (Owner.canBuildBombers && fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
+                return RequisitionStatus.NotEnoughBomberStrength;
 
             if (!Owner.canBuildBombers)
-                NeededTroopStrength += bombTimeNeeded * 10;
+                NeededTroopStrength += TaskBombTimeNeeded * 10;
 
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
                 //send a core fleet and wait.
                 SendSofteningFleet(closestAO);
-                return;
+                return  RequisitionStatus.NotEnoughShipStrength;
             }
 
             //See if we need to gather troops from planets. Bail if not enough
             if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center))
-                return;
+                return RequisitionStatus.NotEnoughTroopStrength;
 
             //All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(EnemyStrength, bombTimeNeeded
+            TaskForce = fleetShips.ExtractShipSet(EnemyStrength, TaskBombTimeNeeded
                 , NeededTroopStrength, troopsOnPlanets);
             if (TaskForce.IsEmpty)
-                return;
+                return RequisitionStatus.FailedToCreateAFleet;
 
-            CreateFleet(TaskForce, "Invasion Fleet");
+            CreateFleet(TaskForce, fleetName);
+            return RequisitionStatus.Complete;
+        }
 
-            if (Step > 0)
-                DeclareWar();
-            Step = 1;
+        enum RequisitionStatus
+        {
+            NoRallyPoint,
+            NoEmpireAreasOfOperation,
+            NotEnoughShipStrength,
+            NotEnoughTroopStrength,
+            NotEnoughBomberStrength,
+            FailedToCreateAFleet,
+            Complete
         }
     }
 }
