@@ -667,22 +667,22 @@ namespace Ship_Game
             if (Input.QueueAction)
             {
                 if (Input.OrderOption)
-                    ship.AI.OrderMoveDirectlyTowardsPosition(pos, direction, false);
+                    ship.AI.OrderMoveDirectlyTo(pos, direction, false);
                 else
-                    ship.AI.OrderMoveTowardsPosition(pos, direction, false, null);
+                    ship.AI.OrderMoveTo(pos, direction, false, null);
             }
             else if (Input.OrderOption)
             {
-                ship.AI.OrderMoveDirectlyTowardsPosition(pos, direction, true);
+                ship.AI.OrderMoveDirectlyTo(pos, direction, true);
             }
             else if (Input.KeysCurr.IsKeyDown(Keys.LeftControl))
             {
-                ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
+                ship.AI.OrderMoveTo(pos, direction, true, null);
                 ship.AI.OrderHoldPosition(pos, direction);
             }
             else
             {
-                ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
+                ship.AI.OrderMoveTo(pos, direction, true, null);
             }
         }
 
