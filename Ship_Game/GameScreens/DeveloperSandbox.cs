@@ -68,7 +68,6 @@ namespace Ship_Game
         {
             public DeveloperUniverse(UniverseData sandbox) : base(sandbox, EmpireManager.Empires[0])
             {
-                player = PlayerEmpire;
                 NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
                 Paused = false;
                 ResetLighting();

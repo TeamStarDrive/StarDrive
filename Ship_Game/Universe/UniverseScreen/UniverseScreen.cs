@@ -15,6 +15,7 @@ using System;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -209,6 +210,8 @@ namespace Ship_Game
         public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 
+        ShipMoveCommands ShipCommands;
+
         // for really specific debugging
         public static int FrameId;
 
@@ -224,11 +227,13 @@ namespace Ship_Game
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
             PlayerEmpire          = loyalty;
+            player                = loyalty;
             PlayerLoyalty         = loyalty.data.Traits.Name;
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
+            ShipCommands = new ShipMoveCommands(this);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -242,12 +247,14 @@ namespace Ship_Game
             MasterShipList        = data.MasterShipList;
             loadFogPath           = data.loadFogPath;
             PlayerEmpire          = EmpireManager.GetEmpireByName(loyalty);
+            player                = PlayerEmpire;
             PlayerLoyalty         = loyalty;
             PlayerEmpire.isPlayer = true;
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
+            ShipCommands = new ShipMoveCommands(this);
         }
 
         public void ResetLighting() => SetLighting(UseRealLights);
