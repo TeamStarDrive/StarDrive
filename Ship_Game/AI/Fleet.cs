@@ -419,7 +419,7 @@ namespace Ship_Game.AI
             Owner.GetEmpireAI().TaskList.ApplyPendingRemovals();
         }
 
-        void DoExplorePlanet(MilitaryTask task) //Mer Gretman Left off here
+        void DoExplorePlanet(MilitaryTask task)
         {
             bool eventBuildingFound = task.TargetPlanet.EventsOnBuildings();
 
@@ -601,7 +601,7 @@ namespace Ship_Game.AI
             AssembleFleet2(Vector2.One);
             // ReSharper disable once PossibleNullReferenceException station should never be null here
             FormationWarpTo(station.Position, Vector2.One);
-            FleetTask.EndTaskWithMove();
+            FleetTask.EndTask();
         }
 
         void DoDefendSystem(MilitaryTask task)

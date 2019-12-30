@@ -31,6 +31,8 @@ namespace Ship_Game.AI
         public Map<Planet, PlanetTracker> PlanetValues = new Map<Planet, PlanetTracker>();
         private readonly int GameDifficultyModifier;
 
+        float PlanetToSystemDevelopmentRatio(Planet p) => p.Level / SystemDevelopmentlevel;
+
         public SystemCommander(Empire e, SolarSystem system)
         {
             System = system;
@@ -217,14 +219,14 @@ namespace Ship_Game.AI
 
         public float PlanetTroopMin(Planet planet)
         {
-            float troopMin = MinPlanetTroopLevel * planet.Level / SystemDevelopmentlevel;
+            float troopMin = MinPlanetTroopLevel * PlanetToSystemDevelopmentRatio(planet);
 
             return Math.Max(1, troopMin);
         }
 
         public float TroopStrengthMin(Planet planet)
         {
-            float troopMin = MinPlanetTroopLevel * planet.Level / SystemDevelopmentlevel;
+            float troopMin = MinPlanetTroopLevel * PlanetToSystemDevelopmentRatio(planet);
 
             return Math.Max(1, troopMin) * 10f;
         }

@@ -72,6 +72,8 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
+        public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
+
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
         {
             float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);

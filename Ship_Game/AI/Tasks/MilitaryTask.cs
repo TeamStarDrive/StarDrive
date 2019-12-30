@@ -144,9 +144,13 @@ namespace Ship_Game.AI.Tasks
             if (Fleet != null && !Fleet.IsCoreFleet)
                 Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
 
+            Owner.GetEmpireAI().RemoveFromTaskList(this);
+
             if (FindClosestAO() == null)
             {
-                if (Fleet.IsCoreFleet  || Owner == Empire.Universe.player) return;
+                if (Fleet.IsCoreFleet || Owner == Empire.Universe.player)
+                    return;
+
                 DisbandFleet(Fleet);
                 return;
             }
@@ -158,9 +162,6 @@ namespace Ship_Game.AI.Tasks
             }
 
             if (Fleet.IsCoreFleet || Owner.isPlayer)
-                return;
-
-            if (Fleet == null)
                 return;
 
             DisbandFleet(Fleet);
@@ -206,15 +207,7 @@ namespace Ship_Game.AI.Tasks
             Fleet.FleetTask = null;
         }
 
-        private void DisbandFleet(Fleet fleet)
-        {
-            for (int i = Fleet.Ships.Count - 1; i >= 0; i--)
-            {
-                Ship ship = Fleet.Ships[i];
-                ship.RemoveFromFleetAndAddBackToPools();
-                Fleet.Reset();
-            }
-        }
+        private void DisbandFleet(Fleet fleet) => Fleet.Reset();
 
         private void Debug_TallyFailedTasks()
         {
@@ -254,10 +247,13 @@ namespace Ship_Game.AI.Tasks
 
         private void ClearHoldOnGoal()
         {
-            foreach (Guid goalGuid in HeldGoals)
+            for (int i = 0; i < HeldGoals.Count; i++)
             {
-                foreach (Goal g in Owner.GetEmpireAI().Goals)
+                Guid goalGuid = HeldGoals[i];
+                var gs = Owner.GetEmpireAI().Goals;
+                for (int x = 0; x < gs.Count; x++)
                 {
+                    Goal g = gs[x];
                     if (g.guid == goalGuid) g.Held = false;
                 }
             }
@@ -316,6 +312,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         Log.Warning($"MilitaryTask Evaluate found task with missing fleet {type}");
                         EndTask();
+                        return;
                     }
                 }
             }
