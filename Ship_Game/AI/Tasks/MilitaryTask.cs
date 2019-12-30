@@ -28,6 +28,7 @@ namespace Ship_Game.AI.Tasks
         [Serialize(14)] public bool IsToughNut;
         [Serialize(15)] public int NeededTroopStrength;
         [Serialize(16)] public int Priority;
+        [Serialize(17)] public int TaskBombTimeNeeded;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
@@ -128,13 +129,13 @@ namespace Ship_Game.AI.Tasks
         public void EndTask()
         {
             Debug_TallyFailedTasks();
-
+            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
             if (Owner.isFaction)
             {
                 FactionEndTask();
                 return;
             }
-
+            
             TaskForce.Clear();
             ClearHoldOnGoal();
 
@@ -143,9 +144,7 @@ namespace Ship_Game.AI.Tasks
 
             if (Fleet != null && !Fleet.IsCoreFleet)
                 Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
-
-            Owner.GetEmpireAI().RemoveFromTaskList(this);
-
+            
             if (FindClosestAO() == null)
             {
                 if (Fleet.IsCoreFleet || Owner == Empire.Universe.player)
@@ -207,7 +206,16 @@ namespace Ship_Game.AI.Tasks
             Fleet.FleetTask = null;
         }
 
-        private void DisbandFleet(Fleet fleet) => Fleet.Reset();
+        private void DisbandFleet(Fleet fleet)
+        {
+            TaskForce = fleet.Ships;
+            Fleet.Reset();
+            foreach(var ship in TaskForce)
+            {
+                ship.loyalty.ForcePoolAdd(ship);
+            }
+            TaskForce.Clear();
+        }
 
         private void Debug_TallyFailedTasks()
         {
@@ -320,7 +328,7 @@ namespace Ship_Game.AI.Tasks
             {
                 case TaskType.ClearAreaOfEnemies:
                     {
-                        if      (Step == 0) RequisitionForces();
+                        if      (Step == 0) RequisitionCoreFleet();
                         else if (Step == 1) ExecuteAndAssess();
                         break;
                     }
@@ -364,7 +372,7 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
                     {
-                        if      (Step == 0) RequisitionForces();
+                        if      (Step == 0) RequisitionCoreFleet();
                         else if (Step == 1) ExecuteAndAssess();
                         break;
                     }
@@ -400,9 +408,7 @@ namespace Ship_Game.AI.Tasks
                                         if (rel != null && (!rel.AtWar && !rel.PreparingForWar))
                                             EndTask();
                                     }
-                                    if (!RequisitionClaimForce())
-                                        return;
-                                    Step = 1;
+                                    RequisitionClaimForce();
                                     break;
                                 }                                
                             case 1:
