@@ -54,9 +54,9 @@ namespace Ship_Game.AI
             SystemToDefend = null;
             ExplorationTarget = null;
 
+            ClearOrders();
             PotentialTargets.Clear();
             TrackProjectiles.Clear();
-            OrderQueue.Clear();
             NearByShips.Clear();
             FriendliesNearby.Clear();
         }
