@@ -620,17 +620,14 @@ namespace Ship_Game
 
                 if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
                 {
-                    if (SelectedShipList.Contains(clickableShip.shipToClick))
-                    {
-                        SelectedShipList.Remove(clickableShip.shipToClick);
+                    if (SelectedShipList.RemoveRef(clickableShip.shipToClick))
                         return true;
-                    }
-                    SelectedShipList.AddUnique(clickableShip.shipToClick);
+                    SelectedShipList.AddUniqueRef(clickableShip.shipToClick);
                     return false;
                 }
 
                 SelectedShipList.Clear();
-                SelectedShipList.AddUnique(clickableShip.shipToClick);
+                SelectedShipList.AddUniqueRef(clickableShip.shipToClick);
                 SelectedShip = clickableShip.shipToClick;
                 return true;
             }
@@ -657,7 +654,6 @@ namespace Ship_Game
             SelectedSystem  = null;
             SelectedItem    = null;
             Project.Started = false;
-            CurrentGroup    = null;
 
             if (viewState >= UnivScreenState.SectorView)
             {
