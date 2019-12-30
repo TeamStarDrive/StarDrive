@@ -187,7 +187,8 @@ namespace Ship_Game
 
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
-            float maxCost = (AverageProductionPercent * TimeVsCostThreshold) / ShipBuildingModifier;
+            float maxCost = (AverageProductionPercent * TimeVsCostThreshold) - Storage.Prod;
+            maxCost /= ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
 
             return orbital;
