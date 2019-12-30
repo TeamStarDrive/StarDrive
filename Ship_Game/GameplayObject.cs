@@ -103,7 +103,9 @@ namespace Ship_Game
         public virtual void RemoveFromUniverseUnsafe()
         {
             if (InSpatial)
+            {
                 UniverseScreen.SpaceManager.Remove(this);
+            }
         }
 
         [XmlIgnore][JsonIgnore]
@@ -134,10 +136,18 @@ namespace Ship_Game
 
         public void ChangeLoyalty(Empire changeTo)
         {
+            // spatial collisions are filtered by loyalty,
+            // so we need to remove and re-insert after the loyalty change
             if (InSpatial)
+            {
                 UniverseScreen.SpaceManager.Remove(this);
-            if ((Type & GameObjectType.Proj) != 0) ((Projectile)this).Loyalty = changeTo;
-            if ((Type & GameObjectType.Ship) != 0)
+            }
+
+            if ((Type & GameObjectType.Proj) != 0)
+            {
+                ((Projectile)this).Loyalty = changeTo;
+            }
+            else if ((Type & GameObjectType.Ship) != 0)
             {
                 var ship = (Ship)this;
                 Empire oldLoyalty = ship.loyalty;
@@ -151,16 +161,16 @@ namespace Ship_Game
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
-                SetSystem(null);
             }
-            if (!DisableSpatialCollision && Active && NotInSpatial)
-                UniverseScreen.SpaceManager.Add(this);
+
+            // this resets the spatial management
+            SetSystem(null);
         }
 
         public int GetLoyaltyId()
         {
             if ((Type & GameObjectType.Proj) != 0) return ((Projectile)this).Loyalty?.Id ?? 0;
-            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty?.Id ?? 0;
+            if ((Type & GameObjectType.Ship) != 0) return ((Ship)this).loyalty.Id;
             return 0;
         }
 
