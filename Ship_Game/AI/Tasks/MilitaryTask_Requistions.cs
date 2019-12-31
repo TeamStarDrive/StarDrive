@@ -274,9 +274,8 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
 
-            EnemyStrength         = GetEnemyShipStrengthInAO(100);
-            NeededTroopStrength   = 0;
-            TaskBombTimeNeeded    = 0;
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
+
             float battleFleetSize = 0.5f;
 
             if (CreateTaskFleet("Defensive Fleet", battleFleetSize) == RequisitionStatus.Complete)
@@ -298,9 +297,8 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
 
-            EnemyStrength         = GetEnemyShipStrengthInAO(100);
-            NeededTroopStrength   = 0;
-            TaskBombTimeNeeded    = 0;
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
+
             float battleFleetSize = 0.25f;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize) == RequisitionStatus.Complete)
@@ -321,10 +319,8 @@ namespace Ship_Game.AI.Tasks
             }
 
             AO = TargetPlanet.Center;
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 40, minBombMinutes: 1);
 
-            EnemyStrength         = GetEnemyShipStrengthInAO(100);
-            NeededTroopStrength   = GetTargetPlanetGroundStrength(40);
-            TaskBombTimeNeeded    = BombTimeNeeded();
             float battleFleetSize = 0.25f;
 
             if (CreateTaskFleet("Exploration Force", battleFleetSize) == RequisitionStatus.Complete)
@@ -346,10 +342,8 @@ namespace Ship_Game.AI.Tasks
             }
 
             AO = TargetPlanet.Center;
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 1);
 
-            EnemyStrength         = GetEnemyShipStrengthInAO(100);
-            NeededTroopStrength   = GetTargetPlanetGroundStrength(100);
-            TaskBombTimeNeeded    = BombTimeNeeded();
             float battleFleetSize = 0.25f;
 
             if (CreateTaskFleet("Invasion Fleet", battleFleetSize) == RequisitionStatus.Complete)
@@ -420,6 +414,27 @@ namespace Ship_Game.AI.Tasks
             CreateFleet(TaskForce, fleetName);
             return RequisitionStatus.Complete;
         }
+
+        void InitFleetRequirements(int minFleetStrength, int minTroopStrength, int minBombMinutes)
+        {
+            if (minTroopStrength > 0 || minBombMinutes > 0)
+            {
+                if (TargetPlanet == null)
+                {
+                    Log.Error($"Sending troops with no planet to assault");
+                }
+                else
+                {
+                    if (minTroopStrength > 0)
+                        NeededTroopStrength = GetTargetPlanetGroundStrength(minTroopStrength);
+                    if (minBombMinutes > 0)
+                        TaskBombTimeNeeded = BombTimeNeeded().ClampMin(minBombMinutes);
+                }
+            }
+            EnemyStrength = GetEnemyShipStrengthInAO(minFleetStrength); ;
+        }
+
+
 
         enum RequisitionStatus
         {
