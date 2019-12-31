@@ -46,22 +46,6 @@ namespace Ship_Game.GameScreens
         // Player.Play() is too slow, so we start it in a background thread
         TaskResult BeginPlayTask;
 
-        // If TRUE, the video becomes interactive with a Play button
-        public bool EnableInteraction = false;
-        public bool IsHovered;
-
-        // If TRUE, the video will always capture low-res video thumbnail
-        public bool CaptureThumbnail;
-
-        // Video play status changed
-        public Action OnPlayStatusChange;
-
-        public string Name { get; private set; } = "";
-        public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
-
-        // Player.Play() is too slow, so we start it in a background thread
-        TaskResult BeginPlayTask;
-
         public ScreenMediaPlayer(GameContentManager content, bool looping = true)
         {
             Content = content;
