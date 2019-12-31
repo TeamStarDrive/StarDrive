@@ -601,7 +601,7 @@ namespace Ship_Game.AI
             AssembleFleet2(Vector2.One);
             // ReSharper disable once PossibleNullReferenceException station should never be null here
             FormationWarpTo(station.Position, Vector2.One);
-            FleetTask.EndTask();
+            FleetTask.EndTaskWithMove();
         }
 
         void DoDefendSystem(MilitaryTask task)
