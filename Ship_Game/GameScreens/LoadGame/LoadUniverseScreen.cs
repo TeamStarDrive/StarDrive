@@ -194,7 +194,6 @@ namespace Ship_Game
                 ScreenManager  = ScreenManager,
                 CamPos         = new Vector3(save.campos.X, save.campos.Y, save.camheight),
                 CamHeight      = save.camheight,
-                player         = EmpireManager.Player
             };
 
             step.Start(0.3f, 0.4f, 0.3f);
