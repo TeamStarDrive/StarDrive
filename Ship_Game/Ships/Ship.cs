@@ -72,7 +72,6 @@ namespace Ship_Game.Ships
         public bool IsGuardian; // Remnant Guardian created at game start
         SceneObject ShipSO;
         public bool ManualHangarOverride;
-        public Fleet.FleetCombatStatus FleetCombatStatus;
         public Ship Mothership;
         public string Name;   // name of the original design of the ship, eg "Subspace Projector". Look at VanityName
         public float PackDamageModifier { get; private set; }
@@ -95,7 +94,6 @@ namespace Ship_Game.Ships
         public Power NetPower { get; private set; }
         public bool FromSave;
         public bool HasRepairModule;
-        readonly AudioHandle Afterburner = new AudioHandle();
         readonly AudioHandle JumpSfx = new AudioHandle();
 
         public int Level;
@@ -1858,6 +1856,22 @@ namespace Ship_Game.Ships
         }
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
+
+        public void RemoveFromFleetAndAddBackToPools()
+        {
+            AI.CombatState = shipData.CombatState;
+            AI.ClearOrders();
+            HyperspaceReturn();
+            if (fleet?.IsCoreFleet ?? false)
+                ClearFleet();
+            if (shipData.Role == ShipData.RoleName.troop)
+                AI.OrderRebaseToNearest();
+            else
+            {
+                loyalty.ForcePoolAdd(this);
+                AI.GoOrbitNearestPlanetAndResupply(false);
+            }
+        }
 
         public void Dispose()
         {

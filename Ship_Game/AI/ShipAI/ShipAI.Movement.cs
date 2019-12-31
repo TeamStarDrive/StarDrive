@@ -10,6 +10,10 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
+        // NOTE: This is the final move position
+        //     For example, if you have several waypoints, this is the pos of the final waypoint
+        //     And for other Ship AI Plans, this is used to store the current/default waypoint
+        //     i.e. ExploreSystem sets MovePosition to next planet it likes
         public Vector2 MovePosition;
         public Planet OrbitTarget;
 
@@ -18,7 +22,7 @@ namespace Ship_Game.AI
         public bool HasWayPoints => WayPoints.Count > 0;
         public Vector2[] CopyWayPoints() => WayPoints.ToArray();
 
-        public void ClearWayPoints()
+        void ClearWayPoints()
         {
             WayPoints.Clear();
         }
@@ -149,7 +153,7 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null) targetPos = goal.Fleet.Position + Owner.FleetOffset;
+            if (goal.Fleet != null) targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
 
             if (Owner.EnginesKnockedOut)
                 return;
@@ -336,8 +340,11 @@ namespace Ship_Game.AI
                 // only warp towards actual warp pos
                 if (actualDiff < 0.05f)
                 {
-                    if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
-                    else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
+                    // NOTE: PriorityOrder must ignore the combat flag
+                    if      (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
+                        Owner.EngageStarDrive();
+                    else if (distance > 15000f && Owner.InCombat)
+                        Owner.EngageStarDrive();
                 }
                 Owner.SubLightAccelerate(speedLimit);
             }

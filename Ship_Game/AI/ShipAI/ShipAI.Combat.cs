@@ -216,11 +216,6 @@ namespace Ship_Game.AI
                 .OrderByDescending(weight => weight.Weight).ToArray();
 
             PotentialTargets.ClearAdd(sortedList2.Select(ship => ship.Ship));
-            if (Owner.fleet != null && State != AIState.FormationWarp)
-            {
-                foreach (Ship ship in PotentialTargets)
-                    Owner.fleet?.FleetTargetList.AddUniqueRef(ship);                
-            }
 
             if (Target?.Active != true)
             {
@@ -306,7 +301,7 @@ namespace Ship_Game.AI
             if (Owner.fleet != null && State == AIState.FormationWarp)
             {
                 bool doreturn = !(Owner.fleet != null && State == AIState.FormationWarp &&
-                                  Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 15000f));
+                                  Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 15000f));
                 if (doreturn)
                     return;
             }

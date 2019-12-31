@@ -73,6 +73,8 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
+        public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
+
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
         {
             float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);
@@ -90,9 +92,12 @@ namespace Ship_Game
         public bool ForeignTroopHere(Empire empire)      => TroopManager.ForeignTroopHere(empire);
 
 
-        public float GetGroundStrengthOther(Empire allButThisEmpire)      => TroopManager.GroundStrengthOther(allButThisEmpire);
-        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) => TroopManager.EmpireTroops(empire, maxToTake);
-        public Troop[] GetOwnersLaunchReadyTroops(int maxToTake) => TroopManager.TroopsReadForLaunch(maxToTake);
+        public float GetGroundStrengthOther(Empire allButThisEmpire)
+            => TroopManager.GroundStrengthOther(allButThisEmpire);
+        public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
+            => TroopManager.EmpireTroops(empire, maxToTake);
+        public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
+            => TroopManager.TroopsReadForLaunch(strengthNeeded);
 
         public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
 
