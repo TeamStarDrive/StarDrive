@@ -215,16 +215,16 @@ namespace Ship_Game
 
         public Planet IdentifyGravityWell(Ship ship)
         {
-            if (!Empire.Universe.GravityWells || ship.IsInFriendlySpace)
-                return null;
-
-            for (int i = 0; i < PlanetList.Count; i++)
+            if (Empire.Universe.GravityWells)
             {
-                Planet planet = PlanetList[i];
-                if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
-                    return planet;
+                // @todo QuadTree
+                for (int i = 0; i < PlanetList.Count; i++)
+                {
+                    Planet planet = PlanetList[i];
+                    if (ship.Position.InRadius(planet.Center, planet.GravityWellRadius))
+                        return planet;
+                }
             }
-
             return null;
         }
 
@@ -247,7 +247,7 @@ namespace Ship_Game
             return GetStatus(empire).HostileForcesPresent;
         }
 
-        public bool IsFullyExploredBy(Empire empire) => FullyExplored.IsSet(empire);
+        public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);
         public void UpdateFullyExploredBy(Empire empire)
         {
             if (IsFullyExploredBy(empire))
@@ -257,7 +257,7 @@ namespace Ship_Game
                 if (!PlanetList[i].IsExploredBy(empire))
                     return;
 
-            FullyExplored.Set(ref FullyExplored, empire);
+            FullyExplored.FlatMapSet(ref FullyExplored, empire);
             //Log.Info($"The {empire.Name} have fully explored {Name}");
         }
 
@@ -334,11 +334,12 @@ namespace Ship_Game
             int starRadius    = (int)(IntBetween(250, 500) * systemScale);
             float ringMax     = starRadius * 300;
             float ringBase    = ringMax * .1f;
-            int bonusP        = GlobalStats.ExtraPlanets > 0 ? (int)Math.Ceiling(GlobalStats.ExtraPlanets  / 2f) : 0;
-            int minR          = IntBetween(0 + bonusP > 0 ? 1 : 0, 3 + GlobalStats.ExtraPlanets);
-            int maxR          = IntBetween(minR, 6 + minR);
-            NumberOfRings     = IntBetween(minR,maxR);
-            NumberOfRings    += owner != null ? NumberOfRings < 5 ? 5 : 0 : 0;
+            int minR          = IntBetween(GlobalStats.ExtraPlanets, 3);
+            int maxR          = IntBetween(minR, 7 + minR);
+            NumberOfRings     = IntBetween(minR, maxR);
+            if (owner != null && NumberOfRings < 5)
+                NumberOfRings = 5;
+
             RingList.Capacity = NumberOfRings;
             float ringSpace   = ringMax / NumberOfRings;
 

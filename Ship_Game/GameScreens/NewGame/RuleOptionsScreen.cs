@@ -85,7 +85,7 @@ namespace Ship_Game
             var richnessRect = new Rectangle(x, leftRect.Y + 340, 270, 50);
 
             GravityWellSize  = Slider(gwRect, Localizer.Token(6002), 0, 20000, GlobalStats.GravityWellRange);
-            extraPlanets     = Slider(epRect, "Extra Planets", 0, 6f, GlobalStats.ExtraPlanets);
+            extraPlanets     = Slider(epRect, "Extra Planets", 0, 3f, GlobalStats.ExtraPlanets);
             StartingRichness = Slider(richnessRect, "Starting Planet Richness Bonus", 0, 5f, GlobalStats.StartingPlanetRichness);
 
 
@@ -100,8 +100,8 @@ namespace Ship_Game
             FTLPenaltySlider.LocalizeTooltipId = 2286;
             EnemyFTLPenaltySlider.LocalizeTooltipId = 7041;
             GravityWellSize.LocalizeTooltipId = 6003;
-            extraPlanets.Tooltip = "Add up to 6 random planets to each system";
-            MinimumWarpRange.Tooltip = "Minumum warp range a ship must have before it needs to recharge for the AI to build it";
+            extraPlanets.Tooltip = "Add extra planets to each system, avoiding lone stars as well";
+            MinimumWarpRange.Tooltip = "Minimum warp range a ship must have before it needs to recharge for the AI to build it";
 
             IncreaseMaintenance.Tooltip = "Multiply Global Maintenance Cost By  SSP's Are Not Affected";
             TurnTimer.Tooltip = "Time in seconds for turns";

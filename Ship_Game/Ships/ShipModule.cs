@@ -20,7 +20,13 @@ namespace Ship_Game.Ships
                                               //allows me to instance the variables inside it, so they are not duplicated. This
                                               //can offer much better memory usage since ShipModules are so numerous.     -Gretman
 
-        public float Facing; // the firing arc direction of the module, used to rotate the module overlay 90, 180 or 270 degs
+        // @note This is always Normalized to [0; +2PI] by FacingDegrees setter
+        public float FacingRadians;
+        public float FacingDegrees
+        {
+            get => FacingRadians.ToDegrees();
+            set => FacingRadians = value.ToRadians();
+        }
         public bool CheckedConduits;
         public bool Powered;
         public int quadrant = -1;
@@ -273,7 +279,7 @@ namespace Ship_Game.Ships
             Mass                  = template.Mass;
             Powered               = template.Powered;
             FieldOfFire           = template.FieldOfFire.ToRadians(); // @note Convert to radians for higher PERF
-            Facing                = template.facing;
+            FacingDegrees         = template.facing;
             XMLPosition           = template.XMLPosition;
             NameIndex             = template.NameIndex;
             DescriptionIndex      = template.DescriptionIndex;
@@ -459,7 +465,7 @@ namespace Ship_Game.Ships
             Center3D.Z = tan * (256f - XMLPosition.X);
 
             UpdateDamageVisualization(elapsedTime);
-            Rotation = Parent.Rotation;
+            Rotation = Parent.Rotation; // assume parent rotation is already normalized
         }
 
         // radius padding for collision detection
@@ -588,11 +594,12 @@ namespace Ship_Game.Ships
             if (!TryDamageModule(source, damageAmount * damageModifier))
             {
                 damageRemainder = 0f;
-                if (source != null) EvtDamageInflicted(source, 0f);
+                if (source != null)
                 {
-                    Deflect(source); // FB: the projectile was deflected
-                    return; 
+                    EvtDamageInflicted(source, 0f);
                 }
+                Deflect(source); // FB: the projectile was deflected
+                return; 
             }
 
             DebugDamageCircle();
@@ -806,7 +813,7 @@ namespace Ship_Game.Ships
             if (debrisCount != 0)
             {
                 float debrisScale = size * 0.033f;
-                SpaceJunk.SpawnJunk(debrisCount, Center, this, 1.0f, debrisScale);
+                SpaceJunk.SpawnJunk(debrisCount, Center, Parent.Velocity, this, 1.0f, debrisScale);
             }
         }
 
@@ -834,9 +841,7 @@ namespace Ship_Game.Ships
                 hangarShip = Ship.CreateTroopShipAtPoint(Ship.GetAssaultShuttleName(Parent.loyalty), Parent.loyalty, Center, troop);
                 hangarShip.Mothership = Parent;
                 hangarShip.DoEscort(Parent);
-                hangarShip.Velocity = UniverseRandom.RandomDirection() * hangarShip.Speed + Parent.Velocity;
-                if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                    hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+                hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * hangarShip.SpeedLimit;
 
                 HangarShipGuid = hangarShip.guid;
                 hangarTimer = hangarTimerConstant;
@@ -871,9 +876,7 @@ namespace Ship_Game.Ships
             }
 
             hangarShip.DoEscort(Parent);
-            hangarShip.Velocity = UniverseRandom.RandomDirection() * GetHangarShip().Speed + Parent.Velocity;
-            if (hangarShip.Velocity.Length() > hangarShip.velocityMaximum)
-                hangarShip.Velocity = Vector2.Normalize(hangarShip.Velocity) * hangarShip.Speed;
+            hangarShip.Velocity = Parent.Velocity + UniverseRandom.RandomDirection() * GetHangarShip().SpeedLimit;
 
             hangarShip.Mothership = Parent;
             HangarShipGuid = GetHangarShip().guid;
@@ -1204,21 +1207,22 @@ namespace Ship_Game.Ships
             float shieldsMax = ActualShieldPowerMax;
             if (shieldsMax > 0)
             {
-                def                 += shieldsMax / 50;
-                float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14f) / 256f / slotCount;
+                float shieldDef      = shieldsMax / 50;
+                float shieldCoverage = ((shield_radius + 8f) * (shield_radius + 8f) * 3.14159f) / 256f / slotCount;
 
-                def *= shieldCoverage < 1 ? shieldCoverage : 1f;
-                def *= 1 + shield_kinetic_resist / 5;
-                def *= 1 + shield_energy_resist / 5;
-                def *= 1 + shield_beam_resist / 5;
-                def *= 1 + shield_missile_resist / 5;
-                def *= 1 + shield_explosive_resist / 5;
+                shieldDef *= shieldCoverage < 1 ? shieldCoverage : 1f;
+                shieldDef *= 1 + shield_kinetic_resist / 5;
+                shieldDef *= 1 + shield_energy_resist / 5;
+                shieldDef *= 1 + shield_beam_resist / 5;
+                shieldDef *= 1 + shield_missile_resist / 5;
+                shieldDef *= 1 + shield_explosive_resist / 5;
 
-                def *= shield_recharge_rate > 0 ? shield_recharge_rate / (shieldsMax / 100) : 1f;
-                def *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
-                def *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
+                shieldDef *= shield_recharge_rate > 0 ? shield_recharge_rate / (shieldsMax / 100) : 1f;
+                shieldDef *= shield_recharge_delay > 0 ? 1f / shield_recharge_delay : 1f;
+                shieldDef *= shield_recharge_combat_rate > 0 ? 1 + shield_recharge_combat_rate / (shieldsMax / 25) : 1f;
 
-                def *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
+                shieldDef *= 1 + shield_threshold / 50f; // FB: Shield Threshold is much more effective than Damage threshold as it apples to the shield bubble.
+                def       += shieldDef;
             }
 
             // FB: all resists are divided by 5 since there are 5-6 weapon types
@@ -1296,7 +1300,7 @@ namespace Ship_Game.Ships
 
         public void SetModuleFacing(int w, int h, ModuleOrientation orientation, float facing)
         {
-            Facing = facing;
+            FacingDegrees = facing;
             switch (orientation)
             {
                 case ModuleOrientation.Normal:

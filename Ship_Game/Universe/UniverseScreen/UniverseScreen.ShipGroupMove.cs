@@ -5,33 +5,6 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class ShipGroupProject
-    {
-        public Vector2 Start { get; private set; }
-        public Vector2 End { get; private set; }
-        public Vector2 Direction { get; private set; }
-        public Vector2 FleetCenter { get; private set; }
-        public bool Started;
-
-        public void Update(UniverseScreen universe, Fleet fleet, Ship ship)
-        {
-            InputState input = universe.Input;
-            if (!Started)
-            {
-                Start = universe.UnprojectToWorldPosition(input.StartRightHold);
-                Started = true;
-            }
-
-            End = universe.UnprojectToWorldPosition(input.EndRightHold);
-            Direction = Start.DirectionToTarget(End).LeftVector();
-
-            if (fleet != null)
-            {
-                FleetCenter = fleet.GetProjectedMidPoint(Start, End, fleet.GetRelativeSize());
-            }
-        }
-    }
-
     public partial class UniverseScreen
     {
         public ShipGroup CurrentGroup { get; private set; }
@@ -175,14 +148,14 @@ namespace Ship_Game
                     if (UnselectableShip())
                         return;
                     GameAudio.AffirmativeClick();
-                    AttackSpecificShip(SelectedShip, shipClicked);
+                    ShipCommands.AttackSpecificShip(SelectedShip, shipClicked);
                 }
                 else if (ShipPieMenu(shipClicked))
                 {
                 }
                 else if (planetClicked != null)
                 {
-                    RightClickOnPlanet(SelectedShip, planetClicked, true);
+                    ShipCommands.RightClickOnPlanet(SelectedShip, planetClicked, true);
                 }
                 else if (!UnselectableShip())
                 {
@@ -204,8 +177,8 @@ namespace Ship_Game
                     foreach (Ship selectedShip in SelectedShipList)
                     {
                         player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
-                        RightClickOnShip(selectedShip, shipClicked);
-                        RightClickOnPlanet(selectedShip, planetClicked);
+                        ShipCommands.RightClickOnShip(selectedShip, shipClicked);
+                        ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);
                     }
                 }
                 else
@@ -225,18 +198,28 @@ namespace Ship_Game
             ShipPieMenu(SelectedShip);
         }
 
+        // depending on current input state, either gives straight direction from center to final pos
+        // or if queueing waypoints, gives direction from last waypoint to final pos
+        Vector2 GetDirectionToFinalPos(Ship ship, Vector2 finalPos)
+        {
+            Vector2 fleetPos = Input.QueueAction && ship.AI.HasWayPoints
+                             ? ship.AI.MovePosition : ship.Center;
+            Vector2 finalDir = fleetPos.DirectionToTarget(finalPos);
+            return finalDir;
+        }
 
         void MoveFleetToMouse(Fleet fleet, Planet targetPlanet, Ship targetShip, bool wasProjecting)
         {
             if (wasProjecting)
             {
-                MoveFleetToLocation(targetShip, targetPlanet, Project.FleetCenter, Project.Direction, fleet);
+                ShipCommands.MoveFleetToLocation(targetShip, targetPlanet, Project.FleetCenter, Project.Direction, fleet);
             }
             else
             {
-                Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-                Vector2 dir = fleet.Position.DirectionToTarget(start);
-                MoveFleetToLocation(targetShip, targetPlanet, start, dir, fleet);
+                Vector2 finalPos = UnprojectToWorldPosition(Input.StartRightHold);
+                Ship centerMost = fleet.GetClosestShipTo(fleet.AveragePosition());
+                Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
+                ShipCommands.MoveFleetToLocation(targetShip, targetPlanet, finalPos, finalDir, fleet);
             }
         }
 
@@ -244,53 +227,48 @@ namespace Ship_Game
         {
             if (wasProjecting)
             {
-                MoveShipToLocation(Project.Start, Project.Direction, selectedShip);
+                ShipCommands.MoveShipToLocation(Project.Start, Project.Direction, selectedShip);
             }
             else
             {
-                Vector2 start = UnprojectToWorldPosition(Input.StartRightHold);
-                Vector2 dir = selectedShip.Position.DirectionToTarget(start);
-                MoveShipToLocation(start, dir, selectedShip);
+                Vector2 finalPos = UnprojectToWorldPosition(Input.StartRightHold);
+                Vector2 finalDir = GetDirectionToFinalPos(selectedShip, finalPos);
+                ShipCommands.MoveShipToLocation(finalPos, finalDir, selectedShip);
             }
         }
 
         void MoveShipGroupToMouse(bool wasProjecting)
         {
+            bool queue = Input.QueueAction;
             if (wasProjecting) // dragging right mouse
             {
                 if (CurrentGroup == null)
-                {
-                    Log.Warning("MoveShipGroupToMouse (CurrentGroup was NULL)");
                     return; // projection is not valid YET, come back next update
-                }
 
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
-                foreach (Ship selectedShip in SelectedShipList)
-                {
-                    MoveShipToLocation(selectedShip.projectedPosition, CurrentGroup.ProjectedDirection, selectedShip);
-                }
+                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, CurrentGroup.ProjectedDirection, queue);
                 return;
             }
 
             // right mouse was clicked
-            Vector2 start = UnprojectToWorldPosition(Input.CursorPosition);
-            Vector2 fleetCenter = ShipGroup.AveragePosition(SelectedShipList);
-            Vector2 direction = fleetCenter.DirectionToTarget(start);
+            Vector2 finalPos = UnprojectToWorldPosition(Input.CursorPosition);
 
             if (CurrentGroup == null || !CurrentGroup.IsShipListEqual(SelectedShipList))
             {
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
-                CurrentGroup = new ShipGroup(SelectedShipList, start, start, direction, player);
-                foreach (Ship selectedShip in SelectedShipList)
-                    MoveShipToLocation(selectedShip.projectedPosition, direction, selectedShip);
+                Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
+                Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
+                CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, player);
+                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, direction, queue);
             }
             else // move existing group
             {
                 Log.Info("MoveShipGroupToMouse (existing)");
-                CurrentGroup.MoveToNow(start, direction);
+                Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition());
+                Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
+                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue);
             }
         }
-
     }
 }

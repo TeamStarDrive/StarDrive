@@ -64,8 +64,8 @@ namespace Ship_Game
             
             e.InitializeFromSave();
             e.Money = sdata.Money;
-            e.GetEmpireAI().AreasOfOperations = sdata.AOs;            
-  
+            e.GetEmpireAI().AreasOfOperations = sdata.AOs;
+            e.RestoreUnserializableDataFromSave();
             return e;
         }
 
@@ -351,7 +351,7 @@ namespace Ship_Game
                     {
                         Guid = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
-                        Direction = fleetsave.facing.RadiansToDirection() // @note savegame compatibility uses facing in radians
+                        FinalDirection = fleetsave.facing.RadiansToDirection() // @note savegame compatibility uses facing in radians
                     };
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
@@ -387,23 +387,13 @@ namespace Ship_Game
                         }
                     }
 
-                    fleet.AssignPositions(fleet.Direction);
+                    fleet.AssignPositions(fleet.FinalDirection);
                     fleet.Name = fleetsave.Name;
                     fleet.TaskStep = fleetsave.TaskStep;
                     fleet.Owner = e;
-                    fleet.Position = fleetsave.Position;
-
-                    if (e.GetFleetsDict().ContainsKey(fleetsave.Key))
-                    {
-                        e.GetFleetsDict()[fleetsave.Key] = fleet;
-                    }
-                    else
-                    {
-                        e.GetFleetsDict().Add(fleetsave.Key, fleet);
-                    }
-
-                    e.GetFleetsDict()[fleetsave.Key].SetSpeed();
-                    fleet.CalculateDistanceToMove();
+                    fleet.FinalPosition = fleetsave.Position;
+                    fleet.SetSpeed();
+                    e.GetFleetsDict()[fleetsave.Key] = fleet;
                 }
             }
         }

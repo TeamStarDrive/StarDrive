@@ -31,7 +31,7 @@ namespace Ship_Game
 
         Map<PlanetGlow, SubTexture> Glows;
 
-        void RenderBackdrop()
+        void RenderBackdrop(SpriteBatch batch)
         {
             if (GlobalStats.DrawStarfield)
                 bg.Draw(this, StarField);
@@ -39,7 +39,7 @@ namespace Ship_Game
             if (GlobalStats.DrawNebulas)
                bg3d.Draw();
 
-            ScreenManager.SpriteBatch.Begin();
+            batch.Begin();
 
             UpdateKnownShipsScreenState();
 
@@ -94,7 +94,7 @@ namespace Ship_Game
             rs.CullMode = CullMode.None;
             rs.DepthBufferWriteEnable = true;
             rs.MultiSampleAntiAlias = true;            
-            ScreenManager.SpriteBatch.End();
+            batch.End();
         }
 
         void UpdateKnownShipsScreenState()
@@ -517,7 +517,7 @@ namespace Ship_Game
                 {
                     foreach (Guid planetGuid in SelectedShip.TradeRoutes)
                     {
-                        Planet planet = PlanetsDict[planetGuid];
+                        Planet planet = GetPlanet(planetGuid);
                         if (planet.Owner != null)
                         {
                             DrawLineToPlanet(SelectedShip.Center, planet.Center, planet.Owner.EmpireColor);
@@ -533,7 +533,7 @@ namespace Ship_Game
             }
         }
 
-        public void Render(GameTime gameTime)
+        public void Render(SpriteBatch batch, GameTime gameTime)
         {
             if (Frustum == null)
                 Frustum = new BoundingFrustum(View * Projection);
@@ -542,12 +542,13 @@ namespace Ship_Game
 
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
 
-            RenderBackdrop();
-            ScreenManager.SpriteBatch.Begin();
+            RenderBackdrop(batch);
 
+            batch.Begin();
             DrawShipAOAndTradeRoutes();
             SelectShipLinesToDraw();
-            ScreenManager.SpriteBatch.End();
+            batch.End();
+
             DrawBombs();
             ScreenManager.RenderSceneObjects();
 
@@ -586,41 +587,42 @@ namespace Ship_Game
 
                 DrawWarpFlash();
 
-                beamflashes.Draw(gameTime);
-                explosionParticles.Draw(gameTime);
-                photonExplosionParticles.Draw(gameTime);
-                explosionSmokeParticles.Draw(gameTime);
-                projectileTrailParticles.Draw(gameTime);
-                fireTrailParticles.Draw(gameTime);
-                smokePlumeParticles.Draw(gameTime);
-                fireParticles.Draw(gameTime);
-                engineTrailParticles.Draw(gameTime);
-                star_particles.Draw(gameTime);
-                neb_particles.Draw(gameTime);
-                flameParticles.Draw(gameTime);
-                SmallflameParticles.Draw(gameTime);
-                sparks.Draw(gameTime);
-                lightning.Draw(gameTime);
-                flash.Draw(gameTime);
+                beamflashes.Draw();
+                explosionParticles.Draw();
+                photonExplosionParticles.Draw();
+                explosionSmokeParticles.Draw();
+                projectileTrailParticles.Draw();
+                fireTrailParticles.Draw();
+                smokePlumeParticles.Draw();
+                fireParticles.Draw();
+                engineTrailParticles.Draw();
+                star_particles.Draw();
+                neb_particles.Draw();
+                flameParticles.Draw();
+                SmallflameParticles.Draw();
+                sparks.Draw();
+                lightning.Draw();
+                flash.Draw();
             }
             if (!Paused) // Particle pools need to be updated
             {
-                beamflashes.Update(gameTime);
-                explosionParticles.Update(gameTime);
-                photonExplosionParticles.Update(gameTime);
-                explosionSmokeParticles.Update(gameTime);
-                projectileTrailParticles.Update(gameTime);
-                fireTrailParticles.Update(gameTime);
-                smokePlumeParticles.Update(gameTime);
-                fireParticles.Update(gameTime);
-                engineTrailParticles.Update(gameTime);
-                star_particles.Update(gameTime);
-                neb_particles.Update(gameTime);
-                flameParticles.Update(gameTime);
-                SmallflameParticles.Update(gameTime);
-                sparks.Update(gameTime);
-                lightning.Update(gameTime);
-                flash.Update(gameTime);
+                float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+                beamflashes.Update(deltaTime);
+                explosionParticles.Update(deltaTime);
+                photonExplosionParticles.Update(deltaTime);
+                explosionSmokeParticles.Update(deltaTime);
+                projectileTrailParticles.Update(deltaTime);
+                fireTrailParticles.Update(deltaTime);
+                smokePlumeParticles.Update(deltaTime);
+                fireParticles.Update(deltaTime);
+                engineTrailParticles.Update(deltaTime);
+                star_particles.Update(deltaTime);
+                neb_particles.Update(deltaTime);
+                flameParticles.Update(deltaTime);
+                SmallflameParticles.Update(deltaTime);
+                sparks.Update(deltaTime);
+                lightning.Update(deltaTime);
+                flash.Update(deltaTime);
             }
             ScreenManager.EndFrameRendering();
             if (viewState < UnivScreenState.SectorView)

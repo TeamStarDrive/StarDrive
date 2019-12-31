@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
+using System.Xml.Serialization;
 
 namespace Ship_Game.AI
 {
@@ -43,7 +44,7 @@ namespace Ship_Game.AI
         public Vector2 TetherOffset;
         public Guid TetherTarget;
         public bool Held;
-        public Vector2 BuildPosition;
+        Vector2 StaticBuildPosition;
         public string ToBuildUID;
         public string VanityName;
         public int ShipLevel;
@@ -56,7 +57,33 @@ namespace Ship_Game.AI
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
         protected Func<bool> Holding;
+        public Vector2 MovePosition
+        {
+            get
+            {
+                Planet targetPlanet = GetTetherPlanet;
+                targetPlanet = targetPlanet ?? ColonizationTarget;
 
+                if (targetPlanet != null)
+                    return targetPlanet.Center + TetherOffset;
+                return BuildPosition;
+            }
+        }
+
+        public Vector2 BuildPosition
+        {
+            get
+            {
+                if (GetTetherPlanet != null)
+                    return GetTetherPlanet.Center + TetherOffset;
+                return StaticBuildPosition;
+            }
+            set => StaticBuildPosition = value;
+        }
+        public Planet GetTetherPlanet => TetherTarget != Guid.Empty
+            ? Empire.Universe.GetPlanet(TetherTarget) : null;
+
+        public bool IsDeploymentGoal => ToBuildUID.NotEmpty() && !BuildPosition.AlmostZero();
         public abstract string UID { get; }
 
         public Ship FinishedShip
@@ -100,6 +127,8 @@ namespace Ship_Game.AI
             g.BuildPosition = gsave.BuildPosition;
             g.VanityName    = gsave.VanityName;
             g.ShipLevel     = gsave.ShipLevel;
+            g.TetherTarget  = gsave.TetherTarget;
+            g.TetherOffset  = gsave.TetherOffset;
             if ((uint)g.Step >= g.Steps.Length)
             {
                 Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
@@ -182,49 +211,6 @@ namespace Ship_Game.AI
         {
             FinishedShip = ship;
             AdvanceToNextStep();
-        }
-
-        public struct PlanetRanker
-        {
-            public Planet Planet;
-            public float Value;
-            public float Distance;
-            public bool OutOfRange;
-            public bool CantColonize;
-
-            public override string ToString()
-            {
-                return $"{Planet.Name} Value={Value} Distance={Distance}";
-            }
-
-            public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, Vector2 empireCenter, float enemyStr)
-            {
-                Planet       = planet;
-                Distance     = empireCenter.Distance(planet.Center);
-                CantColonize = IsBadWorld(planet, canColonizeBarren, planet.Storage.CommoditiesCount);
-                float jumpRange = Math.Max(Distance / 600000, 1);
-                Value      = planet.EmpireBaseValue(empire) / jumpRange;
-                OutOfRange = PlanetTooFarToColonize(planet, empire);
-
-                if (Value < 0.3f)
-                    CantColonize = true;
-
-                if (enemyStr > 0)
-                    Value *= (empire.currentMilitaryStrength - enemyStr) / empire.currentMilitaryStrength;
-            }
-
-            static bool IsBadWorld(Planet planet, bool canColonizeBarren, int commodities)
-            {
-                return planet.IsBarrenType && !canColonizeBarren && commodities == 0;
-            }
-
-            static bool PlanetTooFarToColonize(Planet p, Empire empire)
-            {
-                AO closestAO = empire.GetEmpireAI().AreasOfOperations.FindMin(ao => ao.Center.SqDist(p.Center));
-                return closestAO != null
-                    && p.Center.OutsideRadius(closestAO.Center, closestAO.Radius * 1.5f);
-            }
-
         }
     }
 }

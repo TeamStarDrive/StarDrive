@@ -15,6 +15,7 @@ using System;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.Universe;
 
 namespace Ship_Game
 {
@@ -208,6 +209,8 @@ namespace Ship_Game
         public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 
+        ShipMoveCommands ShipCommands;
+
         // for really specific debugging
         public static int FrameId;
 
@@ -223,11 +226,13 @@ namespace Ship_Game
             SolarSystemList       = data.SolarSystemsList;
             MasterShipList        = data.MasterShipList;
             PlayerEmpire          = loyalty;
+            player                = loyalty;
             PlayerLoyalty         = loyalty.data.Traits.Name;
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
+            ShipCommands = new ShipMoveCommands(this);
         }
 
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
@@ -241,15 +246,25 @@ namespace Ship_Game
             MasterShipList        = data.MasterShipList;
             loadFogPath           = data.loadFogPath;
             PlayerEmpire          = EmpireManager.GetEmpireByName(loyalty);
+            player                = PlayerEmpire;
             PlayerLoyalty         = loyalty;
             PlayerEmpire.isPlayer = true;
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
             DoPathingMapRebuild();
+            ShipCommands = new ShipMoveCommands(this);
         }
 
         public void ResetLighting() => SetLighting(UseRealLights);
+
+        public Planet GetPlanet(Guid guid)
+        {
+            if (PlanetsDict.TryGetValue(guid, out Planet planet))
+                return planet;
+            Log.Error($"Guid for planet not found guid: {guid}");
+            return null;
+        }
 
         void SetLighting(bool useRealLights)
         {
@@ -379,7 +394,7 @@ namespace Ship_Game
                         {
                             Ship.CreateShipAt(key, p.Owner, p, true);
                         }
-                        
+
                         continue;
                     }
                     // Added by McShooterz: alternate hostile fleets populate universe
@@ -458,7 +473,7 @@ namespace Ship_Game
             foreach (Ship ship in MasterShipList)
             {
                 if (ship.TetherGuid != Guid.Empty)
-                    ship.TetherToPlanet(PlanetsDict[ship.TetherGuid]);
+                    ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
             }
 
             foreach (Empire empire in EmpireManager.Empires)
@@ -736,9 +751,9 @@ namespace Ship_Game
             StarField?.Dispose();
 
             ShipToView = null;
-            foreach (Ship ship in MasterShipList)
-                ship?.RemoveFromUniverseUnsafe();
-            MasterShipList.ApplyPendingRemovals();
+            for (int i = 0; i < MasterShipList.Count; ++i)
+                MasterShipList[i]?.RemoveFromUniverseUnsafe();
+            MasterShipList.ClearPendingRemovals();
             MasterShipList.Clear();
 
             foreach (SolarSystem solarSystem in SolarSystemList)

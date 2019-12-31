@@ -63,15 +63,14 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, c);
             else
                 batch.Draw(ResourceManager.Texture("hqstarfield1"), blackRect, blackRect, c);
+            batch.End();
 
             float percentX = camPos.X / 500000f;
             float percentY = camPos.Y / 500000f;
             float xDiff = blackRect.Width / 10f;
             float yDiff = blackRect.Height / 10f;
             Camera.Pos = new Vector2(percentX * xDiff, percentY * yDiff);
-
             starField.Draw(Camera.Pos, batch);
-            batch.End();
             
             BkgRect = new Rectangle((int)(Camera.Pos.X - width  / 2f - Camera.Pos.X / 30f - 200f),
                                     (int)(Camera.Pos.Y - height / 2f - Camera.Pos.Y / 30f) - 200, 2048, 2048);
@@ -79,10 +78,8 @@ namespace Ship_Game
                 BkgRect.Width = BkgRect.Height = 2600;
 
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, SaveStateMode.None, Camera.Transform);
-
             batch.Draw(ResourceManager.BigNebula(1), BkgRect, new Color(255, 255, 255, 60));
             batch.Draw(ResourceManager.BigNebula(3), BkgRect, new Color(255, 255, 255, 60));
-
             batch.End();
         }
 

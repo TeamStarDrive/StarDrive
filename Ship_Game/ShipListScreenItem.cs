@@ -147,14 +147,14 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12, string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity), TroopPos, Color.White);
             
             var FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            FTLPos.X -= Fonts.Arial12.MeasureString((ship.GetmaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;
+            FTLPos.X -= Fonts.Arial12.MeasureString((ship.MaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref FTLPos);
-            batch.DrawString(Fonts.Arial12, (ship.GetmaxFTLSpeed / 1000f).ToString("0")+"k", FTLPos, Color.White);
+            batch.DrawString(Fonts.Arial12, (ship.MaxFTLSpeed / 1000f).ToString("0")+"k", FTLPos, Color.White);
 
             var STLPos = new Vector2(STLRect.X + STLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            STLPos.X -= Fonts.Arial12.MeasureString(ship.GetSTLSpeed().ToString("0")).X / 2f + 6;
+            STLPos.X -= Fonts.Arial12.MeasureString(ship.MaxSTLSpeed.ToString("0")).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref STLPos);
-            batch.DrawString(Fonts.Arial12, ship.GetSTLSpeed().ToString("0"), STLPos, Color.White);
+            batch.DrawString(Fonts.Arial12, ship.MaxSTLSpeed.ToString("0"), STLPos, Color.White);
 
             if (isCombat)
             {

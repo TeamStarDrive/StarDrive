@@ -14,60 +14,75 @@ namespace Ship_Game
 {
     public static class Log
     {
+        [Flags]
+        enum LogTarget
+        {
+            Console = 1,
+            LogFile = 2,
+            ConsoleAndLog = Console | LogFile
+        }
+
         struct LogEntry
         {
-            public TimeSpan Time;
+            public DateTime Time;
             public string Message;
+            public ConsoleColor Color;
+            public LogTarget Target;
         }
 
         static readonly StreamWriter LogFile;
         static Thread LogThread;
         static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
-        public static readonly bool HasDebugger = Debugger.IsAttached;
+        public static readonly bool HasDebugger;
+
+        // Either there is an active Console Window
+        // OR Console output is redirected to some pipe, like VS Debug Output
+        public static bool HasActiveConsole { get; private set; }
+
+        const ConsoleColor DefaultColor = ConsoleColor.Gray;
+        static ConsoleColor CurrentColor = DefaultColor;
+        static readonly object Sync = new object();
+
+        /// <summary>
+        /// If TRUE, then [INFO] messages will be written to LogFile
+        /// If FALSE, then [INFO] messages will only be seen in console
+        /// </summary>
+        public static bool VerboseLogging = false;
 
         // sentry.io automatic crash reporting
         static readonly RavenClient Raven = new RavenClient("https://1c5a169d2a304e5284f326591a2faae3:3e8eaeb6d9334287955fdb8101ae8eab@sentry.io/123180");
-        static readonly ConsoleColor DefaultColor = Console.ForegroundColor;
-        static ConsoleColor CurrentColor = DefaultColor;
-        static readonly object ConsoleSync = new object();
 
         // prevent flooding Raven with 2000 error messages if we fall into an exception loop
         // instead, we count identical exceptions and resend them only over a certain threshold
         static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         const int ErrorThreshold = 100;
         static bool IsTerminating;
-        //public static bool FatalError = true;
 
         static Log()
         {
-            string init = "\r\n\r\n";
-            init +=  " ================================================================== \r\n";
-            init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
-            init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
-            init +=  " ================================================================== \r\n";
+            HasDebugger = Debugger.IsAttached;
 
             if (File.Exists("blackbox.log"))
                 File.Copy("blackbox.log", "blackbox.old.log", true);
 
-            LogFile = new StreamWriter("blackbox.log", false, Encoding.ASCII, 32*1024);
-            LogFile.Write(init);
-            LogThread = new Thread(LogAsyncWriter) {Name = "AsyncLogWriter"};
+            LogFile = OpenLog("blackbox.log");
+            LogThread = new Thread(LogAsyncWriter) { Name = "AsyncLogWriter" };
             LogThread.Start();
+
 
             Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
             {
+                VerboseLogging = true;
                 Raven.Environment = "Staging";
 
                 // if Console output is redirected, all console text is sent to VS Output instead
                 // in that case, showing the console is pointless, however if output isn't redirected
                 // we should enable the console window
                 if (Console.IsOutputRedirected == false)
-                {
                     ShowConsoleWindow();
-                }
-
-                WriteToConsole(ConsoleColor.Green, init);
+                else
+                    HasActiveConsole = true;
             }
             else
             {
@@ -78,77 +93,153 @@ namespace Ship_Game
             #endif
                 HideConsoleWindow();
             }
+
+            string init = "\r\n";
+            init += " ================================================================== \r\n";
+            init += $" ========== {GlobalStats.ExtendedVersion,-44} ==========\r\n";
+            init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
+            init += " ================================================================== \r\n";
+            LogWriteAsync(init, ConsoleColor.Green);
         }
 
-        static void WriteToFile(in LogEntry log)
+        static StreamWriter OpenLog(string logPath)
         {
-            LogFile.Write(log.Time.Hours.ToString("00"));
-            LogFile.Write(':');
-            LogFile.Write(log.Time.Minutes.ToString("00"));
-            LogFile.Write(':');
-            LogFile.Write(log.Time.Seconds.ToString("00"));
-            LogFile.Write('.');
-            LogFile.Write(log.Time.Milliseconds.ToString("000"));
-            LogFile.Write('m');
-            LogFile.Write('s');
-            LogFile.Write(':');
-            LogFile.Write(' ');
-            LogFile.Write(log.Message);
-            LogFile.Write('\n');
+            return new StreamWriter(
+                stream: File.Open(logPath, FileMode.Create, FileAccess.Write, FileShare.Read),
+                encoding: Encoding.ASCII,
+                bufferSize: 32 * 1024)
+            {
+                AutoFlush = true
+            };
         }
+
+        static void SetConsoleColor(ConsoleColor color, bool force)
+        {
+            if (force || CurrentColor != color)
+            {
+                CurrentColor = color;
+                Console.ForegroundColor = color;
+            }
+        }
+
+        // specialized for Log Entry formatting, because it's very slow
+        class LogStringBuffer
+        {
+            public readonly char[] Characters = new char[1024 * 32];
+            public int Length;
+
+            public void Append(char ch)
+            {
+                Characters[Length++] = ch;
+            }
+            public void Append(string s)
+            {
+                int n = s.Length;
+                s.CopyTo(0, Characters, Length, n);
+                Length += n;
+            }
+            // it only outputs 2 char length positive integers
+            // and always prefixes with 0
+            public void AppendInt2Chars(int value)
+            {
+                Characters[Length++] = (char)('0' + ((value / 10) % 10));
+                Characters[Length++] = (char)('0' + (value % 10));
+            }
+            public void AppendInt3Chars(int value)
+            {
+                Characters[Length++] = (char)('0' + ((value / 100) % 10));
+                Characters[Length++] = (char)('0' + ((value / 10) % 10));
+                Characters[Length++] = (char)('0' + (value % 10));
+            }
+            public void Clear()
+            {
+                Length = 0;
+            }
+        }
+
+        static void WriteLogEntry(LogStringBuffer sb, in LogEntry log)
+        {
+            TimeSpan t = log.Time.TimeOfDay;
+            sb.Clear();
+            sb.AppendInt2Chars(t.Hours);
+            sb.Append(':');
+            sb.AppendInt2Chars(t.Minutes);
+            sb.Append(':');
+            sb.AppendInt2Chars(t.Seconds);
+            sb.Append('.');
+            sb.AppendInt3Chars(t.Milliseconds);
+            sb.Append('m');
+            sb.Append('s');
+            sb.Append(':');
+            sb.Append(' ');
+            sb.Append(log.Message);
+            sb.Append('\n');
+
+            if (log.Target.HasFlag(LogTarget.LogFile))
+            {
+                LogFile.Write(sb.Characters, 0, sb.Length);
+            }
+
+            if (log.Target.HasFlag(LogTarget.Console))
+            {
+                SetConsoleColor(log.Color, force: false);
+                Console.Write(sb.Characters, 0, sb.Length);
+            }
+        }
+
+        static readonly LogStringBuffer LogBuffer = new LogStringBuffer();
 
         public static void FlushAllLogs()
         {
-            LogThread = null;
-            foreach (LogEntry log in LogQueue.TakeAll())
-                WriteToFile(log);
-            LogFile.Flush();
+            lock (Sync) // synchronize with LogAsyncWriter()
+            {
+                foreach (LogEntry log in LogQueue.TakeAll())
+                    WriteLogEntry(LogBuffer, log);
+                LogFile.Flush();
+                SetConsoleColor(DefaultColor, force: true);
+            }
         }
 
         static void LogAsyncWriter()
         {
             while (LogThread != null)
             {
-                if (LogQueue.WaitDequeue(out LogEntry log, 15))
+                lock (Sync) // synchronize with FlushAllLogs()
                 {
-                    WriteToFile(log);
-                    while (LogQueue.WaitDequeue(out log, 15))
-                        WriteToFile(log);
-                    LogFile.Flush();
+                    if (LogQueue.WaitDequeue(out LogEntry log, 15))
+                    {
+                        WriteLogEntry(LogBuffer, log);
+                        foreach (LogEntry log2 in LogQueue.TakeAll())
+                            WriteLogEntry(LogBuffer, log2);
+                    }
                 }
+                Thread.Sleep(1);
             }
         }
 
-        static void WriteToLog(string text)
+        public static void StopLogThread()
         {
+            LogThread = null;
+        }
+
+        static void LogWriteAsync(string text, ConsoleColor color, LogTarget target = LogTarget.ConsoleAndLog)
+        {
+            // We don't lock here because LogQueue itself is ThreadSafe
+            // ReSharper disable once InconsistentlySynchronizedField
             LogQueue.Enqueue(new LogEntry
             {
-                Time = DateTime.UtcNow.TimeOfDay,
-                Message = text
+                Time = DateTime.UtcNow,
+                Message = text,
+                Color = color,
+                Target = target,
             });
-        }
-
-        static void WriteToConsole(ConsoleColor color, string text)
-        {
-            lock (ConsoleSync)
-            {
-                if (CurrentColor != color)
-                {
-                    Console.ForegroundColor = color;
-                    CurrentColor = color;
-                }
-                Console.WriteLine(text);
-            }
         }
 
         // just echo info to console, don't write to logfile
         // not used in release builds or if there's no debugger attached
         [Conditional("DEBUG")] public static void Info(string text)
         {
-            if (GlobalStats.VerboseLogging)
-                WriteToLog(text);
-            if (!HasDebugger) return;
-            WriteToConsole(DefaultColor, text);
+            LogWriteAsync(text, DefaultColor, VerboseLogging ? LogTarget.ConsoleAndLog : LogTarget.Console);
         }
         [Conditional("DEBUG")] public static void Info(string format, params object[] args)
         {
@@ -157,14 +248,13 @@ namespace Ship_Game
 
         [Conditional("DEBUG")] public static void Info(ConsoleColor color, string text)
         {
-            if (!HasDebugger) return;
-            WriteToConsole(color, text);
+            LogWriteAsync(text, color, VerboseLogging ? LogTarget.ConsoleAndLog : LogTarget.Console);
         }
 
         public static void DebugInfo(ConsoleColor color, string text)
         {
-            if (!HasDebugger) return;
-            WriteToConsole(color, text);
+            if (VerboseLogging)
+                LogWriteAsync(text, color, LogTarget.Console);
         }
 
         // write a warning to logfile and debug console
@@ -177,17 +267,13 @@ namespace Ship_Game
         // Always write a neutral message to both log file and console
         public static void Write(ConsoleColor color, string message)
         {
-            WriteToLog(message);
-            if (!HasDebugger) return;
-            WriteToConsole(color, message);
+            LogWriteAsync(message, color);
         }
 
         // Always write a neutral message to both log file and console
         public static void Write(string message)
         {
-            WriteToLog(message);
-            if (!HasDebugger) return;
-            WriteToConsole(DefaultColor, message);
+            LogWriteAsync(message, DefaultColor);
         }
 
         public static void Warning(string warning)
@@ -200,36 +286,9 @@ namespace Ship_Game
             Warning(ConsoleColor.Yellow, $"{warning}\n{new StackTrace()}");
         }
 
-        public static void Warning(ConsoleColor color, string warning)
+        public static void Warning(ConsoleColor color, string text)
         {
-            string text = "Warning: " + warning;
-            WriteToLog(text);
-            if (!HasDebugger) return;
-            WriteToConsole(color, text);
-        }
-
-        public static bool TestMessage(string testMessage,
-            Importance importance = Importance.None,
-            bool waitForEnter = false,
-            bool waitForYes = false)
-        {
-            WriteToLog(testMessage);
-            if (!HasActiveConsole)
-                return false;
-
-            WriteToConsole(ImportanceColor(importance), testMessage);
-
-            if (waitForEnter)
-            {
-                WriteToConsole(ConsoleColor.White, "Press Any Key To Continue");
-                Console.ReadKey();
-            }
-            if (waitForYes)
-            {
-                WriteToConsole(ConsoleColor.White, "(Y/N)");
-                return Console.ReadKey(true).Key == ConsoleKey.Y;
-            }
-            return false;
+            LogWriteAsync("Warning: " + text, color);
         }
 
         static ulong Fnv64(string text)
@@ -270,19 +329,19 @@ namespace Ship_Game
 
         public static void Error(string error)
         {
-            if (!HasDebugger && ShouldIgnoreErrorText(error))
-                return;
-
             string text = "(!) Error: " + error;
-            WriteToLog(text);
+            LogWriteAsync(text, ConsoleColor.Red);
+            FlushAllLogs();
+
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                var ex = new StackTraceEx(new StackTrace(1).ToString());
-                CaptureEvent(text, ErrorLevel.Error, ex);
+                if (!ShouldIgnoreErrorText(error))
+                {
+                    var ex = new StackTraceEx(new StackTrace(1).ToString());
+                    CaptureEvent(text, ErrorLevel.Error, ex);
+                }
                 return;
             }
-
-            WriteToConsole(ConsoleColor.Red, text);
 
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
@@ -297,25 +356,22 @@ namespace Ship_Game
 
         public static void Error(Exception ex, string error = null, ErrorLevel errorLevel = ErrorLevel.Error)
         {
-            string text = CurryExceptionMessage(ex, error);
-            if (!HasDebugger && ShouldIgnoreErrorText(text))
-                return;
+            string text = ExceptionString(ex, "(!) Exception: ", error);
+            LogWriteAsync(text, ConsoleColor.DarkRed);
+            FlushAllLogs();
 
-            string withStack = text + "\n" + CleanStackTrace(ex);
-            WriteToLog(withStack);
             if (!HasDebugger) // only log errors to sentry if debugger not attached
             {
-                CaptureEvent(text, errorLevel, ex);
+                if (!ShouldIgnoreErrorText(text))
+                {
+                    CaptureEvent(text, errorLevel, ex);
+                }
                 return;
             }
-
-            WriteToConsole(ConsoleColor.DarkRed, withStack);
 
             // Error triggered while in Debug mode. Check the error message for what went wrong
             Debugger.Break();
         }
-
-        public static void Fatal(Exception ex, string error = null) => Error(ex, error, ErrorLevel.Fatal);
 
         public static void ErrorDialog(Exception ex, string error = null, bool isFatal = true)
         {
@@ -324,19 +380,17 @@ namespace Ship_Game
 
             IsTerminating = isFatal;
 
-            string text = CurryExceptionMessage(ex, error);
-            string withStack = text + "\n" + CleanStackTrace(ex);
-            WriteToLog(withStack);
+            string text = ExceptionString(ex, "(!) Exception: ", error);
+            LogWriteAsync(text, ConsoleColor.DarkRed);
+            FlushAllLogs();
+
             if (!HasDebugger && isFatal) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
-                return;
             }
 
-            WriteToConsole(ConsoleColor.DarkRed, withStack);
-
-            ExceptionViewer.ShowExceptionDialog(withStack, GlobalStats.AutoErrorReport);
-            if (isFatal) Environment.Exit(-1);
+            ExceptionViewer.ShowExceptionDialog(text, GlobalStats.AutoErrorReport);
+            if (isFatal) Program.RunCleanupAndExit(Program.UNHANDLED_EXCEPTION);
         }
 
         [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
@@ -351,15 +405,32 @@ namespace Ship_Game
                 Message = text,
                 Level   = level
             };
+
             if (GlobalStats.HasMod)
             {
                 evt.Tags["Mod"]        = GlobalStats.ActiveMod.ModName;
                 evt.Tags["ModVersion"] = GlobalStats.ActiveModInfo.Version;
             }
-            Raven.CaptureAsync(evt);
+
+            if (level == ErrorLevel.Fatal) // for fatal errors, we can't do ASYNC reports
+                Raven.Capture(evt);
+            else
+                Raven.CaptureAsync(evt);
         }
 
-        static string CurryExceptionMessage(Exception ex, string moreInfo = null)
+        static string ExceptionString(Exception ex, string title, string details = null)
+        {
+            var sb = new StringBuilder(title, 4096);
+            if (details != null) { sb.AppendLine(details); }
+
+            CollectMessages(sb, ex);
+            CollectExData(sb, ex);
+            sb.AppendLine("\nStackTrace:");
+            CollectCleanStackTrace(sb, ex);
+            return sb.ToString();
+        }
+
+        static void CollectExData(StringBuilder sb, Exception ex)
         {
             IDictionary evt = ex.Data;
             if (evt.Count == 0)
@@ -382,26 +453,19 @@ namespace Ship_Game
                 if (GlobalStats.WarpBehaviorsEnabled)
                     evt["WarpBehaviorsEnabled"] = true;
             }
-            var sb = new StringBuilder("(!) Exception: ");
-            AppendMessages(sb, ex);
-
-            if (moreInfo.NotEmpty())
-                sb.Append("\nInfo: ").Append(moreInfo);
-
             if (evt.Count != 0)
             {
                 foreach (DictionaryEntry pair in evt)
                     sb.Append('\n').Append(pair.Key).Append(" = ").Append(pair.Value);
             }
-            return sb.ToString();
         }
 
-        static void AppendMessages(StringBuilder sb, Exception ex)
+        static void CollectMessages(StringBuilder sb, Exception ex)
         {
             Exception inner = ex.InnerException;
             if (inner != null)
             {
-                AppendMessages(sb, inner);
+                CollectMessages(sb, inner);
                 sb.Append("\nFollowed by: ");
             }
             sb.Append(ex.Message);
@@ -418,13 +482,12 @@ namespace Ship_Game
             trace.AppendLine(ex.StackTrace ?? "");
         }
 
-        static string CleanStackTrace(Exception ex)
+        static void CollectCleanStackTrace(StringBuilder sb, Exception ex)
         {
             var trace = new StringBuilder(4096);
             CollectStackTraces(trace, ex);
             string stackTraces = trace.ToString();
 
-            var sb = new StringBuilder("StackTrace:\r\n");
             string[] lines = stackTraces.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string errorLine in lines)
             {
@@ -437,12 +500,11 @@ namespace Ship_Game
                     int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
                     string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
 
-                    sb.Append(method).Append(" in ").Append(file).AppendLine();
+                    sb.Append(method).Append(" in ").Append(file).Append('\n');
                 }
                 else if (line.Contains("System.Windows.Forms")) continue; // ignore winforms
-                else sb.AppendLine(line);
+                else sb.Append(line).Append('\n'); ;
             }
-            return sb.ToString();
         }
 
         public static void OpenURL(string url)
@@ -477,8 +539,6 @@ namespace Ship_Game
             public int Bottom;      // y position of lower-right corner
         }
 
-        public static bool HasActiveConsole => GetConsoleWindow() != IntPtr.Zero;
-
         public static void ShowConsoleWindow(int bufferHeight = 2000)
         {
             var handle = GetConsoleWindow();
@@ -504,11 +564,14 @@ namespace Ship_Game
                 const int noResize = 0x0001;
                 SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
             }
+
+            HasActiveConsole = handle != IntPtr.Zero;
         }
 
         public static void HideConsoleWindow()
         {
             ShowWindow(GetConsoleWindow(), 0/*SW_HIDE*/);
+            HasActiveConsole = false;
         }
 
         static ConsoleColor ImportanceColor(Importance importance)

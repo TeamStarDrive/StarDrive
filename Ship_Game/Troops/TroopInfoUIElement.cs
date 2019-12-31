@@ -178,30 +178,29 @@ namespace Ship_Game
             {
                 return false;
             }
+
             foreach (TippedItem ti in ToolTipItems)
             {
-                if (!ti.R.HitTest(input.CursorPosition))
-                {
-                    continue;
-                }
-                ToolTip.CreateTooltip(ti.TIP_ID);
+                if (ti.R.HitTest(input.CursorPosition))
+                    ToolTip.CreateTooltip(ti.TIP_ID);
             }
+
+            // currently selected troop Launch
             if (LaunchTroop != null && LaunchTroop.r.HitTest(input.CursorPosition))
             {
                 ToolTip.CreateTooltip(67);
                 if (LaunchTroop.HandleInput(input))
                 {
-                    if (((CombatScreen) screen.workersPanel).ActiveTile.SingleTroop.AvailableMoveActions < 1)
+                    var combatScreen = (CombatScreen)screen.workersPanel;
+                    if (combatScreen.TryLaunchTroopFromActiveTile())
                     {
-                        GameAudio.NegativeClick();                        
-                        return true;
+                        GameAudio.TroopTakeOff();
                     }
-                    GameAudio.TroopTakeOff();
-                    
-                    using (pgs.TroopsHere.AcquireWriteLock())
-                        if (pgs.TroopsHere.Count > 0) pgs.SingleTroop.Launch();
-
-                    ((CombatScreen) screen.workersPanel).ActiveTile = null;
+                    else
+                    {
+                        GameAudio.NegativeClick();
+                    }
+                    return true;
                 }
             }            
             return false;

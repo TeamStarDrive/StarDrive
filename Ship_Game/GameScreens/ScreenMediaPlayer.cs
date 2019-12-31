@@ -28,7 +28,23 @@ namespace Ship_Game.GameScreens
 
         // Extra music associated with the video.
         // For example, diplomacy screen uses WAR music if WarDeclared
-        AudioHandle Music = AudioHandle.Dummy;
+        AudioHandle Music = AudioHandle.DoNotPlay;
+
+        // If TRUE, the video becomes interactive with a Play button
+        public bool EnableInteraction = false;
+        public bool IsHovered;
+
+        // If TRUE, the video will always capture low-res video thumbnail
+        public bool CaptureThumbnail;
+
+        // Video play status changed
+        public Action OnPlayStatusChange;
+
+        public string Name { get; private set; } = "";
+        public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
+
+        // Player.Play() is too slow, so we start it in a background thread
+        TaskResult BeginPlayTask;
 
         // If TRUE, the video becomes interactive with a Play button
         public bool EnableInteraction = false;
@@ -114,7 +130,8 @@ namespace Ship_Game.GameScreens
 
         public bool IsPlaying => Video != null && Player.State == MediaState.Playing;
         public bool IsPaused  => Video != null && Player.State == MediaState.Paused;
-        public bool IsStopped => Video == null || Player.State == MediaState.Stopped;
+        public bool IsStopped => Video == null || Player.IsDisposed ||
+                                                  Player.State == MediaState.Stopped;
 
         public void Stop()
         {

@@ -68,6 +68,8 @@ namespace Ship_Game
         public static void PlanetLandingSpotsTip(string locationText, int spots)
             => CreateTooltip($"{locationText}\n{spots} Landing Spots");
 
+        public static int AutoTaxToolTip => 7040;
+
         /**
          * Sets the currently active ToolTip
          */
