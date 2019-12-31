@@ -31,7 +31,7 @@ namespace Ship_Game
                 }
             }
 
-            SelectedFleet.AssembleFleet2(SelectedFleet.Direction);
+            SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
             base.Update(deltaTime);
         }
     }

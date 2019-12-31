@@ -240,7 +240,7 @@ namespace Ship_Game
                     {
                         if (SelectedFleet.Ships.Count == 0)
                         {
-                            SelectedFleet.Position = ActiveShipDesign.Position;
+                            SelectedFleet.FinalPosition = ActiveShipDesign.Position;
                         }
 
                         node.Ship = ActiveShipDesign;
@@ -341,22 +341,13 @@ namespace Ship_Game
                         {
                             foreach (FleetDataNode node in SelectedNodeList)
                             {
-                                if (!squad.DataNodes.Contains(node))
+                                if (squad.DataNodes.Contains(node))
                                 {
-                                    continue;
+                                    squad.DataNodes.RemoveRef(node);
+                                    if (node.Ship != null)
+                                        squad.Ships.RemoveRef(node.Ship);
                                 }
-
-                                squad.DataNodes.QueuePendingRemoval(node);
-                                if (node.Ship == null)
-                                {
-                                    continue;
-                                }
-
-                                squad.Ships.QueuePendingRemoval(node.Ship);
                             }
-
-                            squad.DataNodes.ApplyPendingRemovals();
-                            squad.Ships.ApplyPendingRemovals();
                         }
                     }
 
