@@ -601,7 +601,6 @@ namespace Ship_Game
             Planet homePlanet = Player.GetPlanets()[0];
             us = new UniverseScreen(Data, Player)
             {
-                player    = Player,
                 GameScale = Scale,
                 ScreenManager = ScreenManager,
                 CamPos = new Vector3(homePlanet.Center.X, homePlanet.Center.Y, 5000f),

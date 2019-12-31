@@ -1012,7 +1012,7 @@ namespace Ship_Game.AI
                         continue;
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
-                    ship.AI.OrderMoveTowardsPosition(kv.Key, vFacing, true, null);
+                    ship.AI.OrderMoveTo(kv.Key, vFacing, true, null);
                     ship.ForceCombatTimer();
 
                     availableShips.RemoveAtSwapLast(i);
@@ -1028,7 +1028,7 @@ namespace Ship_Game.AI
             }
 
             foreach (Ship ship in availableShips)
-                ship.AI.OrderMoveDirectlyTowardsPosition(task.AO, Vectors.Up, true);
+                ship.AI.OrderMoveDirectlyTo(task.AO, Vectors.Up, true);
 
             return true;
         }
@@ -1154,13 +1154,13 @@ namespace Ship_Game.AI
                         ai.FleetNode.AssistWeight   = 0;
                         ai.FleetNode.VultureWeight  = 0f;
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, FinalDirection, true);
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
 
                     case InvasionTactics.Rear:
                         if (!ai.HasPriorityOrder)
                         {
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset
                                 , FinalDirection, true, SpeedLimit * 0.75f);
                         }
                         break;
@@ -1174,7 +1174,7 @@ namespace Ship_Game.AI
                         ai.FleetNode.AttackShieldedWeight = 1;
 
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, FinalDirection, true);
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
 
                     case InvasionTactics.Side:
@@ -1182,7 +1182,7 @@ namespace Ship_Game.AI
                         ai.FleetNode.AssistWeight         = 1;
                         ai.FleetNode.SizeWeight           = 0;
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTowardsPosition(moveTo + ship.FleetOffset, FinalDirection, true);
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
 
                     case InvasionTactics.Wait:

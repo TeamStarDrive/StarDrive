@@ -23,7 +23,8 @@ namespace Ship_Game
         // FINAL direction facing of this ship group
         public Vector2 FinalDirection = Vectors.Up;
 
-        // Holo-Projection direction of the ship group
+        // Holo-Projection of the ship group
+        public Vector2 ProjectedPos;
         public Vector2 ProjectedDirection;
 
         // WORK IN PROGRESS
@@ -60,6 +61,7 @@ namespace Ship_Game
 
         public void ProjectPos(Vector2 projectedPos, Vector2 direction)
         {
+            ProjectedPos = projectedPos;
             ProjectedDirection = direction;
             float facing = direction.ToRadians();
 
@@ -68,13 +70,14 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.projectedPosition = projectedPos + Vector2.Zero.PointFromRadians(angle, distance);
+                ship.projectedPosition = projectedPos + angle.RadiansToDirection()*distance;
             }
         }
 
         // This is used for single-ship groups
         public void ProjectPosNoOffset(Vector2 projectedPos, Vector2 direction)
         {
+            ProjectedPos = projectedPos;
             ProjectedDirection = direction;
             for (int i = 0; i < Ships.Count; ++i)
                 Ships[i].projectedPosition = projectedPos + direction;
@@ -95,7 +98,7 @@ namespace Ship_Game
         {
             float angle = ship.RelativeFleetOffset.ToRadians() + FinalDirection.ToRadians();
             float distance = ship.RelativeFleetOffset.Length();
-            ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+            ship.FleetOffset = angle.RadiansToDirection()*distance;
         }
 
         public void AssignPositions(Vector2 newDirection)
@@ -111,7 +114,7 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                 float distance = ship.RelativeFleetOffset.Length();
-                ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                ship.FleetOffset = angle.RadiansToDirection()*distance;
             }
         }
 
@@ -131,7 +134,7 @@ namespace Ship_Game
                 {
                     float angle = ship.RelativeFleetOffset.ToRadians() + facing;
                     float distance = ship.RelativeFleetOffset.Length();
-                    ship.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                    ship.FleetOffset = angle.RadiansToDirection()*distance;
                 }
             }
         }
@@ -325,9 +328,9 @@ namespace Ship_Game
             float energyDps = 0.0f;
 
             //TODO: make sure this is the best way. Likely these values can be done in ship update and totaled here rather than recalculated.
-            for (int index = 0; index < Ships.Count; index++)
+            for (int i = 0; i < Ships.Count; ++i)
             {
-                Ship ship = Ships[index];
+                Ship ship = Ships[i];
                 if (!ship.AI.HasPriorityOrder)
                 {
                     currentAmmo += ship.Ordinance;
@@ -349,7 +352,7 @@ namespace Ship_Game
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
         {
             GoalStack.Clear();
-            AssembleFleet(finalPosition, finalDirection, !queueOrder);
+            AssembleFleet(finalPosition, finalDirection, forceAssembly:true);
 
             for (int i = 0; i < Ships.Count; ++i)
             {
@@ -373,7 +376,7 @@ namespace Ship_Game
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
                     ship.AI.SetPriorityOrder(true);
-                    ship.AI.OrderMoveDirectlyTowardsPosition(FinalPosition + ship.FleetOffset, finalDirection, true);
+                    ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true);
                 }
             }
         }
@@ -385,7 +388,7 @@ namespace Ship_Game
             foreach (Ship ship in Ships)
             {
                 ship.AI.SetPriorityOrder(false);
-                ship.AI.OrderMoveTowardsPosition(FinalPosition + ship.FleetOffset, finalDirection, true, null);
+                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null);
             }
         }
 
