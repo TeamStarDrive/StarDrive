@@ -11,40 +11,58 @@ namespace Ship_Game.Debug
             lock (Primitives) Primitives.Add(primitive);
         }
 
+        // If the game is paused, then we should not add primitives
+        // since they are only cleaned up while the game is running
+        bool ShouldNotAddPrimitive(DebugModes mode)
+        {
+            return mode != Mode || !Visible || Empire.Universe.Paused;
+        }
+
+        bool ShouldNotAddPrimitive()
+        {
+            return !Visible || Empire.Universe.Paused;
+        }
+
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, float lifeTime)
         {
-            if (mode != Mode || !Visible) return;
+            if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugCircle(worldPos, radius, Color.Yellow, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color, float lifeTime)
         {
-            if (mode != Mode || !Visible) return;
+            if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugCircle(worldPos, radius, color, lifeTime));
         }
 
         public void DrawCircle(DebugModes mode, Vector2 worldPos, float radius, Color color)
         {
-            if (mode != Mode || !Visible) return;
+            if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugCircle(worldPos, radius, color, 0f));
         }
 
         public void DrawLine(DebugModes mode, Vector2 startInWorld, Vector2 endInWorld,
             float width, Color color, float lifeTime)
         {
-            if (mode != Mode || !Visible) return;
+            if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugLine(startInWorld, endInWorld, width, color, lifeTime));
         }
 
         public void DrawGameObject(DebugModes mode, GameplayObject obj)
         {
-            if (mode != Mode || !Visible || !obj.IsInFrustum) return;
+            if (ShouldNotAddPrimitive(mode) || !obj.IsInFrustum) return;
             AddPrimitive(new DebugGameObject(obj, Color.Red, 0f /*transient*/));
+        }
+
+        public void DrawText(Vector2 posInWorld, string text, Color color, float lifeTime = 0f)
+        {
+            if (ShouldNotAddPrimitive()) return;
+            AddPrimitive(new DebugText(posInWorld, text, color, lifeTime));
         }
 
         public void DrawText(DebugModes mode, Vector2 posInWorld, string text, Color color, float lifeTime)
         {
-            if (mode != Mode || !Visible) return;
+            if (ShouldNotAddPrimitive(mode)) return;
             AddPrimitive(new DebugText(posInWorld, text, color, lifeTime));
         }
 

@@ -181,6 +181,7 @@ namespace Ship_Game
         public bool ProducesResearch   => PlusResearchPerColonist > 0 || PlusFlatResearchAmount > 0;
         public bool ProducesFood       => PlusFlatFoodAmount > 0 || PlusFoodPerColonist > 0;
         public bool ProducesPopulation => PlusFlatPopulation > 0;
+        public bool IsHarmfulToEnv     => MaxFertilityOnBuild < 0;
         public bool IsMilitary         => CombatStrength > 0 
                                         && !IsCapitalOrOutpost
                                         && MaxPopIncrease.AlmostZero(); // FB - pop relevant because of CA

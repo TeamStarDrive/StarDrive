@@ -154,7 +154,7 @@ namespace Ship_Game.Ships
                 posOnScreen.Y = (float)Math.Round(posOnScreen.Y);
                 if (w.AlmostEqual(h, 0.001f)) w = h;
 
-                float slotFacing = (int)((slot.Facing + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
+                float slotFacing = (int)((slot.FacingDegrees + 45) / 90) * 90f; // align the facing to 0, 90, 180, 270...
                 float slotRotation = (shipDegrees + slotFacing).ToRadians();
 
                 us.DrawTextureSized(concreteGlass, posOnScreen, shipRotation, w, h, Color.White);

@@ -19,17 +19,7 @@ namespace Ship_Game
             settings.Mode = WindowMode.Borderless;
             ApplyGraphics(settings);
             InitializeAudio();
-            if (show) Show();
-        }
-
-        public void Show()
-        {
-            Form.Visible = true;
-        }
-
-        public void Hide()
-        {
-            Form.Visible = false;
+            if (show) Form.Visible = true;
         }
 
         public void Create()

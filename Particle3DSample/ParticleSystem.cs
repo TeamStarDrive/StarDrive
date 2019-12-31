@@ -130,7 +130,7 @@ namespace Particle3DSample
         public void AddParticleThreadB(Vector3 position, Vector3 velocity) => AddParticleThread(RandomB, position, velocity);
         public void AddParticleThread(bool randomA, Vector3 position, Vector3 velocity) => AddParticleThread(randomA ? RandomA : RandomB, position, velocity);
 
-        public void Draw(GameTime gameTime)
+        public void Draw()
         {
             GraphicsDevice device = GraphicsDevice;
             if (VertexBuffer.IsContentLost)
@@ -280,9 +280,9 @@ namespace Particle3DSample
             VertexBuffer.Dispose();
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(float deltaTime)
         {
-            CurrentTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+            CurrentTime += deltaTime;
             RetireActiveParticles();
             FreeRetiredParticles();
 

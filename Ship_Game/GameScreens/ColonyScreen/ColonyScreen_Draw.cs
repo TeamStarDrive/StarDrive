@@ -198,9 +198,15 @@ namespace Ship_Game
                 Color terraformColor = P.Owner?.EmpireColor ?? Color.White;
                 string terraformText = Localizer.Token(683); // Terraform Planet is the default text
                 if (P.TilesToTerraform)
+                {
                     terraformText  = Localizer.Token(1972);
-                else if (P.BioSpheresToTerraform && P.Category == P.Owner?.data.PreferredEnv && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformTargetFertility))
+                }
+                else if (P.BioSpheresToTerraform
+                      && P.Category == P.Owner?.data.PreferredEnv 
+                      && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformMaxFertilityTarget))
+                {
                     terraformText = Localizer.Token(1919);
+                }
 
                 var terraformPos = new Vector2(vector2_2.X + num5 * 3.9f, vector2_2.Y + (Font12.LineSpacing + 2) * 5);
                 batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
@@ -364,7 +370,7 @@ namespace Ship_Game
 
                 if (pgs.Biosphere && P.Owner != null)
                 {
-                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.5f));
+                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.3f));
                 }
 
                 DrawPGSIcons(batch, pgs);

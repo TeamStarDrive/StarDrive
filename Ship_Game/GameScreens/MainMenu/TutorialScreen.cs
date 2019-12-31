@@ -67,8 +67,7 @@ namespace Ship_Game
                 Texture2D tex = StarDriveGame.Instance.Content.Load<Texture2D>("Tutorials/"+ GlobalStats.Language+"/"+name);
                 TexDict[name] = tex;
             }
-            var center = ScreenManager.Center();
-            BridgeRect = new Rectangle((int)center.X - 640, (int)center.Y - 360, 1280, 720);
+            BridgeRect = new Rectangle((int)ScreenCenter.X - 640, (int)ScreenCenter.Y - 360, 1280, 720);
             Add(new CloseButton(BridgeRect.Right - 38, BridgeRect.Y + 15));
             base.LoadContent();
         }

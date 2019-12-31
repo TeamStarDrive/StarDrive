@@ -175,7 +175,7 @@ namespace Ship_Game.Ships
             Ordinance        = save.Ordnance;
             Rotation         = save.Rotation;
             Velocity         = save.Velocity;
-            isSpooling       = save.AfterBurnerOn;
+            IsSpooling       = save.AfterBurnerOn;
             InCombatTimer    = save.InCombatTimer;
             TetherGuid       = save.TetheredTo;
             TetherOffset     = save.TetherOffset;
@@ -406,7 +406,6 @@ namespace Ship_Game.Ships
             RecalculatePower();
             ShipStatusChange();
             InitializeThrusters();
-            SetmaxFTLSpeed();
             DesignRole = GetDesignRole();
             ShipInitialized = true;
         }
@@ -467,12 +466,9 @@ namespace Ship_Game.Ships
             shield_max               = 0f;
             shield_power             = 0f;
             armor_max                = 0f;
-            velocityMaximum          = 0f;
-            Speed                    = 0f;
             SensorRange              = 0f;
             OrdinanceMax             = 0f;
             OrdAddedPerSecond        = 0f;
-            rotationRadiansPerSecond = 0f;
             Health                   = 0f;
             TroopCapacity            = 0;
             ECMValue                 = 0f;
@@ -488,25 +484,21 @@ namespace Ship_Game.Ships
             Supply  = new ShipResupply(this);
 
             InitializeStatusFromModules(fromSave);
-            InitDefendingTroopStrength();
+            if (FTLSpoolTime <= 0f)
+                FTLSpoolTime = 3f;
+            ActiveInternalSlotCount = InternalSlotCount;
 
-            ActiveInternalSlotCount  = InternalSlotCount;
-            velocityMaximum          = Thrust / Mass;
-            Speed                    = velocityMaximum;
-            rotationRadiansPerSecond = TurnThrust / Mass / 700f;
-            ShipMass                 = Mass;
+            InitDefendingTroopStrength();
+            UpdateMaxVelocity();
+            SetMaxFTLSpeed();
+            SetMaxSTLSpeed();
+            UpdateShields();
 
             // initialize strength for our empire:
             CurrentStrength = CalculateShipStrength();
             BaseStrength = CurrentStrength; // save base strength for later
             if (shipData.BaseStrength <= 0f)
                 shipData.BaseStrength = BaseStrength;
-
-            if (FTLSpoolTime <= 0f)
-                FTLSpoolTime = 3f;
-
-            UpdateShields();
-            SetmaxFTLSpeed();
         }
 
         void InitializeStatusFromModules(bool fromSave)

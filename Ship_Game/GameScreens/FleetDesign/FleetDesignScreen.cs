@@ -74,12 +74,9 @@ namespace Ship_Game
             {
                 foreach (var kv in EmpireManager.Player.GetFleetsDict())
                 {
-                    using (kv.Value.Ships.AcquireReadLock())
+                    foreach (Ship ship in kv.Value.Ships)
                     {
-                        foreach (Ship ship in kv.Value.Ships)
-                        {
-                            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                        }
+                        ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
                     }
                 }
             }
@@ -117,13 +114,10 @@ namespace Ship_Game
             }
 
             SelectedFleet = EmpireManager.Player.GetFleetsDict()[which];
-            using (SelectedFleet.Ships.AcquireReadLock())
+            foreach (Ship ship in SelectedFleet.Ships)
             {
-                foreach (Ship ship in SelectedFleet.Ships)
-                {
-                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-                    ship.GetSO().Visibility = ObjectVisibility.Rendered;
-                }
+                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                ship.GetSO().Visibility = ObjectVisibility.Rendered;
             }
         }
 
@@ -260,12 +254,9 @@ namespace Ship_Game
             SliderSize.Tip_ID = 14;
             StarField = new StarField(this);
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
-            using (SelectedFleet.Ships.AcquireReadLock())
+            foreach (Ship ship in SelectedFleet.Ships)
             {
-                foreach (Ship ship in SelectedFleet.Ships)
-                {
-                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-                }
+                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
             }
             base.LoadContent();
         }

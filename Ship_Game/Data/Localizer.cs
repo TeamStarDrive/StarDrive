@@ -120,8 +120,14 @@ namespace Ship_Game
         public static string HullFireRateBonus => Token(6020);
         public static string HullRepairBonus => Token(6013);
         public static string HullCostBonus => Token(6021);
+        public static string Trade => Token(321);
+        public static string GovernorBudget => Token(1916);
+        public static string TreasuryGoal => Token(1917);
 
-        static string[] Strings = new string[0];
+        public static string AutoTaxes => Token(6138);
+        public static string BudgetScreenTaxSlider => Token(311);
+
+        private static string[] Strings = new string[0];
 
         public static bool Contains(int locIndex)
         {

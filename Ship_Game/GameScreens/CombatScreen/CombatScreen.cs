@@ -13,6 +13,7 @@ namespace Ship_Game
     public sealed class CombatScreen : PlanetScreen
     {
         public Planet p;
+        Vector2 TitlePos;
         Rectangle gridPos;
         Submenu orbitalResourcesSub;
 
@@ -48,8 +49,8 @@ namespace Ship_Game
             int screenWidth       = ScreenWidth;
             GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
-            var TitleBar              = new Menu2(titleRect);
-            var TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString("Ground Combat").X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
+            var TitleBar          = new Menu2(titleRect);
+            TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             SelectedItemRect      = new Rectangle(screenWidth - 240, 100, 225, 205);
             AssetsRect            = new Rectangle(10, 48, 225, 200);
             HoveredItemRect       = new Rectangle(10, 248, 225, 200);
@@ -214,11 +215,14 @@ namespace Ship_Game
             }
         }
 
+        Color OwnerColor => p.Owner?.EmpireColor ?? Color.Gray;
+
         public override void Draw(SpriteBatch batch)
         {
             GameTime gameTime = StarDriveGame.Instance.GameTime;
             batch.Draw(ResourceManager.Texture($"PlanetTiles/{p.PlanetTileId}_tilt"), GridRect, Color.White);
             batch.Draw(ResourceManager.Texture("Ground_UI/grid"), GridRect, Color.White);
+            batch.DrawString(Fonts.Arial20Bold, p.Name, TitlePos, OwnerColor);
 
             LaunchAll.Draw(batch);
             LandAll.Draw(batch);

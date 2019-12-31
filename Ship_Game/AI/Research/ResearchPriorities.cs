@@ -21,7 +21,7 @@ namespace Ship_Game.AI.Research
             float shipBuildBonus = 0;
             BuildCapacity = buildCapacity;
             Command = command;
-            Command2 = command2;            
+            Command2 = command2;
 
             //create a booster for some values when things are slack.
             //so the empire will keep building new ships and researching new science.
@@ -29,7 +29,7 @@ namespace Ship_Game.AI.Research
                 shipBuildBonus = 0.5f;
 
             float enemyThreats = empire.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireThreats(empire);
-            Wars = enemyThreats / (empire.currentMilitaryStrength + 1);
+            Wars = enemyThreats / (empire.CurrentMilitaryStrength + 1);
             Wars = Wars.Clamped(0, 1);
             if (Wars < 0.5f)
                 Wars = shipBuildBonus;

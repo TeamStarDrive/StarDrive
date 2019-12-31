@@ -190,7 +190,7 @@ namespace Ship_Game
                     PlayNegativeSound();
                     return false;
                 }
-                CanInstall = !Slot.IsSame(Mod, Ori, Mod.Facing);
+                CanInstall = !Slot.IsSame(Mod, Ori, Mod.FacingDegrees);
                 return CanInstall;
             }
             public void TryInstallTo(DesignModuleGrid designGrid)
@@ -246,7 +246,7 @@ namespace Ship_Game
             {
                 if (replaceAt.ModuleUID == replacementId)
                 {
-                    ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.Facing);
+                    ShipModule m = CreateDesignModule(template, replaceAt.Orientation, replaceAt.Module.FacingDegrees);
                     ModuleGrid.InstallModule(replaceAt, m, replaceAt.Orientation);
                 }
             }

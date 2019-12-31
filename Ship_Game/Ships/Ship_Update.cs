@@ -61,18 +61,13 @@ namespace Ship_Game.Ships
             }
 
             UpdateVisibility();
-
             ShieldRechargeTimer += elapsedTime;
-            InhibitedTimer      -= elapsedTime;
-            Inhibited = InhibitedTimer > 0f;
-            if ((Inhibited || maxFTLSpeed < 2500f) && engineState == MoveState.Warp)
-                HyperspaceReturn();
 
             if (TetheredTo != null)
             {
                 Position = TetheredTo.Center + TetherOffset;
                 Center   = TetheredTo.Center + TetherOffset;
-                velocityMaximum = 0;
+                VelocityMaximum = 0;
             }
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
@@ -102,9 +97,6 @@ namespace Ship_Game.Ships
                 isTurning = true;
             }
 
-            if (!isSpooling && Afterburner.IsPlaying)
-                Afterburner.Stop();
-
             if (elapsedTime > 0f)
             {
                 Projectiles.Update(elapsedTime);
@@ -130,9 +122,8 @@ namespace Ship_Game.Ships
                 }
             }
 
-            Position += Velocity * elapsedTime;
-            Center   += Velocity * elapsedTime;
             UpdateShipStatus(elapsedTime);
+            UpdateEnginesAndVelocity(elapsedTime);
 
             if (InFrustum && ShipSO != null)
             {
@@ -142,6 +133,7 @@ namespace Ship_Game.Ships
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);
+            ResetFrameThrustState();
         }
 
         void ExploreCurrentSystem(float elapsedTime)
@@ -184,35 +176,34 @@ namespace Ship_Game.Ships
 
         void UpdateThrusters()
         {
+            Color thrust0 = loyalty.ThrustColor0;
+            Color thrust1 = loyalty.ThrustColor1;
+            float velocityPercent = Velocity.Length() / VelocityMaximum;
             foreach (Thruster thruster in ThrusterList)
-                UpdateThruster(thruster, loyalty.ThrustColor0, loyalty.ThrustColor1);
-        }
-
-        void UpdateThruster(Thruster thruster, Color thrust0, Color thrust1)
-        {
-            thruster.UpdatePosition();
-            float velocityPercent = Velocity.Length() / velocityMaximum;
-            if (isThrusting)
             {
-                if (engineState == MoveState.Warp)
+                thruster.UpdatePosition();
+                if (ThrustThisFrame != 0)
                 {
-                    if (thruster.heat < velocityPercent)
-                        thruster.heat += 0.06f;
-                    thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
+                    if (engineState == MoveState.Warp)
+                    {
+                        if (thruster.heat < velocityPercent)
+                            thruster.heat += 0.06f;
+                        thruster.Update(Direction3D, thruster.heat, 0.004f, Empire.Universe.CamPos, thrust0, thrust1);
+                    }
+                    else
+                    {
+                        if (thruster.heat < velocityPercent)
+                            thruster.heat += 0.06f;
+                        if (thruster.heat > 0.600000023841858)
+                            thruster.heat = 0.6f;
+                        thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
+                    }
                 }
                 else
                 {
-                    if (thruster.heat < velocityPercent)
-                        thruster.heat += 0.06f;
-                    if (thruster.heat > 0.600000023841858)
-                        thruster.heat = 0.6f;
-                    thruster.Update(Direction3D, thruster.heat, 0.002f, Empire.Universe.CamPos, thrust0, thrust1);
+                    thruster.heat = 0.01f;
+                    thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
                 }
-            }
-            else
-            {
-                thruster.heat = 0.01f;
-                thruster.Update(Direction3D, 0.1f, 1.0f / 500.0f, Empire.Universe.CamPos, thrust0, thrust1);
             }
         }
 
@@ -235,15 +226,9 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (Velocity.Length() < 5f)
-                Velocity = RandomMath.Vector2D(200);
-
-            if (Velocity.Length() > velocityMaximum)
-                Velocity = Velocity.Normalized() * velocityMaximum;
-
-            Vector2 deltaMove = Velocity * elapsedTime;
-            Position += deltaMove;
-            Center   += deltaMove;
+            // for a cool death effect, make the ship accelerate out of control:
+            ApplyThrust(200f, +1);
+            UpdateVelocityAndPosition(elapsedTime);
 
             int num1 = UniverseRandom.IntBetween(0, 60);
             if (num1 >= 57 && InFrustum)
@@ -260,6 +245,7 @@ namespace Ship_Game.Ships
             yRotation += DieRotation.X * elapsedTime;
             xRotation += DieRotation.Y * elapsedTime;
             Rotation  += DieRotation.Z * elapsedTime;
+            Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
             if (ShipSO == null)
                 return;

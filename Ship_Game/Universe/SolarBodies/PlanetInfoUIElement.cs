@@ -125,11 +125,11 @@ namespace Ship_Game
                 DrawUnexploredUninhabited(NamePos, MousePos);
                 return;
             }
-            
+
             batch.DrawString(Fonts.Arial20Bold, P.Name, NamePos, tColor);
             batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
             var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
-            
+
             string pop = P.PopulationStringForPlayer;
             cursor.X -= (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
             batch.DrawString(Fonts.Arial12Bold, pop, cursor, tColor);
@@ -160,9 +160,9 @@ namespace Ship_Game
                 DrawPlanetStats(InjuryRect, ((float)P.TotalInvadeInjure).String(1), "UI/icon_injury", Color.White, Color.White);
 
             // Added by Fat Bastard - display total space offense of the planet
-            if (P.TotalSpaceOffense > 0)
+            if (P.TotalGeodeticOffense > 0)
             {
-                string offenseNumberString = ((float) Math.Round(P.TotalSpaceOffense,0)).GetNumberString();
+                string offenseNumberString = ((float) Math.Round(P.TotalGeodeticOffense, 0)).GetNumberString();
                 DrawPlanetStats(OffenseRect, offenseNumberString, "UI/icon_offense", Color.White, Color.White);
             }
 

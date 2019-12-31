@@ -26,32 +26,30 @@ namespace Ship_Game
         {
         }
 
-        public SpaceJunk(Vector2 pos, GameplayObject source, float spawnRadius, float scaleMod, bool useStaticSmoke)
+        public SpaceJunk(Vector2 parentPos, Vector2 parentVel, float spawnRadius, float scaleMod, bool useStaticSmoke)
         {
             float radius = spawnRadius + 25f;
             ScaleMod = scaleMod;                        
             UseStaticSmoke = useStaticSmoke;
-            Position.X = RandomMath2.RandomBetween(pos.X - radius, pos.X + radius);
-            Position.Y = RandomMath2.RandomBetween(pos.Y - radius, pos.Y + radius);
+            Position.X = RandomMath2.RandomBetween(parentPos.X - radius, parentPos.X + radius);
+            Position.Y = RandomMath2.RandomBetween(parentPos.Y - radius, parentPos.Y + radius);
             Position.Z = RandomMath2.RandomBetween(-radius*0.5f, radius*0.5f);
-            CreateSceneObject(pos);
+            CreateSceneObject(parentPos);
 
-            Velocity.X += source.Velocity.X;
-            Velocity.Y += source.Velocity.Y;
+            // inherit extra velocity from parent
+            Velocity.X += parentVel.X;
+            Velocity.Y += parentVel.Y;
         }
 
-        private void RandomValues(Vector2 center, float velMin, float velMax, float spinMin, float spinMax, float scaleMin, float scaleMax)
+        void RandomValues(Vector2 parentPos, float velMin, float velMax, float spinMin, float spinMax, float scaleMin, float scaleMax)
         {
-            var fromCenterToSpawnPos = new Vector2(Position.X-center.X, Position.Y-center.Y);
-            Velocity = RandomMath.Vector3D(velMin, velMax);
-            Velocity.X *= fromCenterToSpawnPos.X * 0.033f;
-            Velocity.Y *= fromCenterToSpawnPos.Y * 0.033f;
-
+            var offsetFromParent = new Vector3(Position.X - parentPos.X, Position.Y - parentPos.Y, 1f);
+            Velocity = RandomMath.Vector3D(velMin, velMax) * offsetFromParent;
             Spin  = RandomMath.Vector3D(spinMin, spinMax);
             Scale = RandomMath2.RandomBetween(scaleMin, scaleMax) * ScaleMod;
         }
 
-        private void CreateSceneObject(Vector2 center)
+        void CreateSceneObject(Vector2 parentPos)
         {
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
             Duration    = RandomMath2.RandomBetween(0, Duration * 1f) * Scale;
@@ -60,30 +58,30 @@ namespace Ship_Game
             switch (random)
             {
                 case 6:
-                    RandomValues(center, -2.5f, 2.5f, 0.01f, 0.5f, 0.5f, 1f);
+                    RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.5f, 1f);
                     break;
                 case 7:
-                    RandomValues(center, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
+                    RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
                     FlameTrail = Empire.Universe.fireTrailParticles.NewEmitter(500f * Scale, Position);
                     ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f, Position);
                     break;
                 case 8:
-                    RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
+                    RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.7f, 0.1f);
                     FlameTrail = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
                     ProjTrail  = Empire.Universe.projectileTrailParticles.NewEmitter(200f * Scale, Position);
                     break;
                 case 11:
-                    RandomValues(center, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
+                    RandomValues(parentPos, -5f, 5f, 0.5f, 3.5f, 0.5f, 0.8f);
                     FlameTrail = Empire.Universe.fireTrailParticles.NewEmitter(200 * Scale, Position);
                     break;
                 case 12:
-                    RandomValues(center, -3f, 3f, 0.01f, 0.5f, 0.3f, 0.8f);
+                    RandomValues(parentPos, -3f, 3f, 0.01f, 0.5f, 0.3f, 0.8f);
                     break;
                 case 13:
-                    RandomValues(center, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
+                    RandomValues(parentPos, -2.5f, 2.5f, 0.01f, 0.5f, 0.3f, 0.8f);
                     break;
                 default:
-                    RandomValues(center, -2f, 2f, 0.01f, 1.02f, 0.5f, 2f);
+                    RandomValues(parentPos, -2f, 2f, 0.01f, 1.02f, 0.5f, 2f);
                     FlameTrail = Empire.Universe.flameParticles.NewEmitter(30 * Scale, Position);
                     break;
             }
@@ -107,7 +105,7 @@ namespace Ship_Game
          * @param spawnRadius Spawned junk is spread around the given radius
          * @param scaleMod Applies additional scale modifier on the spawned junk
          */
-        public static void SpawnJunk(int howMuchJunk, Vector2 position, 
+        public static void SpawnJunk(int howMuchJunk, Vector2 position, Vector2 velocity,
                                      GameplayObject source, float spawnRadius = 1.0f, float scaleMod = 1.0f, bool staticSmoke = false)
         {
             if (Empire.Universe == null)
@@ -125,7 +123,7 @@ namespace Ship_Game
             var junk = new SpaceJunk[howMuchJunk];
             for (int i = 0; i < howMuchJunk; i++)
             {
-                junk[i] = new SpaceJunk(position, source, spawnRadius, scaleMod, staticSmoke);
+                junk[i] = new SpaceJunk(position, velocity, spawnRadius, scaleMod, staticSmoke);
             }
 
             // now lock and add to scene
@@ -146,7 +144,7 @@ namespace Ship_Game
                 || !Empire.Universe.Frustum.Contains(Position, 10f))
                 return;
 
-            Position        += Velocity;
+            Position        += Velocity * elapsedTime;
             RotationRadians += Spin * elapsedTime;
             So.AffineTransform(Position, RotationRadians, Scale);
 

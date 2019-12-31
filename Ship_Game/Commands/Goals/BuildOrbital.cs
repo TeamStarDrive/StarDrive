@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
+using System;
 
 
 namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             ToBuildUID       = toBuildName;
             PlanetBuildingAt = planet;
             empire           = owner;
-
+            TetherTarget     = planet.guid;
             Evaluate();
         }
 
@@ -69,7 +69,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep WaitForDeployment()
         {
-            // FB - must keep this goal until the ship deployed it's structure. 
+            // FB - must keep this goal until the ship deployed it's structure.
             // If the goal is not kept, load game construction ships lose the empire goal and get stuck
             return FinishedShip == null ? GoalStep.GoalComplete : GoalStep.TryAgain;
         }
@@ -77,23 +77,29 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
         Vector2 FindNewOrbitalLocation()
         {
             const int ringLimit = ShipBuilder.OrbitalsLimit / 9 + 1; // FB - limit on rings, based on Orbitals Limit
+            //save game compatibility hack to make up for the missing tether target in save.
+            //remove this later
+            if (TetherTarget == Guid.Empty)
+                TetherTarget = PlanetBuildingAt.guid;
             for (int ring = 0; ring < ringLimit; ring++)
             {
                 int degrees    = (int)RandomMath.RandomBetween(0f, 9f);
-                float distance = 2000 + (1000 * ring * PlanetBuildingAt.Scale);
-                Vector2 pos    = PlanetBuildingAt.Center + MathExt.PointOnCircle(degrees * 40, distance);
+                float distance = 2000 + (1000 * ring * GetTetherPlanet.Scale);
+                TetherOffset    = MathExt.PointOnCircle(degrees * 40, distance);
+                Vector2 pos = GetTetherPlanet.Center + TetherOffset;
                 if (BuildPositionFree(pos))
                     return pos;
 
                 for (int i = 0; i < 9; i++) // FB - 9 orbitals per ring
                 {
-                    pos = PlanetBuildingAt.Center + MathExt.PointOnCircle(i * 40, distance);
+                    TetherOffset = MathExt.PointOnCircle(i * 40, distance);
+                    pos = GetTetherPlanet.Center + TetherOffset;
                     if (BuildPositionFree(pos))
                         return pos;
                 }
             }
 
-            return PlanetBuildingAt.Center; // There is a limit on orbitals number
+            return GetTetherPlanet.Center; // There is a limit on orbitals number
         }
 
         bool BuildPositionFree(Vector2 position)
@@ -103,7 +109,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         bool IsOrbitalAlreadyPresentAt(Vector2 position)
         {
-            foreach (Ship orbital in PlanetBuildingAt.OrbitalStations.Values)
+            foreach (Ship orbital in GetTetherPlanet.OrbitalStations.Values)
             {
                 Empire.Universe?.DebugWin?.DrawCircle(DebugModes.SpatialManager,
                     orbital.Position, 1000, Color.LightCyan, 10.0f);
