@@ -253,7 +253,7 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, $"Draw Screen failed: {screen.GetType().GenericName()}");
+                        Log.Error(e, $"Draw Screen failed: {screen.GetType().GetTypeName()}");
                         try { batch.End(); } catch { }
                     }
                 }
