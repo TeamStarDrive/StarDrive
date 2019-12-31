@@ -561,131 +561,6 @@ namespace Ship_Game
             return null;
         }
 
-        bool AttackSpecificShip(Ship ship, Ship target)
-        {
-            if (ship.IsConstructor ||
-                ship.shipData.Role == ShipData.RoleName.supply)
-            {
-                GameAudio.NegativeClick();
-                return false;
-            }
-
-            GameAudio.AffirmativeClick();
-            if (target.loyalty == player)
-            {
-                if (ship.shipData.Role == ShipData.RoleName.troop)
-                {
-                    if (ship.TroopList.Count < ship.TroopCapacity)
-                        ship.AI.OrderTroopToShip(target);
-                    else
-                        ship.DoEscort(target);
-                }
-                else
-                    ship.DoEscort(target);
-                return true;
-            }
-
-            //if (ship.loyalty == player)
-            {
-                if (ship.shipData.Role == ShipData.RoleName.troop)
-                    ship.AI.OrderTroopToBoardShip(target);
-                else if (Input.QueueAction)
-                    ship.AI.OrderQueueSpecificTarget(target);
-                else
-                    ship.AI.OrderAttackSpecificTarget(target);
-            }
-            return true;
-        }
-
-        bool MoveFleetToPlanet(Planet planetClicked, ShipGroup fleet)
-        {
-            if (planetClicked == null || fleet == null) return false;
-            fleet.FinalPosition = planetClicked.Center; //fbedard: center fleet on planet
-            foreach (Ship ship2 in fleet.Ships)
-                RightClickOnPlanet(ship2, planetClicked, false);
-            return true;
-        }
-
-        bool TryFleetAttackShip(ShipGroup fleet, Ship shipToAttack)
-        {
-            if (shipToAttack == null || shipToAttack.loyalty == player)
-                return false;
-
-            fleet.FinalPosition = shipToAttack.Center;
-            fleet.AssignPositions(Vectors.Up);
-            foreach (Ship fleetShip in fleet.Ships)
-                AttackSpecificShip(fleetShip, shipToAttack);
-            return true;
-        }
-
-        bool QueueFleetMovement(Vector2 movePosition, Vector2 direction, ShipGroup fleet)
-        {
-            if (Input.QueueAction && fleet.Ships[0].AI.HasWayPoints)
-            {
-                foreach (Ship ship in fleet.Ships)
-                    ship.AI.ClearOrdersIfCombat();
-
-                fleet.FormationWarpTo(movePosition, direction, queueOrder:true);
-                return true;
-            }
-            return false;
-        }
-
-        void MoveFleetToLocation(Ship shipClicked, Planet planetClicked, Vector2 movePosition, Vector2 facingDir, ShipGroup fleet = null)
-        {
-            fleet = fleet ?? SelectedFleet;
-            GameAudio.AffirmativeClick();
-
-            foreach (Ship ship in fleet.Ships)
-            {
-                ship.AI.Target = null;
-                ship.AI.SetPriorityOrder(!Input.QueueAction);
-            }
-            PlayerEmpire.GetEmpireAI().DefensiveCoordinator.RemoveShipList(SelectedShipList);
-
-            if (TryFleetAttackShip(fleet, shipClicked))
-                return;
-
-            if (MoveFleetToPlanet(planetClicked, fleet))
-                return;
-
-            if (QueueFleetMovement(movePosition, facingDir, fleet))
-                return;
-
-            foreach (var ship in fleet.Ships)
-                ship.AI.ClearOrders();
-
-            if (Input.IsAltKeyDown)
-                fleet.MoveToNow(movePosition, facingDir);
-            else
-                fleet.FormationWarpTo(movePosition, facingDir);
-        }
-
-        void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)
-        {
-            GameAudio.AffirmativeClick();
-            if (Input.QueueAction)
-            {
-                if (Input.OrderOption)
-                    ship.AI.OrderMoveDirectlyTowardsPosition(pos, direction, false);
-                else
-                    ship.AI.OrderMoveTowardsPosition(pos, direction, false, null);
-            }
-            else if (Input.OrderOption)
-            {
-                ship.AI.OrderMoveDirectlyTowardsPosition(pos, direction, true);
-            }
-            else if (Input.KeysCurr.IsKeyDown(Keys.LeftControl))
-            {
-                ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
-                ship.AI.OrderHoldPosition(pos, direction);
-            }
-            else
-            {
-                ship.AI.OrderMoveTowardsPosition(pos, direction, true, null);
-            }
-        }
-
         bool ShipPieMenu(Ship ship)
         {
             if (ship == null || ship != SelectedShip || SelectedShip.Mothership != null ||
@@ -745,17 +620,14 @@ namespace Ship_Game
 
                 if (SelectedShipList.Count > 0 && input.IsShiftKeyDown)
                 {
-                    if (SelectedShipList.Contains(clickableShip.shipToClick))
-                    {
-                        SelectedShipList.Remove(clickableShip.shipToClick);
+                    if (SelectedShipList.RemoveRef(clickableShip.shipToClick))
                         return true;
-                    }
-                    SelectedShipList.AddUnique(clickableShip.shipToClick);
+                    SelectedShipList.AddUniqueRef(clickableShip.shipToClick);
                     return false;
                 }
 
                 SelectedShipList.Clear();
-                SelectedShipList.AddUnique(clickableShip.shipToClick);
+                SelectedShipList.AddUniqueRef(clickableShip.shipToClick);
                 SelectedShip = clickableShip.shipToClick;
                 return true;
             }
@@ -782,7 +654,6 @@ namespace Ship_Game
             SelectedSystem  = null;
             SelectedItem    = null;
             Project.Started = false;
-            CurrentGroup    = null;
 
             if (viewState >= UnivScreenState.SectorView)
             {
@@ -968,103 +839,6 @@ namespace Ship_Game
 
             return ships.Count > 0;
 
-        }
-
-        bool RightClickOnShip(Ship selectedShip, Ship targetShip)
-        {
-            if (targetShip == null || selectedShip == targetShip) return false;
-
-            if (targetShip.loyalty == player)
-            {
-                if (selectedShip.DesignRole == ShipData.RoleName.troop)
-                {
-                    if (targetShip.TroopList.Count < targetShip.TroopCapacity)
-                        selectedShip.AI.OrderTroopToShip(targetShip);
-                    else
-                        selectedShip.DoEscort(targetShip);
-                }
-                else
-                    selectedShip.DoEscort(targetShip);
-            }
-            else if (selectedShip.DesignRole == ShipData.RoleName.troop)
-                selectedShip.AI.OrderTroopToBoardShip(targetShip);
-            else if (Input.KeysCurr.IsKeyDown(Keys.LeftShift))
-                selectedShip.AI.OrderQueueSpecificTarget(targetShip);
-            else
-                selectedShip.AI.OrderAttackSpecificTarget(targetShip);
-            return true;
-        }
-
-        void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
-        {
-            if (planet == null)
-                return;
-
-            if (ship.IsConstructor)
-            {
-                if (audio)
-                {
-                    GameAudio.NegativeClick();
-                    return;
-                }
-            }
-
-            if (Input.IsShiftKeyDown) // Always order orbit if shift is down when right clicking on a planet
-            {
-                ship.AI.OrderToOrbit(planet);
-            }
-            else
-            {
-                if (audio)
-                    GameAudio.AffirmativeClick();
-
-                if      (ship.isColonyShip)                   PlanetRightClickColonyShip(ship, planet); // This ship can colonize planets
-                else if (ship.Carrier.AnyAssaultOpsAvailable) PlanetRightClickTroopShip(ship, planet);  // This ship can assault planets
-                else if (ship.HasBombs)                       PlanetRightClickBomber(ship, planet);     // This ship can bomb planets
-                else                                          ship.AI.OrderToOrbit(planet);             // Default logic of right clicking
-            }
-        }
-
-        private void PlanetRightClickColonyShip(Ship ship, Planet planet)
-        {
-            if (planet.Owner == null && planet.Habitable)
-                ship.AI.OrderColonization(planet);
-            else
-                ship.AI.OrderToOrbit(planet);
-        }
-
-        private void PlanetRightClickTroopShip(Ship ship, Planet planet)
-        {
-            if (planet.Owner != null && planet.Owner == player)
-            {
-                if (ship.IsDefaultTroopTransport)
-                    ship.AI.OrderRebase(planet, true); // Rebase to this planet if it is ours and this is a single troop transport
-                else if (planet.ForeignTroopHere(ship.loyalty)) 
-                    ship.AI.OrderLandAllTroops(planet); // If our planet is being invaded, land the troops there
-                else
-                    ship.AI.OrderToOrbit(planet); // Just orbit
-            }
-            else if (planet.Habitable && (planet.Owner == null || ship.loyalty.IsEmpireAttackable(planet.Owner)))
-                ship.AI.OrderLandAllTroops(planet); // Land troops on unclaimed planets or enemy planets
-            else
-                ship.AI.OrderToOrbit(planet);
-        }
-
-        private void PlanetRightClickBomber(Ship ship, Planet planet)
-        {
-            float enemies    = planet.GetGroundStrengthOther(player) * 1.5f;
-            float friendlies = planet.GetGroundStrength(player);
-            if (planet.Owner != player)
-            {
-                if (player.IsEmpireAttackable(planet.Owner) && (enemies > friendlies || planet.Population > 0f))
-                    ship.AI.OrderBombardPlanet(planet);
-                else
-                    ship.AI.OrderToOrbit(planet);
-            }
-            else if (enemies > friendlies && Input.IsShiftKeyDown)
-                ship.AI.OrderBombardPlanet(planet);
-            else
-                ship.AI.OrderToOrbit(planet);
         }
 
         public void UpdateClickableItems()

@@ -138,7 +138,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                         Fleet.FinalPosition = empire.FindNearestRallyPoint(FinishedShip.Center).Center;
 
                     FinishedShip.RelativeFleetOffset = node.FleetOffset;
-                    FinishedShip.AI.OrderMoveTowardsPosition(Fleet.FinalPosition + FinishedShip.RelativeFleetOffset, Fleet.FinalDirection, true, null);
+                    FinishedShip.AI.OrderMoveTo(Fleet.FinalPosition + FinishedShip.RelativeFleetOffset, Fleet.FinalDirection, true, null);
                 }
             }
 

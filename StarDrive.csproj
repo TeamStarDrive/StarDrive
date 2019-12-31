@@ -425,6 +425,8 @@
     <Compile Include="Ship_Game\GameScreens\DeveloperSandbox.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\SolarSystemBody.cs" />
     <Compile Include="Ship_Game\Universe\SolarBodies\Explorable.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\ShipGroupProject.cs" />
+    <Compile Include="Ship_Game\Universe\UniverseScreen\ShipMoveCommands.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Camera.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.Draw.cs" />
     <Compile Include="Ship_Game\Universe\UniverseScreen\UniverseScreen.HandleInput.cs" />

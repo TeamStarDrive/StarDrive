@@ -267,7 +267,7 @@ namespace Ship_Game.AI
 
             DequeueCurrentOrder();
             if (Owner.fleet != null)
-                OrderMoveTowardsPosition(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
+                OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
@@ -490,7 +490,7 @@ namespace Ship_Game.AI
             if (Owner.fleet?.HasFleetGoal == true)
                 WayPoints.Enqueue(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset);
             else
-                OrderMoveTowardsPosition(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
+                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
         }
 
         public bool HasTradeGoal(Goods goods)
