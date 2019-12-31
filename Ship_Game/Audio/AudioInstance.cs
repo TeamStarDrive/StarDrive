@@ -35,6 +35,7 @@ namespace Ship_Game.Audio
         }
         void Destroy()
         {
+            // SFX must be disposed
             if (Sfx != null) { Sfx.Dispose(); Sfx = null; }
         }
         public void Dispose()
@@ -53,16 +54,16 @@ namespace Ship_Game.Audio
             Cue = cue;
             Cue.Play();
         }
-        public bool IsPlaying => Cue?.IsPlaying == true;
-        public bool IsPaused  => Cue?.IsPaused  == true;
-        public bool IsStopped => Cue == null || Cue.IsDisposed || Cue.IsStopped;
+        public bool IsPlaying => Cue != null && (Cue.IsPlaying || Cue.IsPreparing || Cue.IsPrepared);
+        public bool IsPaused  => Cue?.IsPaused == true;
+        public bool IsStopped => Cue == null || Cue.IsDisposed || (!Cue.IsPreparing && Cue.IsStopped);
         public void Pause()   => Cue?.Pause();
         public void Resume()  => Cue?.Resume();
         public void Stop()
         {
             if (!IsStopped)
-                Cue.Stop(AudioStopOptions.Immediate);
-        } 
+                Cue.Stop(AudioStopOptions.AsAuthored);
+        }
         void Destroy()
         {
             if (Cue != null) { Cue.Dispose(); Cue = null; }
