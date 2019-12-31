@@ -238,27 +238,19 @@ namespace Ship_Game.AI {
             return ships;
         }
 
-        private static void CheckForShipErrors(Array<Ship> ships)
+        static void CheckForShipErrors(Array<Ship> ships)
         {
             if (Debugger.IsAttached)
+            {
                 foreach (var ship in ships)
                 {
                     if (ship.fleet != null)
-                    {
                         throw new Exception("Fleet should be null here.");
-                        break;
-                    }
 
-                    int dupes = 0;
-                    foreach (var dupe in ships)
-                    {
-                        if (dupe == ship)
-                            dupes++;
-                    }
-
-                    if (dupes > 1)
-                        throw new Exception("Duplicate ship!!!.");
+                    int n = ships.CountRef(ship);
+                    if (n > 1) throw new Exception($"Fleet ships contain duplicates({n}): {ship}.");
                 }
+            }
         }
 
         private void LaunchTroopsAndAddToShipList(int wantedTroopStrength, Array<Troop> planetTroops)
