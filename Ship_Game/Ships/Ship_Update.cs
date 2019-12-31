@@ -97,11 +97,6 @@ namespace Ship_Game.Ships
                 isTurning = true;
             }
 
-            if (!IsSpooling && Afterburner.IsPlaying)
-            {
-                Afterburner.Stop();
-            }
-
             if (elapsedTime > 0f)
             {
                 Projectiles.Update(elapsedTime);

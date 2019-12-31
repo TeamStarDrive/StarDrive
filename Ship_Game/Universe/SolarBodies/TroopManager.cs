@@ -28,10 +28,10 @@ namespace Ship_Game
         public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
         public float OwnerTroopStrength => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
-        public Troop[] TroopsReadForLaunch(int maxToTake)
+        public Troop[] TroopsReadForLaunch(float strengthNeeded)
         {
             if (MightBeAWarZone()) return new Troop[0];
-            return TroopList.Filter(t => t.CanMove && t.Loyalty == Ground.Owner && maxToTake-- >=0);
+            return TroopList.Filter(t => t.CanMove && t.Loyalty == Ground.Owner && strengthNeeded - t.Strength >=0);
         }
 
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
@@ -432,6 +432,15 @@ namespace Ship_Game
 
             using (TroopList.AcquireReadLock())
                 strength += TroopList.Where(t => t.Loyalty == empire).Sum(str => str.Strength);
+            return strength;
+        }
+
+        public float TroopStrength()
+        {
+            float strength = 0;
+
+            using (TroopList.AcquireReadLock())
+                strength += TroopList.Where(t => t.Loyalty == Ground.Owner).Sum(str => str.Strength);
             return strength;
         }
 
