@@ -132,13 +132,13 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                     Fleet.AddExistingShip(FinishedShip, node);
                     Fleet.RemoveGoalGuid(node);
                     if (Fleet.Ships.Count == 0)
-                        Fleet.Position = FinishedShip.Position + RandomMath.Vector2D(3000f);
+                        Fleet.FinalPosition = FinishedShip.Position + RandomMath.Vector2D(3000f);
 
-                    if (Fleet.Position == Vector2.Zero)
-                        Fleet.Position = empire.FindNearestRallyPoint(FinishedShip.Center).Center;
+                    if (Fleet.FinalPosition == Vector2.Zero)
+                        Fleet.FinalPosition = empire.FindNearestRallyPoint(FinishedShip.Center).Center;
 
                     FinishedShip.RelativeFleetOffset = node.FleetOffset;
-                    FinishedShip.AI.OrderMoveTowardsPosition(Fleet.Position + FinishedShip.RelativeFleetOffset, Fleet.Direction, true, null);
+                    FinishedShip.AI.OrderMoveTo(Fleet.FinalPosition + FinishedShip.RelativeFleetOffset, Fleet.FinalDirection, true, null);
                 }
             }
 
