@@ -249,7 +249,7 @@ namespace Ship_Game.AI
             pin.Position = ship.Center;
         }
 
-        public void UpdatePin(Ship ship, bool shipinBorders, bool inSensorRadius)
+        public void UpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {           
             Pins.TryGetValue(ship.guid, out Pin pin);
             if (pin == null && inSensorRadius)
@@ -260,7 +260,7 @@ namespace Ship_Game.AI
                     Strength   = ship.GetStrength(),
                     EmpireName = ship.loyalty.data.Traits.Name,
                     Ship       = ship,
-                    InBorders  = shipinBorders
+                    InBorders  = shipInBorders
                 };
             }
             else if (pin != null)
@@ -272,21 +272,26 @@ namespace Ship_Game.AI
                     pin.Strength   = ship.GetStrength();
                     pin.EmpireName = ship.loyalty.data.Traits.Name;
                 }
-                pin.InBorders = shipinBorders;
+                pin.InBorders = shipInBorders;
                 pin.Ship      = ship;
             }
         }
 
-        public bool RemovePin(Ship ship) => (Pins.Remove(ship.guid));
-
-        public void ClearBorders ()
+        public bool RemovePin(Ship ship)
         {
-            foreach (var kv in Pins)
+            return Pins.Remove(ship.guid);
+        }
+
+        public void ClearBorders()
+        {
+            foreach (KeyValuePair<Guid, Pin> kv in Pins)
             {
-                if (kv.Value.InBorders)
-                    if (kv.Value.Ship?.IsSubspaceProjector == true && kv.Value.Ship.Active)
-                        continue;
-                    kv.Value.InBorders = false;
+                Pin pin = kv.Value;
+                if (pin.InBorders)
+                {
+                    if (!pin.Ship.Active || pin.Ship?.IsSubspaceProjector != true)
+                        pin.InBorders = false;
+                }
             }
         }
 

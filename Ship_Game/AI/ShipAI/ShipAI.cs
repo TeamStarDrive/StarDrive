@@ -44,6 +44,23 @@ namespace Ship_Game.AI
             Orbit = new OrbitPlan(this);
         }
 
+        // Resets all important state of the AI
+        public void Reset()
+        {
+            Target = null;
+            ColonizeTarget = null;
+            ResupplyTarget = null;
+            EscortTarget = null;
+            SystemToDefend = null;
+            ExplorationTarget = null;
+
+            ClearOrders();
+            PotentialTargets.Clear();
+            TrackProjectiles.Clear();
+            NearByShips.Clear();
+            FriendliesNearby.Clear();
+        }
+
         public Vector2 GoalTarget
         {
             get
@@ -95,7 +112,7 @@ namespace Ship_Game.AI
                 system.SetExploredBy(Owner.loyalty);
                 return true;
             }
-            ThrustOrWarpToPosCorrected(MovePosition, elapsedTime);
+            ThrustOrWarpToPos(MovePosition, elapsedTime);
             return false;
         }
 
@@ -109,7 +126,7 @@ namespace Ship_Game.AI
 
             if (goal.TargetPlanet.Center.Distance(Owner.Center) >= goal.TargetPlanet.ObjectRadius)
             {
-                ThrustOrWarpToPosCorrected(goal.TargetPlanet.Center, elapsedTime, 200f);
+                ThrustOrWarpToPos(goal.TargetPlanet.Center, elapsedTime, 200f);
                 return;
             }
             ClearOrders(State);
@@ -129,17 +146,6 @@ namespace Ship_Game.AI
             if (HadPO && State != AIState.AwaitingOrders)
                 HadPO = false;
 
-            //if (State == AIState.Resupply)
-            //{
-            //    HasPriorityOrder = true;
-            //    if (Owner.Supply.DoneResupplying(SupplyType.All))
-            //    if (Owner.Ordinance >= Owner.OrdinanceMax && Owner.Health >= Owner.HealthMax) //fbedard: consider health also
-            //    {
-            //        HasPriorityOrder = false;
-            //        State = AIState.AwaitingOrders;
-            //    }
-            //}
-
             ResetStateFlee();
             ScanForThreat(elapsedTime);
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
@@ -148,7 +154,6 @@ namespace Ship_Game.AI
             if (State == AIState.ManualControl)
                 return;
 
-            Owner.isThrusting = false;
             Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 
@@ -262,7 +267,7 @@ namespace Ship_Game.AI
 
             DequeueCurrentOrder();
             if (Owner.fleet != null)
-                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.RelativeFleetOffset, Owner.fleet.Direction, true, null);
+                OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
@@ -270,30 +275,30 @@ namespace Ship_Game.AI
             TriggerDelay -= elapsedTime;
             if (BadGuysNear && !IgnoreCombat)
             {
-                using (OrderQueue.AcquireWriteLock())
+                if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                 {
-                    ShipGoal firstgoal = OrderQueue.PeekFirst;
-                    if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
+                    ShipGoal goal = OrderQueue.PeekFirst;
+                    if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
+                        (goal == null || goal.Plan != Plan.DoCombat
+                                      && goal.Plan != Plan.Bombard
+                                      && goal.Plan != Plan.BoardShip))
                     {
-                        if (Target != null && !HasPriorityOrder && State != AIState.Resupply &&
-                            (OrderQueue.IsEmpty ||
-                             firstgoal != null && firstgoal.Plan != Plan.DoCombat && firstgoal.Plan != Plan.Bombard &&
-                             firstgoal.Plan != Plan.BoardShip))
-                        {
-                            OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
-                        }
-                        if (TriggerDelay < 0)
-                        {
-                            TriggerDelay = elapsedTime * 2;
-                            FireOnTarget();
-                        }
+                        OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
+                    }
+
+                    if (TriggerDelay < 0)
+                    {
+                        TriggerDelay = elapsedTime * 2;
+                        FireOnTarget();
                     }
                 }
             }
             else
             {
-                for (int x = 0; x < Owner.Weapons.Count; x++)
-                    Owner.Weapons[x].ClearFireTarget();
+                int count = Owner.Weapons.Count;
+                Weapon[] items = Owner.Weapons.GetInternalArrayItems();
+                for (int x = 0; x < count; x++)
+                    items[x].ClearFireTarget();
 
                 if (Owner.Carrier.HasHangars && Owner.loyalty != Empire.Universe.player)
                 {
@@ -309,20 +314,20 @@ namespace Ship_Game.AI
                     foreach (ShipModule hangar in Owner.Carrier.AllFighterHangars)
                     {
                         Ship hangarShip = hangar.GetHangarShip();
-                        if (hangarShip == null
-                            || hangarShip.AI.State == AIState.ReturnToHangar
-                            || hangarShip.AI.HasPriorityTarget
-                            || hangarShip.AI.HasPriorityOrder)
-                                continue;
-
-                        if (Owner.FightersLaunched)
-                            hangarShip.DoEscort(Owner);
-                        else
-                            hangarShip.AI.OrderReturnToHangar();
+                        if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
+                            !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
+                        {
+                            if (Owner.FightersLaunched)
+                                hangarShip.DoEscort(Owner);
+                            else
+                                hangarShip.AI.OrderReturnToHangar();
+                        }
                     }
                 }
             }
-            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear) //fbedard: civilian will evade
+
+            // fbedard: civilian ships will evade combat (nice target practice)
+            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian && BadGuysNear)
                 CombatState = CombatState.Evade;
         }
 
@@ -356,75 +361,41 @@ namespace Ship_Game.AI
 
         bool EvaluateNextOrderQueueItem(float elapsedTime)
         {
-            ShipGoal toEvaluate = OrderQueue.PeekFirst;
-            Planet planet = toEvaluate.TargetPlanet;
-            switch (toEvaluate.Plan)
+            ShipGoal goal = OrderQueue.PeekFirst;
+            Planet planet = goal.TargetPlanet;
+            switch (goal.Plan)
             {
                 case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
                     if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }
                     break;
-                case Plan.Scrap: ScrapShip(elapsedTime, toEvaluate); break;
-                case Plan.Bombard: //Modified by Gretman
-                    if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
-                        || planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
-                        || (planet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
-                        <= planet.GetGroundStrength(Owner.loyalty)
-                        || (planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
-                        )
-                        //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
-                    {
-                        //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
-                        //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
-                        //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
-                        //but having even 1 allied troop will cause the bombine action to abort.
-                        ClearOrders();
-                        AddOrbitPlanetGoal(toEvaluate.TargetPlanet); // Stay in Orbit
-                    }
-                    Orbit.Orbit(toEvaluate.TargetPlanet, elapsedTime);
-                    float radius = toEvaluate.TargetPlanet.ObjectRadius + Owner.Radius + 1500;
-                    if (toEvaluate.TargetPlanet.Owner == Owner.loyalty)
-                    {
-                        ClearOrders();
-                        return true;
-                    }
-                    DropBombsAtGoal(toEvaluate, radius);
-                    break;
-                case Plan.Exterminate:
-                    Orbit.Orbit(planet, elapsedTime);
-                    radius = planet.ObjectRadius + Owner.Radius + 1500;
-                    if (planet.Owner == Owner.loyalty || planet.Owner == null)
-                    {
-                        ClearOrders();
-                        OrderFindExterminationTarget();
-                        return true;
-                    }
-                    DropBombsAtGoal(toEvaluate, radius);
-                    break;
-                case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, toEvaluate); break;
-                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, toEvaluate);    break;
-                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, toEvaluate);         break;
-                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, toEvaluate);        break;
-                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);             break;
-                case Plan.Orbit:                    Orbit.Orbit(planet, elapsedTime);                break;
-                case Plan.Colonize:                 Colonize(planet, toEvaluate);                      break;
-                case Plan.Explore:                  DoExplore(elapsedTime);                            break;
-                case Plan.Rebase:                   DoRebase(toEvaluate);                              break;
-                case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                      break;
-                case Plan.DoCombat:                 DoCombat(elapsedTime);                             break;
-                case Plan.DeployStructure:          DoDeploy(toEvaluate);                              break;
-                case Plan.DeployOrbital:            DoDeployOrbital(toEvaluate);                       break;
-                case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, toEvaluate);      break;
-                case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, toEvaluate);     break;
-                case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);                     break;
-                case Plan.TroopToShip:              DoTroopToShip(elapsedTime, toEvaluate);            break;
-                case Plan.BoardShip:                DoBoardShip(elapsedTime);                          break;
-                case Plan.SupplyShip:               DoSupplyShip(elapsedTime);                         break;
-                case Plan.Refit:                    DoRefit(toEvaluate);                               break;
-                case Plan.LandTroop:                DoLandTroop(elapsedTime, toEvaluate);              break;
-                case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, toEvaluate);         break;
-                case Plan.ReturnHome:               DoReturnHome(elapsedTime);                         break;
-                case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                       break;
+                case Plan.Scrap:                    ScrapShip(elapsedTime, goal); break;
+                case Plan.Bombard:           return DoBombard(elapsedTime, goal);
+                case Plan.Exterminate:       return DoExterminate(elapsedTime, goal);
+                case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, goal); break;
+                case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, goal);    break;
+                case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, goal);         break;
+                case Plan.MakeFinalApproach:        MakeFinalApproach(elapsedTime, goal);        break;
+                case Plan.RotateInlineWithVelocity: RotateInLineWithVelocity(elapsedTime);       break;
+                case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, elapsedTime); break;
+                case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
+                case Plan.Explore:                  DoExplore(elapsedTime);                      break;
+                case Plan.Rebase:                   DoRebase(goal);                              break;
+                case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                break;
+                case Plan.DoCombat:                 DoCombat(elapsedTime);                       break;
+                case Plan.DeployStructure:          DoDeploy(goal);                              break;
+                case Plan.DeployOrbital:            DoDeployOrbital(goal);                       break;
+                case Plan.PickupGoods:              PickupGoods.Execute(elapsedTime, goal);      break;
+                case Plan.DropOffGoods:             DropOffGoods.Execute(elapsedTime, goal);     break;
+                case Plan.ReturnToHangar:           DoReturnToHangar(elapsedTime);               break;
+                case Plan.TroopToShip:              DoTroopToShip(elapsedTime, goal);            break;
+                case Plan.BoardShip:                DoBoardShip(elapsedTime);                    break;
+                case Plan.SupplyShip:               DoSupplyShip(elapsedTime);                   break;
+                case Plan.Refit:                    DoRefit(goal);                               break;
+                case Plan.LandTroop:                DoLandTroop(elapsedTime, goal);              break;
+                case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, goal);         break;
+                case Plan.ReturnHome:               DoReturnHome(elapsedTime);                   break;
+                case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
             }
 
             return false;
@@ -457,17 +428,16 @@ namespace Ship_Game.AI
             else
             {
                 HasPriorityOrder = false;
-                using (Owner.fleet.Ships.AcquireReadLock())
-                    IdleFleetAI(elapsedTime);
+                IdleFleetAI(elapsedTime);
             }
         }
 
         bool DoNearFleetOffset(float elapsedTime)
         {
-            if (Owner.Center.InRadius(Owner.fleet.Position + Owner.FleetOffset, 75))
+            if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
             {
                 ReverseThrustUntilStopped(elapsedTime);
-                RotateToDirection(Owner.fleet.Direction, elapsedTime, 0.02f);
+                RotateToDirection(Owner.fleet.FinalDirection, elapsedTime, 0.02f);
                 return true;
             }
             return false;
@@ -475,15 +445,17 @@ namespace Ship_Game.AI
 
         bool ShouldReturnToFleet()
         {
-            //separated for clarity as this section can be very confusing.
-            //we might need a toggle for the player action here.
+            // separated for clarity as this section can be very confusing.
+            // we might need a toggle for the player action here.
             if (State == AIState.FormationWarp)
                 return true;
             if (HasPriorityOrder || HadPO)
                 return false;
             if (BadGuysNear)
                 return false;
-            if (State == AIState.Orbit || State == AIState.AwaitingOffenseOrders || State == AIState.AwaitingOrders)
+            if (State == AIState.Orbit ||
+                State == AIState.AwaitingOffenseOrders ||
+                State == AIState.AwaitingOrders)
                 return true;
             return false;
         }
@@ -495,23 +467,30 @@ namespace Ship_Game.AI
 
             if (ShouldReturnToFleet())
             {
-                //check if inside minimum warp jump range. If not do a full warp process.
-                if (Owner.fleet.Position.InRadius(Owner.Center, 7500))
-                    ThrustOrWarpToPosCorrected(Owner.fleet.Position + Owner.FleetOffset, elapsedTime);
+                // check if inside minimum warp jump range. If not do a full warp process.
+                if (Owner.fleet.FinalPosition.InRadius(Owner.Center, 7500))
+                {
+                    HasPriorityOrder = true;
+                    State = AIState.AwaitingOrders;
+                    AddShipGoal(Plan.MakeFinalApproach,
+                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection);
+                }
                 else
+                {
                     WarpToFleet();
+                }
             }
         }
 
         void WarpToFleet()
         {
             ClearWayPoints();
-            WayPoints.Enqueue(Owner.fleet.Position + Owner.FleetOffset);
+            WayPoints.Enqueue(Owner.fleet.GetFinalPos(Owner));
             State = AIState.AwaitingOrders;
-            if (Owner.fleet?.GoalStack.Count > 0)
-                WayPoints.Enqueue(Owner.fleet.GoalStack.Peek().MovePosition + Owner.FleetOffset);
+            if (Owner.fleet?.HasFleetGoal == true)
+                WayPoints.Enqueue(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset);
             else
-                OrderMoveTowardsPosition(Owner.fleet.Position + Owner.FleetOffset, Owner.fleet.Direction, true, null);
+                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
         }
 
         public bool HasTradeGoal(Goods goods)
@@ -544,19 +523,10 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public bool ClearOrderIfCombat() => ClearOrdersConditional(Plan.DoCombat);
-
-        public bool ClearOrdersConditional(Plan plan)
+        // @note This is only called via user interaction, so not performance critical
+        public bool ClearOrdersIfCombat()
         {
-            bool clearOrders = false;
-            foreach (ShipGoal order in OrderQueue)
-            {
-                if (order.Plan == plan)
-                {
-                    clearOrders = true;
-                    break;
-                }
-            }
+            bool clearOrders = OrderQueue.Any(goal => goal.Plan == Plan.DoCombat);
             if (clearOrders)
                 ClearOrders();
             return clearOrders;
@@ -660,14 +630,14 @@ namespace Ship_Game.AI
         {
             if (Owner.loyalty == EmpireManager.Player &&
                 (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f 
-				|| State == AIState.Bombard 
-				|| State == AIState.AssaultPlanet 
-				|| State == AIState.BombardTroops 
-				|| State == AIState.Rebase 
-				|| State == AIState.Scrap 
-				|| State == AIState.Resupply 
-				|| State == AIState.Refit 
-				|| State == AIState.FormationWarp))
+                || State == AIState.Bombard 
+                || State == AIState.AssaultPlanet 
+                || State == AIState.BombardTroops 
+                || State == AIState.Rebase 
+                || State == AIState.Scrap 
+                || State == AIState.Resupply 
+                || State == AIState.Refit 
+                || State == AIState.FormationWarp))
             {
                 HasPriorityOrder = true;
                 HadPO = false;

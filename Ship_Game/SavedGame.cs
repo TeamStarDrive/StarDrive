@@ -160,9 +160,9 @@ namespace Ship_Game
                         IsCoreFleet = fleet.Value.IsCoreFleet,
                         TaskStep    = fleet.Value.TaskStep,
                         Key         = fleet.Key,
-                        facing      = fleet.Value.Direction.ToRadians(), // @note Save game compatibility uses radians
+                        facing      = fleet.Value.FinalDirection.ToRadians(), // @note Save game compatibility uses radians
                         FleetGuid   = fleet.Value.Guid,
-                        Position    = fleet.Value.Position,
+                        Position    = fleet.Value.FinalPosition,
                         ShipsInFleet = new Array<FleetShipSave>()
                     };                    
                     foreach (FleetDataNode node in fleet.Value.DataNodes)
@@ -228,7 +228,9 @@ namespace Ship_Game
                         GoalGuid      = g.guid,
                         GoalName      = g.UID,
                         ShipLevel     = g.ShipLevel,
-                        VanityName    = g.VanityName
+                        VanityName    = g.VanityName,
+                        TetherTarget  = g.TetherTarget,
+                        TetherOffset  = g.TetherOffset
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
@@ -583,6 +585,8 @@ namespace Ship_Game
             [Serialize(11)] public Guid OldShipGuid;
             [Serialize(12)] public string VanityName;
             [Serialize(13)] public int ShipLevel;
+            [Serialize(14)] public Guid TetherTarget;
+            [Serialize(15)] public Vector2 TetherOffset;
         }
 
         public class GSAISAVE

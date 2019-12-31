@@ -46,6 +46,8 @@ namespace Ship_Game
         public GameScreen Current => GameScreens[GameScreens.Count-1];
         public IReadOnlyList<GameScreen> Screens => GameScreens;
 
+        public Vector2 ScreenCenter => GameBase.ScreenCenter;
+
         public static ScreenManager Instance { get; private set; }
         public static GameScreen CurrentScreen => Instance.Current;
 
@@ -240,22 +242,23 @@ namespace Ship_Game
         public void Draw()
         {
             SpriteBatch batch = SpriteBatch;
-            try
+            for (int i = 0; i < GameScreens.Count; ++i)
             {
-                for (int i = 0; i < GameScreens.Count; ++i)
+                GameScreen screen = GameScreens[i];
+                if (screen.Visible)
                 {
-                    if (GameScreens[i].Visible)
+                    try
                     {
-                        GameScreens[i].Draw(batch);
+                        screen.Draw(batch);
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error(e, $"Draw Screen failed: {screen.GetType().GenericName()}");
+                        try { batch.End(); } catch { }
                     }
                 }
 
                 DrawToolTip(batch);
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "ScreenManager.Draw Crashed");
-                try { batch.End(); } catch { }
             }
         }
 

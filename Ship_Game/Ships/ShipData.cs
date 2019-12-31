@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         struct CThrusterZone
         {
-            public readonly float X, Y, Scale;
+            public readonly float X, Y, Z, Scale;
         }
 
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -227,7 +227,6 @@ namespace Ship_Game.Ships
                     slot.Position              = new Vector2(msd->PosX, msd->PosY);
                     // @note Interning the strings saves us roughly 70MB of RAM across all UID-s
                     slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
-                    slot.HangarshipGuid        = msd->HangarshipGuid.Empty ? Guid.Empty : new Guid(msd->HangarshipGuid.AsString);
                     slot.Health                = msd->Health;
                     slot.ShieldPower           = msd->ShieldPower;
                     slot.ShieldUpChance        = msd->ShieldUpChance;
@@ -253,7 +252,7 @@ namespace Ship_Game.Ships
                     CThrusterZone* zone = &s->Thrusters[i];
                     ship.ThrusterList.Add(new ShipToolScreen.ThrusterZone
                     {
-                        Position = new Vector2(zone->X, zone->Y),
+                        Position = new Vector3(zone->X, zone->Y, zone->Z),
                         Scale = zone->Scale
                     });
                 }
@@ -358,6 +357,55 @@ namespace Ship_Game.Ships
             cruiser,
             capital,
             prototype
+        }
+        public enum RoleType
+        {
+            Orbital,
+            EmpireSupport,
+            Warship,
+            WwarSupport,
+            Troop,
+            NotApplicable
+        }
+
+        public static RoleType ShipRoleToRoleType(RoleName role)
+        {
+            switch (role)
+            {
+                case RoleName.disabled:
+                    return RoleType.NotApplicable;
+                case RoleName.shipyard:
+                case RoleName.construction:
+                case RoleName.ssp:
+                case RoleName.colony:
+                case RoleName.freighter:
+                    return RoleType.EmpireSupport;
+                case RoleName.platform:
+                case RoleName.station:
+                    return RoleType.Orbital;
+                case RoleName.supply:
+                case RoleName.scout:
+                case RoleName.support:
+                case RoleName.bomber:
+                    return RoleType.WwarSupport;
+                case RoleName.troop:
+                case RoleName.troopShip:
+                    return RoleType.Troop;
+
+                case RoleName.carrier:
+                case RoleName.fighter:
+                case RoleName.gunboat:
+                case RoleName.drone:
+                case RoleName.corvette:
+                case RoleName.frigate:
+                case RoleName.destroyer:
+                case RoleName.cruiser:
+                case RoleName.capital:
+                case RoleName.prototype:
+                    return RoleType.Warship;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(role), role, null);
+            }
         }
     }
 }

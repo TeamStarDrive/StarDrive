@@ -288,7 +288,7 @@ namespace Ship_Game
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
                     from empire in Sortlist
-                    orderby empire.currentMilitaryStrength descending
+                    orderby empire.CurrentMilitaryStrength descending
                     select empire;
                 rank = 1;
                 foreach (Empire e in MilSorted)
@@ -452,7 +452,7 @@ namespace Ship_Game
                 textCursor.Y = textCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
                 IOrderedEnumerable<Empire> MilSorted = 
                     from empire in Sortlist
-                    orderby empire.currentMilitaryStrength descending
+                    orderby empire.CurrentMilitaryStrength descending
                     select empire;
                 rank = 1;
                 foreach (Empire e in MilSorted)

@@ -265,14 +265,6 @@ namespace Ship_Game
             return new Vector2(dx / len, dy / len);
         }
 
-        public static Vector2 Acceleration(this Vector2 startVel, Vector2 endVel, float deltaTime)
-        {
-            Vector2 deltaV = (endVel - startVel);
-            if (deltaV.X.AlmostEqual(0f, 0.001f) && deltaV.Y.AlmostEqual(0f, 0.001f))
-                return Vector2.Zero;
-            return deltaV / deltaTime;
-        }
-
         public static Vector2 PredictImpact(this Ship ourShip, GameplayObject target)
         {
             return new ImpactPredictor(ourShip, target)
@@ -495,11 +487,6 @@ namespace Ship_Game
         public static Vector2 OffsetTowards(this Vector2 center, Vector2 target, float distance)
         {
             return center + center.DirectionToTarget(target) * distance;
-        }
-
-        public static Vector2 RandomOffset(this Vector2 center, float distance)
-        {
-            return center + RandomMath.RandomDirection() * distance;
         }
 
         // Gives a random point from a vector within a specified distance

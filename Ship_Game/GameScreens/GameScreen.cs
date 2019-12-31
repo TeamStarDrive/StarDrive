@@ -422,6 +422,12 @@ namespace Ship_Game
             sizeOnScreen = new Vector2(Math.Abs(size.X), Math.Abs(size.Y));
         }
 
+        public Rectangle ProjectToScreenCoords(Vector2 posInWorld, float sizeInWorld)
+        {
+            ProjectToScreenCoords(posInWorld, 0f, sizeInWorld, out Vector2 pos, out float size);
+            return new Rectangle((int)pos.X, (int)pos.Y, (int)size, (int)size);
+        }
+
         public float ProjectToScreenSize(float sizeInWorld)
         {
             Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
@@ -564,21 +570,42 @@ namespace Ship_Game
 
         public void DrawStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
         {
-            Vector2 screenPos = ProjectToScreenPosition(posInWorld);
+            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
+            {
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
+                    screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            }
+        }
+
+        public void DrawShadowStringProjected(Vector2 posInWorld, float rotation, float textScale, Color textColor, string text)
+        {
+            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
+            Vector2 size = Fonts.Arial12Bold.MeasureString(text);
+            if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
+            {
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
+                    screenPos+new Vector2(2), Color.Black, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text,
+                    screenPos, textColor, rotation, size * 0.5f, textScale, SpriteEffects.None, 1f);
+            }
         }
 
         public void DrawStringProjected(Vector2 posInWorld, float sizeInWorld, Color textColor, string text)
         {
-            Vector2 screenPos = ProjectToScreenPosition(posInWorld);
-            Vector2 screenPos2 = ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
+            Vector2 screenPos = Empire.Universe.ProjectToScreenPosition(posInWorld);
+            Vector2 screenPos2 = Empire.Universe.ProjectToScreenPosition(posInWorld + new Vector2(sizeInWorld, 0f));
 
             float widthOnScreen = Math.Abs(screenPos2.X - screenPos.X);
             Vector2 size = Fonts.Arial11Bold.MeasureString(text);
             float scale = widthOnScreen / size.X;
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text, screenPos, textColor, 0f, size * 0.5f, scale, SpriteEffects.None, 1f);
+            if (Primitives2D.IsIntersectingScreenPosSize(screenPos, size))
+            {
+                ScreenManager.SpriteBatch.DrawString(Fonts.Arial11Bold, text,
+                    screenPos, textColor, 0f, size * 0.5f, scale, SpriteEffects.None, 1f);
+            }
         }
 
     }

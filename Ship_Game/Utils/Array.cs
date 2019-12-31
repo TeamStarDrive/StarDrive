@@ -755,6 +755,27 @@ namespace Ship_Game
             return false;
         }
 
+        public static int CountRef<T>(this Array<T> list, T item) where T : class
+        {
+            int count = list.Count;
+            if (count == 0)
+                return 0;
+
+            int n = 0;
+            T[] items = list.GetInternalArrayItems();
+            if (item == null)
+            {
+                for (int i = 0; i < count; ++i)
+                    if (items[i] == null) ++n;
+            }
+            else
+            {
+                for (int i = 0; i < count; ++i)
+                    if (items[i] == item) ++n;
+            }
+            return n;
+        }
+
         public static void AddUniqueRef<T>(this Array<T> list, T item) where T : class
         {
             if (!list.ContainsRef(item))
@@ -786,10 +807,12 @@ namespace Ship_Game
             return -1;
         }
 
-        public static void RemoveRef<T>(this Array<T> list, T item) where T : class
+        public static bool RemoveRef<T>(this Array<T> list, T item) where T : class
         {
             int index = list.IndexOfRef(item);
-            if (index != -1) list.RemoveAtSwapLast(index);
+            if (index == -1) return false;
+            list.RemoveAtSwapLast(index);
+            return true;
         }
 
         public static int RemoveDuplicateRefs<T>(this Array<T> list) where T : class

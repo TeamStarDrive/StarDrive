@@ -11,9 +11,13 @@ namespace Ship_Game
     public interface ITaskResult
     {
         bool IsComplete { get; }
+        Exception Error { get; }
         void SetResult(object value, Exception e);
-        bool Wait(int millisecondTimeout = -1);
-        void CancelAndWait(int millisecondTimeout = -1);
+        // Wait until the task is complete, use -1 to wait forever
+        bool Wait(int millisecondTimeout);
+        // Wait until the task is complete, Exceptions are not rethrown, @see Error
+        bool WaitNoThrow(int millisecondTimeout);
+        void CancelAndWait(int millisecondTimeout);
     }
 
     public class TaskResult : ITaskResult
@@ -33,6 +37,7 @@ namespace Ship_Game
 
         // Wait until task has finished
         // NOTE: Throws any unhandled exceptions caught from the task
+        // @param millisecondTimeout -1 to wait forever
         // @return TRUE if task was completed
         public bool Wait(int millisecondTimeout = -1)
         {
@@ -40,6 +45,14 @@ namespace Ship_Game
                 Finished.WaitOne(millisecondTimeout);
             if (Error != null)
                 throw Error;
+            return IsComplete;
+        }
+        
+        // Wait until the task is complete, Exceptions are not rethrown, @see Error
+        public bool WaitNoThrow(int millisecondTimeout = -1)
+        {
+            if (!IsComplete)
+                Finished.WaitOne(millisecondTimeout);
             return IsComplete;
         }
 
@@ -80,6 +93,14 @@ namespace Ship_Game
             return IsComplete;
         }
         
+        // Wait until the task is complete, Exceptions are not rethrown, @see Error
+        public bool WaitNoThrow(int millisecondTimeout = -1)
+        {
+            if (!IsComplete)
+                Finished.WaitOne(millisecondTimeout);
+            return IsComplete;
+        }
+        
         // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
@@ -100,7 +121,6 @@ namespace Ship_Game
         RangeAction RangeTask;
         int LoopStart, LoopEnd;
         Stopwatch IdleTimer;
-        Exception Error;
         volatile bool Disposed;
         readonly string Name;
 
@@ -124,13 +144,14 @@ namespace Ship_Game
                     Thread.Start();
             }
         }
-        public void Start(int start, int end, RangeAction taskBody)
+        public void Start(int start, int end, RangeAction taskBody, ITaskResult result)
         {
             if (HasTasksToExecute())
                 throw new InvalidOperationException("ParallelTask is still running");
             RangeTask = taskBody;
             LoopStart = start;
             LoopEnd   = end;
+            Result    = result;
             TriggerTaskStart();
         }
         public void Start(Action taskBody, ITaskResult result)
@@ -138,7 +159,7 @@ namespace Ship_Game
             if (HasTasksToExecute())
                 throw new InvalidOperationException("ParallelTask is still running");
             VoidTask = taskBody;
-            Result = result;
+            Result   = result;
             TriggerTaskStart();
         }
         public void Start(Func<object> taskBody, ITaskResult result)
@@ -146,23 +167,8 @@ namespace Ship_Game
             if (HasTasksToExecute())
                 throw new InvalidOperationException("ParallelTask is still running");
             ResultTask = taskBody;
-            Result = result;
+            Result     = result;
             TriggerTaskStart();
-        }
-        public Exception Wait()
-        {
-            while (HasTasksToExecute() && Thread != null)
-            {
-                if (EvtEndTask.WaitOne(1000))
-                    continue;
-                if (Thread == null)
-                    Log.Warning("ParallelTask wait timed out after 1000ms but the task was already killed. This is a bug in ParallelTask kill.");
-            }
-            if (Error == null)
-                return null;
-            Exception ex = Error; // propagate captured exceptions
-            Error = null;
-            return ex;
         }
         void SetResult(object value, Exception e)
         {
@@ -195,10 +201,10 @@ namespace Ship_Game
 
                 try
                 {
-                    Error = null;
                     if (RangeTask != null)
                     {
                         RangeTask(LoopStart, LoopEnd);
+                        SetResult(null, null);
                     }
                     else if (VoidTask != null)
                     {
@@ -213,9 +219,7 @@ namespace Ship_Game
                 }
                 catch (Exception ex)
                 {
-                    if (RangeTask == null) // don't log ex for RangeTasks
-                        Log.Warning($"{Name} caught unhandled exception: {ex}");
-                    Error = ex;
+                    Log.Warning($"{Name} caught unhandled exception: {ex}");
                     SetResult(null, ex);
                 }
                 finally
@@ -252,7 +256,6 @@ namespace Ship_Game
             EvtNewTask = null;
             EvtEndTask = null;
             Thread     = null;
-            Error      = null;
         }
         ~ParallelTask() { Destructor(); }
     }
@@ -277,9 +280,9 @@ namespace Ship_Game
 
         // NOTE: This must be called in a `lock (Pool)` context,
         //       Because there is a small race-condition between getting idle task and starting it
-        static ParallelTask NextTask()
+        static ParallelTask FindOrSpawnTask(ref int poolIndex)
         {
-            for (int poolIndex = 0; poolIndex < Pool.Count; ++poolIndex)
+            for (; poolIndex < Pool.Count; ++poolIndex)
             {
                 ParallelTask task = Pool[poolIndex];
                 if (!task.HasTasksToExecute())
@@ -288,6 +291,17 @@ namespace Ship_Game
             var newTask = new ParallelTask(Pool.Count);
             Pool.Add(newTask);
             return newTask;
+        }
+
+        static TaskResult StartRangeTask(ref int poolIndex, int start, int end,  RangeAction body)
+        {
+            var result = new TaskResult();
+            lock (Pool)
+            {
+                ParallelTask task = FindOrSpawnTask(ref poolIndex);
+                task.Start(start, end, body, result);
+            }
+            return result;
         }
 
         static int PhysicalCoreCount;
@@ -370,33 +384,36 @@ namespace Ship_Game
 
             int range = rangeEnd - rangeStart;
             int cores = Math.Min(range, MaxParallelism);
-            if (cores == 1) // this can happen if the target CPU only has 1 core, or if the list has 1 item
+            int len = range / cores;
+
+            // this can happen if the target CPU only has 1 core, or if the list has 1 item
+            if (cores == 1)
             {
                 body(rangeStart, rangeEnd);
                 return;
             }
 
-            var tasks = new ParallelTask[cores];
+            var results = new TaskResult[cores];
+
+            int poolIndex = 0;
             int start = rangeStart;
             int step = range / cores;
             lock (Pool)
             {
                 for (int i = 0; i < cores; ++i, start += step)
                 {
-                    int end = (i == cores - 1) ? rangeEnd : start + step;
-
-                    ParallelTask task = NextTask();
-                    tasks[i] = task;
-                    task.Start(start, end, body);
+                    int end = (i == cores - 1) ? rangeEnd : start + len;
+                    results[i] = StartRangeTask(ref poolIndex, start, end, body);
                 }
             }
 
             Exception ex = null; // only store a single exception
-            for (int i = 0; i < tasks.Length; ++i)
+            for (int i = 0; i < results.Length; ++i)
             {
-                ParallelTask task = tasks[i];
-                Exception e = task.Wait();
-                if (e != null && ex == null) ex = e;
+                TaskResult result = results[i];
+                result.WaitNoThrow();
+                if (ex == null && result.Error != null)
+                    ex = result.Error;
             }
 
             // from the first ParallelTask that threw an exception:
@@ -420,10 +437,12 @@ namespace Ship_Game
 
         public static TaskResult Run(Action action)
         {
+            int poolIndex = 0;
             var result = new TaskResult();
             lock (Pool)
             {
-                NextTask().Start(action, result);
+                ParallelTask task = FindOrSpawnTask(ref poolIndex);
+                task.Start(action, result);
             }
             return result;
         }
@@ -440,10 +459,16 @@ namespace Ship_Game
 
         public static TaskResult<T> Run<T>(Func<T> asyncFunc)
         {
+            object AsyncFunc()
+            {
+                return asyncFunc();
+            }
+            int poolIndex = 0;
             var result = new TaskResult<T>();
             lock (Pool)
             {
-                NextTask().Start(() => asyncFunc(), result);
+                ParallelTask task = FindOrSpawnTask(ref poolIndex);
+                task.Start(AsyncFunc, result);
             }
             return result;
         }

@@ -8,56 +8,30 @@ namespace Ship_Game.Ships
     {
         public class ProjectileCollection<T> : Array<T> where T : Projectile
         {
-            readonly ReaderWriterLockSlim Locker = new ReaderWriterLockSlim();
-
-            public ScopedReadLock AcquireReadLock() => Locker.AcquireReadLock();
-
-            public new void Add(T projectile)
-            {
-                Locker.EnterWriteLock();
-                base.Add(projectile);
-                Locker.ExitWriteLock();
-            }
-
-            public new T[] ToArray()
-            {
-                Locker.EnterReadLock();
-                var copy = base.ToArray();
-                Locker.ExitReadLock();
-                return copy;
-            }
-
             void RemoveInActive()
             {
-                using (Locker.AcquireWriteLock())
-                {
-                    this.RemoveInActiveObjects();
-                }
+                for (int i = 0; i < Count; ++i)
+                    if (!Items[i].Active)
+                        RemoveAtSwapLast(i);
             }
 
             public void Update(float elapsedTime)
             {
-                using (Locker.AcquireReadLock())
+                for (int i = 0; i < Count; ++i)
                 {
-                    for (int i = 0; i < Count; ++i)
-                    {
-                        Projectile p = this[i];
-                        if (p.Active) p.Update(elapsedTime);
-                    }
+                    Projectile p = Items[i];
+                    if (p.Active) p.Update(elapsedTime);
                 }
                 RemoveInActive();
             }
 
             public void KillActive(bool force, bool cleanup)
             {
-                using (Locker.AcquireReadLock())
+                for (int i = 0; i < Count; ++i)
                 {
-                    for (int i = 0; i < Count; ++i)
-                    {
-                        Projectile p = this[i];
-                        if (p.Active && (p.DieNextFrame || force))
-                            p.Die(p, cleanup);
-                    }
+                    Projectile p = Items[i];
+                    if (p.Active && (p.DieNextFrame || force))
+                        p.Die(p, cleanup);
                 }
                 RemoveInActive();
             }
@@ -81,13 +55,10 @@ namespace Ship_Game.Ships
 
         public void DrawProjectiles(SpriteBatch batch, GameScreen screen)
         {
-            using (Projectiles.AcquireReadLock())
+            for (int i = 0; i < Projectiles.Count; ++i)
             {
-                for (int i = 0; i < Projectiles.Count; ++i)
-                {
-                    Projectile p = Projectiles[i];
-                    if (p.Active) p.Draw(batch, screen);
-                }
+                Projectile p = Projectiles[i];
+                if (p != null && p.Active) p.Draw(batch, screen);
             }
         }
 
@@ -108,26 +79,21 @@ namespace Ship_Game.Ships
 
         public void DrawDroneBeams(UniverseScreen screen)
         {
-            using (Projectiles.AcquireReadLock())
+            for (int i = 0; i < Projectiles.Count; ++i)
             {
-                for (int i = 0; i < Projectiles.Count; ++i)
-                {
-                    Projectile p = Projectiles[i];
-                    if (p.Active && p.Weapon?.IsRepairDrone != false)
-                        p.DroneAI?.DrawBeams(screen);
-                }
+                Projectile p = Projectiles[i];
+                if (p != null && p.Active && p.Weapon?.IsRepairDrone != false)
+                    p.DroneAI?.DrawBeams(screen);
             }
         }
 
-        public void DrawBeams(UniverseScreen screen)
+        public void DrawBeams(GameScreen screen)
         {
-            using (Beams.AcquireReadLock())
+            for (int i = 0; i < Beams.Count; ++i)
             {
-                for (int i = 0; i < Beams.Count; ++i)
-                {
-                    Beam beam = Beams[i];
-                    if (beam.Active) beam.Draw(screen);
-                }
+                Beam beam = Beams[i];
+                if (beam != null && beam.Active)
+                    beam.Draw(screen);
             }
         }
 

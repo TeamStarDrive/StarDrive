@@ -59,7 +59,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 bomb.PlayCombatScreenEffects(P, orbitalDrop);
                 if (Population <= 0f)
                 {
-                    P.WipeOutColony();
+                    P.WipeOutColony(bomb.Owner);
                     return;
                 }
 

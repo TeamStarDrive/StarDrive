@@ -101,7 +101,7 @@ namespace Ship_Game
                 if (preDefinedPop > 0)
                     BasePopPerTile = (int)(preDefinedPop * 1000 / numHabitableTiles);
                 else
-                    BasePopPerTile = (int)(type.PopPerTile.Generate() * scale);
+                    BasePopPerTile = ((int)(type.PopPerTile.Generate() * scale)).RoundUpToMultipleOf(10);
 
                 BaseFertility    = type.BaseFertility.Generate().Clamped(type.MinBaseFertility, 100.0f);
                 BaseMaxFertility = BaseFertility;
@@ -227,12 +227,12 @@ namespace Ship_Game
                 return; // No Terraformers or No owner (Terraformers cannot continue working)
             }
 
-            // Remove negative effect buildings
-            if (ScrapNegativeEnvBuilding())
-                return;
-
             // First, make un-habitable tiles habitable
             if (TerraformTiles()) 
+                return;
+
+            // Remove negative effect buildings
+            if (ScrapNegativeEnvBuilding())
                 return;
 
             // Then, if all tiles are habitable, proceed to Planet Terraform
@@ -261,7 +261,7 @@ namespace Ship_Game
 
         private bool TerraformPlanet()
         {
-            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformTargetFertility))
+            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformMaxFertilityTarget))
                 return false;
 
             TerraformPoints += TerraformToAdd;
@@ -283,6 +283,13 @@ namespace Ship_Game
             if (negativeEnvBuildings.Length > 0)
             {
                 ScrapBuilding(negativeEnvBuildings[0]);
+                if (Owner.isPlayer) // Notify player that the planet a harmful building was removed as part of terraforming
+                {
+                    string messageText = negativeEnvBuildings[0].Name + Localizer.Token(1930);
+                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                        Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
+                }
+
                 return true;
             }
 
@@ -323,7 +330,7 @@ namespace Ship_Game
             if (Owner.NonCybernetic)
             {
                 float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
-                BaseMaxFertility              = Math.Max(TerraformTargetFertility, BaseMaxFertility);
+                BaseMaxFertility              = Math.Max(TerraformMaxFertilityTarget, BaseMaxFertility);
                 BaseFertility                 = fertilityAfterTerraform;
             }
             else
@@ -339,6 +346,8 @@ namespace Ship_Game
             if (Owner.isPlayer) // Notify player that the planet was terraformed
                 Empire.Universe.NotificationManager.AddRandomEventNotification(
                     Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
+            else // re-assess colony type after terraform, this might change for the AI
+                colonyType = Owner.AssessColonyNeeds(this);
         }
 
         private void RemoveTerraformers()

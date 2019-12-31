@@ -71,10 +71,9 @@ namespace Ship_Game
         {
             foreach (FleetDataNode node in Data)
             {
-                float angle = Math.Abs(Vector2.Zero.AngleToTarget(node.FleetOffset)) + MathHelper.ToDegrees(facing);
-                angle = angle.ToRadians();
+                float radians = facing + Vector2.Zero.RadiansToTarget(node.FleetOffset);
                 float distance = node.FleetOffset.Length();
-                node.FleetOffset = Vector2.Zero.PointFromRadians(angle, distance);
+                node.FleetOffset = Vector2.Zero.PointFromRadians(radians, distance);
             }
         }
     }

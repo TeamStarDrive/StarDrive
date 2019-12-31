@@ -206,13 +206,12 @@ namespace Ship_Game
             {
                 for (int i = 0; i < ClickPlanetList.Count; ++i)
                 {
-                    ClickablePlanets local_12 = ClickPlanetList[i];
-                    if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
-                            local_12.ScreenPos) <= local_12.Radius)
+                    ClickablePlanets planet = ClickPlanetList[i];
+                    if (Input.CursorPosition.InRadius(planet.ScreenPos, planet.Radius))
                     {
                         flag1 = true;
                         TooltipTimer -= 0.01666667f;
-                        tippedPlanet = local_12;
+                        tippedPlanet = planet;
                     }
                 }
             }
@@ -224,27 +223,27 @@ namespace Ship_Game
                 TooltipTimer = 0.5f;
             }
 
-            bool flag2 = false;
+            bool clickedOnSystem = false;
             if (viewState > UnivScreenState.SectorView)
             {
                 lock (GlobalStats.ClickableSystemsLock)
                 {
-                    for (int local_15 = 0; local_15 < ClickableSystems.Count; ++local_15)
+                    for (int i = 0; i < ClickableSystems.Count; ++i)
                     {
-                        ClickableSystem local_16 = ClickableSystems[local_15];
-                        if (Vector2.Distance(new Vector2(Mouse.GetState().X, Mouse.GetState().Y),
-                                local_16.ScreenPos) <= local_16.Radius)
+                        ClickableSystem system = ClickableSystems[i];
+                        if (Input.CursorPosition.InRadius(system.ScreenPos, system.Radius))
                         {
                             sTooltipTimer -= 0.01666667f;
-                            tippedSystem = local_16;
-                            flag2 = true;
+                            tippedSystem = system;
+                            clickedOnSystem = true;
                         }
                     }
                 }
                 if (sTooltipTimer <= 0f)
                     sTooltipTimer = 0.5f;
             }
-            if (!flag2)
+
+            if (!clickedOnSystem)
                 ShowingSysTooltip = false;
 
             JunkList.ApplyPendingRemovals();
@@ -296,12 +295,6 @@ namespace Ship_Game
             }
         }
 
-        public void RemoveEmpireFromAllShipsBorderList(Empire empire)
-        {
-            foreach (Ship ship in MasterShipList)
-                ship.BorderCheck.Remove(empire); // added by gremlin reset border stats.
-        }        
-
         void UpdateShipsAndFleets(float elapsedTime)
         {
             perfavg4.Start();
@@ -332,18 +325,11 @@ namespace Ship_Game
                 }
             }
 
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
-                foreach (var kv in EmpireManager.Empires[i].GetFleetsDict())
+                foreach (KeyValuePair<int, Fleet> kv in EmpireManager.Empires[i].GetFleetsDict())
                 {
-                    var fleet = kv.Value;
-                    if (fleet.Ships.Count <= 0)
-                        continue;
-                    using (fleet.Ships.AcquireReadLock())
-                    {
-                        fleet.CalculateDistanceToMove();
-                        fleet.SetSpeed();
-                    }
+                    kv.Value.SetSpeed();
                 }
             }
 
@@ -421,13 +407,12 @@ namespace Ship_Game
             bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
             if (IsActive)
             {
-                for (int i = 0; i < EmpireManager.Empires.Count; i++)
+                for (int i = 0; i < EmpireManager.NumEmpires; i++)
                 {
                     Empire empire = EmpireManager.Empires[i];
 
                     empire.ResetForcePool();
                     empire.AddShipsToForcePoolFromShipsToAdd();
-
                     rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }
             }
@@ -441,7 +426,7 @@ namespace Ship_Game
                 return true;
 
             EmpireUpdatePerf.Start();
-            for (var i = 0; i < EmpireManager.Empires.Count; i++)
+            for (var i = 0; i < EmpireManager.NumEmpires; i++)
             {
                 Empire empire = EmpireManager.Empires[i];
                 empire.Update(elapsedTime);
@@ -510,7 +495,7 @@ namespace Ship_Game
                 }
             }
 
-            for (int i = 0; i < EmpireManager.Empires.Count; i++)
+            for (int i = 0; i < EmpireManager.NumEmpires; i++)
             {
                 var empire = EmpireManager.Empires[i];
 

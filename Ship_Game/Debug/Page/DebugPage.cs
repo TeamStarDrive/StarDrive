@@ -8,6 +8,7 @@
         public DebugPage(GameScreen parent, DebugModes mode) : base(parent.Rect)
         {
             Mode = mode;
+            Name = mode.ToString();
         }
         
         void ShowDebugGameInfo(int column, DebugTextBlock block, float x, float y)

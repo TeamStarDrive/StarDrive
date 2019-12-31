@@ -1695,7 +1695,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire.After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, remove buildings which are harmful to the environment, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
     </Token>
     <Token>
       <Index>463</Index>
@@ -4687,6 +4687,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1916</Index>
+      <Text>Governor Budget</Text>
+    </Token>
+    <Token>
+      <Index>1917</Index>
+      <Text>Treasury Goal</Text>
+    </Token>
+    <Token>
+      <Index>1918</Index>
+      <Text>Treasury Goal is the target treasury amount for the empire. The various governors use this value to set their budgets. Warning: This is a percentage of a 20 year projection. This can cause massive empire overspending. </Text>
+    </Token>
+    <Token>
       <Index>1919</Index>
       <Text>Removing Biospheres</Text>
     </Token>
@@ -4703,12 +4715,16 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Population (in Billions) vs. Max Population available for your Empire. Percentage indicates how full the colony is. Lower Max Population than the current population means that the current Race occupying this planet is better suited to the environment than your Empire.</Text>
     </Token>
     <Token>
+      <Index>1930</Index>
+      <Text> was removed as part of the terraforming process due to its harmful environmental effect.</Text>
+    </Token>
+    <Token>
       <Index>1941</Index>
       <Text>Governor Will Not Scrap Buildings</Text>
     </Token>
     <Token>
       <Index>1942</Index>
-      <Text>Normally, Governors operate within a budget limit which it tied to your empire's money and will start scrapping buildings if money becomes tight. Checking this box will not allow Governors to scrap buildings. You will have to be careful with your Money.</Text>
+      <Text>Normally, Governors operate within a budget limit which it tied to your empire's money and will start scrapping buildings if money becomes tight. Checking this box will not allow Governors to scrap buildings. You will have to be careful with your Money. Note that Governors will never scrap a building built personally by you.</Text>
     </Token>
     <Token>
       <Index>1943</Index>

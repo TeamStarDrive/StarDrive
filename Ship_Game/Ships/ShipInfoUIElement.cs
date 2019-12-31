@@ -370,7 +370,7 @@ namespace Ship_Game.Ships
             SubTexture iconInhibited = ResourceManager.Texture("StatusIcons/icon_inhibited");
             SubTexture iconFlux      = ResourceManager.Texture("StatusIcons/icon_flux");
 
-            if (Ship.IsWithinPlanetaryGravityWell)
+            if (Ship.IsInhibitedByUnfriendlyGravityWell)
                 DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(2287), mousePos,
                     Color.White, numStatus);
             else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)

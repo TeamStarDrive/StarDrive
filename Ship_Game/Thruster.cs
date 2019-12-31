@@ -12,7 +12,7 @@ namespace Ship_Game
         public Texture3D Noise;
         public float tscale;
         public Ship Parent;
-        public Vector2 XMLPos;
+        public Vector3 XMLPos;
         public Vector3 WorldPos;
 
         public Effect Effect;
@@ -40,7 +40,7 @@ namespace Ship_Game
         {
         }
 
-        public Thruster(Ship owner, float scale, Vector2 position)
+        public Thruster(Ship owner, float scale, Vector3 position)
         {
             Parent = owner;
             tscale = scale;
@@ -65,7 +65,7 @@ namespace Ship_Game
 
         public void InitializeForViewing()
         {
-            OffsetFromShipCenter = new Vector2(256, 256) - XMLPos;
+            OffsetFromShipCenter = new Vector2(256, 256) - new Vector2(XMLPos.X, XMLPos.Y);
             UpdatePosition();
         }
 
@@ -110,11 +110,11 @@ namespace Ship_Game
         }
 
         public void UpdatePosition()
-        {
+         {
             Vector2 dir = Parent.Direction;
             Vector2 thrusterOffset = dir * OffsetFromShipCenter.Y + dir.LeftVector() * OffsetFromShipCenter.X;
             Vector2 thrusterPos = Parent.Center + thrusterOffset;
-            float zPos = (float)Math.Sin(Parent.yRotation) * OffsetFromShipCenter.X + 15f;
+            float zPos = XMLPos.Z + (float)Math.Sin(Parent.yRotation) * OffsetFromShipCenter.X;
             WorldPos = new Vector3(thrusterPos, zPos);
         }
 

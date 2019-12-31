@@ -77,10 +77,10 @@ namespace Ship_Game.AI
             Radius                = radius;
             CoreWorld             = p;
             CoreWorldGuid         = p.guid;
-            WhichFleet            = p.Owner.GetUnusedKeyForFleet();
-            p.Owner.GetFleetsDict().Add(WhichFleet, CoreFleet);
+            WhichFleet            = p.Owner.CreateFleetKey();
+            p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
             CoreFleet.Name        = "Core Fleet";
-            CoreFleet.Position    = p.Center;
+            CoreFleet.FinalPosition    = p.Center;
             CoreFleet.Owner       = p.Owner;
             CoreFleet.IsCoreFleet = true;
             var tempPlanet = new Array<Planet>();
@@ -111,7 +111,7 @@ namespace Ship_Game.AI
             if (ship.fleet != null)
                 Log.Error("corefleet ship in {0}" , ship.fleet.Name);
             Owner.GetEmpireAI().RemoveShipFromForce(ship);
-            if (IsCoreFleetFull() || GetPoolStrength() < Owner.currentMilitaryStrength * .05f) 
+            if (IsCoreFleetFull() || GetPoolStrength() < Owner.CurrentMilitaryStrength * .05f) 
             {
                 OffensiveForcePool.Add(ship);
 
@@ -286,7 +286,7 @@ namespace Ship_Game.AI
                     }
                 }
                 
-                CoreFleet.Position = CoreWorld.Center;
+                CoreFleet.FinalPosition = CoreWorld.Center;
                 CoreFleet.AutoArrange();
                 CoreFleet.MoveToNow(Center, Vectors.Up);
             
@@ -365,8 +365,6 @@ namespace Ship_Game.AI
                     break;
                 }
             }
-
-            CoreFleet?.Dispose(ref CoreFleet);
         }
        
     }
