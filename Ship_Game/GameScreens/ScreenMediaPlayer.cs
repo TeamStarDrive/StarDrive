@@ -28,7 +28,7 @@ namespace Ship_Game.GameScreens
 
         // Extra music associated with the video.
         // For example, diplomacy screen uses WAR music if WarDeclared
-        AudioHandle Music = AudioHandle.Dummy;
+        AudioHandle Music = AudioHandle.DoNotPlay;
 
         // If TRUE, the video becomes interactive with a Play button
         public bool EnableInteraction = false;
