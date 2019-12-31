@@ -45,7 +45,7 @@ namespace Ship_Game
 
             var fleet = new Fleet
             {
-                Position = position,
+                FinalPosition = position,
                 Owner = owner
             };
             foreach (FleetDataNode node in data.Data)

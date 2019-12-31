@@ -144,7 +144,8 @@ namespace Ship_Game.AI
         private void Clear()
         {
             foreach (Ship ship in OurShips.Values)
-                if (ship.Active) ship.AI.SystemToDefend = null;
+                if (ship.Active && ship.AI != null) // AI is null if we exit during initialization
+                    ship.AI.SystemToDefend = null;
             OurShips.Clear();
             CurrentShipStr = 0;
         }

@@ -755,6 +755,27 @@ namespace Ship_Game
             return false;
         }
 
+        public static int CountRef<T>(this Array<T> list, T item) where T : class
+        {
+            int count = list.Count;
+            if (count == 0)
+                return 0;
+
+            int n = 0;
+            T[] items = list.GetInternalArrayItems();
+            if (item == null)
+            {
+                for (int i = 0; i < count; ++i)
+                    if (items[i] == null) ++n;
+            }
+            else
+            {
+                for (int i = 0; i < count; ++i)
+                    if (items[i] == item) ++n;
+            }
+            return n;
+        }
+
         public static void AddUniqueRef<T>(this Array<T> list, T item) where T : class
         {
             if (!list.ContainsRef(item))
