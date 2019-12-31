@@ -80,7 +80,7 @@ namespace Ship_Game.AI
             WhichFleet            = p.Owner.CreateFleetKey();
             p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
             CoreFleet.Name        = "Core Fleet";
-            CoreFleet.Position    = p.Center;
+            CoreFleet.FinalPosition    = p.Center;
             CoreFleet.Owner       = p.Owner;
             CoreFleet.IsCoreFleet = true;
             var tempPlanet = new Array<Planet>();
@@ -286,7 +286,7 @@ namespace Ship_Game.AI
                     }
                 }
                 
-                CoreFleet.Position = CoreWorld.Center;
+                CoreFleet.FinalPosition = CoreWorld.Center;
                 CoreFleet.AutoArrange();
                 CoreFleet.MoveToNow(Center, Vectors.Up);
             

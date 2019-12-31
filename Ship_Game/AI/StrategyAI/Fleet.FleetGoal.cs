@@ -7,21 +7,17 @@ namespace Ship_Game.AI
     {
         public class FleetGoal
         {
-            public FleetGoalType Type;
-            public Vector2 Velocity = new Vector2();
-            public Vector2 MovePosition;
-            public Vector2 PositionLast = new Vector2();
-            public Vector2 FinalFacingVector;
+            readonly FleetGoalType Type;
+            public readonly Vector2 MovePosition; // final position of the goal
+            public readonly Vector2 FinalDirection; // desired final direction at goal position
             readonly ShipGroup Fleet;
-            public float FinalFacing;
 
-            public FleetGoal(ShipGroup fleet, Vector2 movePosition, float facing, Vector2 fVec, FleetGoalType t)
+            public FleetGoal(ShipGroup fleet, Vector2 movePosition, Vector2 finalDirection, FleetGoalType t)
             {
-                Type              = t;
-                Fleet             = fleet;
-                FinalFacingVector = fVec;
-                FinalFacing       = facing;
-                MovePosition      = movePosition;
+                Type           = t;
+                Fleet          = fleet;
+                FinalDirection = finalDirection;
+                MovePosition   = movePosition;
             }
 
             public void Evaluate(float elapsedTime)
@@ -29,34 +25,42 @@ namespace Ship_Game.AI
                 switch (Type)
                 {
                     case FleetGoalType.AttackMoveTo:
-                        DoAttackMove(elapsedTime);
+                        AttackMoveTo(elapsedTime);
                         break;
                     case FleetGoalType.MoveTo:
-                        DoMove(elapsedTime);
+                        MoveTo(elapsedTime);
                         break;
                 }
             }
 
-            private void DoAttackMove(float elapsedTime)
+            void AttackMoveTo(float elapsedTime)
             {
-                Fleet.Position += Fleet.Position.DirectionToTarget(MovePosition) * Fleet.Speed * elapsedTime;
-                Fleet.AssembleFleet(FinalFacing.RadiansToDirection());
-                if (Vector2.Distance(Fleet.Position, MovePosition) >= 100.0f)
-                    return;
-                Fleet.Position = MovePosition;
-                Fleet.PopGoalStack();
-            }
+                Vector2 fleetPos = Fleet.AveragePosition();
+                Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
+                Vector2 finalPos = fleetPos + towardsFleetGoal * Fleet.SpeedLimit * elapsedTime;
 
-            private void DoMove(float elapsedTime)
-            {
-                Vector2 dir = Fleet.Position.DirectionToTarget(MovePosition);
-                Fleet.Position += dir * (Fleet.Speed + 75f) * elapsedTime;
-                Fleet.AssembleFleet(FinalFacing.RadiansToDirection());
-                if (Fleet.Position.InRadius(MovePosition, 100f))
+                if (finalPos.InRadius(MovePosition, 100f))
                 {
-                    Fleet.Position = MovePosition;
+                    finalPos = MovePosition;
                     Fleet.PopGoalStack();
                 }
+
+                Fleet.AssembleFleet(finalPos, FinalDirection);
+            }
+
+            void MoveTo(float elapsedTime)
+            {
+                Vector2 fleetPos = Fleet.AveragePosition();
+                Vector2 towardsFleetGoal = fleetPos.DirectionToTarget(MovePosition);
+                Vector2 finalPos = fleetPos + towardsFleetGoal * (Fleet.SpeedLimit+75f) * elapsedTime;
+                
+                if (finalPos.InRadius(MovePosition, 100f))
+                {
+                    finalPos = MovePosition;
+                    Fleet.PopGoalStack();
+                }
+
+                Fleet.AssembleFleet(finalPos, FinalDirection);
             }
         }
     }
