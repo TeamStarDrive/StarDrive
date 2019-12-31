@@ -10,7 +10,12 @@ namespace Ship_Game.AI.Tasks
 {
     public partial class MilitaryTask
     {
-        //public Planet TargetPlanet => TargetPlanet;
+        private float GetEnemyStrength => Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+
+        private int GetTargetPlanetGroundStrength(int minimumStrength)
+        {
+            return (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(minimumStrength);
+        }
 
         Array<Troop> GetTroopsOnPlanets(Vector2 rallyPoint, float strengthNeeded, out float totalStrength)
         {
@@ -265,7 +270,7 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
 
-            EnemyStrength         = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+            EnemyStrength         = GetEnemyStrength;
             NeededTroopStrength   = 0;
             TaskBombTimeNeeded    = 0;
             float battleFleetSize = 0.5f;
@@ -289,7 +294,7 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet?.Center ?? AO;
 
-            EnemyStrength         = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
+            EnemyStrength         = GetEnemyStrength;
             NeededTroopStrength   = 0;
             TaskBombTimeNeeded    = 0;
             float battleFleetSize = 0.25f;
@@ -299,7 +304,6 @@ namespace Ship_Game.AI.Tasks
                 Step = 1;
             }
         }
-
 
         void RequisitionExplorationForce()
         {
@@ -314,8 +318,8 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet.Center;
 
-            EnemyStrength         = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
-            NeededTroopStrength   = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(40);
+            EnemyStrength         = GetEnemyStrength;
+            NeededTroopStrength   = GetTargetPlanetGroundStrength(40);
             TaskBombTimeNeeded    = BombTimeNeeded();
             float battleFleetSize = 0.25f;
 
@@ -339,8 +343,8 @@ namespace Ship_Game.AI.Tasks
 
             AO = TargetPlanet.Center;
 
-            EnemyStrength         = Owner.GetEmpireAI().ThreatMatrix.PingNetRadarStr(AO, AORadius * 2, Owner);
-            NeededTroopStrength   = (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(100);
+            EnemyStrength         = GetEnemyStrength;
+            NeededTroopStrength   = GetTargetPlanetGroundStrength(100);
             TaskBombTimeNeeded    = BombTimeNeeded();
             float battleFleetSize = 0.25f;
 
