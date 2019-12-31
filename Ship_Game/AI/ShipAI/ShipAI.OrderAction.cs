@@ -177,8 +177,10 @@ namespace Ship_Game.AI
             MovePosition = position;
 
             // NOTE: please don't 'FIX' anything here without caution and testing.
-            //   Checklist: single ship move to & queued move, fleet move to & queued move
-            //              priority movement while in combat
+            //   Checklist: single ship move & queued move,
+            //              fleet move & queued move,
+            //              ship group move & queued move,
+            //              priority movement for all of the above while in combat
             Vector2[] wayPoints = WayPoints.ToArray();
             Vector2 wp = wayPoints[0];
             Vector2 firstDir = wayPoints.Length >= 2 ? wp.DirectionToTarget(wayPoints[1]) : finalDir;

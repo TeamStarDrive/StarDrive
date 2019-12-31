@@ -340,8 +340,11 @@ namespace Ship_Game.AI
                 // only warp towards actual warp pos
                 if (actualDiff < 0.05f)
                 {
-                    if      (distance > 7500f && !Owner.InCombat) Owner.EngageStarDrive();
-                    else if (distance > 15000f && Owner.InCombat) Owner.EngageStarDrive();
+                    // NOTE: PriorityOrder must ignore the combat flag
+                    if      (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
+                        Owner.EngageStarDrive();
+                    else if (distance > 15000f && Owner.InCombat)
+                        Owner.EngageStarDrive();
                 }
                 Owner.SubLightAccelerate(speedLimit);
             }
