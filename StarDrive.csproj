@@ -320,6 +320,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
+    <Compile Include="Ship_Game\GameScreens\TextListItem.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
     <Compile Include="Ship_Game\Input\InputState_Holding.cs" />

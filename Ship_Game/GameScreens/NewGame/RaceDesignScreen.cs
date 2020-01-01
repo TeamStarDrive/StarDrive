@@ -30,8 +30,6 @@ namespace Ship_Game
         protected Menu1 NameMenu;
         protected Menu1 Description;
 
-        protected bool LowRes;
-
         protected Submenu Traits;
         protected Submenu NameSub;
 
@@ -255,8 +253,7 @@ namespace Ship_Game
             }
 
             b.Plural(PreferredEnvDescription);
-            DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(b.ToString(), Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
+            DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Menu.Width - 50));
         }
 
         static float DotSpaceWidth;
@@ -974,10 +971,6 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 || ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
-            {
-                LowRes = true;
-            }
             Rectangle titleRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);

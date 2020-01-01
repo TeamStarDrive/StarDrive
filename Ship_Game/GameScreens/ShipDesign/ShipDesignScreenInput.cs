@@ -138,7 +138,7 @@ namespace Ship_Game
             SetupSlots();
         }
 
-        void DoExit(object sender, EventArgs e)
+        void DoExit()
         {
             ReallyExit();
         }
@@ -169,7 +169,7 @@ namespace Ship_Game
 
             if (isEmptyDesign || (ShipSaved && goodDesign))
             {
-                LaunchScreen(null, null);
+                LaunchScreen();
                 ReallyExit();
                 return;
             }
@@ -641,13 +641,13 @@ namespace Ship_Game
             UpdateActiveCombatButton();
         }
 
-        void JustChangeHull(object sender, EventArgs e)
+        void JustChangeHull()
         {
             ShipSaved = true;
             ChangeHull(Changeto);
         }
 
-        void LaunchScreen(object sender, EventArgs e)
+        void LaunchScreen()
         {
             if (ScreenToLaunch != null)
             {
@@ -689,10 +689,6 @@ namespace Ship_Game
         {
             Log.Info("ShipDesignScreen.LoadContent");
             RemoveAll();
-            if (ScreenWidth  <= 1280 || ScreenHeight <= 768)
-            {
-                LowRes = true;
-            }
             ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
 
             var hulls = EmpireManager.Player.GetHDict();
@@ -901,7 +897,7 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        void SaveChanges(object sender, EventArgs e)
+        void SaveChanges()
         {
             ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             ShipSaved = true;
@@ -963,15 +959,15 @@ namespace Ship_Game
             ChangeHull(ActiveHull);
         }
 
-        void SaveWIP(object sender, EventArgs e)
+        void SaveWIP()
         {
             ShipData toSave = CloneActiveHull($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
             SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.xml");
         }
 
-        void SaveWIPThenChangeHull(object sender, EventArgs e)
+        void SaveWIPThenChangeHull()
         {
-            SaveWIP(sender, e);
+            SaveWIP();
             ChangeHull(Changeto);
         }
     }
