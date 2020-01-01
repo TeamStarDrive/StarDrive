@@ -573,10 +573,6 @@ namespace Ship_Game
                 DrawColorSelector();
             }
             base.Draw(batch);
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
         }
 
@@ -1057,8 +1053,8 @@ namespace Ship_Game
                     traitsSL.AddItem(t);
             }
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
                             Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
 
@@ -1072,7 +1068,7 @@ namespace Ship_Game
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
+            Button(pos.X, pos.Y, text: 4006, click: OnRuleOptionsClicked);
 
             base.LoadContent();
         }

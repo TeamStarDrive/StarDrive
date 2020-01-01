@@ -787,11 +787,11 @@ namespace Ship_Game
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
             
-            UIList bottomList = List(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
+            UIList bottomList = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomList.LayoutStyle = ListLayoutStyle.Resize;
             bottomList.Direction = new Vector2(-1, 0);
             bottomList.Padding = new Vector2(16f, 2f);
-            bottomList.Add(ButtonStyle.Medium, titleId:105, click: b =>
+            bottomList.Add(ButtonStyle.Medium, text:105, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
@@ -800,15 +800,15 @@ namespace Ship_Game
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
-            bottomList.Add(ButtonStyle.Medium, titleId:8, click: b =>
+            bottomList.Add(ButtonStyle.Medium, text:8, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
-            bottomList.Add(ButtonStyle.Medium, titleId:106, click: b =>
+            bottomList.Add(ButtonStyle.Medium, text:106, click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, titleId: 1985, click: b =>
+            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, text: 1985, click: b =>
             {
                 OnSymmetricDesignToggle();
             });

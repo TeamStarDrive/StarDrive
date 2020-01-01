@@ -256,16 +256,6 @@ namespace Ship_Game
             Pressed = false;
             if (!Rect.HitTest(input.CursorPosition))
             {
-                if (Hover)
-                {
-                    if (ToolTip.TipTimer > 3)
-                    {
-                        ToolTip.LastWhich = 0;
-                        ToolTip.TextLast = string.Empty;
-                    }
-
-                    ToolTip.TipTimer = 0;
-                }
                 Hover = false;
                 return false;
             }
