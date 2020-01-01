@@ -19,7 +19,7 @@ namespace Ship_Game
 
         BottomLeft,  // "bottomleft"   x=0.0  y=1.0
         BottomCenter,// "bottomcenter" x=0.5  y=1.0
-        BottomRight // "bottomright"  x=1.0  y=1.0
+        BottomRight  // "bottomright"  x=1.0  y=1.0
     }
 
     public enum DrawDepth
@@ -48,9 +48,15 @@ namespace Ship_Game
         public Vector2 Pos;    // absolute position in the UI
         public Vector2 Size;   // absolute size in the UI
 
+        public Vector2 RelPos; // relative position on parent, in absolute coordinates
+        protected bool UseRelPos; // if TRUE, uses RelPos during PerformLayout()
+
         //protected Vector2 AxisOffset = Vector2.Zero;
         //protected Vector2 ParentOffset = Vector2.Zero;
-        protected bool RequiresLayout;
+
+        // If set TRUE, this.PerformLayout() will be triggered during next Update()
+        // After layout is complete, RequiresLayout should be set false
+        public bool RequiresLayout;
 
         // Elements are sorted by ZOrder during EndLayout()
         // Changing this will allow you to bring your UI elements to top
@@ -66,35 +72,40 @@ namespace Ship_Game
         // Nullable to save memory
         Array<UIEffect> Effects;
 
-
         public void Show() => Visible = true;
         public void Hide() => Visible = false;
-
 
         public Rectangle Rect
         {
             get => new Rectangle((int)Pos.X, (int)Pos.Y, (int)Size.X, (int)Size.Y);
             set
             {
-                Pos  = new Vector2(value.X, value.Y);
-                Size = new Vector2(value.Width, value.Height);
+                Pos.X = value.X;
+                Pos.Y = value.Y;
+                Size.X = value.Width;
+                Size.Y = value.Height;
             }
         }
+
         public float X { get => Pos.X; set => Pos.X = value; }
         public float Y { get => Pos.Y; set => Pos.Y = value; }
         public float Width  { get => Size.X; set => Size.X = value; }
         public float Height { get => Size.Y; set => Size.Y = value; }
         public float Right  { get => Pos.X + Size.X; set => Size.X = (value - Pos.X); }
         public float Bottom { get => Pos.Y + Size.Y; set => Size.Y = (value - Pos.Y); }
+        
+        public Vector2 TopLeft  => new Vector2(Pos.X, Pos.Y);
+        public Vector2 TopRight => new Vector2(Pos.X + Size.X, Rect.Y);
         public Vector2 BotRight => new Vector2(Pos.X + Size.X, Pos.Y + Size.Y);
         public Vector2 BotLeft  => new Vector2(Pos.X,          Pos.Y + Size.Y);
         public float CenterX => Pos.X + Size.X*0.5f;
         public float CenterY => Pos.Y + Size.Y*0.5f;
         public Vector2 Center => Pos + Size*0.5f;
 
-        public string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
+        protected string TypeName => GetType().GetTypeName();
+        protected string ElementDescr => $"{Name} {{{Pos.X},{Pos.Y} {Size.X}x{Size.Y}}} {(Visible?"Vis":"Hid")}";
 
-        public override string ToString() => $"Element {ElementDescr}";
+        public override string ToString() => $"{TypeName} {ElementDescr}";
 
         static Vector2 RelativeToAbsolute(UIElementV2 parent, float x, float y)
         {
@@ -103,11 +114,6 @@ namespace Ship_Game
             if      (y < 0f) y += parent.Size.Y;
             else if (y <=1f) y *= parent.Size.Y;
             return new Vector2(x, y);
-        }
-
-        public Vector2 RelativeToAbsolute(Vector2 pos)
-        {
-            return RelativeToAbsolute(Parent ?? this, pos.X, pos.Y);
         }
 
         public Vector2 RelativeToAbsolute(float x, float y)
@@ -121,13 +127,20 @@ namespace Ship_Game
         {
             Pos = new Vector2(x, y);
         }
-        public void SetRelPos(Vector2 pos)
-        {
-            Pos = RelativeToAbsolute(pos);
-        }
         public void SetSize(float width, float height)
         {
             Size = new Vector2(width, height);
+        }
+
+        public void SetRelPos(float x, float y)
+        {
+            SetRelPos(new Vector2(x, y));
+        }
+
+        public void SetRelPos(in Vector2 relPos)
+        {
+            RelPos = relPos;
+            UseRelPos = true;
             RequiresLayout = true;
         }
 
@@ -136,30 +149,42 @@ namespace Ship_Game
         protected UIElementV2()
         {
         }
-
-        protected UIElementV2(UIElementV2 parent)
-        {
-            Parent = parent;
-        }
-
-        protected UIElementV2(UIElementV2 parent, Vector2 pos) : this(parent)
+        protected UIElementV2(in Vector2 pos)
         {
             Pos = pos;
         }
-
-        protected UIElementV2(UIElementV2 parent, Vector2 pos, Vector2 size) : this(parent)
+        protected UIElementV2(in Vector2 pos, in Vector2 size)
         {
             Pos = pos;
             Size = size;
         }
-
-        protected UIElementV2(UIElementV2 parent, in Rectangle rect) : this(parent)
+        protected UIElementV2(in Rectangle rect)
         {
-            SetAbsPos(rect.X, rect.Y);
+            Pos = new Vector2(rect.X, rect.Y);
             Size = new Vector2(rect.Width, rect.Height);
+        }
+        protected UIElementV2(in RectF rect)
+        {
+            Pos = new Vector2(rect.X, rect.Y);
+            Size = new Vector2(rect.W, rect.H);
+        }
+        protected UIElementV2(float x, float y, float w, float h)
+        {
+            Pos = new Vector2(x, y);
+            Size = new Vector2(w, h);
         }
 
         protected virtual int NextZOrder() { return ZOrder + 1; }
+
+        // 0. Perform Layout operations on demand
+        public virtual void PerformLayout()
+        {
+            RequiresLayout = false;
+            if (UseRelPos && Parent != null)
+            {
+                Pos = Parent.Pos + RelPos;
+            }
+        }
 
         // 1. we handle input
         public abstract bool HandleInput(InputState input);
@@ -168,6 +193,8 @@ namespace Ship_Game
         public virtual void Update(float deltaTime)
         {
             UpdateEffects(deltaTime);
+            if (RequiresLayout)
+                PerformLayout();
         }
 
         // 3. finally we draw
@@ -225,17 +252,24 @@ namespace Ship_Game
             float delay, 
             float duration = 1.0f, 
             float fadeIn   = 0.25f, 
-            float fadeOut  = 0.25f) => Anim().Time(delay, duration, fadeIn, fadeOut);
-
-
-        /////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-        public virtual void PerformLayout()
+            float fadeOut  = 0.25f)
         {
-            RequiresLayout = false;
+            return Anim().Time(delay, duration, fadeIn, fadeOut);
         }
 
+        public UIBasicAnimEffect StartFadeIn(float fadeInTime, float delay = 0f) => Anim().FadeIn(delay, fadeInTime);
+
+        // Starts transition from [start] to [end]
+        public UIBasicAnimEffect StartTransition(Vector2 start, Vector2 end, float time = 1f) => Anim().FadeIn(0f, time).Pos(start, end);
+
+        // Starts transition from Pos to [end]
+        public UIBasicAnimEffect StartTransitionTo(Vector2 end, float time = 1f) => Anim().FadeIn(0f, time).Pos(Pos, end);
+
+        // Starts transition from [from] to Pos
+        public UIBasicAnimEffect StartTransitionFrom(Vector2 from, float time = 1f) => Anim().FadeIn(0f, time).Pos(from, Pos);
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        
         public bool HitTest(Vector2 pos)
         {
             return pos.X > Pos.X && pos.Y > Pos.Y && pos.X < Pos.X + Size.X && pos.Y < Pos.Y + Size.Y;
