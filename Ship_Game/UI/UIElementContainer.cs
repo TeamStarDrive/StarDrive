@@ -49,6 +49,10 @@ namespace Ship_Game
         protected UIElementContainer(float x, float y, float w, float h) : base(x, y, w, h)
         {
         }
+        // TODO: deprecated
+        protected UIElementContainer(UIElementContainer parent, in Rectangle rect) : base(rect)
+        {
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
