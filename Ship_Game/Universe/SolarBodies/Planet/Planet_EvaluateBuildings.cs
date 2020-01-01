@@ -638,7 +638,7 @@ namespace Ship_Game
 
         bool SimpleBuild(float budget) // build a building with a positive value
         {
-            if (BuildingInTheWorks)
+            if (CivilianBuildingInTheWorks)
                 return false;
 
             Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);

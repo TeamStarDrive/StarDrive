@@ -384,8 +384,8 @@ namespace Ship_Game
 
         void TryBuildMilitaryBuilding(float budget)
         {
-            Building building =  BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) > budget
-                                 , b => b.MilitaryStrength);
+            Building building =  BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) < budget
+                                 , b => b.CostEffectiveness);
 
             if (building != null)
                 Construction.AddBuilding(building);
