@@ -335,7 +335,10 @@ namespace Ship_Game.Ships
             }
 
             if (!IsTurning)
+            {
                 RestoreYBankRotation(elapsedTime);
+            }
+            IsTurning = false;
 
             if (engineState == MoveState.Warp)
             {
