@@ -19,7 +19,7 @@ namespace Ship_Game
 
         public ScreenManager ScreenManager;
 
-        public Color tColor = new Color(255, 239, 208);
+        public Color tColor = Colors.Cream;
 
         public bool IsExiting { get; protected set; }
         public ElementState State { get; protected set; } = ElementState.Closed;
