@@ -402,6 +402,7 @@
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactItemListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ResponseListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\WikiHelpCategoryListItem.cs" />
+    <Compile Include="Ship_Game\ToolTipText.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
