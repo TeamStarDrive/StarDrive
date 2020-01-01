@@ -101,6 +101,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsSpacePort  => BID == SpacePortId;
         [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
 
+        [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(1);
+
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
