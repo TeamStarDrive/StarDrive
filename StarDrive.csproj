@@ -284,6 +284,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\RadMath.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\RectF.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
