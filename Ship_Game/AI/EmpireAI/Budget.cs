@@ -50,14 +50,14 @@ namespace Ship_Game.AI.Budget
             Initialized = true;
         }
 
-        // The more habitable tiles the planet has, more budget is allocated to military buildings
+        // This is Orbitals vs. Military Buildings ratio of budget, since Building maintenance is much less than Orbitals.
         float MilitaryBuildingsBudgetRatio() 
         {
             float preference;
             switch (Planet.colonyType)
             {
-                case Planet.ColonyType.Military: preference = 0.3f; break;
-                case Planet.ColonyType.Core:     preference = 0.25f; break;
+                case Planet.ColonyType.Military: preference = 0.2f; break;
+                case Planet.ColonyType.Core:     preference = 0.15f; break;
                 default:                         preference = 0.1f; break;
             }
 
