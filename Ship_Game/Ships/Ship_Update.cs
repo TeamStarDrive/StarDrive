@@ -60,7 +60,6 @@ namespace Ship_Game.Ships
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            IsTurning = false;
             UpdateVisibility();
             ShieldRechargeTimer += elapsedTime;
 
