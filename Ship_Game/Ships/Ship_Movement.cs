@@ -28,8 +28,35 @@ namespace Ship_Game.Ships
         // this is an important variable for hi-precision impact predictor
         public Vector2 Acceleration { get; private set; }
 
+        // Reset every frame. Not serialized.
+        // This is the current thrust vector direction in radians (rads for easier vector manipulation)
+        float ThrustVector;
+
+        // Reset every frame. Not serialized.
+        // Currently applied external force. All of the external force is converted into acceleration
+        Vector2 AppliedExternalForce;
+
         const float DecelerationRate = 0.5f; // Reverse thrusters work at 50% total engine thrust
         const float SASThrusterPower = 0.25f; // Stability Assist thrusters work at 25% total engine thrust
+
+        // This applies (accumulates) a Force vector for the duration of this frame.
+        // If you wish to transfer force over a larger time period, you must call this over several frames.
+        // This is because our velocity/position integration recalculates acceleration every frame
+        public void ApplyForce(Vector2 force)
+        {
+            AppliedExternalForce += force;
+        }
+
+        // This sets the direction of forward thrust.
+        // 0: ship accelerates forward
+        // +PI/4: ship accelerates diagonally RIGHT
+        // -PI/4: ship accelerates diagonally LEFT
+        // @note Thrust direction is always clamped to [-PI/4; +PI/4]
+        public void SetThrustDirection(float thrustDirectionRadians)
+        {
+            const float quarterPi = RadMath.PI / 4;
+            ThrustVector = thrustDirectionRadians.Clamped(-quarterPi, quarterPi);
+        }
 
         void UpdateMaxVelocity()
         {
@@ -202,12 +229,12 @@ namespace Ship_Game.Ships
             // if +1 then ship is going forward as intended
             // if  0 then ship is drifting sideways
             // if -1 then ship is drifting reverse
-            Vector2 forward = Direction;
-            float travel = velocityDir.Dot(forward);
+            Vector2 shipForward = Rotation.RadiansToDirection();
+            float travel = velocityDir.Dot(shipForward);
             if (velocity > 0.0001f && travel <= 0.99f)
             {
                 // remove sideways drift
-                Vector2 left = forward.LeftVector();
+                Vector2 left = shipForward.LeftVector();
                 float drift = velocityDir.Dot(left);
                 if (drift > 0f) // leftwards drift
                 {
@@ -225,6 +252,12 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (AppliedExternalForce != Vector2.Zero)
+            {
+                newAcc += (AppliedExternalForce / Mass);
+                AppliedExternalForce = Vector2.Zero;
+            }
+
             // Get the real speed limit
             float speedLimit = SpeedLimit > 0f
                              ? Math.Min(SpeedLimit, VelocityMaximum)
@@ -233,6 +266,11 @@ namespace Ship_Game.Ships
             // in Warp, we cannot go slower than LightSpeed
             if (engineState == MoveState.Warp)
                 speedLimit = Math.Max(speedLimit, LightSpeedConstant);
+
+            // get the current thrust dir and reset the vector for now
+            // (todo: maybe add a delay to thrust vector direction change?)
+            Vector2 thrustDirection = (Rotation + ThrustVector).RadiansToDirection();
+            ThrustVector = 0f;
 
             // Main ACCELERATE / DECELERATE
             // we are pretty much at the speed limit already, don't do anything
@@ -245,20 +283,21 @@ namespace Ship_Game.Ships
             {
                 if (travel > 0.2f) // we are traveling forward, decelerate normally
                 {
-                    newAcc -= forward * thrustAcceleration * DecelerationRate;
+                    newAcc -= thrustDirection * thrustAcceleration * DecelerationRate;
                 }
                 else if (travel < -0.2f) // we are traveling reverse, accelerate to slow down
                 {
-                    newAcc += forward * thrustAcceleration;
+                    newAcc += thrustDirection * thrustAcceleration;
                 }
+                // else: we aren't facing drift direction, so thrusting is pointless
             }
             else if (ThrustThisFrame > 0)
             {
-                newAcc += forward * thrustAcceleration;
+                newAcc += thrustDirection * thrustAcceleration;
             }
             else if (ThrustThisFrame < 0)
             {
-                newAcc -= forward * thrustAcceleration * DecelerationRate;
+                newAcc -= thrustDirection * thrustAcceleration * DecelerationRate;
             }
             return newAcc;
         }
