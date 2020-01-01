@@ -162,10 +162,10 @@ namespace Ship_Game
             EnterNameArea = new UITextEntry {Text = ""};
             EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
 
-            Load     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, titleId:8, click: OnLoadClicked);
-            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, titleId:4015, click: OnVisitClicked);
-            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, titleId:4044, click: OnShipToolClicked);
-            Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, titleId:4016, click:OnDisableClicked);
+            Load     = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, text:8, click: OnLoadClicked);
+            Visit    = Button(Window.X + 3, Window.Y + Window.Height + 20, text:4015, click: OnVisitClicked);
+            shiptool = Button(Window.X + 200, Window.Y + Window.Height + 20, text:4044, click: OnShipToolClicked);
+            Disable  = Button(Window.X + Window.Width - 172, Window.Y + Window.Height + 20, text:4016, click:OnDisableClicked);
 
             base.LoadContent();
         }
