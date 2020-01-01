@@ -97,7 +97,7 @@ namespace Ship_Game.Ships
 
         public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
         {
-            isTurning = true;
+            IsTurning = true;
             float rotAmount = rotationDir * elapsedTime * RotationRadiansPerSecond;
             if (Math.Abs(rotAmount) > angleDiff)
             {
@@ -107,29 +107,29 @@ namespace Ship_Game.Ships
             if (rotAmount > 0f) // Y-bank:
             {
                 if (yRotation > -MaxBank)
-                    yRotation -= yBankAmount;
+                    yRotation -= GetYBankAmount(elapsedTime);
             }
             else if (rotAmount < 0f)
             {
                 if (yRotation <  MaxBank)
-                    yRotation += yBankAmount;
+                    yRotation += GetYBankAmount(elapsedTime);
             }
 
             Rotation += rotAmount;
             Rotation = Rotation.AsNormalizedRadians();
         }
 
-        public void RestoreYBankRotation()
+        public void RestoreYBankRotation(float elapsedTime)
         {
             if (yRotation > 0f)
             {
-                yRotation -= yBankAmount;
+                yRotation -= GetYBankAmount(elapsedTime);
                 if (yRotation < 0f)
                     yRotation = 0f;
             }
             else if (yRotation < 0f)
             {
-                yRotation += yBankAmount;
+                yRotation += GetYBankAmount(elapsedTime);
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
@@ -334,7 +334,8 @@ namespace Ship_Game.Ships
                 case MoveState.Warp:     VelocityMaximum = MaxFTLSpeed; break;
             }
 
-            yBankAmount = GetyBankAmount(RotationRadiansPerSecond * elapsedTime);
+            if (!IsTurning)
+                RestoreYBankRotation(elapsedTime);
 
             if (engineState == MoveState.Warp)
             {
