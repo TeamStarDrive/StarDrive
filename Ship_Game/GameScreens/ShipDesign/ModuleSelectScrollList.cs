@@ -5,7 +5,7 @@ using Ship_Game.Ships;
 
 namespace Ship_Game
 {
-    public class ModuleSelectScrollList : ScrollList<ModuleSelectListItem>
+    public class ModuleSelectScrollList : ScrollList2<ModuleSelectListItem>
     {
         public readonly ShipDesignScreen Screen;
 

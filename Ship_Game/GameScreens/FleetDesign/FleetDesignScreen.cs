@@ -22,7 +22,7 @@ namespace Ship_Game
         Menu1 LeftMenu;
         Menu1 RightMenu;
         public Fleet SelectedFleet;
-        ScrollList<FleetDesignShipListItem> ShipSL;
+        ScrollList2<FleetDesignShipListItem> ShipSL;
         BlueButton RequisitionForces;
         BlueButton SaveDesign;
         BlueButton LoadDesign;
@@ -171,7 +171,7 @@ namespace Ship_Game
             SubShips.AddTab("Designs");
             SubShips.AddTab("Owned");
             SubShips.SelectedIndex = 0;
-            ShipSL = Add(new ScrollList<FleetDesignShipListItem>(SubShips, 40));
+            ShipSL = Add(new ScrollList2<FleetDesignShipListItem>(SubShips, 40));
             ShipSL.OnClick = OnDesignShipItemClicked;
 
             ResetLists();

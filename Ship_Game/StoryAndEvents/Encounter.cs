@@ -15,7 +15,7 @@ namespace Ship_Game
 
         Rectangle ResponseRect;
         Rectangle BlackRect;
-        ScrollList<ResponseListItem> ResponseSL;
+        ScrollList2<ResponseListItem> ResponseSL;
         Empire playerEmpire;
         SolarSystem sysToDiscuss;
         Empire empToDiscuss;
@@ -25,7 +25,7 @@ namespace Ship_Game
             BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 240);
             ResponseRect = new Rectangle(fitRect.X, BlackRect.Y + BlackRect.Height + 10, fitRect.Width, 180);
             var resp = new Submenu(ResponseRect);
-            ResponseSL = new ScrollList<ResponseListItem>(resp, 20);
+            ResponseSL = new ScrollList2<ResponseListItem>(resp, 20);
             LoadResponseScrollList();
         }
 

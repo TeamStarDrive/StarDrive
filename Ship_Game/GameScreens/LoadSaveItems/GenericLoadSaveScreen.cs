@@ -16,7 +16,7 @@ namespace Ship_Game
         protected Submenu AllSaves;
         protected Vector2 TitlePosition;
         protected UITextEntry EnterNameArea;
-        protected ScrollList<SaveLoadListItem> SavesSL;
+        protected ScrollList2<SaveLoadListItem> SavesSL;
         protected UIButton DoBtn;
         public enum SLMode { Load, Save }
         protected SLMode Mode;
@@ -113,7 +113,7 @@ namespace Ship_Game
             var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(TabText);
-            SavesSL = Add(new ScrollList<SaveLoadListItem>(AllSaves, EntryHeight));
+            SavesSL = Add(new ScrollList2<SaveLoadListItem>(AllSaves, EntryHeight));
             SavesSL.OnClick = OnSaveLoadItemClicked;
             SavesSL.EnableItemHighlight = true;
             InitSaveList();

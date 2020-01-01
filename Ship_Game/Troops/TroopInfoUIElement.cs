@@ -17,7 +17,7 @@ namespace Ship_Game
         private Rectangle ItemDisplayRect;
         private DanButton LaunchTroop;
         private readonly Selector Sel;
-        private ScrollList<TextListItem> DescriptionSL;
+        private ScrollList2<TextListItem> DescriptionSL;
         public PlanetGridSquare pgs;
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
@@ -38,7 +38,7 @@ namespace Ship_Game
             ItemDisplayRect   = new Rectangle(LeftRect.X + 85, LeftRect.Y + 5, 128, 128);
             Rectangle desRect = new Rectangle(RangeRect.X, RangeRect.Y - 10, LeftRect.Width + 8, 95);
             Submenu sub       = new Submenu(desRect);
-            DescriptionSL     = new ScrollList<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
+            DescriptionSL     = new ScrollList2<TextListItem>(sub, Fonts.Arial12.LineSpacing + 1);
 
             ToolTipItems.Add(new TippedItem
             {

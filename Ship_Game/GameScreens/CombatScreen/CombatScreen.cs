@@ -17,7 +17,7 @@ namespace Ship_Game
         Rectangle gridPos;
         Submenu orbitalResourcesSub;
 
-        ScrollList<CombatScreenOrbitListItem> OrbitSL;
+        ScrollList2<CombatScreenOrbitListItem> OrbitSL;
         //private bool LowRes;
         PlanetGridSquare HoveredSquare;
         Rectangle SelectedItemRect;
@@ -64,7 +64,7 @@ namespace Ship_Game
             var psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
             orbitalResourcesSub = new Submenu(psubRect);
 
-            OrbitSL = Add(new ScrollList<CombatScreenOrbitListItem>(orbitalResourcesSub));
+            OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalResourcesSub));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDrag = OnTroopItemDrag;
 

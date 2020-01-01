@@ -10,7 +10,7 @@ namespace Ship_Game
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
     [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {FlatEntries.Count}")]
-    public class ScrollList<T> : ScrollListBase where T : ScrollListItem<T>
+    public class ScrollList2<T> : ScrollListBase where T : ScrollListItem<T>
     {
         readonly Array<T> Entries = new Array<T>();
 
@@ -41,23 +41,23 @@ namespace Ship_Game
             return r;
         }
 
-        public ScrollList(UIElementV2 background, ListStyle style = ListStyle.Default)
+        public ScrollList2(UIElementV2 background, ListStyle style = ListStyle.Default)
             : this(background, 40, style)
         {
         }
         
-        public ScrollList(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default)
+        public ScrollList2(UIElementV2 background, int entryHeight, ListStyle style = ListStyle.Default)
             : this(GetOurRectFromBackground(background), entryHeight, style)
         {
             Background = background;
         }
 
-        public ScrollList(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
+        public ScrollList2(float x, float y, float w, float h, int entryHeight, ListStyle style = ListStyle.Default)
             : this(new Rectangle((int)x, (int)y, (int)w, (int)h), entryHeight, style)
         {
         }
 
-        public ScrollList(in Rectangle rect, int entryHeight, ListStyle style = ListStyle.Default)
+        public ScrollList2(in Rectangle rect, int entryHeight, ListStyle style = ListStyle.Default)
         {
             Rect = rect;
             Style = style;
@@ -260,9 +260,9 @@ namespace Ship_Game
 
     internal sealed class ScrollListDebugView<T> where T : ScrollListItem<T>
     {
-        readonly ScrollList<T> List;
+        readonly ScrollList2<T> List;
         // ReSharper disable once UnusedMember.Global
-        public ScrollListDebugView(ScrollList<T> list) { List = list; }
+        public ScrollListDebugView(ScrollList2<T> list) { List = list; }
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         public T[] Items
         {
