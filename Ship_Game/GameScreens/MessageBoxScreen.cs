@@ -28,8 +28,8 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
 
-            Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
-            Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
+            Ok     = ButtonSmall(0f, 0f, text:15, click: OnOkClicked);
+            Cancel = ButtonSmall(0f, 0f, text:16, click: OnCancelClicked);
         }
 
         public MessageBoxScreen(GameScreen parent, int localID, string oktext, string canceltext)
@@ -59,8 +59,8 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.0f;
 
-            Ok     = ButtonSmall(0f, 0f, titleId:15, click: OnOkClicked);
-            Cancel = ButtonSmall(0f, 0f, titleId:16, click: OnCancelClicked);
+            Ok     = ButtonSmall(0f, 0f, text:15, click: OnOkClicked);
+            Cancel = ButtonSmall(0f, 0f, text:16, click: OnCancelClicked);
         }
 
         public override void Draw(SpriteBatch batch)

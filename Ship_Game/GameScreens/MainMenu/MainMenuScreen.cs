@@ -2,10 +2,7 @@ using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
-using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
-using Ship_Game.Ships;
-using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
@@ -56,7 +53,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!Find("buttons", out UIList list))
-                list = List(Vector2.Zero);
+                list = AddList(Vector2.Zero);
             if (list.Find("new_game",  out UIButton newGame))   newGame.OnClick   = NewGame_Clicked;
             if (list.Find("tutorials", out UIButton tutorials)) tutorials.OnClick = Tutorials_Clicked;
             if (list.Find("load_game", out UIButton loadGame))  loadGame.OnClick  = LoadGame_Clicked;
@@ -70,8 +67,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             // Animate the buttons in and out
             var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
-            list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
-            OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
+            list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
+            OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
             
             FTLManager.LoadContent(this);
             CreateMainMenuFleet();
@@ -243,7 +240,7 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.Update3DSound(CamPos);
             FTLManager.Update(this, FrameDeltaTime);
 
-            ScreenManager.UpdateSceneObjects(gameTime);
+            ScreenManager.UpdateSceneObjects();
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {

@@ -44,7 +44,7 @@ namespace Ship_Game
             var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
             MainMenu       = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
-            close          = Add(new CloseButton(this, new Rectangle(main.X + main.Width - 40, main.Y + 20, 20, 20)));
+            close          = Add(new CloseButton(main.X + main.Width - 40, main.Y + 20));
 
             RootNodes.Clear();
             AllTechNodes.Clear();
@@ -118,7 +118,6 @@ namespace Ship_Game
             batch.Begin();
             close.Draw(batch);
             Queue.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
