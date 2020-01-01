@@ -13,6 +13,7 @@ namespace Ship_Game.AI.CombatTactics
         Vector2 DisengageStart;
         Vector2 DisengagePos1;
         Vector2 DisengagePos2;
+        Vector2 ZigZag;
         enum RunState
         {
             Strafing,
@@ -66,7 +67,41 @@ namespace Ship_Game.AI.CombatTactics
             }
             else
             {
+                ZigOrZag(distanceToAttack);
+                attackPos += ZigZag;
                 StrafeTowardsTarget(elapsedTime, distanceToAttack, attackPos);
+            }
+        }
+
+        void ZigOrZag(float distanceToTarget)
+        {
+            if (Owner.loyalty.isFaction)
+            {
+                ZigZag = Vector2.Zero;
+                return;
+            }
+
+            int rng = RandomMath.RollAvgPercentVarianceFrom50();
+            if (rng > 30)
+            {
+                if (rng < 35)
+                {
+                    ZigZag = Vector2.Zero;
+                }
+                else
+                {
+                    if (ZigZag != Vector2.Zero)
+                        return;
+                    Vector2 dir = AI.Owner.Center.DirectionToTarget(Owner.AI.Target.Center);
+                    if (RandomMath.IntBetween(0, 1) == 1)
+                    {
+                        ZigZag = dir.RightVector() * distanceToTarget;
+                    }
+                    else
+                    {
+                        ZigZag = dir.LeftVector() * distanceToTarget;
+                    }
+                }
             }
         }
 
