@@ -476,7 +476,7 @@ namespace Ship_Game.Ships
             SurfaceArea              = shipData.ModuleSlots.Length;
             Mass                     = SurfaceArea;
             BaseCost                 = GetBaseCost();
-            MaxBank                  = GetMaxBank(MaxBank);
+            MaxBank                  = GetMaxBank();
 
             UpdateWeaponRanges();
             
@@ -598,8 +598,9 @@ namespace Ship_Game.Ships
             return ModuleSlotList.Sum(module => module.Cost);
         }
 
-        float GetMaxBank(float mBank)
+        float GetMaxBank()
         {
+            const float mBank = 0.5236f;
             switch (shipData.Role)
             {
                 default:
