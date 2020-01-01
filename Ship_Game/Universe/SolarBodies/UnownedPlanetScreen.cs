@@ -16,8 +16,6 @@ namespace Ship_Game
 
 		//private Rectangle titleRect;
 
-		private bool LowRes;
-
 		private Submenu PlanetInfo;
 
 		private Rectangle PlanetIcon;
@@ -29,10 +27,6 @@ namespace Ship_Game
 		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
 		{
 			this.p = p;
-			if (ScreenWidth <= 1280)
-			{
-				LowRes = true;
-			}
 			Rectangle titleRect = new Rectangle(5, 44, 405, 80);
 			if (LowRes)
 			{

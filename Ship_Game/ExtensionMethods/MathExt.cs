@@ -55,9 +55,6 @@ namespace Ship_Game
     //   +Z is out of the screen
     public static class MathExt
     {
-        // PI/2, 90 degrees
-        public const double HalfPI = 3.14159265358979 * 0.5;
-
         // clamp a value between [min, max]: min <= value <= max
         public static float Clamped(this float value, float min, float max)
         {
@@ -199,12 +196,23 @@ namespace Ship_Game
         public static int RelativeY(this Rectangle r, float percent) => r.Y + (int)(r.Height*percent);
 
         public static Vector2 RelPos(this Rectangle r, float relX, float relY)
-        {
-            return new Vector2(RelativeX(r, relX), RelativeY(r, relY));
-        }
+            => new Vector2(RelativeX(r, relX), RelativeY(r, relY));
 
         public static Rectangle Bevel(this Rectangle r, int bevel)
             => new Rectangle(r.X - bevel, r.Y - bevel, r.Width + bevel*2, r.Height + bevel*2);
+
+        public static Rectangle Bevel(this Rectangle r, int bevelX, int bevelY)
+            => new Rectangle(r.X - bevelX, r.Y - bevelY, r.Width + bevelX*2, r.Height + bevelY*2);
+
+        public static Rectangle Widen(this Rectangle r, int widen)
+            => new Rectangle(r.X - widen, r.Y, r.Width + widen*2, r.Height);
+
+        public static Rectangle Move(this Rectangle r, int dx, int dy)
+            => new Rectangle(r.X + dx, r.Y + dy, r.Width, r.Height);
+
+        // Cut a chunk off the top of the rectangle
+        public static Rectangle CutTop(this Rectangle r, int amount)
+            => new Rectangle(r.X, r.Y + amount, r.Width, r.Height - amount);
 
         public static Rectangle ScaledBy(this Rectangle r, float scale)
         {
@@ -512,11 +520,13 @@ namespace Ship_Game
             return degrees.AngleToDirection() * circleRadius;
         }
 
+        public const float DefaultTolerance = 0.000001f;
+
         // Returns true if a is almost equal to b, within float epsilon error margin
         public static bool AlmostEqual(this float a, float b)
         {
             float delta = a - b;
-            return -0.000001f <= delta && delta <= +0.000001f;
+            return -DefaultTolerance <= delta && delta <= DefaultTolerance;
         }
         public static bool AlmostEqual(this float a, float b, float tolerance)
         {
@@ -526,18 +536,18 @@ namespace Ship_Game
         public static bool NotEqual(this float a, float b)
         {
             float delta = a - b;
-            return delta < -0.000001f || +0.000001f <= delta;
+            return delta < -DefaultTolerance || DefaultTolerance <= delta;
         }
 
 
         public static bool AlmostZero(this float a)
         {
-            return -0.000001f <= a && a <= +0.000001f;
+            return -DefaultTolerance <= a && a <= DefaultTolerance;
         }
 
         public static bool NotZero(this float a)
         {
-            return a < -0.000001f || +0.000001f < a;
+            return a < -DefaultTolerance || DefaultTolerance < a;
         }
 
         /// <summary>Returns true if a less than b or almost equal</summary>
@@ -570,7 +580,6 @@ namespace Ship_Game
             return (min - 0.000001f) <= x && x <= (max + 0.000001f);
         }
 
-
         public static float Max3(float a, float b, float c) => Max(a, Max(b, c));
 
         // compute the next highest power of 2 of 32-bit v
@@ -593,6 +602,31 @@ namespace Ship_Game
             if (rem != 0)
                 value += multipleOf - rem;
             return value;
+        }
+
+        public static int RoundDownToMultipleOf(this int value, int multipleOf)
+        {
+            int rem = value % multipleOf;
+            if (rem != 0)
+                return value - rem;
+            return value;
+        }
+
+        // For example: 75.5f.RoundUpTo(40)  -->  80
+        public static int RoundUpTo(this float value, int multipleOf)
+        {
+            return (int)Ceiling(value / multipleOf) * multipleOf;
+        }
+
+        // For example: 75.5f.RoundTo10()  -->  80
+        public static int RoundTo10(this float value)
+        {
+            return (int)Ceiling(value * 0.1f) * 10;
+        }
+
+        public static Vector2 RoundTo10(this Vector2 v)
+        {
+            return new Vector2(v.X.RoundTo10(), v.Y.RoundTo10());
         }
     }
 }

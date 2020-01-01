@@ -380,8 +380,7 @@ namespace Ship_Game
                     var drawCurs = new Vector2((R.X + 15), (R.Y + 10));
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
-                    OfferTextSL.Reset();
-                    HelperFunctions.parseTextToSL(txt, (DialogRect.Width - 30), Fonts.Consolas18, ref OfferTextSL);
+                    OfferTextSL.SetItems(Fonts.Arial12Bold.ParseTextToLines(txt, DialogRect.Width - 30));
                     foreach (ScrollList.Entry e in OfferTextSL.VisibleEntries)
                     {
                         DrawDropShadowText(e.Get<string>(), new Vector2(drawCurs.X, e.Y - 33), Fonts.Consolas18);

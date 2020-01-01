@@ -30,8 +30,6 @@ namespace Ship_Game
 
 		private ReplayElement replay;
 
-		private bool LowRes;
-
 		AudioHandle Music = new AudioHandle();
 		AudioHandle Ambient = new AudioHandle();
 
@@ -122,10 +120,6 @@ namespace Ship_Game
 
 		public override void LoadContent()
 		{
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
-			{
-				LowRes = true;
-			}
 			LoseTexture = TransientContent.Load<Texture2D>("WinLose/groundbattle_final");
 			Reason = TransientContent.Load<Texture2D>("WinLose/YouLose");
 			ReasonRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Reason.Width / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - Reason.Height / 2 - 200, Reason.Width, Reason.Height);

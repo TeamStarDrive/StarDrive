@@ -13,10 +13,10 @@ namespace Ship_Game.GameScreens.MainMenu
         SubTexture VersionBar;
 
         public VersionLabel(UIElementV2 parent, int x, int y, string text)
-                            : base(parent, new Vector2(x, y), text, Fonts.Pirulen12)
+                            : base(new Vector2(x, y), text, Fonts.Pirulen12)
         {
             VersionBar = parent.ContentManager.Load<SubTexture>("Textures/MainMenu/version_bar");
-            AlignRight = true;
+            Align = TextAlign.Right;
         }
 
         public override void Draw(SpriteBatch batch)
