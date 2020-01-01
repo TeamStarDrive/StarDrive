@@ -275,6 +275,11 @@ namespace Ship_Game.AI
             return prediction;
         }
 
+        internal void CombatThrust()
+        {
+
+        }
+
         /**
          * Thrusts towards a position and engages StarDrive if needed
          * Thrust direction will be adjusted according to current velocity,
