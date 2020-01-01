@@ -46,6 +46,7 @@ namespace Ship_Game.AI
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
 
+        public void ClearFleetTask() => FleetTask = null;
         public Fleet()
         {
             FleetIconIndex = RandomMath.IntBetween(1, 10);
@@ -413,7 +414,7 @@ namespace Ship_Game.AI
             Owner.GetEmpireAI().TaskList.ApplyPendingRemovals();
         }
 
-        void DoExplorePlanet(MilitaryTask task) //Mer Gretman Left off here
+        void DoExplorePlanet(MilitaryTask task)
         {
             bool eventBuildingFound = task.TargetPlanet.EventsOnBuildings();
 
