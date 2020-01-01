@@ -389,6 +389,11 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
+    <Compile Include="Ship_Game\UI\ScrollList2.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListBase.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListItem.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListItemBase.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListStyleTextures.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
