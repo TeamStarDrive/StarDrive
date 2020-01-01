@@ -84,7 +84,7 @@ namespace Ship_Game
                 TexDict[name] = tex;
             }
             BridgeRect = new Rectangle((int)ScreenCenter.X - 640, (int)ScreenCenter.Y - 360, 1280, 720);
-            close = new CloseButton(this, new Rectangle(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15, 20, 20));
+            close = new CloseButton(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15);
             base.LoadContent();
         }
     }

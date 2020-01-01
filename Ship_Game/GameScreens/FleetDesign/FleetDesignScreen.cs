@@ -518,7 +518,6 @@ namespace Ship_Game
             }
             DrawSelectedData(StarDriveGame.Instance.GameTime);
             Close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
 
             ScreenManager.EndFrameRendering();
@@ -1404,7 +1403,7 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            Close = new CloseButton(this, new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97, 20, 20));
+            Close = new CloseButton(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97);
             AssignLightRig("example/ShipyardLightrig");
             StarField = new StarField(this);
             Rectangle titleRect = new Rectangle(2, 44, 250, 80);
@@ -1506,7 +1505,7 @@ namespace Ship_Game
             };
             PrioritiesRect = new Rectangle(SelectedStuffRect.X - OperationsRect.Width - 2, OperationsRect.Y, OperationsRect.Width, OperationsRect.Height);
             Rectangle oprect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 20, 300, 40);
-            OperationalRadius = new FloatSlider(this, oprect, "Operational Radius", max: 500000, value: 10000)
+            OperationalRadius = new FloatSlider(oprect, "Operational Radius", max: 500000, value: 10000)
             {
                 RelativeValue = 0.2f,
                 TooltipId = 13

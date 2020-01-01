@@ -356,7 +356,6 @@ namespace Ship_Game
                     pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
                     pos.X -= 8f;
 
-                    ToolTip.Draw(batch);
                     batch.End();
                     return;
                 }

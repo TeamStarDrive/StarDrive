@@ -3,8 +3,24 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Ship_Game
 {
+    // @note This abstraction is used for unit tests
+    public interface IInputProvider
+    {
+        MouseState GetMouse();
+        KeyboardState GetKeyboard();
+        GamePadState GetGamePad();
+    }
+
+    public class DefaultInputProvider : IInputProvider
+    {
+        public MouseState GetMouse() => Mouse.GetState();
+        public KeyboardState GetKeyboard() => Keyboard.GetState();
+        public GamePadState GetGamePad() => GamePad.GetState(PlayerIndex.One);
+    }
+
     public sealed partial class InputState
     {
+        public IInputProvider Provider = new DefaultInputProvider();
         public KeyboardState KeysCurr;
         public KeyboardState KeysPrev;
         public GamePadState GamepadCurr;
@@ -14,7 +30,17 @@ namespace Ship_Game
 
         public int ScrollWheelPrev;
         public float ExitScreenTimer;
-       
+
+        // Mouse position
+        public Vector2 CursorPosition { get; private set; }
+        public Vector2 CursorDirection => MousePrev.Pos().DirectionToTarget(CursorPosition);
+        public Vector2 CursorVelocity  => MousePrev.Pos() - CursorPosition;
+        public float CursorX => CursorPosition.X;
+        public float CursorY => CursorPosition.Y;
+        public int MouseX { get; private set; }
+        public int MouseY { get; private set; }
+        public bool MouseMoved { get; private set; }
+
         public bool WasAnyKeyPressed => KeysCurr.GetPressedKeys().Length > 0;
 
         // Mouse Clicks
@@ -36,18 +62,6 @@ namespace Ship_Game
         static bool MouseButtonReleased(ButtonState current, ButtonState prev)
             => current == ButtonState.Released && prev == ButtonState.Pressed;
 
-
-        // Mouse position
-        public Vector2 CursorPosition { get; private set; }
-        public Vector2 CursorDirection => MousePrev.Pos().DirectionToTarget(CursorPosition);
-        public Vector2 CursorVelocity =>  MousePrev.Pos() - CursorPosition;
-        public float CursorX => CursorPosition.X;
-        public float CursorY => CursorPosition.Y;
-        public int MouseX { get; private set; }
-        public int MouseY { get; private set; }
-        public bool MouseMoved { get; private set; }
-
-
         
         public bool IsKeyDown(Keys key) => KeysCurr.IsKeyDown(key);
 
@@ -55,15 +69,12 @@ namespace Ship_Game
         public bool KeyPressed(Keys key) => KeysCurr.IsKeyDown(key) && KeysPrev.IsKeyUp(key);
 
         public bool GamepadClicked(Buttons button)
-        {
-            return GamepadCurr.IsButtonDown(button) && GamepadPrev.IsButtonUp(button);
-        }
-        public bool GamepadHeld(Buttons button) => GamepadCurr.IsButtonDown(button);
+            => GamepadCurr.IsButtonDown(button) && GamepadPrev.IsButtonUp(button);
 
+        public bool GamepadHeld(Buttons button) => GamepadCurr.IsButtonDown(button);
 
         public bool LeftStickFlickDown => GamepadCurr.ThumbSticks.Left.Y < 0f && GamepadPrev.ThumbSticks.Left.Y >= 0f;
         public bool LeftStickFlickUp   => GamepadCurr.ThumbSticks.Left.Y > 0f && GamepadPrev.ThumbSticks.Left.Y <= 0f;
-
 
         //Ingame 
         //UniverseScreen
@@ -197,26 +208,21 @@ namespace Ship_Game
 
         public bool DesignMirrorToggled => KeyPressed(Keys.M);
 
-        public void Update(GameTime gameTime)
+        public void Update(float elapsedTime)
         {
-            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
-
             KeysPrev    = KeysCurr;
             GamepadPrev = GamepadCurr;
             MousePrev   = MouseCurr;
             ScrollWheelPrev = MouseCurr.ScrollWheelValue;
-            MouseCurr = Mouse.GetState();
+
+            MouseCurr = Provider.GetMouse();
+            KeysCurr = Provider.GetKeyboard();
+            GamepadCurr = Provider.GetGamePad();
+
             CursorPosition = new Vector2(MouseCurr.X, MouseCurr.Y);
             MouseX = MouseCurr.X;
             MouseY = MouseCurr.Y;
-            KeysCurr = Keyboard.GetState();
             MouseMoved = CursorPosition.Distance(MousePrev.Pos()) > 1;
-
-            if (ExitScreenTimer >= 0)
-            {
-                ExitScreenTimer -= elapsedTime;
-                return;
-            }
 
             UpdateDoubleClick(elapsedTime);
             UpdateHolding(elapsedTime);
