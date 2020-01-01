@@ -234,16 +234,14 @@ namespace Ship_Game
 
             if (pgs.TroopsHere.Count != 0)
             {
-                DescriptionSL.Reset();
-                HelperFunctions.parseTextToSL(pgs.SingleTroop.Description, (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
+                DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(pgs.SingleTroop.Description, LeftRect.Width-15));
                 return;
             }
 
             if (pgs.building == null)
                 return;
 
-            DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(Localizer.Token(pgs.building.DescriptionIndex), (LeftRect.Width - 15), Fonts.Arial12, ref DescriptionSL);
+            DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(Localizer.Token(pgs.building.DescriptionIndex), LeftRect.Width-15));
         }
 
         private struct TippedItem

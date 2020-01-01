@@ -41,7 +41,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             TransitionOffTime = 0.25f;
         }
         
-        private void DeleteAccepted(object sender, EventArgs e)
+        private void DeleteAccepted()
         {            
             GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[ShipToDelete].Deleted = true;
@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             LoadContent();
         }
 
-        private void DeleteDataAccepted(object sender, EventArgs e)
+        private void DeleteDataAccepted()
         {
             GameAudio.EchoAffirmative();
             ShipsToLoad.Clear();

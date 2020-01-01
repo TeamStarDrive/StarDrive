@@ -23,8 +23,6 @@ namespace Ship_Game
 
         private Menu2 DMenu;
 
-        public bool LowRes;
-
         public Rectangle SelectedInfoRect;
 
         public Rectangle IntelligenceRect;
