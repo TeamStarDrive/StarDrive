@@ -23,7 +23,7 @@ namespace Ship_Game
         UIButton UnloadMod;
         UIButton CurrentButton;
 
-        ScrollList<ModsListItem> ModsList;
+        ScrollList2<ModsListItem> ModsList;
         ModEntry SelectedMod;
 
         public ModManager(MainMenuScreen mainMenu) : base(mainMenu)
@@ -75,7 +75,7 @@ namespace Ship_Game
 
         void LoadMods()
         {
-            ModsList = Add(new ScrollList<ModsListItem>(AllSaves, 140));
+            ModsList = Add(new ScrollList2<ModsListItem>(AllSaves, 140));
             ModsList.EnableItemHighlight = true;
             ModsList.OnClick = OnModItemClicked;
 

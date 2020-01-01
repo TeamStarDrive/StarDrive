@@ -35,8 +35,8 @@ namespace Ship_Game
         Rectangle GridPos;
         Submenu subColonyGrid;
 
-        ScrollList<BuildableListItem> BuildableList;
-        ScrollList<ConstructionQueueScrollListItem> ConstructionQueue;
+        ScrollList2<BuildableListItem> BuildableList;
+        ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
         DropDownMenu foodDropDown;
         DropDownMenu prodDropDown;
         ProgressBar FoodStorage;
@@ -153,7 +153,7 @@ namespace Ship_Game
                                         RightMenu.Width - 40, 0.5f*(RightMenu.Height - 60));
             BuildableTabs.OnTabChange = OnBuildableTabChanged;
 
-            BuildableList = Add(new ScrollList<BuildableListItem>(BuildableTabs));
+            BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
             BuildableList.EnableItemHighlight = true;
             BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
 
@@ -168,7 +168,7 @@ namespace Ship_Game
             var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 63);
             queue.AddTab(Localizer.Token(337));
 
-            ConstructionQueue = Add(new ScrollList<ConstructionQueueScrollListItem>(queue));
+            ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
             ConstructionQueue.EnableDragEvents = true;
 

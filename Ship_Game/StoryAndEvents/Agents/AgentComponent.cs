@@ -17,8 +17,8 @@ namespace Ship_Game
 
         public Rectangle OpsSubRect;
 
-        public ScrollList<AgentListItem> AgentSL;
-        public ScrollList<MissionListItem> OpsSL;
+        public ScrollList2<AgentListItem> AgentSL;
+        public ScrollList2<MissionListItem> OpsSL;
 
         private ScreenManager ScreenManager;
 
@@ -52,14 +52,14 @@ namespace Ship_Game
             SubRect = new Rectangle(ComponentRect.X, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
             OpsSubRect = new Rectangle(operationsRect.X + 20, ComponentRect.Y + 25, ComponentRect.Width, ComponentRect.Height - 25);
 
-            AgentSL = new ScrollList<AgentListItem>(new Submenu(ComponentRect), 40);
+            AgentSL = new ScrollList2<AgentListItem>(new Submenu(ComponentRect), 40);
             AgentSL.OnClick = OnAgentItemClicked;
             foreach (Agent agent in EmpireManager.Player.data.AgentList)
                 AgentSL.AddItem(new AgentListItem{ Agent = agent });
 
             Rectangle c = ComponentRect;
             c.X = OpsSubRect.X;
-            OpsSL = new ScrollList<MissionListItem>(new Submenu(c), 30);
+            OpsSL = new ScrollList2<MissionListItem>(new Submenu(c), 30);
             Training        = new MissionListItem(AgentMission.Training, this);
             Infiltrate      = new MissionListItem(AgentMission.Infiltrate, this);
             Assassinate     = new MissionListItem(AgentMission.Assassinate, this);

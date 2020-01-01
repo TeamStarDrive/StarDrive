@@ -14,7 +14,7 @@ namespace Ship_Game
         readonly ShipListScreen Screen;
         readonly Ship ShipToRefit;
         Submenu sub_ships;
-        ScrollList<RefitShipListItem> RefitShipList;
+        ScrollList2<RefitShipListItem> RefitShipList;
         UIButton RefitOne;
         UIButton RefitAll;
         Ship RefitTo;
@@ -74,7 +74,7 @@ namespace Ship_Game
             sub_ships = new Submenu(shipDesignsRect);
             sub_ships.Background = new Selector(sub_ships.Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
             
-            RefitShipList = Add(new ScrollList<RefitShipListItem>(sub_ships, 40));
+            RefitShipList = Add(new ScrollList2<RefitShipListItem>(sub_ships, 40));
             sub_ships.AddTab("Refit to...");
             RefitShipList.OnClick = OnRefitShipItemClicked;
 

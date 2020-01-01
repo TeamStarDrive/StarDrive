@@ -11,7 +11,7 @@ namespace Ship_Game
     public sealed class EmpireManagementScreen : GameScreen
     {
         EmpireUIOverlay eui;
-        ScrollList<ColoniesListItem> ColoniesList;
+        ScrollList2<ColoniesListItem> ColoniesList;
         GovernorDetailsComponent GovernorDetails;
         Rectangle eRect;
 
@@ -39,7 +39,7 @@ namespace Ship_Game
             Add(new Menu2(mainBkg));
             Add(new CloseButton(mainBkg.Right - 40, mainBkg.Y + 20));
 
-            ColoniesList = Add(new ScrollList<ColoniesListItem>(mainBkg.X + 20, titleRect.Bottom + 30,
+            ColoniesList = Add(new ScrollList2<ColoniesListItem>(mainBkg.X + 20, titleRect.Bottom + 30,
                                                                 ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40), 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;
             ColoniesList.OnDoubleClick = OnColonyListItemDoubleClicked;

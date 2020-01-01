@@ -6,7 +6,7 @@ using Ship_Game.Ships;
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
 {
-    public class FighterScrollList : ScrollList<FighterListItem>
+    public class FighterScrollList : ScrollList2<FighterListItem>
     {
         readonly ShipDesignScreen Screen;
         public ShipModule ActiveHangarModule;

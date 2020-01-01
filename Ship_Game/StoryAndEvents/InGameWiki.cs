@@ -13,11 +13,11 @@ namespace Ship_Game
     public sealed class InGameWiki : PopupWindow
     {
         readonly HelpTopics HelpTopics;
-        ScrollList<WikiHelpCategoryListItem> HelpCategories;
+        ScrollList2<WikiHelpCategoryListItem> HelpCategories;
         Rectangle CategoriesRect;
         Rectangle TextRect;
         Vector2 TitlePosition;
-        ScrollList<TextListItem> HelpEntries;
+        ScrollList2<TextListItem> HelpEntries;
 
         ScreenMediaPlayer Player;
         Rectangle SmallViewer;
@@ -55,10 +55,10 @@ namespace Ship_Game
             }
 
             CategoriesRect = new Rectangle(Rect.X + 25, Rect.Y + 130, 330, 430);
-            HelpCategories = Add(new ScrollList<WikiHelpCategoryListItem>(CategoriesRect, 40));
+            HelpCategories = Add(new ScrollList2<WikiHelpCategoryListItem>(CategoriesRect, 40));
             TextRect       = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
             var textSlRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
-            HelpEntries = Add(new ScrollList<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
+            HelpEntries = Add(new ScrollList2<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));
             SmallViewer = new Rectangle(TextRect.X + 20, TextRect.Y + 40, 336, 189);
             BigViewer   = new Rectangle(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
             Player = new ScreenMediaPlayer(ContentManager)

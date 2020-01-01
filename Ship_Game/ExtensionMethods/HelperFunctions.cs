@@ -245,7 +245,7 @@ namespace Ship_Game
         }
 
         public static void ResetWithParseText(
-            this ScrollList<TextListItem> list, SpriteFont font, string text, float maxLineWidth)
+            this ScrollList2<TextListItem> list, SpriteFont font, string text, float maxLineWidth)
         {
             string parsed = ParseText(font, text, maxLineWidth);
             list.Reset();
