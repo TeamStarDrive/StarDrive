@@ -10,7 +10,7 @@ namespace Ship_Game
         public bool fade;
         public bool FromGame;
         public string TechUID;
-        ScrollList<UnlockListItem> UnlockSL;
+        ScrollList2<UnlockListItem> UnlockSL;
         readonly Technology Technology;
         
         public ResearchPopup(UniverseScreen s, string uid) : base(s, 600, 600)
@@ -127,7 +127,7 @@ namespace Ship_Game
                                      MidContainer.Y + MidContainer.Height - 20, 
                                      Rect.Width - 40, 
                                      Rect.Height - MidContainer.Height - TitleRect.Height - 20);
-            UnlockSL = Add(new ScrollList<UnlockListItem>(rect, 100));
+            UnlockSL = Add(new ScrollList2<UnlockListItem>(rect, 100));
 
             // @todo What is this?
             bool IsShipType(string type)

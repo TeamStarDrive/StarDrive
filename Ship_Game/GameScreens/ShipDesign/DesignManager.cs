@@ -14,7 +14,7 @@ namespace Ship_Game
         UITextEntry EnterNameArea;
 
         Submenu subAllDesigns;
-        ScrollList<ShipDesignListItem> ShipDesigns;
+        ScrollList2<ShipDesignListItem> ShipDesigns;
 
         public DesignManager(ShipDesignScreen screen, string txt) : base(screen)
         {
@@ -49,7 +49,7 @@ namespace Ship_Game
                                         Rect.Height - background.Height - 50);
             subAllDesigns.AddTab("All Designs");
 
-            ShipDesigns = Add(new ScrollList<ShipDesignListItem>(subAllDesigns));
+            ShipDesigns = Add(new ScrollList2<ShipDesignListItem>(subAllDesigns));
             ShipDesigns.EnableItemHighlight = true;
             ShipDesigns.OnClick = OnShipDesignItemClicked;
             ShipDesigns.SetItems(ResourceManager.ShipsDict.Values.Select(s => new ShipDesignListItem(s)));

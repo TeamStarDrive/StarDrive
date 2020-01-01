@@ -16,7 +16,7 @@ namespace Ship_Game
     {
         ShipToolScreen Screen;
         Rectangle Window;
-        ScrollList<LoadModelListItem> SavesSL;
+        ScrollList2<LoadModelListItem> SavesSL;
         FileInfo activeFile;
 
         public LoadModelScreen(ShipToolScreen screen) : base(screen)
@@ -53,7 +53,7 @@ namespace Ship_Game
             allSaves.Background = new Menu1(Window);
             allSaves.AddTab("Load Model");
 
-            SavesSL = Add(new ScrollList<LoadModelListItem>(allSaves, 55));
+            SavesSL = Add(new ScrollList2<LoadModelListItem>(allSaves, 55));
             SavesSL.OnClick = OnLoadModelClicked;
             SavesSL.AddItem(new LoadModelListItem("XNB Models"));
             SavesSL.AddItem(new LoadModelListItem("OBJ Models"));

@@ -18,7 +18,7 @@ namespace Ship_Game
 
         private Ship SelectedShip;
 
-        private ScrollList<ShipListScreenItem> ShipSL;
+        private ScrollList2<ShipListScreenItem> ShipSL;
 
         public EmpireUIOverlay empUI;
 
@@ -71,7 +71,7 @@ namespace Ship_Game
                 eRect.Height = eRect.Height - 1;
             }
 
-            ShipSL = Add(new ScrollList<ShipListScreenItem>(eRect, 30));
+            ShipSL = Add(new ScrollList2<ShipListScreenItem>(eRect, 30));
             ShipSL.OnClick = OnShipListScreenItemClicked;
 
             Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,

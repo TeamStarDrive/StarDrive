@@ -13,7 +13,7 @@ namespace Ship_Game
         readonly UILabel TimeLeftLabel;
 
         ResearchQItem CurrentResearch;
-        readonly ScrollList<ResearchQItem> ResearchQueueList;
+        readonly ScrollList2<ResearchQItem> ResearchQueueList;
         readonly UIButton BtnShowQueue;
 
         public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(container, Color.Black)
@@ -38,7 +38,7 @@ namespace Ship_Game
             var queue = new Rectangle(current.X, current.Y + 165, container.Width, container.Height - 165);
             var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
             queuePanel.AddTab(Localizer.Token(1404));
-            ResearchQueueList = Add(new ScrollList<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
+            ResearchQueueList = Add(new ScrollList2<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
             ReloadResearchQueue();
         }
 

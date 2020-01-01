@@ -19,7 +19,7 @@ namespace Ship_Game
         public Rectangle LeftRect;
         public Rectangle RightRect;
         public Rectangle ShipInfoRect;
-        readonly ScrollList<SelectedShipListItem> SelectedShipsSL;
+        readonly ScrollList2<SelectedShipListItem> SelectedShipsSL;
         public Rectangle Power;
         public Rectangle Shields;
         public Rectangle Ordnance;
@@ -90,7 +90,7 @@ namespace Ship_Game
             AddOrdersBarButton(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", toolTip: 160);
 
             var slsubRect = new Rectangle(RightRect.X, Housing.Y + 110 - 35, RightRect.Width - 5, 140);
-            SelectedShipsSL = new ScrollList<SelectedShipListItem>(slsubRect, 24);
+            SelectedShipsSL = new ScrollList2<SelectedShipListItem>(slsubRect, 24);
         }
 
         void OnCombatStatusButtonClicked(CombatState state)

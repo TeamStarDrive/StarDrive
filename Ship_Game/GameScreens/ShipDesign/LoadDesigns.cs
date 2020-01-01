@@ -18,7 +18,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         readonly Ship_Game.ShipDesignScreen Screen;
 
         UITextEntry EnterNameArea;
-        ScrollList<DesignListItem> AvailableDesignsList;
+        ScrollList2<DesignListItem> AvailableDesignsList;
         ShipInfoOverlayComponent ShipInfoOverlay;
 
         public string ShipToDelete = "";
@@ -110,7 +110,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             background.Background = new Menu1(Rect);
             background.AddTab(Localizer.Token(198));
 
-            AvailableDesignsList = Add(new ScrollList<DesignListItem>(background));
+            AvailableDesignsList = Add(new ScrollList2<DesignListItem>(background));
             AvailableDesignsList.EnableItemHighlight = true;
             AvailableDesignsList.OnClick = OnDesignListItemClicked;
 

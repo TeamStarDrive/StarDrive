@@ -27,9 +27,9 @@ namespace Ship_Game
         Rectangle ThemRect;
         Rectangle BigTradeRect;
 
-        ScrollList<DialogOptionListItem> StatementsSL;
-        ScrollList<ItemToOffer> OurItemsSL;
-        ScrollList<ItemToOffer> TheirItemsSL;
+        ScrollList2<DialogOptionListItem> StatementsSL;
+        ScrollList2<ItemToOffer> OurItemsSL;
+        ScrollList2<ItemToOffer> TheirItemsSL;
 
         GenericButton Accept;
         GenericButton Reject;
@@ -46,7 +46,7 @@ namespace Ship_Game
         GenericButton OurAttitudeBtn_Respectful;
         GenericButton OurAttitudeBtn_Threaten;
         Vector2 EmpireNamePos;
-        ScrollList<TextListItem> OfferTextSL;
+        ScrollList2<TextListItem> OfferTextSL;
 
         Rectangle R;
         Rectangle BridgeRect;
@@ -427,11 +427,11 @@ namespace Ship_Game
 
         class DiplomacyItemsLayout
         {
-            readonly ScrollList<ItemToOffer> List;
+            readonly ScrollList2<ItemToOffer> List;
             ItemToOffer Current;
             Vector2 Cursor;
 
-            public DiplomacyItemsLayout(ScrollList<ItemToOffer> list, Rectangle rect)
+            public DiplomacyItemsLayout(ScrollList2<ItemToOffer> list, Rectangle rect)
             {
                 List = list;
                 Current = null;
@@ -477,7 +477,7 @@ namespace Ship_Game
             }
         }
 
-        static void FillItems(Empire empire, Empire other, ScrollList<ItemToOffer> list, Rectangle rect)
+        static void FillItems(Empire empire, Empire other, ScrollList2<ItemToOffer> list, Rectangle rect)
         {
             list.Reset();
             var layout = new DiplomacyItemsLayout(list, rect);
@@ -739,12 +739,12 @@ namespace Ship_Game
             return base.HandleInput(input);
         }
 
-        void OnItemToOfferClicked(ItemToOffer ourItem, ScrollList<ItemToOffer> theirOffers, Offer ourOffer, Offer theirOffer)
+        void OnItemToOfferClicked(ItemToOffer ourItem, ScrollList2<ItemToOffer> theirOffers, Offer ourOffer, Offer theirOffer)
         {
             ProcessResponse(ourItem, ourItem.Response, theirOffers, ourOffer, theirOffer);
         }
 
-        static ItemToOffer FindItemToOffer(ScrollList<ItemToOffer> items, string response)
+        static ItemToOffer FindItemToOffer(ScrollList2<ItemToOffer> items, string response)
         {
             foreach (ItemToOffer entry in items.AllEntries)
                 if (entry.Response == response)
@@ -752,7 +752,7 @@ namespace Ship_Game
             return null;
         }
 
-        void ProcessResponse(ItemToOffer item, string response, ScrollList<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
+        void ProcessResponse(ItemToOffer item, string response, ScrollList2<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
         {
             switch (response)
             {
@@ -863,10 +863,10 @@ namespace Ship_Game
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
 
             var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 40));
-            OfferTextSL  = Add(new ScrollList<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            StatementsSL = Add(new ScrollList<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
-            OurItemsSL   = Add(new ScrollList<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
-            TheirItemsSL = Add(new ScrollList<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
+            OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
+            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
+            OurItemsSL   = Add(new ScrollList2<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
+            TheirItemsSL = Add(new ScrollList2<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
             
             OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
             TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);

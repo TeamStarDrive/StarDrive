@@ -35,7 +35,7 @@ namespace Ship_Game
 
         private Rectangle ArtifactsRect;
 
-        private ScrollList<ArtifactItemListItem> ArtifactsSL;
+        private ScrollList2<ArtifactItemListItem> ArtifactsSL;
 
         //Added by CG: player empire
         Empire PlayerEmpire;
@@ -972,7 +972,7 @@ namespace Ship_Game
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             ArtifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 180, SelectedInfoRect.Width - 40, 130);
             Submenu ArtifactsSub = new Submenu(ArtifactsRect);
-            ArtifactsSL = new ScrollList<ArtifactItemListItem>(ArtifactsSub, 40);
+            ArtifactsSL = new ScrollList2<ArtifactItemListItem>(ArtifactsSub, 40);
             Contact = new DanButton(new Vector2(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91, SelectedInfoRect.Y + SelectedInfoRect.Height - 45), Localizer.Token(1644))
             {
                 Toggled = true

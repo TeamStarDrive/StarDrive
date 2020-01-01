@@ -37,7 +37,7 @@ namespace Ship_Game
         Rectangle BlackBar;
 
         public ModuleSelection ModulesList;
-        ScrollList<ShipHullListItem> HullSelectList;
+        ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
         Vector2 CameraVelocity;
@@ -483,7 +483,7 @@ namespace Ship_Game
             hullSelectionBkg.Background = new Selector(hullSelectionBkg.Rect.CutTop(25), new Color(0,0,0,210));
             hullSelectionBkg.AddTab(Localizer.Token(107));
 
-            HullSelectList = Add(new ScrollList<ShipHullListItem>(hullSelectionBkg));
+            HullSelectList = Add(new ScrollList2<ShipHullListItem>(hullSelectionBkg));
             HullSelectList.OnClick = OnHullListItemClicked;
             HullSelectList.EnableItemHighlight = true;
             InitializeShipHullsList();

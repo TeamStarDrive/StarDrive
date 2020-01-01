@@ -11,7 +11,7 @@ namespace Ship_Game.GameScreens.ShipDesign
         ShipToolScreen Screen;
         public ShipData Changeto { get; private set; }
         public ShipData ActiveHull { get; private set; }
-        ScrollList<HullListItem> HullSL;
+        ScrollList2<HullListItem> HullSL;
 
         public Action<ShipData> OnHullChange;
 
@@ -21,7 +21,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             var background = new Submenu(Screen.ScreenWidth - 285, 100, 280, 400);
             background.Background = new Selector(background.Rect.CutTop(25), new Color(0, 0, 0, 210)); // black background
             background.AddTab(Localizer.Token(107));
-            HullSL = Add(new ScrollList<HullListItem>(background));
+            HullSL = Add(new ScrollList2<HullListItem>(background));
             HullSL.EnableItemHighlight = true;
             HullSL.OnClick = (item) => ChangeHull(item.Hull);
 

@@ -31,7 +31,7 @@ namespace Ship_Game
         protected Submenu Traits;
         protected Submenu NameSub;
 
-        ScrollList<TraitsListItem> TraitsList;
+        ScrollList2<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
         protected UITextEntry RaceName = new UITextEntry();
@@ -43,7 +43,7 @@ namespace Ship_Game
         protected Vector2 FlagPos;
 
         protected Rectangle FlagRect;
-        ScrollList<RaceArchetypeListItem> ChooseRaceList;
+        ScrollList2<RaceArchetypeListItem> ChooseRaceList;
         Rectangle PacingRect;
 
         int Pacing = 100;
@@ -54,7 +54,7 @@ namespace Ship_Game
 
         public Map<IEmpireData, SubTexture> TextureDict { get; } = new Map<IEmpireData, SubTexture>();
 
-        ScrollList<TextListItem> DescriptionTextList;
+        ScrollList2<TextListItem> DescriptionTextList;
         protected UIButton Engage;
         protected UIButton Abort;
 
@@ -146,12 +146,12 @@ namespace Ship_Game
             Traits.OnTabChange = OnTraitsTabChanged;
             Traits.Background = new Menu1(traitsList); 
 
-            TraitsList = Add(new ScrollList<TraitsListItem>(Traits, 40));
+            TraitsList = Add(new ScrollList2<TraitsListItem>(Traits, 40));
             TraitsList.EnableItemHighlight = true;
             TraitsList.OnClick = OnTraitsListItemClicked;
 
             var chooseRace = new Menu1(5, traitsList.Y, traitsList.X - 10, traitsList.Height);
-            ChooseRaceList = Add(new ScrollList<RaceArchetypeListItem>(chooseRace, 135));
+            ChooseRaceList = Add(new ScrollList2<RaceArchetypeListItem>(chooseRace, 135));
             ChooseRaceList.OnClick = OnRaceArchetypeItemClicked;
 
             foreach (IEmpireData e in ResourceManager.MajorRaces)
@@ -179,7 +179,7 @@ namespace Ship_Game
             ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
-            DescriptionTextList = Add(new ScrollList<TextListItem>(description, DescriptionTextFont.LineSpacing));
+            DescriptionTextList = Add(new ScrollList2<TextListItem>(description, DescriptionTextFont.LineSpacing));
             DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));
 

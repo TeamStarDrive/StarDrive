@@ -12,7 +12,7 @@ namespace Ship_Game
     public sealed class DeepSpaceBuildingWindow : UIElementContainer
     {
         readonly UniverseScreen Screen;
-        ScrollList<ConstructionListItem> SL;
+        ScrollList2<ConstructionListItem> SL;
         public Ship itemToBuild;
         Vector2 TetherOffset;
         Guid TargetPlanet = Guid.Empty;
@@ -27,7 +27,7 @@ namespace Ship_Game
             var background = new Submenu(Rect);
             background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
             background.AddTab("Build Menu");
-            SL = Add(new ScrollList<ConstructionListItem>(background, 40));
+            SL = Add(new ScrollList2<ConstructionListItem>(background, 40));
             SL.OnClick = (item) => { itemToBuild = item.Ship; };
             SL.EnableItemHighlight = true;
 
