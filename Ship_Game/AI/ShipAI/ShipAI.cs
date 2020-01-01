@@ -154,7 +154,6 @@ namespace Ship_Game.AI
             if (State == AIState.ManualControl)
                 return;
 
-            Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 
             if (UpdateOrderQueueAI(elapsedTime))
@@ -162,8 +161,6 @@ namespace Ship_Game.AI
 
             AIStateRebase();
             UpdateCombatStateAI(elapsedTime);
-            if (!Owner.isTurning)
-                Owner.RestoreYBankRotation();
         }
         public Ship NearBySupplyShip => 
             FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
