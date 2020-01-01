@@ -98,7 +98,7 @@ namespace Ship_Game.AI.ShipMovement
             {
                 AI.RotateTowardsPosition(OrbitPos, elapsedTime, 0.01f);
                 Owner.SubLightAccelerate(speedLimit: precisionSpeed);
-                Owner.RestoreYBankRotation();
+                Owner.RestoreYBankRotation(elapsedTime);
             }
             else // we are still not there yet, so find a meaningful orbit position
             {

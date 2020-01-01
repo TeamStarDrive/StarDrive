@@ -72,7 +72,6 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
-            
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
         }
@@ -89,12 +88,6 @@ namespace Ship_Game.Ships
                     Vector3 randPos = UniverseRandom.Vector32D(third);
                     Empire.Universe.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
                 }
-            }
-
-            if (RotationalVelocity > 0 || RotationalVelocity < 0)
-            {
-                Rotation += RotationalVelocity * elapsedTime;
-                isTurning = true;
             }
 
             if (elapsedTime > 0f)

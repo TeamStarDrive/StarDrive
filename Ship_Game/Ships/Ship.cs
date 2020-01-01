@@ -27,8 +27,7 @@ namespace Ship_Game.Ships
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
-        public float yBankAmount = 0.007f;
-        public float MaxBank     = 0.5235988f;
+        public float MaxBank     = 0.5236f;
 
         public Vector2 projectedPosition;
         readonly Array<Thruster> ThrusterList = new Array<Thruster>();
@@ -57,7 +56,6 @@ namespace Ship_Game.Ships
         public float EMPDamage;
         public Fleet fleet;
         public float yRotation;
-        public float RotationalVelocity;
         public float MechanicalBoardingDefense;
         public float TroopBoardingDefense;
         public float ECMValue;
@@ -66,7 +64,7 @@ namespace Ship_Game.Ships
         public float experience;
         public bool EnginesKnockedOut;
         public float InCombatTimer;
-        public bool isTurning;
+        public bool IsTurning { get; private set; }
         public float InhibitionRadius;
         public bool IsPlatform;
         public bool IsGuardian; // Remnant Guardian created at game start
@@ -216,8 +214,9 @@ namespace Ship_Game.Ships
                 ResourceManager.TextureOrDefault(iconName + shipData.HullRole, "TacticalIcons/symbol_construction");
         }
 
-        float GetyBankAmount(float yBank)
+        float GetYBankAmount(float elapsedTime)
         {
+            float yBank = RotationRadiansPerSecond * elapsedTime;
             switch (shipData.Role)
             {
                 default:
