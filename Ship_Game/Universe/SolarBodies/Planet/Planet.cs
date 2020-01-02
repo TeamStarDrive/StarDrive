@@ -118,7 +118,9 @@ namespace Ship_Game
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
-        public float MaxPopPotentialFor(Empire empire)
+        public float PotentialMaxPopBillionsFor(Empire empire) => PotentialMaxPopFor(empire) / 1000;
+
+        public float PotentialMaxPopFor(Empire empire)
         {
             if (empire.IsBuildingUnlocked(Building.TerraformerId))
                 return BasePopPerTile * empire.RacialEnvModifer(Category) * TileArea;
@@ -137,7 +139,7 @@ namespace Ship_Game
             return bioSphereMaxPop + naturalMaxPop;
         }
 
-        public float MaxFertilityPotentialFor(Empire empire)
+        public float PotentialMaxFertilityFor(Empire empire)
         {
             float minimumMaxFertilityPotential = empire.IsBuildingUnlocked(Building.TerraformerId) ? 1 : 0;
                 return MaxFertilityFor(empire).ClampMin(minimumMaxFertilityPotential);
