@@ -49,7 +49,6 @@ namespace Ship_Game
         private bool ShowAllArcs;
         public bool ToggleOverlay = true;
         private bool ShipSaved = true;
-        private bool LowRes;
         public bool Debug;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;

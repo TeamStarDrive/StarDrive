@@ -15,22 +15,9 @@ namespace Ship_Game
         Rectangle SliderRect; // colored slider
         Rectangle KnobRect;   // knob area used to move the slider value
         public string Text;
-        public string Tooltip;
-        public ToolTip Tip;
+        public ToolTipText Tip;
 
         public Action<FloatSlider> OnChange;
-
-        // Sets the tooltip string from Localization/GameText_EN.xml
-        public int LocalizeTooltipId
-        {
-            set => Tooltip = Localizer.Token(value);
-        }
-
-        // Sets the Tip to a more complex ToolTip instance
-        public int TooltipId
-        {
-            set => Tip = ResourceManager.GetToolTip(value);
-        }
 
         bool Hover, Dragging;
         float Min, Max, Value;
@@ -59,9 +46,9 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString() => $"Slider {ElementDescr} r:{Value} a:{AbsoluteValue} [{Min}..{Max}] {Text}";
+        public override string ToString() => $"{TypeName} {ElementDescr} r:{Value} a:{AbsoluteValue} [{Min}..{Max}] {Text}";
 
-        static readonly Color TextColor   = new Color(255, 239, 208);
+        static readonly Color TextColor   = Colors.Cream;
         static readonly Color HoverColor  = new Color(164, 154, 133);
         static readonly Color NormalColor = new Color(72, 61, 38);
 
@@ -72,8 +59,8 @@ namespace Ship_Game
         static SubTexture SliderMinuteHover;
         static SubTexture SliderGradient;   // background gradient for the slider
 
-        public FloatSlider(UIElementV2 parent, Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
-            : base(parent, r)
+        public FloatSlider(Rectangle r, string text, float min = 0f, float max = 10000f, float value = 5000f)
+            : base(r)
         {
             if (SliderKnob == null || ContentId != ResourceManager.ContentId)
             {
@@ -92,14 +79,14 @@ namespace Ship_Game
             UpdateSliderRect();
         }
 
-        public FloatSlider(UIElementV2 parent, SliderStyle style, Rectangle r, string text, float min, float max, float value)
-            : this(parent, r, text, min, max, value)
+        public FloatSlider(SliderStyle style, Rectangle r, string text, float min, float max, float value)
+            : this(r, text, min, max, value)
         {
             Style = style;
         }
 
-        public FloatSlider(UIElementV2 parent, SliderStyle style, Vector2 size, string text, float min, float max, float value)
-            : this(parent, new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
+        public FloatSlider(SliderStyle style, Vector2 size, string text, float min, float max, float value)
+            : this(new Rectangle(0, 0,(int)size.X, (int)size.Y), text, min, max, value)
         {
             Style = style;
         }
@@ -177,14 +164,14 @@ namespace Ship_Game
             batch.Draw(Hover ? SliderKnobHover : SliderKnob, knobRect, Color.White);
 
             var textPos = new Vector2(SliderRect.X + SliderRect.Width + 8, SliderRect.Y + SliderRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Arial12Bold, StyledValue, textPos, Colors.Cream);
 
             if (Hover)
             {
-                if (Tip != null)
-                    ToolTip.CreateTooltip(Tip.TIP_ID);
-                else if (Tooltip.NotEmpty())
-                    ToolTip.CreateTooltip(Tooltip);
+                if (Tip.IsValid)
+                {
+                    ToolTip.CreateTooltip(Tip, "", new Vector2(Right, CenterY));
+                }
             }
         }
         public bool HandleInput(InputState input, ref float currentValue, float dynamicMaxValue)

@@ -895,9 +895,6 @@ namespace Ship_Game
 
             DrawHullSelection(ScreenManager.SpriteBatch);
 
-            if (IsActive)
-                ToolTip.Draw(ScreenManager.SpriteBatch);
-
             void DrawTitle(float x, string title)
             {
                 int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;

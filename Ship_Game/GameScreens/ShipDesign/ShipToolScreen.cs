@@ -612,7 +612,7 @@ namespace Ship_Game
                  * Matrix.CreateRotationY(RadMath.PI)
                  * Matrix.CreateRotationX(0f)
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            designInputState.Update(gameTime);
+            designInputState.Update(FrameDeltaTime);
             HandleInput();
             thruster.tscale = tscale;
             thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);
