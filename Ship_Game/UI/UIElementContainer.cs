@@ -49,6 +49,10 @@ namespace Ship_Game
         protected UIElementContainer(float x, float y, float w, float h) : base(x, y, w, h)
         {
         }
+        // TODO: deprecated
+        protected UIElementContainer(UIElementV2 parent, in Rectangle rect) : base(rect)
+        {
+        }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -286,6 +290,8 @@ namespace Ship_Game
         public UIButton ButtonSmall(float x, float y, LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), text, click);
 
+        public UIButton ButtonMedium(float x, float y, LocalizedText text, Action<UIButton> click)
+            => Button(ButtonStyle.Medium, new Vector2(x, y), text, click);
 
         public UIButton ButtonMedium(float x, float y, LocalizedText title, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), title, click);

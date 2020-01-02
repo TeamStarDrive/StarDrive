@@ -172,13 +172,18 @@ namespace Ship_Game
             if (!Visible || !Enabled || !IsActive)
                 return false;
 
+            // First allow other UI elements to capture input
+            if (base.HandleInput(input))
+                return true;
+
+            // only then check for ExitScreen condition
             if (input.Escaped || (IsPopup && input.RightMouseClick))
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
                 return true;
             }
-            return base.HandleInput(input);
+            return false;
         }
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)

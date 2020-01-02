@@ -97,15 +97,15 @@ namespace Ship_Game
             MinimumWarpRange    = Slider(minimumWarpRange, "Minimum Warp Range",   0, 1200000f, GlobalStats.MinimumWarpRange);
             IncreaseMaintenance = Slider(maintenanceRect,  "Increase Maintenance", 1, 10f,      GlobalStats.ShipMaintenanceMulti);
 
-            FTLPenaltySlider.LocalizeTooltipId = 2286;
-            EnemyFTLPenaltySlider.LocalizeTooltipId = 7041;
-            GravityWellSize.LocalizeTooltipId = 6003;
-            extraPlanets.Tooltip = "Add extra planets to each system, avoiding lone stars as well";
-            MinimumWarpRange.Tooltip = "Minimum warp range a ship must have before it needs to recharge for the AI to build it";
+            FTLPenaltySlider.Tip = 2286;
+            EnemyFTLPenaltySlider.Tip = 7041;
+            GravityWellSize.Tip = 6003;
+            extraPlanets.Tip = "Add extra planets to each system, avoiding lone stars as well";
+            MinimumWarpRange.Tip = "Minimum warp range a ship must have before it needs to recharge for the AI to build it";
 
-            IncreaseMaintenance.Tooltip = "Multiply Global Maintenance Cost By  SSP's Are Not Affected";
-            TurnTimer.Tooltip = "Time in seconds for turns";
-            StartingRichness.Tooltip = "Add to all Starting Empire Planets this Value";
+            IncreaseMaintenance.Tip = "Multiply Global Maintenance Cost By  SSP's Are Not Affected";
+            TurnTimer.Tip = "Time in seconds for turns";
+            StartingRichness.Tip = "Add to all Starting Empire Planets this Value";
 
 
 

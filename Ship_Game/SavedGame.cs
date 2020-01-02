@@ -678,6 +678,7 @@ namespace Ship_Game
             [Serialize(13)] public bool TransportingFood;
             [Serialize(14)] public bool TransportingProduction;
             [Serialize(15)] public bool AllowInterEmpireTrade;
+            [Serialize(16)] public bool IsMilitary;
         }
 
         public struct RingSave

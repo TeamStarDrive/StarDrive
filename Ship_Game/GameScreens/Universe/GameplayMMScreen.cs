@@ -124,11 +124,11 @@ namespace Ship_Game
             list.LayoutStyle = ListLayoutStyle.Resize;
 
             Save = list.AddButton(300, Save_OnClick);
-            list.AddButton(2,   Load_OnClick);
-            list.AddButton(4,   Options_OnClick);
-            list.AddButton(301, Return_OnClick);
-            list.AddButton(302, ExitToMain_OnClick);
-            list.AddButton(303, Exit_OnClick);
+            list.AddButton(text: 2,   Load_OnClick);
+            list.AddButton(text: 4,   Options_OnClick);
+            list.AddButton(text: 301, Return_OnClick);
+            list.AddButton(text: 302, ExitToMain_OnClick);
+            list.AddButton(text: 303, Exit_OnClick);
         }  
     }
 }

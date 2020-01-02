@@ -173,6 +173,10 @@ namespace Ship_Game
             Pos = new Vector2(x, y);
             Size = new Vector2(w, h);
         }
+        // TODO: deprecated
+        protected UIElementV2(UIElementV2 parent, in Rectangle rect) : this(rect)
+        {
+        }
 
         protected virtual int NextZOrder() { return ZOrder + 1; }
 
