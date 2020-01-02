@@ -98,7 +98,7 @@ namespace Ship_Game
             res = new SortButton(eui.empire.data.ESSort, "res");
             money = new SortButton(eui.empire.data.ESSort, "money");
             SelectedPlanet = ColoniesList.ItemAtTop<EmpireScreenEntry>().p;
-            GovernorDropdown = new DropOptions<int>(this, new Rectangle(0, 0, 100, 18));
+            GovernorDropdown = new DropOptions<int>(new Rectangle(0, 0, 100, 18));
             GovernorDropdown.AddOption("--", 1);
             GovernorDropdown.AddOption(Localizer.Token(4064), 0);
             GovernorDropdown.AddOption(Localizer.Token(4065), 2);

@@ -186,7 +186,7 @@ namespace Ship_Game
             }
             Vector2 InfoPos = new Vector2(SaveHullButton.r.X - 50, SaveHullButton.r.Y - 20);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
-            ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
+            ShipNameBox.Draw(batch, Fonts.Arial20Bold, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), Color.Orange);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
             ExistingHulls.DrawHullSelection(batch, ScreenManager);

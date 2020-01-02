@@ -31,7 +31,8 @@ namespace Ship_Game
         public bool WarpInSystem;
 
         public SetupSave()
-        { }
+        {
+        }
 
         public SetupSave(UniverseData.GameDifficulty gameDifficulty, 
             RaceDesignScreen.StarNum starNum, 

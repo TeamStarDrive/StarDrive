@@ -376,7 +376,7 @@ namespace Ship_Game
                 batch.FillRectangle(SubShips.Rect, new Color(0, 0, 0, 130));
                 SubShips.Draw(batch);
                 ShipSL.Draw(batch);
-                var bCursor = new Vector2(RightMenu.Menu.X + 5, RightMenu.Menu.Y + 25);
+                var bCursor = new Vector2(RightMenu.X + 5, RightMenu.Y + 25);
                 foreach (ScrollList.Entry e in ShipSL.VisibleExpandedEntries)
                 {
                     bCursor.Y = e.Y;
@@ -602,12 +602,12 @@ namespace Ship_Game
                 OperationsSelector.Draw(spriteBatch);
                 cursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
                 spriteBatch.DrawString(Fonts.Pirulen12, "Target Selection", cursor, new Color(255, 239, 208));
-                SliderArmor.Draw(ScreenManager);
-                SliderAssist.Draw(ScreenManager);
-                SliderDefend.Draw(ScreenManager);
-                SliderDps.Draw(ScreenManager);
-                SliderShield.Draw(ScreenManager);
-                SliderVulture.Draw(ScreenManager);
+                SliderArmor.Draw(spriteBatch);
+                SliderAssist.Draw(spriteBatch);
+                SliderDefend.Draw(spriteBatch);
+                SliderDps.Draw(spriteBatch);
+                SliderShield.Draw(spriteBatch);
+                SliderVulture.Draw(spriteBatch);
                 Priorityselector = new Selector( PrioritiesRect, new Color(0, 0, 0, 180));
                 Priorityselector.Draw(spriteBatch);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
@@ -643,12 +643,12 @@ namespace Ship_Game
                 OperationsSelector.Draw(spriteBatch);
                 cursor = new Vector2(OperationsRect.X + 20, OperationsRect.Y + 10);
                 spriteBatch.DrawString(Fonts.Pirulen12, "Group Target Selection", cursor, new Color(255, 239, 208));
-                SliderArmor.Draw(ScreenManager);
-                SliderAssist.Draw(ScreenManager);
-                SliderDefend.Draw(ScreenManager);
-                SliderDps.Draw(ScreenManager);
-                SliderShield.Draw(ScreenManager);
-                SliderVulture.Draw(ScreenManager);
+                SliderArmor.Draw(spriteBatch);
+                SliderAssist.Draw(spriteBatch);
+                SliderDefend.Draw(spriteBatch);
+                SliderDps.Draw(spriteBatch);
+                SliderShield.Draw(spriteBatch);
+                SliderVulture.Draw(spriteBatch);
                 Priorityselector = new Selector(PrioritiesRect, new Color(0, 0, 0, 180));
                 Priorityselector.Draw(spriteBatch);
                 cursor = new Vector2(PrioritiesRect.X + 20, PrioritiesRect.Y + 10);
@@ -681,7 +681,7 @@ namespace Ship_Game
             Vector2 cursor1 = new Vector2(SelectedStuffRect.X + 20, SelectedStuffRect.Y + 10);
             FleetNameEntry.Text = f.Name;
             FleetNameEntry.ClickableArea = new Rectangle((int)cursor1.X, (int)cursor1.Y, (int)Fonts.Arial20Bold.MeasureString(f.Name).X, Fonts.Arial20Bold.LineSpacing);
-            FleetNameEntry.Draw(Fonts.Arial20Bold, spriteBatch, cursor1, gameTime, (FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
+            FleetNameEntry.Draw(spriteBatch, Fonts.Arial20Bold, cursor1, (FleetNameEntry.Hover ? Color.Orange : new Color(255, 239, 208)));
             cursor1.Y = cursor1.Y + (Fonts.Arial20Bold.LineSpacing + 10);
             cursor1 = cursor1 + new Vector2(50f, 30f);
             spriteBatch.DrawString(Fonts.Pirulen12, "Fleet Icon", cursor1, new Color(255, 239, 208));
@@ -1154,7 +1154,7 @@ namespace Ship_Game
 
         private void HandleSelectionBox(InputState input)
         {
-            if (LeftMenu.Menu.HitTest(input.CursorPosition) || RightMenu.Menu.HitTest(input.CursorPosition))
+            if (LeftMenu.HitTest(input.CursorPosition) || RightMenu.HitTest(input.CursorPosition))
             {
                 SelectionBox = new Rectangle(0, 0, -1, -1);
                 return;
@@ -1411,7 +1411,7 @@ namespace Ship_Game
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2f - Fonts.Laserian14.MeasureString("Fleet Hotkeys").X / 2f
                 , titleRect.Y + titleRect.Height / 2f - Fonts.Laserian14.LineSpacing / 2f);
             Rectangle leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, titleRect.Width, 500);
-            LeftMenu = new Menu1(ScreenManager, leftRect, true);
+            LeftMenu = new Menu1(leftRect, true);
             FleetSL = new ScrollList(LeftMenu.subMenu, 40);
             int i = 0;
             foreach (KeyValuePair<int, Fleet> fleet in EmpireManager.Player.GetFleetsDict())

@@ -228,7 +228,7 @@ namespace Ship_Game
 
         public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
         {
-            if (randItem.HardCoreOnly && !GlobalStats.HardcoreRuleset)
+            if (randItem.HardCoreOnly)
                 return; // hardcore is disabled, bail
 
             if (RandomMath.RandomBetween(0.0f, 100f) < chance)

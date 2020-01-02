@@ -1499,7 +1499,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>408</Index>
-      <Text>population cap; turns inhabitable tiles into habitable tiles</Text>
+      <Text>population cap; turns inhabitable tiles into habitable</Text>
     </Token>
     <Token>
       <Index>409</Index>
@@ -1699,7 +1699,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>463</Index>
-      <Text>Slowly terraforms the planet to your Empire's preferred Environment</Text>
+      <Text>Terraforms the planet to your preferred Environment</Text>
     </Token>
     <Token>
       <Index>464</Index>
@@ -6497,11 +6497,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>420</Index>
-      <Text> (-2) fertility on build, + production equal to 4x planetary richness; </Text> <!-- fertility is dynamic per race-->
+      <Text>-2 fertility on build, +4x production richness bonus</Text> <!-- fertility is dynamic per race-->
     </Token>
     <Token>
       <Index>414</Index>
-      <Text>+ .02 population per turn</Text>
+      <Text>+0.02 population per turn</Text>
     </Token>
     <Token>
       <Index>925</Index>
