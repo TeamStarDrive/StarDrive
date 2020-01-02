@@ -268,11 +268,11 @@ namespace Ship_Game
             foreach (TreeNode node in SubNodes.Values)
             {
                 if (!node.HandleInput(input, ScreenManager, camera))
-                {
-                    if (node.Screen.RightClicked)  //fbedard: popup open
-                        RightClicked = true;
                     continue;
-                }
+
+                if (RightClicked) // node was right clicked
+                    return true; // input captured
+
                 if (EmpireManager.Player.HasUnlocked(node.Entry.UID))
                 {
                     GameAudio.NegativeClick();
@@ -314,6 +314,7 @@ namespace Ship_Game
                         if (techEntry.Discovered) Queue.AddToResearchQueue(SubNodes[toAdd]);
                     }
                 }
+                return true; // input captured
             }
             return base.HandleInput(input);
         }
