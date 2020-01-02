@@ -4692,7 +4692,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1915</Index>
-      <Text>This is the strength of the ship divided by it's slot number. It is the actual value the empire is looking when evaluating ships of the role.</Text>
+      <Text>This is the strength of the ship divided by it's slot number. It is the actual value the empire uses to compare similar ships roles.</Text>
     </Token>
     <Token>
       <Index>1916</Index>
