@@ -93,7 +93,7 @@ namespace Ship_Game
             LeftMenu = new Menu1(theMenu2);
             var theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenWidth / 3 - 15, ScreenHeight - theMenu1.Y - 2);
             RightMenu = new Menu1(theMenu3);
-            close = new CloseButton(this, new Rectangle(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22, 20, 20));
+            close = new CloseButton(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22);
             var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             PlanetInfo = new Submenu(theMenu4);
             PlanetInfo.AddTab(Localizer.Token(326));
@@ -224,13 +224,13 @@ namespace Ship_Game
                 GovernorDropdown.ActiveIndex = GetIndex(p);
 
                 P.colonyType = (Planet.ColonyType)GovernorDropdown.ActiveValue;
-                GovOrbitals  = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + Font12.LineSpacing + 5,
+                GovOrbitals  = new UICheckBox(rectangle4.X - 3, rectangle5.Y + Font12.LineSpacing + 5,
                     () => p.GovOrbitals, Fonts.Arial12Bold, Localizer.Token(1960), 1961);
 
-                GovMilitia   = new UICheckBox(this, rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
+                GovMilitia   = new UICheckBox(rectangle4.X - 3, rectangle5.Y + (Font12.LineSpacing + 5) * 2,
                     () => p.GovMilitia, Fonts.Arial12Bold, Localizer.Token(1956), 1957);
 
-                DontScrapBuildings = new UICheckBox(this, rectangle4.X + 240, rectangle5.Y + (Font12.LineSpacing + 5),
+                DontScrapBuildings = new UICheckBox(rectangle4.X + 240, rectangle5.Y + (Font12.LineSpacing + 5),
                     () => p.DontScrapBuildings, Fonts.Arial12Bold, Localizer.Token(1941), 1942);
             }
             else
@@ -1377,7 +1377,7 @@ namespace Ship_Game
             Reset = true;
         }
 
-        void ScrapAccepted(object sender, EventArgs e)
+        void ScrapAccepted()
         {
             if (ToScrap != null)
                 P.ScrapBuilding(ToScrap);
