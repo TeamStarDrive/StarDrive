@@ -13,6 +13,7 @@ namespace Ship_Game
     {
         public Planet Planet;
         public bool isBuilding;
+        public bool IsMilitary; // Military building
         public bool isShip;
         public bool isOrbital;
         public bool isTroop;
@@ -151,6 +152,7 @@ namespace Ship_Game
             var qi = new SavedGame.QueueItemSave
             {
                 isBuilding  = isBuilding,
+                IsMilitary  = IsMilitary,
                 Cost        = Cost,
                 isShip      = isShip,
                 DisplayName = DisplayName,

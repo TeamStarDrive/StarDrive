@@ -60,7 +60,8 @@ namespace Ship_Game
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
-        public float OrbitalsMaintenance;
+        public float OrbitalsMaintenance { get; private set; }
+        public float MilitaryBuildingsMaintenance { get; private set; }
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
@@ -518,7 +519,8 @@ namespace Ship_Game
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateBaseFertility();
             InitResources(); // must be done before Governing
-            UpdateOrbitalsMaint();
+            UpdateOrbitalsMaintenance();
+            UpdateMilitaryBuildingMaintenance();
             NotifyEmptyQueue();
             RechargePlanetaryShields();
             ApplyResources();
@@ -633,6 +635,26 @@ namespace Ship_Game
 
             if (AllowInfantry && TroopsHere.Count > 6)
                 DevelopmentStatus += Localizer.Token(1779); // military culture
+        }
+
+        void UpdateOrbitalsMaintenance()
+        {
+            OrbitalsMaintenance = 0;
+            foreach (Ship orbital in OrbitalStations.Values)
+            {
+                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
+            }
+        }
+
+        void UpdateMilitaryBuildingMaintenance()
+        {
+            MilitaryBuildingsMaintenance = 0;
+            for (int i = 0; i < BuildingList.Count; i++)
+            {
+                Building b = BuildingList[i];
+                if (b.IsMilitary)
+                    MilitaryBuildingsMaintenance += b.ActualMaintenance(this);
+            }
         }
 
         public LocalizedText ColonyTypeInfoText
@@ -948,13 +970,12 @@ namespace Ship_Game
         public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
-        public int AvailableTiles      => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        public int FreeHabitableTiles  => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
         public float BuiltCoverage     => TotalBuildings / (float)TileArea;
         public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
-
-        public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
 
         // FB - This will give the Max Fertility the planet should have after terraforming is complete
         public float TerraformMaxFertilityTarget
@@ -972,22 +993,6 @@ namespace Ship_Game
 
                 float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
                 return racialEnvDivider + sumPositiveFertilityChange;
-            }
-        }
-
-        public int DesiredMilitaryBuildings
-        {
-            get
-            {
-                float militaryCoverage;
-                switch (colonyType)
-                {
-                    case ColonyType.Military: militaryCoverage = 0.4f; break;
-                    case ColonyType.Core: militaryCoverage = 0.3f; break;
-                    default: militaryCoverage = 0.2f; break;
-                }
-                float sizeFactor = (PopulationRatio + BuiltCoverage) / 2;
-                return (int)Math.Floor(militaryCoverage * sizeFactor * TileArea);
             }
         }
 

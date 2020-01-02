@@ -20,6 +20,7 @@ namespace Ship_Game
         public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
         {
             this.p = p;
+            IsPopup = true; // allow right-click dismiss
             Rectangle titleRect = new Rectangle(5, 44, 405, 80);
             if (LowRes)
             {
