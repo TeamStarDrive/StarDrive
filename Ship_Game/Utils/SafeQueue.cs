@@ -356,7 +356,7 @@ namespace Ship_Game.Utils
 
         public override string ToString()
         {
-            return GetType().GenericName();
+            return GetType().GetTypeName();
         }
 
         public void Dispose()

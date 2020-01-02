@@ -299,10 +299,6 @@ namespace Ship_Game
                 SubTexture icon = troop.TextureDefault;
                 batch.Draw(icon, Input.CursorPosition, Color.White, 0f, icon.CenterF, 0.65f, SpriteEffects.None, 1f);
             }
-            if (Empire.Universe.IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
 
             batch.Begin(SpriteBlendMode.Additive);

@@ -158,7 +158,8 @@ namespace Ship_Game.AI
             if (Owner.EnginesKnockedOut)
                 return;
 
-            bool debug = Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
+            bool debug = Empire.Universe.Debug && Empire.Universe.DebugWin != null
+                                               && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
 
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;

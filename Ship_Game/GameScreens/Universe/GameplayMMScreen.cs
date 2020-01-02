@@ -119,16 +119,16 @@ namespace Ship_Game
             Vector2 c = ScreenCenter;
             window = new Menu2(new Rectangle((int)c.X - 100, (int)c.Y - 150, 200, 330));
 
-            UIList list = List(new Vector2(c.X - 84, c.Y - 100));
+            UIList list = AddList(new Vector2(c.X - 84, c.Y - 100));
             list.Padding = new Vector2(2f, 12f);
             list.LayoutStyle = ListLayoutStyle.Resize;
 
             Save = list.AddButton(300, Save_OnClick);
-            list.AddButton(titleId: 2,   Load_OnClick);
-            list.AddButton(titleId: 4,   Options_OnClick);
-            list.AddButton(titleId: 301, Return_OnClick);
-            list.AddButton(titleId: 302, ExitToMain_OnClick);
-            list.AddButton(titleId: 303, Exit_OnClick);
+            list.AddButton(text: 2,   Load_OnClick);
+            list.AddButton(text: 4,   Options_OnClick);
+            list.AddButton(text: 301, Return_OnClick);
+            list.AddButton(text: 302, ExitToMain_OnClick);
+            list.AddButton(text: 303, Exit_OnClick);
         }  
     }
 }

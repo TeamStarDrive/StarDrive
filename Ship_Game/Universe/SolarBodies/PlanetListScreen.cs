@@ -63,7 +63,7 @@ namespace Ship_Game
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+            close = new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
             sb_Sys = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
@@ -91,11 +91,11 @@ namespace Ship_Game
                 }
             }
 
-            cb_hideOwned = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+            cb_hideOwned = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
 
-            cb_hideUninhabitable = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+            cb_hideUninhabitable = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0);
 
@@ -212,7 +212,6 @@ namespace Ship_Game
             cb_hideUninhabitable.Draw(batch);
             cb_hideOwned.Draw(batch);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 

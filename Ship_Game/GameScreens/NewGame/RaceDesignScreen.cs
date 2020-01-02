@@ -30,8 +30,6 @@ namespace Ship_Game
         protected Menu1 NameMenu;
         protected Menu1 Description;
 
-        protected bool LowRes;
-
         protected Submenu Traits;
         protected Submenu NameSub;
 
@@ -255,8 +253,7 @@ namespace Ship_Game
             }
 
             b.Plural(PreferredEnvDescription);
-            DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(b.ToString(), Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
+            DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Menu.Width - 50));
         }
 
         static float DotSpaceWidth;
@@ -573,10 +570,6 @@ namespace Ship_Game
                 DrawColorSelector();
             }
             base.Draw(batch);
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
         }
 
@@ -978,10 +971,6 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 || ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
-            {
-                LowRes = true;
-            }
             Rectangle titleRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
@@ -1057,8 +1046,8 @@ namespace Ship_Game
                     traitsSL.AddItem(t);
             }
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
                             Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
 
@@ -1072,7 +1061,7 @@ namespace Ship_Game
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
+            Button(pos.X, pos.Y, text: 4006, click: OnRuleOptionsClicked);
 
             base.LoadContent();
         }
