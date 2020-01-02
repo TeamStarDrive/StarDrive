@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -12,7 +11,14 @@ namespace Ship_Game
         public string Title; // Serialized from: Tooltips.xml
 
         // minimum hover time until tip is shown
-        const float TipShowTimeThreshold = 0.3f;
+        const float TipShowTimePoint = 0.5f;
+
+        // this provides a sort of grace period before the tip can be shown again
+        const float TipReappearTimeDelay = 1.5f;
+
+        // how much time after disappearing should we reset the tooltip completely?
+        // (we forget about the reappear delay)
+        const float TipResetTimeDelay = 5.0f;
 
         // minimum time a tip is shown, this includes fadeIn/stay/fadeOut
         const float TipTime = 1f;
@@ -98,16 +104,35 @@ namespace Ship_Game
             // @return FALSE: tip died, TRUE: tip is OK
             public bool Update(float deltaTime)
             {
-                // if tip is hovered, we increase its lifetime
-                // when not hovered, we decrease the lifetime
-                LifeTime += (HoveredThisFrame ? deltaTime : -deltaTime);
-                LifeTime = Math.Min(LifeTime, TipTime);
+                bool hovered = HoveredThisFrame;
                 HoveredThisFrame = false;
 
-                if (LifeTime <= 0)
+                // if tip is hovered, we increase its lifetime
+                // when not hovered, we decrease the lifetime
+                LifeTime += (hovered ? deltaTime : -deltaTime);
+                LifeTime = Math.Min(LifeTime, TipTime);
+
+                const float TipReappearTimePoint = TipShowTimePoint - TipReappearTimeDelay;
+                const float TipResetTimePoint = TipReappearTimePoint - TipResetTimeDelay;
+                if (LifeTime <= TipResetTimePoint)
                     return false; // tip died
 
-                if (!Visible && LifeTime > TipShowTimeThreshold) // tip can be shown
+                // if tooltip goes invisible,
+                // set the lifetime so that the tip reappears at least with TipReappearTimeDelay
+                if (Visible && LifeTime <= 0)
+                {
+                    Visible = false;
+                    LifeTime = TipReappearTimePoint;
+                    return true;
+                }
+
+                // when tooltip starts reappearing, make sure tip reappears with TipReappearTimeDelay
+                if (hovered)
+                {
+                    LifeTime = Math.Max(LifeTime, TipReappearTimePoint);
+                }
+
+                if (!Visible && LifeTime > TipShowTimePoint) // tip can be shown
                 {
                     LifeTime = 0.01f; // fix the lifetime so we get correct fade-in
                     Visible = true;
