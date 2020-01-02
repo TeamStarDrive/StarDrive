@@ -27,6 +27,7 @@ namespace Ship_Game
 		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
 		{
 			this.p = p;
+			IsPopup = true; // allow right-click dismiss
 			Rectangle titleRect = new Rectangle(5, 44, 405, 80);
 			if (LowRes)
 			{
