@@ -572,7 +572,7 @@ namespace Ship_Game
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier;
 
-            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Menu.Y + 18);
+            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
 
             DrawHullBonuses();
 
@@ -626,7 +626,7 @@ namespace Ship_Game
             float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
             if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
 
-            var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
+            var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
             if (ActiveHull.Role != ShipData.RoleName.platform)
                 DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
 
@@ -685,25 +685,7 @@ namespace Ship_Game
 
             void DrawPropulsion()
             {
-                if (GlobalStats.HardcoreRuleset)
-                {
-                    string massstring = mass.GetNumberString();
-                    string wmassstring = warpableMass.GetNumberString();
-                    string warpmassstring = string.Concat(massstring, "/", wmassstring);
-                    if (mass > warpableMass)
-                        DrawStatBad(ref cursor, "Warpable Mass:", warpmassstring, 153);
-                    else
-                        DrawStat(ref cursor, "Warpable Mass:", warpmassstring, 153);
-
-                    DrawRequirement(ref cursor, "Warp Capable", mass <= warpableMass);
-                    if (ftlCount > 0f)
-                    {
-                        float harcoreSpeed = ftlSpeed / ftlCount;
-                        DrawStatColor(ref cursor, TintedValue(2170, harcoreSpeed, 135, Color.LightSkyBlue));
-                    }
-                }
-                else
-                    DrawStatPropulsion(ref cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
+                DrawStatPropulsion(ref cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
 
                 if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
             }

@@ -39,45 +39,45 @@ namespace Ship_Game
 			greenRect = new Rectangle(rect.X + rect.Width / 2, rect.Y, rect.Width / 2, 6);
 		}
 
-		public void Draw(ScreenManager ScreenManager)
+		public void Draw(SpriteBatch batch)
 		{
 			Vector2 Cursor = new Vector2(ContainerRect.X + 10, ContainerRect.Y);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Text, Cursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, Text, Cursor, Colors.Cream);
 			if (amount > 0.5f)
 			{
 				float greenamount = 2f * (amount - 0.5f);
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
+				batch.Draw(ResourceManager.Texture("NewUI/slider_grd_green"), 
                     new Rectangle(greenRect.X, rect.Y, (int)(greenamount * greenRect.Width), 6), Color.White);
 			}
 			else if (amount < 0.5f)
 			{
 				float blackAmount = 2f * amount;
-				ScreenManager.SpriteBatch.FillRectangle(redRect, Color.Maroon);
-				ScreenManager.SpriteBatch.FillRectangle(new Rectangle(redRect.X, rect.Y, (int)(blackAmount * redRect.Width), 6), Color.Black);
+				batch.FillRectangle(redRect, Color.Maroon);
+				batch.FillRectangle(new Rectangle(redRect.X, rect.Y, (int)(blackAmount * redRect.Width), 6), Color.Black);
 			}
-			ScreenManager.SpriteBatch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
+			batch.DrawRectangle(rect, (Hover ? new Color(164, 154, 133) : new Color(72, 61, 38)));
 			Vector2 tickCursor = new Vector2();
 			for (int i = 0; i < 11; i++)
 			{
 				tickCursor = new Vector2(rect.X + rect.Width / 10 * i, rect.Y + rect.Height + 2);
 				if (Hover)
 				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
+					batch.Draw(ResourceManager.Texture("NewUI/slider_minute_hover"), tickCursor, Color.White);
 				}
 				else
 				{
-					ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
+					batch.Draw(ResourceManager.Texture("NewUI/slider_minute"), tickCursor, Color.White);
 				}
 			}
 			Rectangle drawRect = cursor;
 			drawRect.X = drawRect.X - drawRect.Width / 2;
 			if (Hover)
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), drawRect, Color.White);
+				batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair_hover"), drawRect, Color.White);
 			}
 			else
 			{
-				ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
+				batch.Draw(ResourceManager.Texture("NewUI/slider_crosshair"), drawRect, Color.White);
 			}
 			if (Hover && Tip_ID != 0)
 			{
@@ -85,7 +85,7 @@ namespace Ship_Game
 			}
 			Vector2 textPos = new Vector2(rect.X + rect.Width + 8, rect.Y + rect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
 			float single = 2f * (amount - 0.5f);
-			ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, single.ToString(fmt), textPos, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, single.ToString(fmt), textPos, Colors.Cream);
 		}
 
 	    public bool HandleInput(InputState input, ref float currentvalue)

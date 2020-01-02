@@ -339,7 +339,7 @@ namespace Ship_Game
                     art.Update(ArtifactsCursor);
                     foreach (SkinnableButton button in art.ArtifactButtons)
                     {
-                        button.Draw(ScreenManager);
+                        button.Draw(ScreenManager.SpriteBatch);
                     }
                 }
             }
@@ -407,7 +407,7 @@ namespace Ship_Game
                     art.Update(ArtifactsCursor);
                     foreach (SkinnableButton button in art.ArtifactButtons)
                     {
-                        button.Draw(ScreenManager);
+                        button.Draw(ScreenManager.SpriteBatch);
                     }
                 }
                 Array<Empire> Sortlist = new Array<Empire>();

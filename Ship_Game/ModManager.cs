@@ -125,10 +125,10 @@ namespace Ship_Game
                 return;
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw();
+            SaveMenu.Draw(batch);
             NameSave.Draw(batch);
             AllSaves.Draw(batch);
-            EnterNameArea.Draw(Fonts.Arial12Bold, batch, EnternamePos, StarDriveGame.Instance.GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            EnterNameArea.Draw(batch, Fonts.Arial12Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Color.Orange));
             base.Draw(batch);
             batch.End();
         }

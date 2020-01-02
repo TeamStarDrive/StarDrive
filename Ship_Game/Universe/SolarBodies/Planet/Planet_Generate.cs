@@ -217,14 +217,6 @@ namespace Ship_Game
         {
             ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(this);
             ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(this);
-            if (GlobalStats.HardcoreRuleset)
-            {
-                AddGood("ReactorFuel", 1000);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(this);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(this);
-                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(this);
-                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(this);
-            }
         }
 
         private void ApplyTerraforming() // Added by Fat Bastard
