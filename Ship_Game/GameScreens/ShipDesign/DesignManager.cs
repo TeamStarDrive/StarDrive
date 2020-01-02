@@ -145,7 +145,7 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        private void OverWriteAccepted(object sender, EventArgs e)
+        private void OverWriteAccepted()
         {
             GameAudio.AffirmativeClick();
             screen?.SaveShipDesign(EnterNameArea.Text);

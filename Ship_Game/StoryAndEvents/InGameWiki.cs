@@ -186,7 +186,7 @@ namespace Ship_Game
                         ActiveTopic = helpTopic;
                         if (ActiveTopic.Text != null)
                         {
-                            HelperFunctions.parseTextToSL(ActiveTopic.Text, (TextRect.Width - 40), Fonts.Arial12Bold, ref HelpEntries);
+                            HelpEntries.SetItems(Fonts.Arial12Bold.ParseTextToLines(ActiveTopic.Text, TextRect.Width-40));
                             TitlePosition = new Vector2((TextRect.X + TextRect.Width / 2)
                                 - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TitlePosition.Y);
                         }
@@ -246,8 +246,8 @@ namespace Ship_Game
                 Title = Localizer.Token(1401),
                 Text  = Localizer.Token(1400)
             };
-            HelperFunctions.parseTextToSL(ActiveTopic.Text, TextRect.Width
-                - 40, Fonts.Arial12Bold, ref HelpEntries);
+
+            HelpEntries.SetItems(Fonts.Arial12Bold.ParseTextToLines(ActiveTopic.Text, TextRect.Width-40));
             TitlePosition = new Vector2(TextRect.X + TextRect.Width / 2
                 - Fonts.Arial20Bold.MeasureString(ActiveTopic.Title).X / 2f - 15f, TextRect.Y + 10);
 

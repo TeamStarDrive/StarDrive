@@ -10,7 +10,7 @@ namespace Ship_Game.Data.YamlSerializer
     // And turn it into usable game objects
     internal class YamlSerializer : UserTypeSerializer
     {
-        public override string ToString() => $"YamlSerializer {TheType.GenericName()}";
+        public override string ToString() => $"YamlSerializer {TheType.GetTypeName()}";
 
         public YamlSerializer(Type type) : base(type)
         {

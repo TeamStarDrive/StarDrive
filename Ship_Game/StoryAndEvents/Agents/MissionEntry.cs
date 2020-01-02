@@ -14,7 +14,7 @@ namespace Ship_Game
 	    private int NameIndex;
 	    private int DescriptionIndex;
 
-		public MissionEntry(AgentMission am, AgentComponent parent) : base(null, Vector2.Zero)
+		public MissionEntry(AgentMission am, AgentComponent parent)
 		{
 			Component = parent;
 			TheMission = am;

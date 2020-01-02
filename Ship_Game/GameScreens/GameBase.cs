@@ -18,6 +18,7 @@ namespace Ship_Game
         public GraphicsDeviceManager Graphics;
         LightingSystemPreferences Preferences;
         public static ScreenManager ScreenManager;
+        public ScreenManager Manager => ScreenManager;
 
         // This is equivalent to PresentationParameters.BackBufferWidth
         public static int ScreenWidth  { get; protected set; }
@@ -30,6 +31,10 @@ namespace Ship_Game
         public static GameBase Base;
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Base?.Content;
+
+        public int FrameId { get; protected set; }
+        public GameTime GameTime;
+        public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
 
@@ -176,6 +181,16 @@ namespace Ship_Game
         public void InitializeAudio()
         {
             GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+        }
+
+        protected void UpdateGame(GameTime gameTime)
+        {
+            ++FrameId;
+            GameTime = gameTime;
+
+            // 1. Handle Input and 2. Update for each game screen
+            ScreenManager.Update(gameTime);
+            base.Update(gameTime); // Update XNA components
         }
 
         protected override void Dispose(bool disposing)
