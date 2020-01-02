@@ -384,6 +384,9 @@ namespace Ship_Game
 
         void TryBuildMilitaryBuilding(float budget)
         {
+            if (FreeHabitableTiles == 0)
+                return;
+
             Building building =  BuildingsCanBuild.FindMaxFiltered(b => b.IsMilitary && b.ActualMaintenance(this) < budget
                                  , b => b.CostEffectiveness);
 
