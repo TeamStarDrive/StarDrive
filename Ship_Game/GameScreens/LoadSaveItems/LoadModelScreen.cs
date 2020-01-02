@@ -36,7 +36,7 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             batch.Begin();
-            SaveMenu.Draw();
+            SaveMenu.Draw(batch);
             AllSaves.Draw(batch);
             var bCursor = new Vector2(AllSaves.X + 20, AllSaves.Y + 20);
             foreach (ScrollList.Entry e in SavesSL.VisibleExpandedEntries)

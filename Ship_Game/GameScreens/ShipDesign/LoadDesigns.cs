@@ -62,14 +62,12 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
         public override void Draw(SpriteBatch batch)
         {
-            GameTime gameTime = StarDriveGame.Instance.GameTime;
-            
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();            
-            loadMenu.Draw();
+            loadMenu.Draw(batch);
             SaveShips.Draw(batch);
             ShipDesigns.Draw(batch);
-            EnterNameArea.Draw(Fonts.Arial20Bold, batch, EnternamePos, gameTime, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
+            EnterNameArea.Draw(batch, Fonts.Arial20Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : new Color(255, 239, 208)));
             
             foreach (ScrollList.Entry e in ShipDesigns.VisibleExpandedEntries)
             {

@@ -82,8 +82,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
         public override string ToString()
-            => string.Format("BID:{0} Name:{1} ActualCost:{2} +Tax:{3}  Short:{4}", 
-                             BID, Name, ActualCost, PlusTaxPercentage, ShortDescrText);
+            => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
 
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public string DescriptionText => Localizer.Token(DescriptionIndex);
@@ -101,6 +100,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsSpacePort  => BID == SpacePortId;
         [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
 
+        [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(1);
 
         // these appear in Hardcore Ruleset

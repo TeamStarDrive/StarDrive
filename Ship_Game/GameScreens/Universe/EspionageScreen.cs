@@ -25,11 +25,11 @@ namespace Ship_Game
         public override void LoadContent()
         {
             var titleRect = new Rectangle(ScreenWidth / 2 - 200, 44, 400, 80);
-            Add(new Menu2(this, titleRect));
+            Add(new Menu2(titleRect));
 
             if (ScreenHeight > 766)
             {
-                Add(new Menu2(this, titleRect));
+                Add(new Menu2(titleRect));
 
                 // "Espionage"
                 string espionage = Localizer.Token(6089);
@@ -40,7 +40,7 @@ namespace Ship_Game
 
 
             var ourRect = new Rectangle(ScreenWidth / 2 - 640, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
-            Add(new Menu2(this, ourRect));
+            Add(new Menu2(ourRect));
 
             CloseButton(ourRect.Right - 40, ourRect.Y + 20);
 
