@@ -150,7 +150,6 @@ namespace Ship_Game
 
                 batch.DrawRectangle(PlanetSL.ItemsHousing, lineColor); // items housing border
             }
-
             batch.End();
         }
 

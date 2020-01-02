@@ -74,8 +74,7 @@ namespace Ship_Game.Utils
             var entries = CreateEntryList(versionText);
             foreach (var entry in entries)
             {
-                var label = new UILabel(bodyTextStart, entry.EntryString, entry.Color);
-                Versions.Add(label);
+                Versions.Add(new UILabel(bodyTextStart, entry.EntryString, entry.Color));
                 bodyTextStart.Y += 16;
             }
             return bodyTextStart;

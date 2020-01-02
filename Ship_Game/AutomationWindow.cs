@@ -30,7 +30,6 @@ namespace Ship_Game
         {
             UICheckBox Check;
             DropOptions<int> Options;
-
             public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
                 => Create(binding, Localizer.Token(title), tooltip);
 

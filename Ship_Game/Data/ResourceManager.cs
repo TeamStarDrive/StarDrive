@@ -822,15 +822,17 @@ namespace Ship_Game
                 {
                     // @todo NullReference bug here!
                     newB.ProjectorRange = Empire.Universe?.SubSpaceProjectors.Radius ?? 0f;
-                    newB.IsProjector = true;
+                    newB.IsProjector    = true;
                 }
+
                 if (!newB.IsSensor && !(newB.SensorRange > 0.0f))
                 {
                     newB.SensorRange = 20000.0f;
-                    newB.IsSensor = true;
+                    newB.IsSensor    = true;
                 }
             }
-            newB.CreateWeapon();
+
+            newB.CalcMilitaryStrength();
             return newB;
         }
 

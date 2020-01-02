@@ -260,6 +260,15 @@ namespace Ship_Game
 
                 DrawToolTip(batch);
             }
+            
+            DrawToolTip(batch);
+        }
+
+        void DrawToolTip(SpriteBatch batch)
+        {
+            batch.Begin();
+            ToolTip.Draw(batch, FrameDeltaTime);
+            batch.End();
         }
 
         void DrawToolTip(SpriteBatch batch)

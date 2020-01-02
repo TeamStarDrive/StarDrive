@@ -14,7 +14,7 @@ namespace Ship_Game
         public string Version;        
         SubTexture PortraitTex;
 
-        public ModEntry(ModInformation modInfo) : base(Vector2.Zero)
+        public ModEntry(ModInformation modInfo)
 		{
 			ModName       = modInfo.ModName;
 			mi            = modInfo;

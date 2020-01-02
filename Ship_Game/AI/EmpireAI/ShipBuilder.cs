@@ -90,8 +90,9 @@ namespace Ship_Game.AI
         {
             Ship[] potentialShips = ShipsWeCanBuild(empire).Filter(
                 ship => ship.DesignRole == role && ship.GetCost(empire).LessOrEqual(maxCost) 
-                                                && ship.GetMaintCost(empire).LessOrEqual(maintBudget)
-                                                && !ship.shipData.IsShipyard);
+                                                && ship.GetMaintCost(empire).Less(maintBudget)
+                                                && !ship.shipData.IsShipyard
+                                                && !ship.IsSubspaceProjector);
 
             if (potentialShips.Length == 0)
                 return null;

@@ -18,7 +18,7 @@ namespace Ship_Game
         private readonly Color Fill;
         private readonly Color EdgeColor;
 
-        public Selector(Rectangle theMenu) : base(Vector2.Zero)
+        public Selector(Rectangle theMenu)
         {
             theMenu.X -= 15;
             theMenu.Y -= 5;
@@ -27,20 +27,20 @@ namespace Ship_Game
             EdgeColor = Color.White;
         }
 
-        public Selector(Rectangle theMenu, bool useRealRect) : base(Vector2.Zero)
+        public Selector(Rectangle theMenu, bool useRealRect)
         {
             Initialize(theMenu);
             EdgeColor = Color.White;
         }
 
-        public Selector(Rectangle theMenu, Color fillColor) : base(Vector2.Zero)
+        public Selector(Rectangle theMenu, Color fillColor)
         {
             Fill = fillColor;
             Initialize(theMenu);
             EdgeColor = Color.White;
         }
 
-        public Selector(Rectangle theMenu, Color fillColor, float textureAlpha) : base(Vector2.Zero)
+        public Selector(Rectangle theMenu, Color fillColor, float textureAlpha)
         {
             Fill = fillColor;
             EdgeColor = new Color(Color.White, (byte)textureAlpha);
