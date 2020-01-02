@@ -118,6 +118,31 @@ namespace Ship_Game
 
         public float MaxPopulation => MaxPopulationFor(Owner);
 
+        public float MaxPopPotentialFor(Empire empire)
+        {
+            if (empire.IsBuildingUnlocked(Building.TerraformerId))
+                return BasePopPerTile * empire.RacialEnvModifer(Category) * TileArea;
+
+            // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
+            int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
+            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
+
+            if (!empire.IsBuildingUnlocked(Building.BiospheresId)) // Biospheres not researched yet
+                return naturalMaxPop;
+
+            // check potential with biospheres
+            int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
+            float bioSphereMaxPop   = BasePopPerTile * numBiospheresNeeded;
+
+            return bioSphereMaxPop + naturalMaxPop;
+        }
+
+        public float MaxFertilityPotentialFor(Empire empire)
+        {
+            float minimumMaxFertilityPotential = empire.IsBuildingUnlocked(Building.TerraformerId) ? 1 : 0;
+                return MaxFertilityFor(empire).ClampMin(minimumMaxFertilityPotential);
+        }
+
         public float MaxPopulationFor(Empire empire)
         {
             if (!Habitable)
