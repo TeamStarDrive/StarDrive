@@ -183,8 +183,8 @@ namespace Ship_Game
             DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, title:22, click: OnEngageClicked);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, title:23, click: OnAbortClicked);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 40);
 
             DoRaceDescription();

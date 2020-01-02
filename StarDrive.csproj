@@ -341,7 +341,6 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelectListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelectScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\Universe\DialogOptionListItem.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\TextListItem.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
@@ -1217,10 +1216,6 @@
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ship_Game\Building.cs">
-      <AutoGen>false</AutoGen>
-      <DesignTimeSharedInput>false</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Ship_Game\UI\ScrollList2.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
