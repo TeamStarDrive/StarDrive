@@ -257,9 +257,9 @@ namespace Ship_Game
                         try { batch.End(); } catch { }
                     }
                 }
-
-                DrawToolTip(batch);
             }
+            
+            DrawToolTip(batch);
         }
 
         void DrawToolTip(SpriteBatch batch)
