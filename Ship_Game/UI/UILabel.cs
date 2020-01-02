@@ -5,6 +5,23 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
+    public enum TextAlign
+    {
+        // normal text alignment:
+        //    x
+        //      TEXT
+        Default,
+
+        // Text will be flipped on the X axis:
+        //       x
+        // TEXT
+        Right,
+
+        // Text will be drawn to the center of pos:
+        //  TE x XT
+        Center,
+    }
+
     public class UILabel : UIElementV2, IColorElement
     {
         string LabelText; // Simple Text
@@ -20,17 +37,16 @@ namespace Ship_Game
         public bool DropShadow = false;
         public bool IsMouseOver { get; private set; }
 
-        // Text will be flipped on the X axis:  TEXT x
-        // Versus normal text alignment:             x TEXT
-        public bool AlignRight = false;
+        // Text Alignment will change the alignment axis along which the text is drawn
+        public TextAlign Align;
 
-        public string Text
+        public LocalizedText Text
         {
             get => LabelText;
             set
             {
-                LabelText = value;
-                Size = LabelFont.MeasureString(value);
+                LabelText = value.Text;
+                Size = LabelFont.MeasureString(LabelText);
             }
         }
 
@@ -63,56 +79,46 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString()
+        public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\"";
+        
+        public UILabel(SpriteFont font)
         {
-            return $"Label {ElementDescr} Text=\"{Text}\"";
+            LabelFont = font;
+            Size = new Vector2(font.LineSpacing); // give it a mock size to ease debugging
         }
-
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
+        public UILabel(float x, float y, LocalizedText text) : this(new Vector2(x,y), text, Fonts.Arial12Bold)
         {
-            LabelText = text;
+        }
+        public UILabel(Vector2 pos, LocalizedText text) : this(pos, text, Fonts.Arial12Bold)
+        {
+        }
+        public UILabel(Vector2 pos, LocalizedText text, Color color) : this(pos, text, Fonts.Arial12Bold)
+        {
+            Color = color;
+        }
+        public UILabel(Vector2 pos, LocalizedText text, SpriteFont font) : base(pos, font.MeasureString(text.Text))
+        {
+            LabelText = text.Text;
             LabelFont = font;
         }
-
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font) : this(parent, pos, Localizer.Token(titleId), font)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font, Color color) : this(parent, pos, Localizer.Token(titleId), font)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font, Color color) : this(parent, pos, text, font)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text) : this(parent, pos, text, Fonts.Arial12Bold)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, Color color) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, Color color) : this(parent, pos, text, Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, LocalizedText text, SpriteFont font, Color color) : this(pos, text, font)
         {
             Color = color;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UILabel(string text) : this(text, Fonts.Arial12Bold)
+        public UILabel(LocalizedText text) : this(text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(string text, Color color) : this(text, Fonts.Arial12Bold)
+        public UILabel(LocalizedText text, Color color) : this(text, Fonts.Arial12Bold)
         {
             Color = color;
         }
-        public UILabel(string text, SpriteFont font)
+        public UILabel(LocalizedText text, SpriteFont font)
         {
             LabelFont = font;
-            Text = text;
+            Text = text.Text;
         }
 
         public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)
@@ -133,9 +139,25 @@ namespace Ship_Game
 
         void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {
-            if (AlignRight) pos.X -= Size.X;
+            switch (Align)
+            {
+                default:
+                case TextAlign.Default:
+                    pos.X = (int)Math.Round(pos.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Right:
+                    pos.X = (int)Math.Round(pos.X - Size.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Center:
+                    pos.X = (int)Math.Round(pos.X - Size.X*0.5f); // NOTE: Text pos MUST be rounded to pixel boundaries
+                    pos.Y = (int)Math.Round(pos.Y - Size.Y*0.5f);
+                    break;
+            }
+
             if (DropShadow)
-                HelperFunctions.DrawDropShadowText(batch, text, pos, LabelFont, color);
+                batch.DrawDropShadowText(text, pos, LabelFont, color);
             else
                 batch.DrawString(LabelFont, text, pos, color);
         }

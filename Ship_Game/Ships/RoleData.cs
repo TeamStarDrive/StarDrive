@@ -187,7 +187,7 @@ namespace Ship_Game.Ships
             Vector2 spacing = roleFont.MeasureString(text);
             var pos = new Vector2(designRoleRect.Left,
                 designRoleRect.Y - spacing.Y - designRoleRect.Height - roleFont.LineSpacing);
-            ToolTip.CreateTooltip(text, pos, alwaysShow);
+            ToolTip.CreateTooltip(text, "", pos);
         }
 
         private static string RoleDesignString(ShipData.RoleName role)

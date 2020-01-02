@@ -41,7 +41,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             TransitionOffTime = 0.25f;
         }
         
-        private void DeleteAccepted(object sender, EventArgs e)
+        private void DeleteAccepted()
         {            
             GameAudio.EchoAffirmative();
             ResourceManager.ShipsDict[ShipToDelete].Deleted = true;
@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             LoadContent();
         }
 
-        private void DeleteDataAccepted(object sender, EventArgs e)
+        private void DeleteDataAccepted()
         {
             GameAudio.EchoAffirmative();
             ShipsToLoad.Clear();
@@ -114,7 +114,6 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             selector?.Draw(batch);
             base.Draw(batch);
             PlayerDesignsToggle.Draw(ScreenManager);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
@@ -200,7 +199,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             PopulateEntries();
             EnternamePos = TitlePosition;
             EnterNameArea.Text = Localizer.Token(199);
-            ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, titleId:8, click: b =>
+            ButtonSmall(sub.X + sub.Width - 88, EnternamePos.Y - 2, text:8, click: b =>
             {
                 LoadShipToScreen();
             });

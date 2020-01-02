@@ -8,7 +8,6 @@ namespace Ship_Game
     // for minimal testing
     public class GameDummy : GameBase
     {
-        public ScreenManager Manager => ScreenManager;
         public SpriteBatch Batch => ScreenManager.SpriteBatch;
 
         public GameDummy(int width = 800, int height = 600, bool show = false)

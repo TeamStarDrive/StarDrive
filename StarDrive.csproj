@@ -284,6 +284,7 @@
     <Compile Include="Ship_Game\ExtensionMethods\MiscExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\NumberExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\RadMath.cs" />
+    <Compile Include="Ship_Game\ExtensionMethods\RectF.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\SDNative.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\StringExtensions.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ThreadExt.cs" />
@@ -319,6 +320,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenDraw.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\WeaponScrollList.cs" />
+    <Compile Include="Ship_Game\GameScreens\TextListItem.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
     <Compile Include="Ship_Game\Input\InputState_Holding.cs" />
@@ -375,6 +377,7 @@
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
+    <Compile Include="Ship_Game\ToolTipText.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIBasicAnimEffect.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteAnimation.cs" />
     <Compile Include="Ship_Game\SpriteSystem\SpriteExtensions.cs" />
@@ -389,7 +392,13 @@
     <Compile Include="Ship_Game\UI\LayoutParser.cs" />
     <Compile Include="Ship_Game\UI\LayoutParserTypes.cs" />
     <Compile Include="Ship_Game\UI\MultiLayerDrawContainer.cs" />
+    <Compile Include="Ship_Game\UI\ScrollList2.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListBase.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListItem.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListItemBase.cs" />
+    <Compile Include="Ship_Game\UI\ScrollListStyleTextures.cs" />
     <Compile Include="Ship_Game\UI\SplitElement.cs" />
+    <Compile Include="Ship_Game\UI\UIButton_Style.cs" />
     <Compile Include="Ship_Game\UI\UIGraphView.cs" />
     <Compile Include="Ship_Game\UI\UIList.cs" />
     <Compile Include="Ship_Game\UI\UIPanel.cs" />

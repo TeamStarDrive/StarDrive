@@ -89,7 +89,7 @@ namespace Ship_Game
             //this.ExitScreen();
         }
 
-        protected virtual void DeleteFile(object sender, EventArgs e)
+        protected virtual void DeleteFile()
         {
             GameAudio.EchoAffirmative();
             
@@ -132,7 +132,6 @@ namespace Ship_Game
 
             selector?.Draw(batch);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
@@ -213,7 +212,7 @@ namespace Ship_Game
         {
             Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
             SaveMenu = new Menu1(Window);
-            close = new CloseButton(this, new Rectangle(Window.X + Window.Width - 35, Window.Y + 10, 20, 20));
+            close = new CloseButton(Window.X + Window.Width - 35, Window.Y + 10);
             var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             NameSave = new Submenu(sub);
             NameSave.AddTab(TitleText);
@@ -242,7 +241,7 @@ namespace Ship_Game
             base.LoadContent();
         }
 
-        private void OverWriteAccepted(object sender, EventArgs e)
+        private void OverWriteAccepted()
         {
             DoSave();
         }

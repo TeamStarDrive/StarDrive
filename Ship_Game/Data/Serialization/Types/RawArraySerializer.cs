@@ -7,7 +7,7 @@ namespace Ship_Game.Data.Serialization.Types
 {
     internal class RawArraySerializer : TypeSerializer
     {
-        public override string ToString() => $"RawArraySerializer {ElemType.GenericName()}";
+        public override string ToString() => $"RawArraySerializer {ElemType.GetTypeName()}";
         readonly Type ElemType;
         readonly TypeSerializer ElemSerializer;
 
