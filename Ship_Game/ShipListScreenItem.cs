@@ -247,7 +247,7 @@ namespace Ship_Game
                         return "";
                     return string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
-                    if (ship.Velocity.NotZero() || ship.isTurning)
+                    if (ship.Velocity.NotZero() || ship.IsTurning)
                     {
                         string text = Localizer.Token(187)+" ";
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
