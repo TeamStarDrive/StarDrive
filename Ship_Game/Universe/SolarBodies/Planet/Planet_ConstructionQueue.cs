@@ -58,8 +58,11 @@ namespace Ship_Game
             return TilesList.All(tile => tile.Habitable);
         }
 
+        public bool MilitaryBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && b.IsMilitary);
+        public bool CivilianBuildingInTheWorks => ConstructionQueue.Any(b => b.isBuilding && !b.IsMilitary);
+        public bool BuildingInTheWorks         => ConstructionQueue.Any(b => b.isBuilding);
+
         public bool CanBuildInfantry         => BuildingList.Any(b => b.AllowInfantry);
-        public bool BuildingInTheWorks       => ConstructionQueue.Any(b => b.isBuilding);
         public bool TroopsInTheWorks         => ConstructionQueue.Any(t => t.isTroop);
         public bool OrbitalsInTheWorks       => ConstructionQueue.Any(b => b.isOrbital || b.sData != null && b.sData.IsShipyard);
         public int NumShipsInTheWorks        => ConstructionQueue.Count(s => s.isShip);
