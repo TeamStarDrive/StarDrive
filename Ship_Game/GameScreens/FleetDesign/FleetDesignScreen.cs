@@ -1508,7 +1508,7 @@ namespace Ship_Game
             OperationalRadius = new FloatSlider(oprect, "Operational Radius", max: 500000, value: 10000)
             {
                 RelativeValue = 0.2f,
-                TooltipId = 13
+                Tip = 13
             };
             Rectangle sizerect = new Rectangle(PrioritiesRect.X + 15, PrioritiesRect.Y + Fonts.Arial12Bold.LineSpacing + 70, 300, 40);
             SliderSize = new SizeSlider(sizerect, "Target UniverseRadius Preference");
