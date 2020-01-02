@@ -2,19 +2,18 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-	public sealed class CloseButton : UIButton
-	{
-		public CloseButton(UIElementV2 parent, Rectangle r)
-            : base(parent, ButtonStyle.Close, new Vector2(r.X, r.Y), "")
-		{
-            Tooltip = "Exit Screen";
-            OnClick = CloseButton_OnClick;
-		}
+    public sealed class CloseButton : UIButton
+    {
+        public CloseButton(float x, float y) : base(ButtonStyle.Close, new Vector2(x, y), "")
+        {
+            Tooltip = "Close this Screen";
+        }
 
-        private void CloseButton_OnClick(UIButton button)
+        protected override void OnButtonClicked()
         {
             if (Parent is GameScreen screen && !screen.IsExiting)
                 screen.ExitScreen();
+            base.OnButtonClicked();
         }
     }
 }

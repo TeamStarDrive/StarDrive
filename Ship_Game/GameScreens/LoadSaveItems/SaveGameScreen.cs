@@ -21,7 +21,7 @@ namespace Ship_Game
             ExitScreen();
         }
 
-        protected override void DeleteFile(object sender, EventArgs e)
+        protected override void DeleteFile()
         {
             try
             {
@@ -31,7 +31,7 @@ namespace Ship_Game
             }
             catch { }
 
-            base.DeleteFile(sender, e);
+            base.DeleteFile();
         }
 
         protected override void InitSaveList()        // Set list of files to show

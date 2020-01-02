@@ -45,6 +45,7 @@ namespace Ship_Game.Universe
 
         public void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
+            Log.Assert(planet != null, "RightClickOnPlanet: planet cannot be null!");
             if (ship.IsConstructor)
             {
                 if (audio)

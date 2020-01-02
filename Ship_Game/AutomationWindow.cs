@@ -30,12 +30,11 @@ namespace Ship_Game
         {
             UICheckBox Check;
             DropOptions<int> Options;
-            public CheckedDropdown(UIElementV2 parent) : base(parent) { }
             public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
                 => Create(binding, Localizer.Token(title), tooltip);
             public DropOptions<int> Create(Expression<Func<bool>> binding, string title, int tooltip)
             {
-                Check = new UICheckBox(Parent, 0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
+                Check = new UICheckBox(0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
                 Options = new DropOptions<int>(Parent, new Vector2(0f, 25f), 190, 18);
                 return Options;
             }
@@ -73,26 +72,26 @@ namespace Ship_Game
             ConstructionSubMenu = new Submenu(win);
             ConstructionSubMenu.AddTab(Localizer.Token(304));
 
-            UIList rest = List(new Vector2(win.X + 10f, win.Y + 200f));
+            UIList rest = AddList(new Vector2(win.X + 10f, win.Y + 200f));
             rest.Padding = new Vector2(2f, 10f);
             rest.AddCheckbox(() => EmpireManager.Player.AutoPickBestFreighter, title: 1958, tooltip: 1959);
             rest.AddCheckbox(() => GlobalStats.AutoCombat,                     title: 2207, tooltip: 2230);
             rest.AddCheckbox(() => EmpireManager.Player.AutoResearch,          title: 6136, tooltip: 7039);
             rest.AddCheckbox(() => EmpireManager.Player.data.AutoTaxes,        title: 6138, tooltip: 7040);
 
-            UIList ticks = List(new Vector2(win.X + 10f, win.Y + 26f));
+            UIList ticks = AddList(new Vector2(win.X + 10f, win.Y + 26f));
             ticks.Padding = new Vector2(2f, 10f);
 
-            ScoutDropDown = ticks.Add(new CheckedDropdown(this))
+            ScoutDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoExplore, title:305, tooltip:2226);
 
-            ColonyShipDropDown = ticks.Add(new CheckedDropdown(this))
+            ColonyShipDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoColonize, title:306, tooltip:2227);
 
-            ConstructorDropDown = ticks.Add(new CheckedDropdown(this))
+            ConstructorDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoBuild, Localizer.Token(307) + " Projectors", 2228);
 
-            FreighterDropDown = ticks.Add(new CheckedDropdown(this))
+            FreighterDropDown = ticks.Add(new CheckedDropdown())
                 .Create(() => EmpireManager.Player.AutoFreighters, title: 308, tooltip: 2229);
 
             // draw ordering is still imperfect, this is a hack
