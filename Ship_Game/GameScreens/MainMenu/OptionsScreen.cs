@@ -255,7 +255,7 @@ namespace Ship_Game
             EffectsVolumeSlider = botLeft.Add(new FloatSlider(SliderStyle.Percent, 270f, 50f, "Effects Volume", 0f, 1f, GlobalStats.EffectsVolume));
             IconSize            = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "Icon Sizes",     0f,30f, GlobalStats.IconSize));
             AutoSaveFreq        = botLeft.Add(new FloatSlider(SliderStyle.Decimal, 270f, 50f, "AutoSave Frequency", 60, 540, GlobalStats.AutoSaveFreq));
-            AutoSaveFreq.LocalizeTooltipId = 4100;
+            AutoSaveFreq.Tip = 4100;
 
             botLeft.ReverseZOrder(); // @todo This is a hacky workaround to zorder limitations
 
