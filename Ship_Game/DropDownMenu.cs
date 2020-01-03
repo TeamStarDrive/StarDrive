@@ -30,6 +30,10 @@ namespace Ship_Game
 
 		private Array<string> Options = new Array<string>();
 
+		public DropDownMenu(float x, float y, float w, float h) : this(new Rectangle((int)x, (int)y, (int)w, (int)h))
+		{
+		}
+
 		public DropDownMenu(Rectangle r)
 		{
 			this.r = r;
@@ -51,9 +55,9 @@ namespace Ship_Game
 			container.Add(Bot);
 		}
 
-		public void AddOption(string option)
+		public void AddOption(LocalizedText option)
 		{
-			Options.Add(option);
+			Options.Add(option.Text);
 		}
 
 		public void Draw(SpriteBatch spriteBatch)
@@ -79,7 +83,7 @@ namespace Ship_Game
 				spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(r.X + 8, r.Y + r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Color.White);
 				return;
 			}
-			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), new Color(255, 239, 208));
+			spriteBatch.DrawString(Fonts.Arial12Bold, Options[ActiveIndex], new Vector2(this.r.X + 8, this.r.Y + this.r.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2), Colors.Cream);
 		}
 
 		public void DrawGrayed(SpriteBatch spriteBatch)

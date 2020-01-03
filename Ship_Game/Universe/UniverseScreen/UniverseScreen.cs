@@ -512,13 +512,6 @@ namespace Ship_Game
                                        ? empire.data.StartingShip
                                        : empire.data.PrototypeShip;
 
-                if (GlobalStats.HardcoreRuleset)
-                {
-                    colonyShip    += " STL";
-                    startingScout += " STL";
-                    starterShip   += " STL";
-                }
-
                 Ship.CreateShipAt(starterShip, empire, homePlanet, new Vector2(350f, 0.0f), true);
                 Ship.CreateShipAt(colonyShip, empire, homePlanet, new Vector2(-2000, -2000), true);
                 Ship.CreateShipAt(startingScout, empire, homePlanet, new Vector2(-2500, -2000), true);

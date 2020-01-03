@@ -108,7 +108,7 @@ namespace Ship_Game
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            SaveMenu.Draw();
+            SaveMenu.Draw(batch);
             NameSave.Draw(batch);
             AllSaves.Draw(batch);
             var bCursor = new Vector2(AllSaves.X + 20, AllSaves.Y + 20);
@@ -126,7 +126,7 @@ namespace Ship_Game
                 e.DrawCancel(batch, Input, "Delete File");
             }
             SavesSL.Draw(batch);
-            EnterNameArea.Draw(Fonts.Arial12Bold, batch, EnternamePos, GameTime, (EnterNameArea.Hover ? Color.White : Color.Orange));
+            EnterNameArea.Draw(batch, Fonts.Arial12Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Color.Orange));
 
             base.Draw(batch);
 

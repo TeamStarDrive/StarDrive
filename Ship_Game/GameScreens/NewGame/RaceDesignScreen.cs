@@ -253,7 +253,7 @@ namespace Ship_Game
             }
 
             b.Plural(PreferredEnvDescription);
-            DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Menu.Width - 50));
+            DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Width - 50));
         }
 
         static float DotSpaceWidth;
@@ -280,14 +280,15 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
-            Rectangle r = ChooseRaceMenu.Menu;
+            Rectangle r = ChooseRaceMenu.Rect;
             if (IsTransitioning)
             {
                 r.X -= (int)(transitionOffset * 256f);
             }
-            ChooseRaceMenu.Update(r);
-            ChooseRaceMenu.subMenu = null;
-            ChooseRaceMenu.Draw();
+            //TODO: RaceDesignScreen merge from scroll-list branch
+            //ChooseRaceMenu.Update(r);
+            //ChooseRaceMenu.subMenu = null;
+            ChooseRaceMenu.Draw(batch);
             RaceArchetypeSL.TransitionUpdate(r);
             RaceArchetypeSL.Draw(batch);
             r = dslrect;
@@ -298,7 +299,7 @@ namespace Ship_Game
             DescriptionSL.TransitionUpdate(r);
             if (!IsExiting)
             {
-                var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Menu.Y + 10);
+                var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Y + 10);
                 
                 foreach (ScrollList.Entry e in RaceArchetypeSL.VisibleEntries)
                 {
@@ -325,9 +326,7 @@ namespace Ship_Game
                 }
             }
 
-            GameTime gameTime = StarDriveGame.Instance.GameTime;
-
-            NameMenu.Draw();
+            NameMenu.Draw(batch);
             var c = new Color(255, 239, 208);
             NameSub.Draw(batch);
             batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
@@ -335,11 +334,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!RaceName.HandlingInput)
             {
-                RaceName.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (RaceName.Hover ? Color.White : c));
+                RaceName.Draw(batch, Fonts.Arial14Bold, rpos, (RaceName.Hover ? Color.White : c));
             }
             else
             {
-                RaceName.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                RaceName.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -348,11 +347,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!SingEntry.HandlingInput)
             {
-                SingEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (SingEntry.Hover ? Color.White : c));
+                SingEntry.Draw(batch, Fonts.Arial14Bold, rpos, (SingEntry.Hover ? Color.White : c));
             }
             else
             {
-                SingEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                SingEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -361,11 +360,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!PlurEntry.HandlingInput)
             {
-                PlurEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (PlurEntry.Hover ? Color.White : c));
+                PlurEntry.Draw(batch, Fonts.Arial14Bold, rpos, (PlurEntry.Hover ? Color.White : c));
             }
             else
             {
-                PlurEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                PlurEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -374,11 +373,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!HomeSystemEntry.HandlingInput)
             {
-                HomeSystemEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (HomeSystemEntry.Hover ? Color.White : c));
+                HomeSystemEntry.Draw(batch, Fonts.Arial14Bold, rpos, (HomeSystemEntry.Hover ? Color.White : c));
             }
             else
             {
-                HomeSystemEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                HomeSystemEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             batch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
@@ -388,15 +387,17 @@ namespace Ship_Game
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
-            r = Description.Menu;
+            r = Description.Rect;
             if (IsTransitioning)
             {
                 r.X += (int)(transitionOffset * 400f);
             }
-            Description.Update(r);
-            Description.subMenu = null;
-            Description.Draw();
-            rpos = new Vector2((r.X + 20), (Description.Menu.Y + 20));
+            
+            //TODO: RaceDesignScreen merge from scroll-list branch
+            //Description.Update(r);
+            //Description.subMenu = null;
+            Description.Draw(batch);
+            rpos = new Vector2((r.X + 20), (Description.Y + 20));
             DescriptionSL.Draw(batch);
             Vector2 drawCurs = rpos;
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
@@ -431,7 +432,7 @@ namespace Ship_Game
             }
             TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
-            Left.Draw();
+            Left.Draw(batch);
             Traits.Draw(batch);
             traitsSL.Draw(batch);
             if (Traits.Tabs[0].Selected || Traits.Tabs[1].Selected || Traits.Tabs[2].Selected)
@@ -575,7 +576,7 @@ namespace Ship_Game
 
         protected void DrawColorSelector()
         {
-            ColorSelectMenu.Draw();
+            ColorSelectMenu.Draw(ScreenManager.SpriteBatch);
             int yPosition = ColorSelector.Y + 20;
             int xPositionStart = ColorSelector.X + 20;
             for (int i = 0; i <= 255; i++)
@@ -1021,7 +1022,7 @@ namespace Ship_Game
             ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
 
             Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
-            Description = new Menu1(ScreenManager, dRect, true);
+            Description = new Menu1(dRect, true);
             dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
             Submenu dsub = new Submenu(dslrect);
             DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
@@ -1049,7 +1050,7 @@ namespace Ship_Game
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
-                            Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
+                            Description.Y + Description.Height - 40, "Clear Traits", OnClearClicked);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
