@@ -63,8 +63,10 @@ namespace Ship_Game.Data
             do
             {
                 lock (LoadSync)
-                if (mgr.LoadedAssets.TryGetValue(assetNameNoExt, out asset))
-                    return true;
+                {
+                    if (mgr.LoadedAssets.TryGetValue(assetNameNoExt, out asset))
+                        return true;
+                }
             }
             while ((mgr = mgr.Parent) != null);
             return false;
@@ -95,10 +97,12 @@ namespace Ship_Game.Data
             do
             {
                 lock (LoadSync)
-                if (mgr.LoadedEffects.TryGetValue(assetName, out Effect effect) && effect is T assetObj)
                 {
-                    asset = assetObj;
-                    return true;
+                    if (mgr.LoadedEffects.TryGetValue(assetName, out Effect effect) && effect is T assetObj)
+                    {
+                        asset = assetObj;
+                        return true;
+                    }
                 }
             }
             while ((mgr = mgr.Parent) != null);
