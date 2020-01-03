@@ -175,6 +175,8 @@
     <Compile Include="Ship_Game\AI\CombatTactics\OrbitTarget.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Artillery.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
+    <Compile Include="Ship_Game\AI\ExpansionAI\ExpansionPlanner.cs" />
+    <Compile Include="Ship_Game\AI\ExpansionAI\PlanetRanker.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\FleetShips.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />

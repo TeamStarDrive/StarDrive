@@ -38,7 +38,7 @@ namespace Ship_Game.Commands.Goals
                 return true;
 
             foreach (var relationship in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
+                empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
 
             RemoveEscortTask(); //this is in the wrong place
 
@@ -199,7 +199,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(them.Key, them.Value, ColonizationTarget);
+                empire.GetEmpireAI().ExpansionAI.CheckClaim(them.Key, them.Value, ColonizationTarget);
 
             return GoalStep.GoalComplete;
         }
