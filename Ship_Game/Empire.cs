@@ -925,7 +925,7 @@ namespace Ship_Game
         {
             switch (techUnlockType)
             {
-                case TechUnlockType.Normal:
+                case TechUnlockType.Normal    when techEntry.Unlock(this):
                 case TechUnlockType.Event     when techEntry.Unlock(this):
                 case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire): UpdateForNewTech(); break;
