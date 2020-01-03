@@ -507,7 +507,7 @@ namespace Ship_Game
         {
             ColoniesList.HandleInput(input);
 
-            HandleSortButton(input, pop, 2278, p => p.Population);
+            HandleSortButton(input, pop, 2278, p => p.PopulationBillion);
             HandleSortButton(input, food, 139, p => p.Food.NetIncome);
             HandleSortButton(input, prod, 140, p => p.Prod.NetIncome);
             HandleSortButton(input, res, 141, p => p.Res.NetIncome);

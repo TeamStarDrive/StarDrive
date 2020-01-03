@@ -1030,7 +1030,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>255</Index>
-      <Text>Zooms to your currently selected flagship (the ship that you are manually controlling)</Text>
+      <Text>Zooms to your currently selected ship</Text>
     </Token>
     <Token>
       <Index>256</Index>

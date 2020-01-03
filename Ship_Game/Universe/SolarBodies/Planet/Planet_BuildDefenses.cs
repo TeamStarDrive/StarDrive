@@ -92,7 +92,7 @@ namespace Ship_Game
 
             if (orbitalList.NotEmpty && orbitalsWeHave > orbitalsWeWant)
             {
-                Ship weakest = orbitalList.FindMin(s => s.BaseStrength);
+                Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
                 if (weakest != null)
                     ScrapOrbital(weakest); // remove this old garbage
                 else
@@ -122,7 +122,7 @@ namespace Ship_Game
                 Storage.Prod = expectedStorage;
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"SCRAPPED Orbital ----- {orbital.Name}, STR: {orbital.BaseStrength}");
+                Log.Info($"SCRAPPED Orbital ----- {orbital.Name}, STR: {orbital.NormalizedStrength}");
 
             orbital.QueueTotalRemoval();
         }
@@ -139,13 +139,13 @@ namespace Ship_Game
             AddOrbital(orbital);
         }
 
-        private int TimeVsCostThreshold => 25 + (int)(Owner.Money / 1000);
+        private int TimeVsCostThreshold => 40 + (int)(Owner.Money / 1000);
 
         // Adds an Orbital to ConstructionQueue
         public void AddOrbital(Ship orbital)
         {
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.BaseStrength}");
+                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.NormalizedStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
@@ -156,20 +156,20 @@ namespace Ship_Game
             if (OrbitalsInTheWorks)
                 return;
 
-            Ship weakestWeHave  = orbitalList.FindMin(s => s.BaseStrength);
+            Ship weakestWeHave  = orbitalList.FindMin(s => s.NormalizedStrength);
             Ship bestWeCanBuild = PickOrbitalToBuild(role, rank, budget);
 
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.BaseStrength.LessOrEqual(weakestWeHave.BaseStrength * 1.25f))
+            if (bestWeCanBuild.NormalizedStrength.LessOrEqual(weakestWeHave.NormalizedStrength * 1.2f))
                 return;
 
             ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild);
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
-                         $"STR: {weakestWeHave.BaseStrength} to {bestWeCanBuild.BaseStrength}");
+                         $"STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
         }
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank, float budget)
@@ -201,7 +201,7 @@ namespace Ship_Game
             switch (role)
             {
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
-                case ShipData.RoleName.station: orbital  = Owner.BestStationWeCanBuild; break;
+                case ShipData.RoleName.station: orbital  = Owner.BestStationWeCanBuild;  break;
             }
             if (orbital != null && orbitalsBudget - orbital.GetMaintCost(Owner) < 0)
                 return null;
@@ -304,7 +304,7 @@ namespace Ship_Game
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
-                    && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), 50))
+                    && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), TimeVsCostThreshold))
                 {
                     AddOrbital(shipyard);
                 }
@@ -335,7 +335,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void BuildMilitia()
+        public void BuildMilitia() // Relevant only for players with the Militia Checkbox checked.
         {
             if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
                 return;
