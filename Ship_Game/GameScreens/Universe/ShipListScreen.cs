@@ -90,7 +90,7 @@ namespace Ship_Game
                     ResetList(ShowRoles.ActiveValue);
                 }, Fonts.Arial12Bold, title: 191, tooltip: 191));
 
-            ShowRoles = new DropOptions<int>(this, new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
+            ShowRoles = new DropOptions<int>(new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
             ShowRoles.AddOption("All Ships", 1);
             ShowRoles.AddOption("Not in Fleets", 11);
             ShowRoles.AddOption("Fighters", 2);

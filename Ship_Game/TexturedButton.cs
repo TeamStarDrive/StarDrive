@@ -30,15 +30,15 @@ namespace Ship_Game
 			this.r = r;
 		}
 
-		public void Draw(ScreenManager screenManager)
+		public void Draw(SpriteBatch batch)
 		{
 			if (Hover)
 			{
-				screenManager.SpriteBatch.Draw(ResourceManager.Texture(hPath), r, Color.White);
+				batch.Draw(ResourceManager.Texture(hPath), r, Color.White);
 			}
             else
             {
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture(tPath), r, Color.White);
+                batch.Draw(ResourceManager.Texture(tPath), r, Color.White);
             }
         }
 

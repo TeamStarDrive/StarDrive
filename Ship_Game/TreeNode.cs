@@ -47,10 +47,9 @@ namespace Ship_Game
 
             Screen = screen;
             Entry = theEntry;
-            TechName = string.Concat(Localizer.Token(ResourceManager.TechTree[theEntry.UID].NameIndex),
-                ResourceManager.TechTree[theEntry.UID].MaxLevel > 1
-                    ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/"
-                      + RomanNumerals.ToRoman(ResourceManager.TechTree[theEntry.UID].MaxLevel) : "");
+            TechName = Localizer.Token(ResourceManager.TechTree[theEntry.UID].NameIndex)+(ResourceManager.TechTree[theEntry.UID].MaxLevel > 1
+                           ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/"
+                             + RomanNumerals.ToRoman(ResourceManager.TechTree[theEntry.UID].MaxLevel) : "");
             BaseRect.X = (int)position.X;
             BaseRect.Y = (int)position.Y;
             progressRect = new Rectangle(BaseRect.X + 14, BaseRect.Y + 21, 1, 34);
