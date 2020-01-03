@@ -25,7 +25,7 @@ namespace Ship_Game
                         return; // this thread is aborting
 
                     float deltaTime = (float)SimulationTime.ElapsedGameTime.TotalSeconds;
-                    pieMenu.Update(SimulationTime);
+                    pieMenu.Update(deltaTime);
 
                     if (Paused)
                     {

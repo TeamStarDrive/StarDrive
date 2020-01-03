@@ -45,6 +45,7 @@ namespace Ship_Game
         protected PopupWindow(GameScreen parent, int width, int height)
             : base(parent, CenterScreen(width, height))
         {
+            IsPopup = true;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -92,16 +93,6 @@ namespace Ship_Game
             theirTextPos.Y += font.MeasureString(theirText).Y;
             theirTextPos.Y = theirTextPos.Y + font.LineSpacing;
             return theirTextPos;
-        }
-
-        public override bool HandleInput(InputState input)
-        {
-            if (input.Escaped || input.RightMouseClick)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
         }
 
         public override void LoadContent()
