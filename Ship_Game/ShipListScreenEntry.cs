@@ -125,7 +125,7 @@ namespace Ship_Game
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y
             };
-            ShipNameEntry.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, rpos, gameTime, TextColor);
+            ShipNameEntry.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold, rpos, TextColor);
             Vector2 rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, TextColor);
@@ -192,11 +192,11 @@ namespace Ship_Game
 
             if (isCombat)
             {
-                ExploreButton.Draw(ScreenManager);
-                PatrolButton.Draw(ScreenManager);
+                ExploreButton.Draw(spriteBatch2);
+                PatrolButton.Draw(spriteBatch2);
             }
-            RefitButton.Draw(ScreenManager);
-            ScrapButton.Draw(ScreenManager);
+            RefitButton.Draw(spriteBatch2);
+            ScrapButton.Draw(spriteBatch2);
             
         }
 

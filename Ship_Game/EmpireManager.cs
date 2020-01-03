@@ -178,7 +178,7 @@ namespace Ship_Game
             data.Traits.Spiritual = data.Traits.Spiritual;
             data.Traits.PassengerModifier += data.Traits.PassengerBonus;
             empire.PortraitName = data.PortraitName;
-            empire.EmpireColor = new Color((byte)data.Traits.R, (byte)data.Traits.G, (byte)data.Traits.B);
+            empire.EmpireColor = data.Traits.Color;
             empire.Initialize();
             return empire;
         }

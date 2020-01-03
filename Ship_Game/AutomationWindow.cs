@@ -32,10 +32,11 @@ namespace Ship_Game
             DropOptions<int> Options;
             public DropOptions<int> Create(Expression<Func<bool>> binding, int title, int tooltip)
                 => Create(binding, Localizer.Token(title), tooltip);
+
             public DropOptions<int> Create(Expression<Func<bool>> binding, string title, int tooltip)
             {
                 Check = new UICheckBox(0f, 0f, binding, Fonts.Arial12Bold, title, tooltip);
-                Options = new DropOptions<int>(Parent, new Vector2(0f, 25f), 190, 18);
+                Options = new DropOptions<int>(new Vector2(0f, 25f), 190, 18);
                 return Options;
             }
             public override void PerformLayout()
@@ -45,12 +46,6 @@ namespace Ship_Game
                 Options.Pos = new Vector2(Pos.X, Pos.Y + 16f);
                 Options.PerformLayout();
                 Height = Options.Bottom - Pos.Y;
-            }
-            public override void Update(float deltaTime)
-            {
-                // @todo Gray out Options drop-down
-                //Options.Enabled = Check.Checked;
-                base.Update(deltaTime);
             }
             public override bool HandleInput(InputState input)
             {

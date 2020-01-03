@@ -110,38 +110,28 @@ namespace Ship_Game
             pStorage = new Submenu(theMenu7);
             pStorage.AddTab(Localizer.Token(328));
 
-            if (GlobalStats.HardcoreRuleset)
-            {
-                int num2 = (theMenu7.Width - 40) / 4;
-                ResourceButtons.Add(new ThreeStateButton(p.FS, "Food", new Vector2(theMenu7.X + 20, theMenu7.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(p.PS, "Production", new Vector2(theMenu7.X + 20 + num2, theMenu7.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "Fissionables", new Vector2(theMenu7.X + 20 + num2 * 2, theMenu7.Y + 30)));
-                ResourceButtons.Add(new ThreeStateButton(Planet.GoodState.EXPORT, "ReactorFuel", new Vector2(theMenu7.X + 20 + num2 * 3, theMenu7.Y + 30)));
-            }
-            else
-            {
-                FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
-                FoodStorage.Max = p.Storage.Max;
-                FoodStorage.Progress = p.FoodHere;
-                FoodStorage.color = "green";
-                foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
-                foodDropDown.AddOption(Localizer.Token(329));
-                foodDropDown.AddOption(Localizer.Token(330));
-                foodDropDown.AddOption(Localizer.Token(331));
-                foodDropDown.ActiveIndex = (int)p.FS;
-                var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
-                FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
-                ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
-                ProdStorage.Max = p.Storage.Max;
-                ProdStorage.Progress = p.ProdHere;
-                var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
-                ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
-                prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
-                prodDropDown.AddOption(Localizer.Token(329));
-                prodDropDown.AddOption(Localizer.Token(330));
-                prodDropDown.AddOption(Localizer.Token(331));
-                prodDropDown.ActiveIndex = (int)p.PS;
-            }
+            FoodStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.330000013113022 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
+            FoodStorage.Max = p.Storage.Max;
+            FoodStorage.Progress = p.FoodHere;
+            FoodStorage.color = "green";
+            foodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
+            foodDropDown.AddOption(Localizer.Token(329));
+            foodDropDown.AddOption(Localizer.Token(330));
+            foodDropDown.AddOption(Localizer.Token(331));
+            foodDropDown.ActiveIndex = (int)p.FS;
+            var iconStorageFood = ResourceManager.Texture("NewUI/icon_storage_food");
+            FoodStorageIcon = new Rectangle(theMenu7.X + 20, FoodStorage.pBar.Y + FoodStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageFood.Width, iconStorageFood.Height);
+            ProdStorage = new ProgressBar(new Rectangle(theMenu7.X + 100, theMenu7.Y + 25 + (int)(0.660000026226044 * (theMenu7.Height - 25)), (int)(0.400000005960464 * theMenu7.Width), 18));
+            ProdStorage.Max = p.Storage.Max;
+            ProdStorage.Progress = p.ProdHere;
+            var iconStorageProd = ResourceManager.Texture("NewUI/icon_storage_production");
+            ProfStorageIcon = new Rectangle(theMenu7.X + 20, ProdStorage.pBar.Y + ProdStorage.pBar.Height / 2 - iconStorageFood.Height / 2, iconStorageProd.Width, iconStorageFood.Height);
+            prodDropDown = new DropDownMenu(new Rectangle(theMenu7.X + 100 + (int)(0.400000005960464 * theMenu7.Width) + 20, ProdStorage.pBar.Y + FoodStorage.pBar.Height / 2 - 9, (int)(0.200000002980232 * theMenu7.Width), 18));
+            prodDropDown.AddOption(Localizer.Token(329));
+            prodDropDown.AddOption(Localizer.Token(330));
+            prodDropDown.AddOption(Localizer.Token(331));
+            prodDropDown.ActiveIndex = (int)p.PS;
+
             var theMenu8 = new Rectangle(theMenu2.X + 20 + theMenu4.Width + 20, theMenu4.Y, theMenu2.Width - 60 - theMenu4.Width, (int)(theMenu2.Height * 0.5));
             subColonyGrid = new Submenu(theMenu8);
             subColonyGrid.AddTab(Localizer.Token(332));
@@ -213,7 +203,7 @@ namespace Ship_Game
                 DetailInfo = p.Description;
                 var rectangle4 = new Rectangle(pDescription.Rect.X + 10, pDescription.Rect.Y + 30, 124, 148);
                 var rectangle5 = new Rectangle(rectangle4.X + rectangle4.Width + 20, rectangle4.Y + rectangle4.Height - 15, (int)Fonts.Pirulen16.MeasureString(Localizer.Token(370)).X, Fonts.Pirulen16.LineSpacing);
-                GovernorDropdown = new DropOptions<int>(this, new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
+                GovernorDropdown = new DropOptions<int>(new Rectangle(rectangle5.X + 30, rectangle5.Y + 30, 100, 18));
                 GovernorDropdown.AddOption("--", 1);
                 GovernorDropdown.AddOption(Localizer.Token(4064), 0); // Core
                 GovernorDropdown.AddOption(Localizer.Token(4065), 2); // Industrial
@@ -244,19 +234,16 @@ namespace Ship_Game
             if (P.Owner == null)
                 return;
             P.UpdateIncomes(false);
-            LeftMenu.Draw();
-            RightMenu.Draw();
+            LeftMenu.Draw(batch);
+            RightMenu.Draw(batch);
             TitleBar.Draw(batch);
             LeftColony.Draw(ScreenManager);
             RightColony.Draw(ScreenManager);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(369), TitlePos, new Color(255, 239, 208));
-            if (!GlobalStats.HardcoreRuleset)
-            {
-                FoodStorage.Max = P.Storage.Max;
-                FoodStorage.Progress = P.FoodHere;
-                ProdStorage.Max = P.Storage.Max;
-                ProdStorage.Progress = P.ProdHere;
-            }
+            FoodStorage.Max = P.Storage.Max;
+            FoodStorage.Progress = P.FoodHere;
+            ProdStorage.Max = P.Storage.Max;
+            ProdStorage.Progress = P.ProdHere;
             PlanetInfo.Draw(batch);
             pDescription.Draw(batch);
             pLabor.Draw(batch);
@@ -332,7 +319,7 @@ namespace Ship_Game
                 num5 += 20f;
             var vector2_2 = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
             P.Name = PlanetName.Text;
-            PlanetName.Draw(Font20, batch, vector2_2, GameTime, new Color(255, 239, 208));
+            PlanetName.Draw(batch, Font20, vector2_2, new Color(255, 239, 208));
             EditNameButton = new Rectangle((int)(vector2_2.X + (double)Font20.MeasureString(P.Name).X + 12.0), (int)(vector2_2.Y + (double)(Font20.LineSpacing / 2) - ResourceManager.Texture("NewUI/icon_build_edit").Height / 2) - 2, ResourceManager.Texture("NewUI/icon_build_edit").Width, ResourceManager.Texture("NewUI/icon_build_edit").Height);
             if (EditHoverState == 0 && !PlanetName.HandlingInput)
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
@@ -523,36 +510,28 @@ namespace Ship_Game
                     DontScrapBuildings.Draw(batch); 
             }
 
-            if (GlobalStats.HardcoreRuleset)
+            FoodStorage.Progress = P.FoodHere;
+            ProdStorage.Progress = P.ProdHere;
+            if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
+            else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
+            else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
+            if (P.NonCybernetic)
             {
-                foreach (ThreeStateButton threeStateButton in ResourceButtons)
-                    threeStateButton.Draw(ScreenManager, (int)P.GetGoodAmount(threeStateButton.Good));
+                FoodStorage.Draw(batch);
+                foodDropDown.Draw(batch);
             }
             else
             {
-                FoodStorage.Progress = P.FoodHere;
-                ProdStorage.Progress = P.ProdHere;
-                if      (P.FS == Planet.GoodState.STORE)  foodDropDown.ActiveIndex = 0;
-                else if (P.FS == Planet.GoodState.IMPORT) foodDropDown.ActiveIndex = 1;
-                else if (P.FS == Planet.GoodState.EXPORT) foodDropDown.ActiveIndex = 2;
-                if (P.NonCybernetic)
-                {
-                    FoodStorage.Draw(batch);
-                    foodDropDown.Draw(batch);
-                }
-                else
-                {
-                    FoodStorage.DrawGrayed(batch);
-                    foodDropDown.DrawGrayed(batch);
-                }
-                ProdStorage.Draw(batch);
-                if      (P.PS == Planet.GoodState.STORE)  prodDropDown.ActiveIndex = 0;
-                else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
-                else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
-                prodDropDown.Draw(batch);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
-                batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
+                FoodStorage.DrawGrayed(batch);
+                foodDropDown.DrawGrayed(batch);
             }
+            ProdStorage.Draw(batch);
+            if      (P.PS == Planet.GoodState.STORE)  prodDropDown.ActiveIndex = 0;
+            else if (P.PS == Planet.GoodState.IMPORT) prodDropDown.ActiveIndex = 1;
+            else if (P.PS == Planet.GoodState.EXPORT) prodDropDown.ActiveIndex = 2;
+            prodDropDown.Draw(batch);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_storage_food"), FoodStorageIcon, Color.White);
+            batch.Draw(ResourceManager.Texture("NewUI/icon_storage_production"), ProfStorageIcon, Color.White);
 
             DrawOrbitalStats(batch);
 
@@ -1262,30 +1241,22 @@ namespace Ship_Game
 
         void HandleExportImportButtons(InputState input)
         {
-            if (!GlobalStats.HardcoreRuleset)
+            if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                if (foodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    foodDropDown.Toggle();
-                    GameAudio.AcceptClick();
-                    P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
-                    if (P.FS > Planet.GoodState.EXPORT)
-                        P.FS = Planet.GoodState.STORE;
-                }
-
-                if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    prodDropDown.Toggle();
-                    GameAudio.AcceptClick();
-                    P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
-                    if (P.PS > Planet.GoodState.EXPORT)
-                        P.PS = Planet.GoodState.STORE;
-                }
+                foodDropDown.Toggle();
+                GameAudio.AcceptClick();
+                P.FS = (Planet.GoodState) ((int) P.FS + (int) Planet.GoodState.IMPORT);
+                if (P.FS > Planet.GoodState.EXPORT)
+                    P.FS = Planet.GoodState.STORE;
             }
-            else
+
+            if (prodDropDown.r.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
-                foreach (ThreeStateButton b in ResourceButtons)
-                    b.HandleInput(input, ScreenManager);
+                prodDropDown.Toggle();
+                GameAudio.AcceptClick();
+                P.PS = (Planet.GoodState) ((int) P.PS + (int) Planet.GoodState.IMPORT);
+                if (P.PS > Planet.GoodState.EXPORT)
+                    P.PS = Planet.GoodState.STORE;
             }
         }
 

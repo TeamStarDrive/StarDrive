@@ -147,7 +147,7 @@ namespace Ship_Game
                 {
                     if (HoveredShip == button.ReferenceObject)
                         button.Hover = true;
-                    button.Draw(ScreenManager);
+                    button.Draw(ScreenManager.SpriteBatch);
                 }
             }
             if (HoveredShip == null)

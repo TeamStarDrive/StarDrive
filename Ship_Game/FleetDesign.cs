@@ -65,6 +65,7 @@ namespace Ship_Game
         [Serialize(0)] public Array<FleetDataNode> Data = new Array<FleetDataNode>();
         [Serialize(1)] public int FleetIconIndex;
         [Serialize(2)] public string Name;
+        [XmlIgnore][JsonIgnore] public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
 
         public void Rotate(float facing)
         {
