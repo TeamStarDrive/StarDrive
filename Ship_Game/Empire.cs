@@ -926,24 +926,9 @@ namespace Ship_Game
             switch (techUnlockType)
             {
                 case TechUnlockType.Normal:
-                case TechUnlockType.Event:
-                    if (techEntry.Unlock(this))
-                    {
-                        UpdateForNewTech();
-                    }
-                    break;
-                case TechUnlockType.Diplomacy:
-                    if (techEntry.UnlockFromDiplomacy(this, otherEmpire))
-                    {
-                        UpdateForNewTech();
-                    }
-                    break;
-                case TechUnlockType.Spy:
-                    if (techEntry.UnlockFromSpy(this, otherEmpire))
-                    {
-                        UpdateForNewTech();
-                    }
-                    break;
+                case TechUnlockType.Event     when techEntry.Unlock(this):
+                case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
+                case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire): UpdateForNewTech(); break;
             }
         }
 
@@ -952,6 +937,7 @@ namespace Ship_Game
             UpdateShipsWeCanBuild();
             EmpireAI.TriggerRefit();
             TriggerFreightersRefit();
+            UpdateBestOrbitals();
         }
 
         public void AssimilateTech(Empire conqueredEmpire)
@@ -1432,10 +1418,7 @@ namespace Ship_Game
         public void GovernPlanets()
         {
             if (!isFaction && !data.Defeated)
-            {
                 UpdateMaxColonyValue();
-                UpdateBestOrbitals();
-            }
 
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
