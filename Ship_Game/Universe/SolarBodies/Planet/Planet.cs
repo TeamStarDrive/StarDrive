@@ -995,10 +995,12 @@ namespace Ship_Game
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
-        public int FreeHabitableTiles  => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
-        public float BuiltCoverage     => TotalBuildings / (float)TileArea;
-        public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
+        public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
+
+        public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
+        public float BuiltCoverage   => TotalBuildings / TotalHabitableTiles;
+        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
 
         // FB - This will give the Max Fertility the planet should have after terraforming is complete
         public float TerraformMaxFertilityTarget
