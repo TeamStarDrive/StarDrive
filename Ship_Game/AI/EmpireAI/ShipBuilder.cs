@@ -97,7 +97,7 @@ namespace Ship_Game.AI
             if (potentialShips.Length == 0)
                 return null;
 
-            Ship best = potentialShips.FindMax(orb => orb.BaseStrength);
+            Ship best = potentialShips.FindMax(orb => orb.NormalizedStrength);
             return best;
         }
         
@@ -171,13 +171,14 @@ namespace Ship_Game.AI
         public static Ship PickShipToRefit(Ship oldShip, Empire empire)
         {
             Ship[] ships = ShipsWeCanBuild(empire).Filter(s => s.shipData.Hull == oldShip.shipData.Hull
-                                                              && s.BaseStrength.Greater(oldShip.BaseStrength * 1.3f)
+                                                              && s.NormalizedStrength.Greater(oldShip.NormalizedStrength * 1.25f)
                                                               && s.Name != oldShip.Name);
             if (ships.Length == 0)
                 return null;
 
             Ship picked = RandomMath.RandItem(ships);
-            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.BaseStrength} refit to --> {picked.Name}, Strength: {picked.BaseStrength}");
+            Log.Info(ConsoleColor.DarkCyan, $"{empire.Name} Refit: {oldShip.Name}, Strength: {oldShip.NormalizedStrength}" +
+                                            $" refit to --> {picked.Name}, Strength: {picked.NormalizedStrength}");
             return picked;
         }
 

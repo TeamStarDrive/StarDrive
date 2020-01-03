@@ -15,7 +15,8 @@ namespace Ship_Game
         Rectangle horizBot;
         Rectangle fillRect;
 
-        Submenu subMenu;
+        // TODO: make private after scroll-list branch is merged
+        public Submenu subMenu;
         readonly bool WithSubMenu;
 
 

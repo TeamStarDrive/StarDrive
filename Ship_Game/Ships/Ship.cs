@@ -155,7 +155,6 @@ namespace Ship_Game.Ships
         public bool HasTroops => TroopList.Count > 0  || Carrier.NumTroopsInShipAndInSpace > 0;
         public bool HasBombs  => BombBays.Count > 0;
 
-
         public bool IsConstructor
         {
             get => DesignRole == ShipData.RoleName.construction;
@@ -1963,7 +1962,7 @@ namespace Ship_Game.Ships
             bool fighters      = false;
             bool weapons       = false;
             int numWeaponSlots = 0;
-            float mass         = SurfaceArea / 2f;
+            float mass         = SurfaceArea;
             float turnThrust   = 0;
 
             foreach (ShipModule slot in ModuleSlotList)
