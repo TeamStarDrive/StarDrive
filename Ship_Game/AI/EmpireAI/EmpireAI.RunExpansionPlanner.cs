@@ -72,8 +72,8 @@ namespace Ship_Game.AI
         /// Go through all known planets. filter planets by colonization rules. Rank remaining ones.
         Array<PlanetRanker> GatherAllPlanetRanks(Planet[] markedPlanets)
         {
-            //need a better way to find biosphere
-            bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.IsCybernetic;
+            // this bool can be removed when switching to Planet.MaxPopPotentialFor(OwnerEmpire)
+            bool canColonizeBarren = OwnerEmpire.IsBuildingUnlocked(Building.BiospheresId);
 
             var allPlanetsRanker = new Array<PlanetRanker>();
             Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();
