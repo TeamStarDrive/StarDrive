@@ -1285,5 +1285,10 @@
       <Title>Treasury Goal Projection</Title>
       <Data>1918</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>256</TIP_ID>
+      <Title>Relative Strength</Title>
+      <Data>1915</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
