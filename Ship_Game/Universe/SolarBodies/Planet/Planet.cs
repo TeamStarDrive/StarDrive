@@ -104,6 +104,7 @@ namespace Ship_Game
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
         public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
+        public int SpecialCommodities               => BuildingList.Count(b => b.IsCommodity);
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -270,14 +271,21 @@ namespace Ship_Game
         public float ColonyBaseValue(Empire empire)
         {
             float value = 0;
-            value += BuildingList.Count(b => b.IsCommodity) * 30;
-            value += EmpireFertility(empire) * 10;
-            value += MineralRichness * 10;
-            value += MaxPopulationBillionFor(empire) * 5;
+            value += ColonyRawValue(empire);
             value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
             value += BuildingList.Sum(b => b.ActualCost) / 10;
             value += PopulationBillion * 5;
 
+            return value;
+        }
+
+        public float ColonyRawValue(Empire empire)
+        {
+            float value = 0;
+            value += SpecialCommodities * 10;
+            value += EmpireFertility(empire) * 10;
+            value += MineralRichness * 10;
+            value += MaxPopulationBillionFor(empire) * 5;
             return value;
         }
 
