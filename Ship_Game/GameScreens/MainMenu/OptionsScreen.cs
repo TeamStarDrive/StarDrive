@@ -360,10 +360,11 @@ namespace Ship_Game
                 }
                 else
                 {
-                    var dialog = new MessageBoxScreen(this, Localizer.Token(14), 10f);
-                    dialog.Accepted  += AcceptChanges;
-                    dialog.Cancelled += CancelChanges;
-                    ScreenManager.AddScreen(dialog);
+                    ScreenManager.AddScreen(new MessageBoxScreen(this, Localizer.Token(14), 10f)
+                    {
+                        Accepted = AcceptChanges,
+                        Cancelled = CancelChanges
+                    });
                 }
             }
             catch

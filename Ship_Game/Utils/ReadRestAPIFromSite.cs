@@ -69,7 +69,7 @@ namespace Ship_Game.Utils
             }
         }
 
-        public Vector2 PopulateVersions(string versionText, GameScreen screen, Vector2 bodyTextStart)
+        public Vector2 PopulateVersions(string versionText, Vector2 bodyTextStart)
         {
             var entries = CreateEntryList(versionText);
             foreach (var entry in entries)
