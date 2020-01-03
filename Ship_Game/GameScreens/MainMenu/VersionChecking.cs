@@ -73,17 +73,17 @@ namespace Ship_Game.GameScreens.MainMenu
                 return;
             }
             base.Draw(batch);
+            batch.Begin();
             BlackBoxVersionCheck.Draw(batch);
             ModVersionCheck.Draw(batch);
+            batch.End();
         }
 
         public override bool HandleInput(InputState input)
         {
-            BlackBoxVersionCheck.HandleInput(input, DownLoadSite);
-            ModVersionCheck.HandleInput(input, ModDownLoadSite);
-            
-            return base.HandleInput(input);
+            return BlackBoxVersionCheck.HandleInput(input, DownLoadSite)
+                || ModVersionCheck.HandleInput(input, ModDownLoadSite)
+                || base.HandleInput(input);
         }
-
     }
 }
