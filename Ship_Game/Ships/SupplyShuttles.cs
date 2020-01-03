@@ -32,8 +32,8 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            int shipInNeedIndex    = 0;
-            bool cantLaunchShuttle = false;
+            int shipInNeedIndex   = 0;
+            bool canLaunchShuttle = true;
 
             // Its Better!
             foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
@@ -45,14 +45,9 @@ namespace Ship_Game.Ships
                     supplyTarget = shipsNeedingSupply[shipInNeedIndex];
 
                 if (supplyShipInSpace != null && supplyShipInSpace.Active)
-                {
                     OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
-                }
-                else if (!cantLaunchShuttle)
-                {
-                    if (!LaunchShipSupplyShuttle(hangar, supplyTarget))
-                        cantLaunchShuttle = true;
-                }
+                else if (canLaunchShuttle)
+                    canLaunchShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
 
                 if (supplyTarget != null && !ShipNeedsMoreOrdnance(supplyTarget))
                     shipInNeedIndex++;
@@ -69,7 +64,6 @@ namespace Ship_Game.Ships
             if (supplyTarget != null || SupplyShipNeedsResupply(0,false))
             {
                 CreateShuttle(hangar);
-
                 Ship supplyShuttle = hangar.GetHangarShip();
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
                 if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax, supplyTarget != null))
@@ -79,10 +73,9 @@ namespace Ship_Game.Ships
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
                 else 
-                {
-                    supplyShuttle.AI.GoOrbitNearestPlanetAndResupply(true);
-                }
+                    return false;
             }
+
             return true;
         }
 
