@@ -178,8 +178,8 @@ namespace Ship_Game
                 else
                     DrawPlanetStats(DefenseShipsRect, currentDefenseShips + "/" + maxDefenseShips , "UI/icon_hangar", Color.Yellow, Color.White);
             }
-            Inspect.Draw(ScreenManager);
-            Invade.Draw(ScreenManager);
+            Inspect.Draw(batch);
+            Invade.Draw(batch);
         }
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)
@@ -338,8 +338,8 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
                     new Color(174, 202, 255)); // Localizer.Token(1425)
 
-            Inspect.Draw(ScreenManager);
-            Invade.Draw(ScreenManager);
+            Inspect.Draw(ScreenManager.SpriteBatch);
+            Invade.Draw(ScreenManager.SpriteBatch);
             return false;
         }
 

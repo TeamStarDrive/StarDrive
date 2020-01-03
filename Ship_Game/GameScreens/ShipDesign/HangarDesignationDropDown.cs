@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         private class HangarDesignationDropDown : DropOptions<ShipData.HangarOptions>
         {
-            public HangarDesignationDropDown(UIElementV2 parent, Rectangle hangarRect) : base(parent, hangarRect)
+            public HangarDesignationDropDown(UIElementV2 parent, Rectangle hangarRect) : base(hangarRect)
             {
             }
             public override bool HandleInput(InputState input)
