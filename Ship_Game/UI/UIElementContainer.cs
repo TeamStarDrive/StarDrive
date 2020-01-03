@@ -290,10 +290,8 @@ namespace Ship_Game
         public UIButton ButtonSmall(float x, float y, LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), text, click);
 
-
         public UIButton ButtonMedium(float x, float y, LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), text, click);
-
 
         public UIButton Button(ButtonStyle style, LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(new UIButton(style, text), click, clickSfx);

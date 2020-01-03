@@ -35,7 +35,10 @@ namespace Ship_Game
             Finished.Set();
         }
 
-        // wait until task has finished, -1 to wait forever
+        // Wait until task has finished
+        // NOTE: Throws any unhandled exceptions caught from the task
+        // @param millisecondTimeout -1 to wait forever
+        // @return TRUE if task was completed
         public bool Wait(int millisecondTimeout = -1)
         {
             if (!IsComplete)
@@ -53,6 +56,7 @@ namespace Ship_Game
             return IsComplete;
         }
 
+        // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
             IsCancelRequested = true;
@@ -78,6 +82,7 @@ namespace Ship_Game
         }
 
         // Wait until task has finished
+        // NOTE: Throws any unhandled exceptions caught from the task
         // @return TRUE if task was completed
         public bool Wait(int millisecondTimeout = -1)
         {
@@ -95,7 +100,8 @@ namespace Ship_Game
                 Finished.WaitOne(millisecondTimeout);
             return IsComplete;
         }
-
+        
+        // Request for Cancel and call Wait()
         public void CancelAndWait(int millisecondTimeout = -1)
         {
             IsCancelRequested = true;
@@ -167,7 +173,8 @@ namespace Ship_Game
         void SetResult(object value, Exception e)
         {
             ITaskResult result = Result;
-            if (result == null) return;
+            if (result == null)
+                return;
             Result = null; // so if SetResult fails, we don't crash twice
             result.SetResult(value, e);
         }
@@ -269,14 +276,17 @@ namespace Ship_Game
             return true;
         }
 
-        public static int PoolSize => Pool.Count;
+        public static int PoolSize { get { lock (Pool) { return Pool.Count; } } }
 
+        // NOTE: This must be called in a `lock (Pool)` context,
+        //       Because there is a small race-condition between getting idle task and starting it
         static ParallelTask FindOrSpawnTask(ref int poolIndex)
         {
             for (; poolIndex < Pool.Count; ++poolIndex)
             {
                 ParallelTask task = Pool[poolIndex];
-                if (!task.HasTasksToExecute()) return task;
+                if (!task.HasTasksToExecute())
+                    return task;
             }
             var newTask = new ParallelTask(Pool.Count);
             Pool.Add(newTask);
@@ -351,8 +361,6 @@ namespace Ship_Game
         /// Ranges are properly partitioned to avoid false sharing
         /// and process the items in batched to avoid delegate callback overhead
         /// 
-        /// Parallel.For loops are forbidden (ThreadStateException)
-        /// 
         /// In case of ParallelTasks encountering an exception, the first captured exception
         /// will be thrown once ALL loop branches are complete.
         /// </summary>
@@ -389,10 +397,14 @@ namespace Ship_Game
 
             int poolIndex = 0;
             int start = rangeStart;
-            for (int i = 0; i < cores; ++i, start += len)
+            int step = range / cores;
+            lock (Pool)
             {
-                int end = (i == cores - 1) ? rangeEnd : start + len;
-                results[i] = StartRangeTask(ref poolIndex, start, end, body);
+                for (int i = 0; i < cores; ++i, start += step)
+                {
+                    int end = (i == cores - 1) ? rangeEnd : start + len;
+                    results[i] = StartRangeTask(ref poolIndex, start, end, body);
+                }
             }
 
             Exception ex = null; // only store a single exception

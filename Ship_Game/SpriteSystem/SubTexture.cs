@@ -58,6 +58,8 @@ namespace Ship_Game
         public int CenterX => Width/2;
         public int CenterY => Height/2;
 
+        public float AspectRatio => Width / (float)Height;
+
         public override string ToString()
             => $"sub-tex  {Name} {X},{Y} {Width}x{Height}  texture:{Texture.Width}x{Texture.Height}";
     }

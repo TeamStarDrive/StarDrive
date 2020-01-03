@@ -24,8 +24,7 @@ namespace Ship_Game
 
         public string Name => Atlas?.Name ?? "";
         public int NumFrames => Atlas?.Count ?? 0;
-        public int Width  { get; private set; }
-        public int Height { get; private set; }
+        public Vector2 Size { get; private set; }
 
         public SpriteAnimation(GameContentManager content, string atlasPath, bool autoStart = true)
         {
@@ -39,8 +38,7 @@ namespace Ship_Game
             }
             else if (Atlas.Count > 0)
             {
-                Width  = Atlas[0].Width;
-                Height = Atlas[0].Height;
+                Size = new Vector2(Atlas[0].Width, Atlas[0].Height);
             }
         }
 
@@ -58,8 +56,7 @@ namespace Ship_Game
             IsAnimating = Atlas?.Count > 0;
             if (Atlas != null && IsAnimating)
             {
-                Width  = Atlas[0].Width;
-                Height = Atlas[0].Height;
+                Size = new Vector2(Atlas[0].Width, Atlas[0].Height);
             }
         }
 

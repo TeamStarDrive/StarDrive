@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,6 +16,18 @@ namespace Ship_Game
         {
             if (texture.Texture.IsDisposed)
                 throw new ObjectDisposedException($"SubTexture '{texture.Name}' in Texture2D '{texture.Texture.Name}'");
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, float x, float y)
+        {
+            CheckSubTextureDisposed(texture);
+            batch.Draw(texture.Texture, new Vector2(x, y), texture.Rect, Color.White);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle destRect)
+        {
+            CheckSubTextureDisposed(texture);
+            batch.Draw(texture.Texture, destRect, texture.Rect, Color.White);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, 
@@ -66,6 +74,13 @@ namespace Ship_Game
             CheckTextureDisposed(texture);
             var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
             batch.Draw(texture, r, Color.White);
+        }
+
+        public static void Draw(this SpriteBatch batch, SubTexture texture, Vector2 position, Vector2 size, Color color)
+        {
+            CheckSubTextureDisposed(texture);
+            var r = new Rectangle((int)position.X, (int)position.Y, (int)size.X, (int)size.Y);
+            batch.Draw(texture.Texture, r, texture.Rect, color);
         }
 
         public static void Draw(this SpriteBatch batch, SubTexture texture, in Rectangle rect, 
@@ -118,6 +133,24 @@ namespace Ship_Game
             this SpriteBatch batch, SpriteFont font, string text, float x, float y)
         {
             batch.DrawString(font, text, new Vector2(x, y), Color.White);
+        }
+
+        public static void DrawString(
+            this SpriteBatch batch, SpriteFont font, string text, float x, float y, Color color)
+        {
+            batch.DrawString(font, text, new Vector2(x, y), color);
+        }
+
+        // Special Multi-Colored line draw
+        // batch.DrawLine(Fonts.Arial12, X, Y, ("A: ", Color.White), ("100", Color.Red));
+        public static void DrawLine(this SpriteBatch batch, SpriteFont font, float x, float y,
+                                    params (string Text, Color Color)[] textSequence)
+        {
+            for (int i = 0; i < textSequence.Length; ++i)
+            {
+                batch.DrawString(font, textSequence[i].Text, new Vector2(x, y), textSequence[i].Color);
+                x += font.TextWidth(textSequence[i].Text);
+            }
         }
     }
 }

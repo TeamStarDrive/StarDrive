@@ -117,7 +117,7 @@ namespace Ship_Game
             public Func<ScrollListStyleTextures.Hoverable> GetHoverable;
             Rectangle AbsRect;
             bool IsHovered;
-            
+                
             public bool HandleInput(InputState input)
             {
                 IsHovered = AbsRect.HitTest(input.CursorPosition);
