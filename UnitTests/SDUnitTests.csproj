@@ -102,6 +102,9 @@
     <Compile Include="TestImpactPredictor.cs" />
     <Compile Include="Serialization\TestYamlSerializer.cs" />
     <Compile Include="Serialization\TestBinarySerializer.cs" />
+    <Compile Include="UI\MockGameScreen.cs" />
+    <Compile Include="UI\MockInputProvider.cs" />
+    <Compile Include="UI\TestScrollList.cs" />
     <Compile Include="TestGameDummy.cs" />
   </ItemGroup>
   <ItemGroup>

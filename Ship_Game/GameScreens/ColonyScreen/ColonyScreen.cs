@@ -491,14 +491,14 @@ namespace Ship_Game
                                             pDescription.Rect.Height - 60);
 
             var descCursor = new Vector2(description.X, description.Y);
-            batch.DrawString(Font12, P.WorldType, descCursor, Color.White);
+            batch.DrawString(Font12, P.WorldType.Text, descCursor, Color.White);
             descCursor.Y += Font12.LineSpacing + 5;
 
             GovernorDropdown.Pos = descCursor;
             GovernorDropdown.Reset();
             descCursor.Y += GovernorDropdown.Height + 5;
 
-            string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText, description.Width);
+            string colonyTypeInfo = Font12.ParseText(P.ColonyTypeInfoText.Text, description.Width);
             batch.DrawString(Font12, colonyTypeInfo, descCursor, Color.White);
             GovernorDropdown.Draw(batch); // draw dropdown on top of other text
             if (P.Owner.isPlayer && GovernorDropdown.ActiveIndex != 0)

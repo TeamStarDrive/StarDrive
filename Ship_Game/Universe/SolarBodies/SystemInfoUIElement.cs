@@ -48,7 +48,7 @@ namespace Ship_Game
 
         private Array<ClickMe> ClickList = new Array<ClickMe>();
 
-        new private Color tColor = new Color(255, 239, 208);
+        new private Color tColor = Colors.Cream;
 
         public SystemInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
         {

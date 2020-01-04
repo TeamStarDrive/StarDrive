@@ -213,7 +213,12 @@ namespace Ship_Game
             }
             if (AnimatePosition)
             {
+                Vector2 pos = Element.Pos;
                 Element.Pos = StartPos.LerpTo(EndPos, Animation);
+                if (Element.Pos.NotEqual(pos))
+                {
+                    Element.PerformLayout();
+                }
             }
         }
 

@@ -50,7 +50,7 @@ namespace Ship_Game
 				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_res3").Width;
 				res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res4").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res4").Height);
 				Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_res4").Width;
-				Cursor.X = Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Width;
+				Cursor.X = Empire.Universe.ScreenWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Width;
 				res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_res5").Height);
 				Button r1 = new Button();
 				
@@ -102,7 +102,7 @@ namespace Ship_Game
 				Cursor.X = r4.Rect.X + r4.Rect.Width + roomoneitherside;
 
 
-                if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth >= 1920)
+                if (Empire.Universe.ScreenWidth >= 1920)
                 {
                     float saveY = Cursor.Y;
                     
@@ -217,7 +217,7 @@ namespace Ship_Game
 			Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Width;
 			res4 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Height);
 			Cursor0.X = Cursor0.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width;
-			Cursor0.X = Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width;
+			Cursor0.X = Empire.Universe.ScreenWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width;
 			res5 = new Rectangle((int)Cursor0.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Height);
 			Button r1n = new Button
 			{
@@ -367,7 +367,7 @@ namespace Ship_Game
 
 		public void Draw(SpriteBatch spriteBatch)
 		{
-			if (Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 && !LowRes)
+			if (Empire.Universe.ScreenWidth <= 1366 && !LowRes)
 			{
 				Buttons.Clear();
 				ResetLowRes();
@@ -444,9 +444,9 @@ namespace Ship_Game
 			{
 				if (empire.Research.NoTopic)
 				{
-					textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
+					textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(102)+"...").X;
 					textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-					spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
+					spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(102)+"...", textCursor, new Color(255, 240, 189));
 					return;
 				}
 				int xOffset = (int)(empire.Research.Current.PercentResearched * res2.Width);
@@ -499,9 +499,9 @@ namespace Ship_Game
 					spriteBatch.DrawString(Fonts.Tahoma10, text, textCursor, new Color(255, 240, 189));
 					return;
 				}
-				textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(102), "...")).X;
+				textCursor.X = res2.X + res2.Width - 30 - Fonts.Arial12Bold.MeasureString(Localizer.Token(102)+"...").X;
 				textCursor.Y = res2.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2;
-				spriteBatch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(102), "..."), textCursor, new Color(255, 240, 189));
+				spriteBatch.DrawString(Fonts.Arial12Bold, Localizer.Token(102)+"...", textCursor, new Color(255, 240, 189));
 			}
 		}
 
@@ -827,7 +827,7 @@ namespace Ship_Game
 			Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res3").Width;
 			res4 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Height);
 			Cursor.X = Cursor.X + ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res4").Width;
-			Cursor.X = Empire.Universe.ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width;
+			Cursor.X = Empire.Universe.ScreenWidth - ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width;
 			res5 = new Rectangle((int)Cursor.X, 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_low_res5").Height);
 			Button r1 = new Button
 			{
