@@ -63,7 +63,6 @@ namespace Ship_Game
         public Vector3 CamPos = Vector3.Zero;
         float TooltipTimer = 0.5f;
         float sTooltipTimer = 0.5f;
-        GameTime SimulationTime = new GameTime();
         float TurnFlipCounter;
         int Auto = 1;
         AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
@@ -438,7 +437,7 @@ namespace Ship_Game
             }
             float univSizeOnScreen = 10f;
             MaxCamHeight = 4E+07f;
-            while (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
+            while (univSizeOnScreen < (ScreenWidth + 50))
             {
                 float univRadius = UniverseSize / 2f;
                 Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
@@ -447,7 +446,7 @@ namespace Ship_Game
                 Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
                 Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
                 univSizeOnScreen = univBotRight.X - univTopLeft.X;
-                if (univSizeOnScreen < (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth + 50))
+                if (univSizeOnScreen < (ScreenWidth + 50))
                     MaxCamHeight -= 0.1f * MaxCamHeight;
             }
             if (MaxCamHeight > 23000000)
@@ -686,9 +685,10 @@ namespace Ship_Game
             base.UnloadContent();
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        public override void Update(float deltaTime)
         {
-            float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (LookingAtPlanet) workersPanel.Update(deltaTime);
+            if (showingDSBW) dsbw.Update(deltaTime);
 
             if (viewState > UnivScreenState.ShipView)
             {
@@ -696,15 +696,13 @@ namespace Ship_Game
                     engineTrailParticles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
             }
 
-            SimulationTime = gameTime;
+            SelectedSomethingTimer -= deltaTime;
 
-            float gameTimeDelta = (float)gameTime.ElapsedGameTime.TotalSeconds;
-            SelectedSomethingTimer -= gameTimeDelta;
+            if (++SelectorFrame > 299)
+                SelectorFrame = 0;
 
-            if (++SelectorFrame > 299) SelectorFrame = 0;
-
-            MusicCheckTimer -= gameTimeDelta;
-            if (MusicCheckTimer <= 0.0f)
+            MusicCheckTimer -= deltaTime;
+            if (MusicCheckTimer <= 0f)
             {
                 MusicCheckTimer = 2f;
                 if (ScreenManager.Music.IsStopped)
@@ -716,7 +714,7 @@ namespace Ship_Game
             ScreenManager.UpdateSceneObjects();
             EmpireUI.Update(deltaTime);
 
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
+            base.Update(deltaTime);
         }
 
         public void DoAutoSave()
