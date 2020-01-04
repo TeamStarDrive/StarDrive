@@ -1058,9 +1058,13 @@ namespace Ship_Game
         {
             LoadNumberedModels(AsteroidModels, "Model/Asteroids/", "asteroid");
         }
-
-        static void LoadLanguage() // Refactored by RedFox
+        
+        // Refactored by RedFox
+        // Can be called after game init, to reset `Localizer` with new language tokens
+        public static void LoadLanguage()
         {
+            Localizer.Reset();
+
             foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                 Localizer.AddTokens(loc.TokenList);
 
