@@ -82,7 +82,7 @@ namespace Ship_Game
 
             if (IsPlanetExtraDebugTarget())
             {
-                Log.Info($"**** {Name} - Governor Priorities        ****");
+                Log.Info(ConsoleColor.Green,$"**** {Name} - Governor Priorities        ****");
                 Log.Info($"Flat Food             = {Priorities[ColonyPriority.FoodFlat]}");
                 Log.Info($"Food Per Col          = {Priorities[ColonyPriority.FoodPerCol]}");
                 Log.Info($"Flat prod             = {Priorities[ColonyPriority.ProdFlat]}");
@@ -96,7 +96,7 @@ namespace Ship_Game
                 Log.Info($"Tax Percentage        = {Priorities[ColonyPriority.TaxPercent]}");
                 Log.Info($"Credits Per Colonist  = {Priorities[ColonyPriority.CreditsPerCol]}");
                 Log.Info($"Storage               = {Priorities[ColonyPriority.StorageNeeds]}");
-                Log.Info($"---------------------------------------------");
+                Log.Info(ConsoleColor.Green, $"---------------------------------------------");
             }
         }
 
@@ -345,9 +345,9 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ProdFlat], b.PlusFlatProductionAmount);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerCol], b.PlusProdPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
-            score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation);
+            score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation / 5);
             score += EvalTraits(Priorities[ColonyPriority.PopCap], b.MaxPopIncrease / 100);
-            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], (float)b.StorageAdded / 20);
+            score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], (float)b.StorageAdded / 50);
             score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount);
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist);
