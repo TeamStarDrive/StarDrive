@@ -372,15 +372,6 @@ namespace Ship_Game
             TerraformPoints = points;
         }
 
-        private void UpdateOrbitalsMaint()
-        {
-            OrbitalsMaintenance = 0;
-            foreach (Ship orbital in OrbitalStations.Values)
-            {
-                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
-            }
-        }
-
         public void MakeTileHabitable(PlanetGridSquare tile)
         {
             if (tile.Biosphere)

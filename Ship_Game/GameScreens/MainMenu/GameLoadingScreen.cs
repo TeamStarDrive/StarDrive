@@ -5,38 +5,41 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
-using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game
 {
-	public sealed class GameLoadingScreen : GameScreen
-	{
+    public sealed class GameLoadingScreen : GameScreen
+    {
         readonly ScreenMediaPlayer LoadingPlayer;
         readonly ScreenMediaPlayer SplashPlayer;
         Rectangle BridgeRect;
         Texture2D BridgeTexture;
         TaskResult LoadResult;
+        readonly bool ShowSplash;
+        readonly bool ResetResources;
 
-        public GameLoadingScreen() : base(null/*no parent*/)
+        public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
         {
+            ShowSplash = showSplash;
+            ResetResources = resetResources;
             LoadingPlayer = new ScreenMediaPlayer(TransientContent);
-            SplashPlayer = new ScreenMediaPlayer(TransientContent);
+            SplashPlayer  = new ScreenMediaPlayer(TransientContent);
         }
         
-        bool SkipSplashVideo => Debugger.IsAttached;
+        bool ShowSplashVideo => ShowSplash && !Debugger.IsAttached;
 
         public override void Draw(SpriteBatch batch)
-		{
+        {
             // NOTE: by throttling LoadingScreen rendering, we get ~4x faster loading
             // this is because video player Decode+Draw is very expensive.
 
             // no splash:               DEBUG load in ~1.6 seconds
             // no throttling + splash:  DEBUG load in ~5.6 seconds
             // throttling(50) + splash: DEBUG load in ~1.7 seconds
-            if (SkipSplashVideo)
-                Thread.Sleep(50); // faster loading
-            else
+            if (ShowSplashVideo)
                 Thread.Sleep(10); // smoother intro video
+            else
+                Thread.Sleep(50); // faster loading
 
             if (!LoadingFinished())
             {
@@ -59,11 +62,11 @@ namespace Ship_Game
         }
 
         public override bool HandleInput(InputState input)
-		{
-		    if (IsExiting || !IsActive)
+        {
+            if (IsExiting || !IsActive)
                 return false;
             return LoadingFinished() || base.HandleInput(input);
-		}
+        }
 
         bool LoadingFinished()
         {
@@ -76,8 +79,11 @@ namespace Ship_Game
             return false;
         }
 
-		public override void LoadContent()
-		{
+        public override void LoadContent()
+        {
+            if (ResetResources)
+                ResourceManager.UnloadAllData(ScreenManager);
+
             base.LoadContent();
 
             int w = ScreenWidth, h = ScreenHeight;
@@ -94,7 +100,7 @@ namespace Ship_Game
             LoadingPlayer.PlayVideo("Loading 2", looping:true);
             LoadingPlayer.Rect = new Rectangle(screenCx - 64, screenCy - 64, 128, 128);
 
-            if (!SkipSplashVideo)
+            if (ShowSplashVideo)
             {
                 // "Play it cool"
                 int videoW = (int)(1280 * ratio);
@@ -112,7 +118,7 @@ namespace Ship_Game
         {
             try
             {
-                ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod, reset:false);
+                ResourceManager.LoadItAll(ScreenManager, GlobalStats.ActiveMod);
                 Log.Write($"Finished loading 'Root' Assets {GameBase.GameContent.GetLoadedAssetMegabytes():0.0}MB");
             }
             catch (Exception ex)
@@ -135,5 +141,5 @@ namespace Ship_Game
             SplashPlayer.Dispose();
             base.Destroy();
         }
-	}
+    }
 }

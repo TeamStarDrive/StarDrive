@@ -72,7 +72,7 @@ namespace Ship_Game
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight -
                 (titleRect.Y + titleRect.Height) - 7);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+            close = new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
             EMenu = new Menu2(leftRect);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40,
@@ -424,7 +424,6 @@ namespace Ship_Game
             Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 

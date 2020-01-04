@@ -7,28 +7,37 @@ namespace Ship_Game
 {
     public static class TypeExt
     {
-        public static void GenericName(this Type type, StringBuilder sb)
+        static void GetGenericTypeName(this Type type, StringBuilder sb)
         {
-            if (!type.IsGenericType)
+            sb.Append(type.Name.Split('`')[0]);
+            Type[] args = type.GenericTypeArguments;
+            if (args.Length > 0)
             {
-                sb.Append(type.Name);
-                return;
+                sb.Append('<');
+                for (int i = 0; i < args.Length; ++i)
+                {
+                    GetGenericTypeName(args[i], sb);
+                    if (i != args.Length - 1) sb.Append(',');
+                }
+                sb.Append('>');
             }
-            sb.Append(type.Name.Split('`')[0]).Append('<');
-            var args = type.GenericTypeArguments;
-            for (int i = 0; i < args.Length; ++i)
-            {
-                GenericName(args[i], sb);
-                if (i != args.Length - 1) sb.Append(',');
-            }
-            sb.Append('>');
         }
 
-        public static string GenericName(this Type type)
+        static readonly Map<Type, string> GenericTypeNames = new Map<Type, string>();
+
+        public static string GetTypeName(this Type type)
         {
+            if (!type.IsGenericType)
+                return type.Name;
+            
+            if (GenericTypeNames.TryGetValue(type, out string typeName))
+                return typeName;
+
             var sb = new StringBuilder();
-            GenericName(type, sb);
-            return sb.ToString();
+            GetGenericTypeName(type, sb);
+            typeName = sb.ToString();
+            GenericTypeNames.Add(type, typeName);
+            return typeName;
         }
 
         // Helps to make manual disposing of objects safe and brief

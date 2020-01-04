@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Ship_Game.AI.Budget;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -28,19 +29,15 @@ namespace Ship_Game
                     $"Eval VALUE  {b.Name,-20}  {what,-16} {(+score).SignString()}");
         }
 
-        //New Build Logic by Gretman, modified by FB
-        void BuildAndScrapBuildings(float budget)
+        void BuildAndScrapCivilianBuildings(float budget)
         {
-            if (RecentCombat)
-                return; // Do not build / scrap when in combat
-
-            if (budget < -0.1f)
+            if (budget < 0f)
             {
                 TryScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
                 return;
             }
 
-            if (AvailableTiles > 0)
+            if (FreeHabitableTiles > 0)
             {
                 if (SimpleBuild(budget)) // lets try to build something within our debt tolerance
                     return;
@@ -410,7 +407,7 @@ namespace Ship_Game
             return score * factor;
         }
 
-        float EvalCommon (Building b, float budget, int desiredMilitary, int existingMilitary)
+        float EvalCommon (Building b, float budget)
         {
             float score = 0.0f;
 
@@ -424,7 +421,6 @@ namespace Ship_Game
             score += EvalResearchPerCol(b);
             score += EvalPlusTaxPercent(b);
             score += EvalSpacePort(b);
-            score += EvalMilitaryBuilding(b, desiredMilitary, existingMilitary);
             score += EvalFlatFood(b);
             score += EvalFoodPerCol(b);
             score += EvalFlatResearch(b, budget);
@@ -435,10 +431,10 @@ namespace Ship_Game
             return score;
         }
 
-        float EvaluateBuilding(Building b, float budget, float highestCost,
-            int desiredMilitary, int existingMilitary, bool checkCosts = true) //Gretman function, to support DoGoverning()
+        // Gretman function, to support DoGoverning()
+        float EvaluateBuilding(Building b, float budget, float highestCost, bool checkCosts = true) 
         {
-            if (b.IsTerraformer) // Terraformers get different logic
+            if (b.IsTerraformer) // Terraformers and Military get different logic
                 return 0;
 
             if (b.MaxFertilityOnBuild < 0 && TerraformingHere)
@@ -459,7 +455,7 @@ namespace Ship_Game
                 score += EvalCostVsBuildTime(b);
             }
 
-            score += EvalCommon(b, budget, desiredMilitary, existingMilitary);
+            score += EvalCommon(b, budget);
             if (score > 0)
                 score = ConstructionCostModifier(score, b.ActualCost, highestCost);
 
@@ -558,60 +554,6 @@ namespace Ship_Game
             return score;
         }
 
-        float EvalMilitaryBuilding(Building b, int desiredMilitary, int existingMilitary)
-        {
-            if (!b.IsMilitary || b.IsCapitalOrOutpost)
-                return 0;
-
-            float panic       = (float)Math.Pow(desiredMilitary - existingMilitary, 2) * (existingMilitary == 0 ? 2 : 1);
-            float combatScore = (b.Strength + b.Defense + b.CombatStrength + b.SoftAttack + b.HardAttack) / 100f;
-            float dps         = 0;
-            if (b.isWeapon && b.Weapon.NotEmpty())
-            {
-                Weapon w = ResourceManager.GetWeaponTemplate(b.Weapon);
-                dps = (w.DamageAmount * w.ProjectileCount  / w.fireDelay) / 500;
-                // FB: Fortunately, salvos and beams dont work for building weapons,
-                // otherwise it would be more complicated to calc this
-            }
-
-            // Shields are very efficient because they protect from early bombardments
-            // Smallest Planetary Shield has strength 500
-            // Make sure we give it a fair score.
-            float shieldScore = b.PlanetaryShieldStrengthAdded / 300;
-            float allowTroops = 0;
-            if (b.AllowInfantry)
-                allowTroops = colonyType == ColonyType.Military ? 2.0f : 1f;
-
-            float invadeScore      = b.InvadeInjurePoints;
-            float defenseShipScore = CalcDefenseShipScore(b);
-
-            // Shield, weapon, and/or allow troop weighting go here (which is why they are all seperate values)
-
-            // Factor by current population, so military buildings will be delayed
-            float ratingFactor = ((PopulationRatio - 0.5f) * 2.0f).Clamped(0.0f, 1.0f);
-            float finalRating  = (combatScore + dps + shieldScore + allowTroops + invadeScore + defenseShipScore + panic) * ratingFactor;
-
-            DebugEvalBuild(b, "Military", finalRating);
-            return finalRating;
-        }
-
-        static float CalcDefenseShipScore(Building b)
-        {
-            if (b.DefenseShipsCapacity <= 0 || b.DefenseShipsRole == 0)
-                return 0;
-
-            float defenseShipScore;
-            switch (b.DefenseShipsRole)
-            {
-                case ShipData.RoleName.drone:    defenseShipScore = 0.1f; break;
-                case ShipData.RoleName.fighter:  defenseShipScore = 0.2f;  break;
-                case ShipData.RoleName.corvette: defenseShipScore = 0.4f;  break;
-                case ShipData.RoleName.frigate:  defenseShipScore = 1.5f;  break;
-                default:                         defenseShipScore = 3f;    break;
-            }
-            return defenseShipScore * b.DefenseShipsCapacity;
-        }
-
         Building ChooseBestBuilding(Array<Building> buildings, float budget, out float value)
         {
             if (buildings.Count == 0) 
@@ -625,14 +567,15 @@ namespace Ship_Game
             Building best        = null;
             float bestValue      = 0f; // So a building with a value of 0 will not be built.
             float highestCost    = buildings.FindMax(building => building.ActualCost).ActualCost;
-            int desiredMilitary  = DesiredMilitaryBuildings;
-            int existingMilitary = ExistingMilitaryBuildings;
 
             for (int i = 0; i < buildings.Count; i++)
             {
                 //Find the building with the highest score
                 Building b = buildings[i];
-                float buildingScore = EvaluateBuilding(b, budget, highestCost, desiredMilitary, existingMilitary);
+                if (b.IsMilitary) // Different budget for Military buildings
+                    continue;
+
+                float buildingScore = EvaluateBuilding(b, budget, highestCost);
                 if (buildingScore > bestValue)
                 {
                     best      = b;
@@ -640,7 +583,7 @@ namespace Ship_Game
                 }
             }
             if (best != null && IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Green,$"-- Planet {Name}: Best Buidling is {best.Name} " +
+                Log.Info(ConsoleColor.Green,$"-- Planet {Name}: Best Building is {best.Name} " +
                                             $"with score of {bestValue} Budget: {budget} -- ");
 
             value = bestValue;
@@ -669,17 +612,15 @@ namespace Ship_Game
                     || !b.Scrappable
                     || b.IsPlayerAdded && Owner.isPlayer
                     || b.IsMoneyBuilding
-                    || b.IsTerraformer)
+                    || b.IsTerraformer
+                    || b.IsMilitary)
                 {
                     continue;
                 }
 
-                int desiredMilitary  = DesiredMilitaryBuildings;
-                int existingMilitary = ExistingMilitaryBuildings;
-
                 if (b.ActualMaintenance(this).AlmostZero())
                     continue; // we are looking to scrap buildings which actually cost maintenance to our Empire
-                float buildingScore = EvaluateBuilding(b, budget, highestCostBuilding.ActualCost, desiredMilitary, existingMilitary, checkCosts: false);
+                float buildingScore = EvaluateBuilding(b, budget, highestCostBuilding.ActualCost, checkCosts: false);
                 if (buildingScore < worstValue)
                 {
                     worst      = b;
@@ -697,7 +638,7 @@ namespace Ship_Game
 
         bool SimpleBuild(float budget) // build a building with a positive value
         {
-            if (BuildingInTheWorks)
+            if (CivilianBuildingInTheWorks)
                 return false;
 
             Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget, out float bestValue);
@@ -782,29 +723,12 @@ namespace Ship_Game
                 return false;
 
             // the best building we can build is better than the worst building we have, let's replace it if the military approves
-            if (!MilitaryApprovesReplacement(worstBuilding, bestBuilding))
-                return false; // No approval from the military
-
             Log.Info(ConsoleColor.Cyan, $"{Owner.PortraitName} REPLACED {worstBuilding.Name} on planet {Name}" +
                                         $" value: {worstValue} with {bestBuilding.Name} value: {bestValue}");
 
             ScrapBuilding(worstBuilding);
             Construction.AddBuilding(bestBuilding);
             return true;
-        }
-
-        bool MilitaryApprovesReplacement(Building toScrap, Building toBuild)  // by FB
-        {
-            if (!toScrap.IsMilitary)
-                return true; // Military does not interfere with civilian buildings
-
-            if (toScrap.IsMilitary && toBuild.IsMilitary)
-                return true; // Military always likes to upgrade it's buildings
-
-            if (ExistingMilitaryBuildings < DesiredMilitaryBuildings)
-                return true; // Military needs more buildings
-
-            return false; // Military won't replace it's buildings with civilian ones
         }
 
         bool OutpostBuiltOrInQueue()

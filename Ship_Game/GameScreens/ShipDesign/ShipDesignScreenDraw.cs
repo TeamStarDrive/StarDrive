@@ -624,7 +624,12 @@ namespace Ship_Game
             bool isOrbital = ActiveHull.Role == ShipData.RoleName.platform || ActiveHull.Role ==  ShipData.RoleName.station;
             if (isOrbital) offense /= 2;
             float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
-            if (strength > 0) DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
+            if (strength > 0)
+            {
+                DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
+                float relativeStrength = (float)Math.Round(strength / ActiveHull.ModuleSlots.Length, 2);
+                DrawStatColor(ref cursor, TintedValue(1914, relativeStrength, 256, Color.White));
+            }
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Menu.Y + Fonts.Arial12Bold.LineSpacing + 5);
             if (ActiveHull.Role != ShipData.RoleName.platform)
@@ -894,9 +899,6 @@ namespace Ship_Game
             ModSel.Draw(ScreenManager.SpriteBatch);
 
             DrawHullSelection(ScreenManager.SpriteBatch);
-
-            if (IsActive)
-                ToolTip.Draw(ScreenManager.SpriteBatch);
 
             void DrawTitle(float x, string title)
             {

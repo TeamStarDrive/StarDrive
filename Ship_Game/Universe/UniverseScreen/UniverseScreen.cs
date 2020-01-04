@@ -720,7 +720,7 @@ namespace Ship_Game
 
             GameAudio.Update3DSound(new Vector3(CamPos.X, CamPos.Y, 0.0f));
 
-            ScreenManager.UpdateSceneObjects(gameTime);
+            ScreenManager.UpdateSceneObjects();
             EmpireUI.Update(deltaTime);
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);

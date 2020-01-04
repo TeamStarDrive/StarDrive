@@ -106,26 +106,6 @@ namespace Ship_Game
         // This is used for lazy-loading content triggers
         public static int ContentId { get; private set; }
 
-        public static void LoadItAll(ScreenManager manager, ModEntry mod, bool reset = true)
-        {
-            Stopwatch s = Stopwatch.StartNew();
-            try
-            {
-                LoadAllResources(manager, mod, reset);
-                if (mod != null) // if Mod load succeeded, then:
-                    GlobalStats.SaveActiveMod();
-            }
-            catch (Exception ex)
-            {
-                if (mod == null)
-                    throw;
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal: false);
-                GlobalStats.ClearActiveMod();
-                LoadAllResources(manager, null, true);
-            }
-            Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
-        }
-
         static TaskResult BackgroundLoad; // non-critical background load task
         public static bool IsLoadCancelRequested => BackgroundLoad != null && BackgroundLoad.IsCancelRequested;
 
@@ -138,17 +118,31 @@ namespace Ship_Game
             }
         }
 
-        static void LoadAllResources(ScreenManager manager, ModEntry mod, bool reset)
+        public static void LoadItAll(ScreenManager manager, ModEntry mod)
         {
-            if (BackgroundLoad != null && !BackgroundLoad.IsComplete)
+            Stopwatch s = Stopwatch.StartNew();
+            try
             {
-                Log.Write("ResourceManager was already loading. CancelAndWait.");
-                BackgroundLoad.CancelAndWait();
+                WaitForExit();
+                LoadAllResources(manager, mod);
+                if (mod != null) // if Mod load succeeded, then:
+                    GlobalStats.SaveActiveMod();
             }
-
-            if (reset)
+            catch (Exception ex)
+            {
+                if (mod == null)
+                    throw;
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal: false);
+                WaitForExit();
+                GlobalStats.ClearActiveMod();
                 UnloadAllData(manager);
+                LoadAllResources(manager, null);
+            }
+            Log.Write($"LoadItAll elapsed: {s.Elapsed.TotalSeconds}s");
+        }
 
+        static void LoadAllResources(ScreenManager manager, ModEntry mod)
+        {
             if (mod != null)
                 GlobalStats.SetActiveModNoSave(mod);
             else
@@ -185,9 +179,6 @@ namespace Ship_Game
             TestLoad();
 
             LoadGraphicsResources(manager);
-            if (reset) // now reload manager content, otherwise we're f**ked as soon as game calls Draw
-                manager.LoadContent();
-
             HelperFunctions.CollectMemory();
         }
 
@@ -229,6 +220,7 @@ namespace Ship_Game
 
         public static void UnloadGraphicsResources(ScreenManager manager)
         {
+            WaitForExit();
             manager.ResetHotLoadTargets();
 
             SmallNebulae.Clear();
@@ -244,7 +236,7 @@ namespace Ship_Game
             SunType.Unload();
             ShieldManager.UnloadContent();
             Beam.BeamEffect = null;
-            BackgroundItem.QuadEffect.Dispose(ref BackgroundItem.QuadEffect);
+            BackgroundItem.QuadEffect?.Dispose(ref BackgroundItem.QuadEffect);
 
             // Texture caches MUST be cleared before triggering content reload!
             Textures.Clear();
@@ -254,8 +246,9 @@ namespace Ship_Game
             manager.UnloadAllGameContent();
         }
 
-        static void UnloadAllData(ScreenManager manager)
+        public static void UnloadAllData(ScreenManager manager)
         {
+            WaitForExit();
             TroopsDictKeys.Clear();
             BuildingsDict.Clear();
             BuildingsById.Clear();
@@ -723,13 +716,13 @@ namespace Ship_Game
                 "Textures/Troops",
                 "Textures/OrderButtons",
             };
-            foreach (string atlas in atlases)
+
+            Parallel.ForEach(atlases, atlas =>
             {
-                if (task?.IsCancelRequested == true)
-                    break;
-                LoadAtlas(atlas);
-            }
-            Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms");
+                if (task?.IsCancelRequested != true)
+                    LoadAtlas(atlas);
+            });
+            Log.Write($"LoadAtlases (background) elapsed:{s.Elapsed.TotalMilliseconds}ms  Total Parallel Tasks: {Parallel.PoolSize}");
         }
 
         public static ShipModule GetModuleTemplate(string uid) => ModuleTemplates[uid];
@@ -829,15 +822,17 @@ namespace Ship_Game
                 {
                     // @todo NullReference bug here!
                     newB.ProjectorRange = Empire.Universe?.SubSpaceProjectors.Radius ?? 0f;
-                    newB.IsProjector = true;
+                    newB.IsProjector    = true;
                 }
+
                 if (!newB.IsSensor && !(newB.SensorRange > 0.0f))
                 {
                     newB.SensorRange = 20000.0f;
-                    newB.IsSensor = true;
+                    newB.IsSensor    = true;
                 }
             }
-            newB.CreateWeapon();
+
+            newB.CalcMilitaryStrength();
             return newB;
         }
 
@@ -947,6 +942,11 @@ namespace Ship_Game
         static void LoadFlagTextures() // Refactored by RedFox
         {
             FlagTextures = RootContent.LoadTextureAtlas("Flags");
+        }
+
+        public static SubTexture FleetIcon(int index)
+        {
+            return Texture("FleetIcons/"+index);
         }
 
         static void LoadGoods() // Refactored by RedFox
@@ -1653,8 +1653,10 @@ namespace Ship_Game
         public static Video LoadVideo(GameContentManager content, string videoPath)
         {
             var video = content.Load<Video>("Video/" + videoPath);
-            if (video != null) return video;
-            Log.Error($"Video path {videoPath} found no file");//Loading 2
+            if (video != null)
+                return video;
+
+            Log.Error($"LoadVideo failed: {videoPath}");
             return content.Load<Video>("Video/Loading 2");
 
         }

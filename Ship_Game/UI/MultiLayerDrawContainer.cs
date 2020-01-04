@@ -11,7 +11,7 @@ namespace Ship_Game.UI
         readonly Array<UIElementV2> ForeElements = new Array<UIElementV2>();
         readonly Array<UIElementV2> ForeAdditive = new Array<UIElementV2>();
         
-        protected MultiLayerDrawContainer(UIElementV2 parent, Rectangle rect) : base(parent, rect)
+        protected MultiLayerDrawContainer(in Rectangle rect) : base(rect)
         {
         }
 
@@ -67,7 +67,7 @@ namespace Ship_Game.UI
             if (draw3D) manager.RenderSceneObjects();
 
             // @note Foreground is the default layer
-            if (ForeElements.NotEmpty) BatchDrawSimple(batch, ForeElements, drawToolTip: true);
+            if (ForeElements.NotEmpty) BatchDrawSimple(batch, ForeElements);
             if (ForeAdditive.NotEmpty) BatchDrawAdditive(batch, ForeAdditive);
 
             if (draw3D) manager.EndFrameRendering();
@@ -75,7 +75,7 @@ namespace Ship_Game.UI
             ClearLayers();
         }
 
-        static void BatchDrawSimple(SpriteBatch batch, Array<UIElementV2> elements, bool drawToolTip = false)
+        static void BatchDrawSimple(SpriteBatch batch, Array<UIElementV2> elements)
         {
             batch.Begin();
 
@@ -86,16 +86,14 @@ namespace Ship_Game.UI
                 items[i].Draw(batch);
             }
 
-            if (drawToolTip)
-            {
-                if (ToolTip.Hotkey.IsEmpty())
-                    ToolTip.Draw(batch);
-            }
             batch.End();
         }
 
         static void BeginAdditive(SpriteBatch batch, bool saveState = false)
         {
+            // NOTE: SaveState restores graphics device settings
+            //       just in case we mix 3D rendering with 2D rendering
+
             batch.Begin(SpriteBlendMode.AlphaBlend, SpriteSortMode.Immediate, 
                 saveState ? SaveStateMode.SaveState : SaveStateMode.None);
             batch.GraphicsDevice.RenderState.SourceBlend      = Blend.InverseDestinationColor;
