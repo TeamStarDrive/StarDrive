@@ -7228,7 +7228,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     </Token>
     <Token>
       <Index>5084</Index>
-      <Text>Este flujo de datos de la nave nodriza remanente contiene la llave al misterio de los remanentes. nesesitamos estudiarla inmediatamente. ¡Antes de que seamos todos destruidos!<Text>
+      <Text>Este flujo de datos de la nave nodriza remanente contiene la llave al misterio de los remanentes. nesesitamos estudiarla inmediatamente. ¡Antes de que seamos todos destruidos!</Text>
     </Token>
     <Token>
       <Index>5085</Index>
@@ -7991,7 +7991,7 @@ El presupuesto de contraespionaje de un imperio reduce tu capacidad de infiltrac
     </Token>	
   <Token>
   <Index>6182</Index>
-  <Texta>:Visualizacion FTL: Muestra las proyecciones subespaciales y las areas restringidas por pozos gravitatorios.</Text>
+  <Text>:Visualizacion FTL: Muestra las proyecciones subespaciales y las areas restringidas por pozos gravitatorios.</Text>
   </Token>		
   <Token>
     <Index>6183</Index>
