@@ -74,8 +74,7 @@ namespace Ship_Game.Utils
             var entries = CreateEntryList(versionText);
             foreach (var entry in entries)
             {
-                var label = new UILabel(screen, bodyTextStart, entry.EntryString, entry.Color);
-                Versions.Add(label);
+                Versions.Add(new UILabel(bodyTextStart, entry.EntryString, entry.Color));
                 bodyTextStart.Y += 16;
             }
             return bodyTextStart;
@@ -118,7 +117,7 @@ namespace Ship_Game.Utils
                 if (!version.HitTest(input.CursorPosition)) continue;
                 foreach (var kv in FilesAvailable)
                 {
-                    if (!version.Text.Contains(kv.Key)) continue;
+                    if (!version.Text.Text.Contains(kv.Key)) continue;
                     Log.OpenURL(downLoadSite);
                     Log.OpenURL(kv.Value);
                     return true;

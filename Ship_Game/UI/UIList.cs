@@ -59,26 +59,26 @@ namespace Ship_Game
             }
         }
 
-        public override string ToString() => $"List {ElementDescr} Items={Items.Count} Header={Header!=null} Footer={Footer!=null}";
+        public override string ToString() => $"{TypeName} {ElementDescr} Items={Items.Count} Header={Header!=null} Footer={Footer!=null}";
 
         public UIList()
         {
             Color = Color.TransparentBlack;
         }
 
-        public UIList(UIElementV2 parent, Vector2 pos, Vector2 size) : base(parent, pos, size, Color.TransparentBlack)
+        public UIList(Vector2 pos, Vector2 size) : base(pos, size, Color.TransparentBlack)
         {
         }
 
-        public UIList(in Rectangle rect, Color color) : base(null, rect, color)
+        public UIList(in Rectangle rect, Color color) : base(rect, color)
         {
         }
 
         public override T Add<T>(T element)
         {
-            RequiresLayout = true;
+            base.Add(element); // NOTE: Must be the first, because base.Add calls element.RemoveFromParent()
             Items.Add(element);
-            return base.Add(element);
+            return element;
         }
 
         public void RemoveAt(int index)
@@ -217,42 +217,24 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////
         
-        public UIButton AddButton(int titleId, Action<UIButton> click)
+        public UIButton AddButton(LocalizedText text, Action<UIButton> click)
         {
-            return AddButton(Localizer.Token(titleId), click);
-        }
-
-        public UIButton AddButton(string text, Action<UIButton> click)
-        {
-            UIButton button = Add(new UIButton(this, Vector2.Zero, text));
+            UIButton button = Add(new UIButton(text.Text));
             button.OnClick  = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
 
-        public UIButton Add(ButtonStyle style, int titleId, Action<UIButton> click)
+        public UIButton Add(ButtonStyle style, LocalizedText text, Action<UIButton> click)
         {
-            return Add(style, Localizer.Token(titleId), click);
-        }
-
-        public UIButton Add(ButtonStyle style, string text, Action<UIButton> click)
-        {
-            UIButton button = Add(new UIButton(this, style, Vector2.Zero, text));
+            UIButton button = Add(new UIButton(style, text.Text));
             button.OnClick  = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
 
-        /////////////////////////////////////////////////////////////////////////////
-
-        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, int title, int tooltip)
-            => Add(new UICheckBox(binding, Fonts.Arial12Bold, Localizer.Token(title), Localizer.Token(tooltip)));
-        
-        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, string tooltip)
-            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
-        
-        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, string title, int tooltip)
-            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, Localizer.Token(tooltip)));
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title.Text, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////
     }
