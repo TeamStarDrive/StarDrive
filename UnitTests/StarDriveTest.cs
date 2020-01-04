@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Ships;
+using UnitTests.UI;
 
 namespace UnitTests
 {
@@ -50,6 +51,8 @@ namespace UnitTests
 
         public TestGameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
+        public MockInputProvider InputProvider { get; private set; }
+
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
@@ -67,6 +70,7 @@ namespace UnitTests
             Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
             Content = Game.Content;
+            Game.Manager.input.Provider = InputProvider = new MockInputProvider();
             Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 

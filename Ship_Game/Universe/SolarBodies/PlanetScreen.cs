@@ -6,6 +6,7 @@ namespace Ship_Game
     {
         protected PlanetScreen(GameScreen parent) : base(parent, pause: false)
         {
+            IsPopup = true; // auto-dismiss with right-click
         }
     }
 }
