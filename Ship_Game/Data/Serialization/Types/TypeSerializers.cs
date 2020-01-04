@@ -88,7 +88,7 @@ namespace Ship_Game.Data.Serialization.Types
             if (value is int id)   return new LocText(id);
             if (value is string s) return new LocText(s);
             Error(value, "LocText -- expected int or format string");
-            return new LocText("INVALID TEXT");
+            return new LocText("INVALID TEXT", true);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
