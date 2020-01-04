@@ -69,7 +69,7 @@ namespace Ship_Game.Utils
             }
         }
 
-        public Vector2 PopulateVersions(string versionText, GameScreen screen, Vector2 bodyTextStart)
+        public Vector2 PopulateVersions(string versionText, Vector2 bodyTextStart)
         {
             var entries = CreateEntryList(versionText);
             foreach (var entry in entries)
@@ -117,10 +117,12 @@ namespace Ship_Game.Utils
                 if (!version.HitTest(input.CursorPosition)) continue;
                 foreach (var kv in FilesAvailable)
                 {
-                    if (!version.Text.Text.Contains(kv.Key)) continue;
-                    Log.OpenURL(downLoadSite);
-                    Log.OpenURL(kv.Value);
-                    return true;
+                    if (version.Text.Text.Contains(kv.Key))
+                    {
+                        Log.OpenURL(downLoadSite);
+                        Log.OpenURL(kv.Value);
+                        return true;
+                    }
                 }
             }
             return false;

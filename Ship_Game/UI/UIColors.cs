@@ -4,6 +4,6 @@ namespace Ship_Game
 {
     public class UIColors
     {
-        public static readonly Color LightBeige = new Color(255, 239, 208);
+        public static readonly Color LightBeige = Colors.Cream;
     }
 }

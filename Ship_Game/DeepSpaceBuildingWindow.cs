@@ -61,14 +61,13 @@ namespace Ship_Game
             TextPos = new Vector2(win.X + win.Width / 2 - Fonts.Arial12Bold.MeasureString("Deep Space Construction").X / 2f, win.Y + 25);
         }
 
-        public void Draw(GameTime gameTime)
+        public void Draw(SpriteBatch batch)
         {
             Rectangle r = ConstructionSubMenu.Rect;
             r.Y += 25;
             r.Height -= 25;
             var sel = new Selector(r, new Color(0, 0, 0, 210));
 
-            SpriteBatch batch = ScreenManager.SpriteBatch;
             sel.Draw(batch);
             ConstructionSubMenu.Draw(batch);
             SL.Draw(batch);
@@ -258,6 +257,11 @@ namespace Ship_Game
                 itemToBuild = null;
             }
             return true;
+        }
+
+        public void Update(float deltaTime)
+        {
+
         }
     }
 }

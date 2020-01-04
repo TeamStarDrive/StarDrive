@@ -422,8 +422,7 @@ namespace Ship_Game
 
             batch.Begin();
             DrawPlanetInfo();
-            if (LookingAtPlanet && SelectedPlanet != null)
-                workersPanel?.Draw(batch);
+            if (LookingAtPlanet) workersPanel?.Draw(batch);
 
             DrawShipsInRange(batch);
             DrawPlanetProjectiles(batch);
@@ -488,7 +487,7 @@ namespace Ship_Game
                             nodeTex, new Color(0, 0, 255, 50));
                     }
                 }
-                dsbw.Draw(gameTime);
+                dsbw.Draw(batch);
             }
             DrawFleetIcons();
 
@@ -507,7 +506,7 @@ namespace Ship_Game
             batch.DrawRectangle(SelectionBox, Color.Green, 1f);
             EmpireUI.Draw(batch);
             if (!LookingAtPlanet)
-                DrawShipUI(gameTime);
+                DrawShipUI(batch);
 
             minimap.Visible = !LookingAtPlanet || LookingAtPlanet && workersPanel is UnexploredPlanetScreen ||
                               LookingAtPlanet && workersPanel is UnownedPlanetScreen;
@@ -667,7 +666,7 @@ namespace Ship_Game
                     if (!inSensors && !Debug && fleet.Owner != player)
                         continue;
 
-                    SubTexture icon = ResourceManager.Texture("FleetIcons/" + fleet.FleetIconIndex);
+                    SubTexture icon = fleet.Icon;
                     Vector2 fleetCenterOnScreen = ProjectToScreenPosition(averagePos);
 
                     FleetIconLines(fleet, fleetCenterOnScreen);
@@ -759,7 +758,7 @@ namespace Ship_Game
                 DrawCircleProjected(goal.BuildPosition, 50f, goal.empire.EmpireColor);
         }
 
-        void DrawShipUI(GameTime gameTime)
+        void DrawShipUI(SpriteBatch batch)
         {
             if (DefiningAO || DefiningTradeRoutes)
                 return; // FB dont show fleet list when selected AOs and Trade Routes
@@ -784,17 +783,16 @@ namespace Ship_Game
                         catch { }
                     }
 
-                    byte buttonFlashTimer = (byte)(Math.Abs(RadMath.Sin(gameTime.TotalGameTime.TotalSeconds)) * 200f);
-                    ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
+                    byte buttonFlashTimer = (byte)(Math.Abs(RadMath.Sin(GameBase.Base.GameTime.TotalGameTime.TotalSeconds)) * 200f);
+                    batch.Draw(ResourceManager.Texture("NewUI/rounded_square"),
                         fleetButton.ClickRect,
                         inCombat ? new Color(255, 0,  0,  buttonFlashTimer)
                                  : new Color( 0,  0,  0,  80));
 
-                    buttonSelector.Draw(ScreenManager.SpriteBatch);
-                    ScreenManager.SpriteBatch.Draw(
-                        ResourceManager.Texture("FleetIcons/" + fleetButton.Fleet.FleetIconIndex), housing,
+                    buttonSelector.Draw(batch);
+                    batch.Draw(fleetButton.Fleet.Icon, housing,
                         EmpireManager.Player.EmpireColor);
-                    ScreenManager.SpriteBatch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
+                    batch.DrawString(Fonts.Pirulen12, fleetButton.Key.ToString(),
                         new Vector2(fleetButton.ClickRect.X + 4, fleetButton.ClickRect.Y + 4), Color.Orange);
 
                     //draw ship icons to right of button
@@ -812,7 +810,7 @@ namespace Ship_Game
                                 shipSpacingH.X = fleetButton.ClickRect.X + 50f;
                                 shipSpacingH.Y += 15f;
                             }
-                            ScreenManager.SpriteBatch.Draw(ship.GetTacticalIcon(), iconHousing,
+                            batch.Draw(ship.GetTacticalIcon(), iconHousing,
                                 fleetButton.Fleet.Owner.EmpireColor);
                         }
                         catch { }
@@ -870,7 +868,7 @@ namespace Ship_Game
                     Color color = Color.LightGreen;
                     if (player != ship.loyalty)
                         color = player.IsEmpireAttackable(ship.loyalty) ? Color.Red : Color.Gray;
-                    ScreenManager.SpriteBatch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
+                    batch.BracketRectangle(ship.ScreenPosition, ship.ScreenRadius, color);
                 }
             }
 
