@@ -127,7 +127,7 @@ namespace Ship_Game
         public static string AutoTaxes => Token(6138);
         public static string BudgetScreenTaxSlider => Token(311);
 
-        private static string[] Strings = new string[0];
+        static string[] Strings = Empty<string>.Array;
 
         public static bool Contains(int locIndex)
         {
@@ -137,6 +137,11 @@ namespace Ship_Game
         public static string Token(int locIndex)
         {
             return Contains(locIndex) ? Strings[locIndex - 1] : "<localization missing>";
+        }
+
+        public static void Reset()
+        {
+            Strings = Empty<string>.Array;
         }
 
         // add extra localization tokens to the localizer
