@@ -41,33 +41,33 @@ namespace Ship_Game
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
-                    BuildAndScrapBuildings(budget.Buildings);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.2f, 0.5f); // Start Importing if stores drop below 20%, and stop importing once stores are above 50%.
                     DetermineProdState(0.2f, 0.5f); // Start Exporting if stores are above 50%, but dont stop exporting unless stores drop below 25%.
                     break;
                 case ColonyType.Industrial:
                     // Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
                     AssignOtherWorldsWorkers(0.333f, 1);
-                    BuildAndScrapBuildings(budget.Buildings);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.5f, 1);    // Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f); // Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     break;
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
                     AssignOtherWorldsWorkers(0.15f, 0.15f);
-                    BuildAndScrapBuildings(budget.Buildings);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.5f, 1); // Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.2f, 0.6f); // This planet will export when stores reach 60%
                     break;
                 case ColonyType.Agricultural:
                     AssignOtherWorldsWorkers(1, 0.333f);
-                    BuildAndScrapBuildings(budget.Buildings);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.15f, 0.5f); // Start Importing if food drops below 15%, stop importing at 30%. Start exporting at 50%, and dont stop unless below 33%.
                     DetermineProdState(0.25f, 1);    // Start Importing if prod drops below 25%, and stop importing once stores reach 100%. Will only export prod due to excess FlatProd.
                     break;
                 case ColonyType.Military:
                     AssignOtherWorldsWorkers(0.3f, 0.7f);
-                    BuildAndScrapBuildings(budget.Buildings);
+                    BuildAndScrapBuildings(budget);
                     DetermineFoodState(0.4f, 0.95f); // Import if either drops below 40%, and stop importing once stores reach 95%.
                     DetermineProdState(0.75f, 1); // This planet will only export Food or Prod due to excess FlatFood or FlatProd
                     break;
@@ -77,38 +77,29 @@ namespace Ship_Game
             BuildMilitia();
         }
 
-        public void BuildMilitia()
-        {
-            if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
-                return;
-            if (CanBuildInfantry)
-            {
-                int troopsWeWant = TroopsWeWant();
-                int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
+        PlanetBudget AllocateColonyBudget()       => Owner.GetEmpireAI().PlanetBudget(this);
+        public float CivilianBuildingsMaintenance => Money.Maintenance - MilitaryBuildingsMaintenance;
 
-                if (troopsWeHave < troopsWeWant)
-                    BuildSingleMilitiaTroop();
+        public float ColonyDebtTolerance
+        {
+            get
+            {
+                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
+                if (MaxPopulationBillion < 2)
+                    debtTolerance += 2f - MaxPopulationBillion;
+
+                return debtTolerance;
             }
         }
 
-        int TroopsWeWant()
+        //New Build Logic by Gretman, modified by Fat Bastard
+        void BuildAndScrapBuildings(PlanetBudget colonyBudget)
         {
-            switch (colonyType)
-            {
-                case ColonyType.Research: return 4;
-                case ColonyType.Core:     return 6;
-                case ColonyType.Military: return 7;
-                default:                  return 5;
-            }
-        }
+            if (RecentCombat)
+                return; // Do not build or scrap when in combat
 
-        void BuildSingleMilitiaTroop()
-        {
-            if (TroopsInTheWorks)
-                return;  // Build one militia at a time
-
-            Troop cheapestTroop = ResourceManager.GetTroopTemplatesFor(Owner).First();
-            Construction.AddTroop(cheapestTroop);
+            BuildAndScrapCivilianBuildings(colonyBudget.CivilianBuildings);
+            BuildAndScrapMilitaryBuildings(colonyBudget.MilitaryBuildings);
         }
 
         // returns the amount of production to spend in the build queue based on import/export state
@@ -162,54 +153,8 @@ namespace Ship_Game
                         break;
                 }
             }
+
             return prodToSpend;
-        }
-
-        PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
-
-        struct ColonyBudget
-        {
-            public readonly float Buildings;
-            public readonly float Orbitals;
-            public readonly float DefenseBudget;
-            public readonly PlanetBudget EmpirePlanetBudget;
-
-            public ColonyBudget(PlanetBudget empirePlanetBudget, ColonyType colonyType, Empire owner, bool govOrbitals)
-            {
-                float buildingsBudget;
-                float totalBudget = empirePlanetBudget.Budget;
-                DefenseBudget = empirePlanetBudget.PlanetDefenseBudget;
-                EmpirePlanetBudget = empirePlanetBudget;
-                if (colonyType == ColonyType.Colony || owner.isPlayer && !govOrbitals)
-                    buildingsBudget = totalBudget; // Governor does not manage orbitals
-                else
-                {
-                    switch (colonyType)
-                    {
-                        case ColonyType.Industrial:
-                        case ColonyType.Agricultural: buildingsBudget = totalBudget * 0.8f; break;
-                        case ColonyType.Military:     buildingsBudget = totalBudget * 0.6f; break;
-                        case ColonyType.Research:     buildingsBudget = totalBudget * 0.9f; break;
-                        default:                      buildingsBudget = totalBudget * 0.75f; break;
-                    }
-                }
-
-                Buildings = (float)Math.Round(buildingsBudget, 2);
-                Orbitals  = (float)Math.Round(totalBudget - buildingsBudget, 2);
-            }
-        }
-
-        public float ColonyMaintenance => Money.Maintenance + Construction.TotalQueuedBuildingMaintenance();
-        public float ColonyDebtTolerance
-        {
-            get
-            {
-                float debtTolerance = 3 * (1 - PopulationRatio); // the bigger the colony, the less debt tolerance it has, it should be earning money
-                if (MaxPopulationBillion < 2)
-                    debtTolerance += 2f - MaxPopulationBillion;
-
-                return debtTolerance;
-            }
         }
     }
 }

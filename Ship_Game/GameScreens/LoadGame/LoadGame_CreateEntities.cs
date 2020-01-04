@@ -146,7 +146,7 @@ namespace Ship_Game
                 var template = ResourceManager.GetBuildingTemplate(pgs.building.Name);
                 pgs.building.AssignBuildingId(template.BID);
                 pgs.building.Scrappable = template.Scrappable;
-                pgs.building.CreateWeapon();
+                pgs.building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.building);
             }
             return p;
@@ -256,17 +256,20 @@ namespace Ship_Game
                 var qi = new QueueItem(p);
                 if (qisave.isBuilding)
                 {
-                    qi.isBuilding = true;
-                    qi.Building = ResourceManager.CreateBuilding(qisave.UID);
-                    qi.Cost = qi.Building.ActualCost;
+                    qi.isBuilding    = true;
+                    qi.IsMilitary    = qisave.IsMilitary;
+                    qi.Building      = ResourceManager.CreateBuilding(qisave.UID);
+                    qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.isPlayerAdded;
+
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
                         if (pgs.x != (int) qisave.pgsVector.X || pgs.y != (int) qisave.pgsVector.Y)
                             continue;
+
                         pgs.QItem = qi;
-                        qi.pgs = pgs;
+                        qi.pgs    = pgs;
                         break;
                     }
                 }

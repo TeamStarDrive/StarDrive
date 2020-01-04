@@ -56,11 +56,11 @@ namespace Ship_Game.GameScreens.MainMenu
                 return;
             }
             Vector2 drawLoc = BodyTextStart;            
-            BlackBoxListHeader = new UILabel(this, drawLoc, "Click to download\n========== BlackBox ==========");
+            BlackBoxListHeader = new UILabel(drawLoc, "Click to download\n========== BlackBox ==========");
             drawLoc.Y += 32;
             drawLoc = BlackBoxVersionCheck.PopulateVersions(versionText, this, drawLoc);
             drawLoc.Y += 16;
-            ModListHeader = new UILabel(this, drawLoc, $"========== {mod?.ModName ?? "Vanilla"} ==========");
+            ModListHeader = new UILabel(drawLoc, $"========== {mod?.ModName ?? "Vanilla"} ==========");
             drawLoc.Y += 16;
             
             if (ModURL.NotEmpty()) ModVersionCheck.PopulateVersions(modVersionText, this, drawLoc);

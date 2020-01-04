@@ -322,7 +322,7 @@ namespace Ship_Game
                 {
                     Screen.RightClicked = true;
                     ScreenManager.AddScreen(new ResearchPopup(Empire.Universe, Entry.UID));
-                    return false;
+                    return true; // input captured
                 }
             }
             else

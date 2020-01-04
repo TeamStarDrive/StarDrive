@@ -131,21 +131,21 @@ namespace Ship_Game
             }
         }
 
-        public static void DrawDropShadowImage(SpriteBatch batch, Rectangle rect, SubTexture texture, Color topColor)
+        public static void DrawDropShadowImage(this SpriteBatch batch, Rectangle rect, SubTexture texture, Color topColor)
         {
             var offsetRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
             batch.Draw(texture, offsetRect, Color.Black);
             batch.Draw(texture, rect, topColor);
         }
-        public static void DrawDropShadowText(SpriteBatch batch, string text, Vector2 pos, SpriteFont font)
+        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font)
         {
             DrawDropShadowText(batch, text, pos, font, Color.White);
         }
-        public static void DrawDropShadowText1(SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c)
+        public static void DrawDropShadowText1(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c)
         {
             DrawDropShadowText(batch, text, pos, font, c, 1f);
         }
-        public static void DrawDropShadowText(SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
+        public static void DrawDropShadowText(this SpriteBatch batch, string text, Vector2 pos, SpriteFont font, Color c, float shadowOffset = 2f)
         {
             pos.X = (int)pos.X;
             pos.Y = (int)pos.Y;
@@ -176,10 +176,36 @@ namespace Ship_Game
             }
         }
 
+        public static Vector2 MeasureLines(this SpriteFont font, Array<string> lines)
+        {
+            var size = new Vector2();
+            foreach (string line in lines)
+            {
+                size.X = Math.Max(size.X, font.MeasureString(line).X);
+                size.Y += font.LineSpacing + 2;
+            }
+            return size;
+        }
+
+        public static int TextWidth(this SpriteFont font, string text)
+        {
+            return (int)font.MeasureString(text).X;
+        }
+
+        public static int TextWidth(this SpriteFont font, int localizationId)
+        {
+            return (int)font.MeasureString(Localizer.Token(localizationId)).X;
+        }
+
         public static string ParseText(this SpriteFont font, string text, float maxLineWidth)
         {
-            var result = new StringBuilder();
             string[] words = text.Split(' ');
+            return ParseText(font, words, maxLineWidth);
+        }
+
+        public static string ParseText(this SpriteFont font, string[] words, float maxLineWidth)
+        {
+            var result = new StringBuilder();
             float spaceLength = font.MeasureString(" ").X;
             float lineLength = 0.0f;
             foreach (string word in words)
@@ -211,69 +237,21 @@ namespace Ship_Game
             return result.ToString();
         }
 
-        public static Vector2 MeasureLines(this SpriteFont font, Array<string> lines)
+        public static string[] ParseTextToLines(this SpriteFont font, string text, float maxLineWidth)
         {
-            var size = new Vector2();
-            foreach (string line in lines)
-            {
-                size.X = Math.Max(size.X, font.MeasureString(line).X);
-                size.Y += font.LineSpacing + 2;
-            }
-            return size;
+            string parsed = ParseText(font, text, maxLineWidth);
+            string[] lines = parsed.Split('\n');
+            return lines;
         }
 
-        public static int TextWidth(this SpriteFont font, string text)
+        public static void ResetWithParseText(
+            this ScrollList2<TextListItem> list, SpriteFont font, string text, float maxLineWidth)
         {
-            return (int)font.MeasureString(text).X;
-        }
-
-        public static int TextWidth(this SpriteFont font, int localizationId)
-        {
-            return (int)font.MeasureString(Localizer.Token(localizationId)).X;
-        }
-
-        public static void parseTextToSL(string text, float width, SpriteFont font, ref ScrollList List)
-        {
-            string line = "";
-            string returnString = "";
-            string[] words = text.Split(' ', '\n');
-            for (int i = 0; i < words.Length; i++)
-            {
-                string word = words[i];
-                if (string.IsNullOrEmpty(word))
-                {
-                    word = "\n";
-                }
-                if (word == "\\n" || word == "\n")
-                {
-                    word = "";
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                else if (font.MeasureString(string.Concat(line, word)).Length() > width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                if (!string.IsNullOrEmpty(word))
-                {
-                    line = string.Concat(line, word, ' ');
-                }
-            }
-            string[] lines = returnString.Split('\n');
-            for (int i = 0; i < lines.Length; i++)
-            {
-                string sent = lines[i];
-                if (sent.Length > 0)
-                {
-                    List.AddItem(sent);
-                }
-                else if (sent.IsEmpty() && lines.Length > i + 1 && lines[i + 1].NotEmpty())
-                {
-                    List.AddItem("\n");
-                }
-            }
-            List.AddItem(line);
+            string parsed = ParseText(font, text, maxLineWidth);
+            list.Reset();
+            string[] lines = parsed.Split('\n');
+            TextListItem[] textItems = lines.Select(line => new TextListItem(line, font));
+            list.SetItems(textItems);
         }
 
         public static int RoundTo(float amount1, int roundTo)
