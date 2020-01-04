@@ -764,9 +764,9 @@ namespace Ship_Game
         {
             DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
             DrawBuildingInfo(ref cursor, batch, P.BasePopPerTile / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.ConsumptionPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ConsumptionPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", "Net flat production generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", "Net research per colonist allocated to Science");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", "Net flat research generated per turn");
