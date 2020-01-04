@@ -88,9 +88,8 @@ namespace Ship_Game.GameScreens
                         CaptureThumbnail = true;
                         Player.Pause();
                     }
+                    OnPlayStatusChange?.Invoke();
                 });
-
-                OnPlayStatusChange?.Invoke();
             }
             catch (Exception ex)
             {

@@ -82,10 +82,11 @@ namespace Ship_Game.Data.Texture
 
 
         [DllImport("SDNative.dll")]
-        static extern unsafe IntPtr CopyPixelsPadded(
-            Color* dst, int dstWidth, int dstHeight, int x, int y, Color* src, int w, int h);
+        static extern unsafe IntPtr CopyPixelsPadded(Color* dst, int dstWidth, int dstHeight, 
+                                                     int x, int y, Color* src, int w, int h);
 
-        public static unsafe void CopyPixelsWithPadding(Color[] dst, int dstWidth, int dstHeight, int x, int y, Color[] src, int w, int h)
+        public static unsafe void CopyPixelsWithPadding(Color[] dst, int dstWidth, int dstHeight, 
+                                                        int x, int y, Color[] src, int w, int h)
         {
             fixed (Color* pDst = dst)
             {
@@ -96,6 +97,21 @@ namespace Ship_Game.Data.Texture
             }
         }
 
+        [DllImport("SDNative.dll")]
+        static extern unsafe IntPtr FillPixels(Color* dst, int dstWidth, int dstHeight,
+                                               int x, int y, Color color, int w, int h);
+
+        // Fills pixels with an uniform color
+        public static unsafe void FillPixels(Color[] dst, int dstWidth, int dstHeight, 
+                                             int x, int y, Color color, int w, int h)
+        {
+            fixed (Color* pDst = dst)
+            {
+                FillPixels(pDst, dstWidth, dstHeight, x, y, color, w, h);
+            }
+        }
+
+        // Draws a hollow rectangle (purely for debugging)
         public static void DrawRectangle(Color[] image, int width, int height, Rectangle r, Color color)
         {
             if (r.Height == 0) { Log.Error("DrawRectangle r.Height cannot be 0"); return; }
