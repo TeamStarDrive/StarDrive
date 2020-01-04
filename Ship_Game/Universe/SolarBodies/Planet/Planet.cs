@@ -68,6 +68,10 @@ namespace Ship_Game
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
+        public float ConsumptionPerColonist     => 1 + Owner.data.Traits.ConsumptionModifier;
+        public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
+        public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
+
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
@@ -814,7 +818,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
+            Consumption = (ConsumptionPerColonist * PopulationBillion);
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
@@ -1090,8 +1094,6 @@ namespace Ship_Game
             string eatsWhat = NonCybernetic ? "Food" : "Prod";
             debug.AddLine($"Eats: {Consumption} {eatsWhat}");
             debug.AddLine("");
-
-
             return debug;
         }
     }
