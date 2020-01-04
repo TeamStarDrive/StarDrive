@@ -7,13 +7,9 @@ namespace Ship_Game
 {
     public sealed class TutorialScreen : GameScreen
     {
-        private Map<string, Texture2D> TexDict = new Map<string, Texture2D>();
-
-        private Rectangle BridgeRect;
-
-        private int Index;
-
-        private CloseButton close;
+        Map<string, Texture2D> TexDict = new Map<string, Texture2D>();
+        Rectangle BridgeRect;
+        int Index;
 
         public TutorialScreen(GameScreen parent) : base(parent)
         {
@@ -22,29 +18,17 @@ namespace Ship_Game
             TransitionOffTime = 0.25f;
         }
 
-    
-
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
-            batch.Draw(TexDict[string.Concat("Slide_", Index.ToString("00"))], BridgeRect, Color.White);
-            close.Draw(batch);
+            batch.Draw(TexDict["Slide_"+Index.ToString("00")], BridgeRect, Color.White);
+            base.Draw(batch);
             batch.End();
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
             if (input.Right || input.InGameSelect)
             {
                 TutorialScreen index = this;
@@ -84,7 +68,7 @@ namespace Ship_Game
                 TexDict[name] = tex;
             }
             BridgeRect = new Rectangle((int)ScreenCenter.X - 640, (int)ScreenCenter.Y - 360, 1280, 720);
-            close = new CloseButton(BridgeRect.X + BridgeRect.Width - 38, BridgeRect.Y + 15);
+            Add(new CloseButton(BridgeRect.Right - 38, BridgeRect.Y + 15));
             base.LoadContent();
         }
     }
