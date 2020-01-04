@@ -361,6 +361,7 @@ namespace Ship_Game
             {
                 GlobalStats.Language = newLanguage;
                 ResourceManager.LoadLanguage();
+                LoadContent(); // reload the options screen to update the text
             }
         }
 

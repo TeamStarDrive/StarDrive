@@ -234,7 +234,7 @@ namespace Ship_Game
         }
 
         public UICheckBox AddCheckbox(Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
-            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title.Text, tooltip));
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////
     }

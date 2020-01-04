@@ -13,7 +13,7 @@ namespace Ship_Game
 
     public sealed class LocalizationFile
     {
-        public Token[] TokenList;
+        public Array<Token> TokenList;
     }
 
     // Localized text reference
@@ -86,11 +86,6 @@ namespace Ship_Game
         {
             Text = serializedText;
         }
-
-        public static implicit operator LocText(int id)
-        {
-            return new LocText(id);
-        }
     }
 
     public struct LocalizedText
@@ -145,7 +140,7 @@ namespace Ship_Game
         }
 
         // add extra localization tokens to the localizer
-        public static void AddTokens(Token[] tokens)
+        public static void AddTokens(Array<Token> tokens)
         {
             // Index entries aren't guaranteed to be ordered properly (due to messy mods)
             int limit = tokens.Max(t => t.Index);
@@ -154,8 +149,9 @@ namespace Ship_Game
             if (Strings.Length < limit)
                 Array.Resize(ref Strings, limit);
 
-            foreach (Token t in tokens)
+            for (int i = 0; i < tokens.Count; ++i)
             {
+                Token t = tokens[i];
                 string text = t.Text.Replace("\\n", "\n"); // only creates new string if \\n is found
 
                 Strings[t.Index - 1] = text;
