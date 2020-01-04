@@ -19,7 +19,7 @@ namespace UnitTests.LinearAlgebra
         static readonly Vector2 Outside = Center + new Vector2(Radius)*3;
 
         [TestMethod]
-        public void TestDistance()
+        public void Distance()
         {
             // test for consistency; reference implementations from XNA
             float dist1   = Vector2.Distance(A, B);
@@ -32,7 +32,7 @@ namespace UnitTests.LinearAlgebra
         }
 
         [TestMethod]
-        public void TestInRadius()
+        public void InRadius()
         {
             Assert.IsTrue(Inside.InRadius(Center, Radius),  "InRadius failed, inside point should return true");
             Assert.IsTrue(Outside.InRadius(Center, Radius) == false, "InRadius failed, outside point should return false");
@@ -49,7 +49,7 @@ namespace UnitTests.LinearAlgebra
         static readonly Vector2 SW = Center + new Vector2(-50f, +50f);
 
         [TestMethod]
-        public void TestAngleToTarget()
+        public void AngleToTarget()
         {
             Assert.AreEqual(00f,  Center.AngleToTarget(N),  MaxErr, "Degrees to target is incorrect");
             Assert.AreEqual(45f,  Center.AngleToTarget(NE), MaxErr, "Degrees to target is incorrect");
@@ -79,6 +79,46 @@ namespace UnitTests.LinearAlgebra
         {
             Assert.AreEqual(180f, ((float)System.Math.PI).ToDegrees(), MaxErr, "Radians to Degrees failed");
             Assert.AreEqual((float)System.Math.PI, 180f.ToRadians(), MaxErr, "Degrees to Radians failed");
+        }
+
+        
+        [TestMethod]
+        public void AlmostEqual()
+        {
+            Assert.IsTrue(0f.AlmostEqual( MathExt.DefaultTolerance));
+            Assert.IsTrue(0f.AlmostEqual(-MathExt.DefaultTolerance));
+            Assert.IsTrue(0f.AlmostEqual( MathExt.DefaultTolerance - 0.0000001f));
+            Assert.IsTrue(0f.AlmostEqual(-MathExt.DefaultTolerance + 0.0000001f));
+            Assert.IsFalse(0f.AlmostEqual( MathExt.DefaultTolerance + 0.0000001f));
+            Assert.IsFalse(0f.AlmostEqual(-MathExt.DefaultTolerance - 0.0000001f));
+
+            Assert.IsTrue(0f.NotEqual(MathExt.DefaultTolerance*2));
+            Assert.IsTrue(0f.NotEqual(MathExt.DefaultTolerance*-2));
+            Assert.IsFalse(0f.NotEqual( MathExt.DefaultTolerance - 0.0000001f));
+            Assert.IsFalse(0f.NotEqual(-MathExt.DefaultTolerance + 0.0000001f));
+
+            Assert.IsTrue(MathExt.DefaultTolerance.AlmostZero());
+            Assert.IsTrue((-MathExt.DefaultTolerance).AlmostZero());
+            Assert.IsFalse(( MathExt.DefaultTolerance + 0.0000001f).AlmostZero());
+            Assert.IsFalse((-MathExt.DefaultTolerance - 0.0000001f).AlmostZero());
+
+            Assert.IsTrue((MathExt.DefaultTolerance + 0.0000001f).NotZero());
+            Assert.IsTrue((-MathExt.DefaultTolerance - 0.0000001f).NotZero());
+            Assert.IsFalse((MathExt.DefaultTolerance - 0.0000001f).NotZero());
+            Assert.IsFalse((-MathExt.DefaultTolerance + 0.0000001f).NotZero());
+        }
+
+        [TestMethod]
+        public void RoundingUtils()
+        {
+            Assert.AreEqual(50,  31.RoundUpToMultipleOf(50));
+            Assert.AreEqual(100, 81.RoundUpToMultipleOf(50));
+
+            Assert.AreEqual(0,  31.RoundDownToMultipleOf(50));
+            Assert.AreEqual(50, 81.RoundDownToMultipleOf(50));
+
+            Assert.AreEqual(10, 0.5f.RoundTo10());
+            Assert.AreEqual(80, 75.5f.RoundTo10());
         }
     }
 }
