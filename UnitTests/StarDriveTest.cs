@@ -53,6 +53,7 @@ namespace UnitTests
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
+        public Empire Faction { get; private set; }
 
         // @note: This is slow! It can take 500-1000ms
         // So don't create it if you don't need a valid GraphicsDevice
@@ -129,10 +130,20 @@ namespace UnitTests
             p.ParentSystem = s;
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire)
+        public static void AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
         {
-            AddDummyPlanet(out Planet p);
-            empire.AddPlanet(p);
+            p = new Planet(fertility, minerals, pop);
+            var s = new SolarSystem();
+            s.PlanetList.Add(p);
+            p.ParentSystem = s;
+        }
+
+        public static void AddDummyPlanetToEmpire(Empire empire) => 
+            AddDummyPlanetToEmpire(empire,0, 0, 0);
+        public static void AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
+        {
+            AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
+            empire?.AddPlanet(p);
             p.Type = ResourceManager.PlanetOrRandom(0);
         }
 
