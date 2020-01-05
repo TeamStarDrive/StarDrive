@@ -102,6 +102,7 @@ namespace Ship_Game
         readonly bool Fade = true;
         DropOptions<DisplayMode> ResolutionDropDown;
         DropOptions<MMDevice> SoundDevices;
+        DropOptions<Language> CurrentLanguage;
         Rectangle LeftArea;
         Rectangle RightArea;
 
@@ -280,6 +281,9 @@ namespace Ship_Game
                 right.AddCheckbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
                                     "Experimental and untested feature for complex Shield behaviors during Warp");
 
+            CurrentLanguage = new DropOptions<Language>(105, 18);
+            Add(right, "Language", CurrentLanguage);
+
             Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
                 .OnClick = button => ApplyOptions();
 
@@ -287,6 +291,7 @@ namespace Ship_Game
             PerformLayout();
             CreateResolutionDropOptions();
             CreateSoundDevicesDropOptions();
+            CreateLanguageDropOptions();
         }
 
         void CreateResolutionDropOptions()
@@ -328,6 +333,16 @@ namespace Ship_Game
             SoundDevices.OnValueChange = OnAudioDeviceDropDownChange;
         }
 
+        void CreateLanguageDropOptions()
+        {
+            foreach (Language language in (Language[]) Enum.GetValues(typeof(Language)))
+            {
+                CurrentLanguage.AddOption(language.ToString(), language);
+            }
+            CurrentLanguage.ActiveValue = GlobalStats.Language;
+            CurrentLanguage.OnValueChange = OnLanguageDropDownChange;
+        }
+
         void OnAudioDeviceDropDownChange(MMDevice newDevice)
         {
             if (newDevice == null)
@@ -338,6 +353,16 @@ namespace Ship_Game
 
             GameAudio.SmallServo();
             GameAudio.TacticalPause();
+        }
+
+        void OnLanguageDropDownChange(Language newLanguage)
+        {
+            if (GlobalStats.Language != newLanguage)
+            {
+                GlobalStats.Language = newLanguage;
+                ResourceManager.LoadLanguage(newLanguage);
+                LoadContent(); // reload the options screen to update the text
+            }
         }
 
         public override void LoadContent()

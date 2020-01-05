@@ -221,7 +221,7 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                ExplorationTarget = Owner.loyalty.GetEmpireAI().AssignExplorationTarget(Owner);
+                ExplorationTarget = Owner.loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTarget(Owner);
                 if (ExplorationTarget == null)
                 {
                     ClearOrders();

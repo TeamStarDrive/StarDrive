@@ -38,16 +38,16 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask()
         {
         }
-        public static MilitaryTask CreatePostInvasion(Vector2 ao, int fleetId, Empire owner)
+        public static MilitaryTask CreateClaimTask(Planet targetPlanet, float minStrength)
         {
             var militaryTask = new MilitaryTask
             {
-                AO = ao,
-                AORadius = 10000f,
-                WhichFleet = fleetId
+                TargetPlanet             = targetPlanet,
+                AO                       = targetPlanet.Center,
+                type                     = TaskType.DefendClaim,
+                AORadius                 = targetPlanet.ParentSystem.Radius,
+                MinimumTaskForceStrength = minStrength
             };
-            militaryTask.SetEmpire(owner);
-            militaryTask.type = TaskType.DefendPostInvasion;
             return militaryTask;
         }
 
