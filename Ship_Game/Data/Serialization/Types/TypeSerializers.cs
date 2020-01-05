@@ -79,27 +79,40 @@ namespace Ship_Game.Data.Serialization.Types
         }
     }
 
-    internal class LocTextSerializer : TypeSerializer
+    internal class LocalizedTextSerializer : TypeSerializer
     {
-        public override string ToString() => "LocTextSerializer";
+        public override string ToString() => "LocalizedTextSerializer";
 
         public override object Convert(object value)
         {
-            if (value is int id)   return new LocText(id);
-            if (value is string s) return new LocText(s);
-            Error(value, "LocText -- expected int or format string");
-            return new LocText("INVALID TEXT", true);
+            if (value is int id)   return new LocalizedText(id);
+            if (value is string s)
+            {
+                // this is sort of a pre-optimization
+                // only set Parse if text contains {id} token bracket
+                if (s.IndexOf('{') != -1)
+                    return new LocalizedText(s, LocalizationMethod.Parse);
+                return new LocalizedText(s, LocalizationMethod.RawText);
+            }
+            Error(value, "LocalizedText -- expected int or format string");
+            return new LocalizedText("INVALID TEXT", LocalizationMethod.RawText);
         }
 
         public override void Serialize(BinaryWriter writer, object obj)
         {
-            var localizedText = (LocText)obj;
-            writer.Write(localizedText.Text);
+            var localizedText = (LocalizedText)obj;
+            writer.Write(localizedText.Id);
+            writer.Write(localizedText.String);
+            writer.Write((int)localizedText.Method);
         }
 
         public override object Deserialize(BinaryReader reader)
         {
-            var localizedText = new LocText(reader.ReadString(), true);
+            int id = reader.ReadInt32();
+            string str = reader.ReadString();
+            var method = (LocalizationMethod)reader.ReadInt32();
+
+            var localizedText = new LocalizedText(id, str, method);
             return localizedText;
         }
     }
