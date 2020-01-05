@@ -10,7 +10,7 @@ namespace Ship_Game
 {
     public partial class Planet
     {
-        Map<ColonyPriority, float> Priorities;
+        EnumFlatMap<ColonyPriority, float> Priorities = new EnumFlatMap<ColonyPriority, float>();
 
         private enum ColonyPriority
         {
@@ -50,7 +50,7 @@ namespace Ship_Game
 
         void BuildAndScrapCivilianBuildings(float budget)
         {
-            CreateGovernorPriorities();
+            UpdateGovernorPriorities();
             if (budget < 0f)
             {
                 TryScrapBuilding(); // we must scrap something to bring us above of our debt tolerance
@@ -73,9 +73,9 @@ namespace Ship_Game
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
-        void CreateGovernorPriorities()
+        void UpdateGovernorPriorities()
         {
-            Priorities = new Map<ColonyPriority, float>();
+            Priorities.Clear();
             CalcFoodPriorities();
             CalcProductionPriorities();
             CalcPopulationPriorities();
@@ -108,11 +108,7 @@ namespace Ship_Game
         void CalcFoodPriorities()
         {
             if (IsCybernetic)
-            {
-                Priorities.Add(ColonyPriority.FoodFlat, 0);
-                Priorities.Add(ColonyPriority.FoodPerCol, 0);
                 return;
-            }
 
             float netFoodPerColonist = Food.NetYieldPerColonist - FoodConsumptionPerColonist;
             float flatFoodToFeedAll  = FoodConsumptionPerColonist * PopulationBillion - Food.NetFlatBonus;
@@ -131,8 +127,8 @@ namespace Ship_Game
 
             flat   = ApplyGovernorBonus(flat, 1f, 0.5f, 0.5f, 2f, 0.5f);
             perCol = ApplyGovernorBonus(perCol, 1f, 0.5f, 0.5f, 2f, 0.5f);
-            Priorities.Add(ColonyPriority.FoodFlat, flat);
-            Priorities.Add(ColonyPriority.FoodPerCol, perCol);
+            Priorities[ColonyPriority.FoodFlat]   = flat;
+            Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
 
         void CalcProductionPriorities()
@@ -160,9 +156,9 @@ namespace Ship_Game
             flat        = ApplyGovernorBonus(flat, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perRichness = ApplyGovernorBonus(perRichness, 1f, 2f, 0.5f, 0.5f, 1.5f);
             perCol      = ApplyGovernorBonus(perCol, 1f, 2f, 0.5f, 0.5f, 1.5f);
-            Priorities.Add(ColonyPriority.ProdFlat, flat);
-            Priorities.Add(ColonyPriority.ProdPerRichness, perRichness);
-            Priorities.Add(ColonyPriority.ProdPerCol, perCol);
+            Priorities[ColonyPriority.ProdFlat]        = flat;
+            Priorities[ColonyPriority.ProdPerRichness] = perRichness;
+            Priorities[ColonyPriority.ProdPerCol]      = perCol;
         }
 
         void CalcPopulationPriorities()
@@ -171,15 +167,16 @@ namespace Ship_Game
             float popCap    = FreeHabitableTiles > 0 ? (PopulationRatio*10).Clamped(0, 10) : 0;
             popGrowth       = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
             popCap          = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
-            Priorities.Add(ColonyPriority.PopGrowth, popGrowth);
-            Priorities.Add(ColonyPriority.PopCap, popCap);
+            Priorities[ColonyPriority.PopGrowth] = popGrowth;
+            Priorities[ColonyPriority.PopCap]    = popCap;
         }
 
         void CalcStoragePriorities()
         {
-            float storage = (Storage.FoodRatio + Storage.ProdRatio) * 5;
+            float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 5
+                                          : Storage.ProdRatio * 10;
             storage       = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
-            Priorities.Add(ColonyPriority.StorageNeeds, storage);
+            Priorities[ColonyPriority.StorageNeeds] = storage;
         }
 
         void CalcResearchPriorities()
@@ -188,8 +185,8 @@ namespace Ship_Game
             float perCol = 10 * PopulationBillion;
             flat         = ApplyGovernorBonus(flat, 1f, 0.25f, 2f, 0.25f, 0.25f);
             perCol       = ApplyGovernorBonus(perCol, 1f, 0.25f, 2f, 0.25f, 0.25f);
-            Priorities.Add(ColonyPriority.ResearchFlat, flat);
-            Priorities.Add(ColonyPriority.ResearchPerCol, perCol);
+            Priorities[ColonyPriority.ResearchFlat]   = flat;
+            Priorities[ColonyPriority.ResearchPerCol] = perCol;
         }
 
         void CalcMoneyPriorities()
@@ -198,15 +195,15 @@ namespace Ship_Game
             float credits = PopulationBillion;
             tax     = ApplyGovernorBonus(tax, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
             credits = ApplyGovernorBonus(credits, 1f, 0.2f, 0.75f, 0.5f, 0.5f);
-            Priorities.Add(ColonyPriority.TaxPercent, tax);
-            Priorities.Add(ColonyPriority.CreditsPerCol, credits);
+            Priorities[ColonyPriority.TaxPercent]    = tax;
+            Priorities[ColonyPriority.CreditsPerCol] = credits;
         }
 
         void CalcFertilityPriorities()
         {
             float fertility = NonCybernetic ? 5 - MaxFertility : 0;
             fertility       = ApplyGovernorBonus(fertility, 1.5f, 0.5f, 1, 2, 1f);
-            Priorities.Add(ColonyPriority.Fertility, fertility);
+            Priorities[ColonyPriority.Fertility] = fertility;
         }
 
         float ApplyGovernorBonus(float value, float core, float industrial, float research, float agricultural, float military)
