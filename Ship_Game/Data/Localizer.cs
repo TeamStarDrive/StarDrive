@@ -43,6 +43,11 @@ namespace Ship_Game
             return (uint)idx < (uint)Strings.Length && Strings[idx] != null;
         }
 
+        public static string Token(GameText gameText)
+        {
+            return Token((int)gameText);
+        }
+
         public static string Token(int locIndex)
         {
             int idx = locIndex - 1;
