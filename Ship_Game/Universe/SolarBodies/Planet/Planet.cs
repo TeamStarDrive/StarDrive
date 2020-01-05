@@ -193,6 +193,17 @@ namespace Ship_Game
             HasSpacePort = false;
         }
 
+        public Planet(float fertility, float minerals, float maxPop)
+        {
+            CreateManagers();
+            HasSpacePort      = false;
+            BaseFertility     = fertility;
+            MineralRichness   = minerals;
+            BasePopPerTileVal = maxPop;
+            if (fertility > 0)
+                Type          = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+        }
+
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
         {
             CreateManagers();
@@ -314,6 +325,16 @@ namespace Ship_Game
             value += EmpireFertility(empire) * 10;
             value += MineralRichness * 10;
             value += MaxPopulationBillionFor(empire) * 5;
+            return value;
+        }
+
+        public float ColonyPotentialValue(Empire empire)
+        {
+            float value = 0;
+            value += SpecialCommodities * 10;
+            value += PotentialMaxFertilityFor(empire) * 10;
+            value += MineralRichness * 10;
+            value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
         }
 
