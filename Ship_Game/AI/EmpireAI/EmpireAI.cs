@@ -32,7 +32,8 @@ namespace Ship_Game.AI
         public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();        
         public float Toughnuts                               = 0;                
         public int Recyclepool                               = 0;
-        public float DefStr;        
+        public float DefStr;
+        public ExpansionAI.ExpansionPlanner ExpansionAI;
         public EmpireAI(Empire e)
         {
             EmpireName                = e.data.Traits.Name;
@@ -40,7 +41,7 @@ namespace Ship_Game.AI
             DefensiveCoordinator      = new DefensiveCoordinator(e);
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
-
+            ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
 
             if (OwnerEmpire.data.EconomicPersonality != null)
                 NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
@@ -70,7 +71,7 @@ namespace Ship_Game.AI
             {                
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
-                RunExpansionPlanner();
+                ExpansionAI.RunExpansionPlanner();
                 RunInfrastructurePlanner();                
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
@@ -101,47 +102,6 @@ namespace Ship_Game.AI
                     knownPlanets.AddRange(s.PlanetList);
             }
             return knownPlanets;
-        }
-        
-        public SolarSystem AssignExplorationTarget(Ship queryingShip)
-        {
-            var potentials = new Array<SolarSystem>();
-            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
-            {
-                if (!s.IsExploredBy(OwnerEmpire))                
-                    potentials.Add(s);
-            }
-            
-            using (MarkedForExploration.AcquireReadLock())
-            foreach (SolarSystem s in MarkedForExploration)            
-                potentials.Remove(s);
-            
-            IOrderedEnumerable<SolarSystem> sortedList =
-                from system in potentials
-                orderby Vector2.Distance(OwnerEmpire.GetWeightedCenter(), system.Position)
-                select system;
-            if (!sortedList.Any())
-            {
-                queryingShip.AI.ClearOrders();
-                return null;
-            }
-            SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault();
-            foreach (SolarSystem nearest in sortedList)
-            {
-                if (nearest.HostileForcesPresent(OwnerEmpire))
-                    continue;
-                float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
-                float distanceToEarth = Vector2.Distance(OwnerEmpire.GetWeightedCenter(), nearest.Position);
-
-                if (distanceToScout > distanceToEarth + 50000f)                
-                    continue;
-                
-                nearesttoHome = nearest;
-                break;
-
-            }
-            MarkedForExploration.Add(nearesttoHome);
-            return nearesttoHome;
         }
 
         public void RemoveShipFromForce(Ship ship) => RemoveShipFromForce(ship, null);
@@ -227,8 +187,7 @@ namespace Ship_Game.AI
             var aos = AreasOfOperations;
             if (aos.Count == 0)
             {
-                Log.Info($"{OwnerEmpire.Name} has no areas of operation");
-                return null;
+                return new AO(OwnerEmpire);
             }
 
             AO closestAO = aos.FindMin(ao => ao.Center.SqDist(position));
