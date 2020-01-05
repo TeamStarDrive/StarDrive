@@ -372,7 +372,10 @@ namespace Ship_Game
             if (TerraformerInTheWorks || NumWantedTerraformers <= 0)
                 return;
 
-            PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
+            PlanetGridSquare tile = null; 
+            if (TilesList.Any(t => !t.Habitable && !t.BuildingOnTile))
+                tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
+
             if (tile != null) // try to build a terraformer on a black tile first
                 Construction.AddBuilding(TerraformersWeCanBuild, tile);
             else
