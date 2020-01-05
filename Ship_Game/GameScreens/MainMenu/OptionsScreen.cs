@@ -360,7 +360,7 @@ namespace Ship_Game
             if (GlobalStats.Language != newLanguage)
             {
                 GlobalStats.Language = newLanguage;
-                ResourceManager.LoadLanguage();
+                ResourceManager.LoadLanguage(newLanguage);
                 LoadContent(); // reload the options screen to update the text
             }
         }
