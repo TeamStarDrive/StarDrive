@@ -54,7 +54,7 @@ namespace Ship_Game
             public Rectangle Rect;
             public T Value;
 
-            public Entry(LocalizedText name, T value)
+            public Entry(in LocalizedText name, T value)
             {
                 Name  = name;
                 Value = value;

@@ -24,7 +24,7 @@ namespace Ship_Game
 
     public class UILabel : UIElementV2, IColorElement
     {
-        LocalizedText LabelText; // Simple Text
+        LocalizedText LabelText; // Localized Simple Text
         Array<string> Lines; // Multi-Line Text
         Func<UILabel, string> GetText; // Dynamic Text Binding
         SpriteFont LabelFont;

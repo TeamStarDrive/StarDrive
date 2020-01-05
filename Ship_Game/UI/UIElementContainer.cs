@@ -245,10 +245,7 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UIButton Button(Vector2 pos, string launches, LocalizedText text)
-            => Add(new UIButton(pos, text));
-
-        public UIButton ButtonMediumMenu(float x, float y, LocalizedText text)
+        public UIButton ButtonMediumMenu(float x, float y, in LocalizedText text)
             => Add(new UIButton(ButtonStyle.MediumMenu, new Vector2(x, y), text));
 
         // @note CloseButton automatically calls ExitScreen() on this screen
@@ -267,11 +264,11 @@ namespace Ship_Game
             => Button(new UIButton(style), click, clickSfx);
 
 
-        public UIButton Button(ButtonStyle style, Vector2 pos, LocalizedText text, Action<UIButton> click, string clickSfx = null)
+        public UIButton Button(ButtonStyle style, Vector2 pos, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(new UIButton(style, pos, text), click, clickSfx);
 
 
-        public UIButton Button(ButtonStyle style, float x, float y, LocalizedText text, Action<UIButton> click, string clickSfx = null)
+        public UIButton Button(ButtonStyle style, float x, float y, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(style, new Vector2(x, y), text, click, clickSfx);
 
 
@@ -279,33 +276,33 @@ namespace Ship_Game
             => Button(new UIButton(style, rect), click, clickSfx);
 
 
-        public UIButton Button(float x, float y, LocalizedText text, Action<UIButton> click)
+        public UIButton Button(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Default, new Vector2(x, y), text, click);
 
 
-        public UIButton ButtonLow(float x, float y, LocalizedText text, Action<UIButton> click)
+        public UIButton ButtonLow(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Low80, new Vector2(x, y), text, click);
 
 
-        public UIButton ButtonSmall(float x, float y, LocalizedText text, Action<UIButton> click)
+        public UIButton ButtonSmall(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Small, new Vector2(x, y), text, click);
 
-        public UIButton ButtonMedium(float x, float y, LocalizedText text, Action<UIButton> click)
+        public UIButton ButtonMedium(float x, float y, in LocalizedText text, Action<UIButton> click)
             => Button(ButtonStyle.Medium, new Vector2(x, y), text, click);
 
-        public UIButton Button(ButtonStyle style, LocalizedText text, Action<UIButton> click, string clickSfx = null)
+        public UIButton Button(ButtonStyle style, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(new UIButton(style, text), click, clickSfx);
 
-        public UIButton ButtonMedium(LocalizedText text, Action<UIButton> click, string clickSfx = null)
+        public UIButton ButtonMedium(in LocalizedText text, Action<UIButton> click, string clickSfx = null)
             => Button(ButtonStyle.Medium, text, click, clickSfx);
 
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
+        protected UICheckBox Checkbox(Vector2 pos, Expression<Func<bool>> binding, in LocalizedText title, ToolTipText tooltip)
             => Add(new UICheckBox(pos.X, pos.Y, binding, Fonts.Arial12Bold, title, tooltip));
 
-        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
+        protected UICheckBox Checkbox(float x, float y, Expression<Func<bool>> binding, in LocalizedText title, ToolTipText tooltip)
             => Add(new UICheckBox(x, y, binding, Fonts.Arial12Bold, title, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -326,12 +323,12 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UILabel Label(Vector2 pos, LocalizedText text) => Add(new UILabel(pos, text));
-        public UILabel Label(Vector2 pos, LocalizedText text, SpriteFont font) => Add(new UILabel(pos, text, font));
-        public UILabel Label(Vector2 pos, LocalizedText text, SpriteFont font, Color color) => Add(new UILabel(pos, text, font,color));
+        public UILabel Label(Vector2 pos, in LocalizedText text) => Add(new UILabel(pos, text));
+        public UILabel Label(Vector2 pos, in LocalizedText text, SpriteFont font) => Add(new UILabel(pos, text, font));
+        public UILabel Label(Vector2 pos, in LocalizedText text, SpriteFont font, Color color) => Add(new UILabel(pos, text, font,color));
 
-        public UILabel Label(float x, float y, LocalizedText text) => Label(new Vector2(x, y), text);
-        public UILabel Label(float x, float y, LocalizedText text, SpriteFont font) => Label(new Vector2(x, y), text, font);
+        public UILabel Label(float x, float y, in LocalizedText text) => Label(new Vector2(x, y), text);
+        public UILabel Label(float x, float y, in LocalizedText text, SpriteFont font) => Label(new Vector2(x, y), text, font);
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
