@@ -68,6 +68,10 @@ namespace Ship_Game
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
+        public float ConsumptionPerColonist => 1 + Owner.data.Traits.ConsumptionModifier;
+        public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
+        public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
+
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
@@ -847,7 +851,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
+            Consumption = (ConsumptionPerColonist * PopulationBillion);
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
@@ -1028,10 +1032,12 @@ namespace Ship_Game
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
-        public int FreeHabitableTiles  => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
-        public float BuiltCoverage     => TotalBuildings / (float)TileArea;
-        public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
+        public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
+
+        public int TotalBuildings     => TilesList.Count(tile => tile.BuildingOnTile);
+        public float BuiltCoverage    => TotalBuildings / TotalHabitableTiles;
+        public bool TerraformingHere  => BuildingList.Any(b => b.IsTerraformer);
 
         // FB - This will give the Max Fertility the planet should have after terraforming is complete
         public float TerraformMaxFertilityTarget
