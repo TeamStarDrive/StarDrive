@@ -34,120 +34,46 @@ namespace Ship_Game.Commands.Goals
 
         bool IsValid()
         {
+            if (ColonizationTarget.Owner != null)
+            {
+                foreach (var relationship in empire.AllRelations)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
+                
+                var planet = empire.FindNearestRallyPoint(FinishedShip.Center);
+                if (planet != null)
+                {
+                    FinishedShip?.AI.OrderRebase(planet, true);
+                }
+                return false;
+            }
+
+            var system = ColonizationTarget.ParentSystem;
+            float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, empire);
+            if (str > 50) 
+                return false;
+
             if (ColonizationTarget.Owner == null)
                 return true;
 
-            foreach (var relationship in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
 
-            RemoveEscortTask(); //this is in the wrong place
-
-            if (FinishedShip == null)
-                return false;
-
-            var planet = empire.FindNearestRallyPoint(FinishedShip.Center);
-            if (planet != null)
-            {
-                FinishedShip.AI.OrderRebase(planet, true);
-                return false;
-            }
             FinishedShip.AI.State = AIState.AwaitingOrders;
             return false;
         }
 
-        MilitaryTask GetClaimTask()
+        // @return TRUE bad guys
+        bool TargetTooStrong()
         {
-            using (empire.GetEmpireAI().TaskList.AcquireReadLock())
+            if (ColonizationTarget.ParentSystem.ShipList.IsEmpty)
+                return false; //cheap shortcut
+            float enemyStr = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center
+                , ColonizationTarget.ParentSystem.Radius, empire, true);
+            if (enemyStr > 50)
             {
-                foreach (MilitaryTask escort in empire.GetEmpireAI().TaskList)
-                {
-                    if (escort.type == MilitaryTask.TaskType.DefendClaim)
-                        foreach (Guid held in escort.HeldGoals)
-                        {
-                            if (held == guid)
-                                return escort;
-                        }
-                }
-            }
-            return null;
-        }
-
-        void RemoveEscortTask()
-        {
-            MilitaryTask defendClaim = GetClaimTask();
-            if (defendClaim != null)
-                empire.GetEmpireAI().TaskList.QueuePendingRemoval(defendClaim);
-        }
-
-        TaskStatus EscortStatus(float enemyStrength)
-        {
-            MilitaryTask defendClaim = GetClaimTask();
-            if (defendClaim != null)
-            {
-                HasEscort        = defendClaim.Step > 0;
-                WaitingForEscort = !HasEscort;
-                return TaskStatus.Running;
-            }
-            return TaskStatus.Canceled;
-        }
-
-        // @return TRUE if WaitingForEscort
-        bool UpdateEscortNeeds()
-        {
-            WaitingForEscort = HasEscort = false;
-            if (empire.isPlayer || empire.isFaction)
-                return false;
-            var escortTask = GetClaimTask();
-            if (escortTask?.Fleet != null)
-            {
-                var fleet = escortTask.Fleet;
-                if (fleet.TaskStep < 3)
-                    return true;
-                if (fleet.TaskCombatStatus > ShipGroup.CombatStatus.InCombat)
-                    return false;
-            }
-
-            float radius = escortTask?.AORadius ?? 125000f;
-            // there appears to be a bug
-            // it seems that somehow the associated fleet with get orphaned from the task. although the fleet task
-            // is still running the escort task doesnt know about it.
-            // so this just checks that we have ships near the planet.
-            float ourStr = empire.GetShips().Filter(s => s.Center.InRadius(ColonizationTarget.Center, radius)).Sum(s => s.GetStrength());
-            float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(ColonizationTarget.Center, radius, empire);
-            if (str - ourStr < 100) return false;
-
-            WaitingForEscort = true;
-
-            if (EscortStatus(str) == TaskStatus.Running)
+                Log.Warning($"System {ColonizationTarget.ParentSystem} had enemies cancelling goal");
                 return true;
-
-            if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
-                empire.data.DiplomaticPersonality.Trustworthiness < 50)
-            {
-                var goalsToHold = new Array<Goal> { this };
-                var task        = new MilitaryTask(ColonizationTarget.Center, 125000f, goalsToHold, empire, str)
-                {
-                    InitialEnemyStrength = str
-                };
-
-                task.SetTargetPlanet(ColonizationTarget);
-                    empire.GetEmpireAI().TaskList.Add(task);
             }
-
-            var militaryTask = new MilitaryTask
-            {
-                AO = ColonizationTarget.Center,
-                type = MilitaryTask.TaskType.DefendClaim,
-                AORadius = 75000f,
-                MinimumTaskForceStrength = str
-            };
-            militaryTask.SetEmpire(empire);
-            militaryTask.SetTargetPlanet(ColonizationTarget);
-            militaryTask.HeldGoals.Add(guid);
-
-            empire.GetEmpireAI().TaskList.Add(militaryTask);
-            WaitingForEscort = true;
-            return true;
+            WaitingForEscort = false;
+            return false;
         }
 
         GoalStep OrderShipForColonization()
@@ -155,7 +81,8 @@ namespace Ship_Game.Commands.Goals
             if (!IsValid())
                 return GoalStep.GoalComplete;
 
-            UpdateEscortNeeds();
+            if (TargetTooStrong())
+                return GoalStep.GoalFailed;
 
             FinishedShip = FindIdleColonyShip();
             if (FinishedShip != null)
@@ -186,8 +113,8 @@ namespace Ship_Game.Commands.Goals
             if (!IsValid())
                 return GoalStep.GoalComplete;
 
-            if (!HasEscort)
-                UpdateEscortNeeds();
+            if (TargetTooStrong())
+                return GoalStep.GoalFailed;
 
             if (!IsPlanetBuildingColonyShip())
             {
@@ -199,7 +126,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(them.Key, them.Value, ColonizationTarget);
+                empire.GetEmpireAI().ExpansionAI.CheckClaim(them.Key, them.Value, ColonizationTarget);
 
             return GoalStep.GoalComplete;
         }
@@ -220,9 +147,6 @@ namespace Ship_Game.Commands.Goals
             if (!IsValid())
                 return GoalStep.GoalFailed;
 
-            if (UpdateEscortNeeds() && !HasEscort)
-                return GoalStep.TryAgain;
-
             if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
                 return GoalStep.RestartGoal;
 
@@ -235,7 +159,8 @@ namespace Ship_Game.Commands.Goals
              if (!IsValid())
                 return GoalStep.GoalFailed;
 
-            if (UpdateEscortNeeds() && !HasEscort)         return GoalStep.TryAgain;
+             if (TargetTooStrong())
+                 return GoalStep.GoalFailed;
             if (FinishedShip == null)                      return GoalStep.RestartGoal;
             if (FinishedShip.AI.State != AIState.Colonize) return GoalStep.RestartGoal;
             if (ColonizationTarget.Owner == null)          return GoalStep.TryAgain;
