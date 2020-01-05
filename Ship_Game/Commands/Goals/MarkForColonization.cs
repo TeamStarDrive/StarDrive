@@ -66,9 +66,15 @@ namespace Ship_Game.Commands.Goals
         // @return TRUE bad guys
         bool TargetTooStrong()
         {
+            if (ColonizationTarget.ParentSystem.ShipList.IsEmpty)
+                return false; //cheap shortcut
             float enemyStr = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center
                 , ColonizationTarget.ParentSystem.Radius, empire, true);
-            if (enemyStr > 50) return true;
+            if (enemyStr > 50)
+            {
+                Log.Warning($"System {ColonizationTarget.ParentSystem} had enemies cancelling goal");
+                return true;
+            }
             WaitingForEscort = false;
             return false;
         }
