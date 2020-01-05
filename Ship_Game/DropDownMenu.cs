@@ -55,7 +55,7 @@ namespace Ship_Game
 			container.Add(Bot);
 		}
 
-		public void AddOption(LocalizedText option)
+		public void AddOption(in LocalizedText option)
 		{
 			Options.Add(option.Text);
 		}

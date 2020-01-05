@@ -20,9 +20,10 @@ namespace Ship_Game
         public Action<UICheckBox> OnChange;
 
         public bool Checked => Binding.Value;
-        public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\" Checked={Checked}";
+        public override string ToString() => $"{TypeName} {ElementDescr} Text={Text} Checked={Checked}";
 
-        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
         {
             Pos = new Vector2(x, y);
             Binding = binding;
@@ -32,7 +33,8 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(BoolExpression binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(BoolExpression binding, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
         {
             Binding = new Ref<bool>(binding);
             Font    = font;
@@ -41,12 +43,14 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
             : this(x, y, new Ref<bool>(binding), font, title, tooltip)
         {
         }
 
-        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
             : this(x, y, new Ref<bool>(getter, setter), font, title, tooltip)
         {
         }
@@ -63,8 +67,8 @@ namespace Ship_Game
             batch.DrawRectangle(checkRect, new Color(96, 81, 49));
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
-            if (Text.Text.NotEmpty())
-                batch.DrawString(Font, Text.Text, TextPos, Color.White);
+            if (Text.NotEmpty)
+                batch.DrawString(Font, Text, TextPos, Color.White);
 
             if (Binding.Value)
             {
@@ -98,7 +102,7 @@ namespace Ship_Game
             Pos.Y = (int)Pos.Y;
             int h = Math.Max(10, Font.LineSpacing);
             int th = Font.LineSpacing / 2;
-            Size = new Vector2(h + Font.TextWidth(Text.Text), h+1);
+            Size = new Vector2(h + Font.MeasureString(Text).X, h+1);
             TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
             CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2,
                                    Pos.Y + 5 - th);

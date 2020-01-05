@@ -175,6 +175,8 @@
     <Compile Include="Ship_Game\AI\CombatTactics\OrbitTarget.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Artillery.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\Budget.cs" />
+    <Compile Include="Ship_Game\AI\ExpansionAI\ExpansionPlanner.cs" />
+    <Compile Include="Ship_Game\AI\ExpansionAI\PlanetRanker.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\FleetShips.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
@@ -216,6 +218,9 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
+    <Compile Include="Ship_Game\Data\GameText.cs" />
+    <Compile Include="Ship_Game\Data\GameTips.cs" />
+    <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
@@ -1765,6 +1770,9 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Localization\Spanish\GameText.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\ShipRoles\Shipyard.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2425,7 +2433,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Localization\English\GameText_EN.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Content\NameGenerators\names.txt">
