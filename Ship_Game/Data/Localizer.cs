@@ -85,17 +85,5 @@ namespace Ship_Game
             int localIndex = ShipRole.GetRoleName(role, shipType);
             return localIndex > 0 ? Token(localIndex) : "unknown";
         }
-        // statistic for amount of memory used for storing strings
-        public static int CountBytesUsed()
-        {
-            if (Strings.Length == 0)
-                return 0;
-
-            int bytes = Strings.Length  * 4 + 8;
-            foreach (string text in Strings)
-                if (text != null) bytes += 4 + text.Length * 2;
-
-            return bytes;
-        }
     }
 }

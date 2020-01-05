@@ -113,6 +113,14 @@ namespace Ship_Game
             }
         }
 
+        // @note This cache speeds up all text parsing ~8x by sacrificing ~1MB of memory
+        static readonly Map<string, string> ParseCache = new Map<string, string>();
+
+        public static void ClearCache()
+        {
+            ParseCache.Clear();
+        }
+
         /**
          * Parse incoming text as localized text.
          * Example:
@@ -128,8 +136,9 @@ namespace Ship_Game
                 return "";
             }
 
-            // @todo Pretty sure this could be optimized.
-            int numParsedTokens = 0;
+            if (ParseCache.TryGetValue(text, out string parsed))
+                return parsed;
+
             var sb = new StringBuilder(text.Length);
             for (int i = 0; i < text.Length; ++i)
             {
@@ -153,7 +162,6 @@ namespace Ship_Game
                         continue;
                     }
                     sb.Append(Localizer.Token(id));
-                    ++numParsedTokens;
                     i = j;
                 }
                 else if (c == '\\') // escape character
@@ -169,11 +177,9 @@ namespace Ship_Game
                 }
             }
 
-            // if we didn't encounter any tokens, just return the original string
-            if (numParsedTokens == 0)
-                return text;
-
-            return sb.ToString();
+            string parsedResult = sb.ToString();
+            ParseCache[text] = parsedResult;
+            return parsedResult;
         }
     }
 }
