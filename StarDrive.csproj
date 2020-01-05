@@ -216,6 +216,7 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
+    <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />

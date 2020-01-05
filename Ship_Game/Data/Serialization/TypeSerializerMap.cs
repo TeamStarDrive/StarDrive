@@ -37,7 +37,7 @@ namespace Ship_Game.Data.Serialization
             Add(typeof(Color),   new ColorSerializer()  );
             Add(typeof(string),  new StringSerializer() );
             Add(typeof(Range),   new RangeSerializer()  );
-            Add(typeof(LocText), new LocTextSerializer());
+            Add(typeof(LocalizedText), new LocalizedTextSerializer());
         }
 
         protected abstract TypeSerializer AddUserTypeSerializer(Type type); 

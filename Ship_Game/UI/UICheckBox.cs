@@ -20,9 +20,10 @@ namespace Ship_Game
         public Action<UICheckBox> OnChange;
 
         public bool Checked => Binding.Value;
-        public override string ToString() => $"{TypeName} {ElementDescr} Text=\"{Text}\" Checked={Checked}";
+        public override string ToString() => $"{TypeName} {ElementDescr} Text={Text} Checked={Checked}";
 
-        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(float x, float y, Ref<bool> binding, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
         {
             Pos = new Vector2(x, y);
             Binding = binding;
@@ -32,7 +33,8 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(BoolExpression binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(BoolExpression binding, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
         {
             Binding = new Ref<bool>(binding);
             Font    = font;
@@ -41,12 +43,14 @@ namespace Ship_Game
             PerformLayout();
         }
 
-        public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(float x, float y, BoolExpression binding, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
             : this(x, y, new Ref<bool>(binding), font, title, tooltip)
         {
         }
 
-        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font, LocalizedText title, ToolTipText tooltip)
+        public UICheckBox(float x, float y, Func<bool> getter, Action<bool> setter, SpriteFont font,
+                          in LocalizedText title, in ToolTipText tooltip)
             : this(x, y, new Ref<bool>(getter, setter), font, title, tooltip)
         {
         }
