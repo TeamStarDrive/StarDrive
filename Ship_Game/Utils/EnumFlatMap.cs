@@ -36,5 +36,10 @@ namespace Ship_Game
                 FlatMap[index] = value;
             }
         }
+
+        public void Clear()
+        {
+            Array.Clear(FlatMap, 0, FlatMap.Length);
+        }
     }
 }
