@@ -42,11 +42,13 @@ namespace Ship_Game
             Method = method;
         }
 
+        // @note This will allow button.Text = 1;
         public static implicit operator LocalizedText(int id)
         {
             return new LocalizedText(id);
         }
 
+        // @note This will allow button.Text = "my raw string";
         public static implicit operator LocalizedText(string text)
         {
             return new LocalizedText(text, LocalizationMethod.RawText);

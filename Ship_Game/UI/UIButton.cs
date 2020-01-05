@@ -35,26 +35,26 @@ namespace Ship_Game
             Style = style;
         }
 
-        public UIButton(LocalizedText text)
+        public UIButton(in LocalizedText text)
         {
             Text = text;
             Size = ButtonTexture().SizeF;
         }
         
-        public UIButton(ButtonStyle style, LocalizedText text)
+        public UIButton(ButtonStyle style, in LocalizedText text)
         {
             Style = style;
             Text = text;
             Size = ButtonTexture().SizeF;
         }
 
-        public UIButton(Vector2 pos, LocalizedText text) : base(pos)
+        public UIButton(Vector2 pos, in LocalizedText text) : base(pos)
         {
             Text = text;
             Size = ButtonTexture().SizeF;
         }
 
-        public UIButton(ButtonStyle style, Vector2 pos, LocalizedText text) : base(pos)
+        public UIButton(ButtonStyle style, Vector2 pos, in LocalizedText text) : base(pos)
         {
             Style = style;
             Text  = text;
