@@ -71,6 +71,7 @@
     <Compile Include="AITests\TestExpansionPlanner.cs" />
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
+    <Compile Include="Collections\TestEnumFlatMap.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
     <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="ImpactSimulation.cs" />
