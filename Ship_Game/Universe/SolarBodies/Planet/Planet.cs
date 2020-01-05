@@ -1044,7 +1044,7 @@ namespace Ship_Game
         {
             get
             {
-                float sumPositiveFertilityChange = 1;
+                float sumPositiveFertilityChange = NonCybernetic ? 1 : 0;
 
                 for (int i = 0; i < BuildingList.Count; i++)
                 {
@@ -1054,7 +1054,7 @@ namespace Ship_Game
                 }
 
                 float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
-                return racialEnvDivider + sumPositiveFertilityChange;
+                return racialEnvDivider * sumPositiveFertilityChange;
             }
         }
 
