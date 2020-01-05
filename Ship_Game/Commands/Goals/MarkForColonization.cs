@@ -34,9 +34,6 @@ namespace Ship_Game.Commands.Goals
 
         bool IsValid()
         {
-            if (FinishedShip == null)
-                return false;
-
             if (ColonizationTarget.Owner != null)
             {
                 foreach (var relationship in empire.AllRelations)
