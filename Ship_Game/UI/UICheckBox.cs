@@ -67,8 +67,8 @@ namespace Ship_Game
             batch.DrawRectangle(checkRect, new Color(96, 81, 49));
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
-            if (Text.Text.NotEmpty())
-                batch.DrawString(Font, Text.Text, TextPos, Color.White);
+            if (Text.NotEmpty)
+                batch.DrawString(Font, Text, TextPos, Color.White);
 
             if (Binding.Value)
             {
@@ -102,7 +102,7 @@ namespace Ship_Game
             Pos.Y = (int)Pos.Y;
             int h = Math.Max(10, Font.LineSpacing);
             int th = Font.LineSpacing / 2;
-            Size = new Vector2(h + Font.TextWidth(Text.Text), h+1);
+            Size = new Vector2(h + Font.MeasureString(Text).X, h+1);
             TextPos  = new Vector2(Pos.X + 25, (int)CenterY - th);
             CheckPos = new Vector2(Pos.X + 6 - Font.TextWidth("x") / 2,
                                    Pos.Y + 5 - th);

@@ -622,7 +622,7 @@ namespace Ship_Game
         public void OnSymmetricDesignToggle()
         {
             IsSymmetricDesignMode = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Text  = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
+            BtnSymmetricDesign.Text  = IsSymmetricDesignMode ? 1985 : 1986;
             BtnSymmetricDesign.Style = IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
         }
 

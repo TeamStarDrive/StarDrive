@@ -48,7 +48,7 @@ namespace Ship_Game
                 if (LabelText != value)
                 {
                     LabelText = value;
-                    Size = LabelFont.MeasureString(LabelText.Text);
+                    Size = LabelFont.MeasureString(LabelText.Text); // @todo: Size is not updated when language changes
                 }
             }
         }
@@ -68,7 +68,7 @@ namespace Ship_Game
             set
             {
                 GetText = value;
-                Size = LabelFont.MeasureString(GetText(this));
+                Size = LabelFont.MeasureString(GetText(this)); // @todo: Size is not updated when language changes
             }
         }
 
@@ -80,7 +80,7 @@ namespace Ship_Game
                 if (LabelFont != value)
                 {
                     LabelFont = value;
-                    Size = value.MeasureString(LabelText.Text);
+                    Size = value.MeasureString(LabelText.Text); // @todo: Size is not updated when language changes
                 }
             }
         }
@@ -106,7 +106,7 @@ namespace Ship_Game
         {
             LabelFont = font;
             LabelText = text;
-            Size = font.MeasureString(text.Text);
+            Size = font.MeasureString(text.Text); // @todo: Size is not updated when language changes
         }
         public UILabel(Vector2 pos, in LocalizedText text, SpriteFont font, Color color) : this(pos, text, font)
         {
@@ -115,21 +115,25 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UILabel(LocalizedText text) : this(text, Fonts.Arial12Bold)
+        public UILabel(in LocalizedText text) : this(text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(LocalizedText text, Color color) : this(text, Fonts.Arial12Bold)
+        public UILabel(in LocalizedText text, Color color) : this(text, Fonts.Arial12Bold)
         {
             Color = color;
         }
-        public UILabel(LocalizedText text, SpriteFont font)
+        public UILabel(in LocalizedText text, SpriteFont font)
         {
             LabelFont = font;
-            Text = text.Text;
+            Text = text;
         }
 
         public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)
         {
+        }
+        public UILabel(Func<UILabel, string> getText, Action<UILabel> onClick) : this(getText, Fonts.Arial12Bold)
+        {
+            OnClick = onClick;
         }
         public UILabel(Func<UILabel, string> getText, SpriteFont font)
         {
@@ -137,14 +141,9 @@ namespace Ship_Game
             DynamicText = getText;
         }
         
-        public UILabel(Func<UILabel, string> getText, Action<UILabel> onClick) : this(getText, Fonts.Arial12Bold)
-        {
-            OnClick = onClick;
-        }
-
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
+        void DrawTextLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {
             switch (Align)
             {
@@ -181,7 +180,7 @@ namespace Ship_Game
                 {
                     string line = Lines[i];
                     if (line.NotEmpty())
-                        DrawLine(batch, line, cursor, color);
+                        DrawTextLine(batch, line, cursor, color);
                     cursor.Y += LabelFont.LineSpacing + 2;
                 }
             }
@@ -189,11 +188,11 @@ namespace Ship_Game
             {
                 string text = GetText(this); // GetText is allowed to modify [this]
                 if (text.NotEmpty())
-                    DrawLine(batch, text, Pos, CurrentColor);
+                    DrawTextLine(batch, text, Pos, CurrentColor);
             }
             else if (LabelText.NotEmpty)
             {
-                DrawLine(batch, LabelText.Text, Pos, CurrentColor);
+                DrawTextLine(batch, LabelText.Text, Pos, CurrentColor);
             }
         }
 
