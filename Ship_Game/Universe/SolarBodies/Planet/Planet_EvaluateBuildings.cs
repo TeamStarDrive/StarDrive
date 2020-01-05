@@ -113,6 +113,7 @@ namespace Ship_Game
             float netFoodPerColonist = Food.NetYieldPerColonist - FoodConsumptionPerColonist;
             float flatFoodToFeedAll  = FoodConsumptionPerColonist * PopulationBillion - Food.NetFlatBonus;
             float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
+
             float flat   = (flatFoodToFeedAll - netFoodPerColonist - Food.NetFlatBonus).ClampMin(0);
             float perCol = 10 - netFoodPerColonist - Food.NetFlatBonus*fertilityBonus;
             perCol       = (perCol * Fertility).ClampMin(0);
@@ -175,7 +176,8 @@ namespace Ship_Game
         {
             float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 5
                                           : Storage.ProdRatio * 10;
-            storage       = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
+            storage += Level;
+            storage  = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
             Priorities[ColonyPriority.StorageNeeds] = storage;
         }
 
@@ -193,8 +195,8 @@ namespace Ship_Game
         {
             float tax     = PopulationBillion;
             float credits = PopulationBillion;
-            tax     = ApplyGovernorBonus(tax, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
-            credits = ApplyGovernorBonus(credits, 1f, 0.2f, 0.75f, 0.5f, 0.5f);
+            tax           = ApplyGovernorBonus(tax, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
+            credits       = ApplyGovernorBonus(credits, 1f, 0.2f, 0.75f, 0.5f, 0.5f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
             Priorities[ColonyPriority.CreditsPerCol] = credits;
         }
