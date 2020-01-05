@@ -197,6 +197,16 @@ namespace Ship_Game
             return (int)font.MeasureString(Localizer.Token(localizationId)).X;
         }
 
+        public static Vector2 MeasureString(this SpriteFont font, in LocalizedText text)
+        {
+            return font.MeasureString(text.Text);
+        }
+
+        public static string ParseText(this SpriteFont font, in LocalizedText text, float maxLineWidth)
+        {
+            return ParseText(font, text.Text, maxLineWidth);
+        }
+
         public static string ParseText(this SpriteFont font, string text, float maxLineWidth)
         {
             string[] words = text.Split(' ');

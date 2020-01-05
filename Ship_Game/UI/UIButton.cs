@@ -106,13 +106,14 @@ namespace Ship_Game
             Rectangle r = Rect;
             batch.Draw(ButtonTexture(), r, Color.White);
 
-            if (Text.Text.NotEmpty())
+            if (Text.NotEmpty)
             {
                 SpriteFont font = Fonts.Arial12Bold;
+                string text = Text.Text;
 
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
-                    textCursor.X = r.X + r.Width / 2 - font.MeasureString(Text.Text).X / 2f;
+                    textCursor.X = r.X + r.Width / 2 - font.MeasureString(text).X / 2f;
                 else
                     textCursor.X = r.X + 25f;
 
@@ -120,7 +121,7 @@ namespace Ship_Game
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
-                batch.DrawString(font, Text.Text, textCursor, Enabled ? TextColor() : Color.Gray);
+                batch.DrawString(font, text, textCursor, Enabled ? TextColor() : Color.Gray);
             }
         }
 
