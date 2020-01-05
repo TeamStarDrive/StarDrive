@@ -22,6 +22,19 @@ namespace UnitTests.Data
         }
 
         [TestMethod]
+        public void GameTextEnumIsDynamic()
+        {
+            var textNewGame = new LocalizedText(GameText.NewGame);
+            Assert.IsTrue(textNewGame.NotEmpty);
+
+            ResourceManager.LoadLanguage(Language.English);
+            Assert.AreEqual("New Game", textNewGame.Text);
+
+            ResourceManager.LoadLanguage(Language.Spanish);
+            Assert.AreEqual("Nueva partida", textNewGame.Text);
+        }
+
+        [TestMethod]
         public void RawTextIsConstant()
         {
             var rawText = new LocalizedText("RawText: {1}", LocalizationMethod.RawText);

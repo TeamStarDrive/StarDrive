@@ -28,6 +28,13 @@ namespace Ship_Game
             Method = LocalizationMethod.Id;
         }
 
+        public LocalizedText(GameText gameText)
+        {
+            Id = (int)gameText;
+            String = null;
+            Method = LocalizationMethod.Id;
+        }
+
         public LocalizedText(string text, LocalizationMethod method)
         {
             Id = 0;
@@ -46,6 +53,12 @@ namespace Ship_Game
         public static implicit operator LocalizedText(int id)
         {
             return new LocalizedText(id);
+        }
+
+        // @note This will allow button.Text = GameText.LoadSavedGame;
+        public static implicit operator LocalizedText(GameText gameText)
+        {
+            return new LocalizedText(gameText);
         }
 
         // @note This will allow button.Text = "my raw string";
@@ -93,7 +106,7 @@ namespace Ship_Game
         {
             switch (Method)
             {
-                case LocalizationMethod.Id:      return "ID"+Id+": \""+Text+"\"";
+                case LocalizationMethod.Id:      return "ID/"+(GameText)Id+"/: \""+Text+"\"";
                 case LocalizationMethod.RawText: return "RAW: \""+Text+"\"";
                 case LocalizationMethod.Parse:   return "PARSED: \""+Text+"\"";
             }
