@@ -44,8 +44,8 @@ namespace Ship_Game.UI
          */
         [StarData] public readonly Align AxisAlign; 
         [StarData] public readonly Color? Color;
-        [StarData] public readonly LocText Title;
-        [StarData] public readonly LocText Tooltip;
+        [StarData] public readonly LocalizedText Title;
+        [StarData] public readonly LocalizedText Tooltip;
         [StarData] public readonly AnimInfo Animation = null;
         [StarData] public readonly SpriteAnimInfo SpriteAnim = null;
         [StarData] public readonly bool DebugDraw;

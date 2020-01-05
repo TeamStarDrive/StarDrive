@@ -14,7 +14,7 @@ namespace Ship_Game
     {
         [StarDataKey] public readonly int Id;
         [StarData] public readonly PlanetCategory Category;
-        [StarData] public readonly LocText Composition;
+        [StarData] public readonly LocalizedText Composition;
         [StarData] public readonly string IconPath;
         [StarData] public readonly string MeshPath;
         [StarData] public readonly string PlanetTile;
