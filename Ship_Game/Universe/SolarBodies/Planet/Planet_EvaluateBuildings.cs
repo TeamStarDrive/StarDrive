@@ -52,12 +52,16 @@ namespace Ship_Game
         {
             CreateGovernorPriorities();
             if (budget < 0f)
+            {
                 TryScrapBuilding(); // we must scrap something to bring us above of our debt tolerance
+            }
             else
             {
                 TryBuildTerraformers(); // Build Terraformers if needed
                 if (FreeHabitableTiles > 0)
+                {
                     SimpleBuild(budget); // lets try to build something within our budget
+                }
                 else
                 {
                     if (BuildBiospheres(budget))
@@ -104,7 +108,11 @@ namespace Ship_Game
         void CalcFoodPriorities()
         {
             if (IsCybernetic)
+            {
+                Priorities.Add(ColonyPriority.FoodFlat, 0);
+                Priorities.Add(ColonyPriority.FoodPerCol, 0);
                 return;
+            }
 
             float netFoodPerColonist = Food.NetYieldPerColonist - FoodConsumptionPerColonist;
             float flatFoodToFeedAll  = FoodConsumptionPerColonist * PopulationBillion - Food.NetFlatBonus;
@@ -377,7 +385,9 @@ namespace Ship_Game
                 tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
 
             if (tile != null) // try to build a terraformer on a black tile first
+            {
                 Construction.AddBuilding(TerraformersWeCanBuild, tile);
+            }
             else
             {
                 if (BuildingList.Count == TileArea)
