@@ -1,7 +1,6 @@
 ﻿// ReSharper disable UnusedMember.Global
 // ReSharper disable IdentifierTypo
 // ReSharper disable CommentTypo
-
 namespace Ship_Game
 {
     /// <summary>
