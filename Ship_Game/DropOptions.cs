@@ -24,7 +24,7 @@ namespace Ship_Game
         public int Count         => Options.Count;
         public bool NotEmpty     => Options.NotEmpty;
         public Entry Active      => Options[ActiveIndex];
-        public string ActiveName => Options[ActiveIndex].Name;
+        public string ActiveName => Options[ActiveIndex].Name.Text;
         
         public T ActiveValue
         {
@@ -49,12 +49,12 @@ namespace Ship_Game
 
         public class Entry
         {
-            public string Name;
+            public LocalizedText Name;
             public bool Hover;
             public Rectangle Rect;
             public T Value;
 
-            public Entry(string name, T value)
+            public Entry(in LocalizedText name, T value)
             {
                 Name  = name;
                 Value = value;
@@ -98,7 +98,7 @@ namespace Ship_Game
         public int IndexOfEntry(string name)
         {
             for (int i = 0; i < Options.Count; ++i)
-                if (Options[i].Name == name)
+                if (Options[i].Name.Text == name)
                     return i;
             return -1;
         }
@@ -129,9 +129,9 @@ namespace Ship_Game
             return true;
         }
 
-        public void AddOption(LocalizedText option, T value)
+        public void AddOption(in LocalizedText option, T value)
         {
-            var e = new Entry(option.Text, value);
+            var e = new Entry(option, value);
             e.UpdateRect(this, Options.Count);
             Options.Add(e);
         }
@@ -214,7 +214,8 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_middle"), hoverMiddle, Color.White);
                     batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_right"), hoverRight, Color.White);
                 }
-                batch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name), TextPosition(e.Rect), Color.White);
+                batch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name.Text),
+                                                    TextPosition(e.Rect), Color.White);
                 ++drawOffset;
             }
         }
