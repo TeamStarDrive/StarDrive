@@ -68,9 +68,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AITests\TestExpansionPlanner.cs" />
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Data\TestMeshImportExport.cs" />
+    <Compile Include="Data\TestLocalizedText.cs" />
     <Compile Include="ImpactSimulation.cs" />
     <Compile Include="Collections\TestArrayT.cs" />
     <Compile Include="Collections\TestCollectionExt.cs" />

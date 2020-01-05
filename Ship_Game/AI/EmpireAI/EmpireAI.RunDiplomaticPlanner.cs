@@ -322,12 +322,12 @@ namespace Ship_Game.AI {
                     int i = 0;
                     while (i < 5)
                     {
-                        if (i >= DesiredPlanets.Length)
+                        if (i >= ExpansionAI.DesiredPlanets.Length)
                         {
                             //goto Label0;    //this tried to restart the loop it's in => bad mojo
                             break;
                         }
-                        if (DesiredPlanets[i].Owner != Relationship.Key)
+                        if (ExpansionAI.DesiredPlanets[i].Owner != Relationship.Key)
                         {
                             i++;
                         }
@@ -642,11 +642,11 @@ namespace Ship_Game.AI {
                                 int i = 0;
                                 while (i < 5)
                                 {
-                                    if (i >= DesiredPlanets.Length)
+                                    if (i >= ExpansionAI.DesiredPlanets.Length)
                                     {
                                         break;
                                     }
-                                    if (DesiredPlanets[i].Owner != Relationship.Key)
+                                    if (ExpansionAI.DesiredPlanets[i].Owner != Relationship.Key)
                                     {
                                         i++;
                                     }

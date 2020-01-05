@@ -129,14 +129,20 @@ namespace Ship_Game
                        color, rotation, origin, effects, layerDepth);
         }
 
-        public static void DrawString(
-            this SpriteBatch batch, SpriteFont font, string text, float x, float y)
+        public static void DrawString(this SpriteBatch batch, SpriteFont font,
+                                      in LocalizedText text, Vector2 position, Color color)
+        {
+            batch.DrawString(font, text.Text, position, color);
+        }
+
+        public static void DrawString(this SpriteBatch batch, SpriteFont font,
+                                      string text, float x, float y)
         {
             batch.DrawString(font, text, new Vector2(x, y), Color.White);
         }
 
-        public static void DrawString(
-            this SpriteBatch batch, SpriteFont font, string text, float x, float y, Color color)
+        public static void DrawString(this SpriteBatch batch, SpriteFont font,
+                                      string text, float x, float y, Color color)
         {
             batch.DrawString(font, text, new Vector2(x, y), color);
         }
