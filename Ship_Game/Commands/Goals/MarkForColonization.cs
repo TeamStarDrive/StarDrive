@@ -32,56 +32,49 @@ namespace Ship_Game.Commands.Goals
             ColonizationTarget = toColonize;
         }
 
-        bool IsValid()
+        GoalStep TargetPlanetStatus()
         {
             if (ColonizationTarget.Owner != null)
             {
                 foreach (var relationship in empire.AllRelations)
-                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
-                
-                var planet = empire.FindNearestRallyPoint(FinishedShip.Center);
-                if (planet != null)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key,
+                                                                relationship.Value,
+                                                                ColonizationTarget);
+
+                if (FinishedShip != null)
                 {
-                    FinishedShip?.AI.OrderRebase(planet, true);
+                    var nearestRallyPoint = empire.FindNearestRallyPoint(FinishedShip.Center);
+                    if (nearestRallyPoint != null)
+                    {
+                        FinishedShip.AI.OrderRebase(nearestRallyPoint, true);
+                    }
+                    else
+                    {
+                        FinishedShip.AI.State = AIState.AwaitingOrders;
+                    }
                 }
-                return false;
+
+                if (ColonizationTarget.Owner == empire)
+                    return GoalStep.GoalComplete;
+
+                Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
+                return GoalStep.GoalFailed;
             }
 
             var system = ColonizationTarget.ParentSystem;
             float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, empire);
-            if (str > 50) 
-                return false;
-
-            if (ColonizationTarget.Owner == null)
-                return true;
-
-
-            FinishedShip.AI.State = AIState.AwaitingOrders;
-            return false;
-        }
-
-        // @return TRUE bad guys
-        bool TargetTooStrong()
-        {
-            if (ColonizationTarget.ParentSystem.ShipList.IsEmpty)
-                return false; //cheap shortcut
-            float enemyStr = empire.GetEmpireAI().ThreatMatrix.PingRadarStr(ColonizationTarget.Center
-                , ColonizationTarget.ParentSystem.Radius, empire, true);
-            if (enemyStr > 50)
+            if (str > 50)
             {
-                Log.Warning($"System {ColonizationTarget.ParentSystem} had enemies cancelling goal");
-                return true;
+                Log.Info($"Target system {ColonizationTarget.ParentSystem.Name} has too many enemies");
+                return GoalStep.GoalFailed;
             }
-            WaitingForEscort = false;
-            return false;
+
+            return GoalStep.GoToNextStep;
         }
 
         GoalStep OrderShipForColonization()
         {
-            if (!IsValid())
-                return GoalStep.GoalComplete;
-
-            if (TargetTooStrong())
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
             FinishedShip = FindIdleColonyShip();
@@ -107,14 +100,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep EnsureBuildingColonyShip()
         {
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+                return GoalStep.GoalFailed;
+
             if (FinishedShip != null) // we already have a ship
                 return GoalStep.GoToNextStep;
-
-            if (!IsValid())
-                return GoalStep.GoalComplete;
-
-            if (TargetTooStrong())
-                return GoalStep.GoalFailed;
 
             if (!IsPlanetBuildingColonyShip())
             {
@@ -124,9 +114,6 @@ namespace Ship_Game.Commands.Goals
 
             if (ColonizationTarget.Owner == null)
                 return GoalStep.TryAgain;
-
-            foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetEmpireAI().ExpansionAI.CheckClaim(them.Key, them.Value, ColonizationTarget);
 
             return GoalStep.GoalComplete;
         }
@@ -144,11 +131,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep OrderShipToColonizeWithEscort()
         {
-            if (!IsValid())
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
             if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
-                return GoalStep.RestartGoal;
+                return GoalStep.GoalFailed;
 
             FinishedShip.DoColonize(ColonizationTarget, this);
             return GoalStep.GoToNextStep;
@@ -156,14 +143,18 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep WaitForColonizationComplete()
         {
-             if (!IsValid())
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-             if (TargetTooStrong())
-                 return GoalStep.GoalFailed;
-            if (FinishedShip == null)                      return GoalStep.RestartGoal;
+            if (FinishedShip == null)
+            {
+                if (empire.isPlayer) 
+                    return GoalStep.RestartGoal;
+
+                return GoalStep.GoalFailed;
+            }
             if (FinishedShip.AI.State != AIState.Colonize) return GoalStep.RestartGoal;
-            if (ColonizationTarget.Owner == null)          return GoalStep.TryAgain;
+            if (ColonizationTarget.Owner == null) return GoalStep.TryAgain;
 
             return GoalStep.GoalComplete;
         }
