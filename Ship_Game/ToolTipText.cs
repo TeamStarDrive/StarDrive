@@ -15,6 +15,12 @@ namespace Ship_Game
             return new ToolTipText{ Id = id };
         }
 
+        // Allows button.Tooltip = GameTips.AttackRunsOrder;
+        public static implicit operator ToolTipText(GameTips gameTip)
+        {
+            return new ToolTipText{ Id = (int)gameTip };
+        }
+
         public static implicit operator ToolTipText(string text)
         {
             return new ToolTipText{ Text = text };
@@ -29,6 +35,24 @@ namespace Ship_Game
                 case LocalizationMethod.Parse:   return new ToolTipText{ Text = text.Text   };
             }
             return None;
+        }
+
+        // This is purely for debugging purposes
+        public override string ToString()
+        {
+            if (Id > 0)
+            {
+                ToolTip tooltip = ResourceManager.GetToolTip(Id);
+                if (tooltip != null)
+                {
+                    return "TIP/"+(GameTips)Id+"/: \""+Localizer.Token(tooltip.Data)+"\"";
+                }
+                if (Text.IsEmpty()) // try to recover.. somehow
+                {
+                    return "ID/"+(GameText)Id+"/: \""+Localizer.Token(Id)+"\"";
+                }
+            }
+            return "TEXT: \""+Text+"\"";
         }
 
         // intentional lazy lookup for tooltips
