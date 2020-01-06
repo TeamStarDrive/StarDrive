@@ -219,6 +219,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             Name = "UniverseScreen";
+            CanEscapeFromScreen = false;
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
@@ -238,6 +239,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
         {
             Name = "UniverseScreen";
+            CanEscapeFromScreen = false;
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
