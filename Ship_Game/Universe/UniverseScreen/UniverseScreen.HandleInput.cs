@@ -278,7 +278,7 @@ namespace Ship_Game
             if (input.ShowExceptionTracker)
             {
                 Paused = true;
-                Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new");
+                Log.OpenURL("https://bitbucket.org/codegremlins/stardrive-blackbox/issues/new");
             }
             if (input.SendKudos)
             {
