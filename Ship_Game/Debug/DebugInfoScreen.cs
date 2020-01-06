@@ -11,6 +11,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.Ships.AI;
 using static Ship_Game.AI.ShipAI;
 
 namespace Ship_Game.Debug
@@ -416,7 +417,8 @@ namespace Ship_Game.Debug
                     DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }
             }
-            else if (Screen.CurrentGroup != null)
+            // only show CurrentGroup if we selected more than one ship
+            else if (Screen.CurrentGroup != null && Screen.SelectedShipList.Count > 1)
             {
                 ShipGroup group = Screen.CurrentGroup;
                 DrawArrowImm(group.FinalPosition, group.FinalPosition+group.FinalDirection*200f, Color.OrangeRed);
@@ -556,9 +558,9 @@ namespace Ship_Game.Debug
             }
             if (ship.AI.HasWayPoints)
             {
-                Vector2[] wayPoints = ship.AI.CopyWayPoints();
+                WayPoint[] wayPoints = ship.AI.CopyWayPoints();
                 for (int i = 1; i < wayPoints.Length; ++i) // draw WayPoints chain
-                    DrawLineImm(wayPoints[i-1], wayPoints[i], Color.ForestGreen);
+                    DrawLineImm(wayPoints[i-1].Position, wayPoints[i].Position, Color.ForestGreen);
             }
             if (ship.fleet != null)
             {
@@ -592,10 +594,10 @@ namespace Ship_Game.Debug
             }
             if (ship.AI.HasWayPoints)
             {
-                Vector2[] wayPoints = ship.AI.CopyWayPoints();
+                WayPoint[] wayPoints = ship.AI.CopyWayPoints();
                 DrawString($"WayPoints ({wayPoints.Length}):");
                 for (int i = 0; i < wayPoints.Length; ++i)
-                    DrawString($"  {i}:  {wayPoints[i]}");
+                    DrawString($"  {i}:  {wayPoints[i].Position}");
             }
         }
 
