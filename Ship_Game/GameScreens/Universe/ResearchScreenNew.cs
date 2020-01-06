@@ -347,7 +347,8 @@ namespace Ship_Game
                                 GameAudio.AffirmativeClick();
                                 break;
                             }
-                        }}
+                        }
+                    }
                 }
                 ReloadContent();
                 EmpireManager.Player.UpdateShipsWeCanBuild();
