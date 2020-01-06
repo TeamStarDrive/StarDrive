@@ -165,28 +165,23 @@ namespace Ship_Game.AI
 
         public float PingRadarStrengthLargestCluster(Vector2 position, float radius, Empire empire, float granularity = 50000f)
         {
-            var retList = new Map<Vector2, float>();
-            Array<Ship> pings    = PingRadarShip(position, radius, empire);
-            var filter           = new HashSet<Ship>();
+            var filter = new HashSet<Ship>();
+            Array<Ship> pings = PingRadarShip(position, radius, empire);
             float largestCluster = 0;
 
             for (int index = 0; index < pings.Count; index++)
             {
                 Ship ship = pings[index];
-                if (ship == null
-                    || filter.Contains(ship)
-                    || ship.IsGuardian
-                    || retList.ContainsKey(ship.Center))
-                {
+                if (ship == null || ship.IsGuardian || filter.Contains(ship))
                     continue;
-                }
 
                 Array<Ship> cluster = PingRadarShip(ship.Center, granularity, empire);
-                if (cluster.Count == 0) continue;
-
-                float clusterStrength =cluster.Sum(str => str.GetStrength());
-                if (clusterStrength > largestCluster) largestCluster = clusterStrength;                
-                filter.UnionWith(cluster);
+                if (cluster.Count != 0)
+                {
+                    float clusterStrength = cluster.Sum(str => str.GetStrength());
+                    if (clusterStrength > largestCluster) largestCluster = clusterStrength;
+                    filter.UnionWith(cluster);
+                }
             }
             return largestCluster;
 
@@ -194,8 +189,10 @@ namespace Ship_Game.AI
 
         public void ClearPinsInSensorRange(Vector2 position, float radius)
         {
-            foreach (Pin pin in Pins.Values)
+            Pin[] pins = Pins.Values.ToArray(); // somewhat atomic copy, since we're about to modify it.
+            for (int i = 0; i < pins.Length; ++i)
             {
+                Pin pin = pins[i];
                 Ship ship = pin.Ship;
                 if (ship == null || position.OutsideRadius(pin.Position, radius))
                     continue;
@@ -209,15 +206,16 @@ namespace Ship_Game.AI
             float str = 0f;
             foreach (var kv in Pins)            
             {
-                Empire pinEmpire = kv.Value.Ship?.loyalty ?? EmpireManager.GetEmpireByName(kv.Value.EmpireName);
+                Pin pin = kv.Value;
+                Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
                 if (factionOnly && !pinEmpire.isFaction) continue;
-                if (us == pinEmpire || !us.IsEmpireAttackable(pinEmpire) || position.OutsideRadius(kv.Value.Position, radius))
+                if (us == pinEmpire || !us.IsEmpireAttackable(pinEmpire) || position.OutsideRadius(pin.Position, radius))
                 {
                     if (netStr && us == pinEmpire)
-                        str -= kv.Value.Strength;
+                        str -= pin.Strength;
                     continue;
                 }
-                str += kv.Value.Strength;
+                str += pin.Strength;
                 if (any) break;
             }
             return str;
