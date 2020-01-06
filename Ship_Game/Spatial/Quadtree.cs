@@ -199,22 +199,34 @@ namespace Ship_Game
             }
             public void Add(ref SpatialObj obj)
             {
-                if (Items.Length == Count)
+                int count = Count;
+                SpatialObj[] oldItems = Items;
+                if (oldItems.Length == count)
                 {
-                    if (Count == 0)
+                    if (count == 0)
                     {
-                        Items = new SpatialObj[CellThreshold];
+                        var newItems = new SpatialObj[CellThreshold];
+                        newItems[count] = obj;
+                        Items = newItems;
+                        ++Count;
                     }
-                    else
+                    else // oldItems.Length == Count
                     {
                         //Array.Resize(ref Items, Count * 2);
-                        var newItems = new SpatialObj[Count * 2];
-                        for (int i = 0; i < Count; ++i)
-                            newItems[i] = Items[i];
+                        var newItems = new SpatialObj[oldItems.Length * 2];
+                        int i = 0;
+                        for (; i < oldItems.Length; ++i)
+                            newItems[i] = oldItems[i];
+                        newItems[count] = obj;
                         Items = newItems;
+                        ++Count;
                     }
                 }
-                Items[Count++] = obj;
+                else
+                {
+                    oldItems[count] = obj;
+                    ++Count;
+                }
             }
 
             // Because SwapLast reorders elements, we decrement the ref index to allow loops to continue
