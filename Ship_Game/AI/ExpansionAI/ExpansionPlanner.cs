@@ -157,7 +157,6 @@ namespace Ship_Game.AI.ExpansionAI
             //need a better way to find biosphere
             bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.IsCybernetic;
             var allPlanetsRanker   = new Array<PlanetRanker>();
-            Vector2 weightedCenter = OwnerEmpire.GetWeightedCenter();
             float totalValue       = 0;
             int bestPlanetCount    = 0;
 
@@ -170,7 +169,8 @@ namespace Ship_Game.AI.ExpansionAI
 
                 AO ao = OwnerEmpire.GetEmpireAI().FindClosestAOTo(sys.Position);
 
-                float systemEnemyStrength = OwnerEmpire.GetEmpireAI().ThreatMatrix.PingRadarStr(sys.Position, sys.Radius, OwnerEmpire, true);
+                float systemEnemyStrength = OwnerEmpire.GetEmpireAI().ThreatMatrix
+                    .PingRadarStr(sys.Position, sys.Radius, OwnerEmpire);
                 
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {

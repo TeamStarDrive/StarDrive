@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Linq;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI
 {
@@ -482,12 +483,17 @@ namespace Ship_Game.AI
         void WarpToFleet()
         {
             ClearWayPoints();
-            WayPoints.Enqueue(Owner.fleet.GetFinalPos(Owner));
             State = AIState.AwaitingOrders;
-            if (Owner.fleet?.HasFleetGoal == true)
-                WayPoints.Enqueue(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset);
+            if (Owner.fleet.HasFleetGoal)
+            {
+                // TODO: do we need this? Is this even correct?
+                WayPoints.Enqueue(new WayPoint(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset,
+                                               Owner.fleet.FinalDirection));
+            }
             else
+            {
                 OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
+            }
         }
 
         public bool HasTradeGoal(Goods goods)

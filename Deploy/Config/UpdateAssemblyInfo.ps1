@@ -1,11 +1,11 @@
 ﻿$newfile = @()
 $updatefile = $false
 
-
 $name = git name-rev --name-only HEAD
 $name = $name.Replace("release/", "")
 $revision = git rev-list --count HEAD
-$ver = $name + "_" + $revision
+$commit = git log -1 --format="%h"
+$ver = $name + "_" + $revision + " " + $commit
 
 $newline = "`[assembly`: AssemblyInformationalVersion(`"" + $ver + "`")`]"
 Write-Host -ForegroundColor Yellow $ver " " $newline

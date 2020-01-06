@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using Ship_Game.AI;
@@ -78,7 +77,6 @@ namespace Ship_Game
         public float SelectedSomethingTimer = 3f;
         Array<FleetButton> FleetButtons = new Array<FleetButton>();
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
-        bool drawBloom = GlobalStats.RenderBloom; //true
         Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug;
@@ -219,6 +217,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             Name = "UniverseScreen";
+            CanEscapeFromScreen = false;
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
@@ -238,6 +237,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
         {
             Name = "UniverseScreen";
+            CanEscapeFromScreen = false;
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
@@ -486,10 +486,8 @@ namespace Ship_Game
                 }
             }
 
-            //HelperFunctions.CollectMemory();
-
-            ProcessTurnsThread = new Thread(ProcessTurns);
-            ProcessTurnsThread.Name = "Universe.ProcessTurns()";
+            ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
+            ProcessTurnsThread.Name = "Universe.ProcessTurns";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
         }
@@ -690,6 +688,8 @@ namespace Ship_Game
             if (LookingAtPlanet) workersPanel.Update(deltaTime);
             if (showingDSBW) dsbw.Update(deltaTime);
 
+            pieMenu.Update(deltaTime);
+
             if (viewState > UnivScreenState.ShipView)
             {
                 foreach (NebulousOverlay nebulousOverlay in NebulousShit)
@@ -741,7 +741,6 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUI = null;
 
             //SpaceManager.Destroy();
             ScreenManager.Music.Stop();
