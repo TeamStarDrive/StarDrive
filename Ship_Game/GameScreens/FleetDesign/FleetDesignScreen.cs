@@ -445,15 +445,13 @@ namespace Ship_Game
                     {
                         batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                                ? Color.White
-                                : Color.Red));
+                                ? Color.White : Color.Red));
                     }
                     else
                     {
                         batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                                ? Color.White
-                                : Color.Yellow));
+                                ? Color.White : Color.Yellow));
 
                         string buildingAt = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
@@ -492,8 +490,7 @@ namespace Ship_Game
                         (int) radius * 2, (int) radius * 2);
                     batch.Draw(ship.GetTacticalIcon(), r,
                         (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                            ? Color.White
-                            : Color.Green));
+                            ? Color.White : Color.Green));
                 }
             }
             if (ActiveShipDesign != null)
@@ -512,9 +509,7 @@ namespace Ship_Game
                         scale = 0.15f;
                     item = ship.GetTacticalIcon();
                 }
-                float single = Mouse.GetState().X;
-                MouseState state = Mouse.GetState();
-                batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(item, Input.CursorPosition, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
             DrawSelectedData(StarDriveGame.Instance.GameTime);
             Close.Draw(batch);

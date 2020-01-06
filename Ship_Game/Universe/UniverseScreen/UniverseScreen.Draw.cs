@@ -5,6 +5,7 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game
 {
@@ -799,21 +800,16 @@ namespace Ship_Game
                     Vector2 shipSpacingH = new Vector2( fleetButton.ClickRect.X + 50, fleetButton.ClickRect.Y);
                     for (int x = 0; x < fleetButton.Fleet.Ships.Count; ++x)
                     {
-                        try
-                        {
-                            Ship ship = fleetButton.Fleet.Ships[x];
+                        Ship ship = fleetButton.Fleet.Ships[x];
 
-                            var iconHousing = new Rectangle((int) shipSpacingH.X, (int) shipSpacingH.Y, 15, 15);
-                            shipSpacingH.X +=  15f;
-                            if (shipSpacingH.X > 200f)
-                            {
-                                shipSpacingH.X = fleetButton.ClickRect.X + 50f;
-                                shipSpacingH.Y += 15f;
-                            }
-                            batch.Draw(ship.GetTacticalIcon(), iconHousing,
-                                fleetButton.Fleet.Owner.EmpireColor);
+                        var iconHousing = new Rectangle((int) shipSpacingH.X, (int) shipSpacingH.Y, 15, 15);
+                        shipSpacingH.X +=  15f;
+                        if (shipSpacingH.X > 200f)
+                        {
+                            shipSpacingH.X = fleetButton.ClickRect.X + 50f;
+                            shipSpacingH.Y += 15f;
                         }
-                        catch { }
+                        batch.Draw(ship.GetTacticalIcon(), iconHousing, fleetButton.Fleet.Owner.EmpireColor);
                     }
                 }
             }
@@ -947,23 +943,31 @@ namespace Ship_Game
             if (!Project.Started || CurrentGroup == null)
                 return;
 
+            var projectedColor = new Color(0, 255, 0, 100);
             foreach (Ship ship in CurrentGroup.Ships)
             {
-                if (!ship.Active)
-                    continue;
-
-                SubTexture symbol = ship.GetTacticalIcon();
-
-                float num = ship.SurfaceArea / (30f + symbol.Width);
-                float scale = num * 4000f / CamHeight;
-                if (scale > 1.0f) scale = 1f;
-                else if (scale <= 0.1f)
-                    scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView
-                        ? 0.15f : 0.08f;
-
-                DrawTextureProjected(symbol, ship.projectedPosition, scale, CurrentGroup.ProjectedDirection.ToRadians(),
-                    new Color(0, 255, 0, 100));
+                if (ship.Active)
+                    DrawShipProjectionIcon(ship, ship.projectedPosition, CurrentGroup.ProjectedDirection, projectedColor);
             }
+        }
+
+        void DrawShipProjectionIcon(Ship ship, Vector2 position, Vector2 direction, Color color)
+        {
+            SubTexture symbol = ship.GetTacticalIcon();
+
+            float num = ship.SurfaceArea / (30f + symbol.Width);
+            float scale = num * 4000f / CamHeight;
+            if (scale > 1.0f)
+            {
+                scale = 1f;
+            }
+            else if (scale <= 0.1f)
+            {
+                scale = ship.shipData.Role != ShipData.RoleName.platform || viewState < UnivScreenState.SectorView
+                      ? 0.15f : 0.08f;
+            }
+
+            DrawTextureProjected(symbol, position, scale, direction.ToRadians(), color);
         }
 
         void DrawOverlay(Ship ship)
@@ -995,7 +999,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawShipLines(Ship ship, byte alpha)
+        void DrawShipGoalsAndWayPoints(Ship ship, byte alpha)
         {
             if (ship == null)
                 return;
@@ -1092,7 +1096,6 @@ namespace Ship_Game
                     ToolTip.PlanetLandingSpotsTip($"{planet.Name}: Critical!", spots);
                 }
                 DrawWayPointLines(ship, new Color(Color.Lime, alpha));
-
                 return;
             }
             if (ship.AI.State == AIState.SystemTrader  && ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal g))
@@ -1112,18 +1115,29 @@ namespace Ship_Game
             DrawWayPointLines(ship, Colors.WayPoints(alpha));
         }
 
-        public void DrawWayPointLines(Ship ship, Color color)
+        void DrawWayPointLines(Ship ship, Color color)
         {
             if (!ship.AI.HasWayPoints)
                 return;
 
-            Vector2[] wayPoints = ship.AI.CopyWayPoints();
+            WayPoint[] wayPoints = ship.AI.CopyWayPoints();
 
-            DrawLineProjected(ship.Center, wayPoints[0], color);
+            DrawLineProjected(ship.Center, wayPoints[0].Position, color);
 
             for (int i = 1; i < wayPoints.Length; ++i)
             {
-                DrawLineProjected(wayPoints[i - 1], wayPoints[i], color);
+                DrawLineProjected(wayPoints[i-1].Position, wayPoints[i].Position, color);
+            }
+
+            // Draw tactical icons after way point lines (looks better this way)
+            var tactical = new Color(color, (byte)(color.A + 70));
+
+            WayPoint wp = wayPoints[0];
+            DrawShipProjectionIcon(ship, wp.Position, wp.Direction, tactical);
+            for (int i = 1; i < wayPoints.Length; ++i)
+            {
+                wp = wayPoints[i];
+                DrawShipProjectionIcon(ship, wp.Position, wp.Direction, tactical);
             }
         }
 

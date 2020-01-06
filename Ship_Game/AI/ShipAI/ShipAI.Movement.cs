@@ -20,17 +20,17 @@ namespace Ship_Game.AI
         readonly WayPoints WayPoints = new WayPoints();
 
         public bool HasWayPoints => WayPoints.Count > 0;
-        public Vector2[] CopyWayPoints() => WayPoints.ToArray();
+        public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
         void ClearWayPoints()
         {
             WayPoints.Clear();
         }
 
-        public void SetWayPoints(IReadOnlyList<Vector2> wayPoints)
+        public void SetWayPoints(IReadOnlyList<WayPoint> wayPoints)
         {
             ClearWayPoints();
-            foreach (Vector2 wp in wayPoints)
+            foreach (WayPoint wp in wayPoints)
                 WayPoints.Enqueue(wp);
         }
 
@@ -396,11 +396,11 @@ namespace Ship_Game.AI
                 // ok, just cut the corner to next WayPoint maybe?
                 if (WayPoints.Count >= 2 && distance > Owner.loyalty.ProjectorRadius * 0.5f)
                 {
-                    Vector2 next = WayPoints.ElementAt(1);
-                    float nextDistance = Owner.Center.Distance(next);
+                    WayPoint next = WayPoints.ElementAt(1);
+                    float nextDistance = Owner.Center.Distance(next.Position);
                     if (nextDistance < Owner.loyalty.ProjectorRadius * 5f) // within cut range
                     {
-                        float nextDiff = Owner.AngleDifferenceToPosition(next);
+                        float nextDiff = Owner.AngleDifferenceToPosition(next.Position);
                         float nextMaxTurn = EstimateMaxTurn(nextDistance);
 
                         // Angle to next WayPoint is better than angle to this one
