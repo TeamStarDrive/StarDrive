@@ -35,10 +35,7 @@ namespace Ship_Game.AI
 
         public bool ContainsGuid(Guid guid)
         {
-            using (PinsMutex.AcquireReadLock())
-            {
-                return Pins.ContainsKey(guid);
-            }
+            return Pins.ContainsKey(guid);
         }
         
         public float StrengthOfAllEmpireShipsInBorders(Empire them)
@@ -366,10 +363,9 @@ namespace Ship_Game.AI
 
         public bool ShipInOurBorders(Ship s)
         {
-            using (PinsMutex.AcquireReadLock())
-            {
-                return Pins.TryGetValue(s.guid, out Pin pin) && pin.InBorders;
-            }
+            // NOTE: We can't lock the mutex here, because of `Ship.IsAttackable`
+            //       causing recursive mutex
+            return Pins.TryGetValue(s.guid, out Pin pin) && pin.InBorders;
         }
 
         public void GetTechsFromPins(HashSet<string> techs, Empire empire)
