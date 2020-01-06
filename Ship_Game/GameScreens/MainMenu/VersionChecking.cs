@@ -8,9 +8,9 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         readonly ReadRestAPIFromSite BlackBoxVersionCheck;
         readonly ReadRestAPIFromSite ModVersionCheck;
-        const string URL = "http://api.bitbucket.org/2.0/repositories/CrunchyGremlin/stardrive-blackbox/downloads";
+        const string URL = "http://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads";
         string ModURL = "";
-        const string DownLoadSite = "http://bitbucket.org/CrunchyGremlin/stardrive-blackbox/downloads/";
+        const string DownLoadSite = "http://bitbucket.org/codegremlins/stardrive-blackbox/downloads/";
         string ModDownLoadSite = "";
         public VersionChecking(GameScreen parent, int width, int height) : base(parent, width, height)
         {

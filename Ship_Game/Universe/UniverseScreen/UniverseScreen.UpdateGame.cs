@@ -16,7 +16,7 @@ namespace Ship_Game
         {
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
-            {
+             {
                 try
                 {
                     // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
