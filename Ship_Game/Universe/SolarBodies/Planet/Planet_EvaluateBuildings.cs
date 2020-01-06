@@ -87,20 +87,9 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
             {
                 Log.Info(ConsoleColor.Green,$"**** {Name} - Governor Priorities        ****");
-                Log.Info($"Flat Food             = {Priorities[ColonyPriority.FoodFlat]}");
-                Log.Info($"Food Per Col          = {Priorities[ColonyPriority.FoodPerCol]}");
-                Log.Info($"Flat prod             = {Priorities[ColonyPriority.ProdFlat]}");
-                Log.Info($"Prod Per richness     = {Priorities[ColonyPriority.ProdPerRichness]}");
-                Log.Info($"Prod Per Col          = {Priorities[ColonyPriority.ProdPerCol]}");
-                Log.Info($"Pop growth            = {Priorities[ColonyPriority.PopGrowth]}");
-                Log.Info($"Pop cap               = {Priorities[ColonyPriority.PopCap]}");
-                Log.Info($"Flat Research         = {Priorities[ColonyPriority.ResearchFlat]}");
-                Log.Info($"Research Per Colonist = {Priorities[ColonyPriority.ResearchPerCol]}");
-                Log.Info($"Fertility             = {Priorities[ColonyPriority.Fertility]}");
-                Log.Info($"Tax Percentage        = {Priorities[ColonyPriority.TaxPercent]}");
-                Log.Info($"Credits Per Colonist  = {Priorities[ColonyPriority.CreditsPerCol]}");
-                Log.Info($"Storage               = {Priorities[ColonyPriority.StorageNeeds]}");
-                Log.Info(ConsoleColor.Green, $"---------------------------------------------");
+                foreach ((ColonyPriority key, float value) in Priorities.Values)
+                    Log.Info($"{key,-16} = {value}");
+                Log.Info(ConsoleColor.Green, "---------------------------------------------");
             }
         }
 
