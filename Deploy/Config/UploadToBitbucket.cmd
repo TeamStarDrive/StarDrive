@@ -13,7 +13,7 @@ for /f %%r in ('dir /B /O-D C:\Projects\BlackBox\Deploy\upload') do set file_nam
 set file=C:/Projects/BlackBox/Deploy/upload/%file_name%
 echo Bitbucket Upload: %file%
 
-curl --silent --head --fail "https://bitbucket.org/CrunchyGremlin/stardrive-blackbox/downloads/%file_name%"
+curl --silent --head --fail "https://bitbucket.org/codegremlins/stardrive-blackbox/downloads/%file_name%"
 if %ERRORLEVEL% EQU 0 (
   echo "File has already been uploaded to BitBucket?"
   goto :eof
