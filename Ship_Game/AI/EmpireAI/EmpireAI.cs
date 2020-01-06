@@ -83,8 +83,10 @@ namespace Ship_Game.AI
 
         public void DebugRunResearchPlanner()
         {
+            // unlock 10 techs with a focus on ship tech
             for (int i = 0; i < 10; i++)
             {
+                OwnerEmpire.data.TechDelayTime = 2;
                 RunResearchPlanner();
                 OwnerEmpire.Research.Update();
                 OwnerEmpire.Research.Current.Unlock(OwnerEmpire);
