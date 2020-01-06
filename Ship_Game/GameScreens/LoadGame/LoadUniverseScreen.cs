@@ -54,7 +54,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", isFatal: false);
+                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", 0);
                     LoadingFailed = true;
                 }
             });

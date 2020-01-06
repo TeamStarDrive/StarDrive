@@ -1098,7 +1098,7 @@ namespace Ship_Game
                 relationship.DamageRelationship(this, e, why, amount, p);
         }
 
-        public void DoFirstContact(Empire e)
+        void DoFirstContact(Empire e)
         {
             Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             Relationships[e].Known = true;
@@ -1107,26 +1107,20 @@ namespace Ship_Game
 
             if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
-            try
+
+            if (Universe.PlayerEmpire == this && !e.isFaction)
             {
-                if (Universe.PlayerEmpire == this && !e.isFaction)
+                DiplomacyScreen.Show(e, "First Contact");
+            }
+            else if (Universe.PlayerEmpire == this && e.isFaction)
+            {
+                foreach (Encounter e1 in ResourceManager.Encounters)
                 {
-                    DiplomacyScreen.Show(e, "First Contact");
-                }
-                else if (Universe.PlayerEmpire == this && e.isFaction)
-                {
-                    foreach (Encounter e1 in ResourceManager.Encounters)
+                    if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
                     {
-                        if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                        {
-                            EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
-                        }
+                        EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
                     }
                 }
-            }
-            catch (ArgumentException error)
-            {
-                Log.Error(error, "First ConTact Failed");
             }
         }
 
