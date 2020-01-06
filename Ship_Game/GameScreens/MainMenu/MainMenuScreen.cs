@@ -18,6 +18,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
+            CanEscapeFromScreen = false;
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
         }

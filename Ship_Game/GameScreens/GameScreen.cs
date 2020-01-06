@@ -20,7 +20,12 @@ namespace Ship_Game
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
 
         public bool IsExiting { get; protected set; }
-        public bool IsPopup   { get; protected set; }
+
+        // Popup screens can be dismissed via RightMouseClick
+        public bool IsPopup { get; protected set; }
+
+        // If TRUE, ESC key will close this screen
+        public bool CanEscapeFromScreen { get; protected set; } = true;
         
         // LEGACY LAYOUT: Change layout and Font Size if ScreenWidth is too small
         public readonly bool LowRes;
@@ -177,7 +182,8 @@ namespace Ship_Game
                 return true;
 
             // only then check for ExitScreen condition
-            if (input.Escaped || (IsPopup && input.RightMouseClick))
+            if ((CanEscapeFromScreen && input.Escaped) ||
+                (IsPopup && input.RightMouseClick))
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
