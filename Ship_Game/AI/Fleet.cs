@@ -1042,15 +1042,15 @@ namespace Ship_Game.AI
             {
                 Empire = Owner,
                 Granularity = 5000f,
-                Postition = task.AO,
+                Position = task.AO,
                 Radius = task.AORadius
             };
 
-            strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
+            strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStrengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
             if (strengthCluster.Strength <= 0) return false;
             CoreFleetSubTask = new MilitaryTask
             {
-                AO = strengthCluster.Postition,
+                AO = strengthCluster.Position,
                 AORadius = strengthCluster.Granularity
             };
             GatherAtAO(CoreFleetSubTask, 7500);

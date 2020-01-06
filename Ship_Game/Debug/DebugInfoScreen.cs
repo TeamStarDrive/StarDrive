@@ -733,7 +733,7 @@ namespace Ship_Game.Debug
                 if (e.isPlayer || e.isFaction)
                     continue;
 
-                foreach (ThreatMatrix.Pin pin in e.GetEmpireAI().ThreatMatrix.Pins.Values.ToArray())
+                foreach (ThreatMatrix.Pin pin in e.GetEmpireAI().ThreatMatrix.PinValues)
                 {
                     if (pin.Position == Vector2.Zero|| pin.Ship == null) continue;
                     Screen.DrawCircleProjected(pin.Position, 50f + pin.Ship.Radius, 6, e.EmpireColor);
