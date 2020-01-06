@@ -200,20 +200,16 @@ namespace Ship_Game
                 }
                 var gsaidata = new GSAISAVE
                 {
-                    UsedFleets = e.GetEmpireAI().UsedFleets,
-                    PinGuids   = new Array<Guid>(),
-                    PinList    = new Array<ThreatMatrix.Pin>()
+                    UsedFleets = e.GetEmpireAI().UsedFleets
                 };
-                foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetEmpireAI().ThreatMatrix.Pins)
-                {
-                    gsaidata.PinGuids.Add(guid.Key);
-                    gsaidata.PinList.Add(guid.Value);
-                }
+                e.GetEmpireAI().ThreatMatrix.WriteToSave(gsaidata);
+
                 gsaidata.MilitaryTaskList = new Array<MilitaryTask>();
                 foreach (MilitaryTask task in e.GetEmpireAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
-                    if (task.TargetPlanet != null) task.TargetPlanetGuid = task.TargetPlanet.guid;
+                    if (task.TargetPlanet != null)
+                        task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
 
                 Array<Goal> goals = e.GetEmpireAI().Goals;
