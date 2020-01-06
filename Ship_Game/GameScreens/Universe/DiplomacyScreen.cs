@@ -809,13 +809,15 @@ namespace Ship_Game
             }
         }
 
-        static ItemToOffer FindItemToOffer(ScrollList items, string response)
+        static void SetItemToOfferSelected(ScrollList theirItems, string response, bool selected)
         {
-            foreach (ScrollList.Entry entry in items.AllEntries)
-                if (entry.TryGet(out ItemToOffer item))
-                    if (item.Response == response)
-                        return item;
-            return null;
+            foreach (ScrollList.Entry entry in theirItems.AllEntries)
+                if (entry.TryGet(out ItemToOffer theirs))
+                    if (theirs.Response == response)
+                    {
+                        theirs.Selected = selected;
+                        break;
+                    }
         }
 
         void ProcessResponse(ItemToOffer item, string response, ScrollList theirs, Offer ourOffer, Offer theirOffer)
@@ -825,22 +827,22 @@ namespace Ship_Game
                 case "NAPact":
                     ourOffer.NAPact  = !ourOffer.NAPact;
                     theirOffer.NAPact = ourOffer.NAPact;
-                    FindItemToOffer(theirs, "NAPact").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "NAPact", item.Selected);
                     return;
                 case "We Declare War":
                     ourOffer.NAPact  = !ourOffer.NAPact;
                     theirOffer.NAPact = ourOffer.NAPact;
-                    FindItemToOffer(theirs, "NAPact").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "NAPact", item.Selected);
                     return;
                 case "Peace Treaty":
                     ourOffer.PeaceTreaty = !ourOffer.PeaceTreaty;
                     theirOffer.PeaceTreaty = ourOffer.PeaceTreaty;
-                    FindItemToOffer(theirs, "Peace Treaty").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "Peace Treaty", item.Selected);
                     return;
                 case "OfferAlliance":
                     ourOffer.Alliance  = !ourOffer.Alliance;
                     theirOffer.Alliance = ourOffer.Alliance;
-                    FindItemToOffer(theirs, "OfferAlliance").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "OfferAlliance", item.Selected);
                     return;
                 case "OpenBorders": ourOffer.OpenBorders = !ourOffer.OpenBorders;            return;
                 case "Declare War": item.ChangeSpecialInquiry(ourOffer.EmpiresToWarOn);      return;
@@ -850,7 +852,7 @@ namespace Ship_Game
                 case "TradeTreaty":
                     ourOffer.TradeTreaty  = !ourOffer.TradeTreaty;
                     theirOffer.TradeTreaty = ourOffer.TradeTreaty;
-                    FindItemToOffer(theirs, "TradeTreaty").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "TradeTreaty", item.Selected);
                     return;
             }
         }
