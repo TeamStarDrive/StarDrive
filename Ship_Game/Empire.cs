@@ -519,7 +519,7 @@ namespace Ship_Game
             foreach (var kv in TechnologyDict)
             {
                 TechEntry tech = kv.Value;
-                if (tech.CanBeGivenTo(them))
+                if (tech.Unlocked)
                     tradeTechs.Add(tech);
             }
             return tradeTechs;
@@ -1098,7 +1098,7 @@ namespace Ship_Game
                 relationship.DamageRelationship(this, e, why, amount, p);
         }
 
-        public void DoFirstContact(Empire e)
+        void DoFirstContact(Empire e)
         {
             Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             Relationships[e].Known = true;
@@ -1107,26 +1107,20 @@ namespace Ship_Game
 
             if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
-            try
+
+            if (Universe.PlayerEmpire == this && !e.isFaction)
             {
-                if (Universe.PlayerEmpire == this && !e.isFaction)
+                DiplomacyScreen.Show(e, "First Contact");
+            }
+            else if (Universe.PlayerEmpire == this && e.isFaction)
+            {
+                foreach (Encounter e1 in ResourceManager.Encounters)
                 {
-                    DiplomacyScreen.Show(e, "First Contact");
-                }
-                else if (Universe.PlayerEmpire == this && e.isFaction)
-                {
-                    foreach (Encounter e1 in ResourceManager.Encounters)
+                    if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
                     {
-                        if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                        {
-                            EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
-                        }
+                        EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
                     }
                 }
-            }
-            catch (ArgumentException error)
-            {
-                Log.Error(error, "First ConTact Failed");
             }
         }
 
@@ -2072,7 +2066,7 @@ namespace Ship_Game
                 }
 
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero > 3 && Money < 0.0)
+                if (data.TurnsBelowZero > 0 && Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
 
                 if (!Universe.NoEliminationVictory)
@@ -2171,14 +2165,14 @@ namespace Ship_Game
 
                             var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
                             
-                            if (RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.TroopsHere.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
                             {
                                 var t = RandomMath.RandItem(planet.TroopsHere);
                                 if (t != null)
                                     troop.ChangeLoyalty(rebels);
                             }
 
-                            if (RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.BuildingList.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
                             {
                                 var building = RandomMath.RandItem(planet.BuildingList
                                                                    .Filter(b=> !b.IsBiospheres));

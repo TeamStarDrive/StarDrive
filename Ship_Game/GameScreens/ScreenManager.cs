@@ -439,6 +439,8 @@ namespace Ship_Game
             for (int i = GameScreens.Count - 1; i >= 0 && i < GameScreens.Count; --i)
             {
                 GameScreen screen = GameScreens[i];
+                if (screen == null) // FIX: threading or other removal issue,
+                    continue;       // GameScreens was modified from another thread
 
                 // 1. Handle Input
                 if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
