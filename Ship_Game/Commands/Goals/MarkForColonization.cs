@@ -12,8 +12,6 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "MarkForColonization";
         public override string UID => ID;
-        bool HasEscort;
-        public bool WaitingForEscort { get; private set; }
 
         public MarkForColonization() : base(GoalType.Colonize)
         {
