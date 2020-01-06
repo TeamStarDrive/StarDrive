@@ -417,7 +417,8 @@ namespace Ship_Game.Debug
                     DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }
             }
-            else if (Screen.CurrentGroup != null)
+            // only show CurrentGroup if we selected more than one ship
+            else if (Screen.CurrentGroup != null && Screen.SelectedShipList.Count > 1)
             {
                 ShipGroup group = Screen.CurrentGroup;
                 DrawArrowImm(group.FinalPosition, group.FinalPosition+group.FinalDirection*200f, Color.OrangeRed);
