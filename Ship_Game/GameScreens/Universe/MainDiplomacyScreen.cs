@@ -743,51 +743,6 @@ namespace Ship_Game
             Position.Y = Position.Y + (Fonts.Arial12Bold.LineSpacing + 2);
         }
 
-        private float GetMilitaryStr(Empire e)
-        {
-            float single;
-            float str = 0f;
-            try
-            {
-                HashSet<Ship> knownShips = new HashSet<Ship>();
-                if (Friends.Contains(e))
-                {
-                    foreach (Ship ship in e.GetShips())
-                    {
-                        str += ship.GetStrength();
-                    }
-                    return str;
-                }
-                foreach(ThreatMatrix.Pin pins in PlayerEmpire.GetEmpireAI().ThreatMatrix.Pins.Values)
-                {
-                    if (pins.Ship == null || pins.Ship.loyalty != e)
-                        continue;
-                    knownShips.Add(pins.Ship);
-                }
-
-                foreach(Empire ally in Friends)
-                {
-                    foreach (ThreatMatrix.Pin pins in ally.GetEmpireAI().ThreatMatrix.Pins.Values)
-                    {
-                        if (pins.Ship == null || pins.Ship.loyalty != e)
-                            continue;
-                        knownShips.Add(pins.Ship);
-                    }
-                }
-                foreach(Ship ship in knownShips)
-                
-                {
-                    str = str + ship.GetStrength();
-                }
-                return str;
-            }
-            catch
-            {
-                single = str;
-            }
-            return single;
-        }
-
         private float GetPop(Empire e)
         {
             float pop = 0f;
@@ -828,70 +783,7 @@ namespace Ship_Game
             return pop / 1000f;
         }
 
-        private int ShipCount(Empire e)
-        {
-            int num = 0;            
-            
-            try
-            {
-                if(Friends.Contains(e))
-                {
-                    foreach (Ship ship in e.GetShips())
-                    {
-                        num++;
-                    }
-                    return num;
-                }
-                HashSet<Ship> knownShips = new HashSet<Ship>();
-
-                foreach (ThreatMatrix.Pin pins in PlayerEmpire.GetEmpireAI().ThreatMatrix.Pins.Values)
-                {
-                    if (pins.Ship == null || pins.Ship.loyalty != e)
-                        continue;
-                    knownShips.Add(pins.Ship);
-                }
-
-                foreach (Empire ally in Friends)
-                {
-                    foreach (ThreatMatrix.Pin pins in ally.GetEmpireAI().ThreatMatrix.Pins.Values)
-                    {
-                        if (pins.Ship == null || pins.Ship.loyalty != e)
-                            continue;
-                        knownShips.Add(pins.Ship);
-                    }
-                }
-                foreach (Ship ship in knownShips)
-                {
-                    num++;
-                }
-                return num;
-            }
-            catch
-            {               
-            }
-            return num;
-        
-        }
-
-        private static void GetTechsFromPins(HashSet<string> techs, Dictionary<Guid, ThreatMatrix.Pin>.ValueCollection pins, Empire empire )
-        {
-            
-            var shipTechs = new Array<string>();
-            if (empire == null) return;
-            var threatArray = pins.ToArray();
-            foreach (ThreatMatrix.Pin pin in threatArray)
-            {
-                if (pin.Ship?.loyalty != empire) continue;
-
-                shipTechs.AddRange(pin.Ship.shipData.TechsNeeded);
-            }
-            foreach (string tech in shipTechs)
-                techs.Add(tech);
-
-
-        }
-
-        private float GetScientificStr(Empire e)
+        float GetScientificStr(Empire e)
         {
             float scientificStr = 0f;
 
@@ -904,19 +796,16 @@ namespace Ship_Game
                 return scientificStr;
             }
             var techs = new HashSet<string>();
-            GetTechsFromPins(techs, PlayerEmpire.GetEmpireAI().ThreatMatrix.Pins.Values, e);
+            PlayerEmpire.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techs, e);
             foreach (Empire ally in Friends)
             {
-                GetTechsFromPins(techs, ally.GetEmpireAI().ThreatMatrix.Pins.Values, e);
+                ally.GetEmpireAI().ThreatMatrix.GetTechsFromPins(techs, e);
             }
             foreach (string tech in techs)
             {
                 scientificStr += ResourceManager.Tech(tech).ActualCost;
             }
             return scientificStr;
-
-
-
         }
 
         public override bool HandleInput(InputState input)
