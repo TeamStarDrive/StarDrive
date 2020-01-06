@@ -66,16 +66,16 @@ namespace Ship_Game.AI
                 if (EmpireManager.Player != Them)
                 {
                     if (relationThem.Anger_FromShipsInOurBorders >
-                        Them.data.DiplomaticPersonality.Territorialism / 3)
+                        Them.data.DiplomaticPersonality.Territorialism / 3f)
                     {
                         relationThem.Anger_FromShipsInOurBorders =
-                            Them.data.DiplomaticPersonality.Territorialism / 3;
+                            Them.data.DiplomaticPersonality.Territorialism / 3f;
                     }
                     if (relationThem.Anger_TerritorialConflict >
-                        Them.data.DiplomaticPersonality.Territorialism / 3)
+                        Them.data.DiplomaticPersonality.Territorialism / 3f)
                     {
                         relationThem.Anger_TerritorialConflict =
-                            Them.data.DiplomaticPersonality.Territorialism / 3;
+                            Them.data.DiplomaticPersonality.Territorialism / 3f;
                     }
                     relationThem.Anger_MilitaryConflict = 0f;
                     relationThem.WarnedAboutShips = false;
