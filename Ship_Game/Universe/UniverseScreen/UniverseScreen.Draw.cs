@@ -399,7 +399,7 @@ namespace Ship_Game
             batch.End();
 
             View = matrix;
-            if (drawBloom)
+            if (GlobalStats.RenderBloom)
                 bloomComponent.Draw(gameTime);
 
             batch.Begin(SpriteBlendMode.AlphaBlend);
