@@ -19,7 +19,7 @@ if %ERRORLEVEL% EQU 0 (
   goto :eof
 )
 
-curl -X POST -u "%BB_UPLOAD_USER%:%BB_UPLOAD_PASS%" -F files=@"%file%" "https://api.bitbucket.org/2.0/repositories/CrunchyGremlin/stardrive-blackbox/downloads"
+curl -X POST -u "%BB_UPLOAD_USER%:%BB_UPLOAD_PASS%" -F files=@"%file%" "https://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads"
 goto :eof
 
 :error
