@@ -201,7 +201,10 @@ namespace Ship_Game
             {
                 if (Items.Length == Count)
                 {
-                    if (Count == 0) Items = new SpatialObj[CellThreshold];
+                    if (Count == 0)
+                    {
+                        Items = new SpatialObj[CellThreshold];
+                    }
                     else
                     {
                         //Array.Resize(ref Items, Count * 2);
@@ -218,11 +221,19 @@ namespace Ship_Game
             // naturally. Index is not decremented if it is the last element
             public void RemoveAtSwapLast(ref int index)
             {
-                ref SpatialObj last = ref Items[--Count];
-                if (index != Count) // only swap and change ref index if it wasn't the last element
-                    Items[index--] = last;
+                int newCount = Count-1;
+                if (newCount < 0) // FIX: this is a threading issue, the item was already removed
+                    return; 
+
+                Count = newCount;
+                ref SpatialObj last = ref Items[newCount];
+                if (index != newCount) // only swap and change ref index if it wasn't the last element
+                {
+                    Items[index] = last;
+                    --index;
+                }
                 last.Obj = null; // prevent zombie objects
-                if (Count == 0) Items = NoObjects;
+                if (newCount == 0) Items = NoObjects;
             }
             public bool Overlaps(ref Vector2 topleft, ref Vector2 topright)
             {
@@ -370,9 +381,13 @@ namespace Ship_Game
                     if (obj.LastUpdate == frameId) continue; // we reinserted this node so it doesn't require updating
                     if (obj.Loyalty == 0)          continue; // loyalty 0: static world object, so don't bother updating
 
-                    if (obj.Obj.Active == false)
+                    GameplayObject go = obj.Obj;
+                    if (go == null) // FIX: this is a threading issue, this node already removed
+                        continue;
+
+                    if (go.Active == false)
                     {
-                        FastRemoval(obj.Obj, node, ref i);
+                        FastRemoval(go, node, ref i);
                         continue;
                     }
 
