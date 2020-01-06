@@ -304,7 +304,7 @@ namespace Ship_Game
                     }
                     sdata.AISave.DefaultState = ship.AI.DefaultAIState;
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
-                    sdata.AISave.ActiveWayPoints = new Array<WayPoint>(ship.AI.CopyWayPoints());
+                    sdata.AISave.WayPoints     = new Array<WayPoint>(ship.AI.CopyWayPoints());
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
 
                     foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
@@ -391,7 +391,7 @@ namespace Ship_Game
                         State           = ship.AI.State,
                         DefaultState    = ship.AI.DefaultAIState,
                         MovePosition    = ship.AI.MovePosition,
-                        ActiveWayPoints = new Array<WayPoint>(),
+                        WayPoints       = new Array<WayPoint>(),
                         ShipGoalsList   = new Array<ShipGoalSave>()
                     };
                     sd.Projectiles = Empty<ProjectileSaveData>.Array;
@@ -699,7 +699,9 @@ namespace Ship_Game
             [Serialize(0)] public AIState State;
             [Serialize(1)] public AIState DefaultState;
             [Serialize(2)] public Array<ShipGoalSave> ShipGoalsList;
-            [Serialize(3)] public Array<WayPoint> ActiveWayPoints;
+            // NOTE: Old Vector2 waypoints are no longer compatible
+            // Renaming essentially clears all waypoints
+            [Serialize(3)] public Array<WayPoint> WayPoints;
             [Serialize(4)] public Vector2 MovePosition;
             [Serialize(5)] public Guid OrbitTarget;
             [Serialize(6)] public Guid ColonizeTarget;
