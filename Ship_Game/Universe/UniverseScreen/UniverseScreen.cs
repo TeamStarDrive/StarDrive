@@ -741,7 +741,6 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUI = null;
 
             //SpaceManager.Destroy();
             ScreenManager.Music.Stop();
