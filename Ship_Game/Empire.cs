@@ -2072,7 +2072,7 @@ namespace Ship_Game
                 }
 
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero > 3 && Money < 0.0)
+                if (data.TurnsBelowZero > 0 && Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
 
                 if (!Universe.NoEliminationVictory)
@@ -2171,14 +2171,14 @@ namespace Ship_Game
 
                             var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
                             
-                            if (RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.TroopsHere.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
                             {
                                 var t = RandomMath.RandItem(planet.TroopsHere);
                                 if (t != null)
                                     troop.ChangeLoyalty(rebels);
                             }
 
-                            if (RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.BuildingList.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
                             {
                                 var building = RandomMath.RandItem(planet.BuildingList
                                                                    .Filter(b=> !b.IsBiospheres));
