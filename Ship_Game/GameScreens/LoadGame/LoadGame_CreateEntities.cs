@@ -500,7 +500,8 @@ namespace Ship_Game
                 if (!data.FindShip(shipData.guid, out Ship ship))
                     continue;
 
-                ship.AI.SetWayPoints(shipData.AISave.ActiveWayPoints);
+                if (shipData.AISave.WayPoints != null)
+                    ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
