@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.MainMenu;
+using Ship_Game.GameScreens.NewGame;
 using Ship_Game.GameScreens.Sandbox;
 using Ship_Game.Ships;
 
@@ -155,7 +156,8 @@ namespace Ship_Game
 
             foreach (SolarSystem system in sandbox.SolarSystemsList)
                 SubmitSceneObjectsForRendering(system);
-
+            var progress = new ProgressCounter();
+            ShipDesignUtils.MarkDesignsUnlockable(progress);
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
             return sandbox;
         }
