@@ -358,8 +358,6 @@ namespace Ship_Game
             // Unlock only selected node for player
             if (input.IsCtrlKeyDown && input.KeyPressed(Keys.F2))
             {
-                // unlock currently tech currently under research
-                // Move this to a key stroke in the queue
                 if (EmpireManager.Player.Research.HasTopic)
                 {
                     EmpireManager.Player.Research.Current.Unlock(EmpireManager.Player);
