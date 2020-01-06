@@ -206,7 +206,7 @@ namespace Ship_Game
         public bool XButtonHeld => GamepadHeld(Buttons.X);
         public bool YButtonHeld => GamepadHeld(Buttons.Y);
 
-        public bool DesignMirrorToggled => KeyPressed(Keys.M);
+        public bool DesignMirrorToggled => KeyPressed(Keys.M) || KeyPressed(Keys.Q);
 
         public void Update(float elapsedTime)
         {

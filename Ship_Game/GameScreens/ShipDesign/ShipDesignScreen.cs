@@ -52,7 +52,7 @@ namespace Ship_Game
         public bool Debug;
         private ShipData.RoleName Role;
         private Rectangle DesignRoleRect;
-        public bool IsSymmetricDesignMode = true;
+        public bool IsSymmetricDesignMode = GlobalStats.SymmetricDesign;
 
         struct MirrorSlot
         {
