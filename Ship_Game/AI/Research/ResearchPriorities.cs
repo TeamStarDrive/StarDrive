@@ -36,7 +36,7 @@ namespace Ship_Game.AI.Research
 
             ResearchDebt = 0;
             var availableTechs = OwnerEmpire.CurrentTechsResearchable();
-            float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential;
+            float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential.ClampMin(1);
             if (availableTechs.NotEmpty)
             {
                 //calculate standard deviation of tech costs. remove extreme highs and lows in average
@@ -46,7 +46,7 @@ namespace Ship_Game.AI.Research
                 avgTechCost = (float)Math.Sqrt(avgTechCost);
                 //use stddev of techcost to determine how behind we are in tech
 
-                float techCostRatio = avgTechCost / empire.Research.NetResearch;
+                float techCostRatio = avgTechCost / empire.Research.NetResearch.ClampMin(1);
                 ResearchDebt = techCostRatio / 50f; //divide by 50 turns.
 
                 ResearchDebt = ResearchDebt.Clamped(0, 1);
