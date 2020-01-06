@@ -373,7 +373,7 @@ namespace Ship_Game
             return true;
         }
 
-        public void UnlockWithNoBonusOption(Empire us, Empire them, bool unlockBonus)
+        public void UnlockWithBonus(Empire us, Empire them, bool unlockBonus)
         {
             them = them ?? us;
   
@@ -502,7 +502,7 @@ namespace Ship_Game
         public void DebugUnlockFromTechScreen(Empire us, Empire them, bool bonusUnlock = true)
         {
             SetDiscovered(us);
-            UnlockWithNoBonusOption(us, them, bonusUnlock);
+            UnlockWithBonus(us, them, bonusUnlock);
         }
         public void LoadShipModelsFromDiscoveredTech(Empire empire)
         {

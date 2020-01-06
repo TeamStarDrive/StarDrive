@@ -381,7 +381,7 @@ namespace Ship_Game
                 foreach (TechEntry techEntry in EmpireManager.Player.TechEntries)
                 {
                     Empire us = EmpireManager.Player;
-                    techEntry.UnlockWithNoBonusOption(us, us, !unlockBonus);
+                    techEntry.UnlockWithBonus(us, us, unlockBonus);
                     if (!unlockBonus && techEntry.Tech.BonusUnlocked.NotEmpty)
                         techEntry.Unlocked = false;
                     EmpireManager.Player.UpdateShipsWeCanBuild();
