@@ -20,6 +20,7 @@ namespace Ship_Game
 
         public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
         {
+            CanEscapeFromScreen = false;
             ShowSplash = showSplash;
             ResetResources = resetResources;
             LoadingPlayer = new ScreenMediaPlayer(TransientContent);

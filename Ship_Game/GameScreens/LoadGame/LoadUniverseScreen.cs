@@ -26,6 +26,7 @@ namespace Ship_Game
 
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
+            CanEscapeFromScreen = false;
             GlobalStats.RemnantKills = 0;
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
