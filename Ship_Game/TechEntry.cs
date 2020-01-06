@@ -155,11 +155,14 @@ namespace Ship_Game
         }
 
         public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        public bool SpiedFromAnyBut(Empire them) => WasAcquiredFrom.Count > 1 && !WasAcquiredFrom.Contains(them.data.Traits.ShipType);
 
-        public bool CanBeTakenFrom(Empire them)
+        public bool TheyCanUseThis(Empire us, Empire them)
         {
-            bool hidden = !SpiedFrom(them) && ContentRestrictedTo(them);
-            return hidden || !Unlocked; //hidden ||  add hidden back to allow racial tech unlock
+            var theirTech = them.GetTechEntry(this);
+            bool theyCanUnlockIt = !theirTech.Unlocked && (theirTech.IsRoot || them.HavePreReq(UID));
+            bool notHasContent = ContentRestrictedTo(us) && !theirTech.SpiedFrom(us) && (theirTech.IsRoot || them.HavePreReq(UID));
+            return theyCanUnlockIt || notHasContent;
         }
 
         bool ContentRestrictedTo(Empire empire)
@@ -170,13 +173,15 @@ namespace Ship_Game
             bool modules   = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             bool bonus     = Tech.BonusUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             return hulls || buildings || troops || modules || bonus;
-
         }
 
         public bool CanBeGivenTo(Empire them)
         {
-            return Unlocked && (Tech.RootNode == 1 || them.HavePreReq(UID)) &&
-                   (!Tech.Secret || Tech.Discovered) ;
+            bool hasContent = SpiedFrom(them) && !ContentRestrictedTo(them);
+            return (!hasContent || !Unlocked) && (Tech.RootNode == 1 || them.HavePreReq(UID));
+
+            //return Unlocked && (Tech.RootNode == 1 || them.HavePreReq(UID)) &&
+            //       (!Tech.Secret || Tech.Discovered) ;
         }
 
         float LookAheadCost(TechnologyType techType, Empire empire)
