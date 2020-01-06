@@ -21,7 +21,8 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// NOTE: Always returns a value
+        /// NOTE: This will always return a value within the Enum key range
+        ///       Values are initialized to default(TValue)
         /// </summary>
         public TValue this[TKey key]
         {
@@ -37,9 +38,29 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Sets all FlatMap values to default(TValue)
+        /// </summary>
         public void Clear()
         {
             Array.Clear(FlatMap, 0, FlatMap.Length);
+        }
+
+        /// <summary>
+        /// NOTE: The length is always equal to the number of enum members
+        /// </summary>
+        public IEnumerable<(TKey Key, TValue Value)> Values
+        {
+            get
+            {
+                var enumValues = (TKey[])typeof(TKey).GetEnumValues();
+                for (int i = 0; i < enumValues.Length; ++i)
+                {
+                    TKey key = enumValues[i];
+                    int index = ((IConvertible)key).ToInt32(null);
+                    yield return (key, FlatMap[index]);
+                }
+            }
         }
     }
 }
