@@ -20,6 +20,7 @@ namespace Ship_Game
 
         public GameLoadingScreen(bool showSplash, bool resetResources) : base(null/*no parent*/)
         {
+            CanEscapeFromScreen = false;
             ShowSplash = showSplash;
             ResetResources = resetResources;
             LoadingPlayer = new ScreenMediaPlayer(TransientContent);
@@ -123,7 +124,7 @@ namespace Ship_Game
             }
             catch (Exception ex)
             {
-                Log.ErrorDialog(ex, "Failed to load game data!", isFatal:true);
+                Log.ErrorDialog(ex, "Failed to load game data!", Program.UNHANDLED_EXCEPTION);
                 throw;
             }
         }

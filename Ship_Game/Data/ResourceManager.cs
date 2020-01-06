@@ -132,7 +132,7 @@ namespace Ship_Game
             {
                 if (mod == null)
                     throw;
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal: false);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", 0);
                 WaitForExit();
                 GlobalStats.ClearActiveMod();
                 UnloadAllData(manager);

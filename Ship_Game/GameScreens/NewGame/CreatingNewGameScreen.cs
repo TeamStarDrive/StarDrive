@@ -35,6 +35,7 @@ namespace Ship_Game
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
                 float pace, int scale, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(mainMenu)
         {
+            CanEscapeFromScreen = false;
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.RemnantKills = 0;
             GlobalStats.RemnantActivation = 0;

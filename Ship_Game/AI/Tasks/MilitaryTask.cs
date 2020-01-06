@@ -535,20 +535,8 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            float currentEnemyStrength = 0f;
-
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetEmpireAI().ThreatMatrix.Pins)
-            {
-                if (Vector2.Distance(AO, pin.Value.Position) >= AORadius || pin.Value.Ship == null)
-                    continue;
-
-                Empire pinEmp = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-
-                if (pinEmp == Owner || !pinEmp.isFaction && !Owner.GetRelations(pinEmp).AtWar )
-                    continue;
-
-                currentEnemyStrength += pin.Value.Strength;
-            }
+            float currentEnemyStrength = Owner.GetEmpireAI().ThreatMatrix
+                                        .StrengthOfHostilesInRadius(Owner, AO, AORadius);
 
             if (currentStrength < 0.15f * StartingStrength && currentEnemyStrength > currentStrength)
             {

@@ -18,9 +18,14 @@ namespace Ship_Game
 
         float LastStarDate;
         public bool HitTest => NotificationArea.HitTest(Screen.Input.CursorPosition);
-        // i think we should refactor this into base and parent classes. I think it would be better to use the new goal system
-        // style. More flexible i think.
-        public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
+
+        public bool IsNotificationPresent(string message)
+        {
+            lock (NotificationLocker)
+                return NotificationList.Any(n => n.Message == message);
+        }
+
+    public NotificationManager(ScreenManager screenManager, UniverseScreen screen)
         {
             NotificationList = new BatchRemovalCollection<Notification>();
             Screen           = screen;
@@ -195,10 +200,14 @@ namespace Ship_Game
 
         public void AddMoneyWarning()
         {
+            string message = Localizer.Token(2296);
+            if (IsNotificationPresent(message))
+                return;
+
             AddNotification(new Notification
             {
                 Pause    = false,
-                Message  = Localizer.Token(2296),
+                Message  = message,
                 IconPath = "UI/icon_warning_money"
             }, "sd_ui_notification_warning", "sd_trade_01");
         }
@@ -257,9 +266,12 @@ namespace Ship_Game
 
         public void AddRebellionNotification(Planet beingInvaded, Empire invader)
         {
+            string message = "Rebellion on " + beingInvaded.Name + "!";
+            if (IsNotificationPresent(message))
+                return;
             AddNotification(new Notification
             {
-                Message         = "Rebellion on " + beingInvaded.Name + "!",
+                Message         = message,
                 ReferencedItem1 = beingInvaded.ParentSystem,
                 IconPath        = "UI/icon_rebellion",
                 Action          = "SnapToSystem"
@@ -320,11 +332,15 @@ namespace Ship_Game
 
         public void AddEmptyQueueNotification(Planet planet)
         {
+            string message = $"{planet.Name} is not producing anything.";
+            if (IsNotificationPresent(message))
+                return;
+
             AddNotification(new Notification
             {
                 Pause           = false,
                 RelevantEmpire  = planet.Owner,
-                Message         = planet.Name + " is not producing anything.",
+                Message         = message,
                 ReferencedItem1 = this, //this.system,
                 IconPath        = planet.IconPath, //"UI/icon_warning_money",
                 Action          = "SnapToPlanet" //"SnapToSystem",
