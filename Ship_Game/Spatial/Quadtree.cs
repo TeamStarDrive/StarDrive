@@ -603,7 +603,10 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
-                if (so.Obj.Active == false)
+                GameplayObject go = so.Obj;
+                if (go == null) // FIX: concurrency issue, someone already removed this item
+                    continue;
+                if (go.Active == false)
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
@@ -614,7 +617,7 @@ namespace Ship_Game
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
                     if (CollideProjAtNode(node, ref so) && ProjectileIsDying(ref so))
-                        FastRemoval(so.Obj, node, ref i);
+                        FastRemoval(go, node, ref i);
                 }
                 else if ((so.Type & GameObjectType.Ship) != 0)
                 {
