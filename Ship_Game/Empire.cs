@@ -519,7 +519,7 @@ namespace Ship_Game
             foreach (var kv in TechnologyDict)
             {
                 TechEntry tech = kv.Value;
-                if (tech.CanBeGivenTo(them))
+                if (tech.Unlocked)
                     tradeTechs.Add(tech);
             }
             return tradeTechs;
