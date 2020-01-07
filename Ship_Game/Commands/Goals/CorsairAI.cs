@@ -12,7 +12,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairAI";
         public override string UID => ID;
-        public CorsairAI() : base(GoalType.DeepSpaceConstruction)
+        public CorsairAI() : base(GoalType.CorsairsAI)
         {
             Steps = new Func<GoalStep>[]
             {
