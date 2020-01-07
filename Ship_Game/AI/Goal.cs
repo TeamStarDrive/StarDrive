@@ -22,7 +22,8 @@ namespace Ship_Game.AI
         BuildScout,
         FleetRequisition,
         Refit,
-        BuildOrbital
+        BuildOrbital,
+        Remnant
     }
 
     public enum GoalStep
@@ -113,6 +114,8 @@ namespace Ship_Game.AI
                 case MarkForColonization.ID:    return new MarkForColonization();
                 case RefitShip.ID:              return new RefitShip();
                 case BuildOrbital.ID:           return new BuildOrbital();
+                case RemnantAI.ID:              return new RemnantAI();
+                case CorsairAI.ID:              return new CorsairAI();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

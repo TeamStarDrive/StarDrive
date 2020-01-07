@@ -2140,9 +2140,9 @@ namespace Ship_Game
 
         void UpdateAI()
         {
-            if (isFaction)
-               EmpireAI.FactionUpdate();
-            else if (!data.Defeated)
+            //if (isFaction)
+            //    EmpireAI.FactionAI.Update();
+            //else if (!data.Defeated)
                 EmpireAI.Update();
         }
 

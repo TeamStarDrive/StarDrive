@@ -12,7 +12,7 @@ using Ship_Game.Commands.Goals;
 namespace Ship_Game.AI
 {
     [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
-    public sealed partial class EmpireAI : IDisposable
+    public partial class EmpireAI : IDisposable
     {
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
@@ -34,6 +34,7 @@ namespace Ship_Game.AI
         public int Recyclepool                               = 0;
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
+
         public EmpireAI(Empire e)
         {
             EmpireName                = e.data.Traits.Name;
@@ -44,7 +45,14 @@ namespace Ship_Game.AI
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
 
             if (OwnerEmpire.data.EconomicPersonality != null)
-                NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+                NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+
+            string name = OwnerEmpire.data.Traits.Name;
+            switch (name)
+            {
+                case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
+                case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
+            }
         }
 
         public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
