@@ -71,7 +71,7 @@ namespace Ship_Game
                 return;
             if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
             {
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
             }
             else
             {
@@ -145,7 +145,7 @@ namespace Ship_Game
             CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
             if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
             {
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
             }
             else
             {
