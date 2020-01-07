@@ -64,6 +64,33 @@ namespace Ship_Game.Ships
             return false;
         }
 
+        public bool GetOurFirstTroop(out Troop troop)
+        {
+            for (int i = 0; i < TroopList.Count; ++i)
+            {
+                Troop t = TroopList[i];
+                if (t != null && t.Loyalty == loyalty)
+                {
+                    troop = t;
+                    return true;
+                }
+            }
+            troop = null;
+            return false;
+        }
+
+        public Array<Troop> GatherOurTroops(int maxTroops)
+        {
+            var troops = new Array<Troop>();
+            for (int i = 0; i < TroopList.Count && troops.Count < maxTroops; ++i)
+            {
+                Troop troop = TroopList[i];
+                if (troop != null && troop.Loyalty == loyalty)
+                    troops.Add(TroopList[i]);
+            }
+            return troops;
+        }
+
         public int LandTroopsOnShip(Ship targetShip, int maxTroopsToLand = 0)
         {
             int landed = 0;

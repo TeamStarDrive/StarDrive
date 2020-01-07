@@ -822,7 +822,7 @@ namespace Ship_Game
                     if (ship == null)
                         continue;
 
-                    if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f)
+                    if (ship.Center.OutsideRadius(p.Center, p.ObjectRadius + ship.Radius + 1500f))
                         continue;
 
                     if (ship.shipData.Role != ShipData.RoleName.troop)
@@ -831,22 +831,16 @@ namespace Ship_Game
                             continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
 
                         int landingLimit = LandingLimit(ship);
-                        for (int i = 0; i < ship.TroopList.Count && landingLimit > 0; i++)
-                        {
-                            Troop troop = ship.TroopList[i];
-                            if (troop != null && troop.Loyalty == ship.loyalty)
-                            {
-                                OrbitSL.AddItem(troop);
-                                landingLimit--;
-                            }
-                        }
+                        foreach (Troop troop in ship.GatherOurTroops(landingLimit))
+                            OrbitSL.AddItem(troop);
                     }
                     else if (ship.AI.State != AI.AIState.Rebase
                              && ship.AI.State != AI.AIState.RebaseToShip
                              && ship.AI.State != AI.AIState.AssaultPlanet)
                     {
-                        if (ship.HasLocalTroops)
-                            OrbitSL.AddItem(ship.TroopList.First); // this the default 1 troop ship or assault shuttle
+                         // this the default 1 troop ship or assault shuttle
+                        if (ship.GetOurFirstTroop(out Troop first))
+                            OrbitSL.AddItem(first);
                     }
                 }
 
