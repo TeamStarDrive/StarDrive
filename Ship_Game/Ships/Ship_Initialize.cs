@@ -422,41 +422,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void SpawnTroopsForNewShip(ShipModule module)
-        {
-            string troopType    = "Wyvern";
-            string tankType     = "Wyvern";
-            string redshirtType = "Wyvern";
-
-            IReadOnlyList<Troop> unlockedTroops = loyalty?.GetUnlockedTroops();
-            if (unlockedTroops?.Count > 0)
-            {
-                troopType    = unlockedTroops.FindMax(troop => troop.SoftAttack).Name;
-                tankType     = unlockedTroops.FindMax(troop => troop.HardAttack).Name;
-                redshirtType = unlockedTroops.FindMin(troop => troop.SoftAttack).Name; // redshirts are weakest
-                troopType    = (troopType == redshirtType) ? tankType : troopType;
-            }
-
-            for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
-            {
-                int numHangarsBays = Carrier.AllTroopBays.Length;
-
-                string type = troopType;
-                if (numHangarsBays < TroopList.Count + 1) //FB: if you have more troop_capacity than hangars, consider adding some tanks
-                {
-                    type = troopType; // ex: "Space Marine"
-                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numHangarsBays)
-                        type = tankType;
-                    // number of tanks will be up to number of hangars bays you have. If you have 8 barracks and 8 hangar bays
-                    // you will get 8 infantry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
-                    // If you have  16 barracks and 4 bays, you'll still get 4 tanks and 12 infantry.
-                    // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
-                }
-                Troop newTroop = ResourceManager.CreateTroop(type, loyalty);
-                newTroop.LandOnShip(this);
-            }
-        }
-
         public void InitializeStatus(bool fromSave)
         {
             Thrust                   = 0f;

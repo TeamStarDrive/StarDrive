@@ -845,6 +845,9 @@ namespace Ship_Game.Ships
 
                 HangarShipGuid = hangarShip.guid;
                 hangarTimer = hangarTimerConstant;
+
+                // transfer our troop onto the shuttle we just spawned
+                troop.LandOnShip(hangarShip);
                 return true;
             }
             return false;

@@ -293,8 +293,8 @@ namespace Ship_Game
                     }
                 }
 
-                Troop troop = draggedTroop.TryGet(out Ship ship) && ship.TroopList.Count > 0
-                            ? ship.TroopList.First : draggedTroop.Get<Troop>();
+                Troop troop = draggedTroop.TryGet(out Ship ship)
+                            && ship.TroopCount > 0 ? ship.TroopList.First : draggedTroop.Get<Troop>();
 
                 SubTexture icon = troop.TextureDefault;
                 batch.Draw(icon, Input.CursorPosition, Color.White, 0f, icon.CenterF, 0.65f, SpriteEffects.None, 1f);
@@ -827,15 +827,16 @@ namespace Ship_Game
 
                     if (ship.shipData.Role != ShipData.RoleName.troop)
                     {
-                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
+                        if (!ship.HasLocalTroops || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
                             continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
 
                         int landingLimit = LandingLimit(ship);
                         for (int i = 0; i < ship.TroopList.Count && landingLimit > 0; i++)
                         {
-                            if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
+                            Troop troop = ship.TroopList[i];
+                            if (troop != null && troop.Loyalty == ship.loyalty)
                             {
-                                OrbitSL.AddItem(ship.TroopList[i]);
+                                OrbitSL.AddItem(troop);
                                 landingLimit--;
                             }
                         }
@@ -844,8 +845,8 @@ namespace Ship_Game
                              && ship.AI.State != AI.AIState.RebaseToShip
                              && ship.AI.State != AI.AIState.AssaultPlanet)
                     {
-                        if (ship.HasTroops)
-                            OrbitSL.AddItem(ship.TroopList[0]); // this the default 1 troop ship or assault shuttle
+                        if (ship.HasLocalTroops)
+                            OrbitSL.AddItem(ship.TroopList.First); // this the default 1 troop ship or assault shuttle
                     }
                 }
 
@@ -856,7 +857,7 @@ namespace Ship_Game
         {
             int landingLimit;
             if (p.WeCanLandTroopsViaSpacePort(ship.loyalty))
-                landingLimit = ship.TroopList.Count;  // fbedard: Allows to unload all troops if there is a space port
+                landingLimit = ship.TroopCount;  // fbedard: Allows to unload all troops if there is a space port
             else
             {
                 landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.hangarTimer <= 0);
