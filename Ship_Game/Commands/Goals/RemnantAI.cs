@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "RemnantAI";
         public override string UID => ID;
-        public RemnantAI() : base(GoalType.DeepSpaceConstruction)
+        public RemnantAI() : base(GoalType.RemnantAI)
         {
             Steps = new Func<GoalStep>[]
             {
