@@ -12,7 +12,7 @@ using Ship_Game.Commands.Goals;
 namespace Ship_Game.AI
 {
     [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
-    public partial class EmpireAI : IDisposable
+    public sealed partial class EmpireAI : IDisposable
     {
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
