@@ -97,7 +97,8 @@ namespace Ship_Game.AI
 
                             if (target != null)
                             {
-                                assimilate.TroopList.Add(ResourceManager.CreateTroop("Remnant Defender", assimilate.loyalty));
+                                var troop = ResourceManager.CreateTroop("Remnant Defender", assimilate.loyalty);
+                                troop.LandOnShip(assimilate);
                                 assimilate.isColonyShip = true;
 
                                 Planet capture = Empire.Universe.PlanetsDict.Values.ToArray().FindMaxFiltered(
