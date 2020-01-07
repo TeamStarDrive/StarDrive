@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.GameScreens;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
@@ -58,6 +59,7 @@ namespace Ship_Game
 
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
+        public bool IsDisposed { get; private set; }
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -109,6 +111,7 @@ namespace Ship_Game
 
         protected virtual void Destroy()
         {
+            IsDisposed = true;
             TransientContent?.Dispose(ref TransientContent);
         }
 
@@ -119,16 +122,14 @@ namespace Ship_Game
         public void AddLight(ILight light)        => ScreenManager.AddLight(light);
         public void RemoveLight(ILight light)     => ScreenManager.RemoveLight(light);
 
-        public void AssignLightRig(string rigContentPath)
+        public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
         {
             var lightRig = TransientContent.Load<LightRig>(rigContentPath);
-            ScreenManager.AssignLightRig(lightRig);
+            ScreenManager.AssignLightRig(identity, lightRig);
         }
 
         public virtual void ExitScreen()
         {
-            ScreenManager.ExitScreenTimer = 0.25f;           
-            
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
 
@@ -147,11 +148,14 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
+            
+            ScreenManager.RemoveScreen(this);
+        }
 
+        public virtual void OnScreenRemoved()
+        {
             Enabled = Visible = false;
             ScreenState = ScreenState.Hidden;
-            Empire.Universe?.ResetLighting();
-            ScreenManager.RemoveScreen(this);
         }
 
         public virtual void ReloadContent()
@@ -194,6 +198,12 @@ namespace Ship_Game
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            if (IsDisposed)
+            {
+                Log.Error($"Screen {Name} Updated after being disposed!");
+                return;
+            }
+
             // @note If content was being loaded, we will force deltaTime to 1/60th
             //       This will prevent animations going nuts due to huge deltaTime
             FrameDeltaTime = ScreenManager.FrameDeltaTime;

@@ -303,6 +303,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonySliderGroup.cs" />
     <Compile Include="Ship_Game\GameScreens\GameBase.cs" />
     <Compile Include="Ship_Game\GameScreens\GameDummy.cs" />
+    <Compile Include="Ship_Game\GameScreens\LightRigIdentity.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadGame\LoadGame_CreateEntities.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\Comet.cs" />
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShip.cs" />
