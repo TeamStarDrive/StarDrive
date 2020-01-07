@@ -71,7 +71,6 @@ namespace Ship_Game
             {
                 NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
                 Paused = false;
-                ResetLighting();
             }
             public override void LoadContent()
             {
