@@ -129,13 +129,6 @@ namespace Ship_Game
             }
         }
 
-        public override void ExitScreen()
-        {
-            LoadingPlayer.Dispose();
-            SplashPlayer.Dispose();
-            base.ExitScreen();
-        }
-
         protected override void Destroy()
         {
             LoadingPlayer.Dispose();
