@@ -619,11 +619,12 @@ namespace Ship_Game
             return false;
         }
 
-        public void OnSymmetricDesignToggle()
+        void OnSymmetricDesignToggle()
         {
-            IsSymmetricDesignMode = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Text  = IsSymmetricDesignMode ? 1985 : 1986;
-            BtnSymmetricDesign.Style = IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+            IsSymmetricDesignMode       = !IsSymmetricDesignMode;
+            GlobalStats.SymmetricDesign = IsSymmetricDesignMode;
+            BtnSymmetricDesign.Text     = SymmetricDesignBtnText;
+            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
         }
 
         void UpdateActiveCombatButton()
@@ -804,13 +805,13 @@ namespace Ship_Game
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, text: 1985, click: b =>
+            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, text: SymmetricDesignBtnText, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
             BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
-            BtnSymmetricDesign.Style    = ButtonStyle.Military;
+            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
             LoadContentFinish();
@@ -818,6 +819,9 @@ namespace Ship_Game
 
             AssignLightRig("example/ShipyardLightrig");
         }
+
+        ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
+        LocalizedText SymmetricDesignBtnText => GlobalStats.SymmetricDesign ? 1985 : 1986;
 
         void LoadContentFinish()
         {
