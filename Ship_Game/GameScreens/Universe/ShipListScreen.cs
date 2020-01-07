@@ -298,7 +298,7 @@ namespace Ship_Game
             if (Maint.HandleInput(input)) Sort(Maint, sl => sl.ship.GetMaintCost());
             else if (Maint.Hover) ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable");
 
-            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.ship.TroopList.Count);
+            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.ship.TroopCount);
             else if (SB_Troop.Hover) ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable");
 
             if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.ship.GetStrength());

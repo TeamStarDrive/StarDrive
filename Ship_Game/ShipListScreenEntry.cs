@@ -160,11 +160,11 @@ namespace Ship_Game
             float single = ship.GetStrength();
             spriteBatch.DrawString(arial12, single.ToString("0"), StrPos, Color.White);
             Vector2 TroopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            //{
-            TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity)).X / 2f + 6;
+            string troopCount = ship.TroopCount+"/"+ship.TroopCapacity;
+            TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(troopCount).X / 2f + 6;
             //};
             HelperFunctions.ClampVectorToInt(ref TroopPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity), TroopPos, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, troopCount, TroopPos, Color.White);
             Vector2 FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float x1 = FTLPos.X;
             SpriteFont spriteFont = Fonts.Arial12;

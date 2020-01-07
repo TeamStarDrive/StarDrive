@@ -489,10 +489,13 @@ namespace Ship_Game
 
             foreach (var kv in OrbitalStations)
             {
-                if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.Loyalty != newOwner))
-                    continue;
-                kv.Value.ChangeLoyalty(newOwner);             
-                Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
+                Ship station = kv.Value;
+                if (station.loyalty != newOwner ||
+                    station.TroopList.Any(loyalty => loyalty.Loyalty != newOwner))
+                {
+                    station.ChangeLoyalty(newOwner);
+                    Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
+                }
             }
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;

@@ -73,6 +73,8 @@ namespace Ship_Game
             set => Rotation = value.ToRadians();
         }
 
+        [XmlIgnore][JsonIgnore] public bool QueuedForRemoval;
+
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
@@ -97,7 +99,7 @@ namespace Ship_Game
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
-            Empire.Universe.QueueGameplayObjectRemoval(this);
+            Empire.Universe?.QueueGameplayObjectRemoval(this);
         }
 
         public virtual void RemoveFromUniverseUnsafe()

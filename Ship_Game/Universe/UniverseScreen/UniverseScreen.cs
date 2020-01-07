@@ -865,13 +865,16 @@ namespace Ship_Game
             return Arc15;
         }
 
-        public void QueueGameplayObjectRemoval(GameplayObject gameplayObject)
+        public void QueueGameplayObjectRemoval(GameplayObject toRemove)
         {
-            if (gameplayObject == null) return;
-            GamePlayObjectToRemove.Add(gameplayObject);
+            if (!toRemove.QueuedForRemoval)
+            {
+                toRemove.QueuedForRemoval = true;
+                GamePlayObjectToRemove.Add(toRemove);
+            }
         }
 
-        public void TotallyRemoveGameplayObjects()
+        void TotallyRemoveGameplayObjects()
         {
             while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
                 toRemove.RemoveFromUniverseUnsafe();

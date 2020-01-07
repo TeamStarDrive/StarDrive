@@ -552,14 +552,14 @@ namespace Ship_Game.AI
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
                 if (Owner.Carrier.HasTransporters)
-                    for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++) // FB:change to foreach
+                    for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++)
                     {
                         ShipModule module = Owner.Carrier.AllTransporters[x];
                         if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
                             module.TransporterPower >= Owner.PowerCurrent) continue;
                         if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
                             DoOrdinanceTransporterLogic(module);
-                        if (module.TransporterTroopAssault > 0 && Owner.TroopList.Any())
+                        if (module.TransporterTroopAssault > 0 && Owner.HasLocalTroops)
                             DoAssaultTransporterLogic(module);
                     }
 
