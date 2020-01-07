@@ -14,6 +14,7 @@ using System;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 using Ship_Game.Universe;
 
 namespace Ship_Game
@@ -256,8 +257,6 @@ namespace Ship_Game
             ShipCommands = new ShipMoveCommands(this);
         }
 
-        public void ResetLighting() => SetLighting(UseRealLights);
-
         public Planet GetPlanet(Guid guid)
         {
             if (PlanetsDict.TryGetValue(guid, out Planet planet))
@@ -266,15 +265,19 @@ namespace Ship_Game
             return null;
         }
 
-        void SetLighting(bool useRealLights)
+        void ResetLighting()
         {
-            if (!useRealLights)
+            if (ScreenManager.LightRigIdentity == LightRigIdentity.UniverseScreen)
+                return;
+
+            if (!UseRealLights)
             {
-                AssignLightRig("example/NewGamelight_rig");
+                AssignLightRig(LightRigIdentity.UniverseScreen, "example/NewGamelight_rig");
                 return;
             }
 
             ScreenManager.RemoveAllLights();
+            ScreenManager.LightRigIdentity = LightRigIdentity.UniverseScreen;
 
             AddLight("Global Fill Light", new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
             AddLight("Global Back Light", new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, +MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
@@ -381,7 +384,7 @@ namespace Ship_Game
             StarField = new StarField(this);
 
             CreateProjectionMatrix();
-            SetLighting(UseRealLights);
+            ResetLighting();
             CreateStartingShips();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
@@ -730,8 +733,6 @@ namespace Ship_Game
             pieMenu.Radius      = 75f;
             pieMenu.ScaleFactor = 1f;
         }
-
-        public void PlayNegativeSound() => GameAudio.NegativeClick();
 
         //added by gremlin replace redundant code with method
         public override void ExitScreen()

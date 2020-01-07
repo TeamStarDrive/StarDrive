@@ -553,7 +553,7 @@ namespace Ship_Game
 
             if (!GetSlotUnderCursor(input, out SlotStruct slot))
             { 
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
                 return;
             }
 
@@ -569,7 +569,7 @@ namespace Ship_Game
             }
             else
             {
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
             }
         }
 
@@ -817,7 +817,7 @@ namespace Ship_Game
             LoadContentFinish();
             BindListsToActiveHull();
 
-            AssignLightRig("example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
 
         ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
