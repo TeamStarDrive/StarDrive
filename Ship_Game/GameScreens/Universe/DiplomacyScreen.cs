@@ -469,13 +469,6 @@ namespace Ship_Game
             }
         }
 
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-            Dispose();
-        }
-
-
         class DiplomacyItemsLayout
         {
             readonly ScrollList List;

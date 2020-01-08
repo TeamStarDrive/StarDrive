@@ -79,7 +79,6 @@ namespace Ship_Game
         {
             ShieldList.Clear();
             PlanetaryShieldList.Clear();
-
         }
 
         public static Shield AddPlanetaryShield(Vector2 position)
@@ -98,12 +97,12 @@ namespace Ship_Game
 
         public static void RemoveShieldLights(ShipModule[] shields)
         {
-            foreach (ShipModule module in shields)
-                module.Shield.RemoveLight();
+            for (int i = 0; i < shields.Length; ++i)
+                shields[i].Shield.RemoveLight();
         }
 
         public static void Update()
-        {            
+        {
             using (PlanetaryShieldList.AcquireReadLock())
             {
                 for (int i = 0; i < PlanetaryShieldList.Count; i++)
