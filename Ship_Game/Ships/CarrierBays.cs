@@ -106,7 +106,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null)
+                if (Owner == null || AllTroopBays.Length == 0)
                     return 0f;
 
                 //try to fix sentry bug : https://sentry.io/blackboxmod/blackbox/issues/628038060/

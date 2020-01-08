@@ -834,11 +834,11 @@ namespace Ship_Game
                         foreach (Troop troop in ship.GatherOurTroops(landingLimit))
                             OrbitSL.AddItem(troop);
                     }
-                    else if (ship.AI.State != AI.AIState.Rebase
-                             && ship.AI.State != AI.AIState.RebaseToShip
-                             && ship.AI.State != AI.AIState.AssaultPlanet)
+                    else if (ship.AI.State != AI.AIState.Rebase &&
+                             ship.AI.State != AI.AIState.RebaseToShip &&
+                             ship.AI.State != AI.AIState.AssaultPlanet)
                     {
-                         // this the default 1 troop ship or assault shuttle
+                        // this the default 1 troop ship or assault shuttle
                         if (ship.GetOurFirstTroop(out Troop first))
                             OrbitSL.AddItem(first);
                     }
