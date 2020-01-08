@@ -8,11 +8,11 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairAI :Goal
+    public class CorsairAI : Goal
     {
         public const string ID = "CorsairAI";
         public override string UID => ID;
-        public CorsairAI() : base(GoalType.CorsairsAI)
+        public CorsairAI() : base(GoalType.CorsairAI)
         {
             Steps = new Func<GoalStep>[]
             {

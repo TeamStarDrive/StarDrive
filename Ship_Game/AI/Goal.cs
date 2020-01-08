@@ -24,7 +24,7 @@ namespace Ship_Game.AI
         Refit,
         BuildOrbital,
         RemnantAI,
-        CorsairsAI
+        CorsairAI
     }
 
     public enum GoalStep
