@@ -977,17 +977,17 @@ namespace Ship_Game.Ships
                 case CombatState.Evade:        return unarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
                 case CombatState.ShortRange:
-                    return WeaponsMinRange;
+                    return WeaponsMinRange * 0.8f; // 0.8 for game balancing, so ships won't stay too far
 
                 default:
                     float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
                     if (hiRanges.Length == 0)
-                        return WeaponsMaxRange;
+                        return almostMaxRange;
 
                     if (state == CombatState.Artillery)
-                        return hiRanges.Avg();
+                        return hiRanges.Avg() * 0.9f; // 0.9 for game balancing, so ships won't stay too far
 
-                    return hiRanges.Min();
+                    return hiRanges.Min() * 0.9f; // 0.9 for game balancing, so ships won't stay too far
             }
         }
         
