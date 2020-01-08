@@ -583,7 +583,7 @@ namespace Ship_Game.Ships
             system != null && InRadius(system.Position, system.Radius);
         public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
-        public bool InRadius(Vector2 worldPos, float radius) 
+        public bool InRadius(Vector2 worldPos, float radius)
             => Center.InRadius(worldPos, Radius + radius);
 
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
@@ -633,8 +633,10 @@ namespace Ship_Game.Ships
                     if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
-                if ((loyalty == targetShip.loyalty || !loyalty.isFaction
-                     && loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
+                //if ((loyalty == targetShip.loyalty || !loyalty.isFaction
+                //     && loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
+                //    return false;
+                if (!loyalty.IsEmpireAttackable(target.GetLoyalty()))
                     return false;
             }
 
@@ -990,7 +992,7 @@ namespace Ship_Game.Ships
                     return hiRanges.Min();
             }
         }
-        
+
         // This calculates our Ship's interception speed
         //   If we have weapons, then let the weapons do the talking
         //   If no weapons, give max ship speed instead
@@ -1988,7 +1990,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation) offense  /= 2;
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, 
+            return ShipBuilder.GetModifiedStrength(SurfaceArea,
                 numWeaponSlots, offense, defense, shipData.Role, RotationRadiansPerSecond);
         }
 
