@@ -407,7 +407,7 @@ namespace Ship_Game.Ships
         {
             TroopBoardingDefense = 0f;
 
-            foreach (Troop t in TroopList)
+            foreach (Troop t in OurTroops)
             {
                 t.SetOwner(loyalty);
                 t.SetShip(this);
@@ -461,8 +461,6 @@ namespace Ship_Game.Ships
 
         void InitializeStatusFromModules(bool fromSave)
         {
-            if (!fromSave)
-                TroopList.Clear();
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
@@ -471,7 +469,9 @@ namespace Ship_Game.Ships
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
-                if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
+                if (!fromSave && module.TroopsSupplied > 0)
+                    SpawnTroopsForNewShip(module);
+
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
 

@@ -164,7 +164,7 @@ namespace Ship_Game
                 ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
 
-                foreach (Troop troop in ship.GetAllTroops())
+                foreach (Troop troop in ship.GetOurTroops())
                     if (troop.Loyalty == oldLoyalty)
                         troop.ChangeLoyalty(changeTo);
             }

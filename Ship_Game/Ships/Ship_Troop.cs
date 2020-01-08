@@ -11,54 +11,45 @@ namespace Ship_Game.Ships
         /// our troops and also enemy troops.
         /// It can get mighty confusing, but that's what we got.
         /// </summary>
-        readonly Array<Troop> TroopList = new Array<Troop>();
-        public int TroopCount => TroopList.Count;
-        public Array<Troop> GetAllTroops() => TroopList;
+        readonly Array<Troop> OurTroops = new Array<Troop>();
+        readonly Array<Troop> HostileTroops = new Array<Troop>();
+
+        // OUR troops count
+        public int TroopCount => OurTroops.Count;
 
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!
-        public bool HasOurTroops
-        {
-            get
-            {
-                for (int i = 0; i < TroopList.Count; ++i)
-                {
-                    Troop troop = TroopList[i];
-                    if (troop != null && troop.Loyalty == loyalty)
-                        return true;
-                }
-                return false;
-            }
-        }
+        public bool HasOurTroops => OurTroops.Count > 0;
         
         // TRUE if we have own troops or if we launched these troops on to operations
         public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttles > 0;
 
-        public bool TroopsAreBoardingShip => TroopList.Count(troop => troop.Loyalty == loyalty) != TroopList.Count;
-        public int NumPlayerTroopsOnShip  => TroopList.Count(troop => troop.Loyalty == EmpireManager.Player);
-        public int NumAiTroopsOnShip      => TroopList.Count(troop => troop.Loyalty != EmpireManager.Player);
+        public bool TroopsAreBoardingShip => HostileTroops.Count > 0;
+        public int NumPlayerTroopsOnShip  => loyalty.isPlayer ? OurTroops.Count : HostileTroops.Count;
+        public int NumAiTroopsOnShip      => loyalty.isPlayer ? HostileTroops.Count : OurTroops.Count;
 
         // NOTE: could be an enemy troop or a friendly one
         public void AddTroop(Troop troop)
         {
-            // TODO: sort friendlies and enemies
-            TroopList.Add(troop);
+            if (troop.Loyalty == loyalty)
+                OurTroops.Add(troop);
+            else
+                HostileTroops.Add(troop);
         }
 
         public void RemoveAnyTroop(Troop troop)
         {
-            TroopList.RemoveRef(troop);
+            if (troop.Loyalty == loyalty)
+                OurTroops.RemoveRef(troop);
+            else
+                HostileTroops.RemoveRef(troop);
         }
 
         public float GetOurTroopStrength(int maxTroops)
         {
             float strength = 0;
-            for (int i = 0; i < maxTroops; ++i)
-            {
-                Troop troop = TroopList[i];
-                if (troop != null && troop.Loyalty == loyalty)
-                    strength += troop.Strength;
-            }
+            for (int i = 0; i < maxTroops && i < OurTroops.Count; ++i)
+                strength += OurTroops[i].Strength;
             return strength;
         }
 
@@ -76,55 +67,47 @@ namespace Ship_Game.Ships
 
         public bool TryLandSingleTroopOnShip(Ship targetShip)
         {
-            for (int i = 0; i < TroopList.Count; ++i)
+            if (OurTroops.Count > 0)
             {
-                Troop troop = TroopList[i];
-                if (troop != null && troop.Loyalty == loyalty)
-                {
-                    troop.LandOnShip(targetShip);
-                    return true;
-                }
+                OurTroops[0].LandOnShip(targetShip);
+                return true;
             }
             return false;
         }
 
         public bool TryLandSingleTroopOnPlanet(Planet targetPlanet)
         {
-            for (int i = 0; i < TroopList.Count; ++i)
-            {
-                Troop troop = TroopList[i];
-                if (troop != null && troop.Loyalty == loyalty && troop.TryLandTroop(targetPlanet))
-                    return true;
-            }
-
-            return false;
+            return OurTroops.Count > 0 && OurTroops[0].TryLandTroop(targetPlanet);
         }
 
         public bool GetOurFirstTroop(out Troop troop)
         {
-            for (int i = 0; i < TroopList.Count; ++i)
+            if (OurTroops.Count > 0)
             {
-                Troop t = TroopList[i];
-                if (t != null && t.Loyalty == loyalty)
-                {
-                    troop = t;
-                    return true;
-                }
+                troop = OurTroops[0];
+                return true;
             }
             troop = null;
             return false;
         }
 
-        public Array<Troop> GetOurTroops(int maxTroops)
+        public IReadOnlyList<Troop> GetOurTroops(int maxTroops = 0)
         {
-            var troops = new Array<Troop>();
-            for (int i = 0; i < TroopList.Count && troops.Count < maxTroops; ++i)
-            {
-                Troop troop = TroopList[i];
-                if (troop != null && troop.Loyalty == loyalty)
-                    troops.Add(troop);
-            }
+            if (maxTroops == 0 || maxTroops >= OurTroops.Count)
+                return OurTroops;
+
+            var troops = new Array<Troop>(maxTroops);
+            for (int i = 0; i < maxTroops; ++i)
+                troops.Add(OurTroops[i]);
             return troops;
+        }
+        
+        public Array<Troop> GetFriendlyAndHostileTroops()
+        {
+            var all = new Array<Troop>(OurTroops.Count + HostileTroops.Count);
+            all.AddRange(OurTroops);
+            all.AddRange(HostileTroops);
+            return all;
         }
 
         public int LandTroopsOnShip(Ship targetShip, int maxTroopsToLand = 0)
@@ -132,18 +115,14 @@ namespace Ship_Game.Ships
             int landed = 0;
             // NOTE: Need to create a copy of TroopList here,
             // because `LandOnShip` will modify TroopList
-            Troop[] troopsToLand = TroopList.ToArray();
+            Troop[] troopsToLand = OurTroops.ToArray();
             for (int i = 0; i < troopsToLand.Length; ++i)
             {
                 if (maxTroopsToLand != 0 && landed >= maxTroopsToLand)
                     break;
 
-                Troop troop = troopsToLand[i];
-                if (troop != null && troop.Loyalty == loyalty)
-                {
-                    troop.LandOnShip(targetShip);
-                    ++landed;
-                }
+                troopsToLand[i].LandOnShip(targetShip);
+                ++landed;
             }
             return landed;
         }
@@ -154,19 +133,15 @@ namespace Ship_Game.Ships
             int landed = 0;
             // @note: Need to create a copy of TroopList here,
             // because `TryLandTroop` will modify TroopList if landing is successful
-            Troop[] troopsToLand = TroopList.ToArray();
+            Troop[] troopsToLand = OurTroops.ToArray();
             for (int i = 0; i < troopsToLand.Length; ++i)
             {
                 if (maxTroopsToLand != 0 && landed >= maxTroopsToLand)
                     break;
 
-                Troop troop = troopsToLand[i];
-                if (troop != null && troop.Loyalty == loyalty)
-                {
-                    if (troop.TryLandTroop(planet))
-                        ++landed;
-                    else break; // no more free tiles, probably
-                }
+                if (troopsToLand[i].TryLandTroop(planet))
+                    ++landed;
+                else break; // no more free tiles, probably
             }
             return landed;
         }
@@ -190,10 +165,10 @@ namespace Ship_Game.Ships
             {
                 string type = troopType;
                 int numHangarsBays = Carrier.AllTroopBays.Length;
-                if (numHangarsBays < TroopList.Count + 1) //FB: if you have more troop_capacity than hangars, consider adding some tanks
+                if (numHangarsBays < OurTroops.Count + 1) //FB: if you have more troop_capacity than hangars, consider adding some tanks
                 {
                     type = troopType; // ex: "Space Marine"
-                    if (TroopList.Count(troop => troop.Name == tankType) <= numHangarsBays)
+                    if (OurTroops.Count(troop => troop.Name == tankType) <= numHangarsBays)
                         type = tankType;
                     // number of tanks will be up to number of hangars bays you have. If you have 8 barracks and 8 hangar bays
                     // you will get 8 infantry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
@@ -209,12 +184,15 @@ namespace Ship_Game.Ships
         void UpdateTroopBoardingDefense()
         {
             TroopBoardingDefense = 0f;
-            for (int i = 0; i < TroopList.Count; i++)
+            for (int i = 0; i < OurTroops.Count; i++)
             {
-                Troop troop = TroopList[i];
+                Troop troop = OurTroops[i];
                 troop.SetShip(this);
-                if (troop.Loyalty == loyalty)
-                    TroopBoardingDefense += troop.Strength;
+                TroopBoardingDefense += troop.Strength;
+            }
+            for (int i = 0; i < HostileTroops.Count; ++i)
+            {
+                HostileTroops[i].SetShip(this);
             }
         }
 
@@ -225,11 +203,11 @@ namespace Ship_Game.Ships
 
         void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
         {
-            var toRemove = GetOurTroops(troopsToRemove);
-            for (int i = 0; i < toRemove.Count; ++i)
+            Troop[] toRemove = OurTroops.ToArray();
+            for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
             {
-                Troop troop = toRemove[0];
-                Ship assaultShip     = CreateTroopShipAtPoint(GetAssaultShuttleName(loyalty), loyalty, Center, troop);
+                Troop troop = toRemove[i];
+                Ship assaultShip = CreateTroopShipAtPoint(GetAssaultShuttleName(loyalty), loyalty, Center, troop);
                 assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.SpeedLimit + Velocity;
 
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
@@ -257,13 +235,10 @@ namespace Ship_Game.Ships
 
         void HealOurTroops()
         {
-            for (int i = 0; i < TroopList.Count; ++i)
+            for (int i = 0; i < OurTroops.Count; ++i)
             {
-                Troop troop = TroopList[i];
-                if (troop.Loyalty == loyalty)
-                {
-                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
-                }
+                Troop troop = OurTroops[i];
+                troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
             }
         }
         
@@ -274,41 +249,31 @@ namespace Ship_Game.Ships
             if (HealPerTurn > 0)
                 HealOurTroops();
 
-            Troop[] ownTroops   = GetGoodGuysOnShip();
-            Troop[] enemyTroops = GetBadBoysOnShip();
-
-            if (ownTroops.Length > 0)
+            if (OurTroops.Count > 0)
             {
                 // leave a garrison of 1 if a ship without barracks was boarded
                 int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1);
-                if (!InCombat && enemyTroops.Length == 0 && ownTroops.Length > troopThreshold)
+                if (!InCombat && HostileTroops.Count == 0 && OurTroops.Count > troopThreshold)
                 {
-                    DisengageExcessTroops(ownTroops.Length - troopThreshold);
+                    DisengageExcessTroops(OurTroops.Count - troopThreshold);
                 }
             }
 
 
-            if (enemyTroops.Length > 0) // Combat!!
+            if (HostileTroops.Count > 0) // Combat!!
             {
-                var combatTurn = new ShipTroopCombatTurn(this, ownTroops, enemyTroops);
+                var combatTurn = new ShipTroopCombatTurn(this);
                 combatTurn.ResolveCombat();
             }
         }
 
-        Troop[] GetGoodGuysOnShip() => TroopList.Filter(troop => troop.Loyalty == loyalty);
-        Troop[] GetBadBoysOnShip()  => TroopList.Filter(troop => troop.Loyalty != loyalty);
-
         struct ShipTroopCombatTurn
         {
             readonly Ship Ship;
-            Troop[] GoodGuys;
-            Troop[] BadBoys;
 
-            public ShipTroopCombatTurn(Ship ship, Troop[] ownTroops, Troop[] enemyTroops)
+            public ShipTroopCombatTurn(Ship ship)
             {
                 Ship = ship;
-                GoodGuys = ownTroops;
-                BadBoys = enemyTroops;
             }
 
             public void ResolveCombat()
@@ -316,17 +281,18 @@ namespace Ship_Game.Ships
                 ResolveOwnVersusEnemy();
                 ResolveEnemyVersusOwn();
 
-                // enemy troops won:
-                if (GoodGuys.Length == 0 && Ship.MechanicalBoardingDefense <= 0f && BadBoys.Length > 0)
+                if (Ship.OurTroops.Count == 0 &&
+                    Ship.MechanicalBoardingDefense <= 0f &&
+                    Ship.HostileTroops.Count > 0) // enemy troops won:
                 {
-                    Ship.ChangeLoyalty(changeTo: BadBoys[0].Loyalty);
+                    Ship.ChangeLoyalty(changeTo: Ship.HostileTroops[0].Loyalty);
                     Ship.RefreshMechanicalBoardingDefense();
                 }
             }
 
             void ResolveOwnVersusEnemy()
             {
-                if (GoodGuys.Length == 0 || BadBoys.Length == 0)
+                if (Ship.OurTroops.Count == 0 || Ship.HostileTroops.Count == 0)
                     return;
 
                 float ourCombinedDefense = 0f;
@@ -335,40 +301,38 @@ namespace Ship_Game.Ships
                     if (UniverseRandom.RollDice(50f)) // 50%
                         ourCombinedDefense += 1f;
 
-                foreach (Troop troop in GoodGuys)
+                foreach (Troop troop in Ship.OurTroops)
                 {
                     for (int i = 0; i < troop.Strength; ++i)
                         if (UniverseRandom.RollDice(troop.BoardingStrength))
                             ourCombinedDefense += 1f;
                 }
 
-                foreach (Troop troop in BadBoys)
+                foreach (Troop badBoy in Ship.HostileTroops.ToArray()) // BadBoys will be modified
                 {
                     if (ourCombinedDefense > 0)
-                        troop.DamageTroop(Ship, ref ourCombinedDefense);
+                        badBoy.DamageTroop(Ship, ref ourCombinedDefense);
                     else break;
                 }
-
-                BadBoys = Ship.GetBadBoysOnShip();
             }
 
             void ResolveEnemyVersusOwn()
             {
-                if (BadBoys.Length == 0)
+                if (Ship.HostileTroops.Count == 0)
                     return;
 
                 float enemyAttackPower = 0;
-                foreach (Troop troop in BadBoys)
+                foreach (Troop troop in Ship.HostileTroops)
                 {
                     for (int i = 0; i < troop.Strength; ++i)
                         if (UniverseRandom.RollDice(troop.BoardingStrength))
                             enemyAttackPower += 1.0f;
                 }
 
-                foreach (Troop us in GoodGuys)
+                foreach (Troop goodGuy in Ship.OurTroops.ToArray()) // OurTroops will be modified
                 {
                     if (enemyAttackPower > 0)
-                        us.DamageTroop(Ship, ref enemyAttackPower);
+                        goodGuy.DamageTroop(Ship, ref enemyAttackPower);
                     else break;
                 }
 
@@ -377,8 +341,6 @@ namespace Ship_Game.Ships
                 {
                     Ship.MechanicalBoardingDefense = Math.Max(Ship.MechanicalBoardingDefense - enemyAttackPower, 0);
                 }
-
-                GoodGuys = Ship.GetGoodGuysOnShip();
             }
         }
     }
