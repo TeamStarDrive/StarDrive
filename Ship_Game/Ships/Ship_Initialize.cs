@@ -403,15 +403,16 @@ namespace Ship_Game.Ships
             ShipInitialized = true;
         }
 
-        private void InitDefendingTroopStrength()
+        void InitDefendingTroopStrength()
         {
             TroopBoardingDefense = 0f;
 
-            foreach (Troop t in OurTroops)
+            for (int i = 0; i < OurTroops.Count; i++)
             {
-                t.SetOwner(loyalty);
-                t.SetShip(this);
-                TroopBoardingDefense += t.Strength;
+                Troop troop = OurTroops[i];
+                troop.SetOwner(loyalty);
+                troop.SetShip(this);
+                TroopBoardingDefense += troop.Strength;
             }
         }
 

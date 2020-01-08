@@ -213,30 +213,22 @@ namespace Ship_Game.Ships
                              troopShip.Carrier.HasActiveTroopBays,
                 troopShip => ship.Center.SqDist(troopShip.Center));
         }
-
-        void HealOurTroops()
-        {
-            for (int i = 0; i < OurTroops.Count; ++i)
-            {
-                Troop troop = OurTroops[i];
-                troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
-            }
-        }
         
         void UpdateTroops()
         {
             TroopBoardingDefense = 0f;
+            if (OurTroops.Count == 0 || HostileTroops.Count == 0)
+                return;
 
             for (int i = 0; i < OurTroops.Count; i++)
             {
                 Troop troop = OurTroops[i];
                 troop.SetShip(this);
 
-                // account defense before healing
-                TroopBoardingDefense += troop.Strength;
-
                 if (HealPerTurn > 0)
                     troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
+
+                TroopBoardingDefense += troop.Strength;
             }
 
             for (int i = 0; i < HostileTroops.Count; ++i)
@@ -256,85 +248,70 @@ namespace Ship_Game.Ships
 
             if (HostileTroops.Count > 0) // Combat!!
             {
-                var combatTurn = new ShipTroopCombatTurn(this);
-                combatTurn.ResolveCombat();
+                if (OurTroops.Count > 0 || MechanicalBoardingDefense > 0)
+                {
+                    TroopCombatDefenseTurn();
+                }
+
+                if (HostileTroops.Count > 0) // double check, since defense may have killed some
+                {
+                    TroopCombatHostilesAttackingTurn();
+                }
+
+                if (OurTroops.Count == 0 &&
+                    MechanicalBoardingDefense <= 0f &&
+                    HostileTroops.Count > 0) // enemy troops won:
+                {
+                    ChangeLoyalty(changeTo: HostileTroops[0].Loyalty);
+                    RefreshMechanicalBoardingDefense();
+                }
             }
         }
 
-        struct ShipTroopCombatTurn
+        void TroopCombatDefenseTurn()
         {
-            readonly Ship Ship;
+            float ourCombinedDefense = 0f;
 
-            public ShipTroopCombatTurn(Ship ship)
+            for (int i = 0; i < MechanicalBoardingDefense; ++i)
+                if (UniverseRandom.RollDice(50f)) // 50%
+                    ourCombinedDefense += 1f;
+
+            foreach (Troop troop in OurTroops)
             {
-                Ship = ship;
-            }
-
-            public void ResolveCombat()
-            {
-                ResolveOwnVersusEnemy();
-                ResolveEnemyVersusOwn();
-
-                if (Ship.OurTroops.Count == 0 &&
-                    Ship.MechanicalBoardingDefense <= 0f &&
-                    Ship.HostileTroops.Count > 0) // enemy troops won:
-                {
-                    Ship.ChangeLoyalty(changeTo: Ship.HostileTroops[0].Loyalty);
-                    Ship.RefreshMechanicalBoardingDefense();
-                }
-            }
-
-            void ResolveOwnVersusEnemy()
-            {
-                if (Ship.OurTroops.Count == 0 || Ship.HostileTroops.Count == 0)
-                    return;
-
-                float ourCombinedDefense = 0f;
-
-                for (int i = 0; i < Ship.MechanicalBoardingDefense; ++i)
-                    if (UniverseRandom.RollDice(50f)) // 50%
+                for (int i = 0; i < troop.Strength; ++i)
+                    if (UniverseRandom.RollDice(troop.BoardingStrength))
                         ourCombinedDefense += 1f;
-
-                foreach (Troop troop in Ship.OurTroops)
-                {
-                    for (int i = 0; i < troop.Strength; ++i)
-                        if (UniverseRandom.RollDice(troop.BoardingStrength))
-                            ourCombinedDefense += 1f;
-                }
-
-                foreach (Troop badBoy in Ship.HostileTroops.ToArray()) // BadBoys will be modified
-                {
-                    if (ourCombinedDefense > 0)
-                        badBoy.DamageTroop(Ship, ref ourCombinedDefense);
-                    else break;
-                }
             }
 
-            void ResolveEnemyVersusOwn()
+            foreach (Troop badBoy in HostileTroops.ToArray()) // BadBoys will be modified
             {
-                if (Ship.HostileTroops.Count == 0)
-                    return;
+                if (ourCombinedDefense > 0)
+                    badBoy.DamageTroop(this, ref ourCombinedDefense);
+                else break;
+            }
+        }
 
-                float enemyAttackPower = 0;
-                foreach (Troop troop in Ship.HostileTroops)
-                {
-                    for (int i = 0; i < troop.Strength; ++i)
-                        if (UniverseRandom.RollDice(troop.BoardingStrength))
-                            enemyAttackPower += 1.0f;
-                }
+        void TroopCombatHostilesAttackingTurn()
+        {
+            float enemyAttackPower = 0;
+            foreach (Troop troop in HostileTroops)
+            {
+                for (int i = 0; i < troop.Strength; ++i)
+                    if (UniverseRandom.RollDice(troop.BoardingStrength))
+                        enemyAttackPower += 1.0f;
+            }
 
-                foreach (Troop goodGuy in Ship.OurTroops.ToArray()) // OurTroops will be modified
-                {
-                    if (enemyAttackPower > 0)
-                        goodGuy.DamageTroop(Ship, ref enemyAttackPower);
-                    else break;
-                }
-
-                // spend rest of the attack strength to weaken mechanical defenses:
+            foreach (Troop goodGuy in OurTroops.ToArray()) // OurTroops will be modified
+            {
                 if (enemyAttackPower > 0)
-                {
-                    Ship.MechanicalBoardingDefense = Math.Max(Ship.MechanicalBoardingDefense - enemyAttackPower, 0);
-                }
+                    goodGuy.DamageTroop(this, ref enemyAttackPower);
+                else break;
+            }
+
+            // spend rest of the attack strength to weaken mechanical defenses:
+            if (enemyAttackPower > 0)
+            {
+                MechanicalBoardingDefense = Math.Max(MechanicalBoardingDefense - enemyAttackPower, 0);
             }
         }
     }
