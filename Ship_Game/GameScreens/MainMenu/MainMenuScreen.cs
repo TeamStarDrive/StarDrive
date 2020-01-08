@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -96,7 +97,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             //AssignLightRig("example/ShipyardLightrig");
             ScreenManager.RemoveAllLights();
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
+            ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
             var topRightInBackground = new Vector3(26000,-26000,32000);
             var lightYellow = new Color(255,254,224);
@@ -137,16 +139,23 @@ namespace Ship_Game.GameScreens.MainMenu
             VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 
-            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 90, "StarDrive 15B"));
-            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 64, GlobalStats.ExtendedVersion));
+            string starDrive = "StarDrive 15B";
+            string blackBox = GlobalStats.ExtendedVersionNoHash;
+            string modTitle = "";
             if (GlobalStats.HasMod)
             {
                 string title = GlobalStats.ActiveModInfo.ModName;
                 string version = GlobalStats.ActiveModInfo.Version;
                 if (version.NotEmpty() && !title.Contains(version))
-                    title = title+" - "+version;
-                VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 38, title));
+                    modTitle = title+" - "+version;
             }
+
+            string longest = new []{starDrive,blackBox,modTitle}.FindMax(s => s.Length);
+            int offset = Math.Max(300, Fonts.Pirulen12.TextWidth(longest).RoundUpToMultipleOf(10) + 10);
+            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 90, starDrive));
+            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 64, blackBox));
+            if (modTitle.NotEmpty())
+                VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle));
         }
 
         void CreateMainMenuFleet()
@@ -250,7 +259,9 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)
+            {
                 ResetMusic();
+            }
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {

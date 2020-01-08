@@ -124,16 +124,9 @@ namespace Ship_Game
             }
             catch (Exception ex)
             {
-                Log.ErrorDialog(ex, "Failed to load game data!", isFatal:true);
+                Log.ErrorDialog(ex, "Failed to load game data!", Program.UNHANDLED_EXCEPTION);
                 throw;
             }
-        }
-
-        public override void ExitScreen()
-        {
-            LoadingPlayer.Dispose();
-            SplashPlayer.Dispose();
-            base.ExitScreen();
         }
 
         protected override void Destroy()

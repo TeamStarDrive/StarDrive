@@ -219,6 +219,9 @@ namespace Ship_Game
                 }
                 catch (Exception ex)
                 {
+                    var currentThread = Thread.CurrentThread;
+                    ex.Data["Thread"] = currentThread.Name;
+                    ex.Data["ThreadId"] = currentThread.ManagedThreadId;
                     Log.Warning($"{Name} caught unhandled exception: {ex}");
                     SetResult(null, ex);
                 }

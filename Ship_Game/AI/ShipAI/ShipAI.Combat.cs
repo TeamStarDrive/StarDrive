@@ -20,7 +20,6 @@ namespace Ship_Game.AI
         public Guid TargetGuid;
         public bool IgnoreCombat;
         public bool BadGuysNear;
-        public bool Troopsout = false;
         public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         public Guid EscortTargetGuid;
         public Ship Target;

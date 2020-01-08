@@ -4,15 +4,15 @@ using Microsoft.Xna.Framework;
 namespace Ship_Game
 {
     // @todo This is at least third copy of RandomMath, RandomMath2, ... what gives?
-	public sealed class UniverseRandom
-	{
-		public static readonly Random Random = new Random();
+    public sealed class UniverseRandom
+    {
+        public static readonly Random Random = new Random();
 
         /// Generate random, inclusive [minimum, maximum]
-		public static float RandomBetween(float minimum, float maximum)
-		{
-			return minimum + (float)Random.NextDouble() * (maximum - minimum);
-		}
+        public static float RandomBetween(float minimum, float maximum)
+        {
+            return minimum + (float)Random.NextDouble() * (maximum - minimum);
+        }
 
         /// Generate random, inclusive [minimum, maximum]
         public static int IntBetween(int minimum, int maximum)
@@ -34,11 +34,19 @@ namespace Ship_Game
             return Random.Next(0, arrayLength);
         }
 
-		public static Vector2 RandomDirection()
-		{
-			float angle = RandomBetween(0f, (float)Math.PI * 2f);
+        // performs a dice-roll, where chance must be between [0..100]
+        // @return TRUE if random chance passed
+        // @example if (RandomMath.RollDice(33)) {..} // 33% chance
+        public static bool RollDice(float percent)
+        {
+            return RandomBetween(0f, 100f) < percent;
+        }
+
+        public static Vector2 RandomDirection()
+        {
+            float angle = RandomBetween(0f, (float)Math.PI * 2f);
             return angle.RadiansToDirection();
-		}
+        }
 
         // Generates a Vector3 with X Y Z in range [-radius, +radius]
         public static Vector3 Vector3D(float radius)
@@ -59,5 +67,5 @@ namespace Ship_Game
         {
             return new Vector3(RandomBetween(-radius, +radius), RandomBetween(-radius, +radius), 0f);
         }
-	}
+    }
 }
