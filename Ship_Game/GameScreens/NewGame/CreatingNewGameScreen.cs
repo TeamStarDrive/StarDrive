@@ -625,7 +625,7 @@ namespace Ship_Game
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             batch.Begin();
 
-            if (!BackgroundTask.IsComplete)
+            if (BackgroundTask?.IsComplete == false)
             {
                 // heavily throttle main draw thread, so the worker thread can turbo
                 Thread.Sleep(33);
@@ -643,7 +643,7 @@ namespace Ship_Game
             var position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(AdviceText).Y - 5.0));
             batch.DrawString(Fonts.Arial12Bold, AdviceText, position, Color.White);
             
-            if (BackgroundTask.IsComplete)
+            if (BackgroundTask?.IsComplete == true)
             {
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
                 string token = Localizer.Token(2108);
