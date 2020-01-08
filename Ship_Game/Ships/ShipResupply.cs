@@ -132,7 +132,7 @@ namespace Ship_Game.Ships
             if (Ship.Carrier.AllTroopBays.Length > 0)
                 return Ship.Carrier.TroopsMissingVsTroopCapacity < resupplyTroopThreshold;
 
-            return (float)Ship.TroopList.Count / Ship.TroopCapacity < resupplyTroopThreshold;
+            return (float)Ship.TroopCount / Ship.TroopCapacity < resupplyTroopThreshold;
         }
 
         private bool OrdnanceLow()
