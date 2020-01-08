@@ -65,19 +65,15 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool TryLandSingleTroopOnShip(Ship targetShip)
+        public void TryLandSingleTroopOnShip(Ship targetShip)
         {
-            if (OurTroops.Count > 0)
-            {
-                OurTroops[0].LandOnShip(targetShip);
-                return true;
-            }
-            return false;
+            if (GetOurFirstTroop(out Troop first))
+                first.LandOnShip(targetShip);
         }
 
         public bool TryLandSingleTroopOnPlanet(Planet targetPlanet)
         {
-            return OurTroops.Count > 0 && OurTroops[0].TryLandTroop(targetPlanet);
+            return GetOurFirstTroop(out Troop first) && first.TryLandTroop(targetPlanet);
         }
 
         public bool GetOurFirstTroop(out Troop troop)
@@ -181,21 +177,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateTroopBoardingDefense()
-        {
-            TroopBoardingDefense = 0f;
-            for (int i = 0; i < OurTroops.Count; i++)
-            {
-                Troop troop = OurTroops[i];
-                troop.SetShip(this);
-                TroopBoardingDefense += troop.Strength;
-            }
-            for (int i = 0; i < HostileTroops.Count; ++i)
-            {
-                HostileTroops[i].SetShip(this);
-            }
-        }
-
         void RefreshMechanicalBoardingDefense()
         {
             MechanicalBoardingDefense =  ModuleSlotList.Sum(module => module.MechanicalBoardingDefense);
@@ -244,10 +225,24 @@ namespace Ship_Game.Ships
         
         void UpdateTroops()
         {
-            UpdateTroopBoardingDefense();
+            TroopBoardingDefense = 0f;
 
-            if (HealPerTurn > 0)
-                HealOurTroops();
+            for (int i = 0; i < OurTroops.Count; i++)
+            {
+                Troop troop = OurTroops[i];
+                troop.SetShip(this);
+
+                // account defense before healing
+                TroopBoardingDefense += troop.Strength;
+
+                if (HealPerTurn > 0)
+                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
+            }
+
+            for (int i = 0; i < HostileTroops.Count; ++i)
+            {
+                HostileTroops[i].SetShip(this);
+            }
 
             if (OurTroops.Count > 0)
             {
@@ -258,7 +253,6 @@ namespace Ship_Game.Ships
                     DisengageExcessTroops(OurTroops.Count - troopThreshold);
                 }
             }
-
 
             if (HostileTroops.Count > 0) // Combat!!
             {
