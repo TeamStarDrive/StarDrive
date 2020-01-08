@@ -267,7 +267,7 @@ namespace Ship_Game.Ships
             }
             catch (Exception e)
             {
-                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'");
+                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'", 0);
                 throw;
             }
             finally

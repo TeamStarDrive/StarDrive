@@ -30,6 +30,7 @@ namespace Ship_Game
     {
         public static string Version = "";
         public static string ExtendedVersion = "";
+        public static string ExtendedVersionNoHash = "";
 
         public static int ComparisonCounter = 1;
         public static int Comparisons = 0;
@@ -49,6 +50,7 @@ namespace Ship_Game
         public static object BeamEffectLocker     = new object();
 
         public static bool ShowAllDesigns        = true;
+        public static bool SymmetricDesign       = true;
         public static int BeamTests              = 0;
         public static int ModuleUpdates          = 0;
         public static int WeaponArcChecks        = 0;
@@ -172,9 +174,10 @@ namespace Ship_Game
 
             Version = (Assembly.GetEntryAssembly()?
                 .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute), false)
-                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion;
+                as AssemblyInformationalVersionAttribute[])?[0].InformationalVersion ?? "";
+            ExtendedVersion       = $"BlackBox : {Version}";
+            ExtendedVersionNoHash = $"BlackBox : {Version.Split(' ')[0]}";
 
-            ExtendedVersion = $"BlackBox : {Version}";
             GetSetting("GravityWellRange"      , ref GravityWellRange);
             GetSetting("StartingPlanetRichness", ref StartingPlanetRichness);
             GetSetting("perf"                  , ref RestrictAIPlayerInteraction);

@@ -645,8 +645,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            DescriptionSL.HandleInput(input);
-            if (!DrawingColorSelector)
+            if (DrawingColorSelector)
+                return HandleColorSelectorInput(input);
+
+            if (DescriptionSL.HandleInput(input))
+                return true;
+
             {
                 selector = null;
                 foreach (ScrollList.Entry e in RaceArchetypeSL.AllEntries)
@@ -809,13 +813,13 @@ namespace Ship_Game
                 if (NumOpponentsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
-                    int maxOpponents = Mode == GameMode.Corners ? 3 
+                    int maxOpponents = Mode == GameMode.Corners ? 3
                         : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
                     numOpponents = numOpponents + 1;
-                    
-                    if (numOpponents > maxOpponents)                    
+
+                    if (numOpponents > maxOpponents)
                         numOpponents = 1;
-                    
+
                 }
                 if (ScaleRect.HitTest(input.CursorPosition))
                 {
@@ -908,14 +912,25 @@ namespace Ship_Game
                     GameAudio.BlipClick();
                 }
             }
-            else if (!ColorSelector.HitTest(input.CursorPosition))
+
+            if (input.Escaped)
             {
-                if (input.LeftMouseClick)
-                {
-                    DrawingColorSelector = false;
-                }
+                ExitScreen();
+                return true;
             }
-            else if (input.LeftMouseDown)
+            return base.HandleInput(input);
+        }
+
+        bool HandleColorSelectorInput(InputState input)
+        {
+            bool overColorSelect = ColorSelector.HitTest(input.CursorPosition);
+            if ((!overColorSelect && input.LeftMouseClick) || input.RightMouseClick)
+            {
+                DrawingColorSelector = false;
+                return true;
+            }
+
+            if (overColorSelect && (input.LeftMouseClick || input.LeftMouseDown))
             {
                 int yPosition = ColorSelector.Y + 10;
                 int xPositionStart = ColorSelector.X + 10;
@@ -923,15 +938,17 @@ namespace Ship_Game
                 {
                     for (int j = 0; j <= 255; j++)
                     {
-                        var thisColor = new Color((byte)i, (byte)j, RaceSummary.B);
+                        var thisColor = new Color((byte) i, (byte) j, currentObjectColor.B);
                         var colorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
                         if (colorRect.HitTest(input.CursorPosition))
                         {
                             currentObjectColor = thisColor;
                         }
                     }
-                    yPosition = yPosition + 2;
+
+                    yPosition += 2;
                 }
+
                 yPosition = ColorSelector.Y + 10;
                 for (int i = 0; i <= 255; i++)
                 {
@@ -941,15 +958,12 @@ namespace Ship_Game
                     {
                         currentObjectColor = thisColor;
                     }
+
                     yPosition += 2;
                 }
             }
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
+
+            return true;
         }
 
 
