@@ -11,20 +11,56 @@ namespace Ship_Game.Ships
         /// our troops and also enemy troops.
         /// It can get mighty confusing, but that's what we got.
         /// </summary>
-        public readonly Array<Troop> TroopList = new Array<Troop>();
+        readonly Array<Troop> TroopList = new Array<Troop>();
         public int TroopCount => TroopList.Count;
+        public Array<Troop> GetAllTroops() => TroopList;
 
         // TRUE if we have any troops present on this ship
         // @warning Some of these MAY be enemy troops!
-        public bool HasLocalTroops => TroopList.Count > 0;
+        public bool HasOurTroops
+        {
+            get
+            {
+                for (int i = 0; i < TroopList.Count; ++i)
+                {
+                    Troop troop = TroopList[i];
+                    if (troop != null && troop.Loyalty == loyalty)
+                        return true;
+                }
+                return false;
+            }
+        }
         
-        // TRUE if we have local troops or if we launched these troops on to operations
-        public bool HasTroopsPresentOrLaunched => TroopList.Count > 0
-                                                  || Carrier.LaunchedAssaultShuttles > 0;
+        // TRUE if we have own troops or if we launched these troops on to operations
+        public bool HasTroopsPresentOrLaunched => HasOurTroops || Carrier.LaunchedAssaultShuttles > 0;
 
         public bool TroopsAreBoardingShip => TroopList.Count(troop => troop.Loyalty == loyalty) != TroopList.Count;
         public int NumPlayerTroopsOnShip  => TroopList.Count(troop => troop.Loyalty == EmpireManager.Player);
         public int NumAiTroopsOnShip      => TroopList.Count(troop => troop.Loyalty != EmpireManager.Player);
+
+        // NOTE: could be an enemy troop or a friendly one
+        public void AddTroop(Troop troop)
+        {
+            // TODO: sort friendlies and enemies
+            TroopList.Add(troop);
+        }
+
+        public void RemoveAnyTroop(Troop troop)
+        {
+            TroopList.RemoveRef(troop);
+        }
+
+        public float GetOurTroopStrength(int maxTroops)
+        {
+            float strength = 0;
+            for (int i = 0; i < maxTroops; ++i)
+            {
+                Troop troop = TroopList[i];
+                if (troop != null && troop.Loyalty == loyalty)
+                    strength += troop.Strength;
+            }
+            return strength;
+        }
 
         public int NumTroopsRebasingHere
         {
@@ -79,7 +115,7 @@ namespace Ship_Game.Ships
             return false;
         }
 
-        public Array<Troop> GatherOurTroops(int maxTroops)
+        public Array<Troop> GetOurTroops(int maxTroops)
         {
             var troops = new Array<Troop>();
             for (int i = 0; i < TroopList.Count && troops.Count < maxTroops; ++i)
@@ -189,12 +225,12 @@ namespace Ship_Game.Ships
 
         void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
         {
-            for (int i = 0; i < troopsToRemove && TroopList.NotEmpty; i++)
+            var toRemove = GetOurTroops(troopsToRemove);
+            for (int i = 0; i < toRemove.Count; ++i)
             {
-                Troop troop = TroopList[0];
-                Ship assaultShip     = CreateTroopShipAtPoint(GetAssaultShuttleName(loyalty), loyalty, Center, TroopList[0]);
+                Troop troop = toRemove[0];
+                Ship assaultShip     = CreateTroopShipAtPoint(GetAssaultShuttleName(loyalty), loyalty, Center, troop);
                 assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.SpeedLimit + Velocity;
-                troop.LandOnShip(assaultShip);
 
                 Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
 

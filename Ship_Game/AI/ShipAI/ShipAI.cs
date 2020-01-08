@@ -559,7 +559,7 @@ namespace Ship_Game.AI
                             module.TransporterPower >= Owner.PowerCurrent) continue;
                         if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
                             DoOrdinanceTransporterLogic(module);
-                        if (module.TransporterTroopAssault > 0 && Owner.HasLocalTroops)
+                        if (module.TransporterTroopAssault > 0 && Owner.HasOurTroops)
                             DoAssaultTransporterLogic(module);
                     }
 

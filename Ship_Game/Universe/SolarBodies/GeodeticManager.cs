@@ -188,7 +188,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         {
             // @todo FB - need to separate this to a method which will return a troop based on faction
             if ((SystemCombatTimer % 30).AlmostZero()  && ship.TroopCapacity > ship.TroopCount)
-                ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
+            {
+                Troop troop = ResourceManager.CreateTroop("Wyvern", ship.loyalty);
+                troop.LandOnShip(ship);
+            }
         }
     }
 }

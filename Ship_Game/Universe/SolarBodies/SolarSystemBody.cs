@@ -490,8 +490,7 @@ namespace Ship_Game
             foreach (var kv in OrbitalStations)
             {
                 Ship station = kv.Value;
-                if (station.loyalty != newOwner ||
-                    station.TroopList.Any(loyalty => loyalty.Loyalty != newOwner))
+                if (station.loyalty != newOwner)
                 {
                     station.ChangeLoyalty(newOwner);
                     Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
