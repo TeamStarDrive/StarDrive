@@ -294,7 +294,7 @@ namespace Ship_Game
                 }
 
                 Troop troop = draggedTroop.TryGet(out Ship ship)
-                            && ship.TroopCount > 0 ? ship.TroopList.First : draggedTroop.Get<Troop>();
+                            && ship.GetOurFirstTroop(out Troop first) ? first : draggedTroop.Get<Troop>();
 
                 SubTexture icon = troop.TextureDefault;
                 batch.Draw(icon, Input.CursorPosition, Color.White, 0f, icon.CenterF, 0.65f, SpriteEffects.None, 1f);
@@ -827,11 +827,11 @@ namespace Ship_Game
 
                     if (ship.shipData.Role != ShipData.RoleName.troop)
                     {
-                        if (!ship.HasLocalTroops || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
+                        if (!ship.HasOurTroops || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
                             continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
 
                         int landingLimit = LandingLimit(ship);
-                        foreach (Troop troop in ship.GatherOurTroops(landingLimit))
+                        foreach (Troop troop in ship.GetOurTroops(landingLimit))
                             OrbitSL.AddItem(troop);
                     }
                     else if (ship.AI.State != AI.AIState.Rebase &&

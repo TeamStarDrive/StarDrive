@@ -390,7 +390,7 @@ namespace Ship_Game.AI
                 else
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
-                if (Owner.HasLocalTroops)
+                if (Owner.HasOurTroops)
                     Orbit.Orbit(planet, elapsedTime); // Doing orbit with AssaultPlanet state to continue landing troops if possible
                 else
                     ClearOrders();
@@ -399,7 +399,7 @@ namespace Ship_Game.AI
 
         void DoRebase(ShipGoal goal)
         {
-            if (!Owner.HasLocalTroops)
+            if (!Owner.HasOurTroops)
                 Owner.QueueTotalRemoval(); // troops not found, vanish the ship
             else if (!Owner.TryLandSingleTroopOnPlanet(goal.TargetPlanet))
                 ClearOrders();

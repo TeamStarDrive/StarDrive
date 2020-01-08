@@ -208,7 +208,7 @@ namespace Ship_Game.Ships
                 foreach (Troop t in save.TroopList)
                 {
                     t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
-                    TroopList.Add(t);
+                    AddTroop(t);
                 }
             }
 
@@ -291,12 +291,18 @@ namespace Ship_Game.Ships
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
 
-            if (ship.SetSupplyShuttleRole(hangar.IsSupplyBay))
-                return ship;
-            if (ship.SetTroopShuttleRole(hangar.IsTroopBay))
-                return ship;
-
+            if (hangar.IsSupplyBay)
+                ship.SetSpecialRole(ShipData.RoleName.supply, "Supply Shuttle");
+            else if (hangar.IsTroopBay)
+                ship.SetSpecialRole(ShipData.RoleName.troop, "");
             return ship;
+        }
+        
+        void SetSpecialRole(ShipData.RoleName role, string vanityName)
+        {
+            DesignRole = role;
+            if (vanityName.NotEmpty())
+                VanityName = vanityName;
         }
 
         public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
@@ -308,24 +314,11 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        bool SetSupplyShuttleRole(bool isSupplyBay) => SetSpecialRole(ShipData.RoleName.supply, isSupplyBay, "Supply Shuttle");
-        bool SetTroopShuttleRole(bool isTroopBay)   => SetSpecialRole(ShipData.RoleName.troop, isTroopBay, "");
-
-        bool SetSpecialRole(ShipData.RoleName roleToset, bool ifTrue, string vanityName)
-        {
-            if (!ifTrue) return false;
-            DesignRole = roleToset;
-            if (vanityName.NotEmpty())
-                VanityName = vanityName;
-            return true;
-        }
-
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
         {
-            Ship ship       = CreateShipAtPoint(shipName, owner, point);
+            Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
-            ship.TroopList.Add(troop);
-            troop.SetShip(ship);
+            troop.LandOnShip(ship);
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;

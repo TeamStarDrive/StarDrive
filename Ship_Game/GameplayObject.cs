@@ -163,6 +163,10 @@ namespace Ship_Game
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
+
+                foreach (Troop troop in ship.GetAllTroops())
+                    if (troop.Loyalty == oldLoyalty)
+                        troop.ChangeLoyalty(changeTo);
             }
 
             // this resets the spatial management

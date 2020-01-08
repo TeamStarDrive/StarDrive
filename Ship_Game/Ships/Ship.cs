@@ -235,9 +235,8 @@ namespace Ship_Game.Ships
         {
             if (TroopCount > 0)
             {
-                if (UniverseRandom.RollDice(troopDamageChance))
+                if (UniverseRandom.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
                 {
-                    Troop first = TroopList[0];
                     float damage = 1;
                     first.DamageTroop(this, ref damage);
                 }

@@ -337,7 +337,7 @@ namespace Ship_Game.AI
                     {
                         Ship troopShip = TroopShips[i];
 
-                        if (troopShip == null || !troopShip.HasLocalTroops)
+                        if (troopShip == null || !troopShip.HasOurTroops)
                         {
                             TroopShips.RemoveAtSwapLast(i);
                             continue;
