@@ -951,11 +951,5 @@ namespace Ship_Game
                 batch.Draw(Animation[Frame], Grid, Color.White);
             }
         }
-
-        protected override void Destroy()
-        {
-            Explosions?.Dispose(ref Explosions);
-            base.Destroy();
-        }
     }
 }
