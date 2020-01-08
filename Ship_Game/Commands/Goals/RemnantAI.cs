@@ -80,7 +80,9 @@ namespace Ship_Game.Commands.Goals
                     var colonyShip = Ship.CreateShipAtPoint(
                         EmpireManager.Player.data.ColonyShip, empire, ship.Center);
                     ship.QueueTotalRemoval();
-                    colonyShip.TroopList.Add(ResourceManager.CreateTroop("Remnant Defender", ship.loyalty));
+                    var troop = ResourceManager.CreateTroop("Remnant Defender", ship.loyalty);
+
+                    troop.LandOnShip(ship);
                 }
                 Goal goal = new MarkForColonization(colonyTarget, empire);
                 empire.GetEmpireAI().AddGoal(goal);
@@ -115,7 +117,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep FinalSolution()
         {
-            foreach(var ship in empire.GetShips().Filter(s=> s.Active 
+            foreach(var ship in empire.GetShips().Filter(s=> s.Active
                                                              && s.DesignRole != ShipData.RoleName.colony
                                                              && s.AI.State == AIState.AwaitingOrders
                                                              && s.System != null ))
@@ -125,89 +127,6 @@ namespace Ship_Game.Commands.Goals
                     ship.AI.OrderLandAllTroops(target);
             }
             return GoalStep.RestartGoal;
-        }
-
-        GoalStep RemnantPlan()
-        {
-            bool hasPlanets = false;
-            foreach (Planet planet in empire.GetPlanets())
-            {
-                hasPlanets = true;
-                planet.Construction.RemnantCheatProduction();
-            }
-
-            foreach (Ship assimilate in empire.GetShips())
-            {
-                if (assimilate.shipData.ShipStyle != "Remnant" && assimilate.shipData.ShipStyle != null &&
-                    assimilate.AI.State != AIState.Colonize && assimilate.AI.State != AIState.Refit
-                    && (!assimilate.AI.BadGuysNear || !hasPlanets))
-                {
-                    if (hasPlanets)
-                    {
-                        if (assimilate.GetStrength() <= 0)
-                        {
-                            Planet target = null;
-                            if (assimilate.System != null)
-                            {
-                                target = assimilate.System.PlanetList
-                                    .Find(owner => owner.Owner != empire && owner.Owner != null);
-                            }
-
-                            if (target != null)
-                            {
-                                assimilate.TroopList.Add(ResourceManager.CreateTroop("Remnant Defender", assimilate.loyalty));
-                                assimilate.isColonyShip = true;
-
-                                Planet capture = Empire.Universe.PlanetsDict.Values.ToArray().FindMaxFiltered(
-                                    potentials => potentials.Owner == null && potentials.Habitable,
-                                    potentials => -assimilate.Center.SqDist(potentials.Center));
-
-                                if (capture != null)
-                                    assimilate.AI.OrderColonization(capture);
-                            }
-                        }
-                        else
-                        {
-                            string shipName = "";
-                            if (assimilate.SurfaceArea < 50) shipName = "Heavy Drone";
-                            else if (assimilate.SurfaceArea < 100) shipName = "Remnant Slaver";
-                            else if (assimilate.SurfaceArea >= 100) shipName = "Remnant Exterminator";
-                            ResourceManager.ShipsDict.TryGetValue(shipName, out Ship template);
-                            if (template != null)
-                            {
-                                Goal refitShip = new RefitShip(assimilate, template.Name, empire);
-                                empire.GetEmpireAI().Goals.Add(refitShip);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (assimilate.GetStrength() <= 0)
-                        {
-                            assimilate.isColonyShip = true;
-
-
-                            Planet capture = Empire.Universe.PlanetsDict.Values
-                                .Where(potentials => potentials.Owner == null && potentials.Habitable)
-                                .OrderBy(potentials => Vector2.Distance(assimilate.Center, potentials.Center))
-                                .FirstOrDefault();
-                            if (capture != null)
-                                assimilate.AI.OrderColonization(capture);
-                        }
-                    }
-                }
-                else
-                {
-                    if (assimilate.System != null && assimilate.AI.State == AIState.AwaitingOrders)
-                    {
-                        Planet target = assimilate.System.PlanetList.Find(p => p.Owner != empire && p.Owner != null);
-                        if (target != null)
-                            assimilate.AI.OrderLandAllTroops(target);
-                    }
-                }
-            }
-
-            return GoalStep.TryAgain;
         }
     }
 }
