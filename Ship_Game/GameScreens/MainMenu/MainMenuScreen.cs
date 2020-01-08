@@ -259,7 +259,9 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)
+            {
                 ResetMusic();
+            }
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {

@@ -1264,14 +1264,12 @@ namespace Ship_Game
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
 
-            for (int index = 0; index < OwnedShips.Count; ++index)
+            for (int i = 0; i < OwnedShips.Count; ++i)
             {
-                Ship ship = OwnedShips[index];
+                Ship ship = OwnedShips[i];
                 if (ship != null)
                 {
-                    if (ship.DesignRoleType == ShipData.RoleType.Troop)
-                        foreach (Troop t in ship.TroopList)
-                            CurrentTroopStrength += t.Strength;
+                    CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
                     CurrentMilitaryStrength += ship.GetStrength();
                 }
             }
@@ -1618,7 +1616,7 @@ namespace Ship_Game
             using (OwnedShips.AcquireReadLock())
                 troopShips = new Array<Ship>(OwnedShips
                     .Filter(troopship => troopship.Name == data.DefaultTroopShip
-                                        && troopship.TroopList.Count > 0
+                                        && troopship.TroopCount > 0
                                         && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
                                         && troopship.fleet == null && !troopship.InCombat)
                     .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
