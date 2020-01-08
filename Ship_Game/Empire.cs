@@ -1616,7 +1616,7 @@ namespace Ship_Game
             using (OwnedShips.AcquireReadLock())
                 troopShips = new Array<Ship>(OwnedShips
                     .Filter(troopship => troopship.Name == data.DefaultTroopShip
-                                        && troopship.TroopCount > 0
+                                        && troopship.HasOurTroops
                                         && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
                                         && troopship.fleet == null && !troopship.InCombat)
                     .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
