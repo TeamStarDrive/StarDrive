@@ -633,9 +633,6 @@ namespace Ship_Game.Ships
                     if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
-                //if ((loyalty == targetShip.loyalty || !loyalty.isFaction
-                //     && loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
-                //    return false;
                 if (!loyalty.IsEmpireAttackable(target.GetLoyalty()))
                     return false;
             }
