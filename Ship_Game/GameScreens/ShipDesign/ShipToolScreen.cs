@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
@@ -498,8 +499,8 @@ namespace Ship_Game
                 ClickableArea = new Rectangle(screenWidth - 200, screenHeight - 115, 180, 20),
                 Text = HullName
             };
-            AssignLightRig("example/ShipyardLightrig");
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            AssignLightRig(LightRigIdentity.ShipToolScreen, "example/ShipyardLightrig");
+            ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
             float aspectRatio = Viewport.Width / (float)Viewport.Height;
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
             view = Matrix.CreateRotationY(180f.ToRadians())
