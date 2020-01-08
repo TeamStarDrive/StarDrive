@@ -847,11 +847,14 @@ namespace Ship_Game
             UpdateLandAllButton(OrbitSL.NumEntries);
         }
 
-        private int LandingLimit(Ship ship)
+        int LandingLimit(Ship ship)
         {
             int landingLimit;
             if (p.WeCanLandTroopsViaSpacePort(ship.loyalty))
-                landingLimit = ship.TroopCount;  // fbedard: Allows to unload all troops if there is a space port
+            {
+                // fbedard: Allows to unload all troops if there is a space port
+                landingLimit = ship.TroopCount;
+            }
             else
             {
                 landingLimit  = ship.Carrier.AllActiveTroopBays.Count(bay => bay.hangarTimer <= 0);

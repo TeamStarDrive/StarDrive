@@ -269,7 +269,7 @@ namespace Ship_Game
                     sdata.FoodCount        = ship.GetFood();
                     sdata.ProdCount        = ship.GetProduction();
                     sdata.PopCount         = ship.GetColonists();
-                    sdata.TroopList        = ship.GetAllTroops();
+                    sdata.TroopList        = ship.GetFriendlyAndHostileTroops();
                     sdata.FightersLaunched = ship.FightersLaunched;
                     sdata.TroopsLaunched   = ship.TroopsLaunched;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
