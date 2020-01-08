@@ -233,7 +233,7 @@ namespace Ship_Game.Ships
 
         public void CauseTroopDamage(float troopDamageChance)
         {
-            if (TroopCount > 0)
+            if (HasOurTroops)
             {
                 if (UniverseRandom.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
                 {
@@ -1632,7 +1632,8 @@ namespace Ship_Game.Ships
             Shields            = Empty<ShipModule>.Array;
             ThrusterList.Clear();
             BombBays.Clear();
-            TroopList.Clear();
+            OurTroops.Clear();
+            HostileTroops.Clear();
             RepairBeams.Clear();
 
             ClearFleet();

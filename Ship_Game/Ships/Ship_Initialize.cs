@@ -403,15 +403,16 @@ namespace Ship_Game.Ships
             ShipInitialized = true;
         }
 
-        private void InitDefendingTroopStrength()
+        void InitDefendingTroopStrength()
         {
             TroopBoardingDefense = 0f;
 
-            foreach (Troop t in TroopList)
+            for (int i = 0; i < OurTroops.Count; i++)
             {
-                t.SetOwner(loyalty);
-                t.SetShip(this);
-                TroopBoardingDefense += t.Strength;
+                Troop troop = OurTroops[i];
+                troop.SetOwner(loyalty);
+                troop.SetShip(this);
+                TroopBoardingDefense += troop.Strength;
             }
         }
 
@@ -461,8 +462,6 @@ namespace Ship_Game.Ships
 
         void InitializeStatusFromModules(bool fromSave)
         {
-            if (!fromSave)
-                TroopList.Clear();
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
@@ -471,7 +470,9 @@ namespace Ship_Game.Ships
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
-                if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
+                if (!fromSave && module.TroopsSupplied > 0)
+                    SpawnTroopsForNewShip(module);
+
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
 
