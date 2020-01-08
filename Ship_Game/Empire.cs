@@ -2138,13 +2138,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateAI()
-        {
-            //if (isFaction)
-            //    EmpireAI.FactionAI.Update();
-            //else if (!data.Defeated)
-                EmpireAI.Update();
-        }
+        void UpdateAI() => EmpireAI.Update();
 
         void Bankruptcy()
         {
