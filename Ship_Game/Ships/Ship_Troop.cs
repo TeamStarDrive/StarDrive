@@ -86,7 +86,7 @@ namespace Ship_Game.Ships
             {
                 Troop troop = TroopList[i];
                 if (troop != null && troop.Loyalty == loyalty)
-                    troops.Add(TroopList[i]);
+                    troops.Add(troop);
             }
             return troops;
         }
@@ -101,13 +101,13 @@ namespace Ship_Game.Ships
             {
                 if (maxTroopsToLand != 0 && landed >= maxTroopsToLand)
                     break;
+
                 Troop troop = troopsToLand[i];
                 if (troop != null && troop.Loyalty == loyalty)
                 {
                     troop.LandOnShip(targetShip);
                     ++landed;
                 }
-                troopsToLand[i].LandOnShip(targetShip);
             }
             return landed;
         }
