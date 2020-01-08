@@ -215,9 +215,10 @@ namespace Ship_Game
                 {
                     Ship ship = ships[z];
                     ShipAI ai = ship?.AI;                    
-                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopList.IsEmpty || ai.OrderQueue.IsEmpty) continue;
+                    if (ai == null ||  ai.State == AIState.Resupply || ship.TroopCount == 0 || ai.OrderQueue.IsEmpty)
+                        continue;
                     if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet))
-                        troopsInvading = ship.TroopList.Count;
+                        troopsInvading = ship.TroopCount;
                 }
 
                 if (troopsInvading > 0)
@@ -236,7 +237,7 @@ namespace Ship_Game
             if (planet.Owner == Empire.Universe.player)
             {
                 int troopsInvading = screen.EmpireUI.empire.GetShips()
-                 .Where(troop => troop.TroopList.Count > 0)
+                 .Where(troop => troop.TroopCount > 0)
                  .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == planet));
                 if (troopsInvading > 0)
                 {
