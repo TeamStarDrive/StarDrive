@@ -97,7 +97,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             //AssignLightRig("example/ShipyardLightrig");
             ScreenManager.RemoveAllLights();
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
+            ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
             var topRightInBackground = new Vector3(26000,-26000,32000);
             var lightYellow = new Color(255,254,224);
@@ -258,7 +259,9 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)
+            {
                 ResetMusic();
+            }
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {

@@ -208,7 +208,7 @@ namespace Ship_Game.Ships
                 foreach (Troop t in save.TroopList)
                 {
                     t.SetOwner(EmpireManager.GetEmpireByName(t.OwnerString));
-                    TroopList.Add(t);
+                    AddTroop(t);
                 }
             }
 
@@ -291,12 +291,18 @@ namespace Ship_Game.Ships
             ship.Mothership = parent;
             ship.Velocity   = parent.Velocity;
 
-            if (ship.SetSupplyShuttleRole(hangar.IsSupplyBay))
-                return ship;
-            if (ship.SetTroopShuttleRole(hangar.IsTroopBay))
-                return ship;
-
+            if (hangar.IsSupplyBay)
+                ship.SetSpecialRole(ShipData.RoleName.supply, "Supply Shuttle");
+            else if (hangar.IsTroopBay)
+                ship.SetSpecialRole(ShipData.RoleName.troop, "");
             return ship;
+        }
+        
+        void SetSpecialRole(ShipData.RoleName role, string vanityName)
+        {
+            DesignRole = role;
+            if (vanityName.NotEmpty())
+                VanityName = vanityName;
         }
 
         public static Ship CreateDefenseShip(string shipName, Empire owner, Vector2 p, Planet planet)
@@ -308,24 +314,11 @@ namespace Ship_Game.Ships
             return ship;
         }
 
-        bool SetSupplyShuttleRole(bool isSupplyBay) => SetSpecialRole(ShipData.RoleName.supply, isSupplyBay, "Supply Shuttle");
-        bool SetTroopShuttleRole(bool isTroopBay)   => SetSpecialRole(ShipData.RoleName.troop, isTroopBay, "");
-
-        bool SetSpecialRole(ShipData.RoleName roleToset, bool ifTrue, string vanityName)
-        {
-            if (!ifTrue) return false;
-            DesignRole = roleToset;
-            if (vanityName.NotEmpty())
-                VanityName = vanityName;
-            return true;
-        }
-
         public static Ship CreateTroopShipAtPoint(string shipName, Empire owner, Vector2 point, Troop troop)
         {
-            Ship ship       = CreateShipAtPoint(shipName, owner, point);
+            Ship ship = CreateShipAtPoint(shipName, owner, point);
             ship.VanityName = troop.DisplayName;
-            ship.TroopList.Add(troop);
-            troop.SetShip(ship);
+            troop.LandOnShip(ship);
             if (ship.shipData.Role == ShipData.RoleName.troop)
                 ship.shipData.ShipCategory = ShipData.Category.Conservative;
             return ship;
@@ -410,50 +403,16 @@ namespace Ship_Game.Ships
             ShipInitialized = true;
         }
 
-        private void InitDefendingTroopStrength()
+        void InitDefendingTroopStrength()
         {
             TroopBoardingDefense = 0f;
 
-            foreach (Troop t in TroopList)
+            for (int i = 0; i < OurTroops.Count; i++)
             {
-                t.SetOwner(loyalty);
-                t.SetShip(this);
-                TroopBoardingDefense += t.Strength;
-            }
-        }
-
-        private void SpawnTroopsForNewShip(ShipModule module)
-        {
-            string troopType    = "Wyvern";
-            string tankType     = "Wyvern";
-            string redshirtType = "Wyvern";
-
-            IReadOnlyList<Troop> unlockedTroops = loyalty?.GetUnlockedTroops();
-            if (unlockedTroops?.Count > 0)
-            {
-                troopType    = unlockedTroops.FindMax(troop => troop.SoftAttack).Name;
-                tankType     = unlockedTroops.FindMax(troop => troop.HardAttack).Name;
-                redshirtType = unlockedTroops.FindMin(troop => troop.SoftAttack).Name; // redshirts are weakest
-                troopType    = (troopType == redshirtType) ? tankType : troopType;
-            }
-
-            for (int i = 0; i < module.TroopsSupplied; ++i) // TroopLoad (?)
-            {
-                int numHangarsBays = Carrier.AllTroopBays.Length;
-
-                string type = troopType;
-                if (numHangarsBays < TroopList.Count + 1) //FB: if you have more troop_capacity than hangars, consider adding some tanks
-                {
-                    type = troopType; // ex: "Space Marine"
-                    if (TroopList.Count(trooptype => trooptype.Name == tankType) <= numHangarsBays)
-                        type = tankType;
-                    // number of tanks will be up to number of hangars bays you have. If you have 8 barracks and 8 hangar bays
-                    // you will get 8 infantry. if you have  8 barracks and 4 bays, you'll get 4 tanks and 4 infantry .
-                    // If you have  16 barracks and 4 bays, you'll still get 4 tanks and 12 infantry.
-                    // logic here is that tanks needs hangarbays and barracks, and infantry just needs barracks.
-                }
-                Troop newTroop = ResourceManager.CreateTroop(type, loyalty);
-                newTroop.LandOnShip(this);
+                Troop troop = OurTroops[i];
+                troop.SetOwner(loyalty);
+                troop.SetShip(this);
+                TroopBoardingDefense += troop.Strength;
             }
         }
 
@@ -503,8 +462,6 @@ namespace Ship_Game.Ships
 
         void InitializeStatusFromModules(bool fromSave)
         {
-            if (!fromSave)
-                TroopList.Clear();
             RepairBeams.Clear();
 
             float sensorBonus = 0f;
@@ -513,7 +470,9 @@ namespace Ship_Game.Ships
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
-                if (!fromSave && module.TroopsSupplied > 0) SpawnTroopsForNewShip(module);
+                if (!fromSave && module.TroopsSupplied > 0)
+                    SpawnTroopsForNewShip(module);
+
                 TroopCapacity += module.TroopCapacity;
                 MechanicalBoardingDefense += module.MechanicalBoardingDefense;
 
