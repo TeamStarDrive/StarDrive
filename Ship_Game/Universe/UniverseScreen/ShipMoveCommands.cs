@@ -25,7 +25,7 @@ namespace Ship_Game.Universe
             {
                 if (selectedShip.DesignRole == ShipData.RoleName.troop)
                 {
-                    if (targetShip.TroopList.Count < targetShip.TroopCapacity)
+                    if (targetShip.TroopCount < targetShip.TroopCapacity)
                         selectedShip.AI.OrderTroopToShip(targetShip);
                     else
                         selectedShip.DoEscort(targetShip);
@@ -155,7 +155,7 @@ namespace Ship_Game.Universe
             {
                 if (ship.shipData.Role == ShipData.RoleName.troop)
                 {
-                    if (ship.TroopList.Count < ship.TroopCapacity)
+                    if (ship.TroopCount < ship.TroopCapacity)
                         ship.AI.OrderTroopToShip(target);
                     else
                         ship.DoEscort(target);

@@ -44,8 +44,6 @@ namespace Ship_Game
         private UIButton BuildShipyard;
         private UIButton CallTroops;  //fbedard
         private DropOptions<int> GovernorDropdown;
-        public CloseButton close;
-        private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
         private Rectangle GridPos;
         private Submenu subColonyGrid;
         private ScrollList buildSL;
@@ -93,7 +91,7 @@ namespace Ship_Game
             LeftMenu = new Menu1(theMenu2);
             var theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenWidth / 3 - 15, ScreenHeight - theMenu1.Y - 2);
             RightMenu = new Menu1(theMenu3);
-            close = new CloseButton(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22);
+            Add(new CloseButton(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22));
             var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             PlanetInfo = new Submenu(theMenu4);
             PlanetInfo.AddTab(Localizer.Token(326));
@@ -540,7 +538,6 @@ namespace Ship_Game
             if (ScreenManager.NumScreens == 2)
                 Popup = true;
 
-            close.Draw(batch);
             DrawActiveBuildingEntry(batch); // draw dragged item as topmost
 
             if (FoodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
@@ -1506,7 +1503,7 @@ namespace Ship_Game
             if (P.Owner == Empire.Universe.player)
             {
                 int troopsLanding = P.Owner.GetShips()
-                    .Filter(s => s.TroopList.Count > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
+                    .Filter(s => s.HasOurTroops && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
                     .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
 
                 if (troopsLanding > 0)

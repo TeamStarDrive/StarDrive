@@ -1098,7 +1098,7 @@ namespace Ship_Game
                 relationship.DamageRelationship(this, e, why, amount, p);
         }
 
-        public void DoFirstContact(Empire e)
+        void DoFirstContact(Empire e)
         {
             Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             Relationships[e].Known = true;
@@ -1107,26 +1107,20 @@ namespace Ship_Game
 
             if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
-            try
+
+            if (Universe.PlayerEmpire == this && !e.isFaction)
             {
-                if (Universe.PlayerEmpire == this && !e.isFaction)
+                DiplomacyScreen.Show(e, "First Contact");
+            }
+            else if (Universe.PlayerEmpire == this && e.isFaction)
+            {
+                foreach (Encounter e1 in ResourceManager.Encounters)
                 {
-                    DiplomacyScreen.Show(e, "First Contact");
-                }
-                else if (Universe.PlayerEmpire == this && e.isFaction)
-                {
-                    foreach (Encounter e1 in ResourceManager.Encounters)
+                    if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
                     {
-                        if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                        {
-                            EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
-                        }
+                        EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
                     }
                 }
-            }
-            catch (ArgumentException error)
-            {
-                Log.Error(error, "First ConTact Failed");
             }
         }
 
@@ -1270,14 +1264,12 @@ namespace Ship_Game
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
 
-            for (int index = 0; index < OwnedShips.Count; ++index)
+            for (int i = 0; i < OwnedShips.Count; ++i)
             {
-                Ship ship = OwnedShips[index];
+                Ship ship = OwnedShips[i];
                 if (ship != null)
                 {
-                    if (ship.DesignRoleType == ShipData.RoleType.Troop)
-                        foreach (Troop t in ship.TroopList)
-                            CurrentTroopStrength += t.Strength;
+                    CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
                     CurrentMilitaryStrength += ship.GetStrength();
                 }
             }
@@ -1624,7 +1616,7 @@ namespace Ship_Game
             using (OwnedShips.AcquireReadLock())
                 troopShips = new Array<Ship>(OwnedShips
                     .Filter(troopship => troopship.Name == data.DefaultTroopShip
-                                        && troopship.TroopList.Count > 0
+                                        && troopship.HasOurTroops
                                         && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
                                         && troopship.fleet == null && !troopship.InCombat)
                     .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));

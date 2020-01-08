@@ -12,74 +12,31 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+        void ProcessTurnsMonitored()
+        {
+            Log.AddThreadMonitor();
+            ProcessTurns();
+            Log.RemoveThreadMonitor();
+        }
+
         void ProcessTurns()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
             while (true)
-             {
+            {
                 try
                 {
-                    // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
+                    // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns in between
                     DrawCompletedEvt.WaitOne();
                     if (ProcessTurnsThread == null)
-                        return; // this thread is aborting
+                        break; // this thread is aborting
 
-                    float deltaTime = FrameDeltaTime;
-                    pieMenu.Update(deltaTime);
-
-                    if (Paused)
-                    {
-                        ++FrameId;
-
-                        UpdateAllSystems(0.0f);
-                        DeepSpaceThread(0.0f);
-                    }
-                    else
-                    {
-                        NotificationManager.Update(deltaTime);
-                        AutoSaveTimer -= deltaTime;
-
-                        if (AutoSaveTimer <= 0.0f)
-                        {
-                            AutoSaveTimer = GlobalStats.AutoSaveFreq;
-                            DoAutoSave();
-                        }
-                        if (IsActive)
-                        {
-                            if (GameSpeed < 1f) //Speed <1.0
-                            {
-                                if (TurnFlipCounter >= 1)
-                                {
-                                    TurnFlipCounter = 0;
-                                    ++FrameId;
-                                    ProcessTurnDelta(deltaTime);
-                                }
-                                TurnFlipCounter += GameSpeed;
-                            }
-                            else
-                            {
-                                // With higher GameSpeed, we take more than 1 turn
-                                for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
-                                {
-                                    ++FrameId;
-                                    ProcessTurnDelta(deltaTime);
-                                    deltaTime = FrameDeltaTime;
-                                }
-                            }
-                            if (GlobalStats.RestrictAIPlayerInteraction)
-                            {
-                                if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
-                                    ++GameSpeed;
-                                else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-
-                            }
-                        }
-                    }
+                    ProcessNextTurn();
                     failedLoops = 0; // no exceptions this turn
                 }
                 catch (ThreadAbortException)
                 {
-                    return; // Game over, Make sure to Quit the loop!
+                    break; // Game over, Make sure to Quit the loop!
                 }
                 catch (Exception ex)
                 {
@@ -92,13 +49,75 @@ namespace Ship_Game
                 }
                 finally
                 {
-                    //if the debug window hits a cyclic crash it can be turned off ingame.
-                    // i dont see a point in crashing the game because of a debug window error.
-                    try { DebugWin?.Update(SimulationDeltaTime); }
-                    catch { Log.Info("DebugWindowCrashed"); }
+                    // if the debug window hits a cyclic crash it can be turned off in game.
+                    // i don't see a point in crashing the game because of a debug window error.
+                    try
+                    {
+                        if (Debug)
+                            DebugWin?.Update(SimulationDeltaTime);
+                    }
+                    catch
+                    {
+                        Debug = false;
+                        Log.Warning("DebugWindowCrashed");
+                    }
 
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
                     ProcessTurnsCompletedEvt.Set();
+                }
+            }
+        }
+
+        void ProcessNextTurn()
+        {
+            float deltaTime = FrameDeltaTime;
+
+            if (Paused)
+            {
+                ++FrameId;
+
+                UpdateAllSystems(0.0f);
+                DeepSpaceThread(0.0f);
+            }
+            else
+            {
+                NotificationManager.Update(deltaTime);
+                AutoSaveTimer -= deltaTime;
+
+                if (AutoSaveTimer <= 0.0f)
+                {
+                    AutoSaveTimer = GlobalStats.AutoSaveFreq;
+                    DoAutoSave();
+                }
+                if (IsActive)
+                {
+                    if (GameSpeed < 1f) //Speed <1.0
+                    {
+                        if (TurnFlipCounter >= 1)
+                        {
+                            TurnFlipCounter = 0;
+                            ++FrameId;
+                            ProcessTurnDelta(deltaTime);
+                        }
+                        TurnFlipCounter += GameSpeed;
+                    }
+                    else
+                    {
+                        // With higher GameSpeed, we take more than 1 turn
+                        for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                        {
+                            ++FrameId;
+                            ProcessTurnDelta(deltaTime);
+                            deltaTime = FrameDeltaTime;
+                        }
+                    }
+                    if (GlobalStats.RestrictAIPlayerInteraction)
+                    {
+                        if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
+                            ++GameSpeed;
+                        else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
+
+                    }
                 }
             }
         }
