@@ -150,8 +150,6 @@ namespace Ship_Game
             int numHabitableTiles = TilesList.Count(t => t.Habitable);
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
-            FoodHere     = 100f;
-            ProdHere     = 100f;
             HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
@@ -217,6 +215,9 @@ namespace Ship_Game
         {
             ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(this);
             ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(this);
+            Storage.Max = BuildingList.Sum(b => b.StorageAdded);
+            FoodHere    = Storage.Max;
+            ProdHere    = Storage.Max / 2;
         }
 
         private void ApplyTerraforming() // Added by Fat Bastard
