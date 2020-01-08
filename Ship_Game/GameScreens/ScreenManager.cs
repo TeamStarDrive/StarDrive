@@ -464,6 +464,8 @@ namespace Ship_Game
                 if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
                 {
                     inputCaptured = screen.HandleInput(input);
+                    if (screen.IsDisposed)
+                        continue; // HandleInput is allowed to Dispose this screen
                 }
 
                 // 2. Update the screen
