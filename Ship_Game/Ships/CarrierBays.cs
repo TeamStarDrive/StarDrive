@@ -89,7 +89,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopCount <= 0)
+                if (Owner == null || !Owner.HasOurTroops)
                     return 0f;
 
                 int maxTroopsForLaunch = Math.Min(Owner.TroopCount, AvailableAssaultShuttles);
@@ -176,7 +176,7 @@ namespace Ship_Game.Ships
         void ScrambleAssaultShips(float strengthNeeded)
 
         {
-            if (Owner == null || Owner.TroopCount <= 0)
+            if (Owner == null || !Owner.HasOurTroops)
                 return;
 
             if (Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
@@ -186,7 +186,7 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
-                if (hangar.hangarTimer <= 0 && Owner.TroopCount > 0)
+                if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
                 {
                     if (limitAssaultSize && strengthNeeded < 0)
                         break;
@@ -208,7 +208,7 @@ namespace Ship_Game.Ships
                 if (hangarShip == null || !hangarShip.Active)
                     continue;
 
-                if (hangarShip.TroopCount != 0)
+                if (hangarShip.HasOurTroops)
                     hangarShip.AI.OrderReturnToHangar();
             }
         }
@@ -255,7 +255,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopCount == 0)
+                if (Owner == null || !Owner.HasOurTroops)
                     return 0;
 
                 int assaultSpots = AllActiveHangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
@@ -284,11 +284,11 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopCount == 0)
+                if (Owner == null || !Owner.HasOurTroops)
                     return 0.0f;
 
                 int assaultSpots = Owner.DesignRole == ShipData.RoleName.troop
-                                   || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopCount : 0;
+                                || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopCount : 0;
 
                 assaultSpots += AllActiveHangars.Filter(sm => sm.IsTroopBay).Length;  // FB: inspect this
                 assaultSpots += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
