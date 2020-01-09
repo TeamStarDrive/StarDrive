@@ -86,12 +86,9 @@ namespace Ship_Game
                 {
                     AsteroidsList[i].UpdateVisibleAsteroid(elapsedTime);
                 }
-
                 for (int i = 0; i < MoonList.Count; i++)
                 {
-                    Moon moon = MoonList[i];
-                    moon.So.Visibility = ObjectVisibility.Rendered;
-                    moon.UpdatePosition(elapsedTime);
+                    MoonList[i].UpdateVisibleMoon(elapsedTime);
                 }
             }
             else if (WasVisibleLastFrame)
@@ -104,8 +101,7 @@ namespace Ship_Game
 
                 for (int i = 0; i < MoonList.Count; i++)
                 {
-                    Moon moon = MoonList[i];
-                    moon.So.Visibility = ObjectVisibility.None;
+                    MoonList[i].DestroySceneObject();
                 }
             }
 
@@ -452,16 +448,13 @@ namespace Ship_Game
                 // Add moons to planets
                 for (int j = 0; j < ringData.Moons.Count; j++)
                 {
-                    float radius = newOrbital.ObjectRadius * 5 + RandomBetween(1000f, 1500f) * (j + 1);
-                    Moon moon    = new Moon
-                    {
-                        orbitTarget  = newOrbital.guid,
-                        moonType     = ringData.Moons[j].WhichMoon,
-                        scale        = ringData.Moons[j].MoonScale,
-                        OrbitRadius  = radius,
-                        OrbitalAngle = RandomBetween(0f, 360f),
-                        Position     = newOrbital.Center.GenerateRandomPointOnCircle(radius)
-                    };
+                    float orbitRadius = newOrbital.ObjectRadius * 5 + RandomBetween(1000f, 1500f) * (j + 1);
+                    var moon = new Moon(newOrbital.guid,
+                                    ringData.Moons[j].WhichMoon,
+                                    ringData.Moons[j].MoonScale,
+                                    orbitRadius,
+                                    RandomBetween(0f, 360f),
+                                    newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));
                     MoonList.Add(moon);
                 }
 

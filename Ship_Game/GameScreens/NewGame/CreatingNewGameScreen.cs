@@ -223,11 +223,6 @@ namespace Ship_Game
                 {
                     asteroid.Position += wipSystem.Position;
                 }
-                foreach (Moon moon in wipSystem.MoonList)
-                {
-                    moon.Initialize();
-                    AddObject(moon.So);
-                }
                 foreach (Ship ship in wipSystem.ShipList)
                 {
                     ship.Position = ship.loyalty.GetPlanets()[0].Center + new Vector2(6000f, 2000f);
