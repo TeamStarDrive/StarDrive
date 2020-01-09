@@ -898,6 +898,7 @@ namespace Ship_Game.Ships
             }
         }
 
+        public const float UnarmedRange = 10000; // also used as evade range
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
@@ -943,8 +944,6 @@ namespace Ship_Game.Ships
         /**
          * Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
          * weapons installed, Not utility/repair/truePD
-         * TODO: have to expand on this to accomodate 'support' ships.
-         *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle)
          */
         void UpdateWeaponRanges()
         {
@@ -957,36 +956,32 @@ namespace Ship_Game.Ships
             InterceptSpeed = CalcInterceptSpeed(weapons);
         }
 
-        public float GetDesiredCombatRangeForState(CombatState state)
+        // This is used for previewing range during CombatState change
+        // Not performance critical.
+        float GetDesiredCombatRangeForState(CombatState state)
         {
             float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
+        // NOTE: Make sure to validate TestShipRanges.ShipRanges and TestShipRanges.ShipRangesWithModifiers
         float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
         {
-            const float unarmedRange = 10000; // also used as evade range
             if (ranges.Length == 0)
-                return unarmedRange;
+                return UnarmedRange;
 
-            float almostMaxRange = WeaponsMaxRange * 0.85f;
+            // for game balancing, so ships won't kite way too far
+            // and still have chance to hit while moving
+            const float rangeBalance = 0.9f; 
 
             switch (state)
             {
-                case CombatState.Evade:        return unarmedRange;
+                case CombatState.Evade:        return UnarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
-                case CombatState.ShortRange:
-                    return WeaponsMinRange;
-
+                case CombatState.ShortRange:   return WeaponsMinRange * rangeBalance;
+                case CombatState.Artillery:    return WeaponsMaxRange * rangeBalance;
                 default:
-                    float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
-                    if (hiRanges.Length == 0)
-                        return WeaponsMaxRange;
-
-                    if (state == CombatState.Artillery)
-                        return hiRanges.Avg();
-
-                    return hiRanges.Min();
+                    return WeaponsAvgRange * 0.9f;
             }
         }
 
