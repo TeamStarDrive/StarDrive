@@ -66,13 +66,14 @@ namespace Ship_Game.Ships
         public int AvailableAssaultShuttles => AllTroopBays.Count(hangar => hangar.Active && hangar.hangarTimer <= 0 && hangar.GetHangarShip() == null);
 
         // this will return the number of assault shuttles in space
-        public int LaunchedAssaultShuttles =>  AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
+        public int LaunchedAssaultShuttles => AllTroopBays.Count(hangar => hangar.GetHangarShip()?.Active == true);
 
         /// <summary>
         /// Are any of the supply shuttles launched
         /// </summary>
         public bool HasSupplyShuttlesInSpace => AllSupplyBays.Any(hangar => hangar.GetHangarShip()?.Active == true);
         public ShipModule[] SupplyHangarsAlive => AllSupplyBays.Filter(hangar => hangar.Active);
+        
         public int NumTroopsInShipAndInSpace
         {
             get
@@ -80,7 +81,7 @@ namespace Ship_Game.Ships
                 if (Owner == null)
                     return 0;
 
-                return Owner.TroopList.Count + LaunchedAssaultShuttles;
+                return Owner.TroopCount + LaunchedAssaultShuttles;
             }
         }
 
@@ -88,16 +89,11 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopList.Count <= 0)
+                if (Owner == null || !Owner.HasOurTroops)
                     return 0f;
 
-                float troopStrength = 0f;
-                int maxTroopsForLaunch = Math.Min(Owner.TroopList.Count, AvailableAssaultShuttles);
-                for (int i = 0; i < maxTroopsForLaunch; ++i)
-                {
-                    troopStrength += Owner.TroopList[i].Strength;
-                }
-                return troopStrength;
+                int maxTroopsForLaunch = Math.Min(Owner.TroopCount, AvailableAssaultShuttles);
+                return Owner.GetOurTroopStrength(maxTroopsForLaunch);
             }
         }
 
@@ -105,15 +101,16 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null)
+                if (Owner == null || AllTroopBays.Length == 0)
                     return 0f;
 
                 //try to fix sentry bug : https://sentry.io/blackboxmod/blackbox/issues/628038060/
                 float troopStrength = AllTroopBays.Sum(hangar =>
                 {
                     var ship = hangar.GetHangarShip();
-                    if (ship?.Active != true || ship.TroopList.IsEmpty) return 0;
-                    return ship.TroopList[0].Strength;
+                    if (ship?.Active == true && ship.GetOurFirstTroop(out Troop first))
+                        return first.Strength;
+                    return 0;
                 });
 
                 return troopStrength;
@@ -176,10 +173,10 @@ namespace Ship_Game.Ships
 
         public void ScrambleAllAssaultShips() => ScrambleAssaultShips(0);
 
-        public void ScrambleAssaultShips(float strengthNeeded)
+        void ScrambleAssaultShips(float strengthNeeded)
 
         {
-            if (Owner == null || Owner.TroopList.Count <= 0)
+            if (Owner == null || !Owner.HasOurTroops)
                 return;
 
             if (Owner.IsSpoolingOrInWarp || RecallingShipsBeforeWarp)
@@ -189,15 +186,15 @@ namespace Ship_Game.Ships
 
             foreach (ShipModule hangar in AllActiveTroopBays)
             {
-                if (hangar.hangarTimer <= 0 && Owner.TroopList.Count > 0)
+                if (hangar.hangarTimer <= 0 && Owner.HasOurTroops)
                 {
                     if (limitAssaultSize && strengthNeeded < 0)
                         break;
 
-                    if (hangar.LaunchBoardingParty(Owner.TroopList[0]))
+                    if (Owner.GetOurFirstTroop(out Troop troop) &&
+                        hangar.LaunchBoardingParty(troop))
                     {
-                        strengthNeeded -= Owner.TroopList[0].Strength;
-                        Owner.TroopList.RemoveAt(0);
+                        strengthNeeded -= troop.Strength;
                     }
                 }
             }
@@ -211,7 +208,7 @@ namespace Ship_Game.Ships
                 if (hangarShip == null || !hangarShip.Active)
                     continue;
 
-                if (hangarShip.TroopList.Count != 0)
+                if (hangarShip.HasOurTroops)
                     hangarShip.AI.OrderReturnToHangar();
             }
         }
@@ -249,7 +246,7 @@ namespace Ship_Game.Ships
                 int troopsNotInTroopListCount = LaunchedAssaultShuttles;
                 troopsNotInTroopListCount    += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
 
-                return Owner.TroopCapacity - (Owner.TroopList.Count + troopsNotInTroopListCount);
+                return Owner.TroopCapacity - (Owner.TroopCount + troopsNotInTroopListCount);
             }
         }
 
@@ -258,13 +255,13 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopList.IsEmpty)
+                if (Owner == null || !Owner.HasOurTroops)
                     return 0;
 
                 int assaultSpots = AllActiveHangars.Count(sm => sm.hangarTimer > 0 && sm.IsTroopBay);
                 assaultSpots    += AllTransporters.Sum(sm => sm.TransporterTimer > 0 ? 0 : sm.TransporterTroopLanding);
                 assaultSpots    += Owner.shipData.Role == ShipData.RoleName.troop ? 1 : 0;
-                return Math.Min(Owner.TroopList.Count, assaultSpots);
+                return Math.Min(Owner.TroopCount, assaultSpots);
             }
         }
 
@@ -272,14 +269,14 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || !Owner.HasTroops)
+                if (Owner == null || !Owner.HasTroopsPresentOrLaunched)
                     return false;
 
                 if (Owner.IsDefaultTroopTransport)
                     return true;
 
                 return AllActiveHangars.Any(sm => sm.IsTroopBay)
-                       || AllTransporters.Any(sm => sm.TransporterTroopAssault > 0);
+                    || AllTransporters.Any(sm => sm.TransporterTroopAssault > 0);
             }
         }
 
@@ -287,23 +284,23 @@ namespace Ship_Game.Ships
         {
             get
             {
-                if (Owner == null || Owner.TroopList.IsEmpty)
+                if (Owner == null || !Owner.HasOurTroops)
                     return 0.0f;
 
                 int assaultSpots = Owner.DesignRole == ShipData.RoleName.troop
-                                   || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopList.Count : 0;
+                                || Owner.DesignRole == ShipData.RoleName.troopShip ? Owner.TroopCount : 0;
 
                 assaultSpots += AllActiveHangars.Filter(sm => sm.IsTroopBay).Length;  // FB: inspect this
                 assaultSpots += AllTransporters.Sum(sm => sm.TransporterTroopLanding);
 
-                int troops = Math.Min(Owner.TroopList.Count, assaultSpots);
-                return Owner.TroopList.SubRange(0, troops).Sum(troop => troop.Strength);
+                int troops = Math.Min(Owner.TroopCount, assaultSpots);
+                return Owner.GetOurTroopStrength(troops);
             }
         }
 
         public int PlanetAssaultCount
         {
-        get
+            get
             {
                 if (Owner == null)
                     return 0;
@@ -314,7 +311,7 @@ namespace Ship_Game.Ships
 
                 if (assaultSpots > 0)
                 {
-                    int temp = assaultSpots - Owner.TroopList.Count;
+                    int temp = assaultSpots - Owner.TroopCount;
                     assaultSpots -= temp < 0 ? 0 : temp;
                 }
                 return assaultSpots;
@@ -415,26 +412,7 @@ namespace Ship_Game.Ships
             return true;
         }
 
-        private Array<Troop> LandTroops(Planet at, int maxTroopsToLand)
-        {
-            var landedTroops = new Array<Troop>();
-            foreach (Troop troop in Owner.TroopList)
-            {
-                if (maxTroopsToLand <= 0)
-                    break;
-                if (troop == null || troop.Loyalty != Owner.loyalty)
-                    continue;
-                if (troop.TryLandTroop(at))
-                {
-                    landedTroops.Add(troop);
-                    --maxTroopsToLand;
-                }
-                else break;
-            }
-            return landedTroops;
-        }
-
-        private int TroopLandLimit
+        int TroopLandLimit
         {
             get
             {
@@ -450,28 +428,31 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return;
 
-            Array<Troop> landed = LandTroops(planet, TroopLandLimit);
-            if (landed.Count <= 0)
-                return;
-
-            foreach (Troop to in landed)  //FB: not sure what this flag is for. Should be tested with STSA
+            int landed = Owner.LandTroopsOnPlanet(planet, TroopLandLimit);
+            for (int i = 0; i < landed; ++i)  
             {
-                bool flag = false; // = false;
+                // FB: not sure what this flag is for. Should be tested with STSA
+                bool foundTransportToUse = false;
                 foreach (ShipModule module in AllActiveTroopBays)
+                {
                     if (module.hangarTimer < module.hangarTimerConstant)
                     {
                         module.hangarTimer = module.hangarTimerConstant;
-                        flag = true;
+                        foundTransportToUse = true;
                         break;
                     }
-                if (!flag)
+                }
+                if (!foundTransportToUse)
+                {
                     foreach (ShipModule module in AllTransporters)
+                    {
                         if (module.TransporterTimer < module.TransporterTimerConstant)
                         {
                             module.TransporterTimer = module.TransporterTimerConstant;
                             break;
                         }
-                Owner.TroopList.Remove(to);
+                    }
+                }
             }
         }
 
@@ -518,11 +499,11 @@ namespace Ship_Game.Ships
             foreach (var role in hangar.HangarRoles)
             {
                 selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
-                    designation: desiredShipCategory);
+                    designation: desiredShipCategory, normalizedStrength: false);
 
                 // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role
                 if (selectedShip.IsEmpty() && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
-                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize);
+                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize, normalizedStrength : false);
                 if (selectedShip.NotEmpty()) break;
             }
             return selectedShip;
@@ -543,9 +524,8 @@ namespace Ship_Game.Ships
                     for (int i = 0; i < AllTroopBays.Length; i++)
                     {
                         ShipModule hangar = AllTroopBays[i];
-                        if (hangar.GetHangarShip() == null)
-                            continue;
-                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(targetShip);
+                        if (hangar.GetHangarShip() != null)
+                            hangar.GetHangarShip().AI.OrderTroopToBoardShip(targetShip);
                     }
                     return true;
                 }

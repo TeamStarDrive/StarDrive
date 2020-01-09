@@ -12,8 +12,6 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "MarkForColonization";
         public override string UID => ID;
-        bool HasEscort;
-        public bool WaitingForEscort { get; private set; }
 
         public MarkForColonization() : base(GoalType.Colonize)
         {
@@ -32,130 +30,50 @@ namespace Ship_Game.Commands.Goals
             ColonizationTarget = toColonize;
         }
 
-        bool IsValid()
+        GoalStep TargetPlanetStatus()
         {
-            if (ColonizationTarget.Owner == null)
-                return true;
-
-            foreach (var relationship in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
-
-            RemoveEscortTask(); //this is in the wrong place
-
-            if (FinishedShip == null)
-                return false;
-
-            var planet = empire.FindNearestRallyPoint(FinishedShip.Center);
-            if (planet != null)
+            if (ColonizationTarget.Owner != null)
             {
-                FinishedShip.AI.OrderRebase(planet, true);
-                return false;
-            }
-            FinishedShip.AI.State = AIState.AwaitingOrders;
-            return false;
-        }
+                foreach (var relationship in empire.AllRelations)
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key,
+                                                                relationship.Value,
+                                                                ColonizationTarget);
 
-        MilitaryTask GetClaimTask()
-        {
-            using (empire.GetEmpireAI().TaskList.AcquireReadLock())
-            {
-                foreach (MilitaryTask escort in empire.GetEmpireAI().TaskList)
+                if (FinishedShip != null)
                 {
-                    if (escort.type == MilitaryTask.TaskType.DefendClaim)
-                        foreach (Guid held in escort.HeldGoals)
-                        {
-                            if (held == guid)
-                                return escort;
-                        }
+                    var nearestRallyPoint = empire.FindNearestRallyPoint(FinishedShip.Center);
+                    if (nearestRallyPoint != null)
+                    {
+                        FinishedShip.AI.OrderRebase(nearestRallyPoint, true);
+                    }
+                    else
+                    {
+                        FinishedShip.AI.State = AIState.AwaitingOrders;
+                    }
                 }
-            }
-            return null;
-        }
 
-        void RemoveEscortTask()
-        {
-            MilitaryTask defendClaim = GetClaimTask();
-            if (defendClaim != null)
-                empire.GetEmpireAI().TaskList.QueuePendingRemoval(defendClaim);
-        }
+                if (ColonizationTarget.Owner == empire)
+                    return GoalStep.GoalComplete;
 
-        TaskStatus EscortStatus(float enemyStrength)
-        {
-            MilitaryTask defendClaim = GetClaimTask();
-            if (defendClaim != null)
-            {
-                HasEscort        = defendClaim.Step > 0;
-                WaitingForEscort = !HasEscort;
-                return TaskStatus.Running;
-            }
-            return TaskStatus.Canceled;
-        }
-
-        // @return TRUE if WaitingForEscort
-        bool UpdateEscortNeeds()
-        {
-            WaitingForEscort = HasEscort = false;
-            if (empire.isPlayer || empire.isFaction)
-                return false;
-            var escortTask = GetClaimTask();
-            if (escortTask?.Fleet != null)
-            {
-                var fleet = escortTask.Fleet;
-                if (fleet.TaskStep < 3)
-                    return true;
-                if (fleet.TaskCombatStatus > ShipGroup.CombatStatus.InCombat)
-                    return false;
+                Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
+                return GoalStep.GoalFailed;
             }
 
-            float radius = escortTask?.AORadius ?? 125000f;
-            // there appears to be a bug
-            // it seems that somehow the associated fleet with get orphaned from the task. although the fleet task
-            // is still running the escort task doesnt know about it.
-            // so this just checks that we have ships near the planet.
-            float ourStr = empire.GetShips().Filter(s => s.Center.InRadius(ColonizationTarget.Center, radius)).Sum(s => s.GetStrength());
-            float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(ColonizationTarget.Center, radius, empire);
-            if (str - ourStr < 100) return false;
-
-            WaitingForEscort = true;
-
-            if (EscortStatus(str) == TaskStatus.Running)
-                return true;
-
-            if (empire.data.DiplomaticPersonality.Territorialism < 50 &&
-                empire.data.DiplomaticPersonality.Trustworthiness < 50)
+            var system = ColonizationTarget.ParentSystem;
+            float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, empire);
+            if (str > 50)
             {
-                var goalsToHold = new Array<Goal> { this };
-                var task        = new MilitaryTask(ColonizationTarget.Center, 125000f, goalsToHold, empire, str)
-                {
-                    InitialEnemyStrength = str
-                };
-
-                task.SetTargetPlanet(ColonizationTarget);
-                    empire.GetEmpireAI().TaskList.Add(task);
+                Log.Info($"Target system {ColonizationTarget.ParentSystem.Name} has too many enemies");
+                return GoalStep.GoalFailed;
             }
 
-            var militaryTask = new MilitaryTask
-            {
-                AO = ColonizationTarget.Center,
-                type = MilitaryTask.TaskType.DefendClaim,
-                AORadius = 75000f,
-                MinimumTaskForceStrength = str
-            };
-            militaryTask.SetEmpire(empire);
-            militaryTask.SetTargetPlanet(ColonizationTarget);
-            militaryTask.HeldGoals.Add(guid);
-
-            empire.GetEmpireAI().TaskList.Add(militaryTask);
-            WaitingForEscort = true;
-            return true;
+            return GoalStep.GoToNextStep;
         }
 
         GoalStep OrderShipForColonization()
         {
-            if (!IsValid())
-                return GoalStep.GoalComplete;
-
-            UpdateEscortNeeds();
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+                return GoalStep.GoalFailed;
 
             FinishedShip = FindIdleColonyShip();
             if (FinishedShip != null)
@@ -180,14 +98,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep EnsureBuildingColonyShip()
         {
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
+                return GoalStep.GoalFailed;
+
             if (FinishedShip != null) // we already have a ship
                 return GoalStep.GoToNextStep;
-
-            if (!IsValid())
-                return GoalStep.GoalComplete;
-
-            if (!HasEscort)
-                UpdateEscortNeeds();
 
             if (!IsPlanetBuildingColonyShip())
             {
@@ -197,9 +112,6 @@ namespace Ship_Game.Commands.Goals
 
             if (ColonizationTarget.Owner == null)
                 return GoalStep.TryAgain;
-
-            foreach (KeyValuePair<Empire, Relationship> them in empire.AllRelations)
-                empire.GetEmpireAI().CheckClaim(them.Key, them.Value, ColonizationTarget);
 
             return GoalStep.GoalComplete;
         }
@@ -217,14 +129,11 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep OrderShipToColonizeWithEscort()
         {
-            if (!IsValid())
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (UpdateEscortNeeds() && !HasEscort)
-                return GoalStep.TryAgain;
-
             if (FinishedShip == null) // @todo This is a workaround for possible safequeue bug causing this to fail on save load
-                return GoalStep.RestartGoal;
+                return GoalStep.GoalFailed;
 
             FinishedShip.DoColonize(ColonizationTarget, this);
             return GoalStep.GoToNextStep;
@@ -232,13 +141,18 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep WaitForColonizationComplete()
         {
-             if (!IsValid())
+            if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
 
-            if (UpdateEscortNeeds() && !HasEscort)         return GoalStep.TryAgain;
-            if (FinishedShip == null)                      return GoalStep.RestartGoal;
+            if (FinishedShip == null)
+            {
+                if (empire.isPlayer) 
+                    return GoalStep.RestartGoal;
+
+                return GoalStep.GoalFailed;
+            }
             if (FinishedShip.AI.State != AIState.Colonize) return GoalStep.RestartGoal;
-            if (ColonizationTarget.Owner == null)          return GoalStep.TryAgain;
+            if (ColonizationTarget.Owner == null) return GoalStep.TryAgain;
 
             return GoalStep.GoalComplete;
         }

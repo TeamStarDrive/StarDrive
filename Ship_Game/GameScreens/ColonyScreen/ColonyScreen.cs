@@ -56,6 +56,7 @@ namespace Ship_Game
         Building ToScrap;
         public BuildableListItem ActiveBuildingEntry;
 
+
         public bool ClickedTroop;
         int EditHoverState;
 
@@ -82,6 +83,7 @@ namespace Ship_Game
             PlanetInfo = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20, (int)(0.4f * LeftMenu.Width), (int)(0.25f * (LeftMenu.Height - 80)));
             PlanetInfo.AddTab(title:326);
             pDescription = new Submenu(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height, 0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
+
 
             var labor = new RectF(LeftMenu.X + 20, LeftMenu.Y + 20 + PlanetInfo.Height + pDescription.Height + 20,
                                   0.4f * LeftMenu.Width, 0.25f * (LeftMenu.Height - 80));
@@ -191,7 +193,6 @@ namespace Ship_Game
             {
                 Empire.Universe.LookingAtPlanet = false;
             }
-
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             BuildableList.OnHovered = OnBuildableHoverChange;
         }
@@ -308,6 +309,26 @@ namespace Ship_Game
             {
                 if (ActiveBuildingEntry == null && item.Building != null && Input.LeftMouseHeld(0.1f))
                     ActiveBuildingEntry = item;
+
+                int troopsLanding = P.Owner.GetShips()
+                    .Filter(s => s.HasOurTroops && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
+                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
+
+                if (troopsLanding > 0)
+                {
+                    CallTroops.Text = $"Incoming Troops: {troopsLanding}";
+                    CallTroops.Style = ButtonStyle.Military;
+                }
+                else
+                {
+                    CallTroops.Text = "Call Troops";
+                    CallTroops.Style = ButtonStyle.Default;
+                }
+
+                UpdateButtonText(LaunchAllTroops, P.TroopsHere.Count(t => t.CanMove), "Launch All Troops");
+                UpdateButtonText(BuildPlatform, P.NumPlatforms, "Build Platform");
+                UpdateButtonText(BuildStation, P.NumStations, "Build Station");
+                UpdateButtonText(BuildShipyard, P.NumShipyards, "Build Shipyard");
             }
         }
     }

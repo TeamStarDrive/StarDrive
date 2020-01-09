@@ -297,6 +297,19 @@ namespace Ship_Game
             Strength = (Strength - amount).Clamped(0, ActualStrengthMax);
         }
 
+        public void DamageTroop(Ship combatShip, ref float damage)
+        {
+            float oldStrength = Strength;
+            Strength = oldStrength - damage; // deal the damage
+            
+            // only discount damage taken down to 0HP, leave the rest intact
+            float damageDealt = (oldStrength - Math.Max(0, Strength));
+            damage -= damageDealt;
+
+            if (Strength <= 0)
+                combatShip.RemoveAnyTroop(this); // Die!
+        }
+
         public void HealTroop(float amount)
         {
             DamageTroop(-amount);
@@ -442,7 +455,7 @@ namespace Ship_Game
             if (HostShip == null)
                 return;
 
-            HostShip.TroopList.RemoveRef(this);
+            HostShip.RemoveAnyTroop(this);
 
             // Remove the ship if it was the default single troop. They are designed to vanish once landing the troop.
             // Assault Shuttles are designed to try to get back to their hangars 
@@ -456,8 +469,11 @@ namespace Ship_Game
         public void LandOnShip(Ship ship)
         {
             RemoveTroopFromHostShip();
-            ship.TroopList.Add(this);
-            HostShip = ship; // new host ship since the troop has landed on a new ship
+            ship.AddTroop(this);
+
+            // new host ship since the troop has landed on a new ship
+            // NOTE: it is completely fine if this is an enemy ship
+            HostShip = ship; 
         }
     }
 }

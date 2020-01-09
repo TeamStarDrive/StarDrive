@@ -72,6 +72,7 @@ namespace Ship_Game
         [Serialize(60)] public int InvadeInjurePoints;
         [Serialize(61)] public int DefenseShipsCapacity;
         [Serialize(62)] public ShipData.RoleName DefenseShipsRole;
+        [Serialize(63)] public bool OmitColonyBuild; // For structures Modded to be deployed by ship modules
 
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }

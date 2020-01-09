@@ -68,6 +68,10 @@ namespace Ship_Game
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
+        public float ConsumptionPerColonist => 1 + Owner.data.Traits.ConsumptionModifier;
+        public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
+        public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
+
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
@@ -105,6 +109,7 @@ namespace Ship_Game
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
         public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
+        public int SpecialCommodities               => BuildingList.Count(b => b.IsCommodity);
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -190,6 +195,17 @@ namespace Ship_Game
         {
             CreateManagers();
             HasSpacePort = false;
+        }
+
+        public Planet(float fertility, float minerals, float maxPop)
+        {
+            CreateManagers();
+            HasSpacePort      = false;
+            BaseFertility     = fertility;
+            MineralRichness   = minerals;
+            BasePopPerTileVal = maxPop;
+            if (fertility > 0)
+                Type          = ResourceManager.RandomPlanet(PlanetCategory.Terran);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
@@ -298,14 +314,31 @@ namespace Ship_Game
         public float ColonyBaseValue(Empire empire)
         {
             float value = 0;
-            value += BuildingList.Count(b => b.IsCommodity) * 30;
-            value += EmpireFertility(empire) * 10;
-            value += MineralRichness * 10;
-            value += MaxPopulationBillionFor(empire) * 5;
+            value += ColonyRawValue(empire);
             value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
             value += BuildingList.Sum(b => b.ActualCost) / 10;
             value += PopulationBillion * 5;
 
+            return value;
+        }
+
+        public float ColonyRawValue(Empire empire)
+        {
+            float value = 0;
+            value += SpecialCommodities * 10;
+            value += EmpireFertility(empire) * 10;
+            value += MineralRichness * 10;
+            value += MaxPopulationBillionFor(empire) * 5;
+            return value;
+        }
+
+        public float ColonyPotentialValue(Empire empire)
+        {
+            float value = 0;
+            value += SpecialCommodities * 10;
+            value += PotentialMaxFertilityFor(empire) * 10;
+            value += MineralRichness * 10;
+            value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
         }
 
@@ -818,7 +851,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
+            Consumption = (ConsumptionPerColonist * PopulationBillion);
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
@@ -999,17 +1032,19 @@ namespace Ship_Game
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
-        public int FreeHabitableTiles  => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
-        public float BuiltCoverage     => TotalBuildings / (float)TileArea;
-        public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
+        public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
+
+        public int TotalBuildings     => TilesList.Count(tile => tile.BuildingOnTile);
+        public float BuiltCoverage    => TotalBuildings / TotalHabitableTiles;
+        public bool TerraformingHere  => BuildingList.Any(b => b.IsTerraformer);
 
         // FB - This will give the Max Fertility the planet should have after terraforming is complete
         public float TerraformMaxFertilityTarget
         {
             get
             {
-                float sumPositiveFertilityChange = 1;
+                float sumPositiveFertilityChange = NonCybernetic ? 1 : 0;
 
                 for (int i = 0; i < BuildingList.Count; i++)
                 {
@@ -1019,7 +1054,7 @@ namespace Ship_Game
                 }
 
                 float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
-                return racialEnvDivider + sumPositiveFertilityChange;
+                return racialEnvDivider * sumPositiveFertilityChange;
             }
         }
 

@@ -519,7 +519,7 @@ namespace Ship_Game
             foreach (var kv in TechnologyDict)
             {
                 TechEntry tech = kv.Value;
-                if (tech.CanBeGivenTo(them))
+                if (tech.Unlocked)
                     tradeTechs.Add(tech);
             }
             return tradeTechs;
@@ -925,25 +925,11 @@ namespace Ship_Game
         {
             switch (techUnlockType)
             {
-                case TechUnlockType.Normal:
-                case TechUnlockType.Event:
-                    if (techEntry.Unlock(this))
-                    {
-                        UpdateForNewTech();
-                    }
-                    break;
-                case TechUnlockType.Diplomacy:
-                    if (techEntry.UnlockFromDiplomacy(this, otherEmpire))
-                    {
-                        UpdateForNewTech();
-                    }
-                    break;
-                case TechUnlockType.Spy:
-                    if (techEntry.UnlockFromSpy(this, otherEmpire))
-                    {
-                        UpdateForNewTech();
-                    }
-                    break;
+                case TechUnlockType.Normal    when techEntry.Unlock(this):
+                case TechUnlockType.Event     when techEntry.Unlock(this):
+                case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
+                case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire): 
+                    UpdateForNewTech(); break;
             }
         }
 
@@ -952,6 +938,7 @@ namespace Ship_Game
             UpdateShipsWeCanBuild();
             EmpireAI.TriggerRefit();
             TriggerFreightersRefit();
+            UpdateBestOrbitals();
         }
 
         public void AssimilateTech(Empire conqueredEmpire)
@@ -1111,7 +1098,7 @@ namespace Ship_Game
                 relationship.DamageRelationship(this, e, why, amount, p);
         }
 
-        public void DoFirstContact(Empire e)
+        void DoFirstContact(Empire e)
         {
             Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
             Relationships[e].Known = true;
@@ -1120,26 +1107,20 @@ namespace Ship_Game
 
             if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
-            try
+
+            if (Universe.PlayerEmpire == this && !e.isFaction)
             {
-                if (Universe.PlayerEmpire == this && !e.isFaction)
+                DiplomacyScreen.Show(e, "First Contact");
+            }
+            else if (Universe.PlayerEmpire == this && e.isFaction)
+            {
+                foreach (Encounter e1 in ResourceManager.Encounters)
                 {
-                    DiplomacyScreen.Show(e, "First Contact");
-                }
-                else if (Universe.PlayerEmpire == this && e.isFaction)
-                {
-                    foreach (Encounter e1 in ResourceManager.Encounters)
+                    if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
                     {
-                        if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                        {
-                            EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
-                        }
+                        EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
                     }
                 }
-            }
-            catch (ArgumentException error)
-            {
-                Log.Error(error, "First ConTact Failed");
             }
         }
 
@@ -1278,19 +1259,28 @@ namespace Ship_Game
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
+        /// <summary>
+        /// This should be run on save load to set economic values without taking a turn.
+        /// </summary>
+        public void InitEmpireEconomy()
+        {
+            UpdateEmpirePlanets();
+            UpdateNetPlanetIncomes();
+            UpdateShipMaintenance(); ;
+            EmpireAI.RunEconomicPlanner();
+        }
+
         private void UpdateMilitaryStrengths()
         {
             CurrentMilitaryStrength = 0;
             CurrentTroopStrength    = 0;
 
-            for (int index = 0; index < OwnedShips.Count; ++index)
+            for (int i = 0; i < OwnedShips.Count; ++i)
             {
-                Ship ship = OwnedShips[index];
+                Ship ship = OwnedShips[i];
                 if (ship != null)
                 {
-                    if (ship.DesignRoleType == ShipData.RoleType.Troop)
-                        foreach (Troop t in ship.TroopList)
-                            CurrentTroopStrength += t.Strength;
+                    CurrentTroopStrength += ship.Carrier.MaxTroopStrengthInShipToCommit;
                     CurrentMilitaryStrength += ship.GetStrength();
                 }
             }
@@ -1432,10 +1422,7 @@ namespace Ship_Game
         public void GovernPlanets()
         {
             if (!isFaction && !data.Defeated)
-            {
                 UpdateMaxColonyValue();
-                UpdateBestOrbitals();
-            }
 
             using (OwnedPlanets.AcquireReadLock())
                 foreach (Planet planet in OwnedPlanets)
@@ -1640,7 +1627,7 @@ namespace Ship_Game
             using (OwnedShips.AcquireReadLock())
                 troopShips = new Array<Ship>(OwnedShips
                     .Filter(troopship => troopship.Name == data.DefaultTroopShip
-                                        && troopship.TroopList.Count > 0
+                                        && troopship.HasOurTroops
                                         && (troopship.AI.State == AIState.AwaitingOrders || troopship.AI.State == AIState.Orbit)
                                         && troopship.fleet == null && !troopship.InCombat)
                     .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
@@ -2088,7 +2075,7 @@ namespace Ship_Game
                 }
 
                 RandomEventManager.UpdateEvents();
-                if (data.TurnsBelowZero > 3 && Money < 0.0)
+                if (data.TurnsBelowZero > 0 && Money < 0.0)
                     Universe.NotificationManager.AddMoneyWarning();
 
                 if (!Universe.NoEliminationVictory)
@@ -2154,13 +2141,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateAI()
-        {
-            if (isFaction)
-               EmpireAI.FactionUpdate();
-            else if (!data.Defeated)
-                EmpireAI.Update();
-        }
+        void UpdateAI() => EmpireAI.Update();
 
         void Bankruptcy()
         {
@@ -2187,14 +2168,14 @@ namespace Ship_Game
 
                             var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
                             
-                            if (RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.TroopsHere.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
                             {
                                 var t = RandomMath.RandItem(planet.TroopsHere);
                                 if (t != null)
                                     troop.ChangeLoyalty(rebels);
                             }
 
-                            if (RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.BuildingList.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
                             {
                                 var building = RandomMath.RandItem(planet.BuildingList
                                                                    .Filter(b=> !b.IsBiospheres));

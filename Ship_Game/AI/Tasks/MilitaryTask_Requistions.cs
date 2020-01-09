@@ -248,7 +248,7 @@ namespace Ship_Game.AI.Tasks
                 return;
 
             AO closestAO = sorted[0];
-            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner, factionOnly: false);
+            EnemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(AO, 10000, Owner);
 
             MinimumTaskForceStrength = EnemyStrength;
             if (MinimumTaskForceStrength < 1f)
