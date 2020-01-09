@@ -360,24 +360,29 @@ namespace Ship_Game.AI
             // force the ship out of warp if we get too close
             // this is a balance feature
             ThrustOrWarpToPos(landingSpot, elapsedTime, warpExitDistance: Owner.WarpOutDistance);
-            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot);
+            if (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot, elapsedTime);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot,elapsedTime);
             else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
         // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
-        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot)
+        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot, float elapsedTime)
         {
             if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
-                Owner.LandTroopsOnPlanet(planet); // This will vanish default single Troop Ship
-                DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; // This will vanish default single Troop Ship
 
-                // if it came from a mothership, return to hangar
-                if (Owner.IsDefaultAssaultShuttle)
-                    Owner.AI.OrderReturnToHangar();
+                if (troopsLanded)
+                {
+                    Owner.QueueTotalRemoval();
+                    DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                }
+
+                if (Owner.Active)
+                    Orbit.Orbit(planet, elapsedTime);
             }
+
         }
 
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
