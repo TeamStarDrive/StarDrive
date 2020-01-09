@@ -185,12 +185,25 @@ namespace Ship_Game
 
         protected void UpdateGame(GameTime gameTime)
         {
-            ++FrameId;
-            GameTime = gameTime;
+            if (Log.IsTerminating) // game is crashing, don't update anymore
+            {
+                Thread.Sleep(15);
+                return;
+            }
 
-            // 1. Handle Input and 2. Update for each game screen
-            ScreenManager.Update(gameTime);
-            base.Update(gameTime); // Update XNA components
+            try
+            {
+                ++FrameId;
+                GameTime = gameTime;
+
+                // 1. Handle Input and 2. Update for each game screen
+                ScreenManager.Update(gameTime);
+                base.Update(gameTime); // Update XNA components
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorDialog(ex, "UpdateGame() failed", Program.SCREEN_UPDATE_FAILURE);
+            }
         }
 
         protected override void Dispose(bool disposing)

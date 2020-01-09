@@ -31,7 +31,7 @@ namespace Ship_Game.Data.Mesh
             }
             catch (Exception e)
             {
-                Log.ErrorDialog(e, $"Failed to load mesh '{meshName}'");
+                Log.ErrorDialog(e, $"Failed to load mesh '{meshName}'", 0);
                 throw;
             }
             finally

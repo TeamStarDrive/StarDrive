@@ -221,14 +221,14 @@ namespace Ship_Game.Ships
         }
 
 
-        private void DrawTactical(UniverseScreen us, Vector2 screenPos, float screenRadius, float minSize, float maxSize = 0f)
+        void DrawTactical(UniverseScreen us, Vector2 screenPos, float screenRadius, float minSize, float maxSize = 0f)
         {
             // try to scale the icon so its size remains consistent when zooming in/out
             float size = ScaleIconSize(screenRadius, minSize, maxSize);
             us.DrawTextureSized(GetTacticalIcon(), screenPos, Rotation, size, size, loyalty.EmpireColor);
         }
 
-        private void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
+        void DrawFlagIcons(UniverseScreen us, Vector2 screenPos, float screenRadius)
         {            
             if (isColonyShip)
             {
@@ -239,7 +239,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
+        float ScaleIconSize(float screenRadius, float minSize = 0, float maxSize = 0)
         {            
             float size = screenRadius * 2 ;
             if (size < minSize && minSize != 0)
@@ -274,7 +274,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
+        void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
         {
             if (!HelperFunctions.DataVisibleToPlayer(loyalty, UniverseData.GameDifficulty.Easy))
                 return;
@@ -301,7 +301,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        private void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
+        void DrawSingleStatusIcon(UniverseScreen us, float screenRadius, Vector2 screenPos, ref Vector2 offSet, string texture, Color color)
         {
             SubTexture statusIcon = ResourceManager.Texture(texture);
             float size = ScaleIconSize(screenRadius, 16f, 16f);
