@@ -17,8 +17,7 @@ namespace Ship_Game
         public int MaxAnisotropy;
         public int TextureSampling;
         public int TextureQuality;
-        public int ShadowDetail;
-        public float ShadowQuality;
+        public int ShadowDetail; // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
         public int EffectDetail;
         public bool RenderBloom;
         public bool VSync;
@@ -42,7 +41,6 @@ namespace Ship_Game
             TextureSampling = GlobalStats.TextureSampling;
             TextureQuality  = GlobalStats.TextureQuality;
             ShadowDetail    = GlobalStats.ShadowDetail;
-            ShadowQuality   = GlobalStats.ShadowQuality;
             EffectDetail    = GlobalStats.EffectDetail;
             RenderBloom     = GlobalStats.RenderBloom;
             VSync           = GlobalStats.VSync;
@@ -57,11 +55,10 @@ namespace Ship_Game
             GlobalStats.MaxAnisotropy   = MaxAnisotropy;
             GlobalStats.TextureSampling = TextureSampling;
             GlobalStats.TextureQuality  = TextureQuality;
-            GlobalStats.ShadowDetail    = ShadowDetail;
-            GlobalStats.ShadowQuality   = ShadowQuality;
             GlobalStats.EffectDetail    = EffectDetail;
             GlobalStats.RenderBloom     = RenderBloom;
             GlobalStats.VSync           = VSync;
+            GlobalStats.SetShadowDetail(ShadowDetail);
         }
 
         public void ApplyChanges()
@@ -90,7 +87,6 @@ namespace Ship_Game
                 && TextureSampling == other.TextureSampling 
                 && TextureQuality  == other.TextureQuality 
                 && ShadowDetail    == other.ShadowDetail 
-                && ShadowQuality.Equals(other.ShadowQuality) 
                 && EffectDetail    == other.EffectDetail 
                 && RenderBloom     == other.RenderBloom 
                 && VSync           == other.VSync;
@@ -191,15 +187,8 @@ namespace Ship_Game
 
         void ShadowQuality_OnClick(UILabel label)
         {
+            // 0=High, 1=Medium, 2=Low, 3=Off
             New.ShadowDetail = New.ShadowDetail >= 3 ? 0 : New.ShadowDetail + 1;
-            switch (New.ShadowDetail)
-            {
-                case 0: New.ShadowQuality = 1.00f; break;
-                case 1: New.ShadowQuality = 0.66f; break;
-                case 2: New.ShadowQuality = 0.33f; break;
-                default:
-                case 3: New.ShadowQuality = 0.00f; break;
-            }
         }
 
         void Fullscreen_OnClick(UILabel label)
