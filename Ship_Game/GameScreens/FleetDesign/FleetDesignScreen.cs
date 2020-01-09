@@ -362,9 +362,9 @@ namespace Ship_Game
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            AdjustCamera();
             CamPos.X += CamVelocity.X;
             CamPos.Y += CamVelocity.Y;
+            CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
             View = Matrix.CreateRotationY(180f.ToRadians())
                 * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
             

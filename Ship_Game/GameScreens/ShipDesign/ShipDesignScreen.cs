@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesignScreen;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
@@ -473,8 +474,11 @@ namespace Ship_Game
             LoadContentFinish();
             BindListsToActiveHull();
 
-            AssignLightRig(LightRigIdentity.ShipDesignScreen, "example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
+
+        ButtonStyle SymmetricDesignBtnStyle  => IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+        LocalizedText SymmetricDesignBtnText => IsSymmetricDesignMode ? 1985 : 1986;
 
         void LoadContentFinish()
         {
