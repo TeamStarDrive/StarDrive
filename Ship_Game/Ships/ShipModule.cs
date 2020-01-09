@@ -29,7 +29,6 @@ namespace Ship_Game.Ships
         }
         public bool CheckedConduits;
         public bool Powered;
-        public int quadrant = -1;
         public bool isExternal;
         public int XSIZE = 1;
         public int YSIZE = 1;
