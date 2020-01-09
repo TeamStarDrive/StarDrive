@@ -317,11 +317,11 @@ namespace Ship_Game
                 DeterminePlanetDistanceCategory(distance);
                 switch (PlanetDistance)
                 {
-                    case Distances.Local:   Text = "(Local)";   Color = Color.Green;       break;
-                    case Distances.Near:    Text = "(Near)";    Color = Color.YellowGreen; break;
-                    case Distances.Midway:  Text = "(Midway)";  Color = Color.DarkGoldenrod;        break;
-                    case Distances.Distant: Text = "(Distant)"; Color = Color.DarkRed;   break;
-                    default:                Text = "(Beyond)";  Color = Color.DarkGray;    break;
+                    case Distances.Local:   Text = "(Local)";   Color = Color.Green;         break;
+                    case Distances.Near:    Text = "(Near)";    Color = Color.YellowGreen;   break;
+                    case Distances.Midway:  Text = "(Midway)";  Color = Color.DarkGoldenrod; break;
+                    case Distances.Distant: Text = "(Distant)"; Color = Color.DarkRed;       break;
+                    default:                Text = "(Beyond)";  Color = Color.DarkGray;      break;
                 }
             }
 
