@@ -1,34 +1,25 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-
-        public bool UpdateVisibility()
+        void UpdateVisibility()
         {
             bool inFrustum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI?.Target != null
-                && Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)) ;
+                && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
+                    (AI?.Target != null &&
+                     Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)));
 
             InFrustum = inFrustum;
             if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
-                ShipSO.Visibility = inFrustum ? ObjectVisibility.Rendered : ObjectVisibility.None;
-            return inFrustum;
-        }
-
-        public void UpdateWorldTransform()
-        {
-            ShipSO.World = Matrix.CreateRotationY(yRotation)
-                         * Matrix.CreateRotationZ(Rotation)
-                         * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                ShipSO.Visibility = inFrustum ? GlobalStats.ShipVisibility : ObjectVisibility.None;
         }
 
         public override void Update(float elapsedTime)
@@ -120,7 +111,9 @@ namespace Ship_Game.Ships
 
             if (InFrustum && ShipSO != null)
             {
-                UpdateWorldTransform();
+                ShipSO.World = Matrix.CreateRotationY(yRotation)
+                             * Matrix.CreateRotationZ(Rotation)
+                             * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
                 ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
                 UpdateThrusters();
             }
@@ -200,16 +193,21 @@ namespace Ship_Game.Ships
             }
         }
 
+        AudioHandle DeathSfx;
+
         void UpdateDying(float elapsedTime)
         {
             ThrusterList.Clear();
             dietimer -= elapsedTime;
-            if (dietimer <= 1.9f && InFrustum && DeathSfx.IsStopped)
+            if (dietimer <= 1.9f && InFrustum && (DeathSfx == null || DeathSfx.IsStopped))
             {
                 string cueName;
                 if (SurfaceArea < 80) cueName = "sd_explosion_ship_warpdet_small";
                 else if (SurfaceArea < 250) cueName = "sd_explosion_ship_warpdet_medium";
                 else cueName = "sd_explosion_ship_warpdet_large";
+
+                if (DeathSfx == null)
+                    DeathSfx = new AudioHandle();
                 DeathSfx.PlaySfxAsync(cueName, SoundEmitter);
             }
             if (dietimer <= 0.0f)
@@ -218,6 +216,9 @@ namespace Ship_Game.Ships
                 Die(LastDamagedBy, true);
                 return;
             }
+
+            if (ShipSO == null)
+                return;
 
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(200f, +1);
@@ -240,10 +241,7 @@ namespace Ship_Game.Ships
             Rotation  += DieRotation.Z * elapsedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
-            if (ShipSO == null)
-                return;
-
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && inSensorRange)
+            if (inSensorRange && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
                 ShipSO.World = Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
@@ -277,11 +275,11 @@ namespace Ship_Game.Ships
                 var distanceX = (int) Math.Abs(center.X - slot.LocalCenter.X) ;
                 var distanceY = (int) Math.Abs(center.Y - slot.LocalCenter.Y) ;
                 if (distanceX + distanceY > 16)
-                { if (distanceX + distanceY > 33)
+                {
+                    if (distanceX + distanceY > 33)
                         continue;
-                  if (distanceX + distanceY < 33)
+                    if (distanceX + distanceY < 33)
                         continue;
-
                 }
 
                 CheckAndPowerConduit(slot);

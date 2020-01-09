@@ -82,8 +82,8 @@ namespace Ship_Game
         {
             var p = new LightingSystemPreferences
             {
-                ShadowQuality   = settings.ShadowQuality,
                 MaxAnisotropy   = settings.MaxAnisotropy,
+                ShadowQuality   = GlobalStats.GetShadowQuality(settings.ShadowDetail),
                 ShadowDetail    = (DetailPreference) settings.ShadowDetail,
                 EffectDetail    = (DetailPreference) settings.EffectDetail,
                 TextureQuality  = (DetailPreference) settings.TextureQuality,

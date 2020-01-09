@@ -56,7 +56,6 @@ namespace Ship_Game.Gameplay
         SubTexture ProjectileTexture;
 
         public bool DieNextFrame { get; private set; }
-        public bool DieSound;
         readonly AudioHandle InFlightSfx = new AudioHandle();
         public string DieCueName = "";
         bool LightWasAddedToSceneGraph;
@@ -66,7 +65,7 @@ namespace Ship_Game.Gameplay
         public bool ErrorSet = false;
         public bool FlashExplode;
         bool InFrustum;
-        private bool Deflected;
+        bool Deflected;
    
 
         public Ship Owner { get; protected set; }
@@ -183,7 +182,6 @@ namespace Ship_Game.Gameplay
             if (playSound && (System != null && System.isVisible || Owner?.InFrustum == true))
             {
                 Weapon.PlayToggleAndFireSfx(Emitter);
-                DieSound = true;
 
                 string cueName = ResourceManager.GetWeaponTemplate(Weapon.UID).dieCue;
                 if (cueName.NotEmpty())     DieCueName  = cueName;
