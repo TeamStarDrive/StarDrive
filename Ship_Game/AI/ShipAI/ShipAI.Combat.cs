@@ -55,7 +55,7 @@ namespace Ship_Game.AI
                     TrackProjectiles.RemoveAtSwapLast(x);
             }
 
-            if (Target?.Active == false || Target?.Health == 0 || Target is Ship ship && ship.dying)
+            if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
             {
                 Target = null;
             }
