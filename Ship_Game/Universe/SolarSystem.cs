@@ -60,7 +60,7 @@ namespace Ship_Game
         public Array<Anomaly> AnomaliesList = new Array<Anomaly>();
         public bool isStartingSystem;
         public Array<string> DefensiveFleets = new Array<string>();
-        [XmlIgnore][JsonIgnore] public bool VisibilityUpdated;
+        [XmlIgnore][JsonIgnore] bool WasVisibleLastFrame;
 
         public void Update(float elapsedTime, UniverseScreen universe, float realTime)
         {            
@@ -75,38 +75,16 @@ namespace Ship_Game
             foreach (var status in Status)
                 status.Value.Update(realTime);
 
-            bool systemOnScreen = false;
-            if (universe.Frustum.Contains(Position, Radius))
-            {
-                systemOnScreen = true;
-            }
-            else if (universe.viewState <= UniverseScreen.UnivScreenState.ShipView) // WTF is this doing?
-            {
-                var rect = new Rectangle((int) Position.X - (int)Radius,
-                                         (int) Position.Y - (int)Radius, (int)Radius*2, (int)Radius*2);
-                Vector3 position = universe.Viewport.Unproject(new Vector3(500f, 500f, 0f), universe.Projection, universe.View, Matrix.Identity);
-                Vector3 direction = universe.Viewport.Unproject(new Vector3(500f, 500f, 1f), universe.Projection, universe.View, Matrix.Identity) -
-                                    position;
-                direction.Normalize();
-                var ray = new Ray(position, direction);
-                float num = -ray.Position.Z / ray.Direction.Z;
-                var vector3 = new Vector3(ray.Position.X + num * ray.Direction.X,
-                                          ray.Position.Y + num * ray.Direction.Y, 0.0f);
-                var pos = new Vector2(vector3.X, vector3.Y);
-                if (rect.HitTest(pos))
-                    systemOnScreen = true;
-            }
-
-            isVisible = systemOnScreen && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView) && IsExploredBy(player);
+            isVisible = universe.Frustum.Contains(Position, Radius)
+                    && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView)
+                    && IsExploredBy(player);
 
             if (isVisible && universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
             {
-                VisibilityUpdated = true;
+                WasVisibleLastFrame = true;
                 for (int i = 0; i < AsteroidsList.Count; i++)
                 {
-                    Asteroid asteroid = AsteroidsList[i];
-                    asteroid.So.Visibility = ObjectVisibility.Rendered;
-                    asteroid.Update(elapsedTime);
+                    AsteroidsList[i].UpdateVisibleAsteroid(elapsedTime);
                 }
 
                 for (int i = 0; i < MoonList.Count; i++)
@@ -116,13 +94,12 @@ namespace Ship_Game
                     moon.UpdatePosition(elapsedTime);
                 }
             }
-            else if (VisibilityUpdated)
+            else if (WasVisibleLastFrame)
             {
-                VisibilityUpdated = false;
+                WasVisibleLastFrame = false;
                 for (int i = 0; i < AsteroidsList.Count; i++)
                 {
-                    Asteroid asteroid = AsteroidsList[i];
-                    asteroid.So.Visibility = ObjectVisibility.None;
+                    AsteroidsList[i].DestroySceneObject();
                 }
 
                 for (int i = 0; i < MoonList.Count; i++)
@@ -534,23 +511,23 @@ namespace Ship_Game
             return strength;
         }
 
-        private bool NoAsteroidProximity(Vector2 pos)
+        bool NoAsteroidProximity(Vector2 pos)
         {
-            foreach (Asteroid asteroid in AsteroidsList)
-                if (new Vector2(asteroid.Position3D.X, asteroid.Position3D.Y).SqDist(pos) < 200.0f*200.0f)
+            for (int i = 0; i < AsteroidsList.Count; i++)
+                if (pos.InRadius(AsteroidsList[i].Position, 200.0f))
                     return false;
             return true;
         }
 
-        private Vector3 GenerateAsteroidPos(float ringRadius, float spread)
+        Vector2 GenerateAsteroidPos(float ringRadius, float spread)
         {
             for (int i = 0; i < 100; ++i) // while (true) would be unsafe, so give up after 100 turns
             {
                 Vector2 pos = Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + RandomBetween(-spread, spread));
                 if (NoAsteroidProximity(pos))
-                    return new Vector3(pos.X, pos.Y, -500f);
+                    return pos;
             }
-            return Vector3.Zero; // should never reach this point, but if it does... we don't care, just don't crash or freeze
+            return Vector2.Zero.GenerateRandomPointOnCircle(ringRadius + RandomBetween(-spread, spread));
         }
 
         void GenerateAsteroidRing(float orbitalDistance, float spread, float scaleMin=0.75f, float scaleMax=1.6f)
@@ -559,11 +536,8 @@ namespace Ship_Game
             AsteroidsList.Capacity += numberOfAsteroids;
             for (int i = 0; i < numberOfAsteroids; ++i)
             {
-                AsteroidsList.Add(new Asteroid
-                {
-                    Scale      = RandomBetween(scaleMin, scaleMax),
-                    Position3D = GenerateAsteroidPos(orbitalDistance, spread)
-                });
+                AsteroidsList.Add(new Asteroid(scaleMin, scaleMax,
+                    GenerateAsteroidPos(orbitalDistance, spread)));
             }
             RingList.Add(new Ring
             {
