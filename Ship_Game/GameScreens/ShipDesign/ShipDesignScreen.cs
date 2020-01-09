@@ -58,7 +58,12 @@ namespace Ship_Game
         public bool Debug;
         ShipData.RoleName Role;
         Rectangle DesignRoleRect;
-        public bool IsSymmetricDesignMode = true;
+
+        public bool IsSymmetricDesignMode
+        {
+            get => GlobalStats.SymmetricDesign;
+            set => GlobalStats.SymmetricDesign = value;
+        }
 
         struct MirrorSlot
         {
@@ -187,7 +192,7 @@ namespace Ship_Game
                     return false;
                 if (!grid.ModuleFitsAtSlot(Slot, Mod))
                 {
-                    PlayNegativeSound();
+                    GameAudio.NegativeClick();
                     return false;
                 }
                 CanInstall = !Slot.IsSame(Mod, Ori, Mod.FacingDegrees);
@@ -235,7 +240,7 @@ namespace Ship_Game
         {
             if (!slot.IsModuleReplaceableWith(template))
             {
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
                 return;
             }
 
@@ -307,9 +312,6 @@ namespace Ship_Game
                     return false;
             return true;
         }
-
-
-        public static void PlayNegativeSound() => GameAudio.NegativeClick();
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
@@ -471,7 +473,7 @@ namespace Ship_Game
             LoadContentFinish();
             BindListsToActiveHull();
 
-            AssignLightRig("example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.ShipDesignScreen, "example/ShipyardLightrig");
         }
 
         void LoadContentFinish()

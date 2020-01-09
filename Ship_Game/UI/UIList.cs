@@ -217,24 +217,25 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////
         
-        public UIButton AddButton(LocalizedText text, Action<UIButton> click)
+        public UIButton AddButton(in LocalizedText text, Action<UIButton> click)
         {
-            UIButton button = Add(new UIButton(text.Text));
+            UIButton button = Add(new UIButton(text));
             button.OnClick  = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
 
-        public UIButton Add(ButtonStyle style, LocalizedText text, Action<UIButton> click)
+        public UIButton Add(ButtonStyle style, in LocalizedText text, Action<UIButton> click)
         {
-            UIButton button = Add(new UIButton(style, text.Text));
+            UIButton button = Add(new UIButton(style, text));
             button.OnClick  = click;
             button.ClickSfx = "sd_ui_tactical_pause";
             return button;
         }
 
-        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, LocalizedText title, ToolTipText tooltip)
-            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title.Text, tooltip));
+        public UICheckBox AddCheckbox(Expression<Func<bool>> binding, 
+                                      in LocalizedText title, in ToolTipText tooltip)
+            => Add(new UICheckBox(binding, Fonts.Arial12Bold, title, tooltip));
 
         /////////////////////////////////////////////////////////////////////////////
     }

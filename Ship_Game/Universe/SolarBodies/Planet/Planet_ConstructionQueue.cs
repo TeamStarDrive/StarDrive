@@ -12,7 +12,9 @@ namespace Ship_Game
     {
         public void RefreshBuildingsWeCanBuildHere()
         {
-            if (Owner == null) return;
+            if (Owner == null) 
+                return;
+
             BuildingsCanBuild.Clear();
 
             // See if it already has a command building or not.
@@ -38,6 +40,9 @@ namespace Ship_Game
                 // If this is a one-per-empire building, make sure it hasn't been built already elsewhere
                 // Reusing fountIt bool from above
                 if (b.BuildOnlyOnce && IsBuiltOrQueuedWithinEmpire(b))
+                    continue;
+                // If this building is not allowed to be built in colonies (usually deployed by ship modules)
+                if (b.OmitColonyBuild)
                     continue;
                 // If the building is still a candidate after all that, then add it to the list!
                 BuildingsCanBuild.Add(b);

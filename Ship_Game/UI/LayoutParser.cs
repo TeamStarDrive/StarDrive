@@ -289,21 +289,21 @@ namespace Ship_Game.UI
             }
             else if (node.Name == "Label")
             {
-                element = new UILabel(info.Title.Text);
+                element = new UILabel(info.Title);
             }
             else if (node.Name == "Button")
             {
                 element = new UIButton(info.ButtonStyle)
                 {
-                    Text = info.Title.Text,
-                    Tooltip = info.Tooltip.Text,
+                    Text = info.Title,
+                    Tooltip = info.Tooltip,
                     ClickSfx = info.ClickSfx,
                 };
             }
             else if (node.Name == "Checkbox")
             {
                 bool dummy = false;
-                element = new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title.Text, info.Tooltip.Text);
+                element = new UICheckBox(() => dummy, Fonts.Arial12Bold, info.Title, info.Tooltip);
             }
             else if (node.Name == "Override")
             {

@@ -8,8 +8,9 @@ namespace Ship_Game
 {
     internal static class Program
     {
-        public const int MAIN_LOOP_FAILURE = -1;
-        public const int UNHANDLED_EXCEPTION = -2;
+        public const int GAME_RUN_FAILURE = -1;
+        public const int SCREEN_UPDATE_FAILURE = -2;
+        public const int UNHANDLED_EXCEPTION = -3;
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
@@ -18,7 +19,7 @@ namespace Ship_Game
                 graphicsMgr.ToggleFullScreen();
 
             var ex = e.ExceptionObject as Exception;
-            Log.ErrorDialog(ex, "Program.CurrentDomain_UnhandledException", isFatal: true);
+            Log.ErrorDialog(ex, "Program.CurrentDomain_UnhandledException", UNHANDLED_EXCEPTION);
         }
 
         // in case of abnormal termination, run cleanup tasks during process exit
@@ -72,6 +73,9 @@ namespace Ship_Game
                         //return;
                     }
 
+                    Thread.CurrentThread.Name = "Main Thread";
+                    Log.AddThreadMonitor();
+
                     using (var game = new StarDriveGame())
                         game.Run();
                 }
@@ -81,8 +85,7 @@ namespace Ship_Game
             }
             catch (Exception ex)
             {
-                Log.ErrorDialog(ex, "Fatal main loop failure");
-                RunCleanupAndExit(MAIN_LOOP_FAILURE);
+                Log.ErrorDialog(ex, "Game.Run() failed", GAME_RUN_FAILURE);
             }
         }
     }

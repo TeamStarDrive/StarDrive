@@ -774,30 +774,25 @@ namespace Ship_Game
                     if (ship == null)
                         continue;
 
-                    if (Vector2.Distance(p.Center, ship.Center) >= p.ObjectRadius + ship.Radius + 1500f)
+                    if (ship.Center.OutsideRadius(p.Center, p.ObjectRadius + ship.Radius + 1500f))
                         continue;
 
                     if (ship.shipData.Role != ShipData.RoleName.troop)
                     {
-                        if (ship.TroopList.Count <= 0 || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
+                        if (!ship.HasOurTroops || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
                             continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
 
                         int landingLimit = LandingLimit(ship);
-                        for (int i = 0; i < ship.TroopList.Count && landingLimit > 0; i++)
-                        {
-                            if (ship.TroopList[i] != null && ship.TroopList[i].Loyalty == ship.loyalty)
-                            {
-                                OrbitSL.AddItem(new CombatScreenOrbitListItem(ship.TroopList[i]));
-                                landingLimit--;
-                            }
-                        }
+                        foreach (Troop troop in ship.GetOurTroops(landingLimit))
+                            OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
                     }
                     else if (ship.AI.State != AI.AIState.Rebase
                              && ship.AI.State != AI.AIState.RebaseToShip
                              && ship.AI.State != AI.AIState.AssaultPlanet)
                     {
-                        if (ship.HasTroops)  // this the default 1 troop ship or assault shuttle
-                            OrbitSL.AddItem(new CombatScreenOrbitListItem(ship.TroopList[0]));
+                        // this the default 1 troop ship or assault shuttle
+                        if (ship.GetOurFirstTroop(out Troop first))
+                            OrbitSL.AddItem(new CombatScreenOrbitListItem(first));
                     }
                 }
             }
@@ -905,12 +900,6 @@ namespace Ship_Game
             {
                 batch.Draw(Animation[Frame], Grid, Color.White);
             }
-        }
-
-        protected override void Destroy()
-        {
-            Explosions?.Dispose(ref Explosions);
-            base.Destroy();
         }
     }
 }

@@ -38,16 +38,16 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask()
         {
         }
-        public static MilitaryTask CreatePostInvasion(Vector2 ao, int fleetId, Empire owner)
+        public static MilitaryTask CreateClaimTask(Planet targetPlanet, float minStrength)
         {
             var militaryTask = new MilitaryTask
             {
-                AO = ao,
-                AORadius = 10000f,
-                WhichFleet = fleetId
+                TargetPlanet             = targetPlanet,
+                AO                       = targetPlanet.Center,
+                type                     = TaskType.DefendClaim,
+                AORadius                 = targetPlanet.ParentSystem.Radius,
+                MinimumTaskForceStrength = minStrength
             };
-            militaryTask.SetEmpire(owner);
-            militaryTask.type = TaskType.DefendPostInvasion;
             return militaryTask;
         }
 
@@ -75,7 +75,7 @@ namespace Ship_Game.AI.Tasks
             SetEmpire(ao.GetCoreFleet().Owner);
         }
 
-        public MilitaryTask(Vector2 location, float radius, Array<Goal> goalsToHold, Empire owner, float str = 0) 
+        public MilitaryTask(Vector2 location, float radius, Array<Goal> goalsToHold, Empire owner, float str = 0)
         {
             type = TaskType.ClearAreaOfEnemies;
             AO = location;
@@ -94,7 +94,7 @@ namespace Ship_Game.AI.Tasks
 
             MinimumTaskForceStrength = EnemyStrength;
             Owner = owner;
-        }         
+        }
 
         public MilitaryTask(Planet target, Empire owner)
         {
@@ -135,7 +135,7 @@ namespace Ship_Game.AI.Tasks
                 FactionEndTask();
                 return;
             }
-            
+
             TaskForce.Clear();
             ClearHoldOnGoal();
 
@@ -144,7 +144,7 @@ namespace Ship_Game.AI.Tasks
 
             if (Fleet != null && !Fleet.IsCoreFleet)
                 Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
-            
+
             if (FindClosestAO() == null)
             {
                 if (Fleet.IsCoreFleet || Owner == Empire.Universe.player)
@@ -165,7 +165,7 @@ namespace Ship_Game.AI.Tasks
 
             DisbandFleet(Fleet);
 
-            if (type == TaskType.Exploration && TargetPlanet != null) 
+            if (type == TaskType.Exploration && TargetPlanet != null)
                 RemoveTaskTroopsFromPlanet();
         }
 
@@ -270,7 +270,7 @@ namespace Ship_Game.AI.Tasks
         public void EndTaskWithMove()
         {
             Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
-            
+
             ClearHoldOnGoal();
 
             AO closestAo = Owner.GetEmpireAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Center));
@@ -310,7 +310,7 @@ namespace Ship_Game.AI.Tasks
         }
 
         public void Evaluate(Empire e)
-        {  
+        {
             Owner = e;
             if (WhichFleet >-1)
             {
@@ -410,7 +410,7 @@ namespace Ship_Game.AI.Tasks
                                     }
                                     RequisitionClaimForce();
                                     break;
-                                }                                
+                                }
                             case 1:
                                 {
                                     var fleetDictionary = Owner.GetFleetsDict();
@@ -492,7 +492,7 @@ namespace Ship_Game.AI.Tasks
 
             if (type == TaskType.Exploration ||type ==TaskType.AssaultPlanet)
             {
-                
+
                 float ourGroundStrength = TargetPlanet.GetGroundStrength(Owner);
 
                 if (ourGroundStrength > 0)
@@ -511,14 +511,14 @@ namespace Ship_Game.AI.Tasks
                     }
                 }
             }
-            
+
             Fleet fleet = Owner.GetFleetOrNull(WhichFleet);
             if (fleet?.FleetTask == null)
             {
                 EndTask();
                 return;
             }
-            
+
             float currentStrength = 0f;
             foreach (Ship ship in fleet.Ships)
             {
@@ -535,20 +535,8 @@ namespace Ship_Game.AI.Tasks
                 }
             }
 
-            float currentEnemyStrength = 0f;
-
-            foreach (KeyValuePair<Guid, ThreatMatrix.Pin> pin in Owner.GetEmpireAI().ThreatMatrix.Pins)
-            {
-                if (Vector2.Distance(AO, pin.Value.Position) >= AORadius || pin.Value.Ship == null)
-                    continue;
-
-                Empire pinEmp = EmpireManager.GetEmpireByName(pin.Value.EmpireName);
-
-                if (pinEmp == Owner || !pinEmp.isFaction && !Owner.GetRelations(pinEmp).AtWar )
-                    continue;
-
-                currentEnemyStrength += pin.Value.Strength;
-            }
+            float currentEnemyStrength = Owner.GetEmpireAI().ThreatMatrix
+                                        .StrengthOfHostilesInRadius(Owner, AO, AORadius);
 
             if (currentStrength < 0.15f * StartingStrength && currentEnemyStrength > currentStrength)
             {
@@ -622,7 +610,7 @@ namespace Ship_Game.AI.Tasks
             TargetPlanetGuid = p.guid;
         }
 
-        //need to examine this fleet key thing. i believe there is a leak. 
+        //need to examine this fleet key thing. i believe there is a leak.
         int FindUnusedFleetNumber()
         {
             var used = Owner.GetEmpireAI().UsedFleets;

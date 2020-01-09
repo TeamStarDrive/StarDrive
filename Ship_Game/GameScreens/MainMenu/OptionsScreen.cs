@@ -17,8 +17,7 @@ namespace Ship_Game
         public int MaxAnisotropy;
         public int TextureSampling;
         public int TextureQuality;
-        public int ShadowDetail;
-        public float ShadowQuality;
+        public int ShadowDetail; // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
         public int EffectDetail;
         public bool RenderBloom;
         public bool VSync;
@@ -42,7 +41,6 @@ namespace Ship_Game
             TextureSampling = GlobalStats.TextureSampling;
             TextureQuality  = GlobalStats.TextureQuality;
             ShadowDetail    = GlobalStats.ShadowDetail;
-            ShadowQuality   = GlobalStats.ShadowQuality;
             EffectDetail    = GlobalStats.EffectDetail;
             RenderBloom     = GlobalStats.RenderBloom;
             VSync           = GlobalStats.VSync;
@@ -57,11 +55,10 @@ namespace Ship_Game
             GlobalStats.MaxAnisotropy   = MaxAnisotropy;
             GlobalStats.TextureSampling = TextureSampling;
             GlobalStats.TextureQuality  = TextureQuality;
-            GlobalStats.ShadowDetail    = ShadowDetail;
-            GlobalStats.ShadowQuality   = ShadowQuality;
             GlobalStats.EffectDetail    = EffectDetail;
             GlobalStats.RenderBloom     = RenderBloom;
             GlobalStats.VSync           = VSync;
+            GlobalStats.SetShadowDetail(ShadowDetail);
         }
 
         public void ApplyChanges()
@@ -90,7 +87,6 @@ namespace Ship_Game
                 && TextureSampling == other.TextureSampling 
                 && TextureQuality  == other.TextureQuality 
                 && ShadowDetail    == other.ShadowDetail 
-                && ShadowQuality.Equals(other.ShadowQuality) 
                 && EffectDetail    == other.EffectDetail 
                 && RenderBloom     == other.RenderBloom 
                 && VSync           == other.VSync;
@@ -102,6 +98,7 @@ namespace Ship_Game
         readonly bool Fade = true;
         DropOptions<DisplayMode> ResolutionDropDown;
         DropOptions<MMDevice> SoundDevices;
+        DropOptions<Language> CurrentLanguage;
         Rectangle LeftArea;
         Rectangle RightArea;
 
@@ -190,15 +187,8 @@ namespace Ship_Game
 
         void ShadowQuality_OnClick(UILabel label)
         {
+            // 0=High, 1=Medium, 2=Low, 3=Off
             New.ShadowDetail = New.ShadowDetail >= 3 ? 0 : New.ShadowDetail + 1;
-            switch (New.ShadowDetail)
-            {
-                case 0: New.ShadowQuality = 1.00f; break;
-                case 1: New.ShadowQuality = 0.66f; break;
-                case 2: New.ShadowQuality = 0.33f; break;
-                default:
-                case 3: New.ShadowQuality = 0.00f; break;
-            }
         }
 
         void Fullscreen_OnClick(UILabel label)
@@ -280,6 +270,9 @@ namespace Ship_Game
                 right.AddCheckbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
                                     "Experimental and untested feature for complex Shield behaviors during Warp");
 
+            CurrentLanguage = new DropOptions<Language>(105, 18);
+            Add(right, "Language", CurrentLanguage);
+
             Add(new UIButton(new Vector2(RightArea.Right - 172, RightArea.Bottom + 60), Localizer.Token(13)))
                 .OnClick = button => ApplyOptions();
 
@@ -287,6 +280,7 @@ namespace Ship_Game
             PerformLayout();
             CreateResolutionDropOptions();
             CreateSoundDevicesDropOptions();
+            CreateLanguageDropOptions();
         }
 
         void CreateResolutionDropOptions()
@@ -328,6 +322,16 @@ namespace Ship_Game
             SoundDevices.OnValueChange = OnAudioDeviceDropDownChange;
         }
 
+        void CreateLanguageDropOptions()
+        {
+            foreach (Language language in (Language[]) Enum.GetValues(typeof(Language)))
+            {
+                CurrentLanguage.AddOption(language.ToString(), language);
+            }
+            CurrentLanguage.ActiveValue = GlobalStats.Language;
+            CurrentLanguage.OnValueChange = OnLanguageDropDownChange;
+        }
+
         void OnAudioDeviceDropDownChange(MMDevice newDevice)
         {
             if (newDevice == null)
@@ -338,6 +342,16 @@ namespace Ship_Game
 
             GameAudio.SmallServo();
             GameAudio.TacticalPause();
+        }
+
+        void OnLanguageDropDownChange(Language newLanguage)
+        {
+            if (GlobalStats.Language != newLanguage)
+            {
+                GlobalStats.Language = newLanguage;
+                ResourceManager.LoadLanguage(newLanguage);
+                LoadContent(); // reload the options screen to update the text
+            }
         }
 
         public override void LoadContent()

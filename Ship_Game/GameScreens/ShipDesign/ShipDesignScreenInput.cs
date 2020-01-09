@@ -508,7 +508,7 @@ namespace Ship_Game
 
             if (!GetSlotUnderCursor(input, out SlotStruct slot))
             { 
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
                 return;
             }
 
@@ -524,7 +524,7 @@ namespace Ship_Game
             }
             else
             {
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
             }
         }
 
@@ -572,11 +572,11 @@ namespace Ship_Game
             return false;
         }
 
-        public void OnSymmetricDesignToggle()
+        void OnSymmetricDesignToggle()
         {
-            IsSymmetricDesignMode = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Text  = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
-            BtnSymmetricDesign.Style = IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+            IsSymmetricDesignMode       = !IsSymmetricDesignMode;
+            BtnSymmetricDesign.Text     = SymmetricDesignBtnText;
+            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
         }
 
         void UpdateActiveCombatButton()

@@ -334,7 +334,7 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
             int troops = Screen.player
                 .GetShips()
-                .Where(troop => troop.TroopList.Count > 0)
+                .Where(troop => troop.HasOurTroops)
                 .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
             if (!SendTroops.HitTest(mousePos))
                 batch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,

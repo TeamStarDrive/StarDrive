@@ -142,9 +142,9 @@ namespace Ship_Game
             batch.DrawString(Fonts.Arial12, ship.GetStrength().ToString("0"), StrPos, Color.White);
 
             var TroopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            TroopPos.X -= Fonts.Arial12.MeasureString(string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity)).X / 2f + 6;
+            TroopPos.X -= Fonts.Arial12.MeasureString(string.Concat(ship.TroopCount, "/", ship.TroopCapacity)).X / 2f + 6;
             HelperFunctions.ClampVectorToInt(ref TroopPos);
-            batch.DrawString(Fonts.Arial12, string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity), TroopPos, Color.White);
+            batch.DrawString(Fonts.Arial12, string.Concat(ship.TroopCount, "/", ship.TroopCapacity), TroopPos, Color.White);
             
             var FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             FTLPos.X -= Fonts.Arial12.MeasureString((ship.MaxFTLSpeed / 1000f).ToString("0")+"k").X / 2f + 6;

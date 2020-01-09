@@ -29,7 +29,6 @@ namespace Ship_Game
          */
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx = new AudioHandle();
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
         // TODO: Position and Center are duplicates. One of them should be removed eventually.
@@ -41,12 +40,11 @@ namespace Ship_Game
         // MUST be normalized to [0; +2PI]
         [Serialize(3)] public float Rotation;
 
-        [Serialize(4)] public Vector2 Dimensions;
-        [Serialize(5)] public float Radius = 1f;
-        [Serialize(6)] public float Mass = 1f;
-        [Serialize(7)] public float Health;
+        [Serialize(4)] public float Radius = 1f;
+        [Serialize(5)] public float Mass = 1f;
+        [Serialize(6)] public float Health;
 
-        [Serialize(8)] public GameObjectType Type;
+        [Serialize(7)] public readonly GameObjectType Type;
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
@@ -73,6 +71,8 @@ namespace Ship_Game
             set => Rotation = value.ToRadians();
         }
 
+        [XmlIgnore][JsonIgnore] public bool QueuedForRemoval;
+
         private static int GameObjIds;
         [XmlIgnore][JsonIgnore] public int Id = ++GameObjIds;
 
@@ -97,7 +97,7 @@ namespace Ship_Game
         public virtual void Die(GameplayObject source, bool cleanupOnly)
         {
             Active = false;
-            Empire.Universe.QueueGameplayObjectRemoval(this);
+            Empire.Universe?.QueueGameplayObjectRemoval(this);
         }
 
         public virtual void RemoveFromUniverseUnsafe()
@@ -161,6 +161,10 @@ namespace Ship_Game
                 changeTo.AddShipNextFrame(ship);
                 ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
+
+                foreach (Troop troop in ship.GetOurTroops())
+                    if (troop.Loyalty == oldLoyalty)
+                        troop.ChangeLoyalty(changeTo);
             }
 
             // this resets the spatial management

@@ -37,6 +37,9 @@ namespace Ship_Game
         Rectangle eRect;
         SortButton LastSorted;
 
+        // FB - this will store each planet GUID and it's distance to the closest player colony. If the planet is owned
+        // by the player - the distance will be 0, logically.
+        readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
 
         public PlanetListScreen(GameScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
             : base(parent)
@@ -78,6 +81,7 @@ namespace Ship_Game
                 }
             }
 
+            CalcPlanetsDistances();
             cb_hideOwned = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0));
@@ -85,6 +89,28 @@ namespace Ship_Game
             cb_hideUninhabitable = Add(new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0));
+        }
+
+        void CalcPlanetsDistances()
+        {
+            var playerPlanets = EmpireManager.Player.GetPlanets();
+            foreach (Planet planet in ExploredPlanets)
+            {
+                if (planet.Owner != EmpireManager.Player)
+                {
+                    float shortestDistance = playerPlanets.Min(p => p.Center.Distance(planet.Center));
+                    PlanetDistanceToClosestColony.Add(planet, shortestDistance);
+                }
+                else
+                {
+                    PlanetDistanceToClosestColony.Add(planet, 0f);
+                }
+            }
+        }
+
+        float GetShortestDistance(Planet p)
+        {
+            return PlanetDistanceToClosestColony.TryGetValue(p, out float distance) ?  distance : 0;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -166,6 +192,8 @@ namespace Ship_Game
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
                 var e = new PlanetListScreenItem(this, p);
+                // TODO: REIMPLEMENT THIS
+                //var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p) ,this);
                 PlanetSL.AddItem(e);
             }
         }
@@ -195,7 +223,7 @@ namespace Ship_Game
             HandleButton(input, sb_Name,  p => p.Name);
             HandleButton(input, sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
-            HandleButton(input, sb_Pop,   p => p.MaxPopulation);
+            HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
@@ -231,6 +259,8 @@ namespace Ship_Game
                         continue;
                     }
                     var entry = new PlanetListScreenItem(this, p);
+                    // TODO: REIMPLEMENT THIS
+                    //var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p), this);
                     PlanetSL.AddItem(entry);
                 }
             }
