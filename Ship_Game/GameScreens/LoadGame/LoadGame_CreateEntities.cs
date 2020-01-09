@@ -163,13 +163,7 @@ namespace Ship_Game
             };
 
             system.AsteroidsList.AddRange(ssd.AsteroidsList);
-
-            foreach (Moon moon in ssd.Moons)
-            {
-                moon.Initialize();
-                system.MoonList.Add(moon);
-            }
-
+            system.MoonList.AddRange(ssd.Moons);
             system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)

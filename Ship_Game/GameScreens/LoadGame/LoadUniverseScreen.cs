@@ -257,8 +257,6 @@ namespace Ship_Game
                     p.ParentSystem = system;
                     p.InitializePlanetMesh(this);
                 }
-                foreach (Moon moon in system.MoonList)
-                    AddObject(moon.So);
             }
         }
 

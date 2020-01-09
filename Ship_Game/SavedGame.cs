@@ -114,8 +114,8 @@ namespace Ship_Game
                     guid     = system.guid,
                     Position = system.Position,
                     SunPath  = system.Sun.Id,
-                    AsteroidsList = system.AsteroidsList.ToArray(),
-                    Moons         = system.MoonList.ToArray(),
+                    AsteroidsList = system.AsteroidsList.Clone(),
+                    Moons         = system.MoonList.Clone(),
                     ExploredBy = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     RingList   = system.RingList.Select(ring => ring.Serialize()),
                 });
@@ -770,8 +770,8 @@ namespace Ship_Game
             [Serialize(2)] public string Name;
             [Serialize(3)] public Vector2 Position;
             [Serialize(4)] public RingSave[] RingList;
-            [Serialize(5)] public Asteroid[] AsteroidsList;
-            [Serialize(6)] public Moon[] Moons;
+            [Serialize(5)] public Array<Asteroid> AsteroidsList;
+            [Serialize(6)] public Array<Moon> Moons;
             [Serialize(7)] public string[] ExploredBy;            
         }
 
