@@ -358,6 +358,7 @@ namespace Ship_Game
                 Beam.BeamEffect.Parameters["View"].SetValue(View);
                 Beam.BeamEffect.Parameters["Projection"].SetValue(Projection);
             }
+
             AdjustCamera((float) gameTime.ElapsedGameTime.TotalSeconds);
             CamPos.Z = CamHeight;
             View = Matrix.CreateTranslation(0.0f, 0.0f, 0.0f)

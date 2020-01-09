@@ -1259,6 +1259,17 @@ namespace Ship_Game
             OwnedProjectors.ApplyPendingRemovals();  //fbedard
         }
 
+        /// <summary>
+        /// This should be run on save load to set economic values without taking a turn.
+        /// </summary>
+        public void InitEmpireEconomy()
+        {
+            UpdateEmpirePlanets();
+            UpdateNetPlanetIncomes();
+            UpdateShipMaintenance(); ;
+            EmpireAI.RunEconomicPlanner();
+        }
+
         private void UpdateMilitaryStrengths()
         {
             CurrentMilitaryStrength = 0;
@@ -2130,13 +2141,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateAI()
-        {
-            if (isFaction)
-               EmpireAI.FactionUpdate();
-            else if (!data.Defeated)
-                EmpireAI.Update();
-        }
+        void UpdateAI() => EmpireAI.Update();
 
         void Bankruptcy()
         {

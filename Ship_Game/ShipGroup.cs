@@ -143,7 +143,7 @@ namespace Ship_Game
         {
             float maxRadius = 0.0f;
             for (int i = 0; i < shipList.Length; ++i)
-                maxRadius = Math.Max(maxRadius, shipList[i].GetSO().WorldBoundingSphere.Radius);
+                maxRadius = Math.Max(maxRadius, shipList[i].Radius);
             return maxRadius;
         }
 

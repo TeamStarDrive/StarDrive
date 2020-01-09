@@ -5,13 +5,14 @@ using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Data;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
         // You can also call Ship.CreateShip... functions to spawn ships
-        protected Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
+        Ship(Empire empire, ShipData data, bool fromSave, bool isTemplate) : base(GameObjectType.Ship)
         {
             if (!data.IsValidForCurrentMod)
             {
@@ -39,7 +40,7 @@ namespace Ship_Game.Ships
             DesignRole = GetDesignRole();
         }
 
-        protected Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
+        Ship(Ship template, Empire owner, Vector2 position) : base(GameObjectType.Ship)
         {
             if (template == null)
                 return; // Aaarghhh!!
@@ -99,7 +100,7 @@ namespace Ship_Game.Ships
             return ResourceManager.GetShipTemplate("Vulcan Scout", out template) ? template : null;
         }
 
-        public bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
+        bool CreateModuleSlotsFromData(ModuleSlotData[] templateSlots, bool fromSave, bool isTemplate = false)
         {
             bool hasLegacyDummySlots = false;
             int count = 0;
@@ -326,7 +327,7 @@ namespace Ship_Game.Ships
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public void InitializeAI()
+        void InitializeAI()
         {
             AI = new ShipAI(this);
             if (shipData == null)
@@ -335,7 +336,7 @@ namespace Ship_Game.Ships
             AI.CombatAI    = new CombatAI(this);
         }
 
-        public void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
+        void InitializeAIFromAISave(SavedGame.ShipAISave aiSave)
         {
             InitializeAI();
             AI.State              = aiSave.State;
@@ -347,25 +348,27 @@ namespace Ship_Game.Ships
             AI.EscortTargetGuid   = aiSave.EscortTarget;
         }
 
+        // NOTE: This is called on the main UI Thread by UniverseScreen
         public void CreateSceneObject()
         {
             if (StarDriveGame.Instance == null)
                 return; // allow creating invisible ships in Unit Tests
 
             shipData.LoadModel(out ShipSO, Empire.Universe);
-
-            Radius            = ShipSO.WorldBoundingSphere.Radius;
-            ShipSO.Visibility = ObjectVisibility.Rendered;
-            ShipSO.World      = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            Radius = shipData.BaseHull.Radius;
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            UpdateVisibility();
 
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
-            Center = Position + Dimensions / 2f;
+            Center = Position;
 
-            CreateSceneObject();
+            // NOTE: this will be overwritten later by CreateSceneObject()
+            Radius = shipData.Radius > 0 ? shipData.Radius : 50f;
+            Empire.Universe?.QueueShipSceneObject(this);
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
