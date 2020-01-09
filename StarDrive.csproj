@@ -181,7 +181,6 @@
     <Compile Include="Ship_Game\AI\EmpireAI\ShipBuilder.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyAnger.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.DiplomacyOffers.cs" />
-    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.FactionUpdate.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunAgentManager.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunDiplomaticPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunEconomicPlanner.cs" />
@@ -218,6 +217,8 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\CorsairAI.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\GameTips.cs" />
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
