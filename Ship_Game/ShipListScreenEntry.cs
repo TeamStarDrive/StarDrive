@@ -376,7 +376,7 @@ namespace Ship_Game
             if (RefitButton.HandleInput(input))
             {
                 GameAudio.EchoAffirmative();
-                screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
+                //screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
             if (ScrapButton.HandleInput(input))
