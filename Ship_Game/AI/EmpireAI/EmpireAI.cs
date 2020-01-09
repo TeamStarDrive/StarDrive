@@ -34,6 +34,7 @@ namespace Ship_Game.AI
         public int Recyclepool                               = 0;
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
+
         public EmpireAI(Empire e)
         {
             EmpireName                = e.data.Traits.Name;
@@ -44,7 +45,14 @@ namespace Ship_Game.AI
             ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
 
             if (OwnerEmpire.data.EconomicPersonality != null)
-                NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+                NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+
+            string name = OwnerEmpire.data.Traits.Name;
+            switch (name)
+            {
+                case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
+                case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
+            }
         }
 
         public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
