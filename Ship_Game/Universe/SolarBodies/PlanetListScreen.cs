@@ -43,7 +43,9 @@ namespace Ship_Game
         private SortButton LastSorted;
         private Rectangle AutoButton;
 
-        public Map<Guid, float> PlanetDistances = new Map<Guid, float>();
+        // FB - this will store each planet GUID and it's distance to the closest player colony. If the planet is owned
+        // by the player - the distance will be 0, logically.
+        private readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
 
         //private bool AutoButtonHover;
 
@@ -114,13 +116,18 @@ namespace Ship_Game
                 if (planet.Owner != EmpireManager.Player)
                 {
                     float shortestDistance = playerPlanets.Min(p => p.Center.Distance(planet.Center));
-                    PlanetDistances.Add(planet.guid, shortestDistance);
+                    PlanetDistanceToClosestColony.Add(planet, shortestDistance);
                 }
                 else
                 {
-                    PlanetDistances.Add(planet.guid, 0f);
+                    PlanetDistanceToClosestColony.Add(planet, 0f);
                 }
             }
+        }
+
+        float GetShortestDistance(Planet p)
+        {
+            return PlanetDistanceToClosestColony.TryGetValue(p, out float distance) ?  distance : 0;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -247,7 +254,7 @@ namespace Ship_Game
             {
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
-                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, PlanetDistances[p.guid] ,this);
+                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p) ,this);
                 PlanetSL.AddItem(e);
             }
         }
@@ -332,7 +339,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, PlanetDistances[p.guid], this);
+                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p), this);
                     PlanetSL.AddItem(entry);
                 }
             }
