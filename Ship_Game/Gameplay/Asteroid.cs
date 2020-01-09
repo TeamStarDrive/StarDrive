@@ -28,7 +28,7 @@ namespace Ship_Game.Gameplay
             So = new SceneObject(ResourceManager.GetAsteroidModel(AsteroidId).Meshes[0])
             {
                 ObjectType = ObjectType.Static,
-                Visibility = ObjectVisibility.Rendered
+                Visibility = GlobalStats.AsteroidVisibility
             };
 
             Radius   = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
@@ -38,10 +38,9 @@ namespace Ship_Game.Gameplay
 
         public override void Update(float elapsedTime)
         {
-             if (!Active
+            if (!Active
                 || Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView
-                || !Empire.Universe.Frustum.Contains(Position, 10f)
-                )
+                || !Empire.Universe.Frustum.Contains(Position, 10f))
             {
                 return;
             }

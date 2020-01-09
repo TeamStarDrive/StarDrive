@@ -43,6 +43,10 @@ namespace Ship_Game
         private SortButton LastSorted;
         private Rectangle AutoButton;
 
+        // FB - this will store each planet GUID and it's distance to the closest player colony. If the planet is owned
+        // by the player - the distance will be 0, logically.
+        private readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
+
         //private bool AutoButtonHover;
 
         public PlanetListScreen(GameScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
@@ -91,6 +95,7 @@ namespace Ship_Game
                 }
             }
 
+            CalcPlanetsDistances();
             cb_hideOwned = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
@@ -101,6 +106,28 @@ namespace Ship_Game
 
             AutoButton = new Rectangle(0, 0, 243, 33);
             
+        }
+
+        void CalcPlanetsDistances()
+        {
+            var playerPlanets = EmpireManager.Player.GetPlanets();
+            foreach (Planet planet in ExploredPlanets)
+            {
+                if (planet.Owner != EmpireManager.Player)
+                {
+                    float shortestDistance = playerPlanets.Min(p => p.Center.Distance(planet.Center));
+                    PlanetDistanceToClosestColony.Add(planet, shortestDistance);
+                }
+                else
+                {
+                    PlanetDistanceToClosestColony.Add(planet, 0f);
+                }
+            }
+        }
+
+        float GetShortestDistance(Planet p)
+        {
+            return PlanetDistanceToClosestColony.TryGetValue(p, out float distance) ?  distance : 0;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -227,7 +254,7 @@ namespace Ship_Game
             {
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
-                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p) ,this);
                 PlanetSL.AddItem(e);
             }
         }
@@ -312,7 +339,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p), this);
                     PlanetSL.AddItem(entry);
                 }
             }
