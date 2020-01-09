@@ -382,7 +382,6 @@ namespace Ship_Game.AI
                 if (Owner.Active)
                     Orbit.Orbit(planet, elapsedTime);
             }
-
         }
 
         // Big Troop Ships will launch their own Assault Shuttles to land them on the planet
