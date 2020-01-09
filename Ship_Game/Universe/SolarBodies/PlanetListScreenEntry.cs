@@ -15,52 +15,41 @@ namespace Ship_Game
         public Planet planet;
 
         public Rectangle TotalEntrySize;
-
         public Rectangle SysNameRect;
-
         public Rectangle PlanetNameRect;
-
         public Rectangle FertRect;
-
         public Rectangle RichRect;
-
         public Rectangle PopRect;
-
         public Rectangle OwnerRect;
-
         public Rectangle OrdersRect;
-
         private Rectangle ShipIconRect;
-
-        private UITextEntry ShipNameEntry = new UITextEntry();
-
-        private UIButton Colonize;
-        private UIButton SendTroops;
-
+        private readonly UITextEntry ShipNameEntry = new UITextEntry();
+        private readonly UIButton Colonize;
+        private readonly UIButton SendTroops;
         public PlanetListScreen screen;
-
         private bool MarkedForColonization;
+        private readonly float Distance;
 
         //private string Status_Text;
 
-        public PlanetListScreenEntry(Planet p, int x, int y, int width, int height, PlanetListScreen caller) : base(caller, new Rectangle(x, y, width, height))
+        public PlanetListScreenEntry(Planet p, int x, int y, int width, int height, float distance, PlanetListScreen caller) : base(caller, new Rectangle(x, y, width, height))
         {
-            screen = caller;
-            planet = p;
+            screen   = caller;
+            planet   = p;
+            Distance = distance / 1000;
             TotalEntrySize = new Rectangle(x, y, width - 60, height);
-            SysNameRect = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.12f), height);
+            SysNameRect    = new Rectangle(x, y, (int)(TotalEntrySize.Width * 0.12f), height);
             PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(TotalEntrySize.Width * 0.25f), height);
-            FertRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, height);
-            RichRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, height);
-            PopRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, height);
-            OwnerRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, height);
+            FertRect   = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, height);
+            RichRect   = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, height);
+            PopRect    = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, height);
+            OwnerRect  = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, height);
             OrdersRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width + OwnerRect.Width, y, 100, height);
             //this.Status_Text = "";
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             string shipName = planet.Name;
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
             ShipNameEntry.Text = shipName;
-
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
                 if (g.ColonizationTarget == null || g.ColonizationTarget != p)
@@ -181,8 +170,8 @@ namespace Ship_Game
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y - 10
             };
-            batch.DrawString(Fonts.Arial20Bold, planet.Name, rpos, TextColor);
-            rpos.Y = rpos.Y + (Fonts.Arial20Bold.LineSpacing - 3);
+            batch.DrawString(Fonts.Arial20Bold, planet.Name, rpos, planet.Owner?.EmpireColor ?? TextColor);
+            rpos.Y = rpos.Y + (Fonts.Arial20Bold.LineSpacing - 1);
             Vector2 FertilityCursor = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, planet.FertilityFor(EmpireManager.Player).String(), FertilityCursor, (planet.Habitable ? Color.White : Color.LightPink));
             Vector2 RichCursor = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -193,19 +182,24 @@ namespace Ship_Game
             SpriteBatch spriteBatch2 = batch;
             SpriteFont spriteFont = Fonts.Arial12Bold;
             if (planet.Owner != null)
-            {
                 singular = planet.Owner.data.Traits.Singular;
-            }
             else
-            {
                 singular = (planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
-            }
-            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, planet.Owner?.EmpireColor ?? Color.Gray);
-            batch.DrawString(Fonts.Arial12Bold, planet.LocalizedRichness, rpos, TextColor);
-            if (planet.Habitable && planet.Owner == null)
+
+            Color empireColor = planet.Owner?.EmpireColor ?? TextColor;
+
+            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, empireColor);
+            batch.DrawString(spriteFont, planet.LocalizedRichness, rpos, empireColor);
+            DistanceDisplay distanceDisplay = new DistanceDisplay(Distance);
+            if (Distance.Greater(0))
             {
-                Colonize.Draw(batch);
+                rpos.X += spriteFont.TextWidth(planet.LocalizedRichness) + 4;
+                rpos.Y += 2;
+                batch.DrawString(Fonts.Arial10, distanceDisplay.Text, rpos, distanceDisplay.Color);
             }
+
+            if (planet.Habitable && planet.Owner == null)
+                Colonize.Draw(batch);
 
             if (planet.Owner == null && planet.Habitable)  //fbedard: can send troop anywhere
             {
@@ -310,6 +304,44 @@ namespace Ship_Game
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.X + ShipIconRect.Width + 10, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2, (int)Fonts.Arial20Bold.MeasureString(shipName).X, Fonts.Arial20Bold.LineSpacing);
             Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
             SendTroops.Rect = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
+        }
+
+        struct DistanceDisplay
+        {
+            public readonly string Text;
+            public readonly Color Color;
+            private Distances PlanetDistance;
+
+            public DistanceDisplay(float distance) : this()
+            {
+                DeterminePlanetDistanceCategory(distance);
+                switch (PlanetDistance)
+                {
+                    case Distances.Local:   Text = "(Local)";   Color = Color.Green;       break;
+                    case Distances.Near:    Text = "(Near)";    Color = Color.YellowGreen; break;
+                    case Distances.Midway:  Text = "(Midway)";  Color = Color.DarkGoldenrod;        break;
+                    case Distances.Distant: Text = "(Distant)"; Color = Color.DarkRed;   break;
+                    default:                Text = "(Beyond)";  Color = Color.DarkGray;    break;
+                }
+            }
+
+            void DeterminePlanetDistanceCategory(float distance)
+            {
+                if      (distance.LessOrEqual(140))  PlanetDistance = Distances.Local;
+                else if (distance.LessOrEqual(1200)) PlanetDistance = Distances.Near;
+                else if (distance.LessOrEqual(3000)) PlanetDistance = Distances.Midway;
+                else if (distance.LessOrEqual(6000)) PlanetDistance = Distances.Distant;
+                else                                   PlanetDistance = Distances.Beyond;
+            }
+
+            enum Distances
+            {
+                Local,
+                Near,
+                Midway,
+                Distant,
+                Beyond
+            }
         }
     }
 }

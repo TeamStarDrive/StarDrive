@@ -43,6 +43,8 @@ namespace Ship_Game
         private SortButton LastSorted;
         private Rectangle AutoButton;
 
+        public Map<Guid, float> PlanetDistances = new Map<Guid, float>();
+
         //private bool AutoButtonHover;
 
         public PlanetListScreen(GameScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
@@ -91,6 +93,7 @@ namespace Ship_Game
                 }
             }
 
+            CalcPlanetsDistances();
             cb_hideOwned = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
@@ -101,6 +104,23 @@ namespace Ship_Game
 
             AutoButton = new Rectangle(0, 0, 243, 33);
             
+        }
+
+        void CalcPlanetsDistances()
+        {
+            Planet[] playerPlanets = ExploredPlanets.Filter(p => p.Owner == EmpireManager.Player);
+            foreach (Planet planet in ExploredPlanets)
+            {
+                if (planet.Owner != EmpireManager.Player)
+                {
+                    float shortestDistance = playerPlanets.Min(p => p.Center.Distance(planet.Center));
+                    PlanetDistances.Add(planet.guid, shortestDistance);
+                }
+                else
+                {
+                    PlanetDistances.Add(planet.guid, 0f);
+                }
+            }
         }
 
         public override void Draw(SpriteBatch batch)
@@ -227,7 +247,7 @@ namespace Ship_Game
             {
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
-                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, PlanetDistances[p.guid] ,this);
                 PlanetSL.AddItem(e);
             }
         }
@@ -312,7 +332,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, PlanetDistances[p.guid], this);
                     PlanetSL.AddItem(entry);
                 }
             }
