@@ -288,7 +288,10 @@ namespace Ship_Game.Gameplay
             int thisFrame = StarDriveGame.Instance.FrameId;
             if (LastDrawId == thisFrame)
             {
-                Log.Warning("Projectile.Draw called twice per frame!");
+                // NOTE: It's cheaper to leave in this concurrency issue
+                //       and just rely on the LastDrawId to ignore double-update projectiles.
+                //       Synchronized/ThreadSafe lists have an extreme performance impact.
+                //Log.Warning("Projectile.Draw called twice per frame!");
                 return;
             }
             LastDrawId = thisFrame;
