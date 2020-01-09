@@ -561,9 +561,10 @@ namespace Ship_Game
                 {
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }
-                else if (ship.InFrustum)
+                else if (viewState <= UnivScreenState.SystemView
+                     && (ship.System == null || ship.System.isVisible)
+                     && Frustum.Contains(ship.Center, 2000f))
                 {
-                    Log.Info("CreateSceneObject " + ship.Name);
                     ship.CreateSceneObject();
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }
