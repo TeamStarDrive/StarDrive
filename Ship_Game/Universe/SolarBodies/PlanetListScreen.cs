@@ -110,7 +110,7 @@ namespace Ship_Game
 
         void CalcPlanetsDistances()
         {
-            Planet[] playerPlanets = ExploredPlanets.Filter(p => p.Owner == EmpireManager.Player);
+            var playerPlanets = EmpireManager.Player.GetPlanets();
             foreach (Planet planet in ExploredPlanets)
             {
                 if (planet.Owner != EmpireManager.Player)
