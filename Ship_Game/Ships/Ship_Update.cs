@@ -4,12 +4,47 @@ using SynapseGaming.LightingSystem.Core;
 using System;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
-        void UpdateVisibility()
+        // > 0 if ship is outside frustum
+        float OutsideFrustumTimer;
+
+        // after X seconds of ships being invisible, we remove their scene objects
+        const float RemoveInvisibleSceneObjectsAfterTime = 15f;
+
+        // NOTE: This is called on the main UI Thread by UniverseScreen
+        // check UniverseScreen.QueueShipSceneObject()
+        public void CreateSceneObject()
+        {
+            if (StarDriveGame.Instance == null || ShipSO != null)
+                return; // allow creating invisible ships in Unit Tests
+
+            //Log.Info($"CreateSO {Id} {Name}");
+            shipData.LoadModel(out ShipSO, Empire.Universe);
+            Radius = shipData.BaseHull.Radius;
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            UpdateVisibility(0f);
+
+            ScreenManager.Instance.AddObject(ShipSO);
+        }
+
+        void RemoveSceneObject()
+        {
+            SceneObject so = ShipSO;
+            ShipSO = null;
+            if (so != null)
+            {
+                //Log.Info($"RemoveSO {Id} {Name}");
+                so.Clear();
+                ScreenManager.Instance.RemoveObject(so);
+            }
+        }
+
+        void UpdateVisibility(float elapsedTime)
         {
             bool inFrustum = (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
@@ -18,8 +53,20 @@ namespace Ship_Game.Ships
                      Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)));
 
             InFrustum = inFrustum;
+            if (inFrustum) OutsideFrustumTimer = 0f;
+            else           OutsideFrustumTimer += elapsedTime;
+
             if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
-                ShipSO.Visibility = inFrustum ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+            {
+                if (!inFrustum && OutsideFrustumTimer > RemoveInvisibleSceneObjectsAfterTime)
+                {
+                    RemoveSceneObject();
+                }
+                else
+                {
+                    ShipSO.Visibility = inFrustum ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+                }
+            }
         }
 
         public override void Update(float elapsedTime)
@@ -51,7 +98,7 @@ namespace Ship_Game.Ships
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            UpdateVisibility();
+            UpdateVisibility(elapsedTime);
             ShieldRechargeTimer += elapsedTime;
 
             if (TetheredTo != null)
@@ -109,13 +156,20 @@ namespace Ship_Game.Ships
             UpdateShipStatus(elapsedTime);
             UpdateEnginesAndVelocity(elapsedTime);
 
-            if (InFrustum && ShipSO != null)
+            if (InFrustum)
             {
-                ShipSO.World = Matrix.CreateRotationY(yRotation)
-                             * Matrix.CreateRotationZ(Rotation)
-                             * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
-                ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
-                UpdateThrusters();
+                if (ShipSO != null)
+                {
+                    ShipSO.World = Matrix.CreateRotationY(yRotation)
+                                 * Matrix.CreateRotationZ(Rotation)
+                                 * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                    ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
+                    UpdateThrusters();
+                }
+                else // auto-create scene objects if possible
+                {
+                    Empire.Universe?.QueueSceneObjectCreation(this);
+                }
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);

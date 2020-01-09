@@ -348,27 +348,13 @@ namespace Ship_Game.Ships
             AI.EscortTargetGuid   = aiSave.EscortTarget;
         }
 
-        // NOTE: This is called on the main UI Thread by UniverseScreen
-        public void CreateSceneObject()
-        {
-            if (StarDriveGame.Instance == null)
-                return; // allow creating invisible ships in Unit Tests
-
-            shipData.LoadModel(out ShipSO, Empire.Universe);
-            Radius = shipData.BaseHull.Radius;
-            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
-            UpdateVisibility();
-
-            ScreenManager.Instance.AddObject(ShipSO);
-        }
-
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
 
             // NOTE: this will be overwritten later by CreateSceneObject()
             Radius = shipData.Radius > 0 ? shipData.Radius : 50f;
-            Empire.Universe?.QueueShipSceneObject(this);
+            Empire.Universe?.QueueSceneObjectCreation(this);
 
             if (VanityName.IsEmpty())
                 VanityName = Name;
@@ -419,7 +405,7 @@ namespace Ship_Game.Ships
             }
         }
 
-        public void InitializeStatus(bool fromSave)
+        void InitializeStatus(bool fromSave)
         {
             Thrust                   = 0f;
             WarpThrust               = 0f;
