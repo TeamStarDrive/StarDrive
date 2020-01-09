@@ -5,13 +5,15 @@
         readonly Empire Empire;
         public EmpireUI(Empire empire) => Empire = empire;
 
+        static string LocalizeRawText(string text) => new LocalizedText(text, LocalizationMethod.RawText).Text;
+
         public UILabel UILabelTechLevelInfo()
         {
-            var techLevelString = new LocalizedText("Empire ShipTech Level", LocalizationMethod.RawText).Text;
-            var techCountString = new LocalizedText("Total", LocalizationMethod.RawText).Text;
-            var labelText = $"{techLevelString} : {Empire.GetEmpireTechLevel()}";
-            labelText += $" - {techCountString}: {Empire.ShipTechs.Count}";
-            var techUILabel = new UILabel(labelText);
+            var techLevelString = LocalizeRawText("Empire ShipTech Level");
+            var techCountString = LocalizeRawText("Total");
+            var labelText       = $"{techLevelString} : {Empire.GetEmpireTechLevel()}";
+            labelText          += $" - {techCountString}: {Empire.ShipTechs.Count}";
+            var techUILabel     = new UILabel(labelText);
             return techUILabel;
         }
     }
