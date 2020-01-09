@@ -298,14 +298,6 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
-        public void PreLoadModel()
-        {
-            lock (this)
-            {
-                StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
-            }
-        }
-
         public void LoadModel(out SceneObject shipSO, GameScreen screen)
         {
             lock (this)
