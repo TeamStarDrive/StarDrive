@@ -509,20 +509,6 @@ namespace Ship_Game
             SetDiscovered(us);
             UnlockWithBonus(us, them, bonusUnlock);
         }
-        public void LoadShipModelsFromDiscoveredTech(Empire empire)
-        {
-            if (!Discovered || Tech.HullsUnlocked.IsEmpty)
-                return;
-
-            foreach (var hullName in Tech.HullsUnlocked)
-            {
-                if (ResourceManager.Hull(hullName.Name, out ShipData shipData) &&
-                    shipData.ShipStyle == empire.data.Traits.ShipType)
-                {
-                    shipData.PreLoadModel();
-                }
-            }
-        }
 
         public bool IsUnlockedAtGameStart(Empire empire) 
             => InRaceRequirementsArray(empire, Tech.UnlockedAtGameStart);

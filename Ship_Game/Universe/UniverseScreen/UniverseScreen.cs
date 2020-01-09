@@ -479,16 +479,6 @@ namespace Ship_Game
                     ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
             }
 
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                if (!ResourceManager.PreLoadModels(empire))
-                {
-                    ExitScreen();
-                    StarDriveGame.Instance.Exit();
-                    return;
-                }
-            }
-
             ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
             ProcessTurnsThread.Name = "Universe.ProcessTurns";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority

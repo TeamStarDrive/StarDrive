@@ -98,17 +98,6 @@ namespace Ship_Game.Data.Mesh
             return so;
         }
 
-        public static void PreLoadModel(GameContentManager content, string modelName, bool animated)
-        {
-            content = content ?? ResourceManager.RootContent;
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                content.LoadStaticMesh(modelName);
-            else if (animated)
-                content.LoadSkinnedModel(modelName);
-            else
-                content.LoadModel(modelName);
-        }
-
         public static SceneObject GetSceneMesh(GameContentManager content, string modelName, bool animated = false)
         {
             content = content ?? ResourceManager.RootContent;
