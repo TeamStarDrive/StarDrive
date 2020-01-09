@@ -134,7 +134,7 @@ namespace Ship_Game
             foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-                ship.GetSO().Visibility = ObjectVisibility.Rendered;
+                ship.GetSO().Visibility = GlobalStats.ShipVisibility;
             }
         }
 

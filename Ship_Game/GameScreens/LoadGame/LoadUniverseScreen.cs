@@ -84,6 +84,8 @@ namespace Ship_Game
             {
                 // heavily throttle main thread, so the worker thread can turbo
                 Thread.Sleep(33);
+                if (IsDisposed) // just in case we died
+                    return;
             }
 
             if (LoadingFailed) // fatal error when loading save game

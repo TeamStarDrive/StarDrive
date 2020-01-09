@@ -8,7 +8,7 @@ namespace Ship_Game.Ships
     {
         public class ProjectileCollection<T> : Array<T> where T : Projectile
         {
-            void RemoveInActive()
+            void RemoveDeadProjectiles()
             {
                 for (int i = 0; i < Count; ++i)
                     if (!Items[i].Active)
@@ -22,7 +22,7 @@ namespace Ship_Game.Ships
                     Projectile p = Items[i];
                     if (p.Active) p.Update(elapsedTime);
                 }
-                RemoveInActive();
+                RemoveDeadProjectiles();
             }
 
             public void KillActive(bool force, bool cleanup)
@@ -33,7 +33,7 @@ namespace Ship_Game.Ships
                     if (p.Active && (p.DieNextFrame || force))
                         p.Die(p, cleanup);
                 }
-                RemoveInActive();
+                RemoveDeadProjectiles();
             }
         }
 
