@@ -190,5 +190,10 @@ namespace Ship_Game
                 batch.Draw(platform, Screen.Input.CursorPosition, new Color(0, 255, 0, 100), 0f, IconOrigin, scale, SpriteEffects.None, 1f);
             }
         }
+
+        public void Update(float deltaTime)
+        {
+
+        }
     }
 }

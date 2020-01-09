@@ -1,5 +1,4 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Particle3DSample;
 using Ship_Game.AI;
@@ -15,6 +14,7 @@ using System;
 using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 using Ship_Game.Universe;
 
 namespace Ship_Game
@@ -78,7 +78,6 @@ namespace Ship_Game
         public float SelectedSomethingTimer = 3f;
         Array<FleetButton> FleetButtons = new Array<FleetButton>();
         public Array<FogOfWarNode> FogNodes = new Array<FogOfWarNode>();
-        bool drawBloom = GlobalStats.RenderBloom; //true
         Array<ClickableFleet> ClickableFleetsList = new Array<ClickableFleet>();
         public bool ShowTacticalCloseup { get; private set; }
         public bool Debug;
@@ -212,13 +211,14 @@ namespace Ship_Game
         ShipMoveCommands ShipCommands;
 
         // for really specific debugging
-        public static int FrameId;
+        public static int TurnId;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
         public UniverseScreen(UniverseData data, Empire loyalty) : base(null) // new game
         {
             Name = "UniverseScreen";
+            CanEscapeFromScreen = false;
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
@@ -238,6 +238,7 @@ namespace Ship_Game
         public UniverseScreen(UniverseData data, string loyalty) : base(null) // savegame
         {
             Name = "UniverseScreen";
+            CanEscapeFromScreen = false;
             UniverseSize          = data.Size.X;
             FTLModifier           = data.FTLSpeedModifier;
             EnemyFTLModifier      = data.EnemyFTLSpeedModifier;
@@ -256,8 +257,6 @@ namespace Ship_Game
             ShipCommands = new ShipMoveCommands(this);
         }
 
-        public void ResetLighting() => SetLighting(UseRealLights);
-
         public Planet GetPlanet(Guid guid)
         {
             if (PlanetsDict.TryGetValue(guid, out Planet planet))
@@ -266,15 +265,19 @@ namespace Ship_Game
             return null;
         }
 
-        void SetLighting(bool useRealLights)
+        void ResetLighting()
         {
-            if (!useRealLights)
+            if (ScreenManager.LightRigIdentity == LightRigIdentity.UniverseScreen)
+                return;
+
+            if (!UseRealLights)
             {
-                AssignLightRig("example/NewGamelight_rig");
+                AssignLightRig(LightRigIdentity.UniverseScreen, "example/NewGamelight_rig");
                 return;
             }
 
             ScreenManager.RemoveAllLights();
+            ScreenManager.LightRigIdentity = LightRigIdentity.UniverseScreen;
 
             AddLight("Global Fill Light", new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
             AddLight("Global Back Light", new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, +MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
@@ -381,7 +384,7 @@ namespace Ship_Game
             StarField = new StarField(this);
 
             CreateProjectionMatrix();
-            SetLighting(UseRealLights);
+            ResetLighting();
             CreateStartingShips();
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
@@ -476,20 +479,8 @@ namespace Ship_Game
                     ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
             }
 
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                if (!ResourceManager.PreLoadModels(empire))
-                {
-                    ExitScreen();
-                    StarDriveGame.Instance.Exit();
-                    return;
-                }
-            }
-
-            //HelperFunctions.CollectMemory();
-
-            ProcessTurnsThread = new Thread(ProcessTurns);
-            ProcessTurnsThread.Name = "Universe.ProcessTurns()";
+            ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
+            ProcessTurnsThread.Name = "Universe.ProcessTurns";
             ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
             ProcessTurnsThread.Start();
         }
@@ -689,6 +680,7 @@ namespace Ship_Game
         {
             if (LookingAtPlanet) workersPanel.Update(deltaTime);
             if (showingDSBW) dsbw.Update(deltaTime);
+            pieMenu.Update(deltaTime);
 
             if (viewState > UnivScreenState.ShipView)
             {
@@ -731,8 +723,6 @@ namespace Ship_Game
             pieMenu.ScaleFactor = 1f;
         }
 
-        public void PlayNegativeSound() => GameAudio.NegativeClick();
-
         //added by gremlin replace redundant code with method
         public override void ExitScreen()
         {
@@ -741,7 +731,6 @@ namespace Ship_Game
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
-            EmpireUI = null;
 
             //SpaceManager.Destroy();
             ScreenManager.Music.Stop();
@@ -769,23 +758,16 @@ namespace Ship_Game
                         planet.SO = null;
                     }
                 }
+
                 foreach (Asteroid asteroid in solarSystem.AsteroidsList)
                 {
-                    if (asteroid.So!= null)
-                    {
-                        asteroid.So.Clear();
-                        ScreenManager.RemoveObject(asteroid.So);
-                    }
+                    asteroid.DestroySceneObject();
                 }
                 solarSystem.AsteroidsList.Clear();
+
                 foreach (Moon moon in solarSystem.MoonList)
                 {
-                    if (moon.So != null)
-                    {
-                        moon.So.Clear();
-                        ScreenManager.RemoveObject(moon.So);
-                        moon.So = null;
-                    }
+                    moon.DestroySceneObject();
                 }
                 solarSystem.MoonList.Clear();
             }
@@ -865,13 +847,16 @@ namespace Ship_Game
             return Arc15;
         }
 
-        public void QueueGameplayObjectRemoval(GameplayObject gameplayObject)
+        public void QueueGameplayObjectRemoval(GameplayObject toRemove)
         {
-            if (gameplayObject == null) return;
-            GamePlayObjectToRemove.Add(gameplayObject);
+            if (!toRemove.QueuedForRemoval)
+            {
+                toRemove.QueuedForRemoval = true;
+                GamePlayObjectToRemove.Add(toRemove);
+            }
         }
 
-        public void TotallyRemoveGameplayObjects()
+        void TotallyRemoveGameplayObjects()
         {
             while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
                 toRemove.RemoveFromUniverseUnsafe();

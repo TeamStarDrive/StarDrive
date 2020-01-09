@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
 using System.Collections.Generic;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -117,7 +118,7 @@ namespace Ship_Game
             foreach (Ship ship in SelectedFleet.Ships)
             {
                 ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-                ship.GetSO().Visibility = ObjectVisibility.Rendered;
+                ship.GetSO().Visibility = GlobalStats.ShipVisibility;
             }
         }
 
@@ -132,10 +133,8 @@ namespace Ship_Game
         {
             if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
             {
-                Empire.Universe.AssignLightRig("example/NewGamelight_rig");
                 Empire.Universe.RecomputeFleetButtons(true);
             }
-            StarField.Dispose();
             base.ExitScreen();
         }
 
@@ -143,7 +142,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Add(new CloseButton(ScreenWidth - 38, 97));
-            AssignLightRig("example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
             StarField = new StarField(this);
 
             var titleRect = new Rectangle(2, 44, 250, 80);
@@ -336,6 +335,43 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+        
+        void UpdateSelectedFleet()
+        {
+            if (SelectedFleet == null)
+                return;
+
+            foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
+            {
+                foreach (Fleet.Squad squad in flank)
+                {
+                    Viewport viewport = Viewport;
+                    Vector3 pScreenSpace = viewport.Project(new Vector3(squad.Offset, 0f), Projection, View, Matrix.Identity);
+                    Vector2 pPos = new Vector2(pScreenSpace.X, pScreenSpace.Y);
+                    ClickableSquad cs = new ClickableSquad
+                    {
+                        ScreenPos = pPos,
+                        Squad = squad
+                    };
+                    ClickableSquads.Add(cs);
+                }
+            }
+            SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
+        }
+
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        {
+            AdjustCamera();
+            CamPos.X += CamVelocity.X;
+            CamPos.Y += CamVelocity.Y;
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
+            
+            ClickableSquads.Clear();
+            UpdateSelectedFleet();
+
+            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
         public struct ClickableNode

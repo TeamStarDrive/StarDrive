@@ -334,7 +334,6 @@ namespace Ship_Game
             {
                 HomeSystemEntry.HandleTextInput(ref HomeSystemEntry.Text, input);
             }
-
             if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 GameAudio.BlipClick();
@@ -423,7 +422,6 @@ namespace Ship_Game
                         SelectedDifficulty = UniverseData.GameDifficulty.Brutal;
                 }
             }
-
             if (ExtraRemnantRect.HitTest(input.CursorPosition))
             {
                 if (input.LeftMouseClick)
@@ -441,7 +439,6 @@ namespace Ship_Game
                         ExtraRemnant = ExtraRemnantPresence.Everywhere;
                 }
             }
-
             if (FlagRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 Picker.Visible = !Picker.Visible;

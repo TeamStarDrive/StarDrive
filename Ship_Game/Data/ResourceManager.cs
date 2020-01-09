@@ -132,7 +132,7 @@ namespace Ship_Game
             {
                 if (mod == null)
                     throw;
-                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", isFatal: false);
+                Log.ErrorDialog(ex, $"Mod {GlobalStats.ModName} load failed. Disabling mod and loading vanilla.", 0);
                 WaitForExit();
                 GlobalStats.ClearActiveMod();
                 UnloadAllData(manager);
@@ -149,7 +149,7 @@ namespace Ship_Game
                 GlobalStats.ClearActiveMod();
 
             Log.Write($"Load {(GlobalStats.HasMod ? GlobalStats.ModPath : "Vanilla")}");
-            LoadLanguage(); // @todo Slower than expected [0.36]
+            LoadLanguage(GlobalStats.Language); // @todo Slower than expected [0.36]
             LoadToolTips();
             LoadHullBonuses();
             LoadHullData(); // we need Hull Data for main menu ship
@@ -276,43 +276,9 @@ namespace Ship_Game
             if (!GlobalStats.TestLoad) return;
 
             Log.ShowConsoleWindow();
-            TestHullLoad();
             //TestTechTextures();
 
             Log.HideConsoleWindow();
-        }
-
-        static void TestHullLoad()
-        {
-            bool oldValue = RootContent.EnableLoadInfoLog;
-            RootContent.EnableLoadInfoLog = true;
-            foreach (ShipData hull in HullsList.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
-            {
-                hull.PreLoadModel();
-            }
-            HelperFunctions.CollectMemory();
-            RootContent.EnableLoadInfoLog = oldValue;
-        }
-
-        public static bool PreLoadModels(Empire empire)
-        {
-            if (!GlobalStats.PreLoad)
-                return true;
-            Log.Warning($"Preloading Ship Models for {empire.Name}. ");
-            try
-            {
-                foreach (KeyValuePair<string, TechEntry> kv in empire.TechnologyDict)
-                {
-                    kv.Value.LoadShipModelsFromDiscoveredTech(empire);
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Model PreLoad failed");
-                Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1464/xna-texture-loading-consumes-excessive");
-                return false;
-            }
-            return true;
         }
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
@@ -1058,15 +1024,20 @@ namespace Ship_Game
         {
             LoadNumberedModels(AsteroidModels, "Model/Asteroids/", "asteroid");
         }
-
-        static void LoadLanguage() // Refactored by RedFox
+        
+        // Refactored by RedFox
+        // Can be called after game init, to reset `Localizer` with new language tokens
+        public static void LoadLanguage(Language language)
         {
+            Localizer.Reset();
+            LocalizedText.ClearCache();
+
             foreach (var loc in LoadVanillaEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                 Localizer.AddTokens(loc.TokenList);
 
-            if (GlobalStats.NotEnglish)
+            if (language != Language.English)
             {
-                foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{GlobalStats.Language}/", "LoadLanguage"))
+                foreach (var loc in LoadVanillaEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
                     Localizer.AddTokens(loc.TokenList);
             }
 
@@ -1076,9 +1047,9 @@ namespace Ship_Game
                 foreach (var loc in LoadModEntities<LocalizationFile>("Localization/English/", "LoadLanguage"))
                     Localizer.AddTokens(loc.TokenList);
 
-                if (GlobalStats.NotEnglish)
+                if (language != Language.English)
                 {
-                    foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{GlobalStats.Language}/", "LoadLanguage"))
+                    foreach (var loc in LoadModEntities<LocalizationFile>($"Localization/{language}/", "LoadLanguage"))
                         Localizer.AddTokens(loc.TokenList);
                 }
             }

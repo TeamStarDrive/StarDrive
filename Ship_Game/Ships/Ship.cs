@@ -21,9 +21,9 @@ namespace Ship_Game.Ships
                 $"BUG! Ship must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Ship XXX;` PROPERTIES/FIELDS. {this}");
 
         public string VanityName                = ""; // user modifiable ship name. Usually same as Ship.Name
-        public Array<Troop> TroopList           = new Array<Troop>();
         public Array<Rectangle> AreaOfOperation = new Array<Rectangle>();
         public bool RecallFightersBeforeFTL     = true;
+
 
         public float RepairRate  = 1f;
         public float SensorRange = 20000f;
@@ -122,7 +122,6 @@ namespace Ship_Game.Ships
         private bool reallyDie;
         private bool HasExploded;
         public float FTLSpoolTime;
-        public bool FTLSlowTurnBoost;
 
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasRepairBeam;
@@ -152,8 +151,7 @@ namespace Ship_Game.Ships
         public bool IsDefaultTroopTransport => IsDefaultTroopShip || IsDefaultAssaultShuttle;
         public bool IsSubspaceProjector => Name == "Subspace Projector";
 
-        public bool HasTroops => TroopList.Count > 0  || Carrier.NumTroopsInShipAndInSpace > 0;
-        public bool HasBombs  => BombBays.Count > 0;
+        public bool HasBombs => BombBays.Count > 0;
 
         public bool IsConstructor
         {
@@ -235,17 +233,19 @@ namespace Ship_Game.Ships
 
         public void CauseTroopDamage(float troopDamageChance)
         {
-            if (TroopList.Count > 0)
+            if (HasOurTroops)
             {
-                if (UniverseRandom.RandomBetween(0f, 100f) < troopDamageChance)
+                if (UniverseRandom.RollDice(troopDamageChance) && GetOurFirstTroop(out Troop first))
                 {
-                    TroopList[0].Strength = TroopList[0].Strength - 1;
-                    if (TroopList[0].Strength <= 0)
-                        TroopList.RemoveAt(0);
+                    float damage = 1;
+                    first.DamageTroop(this, ref damage);
                 }
             }
-            else if (MechanicalBoardingDefense > 0f && RandomMath.RandomBetween(0f, 100f) < troopDamageChance)
-                MechanicalBoardingDefense -= 1f;
+            else if (MechanicalBoardingDefense > 0f)
+            {
+                if (RandomMath.RollDice(troopDamageChance))
+                    MechanicalBoardingDefense -= 1f;
+            }
         }
 
         public void CauseRepulsionDamage(Beam beam)
@@ -583,7 +583,7 @@ namespace Ship_Game.Ships
             system != null && InRadius(system.Position, system.Radius);
         public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
-        public bool InRadius(Vector2 worldPos, float radius) 
+        public bool InRadius(Vector2 worldPos, float radius)
             => Center.InRadius(worldPos, Radius + radius);
 
         public bool CheckRangeToTarget(Weapon w, GameplayObject target)
@@ -633,8 +633,7 @@ namespace Ship_Game.Ships
                     if (targetShip.EnginesKnockedOut || targetShip.IsTethered)
                         return false;
                 }
-                if ((loyalty == targetShip.loyalty || !loyalty.isFaction
-                     && loyalty.TryGetRelations(targetShip.loyalty, out Relationship enemy) && enemy.Treaty_NAPact))
+                if (!loyalty.IsEmpireAttackable(target.GetLoyalty()))
                     return false;
             }
 
@@ -899,6 +898,7 @@ namespace Ship_Game.Ships
             }
         }
 
+        public const float UnarmedRange = 10000; // also used as evade range
         public float WeaponsMaxRange { get; private set; }
         public float WeaponsMinRange { get; private set; }
         public float WeaponsAvgRange { get; private set; }
@@ -944,8 +944,6 @@ namespace Ship_Game.Ships
         /**
          * Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
          * weapons installed, Not utility/repair/truePD
-         * TODO: have to expand on this to accomodate 'support' ships.
-         *      Going to be littered with special cases (siphon, tractor, ion, repairdrone, warpinhibit, ammo shuttle, assault shuttle)
          */
         void UpdateWeaponRanges()
         {
@@ -958,39 +956,35 @@ namespace Ship_Game.Ships
             InterceptSpeed = CalcInterceptSpeed(weapons);
         }
 
-        public float GetDesiredCombatRangeForState(CombatState state)
+        // This is used for previewing range during CombatState change
+        // Not performance critical.
+        float GetDesiredCombatRangeForState(CombatState state)
         {
             float[] ranges = GetWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
+        // NOTE: Make sure to validate TestShipRanges.ShipRanges and TestShipRanges.ShipRangesWithModifiers
         float CalcDesiredDesiredCombatRange(float[] ranges, CombatState state)
         {
-            const float unarmedRange = 10000; // also used as evade range
             if (ranges.Length == 0)
-                return unarmedRange;
+                return UnarmedRange;
 
-            float almostMaxRange = WeaponsMaxRange * 0.85f;
+            // for game balancing, so ships won't kite way too far
+            // and still have chance to hit while moving
+            const float rangeBalance = 0.9f; 
 
             switch (state)
             {
-                case CombatState.Evade:        return unarmedRange;
+                case CombatState.Evade:        return UnarmedRange;
                 case CombatState.HoldPosition: return WeaponsMaxRange;
-                case CombatState.ShortRange:
-                    return WeaponsMinRange;
-
+                case CombatState.ShortRange:   return WeaponsMinRange * rangeBalance;
+                case CombatState.Artillery:    return WeaponsMaxRange * rangeBalance;
                 default:
-                    float[] hiRanges = ranges.Filter(range => range >= almostMaxRange);
-                    if (hiRanges.Length == 0)
-                        return WeaponsMaxRange;
-
-                    if (state == CombatState.Artillery)
-                        return hiRanges.Avg();
-
-                    return hiRanges.Min();
+                    return WeaponsAvgRange * 0.9f;
             }
         }
-        
+
         // This calculates our Ship's interception speed
         //   If we have weapons, then let the weapons do the talking
         //   If no weapons, give max ship speed instead
@@ -1084,21 +1078,8 @@ namespace Ship_Game.Ships
             shield_percent = shield_max >0 ? 100.0 * shield_power / shield_max : 0;
         }
 
-        void UpdateTroopBoardingDefense()
-        {
-            TroopBoardingDefense = 0f;
-            for (int i = 0; i < TroopList.Count; i++)
-            {
-                TroopList[i].SetShip(this);
-                if (TroopList[i].Loyalty == loyalty)
-                    TroopBoardingDefense += TroopList[i].Strength;
-            }
-        }
-
         void UpdateModulesAndStatus()
         {
-            UpdateTroopBoardingDefense();
-
             if (InCombat && !EMPdisabled && hasCommand && Weapons.Count > 0)
             {
                 AI.CombatAI.UpdateTargetPriorities(this);
@@ -1194,6 +1175,9 @@ namespace Ship_Game.Ships
 
             UpdateResupply();
             UpdateTroops();
+
+            if (!AI.BadGuysNear)
+                ShieldManager.RemoveShieldLights(Shields);
         }
 
         public void UpdateResupply()
@@ -1264,193 +1248,6 @@ namespace Ship_Game.Ships
             }
         }
 
-        public bool TroopsAreBoardingShip => TroopList.Count(troop => troop.Loyalty == loyalty) != TroopList.Count;
-        public int NumPlayerTroopsOnShip  => TroopList.Count(troop => troop.Loyalty == EmpireManager.Player);
-        public int NumAiTroopsOnShip      => TroopList.Count(troop => troop.Loyalty != EmpireManager.Player);
-
-        public int NumTroopsRebasingHere
-        {
-            get
-            {
-                using (loyalty.GetShips().AcquireReadLock())
-                {
-                    return loyalty.GetShips().Filter(s => s.AI.State == AIState.RebaseToShip && s.AI.EscortTarget == this).Length;
-                }
-            }
-        }
-
-        private void UpdateTroops() //FB: this is the weirdest implementations i've ever seen. Anyway i refactored it a bit
-        {
-            Array<Troop> ownTroops   = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty == loyalty));
-            Array<Troop> enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
-
-            HealTroops();
-            int troopThreshold = TroopCapacity + (TroopCapacity > 0 ? 0 : 1); // leave a garrison of 1 if a ship without barracks was boarded
-            if (!InCombat && enemyTroops.Count <= 0 && ownTroops.Count > troopThreshold)
-                DisengageExcessTroops(ownTroops.Count - troopThreshold);
-
-            if (enemyTroops.Count <= 0)
-                return; // Boarding is over or never started
-
-            float mechanicalDefenseRoll = GetMechanicalDefenseRoll();
-            ResolveMachanicalDefenseVersusEnemy();
-
-            float defendingTroopsRoll = mechanicalDefenseRoll; // since mechanicalDefenseRoll might beaten by enemy troops to be negative.
-
-            enemyTroops.Clear();
-            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
-
-            ResolveOwnVersusEnemy();
-
-            enemyTroops.Clear();
-            enemyTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty != loyalty));
-
-            ResolveEnemyVersusOwn();
-
-            ownTroops.Clear();
-            ownTroops = new Array<Troop>(TroopList.Filter(troop => troop.Loyalty == loyalty));
-
-            if (ownTroops.Count > 0 || MechanicalBoardingDefense > 0.0)
-                return;
-
-            ChangeLoyalty(changeTo: enemyTroops[0].Loyalty);
-            RefreshMechanicalBoardingDefense();
-
-            if (!AI.BadGuysNear)
-                ShieldManager.RemoveShieldLights(Shields);
-
-            // local methods
-            void HealTroops()
-            {
-                if (!(HealPerTurn > 0))
-                    return;
-
-                foreach (Troop troop in ownTroops)
-                    troop.Strength = (troop.Strength += HealPerTurn).Clamped(0, troop.ActualStrengthMax);
-            }
-
-            float GetMechanicalDefenseRoll()
-            {
-                float mechanicalDefResult = 0f;
-                for (int index = 0; index < MechanicalBoardingDefense; ++index)
-                    if (UniverseRandom.RandomBetween(0.0f, 100f) <= 50.0f)
-                        ++mechanicalDefResult;
-
-                return mechanicalDefResult;
-            }
-
-            void ResolveMachanicalDefenseVersusEnemy()
-            {
-                foreach (Troop troop in enemyTroops)
-                {
-                    if (mechanicalDefenseRoll > 0)
-                    {
-                        mechanicalDefenseRoll -= troop.Strength;
-                        troop.Strength -= mechanicalDefenseRoll + troop.Strength;
-                        if (troop.Strength <= 0)
-                            TroopList.Remove(troop);
-                    }
-                    else
-                        break;
-                }
-            }
-
-            void ResolveOwnVersusEnemy()
-            {
-                if (ownTroops.Count <= 0 || enemyTroops.Count <= 0)
-                    return;
-
-                foreach (Troop troop in ownTroops)
-                {
-                    for (int index = 0; index < troop.Strength; ++index)
-                        if (UniverseRandom.IntBetween(0, 100) <= troop.BoardingStrength)
-                            ++defendingTroopsRoll;
-                }
-                foreach (Troop troop in enemyTroops)
-                {
-                    if (defendingTroopsRoll > 0)
-                    {
-                        defendingTroopsRoll -= troop.Strength;
-                        troop.Strength -= defendingTroopsRoll + troop.Strength;
-                        if (troop.Strength <= 0)
-                            TroopList.Remove(troop);
-
-                        if (defendingTroopsRoll <= 0)
-                            break;
-                    }
-                    else
-                        break;
-                }
-            }
-
-            void ResolveEnemyVersusOwn()
-            {
-                if (enemyTroops.Count <= 0)
-                    return;
-
-                float attackingTroopsRoll = 0;
-                foreach (Troop troop in enemyTroops)
-                {
-                    for (int index = 0; index < troop.Strength; ++index)
-                    {
-                        if (UniverseRandom.IntBetween(0, 100) < troop.BoardingStrength)
-                            ++attackingTroopsRoll;
-                    }
-                }
-                foreach (Troop troop in ownTroops)
-                {
-                    if (attackingTroopsRoll > 0)
-                    {
-                        attackingTroopsRoll -= troop.Strength;
-                        troop.Strength -= attackingTroopsRoll + troop.Strength;
-                        if (troop.Strength <= 0)
-                            TroopList.Remove(troop);
-                    }
-                    else
-                        break;
-                }
-                if (attackingTroopsRoll > 0)
-                    MechanicalBoardingDefense = Math.Max(MechanicalBoardingDefense - attackingTroopsRoll, 0);
-            }
-
-        }
-
-        private void RefreshMechanicalBoardingDefense()
-        {
-            MechanicalBoardingDefense =  ModuleSlotList.Sum(module => module.MechanicalBoardingDefense);
-        }
-
-        private void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
-        {
-            for (int i = 0; i < troopsToRemove; i++)
-            {
-                Ship assaultShip     = CreateTroopShipAtPoint(GetAssaultShuttleName(loyalty), loyalty, Center, TroopList[0]);
-                assaultShip.Velocity = UniverseRandom.RandomDirection() * assaultShip.SpeedLimit + Velocity;
-                TroopList.Remove(TroopList[0]);
-
-                Ship friendlyTroopShipToRebase = FindClosestAllyToRebase(assaultShip);
-
-                bool rebaseSucceeded = false;
-                if (friendlyTroopShipToRebase != null)
-                    rebaseSucceeded = friendlyTroopShipToRebase.Carrier.RebaseAssaultShip(assaultShip);
-
-                if (!rebaseSucceeded) // did not found a friendly troopship to rebase to
-                    assaultShip.AI.OrderRebaseToNearest();
-
-                if (assaultShip.AI.State == AIState.AwaitingOrders) // nowhere to rebase
-                    assaultShip.DoEscort(this);
-            }
-        }
-
-        private Ship FindClosestAllyToRebase(Ship ship)
-        {
-            ship.AI.ScanForCombatTargets(ship, ship.SensorRange); // to find friendlies nearby
-            return ship.AI.FriendliesNearby.FindMinFiltered(
-                troopShip => troopShip.Carrier.NumTroopsInShipAndInSpace < troopShip.TroopCapacity
-                && troopShip.Carrier.HasActiveTroopBays,
-                troopShip => ship.Center.SqDist(troopShip.Center));
-        }
-
         public static string GetAssaultShuttleName(Empire empire) // this will get the name of an Assault Shuttle if defined in race.xml or use default one
         {
             return  empire.data.DefaultAssaultShuttle.IsEmpty() ? empire.BoardingShuttle.Name
@@ -1516,7 +1313,6 @@ namespace Ship_Game.Ships
             WarpThrust                  = 0f;
             TurnThrust                  = 0f;
             NormalWarpThrust            = 0f;
-            FTLSlowTurnBoost            = false;
             InhibitionRadius            = 0f;
             OrdAddedPerSecond           = 0f;
             HealPerTurn                 = 0;
@@ -1664,16 +1460,6 @@ namespace Ship_Game.Ships
             killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
         }
 
-        // This will launch troops without having issues with modifying it's own TroopsHere
-        public void LandAllTroopsAt(Planet planet)
-        {
-            // @note: Need to create a copy of TroopList here,
-            // because `TryLandTroop` will modify TroopList if landing is successful
-            Troop[] troopsToLand = TroopList.ToArray();
-            foreach (Troop troop in troopsToLand)
-                troop.TryLandTroop(planet);
-        }
-
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum) return;
@@ -1795,7 +1581,7 @@ namespace Ship_Game.Ships
         public void QueueTotalRemoval()
         {
             Active = false;
-            Empire.Universe.QueueGameplayObjectRemoval(this);
+            Empire.Universe?.QueueGameplayObjectRemoval(this);
 
             AI.ClearOrdersAndWayPoints();
             SetSystem(null);
@@ -1838,7 +1624,8 @@ namespace Ship_Game.Ships
             Shields            = Empty<ShipModule>.Array;
             ThrusterList.Clear();
             BombBays.Clear();
-            TroopList.Clear();
+            OurTroops.Clear();
+            HostileTroops.Clear();
             RepairBeams.Clear();
 
             ClearFleet();
@@ -1846,28 +1633,11 @@ namespace Ship_Game.Ships
             SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
 
-            ShipSO?.Clear();
-            Empire.Universe.RemoveObject(ShipSO);
+            RemoveSceneObject();
             base.RemoveFromUniverseUnsafe();
         }
 
         public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
-
-        public void RemoveFromFleetAndAddBackToPools()
-        {
-            AI.CombatState = shipData.CombatState;
-            AI.ClearOrders();
-            HyperspaceReturn();
-            if (fleet?.IsCoreFleet ?? false)
-                ClearFleet();
-            if (shipData.Role == ShipData.RoleName.troop)
-                AI.OrderRebaseToNearest();
-            else
-            {
-                loyalty.ForcePoolAdd(this);
-                AI.GoOrbitNearestPlanetAndResupply(false);
-            }
-        }
 
         public void Dispose()
         {
@@ -1986,7 +1756,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation) offense  /= 2;
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea, 
+            return ShipBuilder.GetModifiedStrength(SurfaceArea,
                 numWeaponSlots, offense, defense, shipData.Role, RotationRadiansPerSecond);
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.GameScreens;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
@@ -20,7 +21,12 @@ namespace Ship_Game
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
 
         public bool IsExiting { get; protected set; }
-        public bool IsPopup   { get; protected set; }
+
+        // Popup screens can be dismissed via RightMouseClick
+        public bool IsPopup { get; protected set; }
+
+        // If TRUE, ESC key will close this screen
+        public bool CanEscapeFromScreen { get; protected set; } = true;
         
         // LEGACY LAYOUT: Change layout and Font Size if ScreenWidth is too small
         public readonly bool LowRes;
@@ -49,10 +55,11 @@ namespace Ship_Game
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
         public GameTime GameTime    => StarDriveGame.Instance.GameTime;
-        protected bool Pauses = true;
+        bool Pauses = true;
 
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
+        public bool IsDisposed { get; private set; }
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -61,7 +68,7 @@ namespace Ship_Game
         // This can vary greatly and should only be used for
         // drawing real-time visualization.
         // This should not be used for simulation!
-        public float FrameDeltaTime { get; protected set; }
+        public float FrameDeltaTime { get; private set; }
 
         public Matrix View, Projection;
 
@@ -104,6 +111,7 @@ namespace Ship_Game
 
         protected virtual void Destroy()
         {
+            IsDisposed = true;
             TransientContent?.Dispose(ref TransientContent);
         }
 
@@ -114,16 +122,14 @@ namespace Ship_Game
         public void AddLight(ILight light)        => ScreenManager.AddLight(light);
         public void RemoveLight(ILight light)     => ScreenManager.RemoveLight(light);
 
-        public void AssignLightRig(string rigContentPath)
+        public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
         {
             var lightRig = TransientContent.Load<LightRig>(rigContentPath);
-            ScreenManager.AssignLightRig(lightRig);
+            ScreenManager.AssignLightRig(identity, lightRig);
         }
 
         public virtual void ExitScreen()
         {
-            ScreenManager.ExitScreenTimer = 0.25f;           
-            
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
 
@@ -142,11 +148,14 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
+            
+            ScreenManager.RemoveScreen(this);
+        }
 
+        public virtual void OnScreenRemoved()
+        {
             Enabled = Visible = false;
             ScreenState = ScreenState.Hidden;
-            Empire.Universe?.ResetLighting();
-            ScreenManager.RemoveScreen(this);
         }
 
         public virtual void ReloadContent()
@@ -177,7 +186,8 @@ namespace Ship_Game
                 return true;
 
             // only then check for ExitScreen condition
-            if (input.Escaped || (IsPopup && input.RightMouseClick))
+            if ((CanEscapeFromScreen && input.Escaped) ||
+                (IsPopup && input.RightMouseClick))
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
@@ -188,6 +198,12 @@ namespace Ship_Game
 
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            if (IsDisposed)
+            {
+                Log.Error($"Screen {Name} Updated after being disposed!");
+                return;
+            }
+
             // @note If content was being loaded, we will force deltaTime to 1/60th
             //       This will prevent animations going nuts due to huge deltaTime
             FrameDeltaTime = ScreenManager.FrameDeltaTime;

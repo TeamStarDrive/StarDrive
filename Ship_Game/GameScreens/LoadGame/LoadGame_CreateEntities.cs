@@ -160,19 +160,10 @@ namespace Ship_Game
                 Name          = ssd.Name,
                 Position      = ssd.Position,
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
-                AsteroidsList = new BatchRemovalCollection<Asteroid>(),
-                MoonList      = new Array<Moon>()
             };
-            foreach (Asteroid roid in ssd.AsteroidsList)
-            {
-                roid.Initialize();
-                system.AsteroidsList.Add(roid);
-            }
-            foreach (Moon moon in ssd.Moons)
-            {
-                moon.Initialize();
-                system.MoonList.Add(moon);
-            }
+
+            system.AsteroidsList.AddRange(ssd.AsteroidsList);
+            system.MoonList.AddRange(ssd.Moons);
             system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)
@@ -500,7 +491,8 @@ namespace Ship_Game
                 if (!data.FindShip(shipData.guid, out Ship ship))
                     continue;
 
-                ship.AI.SetWayPoints(shipData.AISave.ActiveWayPoints);
+                if (shipData.AISave.WayPoints != null)
+                    ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
@@ -562,12 +554,7 @@ namespace Ship_Game
 
                 CreateSpaceRoads(data, esd, e);
                 CreateGoals(esd, e, data);
-
-                for (int i = 0; i < esd.GSAIData.PinGuids.Count; i++)
-                {
-                    e.GetEmpireAI().ThreatMatrix.Pins.Add(esd.GSAIData.PinGuids[i], esd.GSAIData.PinList[i]);
-                }
-
+                e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData);
                 e.GetEmpireAI().UsedFleets = esd.GSAIData.UsedFleets;
                 CreateMilitaryTasks(esd, e, data);
                 CreateShipGoals(esd, data, e);
