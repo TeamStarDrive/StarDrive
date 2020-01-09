@@ -211,7 +211,7 @@ namespace Ship_Game
         ShipMoveCommands ShipCommands;
 
         // for really specific debugging
-        public static int FrameId;
+        public static int TurnId;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
@@ -477,16 +477,6 @@ namespace Ship_Game
             {
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
-            }
-
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                if (!ResourceManager.PreLoadModels(empire))
-                {
-                    ExitScreen();
-                    StarDriveGame.Instance.Exit();
-                    return;
-                }
             }
 
             ProcessTurnsThread = new Thread(ProcessTurnsMonitored);

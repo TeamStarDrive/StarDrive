@@ -23,79 +23,79 @@ namespace Ship_Game.Data.Mesh
 
         static SceneObject FromFbx(GameContentManager content, string modelName, int maxSubMeshes = 0)
         {
-            StaticMesh staticMesh = content.LoadStaticMesh(modelName);
-            if (staticMesh == null)
-                return null;
-
             var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
-            int count = SubMeshCount(maxSubMeshes, staticMesh.Count);
-
-            for (int i = 0; i < count; ++i)
+            try
             {
-                MeshData mesh = staticMesh.Meshes[i];
+                StaticMesh staticMesh = content.LoadStaticMesh(modelName);
+                int count = SubMeshCount(maxSubMeshes, staticMesh.Count);
 
-                var renderable = new RenderableMesh(so,
-                    mesh.Effect,
-                    mesh.MeshToObject,
-                    mesh.ObjectSpaceBoundingSphere,
-                    mesh.IndexBuffer,
-                    mesh.VertexBuffer,
-                    mesh.VertexDeclaration, 0,
-                    PrimitiveType.TriangleList,
-                    mesh.PrimitiveCount,
-                    0, mesh.VertexCount,
-                    0, mesh.VertexStride);
-                so.Add(renderable);
+                for (int i = 0; i < count; ++i)
+                {
+                    MeshData mesh = staticMesh.Meshes[i];
+
+                    var renderable = new RenderableMesh(so,
+                        mesh.Effect,
+                        mesh.MeshToObject,
+                        mesh.ObjectSpaceBoundingSphere,
+                        mesh.IndexBuffer,
+                        mesh.VertexBuffer,
+                        mesh.VertexDeclaration, 0,
+                        PrimitiveType.TriangleList,
+                        mesh.PrimitiveCount,
+                        0, mesh.VertexCount,
+                        0, mesh.VertexStride);
+                    so.Add(renderable);
+                }
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"FromFbx failed: {modelName}");
             }
             return so;
         }
 
         static SceneObject SceneObjectFromModel(GameContentManager content, string modelName, int maxSubMeshes = 0)
         {
-            Model model = content.LoadModel(modelName);
-            if (model == null)
-                return null;
-            
             var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
-            so.Visibility = ObjectVisibility.RenderedAndCastShadows;
-
-            int count = SubMeshCount(maxSubMeshes, model.Meshes.Count);
-            for (int i = 0; i < count; ++i)
-                so.Add(model.Meshes[i]);
+            try
+            {
+                Model model = content.LoadModel(modelName);
+                ModelMeshCollection meshes = model.Meshes;
+                int count = SubMeshCount(maxSubMeshes, meshes.Count);
+                for (int i = 0; i < count; ++i)
+                    so.Add(meshes[i]);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"SceneObjectFromModel failed: {modelName}");
+            }
             return so;
         }
 
         static SceneObject SceneObjectFromSkinnedModel(GameContentManager content, string modelName)
         {
-            SkinnedModel skinned = content.LoadSkinnedModel(modelName);
-            if (skinned == null)
-                return null;
-
-            var so = new SceneObject(skinned.Model, modelName)
+            var so = new SceneObject(modelName) { ObjectType = ObjectType.Dynamic };
+            try
             {
-                ObjectType = ObjectType.Dynamic
-            };
+                SkinnedModel skinned = content.LoadSkinnedModel(modelName);
+                ModelMeshCollection meshes = skinned.Model.Meshes;
+                for (int i = 0; i < meshes.Count; ++i)
+                    so.Add(meshes[i]);
 
-            so.Animation = new AnimationController(skinned.SkeletonBones)
+                so.Animation = new AnimationController(skinned.SkeletonBones)
+                {
+                    TranslationInterpolation = InterpolationMode.Linear,
+                    OrientationInterpolation = InterpolationMode.Linear,
+                    ScaleInterpolation = InterpolationMode.Linear,
+                    Speed = 0.5f
+                };
+                so.Animation.StartClip(skinned.AnimationClips.Values[0]);
+            }
+            catch (Exception e)
             {
-                TranslationInterpolation = InterpolationMode.Linear,
-                OrientationInterpolation = InterpolationMode.Linear,
-                ScaleInterpolation = InterpolationMode.Linear,
-                Speed = 0.5f
-            };
-            so.Animation.StartClip(skinned.AnimationClips.Values[0]);
+                Log.Error(e, $"SceneObjectFromSkinnedModel failed: {modelName}");
+            }
             return so;
-        }
-
-        public static void PreLoadModel(GameContentManager content, string modelName, bool animated)
-        {
-            content = content ?? ResourceManager.RootContent;
-            if (RawContentLoader.IsSupportedMesh(modelName))
-                content.LoadStaticMesh(modelName);
-            else if (animated)
-                content.LoadSkinnedModel(modelName);
-            else
-                content.LoadModel(modelName);
         }
 
         public static SceneObject GetSceneMesh(GameContentManager content, string modelName, bool animated = false)
