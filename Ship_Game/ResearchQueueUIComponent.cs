@@ -61,8 +61,7 @@ namespace Ship_Game
 
             ResearchQueueList.Visible = visible;
             CurrentResearchPanel.Visible = visible;
-            ResearchQueuePanel.Visible = visible;
-            BtnShowQueue.Text = QSL.Visible ? 2136 : 2135;
+            BtnShowQueue.Text = ResearchQueueList.Visible ? 2136 : 2135;
         }
 
         public override bool HandleInput(InputState input)
