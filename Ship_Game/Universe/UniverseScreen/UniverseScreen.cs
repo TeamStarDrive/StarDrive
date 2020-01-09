@@ -211,7 +211,7 @@ namespace Ship_Game
         ShipMoveCommands ShipCommands;
 
         // for really specific debugging
-        public static int FrameId;
+        public static int TurnId;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 

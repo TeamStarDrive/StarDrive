@@ -1641,8 +1641,13 @@ namespace Ship_Game.Ships
             SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
 
-            ShipSO?.Clear();
-            Empire.Universe.RemoveObject(ShipSO);
+            SceneObject so = ShipSO;
+            ShipSO = null;
+            if (so != null)
+            {
+                so.Clear();
+                Empire.Universe.RemoveObject(so);
+            }
             base.RemoveFromUniverseUnsafe();
         }
 
