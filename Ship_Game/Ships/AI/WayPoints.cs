@@ -7,9 +7,20 @@ using Ship_Game.Utils;
 
 namespace Ship_Game.Ships.AI
 {
+    public struct WayPoint
+    {
+        public Vector2 Position;
+        public Vector2 Direction; // direction we should be facing at the way point
+        public WayPoint(Vector2 pos, Vector2 dir)
+        {
+            Position = pos;
+            Direction = dir;
+        }
+    }
+
     public class WayPoints
     {
-        readonly SafeQueue<Vector2> ActiveWayPoints = new SafeQueue<Vector2>();
+        readonly SafeQueue<WayPoint> ActiveWayPoints = new SafeQueue<WayPoint>();
         
         public void Clear()
         {
@@ -18,24 +29,24 @@ namespace Ship_Game.Ships.AI
 
         public int Count => ActiveWayPoints.Count;
 
-        public Vector2 Dequeue()
+        public WayPoint Dequeue()
         {
             return ActiveWayPoints.Dequeue();
         }
-        public void Enqueue(Vector2 point)
+        public void Enqueue(WayPoint point)
         {
             ActiveWayPoints.Enqueue(point);
         }
-        public Vector2 ElementAt(int element)
+        public WayPoint ElementAt(int element)
         {
             return ActiveWayPoints.ElementAt(element);
         }
-        public Vector2[] ToArray()
+        public WayPoint[] ToArray()
         {
             return ActiveWayPoints.ToArray();
         }
-        public Vector2 PeekFirst => ActiveWayPoints.PeekFirst;
-        public Vector2 PeekLast => ActiveWayPoints.PeekLast;
+        public WayPoint PeekFirst => ActiveWayPoints.PeekFirst;
+        public WayPoint PeekLast => ActiveWayPoints.PeekLast;
     }        
 
 }

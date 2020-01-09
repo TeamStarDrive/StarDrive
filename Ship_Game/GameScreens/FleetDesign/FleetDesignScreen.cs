@@ -7,6 +7,7 @@ using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -445,15 +446,13 @@ namespace Ship_Game
                     {
                         batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                                ? Color.White
-                                : Color.Red));
+                                ? Color.White : Color.Red));
                     }
                     else
                     {
                         batch.Draw(ship.GetTacticalIcon(), r,
                             (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                                ? Color.White
-                                : Color.Yellow));
+                                ? Color.White : Color.Yellow));
 
                         string buildingAt = "";
                         foreach (Goal g in SelectedFleet.Owner.GetEmpireAI().Goals)
@@ -492,8 +491,7 @@ namespace Ship_Game
                         (int) radius * 2, (int) radius * 2);
                     batch.Draw(ship.GetTacticalIcon(), r,
                         (HoveredNodeList.Contains(node) || SelectedNodeList.Contains(node)
-                            ? Color.White
-                            : Color.Green));
+                            ? Color.White : Color.Green));
                 }
             }
             if (ActiveShipDesign != null)
@@ -512,9 +510,7 @@ namespace Ship_Game
                         scale = 0.15f;
                     item = ship.GetTacticalIcon();
                 }
-                float single = Mouse.GetState().X;
-                MouseState state = Mouse.GetState();
-                batch.Draw(item, new Vector2(single, state.Y), EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
+                batch.Draw(item, Input.CursorPosition, EmpireManager.Player.EmpireColor, 0f, iconOrigin, scale, SpriteEffects.None, 1f);
             }
             DrawSelectedData(StarDriveGame.Instance.GameTime);
             Close.Draw(batch);
@@ -704,10 +700,8 @@ namespace Ship_Game
         {
             if (!StarDriveGame.Instance.IsExiting) // RedFox: if game is exiting, we don't need to restore universe screen
             {
-                Empire.Universe.AssignLightRig("example/NewGamelight_rig");
                 Empire.Universe.RecomputeFleetButtons(true);
             }
-            StarField.Dispose();
             base.ExitScreen();
         }
 
@@ -1404,7 +1398,7 @@ namespace Ship_Game
         public override void LoadContent()
         {
             Close = new CloseButton(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 38, 97);
-            AssignLightRig("example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.FleetDesign, "example/ShipyardLightrig");
             StarField = new StarField(this);
             Rectangle titleRect = new Rectangle(2, 44, 250, 80);
             TitleBar = new Menu2(titleRect);
@@ -1608,14 +1602,11 @@ namespace Ship_Game
             }
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        void UpdateSelectedFleet()
         {
-            AdjustCamera();
-            CamPos.X += CamVelocity.X;
-            CamPos.Y += CamVelocity.Y;
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
-            ClickableSquads.Clear();
+            if (SelectedFleet == null)
+                return;
+
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
                 foreach (Fleet.Squad squad in flank)
@@ -1631,8 +1622,20 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
-
             SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
+        }
+
+        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
+        {
+            AdjustCamera();
+            CamPos.X += CamVelocity.X;
+            CamPos.Y += CamVelocity.Y;
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z), new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
+            
+            ClickableSquads.Clear();
+            UpdateSelectedFleet();
+
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 

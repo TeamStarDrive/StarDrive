@@ -663,30 +663,22 @@ namespace Ship_Game
 
         private void SelectShipLinesToDraw()
         {
-            float num = (float) (150.0 * SelectedSomethingTimer / 3f);
-            if (num < 0f)
-                num = 0.0f;
-            byte alpha = (byte) num;
+            byte alpha = (byte)Math.Max(0f, 150f * SelectedSomethingTimer / 3f);
             if (alpha > 0)
             {
-                if (SelectedShip != null && (Debug || CurrentGame.Difficulty < UniverseData.GameDifficulty.Hard || !player.IsEmpireAttackable(SelectedShip.loyalty)))
+                if (SelectedShip != null &&
+                    (Debug || CurrentGame.Difficulty < UniverseData.GameDifficulty.Hard
+                           || !player.IsEmpireAttackable(SelectedShip.loyalty)))
                 {
-                    DrawShipLines(SelectedShip, alpha);
+                    DrawShipGoalsAndWayPoints(SelectedShip, alpha);
                 }
                 else if (SelectedShipList.Count > 0)
                 {
-                    for (int index1 = 0; index1 < SelectedShipList.Count; ++index1)
+                    for (int i = 0; i < SelectedShipList.Count; ++i)
                     {
-                        try
-                        {
-                            Ship ship = SelectedShipList[index1];
-                            if (player.IsEmpireAttackable(SelectedShip?.loyalty) && !Debug) continue;
-                            DrawShipLines(ship, alpha);
-                        }
-                        catch
-                        {
-                            Log.Warning("DrawShipLines Blew Up");
-                        }
+                        Ship ship = SelectedShipList[i];
+                        if (!player.IsEmpireAttackable(ship.loyalty) || Debug)
+                            DrawShipGoalsAndWayPoints(ship, alpha);
                     }
                 }
             }

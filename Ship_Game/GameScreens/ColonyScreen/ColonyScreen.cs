@@ -44,8 +44,6 @@ namespace Ship_Game
         private UIButton BuildShipyard;
         private UIButton CallTroops;  //fbedard
         private DropOptions<int> GovernorDropdown;
-        public CloseButton close;
-        private Array<ThreeStateButton> ResourceButtons = new Array<ThreeStateButton>();
         private Rectangle GridPos;
         private Submenu subColonyGrid;
         private ScrollList buildSL;
@@ -93,7 +91,7 @@ namespace Ship_Game
             LeftMenu = new Menu1(theMenu2);
             var theMenu3 = new Rectangle(theMenu1.X + theMenu1.Width + 10, theMenu1.Y, ScreenWidth / 3 - 15, ScreenHeight - theMenu1.Y - 2);
             RightMenu = new Menu1(theMenu3);
-            close = new CloseButton(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22);
+            Add(new CloseButton(theMenu3.X + theMenu3.Width - 52, theMenu3.Y + 22));
             var theMenu4 = new Rectangle(theMenu2.X + 20, theMenu2.Y + 20, (int)(0.400000005960464 * theMenu2.Width), (int)(0.25 * (theMenu2.Height - 80)));
             PlanetInfo = new Submenu(theMenu4);
             PlanetInfo.AddTab(Localizer.Token(326));
@@ -540,7 +538,6 @@ namespace Ship_Game
             if (ScreenManager.NumScreens == 2)
                 Popup = true;
 
-            close.Draw(batch);
             DrawActiveBuildingEntry(batch); // draw dragged item as topmost
 
             if (FoodStorageIcon.HitTest(Input.CursorPosition) && Empire.Universe.IsActive)
@@ -764,9 +761,14 @@ namespace Ship_Game
         {
             DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
             DrawBuildingInfo(ref cursor, batch, P.BasePopPerTile / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
+            if (P.NonCybernetic)
+            {
+                DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist
+                                , "NewUI/icon_food", "Net food per colonist allocated to Food Production");
+                DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
+            }
+
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", "Net flat production generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", "Net research per colonist allocated to Science");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", "Net flat research generated per turn");
@@ -1501,7 +1503,7 @@ namespace Ship_Game
             if (P.Owner == Empire.Universe.player)
             {
                 int troopsLanding = P.Owner.GetShips()
-                    .Filter(s => s.TroopList.Count > 0 && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
+                    .Filter(s => s.HasOurTroops && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
                     .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
 
                 if (troopsLanding > 0)

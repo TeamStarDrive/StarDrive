@@ -217,9 +217,6 @@ namespace Ship_Game
             if (input.PauseGame && !GlobalStats.TakingInput)
                 Paused = !Paused;
 
-            if (ScreenManager.UpdateExitTimer(!LookingAtPlanet))
-                return true; //if planet screen is still exiting prevent further input
-
             if (input.DebugMode)
             {
                 Debug = !Debug;
@@ -244,6 +241,12 @@ namespace Ship_Game
                 {
                     Memory = GC.GetTotalMemory(false) / 1024f;
                 }
+            }
+
+            // ensure universe has the correct light rig
+            if (ScreenManager.LightRigIdentity != GameScreens.LightRigIdentity.UniverseScreen)
+            {
+                ResetLighting();
             }
 
             HandleEdgeDetection(input);
@@ -273,7 +276,7 @@ namespace Ship_Game
             if (input.UseRealLights)
             {
                 UseRealLights = !UseRealLights; // toggle real lights
-                SetLighting(UseRealLights);
+                ResetLighting();
             }
             if (input.ShowExceptionTracker)
             {
@@ -994,7 +997,7 @@ namespace Ship_Game
                             ViewSystem(system.systemToClick);
                         }
                         else
-                            PlayNegativeSound();
+                            GameAudio.NegativeClick();
                     }
                 }
             }
