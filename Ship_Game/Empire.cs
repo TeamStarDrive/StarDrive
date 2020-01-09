@@ -123,7 +123,7 @@ namespace Ship_Game
         public int ColonyRankModifier { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
         [XmlIgnore] [JsonIgnore] public EmpireUI UI;
-        public int GetEmpireTechLevel() => (int)Math.Floor(EmpireManager.Player.ShipTechs.Count / 3f);
+        public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
 
         [XmlIgnore][JsonIgnore] public byte[,] grid;
         [XmlIgnore][JsonIgnore] public int granularity = 0;
