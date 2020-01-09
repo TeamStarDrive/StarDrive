@@ -20,14 +20,13 @@ namespace Ship_Game.GameScreens.MainMenu
         }
         public VersionChecking(GameScreen parent) : this(parent, 500, 600)
         {
-            
         }
         public override void LoadContent()
         {            
             TitleText = "Version Check";
             var verMod = "Vanilla";
             var mod = GlobalStats.ActiveMod;
-            var versionText = GlobalStats.Version;
+            var versionText = GlobalStats.Version.Split(' ')[0];
             var modVersionText = mod?.Version;
             
             if (mod?.mi != null)
