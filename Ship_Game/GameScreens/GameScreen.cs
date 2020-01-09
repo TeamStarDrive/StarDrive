@@ -55,7 +55,7 @@ namespace Ship_Game
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
         public GameTime GameTime    => StarDriveGame.Instance.GameTime;
-        protected bool Pauses = true;
+        bool Pauses = true;
 
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
@@ -68,7 +68,7 @@ namespace Ship_Game
         // This can vary greatly and should only be used for
         // drawing real-time visualization.
         // This should not be used for simulation!
-        public float FrameDeltaTime { get; protected set; }
+        public float FrameDeltaTime { get; private set; }
 
         public Matrix View, Projection;
 

@@ -83,6 +83,7 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
         [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
+        [XmlIgnore] [JsonIgnore] public float Radius { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         public void UpdateBaseHull()
@@ -297,19 +298,18 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
-        public void PreLoadModel()
-        {
-            StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
-        }
-
         public void LoadModel(out SceneObject shipSO, GameScreen screen)
         {
-            shipSO = StaticMesh.GetSceneMesh(screen?.TransientContent, HullModel, Animated);
-
-            if (BaseHull.Volume.X.AlmostEqual(0f))
+            lock (this)
             {
-                BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
-                BaseHull.ModelZ = BaseHull.Volume.Z;
+                shipSO = StaticMesh.GetSceneMesh(screen?.TransientContent, HullModel, Animated);
+
+                if (BaseHull.Volume.X.AlmostEqual(0f))
+                {
+                    BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
+                    BaseHull.Radius = shipSO.WorldBoundingSphere.Radius;
+                    BaseHull.ModelZ = BaseHull.Volume.Z;
+                }
             }
         }
 

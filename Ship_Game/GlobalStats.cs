@@ -6,6 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
+using SynapseGaming.LightingSystem.Core;
 
 namespace Ship_Game
 {
@@ -126,12 +127,14 @@ namespace Ship_Game
         public static Language Language   = Language.English;
 
         // Render options
-        public static int TextureQuality;         // 0=High, 1=Medium, 2=Low, 3=Off
+        public static int TextureQuality;         // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
         public static int TextureSampling = 2;    // 0=Bilinear, 1=Trilinear, 2=Anisotropic
         public static int MaxAnisotropy   = 2;    // # of samples, only applies with TextureSampling = 2
-        public static float ShadowQuality = 0.0f; // 1.0f highest, 0.0f lowest
-        public static int ShadowDetail    = 3;    // 0=High, 1=Medium, 2=Low, 3=Off
-        public static int EffectDetail;           // 0=High, 1=Medium, 2=Low, 3=Off
+        public static int ShadowDetail    = 3;    // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
+        public static int EffectDetail;           // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
+        public static ObjectVisibility ShipVisibility     = ObjectVisibility.Rendered;
+        public static ObjectVisibility AsteroidVisibility = ObjectVisibility.Rendered;
+
         public static bool DrawNebulas    = true;
         public static bool DrawStarfield  = true;
 
@@ -161,6 +164,29 @@ namespace Ship_Game
         // Limited Parallelism: > 1
         public static int MaxParallelism = -1;
 
+        public static void SetShadowDetail(int shadowDetail)
+        {
+            // 0=High, 1=Medium, 2=Low, 3=Off (DetailPreference enum)
+            ShadowDetail = shadowDetail.Clamped(0, 3);
+            ShipVisibility     = ObjectVisibility.Rendered;
+            AsteroidVisibility = ObjectVisibility.Rendered;
+            if (ShadowDetail <= 1) ShipVisibility     = ObjectVisibility.RenderedAndCastShadows;
+            if (ShadowDetail <= 0) AsteroidVisibility = ObjectVisibility.RenderedAndCastShadows;
+        }
+        
+        
+        public static float GetShadowQuality(int shadowDetail)
+        {
+            switch (shadowDetail) // 1.0f highest, 0.0f lowest
+            {
+                case 0: return 1.00f; // 0: High
+                case 1: return 0.66f; // 1: Medium
+                case 2: return 0.33f; // 2: Low
+                default:
+                case 3: return 0.00f; // 3: Off
+            }
+        }
+
         public static void LoadConfig()
         {
             try
@@ -189,7 +215,6 @@ namespace Ship_Game
             GetSetting("TextureQuality"        , ref TextureQuality);
             GetSetting("TextureSampling"       , ref TextureSampling);
             GetSetting("MaxAnisotropy"         , ref MaxAnisotropy);
-            GetSetting("ShadowQuality"         , ref ShadowQuality);
             GetSetting("ShadowDetail"          , ref ShadowDetail);
             GetSetting("EffectDetail"          , ref EffectDetail);
             GetSetting("AutoErrorReport"       , ref AutoErrorReport);
@@ -298,7 +323,6 @@ namespace Ship_Game
             WriteSetting(config, "TextureQuality",   TextureQuality);
             WriteSetting(config, "TextureSampling",  TextureSampling);
             WriteSetting(config, "MaxAnisotropy",    MaxAnisotropy);
-            WriteSetting(config, "ShadowQuality",    ShadowQuality);
             WriteSetting(config, "ShadowDetail",     ShadowDetail);
             WriteSetting(config, "EffectDetail",     EffectDetail);
             WriteSetting(config, "AutoErrorReport",  AutoErrorReport);

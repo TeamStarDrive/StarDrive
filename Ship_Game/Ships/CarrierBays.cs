@@ -499,11 +499,11 @@ namespace Ship_Game.Ships
             foreach (var role in hangar.HangarRoles)
             {
                 selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize,
-                    designation: desiredShipCategory);
+                    designation: desiredShipCategory, normalizedStrength: false);
 
                 // If no desired category is available in the empire, try to get the best ship we have regardless of category for this role
                 if (selectedShip.IsEmpty() && hangar.DynamicHangar != DynamicHangarOptions.DynamicLaunch)
-                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize);
+                    selectedShip = ShipBuilder.PickFromCandidates(role, empire, maxSize: hangar.MaximumHangarShipSize, normalizedStrength : false);
                 if (selectedShip.NotEmpty()) break;
             }
             return selectedShip;

@@ -784,7 +784,7 @@ namespace Ship_Game
                     GameAudio.BlipClick();
                     RaceDesignScreen galaxysize = this;
                     galaxysize.GalaxySize = (GalSize)((int)galaxysize.GalaxySize + (int)GalSize.Small);
-                    if (GalaxySize > GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
+                    if (GalaxySize > GalSize.Epic)   // Removed TrulyEpic (floating point issues)
                     {
                         GalaxySize = GalSize.Tiny;
                     }
