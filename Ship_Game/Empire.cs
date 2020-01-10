@@ -418,12 +418,11 @@ namespace Ship_Game
             }
             EmpireAI.Goals.Clear();
             EmpireAI.TaskList.Clear();
-            foreach (var kv in FleetsDict) kv.Value.Reset();
+            foreach (var kv in FleetsDict)
+                kv.Value.Reset();
 
             Empire rebels = EmpireManager.CreateRebelsFromEmpireData(data, this);
-            var rebelEmpireIndex = EmpireManager.Empires.IndexOf(rebels);
-            SerializableDictionary<int, Snapshot> statDict = StatTracker.SnapshotsDict[Universe.StarDateString];
-            statDict[rebelEmpireIndex] = new Snapshot(Universe.StarDate);
+            StatTracker.UpdateEmpire(Universe.StarDate, rebels);
 
             foreach (Ship s in OwnedShips)
             {
@@ -1139,37 +1138,20 @@ namespace Ship_Game
 
             if (UpdateTimer <= 0f && !data.Defeated)
             {
-                if (this == Universe.PlayerEmpire )
+                if (this == Universe.PlayerEmpire)
                 {
                     Universe.StarDate += 0.1f;
                     Universe.StarDate = (float)Math.Round(Universe.StarDate, 1);
 
-                    string starDate = Universe.StarDateString;
-                    if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
-                        StatTracker.SnapshotsDict.Add(starDate, new SerializableDictionary<int, Snapshot>());
-                    foreach (Empire empire in EmpireManager.Empires)
-                    {
-                        var snapshots = StatTracker.SnapshotsDict[starDate];
-                        int empireIndex = EmpireManager.Empires.IndexOf(empire);
-                        if (!snapshots.ContainsKey(empireIndex))
-                            snapshots.Add(empireIndex, new Snapshot(Universe.StarDate));
-                    }
+                    StatTracker.StatUpdateStarDate(Universe.StarDate);
                     if (Universe.StarDate.AlmostEqual(1000.09f))
                     {
                         foreach (Empire empire in EmpireManager.Empires)
                         {
                             using (empire.OwnedPlanets.AcquireReadLock())
-                            foreach (Planet planet in empire.OwnedPlanets)
                             {
-                                if (!StatTracker.SnapshotsDict.ContainsKey(starDate))
-                                    continue;
-                                int empireIndex = EmpireManager.Empires.IndexOf(planet.Owner);
-                                StatTracker.SnapshotsDict[starDate][empireIndex].EmpireNodes.Add(new NRO
-                                {
-                                    Node = planet.Center,
-                                    Radius = 300000f,
-                                    StarDateMade = Universe.StarDate
-                                });
+                                foreach (Planet planet in empire.OwnedPlanets)
+                                    StatTracker.StatAddPlanetNode(Universe.StarDate, planet);
                             }
                         }
                     }
@@ -2005,21 +1987,16 @@ namespace Ship_Game
                     data.TurnsBelowZero = 0;
             }
 
-            float militaryStrength = 0.0f;
-            string starDate = Universe.StarDateString;
-            for (int index = 0; index < OwnedShips.Count; ++index)
+            if (!data.IsRebelFaction)
             {
-                Ship ship = OwnedShips[index];
-                militaryStrength += ship.GetStrength();
+                if (StatTracker.GetSnapshot(Universe.StarDate, this, out Snapshot snapshot))
+                {
+                    snapshot.ShipCount = OwnedShips.Count;
+                    snapshot.MilitaryStrength = CurrentMilitaryStrength;
+                    snapshot.TaxRate = data.TaxRate;
+                }
+            }
 
-                if (!data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(starDate))
-                    StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].ShipCount++;
-            }
-            if (!data.IsRebelFaction && StatTracker.SnapshotsDict.ContainsKey(starDate))
-            {
-                StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].MilitaryStrength = militaryStrength;
-                StatTracker.SnapshotsDict[starDate][EmpireManager.Empires.IndexOf(this)].TaxRate = data.TaxRate;
-            }
             if (isPlayer)
             {
                 if (Universe.StarDate > 1005.0f)
@@ -2095,23 +2072,24 @@ namespace Ship_Game
                         return;
                     }
                 }
+            }
 
+            if (!data.IsRebelFaction)
+            {
+                if (StatTracker.GetSnapshot(Universe.StarDate, this, out Snapshot snapshot))
+                    snapshot.Population = OwnedPlanets.Sum(p => p.Population);
+            }
+
+            if (isPlayer)
+            {
                 foreach (Planet planet in OwnedPlanets)
                 {
-                    if (!data.IsRebelFaction)
-                        StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)].Population += planet.Population;
                     if (planet.HasWinBuilding)
                     {
                         Universe.ScreenManager.AddScreenDeferred(new YouWinScreen(Universe, Localizer.Token(5085)));
                         return;
                     }
                 }
-            }
-
-            if (!data.IsRebelFaction)
-            {
-                StatTracker.SnapshotsDict[Universe.StarDateString][EmpireManager.Empires.IndexOf(this)]
-                    .Population = OwnedPlanets.Sum(p => p.Population);
             }
 
             Research.Update();
