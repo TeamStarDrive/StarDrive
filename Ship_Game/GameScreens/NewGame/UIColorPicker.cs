@@ -19,8 +19,13 @@ namespace Ship_Game
             if (!Visible)
                 return false;
 
-            bool hovered = HitTest(input.CursorPosition);
-            if (!hovered)
+            if (input.RightMouseClick)
+            {
+                Visible = false;
+                return true;
+            }
+
+            if (!HitTest(input.CursorPosition))
             {
                 if (input.LeftMouseClick)
                 {
@@ -29,7 +34,7 @@ namespace Ship_Game
                 }
                 return false;
             }
-                
+            
             if (input.LeftMouseDown)
             {
                 int yPosition = (int)Y + 10;

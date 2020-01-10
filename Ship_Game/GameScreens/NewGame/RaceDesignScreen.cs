@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
@@ -10,39 +9,37 @@ namespace Ship_Game
 {
     public partial class RaceDesignScreen : GameScreen
     {
-        protected MainMenuScreen MainMenu;
-        protected Array<TraitEntry> AllTraits = new Array<TraitEntry>();
-        protected RacialTrait RaceSummary = new RacialTrait();
+        MainMenuScreen MainMenu;
+        Array<TraitEntry> AllTraits = new Array<TraitEntry>();
+        RacialTrait RaceSummary = new RacialTrait();
 
         int GameScale = 1;
         GameMode Mode;
         StarNum StarEnum = StarNum.Normal;
         GalSize GalaxySize = GalSize.Medium;
         
-        protected Rectangle FlagLeft;
-        protected Rectangle FlagRight;
-        protected Rectangle GalaxySizeRect;
+        Rectangle FlagLeft;
+        Rectangle FlagRight;
+        Rectangle GalaxySizeRect;
         Rectangle NumberStarsRect;
         Rectangle NumOpponentsRect;
-        protected Menu2 TitleBar;
-        protected Vector2 TitlePos;
-        protected Menu1 NameMenu;
+        Menu2 TitleBar;
+        Vector2 TitlePos;
+        Menu1 NameMenu;
 
-        protected Submenu Traits;
-        protected Submenu NameSub;
+        Submenu Traits;
 
         ScrollList2<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
-        protected UITextEntry RaceName = new UITextEntry();
-        protected UITextEntry SingEntry = new UITextEntry();
-        protected UITextEntry PlurEntry = new UITextEntry();
-        protected UITextEntry HomeSystemEntry = new UITextEntry();
+        UITextEntry RaceName;
+        UITextEntry SingEntry;
+        UITextEntry PlurEntry;
+        UITextEntry HomeSystemEntry;
 
-        protected Vector2 RaceNamePos;
-        protected Vector2 FlagPos;
+        Vector2 FlagPos;
 
-        protected Rectangle FlagRect;
+        Rectangle FlagRect;
         ScrollList2<RaceArchetypeListItem> ChooseRaceList;
         Rectangle PacingRect;
 
@@ -52,27 +49,25 @@ namespace Ship_Game
         Rectangle GameModeRect;
         Rectangle DifficultyRect;
 
-        public Map<IEmpireData, SubTexture> TextureDict { get; } = new Map<IEmpireData, SubTexture>();
-
         ScrollList2<TextListItem> DescriptionTextList;
-        protected UIButton Engage;
-        protected UIButton Abort;
+        UIButton Engage;
+        UIButton Abort;
 
         int numOpponents;
-        protected RacialTrait tipped;
-        protected float tTimer = 0.35f;
+        RacialTrait tipped;
+        float tTimer = 0.35f;
 
-        protected int FlagIndex;
+        int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
 
         UniverseData.GameDifficulty SelectedDifficulty = UniverseData.GameDifficulty.Normal;
         public IEmpireData SelectedData { get; private set; }
 
-        protected string Singular = "Human";
-        protected string Plural = "Humans";
-        protected string HomeWorldName = "Earth";
-        protected string HomeSystemName = "Sol";
-        protected int PreferredEnvDescription;
+        string Singular = "Human";
+        string Plural = "Humans";
+        string HomeWorldName = "Earth";
+        string HomeSystemName = "Sol";
+        int PreferredEnvDescription;
 
         Rectangle ExtraRemnantRect; // Added by Gretman
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
@@ -80,7 +75,6 @@ namespace Ship_Game
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
         {
             MainMenu = mainMenu;
-            IsPopup = true;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
             foreach (RacialTrait t in ResourceManager.RaceTraits.TraitList)
@@ -124,13 +118,29 @@ namespace Ship_Game
             TitleBar = new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             TitlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f,
                                    TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 2);
-            NameMenu = new Menu1(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, (int)TitleBar.Bottom + 5, (int)(ScreenWidth * 0.5f), 150);
-            NameSub = new Submenu(NameMenu.X + 20, NameMenu.Y - 5, NameMenu.Width - 40, NameMenu.Height - 15);
-            RaceNamePos = new Vector2(NameMenu.X + 40, NameMenu.Y + 30);
+            NameMenu = Add(new Menu1(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2,
+                                (int)TitleBar.Bottom + 5, (int)(ScreenWidth * 0.5f), 150, withSub:true));
             FlagPos = new Vector2(NameMenu.Right - 80 - 100, NameMenu.Y + 30);
+            
+            UIList raceTitle = AddList(new Vector2(NameMenu.X + 40, NameMenu.Y + 30));
+            raceTitle.Padding = new Vector2(4,4);
+            UITextEntry AddSplitter(string title, string inputText)
+            {
+                var input = new UITextEntry(inputText) {Color = Colors.Cream};
+                raceTitle.AddSplit(new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood), input)
+                         .Split = 205f;
+                return input;
+            }
 
-            Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
-            Picker.Visible = false;
+            foreach (IEmpireData e in ResourceManager.MajorRaces)
+                if (e.Singular == "Human")
+                    SelectedData = e;
+
+            RaceName  = AddSplitter("{EmpireName}: ", SelectedData.Name);
+            SingEntry = AddSplitter("{RaceNameSingular}: ", SelectedData.Singular);
+            PlurEntry = AddSplitter("{RaceNamePlural}: ", SelectedData.Plural);
+            HomeSystemEntry = AddSplitter("{HomeSystemName}: ", SelectedData.HomeSystemName);
+            HomeWorldName = SelectedData.HomeWorldName;
 
             var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
                                          (int)NameMenu.Bottom + 5,
@@ -155,19 +165,8 @@ namespace Ship_Game
             ChooseRaceList.OnClick = OnRaceArchetypeItemClicked;
 
             foreach (IEmpireData e in ResourceManager.MajorRaces)
-            {
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
-                if (e.VideoPath.NotEmpty())
-                    TextureDict.Add(e, ResourceManager.Texture("Races/" + e.VideoPath));
-                if (e.Singular == "Human")
-                    SelectedData = e;
-            }
 
-            RaceName.Text = SelectedData.Name;
-            SingEntry.Text = SelectedData.Singular;
-            PlurEntry.Text = SelectedData.Plural;
-            HomeSystemEntry.Text = SelectedData.HomeSystemName;
-            HomeWorldName = SelectedData.HomeWorldName;
             GalaxySizeRect = new Rectangle((int)NameMenu.Right + 40 - 22, (int)NameMenu.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy UniverseRadius                                   ").X, Fonts.Arial12.LineSpacing);
             NumberStarsRect = new Rectangle(GalaxySizeRect.X, GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, GalaxySizeRect.Width, GalaxySizeRect.Height);
             NumOpponentsRect = new Rectangle(NumberStarsRect.X, NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, NumberStarsRect.Width, NumberStarsRect.Height);
@@ -182,6 +181,9 @@ namespace Ship_Game
             DescriptionTextList = Add(new ScrollList2<TextListItem>(description, DescriptionTextFont.LineSpacing));
             DescriptionTextList.EnableItemEvents = false;
             Add(new SelectedTraitsSummary(this));
+
+            Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
+            Picker.Visible = false;
 
             Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
             Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
@@ -267,73 +269,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            if (Picker.Visible)
+                return Picker.HandleInput(input);
+
             if (base.HandleInput(input))
                 return true;
 
-            if (!RaceName.ClickableArea.HitTest(input.CursorPosition))
-            {
-                RaceName.Hover = false;
-            }
-            else
-            {
-                RaceName.Hover = true;
-                if (input.LeftMouseClick && !SingEntry.HandlingInput && !PlurEntry.HandlingInput && !HomeSystemEntry.HandlingInput)
-                {
-                    RaceName.HandlingInput = true;
-                }
-            }
-            if (!SingEntry.ClickableArea.HitTest(input.CursorPosition))
-            {
-                SingEntry.Hover = false;
-            }
-            else
-            {
-                SingEntry.Hover = true;
-                if (input.LeftMouseClick && !RaceName.HandlingInput && !PlurEntry.HandlingInput && !HomeSystemEntry.HandlingInput)
-                {
-                    SingEntry.HandlingInput = true;
-                }
-            }
-            if (!PlurEntry.ClickableArea.HitTest(input.CursorPosition))
-            {
-                PlurEntry.Hover = false;
-            }
-            else
-            {
-                PlurEntry.Hover = true;
-                if (input.LeftMouseClick && !RaceName.HandlingInput && !SingEntry.HandlingInput && !HomeSystemEntry.HandlingInput)
-                {
-                    PlurEntry.HandlingInput = true;
-                }
-            }
-            if (!HomeSystemEntry.ClickableArea.HitTest(input.CursorPosition))
-            {
-                HomeSystemEntry.Hover = false;
-            }
-            else
-            {
-                HomeSystemEntry.Hover = true;
-                if (input.LeftMouseClick && !RaceName.HandlingInput && !SingEntry.HandlingInput && !PlurEntry.HandlingInput)
-                {
-                    HomeSystemEntry.HandlingInput = true;
-                }
-            }
-            if (RaceName.HandlingInput)
-            {
-                RaceName.HandleTextInput(ref RaceName.Text, input);
-            }
-            if (SingEntry.HandlingInput)
-            {
-                SingEntry.HandleTextInput(ref SingEntry.Text, input);
-            }
-            if (PlurEntry.HandlingInput)
-            {
-                PlurEntry.HandleTextInput(ref PlurEntry.Text, input);
-            }
-            if (HomeSystemEntry.HandlingInput)
-            {
-                HomeSystemEntry.HandleTextInput(ref HomeSystemEntry.Text, input);
-            }
             if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 GameAudio.BlipClick();
@@ -342,6 +283,7 @@ namespace Ship_Game
                 {
                     GalaxySize = GalSize.Tiny;
                 }
+                return true;
             }
             if (GameModeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -352,6 +294,7 @@ namespace Ship_Game
                 {
                     Mode = GameMode.Sandbox;
                 }
+                return true;
             }
             if (NumberStarsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -362,6 +305,7 @@ namespace Ship_Game
                 {
                     StarEnum = StarNum.VeryRare;
                 }
+                return true;
             }
             if (NumOpponentsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -370,6 +314,7 @@ namespace Ship_Game
                 numOpponents += 1;
                 if (numOpponents > maxOpponents)                    
                     numOpponents = 1;
+                return true;
             }
             if (ScaleRect.HitTest(input.CursorPosition))
             {
@@ -379,6 +324,7 @@ namespace Ship_Game
                     GameScale += 1;
                     if (GameScale > 6)
                         GameScale = 1;
+                    return true;
                 }
                 if (input.RightMouseClick)
                 {
@@ -386,6 +332,7 @@ namespace Ship_Game
                     GameScale -= 1;
                     if (GameScale < 1)
                         GameScale = 6;
+                    return true;
                 }
             }
             if (PacingRect.HitTest(input.CursorPosition))
@@ -396,6 +343,7 @@ namespace Ship_Game
                     Pacing += 25;
                     if (Pacing > 400)
                         Pacing = 100;
+                    return true;
                 }
                 if (input.RightMouseClick)
                 {
@@ -403,8 +351,10 @@ namespace Ship_Game
                     Pacing -= 25;
                     if (Pacing < 100)
                         Pacing = 400;
+                    return true;
                 }
             }
+
             if (DifficultyRect.HitTest(input.CursorPosition))
             {
                 if (input.LeftMouseClick)
@@ -413,6 +363,7 @@ namespace Ship_Game
                     SelectedDifficulty = (UniverseData.GameDifficulty)((int)SelectedDifficulty + (int)UniverseData.GameDifficulty.Normal);
                     if (SelectedDifficulty > UniverseData.GameDifficulty.Brutal)
                         SelectedDifficulty = UniverseData.GameDifficulty.Easy;
+                    return true;
                 }
                 if (input.RightMouseClick)
                 {
@@ -420,8 +371,10 @@ namespace Ship_Game
                     SelectedDifficulty = (UniverseData.GameDifficulty)((int)SelectedDifficulty - (int)UniverseData.GameDifficulty.Normal);
                     if (SelectedDifficulty < UniverseData.GameDifficulty.Easy)
                         SelectedDifficulty = UniverseData.GameDifficulty.Brutal;
+                    return true;
                 }
             }
+
             if (ExtraRemnantRect.HitTest(input.CursorPosition))
             {
                 if (input.LeftMouseClick)
@@ -430,6 +383,7 @@ namespace Ship_Game
                     ++ExtraRemnant;
                     if (ExtraRemnant > ExtraRemnantPresence.Everywhere)
                         ExtraRemnant = ExtraRemnantPresence.Rare;
+                    return true;
                 }
                 if (input.RightMouseClick)
                 {
@@ -437,12 +391,16 @@ namespace Ship_Game
                     --ExtraRemnant;
                     if (ExtraRemnant < ExtraRemnantPresence.Rare)
                         ExtraRemnant = ExtraRemnantPresence.Everywhere;
+                    return true;
                 }
             }
+
             if (FlagRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 Picker.Visible = !Picker.Visible;
+                return true;
             }
+
             if (FlagRight.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 if (ResourceManager.NumFlags - 1 <= FlagIndex)
@@ -450,7 +408,9 @@ namespace Ship_Game
                 else
                     FlagIndex += 1;
                 GameAudio.BlipClick();
+                return true;
             }
+
             if (FlagLeft.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
                 if (FlagIndex <= 0)
@@ -458,8 +418,10 @@ namespace Ship_Game
                 else
                     FlagIndex -= 1;
                 GameAudio.BlipClick();
+                return true;
             }
-            return false;
+
+            return base.HandleInput(input);
         }
 
         void OnTraitsListItemClicked(TraitsListItem item)
@@ -566,9 +528,8 @@ namespace Ship_Game
                     {
                         overSomething = true;
                         tTimer -= deltaTime;
-                        if (tTimer > 0f)
-                            continue;
-                        tipped = t.trait;
+                        if (tTimer <= 0f)
+                            tipped = t.trait;
                     }
                 }
                 if (!overSomething)
@@ -590,60 +551,6 @@ namespace Ship_Game
             
             base.Draw(batch);
 
-            NameMenu.Draw(batch);
-            var c = Colors.Cream;
-            NameSub.Draw(batch);
-            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(31)+": ", RaceNamePos, Color.BurlyWood);
-            Vector2 rpos = RaceNamePos;
-            rpos.X = rpos.X + 205f;
-            if (!RaceName.HandlingInput)
-            {
-                RaceName.Draw(batch, Fonts.Arial14Bold, rpos, (RaceName.Hover ? Color.White : c));
-            }
-            else
-            {
-                RaceName.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
-            }
-            RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            rpos.X = RaceNamePos.X;
-            rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(26)+": ", rpos, Color.BurlyWood);
-            rpos.X = rpos.X + 205f;
-            if (!SingEntry.HandlingInput)
-            {
-                SingEntry.Draw(batch, Fonts.Arial14Bold, rpos, (SingEntry.Hover ? Color.White : c));
-            }
-            else
-            {
-                SingEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
-            }
-            SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            rpos.X = RaceNamePos.X;
-            rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(27)+": ", rpos, Color.BurlyWood);
-            rpos.X = rpos.X + 205f;
-            if (!PlurEntry.HandlingInput)
-            {
-                PlurEntry.Draw(batch, Fonts.Arial14Bold, rpos, (PlurEntry.Hover ? Color.White : c));
-            }
-            else
-            {
-                PlurEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
-            }
-            PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
-            rpos.X = RaceNamePos.X;
-            rpos.Y = rpos.Y + (Fonts.Arial14Bold.LineSpacing + 2);
-            batch.DrawString((GlobalStats.IsGermanOrPolish || GlobalStats.IsRussian || GlobalStats.IsFrench ? Fonts.Arial12 : Fonts.Arial14Bold), Localizer.Token(28)+": ", rpos, Color.BurlyWood);
-            rpos.X = rpos.X + 205f;
-            if (!HomeSystemEntry.HandlingInput)
-            {
-                HomeSystemEntry.Draw(batch, Fonts.Arial14Bold, rpos, (HomeSystemEntry.Hover ? Color.White : c));
-            }
-            else
-            {
-                HomeSystemEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
-            }
-            HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             batch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
             FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, Picker.CurrentColor);
@@ -654,7 +561,7 @@ namespace Ship_Game
 
             // === DESIGN YOUR RACE ===
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, Colors.Cream);
             // ========================
 
             batch.DrawString(Fonts.Arial12, Localizer.Token(24)+": ", new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
