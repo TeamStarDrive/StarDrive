@@ -100,8 +100,12 @@ namespace Ship_Game.Gameplay
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
         [JsonIgnore] public EmpireRiskAssessment Risk;
-        [XmlIgnore][JsonIgnore]
-
+        
+        /// <summary>
+        /// Tech transfer restriction.
+        /// currently this is disabling tech content trade via diplomacy.
+        /// A check here can be added to remove this for allies.
+        /// </summary>
         [XmlIgnore][JsonIgnore]
         public readonly Array<TechUnlockType> PreventContentExchangeOf =
                                          new Array<TechUnlockType>
