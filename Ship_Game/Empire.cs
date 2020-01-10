@@ -122,21 +122,21 @@ namespace Ship_Game
         public Ship BestStationWeCanBuild { get; private set; }
         public int ColonyRankModifier { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
-        [XmlIgnore] [JsonIgnore] public EmpireUI UI;
+        public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
 
-        [XmlIgnore][JsonIgnore] public byte[,] grid;
-        [XmlIgnore][JsonIgnore] public int granularity = 0;
-        [XmlIgnore][JsonIgnore] public int AtWarCount;
-        [XmlIgnore][JsonIgnore] public Array<string> BomberTech      = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Array<string> TroopShipTech   = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Array<string> CarrierTech     = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Array<string> SupportShipTech = new Array<string>();
-        [XmlIgnore][JsonIgnore] public Planet[] RallyPoints     = Empty<Planet>.Array;
-        [XmlIgnore][JsonIgnore] public Ship BoardingShuttle     => ResourceManager.ShipsDict["Assault Shuttle"];
-        [XmlIgnore][JsonIgnore] public Ship SupplyShuttle       => ResourceManager.ShipsDict["Supply_Shuttle"];
-        [XmlIgnore][JsonIgnore] public bool IsCybernetic        => data.Traits.Cybernetic != 0;
-        [XmlIgnore][JsonIgnore] public bool NonCybernetic       => data.Traits.Cybernetic == 0;
+        public byte[,] grid;
+        public int granularity               = 0;
+        public int AtWarCount;
+        public Array<string> BomberTech      = new Array<string>();
+        public Array<string> TroopShipTech   = new Array<string>();
+        public Array<string> CarrierTech     = new Array<string>();
+        public Array<string> SupportShipTech = new Array<string>();
+        public Planet[] RallyPoints          = Empty<Planet>.Array;
+        public Ship BoardingShuttle          => ResourceManager.ShipsDict["Assault Shuttle"];
+        public Ship SupplyShuttle            => ResourceManager.ShipsDict["Supply_Shuttle"];
+        public bool IsCybernetic             => data.Traits.Cybernetic != 0;
+        public bool NonCybernetic            => data.Traits.Cybernetic == 0;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
