@@ -192,7 +192,6 @@ namespace Ship_Game
             var us = new UniverseScreen(data, PlayerLoyalty)
             {
                 GamePace       = save.GamePacing,
-                GameScale      = save.GameScale,
                 StarDate       = save.StarDate,
                 ScreenManager  = ScreenManager,
                 CamPos         = new Vector3(save.campos.X, save.campos.Y, save.camheight),

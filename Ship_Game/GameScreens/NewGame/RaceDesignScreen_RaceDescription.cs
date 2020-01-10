@@ -34,7 +34,7 @@ namespace Ship_Game
 
             var b = new RaceTextBuilder(Plural, Singular);
 
-            b.Add(RaceName.Text).Add(1300).Plural(". ");
+            b.Add(RaceName).Add(1300).Plural(". ");
             b.Plural(race.IsOrganic ? 1302 : 1301);
             b.Add(race.Aquatic <= 0 ? 1304 : 1303);
           
@@ -173,13 +173,13 @@ namespace Ship_Game
                 if (origRaceTraits.ShipType == traits.ShipType)
                 {
                     if (traits.Name == origRaceTraits.Name)
-                        traits.Name = RaceName.Text;
+                        traits.Name = RaceName;
                     if (traits.Singular == origRaceTraits.Singular)
-                        traits.Singular = SingEntry.Text;
+                        traits.Singular = Singular;
                     if (traits.Plural == origRaceTraits.Plural)
-                        traits.Plural = PlurEntry.Text;
+                        traits.Plural = Plural;
                     if (traits.HomeSystemName == origRaceTraits.HomeSystemName)
-                        traits.HomeSystemName = HomeSystemEntry.Text;
+                        traits.HomeSystemName = HomeSysName;
                     if (traits.FlagIndex == origRaceTraits.FlagIndex)
                         traits.FlagIndex = FlagIndex;
 
@@ -196,16 +196,15 @@ namespace Ship_Game
         void SetRacialTraits(RacialTrait traits)
         {
             RaceSummary.ShipType = traits.ShipType;
-            FlagIndex = traits.FlagIndex;
             Picker.CurrentColor  = traits.Color;
-            RaceName.Text        = traits.Name;
-            SingEntry.Text       = traits.Singular;
-            PlurEntry.Text       = traits.Plural;
-            HomeSystemEntry.Text = traits.HomeSystemName;
-            HomeSystemName       = traits.HomeSystemName;
-            HomeWorldName        = traits.HomeworldName;
+            FlagIndex   = traits.FlagIndex;
+            RaceName    = traits.Name;
+            Singular    = traits.Singular;
+            Plural      = traits.Plural;
+            HomeSysName = traits.HomeSystemName;
+            HomeWorldName = traits.HomeworldName;
             PreferredEnvDescription = traits.PreferredEnvDescription;
-            TotalPointsUsed      = 8;
+            TotalPointsUsed = 8;
 
             foreach (TraitEntry t in AllTraits)
             {
@@ -268,9 +267,6 @@ namespace Ship_Game
         
         void CreateRaceSummary()
         {
-            Singular = SingEntry.Text;
-            Plural = PlurEntry.Text;
-            HomeSystemName = HomeSystemEntry.Text;
             RaceSummary = new RacialTrait();
 
             foreach (TraitEntry t in AllTraits)
