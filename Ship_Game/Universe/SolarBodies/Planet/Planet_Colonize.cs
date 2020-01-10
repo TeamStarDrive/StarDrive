@@ -25,7 +25,7 @@ namespace Ship_Game
             NewColonyAffectRelations();
             NewColonyAffectPresentTroops();
             SetupCyberneticsWorkerAllocations();
-            StatTracker.StatAddColony(this, Owner, Empire.Universe);
+            StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
 
         void SetupColonyType()
