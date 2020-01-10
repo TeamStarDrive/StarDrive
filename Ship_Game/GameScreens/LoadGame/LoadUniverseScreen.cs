@@ -145,8 +145,7 @@ namespace Ship_Game
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent = null;
-            StatTracker.SnapshotsDict.Clear();
-            StatTracker.SnapshotsDict = usData.Snapshots;
+            StatTracker.SetSnapshots(usData.Snapshots);
 
             step.Finish();
             return usData;
