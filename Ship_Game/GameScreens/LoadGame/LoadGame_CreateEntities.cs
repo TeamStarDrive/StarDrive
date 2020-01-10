@@ -160,19 +160,10 @@ namespace Ship_Game
                 Name          = ssd.Name,
                 Position      = ssd.Position,
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
-                AsteroidsList = new BatchRemovalCollection<Asteroid>(),
-                MoonList      = new Array<Moon>()
             };
-            foreach (Asteroid roid in ssd.AsteroidsList)
-            {
-                roid.Initialize();
-                system.AsteroidsList.Add(roid);
-            }
-            foreach (Moon moon in ssd.Moons)
-            {
-                moon.Initialize();
-                system.MoonList.Add(moon);
-            }
+
+            system.AsteroidsList.AddRange(ssd.AsteroidsList);
+            system.MoonList.AddRange(ssd.Moons);
             system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)
