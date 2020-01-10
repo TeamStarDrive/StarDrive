@@ -18,19 +18,30 @@ namespace Ship_Game
         ResearchQueueCancel, // "ResearchMenu/button_queue_cancel"
         DanButton,     // UI/dan_button
         DanButtonBlue, // UI/dan_button_blue
-        Formation, // 
+        Formation,
     }
 
     public partial class UIButton
     {
-        class StyleTextures
+        public class StyleTextures
         {
-            public readonly SubTexture Normal;
-            public readonly SubTexture Hover;
-            public readonly SubTexture Pressed;
-            public readonly Color DefaultColor = new Color(255, 240, 189);
-            public readonly Color HoverColor = new Color(255, 240, 189);
-            public readonly Color PressColor = new Color(255, 240, 189);
+            public SubTexture Normal;
+            public SubTexture Hover;
+            public SubTexture Pressed;
+
+            // Text Colors
+            public Color DefaultTextColor = new Color(255, 240, 189);
+            public Color HoverTextColor   = new Color(255, 240, 189);
+            public Color PressTextColor   = new Color(255, 240, 189);
+
+            // Fallback background colors if texture is null
+            public Color DefaultColor = new Color(96, 81, 49);
+            public Color HoverColor   = new Color(106, 91, 59);
+            public Color PressColor   = new Color(86, 71, 39);
+
+            public StyleTextures()
+            {
+            }
 
             public StyleTextures(string normal)
             {
@@ -51,14 +62,14 @@ namespace Ship_Game
                 Normal = Hover = Pressed = ResourceManager.Texture(normal);
                 if (danButtonBlue)
                 {
-                    DefaultColor = new Color(205, 229, 255);
-                    HoverColor   = new Color(174, 202, 255);
-                    PressColor   = new Color(174, 202, 255);
+                    DefaultTextColor = new Color(205, 229, 255);
+                    HoverTextColor   = new Color(174, 202, 255);
+                    PressTextColor   = new Color(174, 202, 255);
                 }
                 else
                 {
-                    HoverColor = new Color(255, 255, 255, 150);
-                    PressColor = new Color(255, 255, 255, 150);
+                    HoverTextColor = new Color(255, 255, 255, 150);
+                    PressTextColor = new Color(255, 255, 255, 150);
                 }
             }
         }
@@ -69,7 +80,7 @@ namespace Ship_Game
         static StyleTextures GetStyle(ButtonStyle style)
         {
             if (Styling != null && ContentId == ResourceManager.ContentId)
-                return Styling[(int) style];
+                return Styling[(int)style];
 
             ContentId = ResourceManager.ContentId;
             Styling = new[]

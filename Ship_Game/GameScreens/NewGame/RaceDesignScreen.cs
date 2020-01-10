@@ -13,22 +13,11 @@ namespace Ship_Game
         Array<TraitEntry> AllTraits = new Array<TraitEntry>();
         RacialTrait RaceSummary = new RacialTrait();
 
-        int GameScale = 1;
-        GameMode Mode;
-        StarNum StarEnum = StarNum.Normal;
-        GalSize GalaxySize = GalSize.Medium;
-        
         Rectangle FlagLeft;
         Rectangle FlagRight;
-        Rectangle GalaxySizeRect;
-        Rectangle NumberStarsRect;
-        Rectangle NumOpponentsRect;
         Menu2 TitleBar;
-        Vector2 TitlePos;
         Menu1 NameMenu;
-
         Submenu Traits;
-
         ScrollList2<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
@@ -37,25 +26,17 @@ namespace Ship_Game
         UITextEntry PlurEntry;
         UITextEntry HomeSystemEntry;
 
-        Vector2 FlagPos;
-
         Rectangle FlagRect;
         ScrollList2<RaceArchetypeListItem> ChooseRaceList;
-        Rectangle PacingRect;
-
-        int Pacing = 100;
-
-        Rectangle ScaleRect = new Rectangle();
-        Rectangle GameModeRect;
-        Rectangle DifficultyRect;
-
         ScrollList2<TextListItem> DescriptionTextList;
-        UIButton Engage;
-        UIButton Abort;
 
+        int GameScale = 1;
+        GameMode Mode;
+        StarNum StarEnum = StarNum.Normal;
+        GalSize GalaxySize = GalSize.Medium;
+        int Pacing = 100;
         int numOpponents;
-        RacialTrait tipped;
-        float tTimer = 0.35f;
+        ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
 
         int FlagIndex;
         public int TotalPointsUsed { get; private set; } = 8;
@@ -69,11 +50,9 @@ namespace Ship_Game
         string HomeSystemName = "Sol";
         int PreferredEnvDescription;
 
-        Rectangle ExtraRemnantRect; // Added by Gretman
-        ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
-
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
         {
+            IsPopup = true; // it has to be a popup, otherwise the MainMenuScreen will not be drawn
             MainMenu = mainMenu;
             TransitionOnTime = 0.75f;
             TransitionOffTime = 0.25f;
@@ -115,20 +94,26 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            TitleBar = new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
-            TitlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f,
-                                   TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 2);
+            TitleBar = Add(new Menu2(ScreenWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80));
+            var titlePos = new Vector2(TitleBar.CenterX - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f,
+                                       TitleBar.CenterY - Fonts.Laserian14.LineSpacing / 2);
+            Add(new UILabel(titlePos, GameText.DesignYourRace, Fonts.Laserian14, Colors.Cream));
+
             NameMenu = Add(new Menu1(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2,
                                 (int)TitleBar.Bottom + 5, (int)(ScreenWidth * 0.5f), 150, withSub:true));
-            FlagPos = new Vector2(NameMenu.Right - 80 - 100, NameMenu.Y + 30);
+
+            var flagPos = new Vector2(NameMenu.Right - 80 - 100, NameMenu.Y + 30);
+            FlagRect = new Rectangle((int)flagPos.X + 16, (int)flagPos.Y + 15, 80, 80);
             
+            Add(new UILabel(flagPos, GameText.FlagColor, Fonts.Arial14Bold, Color.BurlyWood));
+
             UIList raceTitle = AddList(new Vector2(NameMenu.X + 40, NameMenu.Y + 30));
             raceTitle.Padding = new Vector2(4,4);
             UITextEntry AddSplitter(string title, string inputText)
             {
                 var input = new UITextEntry(inputText) {Color = Colors.Cream};
-                raceTitle.AddSplit(new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood), input)
-                         .Split = 205f;
+                var label = new UILabel(LocalizedText.Parse(title), Fonts.Arial14Bold, Color.BurlyWood);
+                raceTitle.AddSplit(label, input).Split = 205f;
                 return input;
             }
 
@@ -167,15 +152,43 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            GalaxySizeRect = new Rectangle((int)NameMenu.Right + 40 - 22, (int)NameMenu.Y - 15, (int)Fonts.Arial12.MeasureString("Galaxy UniverseRadius                                   ").X, Fonts.Arial12.LineSpacing);
-            NumberStarsRect = new Rectangle(GalaxySizeRect.X, GalaxySizeRect.Y + Fonts.Arial12.LineSpacing + 10, GalaxySizeRect.Width, GalaxySizeRect.Height);
-            NumOpponentsRect = new Rectangle(NumberStarsRect.X, NumberStarsRect.Y + Fonts.Arial12.LineSpacing + 10, NumberStarsRect.Width, NumberStarsRect.Height);
-            GameModeRect = new Rectangle(NumOpponentsRect.X, NumOpponentsRect.Y + Fonts.Arial12.LineSpacing + 10, NumberStarsRect.Width, NumOpponentsRect.Height);
-            PacingRect = new Rectangle(GameModeRect.X, GameModeRect.Y + Fonts.Arial12.LineSpacing + 10, GameModeRect.Width, GameModeRect.Height);
-            DifficultyRect = new Rectangle(PacingRect.X, PacingRect.Y + Fonts.Arial12.LineSpacing + 10, PacingRect.Width, PacingRect.Height);
-            
-            //Gretman - Remnant Presence button, relative to Difficulty button
-            ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
+            UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y - 30);
+            optionButtons.CaptureInput = true;
+            optionButtons.Padding = new Vector2(2,3);
+
+            var customStyle = new UIButton.StyleTextures();
+
+            void AddOptionButton(string title, Action<UIButton> onClick,
+                                 Func<UILabel, string> getText, ToolTipText tip = default)
+            {
+                var button = new UIButton(customStyle, new Vector2(160, 16), LocalizedText.Parse(title))
+                {
+                    Font = Fonts.Arial11Bold,
+                    OnClick = onClick,
+                    Tooltip = tip,
+                    TextAlign = ButtonTextAlign.Right,
+                    AcceptRightClicks = true,
+                };
+                var label = new UILabel(getText, Fonts.Arial11Bold);
+                optionButtons.AddSplit(button, label).Split = 180;
+            }
+
+            AddOptionButton("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(),
+                tip:"Sets the scale of the generated galaxy");
+            AddOptionButton("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(),
+                tip:"Number of Solar Systems packed into the Universe");
+            AddOptionButton("{Opponents} : ",  OnNumOpponentsClicked,  label => numOpponents.ToString(),
+                tip:"Sets the number of AI opponents you must face");
+            AddOptionButton("{GameMode} : ",   OnGameModeClicked,      label => Mode.ToString(),
+                tip:GameTips.Sandbox);
+            AddOptionButton("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%",
+                tip:GameTips.Pacing);
+            AddOptionButton("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
+                tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
+            AddOptionButton("{Scale} : ",      OnScaleRectClicked,  label => GameScale.ToString(),
+                tip:GameTips.Scale);
+            AddOptionButton("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
+                tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare");
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
             DescriptionTextList = Add(new ScrollList2<TextListItem>(description, DescriptionTextFont.LineSpacing));
@@ -185,8 +198,8 @@ namespace Ship_Game
             Picker = Add(new UIColorPicker(new Rectangle(ScreenWidth / 2 - 310, ScreenHeight / 2 - 280, 620, 560)));
             Picker.Visible = false;
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
+            ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
+            ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
             DescriptionTextList.ButtonMedium("Clear Traits", OnClearClicked).SetRelPos(DescriptionTextList.Width - 150, DescriptionTextList.Height - 40);
 
             DoRaceDescription();
@@ -267,133 +280,61 @@ namespace Ship_Game
                 ExtraRemnant, numOpponents, Mode));
         }
 
+        // If we had a left mouse click, increment forward, otherwise decrement
+        int OptionIncrement => Input.LeftMouseReleased ? 1 : -1;
+
+        void OnGalaxySizeClicked(UIButton b)
+        {
+            GalaxySize = GalaxySize.IncrementWithWrap(OptionIncrement);
+        }
+
+        void OnGameModeClicked(UIButton b)
+        {
+            Mode = Mode.IncrementWithWrap(OptionIncrement);
+            if (Mode == GameMode.Corners) numOpponents = 3;
+        }
+
+        void OnNumberStarsClicked(UIButton b)
+        {
+            StarEnum = StarEnum.IncrementWithWrap(OptionIncrement);
+        }
+
+        void OnNumOpponentsClicked(UIButton b)
+        {
+            int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
+            numOpponents += OptionIncrement;
+            if (numOpponents > maxOpponents) numOpponents = 1;
+            else if (numOpponents < 1)       numOpponents = maxOpponents;
+        }
+
+        void OnScaleRectClicked(UIButton b)
+        {
+            GameScale += OptionIncrement;
+            if (GameScale > 6) GameScale = 1;
+            if (GameScale < 1) GameScale = 6;
+        }
+
+        void OnPacingClicked(UIButton b)
+        {
+            Pacing += 25*OptionIncrement;
+            if (Pacing > 400) Pacing = 100;
+            if (Pacing < 100) Pacing = 400;
+        }
+        
+        void OnDifficultyClicked(UIButton b)
+        {
+            SelectedDifficulty = SelectedDifficulty.IncrementWithWrap(OptionIncrement);
+        }
+        
+        void OnExtraRemnantClicked(UIButton b)
+        {
+            ExtraRemnant = ExtraRemnant.IncrementWithWrap(OptionIncrement);
+        }
+
         public override bool HandleInput(InputState input)
         {
             if (Picker.Visible)
                 return Picker.HandleInput(input);
-
-            if (base.HandleInput(input))
-                return true;
-
-            if (GalaxySizeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
-            {
-                GameAudio.BlipClick();
-                GalaxySize = (GalSize)((int)GalaxySize + (int)GalSize.Small);
-                if (GalaxySize > GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
-                {
-                    GalaxySize = GalSize.Tiny;
-                }
-                return true;
-            }
-            if (GameModeRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
-            {
-                GameAudio.BlipClick();
-                Mode += 1;
-                if (Mode == GameMode.Corners) numOpponents = 3;
-                if (Mode > GameMode.Corners)  //Updated by Gretman
-                {
-                    Mode = GameMode.Sandbox;
-                }
-                return true;
-            }
-            if (NumberStarsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
-            {
-                GameAudio.BlipClick();
-                RaceDesignScreen starEnum = this;
-                starEnum.StarEnum = (StarNum)((int)starEnum.StarEnum + (int)StarNum.Rare);
-                if (StarEnum > StarNum.SuperPacked)
-                {
-                    StarEnum = StarNum.VeryRare;
-                }
-                return true;
-            }
-            if (NumOpponentsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
-            {
-                GameAudio.BlipClick();
-                int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
-                numOpponents += 1;
-                if (numOpponents > maxOpponents)                    
-                    numOpponents = 1;
-                return true;
-            }
-            if (ScaleRect.HitTest(input.CursorPosition))
-            {
-                if (input.LeftMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    GameScale += 1;
-                    if (GameScale > 6)
-                        GameScale = 1;
-                    return true;
-                }
-                if (input.RightMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    GameScale -= 1;
-                    if (GameScale < 1)
-                        GameScale = 6;
-                    return true;
-                }
-            }
-            if (PacingRect.HitTest(input.CursorPosition))
-            {
-                if (input.LeftMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    Pacing += 25;
-                    if (Pacing > 400)
-                        Pacing = 100;
-                    return true;
-                }
-                if (input.RightMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    Pacing -= 25;
-                    if (Pacing < 100)
-                        Pacing = 400;
-                    return true;
-                }
-            }
-
-            if (DifficultyRect.HitTest(input.CursorPosition))
-            {
-                if (input.LeftMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    SelectedDifficulty = (UniverseData.GameDifficulty)((int)SelectedDifficulty + (int)UniverseData.GameDifficulty.Normal);
-                    if (SelectedDifficulty > UniverseData.GameDifficulty.Brutal)
-                        SelectedDifficulty = UniverseData.GameDifficulty.Easy;
-                    return true;
-                }
-                if (input.RightMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    SelectedDifficulty = (UniverseData.GameDifficulty)((int)SelectedDifficulty - (int)UniverseData.GameDifficulty.Normal);
-                    if (SelectedDifficulty < UniverseData.GameDifficulty.Easy)
-                        SelectedDifficulty = UniverseData.GameDifficulty.Brutal;
-                    return true;
-                }
-            }
-
-            if (ExtraRemnantRect.HitTest(input.CursorPosition))
-            {
-                if (input.LeftMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    ++ExtraRemnant;
-                    if (ExtraRemnant > ExtraRemnantPresence.Everywhere)
-                        ExtraRemnant = ExtraRemnantPresence.Rare;
-                    return true;
-                }
-                if (input.RightMouseClick)
-                {
-                    GameAudio.BlipClick();
-                    --ExtraRemnant;
-                    if (ExtraRemnant < ExtraRemnantPresence.Rare)
-                        ExtraRemnant = ExtraRemnantPresence.Everywhere;
-                    return true;
-                }
-            }
 
             if (FlagRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
             {
@@ -519,26 +460,6 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
-            if (!Picker.Visible)
-            {
-                bool overSomething = false;
-                foreach (TraitEntry t in AllTraits)
-                {
-                    if (t.rect.HitTest(Input.CursorPosition))
-                    {
-                        overSomething = true;
-                        tTimer -= deltaTime;
-                        if (tTimer <= 0f)
-                            tipped = t.trait;
-                    }
-                }
-                if (!overSomething)
-                {
-                    tTimer = 0.35f;
-                    tipped = null;
-                }
-            }
-
             CreateRaceSummary();
 
             base.Update(deltaTime);
@@ -551,35 +472,11 @@ namespace Ship_Game
             
             base.Draw(batch);
 
-            batch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
-            FlagRect = new Rectangle((int)FlagPos.X + 16, (int)FlagPos.Y + 15, 80, 80);
             batch.Draw(ResourceManager.Flag(FlagIndex), FlagRect, Picker.CurrentColor);
             FlagLeft = new Rectangle(FlagRect.X - 20, FlagRect.Y + 40 - 10, 20, 20);
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
-
-            // === DESIGN YOUR RACE ===
-            TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, Colors.Cream);
-            // ========================
-
-            batch.DrawString(Fonts.Arial12, Localizer.Token(24)+": ", new Vector2(GalaxySizeRect.X, GalaxySizeRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, GalaxySize.ToString(), new Vector2(GalaxySizeRect.X + 190 - Fonts.Arial12.MeasureString(GalaxySize.ToString()).X, GalaxySizeRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, Localizer.Token(25)+" : ", new Vector2(NumberStarsRect.X, NumberStarsRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, StarEnum.ToString(), new Vector2(NumberStarsRect.X + 190 - Fonts.Arial12.MeasureString(StarEnum.ToString()).X, NumberStarsRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, Localizer.Token(2102)+" : ", new Vector2(NumOpponentsRect.X, NumOpponentsRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, numOpponents.ToString(), new Vector2(NumOpponentsRect.X + 190 - Fonts.Arial12.MeasureString(numOpponents.ToString()).X, NumOpponentsRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, Localizer.Token(2105)+" : ", new Vector2(GameModeRect.X, GameModeRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, Localizer.Token(2133)+" : ", new Vector2(PacingRect.X, PacingRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, Pacing+"%", new Vector2(PacingRect.X + 190 - Fonts.Arial12.MeasureString(Pacing+"%").X, PacingRect.Y), Color.BurlyWood);
-            batch.DrawString(Fonts.Arial12, Localizer.Token(2139)+" : ", new Vector2(DifficultyRect.X, DifficultyRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, SelectedDifficulty.ToString(), new Vector2(DifficultyRect.X + 190 - Fonts.Arial12.MeasureString(SelectedDifficulty.ToString()).X, DifficultyRect.Y), Color.BurlyWood);
-
-            //Added by Gretman
-            string ExtraRemnantString = Localizer.Token(4101)+" : ";
-            batch.DrawString(Fonts.Arial12, ExtraRemnantString, new Vector2(ExtraRemnantRect.X, ExtraRemnantRect.Y), Color.White);
-            batch.DrawString(Fonts.Arial12, ExtraRemnant.ToString(), new Vector2(ExtraRemnantRect.X + 190 - Fonts.Arial12.MeasureString(ExtraRemnant.ToString()).X, ExtraRemnantRect.Y), Color.BurlyWood);
 
             string txt;
             int tip;
@@ -587,39 +484,16 @@ namespace Ship_Game
             {
                 txt = Localizer.Token(2103);
                 tip = 112;
-                batch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
-                if (GameModeRect.HitTest(Input.CursorPosition))
-                {
-                    ToolTip.CreateTooltip(tip);
-                }
             }
             else if (Mode == GameMode.Elimination)
             {
                 txt = Localizer.Token(6093);
                 tip = 165;
-                batch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
-                if (GameModeRect.HitTest(Input.CursorPosition))
-                {
-                    ToolTip.CreateTooltip(tip);
-                }
             }
             else if (Mode == GameMode.Corners)    //Added by Gretman
             {
                 txt = Localizer.Token(4102);
                 tip = 229;
-                batch.DrawString(Fonts.Arial12, txt, new Vector2(GameModeRect.X + 190 - Fonts.Arial12.MeasureString(txt).X, GameModeRect.Y), Color.BurlyWood);
-                if (GameModeRect.HitTest(Input.CursorPosition))
-                {
-                    ToolTip.CreateTooltip(tip);
-                }
-            }
-            if (ScaleRect.HitTest(Input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(125);
-            }
-            if (PacingRect.HitTest(Input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(126);
             }
 
             batch.End();
