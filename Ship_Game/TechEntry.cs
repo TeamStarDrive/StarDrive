@@ -19,6 +19,9 @@ namespace Ship_Game
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
         [Serialize(7)] public Array<string> WasAcquiredFrom;
 
+        /// <summary>
+        /// Checks if list  contains restricted trade type. 
+        /// </summary>
         private bool AllowRacialTrade(Empire empire)
         {
             return !empire.GetRelations(empire).PreventContentExchangeOf.Contains(TechUnlockType.Diplomacy);
