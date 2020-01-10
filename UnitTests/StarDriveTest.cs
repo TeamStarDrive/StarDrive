@@ -23,7 +23,8 @@ namespace UnitTests
         public static string StarDriveAbsolutePath { get; private set; }
         static StarDriveTest()
         {
-            Log.VerboseLogging = true;
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+            
             SetGameDirectory();
             try
             {
@@ -43,6 +44,11 @@ namespace UnitTests
             }
         }
 
+        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            Cleanup();
+        }
+
         public static void SetGameDirectory()
         {
             Directory.SetCurrentDirectory("../../../stardrive");
@@ -57,6 +63,19 @@ namespace UnitTests
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
         public Empire Faction { get; private set; }
+
+        public StarDriveTest()
+        {
+            Log.Initialize();
+            Log.VerboseLogging = true;
+        }
+
+        static void Cleanup()
+        {
+            Ship_Game.Parallel.ClearPool(); // Dispose all thread pool Threads
+            Log.StopLogThread();
+            Log.FlushAllLogs();
+        }
 
         // @note: This is slow! It can take 500-1000ms
         // So don't create it if you don't need a valid GraphicsDevice
@@ -81,7 +100,7 @@ namespace UnitTests
             Game?.Dispose();
             Empire.Universe = Universe = null;
             Game = null;
-            Log.FlushAllLogs();
+            Cleanup();
         }
 
         public void CreateUniverseAndPlayerEmpire(out Empire player)

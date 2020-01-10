@@ -267,7 +267,10 @@ namespace Ship_Game
     {
         public static void ClearPool()
         {
-            lock (Pool) Pool.ClearAndDispose();
+            lock (Pool)
+            {
+                Pool.ClearAndDispose();
+            }
         }
 
         static readonly Array<ParallelTask> Pool = new Array<ParallelTask>(32);
