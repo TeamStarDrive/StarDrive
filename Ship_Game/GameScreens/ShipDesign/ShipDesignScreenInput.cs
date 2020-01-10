@@ -892,10 +892,13 @@ namespace Ship_Game
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
 
-            var techLevelPos   = new Vector2(ModSel.TopLeft.X, ModSel.TopLeft.Y - 25);
-            var techLevelLabel = EmpireManager.Player.UI.UILabelTechLevelInfo();
-            techLevelLabel.Pos = techLevelPos;
-            Add(techLevelLabel);
+            if (Empire.Universe.Debug)
+            {
+                var techLevelPos = new Vector2(ModSel.TopLeft.X, ModSel.TopLeft.Y - 25);
+                var techLevelLabel = EmpireManager.Player.UI.UILabelTechLevelInfo();
+                techLevelLabel.Pos = techLevelPos;
+                Add(techLevelLabel);
+            }
         }
 
         void ReallyExit()
