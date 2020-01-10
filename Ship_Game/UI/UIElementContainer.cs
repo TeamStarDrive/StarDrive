@@ -341,8 +341,10 @@ namespace Ship_Game
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
+
         public UIList AddList(Vector2 pos, Vector2 size) => Add(new UIList(pos, size));
 
+        public UIList AddList(float x, float y) => AddList(new Vector2(x, y));
         public UIList AddList(Vector2 pos)
         {
             UIList list = Add(new UIList(pos, new Vector2(100f, 100f)));
