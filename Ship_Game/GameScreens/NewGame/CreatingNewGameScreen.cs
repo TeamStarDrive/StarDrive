@@ -83,7 +83,7 @@ namespace Ship_Game
             Data.EmpireList.Add(player);
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
-            StatTracker.SnapshotsDict.Clear();
+            StatTracker.Reset();
 
             CurrentGame.StartNew(Data, pace);
         }
