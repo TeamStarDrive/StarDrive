@@ -118,14 +118,17 @@ namespace Ship_Game
         public UILabel(in LocalizedText text) : this(text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(in LocalizedText text, Color color) : this(text, Fonts.Arial12Bold)
+        public UILabel(in LocalizedText text, Color color) : this(text, Fonts.Arial12Bold, color)
         {
-            Color = color;
         }
-        public UILabel(in LocalizedText text, SpriteFont font)
+        public UILabel(in LocalizedText text, SpriteFont font) : this(text, font, Color.White)
+        {
+        }
+        public UILabel(in LocalizedText text, SpriteFont font, Color color)
         {
             LabelFont = font;
             Text = text;
+            Color = color;
         }
 
         public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)

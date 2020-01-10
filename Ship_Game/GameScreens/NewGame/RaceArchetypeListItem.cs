@@ -8,12 +8,13 @@ namespace Ship_Game
     {
         public RaceDesignScreen Screen;
         public IEmpireData EmpireData;
-        public SubTexture Portrait => Screen.TextureDict[EmpireData];
+        public SubTexture Portrait;
 
         public RaceArchetypeListItem(RaceDesignScreen screen, IEmpireData empireData)
         {
             Screen = screen;
             EmpireData = empireData;
+            Portrait = ResourceManager.Texture("Races/" + empireData.VideoPath);
         }
 
         public override int ItemHeight
