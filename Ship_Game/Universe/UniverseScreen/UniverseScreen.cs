@@ -814,7 +814,7 @@ namespace Ship_Game
             neb_particles?.UnloadContent();
 
             Empire.Universe = null;
-            StatTracker.SnapshotsDict.Clear();
+            StatTracker.Reset();
             EmpireManager.Clear();
 
             HelperFunctions.CollectMemory();
