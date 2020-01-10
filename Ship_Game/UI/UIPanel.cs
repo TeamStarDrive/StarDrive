@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.SpriteSystem;
@@ -19,6 +15,9 @@ namespace Ship_Game
 
         // If set to a color, will draw a colored border around the panel
         public Color Border = Color.TransparentBlack;
+
+        // If set to true, any bleeding input hovering over this panel will be captured
+        public bool CaptureInput;
 
         public override string ToString()
         {
@@ -51,6 +50,13 @@ namespace Ship_Game
         public UIPanel(Vector2 pos, Vector2 size, Color color) : base(pos, size)
         {
             Color = color;
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (base.HandleInput(input))
+                return true;
+            return CaptureInput && HitTest(input.CursorPosition);
         }
 
         public override void Update(float deltaTime)
