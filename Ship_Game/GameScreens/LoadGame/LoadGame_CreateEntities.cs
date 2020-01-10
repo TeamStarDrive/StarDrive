@@ -103,7 +103,7 @@ namespace Ship_Game
             p.OrbitalRadius      = psdata.OrbitalDistance;
             p.BasePopPerTile     = psdata.BasePopPerTile;
 
-            p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility);
+            p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility, psdata.BuildingsFertility);
 
             p.MineralRichness       = psdata.Richness;
             p.HasRings              = psdata.HasRings;

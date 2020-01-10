@@ -128,7 +128,7 @@ namespace Ship_Game
                 Population = MaxPopulation;
                 MineralRichness = 1f;
                 colonyType = ColonyType.Core;
-                SetBaseFertility(2f, 2f);
+                SetBaseFertility(2f, 2f, 0f);
             }
         }
 
@@ -232,10 +232,6 @@ namespace Ship_Game
             if (TerraformTiles()) 
                 return;
 
-            // Remove negative effect buildings
-            if (ScrapNegativeEnvBuilding())
-                return;
-
             // Then, if all tiles are habitable, proceed to Planet Terraform
             if (TerraformPlanet())
                 return;
@@ -262,7 +258,7 @@ namespace Ship_Game
 
         private bool TerraformPlanet()
         {
-            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformMaxFertilityTarget))
+            if (Category == Owner.data.PreferredEnv)
                 return false;
 
             TerraformPoints += TerraformToAdd;
@@ -273,28 +269,6 @@ namespace Ship_Game
             }
 
             return true;
-        }
-
-        private bool ScrapNegativeEnvBuilding()
-        {
-            if (Owner.IsCybernetic)
-                return false; // Cybernetic races do not care for environmental harmful facilities. 
-
-            var negativeEnvBuildings = BuildingList.Filter(b => b.MaxFertilityOnBuild < 0 && !b.IsBiospheres);
-            if (negativeEnvBuildings.Length > 0)
-            {
-                ScrapBuilding(negativeEnvBuildings[0]);
-                if (Owner.isPlayer) // Notify player that the planet a harmful building was removed as part of terraforming
-                {
-                    string messageText = negativeEnvBuildings[0].Name + Localizer.Token(1930);
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         private void TerraformBioSpheres()
@@ -328,14 +302,17 @@ namespace Ship_Game
         {
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
-            if (Owner.NonCybernetic)
+            if (NonCybernetic)
             {
-                float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
+                //float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
                 BaseMaxFertility              = Math.Max(TerraformMaxFertilityTarget, BaseMaxFertility);
-                BaseFertility                 = fertilityAfterTerraform;
+                //BaseFertility                 = fertilityAfterTerraform;
             }
             else
+            {
                 BaseMaxFertility = 0; // cybernetic races will reduce fertility to 0 on their terraformed worlds, they dont need it.
+            }
+
 
             string messageText = Localizer.Token(1920);
             if (!BioSpheresToTerraform) 
