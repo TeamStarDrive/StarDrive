@@ -258,7 +258,7 @@ namespace Ship_Game
 
         private bool TerraformPlanet()
         {
-            if (Category == Owner.data.PreferredEnv)
+            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
                 return false;
 
             TerraformPoints += TerraformToAdd;
@@ -302,17 +302,7 @@ namespace Ship_Game
         {
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
-            if (NonCybernetic)
-            {
-                //float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
-                BaseMaxFertility              = Math.Max(TerraformMaxFertilityTarget, BaseMaxFertility);
-                //BaseFertility                 = fertilityAfterTerraform;
-            }
-            else
-            {
-                BaseMaxFertility = 0; // cybernetic races will reduce fertility to 0 on their terraformed worlds, they dont need it.
-            }
-
+            AddMaxBaseFertility(-BaseMaxFertility + TerraformedMaxFertility);
 
             string messageText = Localizer.Token(1920);
             if (!BioSpheresToTerraform) 
@@ -326,6 +316,19 @@ namespace Ship_Game
                     Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
             else // re-assess colony type after terraform, this might change for the AI
                 colonyType = Owner.AssessColonyNeeds(this);
+        }
+
+        // FB - This will give the Natural Max Fertility the planet should have after terraforming is complete
+        public float TerraformedMaxFertility
+        {
+            get
+            {
+                if (IsCybernetic)
+                    return 0;
+
+                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
+                return racialEnvMultiplier;
+            }
         }
 
         private void RemoveTerraformers()

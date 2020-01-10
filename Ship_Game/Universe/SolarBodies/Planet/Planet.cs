@@ -1044,19 +1044,6 @@ namespace Ship_Game
         public float BuiltCoverage    => TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere  => BuildingList.Any(b => b.IsTerraformer);
 
-        // FB - This will give the Max Fertility the planet should have after terraforming is complete
-        public float TerraformMaxFertilityTarget
-        {
-            get
-            {
-                float maxFertilityDesired = NonCybernetic ? 1 : 0;
-                maxFertilityDesired      += BuildingsFertility;
-                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
-
-                return maxFertilityDesired * racialEnvMultiplier;
-            }
-        }
-
         private void RepairBuildings(int repairAmount)
         {
             if (RecentCombat)
