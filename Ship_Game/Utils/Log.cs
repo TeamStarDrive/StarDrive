@@ -228,13 +228,16 @@ namespace Ship_Game
                             WriteLogEntry(LogBuffer, log2);
                     }
                 }
-                Thread.Sleep(1);
             }
         }
 
         public static void StopLogThread()
         {
             LogThread = null;
+            lock (Sync)
+            {
+                LogQueue.Notify();
+            }
         }
 
         static void LogWriteAsync(string text, ConsoleColor color, LogTarget target = LogTarget.ConsoleAndLog)
