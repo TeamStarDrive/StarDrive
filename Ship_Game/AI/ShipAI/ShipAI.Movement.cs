@@ -22,6 +22,7 @@ namespace Ship_Game.AI
         public bool HasWayPoints => WayPoints.Count > 0;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
+        public Vector2 DebugDrawPosition => Owner.Center + Owner.Velocity.Normalized() * Owner.Radius;
         void ClearWayPoints()
         {
             WayPoints.Clear();
@@ -153,23 +154,21 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null && targetPos.AlmostZero()) targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
+            if (goal.Fleet != null && targetPos.AlmostZero()) 
+                targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
 
             if (Owner.EnginesKnockedOut)
                 return;
 
             bool debug = Empire.Universe.Debug && Empire.Universe.DebugWin != null
                                                && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
-            Vector2 debugDrawPosition;
-            debugDrawPosition = Owner.Center;
-            debugDrawPosition.Y += Owner.Radius;
 
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
             if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
-                if (debug) Empire.Universe.DebugWin.DrawText(debugDrawPosition, "STOP", Color.Red);
+                if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -195,12 +194,12 @@ namespace Ship_Game.AI
             if (distance <= stoppingDistance)
             {
                 ReverseThrustUntilStopped(elapsedTime);
-                if (debug) Empire.Universe.DebugWin.DrawText(debugDrawPosition, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
+                if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
             }
             else if (isFacingTarget)
             {
-                //make sure to not get at stupid slow speeds but try not to accelerate while slowing down.
-                float minimumSpeed = 25f;
+                // make sure to not get at stupid slow speeds but try not to accelerate while slowing down.
+                const float minimumSpeed = 25f;
                 if (vel < Math.Max(distance, stoppingDistance).ClampMin(minimumSpeed))
                 { 
                     float speedLimit = distance;
@@ -210,7 +209,7 @@ namespace Ship_Game.AI
 
                     Owner.SubLightAccelerate(speedLimit);
                     if (debug)
-                        Empire.Universe.DebugWin.DrawText(debugDrawPosition, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
+                        Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
                 }
             }
         }
