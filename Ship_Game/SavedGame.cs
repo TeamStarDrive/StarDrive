@@ -396,11 +396,13 @@ namespace Ship_Game
 
                 SaveData.EmpireDataList.Add(empireToSave);
             }
+
             SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
-            foreach (var e in StatTracker.SnapshotsDict)
+            foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> e in StatTracker.SnapshotsMap)
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
+
             string path = Dir.StarDriveAppData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
