@@ -20,9 +20,6 @@ namespace Ship_Game
 
         public StarDriveGame()
         {
-            // @note This will override and initialize global system settings
-            GlobalStats.LoadConfig();
-
             // Configure and display the GC mode
             // LatencyMode is only available if ServerGC=False
             if (!GCSettings.IsServerGC)
