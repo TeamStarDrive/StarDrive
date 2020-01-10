@@ -87,7 +87,7 @@ namespace Ship_Game
             SaveData.AutoPickBestFreighter = EmpireManager.Player.AutoPickBestFreighter;
             SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
             SaveData.GamePacing            = CurrentGame.Pace;
-            SaveData.GameScale             = screenToSave.GameScale;
+            SaveData.GameScale             = 1f;
             SaveData.StarDate              = screenToSave.StarDate;
             SaveData.FTLModifier           = screenToSave.FTLModifier;
             SaveData.EnemyFTLModifier      = screenToSave.EnemyFTLModifier;

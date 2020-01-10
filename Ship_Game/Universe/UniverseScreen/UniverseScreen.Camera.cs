@@ -282,7 +282,7 @@ namespace Ship_Game
 
             CamPos.X = CamPos.X.Clamped(-UniverseSize, +UniverseSize);
             CamPos.Y = CamPos.Y.Clamped(-UniverseSize, +UniverseSize);
-            CamHeight = CamHeight.Clamped(minCamHeight, MaxCamHeight * GameScale);
+            CamHeight = CamHeight.Clamped(minCamHeight, MaxCamHeight);
 
             foreach (UnivScreenState screenHeight in Enum.GetValues(typeof(UnivScreenState)))
             {
@@ -311,7 +311,7 @@ namespace Ship_Game
             transitionElapsedTime = 0.0f;
             CamDestination.X = CamPos.X;
             CamDestination.Y = CamPos.Y;
-            CamDestination.Z = 4200000f * GameScale;
+            CamDestination.Z = 4200000f;
         }
 
         void DefaultZoomPoints()
