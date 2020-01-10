@@ -29,7 +29,6 @@ namespace Ship_Game
          */
 
         [XmlIgnore][JsonIgnore] public bool Active = true;
-        [XmlIgnore][JsonIgnore] protected AudioHandle DeathSfx = new AudioHandle();
         [XmlIgnore][JsonIgnore] public SolarSystem System { get; private set; }
 
         // TODO: Position and Center are duplicates. One of them should be removed eventually.
@@ -41,12 +40,11 @@ namespace Ship_Game
         // MUST be normalized to [0; +2PI]
         [Serialize(3)] public float Rotation;
 
-        [Serialize(4)] public Vector2 Dimensions;
-        [Serialize(5)] public float Radius = 1f;
-        [Serialize(6)] public float Mass = 1f;
-        [Serialize(7)] public float Health;
+        [Serialize(4)] public float Radius = 1f;
+        [Serialize(5)] public float Mass = 1f;
+        [Serialize(6)] public float Health;
 
-        [Serialize(8)] public GameObjectType Type;
+        [Serialize(7)] public readonly GameObjectType Type;
 
         [XmlIgnore][JsonIgnore] public GameplayObject LastDamagedBy;
 
