@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
+using System.Xml.Serialization;
 using Ship_Game.Debug;
 
 namespace Ship_Game.Gameplay
@@ -99,7 +100,14 @@ namespace Ship_Game.Gameplay
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
         [JsonIgnore] public EmpireRiskAssessment Risk;
+        [XmlIgnore][JsonIgnore]
 
+        [XmlIgnore][JsonIgnore]
+        public readonly Array<TechUnlockType> PreventContentExchangeOf =
+                                         new Array<TechUnlockType>
+                                         {
+                                             TechUnlockType.Diplomacy
+                                         };
         public bool HaveRejectedDemandTech
         {
             get { return haveRejectedDemandTech; }
