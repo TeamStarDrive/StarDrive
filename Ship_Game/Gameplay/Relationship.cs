@@ -99,7 +99,7 @@ namespace Ship_Game.Gameplay
         [Serialize(57)] public float FearUsed;
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
-        [JsonIgnore] public EmpireRiskAssessment Risk;
+        [XmlIgnore] [JsonIgnore] public EmpireRiskAssessment Risk;
         
         /// <summary>
         /// Tech transfer restriction.
