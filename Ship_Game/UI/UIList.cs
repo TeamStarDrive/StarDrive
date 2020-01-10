@@ -170,14 +170,23 @@ namespace Ship_Game
                 Width = dim.X;
             if (elemSize.Y.NotZero()) // horizontal list
                 Height = dim.Y;
+            
+            float actualWidth = 0;
 
             if (HeaderElement != null)
+            {
                 LayoutItem(HeaderElement, ref pos, elemSize, Padding + new Vector2(2f));
+                actualWidth = HeaderElement.Width;
+            }
 
             for (int i = 0; i < Items.Count; ++i)
             {
                 UIElementV2 item = Items[i];
-                if (item.Visible) LayoutItem(item, ref pos, elemSize, Padding);
+                if (item.Visible)
+                {
+                    LayoutItem(item, ref pos, elemSize, Padding);
+                    actualWidth = Math.Max(actualWidth, item.Width);
+                }
             }
 
             if (LayoutStyle == ListLayoutStyle.Resize)
@@ -191,7 +200,12 @@ namespace Ship_Game
                 pos = (BotLeft + Padding*Direction.Swapped())
                     - Direction * (FooterElement.Size + Padding);
                 LayoutItem(FooterElement, pos, elemSize);
+                actualWidth = Math.Max(actualWidth, FooterElement.Width);
             }
+            
+            if (actualWidth.NotZero())
+                Width = actualWidth;
+
             RequiresLayout = false;
         }
 
