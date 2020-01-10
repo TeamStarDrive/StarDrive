@@ -159,8 +159,9 @@ namespace Ship_Game
             optionButtons.Color = Color.Black.Alpha(0.25f);
 
             var customStyle = new UIButton.StyleTextures();
-            UIButton AddOptionButton(string title, Action<UIButton> onClick,
-                                 Func<UILabel, string> getText, ToolTipText tip = default)
+            // [ btn_title : ]  lbl_text
+            UIButton AddOption(string title, Action<UIButton> onClick,
+                               Func<UILabel, string> getText, ToolTipText tip = default)
             {
                 var button = new UIButton(customStyle, new Vector2(160, 18), LocalizedText.Parse(title))
                 {
@@ -172,18 +173,18 @@ namespace Ship_Game
                 return button;
             }
 
-            AddOptionButton("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(),
+            AddOption("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(),
                 tip:"Sets the scale of the generated galaxy");
-            AddOptionButton("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(),
+            AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(),
                 tip:"Number of Solar Systems packed into the Universe");
-            AddOptionButton("{Opponents} : ",  OnNumOpponentsClicked,  label => numOpponents.ToString(),
+            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => numOpponents.ToString(),
                 tip:"Sets the number of AI opponents you must face");
-            ModeBtn = AddOptionButton("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
-            AddOptionButton("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
-            AddOptionButton("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
+            ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
+            AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
+            AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
                 tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
-            AddOptionButton("{Scale} : ",      OnScaleRectClicked,  label => GameScale.ToString(), tip:GameTips.Scale);
-            AddOptionButton("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
+            AddOption("{Scale} : ",      OnScaleRectClicked,  label => GameScale.ToString(), tip:GameTips.Scale);
+            AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare");
 
             var description = new Menu1(traitsList.Right + 5, traitsList.Y, chooseRace.Rect.Width, traitsList.Height);
