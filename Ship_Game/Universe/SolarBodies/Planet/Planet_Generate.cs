@@ -150,8 +150,6 @@ namespace Ship_Game
             int numHabitableTiles = TilesList.Count(t => t.Habitable);
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
-            FoodHere     = 100f;
-            ProdHere     = 100f;
             HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
@@ -217,6 +215,9 @@ namespace Ship_Game
         {
             ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(this);
             ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(this);
+            Storage.Max = BuildingList.Sum(b => b.StorageAdded);
+            FoodHere    = Storage.Max;
+            ProdHere    = Storage.Max / 2;
         }
 
         private void ApplyTerraforming() // Added by Fat Bastard
@@ -467,22 +468,22 @@ namespace Ship_Game
             {
                 if (d100 >= 10) AddMinorRemnantShips();
                 if (d100 >= 40) AddMajorRemnantShips();
-                if (d100 >= 45) AddSupportRemnantShips();
+                if (d100 >= 60) AddSupportRemnantShips();
                 if (d100 >= 95) AddTorpedoRemnantShips();
             }
             else if (quality > 12f)
             {
                 if (d100 >= 20) AddMinorRemnantShips();
                 if (d100 >= 40) AddMiniRemnantShips();
-                if (d100 >= 80) AddMajorRemnantShips();
-                if (d100 >= 85) AddSupportRemnantShips();
+                if (d100 >= 85) AddMajorRemnantShips();
+                if (d100 >= 95) AddSupportRemnantShips();
             }
             else if (quality > 6f)
             {
-                if (d100 >= 20) AddMiniRemnantShips();
-                if (d100 >= 60) AddMinorRemnantShips();
-                if (d100 >= 80) AddMinorRemnantShips();
-                if (d100 >= 90) AddSupportRemnantShips();
+                if (d100 >= 40) AddMiniRemnantShips();
+                if (d100 >= 70) AddMinorRemnantShips();
+                if (d100 >= 85) AddMinorRemnantShips();
+                if (d100 >= 95) AddSupportRemnantShips();
             }
         }
 
