@@ -33,6 +33,9 @@ namespace Ship_Game
         // If set TRUE, this button will also capture Right Mouse Clicks
         public bool AcceptRightClicks;
 
+        // If set TRUE, text will be drawn with dark shadow
+        public bool TextShadows;
+
         public Action<UIButton> OnClick;
 
         public override string ToString() => $"{TypeName} '{Text}' visible:{Visible} enabled:{Enabled} state:{State}";
@@ -138,7 +141,7 @@ namespace Ship_Game
             {
                 Color c = BackgroundColor();
                 batch.FillRectangle(r, c.Alpha(0.75f));
-                batch.DrawRectangle(r, c.AddRgb(-0.1f));
+                batch.DrawRectangle(r, c.AddRgb(-0.1f), 2);
             }
 
             if (Text.NotEmpty)
@@ -158,7 +161,11 @@ namespace Ship_Game
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
-                batch.DrawString(font, text, textCursor, Enabled ? TextColor() : Color.Gray);
+                Color textColor = Enabled ? TextColor() : Color.Gray;
+                if (TextShadows)
+                    batch.DrawDropShadowText(text, textCursor, font, textColor);
+                else
+                    batch.DrawString(font, text, textCursor, textColor);
             }
         }
 

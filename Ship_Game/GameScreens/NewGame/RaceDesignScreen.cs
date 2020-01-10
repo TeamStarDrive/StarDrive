@@ -25,6 +25,7 @@ namespace Ship_Game
         UITextEntry SingEntry;
         UITextEntry PlurEntry;
         UITextEntry HomeSystemEntry;
+        UIButton ModeBtn;
 
         Rectangle FlagRect;
         ScrollList2<RaceArchetypeListItem> ChooseRaceList;
@@ -155,22 +156,20 @@ namespace Ship_Game
             UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y - 30);
             optionButtons.CaptureInput = true;
             optionButtons.Padding = new Vector2(2,3);
+            optionButtons.Color = Color.Black.Alpha(0.25f);
 
             var customStyle = new UIButton.StyleTextures();
-
-            void AddOptionButton(string title, Action<UIButton> onClick,
+            UIButton AddOptionButton(string title, Action<UIButton> onClick,
                                  Func<UILabel, string> getText, ToolTipText tip = default)
             {
-                var button = new UIButton(customStyle, new Vector2(160, 16), LocalizedText.Parse(title))
+                var button = new UIButton(customStyle, new Vector2(160, 18), LocalizedText.Parse(title))
                 {
-                    Font = Fonts.Arial11Bold,
-                    OnClick = onClick,
-                    Tooltip = tip,
-                    TextAlign = ButtonTextAlign.Right,
-                    AcceptRightClicks = true,
+                    Font = Fonts.Arial11Bold, OnClick = onClick,
+                    Tooltip = tip, TextAlign = ButtonTextAlign.Right,
+                    AcceptRightClicks = true, TextShadows = true,
                 };
-                var label = new UILabel(getText, Fonts.Arial11Bold);
-                optionButtons.AddSplit(button, label).Split = 180;
+                optionButtons.AddSplit(button, new UILabel(getText, Fonts.Arial11Bold)).Split = 180;
+                return button;
             }
 
             AddOptionButton("{GalaxySize} : ",   OnGalaxySizeClicked,  label => GalaxySize.ToString(),
@@ -179,14 +178,11 @@ namespace Ship_Game
                 tip:"Number of Solar Systems packed into the Universe");
             AddOptionButton("{Opponents} : ",  OnNumOpponentsClicked,  label => numOpponents.ToString(),
                 tip:"Sets the number of AI opponents you must face");
-            AddOptionButton("{GameMode} : ",   OnGameModeClicked,      label => Mode.ToString(),
-                tip:GameTips.Sandbox);
-            AddOptionButton("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%",
-                tip:GameTips.Pacing);
+            ModeBtn = AddOptionButton("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
+            AddOptionButton("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
             AddOptionButton("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
                 tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
-            AddOptionButton("{Scale} : ",      OnScaleRectClicked,  label => GameScale.ToString(),
-                tip:GameTips.Scale);
+            AddOptionButton("{Scale} : ",      OnScaleRectClicked,  label => GameScale.ToString(), tip:GameTips.Scale);
             AddOptionButton("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare");
 
@@ -288,10 +284,33 @@ namespace Ship_Game
             GalaxySize = GalaxySize.IncrementWithWrap(OptionIncrement);
         }
 
+        LocalizedText GetModeText()
+        {
+            switch (Mode)
+            {
+                default:
+                case GameMode.Sandbox: return GameText.Sandbox;
+                case GameMode.Elimination: return GameText.CapitalElimination;
+                case GameMode.Corners: return GameText.Corners;
+            }
+        }
+
+        ToolTipText GetModeTip()
+        {
+            switch (Mode)
+            {
+                default:
+                case GameMode.Sandbox: return GameTips.Sandbox;
+                case GameMode.Elimination: return GameTips.EliminationGameMode;
+                case GameMode.Corners: return GameTips.CornersGame;
+            }
+        }
+
         void OnGameModeClicked(UIButton b)
         {
             Mode = Mode.IncrementWithWrap(OptionIncrement);
             if (Mode == GameMode.Corners) numOpponents = 3;
+            ModeBtn.Tooltip = GetModeTip();
         }
 
         void OnNumberStarsClicked(UIButton b)
@@ -477,24 +496,6 @@ namespace Ship_Game
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
-
-            string txt;
-            int tip;
-            if (Mode == GameMode.Sandbox)
-            {
-                txt = Localizer.Token(2103);
-                tip = 112;
-            }
-            else if (Mode == GameMode.Elimination)
-            {
-                txt = Localizer.Token(6093);
-                tip = 165;
-            }
-            else if (Mode == GameMode.Corners)    //Added by Gretman
-            {
-                txt = Localizer.Token(4102);
-                tip = 229;
-            }
 
             batch.End();
         }
