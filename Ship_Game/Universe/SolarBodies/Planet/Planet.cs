@@ -756,12 +756,13 @@ namespace Ship_Game
 
         void UpdateBaseFertility()
         {
-            if (BaseFertility.AlmostEqual(BaseMaxFertility))
+            float totalFertility = BaseMaxFertility + BuildingsFertility;
+            if (BaseFertility.AlmostEqual(totalFertility))
                 return;
 
-            if (BaseFertility < BaseMaxFertility)
-                BaseFertility = (BaseFertility + 0.01f).Clamped(0, BaseMaxFertility); // FB - Slowly increase fertility to max fertility
-            else if (BaseFertility > BaseMaxFertility)
+            if (BaseFertility < totalFertility)
+                BaseFertility = (BaseFertility + 0.01f).Clamped(0, totalFertility); // FB - Slowly increase fertility to max fertility
+            else if (BaseFertility > totalFertility)
                 BaseFertility = BaseFertility.Clamped(0, BaseFertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
