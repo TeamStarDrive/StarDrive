@@ -21,6 +21,8 @@ namespace Ship_Game
             public Rectangle Rect;
             public bool Selected;
             public bool Hover;
+
+            public override string ToString() => $"Tab {Index} {Title} Sel={Selected} Hov={Hover}";
         }
 
         public Array<Tab> Tabs = new Array<Tab>();
@@ -170,9 +172,10 @@ namespace Ship_Game
             batch.Draw(s.CornerTL, TL, Color.White);
             if (Tabs.Count > 0)
             {
-                SubTexture header = Tabs[0].Selected ? s.Left :
-                                    Tabs[0].Hover    ? s.HoverLeftEdge :
-                                                       s.LeftUnsel;
+                bool selected = Tabs.Count == 1 || Tabs[0].Selected;
+                SubTexture header = selected      ? s.Left :
+                                    Tabs[0].Hover ? s.HoverLeftEdge
+                                                  : s.LeftUnsel;
                 batch.Draw(header, UpperLeft, Color.White);
             }
 
