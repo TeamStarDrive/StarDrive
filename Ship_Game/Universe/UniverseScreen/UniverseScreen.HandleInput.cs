@@ -1,13 +1,10 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
-using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -1336,13 +1333,13 @@ namespace Ship_Game
                     {
                         CamDestination.Z = 60000f;
                         AdjustCamTimer = 1f;
-                        transitionElapsedTime = 0.0f;
+                        transitionElapsedTime = 0f;
                     }
                     else
                     {
-                        CamDestination.Z = 4200000f * GameScale;
+                        CamDestination.Z = 4200000f;
                         AdjustCamTimer = 1f;
-                        transitionElapsedTime = 0.0f;
+                        transitionElapsedTime = 0f;
                     }
                 }
             }

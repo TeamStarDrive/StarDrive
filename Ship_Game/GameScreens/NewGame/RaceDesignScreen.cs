@@ -9,8 +9,8 @@ namespace Ship_Game
 {
     public partial class RaceDesignScreen : GameScreen
     {
-        MainMenuScreen MainMenu;
-        Array<TraitEntry> AllTraits = new Array<TraitEntry>();
+        readonly MainMenuScreen MainMenu;
+        readonly Array<TraitEntry> AllTraits = new Array<TraitEntry>();
         RacialTrait RaceSummary = new RacialTrait();
 
         Rectangle FlagLeft;
@@ -21,22 +21,17 @@ namespace Ship_Game
         ScrollList2<TraitsListItem> TraitsList;
         UIColorPicker Picker;
 
-        UITextEntry RaceName;
-        UITextEntry SingEntry;
-        UITextEntry PlurEntry;
-        UITextEntry HomeSystemEntry;
         UIButton ModeBtn;
 
         Rectangle FlagRect;
         ScrollList2<RaceArchetypeListItem> ChooseRaceList;
         ScrollList2<TextListItem> DescriptionTextList;
 
-        int GameScale = 1;
         GameMode Mode;
         StarNum StarEnum = StarNum.Normal;
         GalSize GalaxySize = GalSize.Medium;
         int Pacing = 100;
-        int numOpponents;
+        int NumOpponents;
         ExtraRemnantPresence ExtraRemnant = ExtraRemnantPresence.Normal;
 
         int FlagIndex;
@@ -45,10 +40,15 @@ namespace Ship_Game
         UniverseData.GameDifficulty SelectedDifficulty = UniverseData.GameDifficulty.Normal;
         public IEmpireData SelectedData { get; private set; }
 
-        string Singular = "Human";
-        string Plural = "Humans";
+        UITextEntry NameEntry;
+        UITextEntry SingEntry;
+        UITextEntry PlurEntry;
+        UITextEntry SysEntry;
+        string RaceName    { get => NameEntry.Text; set => NameEntry.Text = value; }
+        string Singular    { get => SingEntry.Text; set => SingEntry.Text = value; }
+        string Plural      { get => PlurEntry.Text; set => PlurEntry.Text = value; }
+        string HomeSysName { get => SysEntry.Text;  set => SysEntry.Text  = value; }
         string HomeWorldName = "Earth";
-        string HomeSystemName = "Sol";
         int PreferredEnvDescription;
 
         public RaceDesignScreen(MainMenuScreen mainMenu) : base(mainMenu)
@@ -62,33 +62,35 @@ namespace Ship_Game
                 AllTraits.Add(new TraitEntry { trait = t });
             }
             GlobalStats.Statreset();
-            numOpponents = GlobalStats.ActiveMod?.mi?.MaxOpponents ?? ResourceManager.MajorRaces.Count-1;
+            NumOpponents = GlobalStats.ActiveMod?.mi?.MaxOpponents ?? ResourceManager.MajorRaces.Count-1;
         }
 
         RacialTrait GetRacialTraits()
         {
             RacialTrait t = RaceSummary.GetClone();
-            t.Singular = SingEntry.Text;
-            t.Plural = PlurEntry.Text;
-            t.HomeSystemName = HomeSystemEntry.Text;
-            t.Color = Picker.CurrentColor;
+            t.Singular = Singular;
+            t.Plural   = Plural;
+            t.HomeSystemName = HomeSysName;
+            t.HomeworldName  = HomeWorldName;
+            t.Color     = Picker.CurrentColor;
             t.FlagIndex = FlagIndex;
-            t.HomeworldName = HomeWorldName;
-            t.Name = RaceName.Text;
+            t.Name      = RaceName;
             t.ShipType  = SelectedData.ShipType;
             t.VideoPath = SelectedData.VideoPath;
             return t;
         }
         
-        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty, StarNum StarEnum, GalSize Galaxysize, int Pacing, ExtraRemnantPresence ExtraRemnant, int numOpponents, GameMode mode)
+        public void SetCustomSetup(UniverseData.GameDifficulty gameDifficulty,
+            StarNum numStars, GalSize galaxySize, int pacing,
+            ExtraRemnantPresence extraRemnants, int numOpponents, GameMode mode)
         {
             SelectedDifficulty        = gameDifficulty;
-            this.StarEnum     = StarEnum;
-            this.GalaxySize   = Galaxysize;
-            this.Pacing       = Pacing;
-            this.ExtraRemnant = ExtraRemnant;
-            this.numOpponents = numOpponents;
-            this.Mode         = mode;
+            StarEnum     = numStars;
+            GalaxySize   = galaxySize;
+            Pacing       = pacing;
+            ExtraRemnant = extraRemnants;
+            NumOpponents = numOpponents;
+            Mode         = mode;
         }
         
         SpriteFont DescriptionTextFont => LowRes ? Fonts.Arial10 : Fonts.Arial12;
@@ -122,10 +124,10 @@ namespace Ship_Game
                 if (e.Singular == "Human")
                     SelectedData = e;
 
-            RaceName  = AddSplitter("{EmpireName}: ", SelectedData.Name);
+            NameEntry  = AddSplitter("{EmpireName}: ", SelectedData.Name);
             SingEntry = AddSplitter("{RaceNameSingular}: ", SelectedData.Singular);
             PlurEntry = AddSplitter("{RaceNamePlural}: ", SelectedData.Plural);
-            HomeSystemEntry = AddSplitter("{HomeSystemName}: ", SelectedData.HomeSystemName);
+            SysEntry = AddSplitter("{HomeSystemName}: ", SelectedData.HomeSystemName);
             HomeWorldName = SelectedData.HomeWorldName;
 
             var traitsList = new Rectangle(ScreenWidth / 2 - (int)(ScreenWidth * 0.5f) / 2, 
@@ -156,7 +158,7 @@ namespace Ship_Game
             UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y - 30);
             optionButtons.CaptureInput = true;
             optionButtons.Padding = new Vector2(2,3);
-            optionButtons.Color = Color.Black.Alpha(0.25f);
+            optionButtons.Color = Color.Black.Alpha(0.5f);
 
             var customStyle = new UIButton.StyleTextures();
             // [ btn_title : ]  lbl_text
@@ -177,13 +179,12 @@ namespace Ship_Game
                 tip:"Sets the scale of the generated galaxy");
             AddOption("{SolarSystems} : ", OnNumberStarsClicked, label => StarEnum.ToString(),
                 tip:"Number of Solar Systems packed into the Universe");
-            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => numOpponents.ToString(),
+            AddOption("{Opponents} : ",  OnNumOpponentsClicked,  label => NumOpponents.ToString(),
                 tip:"Sets the number of AI opponents you must face");
             ModeBtn = AddOption("{GameMode} : ",   OnGameModeClicked, label => GetModeText().Text, tip:GetModeTip());
             AddOption("{Pacing} : ",     OnPacingClicked,     label => Pacing+"%", tip:GameTips.Pacing);
             AddOption("{Difficulty} : ", OnDifficultyClicked, label => SelectedDifficulty.ToString(),
                 tip:"Hard and Brutal increase AI Aggressiveness and gives them extra bonuses");
-            AddOption("{Scale} : ",      OnScaleRectClicked,  label => GameScale.ToString(), tip:GameTips.Scale);
             AddOption("{RemnantPresence} : ", OnExtraRemnantClicked, label => ExtraRemnant.ToString(),
                 tip:"This sets the intensity of Ancient Remnants presence. If you feel overwhelmed by their advanced technology, reduce this to Rare");
 
@@ -273,8 +274,8 @@ namespace Ship_Game
 
         void OnSaveSetupClicked(UIButton b)
         {
-            ScreenManager.AddScreen(new SaveNewGameSetupScreen(this, SelectedDifficulty, StarEnum, GalaxySize, Pacing,
-                ExtraRemnant, numOpponents, Mode));
+            ScreenManager.AddScreen(new SaveNewGameSetupScreen(this,
+                SelectedDifficulty, StarEnum, GalaxySize, Pacing, ExtraRemnant, NumOpponents, Mode));
         }
 
         // If we had a left mouse click, increment forward, otherwise decrement
@@ -310,7 +311,7 @@ namespace Ship_Game
         void OnGameModeClicked(UIButton b)
         {
             Mode = Mode.IncrementWithWrap(OptionIncrement);
-            if (Mode == GameMode.Corners) numOpponents = 3;
+            if (Mode == GameMode.Corners) NumOpponents = 3;
             ModeBtn.Tooltip = GetModeTip();
         }
 
@@ -322,16 +323,9 @@ namespace Ship_Game
         void OnNumOpponentsClicked(UIButton b)
         {
             int maxOpponents = Mode == GameMode.Corners ? 3 : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
-            numOpponents += OptionIncrement;
-            if (numOpponents > maxOpponents) numOpponents = 1;
-            else if (numOpponents < 1)       numOpponents = maxOpponents;
-        }
-
-        void OnScaleRectClicked(UIButton b)
-        {
-            GameScale += OptionIncrement;
-            if (GameScale > 6) GameScale = 1;
-            if (GameScale < 1) GameScale = 6;
+            NumOpponents += OptionIncrement;
+            if (NumOpponents > maxOpponents) NumOpponents = 1;
+            else if (NumOpponents < 1)       NumOpponents = maxOpponents;
         }
 
         void OnPacingClicked(UIButton b)
@@ -436,15 +430,12 @@ namespace Ship_Game
             if (Mode == GameMode.Corners) GlobalStats.CornersGame = true;
 
             GlobalStats.ExtraRemnantGS = ExtraRemnant;
-            Singular                   = SingEntry.Text;
-            Plural                     = PlurEntry.Text;
-            HomeSystemName             = HomeSystemEntry.Text;
             RaceSummary.Color          = Picker.CurrentColor;
             RaceSummary.Singular       = Singular;
             RaceSummary.Plural         = Plural;
-            RaceSummary.HomeSystemName = HomeSystemName;
+            RaceSummary.HomeSystemName = HomeSysName;
             RaceSummary.HomeworldName  = HomeWorldName;
-            RaceSummary.Name           = RaceName.Text;
+            RaceSummary.Name           = RaceName;
             RaceSummary.FlagIndex      = FlagIndex;
             RaceSummary.ShipType       = SelectedData.ShipType;
             RaceSummary.VideoPath      = SelectedData.VideoPath;
@@ -474,7 +465,7 @@ namespace Ship_Game
 
             float pace = Pacing / 100f;
             var ng = new CreatingNewGameScreen(player, GalaxySize.ToString(), modifier, 
-                                               numOpponents, Mode, pace, GameScale, SelectedDifficulty, MainMenu);
+                                               NumOpponents, Mode, pace, SelectedDifficulty, MainMenu);
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
 
@@ -551,8 +542,7 @@ namespace Ship_Game
         
         public enum GalSize
         {
-            Tiny, Small, Medium, Large,
-            Huge, Epic, TrulyEpic       // Reenabled by Gretman, to make use of the new negative map sizes
+            Tiny, Small, Medium, Large, Huge, Epic
         }
 
         public enum GameMode
