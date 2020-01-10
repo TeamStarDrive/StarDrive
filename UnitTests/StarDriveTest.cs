@@ -81,6 +81,7 @@ namespace UnitTests
             Game?.Dispose();
             Empire.Universe = Universe = null;
             Game = null;
+            Log.FlushAllLogs();
         }
 
         public void CreateUniverseAndPlayerEmpire(out Empire player)
