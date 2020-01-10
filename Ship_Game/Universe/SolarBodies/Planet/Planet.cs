@@ -93,7 +93,9 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
-        public bool ForeignTroopHere(Empire empire)      => TroopManager.ForeignTroopHere(empire);
+        public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
+        public bool NoGovernorAndNotTradeHub            => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
+        public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
 
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
@@ -103,13 +105,11 @@ namespace Ship_Game
         public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
             => TroopManager.TroopsReadForLaunch(strengthNeeded);
 
-        public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
-
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-        public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
-        public int SpecialCommodities               => BuildingList.Count(b => b.IsCommodity);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * empire?.RacialEnvModifer(Category) 
+                                                       ?? BaseMaxFertility + BuildingsFertility;
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -549,8 +549,9 @@ namespace Ship_Game
 
         private void PostBuildingRemoval(Building b)
         {
-            if (b.MaxFertilityOnBuild > 0)
-                AddMaxBaseFertility(-b.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnBuild when scrapping
+            // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
+            // environment buildings can be scrapped and the planet will slowly recover
+            AddBuildingsFertility(-b.MaxFertilityOnBuild); 
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
@@ -764,25 +765,29 @@ namespace Ship_Game
                 BaseFertility = BaseFertility.Clamped(0, BaseFertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
-        public void SetBaseFertility(float fertility, float maxFertility)
+        public void SetBaseFertility(float fertility, float maxFertility, float buildingsFertility)
         {
-            BaseMaxFertility = maxFertility;
-            BaseFertility = fertility;
+            BaseMaxFertility   = maxFertility;
+            BaseFertility      = fertility;
+            BuildingsFertility = buildingsFertility;
         }
 
-        public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility);
+        public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility, 0);
 
         public void AddMaxBaseFertility(float amount)
         {
-            BaseMaxFertility += amount;
-            BaseMaxFertility  = Math.Max(0, BaseMaxFertility);
+            BaseMaxFertility    = (BaseMaxFertility + amount).ClampMin(0);
+        }
+
+        public void AddBuildingsFertility(float amount)
+        {
+            BuildingsFertility += amount;
         }
 
         // FB: to enable bombs to temp change fertility immediately by specified amount
         public void AddBaseFertility(float amount)
         {
-            BaseFertility += amount;
-            BaseFertility  = Math.Max(0, BaseFertility);
+            BaseFertility = (BaseFertility + amount).ClampMin(0);
         }
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
@@ -1044,17 +1049,11 @@ namespace Ship_Game
         {
             get
             {
-                float sumPositiveFertilityChange = NonCybernetic ? 1 : 0;
+                float maxFertilityDesired = NonCybernetic ? 1 : 0;
+                maxFertilityDesired      += BuildingsFertility;
+                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
 
-                for (int i = 0; i < BuildingList.Count; i++)
-                {
-                    Building b = BuildingList[i];
-                    if (b.MaxFertilityOnBuild > 0)
-                        sumPositiveFertilityChange += b.MaxFertilityOnBuild;
-                }
-
-                float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
-                return racialEnvDivider * sumPositiveFertilityChange;
+                return maxFertilityDesired * racialEnvMultiplier;
             }
         }
 
