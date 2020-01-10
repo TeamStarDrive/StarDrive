@@ -64,6 +64,11 @@ namespace Ship_Game
 
             try
             {
+                // WARNING: This must be called before ANY Log calls
+                // @note This will override and initialize global system settings
+                GlobalStats.LoadConfig();
+                Log.Initialize();
+
                 using (var instance = new SingleGlobalInstance())
                 {
                     if (!instance.UniqueInstance)

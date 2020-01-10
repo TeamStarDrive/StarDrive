@@ -30,10 +30,10 @@ namespace Ship_Game
             public LogTarget Target;
         }
 
-        static readonly StreamWriter LogFile;
+        static StreamWriter LogFile;
         static Thread LogThread;
         static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
-        public static readonly bool HasDebugger;
+        public static bool HasDebugger;
 
         // Either there is an active Console Window
         // OR Console output is redirected to some pipe, like VS Debug Output
@@ -60,14 +60,20 @@ namespace Ship_Game
 
         static readonly Array<Thread> MonitoredThreads = new Array<Thread>();
 
-        static Log()
+        public static void Initialize()
         {
+            if (LogThread != null)
+                return; // already initialized!
+
             HasDebugger = Debugger.IsAttached;
 
-            if (File.Exists("blackbox.log"))
-                File.Copy("blackbox.log", "blackbox.old.log", true);
+            if (LogFile == null)
+            {
+                if (File.Exists("blackbox.log"))
+                    File.Copy("blackbox.log", "blackbox.old.log", true);
+                LogFile = OpenLog("blackbox.log");
+            }
 
-            LogFile = OpenLog("blackbox.log");
             LogThread = new Thread(LogAsyncWriter) { Name = "AsyncLogWriter" };
             LogThread.Start();
 
