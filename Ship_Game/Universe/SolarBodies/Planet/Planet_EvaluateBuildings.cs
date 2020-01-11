@@ -26,7 +26,8 @@ namespace Ship_Game
             ResearchPerCol,
             CreditsPerCol,
             TaxPercent,
-            Fertility
+            Fertility,
+            SpacePort
         }
 
         bool IsPlanetExtraDebugTarget()
@@ -83,6 +84,7 @@ namespace Ship_Game
             CalcFertilityPriorities();
             CalcMoneyPriorities();
             CalcStoragePriorities();
+            CalcSpacePortPriorities();
 
             if (IsPlanetExtraDebugTarget())
             {
@@ -182,10 +184,10 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
-            float tax     = PopulationBillion;
-            float credits = PopulationBillion;
+            float tax     = PopulationBillion - Money.TaxRate*5;
+            float credits = (PopulationBillion - Money.IncomePerColonist).ClampMin(2);
             tax           = ApplyGovernorBonus(tax, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
-            credits       = ApplyGovernorBonus(credits, 1f, 0.2f, 0.75f, 0.5f, 0.5f);
+            credits       = ApplyGovernorBonus(credits, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
             Priorities[ColonyPriority.CreditsPerCol] = credits;
         }
@@ -193,8 +195,15 @@ namespace Ship_Game
         void CalcFertilityPriorities()
         {
             float fertility = NonCybernetic ? 5 - MaxFertility : 0;
-            fertility       = ApplyGovernorBonus(fertility, 1.5f, 0.5f, 1, 2, 1f);
+            fertility       = ApplyGovernorBonus(fertility, 1.5f, 0.5f, 1f, 5f, 1f);
             Priorities[ColonyPriority.Fertility] = fertility;
+        }
+
+        void CalcSpacePortPriorities()
+        {
+            float spacePort = PopulationBillion;
+            spacePort       = ApplyGovernorBonus(spacePort, 1.5f, 0.75f, 0.75f, 0.75f, 2f);
+            Priorities[ColonyPriority.SpacePort] = spacePort;
         }
 
         float ApplyGovernorBonus(float value, float core, float industrial, float research, float agricultural, float military)
@@ -346,22 +355,43 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], (float)b.StorageAdded / 50);
             score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount);
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist);
-            score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist);
-            score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage);
+            score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist * 3);
+            score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 10);
             score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category));
+            score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
 
-             if (IsPlanetExtraDebugTarget())
-             {
+            score *= FertilityMultiplier(b);
+
+            if (IsPlanetExtraDebugTarget())
+            {
                  if (score > 0f)
                      Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-20}  {"SUITABLE",-16} {score.SignString()}");
                  else
                      Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-20}  {"NOT GOOD",-16} {score.SignString()}");
-             }
+            }
 
             return score;
         }
 
         float EvalTraits(float priority, float trait) => priority * trait;
+
+        float FertilityMultiplier(Building b)
+        {
+            if (b.MaxFertilityOnBuild.AlmostZero())
+                return 1;
+
+            if (IsCybernetic && b.MaxFertilityOnBuild > 0)
+                return 0.5f; // Fertility increasing buildings score should be very high in order to be worth building by cybernetics
+
+            if (b.MaxFertilityOnBuild < 0 && colonyType == ColonyType.Agricultural)
+                return 0; // Never build fertility reducers on Agricultural colonies
+
+            float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
+            if (projectedMaxFertility < 1)
+                return projectedMaxFertility.ClampMin(0); // multiplier will be smaller in direct relation to its effect
+
+            return 1;
+        }
 
         void TryBuildTerraformers()
         {
