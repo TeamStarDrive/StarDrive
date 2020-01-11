@@ -28,6 +28,7 @@ namespace Ship_Game
         Array<string> Lines; // Multi-Line Text
         Func<UILabel, string> GetText; // Dynamic Text Binding
         SpriteFont LabelFont;
+        string CachedText;
 
         public Action<UILabel> OnClick;
 
@@ -49,6 +50,7 @@ namespace Ship_Game
                 {
                     LabelText = value;
                     Size = LabelFont.MeasureString(LabelText.Text); // @todo: Size is not updated when language changes
+                    RequiresLayout = true;
                 }
             }
         }
@@ -60,6 +62,7 @@ namespace Ship_Game
             {
                 Lines = value;
                 Size = LabelFont.MeasureLines(Lines);
+                RequiresLayout = true;
             }
         }
 
@@ -69,6 +72,7 @@ namespace Ship_Game
             {
                 GetText = value;
                 Size = LabelFont.MeasureString(GetText(this)); // @todo: Size is not updated when language changes
+                RequiresLayout = true;
             }
         }
 
@@ -81,6 +85,7 @@ namespace Ship_Game
                 {
                     LabelFont = value;
                     Size = value.MeasureString(LabelText.Text); // @todo: Size is not updated when language changes
+                    RequiresLayout = true;
                 }
             }
         }
@@ -190,6 +195,8 @@ namespace Ship_Game
             else if (GetText != null)
             {
                 string text = GetText(this); // GetText is allowed to modify [this]
+                RequiresLayout |= CachedText != text;
+                CachedText = text;
                 if (text.NotEmpty())
                     DrawTextLine(batch, text, Pos, CurrentColor);
             }

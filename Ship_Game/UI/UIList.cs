@@ -14,7 +14,7 @@ namespace Ship_Game
     {
         Fill, // fill to width of the list
         Clip, // clip elements to width of the list
-        Resize, // auto resize list itself
+        ResizeList, // auto resize list itself
     }
 
     // Static list of elements, not scrollable
@@ -112,11 +112,17 @@ namespace Ship_Game
                 updated = true;
             }
 
-            if (LayoutStyle == ListLayoutStyle.Clip ||
-                LayoutStyle == ListLayoutStyle.Resize)
+            if (LayoutStyle == ListLayoutStyle.Clip)
             {
+                // clip size to list boundary
                 size.X = Math.Min(size.X, item.Width);
                 size.Y = Math.Min(size.Y, item.Height);
+            }
+            else if (LayoutStyle == ListLayoutStyle.Fill)
+            {
+                // expand the size if item doesn't fill to list width
+                size.X = Math.Max(size.X, item.Width);
+                size.Y = Math.Max(size.Y, item.Height);
             }
 
             if (size.X.NotZero() && item.Width.NotEqual(size.X))
@@ -145,7 +151,7 @@ namespace Ship_Game
         Vector2 MaxDimensions()
         {
             var d = new Vector2(Width, Height);
-            if (LayoutStyle == ListLayoutStyle.Resize)
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
             {
                 for (int i = 0; i < Items.Count; ++i)
                 {
@@ -161,22 +167,26 @@ namespace Ship_Game
         {
             Vector2 pos = Pos + Padding;
 
-            Vector2 dim = MaxDimensions();
+            Vector2 maxElemSize = MaxDimensions();
             // swap will enforce Width during Vertical and Height during Horizontal
-            Vector2 elemSize = Direction.Swapped() * (dim - Padding*2f);
+            Vector2 elemSize = Direction.Swapped() * (maxElemSize - Padding*2f);
             elemSize = elemSize.AbsVec(); // make sure size is absolute
 
-            if (elemSize.X.NotZero()) // Vertical list
-                Width = dim.X;
-            if (elemSize.Y.NotZero()) // horizontal list
-                Height = dim.Y;
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
+            {
+                // set initialize Width/Height of the list
+                if (elemSize.X.NotZero()) // Vertical list
+                    Width = maxElemSize.X;
+                if (elemSize.Y.NotZero()) // horizontal list
+                    Height = maxElemSize.Y;
+            }
             
-            float actualWidth = 0;
+            float maxItemWidth = 0;
 
             if (HeaderElement != null)
             {
                 LayoutItem(HeaderElement, ref pos, elemSize, Padding + new Vector2(2f));
-                actualWidth = HeaderElement.Width;
+                maxItemWidth = HeaderElement.Width;
             }
 
             for (int i = 0; i < Items.Count; ++i)
@@ -185,11 +195,11 @@ namespace Ship_Game
                 if (item.Visible)
                 {
                     LayoutItem(item, ref pos, elemSize, Padding);
-                    actualWidth = Math.Max(actualWidth, item.Width);
+                    maxItemWidth = Math.Max(maxItemWidth, item.Width);
                 }
             }
 
-            if (LayoutStyle == ListLayoutStyle.Resize)
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
             {
                 if (pos.Y > Bottom)
                     Bottom = pos.Y;
@@ -200,11 +210,15 @@ namespace Ship_Game
                 pos = (BotLeft + Padding*Direction.Swapped())
                     - Direction * (FooterElement.Size + Padding);
                 LayoutItem(FooterElement, pos, elemSize);
-                actualWidth = Math.Max(actualWidth, FooterElement.Width);
+                maxItemWidth = Math.Max(maxItemWidth, FooterElement.Width);
             }
             
-            if (actualWidth.NotZero())
-                Width = actualWidth;
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
+            {
+                if (maxItemWidth.NotZero())
+                    Width = maxItemWidth;
+            }
+
 
             RequiresLayout = false;
         }

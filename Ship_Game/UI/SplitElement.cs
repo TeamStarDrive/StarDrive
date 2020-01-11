@@ -60,6 +60,7 @@ namespace Ship_Game.UI
         {
             First.Update(deltaTime);
             Second.Update(deltaTime);
+            RequiresLayout |= First.RequiresLayout | Second.RequiresLayout;
             base.Update(deltaTime);
         }
         public override void Draw(SpriteBatch batch)
