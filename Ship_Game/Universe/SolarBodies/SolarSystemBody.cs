@@ -520,16 +520,12 @@ namespace Ship_Game
             moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * .75f, moonCount));
             for (int j = 0; j < moonCount; j++)
             {
-                float radius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
-                var moon = new Moon
-                {
-                    orbitTarget = newOrbital.guid,
-                    moonType = RandomMath.IntBetween(1, 29),
-                    scale = 1,
-                    OrbitRadius = radius,
-                    OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                    Position = newOrbital.Center.GenerateRandomPointOnCircle(radius)
-                };
+                float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                var moon = new Moon(newOrbital.guid,
+                                    RandomMath.IntBetween(1, 29),
+                                    1f, orbitRadius,
+                                    RandomMath.RandomBetween(0f, 360f),
+                                    newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));
                 ParentSystem.MoonList.Add(moon);
             }
         }

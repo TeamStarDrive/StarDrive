@@ -622,7 +622,6 @@ namespace Ship_Game
         void OnSymmetricDesignToggle()
         {
             IsSymmetricDesignMode       = !IsSymmetricDesignMode;
-            GlobalStats.SymmetricDesign = IsSymmetricDesignMode;
             BtnSymmetricDesign.Text     = SymmetricDesignBtnText;
             BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
         }
@@ -820,8 +819,8 @@ namespace Ship_Game
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
 
-        ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
-        LocalizedText SymmetricDesignBtnText => GlobalStats.SymmetricDesign ? 1985 : 1986;
+        ButtonStyle SymmetricDesignBtnStyle  => IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+        LocalizedText SymmetricDesignBtnText => IsSymmetricDesignMode ? 1985 : 1986;
 
         void LoadContentFinish()
         {
