@@ -365,23 +365,24 @@ namespace Ship_Game
 
         void TryBuildTerraformers()
         {
-            if (TerraformerInTheWorks || NumWantedTerraformers <= 0)
+            if (NumWantedTerraformers <= 0 || TerraformerInTheWorks)
                 return;
 
+            Building terraformer = TerraformersWeCanBuild;
             PlanetGridSquare tile = null; 
             if (TilesList.Any(t => !t.Habitable && !t.BuildingOnTile))
                 tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
 
             if (tile != null) // try to build a terraformer on a black tile first
             {
-                Construction.AddBuilding(TerraformersWeCanBuild, tile);
+                Construction.AddBuilding(terraformer, tile);
             }
-            else
+            else if (!Construction.AddBuilding(terraformer)) 
             {
-                if (BuildingList.Count == TileArea)
-                    TryScrapBuilding();
-
-                Construction.AddBuilding(TerraformersWeCanBuild);
+                // If could not add a terraformer anywhere due to planet being full
+                // try to scrap a building and then retry construction
+                if (TryScrapBuilding())
+                    Construction.AddBuilding(terraformer);
             }
         }
         
