@@ -145,8 +145,7 @@ namespace Ship_Game
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent = null;
-            StatTracker.SnapshotsDict.Clear();
-            StatTracker.SnapshotsDict = usData.Snapshots;
+            StatTracker.SetSnapshots(usData.Snapshots);
 
             step.Finish();
             return usData;
@@ -257,8 +256,6 @@ namespace Ship_Game
                     p.ParentSystem = system;
                     p.InitializePlanetMesh(this);
                 }
-                foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
-                foreach (Moon moon in system.MoonList)          AddObject(moon.So);
             }
         }
 

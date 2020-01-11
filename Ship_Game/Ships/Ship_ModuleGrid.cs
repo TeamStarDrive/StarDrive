@@ -186,7 +186,6 @@ namespace Ship_Game.Ships
                 return;
             ++NumExternalSlots;
             module.isExternal = true;
-            module.quadrant   = quadrant;
             UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: true);
         }
 
@@ -196,7 +195,6 @@ namespace Ship_Game.Ships
                 return;
             --NumExternalSlots;
             module.isExternal = false;
-            module.quadrant   = 0;
             UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: false);
         }
 

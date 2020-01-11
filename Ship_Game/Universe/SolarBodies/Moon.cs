@@ -11,48 +11,84 @@ namespace Ship_Game.Gameplay
 {
     public sealed class Moon : GameplayObject
     {
-        [Serialize(9)]  public float scale;
-        [Serialize(10)] public int   moonType;
-        [Serialize(11)] public Guid  orbitTarget;
-        [Serialize(12)] public float OrbitRadius;
-        [Serialize(13)] public float Zrotate;
-        [Serialize(14)] public float OrbitalAngle;
+        [Serialize(8)]  public float scale;
+        [Serialize(9)]  public int   moonType;
+        [Serialize(10)] public Guid  orbitTarget;
+        [Serialize(11)] public float OrbitRadius;
+        [Serialize(12)] public float OrbitalAngle;
+        [Serialize(13)] public Vector3 RotationRadians;
 
-        [XmlIgnore][JsonIgnore] public SceneObject So;
+        [XmlIgnore][JsonIgnore] SceneObject So;
         [XmlIgnore][JsonIgnore] Planet OrbitPlanet;
 
+        // Serialize from save game
         public Moon() : base(GameObjectType.Moon)
         {
         }
 
-        public override void Initialize()
+        // Creating new game:
+        public Moon(Guid orbitTgt, int moon, float moonScale,
+                    float orbitRadius, float orbitalAngle, Vector2 pos) : this()
         {
-            So = StaticMesh.GetPlanetarySceneMesh(ResourceManager.RootContent, "Model/SpaceObjects/planet_" + moonType);
-            So.ObjectType = ObjectType.Static;
-            So.Visibility = ObjectVisibility.Rendered;
-            So.World = Matrix.CreateScale(scale)*Matrix.CreateTranslation(new Vector3(Position, 2500f));
-
-            Radius = So.ObjectBoundingSphere.Radius * scale * 0.65f;
-            base.Initialize();
+            orbitTarget = orbitTgt;
+            moonType = moon;
+            scale = moonScale;
+            OrbitRadius = orbitRadius;
+            OrbitalAngle = orbitalAngle;
+            Position = pos;
         }
 
-        public void UpdatePosition(float elapsedTime)
+        void CreateSceneObject()
         {
-            Zrotate += 0.05f * elapsedTime;
+            if (So != null)
+                return;
+
+            var content = Empire.Universe?.ContentManager ?? ResourceManager.RootContent;
+            So = StaticMesh.GetPlanetarySceneMesh(content, "Model/SpaceObjects/planet_"+moonType);
+            So.ObjectType = ObjectType.Static;
+            So.Visibility = GlobalStats.AsteroidVisibility;
+            Radius = So.ObjectBoundingSphere.Radius * scale * 0.65f;
+
+            RotationRadians.X = (-30f).ToRadians();
+            RotationRadians.Y = (-30f).ToRadians();
+            So.AffineTransform(new Vector3(Position, 3200f), RotationRadians, scale);
+            ScreenManager.Instance.AddObject(So);
+        }
+
+        public void DestroySceneObject()
+        {
+            if (So != null)
+            {
+                So.Clear();
+                ScreenManager.Instance.RemoveObject(So);
+                So = null;
+            }
+        }
+
+        public void UpdateVisibleMoon(float elapsedTime)
+        {
+            RotationRadians.Z -= 0.05f * elapsedTime;
             if (!Empire.Universe.Paused)
             {
-                OrbitalAngle += (float)Math.Asin(15.0 / OrbitRadius);
+                OrbitalAngle += (float)Math.Asin(15f / OrbitRadius);
                 if (OrbitalAngle >= 360.0f) OrbitalAngle -= 360f;
             }
 
             if (OrbitPlanet == null)
+            {
                 OrbitPlanet = Empire.Universe.GetPlanet(orbitTarget);
+            }
 
             Position = OrbitPlanet.Center.PointFromAngle(OrbitalAngle, OrbitRadius);
-            So.World = Matrix.CreateScale(scale) 
-                        * Matrix.CreateRotationZ(-Zrotate) 
-                        * Matrix.CreateTranslation(new Vector3(Position, 3200f));
-            Update(elapsedTime);
+
+            if (So != null)
+            {
+                So.AffineTransform(new Vector3(Position, 3200f), RotationRadians, scale);
+            }
+            else
+            {
+                CreateSceneObject();
+            }
         }
     }
 }
