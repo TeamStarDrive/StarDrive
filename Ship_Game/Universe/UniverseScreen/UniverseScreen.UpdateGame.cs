@@ -74,7 +74,7 @@ namespace Ship_Game
 
             if (Paused)
             {
-                ++FrameId;
+                ++TurnId;
 
                 UpdateAllSystems(0.0f);
                 DeepSpaceThread(0.0f);
@@ -96,7 +96,7 @@ namespace Ship_Game
                         if (TurnFlipCounter >= 1)
                         {
                             TurnFlipCounter = 0;
-                            ++FrameId;
+                            ++TurnId;
                             ProcessTurnDelta(deltaTime);
                         }
                         TurnFlipCounter += GameSpeed;
@@ -106,7 +106,7 @@ namespace Ship_Game
                         // With higher GameSpeed, we take more than 1 turn
                         for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
                         {
-                            ++FrameId;
+                            ++TurnId;
                             ProcessTurnDelta(deltaTime);
                             deltaTime = FrameDeltaTime;
                         }

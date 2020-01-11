@@ -276,43 +276,9 @@ namespace Ship_Game
             if (!GlobalStats.TestLoad) return;
 
             Log.ShowConsoleWindow();
-            TestHullLoad();
             //TestTechTextures();
 
             Log.HideConsoleWindow();
-        }
-
-        static void TestHullLoad()
-        {
-            bool oldValue = RootContent.EnableLoadInfoLog;
-            RootContent.EnableLoadInfoLog = true;
-            foreach (ShipData hull in HullsList.OrderBy(race => race.ShipStyle).ThenBy(role => role.Role))
-            {
-                hull.PreLoadModel();
-            }
-            HelperFunctions.CollectMemory();
-            RootContent.EnableLoadInfoLog = oldValue;
-        }
-
-        public static bool PreLoadModels(Empire empire)
-        {
-            if (!GlobalStats.PreLoad)
-                return true;
-            Log.Warning($"Preloading Ship Models for {empire.Name}. ");
-            try
-            {
-                foreach (KeyValuePair<string, TechEntry> kv in empire.TechnologyDict)
-                {
-                    kv.Value.LoadShipModelsFromDiscoveredTech(empire);
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Error(e, "Model PreLoad failed");
-                Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1464/xna-texture-loading-consumes-excessive");
-                return false;
-            }
-            return true;
         }
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first

@@ -211,7 +211,7 @@ namespace Ship_Game
         ShipMoveCommands ShipCommands;
 
         // for really specific debugging
-        public static int FrameId;
+        public static int TurnId;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
@@ -477,16 +477,6 @@ namespace Ship_Game
             {
                 if (ship.TetherGuid != Guid.Empty)
                     ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
-            }
-
-            foreach (Empire empire in EmpireManager.Empires)
-            {
-                if (!ResourceManager.PreLoadModels(empire))
-                {
-                    ExitScreen();
-                    StarDriveGame.Instance.Exit();
-                    return;
-                }
             }
 
             ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
@@ -769,23 +759,16 @@ namespace Ship_Game
                         planet.SO = null;
                     }
                 }
+
                 foreach (Asteroid asteroid in solarSystem.AsteroidsList)
                 {
-                    if (asteroid.So!= null)
-                    {
-                        asteroid.So.Clear();
-                        ScreenManager.RemoveObject(asteroid.So);
-                    }
+                    asteroid.DestroySceneObject();
                 }
                 solarSystem.AsteroidsList.Clear();
+
                 foreach (Moon moon in solarSystem.MoonList)
                 {
-                    if (moon.So != null)
-                    {
-                        moon.So.Clear();
-                        ScreenManager.RemoveObject(moon.So);
-                        moon.So = null;
-                    }
+                    moon.DestroySceneObject();
                 }
                 solarSystem.MoonList.Clear();
             }

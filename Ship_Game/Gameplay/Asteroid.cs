@@ -8,46 +8,67 @@ namespace Ship_Game.Gameplay
 {
     public sealed class Asteroid : GameplayObject
     {
-        [Serialize(9)]  public Vector3 Position3D;
-        [Serialize(10)] public float Scale = 1.0f;
-        [XmlIgnore][JsonIgnore] private Vector3 RotationRadians;
-        [XmlIgnore][JsonIgnore] private readonly Vector3 Spin;
-        [XmlIgnore][JsonIgnore] private readonly int AsteroidId;
+        [Serialize(8)] public float Scale = 1.0f; // serialized
+        [XmlIgnore][JsonIgnore] Vector3 RotationRadians;
+        [XmlIgnore][JsonIgnore] readonly Vector3 Spin;
+        [XmlIgnore][JsonIgnore] readonly int AsteroidId;
+        [XmlIgnore][JsonIgnore] SceneObject So;
 
-        [XmlIgnore][JsonIgnore] public SceneObject So;
-
+        // Serialized (SaveGame) asteroid
         public Asteroid() : base(GameObjectType.Asteroid)
         {
             Spin            = RandomMath.Vector3D(0.01f, 0.2f);
             RotationRadians = RandomMath.Vector3D(0.01f, 1.02f);
             AsteroidId      = RandomMath.InRange(ResourceManager.NumAsteroidModels);
+            Radius = 50f; // some default radius for now
         }
 
-        public override void Initialize()
+        // New asteroid
+        public Asteroid(float scaleMin, float scaleMax, Vector2 pos) : this()
         {
+            Scale = RandomMath.RandomBetween(scaleMin, scaleMax);
+            Position = pos;
+        }
+
+        void CreateSceneObject()
+        {
+            if (So != null)
+                return;
+
             So = new SceneObject(ResourceManager.GetAsteroidModel(AsteroidId).Meshes[0])
             {
                 ObjectType = ObjectType.Static,
-                Visibility = ObjectVisibility.Rendered
+                Visibility = GlobalStats.AsteroidVisibility
             };
-
-            Radius   = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
-            Position = Center = new Vector2(Position3D.X, Position3D.Y);
-            So.AffineTransform(Position3D, RotationRadians, Scale);
+            Radius = So.ObjectBoundingSphere.Radius * Scale * 0.65f;
+            So.AffineTransform(new Vector3(Position, -500f), RotationRadians, Scale);
+            ScreenManager.Instance.AddObject(So);
         }
 
-        public override void Update(float elapsedTime)
+        public void DestroySceneObject()
         {
-             if (!Active
-                || Empire.Universe.viewState > UniverseScreen.UnivScreenState.SystemView
-                || !Empire.Universe.Frustum.Contains(Position, 10f)
-                )
+            if (So != null)
             {
-                return;
+                So.Clear();
+                ScreenManager.Instance.RemoveObject(So);
+                So = null;
             }
+        }
 
-            RotationRadians += Spin * elapsedTime;
-            So.AffineTransform(Position3D, RotationRadians, Scale);
+        // NOTE: Asteroids are updated ONLY if they are visible!
+        //       so we do NOT need additional visibility checks
+        public void UpdateVisibleAsteroid(float elapsedTime)
+        {
+            if (So != null)
+            {
+                Center = Position; // TODO: why do we have Center and Position both...
+                RotationRadians += Spin * elapsedTime;
+                So.AffineTransform(new Vector3(Position, -500f), RotationRadians, Scale);
+            }
+            else
+            {
+                CreateSceneObject();
+            }
         }
     }
 }
