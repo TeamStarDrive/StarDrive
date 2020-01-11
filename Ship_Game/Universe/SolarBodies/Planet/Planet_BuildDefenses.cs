@@ -36,7 +36,7 @@ namespace Ship_Game
         void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
-        float AverageProductionPercent      => (Prod.NetMaxPotential / 3).ClampMin(0.1f);
+        float EstimatedAverageProduction    => (Prod.NetMaxPotential / 3).ClampMin(0.1f);
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -187,7 +187,7 @@ namespace Ship_Game
 
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
-            float maxCost = (AverageProductionPercent * TimeVsCostThreshold) - Storage.Prod;
+            float maxCost = (EstimatedAverageProduction * TimeVsCostThreshold) - Storage.Prod;
             maxCost /= ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
 
@@ -224,7 +224,7 @@ namespace Ship_Game
         private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
             float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
-            float ratio   = netCost / AverageProductionPercent;
+            float ratio   = netCost / EstimatedAverageProduction;
             return ratio < threshold;
         }
 

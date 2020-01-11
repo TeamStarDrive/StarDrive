@@ -68,7 +68,7 @@ namespace Ship_Game
                     if (BuildBiospheres(budget))
                         return;
 
-                    TryScrapBuilding(); // we don't have room for expansion. Let's see if we can replace to a better value building
+                    ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
                 }
             }
         }
@@ -228,7 +228,7 @@ namespace Ship_Game
             if (CivilianBuildingInTheWorks)
                 return false;
 
-            Building bestBuilding = ChooseBestBuilding(BuildingsCanBuild, budget);
+            ChooseBestBuilding(BuildingsCanBuild, budget, out Building bestBuilding);
             return bestBuilding != null && Construction.AddBuilding(bestBuilding);
         }
 
@@ -237,7 +237,7 @@ namespace Ship_Game
             if (GovernorShouldNotScrapBuilding)
                 return false;  // Player decided not to allow governors to scrap buildings
 
-            Building worstBuilding = ChooseWorstBuilding(BuildingList);
+            ChooseWorstBuilding(BuildingList, out Building worstBuilding);
             if (worstBuilding == null)
                 return false;
 
@@ -246,47 +246,75 @@ namespace Ship_Game
             return true;
         }
 
-        Building ChooseBestBuilding(Array<Building> buildings, float budget)
+        void ReplaceBuilding(float budget)
         {
+            if (GovernorShouldNotScrapBuilding)
+                return;  // Player decided not to allow governors to scrap buildings
+
+            float worstBuildingScore = ChooseWorstBuilding(BuildingList, out Building worstBuilding);
+            if (worstBuilding == null || worstBuildingScore > 0)
+                return;
+
+            float replacementBudget = budget + worstBuilding.ActualMaintenance(this);
+            float bestBuildingScore = ChooseBestBuilding(BuildingsCanBuild, replacementBudget, out Building bestBuilding);
+            if (bestBuilding == null)
+                return;
+
+            if (bestBuildingScore > worstBuildingScore)
+            {
+                ScrapBuilding(worstBuilding);
+                Construction.AddBuilding(bestBuilding);
+
+                Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} Replaced {worstBuilding.Name} " +
+                                             $"with {bestBuilding.Name} on planet {Name}");
+            }
+        }
+
+        float ChooseBestBuilding(Array<Building> buildings, float budget, out Building best)
+        {
+            best = null;
             if (buildings.Count == 0)
-                return null;
+                return 0;
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Cyan, $"==== Planet  {Name}  CHOOSE BEST BUILDING, Budget: {budget} ====");
 
-            Building best      = null;
-            float highestScore = 0f; // So a building with a value of 0 will not be built.
 
+            float highestScore = 0f; // So a building with a value of 0 will not be built.
+            float incomingProd = IncomingFreighters.Sum(f => f.GetProduction());
+            float expectedProd = Storage.Prod + incomingProd;
+            
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
                 if (NotSuitableForBuildEval(b, budget))
                     continue;
 
-                float buildingScore = EvaluateBuilding(b);
+                float constructionMultiplier = ConstructionMultiplier(b, expectedProd);
+                float buildingScore          = EvaluateBuilding(b, constructionMultiplier);
                 if (buildingScore > highestScore)
                 {
-                    best = b;
+                    best         = b;
                     highestScore = buildingScore;
                 }
             }
 
             if (best != null && IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Green, $"-- Planet {Name}: Best Building is {best.Name} " +
-                                            $"with score of {highestScore} Budget: {budget} -- ");
+                                            $"with score of {highestScore}");
 
-            return best;
+            return highestScore;
         }
 
-        Building ChooseWorstBuilding(Array<Building> buildings)
+        float ChooseWorstBuilding(Array<Building> buildings, out Building worst)
         {
+            worst = null;
             if (buildings.Count == 0)
-                return null;
+                return 0;
 
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE WORST BUILDING ====");
 
-            Building worst = null;
             float lowestScore = float.MaxValue; // So a building with a value of 0 will not be built.
 
             for (int i = 0; i < buildings.Count; i++)
@@ -295,7 +323,7 @@ namespace Ship_Game
                 if (NotSuitableForScrapEval(b))
                     continue;
 
-                float buildingScore = EvaluateBuilding(b);
+                float buildingScore = EvaluateBuilding(b, 1);
                 if (buildingScore < lowestScore)
                 {
                     worst = b;
@@ -307,7 +335,7 @@ namespace Ship_Game
                 Log.Info(ConsoleColor.Red, $"-- Planet {Name}: Best Building is {worst.Name} " +
                                             $"with score of {lowestScore} -- ");
 
-            return worst;
+            return lowestScore;
         }
 
         bool NotSuitableForBuildEval(Building b, float budget)
@@ -315,14 +343,8 @@ namespace Ship_Game
             if (b.IsMilitary || b.IsTerraformer || b.IsBiospheres) 
                 return true; // Different logic for these
 
-            if (b.IsHarmfulToEnv && TerraformingHere)
-                return true; // Do not build environmental harmful buildings while terraforming
-
             if (b.ActualMaintenance(this) > budget && !b.IsMoneyBuilding)
                 return true; // Too expensive for us and its not getting more juice from the population
-
-            if ((b.Cost - Storage.Prod) / AverageProductionPercent > 50)
-                return true; // Too much time to build it
 
             return false;
         }
@@ -342,7 +364,7 @@ namespace Ship_Game
         }
 
         // Gretman function, to support DoGoverning()
-        float EvaluateBuilding(Building b)
+        float EvaluateBuilding(Building b, float constructionMultiplier)
         {
             float score = 0;
             score += EvalTraits(Priorities[ColonyPriority.FoodFlat], b.PlusFlatFoodAmount);
@@ -351,23 +373,25 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ProdPerCol], b.PlusProdPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
             score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation / 5);
-            score += EvalTraits(Priorities[ColonyPriority.PopCap], b.MaxPopIncrease / 100);
+            score += EvalTraits(Priorities[ColonyPriority.PopCap], b.MaxPopIncrease / 200);
             score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], (float)b.StorageAdded / 50);
-            score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount);
-            score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist);
+            score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount * 3);
+            score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist * 10);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist * 3);
             score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 10);
             score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category));
             score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
 
             score *= FertilityMultiplier(b);
-
+            score *= constructionMultiplier;
             if (IsPlanetExtraDebugTarget())
             {
                  if (score > 0f)
-                     Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-20}  {"SUITABLE",-16} {score.SignString()}");
+                     Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-16} " +
+                                                 $"{score.SignString()} {"Multiplier:",-8} {constructionMultiplier.String(2)}");
                  else
-                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-20}  {"NOT GOOD",-16} {score.SignString()}");
+                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-16} " +
+                                                    $"{score.SignString()} {"Multiplier:",-8} {constructionMultiplier.String(2)}");
             }
 
             return score;
@@ -391,6 +415,16 @@ namespace Ship_Game
                 return projectedMaxFertility.ClampMin(0); // multiplier will be smaller in direct relation to its effect
 
             return 1;
+        }
+
+        float ConstructionMultiplier(Building b, float expectedProd)
+        {
+            if (expectedProd >= b.Cost)
+                return 1;
+
+            float missingProd = b.Cost - expectedProd;
+            float multiplier  = EstimatedAverageProduction / missingProd;
+            return multiplier.Clamped(0,1); 
         }
 
         void TryBuildTerraformers()
