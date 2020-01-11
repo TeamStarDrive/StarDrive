@@ -103,7 +103,7 @@ namespace Ship_Game
             p.OrbitalRadius      = psdata.OrbitalDistance;
             p.BasePopPerTile     = psdata.BasePopPerTile;
 
-            p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility, psdata.BuildingsFertility);
+            p.SetBaseFertility(psdata.Fertility, psdata.MaxFertility);
 
             p.MineralRichness       = psdata.Richness;
             p.HasRings              = psdata.HasRings;
@@ -127,6 +127,7 @@ namespace Ship_Game
                 };
                 if (pgs.Biosphere)
                     p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
+
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
@@ -148,6 +149,7 @@ namespace Ship_Game
                 pgs.building.Scrappable = template.Scrappable;
                 pgs.building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.building);
+                p.AddBuildingsFertility(pgs.building.MaxFertilityOnBuild);
             }
             return p;
         }
