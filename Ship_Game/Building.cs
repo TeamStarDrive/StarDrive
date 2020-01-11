@@ -272,7 +272,7 @@ namespace Ship_Game
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.AddMaxBaseFertility(MaxFertilityOnBuild); 
+            p.AddBuildingsFertility(MaxFertilityOnBuild); 
             p.BuildingList.Add(this);
             if (IsSpacePort)
             {

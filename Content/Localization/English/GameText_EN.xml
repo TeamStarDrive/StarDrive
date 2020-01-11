@@ -4723,10 +4723,6 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Population (in Billions) vs. Max Population available for your Empire. Percentage indicates how full the colony is. Lower Max Population than the current population means that the current Race occupying this planet is better suited to the environment than your Empire.</Text>
     </Token>
     <Token>
-      <Index>1930</Index>
-      <Text> was removed as part of the terraforming process due to its harmful environmental effect.</Text>
-    </Token>
-    <Token>
       <Index>1941</Index>
       <Text>Governor Will Not Scrap Buildings</Text>
     </Token>
