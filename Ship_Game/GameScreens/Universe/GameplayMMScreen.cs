@@ -121,7 +121,7 @@ namespace Ship_Game
 
             UIList list = AddList(new Vector2(c.X - 84, c.Y - 100));
             list.Padding = new Vector2(2f, 12f);
-            list.LayoutStyle = ListLayoutStyle.Resize;
+            list.LayoutStyle = ListLayoutStyle.ResizeList;
 
             Save = list.AddButton(300, Save_OnClick);
             list.AddButton(text: 2,   Load_OnClick);

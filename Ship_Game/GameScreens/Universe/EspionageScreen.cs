@@ -124,7 +124,7 @@ namespace Ship_Game
 
                 UIList list = AddList(new Vector2(Pos.X + 10, rect.Y + 40));
                 list.Padding = new Vector2(10f, 10f);
-                list.LayoutStyle = ListLayoutStyle.Resize;
+                list.LayoutStyle = ListLayoutStyle.ResizeList;
                 list.Direction = new Vector2(1f, 0f);
 
                 foreach (Empire e in empires)
