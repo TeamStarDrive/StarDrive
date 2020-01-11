@@ -647,7 +647,6 @@ namespace Ship_Game
             [Serialize(36)] public bool GovMilitia;
             [Serialize(37)] public int NumShipyards;
             [Serialize(38)] public bool DontScrapBuildings;
-            [Serialize(39)] public float BuildingsFertility;
         }
 
         public struct ProjectileSaveData

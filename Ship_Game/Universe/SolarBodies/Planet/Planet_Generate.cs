@@ -128,7 +128,7 @@ namespace Ship_Game
                 Population = MaxPopulation;
                 MineralRichness = 1f;
                 colonyType = ColonyType.Core;
-                SetBaseFertility(2f, 2f, 0f);
+                SetBaseFertility(2f, 2f);
             }
         }
 
