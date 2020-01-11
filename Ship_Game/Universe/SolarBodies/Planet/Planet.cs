@@ -766,14 +766,13 @@ namespace Ship_Game
                 BaseFertility = BaseFertility.Clamped(0, BaseFertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
-        public void SetBaseFertility(float fertility, float maxFertility, float buildingsFertility)
+        public void SetBaseFertility(float fertility, float maxFertility)
         {
             BaseMaxFertility   = maxFertility;
             BaseFertility      = fertility;
-            BuildingsFertility = buildingsFertility;
         }
 
-        public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility, 0);
+        public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility);
 
         public void AddMaxBaseFertility(float amount)
         {
