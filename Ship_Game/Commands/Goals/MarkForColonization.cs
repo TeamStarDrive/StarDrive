@@ -28,6 +28,12 @@ namespace Ship_Game.Commands.Goals
         {
             empire = e;
             ColonizationTarget = toColonize;
+            FinishedShip = FindIdleColonyShip();
+            if (FinishedShip != null)
+            {
+                ChangeToStep(OrderShipToColonizeWithEscort);
+                Evaluate();
+            }
         }
 
         GoalStep TargetPlanetStatus()
@@ -59,7 +65,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (!empire.isPlayer)
+            if (!empire.isPlayer || empire.AutoColonize)
             {
                 var system = ColonizationTarget.ParentSystem;
                 float str = empire.GetEmpireAI().ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, empire);
@@ -77,10 +83,6 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
                 return GoalStep.GoalFailed;
-
-            FinishedShip = FindIdleColonyShip();
-            if (FinishedShip != null)
-                return GoalStep.GoToNextStep;
 
             if (!ShipBuilder.PickColonyShip(empire, out Ship colonyShip))
                 return GoalStep.GoalFailed;
@@ -150,7 +152,11 @@ namespace Ship_Game.Commands.Goals
             if (FinishedShip == null)
                 return GoalStep.GoalFailed;
 
-            if (FinishedShip.AI.State != AIState.Colonize) return GoalStep.RestartGoal;
+            if (FinishedShip.AI.State != AIState.Colonize)
+                return GoalStep.GoalFailed;
+
+            if (FinishedShip.AI.GoalTarget != ColonizationTarget.Center)
+                return GoalStep.GoalFailed;
 
             if (ColonizationTarget.Owner == null) return GoalStep.TryAgain;
 
