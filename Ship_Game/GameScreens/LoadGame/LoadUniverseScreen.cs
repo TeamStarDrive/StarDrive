@@ -84,6 +84,8 @@ namespace Ship_Game
             {
                 // heavily throttle main thread, so the worker thread can turbo
                 Thread.Sleep(33);
+                if (IsDisposed) // just in case we died
+                    return;
             }
 
             if (LoadingFailed) // fatal error when loading save game
@@ -255,8 +257,6 @@ namespace Ship_Game
                     p.ParentSystem = system;
                     p.InitializePlanetMesh(this);
                 }
-                foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
-                foreach (Moon moon in system.MoonList)          AddObject(moon.So);
             }
         }
 

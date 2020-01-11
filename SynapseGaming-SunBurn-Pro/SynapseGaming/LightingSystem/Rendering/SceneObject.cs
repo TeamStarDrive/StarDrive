@@ -19,7 +19,7 @@ namespace SynapseGaming.LightingSystem.Rendering
     /// </summary>
     public class SceneObject : IMovableObject, INamedObject, ISceneObject
     {
-        ObjectVisibility ObjVisibility = ObjectVisibility.RenderedAndCastShadows;
+        ObjectVisibility ObjVisibility = ObjectVisibility.Rendered;
         readonly List<RenderableMesh> Meshes = new List<RenderableMesh>(16);
         Matrix WorldMatrix = Matrix.Identity;
 

@@ -251,7 +251,7 @@ namespace Ship_Game.Ships
 
         public void DrawTacticalIcon(UniverseScreen us, UniverseScreen.UnivScreenState viewState)
         {
-            float shipWorldRadius = ShipSO.WorldBoundingSphere.Radius;
+            float shipWorldRadius = Radius;
             us.ProjectToScreenCoords(Position, shipWorldRadius, out Vector2 screenPos, out float screenRadius);
 
             DrawFlagIcons(us, screenPos, screenRadius);
