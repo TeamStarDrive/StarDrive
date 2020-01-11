@@ -155,7 +155,7 @@ namespace Ship_Game
             foreach (IEmpireData e in ResourceManager.MajorRaces)
                 ChooseRaceList.AddItem(new RaceArchetypeListItem(this, e));
 
-            UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y - 30);
+            UIList optionButtons = AddList(NameMenu.Right + 40 - 22, NameMenu.Y);
             optionButtons.CaptureInput = true;
             optionButtons.Padding = new Vector2(2,3);
             optionButtons.Color = Color.Black.Alpha(0.5f);

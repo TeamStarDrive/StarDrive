@@ -348,7 +348,7 @@ namespace Ship_Game
         public UIList AddList(Vector2 pos)
         {
             UIList list = Add(new UIList(pos, new Vector2(100f, 100f)));
-            list.LayoutStyle = ListLayoutStyle.Resize;
+            list.LayoutStyle = ListLayoutStyle.ResizeList;
             return list;
         }
 
