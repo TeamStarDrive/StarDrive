@@ -89,7 +89,7 @@ namespace Ship_Game
             Data.EmpireList.Add(player);
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
-            StatTracker.SnapshotsDict.Clear();
+            StatTracker.Reset();
 
             CurrentGame.StartNew(Data, pace);
         }
@@ -221,15 +221,7 @@ namespace Ship_Game
                 }
                 foreach (Asteroid asteroid in wipSystem.AsteroidsList)
                 {
-                    asteroid.Position3D.X += wipSystem.Position.X;
-                    asteroid.Position3D.Y += wipSystem.Position.Y;
-                    asteroid.Initialize();
-                    AddObject(asteroid.So);
-                }
-                foreach (Moon moon in wipSystem.MoonList)
-                {
-                    moon.Initialize();
-                    AddObject(moon.So);
+                    asteroid.Position += wipSystem.Position;
                 }
                 foreach (Ship ship in wipSystem.ShipList)
                 {

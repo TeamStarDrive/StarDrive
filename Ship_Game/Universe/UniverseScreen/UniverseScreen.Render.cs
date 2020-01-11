@@ -537,7 +537,7 @@ namespace Ship_Game
         readonly Array<Ship> SceneObjFrontQueue = new Array<Ship>(32);
         readonly Array<Ship> SceneObjBackQueue  = new Array<Ship>(32);
 
-        public void QueueShipSceneObject(Ship ship)
+        public void QueueSceneObjectCreation(Ship ship)
         {
             lock (SceneObjFrontQueue)
             {
@@ -557,7 +557,11 @@ namespace Ship_Game
             for (int i = SceneObjBackQueue.Count - 1; i >= 0; --i)
             {
                 Ship ship = SceneObjBackQueue[i];
-                if (!ship.Active)
+                if (!ship.Active) // dead or removed
+                {
+                    SceneObjBackQueue.RemoveAtSwapLast(i);
+                }
+                else if (ship.GetSO() != null) // already created
                 {
                     SceneObjBackQueue.RemoveAtSwapLast(i);
                 }

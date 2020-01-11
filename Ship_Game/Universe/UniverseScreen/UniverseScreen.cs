@@ -759,23 +759,16 @@ namespace Ship_Game
                         planet.SO = null;
                     }
                 }
+
                 foreach (Asteroid asteroid in solarSystem.AsteroidsList)
                 {
-                    if (asteroid.So!= null)
-                    {
-                        asteroid.So.Clear();
-                        ScreenManager.RemoveObject(asteroid.So);
-                    }
+                    asteroid.DestroySceneObject();
                 }
                 solarSystem.AsteroidsList.Clear();
+
                 foreach (Moon moon in solarSystem.MoonList)
                 {
-                    if (moon.So != null)
-                    {
-                        moon.So.Clear();
-                        ScreenManager.RemoveObject(moon.So);
-                        moon.So = null;
-                    }
+                    moon.DestroySceneObject();
                 }
                 solarSystem.MoonList.Clear();
             }
@@ -821,7 +814,7 @@ namespace Ship_Game
             neb_particles?.UnloadContent();
 
             Empire.Universe = null;
-            StatTracker.SnapshotsDict.Clear();
+            StatTracker.Reset();
             EmpireManager.Clear();
 
             HelperFunctions.CollectMemory();
