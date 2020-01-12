@@ -11,7 +11,7 @@ namespace Ship_Game
     {
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
-
+        protected bool IsAssembling = false;
         // Speed LIMIT of the entire ship group, so the ships can stay together
         public float SpeedLimit { get; private set; }
 
@@ -120,6 +120,8 @@ namespace Ship_Game
 
         public void AssembleFleet(Vector2 finalPosition, Vector2 finalDirection, bool forceAssembly = false)
         {
+            IsAssembling = true;
+
             if (!finalDirection.IsUnitVector())
                 Log.Error($"AssembleFleet newDirection {finalDirection} must be a direction unit vector!");
             
@@ -434,7 +436,7 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (!ship.EMPdisabled && ship.hasCommand && ship.Active)
+                if (ship.IsReadyForWarp)
                 {
                     inCombat |= ship.InCombat;
                     if (!ship.Center.InRadius(position + ship.FleetOffset, radius))
@@ -454,7 +456,8 @@ namespace Ship_Game
         {
             InCombat = 0,
             EnemiesNear,
-            ClearSpace
+            ClearSpace,
+            NotApplicable
         }
 
         public CombatStatus FleetInAreaInCombat(Vector2 position, float radius)
@@ -462,24 +465,30 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                CombatStatus status = SetCombatMoveAtPosition(ship, position, radius);
+                CombatStatus status = CombatStatusOfShipInArea(ship, position, radius);
                 if (status != CombatStatus.ClearSpace)
+                {
+                    ClearPriorityOrderIfSubLight(ship);
                     return status;
+                }
             }
             return CombatStatus.ClearSpace;
         }
 
-        protected CombatStatus SetCombatMoveAtPosition(Ship ship, Vector2 position, float radius)
+        protected CombatStatus CombatStatusOfShipInArea(Ship ship, Vector2 position, float radius)
         {
             if (ship.Center.OutsideRadius(position, radius))
                 return CombatStatus.ClearSpace;
 
-            if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
-                ship.AI.ClearPriorityOrder();
-
             if (ship.InCombat) return CombatStatus.InCombat;
             if (ship.AI.BadGuysNear) return CombatStatus.EnemiesNear;
             return CombatStatus.ClearSpace;
+        }
+
+        protected void ClearPriorityOrderIfSubLight(Ship ship)
+        {
+            if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
+                ship.AI.ClearPriorityOrder();
         }
 
         public void SetSpeed()

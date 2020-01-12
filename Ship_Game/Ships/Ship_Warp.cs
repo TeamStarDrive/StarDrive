@@ -15,7 +15,6 @@ namespace Ship_Game.Ships
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
         public const float MaxSubLightSpeed = 1800f;
-
         bool IsSpooling;
         public float InhibitedTimer;
         public bool Inhibited { get; private set; }
@@ -29,6 +28,16 @@ namespace Ship_Game.Ships
         // safe Warp out distance so the ship still has time to slow down
         public float WarpOutDistance => 3200f + MaxSTLSpeed * 3f;
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
+
+        public bool IsReadyForWarp
+        {
+            get
+            {
+                ShipStatus warpReady = ShipReadyForWarp();
+                return warpReady > ShipStatus.Poor && warpReady < ShipStatus.NotApplicable;
+            }
+        }
+        
 
         public void ResetJumpTimer()
         {
@@ -58,10 +67,12 @@ namespace Ship_Game.Ships
             if (IsSpoolingOrInWarp)
                 return;
 
-            if (Carrier.RecallingFighters())
+            var warpStatus = ShipReadyForWarp();
+
+            if (warpStatus == ShipStatus.Poor)
                 return;
 
-            if (EnginesKnockedOut || Inhibited)
+            if (warpStatus == ShipStatus.Critical)
             {
                 HyperspaceReturn();
                 return;
@@ -182,33 +193,33 @@ namespace Ship_Game.Ships
 
         public ShipStatus ShipReadyForWarp()
         {
-            if (MaxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active)
+            if (MaxFTLSpeed < 1 || !Active)
                 return ShipStatus.NotApplicable;
 
-            if (AI.HasPriorityOrder || AI.State == AIState.Resupply)
-                return ShipStatus.NotApplicable;
-
-            if (!IsSpooling && WarpDuration() < ShipStatus.Good)
+            if (Inhibited || EnginesKnockedOut || EMPdisabled || !IsSpooling && WarpDuration() < ShipStatus.Good)
                 return ShipStatus.Critical;
 
             if (engineState == MoveState.Warp)
-                return ShipStatus.Good;
+                return ShipStatus.Excellent;
 
-            if (Carrier.HasActiveHangars)
+            if (Carrier.RecallingFighters())
                 return ShipStatus.Poor;
             return ShipStatus.Excellent;
         }
 
         public ShipStatus ShipReadyForFormationWarp()
         {
-            //the original logic here was confusing. If aistate was formation warp it ignored all other
-            //cases and returned good. I am guessing that once the state is formation warp it is
-            //expecting it has passes all other cases. But i can not verify that as the logic is spread out.
-            //I believe what we need here is to centralize the engine and navigation logic.
+            if (AI.HasPriorityOrder || AI.State == AIState.Resupply)
+                return ShipStatus.NotApplicable;
+
             ShipStatus warpStatus = ShipReadyForWarp();
-            if (warpStatus > ShipStatus.Poor && warpStatus != ShipStatus.NotApplicable)
-                if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
-            return warpStatus;
+
+            if (warpStatus > ShipStatus.Poor)
+            {
+                return ShipStatus.Good;
+            }
+
+            return ShipStatus.Poor;
         }
 
     }
