@@ -117,7 +117,7 @@ namespace Ship_Game
             perCol += (1 - Storage.FoodRatio) * Fertility;
             flat   += 1 - Storage.FoodRatio;
 
-            flat   = ApplyGovernorBonus(flat, 1f, 0.5f, 0.5f, 2f, 0.5f);
+            flat   = ApplyGovernorBonus(flat, 1f, 1f, 1f, 1.5f, 1f);
             perCol = ApplyGovernorBonus(perCol, 1f, 0.5f, 0.5f, 2f, 0.5f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
