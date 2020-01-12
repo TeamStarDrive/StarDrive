@@ -20,7 +20,11 @@
       <UID>Fleet Supply</UID>
     </LeadsToTech>
   </LeadsTo>
-  <ModulesUnlocked />
+  <ModulesUnlocked>
+    <UnlockedMod>
+      <ModuleUID>ConstructionArray</ModuleUID>
+    </UnlockedMod>
+  </ModulesUnlocked>
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
