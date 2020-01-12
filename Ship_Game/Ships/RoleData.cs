@@ -67,7 +67,7 @@ namespace Ship_Game.Ships
             // troops ship
             if (HullRole >= ShipData.RoleName.freighter)
             {
-                if (SurfaceAreaPercentOf(m => m.ModuleType == ShipModuleType.Construction).Greater(0))
+                if (Modules.Any(ShipModuleType.Construction))
                     return ShipData.RoleName.construction;
 
                 if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f)
