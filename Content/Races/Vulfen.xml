@@ -9,7 +9,7 @@
   <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
   <DefaultTroopShip>Vulfen Troop</DefaultTroopShip>
   <DefaultColonyShip>Colony Ship</DefaultColonyShip>
-  <DefaultConstructor>Small Transport</DefaultConstructor>
+  <DefaultConstructor>Small Constructor</DefaultConstructor>
   
   
   <RebelName>Vulfar Technocrats</RebelName>
