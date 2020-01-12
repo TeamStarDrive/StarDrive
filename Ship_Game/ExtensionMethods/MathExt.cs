@@ -87,6 +87,18 @@ namespace Ship_Game
             return Max(min, value);
         }
 
+        /// <summary>
+        /// Constrain upper end of value
+        /// </summary>
+        public static float ClampMax(this float value, float max)
+        {
+            return Min(max, value);
+        }
+        public static int ClampMax(this int value, int max)
+        {
+            return Min(max, value);
+        }
+
 
         // This is a common pattern in the codebase, there is some amount
         // and we wish to subtract another value from it, but not beyond 0

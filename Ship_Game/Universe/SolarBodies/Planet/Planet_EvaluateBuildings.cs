@@ -54,11 +54,11 @@ namespace Ship_Game
             UpdateGovernorPriorities();
             if (budget < 0f)
             {
-                TryScrapBuilding(); // we must scrap something to bring us above of our debt tolerance
+                TryScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
             }
             else
             {
-                TryBuildTerraformers(); // Build Terraformers if needed
+                TryBuildTerraformers(budget); // Build Terraformers if needed
                 if (FreeHabitableTiles > 0)
                 {
                     SimpleBuild(budget); // lets try to build something within our budget
@@ -95,19 +95,17 @@ namespace Ship_Game
             }
         }
 
-
         void CalcFoodPriorities()
         {
             if (IsCybernetic)
                 return;
 
-            float netFoodPerColonist = Food.NetYieldPerColonist - FoodConsumptionPerColonist;
-            float flatFoodToFeedAll  = FoodConsumptionPerColonist * PopulationBillion - Food.NetFlatBonus;
+            float foodToFeedAll      = FoodConsumptionPerColonist * PopulationBillion;
+            float flatFoodToFeedAll  = foodToFeedAll - Food.NetFlatBonus;
             float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
 
-            float flat   = (flatFoodToFeedAll - netFoodPerColonist - Food.NetFlatBonus).ClampMin(0);
-            float perCol = 10 - netFoodPerColonist - Food.NetFlatBonus*fertilityBonus;
-            perCol       = (perCol * Fertility).ClampMin(0);
+            float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).ClampMin(0);
+            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).ClampMin(0);
             if (IsStarving)
             {
                 perCol += 2 * Fertility;
@@ -117,8 +115,8 @@ namespace Ship_Game
             perCol += (1 - Storage.FoodRatio) * Fertility;
             flat   += 1 - Storage.FoodRatio;
 
-            flat   = ApplyGovernorBonus(flat, 1f, 1f, 1f, 1.5f, 1f);
-            perCol = ApplyGovernorBonus(perCol, 1f, 0.5f, 0.5f, 2f, 0.5f);
+            flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 1.5f, 1f);
+            perCol = ApplyGovernorBonus(perCol, 1.25f, 0.25f, 0.25f, 2f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
             Priorities[ColonyPriority.FoodPerCol] = perCol;
         }
@@ -132,7 +130,8 @@ namespace Ship_Game
             float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).ClampMin(0) 
                                        : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).ClampMin(0);
 
-            float perRichness = (MineralRichness * 10 - Prod.NetFlatBonus).ClampMin(0);
+            float richnessMultiplier = NonCybernetic ? 5 : 10;
+            float perRichness = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus).ClampMin(0);
             float perCol      = 10 - netProdPerColonist - flatProdToFeedAll*richnessBonus;
             perCol            = (perCol * MineralRichness).ClampMin(0);
             if (IsCybernetic && IsStarving)
@@ -165,8 +164,8 @@ namespace Ship_Game
 
         void CalcStoragePriorities()
         {
-            float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 5
-                                          : Storage.ProdRatio * 10;
+            float storage = NonCybernetic ? (Storage.FoodRatio + Storage.ProdRatio) * 2.5f
+                                          : Storage.ProdRatio * 5f;
             storage += Level;
             storage  = ApplyGovernorBonus(storage, 1f, 1f, 0.5f, 1.25f, 1f);
             Priorities[ColonyPriority.StorageNeeds] = storage;
@@ -175,9 +174,9 @@ namespace Ship_Game
         void CalcResearchPriorities()
         {
             float flat   = 10 - Res.NetFlatBonus;
-            float perCol = 10 * PopulationBillion;
-            flat         = ApplyGovernorBonus(flat, 1f, 0.25f, 2f, 0.25f, 0.25f);
-            perCol       = ApplyGovernorBonus(perCol, 1f, 0.25f, 2f, 0.25f, 0.25f);
+            float perCol = PopulationBillion - Res.NetYieldPerColonist;
+            flat         = ApplyGovernorBonus(flat, 0.75f, 0.25f, 1f, 0.25f, 0.25f);
+            perCol       = ApplyGovernorBonus(perCol, 0.75f, 0.25f, 1f, 0.25f, 0.25f);
             Priorities[ColonyPriority.ResearchFlat]   = flat;
             Priorities[ColonyPriority.ResearchPerCol] = perCol;
         }
@@ -218,8 +217,8 @@ namespace Ship_Game
                 case ColonyType.Military:     multiplier = military;     break;
                 default:                      multiplier = 1;            break;
             }
-
-            value = (value * multiplier).Clamped(0, 10);
+            value = value.ClampMax(10);
+            value = (value * multiplier).Clamped(0, 20);
             return (float)Math.Round(value, 0);
         }
 
@@ -232,17 +231,22 @@ namespace Ship_Game
             return bestBuilding != null && Construction.AddBuilding(bestBuilding);
         }
 
-        bool TryScrapBuilding()
+        bool TryScrapBuilding(float budget)
         {
             if (GovernorShouldNotScrapBuilding)
                 return false;  // Player decided not to allow governors to scrap buildings
 
-            ChooseWorstBuilding(BuildingList, out Building worstBuilding);
-            if (worstBuilding == null)
+            Building toScrap;
+            if (budget > 0)
+                ChooseWorstBuilding(BuildingList, out toScrap);
+            else
+                ChooseMostExpensiveBuilding(BuildingList, out toScrap);
+
+            if (toScrap == null)
                 return false;
 
-            Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {worstBuilding.Name} on planet {Name}");
-            ScrapBuilding(worstBuilding); // scrap the worst building we have on the planet
+            Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {toScrap.Name} on planet {Name}");
+            ScrapBuilding(toScrap); // scrap the worst/most expensive building we have on the planet
             return true;
         }
 
@@ -252,7 +256,7 @@ namespace Ship_Game
                 return;  // Player decided not to allow governors to scrap buildings
 
             float worstBuildingScore = ChooseWorstBuilding(BuildingList, out Building worstBuilding);
-            if (worstBuilding == null || worstBuildingScore > 0)
+            if (worstBuilding == null)
                 return;
 
             float replacementBudget = budget + worstBuilding.ActualMaintenance(this);
@@ -260,7 +264,7 @@ namespace Ship_Game
             if (bestBuilding == null)
                 return;
 
-            if (bestBuildingScore > worstBuildingScore)
+            if (bestBuildingScore > worstBuildingScore + 10)
             {
                 ScrapBuilding(worstBuilding);
                 Construction.AddBuilding(bestBuilding);
@@ -332,10 +336,31 @@ namespace Ship_Game
             }
 
             if (worst != null && IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Red, $"-- Planet {Name}: Best Building is {worst.Name} " +
+                Log.Info(ConsoleColor.Red, $"-- Planet {Name}: Worst Building is {worst.Name} " +
                                             $"with score of {lowestScore} -- ");
 
             return lowestScore;
+        }
+
+        void ChooseMostExpensiveBuilding(Array<Building> buildings, out Building expensive)
+        {
+            expensive = null;
+            if (buildings.Count == 0)
+                return;
+
+            if (IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE MOST EXPENSIVE BUILDING ====");
+
+            float maint = 0;
+            for (int i = 0; i < buildings.Count; i++)
+            {
+                Building b = buildings[i];
+                if (NotSuitableForScrapEval(b))
+                    continue;
+
+                if (b.ActualMaintenance(this) >  maint)
+                    expensive = b;
+            }
         }
 
         bool NotSuitableForBuildEval(Building b, float budget)
@@ -379,19 +404,19 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist * 10);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist * 3);
             score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 10);
-            score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category));
+            score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category) * 2);
             score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
 
             score *= FertilityMultiplier(b);
             score *= constructionMultiplier;
-            if (IsPlanetExtraDebugTarget())
+             if (IsPlanetExtraDebugTarget())
             {
                  if (score > 0f)
-                     Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-16} " +
-                                                 $"{score.SignString()} {"Multiplier:",-8} {constructionMultiplier.String(2)}");
+                     Log.Info(ConsoleColor.Cyan, $"Eval BUILD  {b.Name,-33}  {"SUITABLE",-10} " +
+                                                 $"{score.SignString()} {"",3} {"Multiplier:",-10} {constructionMultiplier.String(2)}");
                  else
-                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-16} " +
-                                                    $"{score.SignString()} {"Multiplier:",-8} {constructionMultiplier.String(2)}");
+                     Log.Info(ConsoleColor.DarkRed, $"Eval BUILD  {b.Name,-33}  {"NOT GOOD",-10} " +
+                                                    $"{score.SignString()} {"", 3} {"Multiplier:",-10} {constructionMultiplier.String(2)}");
             }
 
             return score;
@@ -427,7 +452,7 @@ namespace Ship_Game
             return multiplier.Clamped(0,1); 
         }
 
-        void TryBuildTerraformers()
+        void TryBuildTerraformers(float budget)
         {
             if (NumWantedTerraformers <= 0 || TerraformerInTheWorks)
                 return;
@@ -445,10 +470,9 @@ namespace Ship_Game
             {
                 // If could not add a terraformer anywhere due to planet being full
                 // try to scrap a building and then retry construction
-                if (TryScrapBuilding())
+                if (TryScrapBuilding(budget))
                     Construction.AddBuilding(terraformer);
-            }
-        }
+            }}
         
         int NumWantedTerraformers
         {
