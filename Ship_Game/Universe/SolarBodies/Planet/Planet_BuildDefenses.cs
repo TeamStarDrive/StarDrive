@@ -36,7 +36,6 @@ namespace Ship_Game
         void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
-        float EstimatedAverageProduction    => (Prod.NetMaxPotential / 3).ClampMin(0.1f);
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
