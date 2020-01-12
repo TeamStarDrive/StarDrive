@@ -170,6 +170,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\CombatMovement.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\BroadSides.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\OrbitTarget.cs" />
