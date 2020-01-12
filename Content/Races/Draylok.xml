@@ -10,7 +10,7 @@
   <DefaultSmallTransport>Draylok Transporter</DefaultSmallTransport>
   <DefaultTroopShip>Draylok Troop</DefaultTroopShip>
   <DefaultColonyShip>Draylok Colonizer</DefaultColonyShip>
-  <DefaultConstructor>Draylok Transporter</DefaultConstructor>
+  <DefaultConstructor>Draylok Constructor</DefaultConstructor>
   
   <RebelName>Draylok Democrats</RebelName>
   <RebelSing>Democractic Rebel</RebelSing>

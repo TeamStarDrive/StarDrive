@@ -9,7 +9,7 @@
   <DefaultSmallTransport>Small Transport</DefaultSmallTransport>
   <DefaultTroopShip>Kulrathi Troop</DefaultTroopShip>
   <DefaultColonyShip>Colony Ship</DefaultColonyShip>
-  <DefaultConstructor>Small Transport</DefaultConstructor>
+  <DefaultConstructor>Small Constructor</DefaultConstructor>
 
   <TechTree>Kulrathi</TechTree>
   <RebelName>Kulrathi Warlords</RebelName>
