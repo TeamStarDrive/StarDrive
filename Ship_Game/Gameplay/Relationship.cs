@@ -112,6 +112,8 @@ namespace Ship_Game.Gameplay
                                          {
                                              TechUnlockType.Diplomacy
                                          };
+
+        public bool AllowRacialTrade() => !PreventContentExchangeOf.Contains(TechUnlockType.Diplomacy);
         public bool HaveRejectedDemandTech
         {
             get { return haveRejectedDemandTech; }
