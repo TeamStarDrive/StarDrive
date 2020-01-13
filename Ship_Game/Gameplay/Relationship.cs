@@ -107,11 +107,13 @@ namespace Ship_Game.Gameplay
         /// A check here can be added to remove this for allies.
         /// </summary>
         [XmlIgnore][JsonIgnore]
-        public readonly Array<TechUnlockType> PreventContentExchangeOf =
+        readonly Array<TechUnlockType> PreventContentExchangeOf =
                                          new Array<TechUnlockType>
                                          {
                                              TechUnlockType.Diplomacy
                                          };
+
+        public bool AllowRacialTrade() => !PreventContentExchangeOf.Contains(TechUnlockType.Diplomacy);
         public bool HaveRejectedDemandTech
         {
             get { return haveRejectedDemandTech; }
