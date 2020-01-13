@@ -1558,9 +1558,12 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 100000, Color.Yellow);
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
 
-                if (ship.AI.State == AIState.FormationWarp && !IsAssembling)
+                // if combat in move position do not move in formation. 
+                if (ship.AI.State == AIState.FormationWarp && !IsAssembling 
+                                                           && ship.AI.HasPriorityOrder 
+                                                           && ship.engineState == Ship.MoveState.Sublight)
                 {
                     if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
                     {
@@ -1569,12 +1572,15 @@ namespace Ship_Game.AI
                 }
 
                 UpdateOurFleetShip(ship);
+
+                // get fleet assembled before going to warp. 
                 if (ReadyForWarp && ship.AI.State == AIState.FormationWarp)
                 {
                     if (IsFleetAssembled(15) == MoveStatus.Assembled)
                         ReadyForWarp = ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
                 }
 
+                // once in warp clear assembling flag. 
                 if (ship.engineState == Ship.MoveState.Warp) IsAssembling = false;
             }
 

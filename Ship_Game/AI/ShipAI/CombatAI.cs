@@ -32,6 +32,12 @@ namespace Ship_Game.AI
             SetCombatTactics(ship.AI.CombatState);
         }
 
+        public void ClearTargets()
+        {
+            Owner.AI.Target = null;
+            Owner.AI.PotentialTargets.Clear();
+        }
+
         public void UpdateTargetPriorities(Ship ship)
         {
             if (ship.SurfaceArea <= 0)
