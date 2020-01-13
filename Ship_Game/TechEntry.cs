@@ -22,9 +22,9 @@ namespace Ship_Game
         /// <summary>
         /// Checks if list  contains restricted trade type. 
         /// </summary>
-        private bool PreventRacialTrade(Empire us, Empire them)
+        private bool AllowRacialTrade(Empire us, Empire them)
         {
-            return us.GetRelations(them).PreventContentExchangeOf.Contains(TechUnlockType.Diplomacy);
+            return us.GetRelations(them).AllowRacialTrade();
         }
 
         [XmlIgnore][JsonIgnore]
@@ -178,8 +178,8 @@ namespace Ship_Game
         {
             var theirTech        = them.GetTechEntry(this);
             bool theyCanUnlockIt = !theirTech.Unlocked && (them.HavePreReq(UID) ||
-                                                           !PreventRacialTrade(us, them) && theirTech.IsRoot);
-            bool notHasContent   = !PreventRacialTrade(us, them) && ContentRestrictedTo(us) 
+                                                           AllowRacialTrade(us, them) && theirTech.IsRoot);
+            bool notHasContent   = AllowRacialTrade(us, them) && ContentRestrictedTo(us) 
                                                   && !theirTech.SpiedFrom(us) 
                                                   && (theirTech.IsRoot || them.HavePreReq(UID));
             return theyCanUnlockIt || notHasContent;
