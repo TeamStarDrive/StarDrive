@@ -28,7 +28,7 @@ namespace Ship_Game.AI.Budget
             SysCom = planet?.Owner?.GetEmpireAI().
                 DefensiveCoordinator.GetSystemCommander(planet.ParentSystem);
 
-            if (planet == null || SysCom == null) 
+            if (planet == null || SysCom == null)
                 return;
 
             Planet              = planet;

@@ -92,7 +92,7 @@ namespace Ship_Game
                 if (MaxPopulationBillion < 2)
                     debtTolerance += 2f - MaxPopulationBillion;
 
-                return debtTolerance;
+                return debtTolerance.ClampMin(0); // Note - dept tolerance is a positive number added to the budget for small colonies
             }
         }
 
@@ -139,10 +139,10 @@ namespace Ship_Game
                         if (IncomingProdFreighters > 0)
                             prodToSpend = ProdHere + Prod.NetIncome; // We have incoming prod, so we can spend more now
                         else
-                            prodToSpend =(ProdHere + Prod.NetIncome) * 0.5f; // Spend less since nothing is coming
+                            prodToSpend = (ProdHere + Prod.NetIncome) * 0.5f; // Spend less since nothing is coming
                         break;
                     case GoodState.STORE:
-                            prodToSpend = ProdHere * 0.5f; // Spend some of our store since we are storing for building stuff
+                        prodToSpend = ProdHere * 0.5f; // Spend some of our store since we are storing for building stuff
                         break;
                     case GoodState.EXPORT:
                         if (OutgoingProdFreighters > 0 && ConstructionQueue.Count < 6)
