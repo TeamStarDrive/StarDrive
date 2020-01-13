@@ -284,9 +284,9 @@ namespace Ship_Game
                 Log.Info(ConsoleColor.Cyan, $"==== Planet  {Name}  CHOOSE BEST BUILDING, Budget: {budget} ====");
 
 
-            float highestScore = 0f; // So a building with a value of 0 will not be built.
+            float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
             float incomingProd = IncomingFreighters.Sum(f => f.GetProduction());
-            float expectedProd = Storage.Prod + incomingProd;
+            float totalProd    = Storage.Prod + incomingProd;
             
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -294,7 +294,7 @@ namespace Ship_Game
                 if (NotSuitableForBuildEval(b, budget))
                     continue;
 
-                float constructionMultiplier = ConstructionMultiplier(b, expectedProd);
+                float constructionMultiplier = ConstructionMultiplier(b, totalProd);
                 float buildingScore          = EvaluateBuilding(b, constructionMultiplier);
                 if (buildingScore > highestScore)
                 {
