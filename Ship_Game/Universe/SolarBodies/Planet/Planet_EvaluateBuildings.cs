@@ -217,7 +217,7 @@ namespace Ship_Game
                 case ColonyType.Military:     multiplier = military;     break;
                 default:                      multiplier = 1;            break;
             }
-            value = value.ClampMax(10);
+            value = value.UpperBound(10);
             value = (value * multiplier).Clamped(0, 20);
             return (float)Math.Round(value, 0);
         }
@@ -237,9 +237,9 @@ namespace Ship_Game
                 return false;  // Player decided not to allow governors to scrap buildings
 
             Building toScrap;
-            if (budget > 0)
+            if (budget > 0) // pick the building with the lowest score
                 ChooseWorstBuilding(BuildingList, out toScrap);
-            else
+            else // we have no budget - get rid of the fattest building
                 ChooseMostExpensiveBuilding(BuildingList, out toScrap);
 
             if (toScrap == null)
@@ -264,6 +264,7 @@ namespace Ship_Game
             if (bestBuilding == null)
                 return;
 
+            // the best building score should be at least 10 points better than what we are scrapping
             if (bestBuildingScore > worstBuildingScore + 10)
             {
                 ScrapBuilding(worstBuilding);
@@ -291,7 +292,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForBuildEval(b, budget))
+                if (NotSuitableForBuild(b, budget))
                     continue;
 
                 float constructionMultiplier = ConstructionMultiplier(b, totalProd);
@@ -319,14 +320,15 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Red, $"==== Planet  {Name}  CHOOSE WORST BUILDING ====");
 
-            float lowestScore  = float.MaxValue; // So a building with a value of 0 will not be built.
+            float lowestScore  = float.MaxValue; 
             float storageInUse = Storage.MostGoodsInStorage;
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForScrapEval(b, storageInUse))
+                if (NotSuitableForScrap(b, storageInUse))
                     continue;
 
+                // construction multiplier is 1 since there is no need to build anything, we are checking for scrap
                 float buildingScore = EvaluateBuilding(b, 1);
                 if (buildingScore < lowestScore)
                 {
@@ -355,7 +357,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForScrapEval(b))
+                if (NotSuitableForScrap(b))
                     continue;
 
                 if (b.ActualMaintenance(this) >  maintenance)
@@ -367,7 +369,7 @@ namespace Ship_Game
                                             $"with maintenance of {expensive.ActualMaintenance(this)} -- ");
         }
 
-        bool NotSuitableForBuildEval(Building b, float budget)
+        bool NotSuitableForBuild(Building b, float budget)
         {
             if (b.IsMilitary || b.IsTerraformer || b.IsBiospheres) 
                 return true; // Different logic for these
@@ -378,7 +380,7 @@ namespace Ship_Game
             return false;
         }
 
-        bool NotSuitableForScrapEval(Building b)
+        bool NotSuitableForScrap(Building b)
         {
             if (b.IsBiospheres
                 || !b.Scrappable
@@ -392,9 +394,9 @@ namespace Ship_Game
             return false;
         }
 
-        bool NotSuitableForScrapEval(Building b, float storageInUse)
+        bool NotSuitableForScrap(Building b, float storageInUse)
         {
-            if (NotSuitableForScrapEval(b) && IsStorageWasted(storageInUse, b.StorageAdded))
+            if (NotSuitableForScrap(b) && IsStorageWasted(storageInUse, b.StorageAdded))
                 return true;
 
             return false;
@@ -463,6 +465,7 @@ namespace Ship_Game
             if (expectedProd >= b.Cost)
                 return 1;
 
+            // This will allow the colony to slowly build more expensive buildings as it grows
             float missingProd = b.Cost - expectedProd;
             float multiplier  = EstimatedAverageProduction / missingProd;
             return multiplier.Clamped(0,1); 
@@ -478,7 +481,7 @@ namespace Ship_Game
             if (TilesList.Any(t => !t.Habitable && !t.BuildingOnTile))
                 tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
 
-            if (tile != null) // try to build a terraformer on a black tile first
+            if (tile != null) // try to build a terraformer on an unhabitable tile first
             {
                 Construction.AddBuilding(terraformer, tile);
             }

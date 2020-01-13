@@ -90,11 +90,11 @@ namespace Ship_Game
         /// <summary>
         /// Constrain upper end of value
         /// </summary>
-        public static float ClampMax(this float value, float max)
+        public static float UpperBound(this float value, float max)
         {
             return Min(max, value);
         }
-        public static int ClampMax(this int value, int max)
+        public static int UpperBound(this int value, int max)
         {
             return Min(max, value);
         }
