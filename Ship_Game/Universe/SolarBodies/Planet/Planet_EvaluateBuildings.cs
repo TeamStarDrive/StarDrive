@@ -351,14 +351,14 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE MOST EXPENSIVE BUILDING ====");
 
-            float maint        = 0;
+            float maintenance = 0;
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
                 if (NotSuitableForScrapEval(b))
                     continue;
 
-                if (b.ActualMaintenance(this) >  maint)
+                if (b.ActualMaintenance(this) >  maintenance)
                     expensive = b;
             }
 
