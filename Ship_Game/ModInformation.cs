@@ -42,7 +42,6 @@ namespace Ship_Game
         public bool useProportionalUpkeep;
         public bool reconDropDown;
         public bool ColoniserMenu;
-        public bool ConstructionModule;
 
         //added by Fat Bastard
         public bool UseShieldWarpBehavior; // Player can set shield to turn off at warp, but upon exit they will have activation chance
