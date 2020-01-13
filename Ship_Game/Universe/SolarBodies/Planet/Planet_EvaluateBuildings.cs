@@ -317,14 +317,14 @@ namespace Ship_Game
                 return 0;
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE WORST BUILDING ====");
+                Log.Info(ConsoleColor.Red, $"==== Planet  {Name}  CHOOSE WORST BUILDING ====");
 
-            float lowestScore = float.MaxValue; // So a building with a value of 0 will not be built.
-
+            float lowestScore  = float.MaxValue; // So a building with a value of 0 will not be built.
+            float storageInUse = Storage.MostGoodsInStorage;
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForScrapEval(b))
+                if (NotSuitableForScrapEval(b, storageInUse))
                     continue;
 
                 float buildingScore = EvaluateBuilding(b, 1);
@@ -351,7 +351,7 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info(ConsoleColor.Magenta, $"==== Planet  {Name}  CHOOSE MOST EXPENSIVE BUILDING ====");
 
-            float maint = 0;
+            float maint        = 0;
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
@@ -361,6 +361,10 @@ namespace Ship_Game
                 if (b.ActualMaintenance(this) >  maint)
                     expensive = b;
             }
+
+            if (expensive != null && IsPlanetExtraDebugTarget())
+                Log.Info(ConsoleColor.Red, $"-- Planet {Name}: most expensive Building is {expensive.Name} " +
+                                            $"with maintenance of {expensive.ActualMaintenance(this)} -- ");
         }
 
         bool NotSuitableForBuildEval(Building b, float budget)
@@ -388,6 +392,17 @@ namespace Ship_Game
             return false;
         }
 
+        bool NotSuitableForScrapEval(Building b, float storageInUse)
+        {
+            if (NotSuitableForScrapEval(b) && IsStorageWasted(storageInUse, b.StorageAdded))
+                return true;
+
+            return false;
+        }
+
+
+        bool IsStorageWasted(float storageInUse, float storageAdded) => Storage.Max - storageAdded < storageInUse;
+
         // Gretman function, to support DoGoverning()
         float EvaluateBuilding(Building b, float constructionMultiplier)
         {
@@ -409,6 +424,7 @@ namespace Ship_Game
 
             score *= FertilityMultiplier(b);
             score *= constructionMultiplier;
+
              if (IsPlanetExtraDebugTarget())
             {
                  if (score > 0f)
