@@ -137,9 +137,9 @@ namespace Ship_Game
                 {
                     default: // Importing
                         if (IncomingProdFreighters > 0)
-                            prodToSpend = ProdHere * 0.5f; // We have incoming prod, so we can spend more now
+                            prodToSpend = ProdHere + Prod.NetIncome; // We have incoming prod, so we can spend more now
                         else
-                            prodToSpend = Prod.NetIncome * Storage.ProdRatio; // Spend less since nothing is coming
+                            prodToSpend =(ProdHere + Prod.NetIncome) * 0.5f; // Spend less since nothing is coming
                         break;
                     case GoodState.STORE:
                             prodToSpend = ProdHere * 0.5f; // Spend some of our store since we are storing for building stuff
