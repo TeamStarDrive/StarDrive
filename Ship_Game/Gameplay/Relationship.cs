@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
+using System.Xml.Serialization;
 using Ship_Game.Debug;
 
 namespace Ship_Game.Gameplay
@@ -98,8 +99,19 @@ namespace Ship_Game.Gameplay
         [Serialize(57)] public float FearUsed;
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
-        [JsonIgnore] public EmpireRiskAssessment Risk;
-
+        [XmlIgnore] [JsonIgnore] public EmpireRiskAssessment Risk;
+        
+        /// <summary>
+        /// Tech transfer restriction.
+        /// currently this is disabling tech content trade via diplomacy.
+        /// A check here can be added to remove this for allies.
+        /// </summary>
+        [XmlIgnore][JsonIgnore]
+        public readonly Array<TechUnlockType> PreventContentExchangeOf =
+                                         new Array<TechUnlockType>
+                                         {
+                                             TechUnlockType.Diplomacy
+                                         };
         public bool HaveRejectedDemandTech
         {
             get { return haveRejectedDemandTech; }

@@ -752,7 +752,7 @@ namespace Ship_Game
             }
 
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
-      
+
             ClassifCursor = new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
 
@@ -782,11 +782,13 @@ namespace Ship_Game
             ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
-            
+
+
             UIList bottomList = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomList.LayoutStyle = ListLayoutStyle.Resize;
             bottomList.Direction = new Vector2(-1, 0);
             bottomList.Padding = new Vector2(16f, 2f);
+
             bottomList.Add(ButtonStyle.Medium, text:105, click: b =>
             {
                 if (!CheckDesign()) {
@@ -882,13 +884,21 @@ namespace Ship_Game
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
 
-            ShipStats  = new Menu1(shipStatsPanel);
+            ShipStats = new Menu1(shipStatsPanel);
             StatsSub   = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
+
+            if (Empire.Universe.Debug)
+            {
+                var techLevelPos = new Vector2(ModSel.TopLeft.X, ModSel.TopLeft.Y - 25);
+                var techLevelLabel = EmpireManager.Player.UI.UILabelTechLevelInfo();
+                techLevelLabel.Pos = techLevelPos;
+                Add(techLevelLabel);
+            }
         }
 
         void ReallyExit()
