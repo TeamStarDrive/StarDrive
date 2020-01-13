@@ -196,7 +196,7 @@ namespace Ship_Game.Ships
             if (MaxFTLSpeed < 1 || !Active)
                 return ShipStatus.NotApplicable;
 
-            if (Inhibited || EnginesKnockedOut || EMPdisabled || !IsSpooling && WarpDuration() < ShipStatus.Good)
+            if (EngineStatus() == ShipStatus.Critical || !IsSpooling && WarpDuration() < ShipStatus.Good)
                 return ShipStatus.Critical;
 
             if (engineState == MoveState.Warp)
@@ -221,6 +221,15 @@ namespace Ship_Game.Ships
 
             return ShipStatus.Poor;
         }
+        public ShipStatus EngineStatus()
+        {
+            if (EnginesKnockedOut)
+                return ShipStatus.Critical;
+            if (Inhibited || EMPdisabled)
+                return ShipStatus.Poor;
 
+            //add more status based on engine damage.
+            return ShipStatus.Excellent;
+        }
     }
 }

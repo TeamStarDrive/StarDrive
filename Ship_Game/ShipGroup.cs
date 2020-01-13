@@ -488,7 +488,11 @@ namespace Ship_Game
         protected void ClearPriorityOrderIfSubLight(Ship ship)
         {
             if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
+            {
                 ship.AI.ClearPriorityOrder();
+                ship.AI.ChangeAIState(AIState.AwaitingOrders);
+            }
+            
         }
 
         public void SetSpeed()
@@ -500,8 +504,14 @@ namespace Ship_Game
             for (int i = 1; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (!ship.EnginesKnockedOut)
+                if (ship.EngineStatus() > ShipStatus.Critical && !ship.InCombat 
+                                                              && ship.AI.State != AIState.Resupply
+                                                              && ship.AI.State != AIState.Refit
+                                                              && ship.AI.State != AIState.Scrap
+                                                              && ship.AI.State != AIState.Scuttle)
+                {
                     slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
+                }
             }
             SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));
         }
