@@ -88,7 +88,7 @@ namespace Ship_Game
                 if (MaxPopulationBillion < 2)
                     debtTolerance += 2f - MaxPopulationBillion;
 
-                return debtTolerance;
+                return debtTolerance.ClampMin(0); // Note - dept tolerance is a positive number added to the budget for small colonies
             }
         }
 
