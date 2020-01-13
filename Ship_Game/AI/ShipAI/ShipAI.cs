@@ -378,7 +378,7 @@ namespace Ship_Game.AI
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, elapsedTime); break;
                 case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
                 case Plan.Explore:                  DoExplore(elapsedTime);                      break;
-                case Plan.Rebase:                   DoRebase(goal);                              break;
+                case Plan.Rebase:                   DoLandTroop(elapsedTime, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                break;
                 case Plan.DoCombat:                 DoCombat(elapsedTime);                       break;
                 case Plan.DeployStructure:          DoDeploy(goal);                              break;
