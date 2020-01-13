@@ -9,7 +9,7 @@
   <DefaultSmallTransport>Seeder Transport</DefaultSmallTransport>
   <DefaultTroopShip>Pollops Troop</DefaultTroopShip>
   <DefaultColonyShip>Pollop Sporeship</DefaultColonyShip>
-  <DefaultConstructor>Seeder Transport</DefaultConstructor>
+  <DefaultConstructor>Pollops Constructor</DefaultConstructor>
 
 
   <RebelName>Pollop Vegetarians</RebelName>
