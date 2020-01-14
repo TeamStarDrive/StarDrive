@@ -193,6 +193,7 @@ namespace Ship_Game
             {
                 Empire.Universe.LookingAtPlanet = false;
             }
+
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
             BuildableList.OnHovered = OnBuildableHoverChange;
         }

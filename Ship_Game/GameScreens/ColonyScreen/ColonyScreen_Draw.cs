@@ -203,7 +203,7 @@ namespace Ship_Game
                 }
                 else if (P.BioSpheresToTerraform
                       && P.Category == P.Owner?.data.PreferredEnv 
-                      && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformMaxFertilityTarget))
+                      && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformedMaxFertility))
                 {
                     terraformText = Localizer.Token(1919);
                 }
@@ -575,9 +575,9 @@ namespace Ship_Game
         {
             DrawBuildingInfo(ref cursor, batch, P.PopPerTileFor(Player) / 1000, "UI/icon_pop_22", "Colonists per Habitable Tile (Billions)");
             DrawBuildingInfo(ref cursor, batch, P.BasePopPerTile / 1000, "UI/icon_pop_22", "Colonists per Biosphere (Billions)");
-            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
+            DrawBuildingInfo(ref cursor, batch, P.Food.NetYieldPerColonist - P.FoodConsumptionPerColonist, "NewUI/icon_food", "Net food per colonist allocated to Food Production");
             DrawBuildingInfo(ref cursor, batch, P.Food.NetFlatBonus, "NewUI/icon_food", "Net flat food generated per turn");
-            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
+            DrawBuildingInfo(ref cursor, batch, P.Prod.NetYieldPerColonist - P.ProdConsumptionPerColonist, "NewUI/icon_production", "Net production per colonist allocated to Industry");
             DrawBuildingInfo(ref cursor, batch, P.Prod.NetFlatBonus, "NewUI/icon_production", "Net flat production generated per turn");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetYieldPerColonist, "NewUI/icon_science", "Net research per colonist allocated to Science");
             DrawBuildingInfo(ref cursor, batch, P.Res.NetFlatBonus, "NewUI/icon_science", "Net flat research generated per turn");
@@ -613,6 +613,7 @@ namespace Ship_Game
 
             if (b.DefenseShipsCapacity > 0)
                 DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
+
             if (b.PlusTerraformPoints > 0)
             {
                 string terraformStats = MultiLineFormat(TerraformPotential(out Color terraformColor));
