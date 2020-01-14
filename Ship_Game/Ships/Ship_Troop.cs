@@ -98,7 +98,8 @@ namespace Ship_Game.Ships
             return troops;
         }
 
-        public void ReCalculateTroops()
+        // NOTE: This will move the hostile troop list to our troops after successful board
+        public void ReCalculateTroopsAfterBoard()
         {
             for (int i = 0; i < HostileTroops.Count; i++)
             {
@@ -109,6 +110,17 @@ namespace Ship_Game.Ships
                     i--;
                     AddTroop(troop);
                 }
+            }
+        }
+
+        // NOTE: In case of a rebellion, usually
+        public void SwitchTroopLoyalty(Empire newLoyalty)
+        {
+            for (int i = 0; i < OurTroops.Count; i++)
+            {
+                Troop troop = OurTroops[i];
+                if (troop.Loyalty != newLoyalty)
+                    troop.ChangeLoyalty(newLoyalty);
             }
         }
         
