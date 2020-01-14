@@ -101,13 +101,12 @@ namespace Ship_Game.Ships
         // NOTE: This will move the hostile troop list to our troops after successful board
         public void ReCalculateTroopsAfterBoard()
         {
-            for (int i = 0; i < HostileTroops.Count; i++)
+            for (int i = HostileTroops.Count - 1; i >= 0;  i--)
             {
                 Troop troop = HostileTroops[i];
                 if (troop.Loyalty == loyalty)
                 {
-                    HostileTroops.Remove(troop);
-                    i--;
+                    HostileTroops.RemoveAtSwapLast(i);
                     AddTroop(troop);
                 }
             }
