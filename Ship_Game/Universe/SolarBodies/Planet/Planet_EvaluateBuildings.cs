@@ -175,17 +175,17 @@ namespace Ship_Game
         {
             float flat   = 10 - Res.NetFlatBonus;
             float perCol = PopulationBillion - Res.NetYieldPerColonist;
-            flat         = ApplyGovernorBonus(flat, 0.75f, 0.25f, 1f, 0.25f, 0.25f);
-            perCol       = ApplyGovernorBonus(perCol, 0.75f, 0.25f, 1f, 0.25f, 0.25f);
+            flat         = ApplyGovernorBonus(flat, 0.75f, 0.2f, 1.25f, 0.2f, 0.25f);
+            perCol       = ApplyGovernorBonus(perCol, 0.8f, 0.1f, 1f, 0.1f, 0.1f);
             Priorities[ColonyPriority.ResearchFlat]   = flat;
             Priorities[ColonyPriority.ResearchPerCol] = perCol;
         }
 
         void CalcMoneyPriorities()
         {
-            float tax     = PopulationBillion - Money.TaxRate*5;
+            float tax     = PopulationBillion - Owner.data.TaxRate*4;
             float credits = (PopulationBillion - Money.IncomePerColonist).ClampMin(2);
-            tax           = ApplyGovernorBonus(tax, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
+            tax           = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits       = ApplyGovernorBonus(credits, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
             Priorities[ColonyPriority.CreditsPerCol] = credits;
@@ -219,6 +219,7 @@ namespace Ship_Game
             }
             value = value.UpperBound(10);
             value = (value * multiplier).Clamped(0, 20);
+
             return (float)Math.Round(value, 0);
         }
 

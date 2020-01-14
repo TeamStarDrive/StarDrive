@@ -246,12 +246,12 @@ namespace Ship_Game
                     case 7: Platforms  = 3;  Stations = 2; Shipyards = 1; break;
                     case 8: Platforms  = 5;  Stations = 2; Shipyards = 1; break;
                     case 9: Platforms  = 2;  Stations = 3; Shipyards = 1; break;
-                    case 10: Platforms = 5;  Stations = 3; Shipyards = 2; break;
-                    case 11: Platforms = 5;  Stations = 4; Shipyards = 2; break;
-                    case 12: Platforms = 2;  Stations = 5; Shipyards = 2; break;
-                    case 13: Platforms = 5;  Stations = 6; Shipyards = 2; break;
-                    case 14: Platforms = 9;  Stations = 7; Shipyards = 2; break;
-                    case 15: Platforms = 12; Stations = 8; Shipyards = 2; break;
+                    case 10: Platforms = 3;  Stations = 3; Shipyards = 2; break;
+                    case 11: Platforms = 5;  Stations = 3; Shipyards = 2; break;
+                    case 12: Platforms = 7;  Stations = 3; Shipyards = 2; break;
+                    case 13: Platforms = 5;  Stations = 4; Shipyards = 2; break;
+                    case 14: Platforms = 7;  Stations = 4; Shipyards = 2; break;
+                    case 15: Platforms = 9;  Stations = 5; Shipyards = 2; break;
                     default: Platforms = 0;  Stations = 0; Shipyards = 0; break;
                 }
             }
