@@ -26,11 +26,13 @@ namespace Ship_Game
         UIButton SendTroops;
         PlanetListScreen Screen;
         bool MarkedForColonization;
+        private readonly float Distance;
 
-        public PlanetListScreenItem(PlanetListScreen screen, Planet planet)
+        public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance)
         {
-            Screen = screen;
-            Planet = planet;
+            Screen   = screen;
+            Planet   = planet;
+            Distance = distance / 1000; // Distance from nearest player colony
 
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
@@ -69,8 +71,9 @@ namespace Ship_Game
         {
             base.Draw(batch);
 
-            var textColor = new Color(118, 102, 67, 50);
+            var textColor      = new Color(118, 102, 67, 50);
             var smallHighlight = new Color(118, 102, 67, 25);
+            Color empireColor  = Planet.Owner?.EmpireColor ?? new Color(255, 239, 208);
 
             if (ItemIndex % 2 == 0)
             {
@@ -82,17 +85,17 @@ namespace Ship_Game
             }
 
             string singular;
-            var TextColor = Colors.Cream;
+            var creamText = Colors.Cream;
             string sysname = Planet.ParentSystem.Name;
             if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
             {
                 var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial20Bold, sysname, SysNameCursor, TextColor);
+                batch.DrawString(Fonts.Arial20Bold, sysname, SysNameCursor, creamText);
             }
             else
             {
                 var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
+                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, creamText);
             }
 
             if (Planet.ParentSystem.HostileForcesPresent(EmpireManager.Player))
@@ -183,7 +186,7 @@ namespace Ship_Game
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y - 10
             };
-            batch.DrawString(Fonts.Arial20Bold, Planet.Name, rpos, TextColor);
+            batch.DrawString(Fonts.Arial20Bold, Planet.Name, rpos, empireColor);
             rpos.Y = rpos.Y + (Fonts.Arial20Bold.LineSpacing - 3);
             Vector2 FertilityCursor = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, Planet.FertilityFor(EmpireManager.Player).String(), FertilityCursor, (Planet.Habitable ? Color.White : Color.LightPink));
@@ -202,8 +205,9 @@ namespace Ship_Game
             {
                 singular = (Planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
             }
-            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, Planet.Owner?.EmpireColor ?? Color.Gray);
-            batch.DrawString(Fonts.Arial12Bold, Planet.LocalizedRichness, rpos, TextColor);
+            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, empireColor);
+            batch.DrawString(Fonts.Arial12Bold, Planet.LocalizedRichness, rpos, empireColor);
+            DrawPlanetDistance(Distance, batch, rpos, spriteFont);
             if (Planet.Habitable && Planet.Owner == null)
             {
                 Colonize.Draw(batch);
@@ -257,6 +261,17 @@ namespace Ship_Game
             batch.DrawRectangle(Rect, textColor);
         }
 
+        void DrawPlanetDistance(float distance, SpriteBatch batch, Vector2 rPos, SpriteFont spriteFont)
+        {
+            DistanceDisplay distanceDisplay = new DistanceDisplay(distance);
+            if (distance.Greater(0))
+            {
+                rPos.X += spriteFont.TextWidth(Planet.LocalizedRichness) + 4;
+                rPos.Y += 2;
+                batch.DrawString(Fonts.Arial10, distanceDisplay.Text, rPos, distanceDisplay.Color);
+            }
+        }
+
         void OnSendTroopsClicked(UIButton b)
         {
             if (Screen.EmpireUI.empire.GetTroopShipForRebase(out Ship troopShip, Planet))
@@ -297,6 +312,44 @@ namespace Ship_Game
                 break;
             }
             Empire.Universe.player.GetEmpireAI().Goals.ApplyPendingRemovals();
+        }
+
+        struct DistanceDisplay
+        {
+            public readonly string Text;
+            public readonly Color Color;
+            private Distances PlanetDistance;
+
+            public DistanceDisplay(float distance) : this()
+            {
+                DeterminePlanetDistanceCategory(distance);
+                switch (PlanetDistance)
+                {
+                    case Distances.Local: Text = "(Local)"; Color = Color.Green; break;
+                    case Distances.Near: Text = "(Near)"; Color = Color.YellowGreen; break;
+                    case Distances.Midway: Text = "(Midway)"; Color = Color.DarkGoldenrod; break;
+                    case Distances.Distant: Text = "(Distant)"; Color = Color.DarkRed; break;
+                    default: Text = "(Beyond)"; Color = Color.DarkGray; break;
+                }
+            }
+
+            void DeterminePlanetDistanceCategory(float distance)
+            {
+                if (distance.LessOrEqual(140)) PlanetDistance = Distances.Local;
+                else if (distance.LessOrEqual(1200)) PlanetDistance = Distances.Near;
+                else if (distance.LessOrEqual(3000)) PlanetDistance = Distances.Midway;
+                else if (distance.LessOrEqual(6000)) PlanetDistance = Distances.Distant;
+                else PlanetDistance = Distances.Beyond;
+            }
+
+            enum Distances
+            {
+                Local,
+                Near,
+                Midway,
+                Distant,
+                Beyond
+            }
         }
     }
 }
