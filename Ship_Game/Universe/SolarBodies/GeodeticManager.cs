@@ -118,7 +118,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
                         if (!spaceCombat)
+                        {
                             LoadTroops(ship, garrisonSize);
+                            DisengageTroopsFromCapturedShips(ship);
+                        }
                     }
                 }
             }
@@ -182,6 +185,18 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                     troopShip?.AI.OrderRebaseToShip(ship);
                 }
             }
+        }
+
+        void DisengageTroopsFromCapturedShips(Ship ship)
+        {
+            if (ship.TroopCount == 0)
+                return;
+
+            // If we left garrisoned troops on a captured ship
+            // remove them now as they are replaced with regular ship crew
+            int troopsToTRemove = (ship.GetOurTroops().Count - ship.TroopCapacity).ClampMin(0);
+            if (troopsToTRemove > 0)
+                ship.DisengageExcessTroops(ship.GetOurTroops().Count - ship.TroopCapacity);
         }
 
         private void AddTroopsForFactions(Ship ship)
