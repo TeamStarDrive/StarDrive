@@ -37,7 +37,6 @@ namespace Ship_Game.Ships
                 return warpReady > ShipStatus.Poor && warpReady < ShipStatus.NotApplicable;
             }
         }
-        
 
         public void ResetJumpTimer()
         {
@@ -111,7 +110,6 @@ namespace Ship_Game.Ships
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();
 
-        
         void UpdateHyperspaceInhibited(float elapsedTime)
         {
             InhibitedTimer -= elapsedTime;
@@ -221,6 +219,7 @@ namespace Ship_Game.Ships
 
             return ShipStatus.Poor;
         }
+
         public ShipStatus EngineStatus()
         {
             if (EnginesKnockedOut)
