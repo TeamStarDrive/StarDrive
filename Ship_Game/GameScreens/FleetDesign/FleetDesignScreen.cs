@@ -77,6 +77,10 @@ namespace Ship_Game
                 {
                     foreach (Ship ship in kv.Value.Ships)
                     {
+                        if (ship.GetSO() == null)
+                        {
+                            ship.CreateSceneObject();
+                        }
                         ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
                     }
                 }
