@@ -110,9 +110,12 @@ namespace Ship_Game.Universe
 
         void PlanetRightClickBomber(Ship ship, Planet planet)
         {
-            Empire player = Universe.player;
-            float enemies = planet.GetGroundStrengthOther(player) * 1.5f;
+            if (ship?.Active != true) return;
+
+            Empire player    = Universe.player;
+            float enemies    = planet.GetGroundStrengthOther(player) * 1.5f;
             float friendlies = planet.GetGroundStrength(player);
+
             if (planet.Owner != player)
             {
                 if (player.IsEmpireAttackable(planet.Owner) && (enemies > friendlies || planet.Population > 0f))

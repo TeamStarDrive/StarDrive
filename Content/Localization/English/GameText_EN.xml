@@ -4724,7 +4724,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1930</Index>
-      <Text> was removed as part of the terraforming process due to its harmful environmental effect.</Text>
+      <Text>Construction Array</Text>
+    </Token>
+    <Token>
+      <Index>1931</Index>
+      <Text>This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space.</Text>
     </Token>
     <Token>
       <Index>1941</Index>
