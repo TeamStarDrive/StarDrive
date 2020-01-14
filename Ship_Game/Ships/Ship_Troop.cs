@@ -97,6 +97,20 @@ namespace Ship_Game.Ships
                 troops.Add(OurTroops[i]);
             return troops;
         }
+
+        public void ReCalculateTroops()
+        {
+            for (int i = 0; i < HostileTroops.Count; i++)
+            {
+                Troop troop = HostileTroops[i];
+                if (troop.Loyalty == loyalty)
+                {
+                    HostileTroops.Remove(troop);
+                    i--;
+                    AddTroop(troop);
+                }
+            }
+        }
         
         public Array<Troop> GetFriendlyAndHostileTroops()
         {
@@ -182,7 +196,7 @@ namespace Ship_Game.Ships
             MechanicalBoardingDefense =  ModuleSlotList.Sum(module => module.MechanicalBoardingDefense);
         }
 
-        void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
+        public void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
         {
             Troop[] toRemove = OurTroops.ToArray();
             for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
@@ -217,7 +231,7 @@ namespace Ship_Game.Ships
         void UpdateTroops()
         {
             TroopBoardingDefense = 0f;
-            if (OurTroops.Count == 0 || HostileTroops.Count == 0)
+            if (OurTroops.Count == 0 && HostileTroops.Count == 0)
                 return;
 
             for (int i = 0; i < OurTroops.Count; i++)
