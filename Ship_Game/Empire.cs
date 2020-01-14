@@ -236,6 +236,10 @@ namespace Ship_Game
             }
             return null;
         }
+        public float KnownEnemyStrengthIn(SolarSystem system)
+                     => EmpireAI.ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, this);
+        public float KnownEnemyStrengthIn(AO ao)
+             => EmpireAI.ThreatMatrix.PingNetRadarStr(ao.Center, ao.Radius, this);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
