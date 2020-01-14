@@ -27,7 +27,9 @@ namespace Ship_Game.Ships
             shipData.LoadModel(out ShipSO, Empire.Universe);
             Radius = shipData.BaseHull.Radius;
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
-            UpdateVisibility(0f);
+
+            // Since we just created the object, it must be visible
+            UpdateVisibility(0f, forceVisible: true);
 
             ScreenManager.Instance.AddObject(ShipSO);
         }
@@ -44,9 +46,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateVisibility(float elapsedTime)
+        void UpdateVisibility(float elapsedTime, bool forceVisible)
         {
-            bool inFrustum = (System == null || System.isVisible)
+            bool inFrustum = forceVisible || (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                 && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
                     (AI?.Target != null &&
@@ -98,7 +100,7 @@ namespace Ship_Game.Ships
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            UpdateVisibility(elapsedTime);
+            UpdateVisibility(elapsedTime, forceVisible: false);
             ShieldRechargeTimer += elapsedTime;
 
             if (TetheredTo != null)
