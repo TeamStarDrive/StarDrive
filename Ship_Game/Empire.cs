@@ -245,6 +245,7 @@ namespace Ship_Game
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
         public Fleet GetFleetOrNull(int key) => FleetsDict.TryGetValue(key, out Fleet fleet) ? fleet : null;
+        public Fleet GetFleet(int key) => FleetsDict[key];
 
         public Fleet FirstFleet
         {
