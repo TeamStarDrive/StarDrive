@@ -36,7 +36,6 @@ namespace Ship_Game
         void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
             => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
 
-        float AverageProductionPercent      => (Prod.NetMaxPotential / 3).ClampMin(0.1f);
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
         private Array<Ship> FilterOrbitals(ShipData.RoleName role)
@@ -187,7 +186,7 @@ namespace Ship_Game
 
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
-            float maxCost = (AverageProductionPercent * TimeVsCostThreshold) - Storage.Prod;
+            float maxCost = (EstimatedAverageProduction * TimeVsCostThreshold) - Storage.Prod;
             maxCost /= ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
 
@@ -224,7 +223,7 @@ namespace Ship_Game
         private bool LogicalBuiltTimeVsCost(float cost, int threshold)
         {
             float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
-            float ratio   = netCost / AverageProductionPercent;
+            float ratio   = netCost / EstimatedAverageProduction;
             return ratio < threshold;
         }
 
@@ -247,12 +246,12 @@ namespace Ship_Game
                     case 7: Platforms  = 3;  Stations = 2; Shipyards = 1; break;
                     case 8: Platforms  = 5;  Stations = 2; Shipyards = 1; break;
                     case 9: Platforms  = 2;  Stations = 3; Shipyards = 1; break;
-                    case 10: Platforms = 5;  Stations = 3; Shipyards = 2; break;
-                    case 11: Platforms = 5;  Stations = 4; Shipyards = 2; break;
-                    case 12: Platforms = 2;  Stations = 5; Shipyards = 2; break;
-                    case 13: Platforms = 5;  Stations = 6; Shipyards = 2; break;
-                    case 14: Platforms = 9;  Stations = 7; Shipyards = 2; break;
-                    case 15: Platforms = 12; Stations = 8; Shipyards = 2; break;
+                    case 10: Platforms = 3;  Stations = 3; Shipyards = 2; break;
+                    case 11: Platforms = 5;  Stations = 3; Shipyards = 2; break;
+                    case 12: Platforms = 7;  Stations = 3; Shipyards = 2; break;
+                    case 13: Platforms = 5;  Stations = 4; Shipyards = 2; break;
+                    case 14: Platforms = 7;  Stations = 4; Shipyards = 2; break;
+                    case 15: Platforms = 9;  Stations = 5; Shipyards = 2; break;
                     default: Platforms = 0;  Stations = 0; Shipyards = 0; break;
                 }
             }
