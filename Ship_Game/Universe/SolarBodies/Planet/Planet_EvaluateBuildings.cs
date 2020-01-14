@@ -115,6 +115,10 @@ namespace Ship_Game
             perCol += (1 - Storage.FoodRatio) * Fertility;
             flat   += 1 - Storage.FoodRatio;
 
+            if (colonyType == ColonyType.Agricultural)
+                perCol += Fertility;
+
+
             flat   = ApplyGovernorBonus(flat, 0.5f, 2f, 2f, 1.5f, 1f);
             perCol = ApplyGovernorBonus(perCol, 1.25f, 0.25f, 0.25f, 2f, 0.25f);
             Priorities[ColonyPriority.FoodFlat]   = flat;
@@ -134,11 +138,17 @@ namespace Ship_Game
             float perRichness = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus).ClampMin(0);
             float perCol      = 10 - netProdPerColonist - flatProdToFeedAll*richnessBonus;
             perCol            = (perCol * MineralRichness).ClampMin(0);
-            if (IsCybernetic && IsStarving)
+            if (IsCybernetic)
             {
-                perCol      += 2 * MineralRichness;
-                flat        += (2 - MineralRichness).ClampMin(0);
-                perRichness += 1.5f * MineralRichness;
+                if (colonyType == ColonyType.Industrial)
+                    perCol += Fertility;
+
+                if (IsStarving)
+                {
+                    perCol      += 2 * MineralRichness;
+                    flat        += (2 - MineralRichness).ClampMin(0);
+                    perRichness += 1.5f * MineralRichness;
+                }
             }
 
             flat   += 1 - Storage.ProdRatio;
