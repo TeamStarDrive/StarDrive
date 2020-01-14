@@ -191,9 +191,8 @@ namespace Ship_Game
             {
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
-                var e = new PlanetListScreenItem(this, p);
-                // TODO: REIMPLEMENT THIS
-                //var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p) ,this);
+
+                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p));
                 PlanetSL.AddItem(e);
             }
         }
@@ -255,12 +254,9 @@ namespace Ship_Game
                 foreach (Planet p in ExploredPlanets)
                 {
                     if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
-                    {
                         continue;
-                    }
-                    var entry = new PlanetListScreenItem(this, p);
-                    // TODO: REIMPLEMENT THIS
-                    //var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p), this);
+
+                    var entry = new PlanetListScreenItem(this, p, GetShortestDistance(p));
                     PlanetSL.AddItem(entry);
                 }
             }
@@ -270,7 +266,7 @@ namespace Ship_Game
                 ResetButton(sb_Name,  p => p.Name);
                 ResetButton(sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
                 ResetButton(sb_Rich,  p => p.MineralRichness);
-                ResetButton(sb_Pop,   p => p.MaxPopulation);
+                ResetButton(sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
                 ResetButton(sb_Owned, p => p.GetOwnerName());
             }
 
