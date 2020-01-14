@@ -68,7 +68,7 @@ namespace Ship_Game
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
-        public float ConsumptionPerColonist => 1 + Owner.data.Traits.ConsumptionModifier;
+        public float ConsumptionPerColonist     => 1 + Owner.data.Traits.ConsumptionModifier;
         public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
         public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
 
@@ -1040,9 +1040,10 @@ namespace Ship_Game
         public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
         public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
 
-        public int TotalBuildings     => TilesList.Count(tile => tile.BuildingOnTile);
-        public float BuiltCoverage    => TotalBuildings / TotalHabitableTiles;
-        public bool TerraformingHere  => BuildingList.Any(b => b.IsTerraformer);
+        public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
+        public float BuiltCoverage   => TotalBuildings / TotalHabitableTiles;
+        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
+
 
         private void RepairBuildings(int repairAmount)
         {
@@ -1113,8 +1114,6 @@ namespace Ship_Game
             string eatsWhat = NonCybernetic ? "Food" : "Prod";
             debug.AddLine($"Eats: {Consumption} {eatsWhat}");
             debug.AddLine("");
-
-
             return debug;
         }
     }
