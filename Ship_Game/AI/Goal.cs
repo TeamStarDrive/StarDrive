@@ -211,6 +211,16 @@ namespace Ship_Game.AI
             }
         }
 
+        public void ChangeToStep(Func<GoalStep> step)
+        {
+            if (!Steps.Contains(step))
+            {
+                Log.Error($"{type} invalid Goal.Step: {step}, Steps.Length: {Steps.Length}");
+                RemoveThisGoal();
+            }
+            Step = Steps.IndexOf(step);
+        }
+
         public void ReportShipComplete(Ship ship)
         {
             FinishedShip = ship;

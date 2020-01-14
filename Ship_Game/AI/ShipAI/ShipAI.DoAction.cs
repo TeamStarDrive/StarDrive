@@ -360,7 +360,7 @@ namespace Ship_Game.AI
             // force the ship out of warp if we get too close
             // this is a balance feature
             ThrustOrWarpToPos(landingSpot, elapsedTime, warpExitDistance: Owner.WarpOutDistance);
-            if (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot, elapsedTime);
+            if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, elapsedTime);
             else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot,elapsedTime);
             else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
         }
@@ -399,14 +399,6 @@ namespace Ship_Game.AI
                 else
                     ClearOrders();
             }
-        }
-
-        void DoRebase(ShipGoal goal)
-        {
-            if (!Owner.HasOurTroops)
-                Owner.QueueTotalRemoval(); // troops not found, vanish the ship
-            else if (!Owner.TryLandSingleTroopOnPlanet(goal.TargetPlanet))
-                ClearOrders();
         }
 
         void DoRefit(ShipGoal goal)
