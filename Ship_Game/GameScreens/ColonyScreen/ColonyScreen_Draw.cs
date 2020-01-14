@@ -203,7 +203,7 @@ namespace Ship_Game
                 }
                 else if (P.BioSpheresToTerraform
                       && P.Category == P.Owner?.data.PreferredEnv 
-                      && P.MaxFertilityFor(Player).AlmostEqual(P.TerraformedMaxFertility))
+                      && P.BaseMaxFertility.GreaterOrEqual(P.TerraformedMaxFertility))
                 {
                     terraformText = Localizer.Token(1919);
                 }
