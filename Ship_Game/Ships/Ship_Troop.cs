@@ -97,6 +97,31 @@ namespace Ship_Game.Ships
                 troops.Add(OurTroops[i]);
             return troops;
         }
+
+        // NOTE: This will move the hostile troop list to our troops after successful board
+        public void ReCalculateTroopsAfterBoard()
+        {
+            for (int i = HostileTroops.Count - 1; i >= 0;  i--)
+            {
+                Troop troop = HostileTroops[i];
+                if (troop.Loyalty == loyalty)
+                {
+                    HostileTroops.RemoveAtSwapLast(i);
+                    AddTroop(troop);
+                }
+            }
+        }
+
+        // NOTE: In case of a rebellion, usually
+        public void SwitchTroopLoyalty(Empire newLoyalty)
+        {
+            for (int i = 0; i < OurTroops.Count; i++)
+            {
+                Troop troop = OurTroops[i];
+                if (troop.Loyalty != newLoyalty)
+                    troop.ChangeLoyalty(newLoyalty);
+            }
+        }
         
         public Array<Troop> GetFriendlyAndHostileTroops()
         {
@@ -182,7 +207,7 @@ namespace Ship_Game.Ships
             MechanicalBoardingDefense =  ModuleSlotList.Sum(module => module.MechanicalBoardingDefense);
         }
 
-        void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
+        public void DisengageExcessTroops(int troopsToRemove) // excess troops will leave the ship, usually after successful boarding
         {
             Troop[] toRemove = OurTroops.ToArray();
             for (int i = 0; i < troopsToRemove && i < toRemove.Length; ++i)
@@ -217,7 +242,7 @@ namespace Ship_Game.Ships
         void UpdateTroops()
         {
             TroopBoardingDefense = 0f;
-            if (OurTroops.Count == 0 || HostileTroops.Count == 0)
+            if (OurTroops.Count == 0 && HostileTroops.Count == 0)
                 return;
 
             for (int i = 0; i < OurTroops.Count; i++)
