@@ -86,12 +86,14 @@ namespace Ship_Game.Ships
 
         public float BestFreighterValue(Empire empire, float fastVsBig)
         {
-            float warpK          = MaxFTLSpeed / 1000;
-            float movementWeight = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
-            float cargoWeight    = CargoSpaceMax.Clamped(0, 80) - (float)SurfaceArea / 25;
+            float warpK           = MaxFTLSpeed / 1000;
+            float movementWeight  = warpK + MaxSTLSpeed / 10 + RotationRadiansPerSecond.ToDegrees() - GetCost(empire) / 5;
+            float cargoWeight     = CargoSpaceMax.Clamped(0, 80) - (float)SurfaceArea / 25;
+            float lowCargoPenalty = CargoSpaceMax < SurfaceArea * 0.5f ? CargoSpaceMax / SurfaceArea : 1;
+            float score           = movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
 
             // For faster , cheaper ships vs big and maybe slower ships
-            return movementWeight * fastVsBig + cargoWeight * (1 - fastVsBig);
+            return score * lowCargoPenalty;
         }
 
         public void DownloadTradeRoutes(Array<Guid> tradeRoutes)
