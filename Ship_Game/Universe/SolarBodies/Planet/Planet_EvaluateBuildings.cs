@@ -396,10 +396,10 @@ namespace Ship_Game
 
         bool NotSuitableForScrap(Building b, float storageInUse)
         {
-            if (NotSuitableForScrap(b) && IsStorageWasted(storageInUse, b.StorageAdded))
+            if (NotSuitableForScrap(b))
                 return true;
 
-            return false;
+            return IsStorageWasted(storageInUse, b.StorageAdded);
         }
 
 
