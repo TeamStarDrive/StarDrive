@@ -68,6 +68,19 @@ namespace Ship_Game
             EmpireUI.empire.UpdateShipsWeCanBuild();
         }
 
+        void ShowSceneObject(Ship ship)
+        {
+            if (ship == null)
+                return;
+            if (ship.GetSO() == null)
+            {
+                Log.Info("FleetDesign CreateSceneObject");
+                ship.CreateSceneObject();
+            }
+            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+            ship.GetSO().Visibility = GlobalStats.ShipVisibility;
+        }
+
         public void ChangeFleet(int which)
         {
             SelectedNodeList.Clear();
@@ -77,11 +90,7 @@ namespace Ship_Game
                 {
                     foreach (Ship ship in kv.Value.Ships)
                     {
-                        if (ship.GetSO() == null)
-                        {
-                            ship.CreateSceneObject();
-                        }
-                        ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                        ShowSceneObject(ship);
                     }
                 }
             }
@@ -118,11 +127,10 @@ namespace Ship_Game
                         flanks.Remove(squad);
             }
 
-            SelectedFleet = EmpireManager.Player.GetFleetsDict()[which];
+            SelectedFleet = EmpireManager.Player.GetFleet(which);
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-                ship.GetSO().Visibility = GlobalStats.ShipVisibility;
+                ShowSceneObject(ship);
             }
         }
 
@@ -141,7 +149,6 @@ namespace Ship_Game
             }
             base.ExitScreen();
         }
-
 
         public override void LoadContent()
         {
@@ -259,7 +266,7 @@ namespace Ship_Game
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                ShowSceneObject(ship);
             }
             base.LoadContent();
         }
@@ -272,6 +279,7 @@ namespace Ship_Game
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = fleet.Ships[i];
+                ShowSceneObject(ship);
                 ship.GetSO().World =  Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
                 ship?.fleet?.RemoveShip(ship);         
             }
