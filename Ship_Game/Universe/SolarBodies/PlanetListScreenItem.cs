@@ -184,10 +184,10 @@ namespace Ship_Game
             var rpos = new Vector2
             {
                 X = ShipNameEntry.ClickableArea.X,
-                Y = ShipNameEntry.ClickableArea.Y - 10
+                Y = ShipNameEntry.ClickableArea.Y + 3
             };
             batch.DrawString(Fonts.Arial20Bold, Planet.Name, rpos, empireColor);
-            rpos.Y = rpos.Y + (Fonts.Arial20Bold.LineSpacing - 3);
+            rpos.Y += Fonts.Arial20Bold.LineSpacing - 3;
             Vector2 FertilityCursor = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             batch.DrawString(Fonts.Arial12Bold, Planet.FertilityFor(EmpireManager.Player).String(), FertilityCursor, (Planet.Habitable ? Color.White : Color.LightPink));
             Vector2 RichCursor = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
@@ -206,6 +206,7 @@ namespace Ship_Game
                 singular = (Planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
             }
             spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, empireColor);
+            rpos.Y += 2;
             batch.DrawString(Fonts.Arial12Bold, Planet.LocalizedRichness, rpos, empireColor);
             DrawPlanetDistance(Distance, batch, rpos, spriteFont);
             if (Planet.Habitable && Planet.Owner == null)
@@ -213,7 +214,7 @@ namespace Ship_Game
                 Colonize.Draw(batch);
             }
 
-            if (Planet.Owner == null && Planet.Habitable)  //fbedard: can send troop anywhere
+            if (Planet.Habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = 0;
                 BatchRemovalCollection<Ship> ships = Screen.EmpireUI.empire.GetShips();
