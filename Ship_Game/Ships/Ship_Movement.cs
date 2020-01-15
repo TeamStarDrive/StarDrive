@@ -97,11 +97,12 @@ namespace Ship_Game.Ships
 
         public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
         {
-            IsTurning = true;
+            
             float rotAmount = rotationDir * elapsedTime * RotationRadiansPerSecond;
             if (Math.Abs(rotAmount) > angleDiff)
             {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
+                IsTurning = true;
             }
 
             if (rotAmount > 0f) // Y-bank:
@@ -320,6 +321,7 @@ namespace Ship_Game.Ships
             SpeedLimit = VelocityMaximum;
             if (AI.State == AIState.FormationWarp)
                 SpeedLimit = AI.FormationWarpSpeed(VelocityMaximum);
+            IsTurning = false;
         }
 
         // called from Ship.Update
@@ -338,7 +340,6 @@ namespace Ship_Game.Ships
             {
                 RestoreYBankRotation(elapsedTime);
             }
-            IsTurning = false;
 
             if ((engineState == MoveState.Warp || ThrustThisFrame > 0) && Velocity.Length() < SpeedLimit)
             {

@@ -194,30 +194,40 @@ namespace Ship_Game.Ships
             if (MaxFTLSpeed < 1 || !Active)
                 return ShipStatus.NotApplicable;
 
-            if (EngineStatus() == ShipStatus.Critical || !IsSpooling && WarpDuration() < ShipStatus.Good)
+            ShipStatus engineStatus = EngineStatus();
+
+            // less than average means the ship engines are not warp capable ATM;
+            if (engineStatus < ShipStatus.Average)
                 return ShipStatus.Critical;
+
+            if (Carrier.RecallingFighters())
+                return ShipStatus.Poor;
+
+            if (!IsSpooling && WarpDuration() < ShipStatus.Good)
+                return ShipStatus.Poor;
 
             if (engineState == MoveState.Warp)
                 return ShipStatus.Excellent;
 
-            if (Carrier.RecallingFighters())
-                return ShipStatus.Poor;
-            return ShipStatus.Excellent;
+            return engineStatus;
         }
 
-        public ShipStatus ShipReadyForFormationWarp()
+        public ShipStatus ShipReadyForFormationWarp(Vector2 position)
         {
-            if (AI.HasPriorityOrder || AI.State == AIState.Resupply)
+            if (AI.State == AIState.Refit || AI.State == AIState.Resupply)
                 return ShipStatus.NotApplicable;
 
             ShipStatus warpStatus = ShipReadyForWarp();
 
-            if (warpStatus > ShipStatus.Poor)
-            {
-                return ShipStatus.Good;
-            }
+            if (warpStatus == ShipStatus.Poor)     return ShipStatus.Poor;
+            if (warpStatus == ShipStatus.Critical) return ShipStatus.Good;
 
-            return ShipStatus.Poor;
+            bool facingFleetDirection = 
+                AI.VelocityAlmostEqualTo(Center.DirectionToTarget(position), 0.2f);
+            
+            if (!facingFleetDirection) return ShipStatus.Poor;
+
+            return warpStatus;
         }
 
         public ShipStatus EngineStatus()
