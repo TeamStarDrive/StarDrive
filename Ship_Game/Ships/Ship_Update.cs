@@ -116,6 +116,7 @@ namespace Ship_Game.Ships
 
         void UpdateAlive(float elapsedTime)
         {
+            ResetFrameThrustState();
             ExploreCurrentSystem(elapsedTime);
 
             if (EMPdisabled)
@@ -173,7 +174,6 @@ namespace Ship_Game.Ships
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);
-            ResetFrameThrustState();
         }
 
         void ExploreCurrentSystem(float elapsedTime)

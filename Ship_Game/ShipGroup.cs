@@ -31,7 +31,7 @@ namespace Ship_Game
         protected readonly Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
 
         // cached average position of the fleet
-        Vector2 AveragePos;
+        protected Vector2 AveragePos;
 
         // entire ship group average offset from [0,0]
         // this is relevant because ships are not perfectly aligned
@@ -499,18 +499,19 @@ namespace Ship_Game
         {
             if (Ships.Count == 0)
                 return;
-
-            float slowestSpeed = Ships[0].VelocityMaximum;
+            float slowestSpeed = float.MaxValue;
             for (int i = 1; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.EngineStatus() > ShipStatus.Critical && !ship.InCombat 
+
+                if (ship.EngineStatus() > ShipStatus.Poor && !ship.InCombat 
                                                               && ship.AI.State != AIState.Resupply
                                                               && ship.AI.State != AIState.Refit
                                                               && ship.AI.State != AIState.Scrap
                                                               && ship.AI.State != AIState.Scuttle)
                 {
-                    slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
+                    if (ship.engineState == Ship.MoveState.Warp || ship.Center.InRadius(AveragePos, 15000))
+                        slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }
             SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));

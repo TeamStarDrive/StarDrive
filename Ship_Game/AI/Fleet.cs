@@ -1574,10 +1574,10 @@ namespace Ship_Game.AI
                 UpdateOurFleetShip(ship);
 
                 // get fleet assembled before going to warp. 
-                if (ReadyForWarp && ship.AI.State == AIState.FormationWarp)
+                if (ship.AI.State == AIState.FormationWarp && IsAssembling)
                 {
-                    if (IsFleetAssembled(15) == MoveStatus.Assembled)
-                        ReadyForWarp = ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
+                    if (ReadyForWarp == true)
+                        ReadyForWarp = ship.ShipReadyForFormationWarp(FinalPosition) > ShipStatus.Poor;
                 }
 
                 // once in warp clear assembling flag. 
