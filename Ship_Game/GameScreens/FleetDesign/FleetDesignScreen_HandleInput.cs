@@ -244,8 +244,8 @@ namespace Ship_Game
                         }
 
                         node.Ship = ActiveShipDesign;
-                        node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.FleetOffset, 0f));
                         node.Ship.RelativeFleetOffset = node.FleetOffset;
+                        ShowSceneObject(node.Ship);
                         AvailableShips.Remove(ActiveShipDesign);
                         SelectedFleet.AddShip(node.Ship);
 
@@ -359,8 +359,8 @@ namespace Ship_Game
                             continue;
                         }
 
-                        node.Ship.GetSO().World =
-                            Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
+                        if (node.Ship.GetSO() != null)
+                            node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
                         SelectedFleet.Ships.Remove(node.Ship);
                         node.Ship.fleet?.RemoveShip(node.Ship);
                     }
