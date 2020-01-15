@@ -276,16 +276,26 @@ namespace Ship_Game
             int count = ships.Count;
             if (count == 0)
                 return Vector2.Zero;
+            
+            float fleetCapableShipCount = 1;
+            Ship[] items                = ships.GetInternalArrayItems();
+            Ship largestShip            = ships.FindMax(ship => ship.SurfaceArea);
+            Vector2 avg                 = largestShip.Center;
+            float largestSize           = largestShip.SurfaceArea;
 
-            Ship[] items = ships.GetInternalArrayItems();
-            Vector2 avg = items[0].Center;
-            for (int i = 1; i < count; ++i)
+            for (int i = 0; i < count; ++i)
             {
-                Vector2 p = items[i].Center;
-                avg.X += p.X;
-                avg.Y += p.Y;
+                Ship ship = items[i];
+                if (ship != largestShip && FleetCapableShip(ship))
+                {
+                    float ratio            = ship.SurfaceArea / largestSize;
+                    fleetCapableShipCount += 1 * ratio;
+                    Vector2 p              = items[i].Center;
+                    avg.X                 += p.X * ratio;
+                    avg.Y                 += p.Y * ratio;
+                }
             }
-            return avg / count;
+            return avg / fleetCapableShipCount;
         }
 
         static Vector2 GetAverageOffsetFromZero(Array<Ship> ships)
@@ -495,20 +505,25 @@ namespace Ship_Game
             
         }
 
+        static bool FleetCapableShip(Ship ship)
+        {
+            return ship.EngineStatus() > ShipStatus.Poor 
+                                      && ship.AI.State != AIState.Resupply
+                                      && ship.AI.State != AIState.Refit
+                                      && ship.AI.State != AIState.Scrap
+                                      && ship.AI.State != AIState.Scuttle;
+        }
+
         public void SetSpeed()
         {
             if (Ships.Count == 0)
                 return;
             float slowestSpeed = float.MaxValue;
-            for (int i = 1; i < Ships.Count; i++)
+            for (int i = 1; i < Ships.Count; i++) 
             {
                 Ship ship = Ships[i];
 
-                if (ship.EngineStatus() > ShipStatus.Poor && !ship.InCombat 
-                                                              && ship.AI.State != AIState.Resupply
-                                                              && ship.AI.State != AIState.Refit
-                                                              && ship.AI.State != AIState.Scrap
-                                                              && ship.AI.State != AIState.Scuttle)
+                if (FleetCapableShip(ship) && !ship.InCombat)
                 {
                     if (ship.engineState == Ship.MoveState.Warp || ship.Center.InRadius(AveragePos, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
