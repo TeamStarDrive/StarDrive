@@ -69,7 +69,7 @@ namespace Ship_Game
                 else
                 {
                     Ship ship = node.Ship;
-                    ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
+                    ShowSceneObject(ship);
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View,
