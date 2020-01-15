@@ -44,11 +44,8 @@ namespace Ship_Game.AI
 
         internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
-            if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
-                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
-
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
-            float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
+            float angleDiff = AngleDifferenceToDirection(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
                 float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
@@ -56,6 +53,20 @@ namespace Ship_Game.AI
                 return true;
             }
             return false;
+        }
+
+        public float AngleDifferenceToDirection(Vector2 wantedForward, Vector2 currentForward)
+        {
+            if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
+                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
+
+            return (float)Math.Acos(wantedForward.Dot(currentForward));
+        }
+
+        public bool VelocityAlmostEqualTo(Vector2 direction, float minDifference)
+        {
+            float diff = AngleDifferenceToDirection(direction, Owner.VelocityDirection);
+            return diff < minDifference;
         }
 
         internal bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
@@ -430,7 +441,7 @@ namespace Ship_Game.AI
 
         public void EngageFormationWarp()
         {
-            if (!Owner.Carrier.RecallingFighters() && Owner.fleet.ReadyForWarp)
+            if (Owner.fleet.ReadyForWarp)
             {
                 if (Owner.engineState == Ship.MoveState.Sublight)
                     Owner.EngageStarDrive();
