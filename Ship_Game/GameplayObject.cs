@@ -164,6 +164,12 @@ namespace Ship_Game
 
                 ship.SwitchTroopLoyalty(ship.loyalty);
                 ship.ReCalculateTroopsAfterBoard();
+                // FB - AI captured ships will be scrapped for unlock if possible
+                if (!changeTo.IsHullUnlocked(ship.shipData.Hull) && !changeTo.isPlayer 
+                                                                 && !ship.IsPlatformOrStation)
+                {
+                    ship.AI.OrderScrapShip();
+                }
             }
 
             // this resets the spatial management

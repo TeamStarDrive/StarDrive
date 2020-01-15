@@ -2235,6 +2235,22 @@ namespace Ship_Game
             AtWarCount = atWarCount;
         }
 
+        public void UnlockByScrap(Ship ship)
+        {
+            string hullName = ship.shipData.Hull;
+            if (IsHullUnlocked(hullName))
+                return; // It's ours or we got it elsewhere
+
+            UnlockEmpireHull(hullName);
+            if (isPlayer)
+            {
+                string modelIcon  = ship.BaseHull.ActualIconPath;
+                string hullString = ship.BaseHull.ToString();
+                string message    = $"{hullString}{Localizer.Token(1932)}";
+                Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
+            }
+        }
+
         private void CalculateScore()
         {
             TotalScore = 0;

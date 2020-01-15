@@ -4731,6 +4731,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space.</Text>
     </Token>
     <Token>
+      <Index>1932</Index>
+      <Text> was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"</Text>
+    </Token>
+    <Token>
       <Index>1941</Index>
       <Text>Governor Will Not Scrap Buildings</Text>
     </Token>
