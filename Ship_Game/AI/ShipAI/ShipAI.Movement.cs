@@ -62,13 +62,7 @@ namespace Ship_Game.AI
 
             return (float)Math.Acos(wantedForward.Dot(currentForward));
         }
-
-        public bool VelocityAlmostEqualTo(Vector2 direction, float minDifference)
-        {
-            float diff = AngleDifferenceToDirection(direction, Owner.VelocityDirection);
-            return diff < minDifference;
-        }
-
+        
         internal bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
         {
             if (lookAt.AlmostZero())
