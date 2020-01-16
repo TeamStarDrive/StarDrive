@@ -1544,7 +1544,8 @@ namespace Ship_Game.AI
             HasRepair = false;
             ReadyForWarp = true;
             Ship commandShip = null;
-            if (CommandShip == null || !CommandShip.FleetCapableShip())
+            if (Ships.Count == 0) return;
+            if (CommandShip  != null && !CommandShip.FleetCapableShip())
                 SetCommandShip(null);
             
 
@@ -1615,6 +1616,60 @@ namespace Ship_Game.AI
             public Array<Ship> Ships = new Array<Ship>();
             public Fleet Fleet;
             public Vector2 Offset;
+
+            public void SetTacticDefense(float aoRadius = 7500f)
+            {
+                {
+                    foreach (var node in DataNodes)
+                    {
+                        ChangeNodeWeight(ref node.VultureWeight, 0f);
+                        ChangeNodeWeight(ref node.AttackShieldedWeight, 0f);
+                        ChangeNodeWeight(ref node.AssistWeight, 0.25f);
+                        ChangeNodeWeight(ref node.DefenderWeight, 1f);
+                        ChangeNodeWeight(ref node.SizeWeight, 0.5f);
+                        ChangeNodeWeight(ref node.ArmoredWeight, 0f);
+                        ChangeNodeWeight(ref node.DPSWeight, 0.25f);
+                        ChangeNodeWeight(ref node.OrdersRadius, aoRadius); ;
+                    }
+                }
+            }
+
+            public void SetTacticAttack(float aoRadius = 7500f)
+            {
+                foreach (var node in DataNodes)
+                {
+                    ChangeNodeWeight(ref node.VultureWeight, 0.5f);
+                    ChangeNodeWeight(ref node.AttackShieldedWeight, 0.5f);
+                    ChangeNodeWeight(ref node.AssistWeight, 1f);
+                    ChangeNodeWeight(ref node.DefenderWeight, 0f);
+                    ChangeNodeWeight(ref node.SizeWeight, 1f);
+                    ChangeNodeWeight(ref node.ArmoredWeight, 0.5f);
+                    ChangeNodeWeight(ref node.DPSWeight, 1f);
+                    ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
+                }
+            }
+
+            public void SetTacticIntercept(float aoRadius = 7500f)
+            {
+                foreach (var node in DataNodes)
+                {
+                    ChangeNodeWeight(ref node.VultureWeight, 1f);
+                    ChangeNodeWeight(ref node.AttackShieldedWeight, 0f);
+                    ChangeNodeWeight(ref node.AssistWeight, 1f);
+                    ChangeNodeWeight(ref node.DefenderWeight, 0.5f);
+                    ChangeNodeWeight(ref node.SizeWeight, 0f);
+                    ChangeNodeWeight(ref node.ArmoredWeight, 0.5f);
+                    ChangeNodeWeight(ref node.DPSWeight, 0.5f);
+                    ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
+                }
+            }
+
+            float ChangeNodeWeight(ref float currentValue, float newValue)
+            {
+                if (currentValue.AlmostEqual(0.5f)) return currentValue;
+                currentValue = newValue;
+                return newValue;
+            }
         }
 
         public enum FleetGoalType
