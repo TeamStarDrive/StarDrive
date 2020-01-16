@@ -169,8 +169,7 @@ namespace Ship_Game.AI.ExpansionAI
 
                 AO ao = OwnerEmpire.GetEmpireAI().FindClosestAOTo(sys.Position);
 
-                float systemEnemyStrength = OwnerEmpire.GetEmpireAI().ThreatMatrix
-                    .PingRadarStr(sys.Position, sys.Radius, OwnerEmpire);
+                float systemEnemyStrength = OwnerEmpire.KnownEnemyStrengthIn(sys);
                 
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {
