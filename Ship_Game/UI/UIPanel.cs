@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
@@ -50,6 +51,13 @@ namespace Ship_Game
         public UIPanel(Vector2 pos, Vector2 size, Color color) : base(pos, size)
         {
             Color = color;
+        }
+
+        public static UIPanel FromTexture(GameContentManager content, in Rectangle rect, string texture, Color color)
+        {
+            var sprite   = DrawableSprite.SubTex(content, texture);
+            var panel    = new UIPanel(rect, color, sprite);
+            return panel;
         }
 
         public override bool HandleInput(InputState input)
