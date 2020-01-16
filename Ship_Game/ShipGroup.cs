@@ -11,24 +11,56 @@ namespace Ship_Game
     {
         public class GroupLeader
         {
+            Fleet AssignedFleet;
             public enum GroupTactic
             {
                 Defensive,
-                Offensive,
-                GloryHunter,
-                Pirate,
-                Neutral
+                Offensive
             }
             public Ship Leader { get; private set; }
             public int GroupSkill => Leader?.Level ?? 0;
             public GroupTactic Tactic { get; private set; }
 
-            public GroupLeader(Ship ship)
+            public GroupLeader(Ship ship, Fleet fleet)
             {
                 Leader = ship;
-                var enumTypes = Enum.GetNames(typeof(GroupTactic));
-                string randomTactic = RandomMath.RandItem(enumTypes);
-                Tactic = (GroupTactic)Enum.Parse(typeof(GroupTactic), randomTactic);
+                AssignedFleet = fleet;
+                if (Leader != null)
+                {
+                    var groupTactics = (GroupTactic[])Enum.GetValues(typeof(GroupTactic));
+                    Tactic = RandomMath.RandItem<GroupTactic>(groupTactics);
+                    ApplyTactic();
+                }
+            }
+            void ApplyTactic()
+            {
+                switch (Tactic)
+                {
+                    case GroupTactic.Defensive:
+                        DefensiveTactic();
+                        break;
+                    case GroupTactic.Offensive:
+                        OffensiveTactic();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            void OffensiveTactic()
+            {
+                foreach (Fleet.Squad squad in AssignedFleet.ScreenFlank) squad.SetTacticDefense();
+                foreach (Fleet.Squad squad in AssignedFleet.LeftFlank) squad.SetTacticIntercept();
+                foreach (Fleet.Squad squad in AssignedFleet.RightFlank) squad.SetTacticIntercept();
+                foreach (Fleet.Squad squad in AssignedFleet.CenterFlank) squad.SetTacticAttack(Leader.SensorRange);
+            }
+
+            void DefensiveTactic()
+            {
+                foreach (Fleet.Squad squad in AssignedFleet.ScreenFlank) squad.SetTacticDefense();
+                foreach (Fleet.Squad squad in AssignedFleet.LeftFlank) squad.SetTacticIntercept();
+                foreach (Fleet.Squad squad in AssignedFleet.RightFlank) squad.SetTacticIntercept();
+                foreach (Fleet.Squad squad in AssignedFleet.CenterFlank) squad.SetTacticDefense(Leader.SensorRange);
             }
         }
 
@@ -38,7 +70,7 @@ namespace Ship_Game
         public Ship CommandShip
         {
             get         => LeadShip?.Leader;
-            private set => LeadShip = new GroupLeader(value);
+            private set => LeadShip = new GroupLeader(value, value?.fleet);
         }
 
         GroupLeader LeadShip;
@@ -549,7 +581,7 @@ namespace Ship_Game
 
                 if (ship.FleetCapableShip() && !ship.InCombat)
                 {
-                    if (ship.engineState == Ship.MoveState.Warp || ship.Center.InRadius(AveragePos, 15000))
+                    if (CommandShip == null || ship.Center.InRadius(AveragePos, CommandShip.Center.Distance(AveragePos).ClampMin(15000)))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }

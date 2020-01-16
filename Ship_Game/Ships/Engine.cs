@@ -72,7 +72,6 @@ namespace Ship_Game.Ships
                 movePosition = Owner.fleet.FinalPosition;
             }
 
-            Vector2 directionToFleetMove = Owner.fleet.FinalPosition;
             float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
 
             if (facingFleetDirection > 0.1f) return Status.Poor;
@@ -98,7 +97,7 @@ namespace Ship_Game.Ships
                 return Status.Poor;
 
             if (Owner.engineState == Ship.MoveState.Warp)
-                return Status.Excellent;
+                return Status.Poor;
 
             return engineStatus;
         }
