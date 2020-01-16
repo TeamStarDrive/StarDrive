@@ -9,9 +9,42 @@ namespace Ship_Game
 {
     public class ShipGroup
     {
+        public class GroupLeader
+        {
+            public enum GroupTactic
+            {
+                Defensive,
+                Offensive,
+                GloryHunter,
+                Pirate,
+                Neutral
+            }
+            public Ship Leader { get; private set; }
+            public int GroupSkill => Leader?.Level ?? 0;
+            public GroupTactic Tactic { get; private set; }
+
+            public GroupLeader(Ship ship)
+            {
+                Leader = ship;
+                var enumTypes = Enum.GetNames(typeof(GroupTactic));
+                string randomTactic = RandomMath.RandItem(enumTypes);
+                Tactic = (GroupTactic)Enum.Parse(typeof(GroupTactic), randomTactic);
+            }
+        }
+
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
         protected bool IsAssembling = false;
+        public Ship CommandShip
+        {
+            get         => LeadShip?.Leader;
+            private set => LeadShip = new GroupLeader(value);
+        }
+
+        GroupLeader LeadShip;
+
+        public void SetCommandShip(Ship ship) => CommandShip = ship;
+
         // Speed LIMIT of the entire ship group, so the ships can stay together
         public float SpeedLimit { get; private set; }
 
@@ -58,7 +91,7 @@ namespace Ship_Game
             Vector2 fleetCenter = AssembleDefaultGroup(shipList, start, end);
             ProjectPos(fleetCenter, direction);
         }
-
+        
         public void ProjectPos(Vector2 projectedPos, Vector2 direction)
         {
             ProjectedPos = projectedPos;
@@ -271,7 +304,7 @@ namespace Ship_Game
             return true;
         }
 
-        public static Vector2 GetAveragePosition(Array<Ship> ships)
+        public static Vector2 GetAveragePosition(Array<Ship> ships, Ship commandShip = null)
         {
             int count = ships.Count;
             if (count == 0)
@@ -279,18 +312,18 @@ namespace Ship_Game
             
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
-            Ship largestShip            = ships.FindMax(ship => ship.SurfaceArea);
-            Vector2 avg                 = largestShip.Center;
-            float largestSize           = largestShip.SurfaceArea;
-
+            commandShip                 = commandShip ?? items[0];
+            Vector2 avg                 = commandShip.Center;
+            float commandShipSize       = commandShip.SurfaceArea;
+ 
             for (int i = 0; i < count; ++i)
             {
                 Ship ship = items[i];
-                if (ship != largestShip && FleetCapableShip(ship))
+                if (ship != commandShip && ship.FleetCapableShip())
                 {
-                    float ratio            = ship.SurfaceArea / largestSize;
+                    float ratio            = ship.SurfaceArea / commandShipSize;
                     fleetCapableShipCount += 1 * ratio;
-                    Vector2 p              = items[i].Center;
+                    Vector2 p              = ship.Center;
                     avg.X                 += p.X * ratio;
                     avg.Y                 += p.Y * ratio;
                 }
@@ -321,7 +354,7 @@ namespace Ship_Game
             if (LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance.FrameId;
-                AveragePos = GetAveragePosition(Ships);
+                AveragePos = GetAveragePosition(Ships, CommandShip);
                 AverageOffsetFromZero = GetAverageOffsetFromZero(Ships);
             }
             return AveragePos;
@@ -505,25 +538,16 @@ namespace Ship_Game
             
         }
 
-        static bool FleetCapableShip(Ship ship)
-        {
-            return ship.EngineStatus() > ShipStatus.Poor 
-                                      && ship.AI.State != AIState.Resupply
-                                      && ship.AI.State != AIState.Refit
-                                      && ship.AI.State != AIState.Scrap
-                                      && ship.AI.State != AIState.Scuttle;
-        }
-
         public void SetSpeed()
         {
             if (Ships.Count == 0)
                 return;
             float slowestSpeed = float.MaxValue;
-            for (int i = 1; i < Ships.Count; i++) 
+            for (int i = 0; i < Ships.Count; i++) 
             {
                 Ship ship = Ships[i];
 
-                if (FleetCapableShip(ship) && !ship.InCombat)
+                if (ship.FleetCapableShip() && !ship.InCombat)
                 {
                     if (ship.engineState == Ship.MoveState.Warp || ship.Center.InRadius(AveragePos, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
