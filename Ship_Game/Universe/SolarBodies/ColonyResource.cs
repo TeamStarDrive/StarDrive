@@ -233,7 +233,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class ColonyMoney
     {
         readonly Planet Planet;
-        float IncomePerColonist;
+        public float IncomePerColonist { get; private set; }
 
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
         public float TaxRate { get; private set; }

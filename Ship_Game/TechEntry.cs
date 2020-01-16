@@ -19,8 +19,25 @@ namespace Ship_Game
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
         [Serialize(7)] public Array<string> WasAcquiredFrom;
 
+        /// <summary>
+        /// Checks if list  contains restricted trade type. 
+        /// </summary>
+        private bool AllowRacialTrade(Empire us, Empire them)
+        {
+            return us.GetRelations(them).AllowRacialTrade();
+        }
+
         [XmlIgnore][JsonIgnore]
-        public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
+        public float TechCost
+        {
+            get
+            {
+                float cost      = Tech.ActualCost;
+                float techLevel = (float)Math.Max(1, Math.Pow(2.0, Level));
+                int rootTech    = Tech.RootNode * 100;
+                return cost * (techLevel + rootTech);
+            }
+        }
 
         [XmlIgnore][JsonIgnore]
         public float PercentResearched => Progress / TechCost;
@@ -159,9 +176,12 @@ namespace Ship_Game
 
         public bool TheyCanUseThis(Empire us, Empire them)
         {
-            var theirTech = them.GetTechEntry(this);
-            bool theyCanUnlockIt = !theirTech.Unlocked && (theirTech.IsRoot || them.HavePreReq(UID));
-            bool notHasContent = ContentRestrictedTo(us) && !theirTech.SpiedFrom(us) && (theirTech.IsRoot || them.HavePreReq(UID));
+            var theirTech        = them.GetTechEntry(this);
+            bool theyCanUnlockIt = !theirTech.Unlocked && (them.HavePreReq(UID) ||
+                                                           AllowRacialTrade(us, them) && theirTech.IsRoot);
+            bool notHasContent   = AllowRacialTrade(us, them) && ContentRestrictedTo(us) 
+                                                  && !theirTech.SpiedFrom(us) 
+                                                  && (theirTech.IsRoot || them.HavePreReq(UID));
             return theyCanUnlockIt || notHasContent;
         }
 
@@ -173,15 +193,6 @@ namespace Ship_Game
             bool modules   = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             bool bonus     = Tech.BonusUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             return hulls || buildings || troops || modules || bonus;
-        }
-
-        public bool CanBeGivenTo(Empire them)
-        {
-            bool hasContent = SpiedFrom(them) && !ContentRestrictedTo(them);
-            return (!hasContent || !Unlocked) && (Tech.RootNode == 1 || them.HavePreReq(UID));
-
-            //return Unlocked && (Tech.RootNode == 1 || them.HavePreReq(UID)) &&
-            //       (!Tech.Secret || Tech.Discovered) ;
         }
 
         float LookAheadCost(TechnologyType techType, Empire empire)
@@ -284,6 +295,7 @@ namespace Ship_Game
 
         public void UnlockTroops(Empire us, Empire them)
         {
+            if (us != them) return;
             foreach (Technology.UnlockedTroop unlockedTroop in Tech.TroopsUnlocked)
             {
                 if (CheckSource(unlockedTroop.Type, them))
