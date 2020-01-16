@@ -26,8 +26,8 @@ namespace Ship_Game
         SortButton sb_Pop;
         SortButton sb_Owned;
 
-        UICheckBox cb_hideOwned;
-        UICheckBox cb_hideUninhabitable;
+        private UICheckBox cb_hideOwned;
+        private UICheckBox cb_hideUninhabitable;
 
         bool HideOwned;
         bool HideUninhab = true;
@@ -63,8 +63,8 @@ namespace Ship_Game
             eRect = new Rectangle(leftRect.X + 20, titleRect.Bottom + 30,
                                   ScreenWidth - 40,
                                   leftRect.Bottom - (titleRect.Bottom + 30) - 15);
-            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect, 40));
 
+            PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect, 40));
             sb_Sys   = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name  = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
             sb_Fert  = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
