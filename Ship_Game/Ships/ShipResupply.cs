@@ -14,7 +14,7 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
 
-        public const ShipStatus ResupplyShuttleOrdnanceThreshold = ShipStatus.Average;
+        public const Status ResupplyShuttleOrdnanceThreshold = Status.Average;
 
         public const float ShipDestroyThreshold = 0.5f;
         public const float RepairDroneThreshold = 0.9f;
@@ -234,8 +234,8 @@ namespace Ship_Game.Ships
                 case SupplyType.Rearm:
                     if (Ship.IsSupplyShip)
                         return false;
-                    ShipStatus status = ShipStatusWithPendingResupply(supplyType);
-                    return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : ShipStatus.Maximum);
+                    Status status = ShipStatusWithPendingResupply(supplyType);
+                    return status < (Ship.AI.BadGuysNear ? ResupplyShuttleOrdnanceThreshold : Status.Maximum);
                         
                 case SupplyType.Repair:
                     break;
@@ -244,7 +244,7 @@ namespace Ship_Game.Ships
             }
             return false;
         }
-        public ShipStatus ShipStatusWithPendingResupply(SupplyType supplyType)
+        public Status ShipStatusWithPendingResupply(SupplyType supplyType)
         {
             float amount = IncomingSupply[supplyType];
             // for easier debugging keeping this as two statements

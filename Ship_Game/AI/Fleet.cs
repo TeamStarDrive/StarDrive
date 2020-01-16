@@ -1543,6 +1543,11 @@ namespace Ship_Game.AI
         {
             HasRepair = false;
             ReadyForWarp = true;
+            Ship commandShip = null;
+            if (CommandShip == null || !CommandShip.FleetCapableShip())
+                SetCommandShip(null);
+            
+
             for (int i = Ships.Count - 1; i >= 0; --i)
             {
                 Ship ship = Ships[i];
@@ -1556,6 +1561,12 @@ namespace Ship_Game.AI
                     RemoveShip(ship);
                     Log.Error("Fleet Update. Ship in fleet was not assigned to this fleet");
                     continue;
+                }
+
+                if (CommandShip == null && ship.FleetCapableShip())
+                {
+                    if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
+                        commandShip = ship;
                 }
 
                 Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
@@ -1574,10 +1585,10 @@ namespace Ship_Game.AI
                 UpdateOurFleetShip(ship);
 
                 // get fleet assembled before going to warp. 
-                if (ship.AI.State == AIState.FormationWarp && IsAssembling)
+                if (ship.AI.State == AIState.FormationWarp)
                 {
                     if (ReadyForWarp == true)
-                        ReadyForWarp = ship.ShipReadyForFormationWarp(FinalPosition) > ShipStatus.Poor;
+                        ReadyForWarp = ship.Engines.ReadyForFormationWarp > Status.Poor;
                 }
 
                 // once in warp clear assembling flag. 
@@ -1586,6 +1597,8 @@ namespace Ship_Game.AI
 
             if (Ships.Count > 0 && HasFleetGoal)
                 GoalStack.Peek().Evaluate(elapsedTime);
+
+            if (commandShip != null) SetCommandShip(commandShip);
         }
 
         public enum FleetCombatStatus

@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
         public float Thrust;
         public float TurnThrust;
         public float RotationRadiansPerSecond;
+        public Engine Engines;
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
@@ -103,6 +104,10 @@ namespace Ship_Game.Ships
             {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
                 IsTurning = true;
+            }
+            else
+            {
+                IsTurning = false;
             }
 
             if (rotAmount > 0f) // Y-bank:
@@ -321,7 +326,6 @@ namespace Ship_Game.Ships
             SpeedLimit = VelocityMaximum;
             if (AI.State == AIState.FormationWarp)
                 SpeedLimit = AI.FormationWarpSpeed(VelocityMaximum);
-            IsTurning = false;
         }
 
         // called from Ship.Update
