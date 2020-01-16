@@ -61,8 +61,10 @@ namespace Ship_Game
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             ShipNameEntry.Text = Planet.Name;
             ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
-            Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
-            SendTroops.Rect = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
+            Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
+            SendTroops.Rect    = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
+            Colonize.Visible   = Planet.Owner == null && Planet.Habitable;
+            SendTroops.Visible = Planet.Habitable;
             
             base.PerformLayout();
         }
@@ -209,11 +211,6 @@ namespace Ship_Game
             rpos.Y += 2;
             batch.DrawString(Fonts.Arial12Bold, Planet.LocalizedRichness, rpos, empireColor);
             DrawPlanetDistance(Distance, batch, rpos, spriteFont);
-            if (Planet.Habitable && Planet.Owner == null)
-            {
-                Colonize.Draw(batch);
-            }
-
             if (Planet.Habitable)  //fbedard: can send troop anywhere
             {
                 int troopsInvading = 0;
@@ -238,7 +235,6 @@ namespace Ship_Game
                     SendTroops.Text = "Send Troops";
                     SendTroops.Style = ButtonStyle.BigDip;
                 }
-                SendTroops.Draw(batch);
             }
             //fbedard : Add Send Button for your planets
             if (Planet.Owner == Empire.Universe.player)
