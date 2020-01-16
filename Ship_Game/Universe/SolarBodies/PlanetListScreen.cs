@@ -222,9 +222,6 @@ namespace Ship_Game
             if (PlanetSL.NumEntries == 0)
                 ResetList();
 
-            cb_hideOwned.HandleInput(input);
-            cb_hideUninhabitable.HandleInput(input);
-
             HandleButton(input, sb_Sys,   p => p.ParentSystem.Name);
             HandleButton(input, sb_Name,  p => p.Name);
             HandleButton(input, sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
