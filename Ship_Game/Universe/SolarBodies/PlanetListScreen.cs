@@ -65,6 +65,8 @@ namespace Ship_Game
                                   leftRect.Bottom - (titleRect.Bottom + 30) - 15);
 
             PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect, 40));
+            PlanetSL.EnableItemHighlight = true;
+
             sb_Sys   = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name  = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
             sb_Fert  = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
