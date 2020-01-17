@@ -60,9 +60,9 @@ namespace Ship_Game
             int h = (int)Height;
             RemoveAll();
 
-            ButtonStyle style = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
+            ButtonStyle colonizeStyle  = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
             LocalizedText colonizeText = !MarkedForColonization ? new LocalizedText(1425) : "Cancel Colonize";
-            Colonize   = Button(style, colonizeText, OnColonizeClicked);
+            Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
 
             int nextX = x;
@@ -155,7 +155,7 @@ namespace Ship_Game
             Panel(planetIcon, ResourceManager.Texture(Planet.IconPath));
             if (Planet.Owner != null)
             {
-                Panel(planetIcon, ResourceManager.Flag(Planet.Owner));
+                Panel(planetIcon, EmpireColor, ResourceManager.Flag(Planet.Owner));
             }
             AddPlanetStatusIcons(planetIcon);
         }
@@ -249,55 +249,35 @@ namespace Ship_Game
             }
         }
 
-        public /*override*/ void /*Draw*/ DontUse(SpriteBatch batch)
+        void UpdateButtonSendTroops()
         {
-            // Fat Bastard - I am slowly refactoring this method. Dont delete this 
-
-            if (Planet.Habitable)  //fbedard: can send troop anywhere
+            int troopsInvading = 0;
+            BatchRemovalCollection<Ship> ships = Player.GetShips();
+            for (int i = 0; i < ships.Count; i++)
             {
-                int troopsInvading = 0;
-                BatchRemovalCollection<Ship> ships = Screen.EmpireUI.empire.GetShips();
-                for (int z = 0; z < ships.Count; z++)
-                {
-                    Ship ship = ships[z];
-                    ShipAI ai = ship?.AI;                    
-                    if (ai == null ||  ai.State == AIState.Resupply || !ship.HasOurTroops || ai.OrderQueue.IsEmpty)
-                        continue;
-                    if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet))
-                        troopsInvading = ship.TroopCount;
-                }
+                Ship ship = ships[i];
+                ShipAI ai = ship?.AI;
+                if (ai == null || ai.State == AIState.Resupply || !ship.HasOurTroops || ai.OrderQueue.IsEmpty)
+                    continue;
 
-                if (troopsInvading > 0)
+                if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null
+                                              && goal.TargetPlanet == Planet
+                                              && (goal.Plan == ShipAI.Plan.LandTroop || goal.Plan == ShipAI.Plan.Rebase)))
                 {
-                    SendTroops.Text = "Invading: " + troopsInvading;
-                    SendTroops.Style = ButtonStyle.Default;
-                }
-                else
-                {
-                    SendTroops.Text = "Send Troops";
-                    SendTroops.Style = ButtonStyle.BigDip;
+                    troopsInvading += ship.TroopCount;
                 }
             }
-            //fbedard : Add Send Button for your planets
-            if (Planet.Owner == Empire.Universe.player)
-            {
-                int troopsInvading = Screen.EmpireUI.empire.GetShips()
-                 .Where(troop => troop.TroopCount > 0)
-                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet));
-                if (troopsInvading > 0)
-                {
-                    SendTroops.Text = "Landing: " + troopsInvading;
-                    SendTroops.Style = ButtonStyle.Default;
-                }
-                else
-                {
-                    SendTroops.Text = "Send Troops";
-                    SendTroops.Style = ButtonStyle.BigDip;
-                }
-                SendTroops.Draw(batch);
-            }
 
-            batch.DrawRectangle(Rect, Color.White);
+            if (troopsInvading > 0)
+            {
+                ButtonStyle style  = Planet.Owner == Player || Planet.Owner == null ? ButtonStyle.Default : ButtonStyle.Military;
+                string text        = "Invading:";
+                if (Planet.Owner == Player)    text = "Rebasing:";
+                else if (Planet.Owner == null) text = "Landing:";
+
+                SendTroops.Text = $"{text} {troopsInvading}";
+                SendTroops.Style = style;
+            }
         }
 
         void DrawPlanetDistance(float distance, Vector2 namePos, SpriteFont spriteFont)
@@ -313,10 +293,11 @@ namespace Ship_Game
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (Screen.EmpireUI.empire.GetTroopShipForRebase(out Ship troopShip, Planet))
+            if (Player.GetTroopShipForRebase(out Ship troopShip, Planet))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet);
+                UpdateButtonSendTroops();
             }
             else
                 GameAudio.NegativeClick();
@@ -327,8 +308,9 @@ namespace Ship_Game
             if (!MarkedForColonization)
             {
                 GameAudio.EchoAffirmative();
-                Empire.Universe.player.GetEmpireAI().Goals.Add(
+                Player.GetEmpireAI().Goals.Add(
                     new MarkForColonization(Planet, Empire.Universe.player));
+
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;
                 MarkedForColonization = true;
