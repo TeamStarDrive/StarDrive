@@ -12,7 +12,7 @@ namespace Ship_Game
 {
     public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem>
     {
-        public Planet Planet;
+        public readonly Planet Planet;
         public Rectangle SysNameRect;
         public Rectangle PlanetNameRect;
         public Rectangle FertRect;
@@ -30,8 +30,8 @@ namespace Ship_Game
 
         private Rectangle ShipIconRect;
         private readonly UITextEntry PlanetNameEntry = new UITextEntry();
-        private readonly UIButton Colonize;
-        private readonly UIButton SendTroops;
+        private UIButton Colonize;
+        private UIButton SendTroops;
         private readonly PlanetListScreen Screen;
         private readonly float Distance;
         private bool MarkedForColonization;
@@ -50,11 +50,6 @@ namespace Ship_Game
                 if (g.ColonizationTarget != null && g.ColonizationTarget == planet)
                     MarkedForColonization = true;
             }
-
-            ButtonStyle style   = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
-            string colonizeText = !MarkedForColonization ? Localizer.Token(1425) : "Cancel Colonize";
-            Colonize            = Button(style, colonizeText, OnColonizeClicked);
-            SendTroops          = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
         }
 
         public override void PerformLayout()
@@ -62,6 +57,13 @@ namespace Ship_Game
             int x = (int)X;
             int y = (int)Y;
             Rect  = new Rectangle(x, y, Rect.Width, Rect.Height);
+            RemoveAll();
+
+            ButtonStyle style = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
+            LocalizedText colonizeText = !MarkedForColonization ? new LocalizedText(1425) : "Cancel Colonize";
+            Colonize   = Button(style, colonizeText, OnColonizeClicked);
+            SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
+
             SysNameRect    = new Rectangle(x, y, (int)(Rect.Width * 0.12f), Rect.Height);
             PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(Rect.Width * 0.25f), Rect.Height);
             FertRect     = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, Rect.Height);
@@ -89,19 +91,19 @@ namespace Ship_Game
         {
             string systemName     = Planet.ParentSystem.Name;
             SpriteFont systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
-            Vector2 sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
-                                            2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
+            var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
+                                        2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
             
-            Add(new UILabel(sysNameCursor, systemName, systemFont, Cream));
+            Label(sysNameCursor, systemName, systemFont, Cream);
         }
 
         void AddPlanetName()
         {
             var namePos = new Vector2(X = PlanetNameEntry.ClickableArea.X, Y = PlanetNameEntry.ClickableArea.Y + 3);
-            Add(new UILabel(namePos, Planet.Name, NormalFont, EmpireColor));
+            Label(namePos, Planet.Name, NormalFont, EmpireColor);
             // Now add Richness
             namePos.Y += NormalFont.LineSpacing - 1;
-            Add(new UILabel(namePos, Planet.LocalizedRichness, SmallFont, EmpireColor));
+            Label(namePos, Planet.LocalizedRichness, SmallFont, EmpireColor);
             // And approximate distance
             DrawPlanetDistance(Distance, namePos, SmallFont);
         }
@@ -114,15 +116,15 @@ namespace Ship_Game
             else
                 singular = (Planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
 
-            Vector2 fertilityPos = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - SmallFont.LineSpacing / 2);
-            Vector2 richnessPos  = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - SmallFont.LineSpacing / 2);
-            Vector2 popPos       = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - SmallFont.LineSpacing / 2);
-            Vector2 ownerPos     = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var fertilityPos = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var richnessPos  = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var popPos       = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var ownerPos     = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
 
-            Add(new UILabel(fertilityPos, Planet.FertilityFor(EmpireManager.Player).String(), SmallFont, PlanetStatColor));
-            Add(new UILabel(richnessPos, Planet.MineralRichness.String(1), SmallFont, PlanetStatColor));
-            Add(new UILabel(popPos, Planet.PopulationStringForPlayer, SmallFont, PlanetStatColor));
-            Add(new UILabel(ownerPos, singular, SmallFont, EmpireColor));
+            Label(fertilityPos, Planet.FertilityFor(EmpireManager.Player).String(), SmallFont, PlanetStatColor);
+            Label(richnessPos, Planet.MineralRichness.String(1), SmallFont, PlanetStatColor);
+            Label(popPos, Planet.PopulationStringForPlayer, SmallFont, PlanetStatColor);
+            Label(ownerPos, singular, SmallFont, EmpireColor);
         }
 
         void AddHostileWarning()
@@ -130,22 +132,19 @@ namespace Ship_Game
             if (!Planet.ParentSystem.HostileForcesPresent(Player)) 
                 return;
             
-            string textureText = "Ground_UI/EnemyHere";
-            SubTexture flash   = ResourceManager.Texture(textureText);
-            var flashRect      = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash.Width, flash.Height);
-            Add(UIPanel.FromTexture(Screen.TransientContent, flashRect, textureText, Color.White));
-            // ToolTip.CreateTooltip(123);
+            SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
+            UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
+            enemyHere.Tooltip = GameTips.EnemyHere;
         }
 
         void AddPlanetTextureAndStatus()
         {
             var planetIcon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            Add(UIPanel.FromTexture(Screen.TransientContent, planetIcon, Planet.IconPath, Color.White));
-            /*
+            Panel(planetIcon, ResourceManager.Texture(Planet.IconPath));
             if (Planet.Owner != null)
-                Add(UIPanel.FromTexture(Screen.TransientContent, planetIcon, ResourceManager.Flag(Planet.Owner)));
-            */
-
+            {
+                Panel(planetIcon, ResourceManager.Flag(Planet.Owner));
+            }
             AddPlanetStatusIcons(planetIcon);
         }
 
@@ -167,10 +166,9 @@ namespace Ship_Game
                 return;
 
             offset += 18;
-            string textureText   = "UI/icon_fighting_small";
-            Rectangle statusRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
-            Add(UIPanel.FromTexture(Screen.TransientContent, statusRect, textureText, Color.White));
-            //ToolTip.CreateTooltip(119);
+            var statusRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+            UIPanel status = Panel(statusRect, ResourceManager.Texture("UI/icon_fighting_small"));
+            status.Tooltip = GameTips.GroundCom;
         }
 
         void AddMoleIcons(Vector2 statusIcons, ref int offset) // Haha, moles..
@@ -183,13 +181,20 @@ namespace Ship_Game
                 if (m.PlanetGuid == Planet.guid)
                 {
                     offset += 20;
-                    string textureText   = "UI/icon_spy_small";
-                    Rectangle statusRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
-                    Add(UIPanel.FromTexture(Screen.TransientContent, statusRect, textureText, Color.White));
-                    //ToolTip.CreateTooltip(120);
+                    var spyRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+                    UIPanel spy = Panel(spyRect, ResourceManager.Texture("UI/icon_spy_small"));
+                    spy.Tooltip = GameTips.Spy;
                     break;
                 }
             }
+        }
+
+        void AddBuildingIcon(Building b, Vector2 statusIcons, ref int offset)
+        {
+            offset += 20;
+            var buildingRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+            UIPanel building = Panel(buildingRect, ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"));
+            building.Tooltip = b.DescriptionText;
         }
 
         void AddEventIcon(Vector2 statusIcons, ref int offset)
@@ -201,11 +206,7 @@ namespace Ship_Game
             {
                 if (b.EventHere && (Planet.Owner == null || !Planet.Owner.GetBDict()[b.Name]))
                 {
-                    offset += 20;
-                    string textureText = $"Buildings/icon_{b.Icon}_48x48";
-                    var statusRect     = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
-                    Add(UIPanel.FromTexture(Screen.TransientContent, statusRect, textureText, Color.White));
-                    //ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
+                    AddBuildingIcon(b, statusIcons, ref offset);
                 }
             }
         }
@@ -219,11 +220,7 @@ namespace Ship_Game
             {
                 if (b.IsCommodity)
                 {
-                    offset += 20;
-                    string textureText = $"Buildings/icon_{b.Icon}_48x48";
-                    var statusRect     = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
-                    Add(UIPanel.FromTexture(Screen.TransientContent, statusRect, textureText, Color.White));
-                    //ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
+                    AddBuildingIcon(b, statusIcons, ref offset);
                 }
             }
         }
@@ -234,10 +231,9 @@ namespace Ship_Game
             if (troops > 0)
             {
                 offset += 20;
-                string textureText = "UI/icon_troop";
-                var statusRect     = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
-                Add(UIPanel.FromTexture(Screen.TransientContent, statusRect, textureText, Color.White));
-                //ToolTip.CreateTooltip($"{Localizer.Token(336)}: {troops}");
+                var troopRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+                UIPanel troop = Panel(troopRect, ResourceManager.Texture("UI/icon_troop"));
+                troop.Tooltip = LocalizedText.Parse($"{{Troops}}: {troops}");
             }
         }
 
