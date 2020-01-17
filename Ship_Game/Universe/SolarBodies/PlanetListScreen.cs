@@ -25,6 +25,7 @@ namespace Ship_Game
         SortButton sb_Rich;
         SortButton sb_Pop;
         SortButton sb_Owned;
+        SortButton sb_Distance;
 
         private UICheckBox cb_hideOwned;
         private UICheckBox cb_hideUninhabitable;
@@ -67,12 +68,13 @@ namespace Ship_Game
             PlanetSL = Add(new ScrollList2<PlanetListScreenItem>(eRect, 40));
             PlanetSL.EnableItemHighlight = true;
 
-            sb_Sys   = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
-            sb_Name  = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
-            sb_Fert  = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
-            sb_Rich  = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(387));
-            sb_Pop   = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(1403));
-            sb_Owned = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1940));
+            sb_Sys      = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
+            sb_Name     = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
+            sb_Fert     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(386) );
+            sb_Rich     = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(387));
+            sb_Pop      = new SortButton(empireUi.empire.data.PLSort,Localizer.Token(1403));
+            sb_Owned    = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1940));
+            sb_Distance = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(1939));
 
             foreach (SolarSystem system in UniverseScreen.SolarSystemList.OrderBy(distance => distance.Position.Distance(EmpireManager.Player.GetWeightedCenter())))
             {
@@ -144,6 +146,10 @@ namespace Ship_Game
                 sb_Name.Update(textCursor);
                 sb_Name.Draw(ScreenManager);
 
+                textCursor = TextCursorVector(e1.DistanceRect, 1939);
+                sb_Distance.Update(textCursor);
+                sb_Distance.Draw(ScreenManager);
+
                 textCursor = TextCursorVector(e1.FertRect, 386);
                 sb_Fert.Update(textCursor);
                 sb_Fert.Draw(ScreenManager, fontStyle);
@@ -160,27 +166,29 @@ namespace Ship_Game
                 sb_Owned.Update(textCursor);
                 sb_Owned.Draw(ScreenManager, fontStyle);
          
-                Color lineColor = new Color(118, 102, 67, 255);
-                Vector2 topLeftSL = new Vector2(e1.SysNameRect.X, (eRect.Y + 35));
-                Vector2 botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                Color lineColor   = new Color(118, 102, 67, 255);
+                int columnTop     = eRect.Y + 35;
+                int columnBot     = eRect.Y + eRect.Height - 20;
+                Vector2 topLeftSL = new Vector2(e1.PlanetNameRect.X, columnTop);
+                Vector2 botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2(e1.PlanetNameRect.X, (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                topLeftSL = new Vector2((e1.DistanceRect.X), columnTop);
+                botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2(e1.FertRect.X, (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                topLeftSL = new Vector2(e1.FertRect.X, columnTop);
+                botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((e1.RichRect.X + 5), (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                topLeftSL = new Vector2((e1.RichRect.X + 5), columnTop);
+                botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2(e1.PopRect.X, (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                topLeftSL = new Vector2(e1.PopRect.X, columnTop);
+                botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((e1.PopRect.X + e1.PopRect.Width), (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                topLeftSL = new Vector2((e1.PopRect.X + e1.PopRect.Width), columnTop);
+                botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
-                topLeftSL = new Vector2((e1.OwnerRect.X + e1.OwnerRect.Width), (eRect.Y + 35));
-                botSL = new Vector2(topLeftSL.X, (eRect.Y + eRect.Height));
+                topLeftSL = new Vector2((e1.OwnerRect.X + e1.OwnerRect.Width), columnTop);
+                botSL     = new Vector2(topLeftSL.X, columnBot);
                 batch.DrawLine(topLeftSL, botSL, lineColor);
 
                 batch.DrawRectangle(PlanetSL.ItemsHousing, lineColor); // items housing border
@@ -230,6 +238,7 @@ namespace Ship_Game
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
             HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
+            //HandleButton(input, sb_Distance, GetShortestDistance(p)); @TODO How do we sort this by Distance?
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
             {

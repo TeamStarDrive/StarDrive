@@ -10,7 +10,7 @@ using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
-    public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem>
+    public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem> // Moved to UI V2
     {
         public readonly Planet Planet;
         public Rectangle SysNameRect;
@@ -20,6 +20,7 @@ namespace Ship_Game
         public Rectangle PopRect;
         public Rectangle OwnerRect;
         public Rectangle OrdersRect;
+        public Rectangle DistanceRect;
 
         private readonly Empire Player         = EmpireManager.Player;
         private readonly Color Cream           = Colors.Cream;
@@ -73,14 +74,16 @@ namespace Ship_Game
                 return new Rectangle(next, y, (int)width, h);
             }
 
-            SysNameRect = NextRect(w * 0.12f);
+            SysNameRect    = NextRect(w * 0.12f);
             PlanetNameRect = NextRect(w * 0.25f);
 
-            FertRect = NextRect(100);
-            RichRect = NextRect(120);
-            PopRect = NextRect(200);
-            OwnerRect = NextRect(100);
-            OrdersRect = NextRect(100);
+            DistanceRect = NextRect(100);
+            FertRect     = NextRect(100);
+            RichRect     = NextRect(120);
+            PopRect      = NextRect(200);
+            OwnerRect    = NextRect(100);
+            OrdersRect   = NextRect(100);
+
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             PlanetNameEntry.Text = Planet.Name;
             PlanetNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
@@ -117,7 +120,7 @@ namespace Ship_Game
             namePos.Y += NormalFont.LineSpacing - 1;
             Label(namePos, Planet.LocalizedRichness, SmallFont, EmpireColor);
             // And approximate distance
-            DrawPlanetDistance(Distance, namePos, SmallFont);
+            //DrawPlanetDistance(Distance, namePos, SmallFont);
         }
 
         void AddPlanetStats()
@@ -128,11 +131,13 @@ namespace Ship_Game
             else
                 singular = (Planet.Habitable ? 2263 : 2264);
 
+            var distancePos  = new Vector2(DistanceRect.X + 35, DistanceRect.Y + DistanceRect.Height / 2 - SmallFont.LineSpacing / 2);
             var fertilityPos = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - SmallFont.LineSpacing / 2);
             var richnessPos  = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - SmallFont.LineSpacing / 2);
             var popPos       = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - SmallFont.LineSpacing / 2);
             var ownerPos     = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
 
+            DrawPlanetDistance(Distance, distancePos, SmallFont);
             Label(fertilityPos, Planet.FertilityFor(EmpireManager.Player).String(), SmallFont, PlanetStatColor);
             Label(richnessPos, Planet.MineralRichness.String(1), SmallFont, PlanetStatColor);
             Label(popPos, Planet.PopulationStringForPlayer, SmallFont, PlanetStatColor);
@@ -285,9 +290,7 @@ namespace Ship_Game
             DistanceDisplay distanceDisplay = new DistanceDisplay(distance);
             if (distance.Greater(0))
             {
-                namePos.X += spriteFont.TextWidth(Planet.LocalizedRichness) + 4;
-                namePos.Y += 2;
-                Add(new UILabel(namePos, distanceDisplay.Text, Fonts.Arial10, distanceDisplay.Color));
+                Label(namePos, distanceDisplay.Text, spriteFont, distanceDisplay.Color);
             }
         }
 
@@ -346,11 +349,11 @@ namespace Ship_Game
                 DeterminePlanetDistanceCategory(distance);
                 switch (PlanetDistance)
                 {
-                    case Distances.Local: Text = "(Local)"; Color = Color.Green; break;
-                    case Distances.Near: Text = "(Near)"; Color = Color.YellowGreen; break;
-                    case Distances.Midway: Text = "(Midway)"; Color = Color.DarkGoldenrod; break;
-                    case Distances.Distant: Text = "(Distant)"; Color = Color.DarkRed; break;
-                    default: Text = "(Beyond)"; Color = Color.DarkGray; break;
+                    case Distances.Local:   Text  = "Local";   Color = Color.Green; break;
+                    case Distances.Near:    Text  = "Near";    Color = Color.YellowGreen; break;
+                    case Distances.Midway:  Text  = "Midway";  Color = Color.DarkGoldenrod; break;
+                    case Distances.Distant: Text  = "Distant"; Color = Color.DarkRed; break;
+                    default:                Text  = "Beyond";  Color = Color.DarkGray; break;
                 }
             }
 
