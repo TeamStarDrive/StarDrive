@@ -56,7 +56,8 @@ namespace Ship_Game
         {
             int x = (int)X;
             int y = (int)Y;
-            Rect  = new Rectangle(x, y, Rect.Width, Rect.Height);
+            int w = (int)Width;
+            int h = (int)Height;
             RemoveAll();
 
             ButtonStyle style = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
@@ -64,18 +65,29 @@ namespace Ship_Game
             Colonize   = Button(style, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
 
-            SysNameRect    = new Rectangle(x, y, (int)(Rect.Width * 0.12f), Rect.Height);
-            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(Rect.Width * 0.25f), Rect.Height);
-            FertRect     = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, Rect.Height);
-            RichRect     = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, Rect.Height);
-            PopRect      = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, Rect.Height);
-            OwnerRect    = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, Rect.Height);
-            OrdersRect   = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width + OwnerRect.Width, y, 100, Rect.Height);
+            int nextX = x;
+            Rectangle NextRect(float width)
+            {
+                int next = nextX;
+                nextX += (int)width;
+                return new Rectangle(next, y, (int)width, h);
+            }
+
+            SysNameRect = NextRect(w * 0.12f);
+            PlanetNameRect = NextRect(w * 0.25f);
+
+            FertRect = NextRect(100);
+            RichRect = NextRect(120);
+            PopRect = NextRect(200);
+            OwnerRect = NextRect(100);
+            OrdersRect = NextRect(100);
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
             PlanetNameEntry.Text = Planet.Name;
             PlanetNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
-            Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
-            SendTroops.Rect    = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
+            
+            var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
+            Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
+            SendTroops.Rect    = new RectF(OrdersRect.X + Colonize.Width + 10, Colonize.Y, Colonize.Width, Colonize.Height);
             Colonize.Visible   = Planet.Owner == null && Planet.Habitable;
             SendTroops.Visible = Planet.Habitable;
 
@@ -99,7 +111,7 @@ namespace Ship_Game
 
         void AddPlanetName()
         {
-            var namePos = new Vector2(X = PlanetNameEntry.ClickableArea.X, Y = PlanetNameEntry.ClickableArea.Y + 3);
+            var namePos = new Vector2(PlanetNameEntry.ClickableArea.X, PlanetNameEntry.ClickableArea.Y + 3);
             Label(namePos, Planet.Name, NormalFont, EmpireColor);
             // Now add Richness
             namePos.Y += NormalFont.LineSpacing - 1;
@@ -110,11 +122,11 @@ namespace Ship_Game
 
         void AddPlanetStats()
         {
-            string singular;
+            LocalizedText singular;
             if (Planet.Owner != null)
                 singular = Planet.Owner.data.Traits.Singular;
             else
-                singular = (Planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
+                singular = (Planet.Habitable ? 2263 : 2264);
 
             var fertilityPos = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - SmallFont.LineSpacing / 2);
             var richnessPos  = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - SmallFont.LineSpacing / 2);

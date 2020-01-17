@@ -284,7 +284,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\FRect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ListExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Matrices.cs" />
