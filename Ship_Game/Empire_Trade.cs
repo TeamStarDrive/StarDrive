@@ -56,7 +56,7 @@ namespace Ship_Game
         {
             float taxedGoods = 0;
             if (this != planet.Owner) // Inter Empire Trade (very effective)
-                taxedGoods += goods;
+                taxedGoods += goods * 0.5f;
 
             taxedGoods              += MercantileTax(goods);
             TradeMoneyAddedThisTurn += taxedGoods;
