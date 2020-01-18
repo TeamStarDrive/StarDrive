@@ -35,6 +35,7 @@ namespace Ship_Game
         private readonly Map<string, bool> UnlockedTroopDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedModulesDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
+        public Array<string> HullsUnlockedByScrap { get; private set; } 
 
         private readonly Array<Troop> UnlockedTroops = new Array<Troop>();
 
@@ -677,6 +678,7 @@ namespace Ship_Game
                 data.DefaultTroopShip = data.PortraitName + " " + "Troop";
 
             InitTechs();
+            HullsUnlockedByScrap = new Array<string>();
 
             foreach (var hull in ResourceManager.Hulls)       UnlockedHullsDict[hull.Hull]  = false;
             foreach (var tt in ResourceManager.TroopTypes)    UnlockedTroopDict[tt]         = false;
@@ -817,6 +819,9 @@ namespace Ship_Game
             foreach (var kv in ResourceManager.ShipModules)   UnlockedModulesDict[kv.Key]   = false;
             UnlockedTroops.Clear();
 
+            foreach (string hullName in HullsUnlockedByScrap)
+                UnlockHullByScrap(hullName);
+
             // unlock from empire data file
             // Added by gremlin Figure out techs with modules that we have ships for.
             var ourShips = GetOurFactionShips();
@@ -897,6 +902,18 @@ namespace Ship_Game
             UnlockedHullsDict[hullName] = true;
             ShipTechs.Add(techUID);
         }
+
+        public void UnlockHullByScrap(string hullName)
+        {
+            UnlockedHullsDict[hullName] = true;
+            HullsUnlockedByScrap.Add(hullName);
+        }
+
+        public void RestoreScrapHullUnlocks(Array<string> hullsList)
+        {
+            HullsUnlockedByScrap = hullsList ?? new Array<string>();
+        }
+
         public void UnlockEmpireTroop(string troopName)
         {
             UnlockedTroopDict[troopName] = true;
@@ -2241,7 +2258,7 @@ namespace Ship_Game
             if (IsHullUnlocked(hullName))
                 return; // It's ours or we got it elsewhere
 
-            UnlockEmpireHull(hullName);
+            UnlockHullByScrap(hullName);
             if (isPlayer)
             {
                 string modelIcon  = ship.BaseHull.ActualIconPath;
