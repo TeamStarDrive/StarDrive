@@ -2252,11 +2252,15 @@ namespace Ship_Game
             AtWarCount = atWarCount;
         }
 
-        public void UnlockByScrap(Ship ship)
+        public void TryUnlockByScrap(Ship ship)
         {
             string hullName = ship.shipData.Hull;
             if (IsHullUnlocked(hullName))
                 return; // It's ours or we got it elsewhere
+
+
+            if (!TryReverseEngineer(ship))
+                return; // We could not reverse engineer this, too bad
 
             UnlockHullByScrap(hullName);
             if (isPlayer)
@@ -2266,6 +2270,22 @@ namespace Ship_Game
                 string message    = $"{hullString}{Localizer.Token(1932)}";
                 Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
             }
+        }
+
+        private bool TryReverseEngineer(Ship ship)
+        {
+            float unlockChance;
+            switch (ship.shipData.HullRole)
+            {
+                case ShipData.RoleName.fighter:  unlockChance = 90;                             break;
+                case ShipData.RoleName.corvette: unlockChance = canBuildCorvettes ? 75 : 50;    break;
+                case ShipData.RoleName.frigate:  unlockChance = canBuildFrigates  ? 60 : 40;    break;
+                case ShipData.RoleName.cruiser:  unlockChance = canBuildCruisers  ? 40 : 20;    break;
+                case ShipData.RoleName.capital:  unlockChance = canBuildCapitals  ? 25 : 12.5f; break;
+                default:                         unlockChance = 50f;                            break;
+            }
+            unlockChance *= (1 + data.Traits.ModHpModifier).UpperBound(100); // skilled or bad engineers
+            return RandomMath.RollDice(unlockChance);
         }
 
         private void CalculateScore()
