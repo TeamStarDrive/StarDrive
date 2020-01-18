@@ -8337,7 +8337,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7005</Index>
-      <Text>Order ship back to the shipyards to be scrapped.</Text>
+      <Text>Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull.</Text>
     </Token>
   <Token>
       <Index>7006</Index>
