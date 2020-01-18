@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -196,13 +197,17 @@ namespace Ship_Game
             batch.End();
         }
 
-        void InitSortedItems<T>(SortButton button, Func<Planet, T> sortPredicate)
+        void InitSortedItems(SortButton button)
         {
             LastSorted = button;
             GameAudio.BlipClick();
             button.Ascending = !button.Ascending;
             PlanetSL.Reset();
+        }
 
+        void Sort<T>(SortButton button, Func<Planet, T> sortPredicate)
+        {
+            InitSortedItems(button);
             Planet[] planets = ExploredPlanets.Sorted(button.Ascending, sortPredicate);
             foreach (Planet p in planets)
             {
@@ -214,18 +219,46 @@ namespace Ship_Game
             }
         }
 
+        void Sort(SortButton button, Map<Planet, float> list)
+        {
+            InitSortedItems(button);
+            var sortedList = button.Ascending ? list.OrderBy(d => d.Value) 
+                                              : list.OrderByDescending(d => d.Value);
+
+            foreach (KeyValuePair<Planet, float> kv in sortedList)
+            {
+                Planet p = kv.Key;
+                if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
+                    continue;
+
+                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p));
+                PlanetSL.AddItem(e);
+            }
+        }
+
         void HandleButton<T>(InputState input, SortButton button, Func<Planet, T> sortPredicate)
         {
             if (button.HandleInput(input))
-                InitSortedItems(button, sortPredicate);
+                Sort(button, sortPredicate);
+        }
+
+        void HandleButton(InputState input, SortButton button, Map<Planet, float> list)
+        {
+            if (button.HandleInput(input))
+                Sort(button, list);
         }
 
         void ResetButton<T>(SortButton button, Func<Planet, T> sortPredicate)
         {
             if (LastSorted.Text == button.Text)
-                InitSortedItems(button, sortPredicate);
+                Sort(button, sortPredicate);
         }
 
+        void ResetButton(SortButton button, Map<Planet, float> list)
+        {
+            if (LastSorted.Text == button.Text)
+                Sort(button, list);
+        }
 
         public override bool HandleInput(InputState input)
         {
@@ -238,7 +271,7 @@ namespace Ship_Game
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
             HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
-            //HandleButton(input, sb_Distance, GetShortestDistance(p)); @TODO How do we sort this by Distance?
+            HandleButton(input, sb_Distance, PlanetDistanceToClosestColony);
 
             if (input.KeyPressed(Keys.L) && !GlobalStats.TakingInput)
             {
@@ -283,6 +316,7 @@ namespace Ship_Game
                 ResetButton(sb_Rich,  p => p.MineralRichness);
                 ResetButton(sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
                 ResetButton(sb_Owned, p => p.GetOwnerName());
+                ResetButton(sb_Distance, PlanetDistanceToClosestColony);
             }
 
             SelectedPlanet = PlanetSL.NumEntries > 0 ? PlanetSL.AllEntries[0].Planet : null;
