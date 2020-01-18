@@ -143,6 +143,7 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
+                empireToSave.HullsUnlockedByScrap = e.HullsUnlockedByScrap;
                 empireToSave.FastVsBigFreighterRatio = e.FastVsBigFreighterRatio;
                 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
@@ -542,6 +543,8 @@ namespace Ship_Game
             [Serialize(16)] public string CurrentAutoScout;
             [Serialize(17)] public string CurrentConstructor;
             [Serialize(18)] public float FastVsBigFreighterRatio;
+            [Serialize(19)] public Array<string> HullsUnlockedByScrap;
+
         }
 
         public class FleetSave
