@@ -227,11 +227,13 @@ namespace Ship_Game
 
             foreach (KeyValuePair<Planet, float> kv in sortedList)
             {
-                Planet p = kv.Key;
+                Planet p       = kv.Key;
+                float distance = kv.Value;
+
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
 
-                var e = new PlanetListScreenItem(this, p, GetShortestDistance(p));
+                var e = new PlanetListScreenItem(this, p, distance);
                 PlanetSL.AddItem(e);
             }
         }
