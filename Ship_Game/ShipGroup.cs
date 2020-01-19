@@ -4,50 +4,13 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Fleets;
+using Ship_Game.Fleets.FleetGoals;
 
 namespace Ship_Game
 {
     public class ShipGroup
     {
-        public class GroupLeader
-        {
-            Fleet AssignedFleet;
-            public enum GroupTactic
-            {
-                Defensive,
-                Offensive
-            }
-            public Ship Leader { get; private set; }
-            public int GroupSkill => Leader?.Level ?? 0;
-            public GroupTactic Tactic { get; private set; }
-
-            public GroupLeader(Ship ship, Fleet fleet)
-            {
-                Leader = ship;
-                AssignedFleet = fleet;
-                if (Leader != null)
-                {
-                    var groupTactics = (GroupTactic[])Enum.GetValues(typeof(GroupTactic));
-                    Tactic = RandomMath.RandItem<GroupTactic>(groupTactics);
-                    ApplyTactic();
-                }
-            }
-            void ApplyTactic()
-            {
-                switch (Tactic)
-                {
-                    case GroupTactic.Defensive:
-                        AssignedFleet.DefensiveTactic();
-                        break;
-                    case GroupTactic.Offensive:
-                        AssignedFleet.OffensiveTactic();
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
         protected bool IsAssembling = false;
@@ -77,7 +40,7 @@ namespace Ship_Game
         public Vector2 ProjectedDirection;
 
         // WORK IN PROGRESS
-        protected readonly Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
+        protected readonly Stack<FleetGoal> GoalStack = new Stack<FleetGoal>();
 
         // cached average position of the fleet
         protected Vector2 AveragePos;
@@ -93,7 +56,7 @@ namespace Ship_Game
         //// Fleet Goal Access | We don't want to expose the inner details ////
         public bool HasFleetGoal => GoalStack.Count > 0;
         public Vector2 NextGoalMovePosition => GoalStack.Peek().MovePosition;
-        public Fleet.FleetGoal PopGoalStack() => GoalStack.Pop();
+        public FleetGoal PopGoalStack() => GoalStack.Pop();
         public void ClearFleetGoals() => GoalStack.Clear();
         ///////////////////////////////////////////////////////////////////////
 
@@ -325,7 +288,9 @@ namespace Ship_Game
             int count = ships.Count;
             if (count == 0)
                 return Vector2.Zero;
-            
+
+            if (commandShip != null) return commandShip.Center;
+
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
             commandShip                 = commandShip ?? items[0];
