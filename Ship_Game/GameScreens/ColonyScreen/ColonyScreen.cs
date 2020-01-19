@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using Ship_Game.AI.Budget;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -1491,10 +1492,14 @@ namespace Ship_Game
             if (P.Owner != Empire.Universe.player || !P.GovOrbitals || P.colonyType == Planet.ColonyType.Colony)
                 return;
 
-            Planet.WantedOrbitals wantedOrbitals = P.GovernorWantedOrbitals();
-            PlatformsStats = $"Platforms: {P.NumPlatforms}/{wantedOrbitals.Platforms}";
-            StationsStats  = $"Stations: {P.NumStations}/{wantedOrbitals.Stations}";
-            ShipyardsStats = $"Shipyards: {P.NumShipyards}/{wantedOrbitals.Shipyards}";
+            PlanetBudget budget = P.AllocateColonyBudget();
+            var wantedOrbitals  = new WantedOrbitals(P.GetColonyRank(budget));
+            int currentPlatforms = P.NumPlatforms + P.OrbitalsBeingBuilt(ShipData.RoleName.platform);
+            int currentStations  = P.NumStations + P.OrbitalsBeingBuilt(ShipData.RoleName.station);
+            int currentShipyards = P.NumShipyards + P.ShipyardsBeingBuilt();
+            PlatformsStats       = $"Platforms: {currentPlatforms}/{wantedOrbitals.Platforms}";
+            StationsStats        = $"Stations: {currentStations}/{wantedOrbitals.Stations}";
+            ShipyardsStats       = $"Shipyards: {currentShipyards}/{wantedOrbitals.Shipyards}";
         }
 
         void UpdateButtons()
