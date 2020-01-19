@@ -7,8 +7,6 @@ namespace Ship_Game.Fleets.FleetTactics
         /// <summary>
         /// Defend nearby ships above all else. 
         /// </summary>
-        /// <param name="flankShips"></param>
-        /// <param name="aoRadius"></param>
         public void SetTacticDefense(Array<Ship> flankShips, float aoRadius = 7500f)
         {
             foreach (var ship in flankShips)
