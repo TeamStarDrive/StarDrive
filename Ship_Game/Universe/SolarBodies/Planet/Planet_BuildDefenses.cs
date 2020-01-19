@@ -17,24 +17,31 @@ namespace Ship_Game
             {
                 return;
             }
+
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
+            var wantedOrbitals   = new WantedOrbitals(GetColonyRank(budget));
+            float orbitalsBudget = budget.Orbitals;
 
-            float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
-            float ratioValue     = ColonyValue / maxSystemValue.ClampMin(1);
-            int rank             = (int)(budget.SystemRank * ratioValue) + 3;
-            var wantedOrbitals   = new WantedOrbitals(rank);
-
-            BuildOrScrapShipyard(wantedOrbitals.Shipyards);
-            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, rank, budget.Orbitals);
-            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, rank, budget.Orbitals);
+            BuildOrScrapShipyard(wantedOrbitals.Shipyards, ref orbitalsBudget);
+            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, ref orbitalsBudget);
+            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, ref orbitalsBudget);
         }
 
-        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, int rank, float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, rank, budget);
+        public int GetColonyRank(PlanetBudget budget)
+        {
+            float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
+            float ratioValue     = ColonyValue / maxSystemValue.ClampMin(1);
 
-        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, int rank, float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, rank, budget);
+            int rank = (int)(budget.SystemRank * ratioValue);
+            return ApplyRankModifiers(rank);
+        }
+
+        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, ref float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, ref budget);
+
+        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, ref float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, ref budget);
 
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
@@ -52,7 +59,7 @@ namespace Ship_Game
             return orbitalList;
         }
 
-        int OrbitalsBeingBuilt(ShipData.RoleName role) => OrbitalsBeingBuilt(role, Owner);
+        public int OrbitalsBeingBuilt(ShipData.RoleName role) => OrbitalsBeingBuilt(role, Owner);
 
         int OrbitalsBeingBuilt(ShipData.RoleName role, Empire owner)
         {
@@ -61,14 +68,17 @@ namespace Ship_Game
             foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
             {
-                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role)
+                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role
+                                                                                       && !orbital.shipData.IsShipyard)
+                {
                     numOrbitals++;
+                }
             }
 
             return numOrbitals;
         }
 
-        int ShipyardsBeingBuilt() => ShipyardsBeingBuilt(Owner);
+        public int ShipyardsBeingBuilt() => ShipyardsBeingBuilt(Owner);
 
         private int ShipyardsBeingBuilt(Empire owner)
         {
@@ -83,7 +93,7 @@ namespace Ship_Game
             return shipyardsInQ;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, int colonyRank, float budget)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, ref float budget)
         {
             int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
@@ -93,21 +103,26 @@ namespace Ship_Game
             {
                 Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
                 if (weakest != null)
+                {
+                    budget += weakest.GetMaintCost(Owner);
                     ScrapOrbital(weakest); // remove this old garbage
+                }
                 else
+                {
                     Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
+                }
 
                 return;
             }
 
             if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
             {
-                BuildOrbital(role, colonyRank, budget);
+                BuildOrbital(role, ref budget);
                 return;
             }
 
             if (orbitalList.Count > 0)
-                ReplaceOrbital(orbitalList, role, colonyRank, budget);  // check if we can replace an orbital with a better one
+                ReplaceOrbital(orbitalList, role, ref budget);  // check if we can replace an orbital with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
@@ -127,15 +142,16 @@ namespace Ship_Game
             orbital.QueueTotalRemoval();
         }
 
-        private void BuildOrbital(ShipData.RoleName role, int colonyRank, float budget)
+        private void BuildOrbital(ShipData.RoleName role, ref float budget)
         {
             if (OrbitalsInTheWorks)
                 return;
 
-            Ship orbital = PickOrbitalToBuild(role, colonyRank, budget);
+            Ship orbital = PickOrbitalToBuild(role, budget);
             if (orbital == null)
                 return;
 
+            budget -= orbital.GetMaintCost(Owner);
             AddOrbital(orbital);
         }
 
@@ -151,19 +167,23 @@ namespace Ship_Game
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
         }
 
-        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, int rank, float budget)
+        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, ref float budget)
         {
-            if (OrbitalsInTheWorks)
+            if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
 
             Ship weakestWeHave  = orbitalList.FindMin(s => s.NormalizedStrength);
-            Ship bestWeCanBuild = PickOrbitalToBuild(role, rank, budget);
+            float weakestMaint  = weakestWeHave.GetMaintCost(Owner);
+            Ship bestWeCanBuild = PickOrbitalToBuild(role, budget + weakestMaint);
 
             if (bestWeCanBuild == null)
                 return;
 
-            if (bestWeCanBuild.NormalizedStrength.LessOrEqual(weakestWeHave.NormalizedStrength * 1.2f))
+            if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
                 return;
+
+            float bestMaint = bestWeCanBuild.GetMaintCost(Owner);
+            budget         += weakestMaint - bestMaint;
 
             ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild);
@@ -172,7 +192,7 @@ namespace Ship_Game
                          $"STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
         }
 
-        private Ship PickOrbitalToBuild(ShipData.RoleName role, int colonyRank, float budget)
+        private Ship PickOrbitalToBuild(ShipData.RoleName role, float budget)
         {
             Ship orbital = GetBestOrbital(role, budget);
             if (IsPlanetExtraDebugTarget())
@@ -195,7 +215,7 @@ namespace Ship_Game
         }
 
         // This returns the best orbital the empire can build
-        private Ship GetBestOrbital(ShipData.RoleName role, float orbitalsBudget)
+        private Ship GetBestOrbital(ShipData.RoleName role, float budget)
         {
             Ship orbital = null;
             switch (role)
@@ -203,7 +223,7 @@ namespace Ship_Game
                 case ShipData.RoleName.platform: orbital = Owner.BestPlatformWeCanBuild; break;
                 case ShipData.RoleName.station: orbital  = Owner.BestStationWeCanBuild;  break;
             }
-            if (orbital != null && orbitalsBudget - orbital.GetMaintCost(Owner) < 0)
+            if (orbital != null && orbital.GetMaintCost(Owner) < budget)
                 return null;
 
             return orbital;
@@ -226,36 +246,6 @@ namespace Ship_Game
             float netCost = (Math.Max(cost - Storage.Prod, 0)) * ShipBuildingModifier;
             float ratio   = netCost / EstimatedAverageProduction;
             return ratio < threshold;
-        }
-
-        public struct WantedOrbitals
-        {
-            public readonly int Platforms;
-            public readonly int Stations;
-            public readonly int Shipyards;
-
-            public WantedOrbitals(int rank)
-            {
-                switch (rank)
-                {
-                    case 1: Platforms  = 0;  Stations = 0; Shipyards = 0; break;
-                    case 2: Platforms  = 0;  Stations = 0; Shipyards = 0; break;
-                    case 3: Platforms  = 3;  Stations = 0; Shipyards = 0; break;
-                    case 4: Platforms  = 5;  Stations = 0; Shipyards = 0; break;
-                    case 5: Platforms  = 7;  Stations = 0; Shipyards = 0; break;
-                    case 6: Platforms  = 2;  Stations = 1; Shipyards = 1; break;
-                    case 7: Platforms  = 3;  Stations = 2; Shipyards = 1; break;
-                    case 8: Platforms  = 5;  Stations = 2; Shipyards = 1; break;
-                    case 9: Platforms  = 2;  Stations = 3; Shipyards = 1; break;
-                    case 10: Platforms = 3;  Stations = 3; Shipyards = 2; break;
-                    case 11: Platforms = 5;  Stations = 3; Shipyards = 2; break;
-                    case 12: Platforms = 7;  Stations = 3; Shipyards = 2; break;
-                    case 13: Platforms = 5;  Stations = 4; Shipyards = 2; break;
-                    case 14: Platforms = 7;  Stations = 4; Shipyards = 2; break;
-                    case 15: Platforms = 9;  Stations = 5; Shipyards = 2; break;
-                    default: Platforms = 0;  Stations = 0; Shipyards = 0; break;
-                }
-            }
         }
 
         // FB - gives a value from 1 to 15 based on the max colony value in the empire
@@ -291,7 +281,7 @@ namespace Ship_Game
             return rank.Clamped(0, 15);
         }
 
-        private void BuildOrScrapShipyard(int numWantedShipyards)
+        private void BuildOrScrapShipyard(int numWantedShipyards, ref float budget)
         {
             if (numWantedShipyards == 0 || OrbitalsInTheWorks
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
@@ -304,21 +294,17 @@ namespace Ship_Game
             {
                 string shipyardName = Owner.data.DefaultShipyard;
                 if (ResourceManager.GetShipTemplate(shipyardName, out Ship shipyard)
+                    && shipyard.GetMaintCost(Owner) < budget
                     && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), TimeVsCostThreshold))
                 {
                     AddOrbital(shipyard);
+                    budget -= shipyard.GetMaintCost(Owner);
                 }
             }
         }
 
         public int NumPlatforms => FilterOrbitals(ShipData.RoleName.platform).Count;
         public int NumStations  => FilterOrbitals(ShipData.RoleName.station).Count;
-
-        public WantedOrbitals GovernorWantedOrbitals()
-        {
-            int rank = FindColonyRank();
-            return new WantedOrbitals(rank);
-        }
 
         public bool IsOutOfOrbitalsLimit(Ship ship) => IsOutOfOrbitalsLimit(ship, Owner);
 
@@ -402,6 +388,36 @@ namespace Ship_Game
 
             if (weakest != null)
                 ScrapBuilding(weakest);
+        }
+    }
+
+    public struct WantedOrbitals
+    {
+        public readonly int Platforms;
+        public readonly int Stations;
+        public readonly int Shipyards;
+
+        public WantedOrbitals(int rank)
+        {
+            switch (rank)
+            {
+                case 1: Platforms = 0; Stations = 0; Shipyards = 0; break;
+                case 2: Platforms = 0; Stations = 0; Shipyards = 0; break;
+                case 3: Platforms = 3; Stations = 0; Shipyards = 0; break;
+                case 4: Platforms = 5; Stations = 0; Shipyards = 0; break;
+                case 5: Platforms = 7; Stations = 0; Shipyards = 0; break;
+                case 6: Platforms = 2; Stations = 1; Shipyards = 1; break;
+                case 7: Platforms = 3; Stations = 2; Shipyards = 1; break;
+                case 8: Platforms = 5; Stations = 2; Shipyards = 1; break;
+                case 9: Platforms = 2; Stations = 3; Shipyards = 1; break;
+                case 10: Platforms = 3; Stations = 3; Shipyards = 2; break;
+                case 11: Platforms = 5; Stations = 3; Shipyards = 2; break;
+                case 12: Platforms = 7; Stations = 3; Shipyards = 2; break;
+                case 13: Platforms = 5; Stations = 4; Shipyards = 2; break;
+                case 14: Platforms = 7; Stations = 4; Shipyards = 2; break;
+                case 15: Platforms = 9; Stations = 5; Shipyards = 2; break;
+                default: Platforms = 0; Stations = 0; Shipyards = 0; break;
+            }
         }
     }
 }
