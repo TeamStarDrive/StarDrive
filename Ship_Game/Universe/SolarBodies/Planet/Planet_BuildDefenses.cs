@@ -89,13 +89,14 @@ namespace Ship_Game
             if (IsPlanetExtraDebugTarget())
                 Log.Info($"{role}s we have: {orbitalsWeHave}, {role}s we want: {orbitalsWeWant}");
 
-            if (orbitalList.NotEmpty && orbitalsWeHave > orbitalsWeWant)
+            if (orbitalList.NotEmpty && (orbitalsWeHave > orbitalsWeWant || budget < 0))
             {
                 Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
                 if (weakest != null)
                     ScrapOrbital(weakest); // remove this old garbage
                 else
                     Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
+
                 return;
             }
 
