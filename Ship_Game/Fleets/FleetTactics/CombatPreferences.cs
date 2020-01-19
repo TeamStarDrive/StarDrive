@@ -5,7 +5,7 @@ namespace Ship_Game.Fleets.FleetTactics
     public class CombatPreferences
     {
         /// <summary>
-        /// Defend nearby ships above all else. 
+        /// Defend 
         /// </summary>
         public void SetTacticDefense(Array<Ship> flankShips, float aoRadius = 7500f)
         {
@@ -14,8 +14,8 @@ namespace Ship_Game.Fleets.FleetTactics
                 var node = ship.AI.FleetNode;
                 ChangeNodeWeight(ref node.VultureWeight, 0f);
                 ChangeNodeWeight(ref node.AttackShieldedWeight, 0f);
-                ChangeNodeWeight(ref node.AssistWeight, 0.25f);
-                ChangeNodeWeight(ref node.DefenderWeight, 1f);
+                ChangeNodeWeight(ref node.AssistWeight, 0.0f);
+                ChangeNodeWeight(ref node.DefenderWeight, 1.0f);
                 ChangeNodeWeight(ref node.SizeWeight, 0.5f);
                 ChangeNodeWeight(ref node.ArmoredWeight, 0f);
                 ChangeNodeWeight(ref node.DPSWeight, 0.25f);
@@ -24,7 +24,7 @@ namespace Ship_Game.Fleets.FleetTactics
         }
 
         /// <summary>
-        /// Attack the targets of friendly ships. 
+        /// Attack the dangerous targets
         /// </summary>
         public void SetTacticAttack(Array<Ship> flankShips, float aoRadius = 7500f)
         {
@@ -33,10 +33,10 @@ namespace Ship_Game.Fleets.FleetTactics
                 var node = ship.AI.FleetNode;
                 ChangeNodeWeight(ref node.VultureWeight, 0.0f);
                 ChangeNodeWeight(ref node.AttackShieldedWeight, 0.0f);
-                ChangeNodeWeight(ref node.DPSWeight, 0.75f);
+                ChangeNodeWeight(ref node.DPSWeight, 1.0f);
                 ChangeNodeWeight(ref node.ArmoredWeight, 0.0f);
-                ChangeNodeWeight(ref node.AssistWeight, 1f);
-                ChangeNodeWeight(ref node.DefenderWeight, 0f);
+                ChangeNodeWeight(ref node.AssistWeight, 1.0f);
+                ChangeNodeWeight(ref node.DefenderWeight, 0.0f);
                 ChangeNodeWeight(ref node.SizeWeight, .75f);
                 ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
             }
@@ -54,10 +54,10 @@ namespace Ship_Game.Fleets.FleetTactics
                 ChangeNodeWeight(ref node.VultureWeight, 1.0f);
                 ChangeNodeWeight(ref node.AttackShieldedWeight, 0.0f);
                 ChangeNodeWeight(ref node.AssistWeight, 0.0f);
-                ChangeNodeWeight(ref node.DefenderWeight, 1.0f);
+                ChangeNodeWeight(ref node.DefenderWeight, 0.0f);
                 ChangeNodeWeight(ref node.SizeWeight, 0.0f);
                 ChangeNodeWeight(ref node.ArmoredWeight, 0.0f);
-                ChangeNodeWeight(ref node.DPSWeight, 0.75f);
+                ChangeNodeWeight(ref node.DPSWeight, 0.5f);
                 ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
             }
         }
