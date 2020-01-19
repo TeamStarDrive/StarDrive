@@ -30,6 +30,8 @@ namespace Ship_Game.Fleets
         }
         void ApplyTactic()
         {
+            if (Leader.loyalty.isPlayer) return;
+
             switch (Tactic)
             {
                 case GroupTactic.Defensive:

@@ -156,10 +156,12 @@ namespace Ship_Game.AI
                          || ship.DesignRole == ShipData.RoleName.troopShip)
             {
                 RearShips.AddUniqueRef(ship);
+                RearFlank = SortSquadBySpeed(RearShips);
             }
             else if (CommandShip == ship || ship.DesignRole < ShipData.RoleName.fighter)
             {
                 CenterShips.AddUniqueRef(ship);
+                CenterFlank = SortSquadBySize(CenterShips);
             }
             else if (CenterShips.Count -2 <= ScreenShips.Count)
             {
@@ -168,15 +170,34 @@ namespace Ship_Game.AI
             else if (ScreenShips.Count <= leftCount)
             {
                 ScreenShips.AddUniqueRef(ship);
+                ScreenFlank = SortSquadBySpeed(ScreenShips);
             }
             else if (leftCount <= RightShips.Count)
             {
                 LeftShips.AddUniqueRef(ship);
+                LeftFlank = SortSquadBySpeed(LeftShips);
             }
             else
             {
                 RightShips.AddUniqueRef(ship);
+                RightFlank = SortSquadBySpeed(RightShips);
             }
+
+            void AddIntoFlank(Array<Squad> flank)
+            {
+                Squad squad;
+                if (flank.NotEmpty)
+                {
+                    squad = flank.Last;
+
+                }
+                else squad = new Squad { Fleet = this };
+
+            }
+            
+            
+            
+            
         }
 
         enum FlankType
@@ -302,7 +323,7 @@ namespace Ship_Game.AI
             });
 
             var squad = new Squad { Fleet = this };
-//            destSquad.Add(squad);
+
             for (int x = 0; x < allShips.Count; ++x)
             {
                 if (squad.Ships.Count < 4)
