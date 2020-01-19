@@ -50,6 +50,7 @@ namespace Ship_Game.AI
         public Fleet()
         {
             FleetIconIndex = RandomMath.IntBetween(1, 10);
+            SetCommandShip(null);
         }
 
         public void SetNameByFleetIndex(int index)
@@ -83,6 +84,7 @@ namespace Ship_Game.AI
                 return;
 
             UpdateOurFleetShip(newShip);
+            SortIntoFlanks(newShip, CommandShip?.DesignRole ?? ShipData.RoleName.capital);
             AddShipToNodes(newShip);
             AssignPositionTo(newShip);
         }
@@ -106,6 +108,8 @@ namespace Ship_Game.AI
             base.AddShip(shipToAdd);
             shipToAdd.fleet = this;
             AddShipToDataNode(shipToAdd);
+            var largestShip = CommandShip ?? Ships.FindMax(ship => (int)(ship.DesignRole));
+            SortIntoFlanks(shipToAdd, largestShip.DesignRole);
         }
 
         void ClearFlankList()
@@ -133,57 +137,44 @@ namespace Ship_Game.AI
             }
 
             var mainShipList = new Array<Ship>(Ships);
-            var largestShip = mainShipList.FindMax(ship => (int)(ship.DesignRole));
-            ShipData.RoleName largestCombat = largestShip.DesignRole;
+            var largestShip = CommandShip ?? mainShipList.FindMax(ship => (int)(ship.DesignRole));
 
             for (int i = mainShipList.Count - 1; i >= 0; i--)
             {
                 Ship ship = mainShipList[i];
-
-                if (ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole == largestCombat)
-                {
-                    ScreenShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
-                else if (ship.DesignRole            == ShipData.RoleName.troop ||
-                         ship.DesignRole            == ShipData.RoleName.freighter ||
-                         ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                         ship.DesignRole            == ShipData.RoleName.troopShip
-                )
-                {
-                    RearShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
-                else if (ship.DesignRole < ShipData.RoleName.fighter)
-                {
-                    CenterShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
-                else
-                {
-                    int leftOver = mainShipList.Count;
-                    if (leftOver % 2 == 0)
-                        RightShips.Add(ship);
-                    else
-                        LeftShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
+                SortIntoFlanks(ship, largestShip.DesignRole);
             }
+        }
 
-            int totalShips = CenterShips.Count;
-            foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.SurfaceArea))
+        void SortIntoFlanks(Ship ship, ShipData.RoleName largest)
+        {
+            int leftCount = LeftShips.Count;
+            if (ship.DesignRole == ShipData.RoleName.troop
+                         || ship.DesignRole == ShipData.RoleName.freighter
+                         || ship.shipData.ShipCategory == ShipData.Category.Civilian
+                         || ship.DesignRole == ShipData.RoleName.troopShip)
             {
-                if      (totalShips < 4)  CenterShips.Add(ship);
-                else if (totalShips < 8)  LeftShips.Add(ship);
-                else if (totalShips < 12) RightShips.Add(ship);
-                else if (totalShips < 16) ScreenShips.Add(ship);
-                else if (totalShips < 20 && RearShips.Count == 0) RearShips.Add(ship);
-
-                ++totalShips;
-                if (totalShips == 16)
-                {
-                    totalShips = 0;
-                }
+                RearShips.AddUniqueRef(ship);
+            }
+            else if (CommandShip == ship || ship.DesignRole < ShipData.RoleName.fighter)
+            {
+                CenterShips.AddUniqueRef(ship);
+            }
+            else if (CenterShips.Count -2 <= ScreenShips.Count)
+            {
+                CenterShips.AddUniqueRef(ship);
+            }
+            else if (ScreenShips.Count <= leftCount)
+            {
+                ScreenShips.AddUniqueRef(ship);
+            }
+            else if (leftCount <= RightShips.Count)
+            {
+                LeftShips.AddUniqueRef(ship);
+            }
+            else
+            {
+                RightShips.AddUniqueRef(ship);
             }
         }
 
@@ -310,7 +301,7 @@ namespace Ship_Game.AI
             });
 
             var squad = new Squad { Fleet = this };
-            destSquad.Add(squad);
+//            destSquad.Add(squad);
             for (int x = 0; x < allShips.Count; ++x)
             {
                 if (squad.Ships.Count < 4)
@@ -319,8 +310,8 @@ namespace Ship_Game.AI
                 if (squad.Ships.Count != 4 && x != allShips.Count - 1)
                     continue;
 
-                squad = new Squad { Fleet = this };
                 destSquad.Add(squad);
+                squad = new Squad { Fleet = this };
             }
             return destSquad;
         }
@@ -1545,7 +1536,7 @@ namespace Ship_Game.AI
             ReadyForWarp = true;
             Ship commandShip = null;
             if (Ships.Count == 0) return;
-            if (CommandShip  != null && !CommandShip.FleetCapableShip())
+            if (CommandShip != null && !CommandShip.FleetCapableShip())
                 SetCommandShip(null);
             
 
@@ -1577,7 +1568,7 @@ namespace Ship_Game.AI
                                                            && ship.AI.HasPriorityOrder 
                                                            && ship.engineState == Ship.MoveState.Sublight)
                 {
-                    if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
+                    if (CombatStatusOfShipInArea(ship, ship.Center, 7500) != CombatStatus.ClearSpace)
                     {
                         ClearPriorityOrderIfSubLight(ship);
                     }
@@ -1599,7 +1590,81 @@ namespace Ship_Game.AI
             if (Ships.Count > 0 && HasFleetGoal)
                 GoalStack.Peek().Evaluate(elapsedTime);
 
-            if (commandShip != null) SetCommandShip(commandShip);
+            if (commandShip != null) 
+                SetCommandShip(commandShip);
+        }
+
+        public void OffensiveTactic()
+        {
+            SetTacticDefense(ScreenShips);
+            SetTacticIntercept(LeftShips);
+            SetTacticIntercept(RightShips);
+            SetTacticIntercept(RearShips);
+            SetTacticAttack(CenterShips, CommandShip?.SensorRange ?? 150000);
+        }
+
+        public void DefensiveTactic()
+        {
+            SetTacticDefense(ScreenShips);
+            SetTacticIntercept(LeftShips);
+            SetTacticIntercept(RightShips);
+            SetTacticDefense(RearShips);
+            SetTacticDefense(CenterShips, CommandShip?.SensorRange ?? 150000);
+        }
+
+        void SetTacticDefense(Array<Ship> flankShips, float aoRadius = 7500f)
+        {
+            foreach (var ship in flankShips)
+            {
+                var node = ship.AI.FleetNode;
+                ChangeNodeWeight(ref node.VultureWeight, 0f);
+                ChangeNodeWeight(ref node.AttackShieldedWeight, 0f);
+                ChangeNodeWeight(ref node.AssistWeight, 0.25f);
+                ChangeNodeWeight(ref node.DefenderWeight, 1f);
+                ChangeNodeWeight(ref node.SizeWeight, 0.5f);
+                ChangeNodeWeight(ref node.ArmoredWeight, 0f);
+                ChangeNodeWeight(ref node.DPSWeight, 0.25f);
+                ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
+                ;
+            }
+        }
+
+        void SetTacticAttack(Array<Ship> flankShips, float aoRadius = 7500f)
+        {
+            foreach (var ship in flankShips)
+            {
+                var node = ship.AI.FleetNode;
+                ChangeNodeWeight(ref node.VultureWeight, 0.0f);
+                ChangeNodeWeight(ref node.AttackShieldedWeight, 0.0f);
+                ChangeNodeWeight(ref node.DPSWeight, 1f);
+                ChangeNodeWeight(ref node.ArmoredWeight, 0.0f);
+                ChangeNodeWeight(ref node.AssistWeight, 1f);
+                ChangeNodeWeight(ref node.DefenderWeight, 0f);
+                ChangeNodeWeight(ref node.SizeWeight, 1f);
+                ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
+            }
+        }
+
+        void SetTacticIntercept(Array<Ship> flankShips, float aoRadius = 7500f)
+        {
+            foreach (var ship in flankShips)
+            {
+                var node = ship.AI.FleetNode;
+                ChangeNodeWeight(ref node.VultureWeight, 0.0f);
+                ChangeNodeWeight(ref node.AttackShieldedWeight, 0.0f);
+                ChangeNodeWeight(ref node.AssistWeight, 1f);
+                ChangeNodeWeight(ref node.DefenderWeight, 0.5f);
+                ChangeNodeWeight(ref node.SizeWeight, 0.0f);
+                ChangeNodeWeight(ref node.ArmoredWeight, 0.0f);
+                ChangeNodeWeight(ref node.DPSWeight, 1.0f);
+                ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
+            }
+        }
+
+        void ChangeNodeWeight(ref float currentValue, float newValue)
+        {
+            if (!currentValue.AlmostEqual(0.5f));
+            currentValue = newValue;
         }
 
         public enum FleetCombatStatus
@@ -1616,60 +1681,6 @@ namespace Ship_Game.AI
             public Array<Ship> Ships = new Array<Ship>();
             public Fleet Fleet;
             public Vector2 Offset;
-
-            public void SetTacticDefense(float aoRadius = 7500f)
-            {
-                {
-                    foreach (var node in DataNodes)
-                    {
-                        ChangeNodeWeight(ref node.VultureWeight, 0f);
-                        ChangeNodeWeight(ref node.AttackShieldedWeight, 0f);
-                        ChangeNodeWeight(ref node.AssistWeight, 0.25f);
-                        ChangeNodeWeight(ref node.DefenderWeight, 1f);
-                        ChangeNodeWeight(ref node.SizeWeight, 0.5f);
-                        ChangeNodeWeight(ref node.ArmoredWeight, 0f);
-                        ChangeNodeWeight(ref node.DPSWeight, 0.25f);
-                        ChangeNodeWeight(ref node.OrdersRadius, aoRadius); ;
-                    }
-                }
-            }
-
-            public void SetTacticAttack(float aoRadius = 7500f)
-            {
-                foreach (var node in DataNodes)
-                {
-                    ChangeNodeWeight(ref node.VultureWeight, 0.5f);
-                    ChangeNodeWeight(ref node.AttackShieldedWeight, 0.5f);
-                    ChangeNodeWeight(ref node.AssistWeight, 1f);
-                    ChangeNodeWeight(ref node.DefenderWeight, 0f);
-                    ChangeNodeWeight(ref node.SizeWeight, 1f);
-                    ChangeNodeWeight(ref node.ArmoredWeight, 0.5f);
-                    ChangeNodeWeight(ref node.DPSWeight, 1f);
-                    ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
-                }
-            }
-
-            public void SetTacticIntercept(float aoRadius = 7500f)
-            {
-                foreach (var node in DataNodes)
-                {
-                    ChangeNodeWeight(ref node.VultureWeight, 1f);
-                    ChangeNodeWeight(ref node.AttackShieldedWeight, 0f);
-                    ChangeNodeWeight(ref node.AssistWeight, 1f);
-                    ChangeNodeWeight(ref node.DefenderWeight, 0.5f);
-                    ChangeNodeWeight(ref node.SizeWeight, 0f);
-                    ChangeNodeWeight(ref node.ArmoredWeight, 0.5f);
-                    ChangeNodeWeight(ref node.DPSWeight, 0.5f);
-                    ChangeNodeWeight(ref node.OrdersRadius, aoRadius);
-                }
-            }
-
-            float ChangeNodeWeight(ref float currentValue, float newValue)
-            {
-                if (currentValue.AlmostEqual(0.5f)) return currentValue;
-                currentValue = newValue;
-                return newValue;
-            }
         }
 
         public enum FleetGoalType

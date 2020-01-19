@@ -37,30 +37,14 @@ namespace Ship_Game
                 switch (Tactic)
                 {
                     case GroupTactic.Defensive:
-                        DefensiveTactic();
+                        AssignedFleet.DefensiveTactic();
                         break;
                     case GroupTactic.Offensive:
-                        OffensiveTactic();
+                        AssignedFleet.OffensiveTactic();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-            }
-
-            void OffensiveTactic()
-            {
-                foreach (Fleet.Squad squad in AssignedFleet.ScreenFlank) squad.SetTacticDefense();
-                foreach (Fleet.Squad squad in AssignedFleet.LeftFlank) squad.SetTacticIntercept();
-                foreach (Fleet.Squad squad in AssignedFleet.RightFlank) squad.SetTacticIntercept();
-                foreach (Fleet.Squad squad in AssignedFleet.CenterFlank) squad.SetTacticAttack(Leader.SensorRange);
-            }
-
-            void DefensiveTactic()
-            {
-                foreach (Fleet.Squad squad in AssignedFleet.ScreenFlank) squad.SetTacticDefense();
-                foreach (Fleet.Squad squad in AssignedFleet.LeftFlank) squad.SetTacticIntercept();
-                foreach (Fleet.Squad squad in AssignedFleet.RightFlank) squad.SetTacticIntercept();
-                foreach (Fleet.Squad squad in AssignedFleet.CenterFlank) squad.SetTacticDefense(Leader.SensorRange);
             }
         }
 
