@@ -24,8 +24,10 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            shipData.LoadModel(out ShipSO, Empire.Universe);
+            // my guess is that if the model crashes loading, the method dumps early and the radius doesnt get set. 
+            // So as the radius isnt dependent on the model i am going to try moving it set before the model load
             Radius = shipData.BaseHull.Radius;
+            shipData.LoadModel(out ShipSO, Empire.Universe);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
             // Since we just created the object, it must be visible
