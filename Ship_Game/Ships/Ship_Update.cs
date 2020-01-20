@@ -26,9 +26,7 @@ namespace Ship_Game.Ships
             //Log.Info($"CreateSO {Id} {Name}");
             // if radius appears to have failed give a guestimate. 
             shipData.LoadModel(out ShipSO, Empire.Universe);
-            Radius       = shipData.BaseHull.Radius;
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
-            Radius       = Radius.LessOrEqual(50) ? (float)Math.Sqrt(SurfaceArea * 8) : Radius;
 
             // Since we just created the object, it must be visible
             UpdateVisibility(0f, forceVisible: true);
