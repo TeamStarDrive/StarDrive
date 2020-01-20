@@ -54,12 +54,12 @@ namespace Ship_Game
             p.UpdateIncomes(false);
             SysNameRect    = new Rectangle(x, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f) - 30, Rect.Height);
             PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.17f), Rect.Height);
-            PopRect     = new Rectangle(PlanetNameRect.Right,      y, 30, Rect.Height);
+            PopRect     = new Rectangle(PlanetNameRect.Right,      y,  30, Rect.Height);
             FoodRect    = new Rectangle(PlanetNameRect.Right + 30, y, 30, Rect.Height);
             ProdRect    = new Rectangle(PlanetNameRect.Right + 60, y, 30, Rect.Height);
             ResRect     = new Rectangle(PlanetNameRect.Right + 90, y, 30, Rect.Height);
             MoneyRect   = new Rectangle(PlanetNameRect.Right + 120, y, 30, Rect.Height);
-            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y, sliderWidth, Rect.Height);
+            SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y - 30, sliderWidth, Rect.Height + 25);
             StorageRect = new Rectangle(PlanetNameRect.Right + sliderWidth + 150, y, (int)((Rect.Width - (sliderWidth + 120)) * 0.33f), Rect.Height);
             QueueRect   = new Rectangle(PlanetNameRect.Right + sliderWidth + StorageRect.Width + 150, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.33f), Rect.Height);
             
@@ -68,7 +68,7 @@ namespace Ship_Game
                 AssignLabor = Add(new AssignLaborComponent(p, new RectF(SliderRect), useTitleFrame: false));
             }
 
-            FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, SliderRect.Y + (int)(0.25 * SliderRect.Height), (int)(0.4f * StorageRect.Width), 18))
+            FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, StorageRect.Y + (int)(0.25 * StorageRect.Height), (int)(0.4f * StorageRect.Width), 18))
             {
                 Max = p.Storage.Max,
                 Progress = p.FoodHere,
