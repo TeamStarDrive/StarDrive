@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
-        void RemoveSceneObject()
+        public void RemoveSceneObject()
         {
             SceneObject so = ShipSO;
             ShipSO = null;
