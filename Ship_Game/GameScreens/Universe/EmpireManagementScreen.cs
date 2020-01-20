@@ -166,58 +166,55 @@ namespace Ship_Game
             if (ColoniesList.NumEntries > 0)
             {
                 ColoniesListItem entry = ColoniesList.ItemAtTop;
-                var TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
+                var TextCursor = new Vector2(entry.SysNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 15);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(192), TextCursor, Colors.Cream);
-                TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
+                TextCursor = new Vector2(entry.PlanetNameRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 15);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(389), TextCursor, Colors.Cream);
-                pop.rect = new Rectangle(entry.PopRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+                pop.rect = new Rectangle(entry.PopRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y + 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
                 batch.Draw(ResourceManager.Texture("UI/icon_pop"), pop.rect, Color.White);
-                food.rect = new Rectangle(entry.FoodRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
+                food.rect = new Rectangle(entry.FoodRect.X + 15 - ResourceManager.Texture("NewUI/icon_food").Width / 2, (int)TextCursor.Y + 2, ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_food"), food.rect, Color.White);
-                prod.rect = new Rectangle(entry.ProdRect.X + 15 - ResourceManager.Texture("NewUI/icon_production").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
+                prod.rect = new Rectangle(entry.ProdRect.X + 15 - ResourceManager.Texture("NewUI/icon_production").Width / 2, (int)TextCursor.Y + 2, ResourceManager.Texture("NewUI/icon_production").Width, ResourceManager.Texture("NewUI/icon_production").Height);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), prod.rect, Color.White);
-                res.rect = new Rectangle(entry.ResRect.X + 15 - ResourceManager.Texture("NewUI/icon_science").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
+                res.rect = new Rectangle(entry.ResRect.X + 15 - ResourceManager.Texture("NewUI/icon_science").Width / 2, (int)TextCursor.Y + 2, ResourceManager.Texture("NewUI/icon_science").Width, ResourceManager.Texture("NewUI/icon_science").Height);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_science"), res.rect, Color.White);
-                money.rect = new Rectangle(entry.MoneyRect.X + 15 - ResourceManager.Texture("NewUI/icon_money").Width / 2, (int)TextCursor.Y, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
+                money.rect = new Rectangle(entry.MoneyRect.X + 15 - ResourceManager.Texture("NewUI/icon_money").Width / 2, (int)TextCursor.Y + 2, ResourceManager.Texture("NewUI/icon_money").Width, ResourceManager.Texture("NewUI/icon_money").Height);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), money.rect, Color.White);
-                TextCursor = new Vector2(entry.SliderRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
+                TextCursor = new Vector2(entry.SliderRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 15);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(390), TextCursor, Colors.Cream);
-                TextCursor = new Vector2(entry.StorageRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
+                TextCursor = new Vector2(entry.StorageRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 15);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(391), TextCursor, Colors.Cream);
-                TextCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 33);
+                TextCursor = new Vector2(entry.QueueRect.X + 30, eRect.Y - Fonts.Arial20Bold.LineSpacing + 15);
                 batch.DrawString(Fonts.Arial20Bold, Localizer.Token(392), TextCursor, Colors.Cream);
             }
 
             var lineColor = new Color(118, 102, 67, 255);
-            var topLeftSL = new Vector2(e1.SysNameRect.X, eRect.Y + 35);
-            var botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
-            batch.DrawLine(topLeftSL, botSL, lineColor);
-            topLeftSL = new Vector2(e1.PlanetNameRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            var topLeftSL = new Vector2(e1.PlanetNameRect.X, eRect.Y + 35);
+            var botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, lineColor);
             topLeftSL = new Vector2(e1.PopRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, lineColor);
             topLeftSL = new Vector2(e1.FoodRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
             topLeftSL = new Vector2(e1.ProdRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
             topLeftSL = new Vector2(e1.ResRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
             topLeftSL = new Vector2(e1.MoneyRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, new Color(lineColor, 100));
             topLeftSL = new Vector2(e1.SliderRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, lineColor);
             topLeftSL = new Vector2(e1.StorageRect.X + 5, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, lineColor);
             topLeftSL = new Vector2(e1.QueueRect.X, eRect.Y + 35);
-            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y);
+            botSL = new Vector2(topLeftSL.X, PlanetInfoRect.Y - 20);
             batch.DrawLine(topLeftSL, botSL, lineColor);
 
             batch.DrawRectangle(ColoniesList.ItemsHousing, lineColor); // items housing border
