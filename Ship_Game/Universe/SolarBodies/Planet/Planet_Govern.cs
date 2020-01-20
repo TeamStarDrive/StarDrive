@@ -81,8 +81,8 @@ namespace Ship_Game
             BuildMilitia();
         }
 
-        PlanetBudget AllocateColonyBudget()       => Owner.GetEmpireAI().PlanetBudget(this);
-        public float CivilianBuildingsMaintenance => Money.Maintenance - MilitaryBuildingsMaintenance;
+        public PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);
+        public float CivilianBuildingsMaintenance  => Money.Maintenance - MilitaryBuildingsMaintenance;
 
         public float ColonyDebtTolerance
         {
