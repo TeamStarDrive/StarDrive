@@ -140,7 +140,8 @@ namespace Ship_Game.Ships
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
+        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None,
+                                                    float radius = float.MaxValue)
         {
             radius = Math.Min(radius, SensorRange);
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
