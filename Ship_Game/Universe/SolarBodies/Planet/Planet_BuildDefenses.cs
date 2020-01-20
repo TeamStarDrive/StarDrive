@@ -21,11 +21,10 @@ namespace Ship_Game
             var currentPlatforms = FilterOrbitals(ShipData.RoleName.platform);
             var currentStations  = FilterOrbitals(ShipData.RoleName.station);
             var wantedOrbitals   = new WantedOrbitals(GetColonyRank(budget));
-            float orbitalsBudget = budget.Orbitals;
 
-            BuildOrScrapShipyard(wantedOrbitals.Shipyards, ref orbitalsBudget);
-            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, ref orbitalsBudget);
-            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, ref orbitalsBudget);
+            BuildOrScrapShipyard(wantedOrbitals.Shipyards, budget.Orbitals);
+            BuildOrScrapStations(currentStations, wantedOrbitals.Stations, budget.Orbitals);
+            BuildOrScrapPlatforms(currentPlatforms, wantedOrbitals.Platforms, budget.Orbitals);
         }
 
         public int GetColonyRank(PlanetBudget budget)
@@ -37,11 +36,11 @@ namespace Ship_Game
             return ApplyRankModifiers(rank);
         }
 
-        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, ref float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, ref budget);
+        void BuildOrScrapStations(Array<Ship> orbitals, int wanted, float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.station, budget);
 
-        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, ref float budget)
-            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, ref budget);
+        void BuildOrScrapPlatforms(Array<Ship> orbitals, int wanted, float budget)
+            => BuildOrScrapOrbitals(orbitals, wanted, ShipData.RoleName.platform, budget);
 
         bool GovernorShouldNotScrapBuilding => Owner.isPlayer && DontScrapBuildings;
 
@@ -93,7 +92,7 @@ namespace Ship_Game
             return shipyardsInQ;
         }
 
-        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, ref float budget)
+        private void BuildOrScrapOrbitals(Array<Ship> orbitalList, int orbitalsWeWant, ShipData.RoleName role, float budget)
         {
             int orbitalsWeHave = orbitalList.Filter(o => !o.shipData.IsShipyard).Length + OrbitalsBeingBuilt(role);
             if (IsPlanetExtraDebugTarget())
@@ -103,26 +102,21 @@ namespace Ship_Game
             {
                 Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
                 if (weakest != null)
-                {
-                    budget += weakest.GetMaintCost(Owner);
                     ScrapOrbital(weakest); // remove this old garbage
-                }
                 else
-                {
                     Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
-                }
 
                 return;
             }
 
             if (orbitalsWeHave < orbitalsWeWant) // lets build an orbital
             {
-                BuildOrbital(role, ref budget);
+                BuildOrbital(role, budget);
                 return;
             }
 
             if (orbitalList.Count > 0)
-                ReplaceOrbital(orbitalList, role, ref budget);  // check if we can replace an orbital with a better one
+                ReplaceOrbital(orbitalList, role, budget);  // check if we can replace an orbital with a better one
         }
 
         private void ScrapOrbital(Ship orbital)
@@ -142,7 +136,7 @@ namespace Ship_Game
             orbital.QueueTotalRemoval();
         }
 
-        private void BuildOrbital(ShipData.RoleName role, ref float budget)
+        private void BuildOrbital(ShipData.RoleName role, float budget)
         {
             if (OrbitalsInTheWorks)
                 return;
@@ -151,7 +145,6 @@ namespace Ship_Game
             if (orbital == null)
                 return;
 
-            budget -= orbital.GetMaintCost(Owner);
             AddOrbital(orbital);
         }
 
@@ -167,7 +160,7 @@ namespace Ship_Game
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
         }
 
-        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, ref float budget)
+        private void ReplaceOrbital(Array<Ship> orbitalList, ShipData.RoleName role, float budget)
         {
             if (orbitalList.IsEmpty || OrbitalsInTheWorks)
                 return;
@@ -181,9 +174,6 @@ namespace Ship_Game
 
             if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
                 return;
-
-            float bestMaint = bestWeCanBuild.GetMaintCost(Owner);
-            budget         += weakestMaint - bestMaint;
 
             ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild);
@@ -208,7 +198,7 @@ namespace Ship_Game
             // We cannot build the best in the empire, lets try building something cheaper for now
             // and check if this can be built in a timely manner.
             float maxCost = (EstimatedAverageProduction * TimeVsCostThreshold) - Storage.Prod;
-            maxCost /= ShipBuildingModifier;
+            maxCost      /= ShipBuildingModifier;
             orbital       = GetBestOrbital(role, budget, maxCost);
 
             return orbital;
@@ -268,7 +258,7 @@ namespace Ship_Game
             return rank.Clamped(0, 15);
         }
 
-        private void BuildOrScrapShipyard(int numWantedShipyards, ref float budget)
+        private void BuildOrScrapShipyard(int numWantedShipyards, float budget)
         {
             if (numWantedShipyards == 0 || OrbitalsInTheWorks
                                         || !Owner.ShipsWeCanBuild.Contains(Owner.data.DefaultShipyard))
@@ -285,7 +275,6 @@ namespace Ship_Game
                     && LogicalBuiltTimeVsCost(shipyard.GetCost(Owner), TimeVsCostThreshold))
                 {
                     AddOrbital(shipyard);
-                    budget -= shipyard.GetMaintCost(Owner);
                 }
             }
         }
