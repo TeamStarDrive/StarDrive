@@ -127,6 +127,7 @@ namespace Ship_Game
                 };
                 if (pgs.Biosphere)
                     p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
+
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
@@ -148,6 +149,7 @@ namespace Ship_Game
                 pgs.building.Scrappable = template.Scrappable;
                 pgs.building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.building);
+                p.AddBuildingsFertility(pgs.building.MaxFertilityOnBuild);
             }
             return p;
         }

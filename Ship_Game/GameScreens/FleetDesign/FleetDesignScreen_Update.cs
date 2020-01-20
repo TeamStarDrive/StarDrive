@@ -15,6 +15,16 @@ namespace Ship_Game
                    * Matrix.CreateLookAt(new Vector3(-CamPos.X, CamPos.Y, CamPos.Z),
                        new Vector3(-CamPos.X, CamPos.Y, 0f), Vector3.Down);
 
+            if (SelectedFleet != null)
+            {
+                UpdateClickableSquads();
+                SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
+            }
+            base.Update(deltaTime);
+        }
+
+        void UpdateClickableSquads()
+        {
             ClickableSquads.Clear();
             foreach (Array<Fleet.Squad> flank in SelectedFleet.AllFlanks)
             {
@@ -30,9 +40,6 @@ namespace Ship_Game
                     ClickableSquads.Add(cs);
                 }
             }
-
-            SelectedFleet.AssembleFleet2(SelectedFleet.FinalPosition, SelectedFleet.FinalDirection);
-            base.Update(deltaTime);
         }
     }
 }

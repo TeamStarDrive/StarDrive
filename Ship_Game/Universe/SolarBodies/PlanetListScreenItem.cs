@@ -6,12 +6,13 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
+using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
 {
-    public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem>
+    public sealed class PlanetListScreenItem : ScrollListItem<PlanetListScreenItem> // Moved to UI V2
     {
-        public Planet Planet;
+        public readonly Planet Planet;
         public Rectangle SysNameRect;
         public Rectangle PlanetNameRect;
         public Rectangle FertRect;
@@ -19,250 +20,287 @@ namespace Ship_Game
         public Rectangle PopRect;
         public Rectangle OwnerRect;
         public Rectangle OrdersRect;
+        public Rectangle DistanceRect;
 
-        Rectangle ShipIconRect;
-        UITextEntry ShipNameEntry = new UITextEntry();
-        UIButton Colonize;
-        UIButton SendTroops;
-        PlanetListScreen Screen;
-        bool MarkedForColonization;
+        private readonly Empire Player         = EmpireManager.Player;
+        private readonly Color Cream           = Colors.Cream;
+        private readonly SpriteFont NormalFont = Fonts.Arial20Bold;
+        private readonly SpriteFont SmallFont  = Fonts.Arial12Bold;
+        private readonly Color PlanetStatColor;
+        private readonly Color EmpireColor;
 
-        public PlanetListScreenItem(PlanetListScreen screen, Planet planet)
+        private Rectangle ShipIconRect;
+        private readonly UITextEntry PlanetNameEntry = new UITextEntry();
+        private UIButton Colonize;
+        private UIButton SendTroops;
+        private readonly PlanetListScreen Screen;
+        private readonly float Distance;
+        private bool MarkedForColonization;
+
+        public PlanetListScreenItem(PlanetListScreen screen, Planet planet, float distance)
         {
-            Screen = screen;
-            Planet = planet;
+            Screen   = screen;
+            Planet   = planet;
+            Distance = distance / 1000; // Distance from nearest player colony
+
+            PlanetStatColor = Planet.Habitable ? Color.White : Color.LightPink;
+            EmpireColor     = Planet.Owner?.EmpireColor ?? new Color(255, 239, 208);
 
             foreach (Goal g in Empire.Universe.player.GetEmpireAI().Goals)
             {
                 if (g.ColonizationTarget != null && g.ColonizationTarget == planet)
                     MarkedForColonization = true;
             }
-
-            ButtonStyle style = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
-            string colonizeText = !MarkedForColonization ? Localizer.Token(1425) : "Cancel Colonize";
-            Colonize   = Button(style, colonizeText, OnColonizeClicked);
-            SendTroops = Button(ButtonStyle.BigDip, "", OnSendTroopsClicked);
         }
 
         public override void PerformLayout()
         {
             int x = (int)X;
             int y = (int)Y;
-            Rect = new Rectangle(x, y, Rect.Width, Rect.Height);
-            SysNameRect = new Rectangle(x, y, (int)(Rect.Width * 0.12f), Rect.Height);
-            PlanetNameRect = new Rectangle(x + SysNameRect.Width, y, (int)(Rect.Width * 0.25f), Rect.Height);
-            FertRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width, y, 100, Rect.Height);
-            RichRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width, y, 120, Rect.Height);
-            PopRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width, y, 200, Rect.Height);
-            OwnerRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width, y, 100, Rect.Height);
-            OrdersRect = new Rectangle(x + SysNameRect.Width + PlanetNameRect.Width + FertRect.Width + RichRect.Width + PopRect.Width + OwnerRect.Width, y, 100, Rect.Height);
+            int w = (int)Width;
+            int h = (int)Height;
+            RemoveAll();
+
+            ButtonStyle colonizeStyle  = MarkedForColonization ? ButtonStyle.Default : ButtonStyle.BigDip;
+            LocalizedText colonizeText = !MarkedForColonization ? new LocalizedText(1425) : "Cancel Colonize";
+            Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
+            SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
+
+            int nextX = x;
+            Rectangle NextRect(float width)
+            {
+                int next = nextX;
+                nextX += (int)width;
+                return new Rectangle(next, y, (int)width, h);
+            }
+
+            SysNameRect    = NextRect(w * 0.12f);
+            PlanetNameRect = NextRect(w * 0.25f);
+
+            DistanceRect = NextRect(100);
+            FertRect     = NextRect(100);
+            RichRect     = NextRect(120);
+            PopRect      = NextRect(200);
+            OwnerRect    = NextRect(100);
+            OrdersRect   = NextRect(100);
+
             ShipIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, 50, 50);
-            ShipNameEntry.Text = Planet.Name;
-            ShipNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
-            Colonize.Rect = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height / 2, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Width, ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px").Height);
-            SendTroops.Rect = new Rectangle(OrdersRect.X  + Colonize.Rect.Width + 10, Colonize.Rect.Y, Colonize.Rect.Width, Colonize.Rect.Height);
+            PlanetNameEntry.Text = Planet.Name;
+            PlanetNameEntry.ClickableArea = new Rectangle(ShipIconRect.Right + 10, y, Fonts.Arial20Bold.TextWidth(Planet.Name), Fonts.Arial20Bold.LineSpacing);
             
+            var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
+            Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
+            SendTroops.Rect    = new RectF(OrdersRect.X + Colonize.Width + 10, Colonize.Y, Colonize.Width, Colonize.Height);
+            Colonize.Visible   = Planet.Owner == null && Planet.Habitable;
+            SendTroops.Visible = Planet.Habitable;
+
+            AddSystemName();
+            AddPlanetName();
+            AddPlanetTextureAndStatus();
+            AddPlanetStats();
+            AddHostileWarning();
             base.PerformLayout();
         }
 
-        public override void Draw(SpriteBatch batch)
+        void AddSystemName()
         {
-            base.Draw(batch);
+            string systemName     = Planet.ParentSystem.Name;
+            SpriteFont systemFont = NormalFont.MeasureString(systemName).X <= SysNameRect.Width ? NormalFont : SmallFont;
+            var sysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - systemFont.MeasureString(systemName).X / 2f,
+                                        2 + SysNameRect.Y + SysNameRect.Height / 2 - systemFont.LineSpacing / 2);
+            
+            Label(sysNameCursor, systemName, systemFont, Cream);
+        }
 
-            var textColor = new Color(118, 102, 67, 50);
-            var smallHighlight = new Color(118, 102, 67, 25);
+        void AddPlanetName()
+        {
+            var namePos = new Vector2(PlanetNameEntry.ClickableArea.X, PlanetNameEntry.ClickableArea.Y + 3);
+            Label(namePos, Planet.Name, NormalFont, EmpireColor);
+            // Now add Richness
+            namePos.Y += NormalFont.LineSpacing - 1;
+            Label(namePos, Planet.LocalizedRichness, SmallFont, EmpireColor);
+            // And approximate distance
+            //DrawPlanetDistance(Distance, namePos, SmallFont);
+        }
 
-            if (ItemIndex % 2 == 0)
-            {
-                batch.FillRectangle(Rect, smallHighlight);
-            }
-            if (Planet == Screen.SelectedPlanet)
-            {
-                batch.FillRectangle(Rect, textColor);
-            }
-
-            string singular;
-            var TextColor = Colors.Cream;
-            string sysname = Planet.ParentSystem.Name;
-            if (Fonts.Arial20Bold.MeasureString(sysname).X <= SysNameRect.Width)
-            {
-                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial20Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial20Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial20Bold, sysname, SysNameCursor, TextColor);
-            }
+        void AddPlanetStats()
+        {
+            LocalizedText singular;
+            if (Planet.Owner != null)
+                singular = Planet.Owner.data.Traits.Singular;
             else
-            {
-                var SysNameCursor = new Vector2(SysNameRect.X + SysNameRect.Width / 2 - Fonts.Arial12Bold.MeasureString(sysname).X / 2f, 2 + SysNameRect.Y + SysNameRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-                batch.DrawString(Fonts.Arial12Bold, sysname, SysNameCursor, TextColor);
-            }
+                singular = (Planet.Habitable ? 2263 : 2264);
 
-            if (Planet.ParentSystem.HostileForcesPresent(EmpireManager.Player))
-            {
-                var flashRect = new Rectangle(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, ResourceManager.Texture("Ground_UI/Ground_Attack").Width, ResourceManager.Texture("Ground_UI/Ground_Attack").Height);
-                batch.Draw(ResourceManager.Texture("Ground_UI/EnemyHere"), flashRect, Screen.CurrentFlashColor);
-                if (flashRect.HitTest(Screen.Input.CursorPosition))
-                {
-                    ToolTip.CreateTooltip(123);
-                }
-            }
-            var planetIconRect = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            batch.Draw(Planet.PlanetTexture, planetIconRect, Color.White);
+            var distancePos  = new Vector2(DistanceRect.X + 35, DistanceRect.Y + DistanceRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var fertilityPos = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var richnessPos  = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var popPos       = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - SmallFont.LineSpacing / 2);
+            var ownerPos     = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - SmallFont.LineSpacing / 2);
+
+            DrawPlanetDistance(Distance, distancePos, SmallFont);
+            Label(fertilityPos, Planet.FertilityFor(EmpireManager.Player).String(), SmallFont, PlanetStatColor);
+            Label(richnessPos, Planet.MineralRichness.String(1), SmallFont, PlanetStatColor);
+            Label(popPos, Planet.PopulationStringForPlayer, SmallFont, PlanetStatColor);
+            Label(ownerPos, singular, SmallFont, EmpireColor);
+        }
+
+        void AddHostileWarning()
+        {
+            if (!Planet.ParentSystem.HostileForcesPresent(Player)) 
+                return;
+            
+            SubTexture flash = ResourceManager.Texture("Ground_UI/EnemyHere");
+            UIPanel enemyHere = Panel(SysNameRect.X + SysNameRect.Width - 40, SysNameRect.Y + 5, flash);
+            enemyHere.Tooltip = GameTips.EnemyHere;
+        }
+
+        void AddPlanetTextureAndStatus()
+        {
+            var planetIcon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
+            Panel(planetIcon, ResourceManager.Texture(Planet.IconPath));
             if (Planet.Owner != null)
             {
-                batch.Draw(ResourceManager.Flag(Planet.Owner), planetIconRect, Planet.Owner.EmpireColor);
+                Panel(planetIcon, EmpireColor, ResourceManager.Flag(Planet.Owner));
             }
-            int i = 0;
-            var StatusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIconRect.Y + 10);
-            if (Planet.RecentCombat)
+            AddPlanetStatusIcons(planetIcon);
+        }
+
+        void AddPlanetStatusIcons(Rectangle planetIcon)
+        {
+            var statusIcons = new Vector2(PlanetNameRect.X + PlanetNameRect.Width, planetIcon.Y + 10);
+            int offset      = 0;
+
+            AddRecentCombat(statusIcons, ref offset);
+            AddMoleIcons(statusIcons, ref offset);
+            AddEventIcon(statusIcons, ref offset);
+            AddCommoditiesIcon(statusIcons, ref offset);
+            AddTroopsIcon(statusIcons, ref offset);
+        }
+
+        void AddRecentCombat(Vector2 statusIcons, ref int offset)
+        {
+            if (!Planet.RecentCombat) 
+                return;
+
+            offset += 18;
+            var statusRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+            UIPanel status = Panel(statusRect, ResourceManager.Texture("UI/icon_fighting_small"));
+            status.Tooltip = GameTips.GroundCom;
+        }
+
+        void AddMoleIcons(Vector2 statusIcons, ref int offset) // Haha, moles..
+        {
+            if (EmpireManager.Player.data.MoleList.Count <= 0) 
+                return;
+
+            foreach (Mole m in EmpireManager.Player.data.MoleList)
             {
-                Rectangle statusRect = new Rectangle((int)StatusIcons.X - 18, (int)StatusIcons.Y, 16, 16);
-                batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), statusRect, Color.White);
-                if (statusRect.HitTest(Screen.Input.CursorPosition))
+                if (m.PlanetGuid == Planet.guid)
                 {
-                    ToolTip.CreateTooltip(119);
+                    offset += 20;
+                    var spyRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+                    UIPanel spy = Panel(spyRect, ResourceManager.Texture("UI/icon_spy_small"));
+                    spy.Tooltip = GameTips.Spy;
+                    break;
                 }
             }
-            if (EmpireManager.Player.data.MoleList.Count > 0)
-            {
-                foreach (Mole m in EmpireManager.Player.data.MoleList)
-                {
-                    if (m.PlanetGuid == Planet.guid)
-                    {
-                        StatusIcons.X -= 20f;
-                        var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
-                        batch.Draw(ResourceManager.Texture("UI/icon_spy_small"), statusRect, Color.White);
-                        if (statusRect.HitTest(Screen.Input.CursorPosition))
-                        {
-                            ToolTip.CreateTooltip(120);
-                        }
-                        break;
-                    }
-                }
-            }
-            //Building lastBuilding;
+        }
+
+        void AddBuildingIcon(Building b, Vector2 statusIcons, ref int offset)
+        {
+            offset += 20;
+            var buildingRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+            UIPanel building = Panel(buildingRect, ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"));
+            building.Tooltip = b.DescriptionText;
+        }
+
+        void AddEventIcon(Vector2 statusIcons, ref int offset)
+        {
+            if (Planet.BuildingList.Count == 0)
+                return;
+
             foreach (Building b in Planet.BuildingList)
             {
                 if (b.EventHere && (Planet.Owner == null || !Planet.Owner.GetBDict()[b.Name]))
                 {
-                    StatusIcons.X -= 20f;
-                    var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
-                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
-                    i++;
-                    if (statusRect.HitTest(Screen.Input.CursorPosition))
-                        ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
+                    AddBuildingIcon(b, statusIcons, ref offset);
                 }
             }
+        }
+
+        void AddCommoditiesIcon(Vector2 statusIcons, ref int offset)
+        {
+            if (Planet.BuildingList.Count == 0)
+                return;
 
             foreach (Building b in Planet.BuildingList)
             {
                 if (b.IsCommodity)
                 {
-                    StatusIcons.X -= 20f;
-                    var statusRect = new Rectangle((int) StatusIcons.X, (int) StatusIcons.Y, 16, 16);
-                    batch.Draw(ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48"), statusRect, Color.White);
-                    i++;
-                    if (statusRect.HitTest(Screen.Input.CursorPosition))
-                        ToolTip.CreateTooltip(Localizer.Token(b.DescriptionIndex));
+                    AddBuildingIcon(b, statusIcons, ref offset);
                 }
             }
+        }
 
-            int troops = Planet.TroopsHere.Count(t => t.Loyalty.isPlayer);
+        void AddTroopsIcon(Vector2 statusIcons, ref int offset)
+        {
+            int troops = Planet.CountEmpireTroops(Player);
             if (troops > 0)
             {
-                StatusIcons.X -= 20f;// (float)(18 * i);
+                offset += 20;
+                var troopRect = new Rectangle((int)statusIcons.X - offset, (int)statusIcons.Y, 16, 16);
+                UIPanel troop = Panel(troopRect, ResourceManager.Texture("UI/icon_troop"));
+                troop.Tooltip = LocalizedText.Parse($"{{Troops}}: {troops}");
+            }
+        }
 
-                var statusRect = new Rectangle((int)StatusIcons.X, (int)StatusIcons.Y, 16, 16);
-                batch.Draw(ResourceManager.Texture("UI/icon_troop"), statusRect, new Color(255, 255, 255, 255));//Color..White);
-                if (statusRect.HitTest(Screen.Input.CursorPosition))
+        void UpdateButtonSendTroops()
+        {
+            int troopsInvading = 0;
+            BatchRemovalCollection<Ship> ships = Player.GetShips();
+            for (int i = 0; i < ships.Count; i++)
+            {
+                Ship ship = ships[i];
+                ShipAI ai = ship?.AI;
+                if (ai == null || ai.State == AIState.Resupply || !ship.HasOurTroops || ai.OrderQueue.IsEmpty)
+                    continue;
+
+                if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null
+                                              && goal.TargetPlanet == Planet
+                                              && (goal.Plan == ShipAI.Plan.LandTroop || goal.Plan == ShipAI.Plan.Rebase)))
                 {
-                    ToolTip.CreateTooltip($"{Localizer.Token(336)}: {troops}");
+                    troopsInvading += ship.TroopCount;
                 }
-            }
-            
-            var rpos = new Vector2
-            {
-                X = ShipNameEntry.ClickableArea.X,
-                Y = ShipNameEntry.ClickableArea.Y - 10
-            };
-            batch.DrawString(Fonts.Arial20Bold, Planet.Name, rpos, TextColor);
-            rpos.Y = rpos.Y + (Fonts.Arial20Bold.LineSpacing - 3);
-            Vector2 FertilityCursor = new Vector2(FertRect.X + 35, FertRect.Y + FertRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, Planet.FertilityFor(EmpireManager.Player).String(), FertilityCursor, (Planet.Habitable ? Color.White : Color.LightPink));
-            Vector2 RichCursor = new Vector2(RichRect.X + 35, RichRect.Y + RichRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, Planet.MineralRichness.String(1), RichCursor, (Planet.Habitable ? Color.White : Color.LightPink));
-            Vector2 PopCursor = new Vector2(PopRect.X + 60, PopRect.Y + PopRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            batch.DrawString(Fonts.Arial12Bold, Planet.PopulationStringForPlayer, PopCursor, (Planet.Habitable ? Color.White : Color.LightPink));
-            Vector2 OwnerCursor = new Vector2(OwnerRect.X + 20, OwnerRect.Y + OwnerRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
-            SpriteBatch spriteBatch2 = batch;
-            SpriteFont spriteFont = Fonts.Arial12Bold;
-            if (Planet.Owner != null)
-            {
-                singular = Planet.Owner.data.Traits.Singular;
-            }
-            else
-            {
-                singular = (Planet.Habitable ? Localizer.Token(2263) : Localizer.Token(2264));
-            }
-            spriteBatch2.DrawString(spriteFont, singular, OwnerCursor, Planet.Owner?.EmpireColor ?? Color.Gray);
-            batch.DrawString(Fonts.Arial12Bold, Planet.LocalizedRichness, rpos, TextColor);
-            if (Planet.Habitable && Planet.Owner == null)
-            {
-                Colonize.Draw(batch);
             }
 
-            if (Planet.Owner == null && Planet.Habitable)  //fbedard: can send troop anywhere
+            if (troopsInvading > 0)
             {
-                int troopsInvading = 0;
-                BatchRemovalCollection<Ship> ships = Screen.EmpireUI.empire.GetShips();
-                for (int z = 0; z < ships.Count; z++)
-                {
-                    Ship ship = ships[z];
-                    ShipAI ai = ship?.AI;                    
-                    if (ai == null ||  ai.State == AIState.Resupply || !ship.HasOurTroops || ai.OrderQueue.IsEmpty)
-                        continue;
-                    if (ai.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet))
-                        troopsInvading = ship.TroopCount;
-                }
+                ButtonStyle style  = Planet.Owner == Player || Planet.Owner == null ? ButtonStyle.Default : ButtonStyle.Military;
+                string text        = "Invading:";
+                if (Planet.Owner == Player)    text = "Rebasing:";
+                else if (Planet.Owner == null) text = "Landing:";
 
-                if (troopsInvading > 0)
-                {
-                    SendTroops.Text = "Invading: " + troopsInvading;
-                    SendTroops.Style = ButtonStyle.Default;
-                }
-                else
-                {
-                    SendTroops.Text = "Send Troops";
-                    SendTroops.Style = ButtonStyle.BigDip;
-                }
-                SendTroops.Draw(batch);
+                SendTroops.Text = $"{text} {troopsInvading}";
+                SendTroops.Style = style;
             }
-            //fbedard : Add Send Button for your planets
-            if (Planet.Owner == Empire.Universe.player)
+        }
+
+        void DrawPlanetDistance(float distance, Vector2 namePos, SpriteFont spriteFont)
+        {
+            DistanceDisplay distanceDisplay = new DistanceDisplay(distance);
+            if (distance.Greater(0))
             {
-                int troopsInvading = Screen.EmpireUI.empire.GetShips()
-                 .Where(troop => troop.TroopCount > 0)
-                 .Where(ai => ai.AI.State != AIState.Resupply).Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == Planet));
-                if (troopsInvading > 0)
-                {
-                    SendTroops.Text = "Landing: " + troopsInvading;
-                    SendTroops.Style = ButtonStyle.Default;
-                }
-                else
-                {
-                    SendTroops.Text = "Send Troops";
-                    SendTroops.Style = ButtonStyle.BigDip;
-                }
-                SendTroops.Draw(batch);
+                Label(namePos, distanceDisplay.Text, spriteFont, distanceDisplay.Color);
             }
-
-            batch.DrawRectangle(Rect, textColor);
         }
 
         void OnSendTroopsClicked(UIButton b)
         {
-            if (Screen.EmpireUI.empire.GetTroopShipForRebase(out Ship troopShip, Planet))
+            if (Player.GetTroopShipForRebase(out Ship troopShip, Planet))
             {
                 GameAudio.EchoAffirmative();
                 troopShip.AI.OrderLandAllTroops(Planet);
+                UpdateButtonSendTroops();
             }
             else
                 GameAudio.NegativeClick();
@@ -273,8 +311,9 @@ namespace Ship_Game
             if (!MarkedForColonization)
             {
                 GameAudio.EchoAffirmative();
-                Empire.Universe.player.GetEmpireAI().Goals.Add(
+                Player.GetEmpireAI().Goals.Add(
                     new MarkForColonization(Planet, Empire.Universe.player));
+
                 Colonize.Text = "Cancel Colonize";
                 Colonize.Style = ButtonStyle.Default;
                 MarkedForColonization = true;
@@ -297,6 +336,44 @@ namespace Ship_Game
                 break;
             }
             Empire.Universe.player.GetEmpireAI().Goals.ApplyPendingRemovals();
+        }
+
+        struct DistanceDisplay
+        {
+            public readonly string Text;
+            public readonly Color Color;
+            private Distances PlanetDistance;
+
+            public DistanceDisplay(float distance) : this()
+            {
+                DeterminePlanetDistanceCategory(distance);
+                switch (PlanetDistance)
+                {
+                    case Distances.Local:   Text  = "Local";   Color = Color.Green; break;
+                    case Distances.Near:    Text  = "Near";    Color = Color.YellowGreen; break;
+                    case Distances.Midway:  Text  = "Midway";  Color = Color.DarkGoldenrod; break;
+                    case Distances.Distant: Text  = "Distant"; Color = Color.DarkRed; break;
+                    default:                Text  = "Beyond";  Color = Color.DarkGray; break;
+                }
+            }
+
+            void DeterminePlanetDistanceCategory(float distance)
+            {
+                if (distance.LessOrEqual(140)) PlanetDistance = Distances.Local;
+                else if (distance.LessOrEqual(1200)) PlanetDistance = Distances.Near;
+                else if (distance.LessOrEqual(3000)) PlanetDistance = Distances.Midway;
+                else if (distance.LessOrEqual(6000)) PlanetDistance = Distances.Distant;
+                else PlanetDistance = Distances.Beyond;
+            }
+
+            enum Distances
+            {
+                Local,
+                Near,
+                Midway,
+                Distant,
+                Beyond
+            }
         }
     }
 }

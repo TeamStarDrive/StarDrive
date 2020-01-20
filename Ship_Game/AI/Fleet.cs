@@ -90,7 +90,9 @@ namespace Ship_Game.AI
         void UpdateOurFleetShip(Ship ship)
         {
             HasRepair = HasRepair || ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0);
-            HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
+
+            HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || 
+                                        (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
         }
 
         public void AddExistingShip(Ship ship, FleetDataNode node)
@@ -1556,14 +1558,30 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                if (ship.AI.State == AIState.FormationWarp)
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
+
+                // if combat in move position do not move in formation. 
+                if (ship.AI.State == AIState.FormationWarp && !IsAssembling 
+                                                           && ship.AI.HasPriorityOrder 
+                                                           && ship.engineState == Ship.MoveState.Sublight)
                 {
-                    SetCombatMoveAtPosition(ship, FinalPosition, 7500);
-                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 100000, Color.Yellow);
+                    if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
+                    {
+                        ClearPriorityOrderIfSubLight(ship);
+                    }
                 }
 
                 UpdateOurFleetShip(ship);
-                ReadyForWarp = ReadyForWarp && ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
+
+                // get fleet assembled before going to warp. 
+                if (ReadyForWarp && ship.AI.State == AIState.FormationWarp)
+                {
+                    if (IsFleetAssembled(15) == MoveStatus.Assembled)
+                        ReadyForWarp = ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
+                }
+
+                // once in warp clear assembling flag. 
+                if (ship.engineState == Ship.MoveState.Warp) IsAssembling = false;
             }
 
             if (Ships.Count > 0 && HasFleetGoal)

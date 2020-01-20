@@ -186,15 +186,8 @@ namespace Ship_Game
             InitDropOptions(ColonyShipDropDown, ref playerData.CurrentAutoColony, playerData.DefaultColonyShip, 
                 ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.isColonyShip);
 
-            InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor, 
-                ship =>
-                {
-                    if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.ConstructionModule)
-                        return ship.ShipGoodToBuild(EmpireManager.Player) && (ship.IsConstructor || ship.Name == playerData.DefaultConstructor);
-
-                    // Note: only freighter hulls can serve as constructors
-                    return ship.ShipGoodToBuild(EmpireManager.Player) && ship.IsFreighter && ship.shipData.HullRole == ShipData.RoleName.freighter;
-                });
+            InitDropOptions(ConstructorDropDown, ref playerData.CurrentConstructor, playerData.DefaultConstructor,
+                ship => ship.ShipGoodToBuild(EmpireManager.Player) && ship.DesignRole == ShipData.RoleName.construction);
 
             InitDropOptions(ScoutDropDown, ref playerData.CurrentAutoScout, playerData.StartingScout, 
                 ship =>
