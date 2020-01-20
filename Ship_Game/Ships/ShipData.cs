@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Ships
@@ -298,11 +299,11 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
-        public void LoadModel(out SceneObject shipSO, GameScreen screen)
+        public void LoadModel(out SceneObject shipSO, GameContentManager content)
         {
             lock (this)
             {
-                shipSO = StaticMesh.GetSceneMesh(screen?.TransientContent, HullModel, Animated);
+                shipSO = StaticMesh.GetSceneMesh(content, HullModel, Animated);
 
                 if (BaseHull.Volume.X.AlmostEqual(0f))
                 {

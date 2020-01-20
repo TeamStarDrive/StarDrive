@@ -351,9 +351,6 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-
-            // NOTE: this will be overwritten later by CreateSceneObject()
-            Radius = shipData.Radius > 0 ? shipData.Radius : 50f;
             Empire.Universe?.QueueSceneObjectCreation(this);
 
             if (VanityName.IsEmpty())
