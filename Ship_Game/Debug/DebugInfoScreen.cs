@@ -400,6 +400,9 @@ namespace Ship_Game.Debug
                         DrawString(fleet.FleetTask.TargetPlanet.Name);
 
                     DrawString("Step: "+fleet.TaskStep);
+                    DrawString("Fleet Speed: " + fleet.SpeedLimit);
+                    DrawString("Ready For Warp: " + fleet.ReadyForWarp);
+                    DrawString("In Formation Warp: " + fleet.InFormationWarp);
                 }
                 else
                 {
@@ -411,8 +414,8 @@ namespace Ship_Game.Debug
                     DrawString("FleetSpeed: " + fleet.SpeedLimit);
                     DrawString("Distance: " + fleet.FinalPosition.Distance(fleet.AveragePosition()));
 
-                    string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
-                    DrawString("Ship State: " + shipAI);
+                    DrawString("Ready For Warp: " + fleet.ReadyForWarp);
+                    DrawString("In Formation Warp: " + fleet.InFormationWarp);
                     DrawCircleImm(fleet.AveragePosition(), 30, Color.Magenta);
                     DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }

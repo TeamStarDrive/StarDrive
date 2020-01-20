@@ -159,6 +159,21 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
+        Status FleetCapableStatus;
+        public bool FleetCapableShip() => FleetCapableStatus == Status.Good;
+
+        void SetFleetCapableStatus()
+        {
+            if (Engines.EngineStatus > Status.Poor
+                                      && AI.State != AIState.Resupply
+                                      && AI.State != AIState.Refit
+                                      && AI.State != AIState.Scrap
+                                      && AI.State != AIState.Scuttle)
+                FleetCapableStatus = Status.Good;
+            else
+                FleetCapableStatus = Status.Poor;
+        }
+
         // This bit field marks all the empires which are influencing
         // us within their borders via Subspace projectors
 

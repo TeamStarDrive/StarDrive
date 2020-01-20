@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships
@@ -53,14 +48,16 @@ namespace Ship_Game.Ships
         {
             if (Owner.fleet == null) return Status.NotApplicable;
 
-            if (AI.State == AIState.Refit || AI.State == AIState.Resupply)
+            if (!Owner.FleetCapableShip())
                 return Status.NotApplicable;
 
             Status warpStatus = ReadyForWarp;
 
+            if (warpStatus == Status.Good)                return Status.Good;
             if (warpStatus == Status.Poor)                return Status.Poor;
             if (warpStatus == Status.Critical)            return Status.Good;
-            //if (Owner.engineState == Ship.MoveState.Warp) return Status.Poor;
+
+            if (Owner.fleet.ApplySpeedLimit(Owner) < 1) return Status.NotApplicable;
 
             Vector2 movePosition;
             if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal))
@@ -86,7 +83,7 @@ namespace Ship_Game.Ships
 
             Status engineStatus = GetEngineStatus();
 
-            // less than average means the ship engines are not warp capable ATM;
+            // less than average means the ship engines are not warp ready ATM;
             if (engineStatus < Status.Average)
                 return Status.Critical;
 
@@ -97,7 +94,7 @@ namespace Ship_Game.Ships
                 return Status.Poor;
 
             if (Owner.engineState == Ship.MoveState.Warp)
-                return Status.Poor;
+                return Status.Good;
 
             return engineStatus;
         }

@@ -44,6 +44,8 @@ namespace Ship_Game.AI
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
 
+        public bool InFormationWarp { get; private set; }
+
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
 
@@ -86,8 +88,8 @@ namespace Ship_Game.AI
 
             UpdateOurFleetShip(newShip);
             SortIntoFlanks(newShip, CommandShip?.DesignRole ?? ShipData.RoleName.capital);
-            AddShipToNodes(newShip);
             AssignPositionTo(newShip);
+            AddShipToNodes(newShip);
         }
 
         void UpdateOurFleetShip(Ship ship)
@@ -156,12 +158,10 @@ namespace Ship_Game.AI
                          || ship.DesignRole == ShipData.RoleName.troopShip)
             {
                 RearShips.AddUniqueRef(ship);
-                RearFlank = SortSquadBySpeed(RearShips);
             }
             else if (CommandShip == ship || ship.DesignRole < ShipData.RoleName.fighter)
             {
                 CenterShips.AddUniqueRef(ship);
-                CenterFlank = SortSquadBySize(CenterShips);
             }
             else if (CenterShips.Count -2 <= ScreenShips.Count)
             {
@@ -170,17 +170,14 @@ namespace Ship_Game.AI
             else if (ScreenShips.Count <= leftCount)
             {
                 ScreenShips.AddUniqueRef(ship);
-                ScreenFlank = SortSquadBySpeed(ScreenShips);
             }
             else if (leftCount <= RightShips.Count)
             {
                 LeftShips.AddUniqueRef(ship);
-                LeftFlank = SortSquadBySpeed(LeftShips);
             }
             else
             {
                 RightShips.AddUniqueRef(ship);
-                RightFlank = SortSquadBySpeed(RightShips);
             }
 
             void AddIntoFlank(Array<Squad> flank)
@@ -694,10 +691,8 @@ namespace Ship_Game.AI
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!IsFleetSupplied())
-                        TaskStep = 5;
-                    ShipsOffMission(task);
-                    TaskStep = 3;
+                    if (ShipsOffMission(task))
+                        TaskStep = 3;
                     break;
                 case 5:
                     SendFleetToResupply();
@@ -1074,7 +1069,7 @@ namespace Ship_Game.AI
 
         bool ShipsOffMission(MilitaryTask task)
         {
-            return AllButRearShips.Any(ship => !ship.AI.HasPriorityOrder
+            return AllButRearShips.Any(ship => (!ship.AI.HasPriorityOrder && ship.FleetCapableShip())
                                      && (!ship.InCombat
                                          && ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
         }
@@ -1555,7 +1550,7 @@ namespace Ship_Game.AI
         public void Update(float elapsedTime)
         {
             HasRepair = false;
-            ReadyForWarp = true;
+            bool readyForWarp = true;
             Ship commandShip = null;
             if (Ships.Count == 0) return;
             if (CommandShip != null && !CommandShip.FleetCapableShip())
@@ -1596,13 +1591,15 @@ namespace Ship_Game.AI
                     }
                 }
 
+                if (!InFormationWarp) InFormationWarp = ship.AI.State == AIState.FormationWarp;
+
                 UpdateOurFleetShip(ship);
 
                 // get fleet assembled before going to warp. 
                 if (ship.AI.State == AIState.FormationWarp)
                 {
-                    if (ReadyForWarp == true)
-                        ReadyForWarp = ship.Engines.ReadyForFormationWarp > Status.Poor;
+                    if (readyForWarp)
+                        readyForWarp = ship.Engines.ReadyForFormationWarp > Status.Poor;
                 }
 
                 // once in warp clear assembling flag. 
@@ -1614,6 +1611,7 @@ namespace Ship_Game.AI
 
             if (commandShip != null) 
                 SetCommandShip(commandShip);
+            ReadyForWarp = readyForWarp;
         }
 
         public void OffensiveTactic()
