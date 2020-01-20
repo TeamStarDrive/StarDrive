@@ -119,8 +119,6 @@ namespace Ship_Game
             // Now add Richness
             namePos.Y += NormalFont.LineSpacing - 1;
             Label(namePos, Planet.LocalizedRichness, SmallFont, EmpireColor);
-            // And approximate distance
-            //DrawPlanetDistance(Distance, namePos, SmallFont);
         }
 
         void AddPlanetStats()
