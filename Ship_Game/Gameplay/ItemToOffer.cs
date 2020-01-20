@@ -10,7 +10,7 @@ namespace Ship_Game.Gameplay
         public string Response;
         public bool Selected;
 
-        public ItemToOffer(string words, Vector2 cursor)
+        public ItemToOffer(string words, Vector2 cursor) : base (words)
         {
             Words = words;
             SpriteFont font = Fonts.Arial12Bold;

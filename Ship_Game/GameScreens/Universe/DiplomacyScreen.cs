@@ -382,7 +382,7 @@ namespace Ship_Game
             pos.X -= 8f;
             pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
             pos.X -= 8f;
-                
+            base.Draw(batch);
             batch.End();
         }
 
