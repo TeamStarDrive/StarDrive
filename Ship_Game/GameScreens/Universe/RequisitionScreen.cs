@@ -59,11 +59,24 @@ namespace Ship_Game
             }
             foreach (Ship ship in F.Ships)
             {
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-            }                        
+                ShowSceneObject(ship);
+            }                       
             F.Owner.GetFleetsDict()[Fds.FleetToEdit] = F;
             Fds.ChangeFleet(Fds.FleetToEdit);
             UpdateRequisitionStatus();
+        }
+
+        void ShowSceneObject(Ship ship)
+        {
+            if (ship == null)
+                return;
+            if (ship.GetSO() == null)
+            {
+                Log.Info("RequisitionScreen CreateSceneObject");
+                ship.CreateSceneObject();
+            }
+            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
+            ship.GetSO().Visibility = GlobalStats.ShipVisibility;
         }
 
         private void CreateFleetRequisitionGoals()

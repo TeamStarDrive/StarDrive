@@ -103,7 +103,9 @@ namespace Ship_Game.AI
         public void AddExistingShip(Ship ship, FleetDataNode node)
         {
             node.Ship = ship;
-            AddShipToNodes(ship);
+            base.AddShip(ship);
+            ship.fleet = this;
+            ship.AI.FleetNode = node;
         }
 
         void AddShipToNodes(Ship shipToAdd)
@@ -111,8 +113,6 @@ namespace Ship_Game.AI
             base.AddShip(shipToAdd);
             shipToAdd.fleet = this;
             AddShipToDataNode(shipToAdd);
-            var largestShip = CommandShip ?? Ships.FindMax(ship => (int)(ship.DesignRole));
-            SortIntoFlanks(shipToAdd, largestShip.DesignRole);
         }
 
         void ClearFlankList()
@@ -179,22 +179,6 @@ namespace Ship_Game.AI
             {
                 RightShips.AddUniqueRef(ship);
             }
-
-            void AddIntoFlank(Array<Squad> flank)
-            {
-                Squad squad;
-                if (flank.NotEmpty)
-                {
-                    squad = flank.Last;
-
-                }
-                else squad = new Squad { Fleet = this };
-
-            }
-            
-            
-            
-            
         }
 
         enum FlankType
