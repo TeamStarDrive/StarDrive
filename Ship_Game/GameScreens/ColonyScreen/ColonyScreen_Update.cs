@@ -1,5 +1,7 @@
 using System.Linq;
 using Ship_Game.AI;
+using Ship_Game.AI.Budget;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -24,16 +26,20 @@ namespace Ship_Game
             UpdateButtons();
             UpdateGovOrbitalStats();
         }
-        
+
         void UpdateGovOrbitalStats()
         {
             if (P.Owner != Empire.Universe.player || !P.GovOrbitals || P.colonyType == Planet.ColonyType.Colony)
                 return;
 
-            Planet.WantedOrbitals wantedOrbitals = P.GovernorWantedOrbitals();
-            PlatformsStats = $"Platforms: {P.NumPlatforms}/{wantedOrbitals.Platforms}";
-            StationsStats  = $"Stations: {P.NumStations}/{wantedOrbitals.Stations}";
-            ShipyardsStats = $"Shipyards: {P.NumShipyards}/{wantedOrbitals.Shipyards}";
+            PlanetBudget budget  = P.AllocateColonyBudget();
+            var wantedOrbitals   = new WantedOrbitals(P.GetColonyRank(budget));
+            int currentPlatforms = P.NumPlatforms + P.OrbitalsBeingBuilt(ShipData.RoleName.platform);
+            int currentStations  = P.NumStations + P.OrbitalsBeingBuilt(ShipData.RoleName.station);
+            int currentShipyards = P.NumShipyards + P.ShipyardsBeingBuilt();
+            PlatformsStats       = $"Platforms: {currentPlatforms}/{wantedOrbitals.Platforms}";
+            StationsStats        = $"Stations: {currentStations}/{wantedOrbitals.Stations}";
+            ShipyardsStats       = $"Shipyards: {currentShipyards}/{wantedOrbitals.Shipyards}";
         }
 
         void UpdateButtons()
