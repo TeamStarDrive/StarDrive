@@ -96,13 +96,15 @@ namespace Ship_Game
         public void ChangeFleet(int which)
         {
             SelectedNodeList.Clear();
+            // dear scroll list branch. How are you? the object visiblility is being changed here.
+            // so make sure that the so's are removed and added at each fleet button press.
             if (FleetToEdit != -1)
             {
                 foreach (var kv in EmpireManager.Player.GetFleetsDict())
                 {
                     foreach (Ship ship in kv.Value.Ships)
                     {
-                        ShowSceneObject(ship);
+                        ship.RemoveSceneObject();
                     }
                 }
             }
