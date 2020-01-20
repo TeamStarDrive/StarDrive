@@ -432,10 +432,19 @@ namespace Ship_Game.AI
 
         bool DoNearFleetOffset(float elapsedTime)
         {
-            if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
+            if (NearFleetPosition())
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.FinalDirection, elapsedTime, 0.02f);
+                return true;
+            }
+            return false;
+        }
+
+        bool NearFleetPosition()
+        {
+            if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
+            {
                 return true;
             }
             return false;
@@ -451,6 +460,7 @@ namespace Ship_Game.AI
                 return false;
             if (BadGuysNear)
                 return false;
+            if (!Owner.FleetCapableShip()) return false;
             if (State == AIState.Orbit ||
                 State == AIState.AwaitingOffenseOrders ||
                 State == AIState.AwaitingOrders)
@@ -461,7 +471,11 @@ namespace Ship_Game.AI
         void IdleFleetAI(float elapsedTime)
         {
             if (DoNearFleetOffset(elapsedTime))
+            {
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.FleetCapableShip())
+                    State = AIState.AwaitingOrders;
                 return;
+            }
 
             if (ShouldReturnToFleet())
             {
@@ -477,6 +491,11 @@ namespace Ship_Game.AI
                 {
                     WarpToFleet();
                 }
+            }
+            else
+            {
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.FleetCapableShip())
+                    State = AIState.AwaitingOrders;
             }
         }
 

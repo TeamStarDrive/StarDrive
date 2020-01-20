@@ -519,6 +519,13 @@ namespace Ship_Game
             
         }
 
+        public float ApplySpeedLimit(Ship ship)
+        {
+            if (ship.Center.InRadius(AveragePos, 15000))
+                return SpeedLimit;
+            return 0;
+        }
+
         public void SetSpeed()
         {
             if (Ships.Count == 0)
@@ -530,7 +537,7 @@ namespace Ship_Game
 
                 if (ship.FleetCapableShip() && !ship.InCombat)
                 {
-                    if (CommandShip == null || ship.Center.InRadius(AveragePos, CommandShip.Center.Distance(AveragePos).ClampMin(15000)))
+                    if (CommandShip == null || ship.Center.InRadius(AveragePos, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }

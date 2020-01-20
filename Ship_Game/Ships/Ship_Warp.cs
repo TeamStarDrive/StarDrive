@@ -87,7 +87,9 @@ namespace Ship_Game.Ships
         public void HyperspaceReturn()
         {
             if (!IsSpoolingOrInWarp)
+            {
                 return;
+            }
 
             // stop the SFX and always reset the replay timeout
             JumpSfx.Stop();
@@ -187,15 +189,6 @@ namespace Ship_Game.Ships
             if (powerDuration * MaxFTLSpeed < neededRange)
                 return Status.Critical;
             return Status.Good;
-        }
-
-        public bool FleetCapableShip()
-        {
-            return Engines.EngineStatus > Status.Poor
-                                      && AI.State != AIState.Resupply
-                                      && AI.State != AIState.Refit
-                                      && AI.State != AIState.Scrap
-                                      && AI.State != AIState.Scuttle;
         }
     }
 }
