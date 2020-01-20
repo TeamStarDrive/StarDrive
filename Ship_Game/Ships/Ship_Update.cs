@@ -24,8 +24,7 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            // if radius appears to have failed give a guestimate. 
-            shipData.LoadModel(out ShipSO, Empire.Universe);
+            shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
 
             // Since we just created the object, it must be visible
