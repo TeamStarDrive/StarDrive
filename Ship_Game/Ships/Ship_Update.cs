@@ -112,6 +112,8 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
+            SetFleetCapableStatus();
+
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
         }
