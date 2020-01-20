@@ -248,19 +248,6 @@ namespace Ship_Game
             return ratio < threshold;
         }
 
-        // FB - gives a value from 1 to 15 based on the max colony value in the empire
-        private int FindColonyRank(bool log = false)
-        {
-            int rank = (int)Math.Round(ColonyValue / Owner.MaxColonyValue * 10, 0);
-            rank = ApplyRankModifiers(rank);
-
-            if (IsPlanetExtraDebugTarget() && log)
-                Log.Info($"COLONY RANK: {rank}, Colony Value: {ColonyValue}, Empire Max Value: {Owner.MaxColonyValue}," +
-                         $" Time vs Cost threshold: {TimeVsCostThreshold}");
-
-            return rank;
-        }
-
         private int ApplyRankModifiers(int currentRank)
         {
             int rank = currentRank + ((int)(Owner.Money / 10000)).Clamped(-3, 3);
