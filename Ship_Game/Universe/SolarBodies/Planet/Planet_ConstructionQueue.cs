@@ -41,9 +41,6 @@ namespace Ship_Game
                 // Reusing fountIt bool from above
                 if (b.BuildOnlyOnce && IsBuiltOrQueuedWithinEmpire(b))
                     continue;
-                // If this building is not allowed to be built in colonies (usually deployed by ship modules)
-                if (b.OmitColonyBuild)
-                    continue;
                 // If the building is still a candidate after all that, then add it to the list!
                 BuildingsCanBuild.Add(b);
             }
