@@ -182,17 +182,24 @@ namespace Ship_Game.AI
             //              fleet move & queued move,
             //              ship group move & queued move,
             //              priority movement for all of the above while in combat
+            //              Verify ships can complete move to planet goals like colonization.
             WayPoint[] wayPoints = WayPoints.ToArray();
             WayPoint wp = wayPoints[0];
 
             AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction);
-            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit);
 
-            for (int i = 1; i < wayPoints.Length - 1; ++i)
+            // set moveto1000 for each waypoint except for the last one. 
+            // if only one waypoint skip this. 
+            for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
                 wp = wayPoints[i];
                 AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit);
             }
+            // set final move position.
+            // move to within 1000 of the position.
+            // make a precision approach.
+            // rotate to desired facing <= this needs to be fixed.
+            // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
             AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
             AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);

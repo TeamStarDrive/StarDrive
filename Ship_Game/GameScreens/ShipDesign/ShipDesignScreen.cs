@@ -462,13 +462,13 @@ namespace Ship_Game
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, 1985, click: b =>
+            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, SymmetricDesignBtnText, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
             BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
-            BtnSymmetricDesign.Style    = ButtonStyle.Military;
+            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
             LoadContentFinish();
@@ -477,8 +477,8 @@ namespace Ship_Game
             AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
 
-        ButtonStyle SymmetricDesignBtnStyle  => IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
-        LocalizedText SymmetricDesignBtnText => IsSymmetricDesignMode ? 1985 : 1986;
+        ButtonStyle SymmetricDesignBtnStyle  => GlobalStats.SymmetricDesign ? ButtonStyle.Military : ButtonStyle.BigDip;
+        LocalizedText SymmetricDesignBtnText => GlobalStats.SymmetricDesign ? 1985 : 1986;
 
         void LoadContentFinish()
         {

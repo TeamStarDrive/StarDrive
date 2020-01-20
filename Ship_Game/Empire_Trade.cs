@@ -17,7 +17,7 @@ namespace Ship_Game
         public float TradeMoneyAddedThisTurn      { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
 
-        [XmlIgnore][JsonIgnore] public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
+        [XmlIgnore][JsonIgnore] public int FreighterCap          => OwnedPlanets.Count * 2 + Research.Strategy.ExpansionPriority;
         [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
         [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue  => 1 + Research.Strategy.IndustryPriority;
         [XmlIgnore][JsonIgnore] public int TotalFreighters       => OwnedShips.Count(s => s.IsFreighter);
@@ -55,20 +55,20 @@ namespace Ship_Game
         public void TaxGoods(float goods, Planet planet)
         {
             float taxedGoods = 0;
-            if (this != planet.Owner) // Inter Empire Trade (very effective)
-                taxedGoods += goods;
+            float taxRate    = data.TaxRate;
+            // First - tax the goods if the Mercantilism was unlocked
+            if (data.Traits.TaxGoods)
+                taxedGoods = goods * taxRate;
 
-            taxedGoods              += MercantileTax(goods);
+            // Then, add credits per goods if the race has the Mercantile trait
+            taxedGoods += goods * data.Traits.Mercantile;
+
+            // Finally, add Inter Empire Trade Tariff
+            if (this != planet.Owner) 
+                taxedGoods += goods * 0.5f;
+
             TradeMoneyAddedThisTurn += taxedGoods;
             AllTimeTradeIncome      += (int)taxedGoods;
-        }
-
-        private float MercantileTax(float goods)
-        {
-            if (data.Traits.Mercantile.LessOrEqual(0))
-                return 0;
-
-            return goods * data.Traits.Mercantile * data.TaxRate;
         }
 
         void DispatchBuildAndScrapFreighters()
