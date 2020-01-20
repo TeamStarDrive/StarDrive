@@ -117,6 +117,7 @@ namespace Ship_Game
 
         [Serialize(94)] public float ResearchTaxMultiplier = 1;
         [Serialize(95)] public int PreferredEnvDescription;
+        [Serialize(96)] public bool TaxGoods;
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
