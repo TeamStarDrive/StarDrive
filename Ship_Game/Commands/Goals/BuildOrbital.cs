@@ -60,6 +60,9 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
 
         GoalStep OrderDeployOrbital()
         {
+            if (FinishedShip == null)
+                return GoalStep.GoalFailed; // Ship was removed or destroyed
+
             BuildPosition              = FindNewOrbitalLocation();
             FinishedShip.IsConstructor = true;
             FinishedShip.VanityName    = "Construction Ship";
