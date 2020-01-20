@@ -38,6 +38,7 @@ namespace Ship_Game
             ActualMap      = new Rectangle(housing.X + 61 + 20, housing.Y + 33, 200, 210);
 
             UIList list = AddList(new Vector2(Housing.X + 14, Housing.Y + 70));
+            list.Name = "MiniMapButtons";
             ZoomToShip     = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
             ZoomOut        = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             PlanetScreen   = list.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));

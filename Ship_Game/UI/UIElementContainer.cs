@@ -334,10 +334,19 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
         public UIPanel Panel(in Rectangle r, Color c, DrawableSprite s = null)
-            => Add(new UIPanel(r, c, s));
+            => Add(new UIPanel(r, c, s));     
+        
+        public UIPanel Panel(in Rectangle r, DrawableSprite s = null)
+            => Add(new UIPanel(r, s));
 
         public UIPanel Panel(in Rectangle r, Color c, SubTexture s)
             => Panel(r, c, new DrawableSprite(s));
+
+        public UIPanel Panel(in Rectangle r, SubTexture s)
+            => Panel(r, new DrawableSprite(s));
+
+        public UIPanel Panel(float x, float y, SubTexture s)
+            => Add(new UIPanel(new Vector2(x,y), s));
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 

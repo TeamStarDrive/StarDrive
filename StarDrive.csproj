@@ -170,6 +170,7 @@
   <ItemGroup>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\Evade.cs" />
+    <Compile Include="Ship_Game\AI\CombatTactics\CombatMovement.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\HoldPosition.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\BroadSides.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\OrbitTarget.cs" />
@@ -224,6 +225,7 @@
     <Compile Include="Ship_Game\Data\LocalizedText.cs" />
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
+    <Compile Include="Ship_Game\Empires\EmpireUI.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
@@ -282,7 +284,6 @@
     <Compile Include="Ship_Game\ExtensionMethods\EmpireExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\FileSystemExt.cs" />
-    <Compile Include="Ship_Game\ExtensionMethods\FRect.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\ListExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\MathExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Matrices.cs" />
@@ -1791,13 +1792,37 @@
     <Content Include="Content\Localization\Spanish\GameText.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\ShipModules\ConstructionArray.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\ShipRoles\Shipyard.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipRoles\SSP.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\Draylok Constructor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Opteris Constructor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Owlwok Constructor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Pollops Constructor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Ralyeh Constructor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\StarterShips\Shipyard.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\StarterShips\Small Constructor.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\Modules\ConstructionArray.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\icon_intertrade.png">

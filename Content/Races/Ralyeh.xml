@@ -9,7 +9,7 @@
   <DefaultSmallTransport>Vessel S</DefaultSmallTransport>
   <DefaultTroopShip>Ralyeh Troop</DefaultTroopShip>
   <DefaultColonyShip>Ralyeh Colonizer</DefaultColonyShip>
-  <DefaultConstructor>Vessel S</DefaultConstructor>
+  <DefaultConstructor>Ralyeh Constructor</DefaultConstructor>
   
   <RebelName>Ralyeh Apostates</RebelName>
   <RebelSing>Apostate</RebelSing>

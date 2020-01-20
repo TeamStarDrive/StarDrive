@@ -103,7 +103,7 @@ namespace Ship_Game
             base.RemoveAll();
         }
 
-        void LayoutItem(UIElementV2 item, Vector2 pos, Vector2 size)
+        void LayoutItem(UIElementV2 item, Vector2 pos, Vector2 itemSize)
         {
             bool updated = false;
             if (item.Pos.NotEqual(pos))
@@ -115,24 +115,24 @@ namespace Ship_Game
             if (LayoutStyle == ListLayoutStyle.Clip)
             {
                 // clip size to list boundary
-                size.X = Math.Min(size.X, item.Width);
-                size.Y = Math.Min(size.Y, item.Height);
+                itemSize.X = Math.Min(itemSize.X, item.Width);
+                itemSize.Y = Math.Min(itemSize.Y, item.Height);
             }
             else if (LayoutStyle == ListLayoutStyle.Fill)
             {
                 // expand the size if item doesn't fill to list width
-                size.X = Math.Max(size.X, item.Width);
-                size.Y = Math.Max(size.Y, item.Height);
+                itemSize.X = Math.Max(itemSize.X, item.Width);
+                itemSize.Y = Math.Max(itemSize.Y, item.Height);
             }
 
-            if (size.X.NotZero() && item.Width.NotEqual(size.X))
+            if (itemSize.X.NotZero() && item.Width.NotEqual(itemSize.X))
             {
-                item.Width = size.X;
+                item.Width = itemSize.X;
                 updated = true;
             }
-            if (size.Y.NotZero() && item.Height.NotEqual(size.Y))
+            if (itemSize.Y.NotZero() && item.Height.NotEqual(itemSize.Y))
             {
-                item.Height = size.Y;
+                item.Height = itemSize.Y;
                 updated = true;
             }
 
@@ -142,32 +142,34 @@ namespace Ship_Game
             }
         }
 
-        void LayoutItem(UIElementV2 item, ref Vector2 pos, Vector2 size, Vector2 padding)
+        void LayoutItem(UIElementV2 item, ref Vector2 pos, Vector2 itemSize, Vector2 padding)
         {
-            LayoutItem(item, pos, size);
+            LayoutItem(item, pos, itemSize);
             pos += Direction * (item.Size + padding);
         }
 
         Vector2 MaxDimensions()
         {
-            var d = new Vector2(Width, Height);
             if (LayoutStyle == ListLayoutStyle.ResizeList)
             {
+                var d = new Vector2(8, 8);
                 for (int i = 0; i < Items.Count; ++i)
                 {
                     d.X = Math.Max(d.X, Items[i].Width);
                     d.Y = Math.Max(d.Y, Items[i].Height);
                 }
                 d += Padding*2f;
+                return d;
             }
-            return d;
+
+            return new Vector2(Width, Height);
         }
 
         public override void PerformLayout()
         {
             Vector2 pos = Pos + Padding;
-
             Vector2 maxElemSize = MaxDimensions();
+
             // swap will enforce Width during Vertical and Height during Horizontal
             Vector2 elemSize = Direction.Swapped() * (maxElemSize - Padding*2f);
             elemSize = elemSize.AbsVec(); // make sure size is absolute

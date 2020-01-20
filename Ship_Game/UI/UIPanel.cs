@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Data;
 using Ship_Game.SpriteSystem;
 
 namespace Ship_Game
@@ -19,6 +20,9 @@ namespace Ship_Game
         // If set to true, any bleeding input hovering over this panel will be captured
         public bool CaptureInput;
 
+        // If set to a valid tooltip, will display a tooltip on hover
+        public ToolTipText Tooltip;
+
         public override string ToString()
         {
             return Sprite == null
@@ -33,6 +37,10 @@ namespace Ship_Game
         public UIPanel(DrawableSprite sprite)
         {
             Sprite = sprite;
+        }
+
+        public UIPanel(in Rectangle rect, DrawableSprite sprite)  : this(rect, Color.White, sprite)
+        {
         }
 
         // Hint: use Color.TransparentBlack to create Panels with no fill
@@ -52,11 +60,41 @@ namespace Ship_Game
             Color = color;
         }
 
+        public UIPanel(in Rectangle rect, SubTexture texture) : this(rect, Color.White, new DrawableSprite(texture))
+        {
+        }
+
+        public UIPanel(in Rectangle rect, SubTexture texture, Color color) : this(rect, color, new DrawableSprite(texture))
+        {
+        }
+
+        public UIPanel(Vector2 pos, SubTexture texture) : this(pos, texture, Color.White)
+        {
+        }
+
+        public UIPanel(Vector2 pos, SubTexture texture, Color color)
+        {
+            Sprite = new DrawableSprite(texture);
+            Color = color;
+            Pos = pos;
+            Size = Sprite.Size;
+        }
+
+
         public override bool HandleInput(InputState input)
         {
+            // if child elements capture input, then we don't show tooltip
             if (base.HandleInput(input))
                 return true;
-            return CaptureInput && HitTest(input.CursorPosition);
+
+            bool hovering = HitTest(input.CursorPosition);
+            if (hovering && Tooltip.IsValid)
+            {
+                ToolTip.CreateTooltip(Tooltip, "", input.CursorPosition + new Vector2(10));
+            }
+
+            // only return true if CaptureInput was set
+            return CaptureInput && hovering;
         }
 
         public override void Update(float deltaTime)
