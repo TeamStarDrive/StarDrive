@@ -26,9 +26,10 @@ namespace Ship_Game.Ships
             //Log.Info($"CreateSO {Id} {Name}");
             // my guess is that if the model crashes loading, the method dumps early and the radius doesnt get set. 
             // So as the radius isnt dependent on the model i am going to try moving it set before the model load
-            Radius = shipData.BaseHull.Radius;
             shipData.LoadModel(out ShipSO, Empire.Universe);
+            Radius = shipData.BaseHull.Radius;
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+            Radius = Radius.LessOrEqual(50) ? (float)Math.Sqrt(SurfaceArea) : Radius;
 
             // Since we just created the object, it must be visible
             UpdateVisibility(0f, forceVisible: true);
