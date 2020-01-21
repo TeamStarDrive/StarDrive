@@ -115,6 +115,14 @@ namespace Ship_Game
             TransientContent?.Dispose(ref TransientContent);
         }
 
+        // select size based on current res: Low, Normal, Hi
+        protected int SelectSize(int lowRes, int normalRes, int hiRes)
+        {
+            if (LowRes) return lowRes;
+            if (HiRes) return hiRes;
+            return normalRes;
+        }
+
         public void UpdateViewport() => Viewport = GameBase.Viewport;
 
         public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
