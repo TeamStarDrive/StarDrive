@@ -684,17 +684,21 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 ref SpatialObj so = ref items[i];
-                if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
+                GameplayObject go = so.Obj;
+                if (go == null)
+                    continue; // bah!
+
+                if (filter != GameObjectType.None && (go.Type & filter) == 0)
                     continue; // no filter match
 
                 // ignore self  and  ensure in radius
-                if (so.Obj == nearbyDummy.Obj || !nearbyDummy.HitTestNearby(ref so))
+                if (go == nearbyDummy.Obj || !nearbyDummy.HitTestNearby(ref so))
                     continue;
 
                 if (numNearby == nearby.Length) // "clever" resize
                     Array.Resize(ref nearby, numNearby + count);
 
-                nearby[numNearby++] = so.Obj;
+                nearby[numNearby++] = go;
             }
             if (node.NW != null)
             {
@@ -727,7 +731,9 @@ namespace Ship_Game
             return nearby;
         }
 
-        static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.DebugWin != null;
+        static bool ShouldStoreDebugInfo => Empire.Universe.Debug
+                                         && Empire.Universe.DebugWin != null
+                                         && Debug.DebugInfoScreen.Mode == Debug.DebugModes.SpatialManager;
 
         static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
         {
@@ -754,7 +760,6 @@ namespace Ship_Game
         static readonly Color Brown  = new Color(Color.SaddleBrown, 150);
         static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
 
-        static readonly Color Golden = new Color(Color.Gold, 100);
         // "Allies are Blue, Enemies are Red, what should I do, with our Quadtree?" - RedFox
         static readonly Color Blue   = new Color(Color.CadetBlue, 100);
         static readonly Color Red    = new Color(Color.OrangeRed, 100);
