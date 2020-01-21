@@ -1199,7 +1199,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\MainDiplomacyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Diplomacy\MainDiplomacyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1331,7 +1331,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\DiplomacyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\Diplomacy\DiplomacyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
