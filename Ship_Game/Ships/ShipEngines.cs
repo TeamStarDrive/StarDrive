@@ -7,7 +7,7 @@ namespace Ship_Game.Ships
     /// This should be doing a lot more than it is.
     /// 
     /// </summary>
-    public class Engine
+    public class ShipEngines
     {
         readonly Ship Owner;
         ShipAI AI => Owner.AI;
@@ -19,7 +19,7 @@ namespace Ship_Game.Ships
         public Status ReadyForWarp { get; private set; }
         public Status ReadyForFormationWarp { get; private set; }
 
-        public Engine(Ship owner, ShipModule[] slots)
+        public ShipEngines(Ship owner, ShipModule[] slots)
         {
             Owner   = owner;
             Engines = slots.Filter(module => module.Is(ShipModuleType.Engine));
@@ -57,7 +57,7 @@ namespace Ship_Game.Ships
             if (warpStatus == Status.Poor)                return Status.Poor;
             if (warpStatus == Status.Critical)            return Status.Good;
 
-            if (Owner.fleet.ApplySpeedLimit(Owner) < 1) return Status.NotApplicable;
+            if (Owner.fleet.GetSpeedLimitFor(Owner) < 1) return Status.NotApplicable;
 
             Vector2 movePosition;
             if (AI.OrderQueue.TryPeekFirst(out ShipAI.ShipGoal goal))

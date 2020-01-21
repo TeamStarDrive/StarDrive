@@ -164,7 +164,7 @@ namespace Ship_Game.Ships
 
         void SetFleetCapableStatus()
         {
-            if (Engines.EngineStatus > Status.Poor
+            if (ShipEngineses.EngineStatus > Status.Poor
                                       && AI.State != AIState.Resupply
                                       && AI.State != AIState.Refit
                                       && AI.State != AIState.Scrap
@@ -1023,7 +1023,7 @@ namespace Ship_Game.Ships
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
-            Engines.Update();
+            ShipEngineses.Update();
 
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {

@@ -122,14 +122,14 @@ namespace Ship_Game.AI
 
         public void OrderFormationWarp(Vector2 destination, Vector2 direction)
         {
-            float speedLimit = Owner.fleet?.ApplySpeedLimit(Owner) ?? 0;
+            float speedLimit = Owner.fleet?.GetSpeedLimitFor(Owner) ?? 0;
             OrderMoveDirectlyTo(destination, direction, true, speedLimit);
             State = AIState.FormationWarp;
         }
 
         public void OrderFormationWarpQ(Vector2 destination, Vector2 direction)
         {
-            float speedLimit = Owner.fleet?.ApplySpeedLimit(Owner) ?? 0;
+            float speedLimit = Owner.fleet?.GetSpeedLimitFor(Owner) ?? 0;
             OrderMoveDirectlyTo(destination, direction, false, speedLimit);
             State = AIState.FormationWarp;
         }

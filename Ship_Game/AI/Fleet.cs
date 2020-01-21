@@ -1583,7 +1583,7 @@ namespace Ship_Game.AI
                 if (ship.AI.State == AIState.FormationWarp)
                 {
                     if (readyForWarp)
-                        readyForWarp = ship.Engines.ReadyForFormationWarp > Status.Poor;
+                        readyForWarp = ship.ShipEngineses.ReadyForFormationWarp > Status.Poor;
                 }
 
                 // once in warp clear assembling flag. 
