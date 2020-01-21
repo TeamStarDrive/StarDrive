@@ -15,7 +15,7 @@ namespace Ship_Game
         public EmpireUIOverlay EmpireUI;
         //private Menu1 ModuleSelectionMenu;
         private SceneObject shipSO;
-        private Vector3 CameraPosition = new Vector3(0f, 0f, 1300f);
+        private Vector3 CameraPosition;
         private Vector2 Offset;
         private readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         private UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
@@ -318,9 +318,7 @@ namespace Ship_Game
             //roleData.CreateDesignRoleToolTip(DesignRoleRect); FB: This was killing tool tips in ship design, disabled and should check this
             
             CameraPosition.Z = OriginalZ / Camera.Zoom;
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+            UpdateViewMatrix(CameraPosition);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
