@@ -23,16 +23,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen {
             Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
         }
 
-        public void AddSubItem(string name, string response, string inquiry)
+        public void AddSubItem(LocalizedText text, string response, string inquiry)
         {
-            var item = new ItemToOffer(name, response, Cursor) { SpecialInquiry = inquiry };
+            var item = new ItemToOffer(text.Text, response, Cursor) { SpecialInquiry = inquiry };
             Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
             Offer.AddSubItem(item);
         }
 
-        public void AddCategory(int categoryId, Action populateSubItems)
+        public void AddCategory(GameText text, Action populateSubItems)
         {
-            AddItem(categoryId, "");
+            Offer = List.AddItem(new ItemToOffer(new LocalizedText(text)));
             Cursor.X += 10f;
             populateSubItems();
             Cursor.X -= 10f;

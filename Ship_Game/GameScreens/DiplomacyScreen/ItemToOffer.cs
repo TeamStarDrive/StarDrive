@@ -23,6 +23,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Response = response;
         }
 
+        public ItemToOffer(LocalizedText header) : base (header.Text)
+        {
+            Words = header.Text;
+        }
+
         public ItemToOffer(int localization, string response, Vector2 cursor)
             : this(Localizer.Token(localization), response, cursor)
         {
