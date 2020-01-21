@@ -15,6 +15,7 @@ using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 
 namespace Ship_Game
