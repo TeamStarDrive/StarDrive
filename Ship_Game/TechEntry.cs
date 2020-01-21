@@ -837,6 +837,7 @@ namespace Ship_Game
                 case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
                 case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
                 case "Kinetic Shield Penetration Chance Bonus": data.ShieldPenBonusChance += unlockedBonus.Bonus; break;
+                case "Tax Goods": data.Traits.TaxGoods = true; break;
             }
         }
 
