@@ -484,7 +484,10 @@ namespace Ship_Game
         {
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
 
-            var hullSelectionBkg = new Submenu(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
+            int hullSelY = SelectSize(45, 100, 100);
+            int hullSelW = SelectSize(260, 280, 320);
+            int hullSelH = SelectSize(350, 500, 600);
+            var hullSelectionBkg = new Submenu(ScreenWidth - 285, hullSelY, hullSelW, hullSelH);
             // rounded black background
             hullSelectionBkg.Background = new Selector(hullSelectionBkg.Rect.CutTop(25), new Color(0,0,0,210));
             hullSelectionBkg.AddTab(Localizer.Token(107));
