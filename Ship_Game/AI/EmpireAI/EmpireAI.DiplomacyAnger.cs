@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.AI {
 
