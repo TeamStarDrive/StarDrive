@@ -105,14 +105,17 @@ namespace Ship_Game
         string HomeWorldName { get; }
         string Adj1 { get; }
         string Adj2 { get; }
+
+        string WarpStart { get; }
+        string WarpEnd { get; }
     }
 
     public sealed class EmpireData : IEmpireData
     {
         [Serialize(0)] public SerializableDictionary<WeaponTag, WeaponTagModifier> WeaponTags
                         = new SerializableDictionary<WeaponTag, WeaponTagModifier>();
-        [Serialize(1)] public string WarpStart;
-        [Serialize(2)] public string WarpEnd;
+        [Serialize(1)] public string WarpStart { get; set; }
+        [Serialize(2)] public string WarpEnd { get; set; }
         [Serialize(3)] public Difficulty difficulty;
         [Serialize(4)] public string CurrentAutoFreighter = "";
         [Serialize(5)] public string CurrentAutoColony    = "";
