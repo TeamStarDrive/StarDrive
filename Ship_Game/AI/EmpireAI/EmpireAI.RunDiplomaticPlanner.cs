@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.AI {
     public sealed partial class EmpireAI

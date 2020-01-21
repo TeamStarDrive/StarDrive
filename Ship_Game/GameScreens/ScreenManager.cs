@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;

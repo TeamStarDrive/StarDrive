@@ -312,6 +312,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\GovernorDetailsComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ShipInfoOverlayComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyScreen.DiplomacyItemsLayout.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Draw.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_HandleInput.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Update.cs" />
@@ -588,7 +589,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\ItemToOffer.cs">
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\ItemToOffer.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1199,7 +1200,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\MainDiplomacyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\MainDiplomacyScreen\MainDiplomacyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1331,7 +1332,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\DiplomacyScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
