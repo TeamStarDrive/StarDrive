@@ -519,7 +519,7 @@ namespace Ship_Game
             
         }
 
-        public float ApplySpeedLimit(Ship ship)
+        public float GetSpeedLimitFor(Ship ship)
         {
             if (ship.Center.InRadius(AveragePos, 15000))
                 return SpeedLimit;

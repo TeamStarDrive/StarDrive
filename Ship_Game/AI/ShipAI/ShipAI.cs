@@ -441,14 +441,7 @@ namespace Ship_Game.AI
             return false;
         }
 
-        bool NearFleetPosition()
-        {
-            if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
-            {
-                return true;
-            }
-            return false;
-        }
+        bool NearFleetPosition() => Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f);
 
         bool ShouldReturnToFleet()
         {

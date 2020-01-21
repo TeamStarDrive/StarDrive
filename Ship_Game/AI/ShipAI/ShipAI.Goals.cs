@@ -192,7 +192,7 @@ namespace Ship_Game.AI
             public readonly float VariableNumber;
             public TradePlan Trade;
 
-            public float ApplySpeedLimit(Ship ship) => ship.fleet?.ApplySpeedLimit(ship) ?? SpeedLimit;
+            public float GetSpeedLimitFor(Ship ship) => ship.fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
 
             public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 
