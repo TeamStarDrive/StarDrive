@@ -260,6 +260,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             dState = DialogState.Them;
         }
 
+        Vector2 GetCenteredTextPosition(Rectangle r, string text, SpriteFont font)
+        {
+            return new Vector2(r.CenterTextX(text, font), r.CenterY());
+        }
+
         public override void Draw(SpriteBatch batch)
         {
             if (!IsActive)
@@ -269,8 +274,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             batch.Begin();
 
             DrawBackground(batch);
-
-            base.Draw(batch);
 
             foreach (GenericButton taf in TAFButtons)
             {
@@ -293,8 +296,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case DialogState.Them:
                 {
                     string text = ParseTextDiplomacy(TheirText, (DialogRect.Width - 25));
-                    var position = new Vector2((ScreenWidth / 2f) - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
-                    HelperFunctions.ClampVectorToInt(ref position);
+                        var position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
+                        HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     break;
                 }
@@ -332,7 +335,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 {
                     batch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
                     string text = ParseTextDiplomacy(TheirText, DialogRect.Width - 25);
-                    var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    Vector2 position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
+
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
                     Reject.DrawWithShadow(batch);
@@ -341,7 +345,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case DialogState.End:
                 {
                     string text = ParseTextDiplomacy(TheirText, DialogRect.Width - 25);
-                    var position = new Vector2(ScreenWidth / 2f - Fonts.Consolas18.MeasureString(text).X / 2f, TextCursor.Y);
+                    Vector2 position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
                     HelperFunctions.ClampVectorToInt(ref position);
                     DrawDropShadowText(text, position, Fonts.Consolas18);
                     break;
@@ -424,27 +428,25 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             layout.AddRelationItems(empire.GetRelations(other));
             Array<TechEntry> tradableTech = empire.GetEmpireAI().TradableTechs(other);
-            layout.AddCategory(1217, () =>
+            layout.AddCategory(GameText.Technology, () =>
             {
                 foreach (TechEntry entry in tradableTech)
                 {
-                    // Added by McShooterz: prevent root nodes from being traded
-                    //if (entry.Unlocked && !other.HasUnlocked(entry) &&
-                    //    other.HavePreReq(entry.UID) && !entry.IsRoot)
-                    {
-                        Technology tech = entry.Tech;
-                        layout.AddSubItem($"{Localizer.Token(tech.NameIndex)}: {(int) tech.ActualCost}", "Tech", entry.UID);
-                    }
+                    Technology tech = entry.Tech;
+                    string techName = new LocalizedText(tech.NameIndex).Text;
+                    layout.AddSubItem($"{techName}: {(int) tech.ActualCost}",
+                                      "Tech", entry.UID);
                 }
             });
 
-            layout.AddCategory(1218, () =>
+            layout.AddCategory(GameText.Artifacts, () =>
             {
                 foreach (Artifact artifact in empire.data.OwnedArtifacts)
-                    layout.AddSubItem(Localizer.Token(artifact.NameIndex), "Artifacts", artifact.Name);
+                    layout.AddSubItem(new LocalizedText(artifact.NameIndex).Text,
+                                      "Artifacts", artifact.Name);
             });
 
-            layout.AddCategory(1219, () =>
+            layout.AddCategory(GameText.Colonies, () =>
             {
                 foreach (Planet p in empire.GetPlanets())
                     layout.AddSubItem(p.Name, "Colony", p.Name);
@@ -769,10 +771,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Anger = TAFButton(ref cursor, locId: 1205, toggleOn: true);
             Fear  = TAFButton(ref cursor, locId: 1206, toggleOn: true);
 
-            TrustRect = new Rectangle(Portrait.X + 125, Trust.R.Y + 2, 100, Trust.R.Height);
-            AngerRect = new Rectangle(Portrait.X + 125, Anger.R.Y + 2, 100, Anger.R.Height);
-            FearRect = new Rectangle(Portrait.X + 125, Fear.R.Y + 2, 100, Fear.R.Height);
-            DialogRect = new Rectangle(ScreenWidth / 2 - 350, Portrait.Y + Portrait.Height - 110, 700, 55);
+            TrustRect  = new Rectangle(Portrait.X + 125, Trust.R.Y + 2, 100, Trust.R.Height);
+            AngerRect  = new Rectangle(Portrait.X + 125, Anger.R.Y + 2, 100, Anger.R.Height);
+            FearRect   = new Rectangle(Portrait.X + 125, Fear.R.Y + 2, 100, Fear.R.Height);
+            DialogRect = new Rectangle(ScreenWidth / 2 - 350, Portrait.Bottom -120, 700, 75);
 
             if (ScreenHeight < 820)
             {
