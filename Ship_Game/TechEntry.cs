@@ -471,6 +471,9 @@ namespace Ship_Game
         {
             if (WasAcquiredFrom.AddUnique(them.data.Traits.ShipType))
             {
+                if (!Unlocked) 
+                    Unlock(us, them);
+
                 UnlockTechContentOnly(us, them);
                 return true;
             }
