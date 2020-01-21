@@ -2254,8 +2254,16 @@ namespace Ship_Game
             {
                 string modelIcon  = ship.BaseHull.ActualIconPath;
                 string hullString = ship.BaseHull.ToString();
-                string message    = $"{hullString}{Localizer.Token(1932)}";
-                Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
+                if (hullTech.Unlocked)
+                {
+                    string message = $"{hullString}{Localizer.Token(1932)}";
+                    Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
+                }
+                else
+                {
+                    string message = $"{hullString}{Localizer.Token(1933)}";
+                    Universe.NotificationManager.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
+                }
             }
         }
 
@@ -2265,8 +2273,8 @@ namespace Ship_Game
             if (!TryGetTechFromHull(hullName, out hullTech, out empire))
                 return false;
 
-            if (!hullTech.Unlocked)
-                return false; // We must have the hull tech to unlock foreign hulls
+            if (hullTech.Unlocked)
+                return true; // automatically advance in research
 
             float unlockChance;
             switch (ship.shipData.HullRole)
@@ -2275,12 +2283,11 @@ namespace Ship_Game
                 case ShipData.RoleName.corvette: unlockChance = 80;    break;
                 case ShipData.RoleName.frigate:  unlockChance = 60;    break;
                 case ShipData.RoleName.cruiser:  unlockChance = 40;    break;
-                case ShipData.RoleName.capital:  unlockChance = 20f; break;
+                case ShipData.RoleName.capital:  unlockChance = 20f;   break;
                 default:                         unlockChance = 50f;   break;
             }
 
             unlockChance *= 1 + data.Traits.ModHpModifier; // skilled or bad engineers
-
             return RandomMath.RollDice(unlockChance);
         }
 
@@ -2311,6 +2318,24 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        public void AddBoardSuccessNotification(Ship ship)
+        {
+            if (!isPlayer)
+                return;
+
+            string message = Localizer.Token(1934);
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
+        }
+
+        public void AddBoardedNotification(Ship ship)
+        {
+            if (!isPlayer) 
+                return;
+
+            string message = Localizer.Token(1934);
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
         }
 
         private void CalculateScore()

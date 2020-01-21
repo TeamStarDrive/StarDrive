@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -274,6 +275,28 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddBoardNotification(string message, string iconPath, string action, Ship s)
+        {
+            AddNotification(new Notification
+            {
+                Message         = message,
+                Action          = action,
+                ReferencedItem1 = s,
+                IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter"); 
+        }
+
+        public void AddScrapProgressNotification(string message, string iconPath, string action, string techName)
+        {
+            AddNotification(new Notification
+            {
+                Message = message,
+                Action = action,
+                ReferencedItem1 = techName,
+                IconPath = iconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter");
+        }
+
         public void AddRebellionNotification(Planet beingInvaded, Empire invader)
         {
             string message = "Rebellion on " + beingInvaded.Name + "!";
@@ -456,6 +479,9 @@ namespace Ship_Game
                                 case "ShipDesign":
                                     ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, Screen.EmpireUI));
                                     break;
+                                case "SnapToShip":
+                                    SnapToShip(n.ReferencedItem1 as Ship);
+                                    break;
                             }
                             retValue = true;
                         }
@@ -506,6 +532,13 @@ namespace Ship_Game
                 Screen.HeightOnSnap = Screen.CamHeight;
             }
             Screen.SnapViewPlanet(p);
+        }
+
+        public void SnapToShip(Ship s)
+        {
+            GameAudio.SubBassWhoosh();
+            Screen.SelectedShip = s;
+            Screen.SnapViewShip(s);
         }
 
         public void SnapToExpandedSystem(Planet p, SolarSystem system)
