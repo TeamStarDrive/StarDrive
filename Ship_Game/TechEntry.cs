@@ -467,6 +467,17 @@ namespace Ship_Game
             return false;
         }
 
+        public bool UnlockFromScrap(Empire us, Empire them)
+        {
+            if (WasAcquiredFrom.AddUnique(them.data.Traits.ShipType))
+            {
+                UnlockTechContentOnly(us, them);
+                return true;
+            }
+
+            return false;
+        }
+
         public bool UnlockFromDiplomacy(Empire us, Empire them)
         {
             if (!Unlocked)
