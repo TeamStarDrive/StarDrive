@@ -2265,24 +2265,23 @@ namespace Ship_Game
             if (!TryGetTechFromHull(hullName, out hullTech, out empire))
                 return false;
 
+            if (!hullTech.Unlocked)
+                return false; // We must have the hull tech to unlock foreign hulls
 
             float unlockChance;
             switch (ship.shipData.HullRole)
             {
                 case ShipData.RoleName.fighter:  unlockChance = 90;    break;
-                case ShipData.RoleName.corvette: unlockChance = 50;    break;
-                case ShipData.RoleName.frigate:  unlockChance = 40;    break;
-                case ShipData.RoleName.cruiser:  unlockChance = 20;    break;
-                case ShipData.RoleName.capital:  unlockChance = 12.5f; break;
+                case ShipData.RoleName.corvette: unlockChance = 80;    break;
+                case ShipData.RoleName.frigate:  unlockChance = 60;    break;
+                case ShipData.RoleName.cruiser:  unlockChance = 40;    break;
+                case ShipData.RoleName.capital:  unlockChance = 20f; break;
                 default:                         unlockChance = 50f;   break;
             }
 
             unlockChance *= 1 + data.Traits.ModHpModifier; // skilled or bad engineers
-            if (hullTech.Unlocked)
-                unlockChance = (unlockChance * 2).UpperBound(100);
 
-            //return RandomMath.RollDice(unlockChance);
-            return true;
+            return RandomMath.RollDice(unlockChance);
         }
 
         bool TryGetTechFromHull(string hullName, out TechEntry techEntry, out Empire empire)
