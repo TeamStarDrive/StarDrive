@@ -471,8 +471,13 @@ namespace Ship_Game
         {
             if (WasAcquiredFrom.AddUnique(them.data.Traits.ShipType))
             {
-                if (!Unlocked) 
-                    Unlock(us, them);
+                if (!Unlocked)
+                {
+                    float percentToAdd = 0.25f * (1 + us.data.Traits.ModHpModifier); // skilled or bad engineers
+                    AddToProgress(TechCost * percentToAdd, us, out bool unLocked);
+                    if (unLocked) us.UnlockTech(this, TechUnlockType.Normal, null);
+                    return unLocked;
+                }
 
                 UnlockTechContentOnly(us, them);
                 return true;

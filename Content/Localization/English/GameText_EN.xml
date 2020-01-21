@@ -4732,7 +4732,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1932</Index>
-      <Text> was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!"</Text>
+      <Text> was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!</Text>
+    </Token>
+    <Token>
+      <Index>1933</Index>
+      <Text> was scrapped, helping us advance in our own research\ntoward this hull type.</Text>
+    </Token>
+    <Token>
+      <Index>1934</Index>
+      <Text> You have managed to capture a ship! You can scrap it\nto get some research point towards your own hull\nresearch of that type, or maybe even unlock this specific\nhull, if you already able to build this type.</Text>
+    </Token>
+    <Token>
+      <Index>1935</Index>
+      <Text>Once of your ships was boarded!</Text>
     </Token>
     <Token>
       <Index>1941</Index>
