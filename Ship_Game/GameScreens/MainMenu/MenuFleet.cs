@@ -93,7 +93,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             if (!DiverseShipEmpires && Empire.NotEmpty() && Empire != "Random")
             {
-                IEmpireData e = ResourceManager.AllRaces.Filter(p => p.Name.Contains(Empire)).FirstOrDefault();
+                IEmpireData e = ResourceManager.AllRaces.Filter(
+                    p => p.Name.Contains(Empire)).FirstOrDefault();
                 if (e != null) return e;
             }
             return ResourceManager.MajorRaces.RandItem();

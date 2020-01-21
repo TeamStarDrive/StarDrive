@@ -90,6 +90,7 @@ namespace Ship_Game
     public interface IEmpireData
     {
         string Name { get; }
+        string ArchetypeName { get; }
         bool IsCybernetic { get; }
         bool IsFactionOrMinorRace { get; }
         RacialTrait Traits { get; }
@@ -151,6 +152,8 @@ namespace Ship_Game
         [Serialize(29)] public Array<string> ResearchQueue = new Array<string>();
         [Serialize(30)] public BatchRemovalCollection<Mole> MoleList = new BatchRemovalCollection<Mole>();
         [Serialize(31)] public float CounterIntelligenceBudget;
+
+        // NOTE: This is currently the main unique identifier?
         [Serialize(32)] public string PortraitName;
         [Serialize(33)] public string RebelSing;
         [Serialize(34)] public string RebelPlur;
@@ -243,8 +246,12 @@ namespace Ship_Game
         [Serialize(108)] public PlanetCategory PreferredEnv;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
+        [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
 
-        public override string ToString() => $"Name: {Name} ShipType: {ShipType}";
+        [XmlIgnore][JsonIgnore] public SubTexture PortraitTex
+            => ResourceManager.Texture("Portraits/" + PortraitName);
+
+        public override string ToString() => $"Name: '{Name}' ShipType: {ShipType}";
 
         [XmlIgnore][JsonIgnore]
         public string ScoutShip => CurrentAutoScout.NotEmpty() ? CurrentAutoScout
