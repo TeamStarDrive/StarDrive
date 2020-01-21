@@ -4,9 +4,8 @@ using Ship_Game.Gameplay;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Ship_Game.GameScreens;
 
-namespace Ship_Game
+namespace Ship_Game.GameScreens.DiplomacyScreen
 {
     public sealed class DiplomacyScreen : GameScreen
     {
@@ -416,58 +415,6 @@ namespace Ship_Game
             var offset = new Vector2(2f, 2f);
             ScreenManager.SpriteBatch.DrawString(Font, Text, Pos + offset, Color.Black);
             ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, Color.White);
-        }
-
-        class DiplomacyItemsLayout
-        {
-            readonly ScrollList2<ItemToOffer> List;
-            ItemToOffer Current;
-            Vector2 Cursor;
-
-            public DiplomacyItemsLayout(ScrollList2<ItemToOffer> list, Rectangle rect)
-            {
-                List = list;
-                Current = null;
-                Cursor = new Vector2((rect.X + 10), (rect.Y + Fonts.Pirulen12.LineSpacing + 2));
-            }
-
-            void AddItem(int tokenId, string response)
-            {
-                Current = List.AddItem(new ItemToOffer(tokenId, response, Cursor));
-                Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-            }
-
-            public void AddSubItem(string name, string response, string inquiry)
-            {
-                var item = new ItemToOffer(name, response, Cursor) { SpecialInquiry = inquiry };
-                Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
-                Current.AddSubItem(item);
-            }
-
-            public void AddCategory(int categoryId, Action populateSubItems)
-            {
-                AddItem(categoryId, "");
-                Cursor.X += 10f;
-                populateSubItems();
-                Cursor.X -= 10f;
-            }
-
-            public void AddRelationItems(Relationship relations)
-            {
-                if (!relations.AtWar)
-                {
-                    if (!relations.Treaty_NAPact)      AddItem(1214, "NAPact");
-                    if (!relations.Treaty_Trade)       AddItem(1215, "TradeTreaty");
-                    if (!relations.Treaty_OpenBorders) AddItem(1216, "OpenBorders");
-
-                    if (relations.Treaty_Trade && relations.Treaty_NAPact && !relations.Treaty_Alliance)
-                        AddItem(2045, "OfferAlliance");
-                }
-                else
-                {
-                    AddItem(1213, "Peace Treaty");
-                }
-            }
         }
 
         static void FillItems(Empire empire, Empire other, ScrollList2<ItemToOffer> list, Rectangle rect)

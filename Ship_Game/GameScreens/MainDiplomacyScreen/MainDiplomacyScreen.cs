@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Ships;
 
 namespace Ship_Game
