@@ -708,17 +708,19 @@ namespace Ship_Game
             
             ChangeHull(AvailableHulls[0]);
 
-            float lowestX  = ActiveHull.ModuleSlots[0].Position.X;
-            float highestX = lowestX;
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
+            float minX = 0f, maxX = 0f;
+            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
             {
-                if (slot.Position.X < lowestX)  lowestX  = slot.Position.X;
-                if (slot.Position.X > highestX) highestX = slot.Position.X;
+                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
+                Vector2 topLeft     = slot.Position;
+                var botRight        = new Vector2(topLeft.X + slot.Position.X * 16.0f,
+                                    topLeft.Y + slot.Position.Y * 16.0f);
+
+                if (topLeft.X < minX) minX = topLeft.X;
+                if (botRight.X > maxX) maxX = botRight.X;
             }
 
-            // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
-            // Maybe because they are long and narrow. This code is an enigma.
-            float hullWidth = (highestX - lowestX) * 2;
+            float hullWidth = maxX - minX;
 
             // So, this attempts to zoom so the entire design is visible
             float UpdateCameraMatrix()
