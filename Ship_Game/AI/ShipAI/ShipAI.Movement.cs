@@ -209,7 +209,7 @@ namespace Ship_Game.AI
                 { 
                     float speedLimit = distance;
                     if (goal.SpeedLimit > 0f)
-                        speedLimit = Math.Max(speedLimit, goal.ApplySpeedLimit(Owner));
+                        speedLimit = Math.Max(speedLimit, goal.GetSpeedLimitFor(Owner));
                     speedLimit = Math.Max(speedLimit, minimumSpeed);
 
                     Owner.SubLightAccelerate(speedLimit);
@@ -440,8 +440,11 @@ namespace Ship_Game.AI
                 if (Owner.engineState == Ship.MoveState.Sublight)
                     Owner.EngageStarDrive();
             }
-            else if(Owner.engineState == Ship.MoveState.Warp && Owner.Engines.ReadyForFormationWarp > Status.Good)
-                Owner.HyperspaceReturn();
+            else
+            {
+                if(Owner.engineState == Ship.MoveState.Warp && Owner.ShipEngineses.ReadyForFormationWarp > Status.Good) 
+                    Owner.HyperspaceReturn();
+            }
         }
 
         public void DisEngageFormationWarp()
