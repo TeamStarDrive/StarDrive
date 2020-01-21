@@ -86,6 +86,20 @@ namespace Ship_Game
             return null;
         }
 
+        public static Empire GetEmpireByShipType(string name)
+        {
+            if (name.IsEmpty())
+                return null;
+
+            foreach (Empire empire in Empires)
+            {
+                if (empire.data.Traits.ShipType == name)
+                    return empire;
+            }
+
+            return null;
+        }
+
         static Empire FindPlayerEmpire()
         {
             foreach (Empire empire in Empires)
