@@ -451,8 +451,9 @@ namespace Ship_Game
 
         public float ProjectToScreenSize(float sizeInWorld)
         {
-            Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
-            return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
+            Vector2 a = ProjectToScreenPosition(Vector2.Zero);
+            Vector2 b = ProjectToScreenPosition(new Vector2(sizeInWorld, 0f));
+            return a.Distance(b);
         }
 
         public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)
