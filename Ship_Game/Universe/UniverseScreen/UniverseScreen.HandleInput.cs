@@ -244,10 +244,7 @@ namespace Ship_Game
             }
 
             // ensure universe has the correct light rig
-            if (ScreenManager.LightRigIdentity != GameScreens.LightRigIdentity.UniverseScreen)
-            {
-                ResetLighting();
-            }
+            ResetLighting(forceReset: false);
 
             HandleEdgeDetection(input);
             if (HandleDragAORect(input))
@@ -276,7 +273,7 @@ namespace Ship_Game
             if (input.UseRealLights)
             {
                 UseRealLights = !UseRealLights; // toggle real lights
-                ResetLighting();
+                ResetLighting(forceReset: true);
             }
             if (input.ShowExceptionTracker)
             {
@@ -959,8 +956,6 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        if (!SnapBackToSystem)
-                            HeightOnSnap = CamHeight;
                         ViewPlanet();
                     }
                 }
@@ -993,7 +988,6 @@ namespace Ship_Game
                         if (system.systemToClick.IsExploredBy(player))
                         {
                             GameAudio.SubBassWhoosh();
-                            HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
                         else
