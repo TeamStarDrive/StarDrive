@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         private class ShieldBehaviorDropDown : DropOptions<ShieldsWarpBehavior>
         {
-            public ShieldBehaviorDropDown(UIElementV2 parent, Rectangle dropdownRect) : base(parent, dropdownRect)
+            public ShieldBehaviorDropDown(UIElementV2 parent, Rectangle dropdownRect) : base(dropdownRect)
             {
             }
             public override bool HandleInput(InputState input)

@@ -177,8 +177,9 @@ namespace Ship_Game
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public float Density;
-        public float BaseFertility { get; protected set; }
-        public float BaseMaxFertility { get; protected set; }
+        public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
+        public float BaseMaxFertility { get; protected set; } // Natural Fertility, this is clamped to a minimum of 0, cannot be negative
+        public float BuildingsFertility { get; protected set; }  // Fertility change by all relevant buildings. Can be negative
         public float MineralRichness;
 
         public Array<Building> BuildingList = new Array<Building>();
@@ -206,7 +207,7 @@ namespace Ship_Game
         }
         public int TurnsSinceTurnover { get; protected set; }
         public Shield Shield { get; protected set;}
-        public IReadOnlyList<Building> GetBuildingsCanBuild () { return BuildingsCanBuild; }
+        public IReadOnlyList<Building> GetBuildingsCanBuild() => BuildingsCanBuild;
 
         protected void AddTileEvents()
         {
@@ -228,7 +229,7 @@ namespace Ship_Game
 
         public void SpawnRandomItem(RandomItem randItem, float chance, float instanceMax)
         {
-            if (randItem.HardCoreOnly && !GlobalStats.HardcoreRuleset)
+            if (randItem.HardCoreOnly)
                 return; // hardcore is disabled, bail
 
             if (RandomMath.RandomBetween(0.0f, 100f) < chance)
@@ -489,10 +490,12 @@ namespace Ship_Game
 
             foreach (var kv in OrbitalStations)
             {
-                if (kv.Value.loyalty != newOwner && kv.Value.TroopList.Any(loyalty => loyalty.Loyalty != newOwner))
-                    continue;
-                kv.Value.ChangeLoyalty(newOwner);             
-                Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
+                Ship station = kv.Value;
+                if (station.loyalty != newOwner)
+                {
+                    station.ChangeLoyalty(newOwner);
+                    Log.Info($"Owner of platform tethered to {Name} changed from {Owner.PortraitName} to {newOwner.PortraitName}");
+                }
             }
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
@@ -518,16 +521,12 @@ namespace Ship_Game
             moonCount = (int)Math.Round(RandomMath.AvgRandomBetween(-moonCount * .75f, moonCount));
             for (int j = 0; j < moonCount; j++)
             {
-                float radius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
-                var moon = new Moon
-                {
-                    orbitTarget = newOrbital.guid,
-                    moonType = RandomMath.IntBetween(1, 29),
-                    scale = 1,
-                    OrbitRadius = radius,
-                    OrbitalAngle = RandomMath.RandomBetween(0f, 360f),
-                    Position = newOrbital.Center.GenerateRandomPointOnCircle(radius)
-                };
+                float orbitRadius = newOrbital.ObjectRadius + 1500 + RandomMath.RandomBetween(1000f, 1500f) * (j + 1);
+                var moon = new Moon(newOrbital.guid,
+                                    RandomMath.IntBetween(1, 29),
+                                    1f, orbitRadius,
+                                    RandomMath.RandomBetween(0f, 360f),
+                                    newOrbital.Center.GenerateRandomPointOnCircle(orbitRadius));
                 ParentSystem.MoonList.Add(moon);
             }
         }

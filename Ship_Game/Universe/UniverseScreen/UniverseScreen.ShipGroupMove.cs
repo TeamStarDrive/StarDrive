@@ -178,7 +178,8 @@ namespace Ship_Game
                     {
                         player.GetEmpireAI().DefensiveCoordinator.Remove(selectedShip);
                         ShipCommands.RightClickOnShip(selectedShip, shipClicked);
-                        ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);
+                        if (planetClicked != null)
+                            ShipCommands.RightClickOnPlanet(selectedShip, planetClicked);
                     }
                 }
                 else

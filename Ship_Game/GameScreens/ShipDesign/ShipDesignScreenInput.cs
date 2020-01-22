@@ -22,7 +22,9 @@ namespace Ship_Game
         UICheckBox CarrierOnlyCheckBox;
         public void ChangeHull(ShipData hull)
         {
-            if (hull == null) return;
+            if (hull == null)
+                return;
+
             ModSel.ResetLists();
             RemoveObject(shipSO);
             ActiveHull = new ShipData
@@ -64,6 +66,7 @@ namespace Ship_Game
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
             UpdateCarrierShip();
+            ZoomCameraToEncloseHull(ActiveHull);
         }
 
         void UpdateCarrierShip()
@@ -138,7 +141,7 @@ namespace Ship_Game
             SetupSlots();
         }
 
-        void DoExit(object sender, EventArgs e)
+        void DoExit()
         {
             ReallyExit();
         }
@@ -169,7 +172,7 @@ namespace Ship_Game
 
             if (isEmptyDesign || (ShipSaved && goodDesign))
             {
-                LaunchScreen(null, null);
+                LaunchScreen();
                 ReallyExit();
                 return;
             }
@@ -553,7 +556,7 @@ namespace Ship_Game
 
             if (!GetSlotUnderCursor(input, out SlotStruct slot))
             { 
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
                 return;
             }
 
@@ -569,7 +572,7 @@ namespace Ship_Game
             }
             else
             {
-                PlayNegativeSound();
+                GameAudio.NegativeClick();
             }
         }
 
@@ -619,11 +622,11 @@ namespace Ship_Game
             return false;
         }
 
-        public void OnSymmetricDesignToggle()
+        void OnSymmetricDesignToggle()
         {
-            IsSymmetricDesignMode = !IsSymmetricDesignMode;
-            BtnSymmetricDesign.Text  = Localizer.Token(IsSymmetricDesignMode ? 1985 : 1986);
-            BtnSymmetricDesign.Style = IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+            IsSymmetricDesignMode       = !IsSymmetricDesignMode;
+            BtnSymmetricDesign.Text     = SymmetricDesignBtnText;
+            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
         }
 
         void UpdateActiveCombatButton()
@@ -641,13 +644,13 @@ namespace Ship_Game
             UpdateActiveCombatButton();
         }
 
-        void JustChangeHull(object sender, EventArgs e)
+        void JustChangeHull()
         {
             ShipSaved = true;
             ChangeHull(Changeto);
         }
 
-        void LaunchScreen(object sender, EventArgs e)
+        void LaunchScreen()
         {
             if (ScreenToLaunch != null)
             {
@@ -685,14 +688,58 @@ namespace Ship_Game
             ReallyExit();
         }
 
+        // Gets the hull dimensions in world coordinate size
+        Vector2 GetHullDimensions(ShipData hull)
+        {
+            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = hull.ModuleSlots[i];
+                Vector2 topLeft = slot.Position;
+                Vector2 botRight = slot.Position + new Vector2(16f, 16f);
+
+                if (topLeft.X  < minX) minX = topLeft.X;
+                if (topLeft.Y  < minY) minY = topLeft.Y;
+                if (botRight.X > maxX) maxX = botRight.X;
+                if (botRight.Y > maxY) maxY = botRight.Y;
+            }
+            return new Vector2(maxX - minX, maxY - minY);
+        }
+
+        void UpdateViewMatrix(in Vector3 cameraPosition)
+        {
+            Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+        }
+
+        float GetHullScreenSize(in Vector3 cameraPosition, float hullSize)
+        {
+            UpdateViewMatrix(cameraPosition);
+            return ProjectToScreenSize(hullSize);
+        }
+
+        void ZoomCameraToEncloseHull(ShipData hull)
+        {
+            // This ensures our module grid overlay is the same size as the mesh
+            CameraPosition.Z = 500;
+            float hullHeight = GetHullDimensions(hull).Y;
+            float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
+            float ratio = visibleSize / hullHeight;
+            CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
+            OriginalZ = CameraPosition.Z;
+
+            // and now we zoom in the camera so the ship is all visible
+            float desiredVisibleHeight = ScreenHeight * 0.75f;
+            float currentVisibleHeight = GetHullScreenSize(CameraPosition, hullHeight);
+            float newZoom = desiredVisibleHeight / currentVisibleHeight;
+            TransitionZoom = newZoom.Clamped(0.3f, 2.65f);
+        }
+
         public override void LoadContent()
         {
             Log.Info("ShipDesignScreen.LoadContent");
             RemoveAll();
-            if (ScreenWidth  <= 1280 || ScreenHeight <= 768)
-            {
-                LowRes = true;
-            }
             ModSel = new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490)));
 
             var hulls = EmpireManager.Player.GetHDict();
@@ -703,60 +750,14 @@ namespace Ship_Game
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
             Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
 
             float aspectRatio = (float)Viewport.Width / Viewport.Height;
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
             
             ChangeHull(AvailableHulls[0]);
 
-            float lowestX  = ActiveHull.ModuleSlots[0].Position.X;
-            float highestX = lowestX;
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
-            {
-                if (slot.Position.X < lowestX)  lowestX  = slot.Position.X;
-                if (slot.Position.X > highestX) highestX = slot.Position.X;
-            }
-
-            // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
-            // Maybe because they are long and narrow. This code is an enigma.
-            float hullWidth = (highestX - lowestX) * 2;
-
-            // So, this attempts to zoom so the entire design is visible
-            float UpdateCameraMatrix()
-            {
-                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-
-                View = Matrix.CreateRotationY(180f.ToRadians())
-                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
-                return center.Distance(hullEdge) + 10f;
-            }
-
-            float visibleHullWidth = UpdateCameraMatrix();
-            if (visibleHullWidth >= hullWidth)
-            {
-                while (visibleHullWidth > hullWidth)
-                {
-                    CameraPosition.Z += 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            else
-            {
-                while (visibleHullWidth < hullWidth)
-                {
-                    CameraPosition.Z -= 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
-      
+
             ClassifCursor = new Vector2(ScreenWidth * .5f,
                     ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10);
 
@@ -786,12 +787,14 @@ namespace Ship_Game
             ordersBarPos = new Vector2(ordersBarX + 4*29f, ordersBarPos.Y + 29f);
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
-            
-            UIList bottomList = List(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
+
+
+            UIList bottomList = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
             bottomList.LayoutStyle = ListLayoutStyle.Resize;
             bottomList.Direction = new Vector2(-1, 0);
             bottomList.Padding = new Vector2(16f, 2f);
-            bottomList.Add(ButtonStyle.Medium, titleId:105, click: b =>
+
+            bottomList.Add(ButtonStyle.Medium, text:105, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
@@ -800,28 +803,31 @@ namespace Ship_Game
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
-            bottomList.Add(ButtonStyle.Medium, titleId:8, click: b =>
+            bottomList.Add(ButtonStyle.Medium, text:8, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
-            bottomList.Add(ButtonStyle.Medium, titleId:106, click: b =>
+            bottomList.Add(ButtonStyle.Medium, text:106, click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, titleId: 1985, click: b =>
+            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, text: SymmetricDesignBtnText, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
             BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
-            BtnSymmetricDesign.Style    = ButtonStyle.Military;
+            BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
             LoadContentFinish();
             BindListsToActiveHull();
 
-            AssignLightRig("example/ShipyardLightrig");
+            AssignLightRig(LightRigIdentity.Shipyard, "example/ShipyardLightrig");
         }
+
+        ButtonStyle SymmetricDesignBtnStyle  => IsSymmetricDesignMode ? ButtonStyle.Military : ButtonStyle.BigDip;
+        LocalizedText SymmetricDesignBtnText => IsSymmetricDesignMode ? 1985 : 1986;
 
         void LoadContentFinish()
         {
@@ -883,13 +889,20 @@ namespace Ship_Game
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
 
-            ShipStats  = new Menu1(shipStatsPanel);
+            ShipStats = new Menu1(shipStatsPanel);
             StatsSub   = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
             CloseButton(ScreenWidth - 27, 99);
-            OriginalZ = CameraPosition.Z;
+
+            if (Empire.Universe.Debug)
+            {
+                var techLevelPos = new Vector2(ModSel.TopLeft.X, ModSel.TopLeft.Y - 25);
+                var techLevelLabel = EmpireManager.Player.UI.UILabelTechLevelInfo();
+                techLevelLabel.Pos = techLevelPos;
+                Add(techLevelLabel);
+            }
         }
 
         void ReallyExit()
@@ -901,7 +914,7 @@ namespace Ship_Game
             base.ExitScreen();
         }
 
-        void SaveChanges(object sender, EventArgs e)
+        void SaveChanges()
         {
             ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             ShipSaved = true;
@@ -963,15 +976,15 @@ namespace Ship_Game
             ChangeHull(ActiveHull);
         }
 
-        void SaveWIP(object sender, EventArgs e)
+        void SaveWIP()
         {
             ShipData toSave = CloneActiveHull($"{DateTime.Now:yyyy-MM-dd}__{ActiveHull.Name}");
             SerializeShipDesign(toSave, $"{Dir.StarDriveAppData}/WIP/{toSave.Name}.xml");
         }
 
-        void SaveWIPThenChangeHull(object sender, EventArgs e)
+        void SaveWIPThenChangeHull()
         {
-            SaveWIP(sender, e);
+            SaveWIP();
             ChangeHull(Changeto);
         }
     }

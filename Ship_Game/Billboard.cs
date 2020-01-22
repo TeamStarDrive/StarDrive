@@ -19,7 +19,7 @@ namespace Ship_Game
 			SceneObject = new SceneObject(effect, resource.BoundingSphere, Matrix.Identity, resource.IndexBuffer, resource.VertexBuffer, resource.VertexDeclaration, resource.IndexStart, resource.PrimitiveType, resource.PrimitiveCount, resource.VertexBase, resource.VertexRange, resource.VertexStreamOffset, resource.SizeInBytes)
 			{
 				ObjectType = ObjectType.Dynamic,
-				Visibility = ObjectVisibility.RenderedAndCastShadows,
+				Visibility = ObjectVisibility.Rendered,
 				World = Matrix.CreateScale(Scale) * Matrix.CreateTranslation(Position)
 			};
             screenManager.AddObject(SceneObject);

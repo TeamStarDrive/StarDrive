@@ -42,11 +42,17 @@ namespace Ship_Game.Ships
                     ++numShields;
             }
 
+            float spanX = maxX - minX;
+            float spanY = maxY - minY;
+
             GridOrigin = new Vector2(minX, minY);
-            GridWidth  = (int)(maxX - minX) / 16;
-            GridHeight = (int)(maxY - minY) / 16;
+            GridWidth  = (int)spanX / 16;
+            GridHeight = (int)spanY / 16;
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
+
+            // Ship radius is half of Module Grid's Diagonal Length
+            Radius = 0.5f * (float)Math.Sqrt(spanX*spanX + spanY*spanY);
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
@@ -186,7 +192,6 @@ namespace Ship_Game.Ships
                 return;
             ++NumExternalSlots;
             module.isExternal = true;
-            module.quadrant   = quadrant;
             UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: true);
         }
 
@@ -196,7 +201,6 @@ namespace Ship_Game.Ships
                 return;
             --NumExternalSlots;
             module.isExternal = false;
-            module.quadrant   = 0;
             UpdateGridSlot(ExternalModuleGrid, x, y, module, becameActive: false);
         }
 

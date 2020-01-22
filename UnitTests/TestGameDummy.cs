@@ -20,7 +20,8 @@ namespace UnitTests
         {
             Started = started;
             CachedVisibility = Visible = show;
-            Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
+            if (Directory.GetCurrentDirectory() == "C:\\Projects\\BlackBox\\UnitTests\\bin\\Release")
+                Directory.SetCurrentDirectory("/Projects/BlackBox/StarDrive");
             GlobalStats.XRES = (int)ScreenSize.X; // Required for DrawLine...
             GlobalStats.YRES = (int)ScreenSize.Y;
             ScreenCenter = ScreenSize * 0.5f;

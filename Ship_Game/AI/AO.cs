@@ -20,7 +20,7 @@ namespace Ship_Game.AI
         [XmlIgnore][JsonIgnore] readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();
         [XmlIgnore][JsonIgnore] Planet[] PlanetsInAo                          = NoPlanets;
         [XmlIgnore][JsonIgnore] Planet[] OurPlanetsInAo                       = NoPlanets;
-        [XmlIgnore][JsonIgnore] public Vector2 Center                         => CoreWorld.Center;
+        [XmlIgnore] [JsonIgnore] public Vector2 Center;
         [XmlIgnore][JsonIgnore] Empire Owner                                  => CoreWorld.Owner;
 
         [Serialize(0)] public int ThreatLevel;
@@ -43,51 +43,64 @@ namespace Ship_Game.AI
             get
             {
                 float strength = 0f;
-                for (int i = 0; i < OffensiveForcePool.Count; ++i)
+                for (int i = 0; i < OffensiveForcePool.Count -1; ++i)
                     strength += OffensiveForcePool[i].GetStrength();
                 return strength;
             }
         }
+
         public int NumOffensiveForcePoolShips => OffensiveForcePool.Count;
         public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
         public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
 
         public AO()
         {
-        }        
-        
+        }
+
+        public AO(Vector2 center, float radius)
+        {
+            Center = center;
+            Radius = radius;
+        }
+
+        public AO(Empire empire)
+        {
+            Center = empire.GetWeightedCenter();
+            Radius = Empire.Universe.UniverseSize / 4;
+        }
+
+        public AO(Planet p, float radius)
+        {
+            Radius                              = radius;
+            CoreWorld                           = p;
+            CoreWorldGuid                       = p.guid;
+            WhichFleet                          = p.Owner.CreateFleetKey();
+            p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
+            CoreFleet.Name                      = "Core Fleet";
+            CoreFleet.FinalPosition             = p.Center;
+            CoreFleet.Owner                     = p.Owner;
+            CoreFleet.IsCoreFleet               = true;
+            Center                              = CoreWorld.Center;
+            var tempPlanet                      = new Array<Planet>();
+            foreach (Planet planet in Empire.Universe.PlanetsDict.Values)
+                if (planet.Center.InRadius(CoreWorld.Center, radius))
+                    tempPlanet.Add(planet);
+            PlanetsInAo                         = tempPlanet.ToArray();
+        }
 
         private bool IsCoreFleetFull()
         {
-            float str =0;
+            float str = 0;
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 str += ship.GetStrength();
 
             return ThreatLevel < CoreFleet.GetStrength() + str;
-
         }
 
         private void CoreFleetAddShip(Ship ship)
         {
             ship.AI.ClearOrders();
             CoreFleet.AddShip(ship);
-        }
-        public AO(Planet p, float radius)
-        {
-            Radius                = radius;
-            CoreWorld             = p;
-            CoreWorldGuid         = p.guid;
-            WhichFleet            = p.Owner.CreateFleetKey();
-            p.Owner.GetFleetsDict()[WhichFleet] = CoreFleet;
-            CoreFleet.Name        = "Core Fleet";
-            CoreFleet.FinalPosition    = p.Center;
-            CoreFleet.Owner       = p.Owner;
-            CoreFleet.IsCoreFleet = true;
-            var tempPlanet = new Array<Planet>();
-            foreach (Planet planet in Empire.Universe.PlanetsDict.Values)
-                if (planet.Center.InRadius(CoreWorld.Center, radius))
-                    tempPlanet.Add(planet);
-            PlanetsInAo = tempPlanet.ToArray();
         }
 
         public bool AddShip(Ship ship)
@@ -229,6 +242,7 @@ namespace Ship_Game.AI
         public void SetPlanet(Planet p)
         {
             CoreWorld = p;
+            Center    = p.Center;
         }
 
         public void Update()

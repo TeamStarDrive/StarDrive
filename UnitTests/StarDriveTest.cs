@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game;
 using Ship_Game.Data;
 using Ship_Game.Ships;
+using UnitTests.UI;
 
 namespace UnitTests
 {
@@ -22,7 +23,8 @@ namespace UnitTests
         public static string StarDriveAbsolutePath { get; private set; }
         static StarDriveTest()
         {
-            Log.VerboseLogging = true;
+            AppDomain.CurrentDomain.ProcessExit += CurrentDomain_ProcessExit;
+            
             SetGameDirectory();
             try
             {
@@ -42,6 +44,11 @@ namespace UnitTests
             }
         }
 
+        static void CurrentDomain_ProcessExit(object sender, EventArgs e)
+        {
+            Cleanup();
+        }
+
         public static void SetGameDirectory()
         {
             Directory.SetCurrentDirectory("../../../stardrive");
@@ -50,9 +57,25 @@ namespace UnitTests
 
         public TestGameDummy Game { get; private set; }
         public GameContentManager Content { get; private set; }
+        public MockInputProvider InputProvider { get; private set; }
+
         public UniverseScreen Universe { get; private set; }
         public Empire Player { get; private set; }
         public Empire Enemy { get; private set; }
+        public Empire Faction { get; private set; }
+
+        public StarDriveTest()
+        {
+            Log.Initialize();
+            Log.VerboseLogging = true;
+        }
+
+        static void Cleanup()
+        {
+            Ship_Game.Parallel.ClearPool(); // Dispose all thread pool Threads
+            Log.StopLogThread();
+            Log.FlushAllLogs();
+        }
 
         // @note: This is slow! It can take 500-1000ms
         // So don't create it if you don't need a valid GraphicsDevice
@@ -67,6 +90,7 @@ namespace UnitTests
             Game = new TestGameDummy(new AutoResetEvent(false), width, height, show);
             Game.Create();
             Content = Game.Content;
+            Game.Manager.input.Provider = InputProvider = new MockInputProvider();
             Log.Info($"CreateGameInstance elapsed: {sw.Elapsed.TotalMilliseconds}ms");
         }
 
@@ -76,6 +100,7 @@ namespace UnitTests
             Game?.Dispose();
             Empire.Universe = Universe = null;
             Game = null;
+            Cleanup();
         }
 
         public void CreateUniverseAndPlayerEmpire(out Empire player)
@@ -129,10 +154,20 @@ namespace UnitTests
             p.ParentSystem = s;
         }
 
-        public static void AddDummyPlanetToEmpire(Empire empire)
+        public static void AddDummyPlanet(float fertility, float minerals, float pop, out Planet p)
         {
-            AddDummyPlanet(out Planet p);
-            empire.AddPlanet(p);
+            p = new Planet(fertility, minerals, pop);
+            var s = new SolarSystem();
+            s.PlanetList.Add(p);
+            p.ParentSystem = s;
+        }
+
+        public static void AddDummyPlanetToEmpire(Empire empire) => 
+            AddDummyPlanetToEmpire(empire,0, 0, 0);
+        public static void AddDummyPlanetToEmpire(Empire empire, float fertility, float minerals, float maxPop)
+        {
+            AddDummyPlanet(fertility, minerals, maxPop, out Planet p);
+            empire?.AddPlanet(p);
             p.Type = ResourceManager.PlanetOrRandom(0);
         }
 

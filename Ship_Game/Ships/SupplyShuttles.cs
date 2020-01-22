@@ -7,10 +7,11 @@ namespace Ship_Game.Ships
         Ship Owner;
         Array<Ship> FriendliesNearby => Owner.AI.FriendliesNearby;
 
-    public SupplyShuttles(Ship ship)
-    {
-            Owner = ship;
-    }
+        public SupplyShuttles(Ship ship)
+        {
+                Owner = ship;
+        }
+
         /// <summary>
         /// <para>check if any friendly ships need supply.</para>
         /// loop through existing supply shuttles.<para />
@@ -23,7 +24,7 @@ namespace Ship_Game.Ships
             if (Owner == null || Owner.engineState == Ship.MoveState.Warp || !Owner.Carrier.HasSupplyBays)
                 return;
 
-            Ship[] shipsNeedingSupply = ShipsInNeedOfSupplyByPriority(FriendliesNearby, radius);
+            Ship[] shipsNeedingSupply = ShipsInNeedOfSupplyByPriority(radius);
 
             // nothing to do ¯\_(ツ)_/¯
             if (shipsNeedingSupply.Length == 0 && !SupplyShipNeedsResupply(0,false)
@@ -32,8 +33,8 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            int shipInNeedIndex    = 0;
-            bool cantLaunchShuttle = false;
+            int shipInNeedIndex   = 0;
+            bool canLaunchShuttle = true;
 
             // Its Better!
             foreach (ShipModule hangar in Owner.Carrier.SupplyHangarsAlive)
@@ -45,14 +46,9 @@ namespace Ship_Game.Ships
                     supplyTarget = shipsNeedingSupply[shipInNeedIndex];
 
                 if (supplyShipInSpace != null && supplyShipInSpace.Active)
-                {
                     OrderIdleSupplyShips(supplyShipInSpace, supplyTarget);
-                }
-                else if (!cantLaunchShuttle)
-                {
-                    if (!LaunchShipSupplyShuttle(hangar, supplyTarget))
-                        cantLaunchShuttle = true;
-                }
+                else if (canLaunchShuttle)
+                    canLaunchShuttle = LaunchShipSupplyShuttle(hangar, supplyTarget);
 
                 if (supplyTarget != null && !ShipNeedsMoreOrdnance(supplyTarget))
                     shipInNeedIndex++;
@@ -69,7 +65,6 @@ namespace Ship_Game.Ships
             if (supplyTarget != null || SupplyShipNeedsResupply(0,false))
             {
                 CreateShuttle(hangar);
-
                 Ship supplyShuttle = hangar.GetHangarShip();
                 supplyShuttle.ChangeOrdnance(-supplyShuttle.OrdinanceMax);
                 if (!SupplyShipNeedsResupply(supplyShuttle.OrdinanceMax, supplyTarget != null))
@@ -79,10 +74,9 @@ namespace Ship_Game.Ships
                     SetSupplyTarget(supplyShuttle, supplyTarget);
                 }
                 else 
-                {
-                    supplyShuttle.AI.GoOrbitNearestPlanetAndResupply(true);
-                }
+                    return false;
             }
+
             return true;
         }
 
@@ -162,19 +156,27 @@ namespace Ship_Game.Ships
                     supplyShipInSpace.AI.OrderReturnToHangar();
             }
         }
-        Ship[] ShipsInNeedOfSupplyByPriority(Array<Ship> friendlyShips, float sensorRange)
+
+        Ship[] ShipsInNeedOfSupplyByPriority( float sensorRange)
         {
-            Ship[] ShipsInNeed = friendlyShips.Filter(ship => ship.shipData.Role != ShipData.RoleName.supply
-                                            && ship.Supply.AcceptExternalSupply(SupplyType.Rearm)
-                                            && ship != Owner);
-            ShipsInNeed.Sort(ship =>
+            Ship[] shipsInNeed;
+
+            BatchRemovalCollection<Ship> friendlyShips = Owner.AI.FriendliesNearby;
+            using (friendlyShips.AcquireReadLock())
+            {
+                shipsInNeed = friendlyShips.Filter(ship => ship.shipData.Role != ShipData.RoleName.supply
+                                                        && ship != Owner
+                                                        && ship.Supply.AcceptExternalSupply(SupplyType.Rearm));
+            }
+
+            shipsInNeed.Sort(ship =>
             {
                 var distance = Owner.Center.Distance(ship.Center);
                 distance = (int)distance * 10 / sensorRange;
                 var supplyStatus = ship.Supply.ShipStatusWithPendingResupply(SupplyType.Rearm);
                 return (int)supplyStatus * distance + (ship.fleet == Owner.fleet ? 0 : 10);
             });
-            return ShipsInNeed;
+            return shipsInNeed;
         }
     }
 }

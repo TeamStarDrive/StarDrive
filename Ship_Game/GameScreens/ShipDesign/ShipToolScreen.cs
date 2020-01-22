@@ -7,6 +7,7 @@ using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Gameplay;
+using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.MainMenu;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Core;
@@ -186,7 +187,7 @@ namespace Ship_Game
             }
             Vector2 InfoPos = new Vector2(SaveHullButton.r.X - 50, SaveHullButton.r.Y - 20);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, "Hulls are saved to StarDrive/Ship Tools", InfoPos, Color.White);
-            ShipNameBox.Draw(Fonts.Arial20Bold, ScreenManager.SpriteBatch, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), gameTime, Color.Orange);
+            ShipNameBox.Draw(batch, Fonts.Arial20Bold, new Vector2(ShipNameBox.ClickableArea.X, ShipNameBox.ClickableArea.Y), Color.Orange);
             SaveHullButton.Draw(ScreenManager);
             LoadModelButton.Draw(ScreenManager);
             ExistingHulls.DrawHullSelection(batch, ScreenManager);
@@ -498,8 +499,8 @@ namespace Ship_Game
                 ClickableArea = new Rectangle(screenWidth - 200, screenHeight - 115, 180, 20),
                 Text = HullName
             };
-            AssignLightRig("example/ShipyardLightrig");
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            AssignLightRig(LightRigIdentity.ShipToolScreen, "example/ShipyardLightrig");
+            ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
             float aspectRatio = Viewport.Width / (float)Viewport.Height;
             Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
             view = Matrix.CreateRotationY(180f.ToRadians())
@@ -612,7 +613,7 @@ namespace Ship_Game
                  * Matrix.CreateRotationY(RadMath.PI)
                  * Matrix.CreateRotationX(0f)
                  * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), new Vector3(0f, -1f, 0f));
-            designInputState.Update(gameTime);
+            designInputState.Update(FrameDeltaTime);
             HandleInput();
             thruster.tscale = tscale;
             thruster.WorldPos = new Vector3(tPos.X, tPos.Y, 30f);

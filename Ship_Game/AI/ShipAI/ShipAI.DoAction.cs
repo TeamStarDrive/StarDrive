@@ -14,8 +14,8 @@ namespace Ship_Game.AI
         {
             HasPriorityTarget = true;
             State = AIState.Boarding;
-            if ((!EscortTarget?.Active ?? true)
-                || EscortTarget.loyalty == Owner.loyalty)
+
+            if (EscortTarget == null || !EscortTarget.Active || EscortTarget.loyalty == Owner.loyalty)
             {
                 ClearOrders(State);
                 if (Owner.Mothership != null)
@@ -27,15 +27,17 @@ namespace Ship_Game.AI
                 }
                 return;
             }
+
             ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             float distance = Owner.Center.Distance(EscortTarget.Center);
             if (distance < EscortTarget.Radius + 300f)
             {
-                if (Owner.TroopList.Count > 0)
-                    Owner.TroopList[0].LandOnShip(EscortTarget);
+                Owner.TryLandSingleTroopOnShip(EscortTarget);
             }
             else if (distance > 10000f && Owner.Mothership?.AI.CombatState == CombatState.AssaultShip)
+            {
                 OrderReturnToHangar();
+            }
         }
 
         Ship UpdateCombatTarget()
@@ -208,7 +210,7 @@ namespace Ship_Game.AI
                     if (node.Position == g.Goal.BuildPosition)
                     {
                         node.Platform = platform;
-                        StatTracker.StatAddRoad(node, Owner.loyalty);
+                        StatTracker.StatAddRoad(Empire.Universe.StarDate, node, Owner.loyalty);
                         return;
                     }
                 }
@@ -221,7 +223,7 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
-                ExplorationTarget = Owner.loyalty.GetEmpireAI().AssignExplorationTarget(Owner);
+                ExplorationTarget = Owner.loyalty.GetEmpireAI().ExpansionAI.AssignExplorationTarget(Owner);
                 if (ExplorationTarget == null)
                 {
                     ClearOrders();
@@ -358,23 +360,27 @@ namespace Ship_Game.AI
             // force the ship out of warp if we get too close
             // this is a balance feature
             ThrustOrWarpToPos(landingSpot, elapsedTime, warpExitDistance: Owner.WarpOutDistance);
-            if      (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot);
-            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot);
+            if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, elapsedTime);
+            else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot,elapsedTime);
             else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
         }
 
         // Assault Shuttles will dump troops on the surface and return back to the troop ship to transport additional troops
         // Single Troop Ships can land from a longer distance, but the ship vanishes after landing its troop
-        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot)
+        void LandTroopsViaSingleTransport(Planet planet, Vector2 landingSpot, float elapsedTime)
         {
             if (landingSpot.InRadius(Owner.Center, Owner.Radius + 40f))
             {
-                Owner.LandAllTroopsAt(planet); // This will vanish default single Troop Ship
-                DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                bool troopsLanded = Owner.LandTroopsOnPlanet(planet) > 0; // This will vanish default single Troop Ship
 
-                // if it came from a mothership, return to hangar
-                if (Owner.IsDefaultAssaultShuttle)
-                    Owner.AI.OrderReturnToHangar();
+                if (troopsLanded)
+                {
+                    Owner.QueueTotalRemoval();
+                    DequeueCurrentOrder(); // make sure to clear this order, so we don't try to unload troops again
+                }
+
+                if (Owner.Active)
+                    Orbit.Orbit(planet, elapsedTime);
             }
         }
 
@@ -384,23 +390,15 @@ namespace Ship_Game.AI
             if (landingSpot.InRadius(Owner.Center, Owner.Radius + 100f))
             {
                 if (planet.WeCanLandTroopsViaSpacePort(Owner.loyalty))
-                    Owner.LandAllTroopsAt(planet); // We can land all our troops without assault bays since its our planet with space port
+                    Owner.LandTroopsOnPlanet(planet); // We can land all our troops without assault bays since its our planet with space port
                 else
                     Owner.Carrier.AssaultPlanet(planet); // Launch Assault shuttles or use Transporters (STSA)
 
-                if (Owner.HasTroops)
+                if (Owner.HasOurTroops)
                     Orbit.Orbit(planet, elapsedTime); // Doing orbit with AssaultPlanet state to continue landing troops if possible
                 else
                     ClearOrders();
             }
-        }
-
-        void DoRebase(ShipGoal goal)
-        {
-            if (Owner.TroopList.IsEmpty)
-                Owner.QueueTotalRemoval(); // troops not found, vanish the ship
-            else if (!Owner.TroopList[0].TryLandTroop(goal.TargetPlanet))
-                ClearOrders();
         }
 
         void DoRefit(ShipGoal goal)
@@ -469,30 +467,18 @@ namespace Ship_Game.AI
         {
             ShipWeight ship = NearByShips.Where(
                     s => s.Ship.loyalty != null && s.Ship.loyalty != Owner.loyalty && s.Ship.shield_power <= 0
-                         && Owner.Center.Distance(s.Ship.Center) <= module.TransporterRange + 500f)
-                .OrderBy(sw => Owner.Center.SqDist(sw.Ship.Center)).First();
-            if (ship.Ship == null) return;
+                         && s.Ship.Center.InRadius(Owner.Center, module.TransporterRange + 500f))
+                .OrderBy(sw => Owner.Center.SqDist(sw.Ship.Center))
+                .FirstOrDefault();
+            
+            if (ship.Ship == null)
+                return;
 
-            int troopCount = 0;
-            bool transported = false;
-            for (int i = 0; i < Owner.TroopList.Count; ++i)
-            {
-                if (Owner.TroopList[i] == null)
-                    continue;
-                if (Owner.TroopList[i].Loyalty == Owner.loyalty)
-                {
-                    ship.Ship.TroopList.Add(Owner.TroopList[i]);
-                    Owner.TroopList.Remove(Owner.TroopList[i]);
-                    troopCount++;
-                    transported = true;
-                }
-                if (troopCount == module.TransporterTroopAssault)
-                    break;
-            }
-            if (transported) //@todo audio should not be here
+            int landed = Owner.LandTroopsOnShip(ship.Ship, module.TransporterTroopAssault);
+            if (landed > 0)
             {
                 module.TransporterTimer = module.TransporterTimerConstant;
-                if (Owner.InFrustum)
+                if (Owner.InFrustum) // @todo audio should not be here
                     GameAudio.PlaySfxAsync("transporter");
             }
         }
@@ -512,8 +498,8 @@ namespace Ship_Game.AI
 
             if (Owner.Center.InRadius(Owner.Mothership.Center, Owner.Mothership.Radius + 300f))
             {
-                if (Owner.TroopList.Count == 1)
-                    Owner.Mothership.TroopList.Add(Owner.TroopList[0]);
+                Owner.LandTroopsOnShip(Owner.Mothership);
+
                 if (Owner.shipData.Role == ShipData.RoleName.supply) // fbedard: Supply ship return with Ordinance
                     Owner.Mothership.ChangeOrdnance(Owner.Ordinance);
 
@@ -576,13 +562,13 @@ namespace Ship_Game.AI
             ThrustOrWarpToPos(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                if (EscortTarget.TroopCapacity == EscortTarget.TroopList.Count)
+                if (EscortTarget.TroopCapacity == EscortTarget.TroopCount)
                 {
                     OrderRebaseToNearest();
                     return;
                 }
 
-                Owner.TroopList[0].LandOnShip(EscortTarget);
+                Owner.TryLandSingleTroopOnShip(EscortTarget);
             }
         }
 
@@ -664,10 +650,9 @@ namespace Ship_Game.AI
             SubLightMoveTowardsPosition(EscortTarget.Center, elapsedTime);
             if (Owner.Center.InRadius(EscortTarget.Center, EscortTarget.Radius + 300f))
             {
-                if (EscortTarget.TroopCapacity > EscortTarget.TroopList.Count)
+                if (EscortTarget.TroopCapacity > EscortTarget.TroopCount)
                 {
-                    EscortTarget.TroopList.Add(Owner.TroopList[0]);
-                    Owner.QueueTotalRemoval();
+                    Owner.TryLandSingleTroopOnShip(EscortTarget);
                     return;
                 }
                 Orbit.Orbit(EscortTarget, elapsedTime);

@@ -10,9 +10,9 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Xml.Serialization;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game
 {
@@ -36,7 +36,7 @@ namespace Ship_Game
         public string ModPath = "";
         public int Version;
 
-        [XmlIgnore][JsonIgnore]public FileInfo FI;
+        [XmlIgnore][JsonIgnore] public FileInfo FI;
     }
 
     // XNA.Rectangle cannot be serialized, so we need a proxy object
@@ -114,8 +114,8 @@ namespace Ship_Game
                     guid     = system.guid,
                     Position = system.Position,
                     SunPath  = system.Sun.Id,
-                    AsteroidsList = system.AsteroidsList.ToArray(),
-                    Moons         = system.MoonList.ToArray(),
+                    AsteroidsList = system.AsteroidsList.Clone(),
+                    Moons         = system.MoonList.Clone(),
                     ExploredBy = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
                     RingList   = system.RingList.Select(ring => ring.Serialize()),
                 });
@@ -200,20 +200,16 @@ namespace Ship_Game
                 }
                 var gsaidata = new GSAISAVE
                 {
-                    UsedFleets = e.GetEmpireAI().UsedFleets,
-                    PinGuids   = new Array<Guid>(),
-                    PinList    = new Array<ThreatMatrix.Pin>()
+                    UsedFleets = e.GetEmpireAI().UsedFleets
                 };
-                foreach (KeyValuePair<Guid, ThreatMatrix.Pin> guid in e.GetEmpireAI().ThreatMatrix.Pins)
-                {
-                    gsaidata.PinGuids.Add(guid.Key);
-                    gsaidata.PinList.Add(guid.Value);
-                }
+                e.GetEmpireAI().ThreatMatrix.WriteToSave(gsaidata);
+
                 gsaidata.MilitaryTaskList = new Array<MilitaryTask>();
                 foreach (MilitaryTask task in e.GetEmpireAI().TaskList)
                 {
                     gsaidata.MilitaryTaskList.Add(task);
-                    if (task.TargetPlanet != null) task.TargetPlanetGuid = task.TargetPlanet.guid;
+                    if (task.TargetPlanet != null)
+                        task.TargetPlanetGuid = task.TargetPlanet.guid;
                 }
 
                 Array<Goal> goals = e.GetEmpireAI().Goals;
@@ -273,7 +269,7 @@ namespace Ship_Game
                     sdata.FoodCount        = ship.GetFood();
                     sdata.ProdCount        = ship.GetProduction();
                     sdata.PopCount         = ship.GetColonists();
-                    sdata.TroopList        = ship.TroopList;
+                    sdata.TroopList        = ship.GetFriendlyAndHostileTroops();
                     sdata.FightersLaunched = ship.FightersLaunched;
                     sdata.TroopsLaunched   = ship.TroopsLaunched;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
@@ -304,7 +300,7 @@ namespace Ship_Game
                     }
                     sdata.AISave.DefaultState = ship.AI.DefaultAIState;
                     sdata.AISave.MovePosition = ship.AI.MovePosition;
-                    sdata.AISave.ActiveWayPoints = new Array<Vector2>(ship.AI.CopyWayPoints());
+                    sdata.AISave.WayPoints     = new Array<WayPoint>(ship.AI.CopyWayPoints());
                     sdata.AISave.ShipGoalsList = new Array<ShipGoalSave>();
 
                     foreach (ShipAI.ShipGoal sg in ship.AI.OrderQueue)
@@ -391,7 +387,7 @@ namespace Ship_Game
                         State           = ship.AI.State,
                         DefaultState    = ship.AI.DefaultAIState,
                         MovePosition    = ship.AI.MovePosition,
-                        ActiveWayPoints = new Array<Vector2>(),
+                        WayPoints       = new Array<WayPoint>(),
                         ShipGoalsList   = new Array<ShipGoalSave>()
                     };
                     sd.Projectiles = Empty<ProjectileSaveData>.Array;
@@ -400,11 +396,13 @@ namespace Ship_Game
 
                 SaveData.EmpireDataList.Add(empireToSave);
             }
+
             SaveData.Snapshots = new SerializableDictionary<string, SerializableDictionary<int, Snapshot>>();
-            foreach (var e in StatTracker.SnapshotsDict)
+            foreach (KeyValuePair<string, SerializableDictionary<int, Snapshot>> e in StatTracker.SnapshotsMap)
             {
                 SaveData.Snapshots.Add(e.Key, e.Value);
             }
+
             string path = Dir.StarDriveAppData;
             SaveData.path       = path;
             SaveData.SaveAs     = saveAs;
@@ -678,6 +676,7 @@ namespace Ship_Game
             [Serialize(13)] public bool TransportingFood;
             [Serialize(14)] public bool TransportingProduction;
             [Serialize(15)] public bool AllowInterEmpireTrade;
+            [Serialize(16)] public bool IsMilitary;
         }
 
         public struct RingSave
@@ -698,7 +697,9 @@ namespace Ship_Game
             [Serialize(0)] public AIState State;
             [Serialize(1)] public AIState DefaultState;
             [Serialize(2)] public Array<ShipGoalSave> ShipGoalsList;
-            [Serialize(3)] public Array<Vector2> ActiveWayPoints;
+            // NOTE: Old Vector2 waypoints are no longer compatible
+            // Renaming essentially clears all waypoints
+            [Serialize(3)] public Array<WayPoint> WayPoints;
             [Serialize(4)] public Vector2 MovePosition;
             [Serialize(5)] public Guid OrbitTarget;
             [Serialize(6)] public Guid ColonizeTarget;
@@ -771,8 +772,8 @@ namespace Ship_Game
             [Serialize(2)] public string Name;
             [Serialize(3)] public Vector2 Position;
             [Serialize(4)] public RingSave[] RingList;
-            [Serialize(5)] public Asteroid[] AsteroidsList;
-            [Serialize(6)] public Moon[] Moons;
+            [Serialize(5)] public Array<Asteroid> AsteroidsList;
+            [Serialize(6)] public Array<Moon> Moons;
             [Serialize(7)] public string[] ExploredBy;            
         }
 

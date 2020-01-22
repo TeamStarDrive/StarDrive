@@ -17,10 +17,8 @@
   <BuildingsUnlocked />
   <BonusUnlocked>
     <UnlockedBonus>
-      <Name>Trade Tariff</Name>
-      <BonusType>Bonus Money Per Trade</BonusType>
-      <Bonus>1</Bonus>
-      <Description>Earn 1 credit for every unit of Food or Production moved via transport within your empire</Description>
+      <Name>Tax Goods</Name>
+      <Description>Tax every unit of Food or Production moved via transport within your empire by the Current tax rate</Description>
       <BonusIndex>612</BonusIndex>
     </UnlockedBonus>
   </BonusUnlocked>

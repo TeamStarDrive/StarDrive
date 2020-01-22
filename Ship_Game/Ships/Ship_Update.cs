@@ -1,34 +1,73 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Core;
 using System;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
+using SynapseGaming.LightingSystem.Rendering;
 
 namespace Ship_Game.Ships
 {
     public partial class Ship
     {
+        // > 0 if ship is outside frustum
+        float OutsideFrustumTimer;
 
-        public bool UpdateVisibility()
+        // after X seconds of ships being invisible, we remove their scene objects
+        const float RemoveInvisibleSceneObjectsAfterTime = 15f;
+
+        // NOTE: This is called on the main UI Thread by UniverseScreen
+        // check UniverseScreen.QueueShipSceneObject()
+        public void CreateSceneObject()
         {
-            bool inFrustum = (System == null || System.isVisible)
-                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
-                && (Empire.Universe.Frustum.Contains(Position, 2000f) ||AI?.Target != null
-                && Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)) ;
+            if (StarDriveGame.Instance == null || ShipSO != null)
+                return; // allow creating invisible ships in Unit Tests
 
-            InFrustum = inFrustum;
-            if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
-                ShipSO.Visibility = inFrustum ? ObjectVisibility.Rendered : ObjectVisibility.None;
-            return inFrustum;
+            //Log.Info($"CreateSO {Id} {Name}");
+            shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
+            ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
+
+            // Since we just created the object, it must be visible
+            UpdateVisibility(0f, forceVisible: true);
+
+            ScreenManager.Instance.AddObject(ShipSO);
         }
 
-        public void UpdateWorldTransform()
+        void RemoveSceneObject()
         {
-            ShipSO.World = Matrix.CreateRotationY(yRotation)
-                         * Matrix.CreateRotationZ(Rotation)
-                         * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+            SceneObject so = ShipSO;
+            ShipSO = null;
+            if (so != null)
+            {
+                //Log.Info($"RemoveSO {Id} {Name}");
+                so.Clear();
+                ScreenManager.Instance.RemoveObject(so);
+            }
+        }
+
+        void UpdateVisibility(float elapsedTime, bool forceVisible)
+        {
+            bool inFrustum = forceVisible || (System == null || System.isVisible)
+                && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
+                && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
+                    (AI?.Target != null &&
+                     Empire.Universe.Frustum.Contains(AI.Target.Position, WeaponsMaxRange)));
+
+            InFrustum = inFrustum;
+            if (inFrustum) OutsideFrustumTimer = 0f;
+            else           OutsideFrustumTimer += elapsedTime;
+
+            if (ShipSO != null) // allow null SceneObject to support ship.Update in UnitTests
+            {
+                if (!inFrustum && OutsideFrustumTimer > RemoveInvisibleSceneObjectsAfterTime)
+                {
+                    RemoveSceneObject();
+                }
+                else
+                {
+                    ShipSO.Visibility = inFrustum ? GlobalStats.ShipVisibility : ObjectVisibility.None;
+                }
+            }
         }
 
         public override void Update(float elapsedTime)
@@ -60,7 +99,7 @@ namespace Ship_Game.Ships
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            UpdateVisibility();
+            UpdateVisibility(elapsedTime, forceVisible: false);
             ShieldRechargeTimer += elapsedTime;
 
             if (TetheredTo != null)
@@ -72,7 +111,6 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
-            
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
         }
@@ -89,12 +127,6 @@ namespace Ship_Game.Ships
                     Vector3 randPos = UniverseRandom.Vector32D(third);
                     Empire.Universe.lightning.AddParticleThreadA(Center.ToVec3() + randPos, Vector3.Zero);
                 }
-            }
-
-            if (RotationalVelocity > 0 || RotationalVelocity < 0)
-            {
-                Rotation += RotationalVelocity * elapsedTime;
-                isTurning = true;
             }
 
             if (elapsedTime > 0f)
@@ -125,11 +157,20 @@ namespace Ship_Game.Ships
             UpdateShipStatus(elapsedTime);
             UpdateEnginesAndVelocity(elapsedTime);
 
-            if (InFrustum && ShipSO != null)
+            if (InFrustum)
             {
-                UpdateWorldTransform();
-                ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
-                UpdateThrusters();
+                if (ShipSO != null)
+                {
+                    ShipSO.World = Matrix.CreateRotationY(yRotation)
+                                 * Matrix.CreateRotationZ(Rotation)
+                                 * Matrix.CreateTranslation(new Vector3(Center, 0.0f));
+                    ShipSO.UpdateAnimation(ScreenManager.CurrentScreen.FrameDeltaTime);
+                    UpdateThrusters();
+                }
+                else // auto-create scene objects if possible
+                {
+                    Empire.Universe?.QueueSceneObjectCreation(this);
+                }
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);
@@ -207,16 +248,21 @@ namespace Ship_Game.Ships
             }
         }
 
+        AudioHandle DeathSfx;
+
         void UpdateDying(float elapsedTime)
         {
             ThrusterList.Clear();
             dietimer -= elapsedTime;
-            if (dietimer <= 1.9f && InFrustum && DeathSfx.IsStopped)
+            if (dietimer <= 1.9f && InFrustum && (DeathSfx == null || DeathSfx.IsStopped))
             {
                 string cueName;
                 if (SurfaceArea < 80) cueName = "sd_explosion_ship_warpdet_small";
                 else if (SurfaceArea < 250) cueName = "sd_explosion_ship_warpdet_medium";
                 else cueName = "sd_explosion_ship_warpdet_large";
+
+                if (DeathSfx == null)
+                    DeathSfx = new AudioHandle();
                 DeathSfx.PlaySfxAsync(cueName, SoundEmitter);
             }
             if (dietimer <= 0.0f)
@@ -225,6 +271,9 @@ namespace Ship_Game.Ships
                 Die(LastDamagedBy, true);
                 return;
             }
+
+            if (ShipSO == null)
+                return;
 
             // for a cool death effect, make the ship accelerate out of control:
             ApplyThrust(200f, +1);
@@ -247,10 +296,7 @@ namespace Ship_Game.Ships
             Rotation  += DieRotation.Z * elapsedTime;
             Rotation = Rotation.AsNormalizedRadians(); // [0; +2PI]
 
-            if (ShipSO == null)
-                return;
-
-            if (Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView && inSensorRange)
+            if (inSensorRange && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.ShipView)
             {
                 ShipSO.World = Matrix.CreateRotationY(yRotation)
                              * Matrix.CreateRotationX(xRotation)
@@ -284,11 +330,11 @@ namespace Ship_Game.Ships
                 var distanceX = (int) Math.Abs(center.X - slot.LocalCenter.X) ;
                 var distanceY = (int) Math.Abs(center.Y - slot.LocalCenter.Y) ;
                 if (distanceX + distanceY > 16)
-                { if (distanceX + distanceY > 33)
+                {
+                    if (distanceX + distanceY > 33)
                         continue;
-                  if (distanceX + distanceY < 33)
+                    if (distanceX + distanceY < 33)
                         continue;
-
                 }
 
                 CheckAndPowerConduit(slot);

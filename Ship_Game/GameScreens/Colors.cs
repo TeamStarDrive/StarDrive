@@ -13,6 +13,7 @@ namespace Ship_Game
         public static Color Error(byte alpha = 255)         => new Color(Color.Orange, alpha);       //indicate to user that command will fail
         public static Color Warning(byte alpha = 255)       => new Color(Color.Yellow, alpha);       //indicate to user that command may fail
 
+        public static readonly Color Cream = new Color(255, 239, 208);
 
         // multiplies color R,G,B with multiplier, leaving alpha untouched
         public static Color MultiplyRgb(this Color color, float multiplier)

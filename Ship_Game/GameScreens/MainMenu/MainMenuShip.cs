@@ -3,8 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SgMotion;
-using SgMotion.Controllers;
 using Ship_Game.Audio;
 using Ship_Game.Data.Mesh;
 using Ship_Game.Ships;
@@ -39,6 +37,7 @@ namespace Ship_Game.GameScreens.MainMenu
         static int LastDebugFrameId;
 
         public readonly ShipSpawnInfo Spawn;
+        public int HullSize { get; private set; } = 100;
 
         public MainMenuShip(ShipSpawnInfo spawn)
         {
@@ -49,7 +48,6 @@ namespace Ship_Game.GameScreens.MainMenu
             AI = spawn.AI.GetClone();
         }
 
-        
         public void AxisRotate(float ax, float ay, float az)
         {
             AxisRotate(new Vector3(ax, ay, az));
@@ -122,22 +120,22 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             DestroyShip(); // Allow multiple init
 
-            // FrostHand: do we actually need to show Model/Ships/speeder/ship07 in base version? Or could show random ship for base and modded version?
+            ShipData hull = null;
             if (GlobalStats.HasMod && ResourceManager.MainMenuShipList.ModelPaths.Count > 0)
             {
                 int shipIndex = RandomMath.InRange(ResourceManager.MainMenuShipList.ModelPaths.Count);
                 string modelPath = ResourceManager.MainMenuShipList.ModelPaths[shipIndex];
-                ShipObj = StaticMesh.GetSceneMesh(screen.TransientContent, modelPath);
+                ShipObj = StaticMesh.GetSceneMesh(screen.ContentManager, modelPath);
             }
             else if (DebugMeshInspect)
             {
-                ShipObj = StaticMesh.GetSceneMesh(screen.TransientContent, "Model/TestShips/Soyo/Soyo.obj");
+                ShipObj = StaticMesh.GetSceneMesh(screen.ContentManager, "Model/TestShips/Soyo/Soyo.obj");
                 //ShipObj = StaticMesh.GetSceneMesh("Model/TestShips/SciFi-MK6/MK6_OBJ.obj");
             }
             else
             {
-                ShipData hull = ChooseShip(Spawn.Empire, Spawn.Role);
-                hull.LoadModel(out ShipObj, screen);
+                hull = ChooseShip(Spawn.Empire, Spawn.Role);
+                hull.LoadModel(out ShipObj, screen.ContentManager);
                 if (ShipObj.Animation != null)
                 {
                     ShipObj.Animation.Speed = 0.25f;
@@ -147,6 +145,7 @@ namespace Ship_Game.GameScreens.MainMenu
             var bounds = ShipObj.GetMeshBoundingBox();
             Radius = bounds.Radius();
             HalfLength = (bounds.Max.Y - bounds.Min.Y) * 0.5f;
+            HullSize = hull?.ModuleSlots.Length ?? (int)(Radius * 4);
 
             if (DebugMeshInspect)
             {
@@ -199,7 +198,7 @@ namespace Ship_Game.GameScreens.MainMenu
             ShipObj.AffineTransform(Position, Rotation.DegsToRad(), Scale*BaseScale);
         }
 
-        public void Update(GameTime gameTime, GameScreen screen)
+        public void Update(GameScreen screen)
         {
             if (DebugMeshInspect)
             {

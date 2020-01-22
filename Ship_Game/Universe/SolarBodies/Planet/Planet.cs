@@ -15,13 +15,13 @@ namespace Ship_Game
     {
         public enum ColonyType
         {
-            Core,
-            Colony,
-            Industrial,
-            Research,
-            Agricultural,
-            Military,
-            TradeHub
+            Core = 0,
+            Colony = 1,
+            Industrial = 2,
+            Research = 3,
+            Agricultural = 4,
+            Military = 5,
+            TradeHub = 6,
         }
 
         public override string ToString() =>
@@ -41,11 +41,11 @@ namespace Ship_Game
         public int TotalDefensiveStrength { get; private set; }
 
         public bool HasWinBuilding;
-        private float ShipBuildingModifierBacker;
+        float ShipBuildingModifierValue;
         public float ShipBuildingModifier
         {
-            get => ShipBuildingModifierBacker;
-            private set => ShipBuildingModifierBacker = value.Clamped(0.001f, 1);
+            get => ShipBuildingModifierValue;
+            private set => ShipBuildingModifierValue = value.Clamped(0.001f, 1);
         }
 
         public int NumShipyards;
@@ -60,12 +60,17 @@ namespace Ship_Game
         public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
-        public float OrbitalsMaintenance;
+        public float OrbitalsMaintenance { get; private set; }
+        public float MilitaryBuildingsMaintenance { get; private set; }
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
+
+        public float ConsumptionPerColonist     => 1 + Owner.data.Traits.ConsumptionModifier;
+        public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
+        public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
 
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
@@ -88,7 +93,9 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
-        public bool ForeignTroopHere(Empire empire)      => TroopManager.ForeignTroopHere(empire);
+        public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
+        public bool NoGovernorAndNotTradeHub            => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
+        public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
 
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
@@ -98,12 +105,11 @@ namespace Ship_Game
         public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
             => TroopManager.TroopsReadForLaunch(strengthNeeded);
 
-        public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
-
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-        public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * empire?.RacialEnvModifer(Category) 
+                                                       ?? BaseMaxFertility + BuildingsFertility;
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -116,6 +122,33 @@ namespace Ship_Game
         public float MaxPopulationBillionFor(Empire empire) => MaxPopulationFor(empire) / 1000;
 
         public float MaxPopulation => MaxPopulationFor(Owner);
+
+        public float PotentialMaxPopBillionsFor(Empire empire) => PotentialMaxPopFor(empire) / 1000;
+
+        public float PotentialMaxPopFor(Empire empire)
+        {
+            if (empire.IsBuildingUnlocked(Building.TerraformerId))
+                return BasePopPerTile * empire.RacialEnvModifer(Category) * TileArea;
+
+            // We calculate this  and not using MaxPop since it might be an enemy planet with biospheres
+            int numNaturalHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
+            float naturalMaxPop          = BasePopPerTile * numNaturalHabitableTiles * empire.RacialEnvModifer(Category);
+
+            if (!empire.IsBuildingUnlocked(Building.BiospheresId)) // Biospheres not researched yet
+                return naturalMaxPop;
+
+            // check potential with biospheres
+            int numBiospheresNeeded = TileArea - numNaturalHabitableTiles;
+            float bioSphereMaxPop   = BasePopPerTile * numBiospheresNeeded;
+
+            return bioSphereMaxPop + naturalMaxPop;
+        }
+
+        public float PotentialMaxFertilityFor(Empire empire)
+        {
+            float minimumMaxFertilityPotential = empire.IsBuildingUnlocked(Building.TerraformerId) ? 1 : 0;
+                return MaxFertilityFor(empire).ClampMin(minimumMaxFertilityPotential);
+        }
 
         public float MaxPopulationFor(Empire empire)
         {
@@ -162,6 +195,17 @@ namespace Ship_Game
         {
             CreateManagers();
             HasSpacePort = false;
+        }
+
+        public Planet(float fertility, float minerals, float maxPop)
+        {
+            CreateManagers();
+            HasSpacePort      = false;
+            BaseFertility     = fertility;
+            MineralRichness   = minerals;
+            BasePopPerTileVal = maxPop;
+            if (fertility > 0)
+                Type          = ResourceManager.RandomPlanet(PlanetCategory.Terran);
         }
 
         public Planet(SolarSystem system, float randomAngle, float ringRadius, string name, float ringMax, Empire owner = null, float preDefinedPop = 0)
@@ -270,14 +314,31 @@ namespace Ship_Game
         public float ColonyBaseValue(Empire empire)
         {
             float value = 0;
-            value += BuildingList.Count(b => b.IsCommodity) * 30;
-            value += EmpireFertility(empire) * 10;
-            value += MineralRichness * 10;
-            value += MaxPopulationBillionFor(empire) * 5;
+            value += ColonyRawValue(empire);
             value += BuildingList.Any(b => b.IsCapital) ? 100 : 0;
             value += BuildingList.Sum(b => b.ActualCost) / 10;
             value += PopulationBillion * 5;
 
+            return value;
+        }
+
+        public float ColonyRawValue(Empire empire)
+        {
+            float value = 0;
+            value += SpecialCommodities * 10;
+            value += EmpireFertility(empire) * 10;
+            value += MineralRichness * 10;
+            value += MaxPopulationBillionFor(empire) * 5;
+            return value;
+        }
+
+        public float ColonyPotentialValue(Empire empire)
+        {
+            float value = 0;
+            value += SpecialCommodities * 10;
+            value += PotentialMaxFertilityFor(empire) * 10;
+            value += MineralRichness * 10;
+            value += PotentialMaxPopBillionsFor(empire) * 5;
             return value;
         }
 
@@ -488,8 +549,9 @@ namespace Ship_Game
 
         private void PostBuildingRemoval(Building b)
         {
-            if (b.MaxFertilityOnBuild > 0)
-                AddMaxBaseFertility(-b.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnBuild when scrapping
+            // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
+            // environment buildings can be scrapped and the planet will slowly recover
+            AddBuildingsFertility(-b.MaxFertilityOnBuild); 
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
@@ -518,7 +580,8 @@ namespace Ship_Game
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateBaseFertility();
             InitResources(); // must be done before Governing
-            UpdateOrbitalsMaint();
+            UpdateOrbitalsMaintenance();
+            UpdateMilitaryBuildingMaintenance();
             NotifyEmptyQueue();
             RechargePlanetaryShields();
             ApplyResources();
@@ -635,68 +698,96 @@ namespace Ship_Game
                 DevelopmentStatus += Localizer.Token(1779); // military culture
         }
 
-        int ColonyTypeLocId()
+        void UpdateOrbitalsMaintenance()
         {
-            switch (colonyType)
+            OrbitalsMaintenance = 0;
+            foreach (Ship orbital in OrbitalStations.Values)
             {
-                default:
-                case ColonyType.Core:         return 378;
-                case ColonyType.Colony:       return 382;
-                case ColonyType.Industrial:   return 379;
-                case ColonyType.Research:     return 381;
-                case ColonyType.Agricultural: return 377;
-                case ColonyType.Military:     return 380;
-                case ColonyType.TradeHub:     return 394;
+                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
             }
         }
-        public string ColonyTypeInfoText => Localizer.Token(ColonyTypeLocId());
 
-        int WorldTypeLocId()
+        void UpdateMilitaryBuildingMaintenance()
         {
-            switch (colonyType)
+            MilitaryBuildingsMaintenance = 0;
+            for (int i = 0; i < BuildingList.Count; i++)
             {
-                default:
-                case ColonyType.Core:         return 372;
-                case ColonyType.Colony:       return 376;
-                case ColonyType.Industrial:   return 373;
-                case ColonyType.Research:     return 375;
-                case ColonyType.Agricultural: return 371;
-                case ColonyType.Military:     return 374;
-                case ColonyType.TradeHub:     return 393;
+                Building b = BuildingList[i];
+                if (b.IsMilitary)
+                    MilitaryBuildingsMaintenance += b.ActualMaintenance(this);
             }
         }
-        public string WorldType => Localizer.Token(WorldTypeLocId());
+
+        public LocalizedText ColonyTypeInfoText
+        {
+            get
+            {
+                switch (colonyType)
+                {
+                    default:
+                    case ColonyType.Core:         return 378;
+                    case ColonyType.Colony:       return 382;
+                    case ColonyType.Industrial:   return 379;
+                    case ColonyType.Research:     return 381;
+                    case ColonyType.Agricultural: return 377;
+                    case ColonyType.Military:     return 380;
+                    case ColonyType.TradeHub:     return 394;
+                }
+            }
+        }
+
+        public LocalizedText WorldType
+        {
+            get
+            {
+                switch (colonyType)
+                {
+                    default:
+                    case ColonyType.Core:         return 372;
+                    case ColonyType.Colony:       return 376;
+                    case ColonyType.Industrial:   return 373;
+                    case ColonyType.Research:     return 375;
+                    case ColonyType.Agricultural: return 371;
+                    case ColonyType.Military:     return 374;
+                    case ColonyType.TradeHub:     return 393;
+                }
+            }
+        }
 
         void UpdateBaseFertility()
         {
-            if (BaseFertility.AlmostEqual(BaseMaxFertility))
+            float totalFertility = BaseMaxFertility + BuildingsFertility;
+            if (BaseFertility.AlmostEqual(totalFertility))
                 return;
 
-            if (BaseFertility < BaseMaxFertility)
-                BaseFertility = (BaseFertility + 0.01f).Clamped(0, BaseMaxFertility); // FB - Slowly increase fertility to max fertility
-            else if (BaseFertility > BaseMaxFertility)
+            if (BaseFertility < totalFertility)
+                BaseFertility = (BaseFertility + 0.01f).Clamped(0, totalFertility); // FB - Slowly increase fertility to max fertility
+            else if (BaseFertility > totalFertility)
                 BaseFertility = BaseFertility.Clamped(0, BaseFertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
         public void SetBaseFertility(float fertility, float maxFertility)
         {
-            BaseMaxFertility = maxFertility;
-            BaseFertility = fertility;
+            BaseMaxFertility   = maxFertility;
+            BaseFertility      = fertility;
         }
 
         public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility);
 
         public void AddMaxBaseFertility(float amount)
         {
-            BaseMaxFertility += amount;
-            BaseMaxFertility  = Math.Max(0, BaseMaxFertility);
+            BaseMaxFertility    = (BaseMaxFertility + amount).ClampMin(0);
+        }
+
+        public void AddBuildingsFertility(float amount)
+        {
+            BuildingsFertility += amount;
         }
 
         // FB: to enable bombs to temp change fertility immediately by specified amount
         public void AddBaseFertility(float amount)
         {
-            BaseFertility += amount;
-            BaseFertility  = Math.Max(0, BaseFertility);
+            BaseFertility = (BaseFertility + amount).ClampMin(0);
         }
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
@@ -765,7 +856,7 @@ namespace Ship_Game
             //this is a hack to prevent research planets from wasting workers on production.
 
             // greedy bastards
-            Consumption = (PopulationBillion + Owner.data.Traits.ConsumptionModifier * PopulationBillion);
+            Consumption = (ConsumptionPerColonist * PopulationBillion);
             Food.Update(NonCybernetic ? Consumption : 0f);
             Prod.Update(IsCybernetic  ? Consumption : 0f);
             Res.Update(0f);
@@ -944,48 +1035,15 @@ namespace Ship_Game
         public float TotalGeodeticOffense    => BuildingGeodeticOffense + OrbitalStations.Values.Sum(o => o.BaseStrength);
         public int MaxDefenseShips           => BuildingList.Sum(b => b.DefenseShipsCapacity);
         public int CurrentDefenseShips       => BuildingList.Sum(b => b.CurrentNumDefenseShips) + ParentSystem.ShipList.Count(s => s?.HomePlanet == this);
+        public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
-        public int AvailableTiles      => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public int TotalBuildings      => TilesList.Count(tile => tile.building != null && !tile.building.IsBiospheres);
-        public float BuiltCoverage     => TotalBuildings / (float)TileArea;
-        public bool TerraformingHere   => BuildingList.Any(b => b.IsTerraformer);
+        public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
+        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
 
-        public int ExistingMilitaryBuildings  => BuildingList.Count(b => b.IsMilitary);
+        public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
+        public float BuiltCoverage   => TotalBuildings / TotalHabitableTiles;
+        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
 
-        // FB - This will give the Max Fertility the planet should have after terraforming is complete
-        public float TerraformMaxFertilityTarget
-        {
-            get
-            {
-                float sumPositiveFertilityChange = 1;
-
-                for (int i = 0; i < BuildingList.Count; i++)
-                {
-                    Building b = BuildingList[i];
-                    if (b.MaxFertilityOnBuild > 0)
-                        sumPositiveFertilityChange += b.MaxFertilityOnBuild;
-                }
-
-                float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
-                return racialEnvDivider + sumPositiveFertilityChange;
-            }
-        }
-
-        public int DesiredMilitaryBuildings
-        {
-            get
-            {
-                float militaryCoverage;
-                switch (colonyType)
-                {
-                    case ColonyType.Military: militaryCoverage = 0.4f; break;
-                    case ColonyType.Core: militaryCoverage = 0.3f; break;
-                    default: militaryCoverage = 0.2f; break;
-                }
-                float sizeFactor = (PopulationRatio + BuiltCoverage) / 2;
-                return (int)Math.Floor(militaryCoverage * sizeFactor * TileArea);
-            }
-        }
 
         private void RepairBuildings(int repairAmount)
         {
@@ -1056,8 +1114,6 @@ namespace Ship_Game
             string eatsWhat = NonCybernetic ? "Food" : "Prod";
             debug.AddLine($"Eats: {Consumption} {eatsWhat}");
             debug.AddLine("");
-
-
             return debug;
         }
     }

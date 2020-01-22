@@ -89,8 +89,8 @@ namespace Ship_Game
         float MinIncomePerTurn(float storage, ColonyResource res)
         {
             float ratio = storage / Storage.Max;
-            if (ratio > 0.8f)
-                return 1; // when idling, keep production low to leave room for others
+            if (ratio.AlmostEqual(1))
+                return 0; // when idling, keep production low to leave room for others
 
             float minPerTurn = res.NetMaxPotential * 0.1f;
             float maxPerTurn = res.NetMaxPotential * 0.9f; // MAX % for this product

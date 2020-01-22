@@ -178,8 +178,8 @@ namespace Ship_Game
                 else
                     DrawPlanetStats(DefenseShipsRect, currentDefenseShips + "/" + maxDefenseShips , "UI/icon_hangar", Color.Yellow, Color.White);
             }
-            Inspect.Draw(ScreenManager);
-            Invade.Draw(ScreenManager);
+            Inspect.Draw(batch);
+            Invade.Draw(batch);
         }
 
         bool DrawUnexploredUninhabited(Vector2 namePos, Vector2 mousePos)
@@ -329,7 +329,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("UI/dan_button_blue"), SendTroops, Color.White);
             int troops = Screen.player
                 .GetShips()
-                .Where(troop => troop.TroopList.Count > 0)
+                .Where(troop => troop.HasOurTroops)
                 .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet == P));
             if (!SendTroops.HitTest(mousePos))
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
@@ -338,8 +338,8 @@ namespace Ship_Game
                 ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, String.Concat("Invading : ", troops), Text,
                     new Color(174, 202, 255)); // Localizer.Token(1425)
 
-            Inspect.Draw(ScreenManager);
-            Invade.Draw(ScreenManager);
+            Inspect.Draw(ScreenManager.SpriteBatch);
+            Invade.Draw(ScreenManager.SpriteBatch);
             return false;
         }
 

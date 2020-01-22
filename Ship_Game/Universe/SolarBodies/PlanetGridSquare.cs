@@ -21,9 +21,9 @@ namespace Ship_Game
         public Rectangle TroopClickRect = new Rectangle();
         public bool Highlighted;
 
-        public bool NoTroopsOnTile       => !TroopsAreOnTile;
-        public bool TroopsAreOnTile      => TroopsHere.Count > 0;
-        public bool NoBuildingOnTile     => !BuildingOnTile;
+        public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
+        public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
+        public bool NoBuildingOnTile     => building == null;
         public bool BuildingOnTile       => building != null;
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;

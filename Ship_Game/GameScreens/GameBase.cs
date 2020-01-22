@@ -18,6 +18,7 @@ namespace Ship_Game
         public GraphicsDeviceManager Graphics;
         LightingSystemPreferences Preferences;
         public static ScreenManager ScreenManager;
+        public ScreenManager Manager => ScreenManager;
 
         // This is equivalent to PresentationParameters.BackBufferWidth
         public static int ScreenWidth  { get; protected set; }
@@ -30,6 +31,10 @@ namespace Ship_Game
         public static GameBase Base;
         public new GameContentManager Content { get; }
         public static GameContentManager GameContent => Base?.Content;
+
+        public int FrameId { get; protected set; }
+        public GameTime GameTime;
+        public float TotalElapsed => (float)GameTime.TotalGameTime.TotalSeconds;
 
         public Form Form => (Form)Control.FromHandle(Window.Handle);
 
@@ -77,8 +82,8 @@ namespace Ship_Game
         {
             var p = new LightingSystemPreferences
             {
-                ShadowQuality   = settings.ShadowQuality,
                 MaxAnisotropy   = settings.MaxAnisotropy,
+                ShadowQuality   = GlobalStats.GetShadowQuality(settings.ShadowDetail),
                 ShadowDetail    = (DetailPreference) settings.ShadowDetail,
                 EffectDetail    = (DetailPreference) settings.EffectDetail,
                 TextureQuality  = (DetailPreference) settings.TextureQuality,
@@ -176,6 +181,29 @@ namespace Ship_Game
         public void InitializeAudio()
         {
             GameAudio.Initialize(null, "Content/Audio/ShipGameProject.xgs", "Content/Audio/Wave Bank.xwb", "Content/Audio/Sound Bank.xsb");
+        }
+
+        protected void UpdateGame(GameTime gameTime)
+        {
+            if (Log.IsTerminating) // game is crashing, don't update anymore
+            {
+                Thread.Sleep(15);
+                return;
+            }
+
+            try
+            {
+                ++FrameId;
+                GameTime = gameTime;
+
+                // 1. Handle Input and 2. Update for each game screen
+                ScreenManager.Update(gameTime);
+                base.Update(gameTime); // Update XNA components
+            }
+            catch (Exception ex)
+            {
+                Log.ErrorDialog(ex, "UpdateGame() failed", Program.SCREEN_UPDATE_FAILURE);
+            }
         }
 
         protected override void Dispose(bool disposing)

@@ -2,7 +2,9 @@ using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Audio;
 using Ship_Game.Data;
+using Ship_Game.GameScreens;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
@@ -15,11 +17,20 @@ namespace Ship_Game
         public InputState Input;
         bool OtherScreenHasFocus;
 
-        public bool IsActive => !OtherScreenHasFocus && !IsExiting && 
+        public bool IsActive => Enabled && !IsExiting && !OtherScreenHasFocus && 
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
 
         public bool IsExiting { get; protected set; }
-        public bool IsPopup   { get; protected set; }
+
+        // Popup screens can be dismissed via RightMouseClick
+        public bool IsPopup { get; protected set; }
+
+        // If TRUE, ESC key will close this screen
+        public bool CanEscapeFromScreen { get; protected set; } = true;
+        
+        // LEGACY LAYOUT: Change layout and Font Size if ScreenWidth is too small
+        public readonly bool LowRes;
+        public readonly bool HiRes;
 
         // @return TRUE if content was loaded this frame
         public bool DidLoadContent { get; private set; }
@@ -44,10 +55,11 @@ namespace Ship_Game
         public Vector2 ScreenArea   => GameBase.ScreenSize;
         public Vector2 ScreenCenter => GameBase.ScreenCenter;
         public GameTime GameTime    => StarDriveGame.Instance.GameTime;
-        protected bool Pauses = true;
+        bool Pauses = true;
 
         // multi cast exit delegate, called when a game screen is exiting
         public event Action OnExit;
+        public bool IsDisposed { get; private set; }
 
         // This should be used for content that gets unloaded once this GameScreen disappears
         public GameContentManager TransientContent;
@@ -56,16 +68,17 @@ namespace Ship_Game
         // This can vary greatly and should only be used for
         // drawing real-time visualization.
         // This should not be used for simulation!
-        public float FrameDeltaTime { get; protected set; }
+        public float FrameDeltaTime { get; private set; }
 
         public Matrix View, Projection;
+
 
         protected GameScreen(GameScreen parent, bool pause = true) 
             : this(parent, new Rectangle(0, 0, GameBase.ScreenWidth, GameBase.ScreenHeight), pause)
         {
         }
         
-        protected GameScreen(GameScreen parent, Rectangle rect, bool pause = true) : base(parent, rect)
+        protected GameScreen(GameScreen parent, in Rectangle rect, bool pause = true) : base(rect)
         {
             // hook the content chain to parent screen if possible
             TransientContent = new GameContentManager(parent?.TransientContent ?? GameBase.Base.Content, GetType().Name);
@@ -73,10 +86,19 @@ namespace Ship_Game
             UpdateViewport();
 
             if (pause & Empire.Universe?.IsActive == true && Empire.Universe?.Paused == false)
+            {
                 Empire.Universe.Paused = true;
-            else Pauses = false;
+            }
+            else
+            {
+                Pauses = false;
+            }
+
             if (Input == null)
                 Input = ScreenManager?.input;
+
+            LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
+            HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
         }
 
         ~GameScreen() { Destroy(); }
@@ -89,6 +111,7 @@ namespace Ship_Game
 
         protected virtual void Destroy()
         {
+            IsDisposed = true;
             TransientContent?.Dispose(ref TransientContent);
         }
 
@@ -99,17 +122,19 @@ namespace Ship_Game
         public void AddLight(ILight light)        => ScreenManager.AddLight(light);
         public void RemoveLight(ILight light)     => ScreenManager.RemoveLight(light);
 
-        public void AssignLightRig(string rigContentPath)
+        public void AssignLightRig(LightRigIdentity identity, string rigContentPath)
         {
             var lightRig = TransientContent.Load<LightRig>(rigContentPath);
-            ScreenManager.AssignLightRig(lightRig);
+            ScreenManager.AssignLightRig(identity, lightRig);
         }
 
         public virtual void ExitScreen()
         {
-            ScreenManager.exitScreenTimer = 0.25f;            
             if (Pauses && Empire.Universe != null)
                 Empire.Universe.Paused = Pauses = false;
+
+            // if we got any tooltips, clear them now
+            ToolTip.Clear();
 
             // call the exit event only once
             if (OnExit != null)
@@ -123,8 +148,14 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
-            Empire.Universe?.ResetLighting();
+            
             ScreenManager.RemoveScreen(this);
+        }
+
+        public virtual void OnScreenRemoved()
+        {
+            Enabled = Visible = false;
+            ScreenState = ScreenState.Hidden;
         }
 
         public virtual void ReloadContent()
@@ -145,11 +176,39 @@ namespace Ship_Game
             Elements.Clear();
         }
 
+        public override bool HandleInput(InputState input)
+        {
+            if (!Visible || !Enabled || !IsActive)
+                return false;
+
+            // First allow other UI elements to capture input
+            if (base.HandleInput(input))
+                return true;
+
+            // only then check for ExitScreen condition
+            if ((CanEscapeFromScreen && input.Escaped) ||
+                (IsPopup && input.RightMouseClick))
+            {
+                GameAudio.EchoAffirmative();
+                ExitScreen();
+                return true;
+            }
+            return false;
+        }
+
         public virtual void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
+            if (IsDisposed)
+            {
+                Log.Error($"Screen {Name} Updated after being disposed!");
+                return;
+            }
+
             // @note If content was being loaded, we will force deltaTime to 1/60th
             //       This will prevent animations going nuts due to huge deltaTime
-            FrameDeltaTime = DidLoadContent ? (1.0f/60.0f) : StarDriveGame.Instance.FrameDeltaTime;
+            FrameDeltaTime = ScreenManager.FrameDeltaTime;
+            if (DidLoadContent && FrameDeltaTime > (1f/60f))
+                FrameDeltaTime = 1f/60f;
             //Log.Info($"Update {Name} {DeltaTime:0.000}  DidLoadContent:{DidLoadContent}");
 
             Visible = ScreenState != ScreenState.Hidden;
@@ -158,20 +217,7 @@ namespace Ship_Game
             Update(FrameDeltaTime);
 
             OtherScreenHasFocus = otherScreenHasFocus;
-            if (!IsExiting)
-            {
-                if (coveredByOtherScreen)
-                {
-                    ScreenState = UpdateTransition(TransitionOffTime, 1)
-                                ? ScreenState.TransitionOff : ScreenState.Hidden;
-                }
-                else
-                {
-                    ScreenState = UpdateTransition(TransitionOnTime, -1)
-                                ? ScreenState.TransitionOn : ScreenState.Active;
-                }
-            }
-            else
+            if (IsExiting)
             {
                 ScreenState = ScreenState.TransitionOff;
                 if (!UpdateTransition(TransitionOffTime, 1))
@@ -180,10 +226,24 @@ namespace Ship_Game
                     IsExiting = false;
                 }
             }
+            else
+            {
+                if (coveredByOtherScreen)
+                {
+                    ScreenState = UpdateTransition(TransitionOffTime, 1)
+                        ? ScreenState.TransitionOff
+                        : ScreenState.Hidden;
+                }
+                else
+                {
+                    ScreenState = UpdateTransition(TransitionOnTime, -1)
+                        ? ScreenState.TransitionOn
+                        : ScreenState.Active;
+                }
+            }
 
             DidLoadContent = false;
         }
-        
 
         bool UpdateTransition(float time, int direction)
         {
@@ -312,15 +372,16 @@ namespace Ship_Game
             return amount;
         }
 
-        public void MakeMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId, string okText, string cancelledText)
+        public void MakeMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId, string okText, string cancelledText)
         {
-            var messageBox = new MessageBoxScreen(screen, localId, okText, cancelledText);
-            messageBox.Cancelled += cancelled;
-            messageBox.Accepted += accepted;
-            ScreenManager.AddScreenDeferred(messageBox);            
+            ScreenManager.AddScreenDeferred(new MessageBoxScreen(screen, localId, okText, cancelledText)
+            {
+                Cancelled = cancelled,
+                Accepted = accepted
+            });            
         }
 
-        public void ExitMessageBox(GameScreen screen, EventHandler<EventArgs> cancelled, EventHandler<EventArgs> accepted, int localId)
+        public void ExitMessageBox(GameScreen screen, Action cancelled, Action accepted, int localId)
         {
             MakeMessageBox(screen, cancelled, accepted, localId, "Save", "Exit");
         }
@@ -390,8 +451,9 @@ namespace Ship_Game
 
         public float ProjectToScreenSize(float sizeInWorld)
         {
-            Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
-            return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
+            Vector2 a = ProjectToScreenPosition(Vector2.Zero);
+            Vector2 b = ProjectToScreenPosition(new Vector2(sizeInWorld, 0f));
+            return a.Distance(b);
         }
 
         public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)

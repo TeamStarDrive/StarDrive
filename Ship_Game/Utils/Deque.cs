@@ -286,7 +286,7 @@ namespace Ship_Game
 
         public override string ToString()
         {
-            return GetType().GenericName();
+            return GetType().GetTypeName();
         }
 
         public IEnumerator<T> GetEnumerator() => new Enumerator(this);

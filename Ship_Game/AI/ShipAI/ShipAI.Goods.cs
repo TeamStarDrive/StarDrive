@@ -108,7 +108,9 @@ namespace Ship_Game.AI
                 return;
 
             bool fullBeforeUnload = Owner.CargoSpaceFree.AlmostZero();
-            Owner.loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
+            if (Owner.GetCargo(Goods.Colonists).AlmostZero())
+                Owner.loyalty.TaxGoods(Owner.CargoSpaceUsed, importPlanet);
+
             importPlanet.FoodHere   += Owner.UnloadFood(importPlanet.Storage.Max - importPlanet.FoodHere);
             importPlanet.ProdHere   += Owner.UnloadProduction(importPlanet.Storage.Max - importPlanet.ProdHere);
             importPlanet.Population += Owner.UnloadColonists(importPlanet.MaxPopulation - importPlanet.Population);

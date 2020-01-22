@@ -26,6 +26,7 @@ namespace Ship_Game
 
         public LoadUniverseScreen(FileInfo activeFile) : base(null/*no parent*/)
         {
+            CanEscapeFromScreen = false;
             GlobalStats.RemnantKills = 0;
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.Statreset();
@@ -53,7 +54,7 @@ namespace Ship_Game
                 }
                 catch (Exception e)
                 {
-                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", isFatal: false);
+                    Log.ErrorDialog(e, $"LoadUniverseScreen failed: {activeFile.FullName}", 0);
                     LoadingFailed = true;
                 }
             });
@@ -83,6 +84,8 @@ namespace Ship_Game
             {
                 // heavily throttle main thread, so the worker thread can turbo
                 Thread.Sleep(33);
+                if (IsDisposed) // just in case we died
+                    return;
             }
 
             if (LoadingFailed) // fatal error when loading save game
@@ -142,8 +145,7 @@ namespace Ship_Game
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent = null;
-            StatTracker.SnapshotsDict.Clear();
-            StatTracker.SnapshotsDict = usData.Snapshots;
+            StatTracker.SetSnapshots(usData.Snapshots);
 
             step.Finish();
             return usData;
@@ -254,8 +256,6 @@ namespace Ship_Game
                     p.ParentSystem = system;
                     p.InitializePlanetMesh(this);
                 }
-                foreach (Asteroid roid in system.AsteroidsList) AddObject(roid.So);
-                foreach (Moon moon in system.MoonList)          AddObject(moon.So);
             }
         }
 

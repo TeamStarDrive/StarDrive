@@ -1,11 +1,9 @@
+using System;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
-using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
-using Ship_Game.Ships;
-using Ship_Game.SpriteSystem;
 using Ship_Game.UI;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Lights;
@@ -21,6 +19,7 @@ namespace Ship_Game.GameScreens.MainMenu
 
         public MainMenuScreen() : base(null /*no parent*/)
         {
+            CanEscapeFromScreen = false;
             TransitionOnTime  = 1.0f;
             TransitionOffTime = 0.5f;
         }
@@ -56,7 +55,7 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!Find("buttons", out UIList list))
-                list = List(Vector2.Zero);
+                list = AddList(Vector2.Zero);
             if (list.Find("new_game",  out UIButton newGame))   newGame.OnClick   = NewGame_Clicked;
             if (list.Find("tutorials", out UIButton tutorials)) tutorials.OnClick = Tutorials_Clicked;
             if (list.Find("load_game", out UIButton loadGame))  loadGame.OnClick  = LoadGame_Clicked;
@@ -70,8 +69,8 @@ namespace Ship_Game.GameScreens.MainMenu
 
             // Animate the buttons in and out
             var animOffset = new Vector2(512f * (ScreenWidth / 1920f), 0);
-            list.StartTransition<UIButton>(animOffset, -1, time:0.5f);
-            OnExit += () => list.StartTransition<UIButton>(animOffset, +1, time:0.5f);
+            list.StartGroupTransition<UIButton>(animOffset, -1, time:0.5f);
+            OnExit += () => list.StartGroupTransition<UIButton>(animOffset, +1, time:0.5f);
             
             FTLManager.LoadContent(this);
             CreateMainMenuFleet();
@@ -98,7 +97,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             //AssignLightRig("example/ShipyardLightrig");
             ScreenManager.RemoveAllLights();
-            ScreenManager.environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
+            ScreenManager.LightRigIdentity = LightRigIdentity.MainMenu;
+            ScreenManager.Environment = TransientContent.Load<SceneEnvironment>("example/scene_environment");
 
             var topRightInBackground = new Vector3(26000,-26000,32000);
             var lightYellow = new Color(255,254,224);
@@ -139,16 +139,23 @@ namespace Ship_Game.GameScreens.MainMenu
             VersionArea = Panel(Rectangle.Empty, Color.TransparentBlack);
             VersionArea.StartFadeIn(3.0f, delay: 2.0f);
 
-            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 90, "StarDrive 15B"));
-            VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 64, GlobalStats.ExtendedVersion));
+            string starDrive = "StarDrive 15B";
+            string blackBox = GlobalStats.ExtendedVersionNoHash;
+            string modTitle = "";
             if (GlobalStats.HasMod)
             {
                 string title = GlobalStats.ActiveModInfo.ModName;
                 string version = GlobalStats.ActiveModInfo.Version;
                 if (version.NotEmpty() && !title.Contains(version))
-                    title = title+" - "+version;
-                VersionArea.Add(new VersionLabel(this, 300, ScreenHeight - 38, title));
+                    modTitle = title+" - "+version;
             }
+
+            string longest = new []{starDrive,blackBox,modTitle}.FindMax(s => s.Length);
+            int offset = Math.Max(300, Fonts.Pirulen12.TextWidth(longest).RoundUpToMultipleOf(10) + 10);
+            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 90, starDrive));
+            VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 64, blackBox));
+            if (modTitle.NotEmpty())
+                VersionArea.Add(new VersionLabel(this, offset, ScreenHeight - 38, modTitle));
         }
 
         void CreateMainMenuFleet()
@@ -170,7 +177,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             foreach (MenuFleet fleet in Fleets)
             {
-                fleet.Update(gameTime, this);
+                fleet.Update(this);
             }
         }
         
@@ -243,7 +250,7 @@ namespace Ship_Game.GameScreens.MainMenu
             GameAudio.Update3DSound(CamPos);
             FTLManager.Update(this, FrameDeltaTime);
 
-            ScreenManager.UpdateSceneObjects(gameTime);
+            ScreenManager.UpdateSceneObjects();
             
             if (RandomMath.RollDice(percent:0.25f)) // 0.25% (very rare event)
             {
@@ -252,7 +259,9 @@ namespace Ship_Game.GameScreens.MainMenu
             }
 
             if (!IsExiting && ScreenManager.Music.IsStopped)
+            {
                 ResetMusic();
+            }
 
             if (IsExiting && TransitionPosition >= 0.99f && ScreenManager.Music.IsPlaying)
             {

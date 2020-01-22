@@ -16,8 +16,6 @@ namespace Ship_Game
 
         //private Rectangle titleRect;
 
-        private bool LowRes;
-
         private Submenu PlanetInfo;
 
         private Rectangle PlanetIcon;
@@ -29,10 +27,7 @@ namespace Ship_Game
         public UnexploredPlanetScreen(GameScreen screen, Planet p) : base(screen)
         {
             this.p = p;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1280)
-            {
-                LowRes = true;
-            }
+            IsPopup = true; // allow right-click dismiss
             Rectangle titleRect = new Rectangle(5, 44, 405, 80);
             if (LowRes)
             {
@@ -61,7 +56,7 @@ namespace Ship_Game
             Vector2 MousePos = new Vector2(x, state.Y);
             Color c = new Color(255, 239, 208);
             batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, c);
-            PlanetMenu.Draw();
+            PlanetMenu.Draw(batch);
             PlanetInfo.Draw(batch);
             batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
             Vector2 PNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
