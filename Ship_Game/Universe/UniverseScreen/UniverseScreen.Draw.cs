@@ -647,28 +647,6 @@ namespace Ship_Game
                 "",
                 "Total Time:       " + perfavg5
             };
-
-            DrawLightsDebug();
-        }
-
-        void DrawLightsDebug()
-        {
-            int yOffsetCounter = 0;
-            foreach (PointLight light in LightsDebug)
-            {
-                var color = new Color(light.DiffuseColor);
-                Vector2 p = light.Position.ToVec2();
-                DrawCircleProjected(p, light.Radius, color);
-
-                int offset = yOffsetCounter++ % 3;
-                float yOffset = light.Radius;
-                if      (offset == 0) yOffset -= 2000;
-                else if (offset == 1) yOffset += 0;
-                else if (offset == 2) yOffset += 2000;
-
-                DrawShadowStringProjected(p+new Vector2(0,yOffset),
-                                          0f, 1f, color, light.Name);
-            }
         }
 
         void DrawFleetIcons()
