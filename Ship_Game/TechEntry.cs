@@ -19,6 +19,9 @@ namespace Ship_Game
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
         [Serialize(7)] public Array<string> WasAcquiredFrom;
 
+
+        public bool Locked => !Unlocked;
+
         /// <summary>
         /// Checks if list  contains restricted trade type. 
         /// </summary>
@@ -469,16 +472,18 @@ namespace Ship_Game
 
         public bool UnlockFromScrap(Empire us, Empire them)
         {
+            if (Locked)
+            {
+                float percentToAdd = 0.25f * (1 + us.data.Traits.ModHpModifier); // skilled or bad engineers
+                AddToProgress(TechCost * percentToAdd, us, out bool unLocked);
+                if (unLocked)
+                    us.UnlockTech(this, TechUnlockType.Normal, null);
+
+                return true;
+            }
+
             if (WasAcquiredFrom.AddUnique(them.data.Traits.ShipType))
             {
-                if (!Unlocked)
-                {
-                    float percentToAdd = 0.25f * (1 + us.data.Traits.ModHpModifier); // skilled or bad engineers
-                    AddToProgress(TechCost * percentToAdd, us, out bool unLocked);
-                    if (unLocked) us.UnlockTech(this, TechUnlockType.Normal, null);
-                    return unLocked;
-                }
-
                 UnlockTechContentOnly(us, them);
                 return true;
             }
