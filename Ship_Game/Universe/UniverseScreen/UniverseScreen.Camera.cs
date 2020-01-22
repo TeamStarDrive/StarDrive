@@ -55,7 +55,6 @@ namespace Ship_Game
             SelectedSystem = null;
             SelectedPlanet = null;
             snappingToShip = true;
-            HeightOnSnap = CamHeight;
             CamDestination.Z = 3500f;
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
