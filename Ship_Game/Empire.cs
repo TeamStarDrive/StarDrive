@@ -2256,12 +2256,12 @@ namespace Ship_Game
                 string hullString = ship.BaseHull.ToString();
                 if (hullTech.Unlocked)
                 {
-                    string message = $"{hullString}{Localizer.Token(1932)}";
+                    string message = $"{hullString}{new LocalizedText(GameText.ReverseEngineered).Text}";
                     Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
                 }
                 else
                 {
-                    string message = $"{hullString}{Localizer.Token(1933)}";
+                    string message = $"{hullString}{new LocalizedText(GameText.HullScrappedAdvancingResearch).Text}";
                     Universe.NotificationManager.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
                 }
             }
@@ -2269,11 +2269,10 @@ namespace Ship_Game
 
         private bool TryReverseEngineer(Ship ship, out TechEntry hullTech, out Empire empire)
         {
-            string hullName = ship.shipData.Hull;
-            if (!TryGetTechFromHull(hullName, out hullTech, out empire))
+            if (!TryGetTechFromHull(ship, out hullTech, out empire))
                 return false;
 
-            if (hullTech.Unlocked)
+            if (hullTech.Locked)
                 return true; // automatically advance in research
 
             float unlockChance;
@@ -2291,22 +2290,23 @@ namespace Ship_Game
             return RandomMath.RollDice(unlockChance);
         }
 
-        bool TryGetTechFromHull(string hullName, out TechEntry techEntry, out Empire empire)
+        bool TryGetTechFromHull(Ship ship, out TechEntry techEntry, out Empire empire)
         {
-            techEntry = null;
-            empire    = null;
-            foreach (TechEntry entry in TechEntries)
+            techEntry        = null;
+            empire           = null;
+            string hullName  = ship.shipData.Hull;
+            foreach (string techName in ship.shipData.TechsNeeded)
             {
-                foreach (Technology.UnlockedHull unlockedHull in entry.Tech.HullsUnlocked)
+                techEntry = GetTechEntry(techName);
+                foreach (var hull in techEntry.Tech.HullsUnlocked)
                 {
-                    if (unlockedHull.Name == hullName)
+                    if (hull.Name == hullName)
                     {
-                        techEntry = entry;
-                        empire    = EmpireManager.GetEmpireByShipType(unlockedHull.ShipType);
+                        empire = EmpireManager.GetEmpireByShipType(hull.ShipType);
                         if (empire == null)
                         {
                             Log.Warning("Unlock by Scrap - tried to unlock rom an empire which does" +
-                                        $"not exist in this game ({unlockedHull.ShipType}), probably " +
+                                        $"not exist in this game ({hull.ShipType}), probably " +
                                         "due to debug spawn ships or fleets.");
 
                             return false;
@@ -2325,7 +2325,7 @@ namespace Ship_Game
             if (!isPlayer)
                 return;
 
-            string message = Localizer.Token(1934);
+            string message = new LocalizedText(GameText.ShipCapturedByYou).Text;
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
         }
 
@@ -2334,7 +2334,7 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = Localizer.Token(1934);
+            string message = new LocalizedText(GameText.YourShipWasCaptured).Text;
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
         }
 
