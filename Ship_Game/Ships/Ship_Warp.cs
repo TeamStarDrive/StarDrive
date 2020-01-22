@@ -43,23 +43,26 @@ namespace Ship_Game.Ships
             JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
         }
 
-        string GetStartWarpCue()
+        public static string GetStartWarpCue(IEmpireData data, int surfaceArea)
         {
-            if (loyalty.data.WarpStart != null)
-                return loyalty.data.WarpStart;
-            if (SurfaceArea < 60)
+            if (data.WarpStart != null)
+                return data.WarpStart;
+            if (surfaceArea < 60)
                 return "sd_warp_start_small";
-            return SurfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
+            return surfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
         }
 
-        string GetEndWarpCue()
+        public static string GetEndWarpCue(IEmpireData data, int surfaceArea)
         {
-            if (loyalty.data.WarpStart != null)
-                return loyalty.data.WarpEnd;
-            if (SurfaceArea < 60)
+            if (data.WarpStart != null)
+                return data.WarpEnd;
+            if (surfaceArea < 60)
                 return "sd_warp_stop_small";
-            return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
+            return surfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
         }
+
+        string GetStartWarpCue() => GetStartWarpCue(loyalty.data, SurfaceArea);
+        string GetEndWarpCue()   => GetEndWarpCue(loyalty.data, SurfaceArea);
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {

@@ -849,7 +849,7 @@ namespace Ship_Game
                 if (t.ShipType.IsEmpty())
                 {
                     t.ShipType = e.Singular;
-                    Log.Warning($"Empire {e.Name} invalid ShipType ''. Using '{e.Singular}' instead.");
+                    Log.Warning($"Empire '{e.Name}' invalid ShipType ''. Using '{e.Singular}' instead.");
                 }
             }
         }

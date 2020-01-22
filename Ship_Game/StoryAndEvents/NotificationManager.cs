@@ -516,10 +516,6 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            if (!Screen.SnapBackToSystem)
-            {
-                Screen.HeightOnSnap = Screen.CamHeight;
-            }
             Screen.OpenCombatMenu();
         }
 
@@ -527,10 +523,6 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            if (!Screen.SnapBackToSystem)
-            {
-                Screen.HeightOnSnap = Screen.CamHeight;
-            }
             Screen.SnapViewPlanet(p);
         }
 
