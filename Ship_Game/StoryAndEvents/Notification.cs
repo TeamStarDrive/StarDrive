@@ -15,7 +15,7 @@ namespace Ship_Game
 		public float transDuration = 1f;
         
         public string Message;
-		public string Action;
+		public string Action; // @TODO - this needs an enum!
 
         public SubTexture Icon;
         public string IconPath;
