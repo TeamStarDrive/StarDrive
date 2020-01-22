@@ -16,6 +16,17 @@ namespace Ship_Game.Ships
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
 
+        public void ShowSceneObjectWithMatrix(Vector3 position)
+        {
+            if (ShipSO == null)
+            {
+                Log.Info("Showing SceneObject");
+                CreateSceneObject();
+            }
+            ShipSO.World = Matrix.CreateTranslation(position);
+            ShipSO.Visibility = GlobalStats.ShipVisibility;
+        }
+
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
