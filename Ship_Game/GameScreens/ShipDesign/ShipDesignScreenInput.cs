@@ -20,6 +20,7 @@ namespace Ship_Game
     {
         Vector2 ClassifCursor;
         UICheckBox CarrierOnlyCheckBox;
+
         public void ChangeHull(ShipData hull)
         {
             if (hull == null)
@@ -65,6 +66,7 @@ namespace Ship_Game
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
             UpdateCarrierShip();
+            ZoomCameraToEncloseHull(ActiveHull);
         }
 
         void UpdateCarrierShip()
@@ -653,6 +655,54 @@ namespace Ship_Game
             {
                 ChangeHull(item.Hull);
             }
+        }
+
+        // Gets the hull dimensions in world coordinate size
+        Vector2 GetHullDimensions(ShipData hull)
+        {
+            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = hull.ModuleSlots[i];
+                Vector2 topLeft = slot.Position;
+                Vector2 botRight = slot.Position + new Vector2(16f, 16f);
+
+                if (topLeft.X  < minX) minX = topLeft.X;
+                if (topLeft.Y  < minY) minY = topLeft.Y;
+                if (botRight.X > maxX) maxX = botRight.X;
+                if (botRight.Y > maxY) maxY = botRight.Y;
+            }
+            return new Vector2(maxX - minX, maxY - minY);
+        }
+
+        void UpdateViewMatrix(in Vector3 cameraPosition)
+        {
+            Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+        }
+
+        float GetHullScreenSize(in Vector3 cameraPosition, float hullSize)
+        {
+            UpdateViewMatrix(cameraPosition);
+            return ProjectToScreenSize(hullSize);
+        }
+
+        void ZoomCameraToEncloseHull(ShipData hull)
+        {
+            // This ensures our module grid overlay is the same size as the mesh
+            CameraPosition.Z = 500;
+            float hullHeight = GetHullDimensions(hull).Y;
+            float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
+            float ratio = visibleSize / hullHeight;
+            CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
+            OriginalZ = CameraPosition.Z;
+
+            // and now we zoom in the camera so the ship is all visible
+            float desiredVisibleHeight = ScreenHeight * 0.75f;
+            float currentVisibleHeight = GetHullScreenSize(CameraPosition, hullHeight);
+            float newZoom = desiredVisibleHeight / currentVisibleHeight;
+            TransitionZoom = newZoom.Clamped(0.3f, 2.65f);
         }
 
         void ReallyExit()
