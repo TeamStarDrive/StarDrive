@@ -30,10 +30,10 @@ namespace Ship_Game
             public LogTarget Target;
         }
 
-        static readonly StreamWriter LogFile;
+        static StreamWriter LogFile;
         static Thread LogThread;
         static readonly SafeQueue<LogEntry> LogQueue = new SafeQueue<LogEntry>(64);
-        public static readonly bool HasDebugger;
+        public static bool HasDebugger;
 
         // Either there is an active Console Window
         // OR Console output is redirected to some pipe, like VS Debug Output
@@ -56,19 +56,26 @@ namespace Ship_Game
         // instead, we count identical exceptions and resend them only over a certain threshold
         static readonly Map<ulong, int> ReportedErrors = new Map<ulong, int>();
         const int ErrorThreshold = 100;
-        static bool IsTerminating;
+        public static bool IsTerminating { get; private set; }
 
-        static Log()
+        static readonly Array<Thread> MonitoredThreads = new Array<Thread>();
+
+        public static void Initialize()
         {
+            if (LogThread != null)
+                return; // already initialized!
+
             HasDebugger = Debugger.IsAttached;
 
-            if (File.Exists("blackbox.log"))
-                File.Copy("blackbox.log", "blackbox.old.log", true);
+            if (LogFile == null)
+            {
+                if (File.Exists("blackbox.log"))
+                    File.Copy("blackbox.log", "blackbox.old.log", true);
+                LogFile = OpenLog("blackbox.log");
+            }
 
-            LogFile = OpenLog("blackbox.log");
             LogThread = new Thread(LogAsyncWriter) { Name = "AsyncLogWriter" };
             LogThread.Start();
-
 
             Raven.Release = GlobalStats.ExtendedVersion;
             if (HasDebugger)
@@ -100,6 +107,20 @@ namespace Ship_Game
             init += $" ========== UTC: {DateTime.UtcNow,-39} ==========\r\n";
             init += " ================================================================== \r\n";
             LogWriteAsync(init, ConsoleColor.Green);
+        }
+
+        public static void AddThreadMonitor()
+        {
+            var current = Thread.CurrentThread;
+            lock (MonitoredThreads)
+                MonitoredThreads.Add(current);
+        }
+
+        public static void RemoveThreadMonitor()
+        {
+            var current = Thread.CurrentThread;
+            lock (MonitoredThreads)
+                MonitoredThreads.Remove(current);
         }
 
         static StreamWriter OpenLog(string logPath)
@@ -213,13 +234,16 @@ namespace Ship_Game
                             WriteLogEntry(LogBuffer, log2);
                     }
                 }
-                Thread.Sleep(1);
             }
         }
 
         public static void StopLogThread()
         {
             LogThread = null;
+            lock (Sync)
+            {
+                LogQueue.Notify();
+            }
         }
 
         static void LogWriteAsync(string text, ConsoleColor color, LogTarget target = LogTarget.ConsoleAndLog)
@@ -349,11 +373,6 @@ namespace Ship_Game
 
         // write an Exception to logfile, sentry.io and debug console with an error message
         // plus trigger a Debugger.Break
-        public static void Error(Exception ex, string format, params object[] args)
-        {
-            Error(ex, string.Format(format, args));
-        }
-
         public static void Error(Exception ex, string error = null, ErrorLevel errorLevel = ErrorLevel.Error)
         {
             string text = ExceptionString(ex, "(!) Exception: ", error);
@@ -373,24 +392,25 @@ namespace Ship_Game
             Debugger.Break();
         }
 
-        public static void ErrorDialog(Exception ex, string error = null, bool isFatal = true)
+        // if exitCode != 0, then program is terminated
+        public static void ErrorDialog(Exception ex, string error, int exitCode)
         {
             if (IsTerminating)
                 return;
 
-            IsTerminating = isFatal;
+            IsTerminating = exitCode != 0;
 
             string text = ExceptionString(ex, "(!) Exception: ", error);
             LogWriteAsync(text, ConsoleColor.DarkRed);
             FlushAllLogs();
 
-            if (!HasDebugger && isFatal) // only log errors to sentry if debugger not attached
+            if (!HasDebugger && IsTerminating) // only log errors to sentry if debugger not attached
             {
                 CaptureEvent(text, ErrorLevel.Fatal, ex);
             }
 
             ExceptionViewer.ShowExceptionDialog(text, GlobalStats.AutoErrorReport);
-            if (isFatal) Program.RunCleanupAndExit(Program.UNHANDLED_EXCEPTION);
+            if (IsTerminating) Program.RunCleanupAndExit(exitCode);
         }
 
         [Conditional("DEBUG")] public static void Assert(bool trueCondition, string message)
@@ -418,22 +438,107 @@ namespace Ship_Game
                 Raven.CaptureAsync(evt);
         }
 
+        struct TraceContext
+        {
+            public Thread Thread;
+            public StackTrace Trace;
+        }
+
+        static void CollectSuspendedStackTraces(Array<TraceContext> suspended)
+        {
+            for (int i = 0; i < suspended.Count; ++i)
+            {
+                TraceContext context = suspended[i];
+                try
+                {
+                    #pragma warning disable 618 // Method is Deprecated
+                    context.Trace = new StackTrace(context.Thread, true);
+                    #pragma warning restore 618 // Method is Deprecated
+                    suspended[i] = context;
+                }
+                catch
+                {
+                    suspended.RemoveAt(i--);
+                }
+            }
+        }
+
+        static Array<TraceContext> GatherMonitoredThreadStackTraces()
+        {
+            var suspended = new Array<TraceContext>();
+            try
+            {
+                int currentThreadId = Thread.CurrentThread.ManagedThreadId;
+                lock (MonitoredThreads)
+                {
+                    // suspend as fast as possible, do nothing else!
+                    for (int i = 0; i < MonitoredThreads.Count; ++i)
+                    {
+                        Thread monitored = MonitoredThreads[i];
+                        if (monitored.ManagedThreadId != currentThreadId) // don't suspend ourselves
+                        {
+                            #pragma warning disable 618 // Method is Deprecated
+                            monitored.Suspend();
+                            #pragma warning restore 618 // Method is Deprecated
+                        }
+                    }
+                    // now that we suspended the threads, list them
+                    for (int i = 0; i < MonitoredThreads.Count; ++i)
+                    {
+                        Thread monitored = MonitoredThreads[i];
+                        if (monitored.ManagedThreadId != currentThreadId)
+                            suspended.Add(new TraceContext { Thread = monitored });
+                    }
+                }
+                CollectSuspendedStackTraces(suspended);
+            }
+            finally
+            {
+                // We got the stack traces, resume the threads
+                foreach (TraceContext context in suspended)
+                {
+                    #pragma warning disable 618 // Method is Deprecated
+                    context.Thread.Resume();
+                    #pragma warning restore 618 // Method is Deprecated
+                }
+            }
+            return suspended;
+        }
+
         static string ExceptionString(Exception ex, string title, string details = null)
         {
+            Array<TraceContext> stackTraces = GatherMonitoredThreadStackTraces();
+
             var sb = new StringBuilder(title, 4096);
             if (details != null) { sb.AppendLine(details); }
 
             CollectMessages(sb, ex);
             CollectExData(sb, ex);
-            sb.AppendLine("\nStackTrace:");
-            CollectCleanStackTrace(sb, ex);
+            
+            string exceptionThread = (string)ex.Data["Thread"];
+            int exThreadId = (int)ex.Data["ThreadId"];
+            sb.Append("\nThread #").Append(exThreadId).Append(' ');
+            sb.Append(exceptionThread).Append(" StackTrace:\n");
+            CollectAndCleanStackTrace(sb, ex);
+
+            foreach (TraceContext trace in stackTraces)
+            {
+                int monitoredId = trace.Thread.ManagedThreadId;
+                if (trace.Trace != null && monitoredId != exThreadId)
+                {
+                    string stackTrace = trace.Trace.ToString();
+                    sb.Append("\nThread #").Append(monitoredId).Append(' ');
+                    sb.Append(trace.Thread.Name).Append(" StackTrace:\n");
+                    CleanStackTrace(sb, stackTrace);
+                }
+            }
             return sb.ToString();
         }
 
         static void CollectExData(StringBuilder sb, Exception ex)
         {
             IDictionary evt = ex.Data;
-            if (evt.Count == 0)
+            if (!evt.Contains("Version"))
             {
                 evt["Version"] = GlobalStats.Version;
                 if (GlobalStats.HasMod)
@@ -441,7 +546,10 @@ namespace Ship_Game
                     evt["Mod"]        = GlobalStats.ActiveMod.ModName;
                     evt["ModVersion"] = GlobalStats.ActiveModInfo.Version;
                 }
-                else evt["Mod"] = "Vanilla";
+                else
+                {
+                    evt["Mod"] = "Vanilla";
+                }
 
                 evt["StarDate"]  = Empire.Universe?.StarDateString ?? "NULL";
                 evt["Ships"]     = Empire.Universe?.MasterShipList?.Count.ToString() ?? "NULL";
@@ -449,10 +557,15 @@ namespace Ship_Game
 
                 evt["Memory"]    = (GC.GetTotalMemory(false) / 1024).ToString();
                 evt["XnaMemory"] = StarDriveGame.Instance != null ? (StarDriveGame.Instance.Content.GetLoadedAssetBytes() / 1024).ToString() : "0";
-                evt["ShipLimit"] = GlobalStats.ShipCountLimit.ToString();
-                if (GlobalStats.WarpBehaviorsEnabled)
-                    evt["WarpBehaviorsEnabled"] = true;
             }
+
+            if (!evt.Contains("Thread"))
+            {
+                var currentThread = Thread.CurrentThread;
+                evt["Thread"] = currentThread.Name;
+                evt["ThreadId"] = currentThread.ManagedThreadId;
+            }
+
             if (evt.Count != 0)
             {
                 foreach (DictionaryEntry pair in evt)
@@ -482,13 +595,17 @@ namespace Ship_Game
             trace.AppendLine(ex.StackTrace ?? "");
         }
 
-        static void CollectCleanStackTrace(StringBuilder sb, Exception ex)
+        static void CollectAndCleanStackTrace(StringBuilder sb, Exception ex)
         {
             var trace = new StringBuilder(4096);
             CollectStackTraces(trace, ex);
             string stackTraces = trace.ToString();
+            CleanStackTrace(sb, stackTraces);
+        }
 
-            string[] lines = stackTraces.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
+        static void CleanStackTrace(StringBuilder @out, string stackTrace)
+        {
+            string[] lines = stackTrace.Split(new[]{ '\r','\n'}, StringSplitOptions.RemoveEmptyEntries);
             foreach (string errorLine in lines)
             {
                 string line = errorLine.Replace("Microsoft.Xna.Framework", "XNA");
@@ -500,12 +617,13 @@ namespace Ship_Game
                     int idx       = parts[1].IndexOf("Ship_Game\\", StringComparison.Ordinal);
                     string file   = parts[1].Substring(idx + "Ship_Game\\".Length);
 
-                    sb.Append(method).Append(" in ").Append(file).Append('\n');
+                    @out.Append(method).Append(" in ").Append(file).Append('\n');
                 }
                 else if (line.Contains("System.Windows.Forms")) continue; // ignore winforms
-                else sb.Append(line).Append('\n'); ;
+                else @out.Append(line).Append('\n');
             }
         }
+
 
         public static void OpenURL(string url)
         {
@@ -555,17 +673,14 @@ namespace Ship_Game
             // Move the console window to a secondary screen if we have multiple monitors
             if (Screen.AllScreens.Length > 1 && (handle = GetConsoleWindow()) != IntPtr.Zero)
             {
-                foreach (Screen screen in Screen.AllScreens)
-                {
-                    if (screen.Primary)
-                        continue;
+                Screen primary = Screen.PrimaryScreen;
+                Screen[] screens = Screen.AllScreens;
+                Screen screen = screens.Find(s => s != primary && s.Bounds.Y == primary.Bounds.Y) ?? primary;
 
-                    GetWindowRect(handle, out RECT rect);
-                    var bounds = screen.Bounds;
-                    const int noResize = 0x0001;
-                    SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
-                    break;
-                }
+                GetWindowRect(handle, out RECT rect);
+                System.Drawing.Rectangle bounds = screen.Bounds;
+                const int noResize = 0x0001;
+                SetWindowPos(handle, 0, bounds.Left + rect.Left, bounds.Top + rect.Top, 0, 0, noResize);
             }
 
             HasActiveConsole = handle != IntPtr.Zero;

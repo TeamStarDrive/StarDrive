@@ -125,7 +125,7 @@ namespace Ship_Game
                 X = ShipNameEntry.ClickableArea.X,
                 Y = ShipNameEntry.ClickableArea.Y
             };
-            ShipNameEntry.Draw(Fonts.Arial12Bold, ScreenManager.SpriteBatch, rpos, gameTime, TextColor);
+            ShipNameEntry.Draw(ScreenManager.SpriteBatch, Fonts.Arial12Bold, rpos, TextColor);
             Vector2 rolePos = new Vector2(RoleRect.X + RoleRect.Width / 2 - Fonts.Arial12Bold.MeasureString(Localizer.GetRole(ship.shipData.Role, ship.loyalty)).X / 2f, RoleRect.Y + RoleRect.Height / 2 - Fonts.Arial12Bold.LineSpacing / 2);
             HelperFunctions.ClampVectorToInt(ref rolePos);
             ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, Localizer.GetRole(ship.shipData.Role, ship.loyalty), rolePos, TextColor);
@@ -160,11 +160,11 @@ namespace Ship_Game
             float single = ship.GetStrength();
             spriteBatch.DrawString(arial12, single.ToString("0"), StrPos, Color.White);
             Vector2 TroopPos = new Vector2(TroopRect.X + TroopRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
-            //{
-            TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity)).X / 2f + 6;
+            string troopCount = ship.TroopCount+"/"+ship.TroopCapacity;
+            TroopPos.X = TroopPos.X - Fonts.Arial12.MeasureString(troopCount).X / 2f + 6;
             //};
             HelperFunctions.ClampVectorToInt(ref TroopPos);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, string.Concat(ship.TroopList.Count, "/", ship.TroopCapacity), TroopPos, Color.White);
+            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, troopCount, TroopPos, Color.White);
             Vector2 FTLPos = new Vector2(FTLRect.X + FTLRect.Width / 2f, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             float x1 = FTLPos.X;
             SpriteFont spriteFont = Fonts.Arial12;
@@ -192,11 +192,11 @@ namespace Ship_Game
 
             if (isCombat)
             {
-                ExploreButton.Draw(ScreenManager);
-                PatrolButton.Draw(ScreenManager);
+                ExploreButton.Draw(spriteBatch2);
+                PatrolButton.Draw(spriteBatch2);
             }
-            RefitButton.Draw(ScreenManager);
-            ScrapButton.Draw(ScreenManager);
+            RefitButton.Draw(spriteBatch2);
+            ScrapButton.Draw(spriteBatch2);
             
         }
 
@@ -280,7 +280,7 @@ namespace Ship_Game
                         return "";
                     return string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
-                    if (ship.Velocity.NotZero() || ship.isTurning)
+                    if (ship.Velocity.NotZero() || ship.IsTurning)
                     {
                         string text = string.Concat(Localizer.Token(187), " ");
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))

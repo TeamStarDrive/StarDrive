@@ -257,7 +257,7 @@
     </Token>
     <Token>
       <Index>67</Index>
-      <Text>Mercantile races are natural traders, and gain .5 Credits for each unit of food or production moved via freighter within the empire</Text>
+      <Text>Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire</Text>
     </Token>
     <Token>
       <Index>68</Index>
@@ -1030,7 +1030,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>255</Index>
-      <Text>Zooms to your currently selected flagship (the ship that you are manually controlling)</Text>
+      <Text>Zooms to your currently selected ship</Text>
     </Token>
     <Token>
       <Index>256</Index>
@@ -1499,7 +1499,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>408</Index>
-      <Text>population cap; turns inhabitable tiles into habitable tiles</Text>
+      <Text>population cap; turns inhabitable tiles into habitable</Text>
     </Token>
     <Token>
       <Index>409</Index>
@@ -1699,7 +1699,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>463</Index>
-      <Text>Slowly terraforms the planet to your Empire's preferred Environment</Text>
+      <Text>Terraforms the planet to your preferred Environment</Text>
     </Token>
     <Token>
       <Index>464</Index>
@@ -4687,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1914</Index>
+      <Text>Relative Strength</Text>
+    </Token>
+    <Token>
+      <Index>1915</Index>
+      <Text>This is the strength of the ship divided by it's slot number. It is the actual value the empire uses to compare similar ships roles.</Text>
+    </Token>
+    <Token>
       <Index>1916</Index>
       <Text>Governor Budget</Text>
     </Token>
@@ -4716,7 +4724,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1930</Index>
-      <Text> was removed as part of the terraforming process due to its harmful environmental effect.</Text>
+      <Text>Construction Array</Text>
+    </Token>
+    <Token>
+      <Index>1931</Index>
+      <Text>This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space.</Text>
     </Token>
     <Token>
       <Index>1941</Index>
@@ -6497,11 +6509,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>420</Index>
-      <Text> (-2) fertility on build, + production equal to 4x planetary richness; </Text> <!-- fertility is dynamic per race-->
+      <Text>-2 fertility on build, +4x production richness bonus</Text> <!-- fertility is dynamic per race-->
     </Token>
     <Token>
       <Index>414</Index>
-      <Text>+ .02 population per turn</Text>
+      <Text>+0.02 population per turn</Text>
     </Token>
     <Token>
       <Index>925</Index>

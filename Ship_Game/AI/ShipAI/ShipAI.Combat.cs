@@ -20,7 +20,6 @@ namespace Ship_Game.AI
         public Guid TargetGuid;
         public bool IgnoreCombat;
         public bool BadGuysNear;
-        public bool Troopsout = false;
         public Array<Projectile> TrackProjectiles = new Array<Projectile>();
         public Guid EscortTargetGuid;
         public Ship Target;
@@ -56,7 +55,7 @@ namespace Ship_Game.AI
                     TrackProjectiles.RemoveAtSwapLast(x);
             }
 
-            if (Target?.Active == false || Target?.Health == 0 || Target is Ship ship && ship.dying)
+            if (Target?.Active == false || Target?.Health <= 0.0f || Target is Ship ship && ship.dying)
             {
                 Target = null;
             }
@@ -78,10 +77,10 @@ namespace Ship_Game.AI
             if (Owner.TrackingPower <= 0 || !hasPointDefense)
                 return;
 
-            // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange))
+            GameplayObject[] projectiles = Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
+            foreach (GameplayObject go in projectiles)
             {
-                var missile = (Projectile) go;
+                var missile = (Projectile)go;
                 if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                     TrackProjectiles.Add(missile);
             }

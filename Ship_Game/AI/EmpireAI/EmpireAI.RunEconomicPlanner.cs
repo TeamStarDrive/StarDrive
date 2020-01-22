@@ -38,7 +38,7 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float adjustor = risk + strat.MilitaryRatio;
-            return SetBudgetForeArea(0.0025f, adjustor, money);
+            return SetBudgetForeArea(0.01f, adjustor, money);
         }
         float DetermineSSPBudget(float money)
         {
@@ -59,12 +59,13 @@ namespace Ship_Game.AI
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.0075f, strat.IndustryRatio + strat.ExpansionRatio, money);
+            return SetBudgetForeArea(0.01f, strat.IndustryRatio + strat.ExpansionRatio, money);
         }
+
         float DetermineSpyBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.1500f, Math.Max(risk, strat.MilitaryRatio), money);
+            return SetBudgetForeArea(0.15f, Math.Max(risk, strat.MilitaryRatio), money);
         }
         private void PlanetBudgetDebugInfo()
         {

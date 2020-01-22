@@ -25,18 +25,26 @@ namespace Ship_Game.Audio
         }
         public bool IsPlaying => Sfx?.State == SoundState.Playing;
         public bool IsPaused  => Sfx?.State == SoundState.Paused;
-        public bool IsStopped => Sfx == null || Sfx.IsDisposed || Sfx.State == SoundState.Stopped;
-        public void Pause()   => Sfx?.Pause();
-        public void Resume()  => Sfx?.Resume();
+        public bool IsStopped
+        {
+            get
+            {
+                SoundEffectInstance sfx = Sfx; // flimsy thread safety
+                return sfx == null || sfx.IsDisposed || sfx.State == SoundState.Stopped;
+            }
+        }
+        public void Pause()  => Sfx?.Pause();
+        public void Resume() => Sfx?.Resume();
         public void Stop()
         {
             if (!IsStopped)
-                Sfx.Stop(immediate: true);
+                Sfx?.Stop(immediate: true);
         }
         void Destroy()
         {
-            // SFX must be disposed
-            if (Sfx != null) { Sfx.Dispose(); Sfx = null; }
+            // SFX must always be disposed
+            SoundEffectInstance sfx = Sfx;
+            if (sfx != null) { Sfx = null; sfx.Dispose(); }
         }
         public void Dispose()
         {
@@ -54,9 +62,24 @@ namespace Ship_Game.Audio
             Cue = cue;
             Cue.Play();
         }
-        public bool IsPlaying => Cue != null && (Cue.IsPlaying || Cue.IsPreparing || Cue.IsPrepared);
+        public bool IsPlaying
+        {
+            get
+            {
+                Cue cue = Cue; // flimsy thread safety
+                return cue != null && !cue.IsDisposed && cue.IsPlaying;
+            }
+        }
+        public bool IsStopped
+        {
+            get
+            {
+                Cue cue = Cue; // flimsy thread safety
+                return cue == null || cue.IsDisposed || cue.IsStopped;
+
+            }
+        }
         public bool IsPaused  => Cue?.IsPaused == true;
-        public bool IsStopped => Cue == null || Cue.IsDisposed || (!Cue.IsPreparing && Cue.IsStopped);
         public void Pause()   => Cue?.Pause();
         public void Resume()  => Cue?.Resume();
         public void Stop()
@@ -66,7 +89,8 @@ namespace Ship_Game.Audio
         }
         void Destroy()
         {
-            if (Cue != null) { Cue.Dispose(); Cue = null; }
+            Cue cue = Cue; // flimsy thread safety
+            if (cue != null) { Cue = null; cue.Dispose(); }
         }
         public void Dispose()
         {
@@ -110,12 +134,15 @@ namespace Ship_Game.Audio
         public void Stop()
         {
             if (!IsStopped)
-                Player.Stop();
+                Player?.Stop();
         }
         void Destroy()
         {
-            if (Player != null) { Player.Dispose(); Player = null; }
-            if (Reader != null) { Reader.Dispose(); Reader = null; }
+            var player = Player; // flimsy thread safety
+            if (player != null) { Player = null; player.Dispose(); }
+
+            var reader = Reader; // flimsy thread safety
+            if (reader != null) { Reader = null; reader.Dispose(); }
         }
         public void Dispose()
         {

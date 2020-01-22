@@ -17,22 +17,24 @@ namespace Ship_Game.AI
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
         public float BuildCapacity { get; private set; }
-        
+
         private readonly Empire OwnerEmpire;
         private readonly BatchRemovalCollection<SolarSystem> MarkedForExploration = new BatchRemovalCollection<SolarSystem>();
         private readonly OffensiveForcePoolManager OffensiveForcePoolManager;
 
         public string EmpireName;
-        public DefensiveCoordinator DefensiveCoordinator;        
+        public DefensiveCoordinator DefensiveCoordinator;
         public BatchRemovalCollection<Goal> Goals            = new BatchRemovalCollection<Goal>();
-        public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();        
+        public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
         public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
-        public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();        
-        public float Toughnuts                               = 0;                
+        public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();
+        public float Toughnuts                               = 0;
         public int Recyclepool                               = 0;
-        public float DefStr;        
+        public float DefStr;
+        public ExpansionAI.ExpansionPlanner ExpansionAI;
+
         public EmpireAI(Empire e)
         {
             EmpireName                = e.data.Traits.Name;
@@ -40,10 +42,17 @@ namespace Ship_Game.AI
             DefensiveCoordinator      = new DefensiveCoordinator(e);
             OffensiveForcePoolManager = new OffensiveForcePoolManager(e);
             TechChooser               = new Research.ChooseTech(e);
-
+            ExpansionAI               = new ExpansionAI.ExpansionPlanner(OwnerEmpire);
 
             if (OwnerEmpire.data.EconomicPersonality != null)
-                NumberOfShipGoals                     = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+                NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
+
+            string name = OwnerEmpire.data.Traits.Name;
+            switch (name)
+            {
+                case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
+                case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
+            }
         }
 
         public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
@@ -52,43 +61,49 @@ namespace Ship_Game.AI
         {
             if (task == null)
                 Log.Error("Attempting to Remove null task from Empire TaskList");
-            TaskList.Remove(task);            
+            TaskList.Remove(task);
         }
 
         void RunManagers()
         {
-            if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.data.Defeated)            
+            if (OwnerEmpire.data.IsRebelFaction || OwnerEmpire.data.Defeated)
                 return;
-            
+
             if (!OwnerEmpire.isPlayer)
             {
                 OffensiveForcePoolManager.ManageAOs();
-                foreach (AO ao in AreasOfOperations)                
+                foreach (AO ao in AreasOfOperations)
                     ao.Update();
             }
             if (!OwnerEmpire.isFaction)
-            {                
+            {
                 DefensiveCoordinator.ManageForcePool();
                 RunEconomicPlanner();
-                RunExpansionPlanner();
-                RunInfrastructurePlanner();                
+                ExpansionAI.RunExpansionPlanner();
+                RunInfrastructurePlanner();
                 RunDiplomaticPlanner();
                 RunResearchPlanner();
                 RunAgentManager();
             }
             RunMilitaryPlanner();
-            RunWarPlanner();                        
+            RunWarPlanner();
         }
 
         public void DebugRunResearchPlanner()
         {
-            for (int i = 0; i < 10; i++)
+            // unlock 5 techs with a focus on ship tech
+            var shipTechCount = OwnerEmpire.ShipTechs.Count +3;
+            var wantedTechs = 3;
+            for (int i = 0; i < 15 && wantedTechs > 0; i++)
             {
+                OwnerEmpire.data.TechDelayTime = 2;
                 RunResearchPlanner();
                 OwnerEmpire.Research.Update();
                 OwnerEmpire.Research.Current.Unlock(OwnerEmpire);
                 OwnerEmpire.Research.Reset();
                 OwnerEmpire.UpdateShipsWeCanBuild();
+                if (OwnerEmpire.ShipTechs.Count > shipTechCount)
+                    wantedTechs--;
             }
         }
 
@@ -101,47 +116,6 @@ namespace Ship_Game.AI
                     knownPlanets.AddRange(s.PlanetList);
             }
             return knownPlanets;
-        }
-        
-        public SolarSystem AssignExplorationTarget(Ship queryingShip)
-        {
-            var potentials = new Array<SolarSystem>();
-            foreach (SolarSystem s in UniverseScreen.SolarSystemList)
-            {
-                if (!s.IsExploredBy(OwnerEmpire))                
-                    potentials.Add(s);
-            }
-            
-            using (MarkedForExploration.AcquireReadLock())
-            foreach (SolarSystem s in MarkedForExploration)            
-                potentials.Remove(s);
-            
-            IOrderedEnumerable<SolarSystem> sortedList =
-                from system in potentials
-                orderby Vector2.Distance(OwnerEmpire.GetWeightedCenter(), system.Position)
-                select system;
-            if (!sortedList.Any())
-            {
-                queryingShip.AI.ClearOrders();
-                return null;
-            }
-            SolarSystem nearesttoHome = sortedList.OrderBy(furthest => Vector2.Distance(OwnerEmpire.GetWeightedCenter(), furthest.Position)).FirstOrDefault();
-            foreach (SolarSystem nearest in sortedList)
-            {
-                if (nearest.HostileForcesPresent(OwnerEmpire))
-                    continue;
-                float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
-                float distanceToEarth = Vector2.Distance(OwnerEmpire.GetWeightedCenter(), nearest.Position);
-
-                if (distanceToScout > distanceToEarth + 50000f)                
-                    continue;
-                
-                nearesttoHome = nearest;
-                break;
-
-            }
-            MarkedForExploration.Add(nearesttoHome);
-            return nearesttoHome;
         }
 
         public void RemoveShipFromForce(Ship ship) => RemoveShipFromForce(ship, null);
@@ -165,24 +139,24 @@ namespace Ship_Game.AI
             if (OwnerEmpire.GetShipsFromOffensePools(true).ContainsRef(toAdd))
             {
                 //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
-                //this is broken. its checking all AO pools and force pool but only removes from force pool. 
+                //this is broken. its checking all AO pools and force pool but only removes from force pool.
                 OwnerEmpire.ForcePoolRemove(toAdd);
             }
 
             int numWars = OwnerEmpire.AtWarCount;
-            
+
             float baseDefensePct = 0.1f;
             baseDefensePct = baseDefensePct + 0.15f * numWars;
-            if(toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0 
+            if(toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0
                                                             || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
             {
                 OwnerEmpire.GetForcePool().AddUnique(toAdd);
                 return;
             }
 
-            if (baseDefensePct > 0.35f)            
-                baseDefensePct = 0.35f;            
-            
+            if (baseDefensePct > 0.35f)
+                baseDefensePct = 0.35f;
+
             bool needDef = OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr >0 && DefensiveCoordinator.DefenseDeficit >0;
 
             if (needDef)
@@ -190,7 +164,7 @@ namespace Ship_Game.AI
                 DefensiveCoordinator.AddShip(toAdd);
                 return;
             }
-            //need to rework this better divide the ships. 
+            //need to rework this better divide the ships.
             AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
             if (!area?.AddShip(toAdd) ?? false)
                 OwnerEmpire.GetForcePool().Add(toAdd);
@@ -199,11 +173,11 @@ namespace Ship_Game.AI
         private Vector2 FindAveragePosition(Empire e)
         {
             IReadOnlyList<Planet> planets = e.GetPlanets();
-            if (planets.Count <= 0)            
+            if (planets.Count <= 0)
                 return Vector2.Zero;
 
             var avgPos = Vector2.Zero;
-            foreach (Planet p in planets)            
+            foreach (Planet p in planets)
                 avgPos += p.Center;
 
             avgPos /= planets.Count;
@@ -212,13 +186,13 @@ namespace Ship_Game.AI
 
         public float GetDistanceFromOurAO(Planet p)
         {
-            IOrderedEnumerable<AO> sortedList = 
+            IOrderedEnumerable<AO> sortedList =
                 from area in AreasOfOperations
                 orderby Vector2.Distance(p.Center, area.Center)
                 select area;
-            if (!sortedList.Any())            
+            if (!sortedList.Any())
                 return 0f;
-            
+
             return Vector2.Distance(p.Center, sortedList.First().Center);
         }
 
@@ -227,8 +201,7 @@ namespace Ship_Game.AI
             var aos = AreasOfOperations;
             if (aos.Count == 0)
             {
-                Log.Info($"{OwnerEmpire.Name} has no areas of operation");
-                return null;
+                return new AO(OwnerEmpire);
             }
 
             AO closestAO = aos.FindMin(ao => ao.Center.SqDist(position));
@@ -248,13 +221,13 @@ namespace Ship_Game.AI
         }
 
         public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
-        
+
         public void InitialzeAOsFromSave(UniverseData data)
         {
-            foreach (AO area in AreasOfOperations)            
-                area.InitFromSave(data, OwnerEmpire);                
+            foreach (AO area in AreasOfOperations)
+                area.InitFromSave(data, OwnerEmpire);
         }
-        
+
         public void RunEventChecker(KeyValuePair<Empire, Relationship> them)
         {
             if (OwnerEmpire == Empire.Universe.PlayerEmpire || OwnerEmpire.isFaction || !them.Value.Known)
@@ -275,9 +248,9 @@ namespace Ship_Game.AI
             SolarSystem sharedSystem = null;
             them.Key.GetShips().ForEach(ship =>
             {
-                if (ship.AI.State != AIState.Colonize || ship.AI.ColonizeTarget == null)                
+                if (ship.AI.State != AIState.Colonize || ship.AI.ColonizeTarget == null)
                     return;
-                
+
                 theirTargetPlanets.Add(ship.AI.ColonizeTarget);
             }, false, false);
 
@@ -286,9 +259,9 @@ namespace Ship_Game.AI
                 bool matchFound = false;
                 foreach (Planet other in theirTargetPlanets)
                 {
-                    if (p == null || other == null || p.ParentSystem != other.ParentSystem)                    
+                    if (p == null || other == null || p.ParentSystem != other.ParentSystem)
                         continue;
-                    
+
                     sharedSystem = p.ParentSystem;
                     matchFound = true;
                     break;
@@ -335,9 +308,9 @@ namespace Ship_Game.AI
         }
 
         public void Update()
-        {		    
+        {
             DefStr = DefensiveCoordinator.GetForcePoolStrength();
-            if (!OwnerEmpire.isFaction)            
+            if (!OwnerEmpire.isFaction)
                 RunManagers();
 
             for (int i = Goals.Count - 1; i >= 0; i--)
@@ -385,7 +358,7 @@ namespace Ship_Game.AI
             }
         }
 
-        
+
         public void Dispose()
         {
             Destroy();

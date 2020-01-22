@@ -21,12 +21,6 @@ namespace Ship_Game
         Draggable
     }
 
-    public enum ListStyle
-    {
-        Default,
-        Blue, // used in research screen
-    }
-
     [DebuggerTypeProxy(typeof(ScrollListDebugView))]
     [DebuggerDisplay("Entries = {Entries.Count}  Expanded = {ExpandedEntries.Count}")]
     public class ScrollList : UIElementV2

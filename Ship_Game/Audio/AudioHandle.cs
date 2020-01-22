@@ -26,13 +26,22 @@ namespace Ship_Game.Audio
         internal AudioHandle(IAudioInstance audio) => Audio = audio;
      
         public bool IsPlaying => Loading || Audio?.IsPlaying == true;
-        public bool IsPaused  => Audio != null && Audio.IsPaused;
+        public bool IsPaused  => Audio?.IsPaused == true;
 
         // Returns TRUE if audio is not loading &&
         // has finished playback || has been stopped by user,
         // || if audio system has gone over max cue limit,
         //    the audio system automatically stopped the CUE
-        public bool IsStopped => !Loading && (Audio == null || Audio.IsStopped);
+        public bool IsStopped
+        {
+            get
+            {
+                if (Loading)
+                    return false;
+                IAudioInstance audio = Audio; // flimsy thread safety
+                return audio == null || audio.IsStopped;
+            }
+        }
 
         // This prevents SFX from instantly replaying after being forcefully stopped
         // Used to circumvent CUE limit issue, where AudioEngine force stops oldest CUE's.
@@ -47,14 +56,16 @@ namespace Ship_Game.Audio
         {
             StartedAt = default;
             ReplayTimeout = 0f;
-            if (Audio != null) { Audio.Stop(); Audio = null; }
+            IAudioInstance audio = Audio; // flimsy thread safety
+            if (audio != null) { Audio = null; audio.Stop(); }
         }
 
         public void Destroy()
         {
             StartedAt = default;
             ReplayTimeout = 0f;
-            if (Audio != null) { Audio.Dispose(); Audio = null; }
+            IAudioInstance audio = Audio; // flimsy thread safety
+            if (audio != null) { Audio = null; audio.Dispose(); }
         }
 
         void IAudioHandle.OnLoaded(IAudioInstance audio)

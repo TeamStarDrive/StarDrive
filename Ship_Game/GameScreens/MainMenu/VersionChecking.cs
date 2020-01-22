@@ -8,11 +8,9 @@ namespace Ship_Game.GameScreens.MainMenu
     {
         readonly ReadRestAPIFromSite BlackBoxVersionCheck;
         readonly ReadRestAPIFromSite ModVersionCheck;
-        UILabel BlackBoxListHeader;
-        UILabel ModListHeader;
-        const string URL = "http://api.bitbucket.org/2.0/repositories/CrunchyGremlin/stardrive-blackbox/downloads";
+        const string URL = "http://api.bitbucket.org/2.0/repositories/codegremlins/stardrive-blackbox/downloads";
         string ModURL = "";
-        const string DownLoadSite = "http://bitbucket.org/CrunchyGremlin/stardrive-blackbox/downloads/";
+        const string DownLoadSite = "http://bitbucket.org/codegremlins/stardrive-blackbox/downloads/";
         string ModDownLoadSite = "";
         public VersionChecking(GameScreen parent, int width, int height) : base(parent, width, height)
         {
@@ -22,14 +20,13 @@ namespace Ship_Game.GameScreens.MainMenu
         }
         public VersionChecking(GameScreen parent) : this(parent, 500, 600)
         {
-            
         }
         public override void LoadContent()
         {            
             TitleText = "Version Check";
             var verMod = "Vanilla";
             var mod = GlobalStats.ActiveMod;
-            var versionText = GlobalStats.Version;
+            var versionText = GlobalStats.Version.Split(' ')[0];
             var modVersionText = mod?.Version;
             
             if (mod?.mi != null)
@@ -56,15 +53,15 @@ namespace Ship_Game.GameScreens.MainMenu
                 return;
             }
             Vector2 drawLoc = BodyTextStart;            
-            BlackBoxListHeader = new UILabel(this, drawLoc, "Click to download\n========== BlackBox ==========");
+            Add(new UILabel(drawLoc, "Click to download\n========== BlackBox =========="));
             drawLoc.Y += 32;
-            drawLoc = BlackBoxVersionCheck.PopulateVersions(versionText, this, drawLoc);
+            drawLoc = BlackBoxVersionCheck.PopulateVersions(versionText, drawLoc);
             drawLoc.Y += 16;
-            ModListHeader = new UILabel(this, drawLoc, $"========== {mod?.ModName ?? "Vanilla"} ==========");
+            Add(new UILabel(drawLoc, $"========== {mod?.ModName ?? "Vanilla"} =========="));
             drawLoc.Y += 16;
             
-            if (ModURL.NotEmpty()) ModVersionCheck.PopulateVersions(modVersionText, this, drawLoc);
-
+            if (ModURL.NotEmpty())
+                ModVersionCheck.PopulateVersions(modVersionText, drawLoc);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -76,28 +73,16 @@ namespace Ship_Game.GameScreens.MainMenu
             }
             base.Draw(batch);
             batch.Begin();
-            BlackBoxListHeader.Draw(batch);
             BlackBoxVersionCheck.Draw(batch);
-            ModListHeader.Draw(batch);
             ModVersionCheck.Draw(batch);
-
-
             batch.End();
-            
         }
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
-            BlackBoxVersionCheck.HandleInput(input,DownLoadSite);
-            ModVersionCheck.HandleInput(input, ModDownLoadSite);
-            
-            return base.HandleInput(input);
+            return BlackBoxVersionCheck.HandleInput(input, DownLoadSite)
+                || ModVersionCheck.HandleInput(input, ModDownLoadSite)
+                || base.HandleInput(input);
         }
-
     }
 }

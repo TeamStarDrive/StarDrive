@@ -17,7 +17,7 @@ namespace Ship_Game
         readonly ScrollList QSL;
         readonly UIButton BtnShowQueue;
 
-        public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(screen, container, Color.Black)
+        public ResearchQueueUIComponent(ResearchScreenNew screen, in Rectangle container)  : base(container, Color.Black)
         {
             Screen = screen;
 
@@ -66,7 +66,7 @@ namespace Ship_Game
             QSL.Visible = visible;
             CurrentResearchPanel.Visible = visible;
             ResearchQueuePanel.Visible = visible;
-            BtnShowQueue.Text = Localizer.Token(QSL.Visible ? 2136 : 2135);
+            BtnShowQueue.Text = QSL.Visible ? 2136 : 2135;
         }
 
         public override bool HandleInput(InputState input)

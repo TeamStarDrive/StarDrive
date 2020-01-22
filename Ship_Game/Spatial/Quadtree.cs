@@ -199,30 +199,53 @@ namespace Ship_Game
             }
             public void Add(ref SpatialObj obj)
             {
-                if (Items.Length == Count)
+                int count = Count;
+                SpatialObj[] oldItems = Items;
+                if (oldItems.Length == count)
                 {
-                    if (Count == 0) Items = new SpatialObj[CellThreshold];
-                    else
+                    if (count == 0)
+                    {
+                        var newItems = new SpatialObj[CellThreshold];
+                        newItems[count] = obj;
+                        Items = newItems;
+                        ++Count;
+                    }
+                    else // oldItems.Length == Count
                     {
                         //Array.Resize(ref Items, Count * 2);
-                        var newItems = new SpatialObj[Count * 2];
-                        for (int i = 0; i < Count; ++i)
-                            newItems[i] = Items[i];
+                        var newItems = new SpatialObj[oldItems.Length * 2];
+                        int i = 0;
+                        for (; i < oldItems.Length; ++i)
+                            newItems[i] = oldItems[i];
+                        newItems[count] = obj;
                         Items = newItems;
+                        ++Count;
                     }
                 }
-                Items[Count++] = obj;
+                else
+                {
+                    oldItems[count] = obj;
+                    ++Count;
+                }
             }
 
             // Because SwapLast reorders elements, we decrement the ref index to allow loops to continue
             // naturally. Index is not decremented if it is the last element
             public void RemoveAtSwapLast(ref int index)
             {
-                ref SpatialObj last = ref Items[--Count];
-                if (index != Count) // only swap and change ref index if it wasn't the last element
-                    Items[index--] = last;
+                int newCount = Count-1;
+                if (newCount < 0) // FIX: this is a threading issue, the item was already removed
+                    return; 
+
+                Count = newCount;
+                ref SpatialObj last = ref Items[newCount];
+                if (index != newCount) // only swap and change ref index if it wasn't the last element
+                {
+                    Items[index] = last;
+                    --index;
+                }
                 last.Obj = null; // prevent zombie objects
-                if (Count == 0) Items = NoObjects;
+                if (newCount == 0) Items = NoObjects;
             }
             public bool Overlaps(ref Vector2 topleft, ref Vector2 topright)
             {
@@ -370,9 +393,13 @@ namespace Ship_Game
                     if (obj.LastUpdate == frameId) continue; // we reinserted this node so it doesn't require updating
                     if (obj.Loyalty == 0)          continue; // loyalty 0: static world object, so don't bother updating
 
-                    if (obj.Obj.Active == false)
+                    GameplayObject go = obj.Obj;
+                    if (go == null) // FIX: this is a threading issue, this node already removed
+                        continue;
+
+                    if (go.Active == false)
                     {
-                        FastRemoval(obj.Obj, node, ref i);
+                        FastRemoval(go, node, ref i);
                         continue;
                     }
 
@@ -588,7 +615,10 @@ namespace Ship_Game
             for (int i = 0; i < node.Count; ++i)
             {
                 ref SpatialObj so = ref node.Items[i];
-                if (so.Obj.Active == false)
+                GameplayObject go = so.Obj;
+                if (go == null) // FIX: concurrency issue, someone already removed this item
+                    continue;
+                if (go.Active == false)
                     continue; // already collided inside this loop
 
                 // each collision instigator type has a very specific recursive handler
@@ -599,7 +629,7 @@ namespace Ship_Game
                 else if ((so.Type & GameObjectType.Proj) != 0)
                 {
                     if (CollideProjAtNode(node, ref so) && ProjectileIsDying(ref so))
-                        FastRemoval(so.Obj, node, ref i);
+                        FastRemoval(go, node, ref i);
                 }
                 else if ((so.Type & GameObjectType.Ship) != 0)
                 {
@@ -654,17 +684,21 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 ref SpatialObj so = ref items[i];
-                if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
+                GameplayObject go = so.Obj;
+                if (go == null)
+                    continue; // bah!
+
+                if (filter != GameObjectType.None && (go.Type & filter) == 0)
                     continue; // no filter match
 
                 // ignore self  and  ensure in radius
-                if (so.Obj == nearbyDummy.Obj || !nearbyDummy.HitTestNearby(ref so))
+                if (go == nearbyDummy.Obj || !nearbyDummy.HitTestNearby(ref so))
                     continue;
 
                 if (numNearby == nearby.Length) // "clever" resize
                     Array.Resize(ref nearby, numNearby + count);
 
-                nearby[numNearby++] = so.Obj;
+                nearby[numNearby++] = go;
             }
             if (node.NW != null)
             {
@@ -697,7 +731,9 @@ namespace Ship_Game
             return nearby;
         }
 
-        static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.DebugWin != null;
+        static bool ShouldStoreDebugInfo => Empire.Universe.Debug
+                                         && Empire.Universe.DebugWin != null
+                                         && Debug.DebugInfoScreen.Mode == Debug.DebugModes.SpatialManager;
 
         static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
         {
@@ -724,7 +760,6 @@ namespace Ship_Game
         static readonly Color Brown  = new Color(Color.SaddleBrown, 150);
         static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
 
-        static readonly Color Golden = new Color(Color.Gold, 100);
         // "Allies are Blue, Enemies are Red, what should I do, with our Quadtree?" - RedFox
         static readonly Color Blue   = new Color(Color.CadetBlue, 100);
         static readonly Color Red    = new Color(Color.OrangeRed, 100);

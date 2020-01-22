@@ -141,39 +141,23 @@ namespace Ship_Game
                 ShowShipNames = !ShowShipNames;
 
             var colonyScreen = workersPanel as ColonyScreen;
-            if (colonyScreen?.ClickedTroop == true ||
-                (!input.Escaped && !input.RightMouseClick && colonyScreen?.close.HandleInput(input) != true))
-                return;
-
-            if (colonyScreen != null && colonyScreen.P.Owner == null)
+            bool dismiss = (input.Escaped || input.RightMouseClick) && colonyScreen?.ClickedTroop == false;
+            if (dismiss || !workersPanel.IsActive)
             {
                 AdjustCamTimer = 1f;
                 if (returnToShip)
                 {
-                    ViewingShip      = true;
-                    returnToShip     = false;
-                    snappingToShip   = true;
+                    ViewingShip = true;
+                    returnToShip = false;
+                    snappingToShip = true;
                     CamDestination.Z = transitionStartPosition.Z;
                 }
                 else
-                    CamDestination    = transitionStartPosition;
-                transitionElapsedTime = 0.0f;
-                LookingAtPlanet       = false;
-            }
-            else
-            {
-                AdjustCamTimer = 1f;
-                if (returnToShip)
                 {
-                    ViewingShip      = true;
-                    returnToShip     = false;
-                    snappingToShip   = true;
-                    CamDestination.Z = transitionStartPosition.Z;
+                    CamDestination = transitionStartPosition;
                 }
-                else
-                    CamDestination    = transitionStartPosition;
                 transitionElapsedTime = 0.0f;
-                LookingAtPlanet       = false;
+                LookingAtPlanet = false;
             }
         }
 
@@ -232,8 +216,6 @@ namespace Ship_Game
 
             if (input.PauseGame && !GlobalStats.TakingInput)
                 Paused = !Paused;
-            if (ScreenManager.UpdateExitTimeer(!LookingAtPlanet))
-                return true; //if planet screen is still exiting prevent further input
 
             if (input.DebugMode)
             {
@@ -260,6 +242,9 @@ namespace Ship_Game
                     Memory = GC.GetTotalMemory(false) / 1024f;
                 }
             }
+
+            // ensure universe has the correct light rig
+            ResetLighting(forceReset: false);
 
             HandleEdgeDetection(input);
             if (HandleDragAORect(input))
@@ -288,19 +273,18 @@ namespace Ship_Game
             if (input.UseRealLights)
             {
                 UseRealLights = !UseRealLights; // toggle real lights
-                SetLighting(UseRealLights);
+                ResetLighting(forceReset: true);
             }
             if (input.ShowExceptionTracker)
             {
                 Paused = true;
-                Log.OpenURL("https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/new");
+                Log.OpenURL("https://bitbucket.org/codegremlins/stardrive-blackbox/issues/new");
             }
             if (input.SendKudos)
             {
                 Paused = true;
                 Log.OpenURL("http://steamcommunity.com/id/v-danbe/recommended/220660");
             }
-
 
             HandleGameSpeedChange(input);
 
@@ -342,11 +326,8 @@ namespace Ship_Game
             ShipsInCombat.Visible   = !LookingAtPlanet;
             PlanetsInCombat.Visible = !LookingAtPlanet;
 
-            if (LookingAtPlanet)
-            {
-                if (workersPanel.HandleInput(input))
-                    return true;
-            }
+            if (LookingAtPlanet && workersPanel.HandleInput(input))
+                return true;
 
             if (IsActive)
                 EmpireUI.HandleInput(input);
@@ -975,8 +956,6 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        if (!SnapBackToSystem)
-                            HeightOnSnap = CamHeight;
                         ViewPlanet();
                     }
                 }
@@ -1009,11 +988,10 @@ namespace Ship_Game
                         if (system.systemToClick.IsExploredBy(player))
                         {
                             GameAudio.SubBassWhoosh();
-                            HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
                         else
-                            PlayNegativeSound();
+                            GameAudio.NegativeClick();
                     }
                 }
             }

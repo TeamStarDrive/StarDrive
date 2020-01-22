@@ -3,45 +3,31 @@ using System.Threading;
 
 namespace Ship_Game
 {
-    public class ScopedReadLock : IDisposable
+    public struct ScopedReadLock : IDisposable
     {
-        private ReaderWriterLockSlim Lock;
+        readonly ReaderWriterLockSlim Lock;
 
         public ScopedReadLock(ReaderWriterLockSlim slimLock)
         {
             (Lock = slimLock).EnterReadLock();
         }
-        ~ScopedReadLock()
-        {
-            Lock?.ExitReadLock();
-            Lock = null;
-        }
         public void Dispose()
         {
-            Lock?.ExitReadLock();
-            Lock = null;
-            GC.SuppressFinalize(this);
+            Lock.ExitReadLock();
         }
     }
 
-    public class ScopedWriteLock : IDisposable
+    public struct ScopedWriteLock : IDisposable
     {
-        private ReaderWriterLockSlim Lock;
+        readonly ReaderWriterLockSlim Lock;
 
         public ScopedWriteLock(ReaderWriterLockSlim slimLock)
         {
             (Lock = slimLock).EnterWriteLock();
         }
-        ~ScopedWriteLock()
-        {
-            Lock?.ExitWriteLock();
-            Lock = null;
-        }
         public void Dispose()
         {
-            Lock?.ExitWriteLock();
-            Lock = null;
-            GC.SuppressFinalize(this);
+            Lock.ExitWriteLock();
         }
     }
 }

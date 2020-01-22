@@ -32,8 +32,6 @@ namespace Ship_Game
 
 		private ReplayElement replay;
 
-		private bool LowRes;
-
 		AudioHandle Music = new AudioHandle();
 
 		private Vector2 Origin = new Vector2(960f, 540f);
@@ -154,10 +152,6 @@ namespace Ship_Game
             GameAudio.MuteGenericMusic();
             PlayWinTheme();
 
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight < 880)
-			{
-                LowRes = true;
-			}
             LoseTexture = TransientContent.Load<Texture2D>("WinLose/launch");
             Reason = TransientContent.Load<Texture2D>("WinLose/YouWin");
             ReasonRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - Reason.Width / 2, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - Reason.Height / 2 - 200, Reason.Width, Reason.Height);

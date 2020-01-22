@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Xml.Serialization;
+using Ship_Game.Data;
 using Ship_Game.Data.Mesh;
 
 namespace Ship_Game.Ships
@@ -83,6 +84,7 @@ namespace Ship_Game.Ships
         [XmlIgnore] [JsonIgnore] public string ActualIconPath => IconPath.NotEmpty() ? IconPath : BaseHull.IconPath;
         [XmlIgnore] [JsonIgnore] public float ModelZ { get; private set; }
         [XmlIgnore] [JsonIgnore] public Vector3 Volume { get; private set; }
+        [XmlIgnore] [JsonIgnore] public float Radius { get; private set; }
         [XmlIgnore] [JsonIgnore] public HullBonus Bonuses { get; private set; }
 
         public void UpdateBaseHull()
@@ -267,7 +269,7 @@ namespace Ship_Game.Ships
             }
             catch (Exception e)
             {
-                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'");
+                Log.ErrorDialog(e, $"Failed to parse ShipData '{info.FullName}'", 0);
                 throw;
             }
             finally
@@ -297,19 +299,18 @@ namespace Ship_Game.Ships
             return CategoryArray[(int)ShipCategory];
         }
 
-        public void PreLoadModel()
+        public void LoadModel(out SceneObject shipSO, GameContentManager content)
         {
-            StaticMesh.PreLoadModel(Empire.Universe?.TransientContent, HullModel, Animated);
-        }
-
-        public void LoadModel(out SceneObject shipSO, GameScreen screen)
-        {
-            shipSO = StaticMesh.GetSceneMesh(screen?.TransientContent, HullModel, Animated);
-
-            if (BaseHull.Volume.X.AlmostEqual(0f))
+            lock (this)
             {
-                BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
-                BaseHull.ModelZ = BaseHull.Volume.Z;
+                shipSO = StaticMesh.GetSceneMesh(content, HullModel, Animated);
+
+                if (BaseHull.Volume.X.AlmostEqual(0f))
+                {
+                    BaseHull.Volume = shipSO.GetMeshBoundingBox().Max;
+                    BaseHull.Radius = shipSO.WorldBoundingSphere.Radius;
+                    BaseHull.ModelZ = BaseHull.Volume.Z;
+                }
             }
         }
 

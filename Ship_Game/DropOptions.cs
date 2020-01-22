@@ -24,8 +24,20 @@ namespace Ship_Game
         public int Count         => Options.Count;
         public bool NotEmpty     => Options.NotEmpty;
         public Entry Active      => Options[ActiveIndex];
-        public T ActiveValue     => Options[ActiveIndex].Value;
-        public string ActiveName => Options[ActiveIndex].Name;
+        public string ActiveName => Options[ActiveIndex].Name.Text;
+        
+        public T ActiveValue
+        {
+            get => Options[ActiveIndex].Value;
+            set
+            {
+                int index = IndexOfValue(value);
+                if (index != -1)
+                    ActiveIndex = index;
+                else 
+                    Log.Error($"{GetType().GetTypeName()}.set_ActiveValue failed! No value {value} in Options list");
+            }
+        }
 
         public Action<T> OnValueChange;
 
@@ -37,12 +49,12 @@ namespace Ship_Game
 
         public class Entry
         {
-            public string Name;
+            public LocalizedText Name;
             public bool Hover;
             public Rectangle Rect;
             public T Value;
 
-            public Entry(string name, T value)
+            public Entry(in LocalizedText name, T value)
             {
                 Name  = name;
                 Value = value;
@@ -55,12 +67,17 @@ namespace Ship_Game
         }
 
 
-        public DropOptions(UIElementV2 parent, in Rectangle rect) : base(parent, rect)
+        public DropOptions(in Rectangle rect) : base(rect)
         {
             Reset();
         }
-        public DropOptions(UIElementV2 parent, Vector2 pos, int width, int height)
-            : base(parent, pos, new Vector2(width, height))
+        public DropOptions(Vector2 pos, int width, int height)
+            : base(pos, new Vector2(width, height))
+        {
+            Reset();
+        }
+        public DropOptions(float x, float y, float width, float height)
+            : base(new Vector2(x, y), new Vector2(width, height))
         {
             Reset();
         }
@@ -81,7 +98,7 @@ namespace Ship_Game
         public int IndexOfEntry(string name)
         {
             for (int i = 0; i < Options.Count; ++i)
-                if (Options[i].Name == name)
+                if (Options[i].Name.Text == name)
                     return i;
             return -1;
         }
@@ -112,7 +129,7 @@ namespace Ship_Game
             return true;
         }
 
-        public void AddOption(string option, T value)
+        public void AddOption(in LocalizedText option, T value)
         {
             var e = new Entry(option, value);
             e.UpdateRect(this, Options.Count);
@@ -166,7 +183,7 @@ namespace Ship_Game
 
             if (Count > 0) // draw active item
             {
-                Color color = hover ? Color.White : new Color(255, 239, 208);
+                Color color = hover ? Color.White : Colors.Cream;
                 batch.DrawString(Fonts.Arial12Bold, WrappedString(ActiveName), TextPosition(Rect), color);
             }
 
@@ -197,7 +214,8 @@ namespace Ship_Game
                     batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_middle"), hoverMiddle, Color.White);
                     batch.Draw(ResourceManager.Texture("NewUI/dropdown_menuitem_hover_right"), hoverRight, Color.White);
                 }
-                batch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name), TextPosition(e.Rect), Color.White);
+                batch.DrawString(Fonts.Arial12Bold, WrappedString(e.Name.Text),
+                                                    TextPosition(e.Rect), Color.White);
                 ++drawOffset;
             }
         }

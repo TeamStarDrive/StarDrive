@@ -118,7 +118,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
                         if (!spaceCombat)
+                        {
                             LoadTroops(ship, garrisonSize);
+                            DisengageTroopsFromCapturedShips(ship);
+                        }
                     }
                 }
             }
@@ -164,7 +167,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         private void LoadTroops(Ship ship, int garrisonSize)
         {
             if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity == 0 
-                                                 || ship.TroopCapacity <= ship.TroopList.Count 
+                                                 || ship.TroopCapacity <= ship.TroopCount 
                                                  || P.MightBeAWarZone(P.Owner))
             {
                 return;
@@ -184,11 +187,26 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
             }
         }
 
+        void DisengageTroopsFromCapturedShips(Ship ship)
+        {
+            if (ship.TroopCount == 0)
+                return;
+
+            // If we left garrisoned troops on a captured ship
+            // remove them now as they are replaced with regular ship crew
+            int troopsToTRemove = (ship.GetOurTroops().Count - ship.TroopCapacity).ClampMin(0);
+            if (troopsToTRemove > 0)
+                ship.DisengageExcessTroops(ship.GetOurTroops().Count - ship.TroopCapacity);
+        }
+
         private void AddTroopsForFactions(Ship ship)
         {
             // @todo FB - need to separate this to a method which will return a troop based on faction
-            if ((SystemCombatTimer % 30).AlmostZero()  && ship.TroopCapacity > ship.TroopList.Count)
-                ship.TroopList.Add(ResourceManager.CreateTroop("Wyvern", ship.loyalty));
+            if ((SystemCombatTimer % 30).AlmostZero()  && ship.TroopCapacity > ship.TroopCount)
+            {
+                Troop troop = ResourceManager.CreateTroop("Wyvern", ship.loyalty);
+                troop.LandOnShip(ship);
+            }
         }
     }
 }

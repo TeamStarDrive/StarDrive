@@ -5,9 +5,26 @@ using Ship_Game.Audio;
 
 namespace Ship_Game
 {
+    public enum TextAlign
+    {
+        // normal text alignment:
+        //    x
+        //      TEXT
+        Default,
+
+        // Text will be flipped on the X axis:
+        //       x
+        // TEXT
+        Right,
+
+        // Text will be drawn to the center of pos:
+        //  TE x XT
+        Center,
+    }
+
     public class UILabel : UIElementV2, IColorElement
     {
-        string LabelText; // Simple Text
+        LocalizedText LabelText; // Localized Simple Text
         Array<string> Lines; // Multi-Line Text
         Func<UILabel, string> GetText; // Dynamic Text Binding
         SpriteFont LabelFont;
@@ -20,17 +37,19 @@ namespace Ship_Game
         public bool DropShadow = false;
         public bool IsMouseOver { get; private set; }
 
-        // Text will be flipped on the X axis:  TEXT x
-        // Versus normal text alignment:             x TEXT
-        public bool AlignRight = false;
+        // Text Alignment will change the alignment axis along which the text is drawn
+        public TextAlign Align;
 
-        public string Text
+        public LocalizedText Text
         {
             get => LabelText;
             set
             {
-                LabelText = value;
-                Size = LabelFont.MeasureString(value);
+                if (LabelText != value)
+                {
+                    LabelText = value;
+                    Size = LabelFont.MeasureString(LabelText.Text); // @todo: Size is not updated when language changes
+                }
             }
         }
 
@@ -49,7 +68,7 @@ namespace Ship_Game
             set
             {
                 GetText = value;
-                Size = LabelFont.MeasureString(GetText(this));
+                Size = LabelFont.MeasureString(GetText(this)); // @todo: Size is not updated when language changes
             }
         }
 
@@ -58,58 +77,52 @@ namespace Ship_Game
             get => LabelFont;
             set
             {
-                LabelFont = value;
-                Size = value.MeasureString(LabelText);
+                if (LabelFont != value)
+                {
+                    LabelFont = value;
+                    Size = value.MeasureString(LabelText.Text); // @todo: Size is not updated when language changes
+                }
             }
         }
 
-        public override string ToString()
+        public override string ToString() => $"{TypeName} {ElementDescr} Text={Text}";
+        
+        public UILabel(SpriteFont font)
         {
-            return $"Label {ElementDescr} Text=\"{Text}\"";
-        }
-
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font) : base(parent, pos, font.MeasureString(text))
-        {
-            LabelText = text;
             LabelFont = font;
+            Size = new Vector2(font.LineSpacing); // give it a mock size to ease debugging
         }
-
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font) : this(parent, pos, Localizer.Token(titleId), font)
+        public UILabel(float x, float y, in LocalizedText text) : this(new Vector2(x,y), text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, SpriteFont font, Color color) : this(parent, pos, Localizer.Token(titleId), font)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, SpriteFont font, Color color) : this(parent, pos, text, font)
-        {
-            Color = color;
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, in LocalizedText text) : this(pos, text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text) : this(parent, pos, text, Fonts.Arial12Bold)
-        {
-        }
-        public UILabel(UIElementV2 parent, Vector2 pos, int titleId, Color color) : this(parent, pos, Localizer.Token(titleId), Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, in LocalizedText text, Color color) : this(pos, text, Fonts.Arial12Bold)
         {
             Color = color;
         }
-        public UILabel(UIElementV2 parent, Vector2 pos, string text, Color color) : this(parent, pos, text, Fonts.Arial12Bold)
+        public UILabel(Vector2 pos, in LocalizedText text, SpriteFont font) : base(pos)
+        {
+            LabelFont = font;
+            LabelText = text;
+            Size = font.MeasureString(text.Text); // @todo: Size is not updated when language changes
+        }
+        public UILabel(Vector2 pos, in LocalizedText text, SpriteFont font, Color color) : this(pos, text, font)
         {
             Color = color;
         }
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public UILabel(string text) : this(text, Fonts.Arial12Bold)
+        public UILabel(in LocalizedText text) : this(text, Fonts.Arial12Bold)
         {
         }
-        public UILabel(string text, Color color) : this(text, Fonts.Arial12Bold)
+        public UILabel(in LocalizedText text, Color color) : this(text, Fonts.Arial12Bold)
         {
             Color = color;
         }
-        public UILabel(string text, SpriteFont font)
+        public UILabel(in LocalizedText text, SpriteFont font)
         {
             LabelFont = font;
             Text = text;
@@ -118,24 +131,39 @@ namespace Ship_Game
         public UILabel(Func<UILabel, string> getText) : this(getText, Fonts.Arial12Bold)
         {
         }
+        public UILabel(Func<UILabel, string> getText, Action<UILabel> onClick) : this(getText, Fonts.Arial12Bold)
+        {
+            OnClick = onClick;
+        }
         public UILabel(Func<UILabel, string> getText, SpriteFont font)
         {
             LabelFont = font;
             DynamicText = getText;
         }
         
-        public UILabel(Func<UILabel, string> getText, Action<UILabel> onClick) : this(getText, Fonts.Arial12Bold)
-        {
-            OnClick = onClick;
-        }
-
         /////////////////////////////////////////////////////////////////////////////////////////////////
 
-        void DrawLine(SpriteBatch batch, string text, Vector2 pos, Color color)
+        void DrawTextLine(SpriteBatch batch, string text, Vector2 pos, Color color)
         {
-            if (AlignRight) pos.X -= Size.X;
+            switch (Align)
+            {
+                default:
+                case TextAlign.Default:
+                    pos.X = (int)Math.Round(pos.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Right:
+                    pos.X = (int)Math.Round(pos.X - Size.X);
+                    pos.Y = (int)Math.Round(pos.Y);
+                    break;
+                case TextAlign.Center:
+                    pos.X = (int)Math.Round(pos.X - Size.X*0.5f); // NOTE: Text pos MUST be rounded to pixel boundaries
+                    pos.Y = (int)Math.Round(pos.Y - Size.Y*0.5f);
+                    break;
+            }
+
             if (DropShadow)
-                HelperFunctions.DrawDropShadowText(batch, text, pos, LabelFont, color);
+                batch.DrawDropShadowText(text, pos, LabelFont, color);
             else
                 batch.DrawString(LabelFont, text, pos, color);
         }
@@ -152,7 +180,7 @@ namespace Ship_Game
                 {
                     string line = Lines[i];
                     if (line.NotEmpty())
-                        DrawLine(batch, line, cursor, color);
+                        DrawTextLine(batch, line, cursor, color);
                     cursor.Y += LabelFont.LineSpacing + 2;
                 }
             }
@@ -160,11 +188,11 @@ namespace Ship_Game
             {
                 string text = GetText(this); // GetText is allowed to modify [this]
                 if (text.NotEmpty())
-                    DrawLine(batch, text, Pos, CurrentColor);
+                    DrawTextLine(batch, text, Pos, CurrentColor);
             }
-            else if (LabelText.NotEmpty())
+            else if (LabelText.NotEmpty)
             {
-                DrawLine(batch, LabelText, Pos, CurrentColor);
+                DrawTextLine(batch, LabelText.Text, Pos, CurrentColor);
             }
         }
 

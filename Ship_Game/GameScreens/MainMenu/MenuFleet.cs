@@ -93,7 +93,8 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             if (!DiverseShipEmpires && Empire.NotEmpty() && Empire != "Random")
             {
-                IEmpireData e = ResourceManager.AllRaces.Filter(p => p.Name.Contains(Empire)).FirstOrDefault();
+                IEmpireData e = ResourceManager.AllRaces.Filter(
+                    p => p.Name.Contains(Empire)).FirstOrDefault();
                 if (e != null) return e;
             }
             return ResourceManager.MajorRaces.RandItem();
@@ -154,10 +155,10 @@ namespace Ship_Game.GameScreens.MainMenu
             }
         }
 
-        public void Update(GameTime gameTime, GameScreen screen)
+        public void Update(GameScreen screen)
         {
             foreach (var ship in FleetShips)
-                ship.Update(gameTime, screen);
+                ship.Update(screen);
             
             // if all ship AI's have finished, create a new one
             FleetShips.RemoveAll(ship => ship.AI.Finished);

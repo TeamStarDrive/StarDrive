@@ -356,7 +356,6 @@ namespace Ship_Game
                     pos.Y += (Fonts.Pirulen16.LineSpacing + 15);
                     pos.X -= 8f;
 
-                    ToolTip.Draw(batch);
                     batch.End();
                     return;
                 }
@@ -381,8 +380,7 @@ namespace Ship_Game
                     var drawCurs = new Vector2((R.X + 15), (R.Y + 10));
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
-                    OfferTextSL.Reset();
-                    HelperFunctions.parseTextToSL(txt, (DialogRect.Width - 30), Fonts.Consolas18, ref OfferTextSL);
+                    OfferTextSL.SetItems(Fonts.Arial12Bold.ParseTextToLines(txt, DialogRect.Width - 30));
                     foreach (ScrollList.Entry e in OfferTextSL.VisibleEntries)
                     {
                         DrawDropShadowText(e.Get<string>(), new Vector2(drawCurs.X, e.Y - 33), Fonts.Consolas18);
@@ -470,13 +468,6 @@ namespace Ship_Game
                 }
             }
         }
-
-        public override void ExitScreen()
-        {
-            base.ExitScreen();
-            Dispose();
-        }
-
 
         class DiplomacyItemsLayout
         {
@@ -811,13 +802,15 @@ namespace Ship_Game
             }
         }
 
-        static ItemToOffer FindItemToOffer(ScrollList items, string response)
+        static void SetItemToOfferSelected(ScrollList theirItems, string response, bool selected)
         {
-            foreach (ScrollList.Entry entry in items.AllEntries)
-                if (entry.TryGet(out ItemToOffer item))
-                    if (item.Response == response)
-                        return item;
-            return null;
+            foreach (ScrollList.Entry entry in theirItems.AllEntries)
+                if (entry.TryGet(out ItemToOffer theirs))
+                    if (theirs.Response == response)
+                    {
+                        theirs.Selected = selected;
+                        break;
+                    }
         }
 
         void ProcessResponse(ItemToOffer item, string response, ScrollList theirs, Offer ourOffer, Offer theirOffer)
@@ -827,22 +820,22 @@ namespace Ship_Game
                 case "NAPact":
                     ourOffer.NAPact  = !ourOffer.NAPact;
                     theirOffer.NAPact = ourOffer.NAPact;
-                    FindItemToOffer(theirs, "NAPact").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "NAPact", item.Selected);
                     return;
                 case "We Declare War":
                     ourOffer.NAPact  = !ourOffer.NAPact;
                     theirOffer.NAPact = ourOffer.NAPact;
-                    FindItemToOffer(theirs, "NAPact").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "NAPact", item.Selected);
                     return;
                 case "Peace Treaty":
                     ourOffer.PeaceTreaty = !ourOffer.PeaceTreaty;
                     theirOffer.PeaceTreaty = ourOffer.PeaceTreaty;
-                    FindItemToOffer(theirs, "Peace Treaty").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "Peace Treaty", item.Selected);
                     return;
                 case "OfferAlliance":
                     ourOffer.Alliance  = !ourOffer.Alliance;
                     theirOffer.Alliance = ourOffer.Alliance;
-                    FindItemToOffer(theirs, "OfferAlliance").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "OfferAlliance", item.Selected);
                     return;
                 case "OpenBorders": ourOffer.OpenBorders = !ourOffer.OpenBorders;            return;
                 case "Declare War": item.ChangeSpecialInquiry(ourOffer.EmpiresToWarOn);      return;
@@ -852,7 +845,7 @@ namespace Ship_Game
                 case "TradeTreaty":
                     ourOffer.TradeTreaty  = !ourOffer.TradeTreaty;
                     theirOffer.TradeTreaty = ourOffer.TradeTreaty;
-                    FindItemToOffer(theirs, "TradeTreaty").Selected = item.Selected;
+                    SetItemToOfferSelected(theirs, "TradeTreaty", item.Selected);
                     return;
             }
         }

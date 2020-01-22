@@ -322,12 +322,12 @@ namespace Ship_Game.AI {
                     int i = 0;
                     while (i < 5)
                     {
-                        if (i >= DesiredPlanets.Length)
+                        if (i >= ExpansionAI.DesiredPlanets.Length)
                         {
                             //goto Label0;    //this tried to restart the loop it's in => bad mojo
                             break;
                         }
-                        if (DesiredPlanets[i].Owner != Relationship.Key)
+                        if (ExpansionAI.DesiredPlanets[i].Owner != Relationship.Key)
                         {
                             i++;
                         }
@@ -422,7 +422,8 @@ namespace Ship_Game.AI {
                         if (Relationship.Value.TurnsKnown >= FirstDemand && !Relationship.Value.Treaty_NAPact &&
                             !Relationship.Value.HaveRejectedDemandTech && !Relationship.Value.XenoDemandedTech)
                         {
-                            Array<TechEntry> potentialDemands = TradableTechs(Relationship.Key);
+                                var empire = Relationship.Key;
+                            Array<TechEntry> potentialDemands = empire.GetEmpireAI().TradableTechs(OwnerEmpire);
                             if (potentialDemands.Count > 0)
                             {
                                 int Random = (int) RandomMath.RandomBetween(0f, potentialDemands.Count + 0.75f);
@@ -473,9 +474,10 @@ namespace Ship_Game.AI {
         public Array<TechEntry> TradableTechs(Empire them)
         {
             var tradableTechs = new Array<TechEntry>();
-            foreach (TechEntry tech in OwnerEmpire.TechsAvailableForTrade(them))
+            var available = OwnerEmpire.TechsAvailableForTrade(them);
+            foreach (TechEntry tech in available)
             {
-                if (them.GetTechEntry(tech).CanBeTakenFrom(OwnerEmpire))
+                if (tech.TheyCanUseThis(OwnerEmpire, them))
                     tradableTechs.Add(tech);
             }
 
@@ -642,11 +644,11 @@ namespace Ship_Game.AI {
                                 int i = 0;
                                 while (i < 5)
                                 {
-                                    if (i >= DesiredPlanets.Length)
+                                    if (i >= ExpansionAI.DesiredPlanets.Length)
                                     {
                                         break;
                                     }
-                                    if (DesiredPlanets[i].Owner != Relationship.Key)
+                                    if (ExpansionAI.DesiredPlanets[i].Owner != Relationship.Key)
                                     {
                                         i++;
                                     }

@@ -196,6 +196,13 @@ namespace Ship_Game.Utils
             return true;
         }
 
+        // This will Set the ItemAdded event,
+        // so that blocking WaitDequeue event can resume
+        public void Notify()
+        {
+            ItemAdded.Set();
+        }
+
         // block until an item is available or timeout was reached
         public bool WaitDequeue(out T item, int millisecondTimeout = -1)
         {
@@ -356,7 +363,7 @@ namespace Ship_Game.Utils
 
         public override string ToString()
         {
-            return GetType().GenericName();
+            return GetType().GetTypeName();
         }
 
         public void Dispose()

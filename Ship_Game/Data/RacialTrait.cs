@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
@@ -116,6 +117,7 @@ namespace Ship_Game
 
         [Serialize(94)] public float ResearchTaxMultiplier = 1;
         [Serialize(95)] public int PreferredEnvDescription;
+        [Serialize(96)] public bool TaxGoods;
 
         public float HomeworldSizeMultiplier => 1f + HomeworldSizeMod;
         public float MaintMultiplier => 1f + MaintMod; // Ex: 1.25
@@ -128,6 +130,21 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsCybernetic => Cybernetic > 0;
         [XmlIgnore][JsonIgnore] public bool IsOrganic    => Cybernetic < 1;
 
+        [XmlIgnore][JsonIgnore] public SubTexture Icon => 
+            ResourceManager.TextureOrDefault("Portraits/"+VideoPath, "Portraits/Unknown");
+
+        [XmlIgnore][JsonIgnore] public SubTexture FlagIcon => ResourceManager.Flag(FlagIndex);
+
+        [XmlIgnore][JsonIgnore] public Color Color
+        {
+            get => new Color((byte)R, (byte)G, (byte)B, 255);
+            set
+            {
+                R = value.R;
+                G = value.G;
+                B = value.B;
+            }
+        }
 
         public void TechUnlocks(TechEntry techEntry, Empire empire)
         {

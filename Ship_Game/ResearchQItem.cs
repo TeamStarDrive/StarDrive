@@ -13,7 +13,7 @@ namespace Ship_Game
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
 
-        public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos) : base(screen, pos)
+        public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos) : base(pos)
         {
             Screen = screen;
             Tech = node.Entry;

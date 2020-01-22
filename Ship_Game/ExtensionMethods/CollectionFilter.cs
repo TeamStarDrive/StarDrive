@@ -39,6 +39,9 @@ namespace Ship_Game
                 map[i] = keep ? (byte)1 : (byte)0;
             }
 
+            if (resultCount == 0)
+                return Empty<T>.Array;
+
             var results = new T[resultCount];
             resultCount = 0;
             for (int i = 0; i < count; ++i)
@@ -61,6 +64,9 @@ namespace Ship_Game
                 map[i] = keep ? (byte)1 : (byte)0;
             }
 
+            if (resultCount == 0)
+                return Empty<T>.Array;
+            
             var results = new T[resultCount];
             resultCount = 0;
             for (int i = 0; i < count; ++i)

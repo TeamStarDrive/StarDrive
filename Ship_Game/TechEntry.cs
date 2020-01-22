@@ -19,8 +19,25 @@ namespace Ship_Game
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
         [Serialize(7)] public Array<string> WasAcquiredFrom;
 
+        /// <summary>
+        /// Checks if list  contains restricted trade type. 
+        /// </summary>
+        private bool AllowRacialTrade(Empire us, Empire them)
+        {
+            return us.GetRelations(them).AllowRacialTrade();
+        }
+
         [XmlIgnore][JsonIgnore]
-        public float TechCost => Tech.ActualCost * (float)Math.Max(1, Math.Pow(2.0, Level));
+        public float TechCost
+        {
+            get
+            {
+                float cost      = Tech.ActualCost;
+                float techLevel = (float)Math.Max(1, Math.Pow(2.0, Level));
+                int rootTech    = Tech.RootNode * 100;
+                return cost * (techLevel + rootTech);
+            }
+        }
 
         [XmlIgnore][JsonIgnore]
         public float PercentResearched => Progress / TechCost;
@@ -155,11 +172,17 @@ namespace Ship_Game
         }
 
         public bool SpiedFrom(Empire them) => WasAcquiredFrom.Contains(them.data.Traits.ShipType);
+        public bool SpiedFromAnyBut(Empire them) => WasAcquiredFrom.Count > 1 && !WasAcquiredFrom.Contains(them.data.Traits.ShipType);
 
-        public bool CanBeTakenFrom(Empire them)
+        public bool TheyCanUseThis(Empire us, Empire them)
         {
-            bool hidden = !SpiedFrom(them) && ContentRestrictedTo(them);
-            return hidden || !Unlocked; //hidden ||  add hidden back to allow racial tech unlock
+            var theirTech        = them.GetTechEntry(this);
+            bool theyCanUnlockIt = !theirTech.Unlocked && (them.HavePreReq(UID) ||
+                                                           AllowRacialTrade(us, them) && theirTech.IsRoot);
+            bool notHasContent   = AllowRacialTrade(us, them) && ContentRestrictedTo(us) 
+                                                  && !theirTech.SpiedFrom(us) 
+                                                  && (theirTech.IsRoot || them.HavePreReq(UID));
+            return theyCanUnlockIt || notHasContent;
         }
 
         bool ContentRestrictedTo(Empire empire)
@@ -170,13 +193,6 @@ namespace Ship_Game
             bool modules   = Tech.ModulesUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             bool bonus     = Tech.BonusUnlocked.Any(item => item.Type == empire.data.Traits.ShipType);
             return hulls || buildings || troops || modules || bonus;
-
-        }
-
-        public bool CanBeGivenTo(Empire them)
-        {
-            return Unlocked && (Tech.RootNode == 1 || them.HavePreReq(UID)) &&
-                   (!Tech.Secret || Tech.Discovered) ;
         }
 
         float LookAheadCost(TechnologyType techType, Empire empire)
@@ -279,6 +295,7 @@ namespace Ship_Game
 
         public void UnlockTroops(Empire us, Empire them)
         {
+            if (us != them) return;
             foreach (Technology.UnlockedTroop unlockedTroop in Tech.TroopsUnlocked)
             {
                 if (CheckSource(unlockedTroop.Type, them))
@@ -373,7 +390,7 @@ namespace Ship_Game
             return true;
         }
 
-        public void UnlockWithNoBonusOption(Empire us, Empire them, bool unlockBonus)
+        public void UnlockWithBonus(Empire us, Empire them, bool unlockBonus)
         {
             them = them ?? us;
   
@@ -502,19 +519,7 @@ namespace Ship_Game
         public void DebugUnlockFromTechScreen(Empire us, Empire them, bool bonusUnlock = true)
         {
             SetDiscovered(us);
-            UnlockWithNoBonusOption(us, them, bonusUnlock);
-        }
-        public void LoadShipModelsFromDiscoveredTech(Empire empire)
-        {
-            if (!Discovered || Tech.HullsUnlocked.IsEmpty)
-                return;
-
-            foreach (var hullName in Tech.HullsUnlocked)
-            {
-                if (ResourceManager.Hull(hullName.Name, out ShipData shipData) &&
-                    shipData.ShipStyle == empire.data.Traits.ShipType)
-                    shipData.PreLoadModel();
-            }
+            UnlockWithBonus(us, them, bonusUnlock);
         }
 
         public bool IsUnlockedAtGameStart(Empire empire) 
@@ -832,6 +837,7 @@ namespace Ship_Game
                 case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
                 case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
                 case "Kinetic Shield Penetration Chance Bonus": data.ShieldPenBonusChance += unlockedBonus.Bonus; break;
+                case "Tax Goods": data.Traits.TaxGoods = true; break;
             }
         }
 

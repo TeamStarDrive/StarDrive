@@ -72,7 +72,7 @@ namespace Ship_Game
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight -
                 (titleRect.Y + titleRect.Height) - 7);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+            close = new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
             EMenu = new Menu2(leftRect);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25,
                 ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40,
@@ -98,7 +98,7 @@ namespace Ship_Game
             res = new SortButton(eui.empire.data.ESSort, "res");
             money = new SortButton(eui.empire.data.ESSort, "money");
             SelectedPlanet = ColoniesList.ItemAtTop<EmpireScreenEntry>().p;
-            GovernorDropdown = new DropOptions<int>(this, new Rectangle(0, 0, 100, 18));
+            GovernorDropdown = new DropOptions<int>(new Rectangle(0, 0, 100, 18));
             GovernorDropdown.AddOption("--", 1);
             GovernorDropdown.AddOption(Localizer.Token(4064), 0);
             GovernorDropdown.AddOption(Localizer.Token(4065), 2);
@@ -424,7 +424,6 @@ namespace Ship_Game
             Vector2 pos = new Vector2(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - Fonts.Pirulen16.MeasureString("Paused").X - 13f, 44f);
             batch.DrawString(Fonts.Pirulen16, "Paused", pos, Color.White);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
@@ -508,7 +507,7 @@ namespace Ship_Game
         {
             ColoniesList.HandleInput(input);
 
-            HandleSortButton(input, pop, 2278, p => p.Population);
+            HandleSortButton(input, pop, 2278, p => p.PopulationBillion);
             HandleSortButton(input, food, 139, p => p.Food.NetIncome);
             HandleSortButton(input, prod, 140, p => p.Prod.NetIncome);
             HandleSortButton(input, res, 141, p => p.Res.NetIncome);

@@ -533,13 +533,57 @@ namespace Ship_Game
             }
         }
 
-        public void Render(SpriteBatch batch, GameTime gameTime)
+        // Deferred SceneObject loading jobs use a double buffered queue.
+        readonly Array<Ship> SceneObjFrontQueue = new Array<Ship>(32);
+        readonly Array<Ship> SceneObjBackQueue  = new Array<Ship>(32);
+
+        public void QueueSceneObjectCreation(Ship ship)
+        {
+            lock (SceneObjFrontQueue)
+            {
+                SceneObjFrontQueue.Add(ship);
+            }
+        }
+
+        // Only create ship scene objects on the main UI thread
+        void CreateShipSceneObjects()
+        {
+            lock (SceneObjFrontQueue)
+            {
+                SceneObjBackQueue.AddRange(SceneObjFrontQueue);
+                SceneObjFrontQueue.Clear();
+            }
+
+            for (int i = SceneObjBackQueue.Count - 1; i >= 0; --i)
+            {
+                Ship ship = SceneObjBackQueue[i];
+                if (!ship.Active) // dead or removed
+                {
+                    SceneObjBackQueue.RemoveAtSwapLast(i);
+                }
+                else if (ship.GetSO() != null) // already created
+                {
+                    SceneObjBackQueue.RemoveAtSwapLast(i);
+                }
+                else if (viewState <= UnivScreenState.SystemView
+                     && (ship.System == null || ship.System.isVisible)
+                     && Frustum.Contains(ship.Center, 2000f))
+                {
+                    ship.CreateSceneObject();
+                    SceneObjBackQueue.RemoveAtSwapLast(i);
+                }
+                // else: we keep it in the back queue until it dies or comes into frustum
+            }
+        }
+
+        void Render(SpriteBatch batch, GameTime gameTime)
         {
             if (Frustum == null)
                 Frustum = new BoundingFrustum(View * Projection);
             else
                 Frustum.Matrix = View * Projection;
 
+            CreateShipSceneObjects();
             ScreenManager.BeginFrameRendering(gameTime, ref View, ref Projection);
 
             RenderBackdrop(batch);
@@ -663,30 +707,22 @@ namespace Ship_Game
 
         private void SelectShipLinesToDraw()
         {
-            float num = (float) (150.0 * SelectedSomethingTimer / 3f);
-            if (num < 0f)
-                num = 0.0f;
-            byte alpha = (byte) num;
+            byte alpha = (byte)Math.Max(0f, 150f * SelectedSomethingTimer / 3f);
             if (alpha > 0)
             {
-                if (SelectedShip != null && (Debug || CurrentGame.Difficulty < UniverseData.GameDifficulty.Hard || !player.IsEmpireAttackable(SelectedShip.loyalty)))
+                if (SelectedShip != null &&
+                    (Debug || CurrentGame.Difficulty < UniverseData.GameDifficulty.Hard
+                           || !player.IsEmpireAttackable(SelectedShip.loyalty)))
                 {
-                    DrawShipLines(SelectedShip, alpha);
+                    DrawShipGoalsAndWayPoints(SelectedShip, alpha);
                 }
                 else if (SelectedShipList.Count > 0)
                 {
-                    for (int index1 = 0; index1 < SelectedShipList.Count; ++index1)
+                    for (int i = 0; i < SelectedShipList.Count; ++i)
                     {
-                        try
-                        {
-                            Ship ship = SelectedShipList[index1];
-                            if (player.IsEmpireAttackable(SelectedShip?.loyalty) && !Debug) continue;
-                            DrawShipLines(ship, alpha);
-                        }
-                        catch
-                        {
-                            Log.Warning("DrawShipLines Blew Up");
-                        }
+                        Ship ship = SelectedShipList[i];
+                        if (!player.IsEmpireAttackable(ship.loyalty) || Debug)
+                            DrawShipGoalsAndWayPoints(ship, alpha);
                     }
                 }
             }

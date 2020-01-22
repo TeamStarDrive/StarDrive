@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens.MainMenu;
+using Ship_Game.GameScreens.NewGame;
 using Ship_Game.GameScreens.Sandbox;
 using Ship_Game.Ships;
 
@@ -66,11 +67,12 @@ namespace Ship_Game
 
         public class DeveloperUniverse : UniverseScreen
         {
+            readonly UniverseData SandBox;
             public DeveloperUniverse(UniverseData sandbox) : base(sandbox, EmpireManager.Empires[0])
             {
+                SandBox = sandbox;
                 NoEliminationVictory = true; // SandBox mode doesn't have elimination victory
                 Paused = false;
-                ResetLighting();
             }
             public override void LoadContent()
             {
@@ -79,13 +81,23 @@ namespace Ship_Game
                 // nice zoom in effect, we set the cam height to super high
                 CamHeight *= 10000.0f;
                 CamDestination.Z = 100000.0f; // and set a lower destination
+
+                Empire playerEmpire = SandBox.EmpireList.First;
+                Planet homePlanet   = playerEmpire.GetPlanets()[0];
+
+                // @note Auto-added to empire
+                Vector2 debugDir  = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
+                string platformId = "Kinetic Platform";
+                //string platformId = "Beam Platform L4";
+                var debugPlatform = new PredictionDebugPlatform(platformId, EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
+                SandBox.MasterShipList.Add(debugPlatform); // there is no universe yet, add manually
             }
         }
 
         bool PlayerFilter(IEmpireData d)
         {
             if (PlayerPreference.NotEmpty())
-                return d.Name.Contains(PlayerPreference);
+                return d.ArchetypeName.Contains(PlayerPreference);
             return d.IsCybernetic == PlayerIsCybernetic;
         }
 
@@ -99,7 +111,8 @@ namespace Ship_Game
             CurrentGame.StartNew(sandbox, pace:1f);
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
-            IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data.Name != player.Name);
+            IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(
+                               data => data.ArchetypeName != player.ArchetypeName);
 
             var races = new Array<IEmpireData>(opponents);
             races.Shuffle();
@@ -142,20 +155,11 @@ namespace Ship_Game
                                             select => select.Position.SqDist(system.Position));
             }
 
-            Empire playerEmpire = sandbox.EmpireList.First;
-            Planet homePlanet   = playerEmpire.GetPlanets()[0];
-
-            // @note Auto-added to empire
-            Vector2 debugDir  = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
-            string platformId = "Kinetic Platform";
-            //string platformId = "Beam Platform L4";
-            var debugPlatform = new PredictionDebugPlatform(platformId, EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
-            Log.Assert(debugPlatform.HasModules, "Failed to create DebugPlatform");
-            sandbox.MasterShipList.Add(debugPlatform); // there is no universe yet, add manually
-
             foreach (SolarSystem system in sandbox.SolarSystemsList)
                 SubmitSceneObjectsForRendering(system);
 
+            var progress = new ProgressCounter();
+            ShipDesignUtils.MarkDesignsUnlockable(progress);
             Log.Info($"CreateSandboxUniverse elapsed:{s.Elapsed.TotalMilliseconds}");
             return sandbox;
         }
@@ -180,15 +184,7 @@ namespace Ship_Game
             }
             foreach (Asteroid asteroid in wipSystem.AsteroidsList)
             {
-                asteroid.Position3D.X += wipSystem.Position.X;
-                asteroid.Position3D.Y += wipSystem.Position.Y;
-                asteroid.Initialize();
-                AddObject(asteroid.So);
-            }
-            foreach (Moon moon in wipSystem.MoonList)
-            {
-                moon.Initialize();
-                AddObject(moon.So);
+                asteroid.Position += wipSystem.Position;
             }
             foreach (Ship ship in wipSystem.ShipList)
             {

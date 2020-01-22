@@ -22,7 +22,9 @@ namespace Ship_Game.AI
         BuildScout,
         FleetRequisition,
         Refit,
-        BuildOrbital
+        BuildOrbital,
+        RemnantAI,
+        CorsairAI
     }
 
     public enum GoalStep
@@ -113,6 +115,8 @@ namespace Ship_Game.AI
                 case MarkForColonization.ID:    return new MarkForColonization();
                 case RefitShip.ID:              return new RefitShip();
                 case BuildOrbital.ID:           return new BuildOrbital();
+                case RemnantAI.ID:              return new RemnantAI();
+                case CorsairAI.ID:              return new CorsairAI();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
@@ -205,6 +209,16 @@ namespace Ship_Game.AI
                 Log.Error($"{type} invalid Goal.Step: {Step}, Steps.Length: {Steps.Length}");
                 RemoveThisGoal();
             }
+        }
+
+        public void ChangeToStep(Func<GoalStep> step)
+        {
+            if (!Steps.Contains(step))
+            {
+                Log.Error($"{type} invalid Goal.Step: {step}, Steps.Length: {Steps.Length}");
+                RemoveThisGoal();
+            }
+            Step = Steps.IndexOf(step);
         }
 
         public void ReportShipComplete(Ship ship)
