@@ -956,8 +956,6 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        if (!SnapBackToSystem)
-                            HeightOnSnap = CamHeight;
                         ViewPlanet();
                     }
                 }
@@ -990,7 +988,6 @@ namespace Ship_Game
                         if (system.systemToClick.IsExploredBy(player))
                         {
                             GameAudio.SubBassWhoosh();
-                            HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
                         else
