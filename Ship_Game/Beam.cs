@@ -46,9 +46,10 @@ namespace Ship_Game
             Emitter.Position        = new Vector3(source, 0f);
             Owner                   = weapon.Owner;
             Source                  = source;
-            Destination             = destination;
+            Destination             = destination + (DisableSpatialCollision ? Vector2.Zero :
+                                                    Weapon.GetTargetError(target, Owner.Level));
             ActualHitDestination = Destination;
-            BeamCollidedThisFrame = true; //
+            BeamCollidedThisFrame = true; 
 
             weapon.ApplyDamageModifiers(this);
 
@@ -250,12 +251,13 @@ namespace Ship_Game
             Source = muzzleOrigin;
 
             // always update Destination to ensure beam stays in range
+            
             Vector2 newDestination = (Target?.Center ?? Destination);
 
             // old destination adjusted to same distance as newDestination,
             // so we get two equal length lines \/
             Vector2 oldAdjusted = Source.OffsetTowards(Destination, Source.Distance(newDestination));
-            float sweepSpeed = Module.WeaponRotationSpeed * 48f * elapsedTime;
+            float sweepSpeed    = Module.WeaponRotationSpeed * 48 * elapsedTime;
             Vector2 newPosition = oldAdjusted.OffsetTowards(newDestination, sweepSpeed);
 
             if (Owner.IsInsideFiringArc(Weapon, newPosition))

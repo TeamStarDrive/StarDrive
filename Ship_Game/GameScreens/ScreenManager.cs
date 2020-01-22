@@ -5,6 +5,7 @@ using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.GameScreens;
 using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Core;
 using SynapseGaming.LightingSystem.Editor;
@@ -22,9 +23,15 @@ namespace Ship_Game
         readonly object InterfaceLock = new object();
         readonly GameBase GameInstance;
 
+        public LightRigIdentity LightRigIdentity = LightRigIdentity.Unknown;
+
+        // Time elapsed between 2 frames
+        // this can be used for rendering animations
+        public float FrameDeltaTime { get; private set; }
+
         public LightingSystemManager LightSysManager;
         public LightingSystemEditor editor;
-        public SceneEnvironment environment;
+        public SceneEnvironment Environment;
         public InputState input = new InputState();
         public AudioHandle Music = new AudioHandle();
 
@@ -34,12 +41,6 @@ namespace Ship_Game
 
         // Thread safe screen queue
         readonly SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
-
-        public float exitScreenTimer
-        {
-            get => input.ExitScreenTimer;
-            set => input.ExitScreenTimer = value;
-        }
 
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => GameScreens.Count;
@@ -117,7 +118,6 @@ namespace Ship_Game
                 AddScreen(screen);
         }
 
-
         // exits all other screens and goes to specified screen
         public void GoToScreen(GameScreen screen, bool clear3DObjects)
         {
@@ -178,13 +178,17 @@ namespace Ship_Game
         public void RemoveAllLights()
         {
             lock (InterfaceLock)
+            {
+                LightRigIdentity = LightRigIdentity.Unknown;
                 SceneInter.LightManager.Clear();
+            }
         }
 
-        public void AssignLightRig(LightRig rig)
+        public void AssignLightRig(LightRigIdentity identity, LightRig rig)
         {
             lock (InterfaceLock)
             {
+                LightRigIdentity = identity;
                 SceneInter.LightManager.Clear();
                 SceneInter.LightManager.Submit(rig);
             }
@@ -206,10 +210,10 @@ namespace Ship_Game
 
         ////////////////////////////////////////////////////////////////////////////////////
 
-        public void UpdateSceneObjects(GameTime gameTime)
+        public void UpdateSceneObjects()
         {
             lock (InterfaceLock)
-                SceneInter.Update(gameTime);
+                SceneInter.Update(GameBase.Base.GameTime);
         }
 
         public void RenderSceneObjects()
@@ -222,7 +226,7 @@ namespace Ship_Game
         {
             lock (InterfaceLock)
             {
-                GameSceneState.BeginFrameRendering(ref view, ref projection, gameTime, environment, true);
+                GameSceneState.BeginFrameRendering(ref view, ref projection, gameTime, Environment, true);
                 editor.BeginFrameRendering(GameSceneState);
                 SceneInter.BeginFrameRendering(GameSceneState);
             }
@@ -246,7 +250,7 @@ namespace Ship_Game
             for (int i = 0; i < GameScreens.Count; ++i)
             {
                 GameScreen screen = GameScreens[i];
-                if (screen.Visible)
+                if (screen.Visible && !screen.IsDisposed)
                 {
                     try
                     {
@@ -254,17 +258,32 @@ namespace Ship_Game
                     }
                     catch (Exception e)
                     {
-                        Log.Error(e, $"Draw Screen failed: {screen.GetType().GenericName()}");
+                        Log.Error(e, $"Draw Screen failed: {screen.GetType().GetTypeName()}");
                         try { batch.End(); } catch { }
                     }
                 }
             }
+            
+            DrawToolTip(batch);
+        }
+
+        void DrawToolTip(SpriteBatch batch)
+        {
+            batch.Begin();
+            ToolTip.Draw(batch, FrameDeltaTime);
+            batch.End();
         }
 
         public void ExitAll(bool clear3DObjects)
         {
             foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
+            {
                 screen.ExitScreen();
+            }
+
+            // forcefully remove, since some screens have transition effects
+            foreach (GameScreen screen in GameScreens.ToArray())
+                RemoveScreen(screen);
 
             if (clear3DObjects)
             {
@@ -276,8 +295,12 @@ namespace Ship_Game
         public void ExitAllExcept(GameScreen except)
         {
             foreach (GameScreen screen in GameScreens.ToArray()/*grab an atomic copy*/)
+            {
                 if (screen != except)
+                {
                     screen.ExitScreen();
+                }
+            }
         }
 
         public void FadeBackBufferToBlack(int alpha)
@@ -313,11 +336,15 @@ namespace Ship_Game
                 (int)(viewport.Height * 0.9f));
         }
 
-        // @warning This unloads ALL game content and is designed to be called only from ResourceManager!
+        // @warning This unloads ALL game content
+        // and is designed to be called only from ResourceManager!
         public void UnloadAllGameContent()
         {
+            // @warning We only unload the content. And then reload later.
             foreach (GameScreen screen in GameScreens)
+            {
                 screen.UnloadContent();
+            }
 
             UnloadSceneObjects();
             GameInstance.Content.Unload();
@@ -326,9 +353,13 @@ namespace Ship_Game
         public void RemoveScreen(GameScreen screen)
         {
             if (GraphicsDeviceService?.GraphicsDevice != null)
+            {
                 screen.UnloadContent();
+                screen.Dispose();
+            }
+
             GameScreens.Remove(screen);
-            exitScreenTimer = 0.25f;
+            screen.OnScreenRemoved();
         }
 
         float HotloadTimer;
@@ -388,7 +419,7 @@ namespace Ship_Game
 
         void PerformHotLoadTasks()
         {
-            HotloadTimer += StarDriveGame.Instance.FrameDeltaTime;
+            HotloadTimer += FrameDeltaTime;
             if (HotloadTimer < HotloadInterval) return;
 
             HotloadTimer = 0f;
@@ -408,11 +439,17 @@ namespace Ship_Game
 
         public void Update(GameTime gameTime)
         {
+            float elapsedTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+            FrameDeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            if (FrameDeltaTime > 0.4f) // @note Probably we were loading something heavy
+                FrameDeltaTime = 1f/60f;
+
             PerformHotLoadTasks();
-            input.Update(gameTime);
+            input.Update(elapsedTime); // analyze input state for this frame
             AddPendingScreens();
 
-            bool otherScreenHasFocus = !StarDriveGame.Instance.IsActive;
+            bool otherScreenHasFocus = !StarDriveGame.Instance?.IsActive ?? false;
             bool coveredByOtherScreen = false;
             bool inputCaptured = false;
 
@@ -420,11 +457,15 @@ namespace Ship_Game
             for (int i = GameScreens.Count - 1; i >= 0 && i < GameScreens.Count; --i)
             {
                 GameScreen screen = GameScreens[i];
+                if (screen == null) // FIX: threading or other removal issue,
+                    continue;       // GameScreens was modified from another thread
 
                 // 1. Handle Input
                 if (!otherScreenHasFocus && !screen.IsExiting && !inputCaptured)
                 {
                     inputCaptured = screen.HandleInput(input);
+                    if (screen.IsDisposed)
+                        continue; // HandleInput is allowed to Dispose this screen
                 }
 
                 // 2. Update the screen
@@ -434,8 +475,7 @@ namespace Ship_Game
                 if (screen.ScreenState == ScreenState.TransitionOn ||
                     screen.ScreenState == ScreenState.Active)
                 {
-                    if (!otherScreenHasFocus && exitScreenTimer <= 0f)
-                        otherScreenHasFocus = true;
+                    otherScreenHasFocus = true;
 
                     if (!screen.IsPopup)
                         coveredByOtherScreen = true;
@@ -443,25 +483,15 @@ namespace Ship_Game
             }
         }
 
-        public bool UpdateExitTimeer(bool stopFurtherInput)
-        {
-            if (!stopFurtherInput)
-            {
-                if (exitScreenTimer > 0f)
-                    return true;
-            }
-            return false;
-        }
-
         public void Dispose()
         {
-            Dispose(true);
+            Destroy();
             GC.SuppressFinalize(this);
         }
 
-        ~ScreenManager() { Dispose(false); }
+        ~ScreenManager() { Destroy(); }
 
-        void Dispose(bool disposing)
+        void Destroy()
         {
             SpriteBatch?.Dispose(ref SpriteBatch);
         }

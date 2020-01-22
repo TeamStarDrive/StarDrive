@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
-using Ship_Game.Ships;
+using System.Linq;
 
 namespace Ship_Game
 {
@@ -71,6 +71,27 @@ namespace Ship_Game
             nextIndex = i;
             firstValid = default;
             return false;
+        }
+
+        /// <summary>
+        /// NOTE: This is an intentional replacement to System.Linq.Count()
+        ///       Mostly so that we won't have to import it, which will
+        ///       cause an ambiguous overload clash with other utils.
+        /// WARNING: This is much slower than calling `.Count` property, so use with caution.
+        /// </summary>
+        public static int Count<T>(this IEnumerable<T> enumerable)
+        {
+            if (enumerable is IReadOnlyList<T> rl) return rl.Count;
+            if (enumerable is ICollection<T> c)    return c.Count;
+
+            // fall back to epicly slow enumeration
+            int count = 0;
+            using (IEnumerator<T> e = enumerable.GetEnumerator())
+            {
+                while (e.MoveNext())
+                    ++count;
+            }
+            return count;
         }
 
         public static int Count<T>(this Array<T> list, Predicate<T> match)
@@ -173,9 +194,8 @@ namespace Ship_Game
 
         public static T[] ToArray<T>(this IEnumerable<T> source)
         {
-            if (source is ICollection<T> c)          return c.ToArray();
-            if (source is IReadOnlyList<T> rl)       return rl.ToArray();
-            if (source is IReadOnlyCollection<T> rc) return rc.ToArray();
+            if (source is ICollection<T> c)    return c.ToArray();
+            if (source is IReadOnlyList<T> rl) return rl.ToArray();
 
             // fall back to epicly slow enumeration
             T[] items = Empty<T>.Array;
@@ -229,11 +249,37 @@ namespace Ship_Game
                 if (array[i] == item) return true;
             return false;
         }
+
         public static bool ContainsRef<T>(this T[] array, int length, T item) where T : class
         {
             for (int i = 0; i < length; ++i)
                 if (array[i] == item) return true;
             return false;
+        }
+
+        // @return TRUE if a.Count == b.Count and all elements are equivalent
+        public static bool EqualElements<T>(this IReadOnlyList<T> a, IReadOnlyList<T> b)
+        {
+            int count = a.Count;
+            if (count != b.Count)
+                return false;
+
+            EqualityComparer<T> c = EqualityComparer<T>.Default;
+            for (int i = 0; i < count; ++i)
+                if (!c.Equals(a[i], b[i]))
+                    return false;
+            return true;
+        }
+
+        public static bool EqualElements<T>(this IReadOnlyList<T> a, IReadOnlyList<T> b, Func<T, T, bool> equals)
+        {
+            int count = a.Count;
+            if (count != b.Count)
+                return false;
+            for (int i = 0; i < count; ++i)
+                if (!equals(a[i], b[i]))
+                    return false;
+            return true;
         }
 
         /// <summary>

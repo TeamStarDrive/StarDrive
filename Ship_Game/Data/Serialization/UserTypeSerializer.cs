@@ -10,7 +10,7 @@ namespace Ship_Game.Data.Serialization
 {
     public abstract class UserTypeSerializer : TypeSerializer
     {
-        public override string ToString() => $"UserTypeSerializer {TheType.GenericName()}";
+        public override string ToString() => $"UserTypeSerializer {TheType.GetTypeName()}";
 
         protected Map<string, DataField> Mapping;
         public TypeSerializerMap TypeMap { get; private set; }

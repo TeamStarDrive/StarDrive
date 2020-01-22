@@ -29,7 +29,6 @@ namespace Ship_Game.Ships
         }
         public bool CheckedConduits;
         public bool Powered;
-        public int quadrant = -1;
         public bool isExternal;
         public int XSIZE = 1;
         public int YSIZE = 1;
@@ -845,6 +844,9 @@ namespace Ship_Game.Ships
 
                 HangarShipGuid = hangarShip.guid;
                 hangarTimer = hangarTimerConstant;
+
+                // transfer our troop onto the shuttle we just spawned
+                troop.LandOnShip(hangarShip);
                 return true;
             }
             return false;

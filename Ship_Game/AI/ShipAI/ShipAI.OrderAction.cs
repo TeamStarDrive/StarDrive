@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Linq;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI
 {
@@ -173,7 +174,7 @@ namespace Ship_Game.AI
                 ClearWayPoints();
             ClearOrders(AIState.MoveTo, priority: (Owner.loyalty == EmpireManager.Player));
 
-            WayPoints.Enqueue(position);
+            WayPoints.Enqueue(new WayPoint(position, finalDir));
             MovePosition = position;
 
             // NOTE: please don't 'FIX' anything here without caution and testing.
@@ -181,22 +182,28 @@ namespace Ship_Game.AI
             //              fleet move & queued move,
             //              ship group move & queued move,
             //              priority movement for all of the above while in combat
-            Vector2[] wayPoints = WayPoints.ToArray();
-            Vector2 wp = wayPoints[0];
-            Vector2 firstDir = wayPoints.Length >= 2 ? wp.DirectionToTarget(wayPoints[1]) : finalDir;
-            AddShipGoal(Plan.RotateToFaceMovePosition, wp, firstDir);
-            AddShipGoal(Plan.MoveToWithin1000, wp, firstDir, speedLimit);
+            //              Verify ships can complete move to planet goals like colonization.
+            WayPoint[] wayPoints = WayPoints.ToArray();
+            WayPoint wp = wayPoints[0];
 
-            for (int i = 1; i < wayPoints.Length - 1; ++i)
+            AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction);
+
+            // set moveto1000 for each waypoint except for the last one. 
+            // if only one waypoint skip this. 
+            for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
                 wp = wayPoints[i];
-                Vector2 dir = wayPoints[i-1].DirectionToTarget(wp);
-                AddShipGoal(Plan.MoveToWithin1000, wp, dir, speedLimit);
+                AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit);
             }
-            Vector2 lastWayPoint = WayPoints.PeekLast;
-            AddShipGoal(Plan.MoveToWithin1000, lastWayPoint, finalDir, targetPlanet, speedLimit, goal);
-            AddShipGoal(Plan.MakeFinalApproach, lastWayPoint, finalDir, targetPlanet, speedLimit, goal);
-            AddShipGoal(Plan.RotateToDesiredFacing, lastWayPoint, finalDir, targetPlanet, goal);
+            // set final move position.
+            // move to within 1000 of the position.
+            // make a precision approach.
+            // rotate to desired facing <= this needs to be fixed.
+            // the position is always wrong unless it was forced in a ui move. 
+            wp = wayPoints[wayPoints.Length - 1];
+            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
+            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
+            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal);
         }
 
         public void OrderOrbitNearest(bool clearOrders)

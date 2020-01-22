@@ -29,7 +29,7 @@ namespace Ship_Game
         readonly float Scale;
         readonly Vector2 MiniMapZero;
 
-        public MiniMap(Rectangle housing) : base(null, housing)
+        public MiniMap(in Rectangle housing) : base(housing)
         {
             Housing        = housing;
             MiniMapHousing = ResourceManager.Texture("Minimap/radar_over");
@@ -37,7 +37,7 @@ namespace Ship_Game
             Node1          = ResourceManager.Texture("UI/node1");
             ActualMap      = new Rectangle(housing.X + 61 + 20, housing.Y + 33, 200, 210);
 
-            UIList list = List(new Vector2(Housing.X + 14, Housing.Y + 70));
+            UIList list = AddList(new Vector2(Housing.X + 14, Housing.Y + 70));
             ZoomToShip     = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
             ZoomOut        = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             PlanetScreen   = list.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
@@ -129,6 +129,7 @@ namespace Ship_Game
         void DrawNode(Empire empire, BatchRemovalCollection<Empire.InfluenceNode> list, SpriteBatch batch)
         {
             using (list.AcquireReadLock())
+            {
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
@@ -152,6 +153,7 @@ namespace Ship_Game
                     batch.Draw(Node1, nodePos, ec, 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                     batch.Draw(Node1, nodePos, new Color(Color.Black, 40), 0f, Node.CenterF, radius, SpriteEffects.None, 1f);
                 }
+            }
         }
 
         void DrawInfluenceNodes(SpriteBatch batch)
@@ -181,16 +183,7 @@ namespace Ship_Game
 
         public void DeepSpaceBuild_OnClick(ToggleButton toggleButton)
         {
-            GameAudio.AcceptClick();
-            if (Screen.showingDSBW)
-            {
-                Screen.showingDSBW = false;
-            }
-            else
-            {
-                Screen.dsbw = new DeepSpaceBuildingWindow(Screen.ScreenManager, Screen);
-                Screen.showingDSBW = true;
-            }
+            Screen.InputOpenDeepSpaceBuildWindow();
         }
 
         public void PlanetScreen_OnClick(ToggleButton toggleButton)

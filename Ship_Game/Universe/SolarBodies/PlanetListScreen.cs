@@ -43,6 +43,10 @@ namespace Ship_Game
         private SortButton LastSorted;
         private Rectangle AutoButton;
 
+        // FB - this will store each planet GUID and it's distance to the closest player colony. If the planet is owned
+        // by the player - the distance will be 0, logically.
+        private readonly Map<Planet, float> PlanetDistanceToClosestColony = new Map<Planet, float>();
+
         //private bool AutoButtonHover;
 
         public PlanetListScreen(GameScreen parent, EmpireUIOverlay empireUi, string audioCue = "")
@@ -63,7 +67,7 @@ namespace Ship_Game
             TitlePos = new Vector2((titleRect.X + titleRect.Width / 2) - Fonts.Laserian14.MeasureString(Localizer.Token(1402)).X / 2f, (titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2));
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+            close = new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 15);
             sb_Sys = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(192));
             sb_Name = new SortButton(empireUi.empire.data.PLSort, Localizer.Token(389));
@@ -91,16 +95,39 @@ namespace Ship_Game
                 }
             }
 
-            cb_hideOwned = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
+            CalcPlanetsDistances();
+            cb_hideOwned = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 15,
                 () => HideOwned, 
                 x => { HideOwned = x; ResetList(); }, Fonts.Arial12Bold, "Hide Owned", 0);
 
-            cb_hideUninhabitable = new UICheckBox(this, TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
+            cb_hideUninhabitable = new UICheckBox(TitleBar.Menu.X + TitleBar.Menu.Width + 15, TitleBar.Menu.Y + 35,
                 () => HideUninhab, 
                 x => { HideUninhab = x; ResetList(); }, Fonts.Arial12Bold, "Hide Uninhabitable", 0);
 
             AutoButton = new Rectangle(0, 0, 243, 33);
             
+        }
+
+        void CalcPlanetsDistances()
+        {
+            var playerPlanets = EmpireManager.Player.GetPlanets();
+            foreach (Planet planet in ExploredPlanets)
+            {
+                if (planet.Owner != EmpireManager.Player)
+                {
+                    float shortestDistance = playerPlanets.Min(p => p.Center.Distance(planet.Center));
+                    PlanetDistanceToClosestColony.Add(planet, shortestDistance);
+                }
+                else
+                {
+                    PlanetDistanceToClosestColony.Add(planet, 0f);
+                }
+            }
+        }
+
+        float GetShortestDistance(Planet p)
+        {
+            return PlanetDistanceToClosestColony.TryGetValue(p, out float distance) ?  distance : 0;
         }
 
         public override void Draw(SpriteBatch batch)
@@ -212,7 +239,6 @@ namespace Ship_Game
             cb_hideUninhabitable.Draw(batch);
             cb_hideOwned.Draw(batch);
             close.Draw(batch);
-            ToolTip.Draw(batch);
             batch.End();
         }
 
@@ -228,7 +254,7 @@ namespace Ship_Game
             {
                 if (HideOwned && p.Owner != null || HideUninhab && !p.Habitable)
                     continue;
-                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                var e = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p) ,this);
                 PlanetSL.AddItem(e);
             }
         }
@@ -260,7 +286,7 @@ namespace Ship_Game
             HandleButton(input, sb_Name,  p => p.Name);
             HandleButton(input, sb_Fert,  p => p.FertilityFor(EmpireManager.Player));
             HandleButton(input, sb_Rich,  p => p.MineralRichness);
-            HandleButton(input, sb_Pop,   p => p.MaxPopulation);
+            HandleButton(input, sb_Pop,   p => p.MaxPopulationFor(EmpireManager.Player));
             HandleButton(input, sb_Owned, p => p.GetOwnerName());
 
             foreach (ScrollList.Entry e in PlanetSL.VisibleEntries)
@@ -313,7 +339,7 @@ namespace Ship_Game
                     {
                         continue;
                     }
-                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, this);
+                    var entry = new PlanetListScreenEntry(p, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 40, GetShortestDistance(p), this);
                     PlanetSL.AddItem(entry);
                 }
             }

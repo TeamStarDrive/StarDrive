@@ -191,7 +191,9 @@ namespace Ship_Game.Universe.SolarBodies
             }
             float productMod = Planet.Owner.data.Traits.ProductionMod;
             YieldPerColonist = richness * (1+ plusPerColonist) * (1 + productMod);
-            Tax = Planet.Owner.data.TaxRate;
+
+            // Cybernetics consume production and will starve at 100% tax, so ease up on them
+            Tax = Planet.NonCybernetic ? Planet.Owner.data.TaxRate : Planet.Owner.data.TaxRate  * 0.5f;
         }
 
         protected override float AvgResourceConsumption()
@@ -233,7 +235,7 @@ namespace Ship_Game.Universe.SolarBodies
     public class ColonyMoney
     {
         readonly Planet Planet;
-        float IncomePerColonist;
+        public float IncomePerColonist { get; private set; }
 
         // The current tax rate applied by empire tax rate and planet tax rate modifiers
         public float TaxRate { get; private set; }

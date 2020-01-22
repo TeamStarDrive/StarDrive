@@ -45,24 +45,24 @@ namespace Ship_Game
             this.r = r;
         }
 
-        public void Draw(ScreenManager screenManager)
+        public void Draw(SpriteBatch batch)
         {
             if (Toggled)
             {
-                screenManager.SpriteBatch.FillRectangle(r, ToggleColor);
+                batch.FillRectangle(r, ToggleColor);
             }
          
-            screenManager.SpriteBatch.Draw(Texture, r, (Hover ? HoverColor : BaseColor));
+            batch.Draw(Texture, r, (Hover ? HoverColor : BaseColor));
             if (SecondSkin != null)
             {
                 if (Toggled)
                 {
                     Rectangle secondRect = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture(SecondSkin).Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture(SecondSkin).Height / 2, ResourceManager.Texture(SecondSkin).Width, ResourceManager.Texture(SecondSkin).Height);
-                    screenManager.SpriteBatch.Draw(ResourceManager.Texture(SecondSkin), secondRect, Color.White);
+                    batch.Draw(ResourceManager.Texture(SecondSkin), secondRect, Color.White);
                     return;
                 }
                 Rectangle secondRect0 = new Rectangle(r.X + r.Width / 2 - ResourceManager.Texture(SecondSkin).Width / 2, r.Y + r.Height / 2 - ResourceManager.Texture(SecondSkin).Height / 2, ResourceManager.Texture(SecondSkin).Width, ResourceManager.Texture(SecondSkin).Height);
-                screenManager.SpriteBatch.Draw(ResourceManager.Texture(SecondSkin), secondRect0, (Hover ? Color.LightGray : Color.Black));
+                batch.Draw(ResourceManager.Texture(SecondSkin), secondRect0, (Hover ? Color.LightGray : Color.Black));
             }
         }
 

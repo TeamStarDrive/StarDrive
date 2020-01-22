@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using Ship_Game.Utils;
 using System;
 using System.Linq;
+using Ship_Game.Ships.AI;
 
 namespace Ship_Game.AI
 {
@@ -154,7 +155,6 @@ namespace Ship_Game.AI
             if (State == AIState.ManualControl)
                 return;
 
-            Owner.isTurning = false;
             ThrustTarget = Vector2.Zero;
 
             if (UpdateOrderQueueAI(elapsedTime))
@@ -162,8 +162,6 @@ namespace Ship_Game.AI
 
             AIStateRebase();
             UpdateCombatStateAI(elapsedTime);
-            if (!Owner.isTurning)
-                Owner.RestoreYBankRotation();
         }
         public Ship NearBySupplyShip => 
             FriendliesNearby.FindMinFiltered(supply => supply.Carrier.HasSupplyBays && supply.SupplyShipCanSupply,
@@ -380,7 +378,7 @@ namespace Ship_Game.AI
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, elapsedTime); break;
                 case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
                 case Plan.Explore:                  DoExplore(elapsedTime);                      break;
-                case Plan.Rebase:                   DoRebase(goal);                              break;
+                case Plan.Rebase:                   DoLandTroop(elapsedTime, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                break;
                 case Plan.DoCombat:                 DoCombat(elapsedTime);                       break;
                 case Plan.DeployStructure:          DoDeploy(goal);                              break;
@@ -485,12 +483,17 @@ namespace Ship_Game.AI
         void WarpToFleet()
         {
             ClearWayPoints();
-            WayPoints.Enqueue(Owner.fleet.GetFinalPos(Owner));
             State = AIState.AwaitingOrders;
-            if (Owner.fleet?.HasFleetGoal == true)
-                WayPoints.Enqueue(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset);
+            if (Owner.fleet.HasFleetGoal)
+            {
+                // TODO: do we need this? Is this even correct?
+                WayPoints.Enqueue(new WayPoint(Owner.fleet.NextGoalMovePosition + Owner.FleetOffset,
+                                               Owner.fleet.FinalDirection));
+            }
             else
+            {
                 OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
+            }
         }
 
         public bool HasTradeGoal(Goods goods)
@@ -549,14 +552,14 @@ namespace Ship_Game.AI
                 UtilityModuleCheckTimer = 1f;
                 //Added by McShooterz: logic for transporter modules
                 if (Owner.Carrier.HasTransporters)
-                    for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++) // FB:change to foreach
+                    for (int x = 0; x < Owner.Carrier.AllTransporters.Length; x++)
                     {
                         ShipModule module = Owner.Carrier.AllTransporters[x];
                         if (module.TransporterTimer > 0f || !module.Active || !module.Powered ||
                             module.TransporterPower >= Owner.PowerCurrent) continue;
                         if (FriendliesNearby.Count > 0 && module.TransporterOrdnance > 0 && Owner.Ordinance > 0)
                             DoOrdinanceTransporterLogic(module);
-                        if (module.TransporterTroopAssault > 0 && Owner.TroopList.Any())
+                        if (module.TransporterTroopAssault > 0 && Owner.HasOurTroops)
                             DoAssaultTransporterLogic(module);
                     }
 

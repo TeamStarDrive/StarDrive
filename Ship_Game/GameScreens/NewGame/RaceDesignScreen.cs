@@ -30,8 +30,6 @@ namespace Ship_Game
         protected Menu1 NameMenu;
         protected Menu1 Description;
 
-        protected bool LowRes;
-
         protected Submenu Traits;
         protected Submenu NameSub;
 
@@ -255,8 +253,7 @@ namespace Ship_Game
             }
 
             b.Plural(PreferredEnvDescription);
-            DescriptionSL.Reset();
-            HelperFunctions.parseTextToSL(b.ToString(), Description.Menu.Width - 50, Fonts.Arial12, ref DescriptionSL);
+            DescriptionSL.SetItems(Fonts.Arial12.ParseTextToLines(b.ToString(), Description.Width - 50));
         }
 
         static float DotSpaceWidth;
@@ -283,14 +280,15 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             float transitionOffset = (float)Math.Pow(TransitionPosition, 2);
-            Rectangle r = ChooseRaceMenu.Menu;
+            Rectangle r = ChooseRaceMenu.Rect;
             if (IsTransitioning)
             {
                 r.X -= (int)(transitionOffset * 256f);
             }
-            ChooseRaceMenu.Update(r);
-            ChooseRaceMenu.subMenu = null;
-            ChooseRaceMenu.Draw();
+            //TODO: RaceDesignScreen merge from scroll-list branch
+            //ChooseRaceMenu.Update(r);
+            //ChooseRaceMenu.subMenu = null;
+            ChooseRaceMenu.Draw(batch);
             RaceArchetypeSL.TransitionUpdate(r);
             RaceArchetypeSL.Draw(batch);
             r = dslrect;
@@ -301,7 +299,7 @@ namespace Ship_Game
             DescriptionSL.TransitionUpdate(r);
             if (!IsExiting)
             {
-                var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Menu.Y + 10);
+                var raceCursor = new Vector2(r.X + 10, ChooseRaceMenu.Y + 10);
                 
                 foreach (ScrollList.Entry e in RaceArchetypeSL.VisibleEntries)
                 {
@@ -328,9 +326,7 @@ namespace Ship_Game
                 }
             }
 
-            GameTime gameTime = StarDriveGame.Instance.GameTime;
-
-            NameMenu.Draw();
+            NameMenu.Draw(batch);
             var c = new Color(255, 239, 208);
             NameSub.Draw(batch);
             batch.DrawString((GlobalStats.NotEnglishOrSpanish ? Fonts.Arial12 : Fonts.Arial14Bold), string.Concat(Localizer.Token(31), ": "), RaceNamePos, Color.BurlyWood);
@@ -338,11 +334,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!RaceName.HandlingInput)
             {
-                RaceName.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (RaceName.Hover ? Color.White : c));
+                RaceName.Draw(batch, Fonts.Arial14Bold, rpos, (RaceName.Hover ? Color.White : c));
             }
             else
             {
-                RaceName.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                RaceName.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             RaceName.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(RaceName.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -351,11 +347,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!SingEntry.HandlingInput)
             {
-                SingEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (SingEntry.Hover ? Color.White : c));
+                SingEntry.Draw(batch, Fonts.Arial14Bold, rpos, (SingEntry.Hover ? Color.White : c));
             }
             else
             {
-                SingEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                SingEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             SingEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(SingEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -364,11 +360,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!PlurEntry.HandlingInput)
             {
-                PlurEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (PlurEntry.Hover ? Color.White : c));
+                PlurEntry.Draw(batch, Fonts.Arial14Bold, rpos, (PlurEntry.Hover ? Color.White : c));
             }
             else
             {
-                PlurEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                PlurEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             PlurEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(PlurEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             rpos.X = RaceNamePos.X;
@@ -377,11 +373,11 @@ namespace Ship_Game
             rpos.X = rpos.X + 205f;
             if (!HomeSystemEntry.HandlingInput)
             {
-                HomeSystemEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, (HomeSystemEntry.Hover ? Color.White : c));
+                HomeSystemEntry.Draw(batch, Fonts.Arial14Bold, rpos, (HomeSystemEntry.Hover ? Color.White : c));
             }
             else
             {
-                HomeSystemEntry.Draw(Fonts.Arial14Bold, batch, rpos, gameTime, Color.BurlyWood);
+                HomeSystemEntry.Draw(batch, Fonts.Arial14Bold, rpos, Color.BurlyWood);
             }
             HomeSystemEntry.ClickableArea = new Rectangle((int)rpos.X, (int)rpos.Y, (int)Fonts.Arial14Bold.MeasureString(HomeSystemEntry.Text).X + 20, Fonts.Arial14Bold.LineSpacing);
             batch.DrawString(Fonts.Arial14Bold, Localizer.Token(29), FlagPos, Color.BurlyWood);
@@ -391,15 +387,17 @@ namespace Ship_Game
             FlagRight = new Rectangle(FlagRect.X + FlagRect.Width, FlagRect.Y + 40 - 10, 20, 20);
             batch.Draw(ResourceManager.Texture("UI/leftArrow"), FlagLeft, Color.BurlyWood);
             batch.Draw(ResourceManager.Texture("UI/rightArrow"), FlagRight, Color.BurlyWood);
-            r = Description.Menu;
+            r = Description.Rect;
             if (IsTransitioning)
             {
                 r.X += (int)(transitionOffset * 400f);
             }
-            Description.Update(r);
-            Description.subMenu = null;
-            Description.Draw();
-            rpos = new Vector2((r.X + 20), (Description.Menu.Y + 20));
+            
+            //TODO: RaceDesignScreen merge from scroll-list branch
+            //Description.Update(r);
+            //Description.subMenu = null;
+            Description.Draw(batch);
+            rpos = new Vector2((r.X + 20), (Description.Y + 20));
             DescriptionSL.Draw(batch);
             Vector2 drawCurs = rpos;
             foreach (ScrollList.Entry e in DescriptionSL.VisibleEntries)
@@ -434,7 +432,7 @@ namespace Ship_Game
             }
             TitleBar.Draw(batch);
             batch.DrawString(Fonts.Laserian14, Localizer.Token(18), TitlePos, c);
-            Left.Draw();
+            Left.Draw(batch);
             Traits.Draw(batch);
             traitsSL.Draw(batch);
             if (Traits.Tabs[0].Selected || Traits.Tabs[1].Selected || Traits.Tabs[2].Selected)
@@ -573,16 +571,12 @@ namespace Ship_Game
                 DrawColorSelector();
             }
             base.Draw(batch);
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
         }
 
         protected void DrawColorSelector()
         {
-            ColorSelectMenu.Draw();
+            ColorSelectMenu.Draw(ScreenManager.SpriteBatch);
             int yPosition = ColorSelector.Y + 20;
             int xPositionStart = ColorSelector.X + 20;
             for (int i = 0; i <= 255; i++)
@@ -651,8 +645,12 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            DescriptionSL.HandleInput(input);
-            if (!DrawingColorSelector)
+            if (DrawingColorSelector)
+                return HandleColorSelectorInput(input);
+
+            if (DescriptionSL.HandleInput(input))
+                return true;
+
             {
                 selector = null;
                 foreach (ScrollList.Entry e in RaceArchetypeSL.AllEntries)
@@ -786,7 +784,7 @@ namespace Ship_Game
                     GameAudio.BlipClick();
                     RaceDesignScreen galaxysize = this;
                     galaxysize.GalaxySize = (GalSize)((int)galaxysize.GalaxySize + (int)GalSize.Small);
-                    if (GalaxySize > GalSize.TrulyEpic)   //Resurrecting TrulyEpic Map UniverseRadius -Gretman
+                    if (GalaxySize > GalSize.Epic)   // Removed TrulyEpic (floating point issues)
                     {
                         GalaxySize = GalSize.Tiny;
                     }
@@ -815,13 +813,13 @@ namespace Ship_Game
                 if (NumOpponentsRect.HitTest(input.CursorPosition) && input.LeftMouseClick)
                 {
                     GameAudio.BlipClick();
-                    int maxOpponents = Mode == GameMode.Corners ? 3 
+                    int maxOpponents = Mode == GameMode.Corners ? 3
                         : GlobalStats.ActiveMod?.mi?.MaxOpponents ?? 7;
                     numOpponents = numOpponents + 1;
-                    
-                    if (numOpponents > maxOpponents)                    
+
+                    if (numOpponents > maxOpponents)
                         numOpponents = 1;
-                    
+
                 }
                 if (ScaleRect.HitTest(input.CursorPosition))
                 {
@@ -914,14 +912,25 @@ namespace Ship_Game
                     GameAudio.BlipClick();
                 }
             }
-            else if (!ColorSelector.HitTest(input.CursorPosition))
+
+            if (input.Escaped)
             {
-                if (input.LeftMouseClick)
-                {
-                    DrawingColorSelector = false;
-                }
+                ExitScreen();
+                return true;
             }
-            else if (input.LeftMouseDown)
+            return base.HandleInput(input);
+        }
+
+        bool HandleColorSelectorInput(InputState input)
+        {
+            bool overColorSelect = ColorSelector.HitTest(input.CursorPosition);
+            if ((!overColorSelect && input.LeftMouseClick) || input.RightMouseClick)
+            {
+                DrawingColorSelector = false;
+                return true;
+            }
+
+            if (overColorSelect && (input.LeftMouseClick || input.LeftMouseDown))
             {
                 int yPosition = ColorSelector.Y + 10;
                 int xPositionStart = ColorSelector.X + 10;
@@ -929,15 +938,17 @@ namespace Ship_Game
                 {
                     for (int j = 0; j <= 255; j++)
                     {
-                        var thisColor = new Color((byte)i, (byte)j, RaceSummary.B);
+                        var thisColor = new Color((byte) i, (byte) j, currentObjectColor.B);
                         var colorRect = new Rectangle(2 * j + xPositionStart - 4, yPosition - 4, 8, 8);
                         if (colorRect.HitTest(input.CursorPosition))
                         {
                             currentObjectColor = thisColor;
                         }
                     }
-                    yPosition = yPosition + 2;
+
+                    yPosition += 2;
                 }
+
                 yPosition = ColorSelector.Y + 10;
                 for (int i = 0; i <= 255; i++)
                 {
@@ -947,15 +958,12 @@ namespace Ship_Game
                     {
                         currentObjectColor = thisColor;
                     }
+
                     yPosition += 2;
                 }
             }
-            if (input.Escaped)
-            {
-                ExitScreen();
-                return true;
-            }
-            return base.HandleInput(input);
+
+            return true;
         }
 
 
@@ -978,10 +986,6 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth <= 1366 || ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
-            {
-                LowRes = true;
-            }
             Rectangle titleRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(18)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
@@ -1032,7 +1036,7 @@ namespace Ship_Game
             ExtraRemnantRect = new Rectangle(DifficultyRect.X, DifficultyRect.Y + Fonts.Arial12.LineSpacing + 10, DifficultyRect.Width, DifficultyRect.Height);
 
             Rectangle dRect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height);
-            Description = new Menu1(ScreenManager, dRect, true);
+            Description = new Menu1(dRect, true);
             dslrect = new Rectangle(leftRect.X + leftRect.Width + 5, leftRect.Y, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - leftRect.X - leftRect.Width - 10, leftRect.Height - 160);
             Submenu dsub = new Submenu(dslrect);
             DescriptionSL = new ScrollList(dsub, Fonts.Arial12.LineSpacing);
@@ -1057,10 +1061,10 @@ namespace Ship_Game
                     traitsSL.AddItem(t);
             }
 
-            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, titleId:22, click: OnEngageClicked);
-            Abort       = ButtonMedium(10, ScreenHeight - 40, titleId:23, click: OnAbortClicked);
+            Engage      = ButtonMedium(ScreenWidth - 140, ScreenHeight - 40, text:22, click: OnEngageClicked);
+            Abort       = ButtonMedium(10, ScreenHeight - 40, text:23, click: OnAbortClicked);
             ClearTraits = ButtonMedium(ScreenWidth - 150,
-                            Description.Menu.Y + Description.Menu.Height - 40, "Clear Traits", OnClearClicked);
+                            Description.Y + Description.Height - 40, "Clear Traits", OnClearClicked);
 
             DoRaceDescription();
             SetRacialTraits(SelectedData.Traits);
@@ -1072,7 +1076,7 @@ namespace Ship_Game
 
             ButtonMedium(pos.X - 142, pos.Y, "Load Setup", OnLoadSetupClicked);
             ButtonMedium(pos.X + 178, pos.Y, "Save Setup", OnSaveSetupClicked);
-            Button(pos.X, pos.Y, titleId: 4006, click: OnRuleOptionsClicked);
+            Button(pos.X, pos.Y, text: 4006, click: OnRuleOptionsClicked);
 
             base.LoadContent();
         }

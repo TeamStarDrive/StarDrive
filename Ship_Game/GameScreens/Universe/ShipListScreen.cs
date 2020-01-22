@@ -74,7 +74,7 @@ namespace Ship_Game
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
-            close = new CloseButton(this, new Rectangle(leftRect.X + leftRect.Width - 40, leftRect.Y + 20, 20, 20));
+            close = new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
             eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
             while (eRect.Height % 80 != 0)
             {
@@ -83,14 +83,14 @@ namespace Ship_Game
             ShipSubMenu = new Submenu(eRect);
             ShipSL = new ScrollList(ShipSubMenu, 30);
 
-            Add(new UICheckBox(this, TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
+            Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
                 () => PlayerDesignsOnly,
                 (x) => {
                     PlayerDesignsOnly = x;
                     ResetList(ShowRoles.ActiveValue);
                 }, Fonts.Arial12Bold, title: 191, tooltip: 191));
 
-            ShowRoles = new DropOptions<int>(this, new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
+            ShowRoles = new DropOptions<int>(new Rectangle(TitleBar.Menu.Right + 175, TitleBar.Menu.Y + 15, 175, 18));
             ShowRoles.AddOption("All Ships", 1);
             ShowRoles.AddOption("Not in Fleets", 11);
             ShowRoles.AddOption("Fighters", 2);
@@ -216,10 +216,6 @@ namespace Ship_Game
             }
             ShowRoles.Draw(batch);
             close.Draw(batch);
-            if (IsActive)
-            {
-                ToolTip.Draw(batch);
-            }
             batch.End();
         }
 
@@ -302,7 +298,7 @@ namespace Ship_Game
             if (Maint.HandleInput(input)) Sort(Maint, sl => sl.ship.GetMaintCost());
             else if (Maint.Hover) ToolTip.CreateTooltip("Maintenance Cost of Ship; sortable");
 
-            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.ship.TroopList.Count);
+            if (SB_Troop.HandleInput(input)) Sort(SB_Troop, sl => sl.ship.TroopCount);
             else if (SB_Troop.Hover) ToolTip.CreateTooltip("Indicates Troops on board, friendly or hostile; sortable");
 
             if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.ship.GetStrength());

@@ -127,6 +127,7 @@ namespace Ship_Game
                 };
                 if (pgs.Biosphere)
                     p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
+
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
@@ -146,8 +147,9 @@ namespace Ship_Game
                 var template = ResourceManager.GetBuildingTemplate(pgs.building.Name);
                 pgs.building.AssignBuildingId(template.BID);
                 pgs.building.Scrappable = template.Scrappable;
-                pgs.building.CreateWeapon();
+                pgs.building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.building);
+                p.AddBuildingsFertility(pgs.building.MaxFertilityOnBuild);
             }
             return p;
         }
@@ -160,19 +162,10 @@ namespace Ship_Game
                 Name          = ssd.Name,
                 Position      = ssd.Position,
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
-                AsteroidsList = new BatchRemovalCollection<Asteroid>(),
-                MoonList      = new Array<Moon>()
             };
-            foreach (Asteroid roid in ssd.AsteroidsList)
-            {
-                roid.Initialize();
-                system.AsteroidsList.Add(roid);
-            }
-            foreach (Moon moon in ssd.Moons)
-            {
-                moon.Initialize();
-                system.MoonList.Add(moon);
-            }
+
+            system.AsteroidsList.AddRange(ssd.AsteroidsList);
+            system.MoonList.AddRange(ssd.Moons);
             system.SetExploredBy(ssd.ExploredBy);
             system.RingList = new Array<SolarSystem.Ring>();
             foreach (SavedGame.RingSave ring in ssd.RingList)
@@ -256,17 +249,20 @@ namespace Ship_Game
                 var qi = new QueueItem(p);
                 if (qisave.isBuilding)
                 {
-                    qi.isBuilding = true;
-                    qi.Building = ResourceManager.CreateBuilding(qisave.UID);
-                    qi.Cost = qi.Building.ActualCost;
+                    qi.isBuilding    = true;
+                    qi.IsMilitary    = qisave.IsMilitary;
+                    qi.Building      = ResourceManager.CreateBuilding(qisave.UID);
+                    qi.Cost          = qi.Building.ActualCost;
                     qi.NotifyOnEmpty = false;
                     qi.IsPlayerAdded = qisave.isPlayerAdded;
+
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
                         if (pgs.x != (int) qisave.pgsVector.X || pgs.y != (int) qisave.pgsVector.Y)
                             continue;
+
                         pgs.QItem = qi;
-                        qi.pgs = pgs;
+                        qi.pgs    = pgs;
                         break;
                     }
                 }
@@ -497,7 +493,8 @@ namespace Ship_Game
                 if (!data.FindShip(shipData.guid, out Ship ship))
                     continue;
 
-                ship.AI.SetWayPoints(shipData.AISave.ActiveWayPoints);
+                if (shipData.AISave.WayPoints != null)
+                    ship.AI.SetWayPoints(shipData.AISave.WayPoints);
 
                 foreach (SavedGame.ShipGoalSave sg in shipData.AISave.ShipGoalsList)
                 {
@@ -559,12 +556,7 @@ namespace Ship_Game
 
                 CreateSpaceRoads(data, esd, e);
                 CreateGoals(esd, e, data);
-
-                for (int i = 0; i < esd.GSAIData.PinGuids.Count; i++)
-                {
-                    e.GetEmpireAI().ThreatMatrix.Pins.Add(esd.GSAIData.PinGuids[i], esd.GSAIData.PinList[i]);
-                }
-
+                e.GetEmpireAI().ThreatMatrix.AddFromSave(esd.GSAIData);
                 e.GetEmpireAI().UsedFleets = esd.GSAIData.UsedFleets;
                 CreateMilitaryTasks(esd, e, data);
                 CreateShipGoals(esd, data, e);

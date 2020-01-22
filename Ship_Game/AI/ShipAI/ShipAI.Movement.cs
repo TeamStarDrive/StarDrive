@@ -20,17 +20,18 @@ namespace Ship_Game.AI
         readonly WayPoints WayPoints = new WayPoints();
 
         public bool HasWayPoints => WayPoints.Count > 0;
-        public Vector2[] CopyWayPoints() => WayPoints.ToArray();
+        public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
+        public Vector2 DebugDrawPosition => Owner.Center + Owner.Velocity.Normalized() * Owner.Radius;
         void ClearWayPoints()
         {
             WayPoints.Clear();
         }
 
-        public void SetWayPoints(IReadOnlyList<Vector2> wayPoints)
+        public void SetWayPoints(IReadOnlyList<WayPoint> wayPoints)
         {
             ClearWayPoints();
-            foreach (Vector2 wp in wayPoints)
+            foreach (WayPoint wp in wayPoints)
                 WayPoints.Enqueue(wp);
         }
 
@@ -153,19 +154,21 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null) targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
+            if (goal.Fleet != null && targetPos.AlmostZero()) 
+                targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
 
             if (Owner.EnginesKnockedOut)
                 return;
 
-            bool debug = Empire.Universe.Debug && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
+            bool debug = Empire.Universe.Debug && Empire.Universe.DebugWin != null
+                                               && Debug.DebugInfoScreen.Mode == Debug.DebugModes.PathFinder;
 
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
             if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
-                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, "STOP", Color.Red);
+                if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -187,22 +190,26 @@ namespace Ship_Game.AI
 
             float vel = Owner.CurrentVelocity;
             float stoppingDistance = Owner.GetMinDecelerationDistance(vel);
+
             if (distance <= stoppingDistance)
             {
                 ReverseThrustUntilStopped(elapsedTime);
-                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
+                if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
             }
             else if (isFacingTarget)
             {
-                if (vel < 25f || distance > stoppingDistance)
-                {
-                    float speedLimit = (distance * 0.4f);
+                // make sure to not get at stupid slow speeds but try not to accelerate while slowing down.
+                const float minimumSpeed = 25f;
+                if (vel < Math.Max(distance, stoppingDistance).ClampMin(minimumSpeed))
+                { 
+                    float speedLimit = distance;
                     if (goal.SpeedLimit > 0f)
                         speedLimit = Math.Max(speedLimit, goal.SpeedLimit);
-                    speedLimit = Math.Max(speedLimit, 25f);
+                    speedLimit = Math.Max(speedLimit, minimumSpeed);
 
                     Owner.SubLightAccelerate(speedLimit);
-                    if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
+                    if (debug)
+                        Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
                 }
             }
         }
@@ -364,7 +371,7 @@ namespace Ship_Game.AI
                     DisEngageFormationWarp();
                 }
 
-                //speedLimit = FormationWarpSpeed(speedLimit);
+                speedLimit = FormationWarpSpeed(speedLimit);
                 Owner.SubLightAccelerate(speedLimit);
             }
         }
@@ -400,11 +407,11 @@ namespace Ship_Game.AI
                 // ok, just cut the corner to next WayPoint maybe?
                 if (WayPoints.Count >= 2 && distance > Owner.loyalty.ProjectorRadius * 0.5f)
                 {
-                    Vector2 next = WayPoints.ElementAt(1);
-                    float nextDistance = Owner.Center.Distance(next);
+                    WayPoint next = WayPoints.ElementAt(1);
+                    float nextDistance = Owner.Center.Distance(next.Position);
                     if (nextDistance < Owner.loyalty.ProjectorRadius * 5f) // within cut range
                     {
-                        float nextDiff = Owner.AngleDifferenceToPosition(next);
+                        float nextDiff = Owner.AngleDifferenceToPosition(next.Position);
                         float nextMaxTurn = EstimateMaxTurn(nextDistance);
 
                         // Angle to next WayPoint is better than angle to this one

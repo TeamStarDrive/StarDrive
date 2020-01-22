@@ -12,74 +12,34 @@ namespace Ship_Game
 {
     public partial class UniverseScreen
     {
-        private void ProcessTurns()
+        void ProcessTurnsMonitored()
+        {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            Log.Write(ConsoleColor.Cyan, $"Start Universe.ProcessTurns Thread #{threadId}");
+            Log.AddThreadMonitor();
+            ProcessTurns();
+            Log.RemoveThreadMonitor();
+            Log.Write(ConsoleColor.Cyan, $"Stop Universe.ProcessTurns Thread #{threadId}");
+        }
+
+        void ProcessTurns()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
-            while (true)
+            while (ProcessTurnsThread != null)
             {
                 try
                 {
-                    // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns inbetween
+                    // Wait for Draw() to finish. While SwapBuffers is blocking, we process the turns in between
                     DrawCompletedEvt.WaitOne();
                     if (ProcessTurnsThread == null)
-                        return; // this thread is aborting
+                        break; // this thread is aborting
 
-                    float deltaTime = (float)SimulationTime.ElapsedGameTime.TotalSeconds;
-                    pieMenu.Update(SimulationTime);
-
-                    if (Paused)
-                    {
-                        ++FrameId;
-
-                        UpdateAllSystems(0.0f);
-                        DeepSpaceThread(0.0f);
-                    }
-                    else
-                    {
-                        NotificationManager.Update(deltaTime);
-                        AutoSaveTimer -= deltaTime;
-
-                        if (AutoSaveTimer <= 0.0f)
-                        {
-                            AutoSaveTimer = GlobalStats.AutoSaveFreq;
-                            DoAutoSave();
-                        }
-                        if (IsActive)
-                        {
-                            if (GameSpeed < 1f) //Speed <1.0
-                            {
-                                if (TurnFlipCounter >= 1)
-                                {
-                                    TurnFlipCounter = 0;
-                                    ++FrameId;
-                                    ProcessTurnDelta(deltaTime);
-                                }
-                                TurnFlipCounter += GameSpeed;
-                            }
-                            else
-                            {
-                                // With higher GameSpeed, we take more than 1 turn
-                                for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
-                                {
-                                    ++FrameId;
-                                    ProcessTurnDelta(deltaTime);
-                                    deltaTime = (float) SimulationTime.ElapsedGameTime.TotalSeconds;
-                                }
-                            }
-                            if (GlobalStats.RestrictAIPlayerInteraction)
-                            {
-                                if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
-                                    ++GameSpeed;
-                                else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
-
-                            }
-                        }
-                    }
+                    ProcessNextTurn();
                     failedLoops = 0; // no exceptions this turn
                 }
                 catch (ThreadAbortException)
                 {
-                    return; // Game over, Make sure to Quit the loop!
+                    break; // Game over, Make sure to Quit the loop!
                 }
                 catch (Exception ex)
                 {
@@ -92,10 +52,18 @@ namespace Ship_Game
                 }
                 finally
                 {
-                    //if the debug window hits a cyclic crash it can be turned off ingame.
-                    // i dont see a point in crashing the game because of a debug window error.
-                    try { DebugWin?.Update(SimulationDeltaTime); }
-                    catch { Log.Info("DebugWindowCrashed"); }
+                    // if the debug window hits a cyclic crash it can be turned off in game.
+                    // i don't see a point in crashing the game because of a debug window error.
+                    try
+                    {
+                        if (Debug)
+                            DebugWin?.Update(SimulationDeltaTime);
+                    }
+                    catch
+                    {
+                        Debug = false;
+                        Log.Warning("DebugWindowCrashed");
+                    }
 
                     // Notify Draw() that taketurns has finished and another frame can be drawn now
                     ProcessTurnsCompletedEvt.Set();
@@ -103,7 +71,61 @@ namespace Ship_Game
             }
         }
 
-        private void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
+        void ProcessNextTurn()
+        {
+            float deltaTime = FrameDeltaTime;
+
+            if (Paused)
+            {
+                ++TurnId;
+
+                UpdateAllSystems(0.0f);
+                DeepSpaceThread(0.0f);
+            }
+            else
+            {
+                NotificationManager.Update(deltaTime);
+                AutoSaveTimer -= deltaTime;
+
+                if (AutoSaveTimer <= 0.0f)
+                {
+                    AutoSaveTimer = GlobalStats.AutoSaveFreq;
+                    DoAutoSave();
+                }
+                if (IsActive)
+                {
+                    if (GameSpeed < 1f) //Speed <1.0
+                    {
+                        if (TurnFlipCounter >= 1)
+                        {
+                            TurnFlipCounter = 0;
+                            ++TurnId;
+                            ProcessTurnDelta(deltaTime);
+                        }
+                        TurnFlipCounter += GameSpeed;
+                    }
+                    else
+                    {
+                        // With higher GameSpeed, we take more than 1 turn
+                        for (int numTurns = 0; numTurns < GameSpeed && IsActive; ++numTurns)
+                        {
+                            ++TurnId;
+                            ProcessTurnDelta(deltaTime);
+                            deltaTime = FrameDeltaTime;
+                        }
+                    }
+                    if (GlobalStats.RestrictAIPlayerInteraction)
+                    {
+                        if (perfavg5.NumSamples > 0 && perfavg5.AvgTime * GameSpeed < 0.05f)
+                            ++GameSpeed;
+                        else if (--GameSpeed < 1.0f) GameSpeed = 1.0f;
+
+                    }
+                }
+            }
+        }
+
+        void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
         {
             //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
             int granularity = (int) (UniverseSize / PathMapReducer);
@@ -158,30 +180,29 @@ namespace Ship_Game
             SimulationDeltaTime = elapsedTime;
             perfavg5.Start(); // total do work perf counter
 
-            GlobalStats.BeamTests     = 0;
-            GlobalStats.Comparisons   = 0;
+            GlobalStats.BeamTests = 0;
+            GlobalStats.Comparisons = 0;
             GlobalStats.ComparisonCounter += 1;
             GlobalStats.ModuleUpdates = 0;
 
             if (ProcessTurnEmpires(elapsedTime))
-                return;
+            {
+                UpdateShipsAndFleets(elapsedTime);
 
-            UpdateShipsAndFleets(elapsedTime);
+                // this will update all ship Center coordinates
+                ProcessTurnShipsAndSystems(elapsedTime);
 
-            // this will update all ship Center coordinates
-            ProcessTurnShipsAndSystems(elapsedTime);
+                // update spatial manager after ships have moved.
+                // all the collisions will be triggered here:
+                SpaceManager.Update(elapsedTime);
 
-            // update spatial manager after ships have moved.
-            // all the collisions will be triggered here:
-            SpaceManager.Update(elapsedTime);
+                ProcessTurnUpdateMisc(elapsedTime);
 
-            ProcessTurnUpdateMisc(elapsedTime);
-
-            // bulk remove all dead projectiles to prevent their update next frame
-            RemoveDeadProjectiles();
+                // bulk remove all dead projectiles to prevent their update next frame
+                RemoveDeadProjectiles();
+            }
 
             perfavg5.Stop();
-            Lag = perfavg5.AvgTime;
         }
 
         void RemoveDeadProjectiles()
@@ -200,8 +221,7 @@ namespace Ship_Game
         void ProcessTurnUpdateMisc(float elapsedTime)
         {
             UpdateClickableItems();
-            if (LookingAtPlanet)
-                workersPanel.Update(elapsedTime);
+
             bool flag1 = false;
             lock (GlobalStats.ClickableSystemsLock)
             {
@@ -283,13 +303,6 @@ namespace Ship_Game
             {
                 perStarDateTimer = StarDate + 0.1f;
                 perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
-                empireShipCountReserve = EmpireManager.Empires.Sum(empire =>
-                    {
-                        if (empire == player || empire.data.Defeated || empire.isFaction)
-                            return 0;
-                        return empire.EmpireShipCountReserve;
-                    }
-                );
                 globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && !ship.loyalty.isPlayer && !ship.loyalty.isFaction) &&
                                                                   ship.shipData.Role != ShipData.RoleName.troop &&
                                                                   ship.Mothership == null).Length;
@@ -316,11 +329,14 @@ namespace Ship_Game
                         {
                             SolarSystem system = SolarSystemList[x];
 
-                            if (!ship.InRadiusOfSystem(system))
-                                continue;
-                            system.SetExploredBy(ship.loyalty);
-                            ship.SetSystem(system);
-                            break; // No need to keep looping through all other systems if one is found -Gretman
+                            if (ship.InRadiusOfSystem(system))
+                            {
+                                system.SetExploredBy(ship.loyalty);
+                                ship.SetSystem(system);
+                                // No need to keep looping through all other systems
+                                // if one is found -Gretman
+                                break;
+                            }
                         }
                     }
                 }
@@ -337,7 +353,7 @@ namespace Ship_Game
             perfavg4.Stop();
         }
 
-        private void ProcessTurnShipsAndSystems(float elapsedTime)
+        void ProcessTurnShipsAndSystems(float elapsedTime)
         {
             Perfavg2.Start();
 #if !PLAYERONLY
@@ -359,7 +375,7 @@ namespace Ship_Game
             Perfavg2.Stop();
         }
 
-        private bool ProcessTurnEmpires(float elapsedTime)
+        bool ProcessTurnEmpires(float elapsedTime)
         {
             PreEmpirePerf.Start();
 
@@ -368,7 +384,9 @@ namespace Ship_Game
                 ShowingSysTooltip = false;
                 ShowingPlanetToolTip = false;
             }
+
             RecomputeFleetButtons(false);
+
             if (SelectedShip != null)
             {
                 ProjectPieMenu(SelectedShip.Position, 0.0f);
@@ -377,6 +395,7 @@ namespace Ship_Game
             {
                 ProjectPieMenu(SelectedPlanet.Center, 2500f);
             }
+
             if (GlobalStats.RemnantArmageddon)
             {
                 if (!Paused) ArmageddonTimer -= elapsedTime;
@@ -395,6 +414,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
@@ -402,12 +422,13 @@ namespace Ship_Game
             if (Paused)
             {
                 PreEmpirePerf.Stop();
-                return false;
+                return true;
             }
 
-            bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
             if (IsActive)
             {
+                bool rebuildPathingMap = false;
+
                 for (int i = 0; i < EmpireManager.NumEmpires; i++)
                 {
                     Empire empire = EmpireManager.Empires[i];
@@ -416,26 +437,29 @@ namespace Ship_Game
                     empire.AddShipsToForcePoolFromShipsToAdd();
                     rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }
+                
+                if (rebuildPathingMap)
+                    DoPathingMapRebuild();
             }
-
-            if (rebuildPathingMap)
-                DoPathingMapRebuild();
 
             PreEmpirePerf.Stop();
 
-            if (!IsActive)
-                return true;
-
-            EmpireUpdatePerf.Start();
-            for (var i = 0; i < EmpireManager.NumEmpires; i++)
+            if (IsActive)
             {
-                Empire empire = EmpireManager.Empires[i];
-                empire.Update(elapsedTime);
-            }
-            MasterShipList.ApplyPendingRemovals();
+                EmpireUpdatePerf.Start();
+                for (var i = 0; i < EmpireManager.NumEmpires; i++)
+                {
+                    Empire empire = EmpireManager.Empires[i];
+                    empire.Update(elapsedTime);
+                }
 
-            shiptimer -= elapsedTime; // 0.01666667f;//
-            EmpireUpdatePerf.Stop();
+                MasterShipList.ApplyPendingRemovals();
+
+                shiptimer -= elapsedTime; // 0.01666667f;//
+                EmpireUpdatePerf.Stop();
+                return true;
+            }
+
             return false;
         }
 
@@ -520,7 +544,7 @@ namespace Ship_Game
             }
         }
 
-        private void DeepSpaceThread(float elapsedTime)
+        void DeepSpaceThread(float elapsedTime)
         {
             SpaceManager.GetDeepSpaceShips(DeepSpaceShips);
 
@@ -539,7 +563,7 @@ namespace Ship_Game
                 system.Update(elapsedTime, this, realTime);
         }
 
-        private void HandleGameSpeedChange(InputState input)
+        void HandleGameSpeedChange(InputState input)
         {
             if (input.SpeedReset)
                 GameSpeed = 1f;
@@ -552,7 +576,7 @@ namespace Ship_Game
             }
         }
 
-        private float GetGameSpeedAdjust(bool increase)
+        float GetGameSpeedAdjust(bool increase)
         {
             return increase
                 ? GameSpeed <= 1 ? GameSpeed * 2 : GameSpeed + 1

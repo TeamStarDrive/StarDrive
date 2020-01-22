@@ -33,6 +33,8 @@ namespace Ship_Game.AI
         public CombatStatus TaskCombatStatus = CombatStatus.InCombat;
 
         public int FleetIconIndex;
+        public SubTexture Icon => ResourceManager.FleetIcon(FleetIconIndex);
+        
         public int TaskStep;
         public bool IsCoreFleet;
 
@@ -88,7 +90,9 @@ namespace Ship_Game.AI
         void UpdateOurFleetShip(Ship ship)
         {
             HasRepair = HasRepair || ship.hasRepairBeam || (ship.HasRepairModule && ship.Ordinance > 0);
-            HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
+
+            HasOrdnanceSupplyShuttles = HasOrdnanceSupplyShuttles || 
+                                        (ship.Carrier.HasSupplyBays && ship.Ordinance >= 100);
         }
 
         public void AddExistingShip(Ship ship, FleetDataNode node)
@@ -1040,15 +1044,15 @@ namespace Ship_Game.AI
             {
                 Empire = Owner,
                 Granularity = 5000f,
-                Postition = task.AO,
+                Position = task.AO,
                 Radius = task.AORadius
             };
 
-            strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
+            strengthCluster = Owner.GetEmpireAI().ThreatMatrix.FindLargestStrengthClusterLimited(strengthCluster, GetStrength(), AveragePosition());
             if (strengthCluster.Strength <= 0) return false;
             CoreFleetSubTask = new MilitaryTask
             {
-                AO = strengthCluster.Postition,
+                AO = strengthCluster.Position,
                 AORadius = strengthCluster.Granularity
             };
             GatherAtAO(CoreFleetSubTask, 7500);
@@ -1554,14 +1558,30 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                if (ship.AI.State == AIState.FormationWarp)
+                Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
+
+                // if combat in move position do not move in formation. 
+                if (ship.AI.State == AIState.FormationWarp && !IsAssembling 
+                                                           && ship.AI.HasPriorityOrder 
+                                                           && ship.engineState == Ship.MoveState.Sublight)
                 {
-                    SetCombatMoveAtPosition(ship, FinalPosition, 7500);
-                    Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 100000, Color.Yellow);
+                    if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
+                    {
+                        ClearPriorityOrderIfSubLight(ship);
+                    }
                 }
 
                 UpdateOurFleetShip(ship);
-                ReadyForWarp = ReadyForWarp && ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
+
+                // get fleet assembled before going to warp. 
+                if (ReadyForWarp && ship.AI.State == AIState.FormationWarp)
+                {
+                    if (IsFleetAssembled(15) == MoveStatus.Assembled)
+                        ReadyForWarp = ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
+                }
+
+                // once in warp clear assembling flag. 
+                if (ship.engineState == Ship.MoveState.Warp) IsAssembling = false;
             }
 
             if (Ships.Count > 0 && HasFleetGoal)

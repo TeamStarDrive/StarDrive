@@ -76,13 +76,13 @@ namespace Ship_Game
         // XML Ignore because we load these from XML templates
         [XmlIgnore][JsonIgnore] public Weapon TheWeapon { get; private set; }
         [XmlIgnore][JsonIgnore] public float Offense { get; private set; }
-        [XmlIgnore] [JsonIgnore] public int CurrentNumDefenseShips { get; private set; } 
+        [XmlIgnore][JsonIgnore] public int CurrentNumDefenseShips { get; private set; }
+        [XmlIgnore][JsonIgnore] public float MilitaryStrength { get; private set; }
 
         [XmlIgnore][JsonIgnore] public float ActualCost => Cost * CurrentGame.Pace;
 
         public override string ToString()
-            => string.Format("BID:{0} Name:{1} ActualCost:{2} +Tax:{3}  Short:{4}", 
-                             BID, Name, ActualCost, PlusTaxPercentage, ShortDescrText);
+            => $"BID:{BID} Name:{Name} ActualCost:{ActualCost} +Tax:{PlusTaxPercentage}  Short:{ShortDescrText}";
 
         [XmlIgnore][JsonIgnore] public string TranslatedName => Localizer.Token(NameTranslationIndex);
         [XmlIgnore][JsonIgnore] public string DescriptionText => Localizer.Token(DescriptionIndex);
@@ -99,6 +99,9 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsBiospheres => BID == BiospheresId;
         [XmlIgnore][JsonIgnore] public bool IsSpacePort  => BID == SpacePortId;
         [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
+
+        [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
+        [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(0.1f);
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
@@ -118,7 +121,7 @@ namespace Ship_Game
             return b;
         }
 
-        public void CreateWeapon()
+        private void CreateWeapon()
         {
             if (!isWeapon)
                 return;
@@ -268,7 +271,7 @@ namespace Ship_Game
         // Event when a building is built at planet p
         public void OnBuildingBuiltAt(Planet p)
         {
-            p.AddMaxBaseFertility(MaxFertilityOnBuild); 
+            p.AddBuildingsFertility(MaxFertilityOnBuild); 
             p.BuildingList.Add(this);
             if (IsSpacePort)
             {
@@ -283,6 +286,42 @@ namespace Ship_Game
                 ExplorationEvent e = ResourceManager.Event(EventOnBuild);
                 u.ScreenManager.AddScreenDeferred(new EventPopup(u, u.PlayerEmpire, e, e.PotentialOutcomes[0], true));
             }
+        }
+
+        public void CalcMilitaryStrength()
+        {
+            CreateWeapon();
+            float score = 0;
+            if (CanAttack)
+            {
+                score += Strength + Defense + CombatStrength + SoftAttack + HardAttack;
+                score += PlanetaryShieldStrengthAdded / 100;
+                score += InvadeInjurePoints * 10;
+                if (AllowInfantry)
+                    score += 50;
+
+                score += CalcDefenseShipScore();
+            }
+
+            MilitaryStrength = score + Offense/10;
+        }
+
+        float CalcDefenseShipScore()
+        {
+            if (DefenseShipsCapacity <= 0 || DefenseShipsRole == 0)
+                return 0;
+
+            float defenseShipScore;
+            switch (DefenseShipsRole)
+            {
+                case ShipData.RoleName.drone:    defenseShipScore = 3f;  break;
+                case ShipData.RoleName.fighter:  defenseShipScore = 5f;  break;
+                case ShipData.RoleName.corvette: defenseShipScore = 10f; break;
+                case ShipData.RoleName.frigate:  defenseShipScore = 20f; break;
+                default:                         defenseShipScore = 50f; break;
+            }
+
+            return defenseShipScore * DefenseShipsCapacity;
         }
     }
 }

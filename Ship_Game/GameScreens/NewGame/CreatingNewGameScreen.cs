@@ -33,8 +33,9 @@ namespace Ship_Game
 
         public CreatingNewGameScreen(Empire player, string universeSize, 
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
-                float pace, int scale, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(mainMenu)
+                float pace, int scale, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
+            CanEscapeFromScreen = false;
             GlobalStats.RemnantArmageddon = false;
             GlobalStats.RemnantKills = 0;
             GlobalStats.RemnantActivation = 0;
@@ -88,7 +89,7 @@ namespace Ship_Game
             Data.EmpireList.Add(player);
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
-            StatTracker.SnapshotsDict.Clear();
+            StatTracker.Reset();
 
             CurrentGame.StartNew(Data, pace);
         }
@@ -220,15 +221,7 @@ namespace Ship_Game
                 }
                 foreach (Asteroid asteroid in wipSystem.AsteroidsList)
                 {
-                    asteroid.Position3D.X += wipSystem.Position.X;
-                    asteroid.Position3D.Y += wipSystem.Position.Y;
-                    asteroid.Initialize();
-                    AddObject(asteroid.So);
-                }
-                foreach (Moon moon in wipSystem.MoonList)
-                {
-                    moon.Initialize();
-                    AddObject(moon.So);
+                    asteroid.Position += wipSystem.Position;
                 }
                 foreach (Ship ship in wipSystem.ShipList)
                 {
@@ -277,7 +270,8 @@ namespace Ship_Game
 
         void CreateOpponents(ProgressCounter step)
         {
-            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(data => data.Name != Player.data.Name);
+            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
+                                data => data.ArchetypeName != Player.data.ArchetypeName);
 
             // create a randomly shuffled list of opponents
             var opponents = new Array<IEmpireData>(majorRaces);
@@ -568,25 +562,26 @@ namespace Ship_Game
             }
         }
 
+        bool IsInUniverseBounds(Vector2 sysPos)
+        {
+            return -Data.Size.X < sysPos.X && sysPos.X < Data.Size.X
+                && -Data.Size.Y < sysPos.Y && sysPos.Y < Data.Size.Y;
+        }
+
         bool SystemPosOK(Vector2 sysPos)
         {
-            foreach (Vector2 vector2 in ClaimedSpots)
-            {   //Updated to make use of the negative map values -Gretman
-                if (Vector2.Distance(vector2, sysPos) < 300000.0 * Scale 
-                    || sysPos.X >  Data.Size.X || sysPos.Y >  Data.Size.Y 
-                    || sysPos.X < -Data.Size.X || sysPos.Y < -Data.Size.Y)
-                    return false;
-            }
-            return true;
+            return SystemPosOK(sysPos, 300000f * Scale);
         }
 
         bool SystemPosOK(Vector2 sysPos, float spacing)
         {
-            foreach (Vector2 vector2 in ClaimedSpots)
+            if (!IsInUniverseBounds(sysPos))
+                return false;
+
+            for (int i = 0; i < ClaimedSpots.Count; ++i)
             {
-                if (Vector2.Distance(vector2, sysPos) < spacing 
-                    || sysPos.X >  Data.Size.X || sysPos.Y >  Data.Size.Y 
-                    || sysPos.X < -Data.Size.X || sysPos.Y < -Data.Size.Y)
+                Vector2 claimed = ClaimedSpots[i];
+                if (sysPos.InRadius(claimed, spacing))
                     return false;
             }
             return true;
@@ -622,27 +617,28 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             ScreenManager.GraphicsDevice.Clear(Color.Black);
-            batch.Begin();
 
-            if (!BackgroundTask.IsComplete)
+            if (BackgroundTask?.IsComplete == false)
             {
                 // heavily throttle main draw thread, so the worker thread can turbo
                 Thread.Sleep(33);
+                if (IsDisposed) // just in case we tried to ALT+F4 during loading
+                    return;
             }
 
+            batch.Begin();
             int width  = ScreenWidth;
             int height = ScreenHeight;
-            batch.Draw(LoadingScreenTexture, new Rectangle(width / 2 - 960, height / 2 - 540, 1920, 1080), Color.White);
+            if (LoadingScreenTexture != null)
+                batch.Draw(LoadingScreenTexture, new Rectangle(width / 2 - 960, height / 2 - 540, 1920, 1080), Color.White);
             
-            float percent = Progress.Percent;
-
             var r = new Rectangle(width / 2 - 150, height - 25, 300, 25);
-            new ProgressBar(r) { Max = 100f, Progress = percent * 100f }.Draw(batch);
+            new ProgressBar(r) { Max = 100f, Progress = Progress.Percent * 100f }.Draw(batch);
 
             var position = new Vector2(ScreenCenter.X - 250f, (float)(r.Y - Fonts.Arial12Bold.MeasureString(AdviceText).Y - 5.0));
             batch.DrawString(Fonts.Arial12Bold, AdviceText, position, Color.White);
             
-            if (BackgroundTask.IsComplete)
+            if (BackgroundTask?.IsComplete == true)
             {
                 position.Y = (float)(position.Y - Fonts.Pirulen16.LineSpacing - 10.0);
                 string token = Localizer.Token(2108);

@@ -71,7 +71,7 @@ namespace Ship_Game.GameScreens
 
             public FloatSlider AddSlider(string title, float value)
             {
-                return Add(new FloatSlider(this, SliderStyle.Percent,
+                return Add(new FloatSlider(SliderStyle.Percent,
                                            new Vector2(100,32), title, 0f, 1f, value));
             }
         }
@@ -97,13 +97,13 @@ namespace Ship_Game.GameScreens
             SummaryPanel tax = Add(new SummaryPanel(0, taxRect, new Color(17, 21, 28)));
             var taxTitle     = Player.data.AutoTaxes ? 6138 : 311;
 
-            TaxSlider           = tax.AddSlider(Localizer.Token(taxTitle), 0.25f);
-            TaxSlider.TooltipId = 66;
-            TaxSlider.OnChange  = TaxSliderOnChange;
+            TaxSlider = tax.AddSlider(Localizer.Token(taxTitle), 0.25f);
+            TaxSlider.Tip = 66;
+            TaxSlider.OnChange = TaxSliderOnChange;
 
-            TreasuryGoal           = tax.AddSlider(Localizer.TreasuryGoal, 0.20f);
-            TreasuryGoal.TooltipId = 255;
-            TreasuryGoal.OnChange  = TreasurySliderOnChange;
+            TreasuryGoal = tax.AddSlider(Localizer.TreasuryGoal, 0.20f);
+            TreasuryGoal.Tip = 255;
+            TreasuryGoal.OnChange = TreasurySliderOnChange;
             
 
             TreasuryGoal.RelativeValue = Player.data.treasuryGoal; // trigger updates
@@ -117,7 +117,7 @@ namespace Ship_Game.GameScreens
             BudgetTab(budgetRect);
 
             EmpireNetIncome = Label(Window.Menu.Right - 200,Window.Menu.Bottom - 47,
-                                      titleId:324, Fonts.Arial20Bold);
+                                      text:324, Fonts.Arial20Bold);
             EmpireNetIncome.DropShadow  = true;
             EmpireNetIncome.DynamicText = DynamicText(
                 ()   => Player.NetIncome,

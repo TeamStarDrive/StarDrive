@@ -150,8 +150,6 @@ namespace Ship_Game
             int numHabitableTiles = TilesList.Count(t => t.Habitable);
             CreateHomeWorldPopulation(preDefinedPop, numHabitableTiles);
             InitializeWorkerDistribution(Owner);
-            FoodHere     = 100f;
-            ProdHere     = 100f;
             HasSpacePort = true;
             if (!ParentSystem.OwnerList.Contains(Owner))
                 ParentSystem.OwnerList.Add(Owner);
@@ -217,14 +215,9 @@ namespace Ship_Game
         {
             ResourceManager.CreateBuilding(Building.CapitalId).SetPlanet(this);
             ResourceManager.CreateBuilding(Building.SpacePortId).SetPlanet(this);
-            if (GlobalStats.HardcoreRuleset)
-            {
-                AddGood("ReactorFuel", 1000);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(this);
-                ResourceManager.CreateBuilding(Building.FissionablesId).SetPlanet(this);
-                ResourceManager.CreateBuilding(Building.MineFissionablesId).SetPlanet(this);
-                ResourceManager.CreateBuilding(Building.FuelRefineryId).SetPlanet(this);
-            }
+            Storage.Max = BuildingList.Sum(b => b.StorageAdded);
+            FoodHere    = Storage.Max;
+            ProdHere    = Storage.Max / 2;
         }
 
         private void ApplyTerraforming() // Added by Fat Bastard
@@ -237,10 +230,6 @@ namespace Ship_Game
 
             // First, make un-habitable tiles habitable
             if (TerraformTiles()) 
-                return;
-
-            // Remove negative effect buildings
-            if (ScrapNegativeEnvBuilding())
                 return;
 
             // Then, if all tiles are habitable, proceed to Planet Terraform
@@ -269,7 +258,7 @@ namespace Ship_Game
 
         private bool TerraformPlanet()
         {
-            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformMaxFertilityTarget))
+            if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
                 return false;
 
             TerraformPoints += TerraformToAdd;
@@ -280,28 +269,6 @@ namespace Ship_Game
             }
 
             return true;
-        }
-
-        private bool ScrapNegativeEnvBuilding()
-        {
-            if (Owner.IsCybernetic)
-                return false; // Cybernetic races do not care for environmental harmful facilities. 
-
-            var negativeEnvBuildings = BuildingList.Filter(b => b.MaxFertilityOnBuild < 0 && !b.IsBiospheres);
-            if (negativeEnvBuildings.Length > 0)
-            {
-                ScrapBuilding(negativeEnvBuildings[0]);
-                if (Owner.isPlayer) // Notify player that the planet a harmful building was removed as part of terraforming
-                {
-                    string messageText = negativeEnvBuildings[0].Name + Localizer.Token(1930);
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         private void TerraformBioSpheres()
@@ -335,14 +302,7 @@ namespace Ship_Game
         {
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
-            if (Owner.NonCybernetic)
-            {
-                float fertilityAfterTerraform = Fertility; // setting the fertility to what the empire saw before terraform. It will slowly rise.
-                BaseMaxFertility              = Math.Max(TerraformMaxFertilityTarget, BaseMaxFertility);
-                BaseFertility                 = fertilityAfterTerraform;
-            }
-            else
-                BaseMaxFertility = 0; // cybernetic races will reduce fertility to 0 on their terraformed worlds, they dont need it.
+            AddMaxBaseFertility(-BaseMaxFertility + TerraformedMaxFertility);
 
             string messageText = Localizer.Token(1920);
             if (!BioSpheresToTerraform) 
@@ -358,6 +318,19 @@ namespace Ship_Game
                 colonyType = Owner.AssessColonyNeeds(this);
         }
 
+        // FB - This will give the Natural Max Fertility the planet should have after terraforming is complete
+        public float TerraformedMaxFertility
+        {
+            get
+            {
+                if (IsCybernetic)
+                    return 0;
+
+                float racialEnvMultiplier = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
+                return racialEnvMultiplier;
+            }
+        }
+
         private void RemoveTerraformers()
         {
             foreach (PlanetGridSquare tile in TilesList)
@@ -370,15 +343,6 @@ namespace Ship_Game
         public void UpdateTerraformPoints(float points)
         {
             TerraformPoints = points;
-        }
-
-        private void UpdateOrbitalsMaint()
-        {
-            OrbitalsMaintenance = 0;
-            foreach (Ship orbital in OrbitalStations.Values)
-            {
-                OrbitalsMaintenance += orbital.GetMaintCost(Owner);
-            }
         }
 
         public void MakeTileHabitable(PlanetGridSquare tile)
@@ -484,22 +448,22 @@ namespace Ship_Game
             {
                 if (d100 >= 10) AddMinorRemnantShips();
                 if (d100 >= 40) AddMajorRemnantShips();
-                if (d100 >= 45) AddSupportRemnantShips();
+                if (d100 >= 60) AddSupportRemnantShips();
                 if (d100 >= 95) AddTorpedoRemnantShips();
             }
             else if (quality > 12f)
             {
                 if (d100 >= 20) AddMinorRemnantShips();
                 if (d100 >= 40) AddMiniRemnantShips();
-                if (d100 >= 80) AddMajorRemnantShips();
-                if (d100 >= 85) AddSupportRemnantShips();
+                if (d100 >= 85) AddMajorRemnantShips();
+                if (d100 >= 95) AddSupportRemnantShips();
             }
             else if (quality > 6f)
             {
-                if (d100 >= 20) AddMiniRemnantShips();
-                if (d100 >= 60) AddMinorRemnantShips();
-                if (d100 >= 80) AddMinorRemnantShips();
-                if (d100 >= 90) AddSupportRemnantShips();
+                if (d100 >= 40) AddMiniRemnantShips();
+                if (d100 >= 70) AddMinorRemnantShips();
+                if (d100 >= 85) AddMinorRemnantShips();
+                if (d100 >= 95) AddSupportRemnantShips();
             }
         }
 

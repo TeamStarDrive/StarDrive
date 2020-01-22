@@ -25,7 +25,7 @@ namespace Ship_Game.Universe
             {
                 if (selectedShip.DesignRole == ShipData.RoleName.troop)
                 {
-                    if (targetShip.TroopList.Count < targetShip.TroopCapacity)
+                    if (targetShip.TroopCount < targetShip.TroopCapacity)
                         selectedShip.AI.OrderTroopToShip(targetShip);
                     else
                         selectedShip.DoEscort(targetShip);
@@ -45,6 +45,7 @@ namespace Ship_Game.Universe
 
         public void RightClickOnPlanet(Ship ship, Planet planet, bool audio = false)
         {
+            Log.Assert(planet != null, "RightClickOnPlanet: planet cannot be null!");
             if (ship.IsConstructor)
             {
                 if (audio)
@@ -109,9 +110,12 @@ namespace Ship_Game.Universe
 
         void PlanetRightClickBomber(Ship ship, Planet planet)
         {
-            Empire player = Universe.player;
-            float enemies = planet.GetGroundStrengthOther(player) * 1.5f;
+            if (ship?.Active != true) return;
+
+            Empire player    = Universe.player;
+            float enemies    = planet.GetGroundStrengthOther(player) * 1.5f;
             float friendlies = planet.GetGroundStrength(player);
+
             if (planet.Owner != player)
             {
                 if (player.IsEmpireAttackable(planet.Owner) && (enemies > friendlies || planet.Population > 0f))
@@ -154,7 +158,7 @@ namespace Ship_Game.Universe
             {
                 if (ship.shipData.Role == ShipData.RoleName.troop)
                 {
-                    if (ship.TroopList.Count < ship.TroopCapacity)
+                    if (ship.TroopCount < ship.TroopCapacity)
                         ship.AI.OrderTroopToShip(target);
                     else
                         ship.DoEscort(target);
