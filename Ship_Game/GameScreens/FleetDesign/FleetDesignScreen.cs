@@ -80,19 +80,6 @@ namespace Ship_Game
             CamPos.Z = MathHelper.SmoothStep(CamPos.Z, DesiredCamHeight, 0.2f);
         }
 
-        void ShowSceneObject(Ship ship)
-        {
-            if (ship == null)
-                return;
-            if (ship.GetSO() == null)
-            {
-                Log.Info("FleetDesign CreateSceneObject");
-                ship.CreateSceneObject();
-            }
-            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-            ship.GetSO().Visibility = GlobalStats.ShipVisibility;
-        }
-
         public void ChangeFleet(int which)
         {
             SelectedNodeList.Clear();
@@ -148,7 +135,7 @@ namespace Ship_Game
             SelectedFleet = EmpireManager.Player.GetFleet(which);
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ShowSceneObject(ship);
+                ship.ShowSceneObjectWithMatrix(new Vector3(ship.RelativeFleetOffset, 0f));
             }
         }
 
@@ -214,7 +201,7 @@ namespace Ship_Game
                 else
                 {
                     Ship ship = node.Ship;
-                    ShowSceneObject(ship);
+                    ship.ShowSceneObjectWithMatrix(new Vector3(ship.RelativeFleetOffset, 0f));
                     float radius = ship.GetSO().WorldBoundingSphere.Radius;
                     viewport = Viewport;
                     Vector3 pScreenSpace = viewport.Project(new Vector3(ship.RelativeFleetOffset, 0f), Projection, View, Matrix.Identity);
@@ -1103,7 +1090,7 @@ namespace Ship_Game
                             continue;
                         }
                         if (node.Ship.GetSO() != null)
-                            node.Ship.GetSO().World = Matrix.CreateTranslation(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
+                            node.Ship.ShowSceneObjectWithMatrix(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
                         SelectedFleet.Ships.Remove(node.Ship);
                         node.Ship.fleet?.RemoveShip(node.Ship);
                     }
@@ -1540,8 +1527,7 @@ namespace Ship_Game
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = fleet.Ships[i];
-                ShowSceneObject(ship);
-                ship.GetSO().World =  Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                ship.ShowSceneObjectWithMatrix(new Vector3(ship.RelativeFleetOffset, -1000000f));
                 ship?.fleet?.RemoveShip(ship);         
             }
             SelectedFleet.DataNodes.Clear();
