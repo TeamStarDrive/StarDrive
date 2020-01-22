@@ -254,6 +254,7 @@ namespace Ship_Game
             return null;
         }
 
+        // NOTE: this relies on MaxCamHeight and UniverseSize
         void ResetLighting(bool forceReset)
         {
             if (!forceReset && ScreenManager.LightRigIdentity == LightRigIdentity.UniverseScreen)
@@ -285,7 +286,6 @@ namespace Ship_Game
 
         void RemoveLighting()
         {
-            LightsDebug.Clear();
             ScreenManager.RemoveAllLights();
         }
 
@@ -294,8 +294,6 @@ namespace Ship_Game
             AddLight($"{system.Name} - {system.Sun.Id} - {name}", system.Position, intensity, radius, color,
                 zpos, fillLight: fillLight, fallOff:fallOff, shadowQuality:0f);
         }
-
-        readonly Array<PointLight> LightsDebug = new Array<PointLight>();
 
         void AddLight(string name, Vector2 source, float intensity, float radius, Color color,
                               float zpos, bool fillLight, float fallOff = 0, float shadowQuality = 1)
@@ -314,8 +312,6 @@ namespace Ship_Game
                 ShadowPerSurfaceLOD = true,
                 ShadowQuality = shadowQuality
             };
-
-            LightsDebug.Add(light);
 
             if (shadowQuality > 0f)
                 light.ShadowType = ShadowType.AllObjects;
@@ -366,10 +362,10 @@ namespace Ship_Game
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
 
+            InitializeCamera(); // ResetLighting requires MaxCamHeight
             ResetLighting(forceReset: true);
             LoadGraphics();
 
-            InitializeCamera();
             InitializeUniverse();
         }
 
@@ -793,7 +789,6 @@ namespace Ship_Game
             flash                   ?.Dispose(ref flash);
             star_particles          ?.Dispose(ref star_particles);
             neb_particles           ?.Dispose(ref neb_particles);
-
         }
 
         protected override void Destroy()
