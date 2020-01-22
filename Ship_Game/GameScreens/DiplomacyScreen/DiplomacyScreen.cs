@@ -10,7 +10,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
     public sealed class DiplomacyScreen : GameScreen
     {
         Rectangle Portrait;
-        Vector2 TextCursor;
         DialogState dState;
 
         readonly Array<GenericButton> GenericButtons = new Array<GenericButton>();
@@ -303,11 +302,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
                 case DialogState.Discuss:
                 {
-                    StatementsSL.Draw(batch);
                     break;
                 }
                 case DialogState.Negotiate:
                 {
+                        
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
                     OfferTextSL.ResetWithParseText(Fonts.Consolas18, txt, DialogRect.Width - 30);
@@ -587,6 +586,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 {
                     StatementsSL.Reset();
                     StatementsSL.OnClick = OnDiscussStatementClicked;
+                    StatementsSL.Visible = true;
                     dState = DialogState.Discuss;
                     foreach (StatementSet set in ResourceManager.GetDiplomacyDialog("SharedDiplomacy").StatementSets)
                     {
@@ -597,9 +597,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                             {
                                 string str = opt1.SpecialInquiry.NotEmpty() ? GetDialogueByName(opt1.SpecialInquiry) : opt1.Words;
                                 var opt2 = new DialogOption(n++, str);
+                                
                                 opt2.Words = ParseTextDiplomacy(str, (DialogRect.Width - 25));
                                 opt2.Response = opt1.Response;
-                                StatementsSL.AddItem(new DialogOptionListItem(opt2));
+                                var optionList = new DialogOptionListItem(opt2);
+                                
+                                StatementsSL.AddItem(optionList);
                             }
                         }
                     }
@@ -651,6 +654,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
                 if (Negotiate.HandleInput(input))
                 {
+                    StatementsSL.Reset();
+                    StatementsSL.Visible = false;
                     dState = DialogState.Negotiate;
                     CreateOurOffer();
                     CreateTheirOffer();
@@ -806,16 +811,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
 
-            var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 40));
-            OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
+            var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 30));
+            OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 15));
+            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing +12));
             OurItemsSL   = Add(new ScrollList2<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
             TheirItemsSL = Add(new ScrollList2<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
             
             OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
             TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);
-
-            TextCursor = new Vector2(DialogRect.X + 5, DialogRect.Y + 5);
             PlayRaceVideoAndMusic();
         }
 
