@@ -22,7 +22,9 @@ namespace Ship_Game
         UICheckBox CarrierOnlyCheckBox;
         public void ChangeHull(ShipData hull)
         {
-            if (hull == null) return;
+            if (hull == null)
+                return;
+
             ModSel.ResetLists();
             RemoveObject(shipSO);
             ActiveHull = new ShipData
@@ -64,6 +66,7 @@ namespace Ship_Game
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
             UpdateCarrierShip();
+            ZoomCameraToEncloseHull(ActiveHull);
         }
 
         void UpdateCarrierShip()
@@ -685,6 +688,54 @@ namespace Ship_Game
             ReallyExit();
         }
 
+        // Gets the hull dimensions in world coordinate size
+        Vector2 GetHullDimensions(ShipData hull)
+        {
+            float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
+            for (int i = 0; i < hull.ModuleSlots.Length; ++i)
+            {
+                ModuleSlotData slot = hull.ModuleSlots[i];
+                Vector2 topLeft = slot.Position;
+                Vector2 botRight = slot.Position + new Vector2(16f, 16f);
+
+                if (topLeft.X  < minX) minX = topLeft.X;
+                if (topLeft.Y  < minY) minY = topLeft.Y;
+                if (botRight.X > maxX) maxX = botRight.X;
+                if (botRight.Y > maxY) maxY = botRight.Y;
+            }
+            return new Vector2(maxX - minX, maxY - minY);
+        }
+
+        void UpdateViewMatrix(in Vector3 cameraPosition)
+        {
+            Vector3 camPos = cameraPosition * new Vector3(-1f, 1f, 1f);
+            View = Matrix.CreateRotationY(180f.ToRadians())
+                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+        }
+
+        float GetHullScreenSize(in Vector3 cameraPosition, float hullSize)
+        {
+            UpdateViewMatrix(cameraPosition);
+            return ProjectToScreenSize(hullSize);
+        }
+
+        void ZoomCameraToEncloseHull(ShipData hull)
+        {
+            // This ensures our module grid overlay is the same size as the mesh
+            CameraPosition.Z = 500;
+            float hullHeight = GetHullDimensions(hull).Y;
+            float visibleSize = GetHullScreenSize(CameraPosition, hullHeight);
+            float ratio = visibleSize / hullHeight;
+            CameraPosition.Z = (CameraPosition.Z * ratio).RoundUpTo(1);
+            OriginalZ = CameraPosition.Z;
+
+            // and now we zoom in the camera so the ship is all visible
+            float desiredVisibleHeight = ScreenHeight * 0.75f;
+            float currentVisibleHeight = GetHullScreenSize(CameraPosition, hullHeight);
+            float newZoom = desiredVisibleHeight / currentVisibleHeight;
+            TransitionZoom = newZoom.Clamped(0.3f, 2.65f);
+        }
+
         public override void LoadContent()
         {
             Log.Info("ShipDesignScreen.LoadContent");
@@ -699,59 +750,11 @@ namespace Ship_Game
             PrimitiveQuad.Device = ScreenManager.GraphicsDevice;
             Offset = new Vector2(Viewport.Width / 2 - 256, Viewport.Height / 2 - 256);
             Camera = new Camera2D { Pos = new Vector2(Viewport.Width / 2f, Viewport.Height / 2f) };
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                 * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
 
             float aspectRatio = (float)Viewport.Width / Viewport.Height;
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, aspectRatio, 1f, 20000f);
             
             ChangeHull(AvailableHulls[0]);
-
-            float minX = 0f, maxX = 0f;
-            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
-            {
-                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
-                Vector2 topLeft     = slot.Position;
-                var botRight        = new Vector2(topLeft.X + slot.Position.X * 16.0f,
-                                    topLeft.Y + slot.Position.Y * 16.0f);
-
-                if (topLeft.X < minX) minX = topLeft.X;
-                if (botRight.X > maxX) maxX = botRight.X;
-            }
-
-            float hullWidth = maxX - minX;
-
-            // So, this attempts to zoom so the entire design is visible
-            float UpdateCameraMatrix()
-            {
-                camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-
-                View = Matrix.CreateRotationY(180f.ToRadians())
-                     * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
-
-                Vector3 center   = Viewport.Project(Vector3.Zero, Projection, View, Matrix.Identity);
-                Vector3 hullEdge = Viewport.Project(new Vector3(hullWidth, 0, 0), Projection, View, Matrix.Identity);
-                return center.Distance(hullEdge) + 10f;
-            }
-
-            float visibleHullWidth = UpdateCameraMatrix();
-            if (visibleHullWidth >= hullWidth)
-            {
-                while (visibleHullWidth > hullWidth)
-                {
-                    CameraPosition.Z += 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
-            else
-            {
-                while (visibleHullWidth < hullWidth)
-                {
-                    CameraPosition.Z -= 10f;
-                    visibleHullWidth = UpdateCameraMatrix();
-                }
-            }
 
             BlackBar = new Rectangle(0, ScreenHeight - 70, 3000, 70);
 
@@ -892,7 +895,6 @@ namespace Ship_Game
             ArcsButton = new GenericButton(new Vector2(HullSelectionRect.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
 
             CloseButton(ScreenWidth - 27, 99);
-            OriginalZ = CameraPosition.Z;
 
             if (Empire.Universe.Debug)
             {
