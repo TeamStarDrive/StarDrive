@@ -20,13 +20,13 @@ namespace Ship_Game
             base.Draw(batch);
             if (Hull != null)
             {
-                batch.Draw(Hull.Icon, new Rectangle((int)X, (int)Y, 29, 30), Color.White);
+                int h = (int)Height;
+                batch.Draw(Hull.Icon, new Rectangle((int)X - 2, (int)Y - 2, h+4, h+4), Color.White);
 
-                var tCursor = new Vector2(X + 40f, Y + 3f);
-                batch.DrawString(Fonts.Arial12Bold, Hull.Name, tCursor, Color.White);
+                batch.DrawString(Fonts.Arial12Bold, Hull.Name, X + h + 6, Y + 2);
 
-                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(Hull.HullRole, EmpireManager.Player), tCursor, Color.Orange);
+                string role = Localizer.GetRole(Hull.HullRole, EmpireManager.Player);
+                batch.DrawString(Fonts.Arial8Bold, role, X + h + 8, Y + 16, Color.Orange);
             }
         }
     }

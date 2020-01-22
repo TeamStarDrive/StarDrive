@@ -325,9 +325,7 @@ namespace Ship_Game
             //roleData.CreateDesignRoleToolTip(DesignRoleRect); FB: This was killing tool tips in ship design, disabled and should check this
             
             CameraPosition.Z = OriginalZ / Camera.Zoom;
-            Vector3 camPos = CameraPosition * new Vector3(-1f, 1f, 1f);
-            View = Matrix.CreateRotationY(180f.ToRadians())
-                   * Matrix.CreateLookAt(camPos, new Vector3(camPos.X, camPos.Y, 0f), Vector3.Down);
+            UpdateViewMatrix(CameraPosition);
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -367,17 +365,19 @@ namespace Ship_Game
             
             ChangeHull(AvailableHulls[0]);
 
-            float lowestX  = ActiveHull.ModuleSlots[0].Position.X;
-            float highestX = lowestX;
-            foreach (ModuleSlotData slot in ActiveHull.ModuleSlots)
+            float minX = 0f, maxX = 0f;
+            for (int i = 0; i < ActiveHull.ModuleSlots.Length; ++i)
             {
-                if (slot.Position.X < lowestX)  lowestX  = slot.Position.X;
-                if (slot.Position.X > highestX) highestX = slot.Position.X;
+                ModuleSlotData slot = ActiveHull.ModuleSlots[i];
+                Vector2 topLeft = slot.Position;
+                var botRight = new Vector2(topLeft.X + slot.Position.X * 16.0f,
+                                           topLeft.Y + slot.Position.Y * 16.0f);
+
+                if (topLeft.X < minX) minX = topLeft.X;
+                if (botRight.X > maxX) maxX = botRight.X;
             }
 
-            // FB: added the *2 below since vulfar ships were acting strangly without it (too small vs modulegrid). 
-            // Maybe because they are long and narrow. This code is an enigma.
-            float hullWidth = (highestX - lowestX) * 2;
+            float hullWidth = maxX - minX;
 
             // So, this attempts to zoom so the entire design is visible
             float UpdateCameraMatrix()
@@ -484,7 +484,10 @@ namespace Ship_Game
         {
             BottomSep = new Rectangle(BlackBar.X, BlackBar.Y, BlackBar.Width, 1);
 
-            var hullSelectionBkg = new Submenu(ScreenWidth - 285, (LowRes ? 45 : 100), 280, (LowRes ? 350 : 400));
+            int hullSelY = SelectSize(45, 100, 100);
+            int hullSelW = SelectSize(260, 280, 320);
+            int hullSelH = SelectSize(350, 500, 600);
+            var hullSelectionBkg = new Submenu(ScreenWidth - 285, hullSelY, hullSelW, hullSelH);
             // rounded black background
             hullSelectionBkg.Background = new Selector(hullSelectionBkg.Rect.CutTop(25), new Color(0,0,0,210));
             hullSelectionBkg.AddTab(Localizer.Token(107));
