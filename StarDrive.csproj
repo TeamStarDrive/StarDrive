@@ -349,7 +349,7 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignScreenInput.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelectListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ModuleSelectScrollList.cs" />
-    <Compile Include="Ship_Game\GameScreens\Universe\DialogOptionListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DialogOptionListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\TextListItem.cs" />
     <Compile Include="Ship_Game\Input\InputBindings.cs" />
     <Compile Include="Ship_Game\Input\InputState_DoubleClick.cs" />
@@ -597,11 +597,11 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\DialogOption.cs">
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DialogOption.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\Gameplay\StatementSet.cs">
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\StatementSet.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
