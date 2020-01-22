@@ -725,6 +725,7 @@ namespace Ship_Game
             processTurnsThread?.Join(250);
 
             //SpaceManager.Destroy();
+            ScreenManager.RemoveAllLights();
             ScreenManager.Music.Stop();
             NebulousShit.Clear();
             bloomComponent = null;
@@ -771,7 +772,6 @@ namespace Ship_Game
                 spaceJunk.DestroySceneObject();
             JunkList.Clear();
 
-
             SelectedShip   = null;
             SelectedFleet  = null;
             SelectedPlanet = null;
@@ -808,9 +808,10 @@ namespace Ship_Game
             StatTracker.Reset();
             EmpireManager.Clear();
 
-            HelperFunctions.CollectMemory();
             base.ExitScreen();
             Dispose();
+
+            HelperFunctions.CollectMemory();
         }
 
 
