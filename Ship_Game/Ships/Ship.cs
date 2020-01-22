@@ -582,6 +582,7 @@ namespace Ship_Game.Ships
 
         public bool InRadiusOfSystem(SolarSystem system) =>
             system != null && InRadius(system.Position, system.Radius);
+
         public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
         public bool InRadius(Vector2 worldPos, float radius)
