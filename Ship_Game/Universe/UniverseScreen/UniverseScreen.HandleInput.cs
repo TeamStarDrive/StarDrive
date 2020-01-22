@@ -244,10 +244,7 @@ namespace Ship_Game
             }
 
             // ensure universe has the correct light rig
-            if (ScreenManager.LightRigIdentity != GameScreens.LightRigIdentity.UniverseScreen)
-            {
-                ResetLighting();
-            }
+            ResetLighting(forceReset: false);
 
             HandleEdgeDetection(input);
             if (HandleDragAORect(input))
@@ -276,7 +273,7 @@ namespace Ship_Game
             if (input.UseRealLights)
             {
                 UseRealLights = !UseRealLights; // toggle real lights
-                ResetLighting();
+                ResetLighting(forceReset: true);
             }
             if (input.ShowExceptionTracker)
             {
