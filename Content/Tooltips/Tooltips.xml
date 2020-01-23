@@ -1300,5 +1300,10 @@
       <Title>Module Shield Amp</Title>
       <Data>1912</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>259</TIP_ID>
+      <Title>Regeneration</Title>
+      <Data>1909</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

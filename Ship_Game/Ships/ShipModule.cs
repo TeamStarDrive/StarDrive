@@ -180,6 +180,7 @@ namespace Ship_Game.Ships
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
+        public float Regenerate                  => Flyweight.Regenerate; // Self regenerating modules
         public bool IsRotatable                  => Flyweight.IsRotable;
         public float AmplifyShields              => Flyweight.AmplifyShields;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
@@ -1137,6 +1138,15 @@ namespace Ship_Game.Ships
             return repairLeft;
         }
 
+        public void RegenerateSelf()
+        {
+            if (Regenerate <= 0 || !Powered)
+                return;
+
+            float repairAmount = Regenerate / RepairDifficulty;
+            SetHealth(Health + repairAmount);
+        }
+
         public void VisualizeRepair()
         {
             if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -1269,6 +1279,7 @@ namespace Ship_Game.Ships
             def += TroopCapacity * 50;
             def += BonusRepairRate / 2f;
             def += AmplifyShields / 20f;
+            def += Regenerate / (10 * RepairDifficulty).ClampMin(0.1f);
 
             return def;
         }
