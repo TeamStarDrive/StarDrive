@@ -526,11 +526,13 @@ namespace Ship_Game.Ships
             
             float shieldAmplify  = totalShieldAmplify / Shields.Count(s => s.Active);
 
-
-            foreach (ShipModule shield in Shields)
+            if (!fromSave)
             {
-                shield.UpdateAmplification(shieldAmplify);
-                shield.ShieldPower = shield.ActualShieldPowerMax;
+                foreach (ShipModule shield in Shields)
+                {
+                    shield.UpdateAmplification(shieldAmplify);
+                    shield.ShieldPower = shield.ActualShieldPowerMax;
+                }
             }
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
