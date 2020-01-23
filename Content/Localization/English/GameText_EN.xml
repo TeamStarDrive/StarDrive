@@ -4687,6 +4687,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1910</Index>
+      <Text>Shield Amp</Text>
+    </Token>
+    <Token>
+      <Index>1911</Index>
+      <Text>Each of the ship shield's maximum power be will amplified by than number.</Text>
+    </Token>
+    <Token>
+      <Index>1912</Index>
+      <Text>When powered, this amplifies the Maximum Power of the shields in your ships. This number is also divided by the total number of shields.</Text>
+    </Token>
+    <Token>
+      <Index>1913</Index>
+      <Text>Shield Amplify</Text>
+    </Token>
+    <Token>
       <Index>1914</Index>
       <Text>Relative Strength</Text>
     </Token>
@@ -5232,7 +5248,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2065</Index>
-      <Text>Indicates the hitpoints of this shield</Text>
+      <Text>Indicates the hitpoints of this shield. If the title is Golden, it indicates that this shield is being amplified by Shield Amplifiers within your ship.</Text>
     </Token>
     <Token>
       <Index>2066</Index>
@@ -5276,7 +5292,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2076</Index>
-      <Text>Indicates the total hitpoints of all of the ship's shield modules combined</Text>
+      <Text>Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold, if any Shield Amplifiers are installed.</Text>
     </Token>
     <Token>
       <Index>2077</Index>

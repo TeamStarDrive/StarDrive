@@ -1299,8 +1299,9 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged = false;
-            float sensorBonus = 0f;
+            shipStatusChanged           = false;
+            float totalShieldAmplify    = 0;
+            float sensorBonus           = 0f;
             Thrust                      = 0f;
             Mass                        = SurfaceArea;
             shield_max                  = 0f;
@@ -1323,6 +1324,7 @@ namespace Ship_Game.Ships
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
+
 
             bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
@@ -1359,8 +1361,9 @@ namespace Ship_Game.Ships
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
                     if (module.Is(ShipModuleType.Shield))
-                        shield_max += module.ActualShieldPowerMax;
+                        shield_max += module.shield_power_max;
 
+                    totalShieldAmplify  += module.AmplifyShields;
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
@@ -1374,7 +1377,17 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (totalShieldAmplify > 0 && Shields.Length > 0)
+            { 
+                var bonuses          = EmpireShipBonuses.Get(loyalty, shipData);
+                float shieldAmplify  = totalShieldAmplify / Shields.Count(s => s.Active);
+                shield_max     = (shield_max + totalShieldAmplify) * bonuses.ShieldMod;
+                foreach (ShipModule shield in Shields)
+                    shield.UpdateAmplification(shieldAmplify);
+            }
+
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+
 
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.

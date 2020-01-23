@@ -116,6 +116,7 @@ namespace Ship_Game.Gameplay
         public readonly int TargetTracking;
         public readonly int FixedTracking;
         public readonly bool IsRotable;
+        public readonly float AmplifyShields;
         public readonly int ExplosionDamage;
         public readonly int ExplosionRadius;
         public readonly float RepairDifficulty = 1f;
@@ -166,6 +167,7 @@ namespace Ship_Game.Gameplay
             Cargo_Capacity              = s.Cargo_Capacity;
             shield_radius               = s.shield_radius;
             shield_power_max            = s.shield_power_max;
+            AmplifyShields              = s.AmplifyShields;
             shield_recharge_rate        = s.shield_recharge_rate;
             shield_recharge_combat_rate = s.shield_recharge_combat_rate;
             shield_recharge_delay       = s.shield_recharge_delay;
@@ -389,5 +391,6 @@ namespace Ship_Game.Gameplay
         public int ExplosionDamage;
         public float RepairDifficulty = 1;
         public string ShieldBubbleColor;
+        public float AmplifyShields;
     }
 }

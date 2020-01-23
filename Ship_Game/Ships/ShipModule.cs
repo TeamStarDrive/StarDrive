@@ -54,6 +54,7 @@ namespace Ship_Game.Ships
         public float hangarTimer;
         public bool isWeapon;
         public Weapon InstalledWeapon;
+        public float ShieldAmplification { get; private set; }
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
@@ -180,6 +181,7 @@ namespace Ship_Game.Ships
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
         public bool IsRotatable                  => Flyweight.IsRotable;
+        public float AmplifyShields              => Flyweight.AmplifyShields;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
@@ -211,7 +213,7 @@ namespace Ship_Game.Ships
         public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;
         public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
-        public float ActualShieldPowerMax  => shield_power_max * Bonuses.ShieldMod;
+        public float ActualShieldPowerMax  => (shield_power_max + ShieldAmplification) * Bonuses.ShieldMod;
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
@@ -258,6 +260,12 @@ namespace Ship_Game.Ships
                 }
             }
             Parent.AddShipHealth(healthChange);
+        }
+
+        public void UpdateAmplification(float value)
+        {
+            if (Is(ShipModuleType.Shield)  && Active)
+                ShieldAmplification = value;
         }
 
         public Ship GetHangarShip() => hangarShip;
@@ -1260,6 +1268,7 @@ namespace Ship_Game.Ships
             def += ActualPowerFlowMax / 50;
             def += TroopCapacity * 50;
             def += BonusRepairRate / 2f;
+            def += AmplifyShields / 20f;
 
             return def;
         }
