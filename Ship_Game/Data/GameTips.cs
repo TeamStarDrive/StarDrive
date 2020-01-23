@@ -524,6 +524,8 @@ namespace Ship_Game
         /// <summary>Ship Total Shield Amp</summary>
         ShipShieldAmplify = 257,
         /// <summary>Module Shield Amplify</summary>
-        ModuleShieldAmplify = 258
+        ModuleShieldAmplify = 258,
+        /// <summary>Self Regeneration Technology</summary>
+        SelfRegeneration = 259
     }
 }

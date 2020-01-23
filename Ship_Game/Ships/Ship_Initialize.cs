@@ -465,7 +465,8 @@ namespace Ship_Game.Ships
 
                 if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
                 if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
-                if (module.ECM > ECMValue) ECMValue = module.ECM.Clamped(0f, 1f);
+                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
+                if (module.Regenerate > 0) HasRegeneratingModules = true;
 
                 switch (module.ModuleType)
                 {
