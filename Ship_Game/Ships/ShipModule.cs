@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
         public int YSIZE = 1;
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         bool CanVisualizeDamage;
-        public float ShieldPower;
+        public float ShieldPower { get; private set; }
         public short OrdinanceCapacity;
         bool OnFire;
         Vector3 Center3D;
@@ -238,6 +238,10 @@ namespace Ship_Game.Ships
         // Used to configure how good of a target this module is
         public int ModuleTargetingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
 
+        public void InitShieldPower()
+        {
+            ShieldPower = ActualShieldPowerMax;
+        }
 
         // @note This should only be used in Testing
         // @todo Is there a way to limit visibility to unit tests only?

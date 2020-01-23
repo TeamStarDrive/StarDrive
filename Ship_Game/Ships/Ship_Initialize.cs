@@ -532,7 +532,7 @@ namespace Ship_Game.Ships
                 foreach (ShipModule shield in Shields)
                 {
                     shield.UpdateAmplification(shieldAmplify);
-                    shield.ShieldPower = shield.ActualShieldPowerMax;
+                    shield.InitShieldPower();
                 }
             }
 
