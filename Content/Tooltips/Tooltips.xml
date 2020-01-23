@@ -1290,5 +1290,15 @@
       <Title>Relative Strength</Title>
       <Data>1915</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>257</TIP_ID>
+      <Title>Ship Total Shield Amp</Title>
+      <Data>1911</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>258</TIP_ID>
+      <Title>Module Shield Amp</Title>
+      <Data>1912</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

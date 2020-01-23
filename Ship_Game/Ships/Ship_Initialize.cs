@@ -450,7 +450,8 @@ namespace Ship_Game.Ships
         {
             RepairBeams.Clear();
 
-            float sensorBonus = 0f;
+            float sensorBonus        = 0f;
+            float totalShieldAmplify = 0;
             foreach (ShipModule module in ModuleSlotList)
             {
                 if (module.UID == "Dummy") // ignore legacy dummy modules
@@ -503,11 +504,12 @@ namespace Ship_Game.Ships
                 TurnThrust += module.TurnThrust;
                 Health     += module.Health;
 
+                totalShieldAmplify += module.AmplifyShields;
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;
                 PowerCurrent  += module.ActualPowerStoreMax;
                 PowerFlowMax  += module.ActualPowerFlowMax;
-                shield_max    += module.ActualShieldPowerMax;
+                shield_max    += module.shield_power_max;
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
@@ -520,6 +522,15 @@ namespace Ship_Game.Ships
                 {
                     Ordinance += module.OrdinanceCapacity;
                 }
+            }
+            
+            float shieldAmplify  = totalShieldAmplify / Shields.Count(s => s.Active);
+
+
+            foreach (ShipModule shield in Shields)
+            {
+                shield.UpdateAmplification(shieldAmplify);
+                shield.ShieldPower = shield.ActualShieldPowerMax;
             }
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
