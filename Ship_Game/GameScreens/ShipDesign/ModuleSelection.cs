@@ -472,18 +472,13 @@ namespace Ship_Game
 
 
             float shieldMax           = mod.ActualShieldPowerMax;
-            float AmplifyShields      = mod.AmplifyShields;
-            DrawStat(ref modTitlePos, Localizer.Token(1910), AmplifyShields, 258);
-            float ShieldAmplification = mod.ShieldAmplification;
-            if (ShieldAmplification > 0)
-            {
-
+            float amplifyShields      = mod.AmplifyShields;
+            DrawStat(ref modTitlePos, Localizer.Token(1910), amplifyShields, 258);
+            float shieldAmplification = mod.ShieldAmplification;
+            if (shieldAmplification > 0)
                 DrawStatCustomColor(ref modTitlePos, 132, shieldMax, 93, Color.Gold, isPercent: false);
-            }
             else
-            {
                 DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
-            }
 
             DrawStat(ref modTitlePos, Localizer.Token(133), mod.shield_radius, 94);
             DrawStat(ref modTitlePos, Localizer.Token(134), mod.shield_recharge_rate, 95);
@@ -503,6 +498,7 @@ namespace Ship_Game
             DrawStatCustomColor(ref modTitlePos, 6171, mod.shield_beam_resist, 218, shieldResistColor);
             DrawStatCustomColor(ref modTitlePos, 6176, mod.shield_threshold, 222, shieldResistColor, isPercent: false);
 
+            DrawStat(ref modTitlePos, 1908, mod.Regenerate, 1909);
             DrawStat(ref modTitlePos, 126,  mod.SensorRange, 96);
             DrawStat(ref modTitlePos, 6121, mod.SensorBonus, 167);
             DrawStat(ref modTitlePos, 6131, mod.HealPerTurn, 174);

@@ -50,6 +50,7 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
+        public bool HasRegeneratingModules;
         Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -1173,6 +1174,8 @@ namespace Ship_Game.Ships
                     float repair = InCombat ? RepairRate * 0.1f : RepairRate;
                     ApplyAllRepair(repair, Level);
                 }
+
+                PerformRegeneration();
             }
 
             UpdateResupply();
@@ -1180,6 +1183,17 @@ namespace Ship_Game.Ships
 
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
+        }
+
+        public void PerformRegeneration()
+        {
+            if (!HasRegeneratingModules)
+                return;
+
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                module.RegenerateSelf();
+            }
         }
 
         public void UpdateResupply()
