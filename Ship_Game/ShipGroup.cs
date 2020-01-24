@@ -300,7 +300,7 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 Ship ship = items[i];
-                if (ship != commandShip && ship.FleetCapableShip())
+                if (ship != commandShip && ship.CanTakeFleetMoveOrders())
                 {
                     float ratio            = ship.SurfaceArea / commandShipSize;
                     fleetCapableShipCount += 1 * ratio;
@@ -462,8 +462,8 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 if (ship.IsReadyForWarp)
                 {
-                    inCombat |= ship.InCombat;
-                    if (!ship.Center.InRadius(position + ship.FleetOffset, radius))
+                    inCombat |= ship.LastDamagedBy != null;
+                    if (!ship.Center.InRadius(position + ship.FleetOffset, radius) && ! ship.inborders)
                     {
                         moveStatus = MoveStatus.Dispersed;
                         if (inCombat)
@@ -535,7 +535,7 @@ namespace Ship_Game
             {
                 Ship ship = Ships[i];
 
-                if (ship.FleetCapableShip() && !ship.InCombat)
+                if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
                     if (CommandShip == null || ship.Center.InRadius(AveragePos, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
