@@ -1206,9 +1206,9 @@ namespace Ship_Game.Ships
         {
             if (!HasRegeneratingModules)
                 return;
-
-            foreach (ShipModule module in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
+                ShipModule module = ModuleSlotList[i];
                 module.RegenerateSelf();
             }
         }
