@@ -164,6 +164,8 @@ namespace Ship_Game
 
                 ship.SwitchTroopLoyalty(ship.loyalty);
                 ship.ReCalculateTroopsAfterBoard();
+                changeTo.AddBoardSuccessNotification(ship);
+                oldLoyalty.AddBoardedNotification(ship);
             }
 
             // this resets the spatial management
