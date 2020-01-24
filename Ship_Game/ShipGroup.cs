@@ -4,6 +4,8 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using Ship_Game.Fleets;
+using Ship_Game.Fleets.FleetGoals;
 
 namespace Ship_Game
 {
@@ -12,6 +14,16 @@ namespace Ship_Game
         public readonly Array<Ship> Ships = new Array<Ship>();
         public Empire Owner;
         protected bool IsAssembling = false;
+        public Ship CommandShip
+        {
+            get         => LeadShip?.Leader;
+            private set => LeadShip = new GroupLeader(value, value?.fleet);
+        }
+
+        GroupLeader LeadShip;
+
+        public void SetCommandShip(Ship ship) => CommandShip = ship;
+
         // Speed LIMIT of the entire ship group, so the ships can stay together
         public float SpeedLimit { get; private set; }
 
@@ -28,10 +40,10 @@ namespace Ship_Game
         public Vector2 ProjectedDirection;
 
         // WORK IN PROGRESS
-        protected readonly Stack<Fleet.FleetGoal> GoalStack = new Stack<Fleet.FleetGoal>();
+        protected readonly Stack<FleetGoal> GoalStack = new Stack<FleetGoal>();
 
         // cached average position of the fleet
-        Vector2 AveragePos;
+        protected Vector2 AveragePos;
 
         // entire ship group average offset from [0,0]
         // this is relevant because ships are not perfectly aligned
@@ -44,7 +56,7 @@ namespace Ship_Game
         //// Fleet Goal Access | We don't want to expose the inner details ////
         public bool HasFleetGoal => GoalStack.Count > 0;
         public Vector2 NextGoalMovePosition => GoalStack.Peek().MovePosition;
-        public Fleet.FleetGoal PopGoalStack() => GoalStack.Pop();
+        public FleetGoal PopGoalStack() => GoalStack.Pop();
         public void ClearFleetGoals() => GoalStack.Clear();
         ///////////////////////////////////////////////////////////////////////
 
@@ -58,7 +70,7 @@ namespace Ship_Game
             Vector2 fleetCenter = AssembleDefaultGroup(shipList, start, end);
             ProjectPos(fleetCenter, direction);
         }
-
+        
         public void ProjectPos(Vector2 projectedPos, Vector2 direction)
         {
             ProjectedPos = projectedPos;
@@ -271,21 +283,33 @@ namespace Ship_Game
             return true;
         }
 
-        public static Vector2 GetAveragePosition(Array<Ship> ships)
+        public static Vector2 GetAveragePosition(Array<Ship> ships, Ship commandShip = null)
         {
             int count = ships.Count;
             if (count == 0)
                 return Vector2.Zero;
 
-            Ship[] items = ships.GetInternalArrayItems();
-            Vector2 avg = items[0].Center;
-            for (int i = 1; i < count; ++i)
+            if (commandShip != null) return commandShip.Center;
+
+            float fleetCapableShipCount = 1;
+            Ship[] items                = ships.GetInternalArrayItems();
+            commandShip                 = commandShip ?? items[0];
+            Vector2 avg                 = commandShip.Center;
+            float commandShipSize       = commandShip.SurfaceArea;
+ 
+            for (int i = 0; i < count; ++i)
             {
-                Vector2 p = items[i].Center;
-                avg.X += p.X;
-                avg.Y += p.Y;
+                Ship ship = items[i];
+                if (ship != commandShip && ship.FleetCapableShip())
+                {
+                    float ratio            = ship.SurfaceArea / commandShipSize;
+                    fleetCapableShipCount += 1 * ratio;
+                    Vector2 p              = ship.Center;
+                    avg.X                 += p.X * ratio;
+                    avg.Y                 += p.Y * ratio;
+                }
             }
-            return avg / count;
+            return avg / fleetCapableShipCount;
         }
 
         static Vector2 GetAverageOffsetFromZero(Array<Ship> ships)
@@ -311,7 +335,7 @@ namespace Ship_Game
             if (LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
             {
                 LastAveragePosUpdate = StarDriveGame.Instance.FrameId;
-                AveragePos = GetAveragePosition(Ships);
+                AveragePos = GetAveragePosition(Ships, CommandShip);
                 AverageOffsetFromZero = GetAverageOffsetFromZero(Ships);
             }
             return AveragePos;
@@ -495,22 +519,26 @@ namespace Ship_Game
             
         }
 
+        public float GetSpeedLimitFor(Ship ship)
+        {
+            if (ship.Center.InRadius(AveragePos, 15000))
+                return SpeedLimit;
+            return 0;
+        }
+
         public void SetSpeed()
         {
             if (Ships.Count == 0)
                 return;
-
-            float slowestSpeed = Ships[0].VelocityMaximum;
-            for (int i = 1; i < Ships.Count; i++)
+            float slowestSpeed = float.MaxValue;
+            for (int i = 0; i < Ships.Count; i++) 
             {
                 Ship ship = Ships[i];
-                if (ship.EngineStatus() > ShipStatus.Critical && !ship.InCombat 
-                                                              && ship.AI.State != AIState.Resupply
-                                                              && ship.AI.State != AIState.Refit
-                                                              && ship.AI.State != AIState.Scrap
-                                                              && ship.AI.State != AIState.Scuttle)
+
+                if (ship.FleetCapableShip() && !ship.InCombat)
                 {
-                    slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
+                    if (CommandShip == null || ship.Center.InRadius(AveragePos, 15000))
+                        slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }
             SpeedLimit = Math.Max(200, (float)Math.Round(slowestSpeed));

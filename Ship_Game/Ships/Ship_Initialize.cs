@@ -427,6 +427,7 @@ namespace Ship_Game.Ships
             
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
+            ShipEngineses = new ShipEngines(this, ModuleSlotList);
 
             InitializeStatusFromModules(fromSave);
             if (FTLSpoolTime <= 0f)
