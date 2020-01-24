@@ -255,7 +255,7 @@ namespace Ship_Game
             Projection = Matrix.CreatePerspectiveFieldOfView(0.7853982f, Viewport.AspectRatio, 100f, 15000f);
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ShowSceneObject(ship);
+                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
             }
             base.LoadContent();
         }
