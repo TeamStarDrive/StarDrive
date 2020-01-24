@@ -110,15 +110,18 @@ namespace Ship_Game.AI
                 || ship.DesignRole == ShipData.RoleName.troopShip 
                 || ship.DesignRole == ShipData.RoleName.support)
                 return false;
-            if (OffensiveForcePool.ContainsRef(ship))
+            if (!OffensiveForcePool.AddUniqueRef(ship))
             {
                 Log.Warning("offensive forcepool already contains this ship. not adding");
-                foreach (var ao in Owner.GetEmpireAI().AreasOfOperations)
+                Array<AO> aos = Owner.GetEmpireAI().AreasOfOperations;
+                for (int i = 0; i < aos.Count; i++)
                 {
-                    ao.RemoveShip(ship);                    
+                    var ao = aos[i];
+                    ao.RemoveShip(ship);
                 }
+
                 ship.ClearFleet();                
-                Owner.AddShip(ship);
+                OffensiveForcePool.Add(ship);
                 return true;
             }
             if (ship.fleet != null)
