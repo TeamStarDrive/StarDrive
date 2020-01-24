@@ -527,16 +527,8 @@ namespace Ship_Game.Ships
                 }
             }
 
-            float shieldAmplify = ShipUtils.GetShieldAmplification(totalShieldAmplify, Shields);
-
             if (!fromSave)
-            {
-                for (int i = 0; i < Shields.Length; i++)
-                {
-                    ShipModule shield = Shields[i];
-                    shield.InitShieldPower(shieldAmplify);
-                }
-            }
+                InitShieldsPower(totalShieldAmplify);
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
             Carrier.PrepShipHangars(loyalty);
@@ -553,6 +545,16 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while.
             shipData.BaseCanWarp      = WarpThrust > 0;
             BaseCanWarp               = WarpThrust > 0;
+        }
+
+        void InitShieldsPower(float totalShieldAmplify)
+        {
+            float shieldAmplify = ShipUtils.GetShieldAmplification(totalShieldAmplify, Shields);
+            for (int i = 0; i < Shields.Length; i++)
+            {
+                ShipModule shield = Shields[i];
+                shield.InitShieldPower(shieldAmplify);
+            }
         }
 
         float GetBaseCost()
