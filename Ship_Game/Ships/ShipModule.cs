@@ -54,7 +54,6 @@ namespace Ship_Game.Ships
         public float hangarTimer;
         public bool isWeapon;
         public Weapon InstalledWeapon;
-        public float ShieldAmplification { get; private set; }
 
         public float ShieldPowerBeforeWarp { get; private set; }
         public float ShieldUpChance { get; private set; } = 100;
@@ -214,7 +213,7 @@ namespace Ship_Game.Ships
         public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;
         public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
-        public float ActualShieldPowerMax  => (shield_power_max + ShieldAmplification) * Bonuses.ShieldMod;
+        public float ActualShieldPowerMax { get; private set; }
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
@@ -240,7 +239,7 @@ namespace Ship_Game.Ships
 
         public void InitShieldPower(float shieldAmplify)
         {
-            UpdateAmplification(shieldAmplify);
+            UpdateShieldPowerMax(shieldAmplify);
             ShieldPower = ActualShieldPowerMax;
         }
 
@@ -268,11 +267,12 @@ namespace Ship_Game.Ships
             Parent.AddShipHealth(healthChange);
         }
 
-        public void UpdateAmplification(float value)
+        public void UpdateShieldPowerMax(float shieldAmplify)
         {
-            if (Is(ShipModuleType.Shield)  && Active)
-                ShieldAmplification = value;
+            ActualShieldPowerMax = (shield_power_max + shieldAmplify) * Bonuses.ShieldMod;
         }
+
+        public bool IsAmplified => ActualShieldPowerMax > shield_power_max * Bonuses.ShieldMod;
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;

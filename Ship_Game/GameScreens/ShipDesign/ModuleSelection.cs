@@ -474,8 +474,8 @@ namespace Ship_Game
             float shieldMax           = mod.ActualShieldPowerMax;
             float amplifyShields      = mod.AmplifyShields;
             DrawStat(ref modTitlePos, Localizer.Token(1910), amplifyShields, 258);
-            float shieldAmplification = mod.ShieldAmplification;
-            if (shieldAmplification > 0)
+
+            if (mod.IsAmplified)
                 DrawStatCustomColor(ref modTitlePos, 132, shieldMax, 93, Color.Gold, isPercent: false);
             else
                 DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
