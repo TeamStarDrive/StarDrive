@@ -245,7 +245,7 @@ namespace Ship_Game
 
                         node.Ship = ActiveShipDesign;
                         node.Ship.RelativeFleetOffset = node.FleetOffset;
-                        ShowSceneObject(node.Ship);
+                        node.Ship.ShowSceneObjectAt(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
                         AvailableShips.Remove(ActiveShipDesign);
                         SelectedFleet.AddShip(node.Ship);
 
