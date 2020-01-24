@@ -91,7 +91,7 @@ namespace Ship_Game.Ships
         bool SupplyShipNeedsResupply(float shuttleStorage, bool hasSupplyTarget)
         {
             if (!hasSupplyTarget) 
-                return Owner.OrdnanceStatus < ShipStatus.Maximum;
+                return Owner.OrdnanceStatus < Status.Maximum;
 
             return shuttleStorage > Owner.Ordinance;
         }

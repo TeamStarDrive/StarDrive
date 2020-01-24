@@ -75,7 +75,7 @@ namespace Ship_Game.Commands.Goals
                 var nearestRallyPoint = empire.FindNearestRallyPoint(FinishedShip.Center);
                 if (nearestRallyPoint != null)
                 {
-                    FinishedShip.AI.OrderRebase(nearestRallyPoint, true);
+                    FinishedShip.AI.OrderOrbitPlanet(nearestRallyPoint);
                 }
             }
         }
