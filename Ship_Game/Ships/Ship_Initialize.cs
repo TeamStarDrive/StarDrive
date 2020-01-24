@@ -452,8 +452,9 @@ namespace Ship_Game.Ships
 
             float sensorBonus        = 0f;
             float totalShieldAmplify = 0;
-            foreach (ShipModule module in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
+                ShipModule module = ModuleSlotList[i];
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
@@ -525,12 +526,13 @@ namespace Ship_Game.Ships
                 }
             }
             
-            float shieldAmplify  = totalShieldAmplify / Shields.Count(s => s.Active);
+            float shieldAmplify  = Shields.Length > 0 ? totalShieldAmplify / Shields.Length : 0;
 
             if (!fromSave)
             {
-                foreach (ShipModule shield in Shields)
+                for (int i = 0; i < Shields.Length; i++)
                 {
+                    ShipModule shield = Shields[i];
                     shield.UpdateAmplification(shieldAmplify);
                     shield.InitShieldPower();
                 }
@@ -541,7 +543,8 @@ namespace Ship_Game.Ships
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity         = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
-            MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
+
+            MechanicalBoardingDefense = MechanicalBoardingDefense.ClampMin(1);
             shipStatusChanged         = true;
             SensorRange              += sensorBonus;
             DesignRole                = GetDesignRole();

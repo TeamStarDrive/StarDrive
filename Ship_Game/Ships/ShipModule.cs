@@ -1144,7 +1144,7 @@ namespace Ship_Game.Ships
 
         public void RegenerateSelf()
         {
-            if (Regenerate <= 0 || !Powered)
+            if (Regenerate <= 0 || !Powered && PowerDraw > 0f)
                 return;
 
             float repairAmount = Regenerate / RepairDifficulty;

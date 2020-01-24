@@ -1342,8 +1342,9 @@ namespace Ship_Game.Ships
 
             bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
-            foreach (ShipModule module in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
+                ShipModule module = ModuleSlotList[i];
                 // active internal slots
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
@@ -1391,23 +1392,17 @@ namespace Ship_Game.Ships
                 }
             }
 
-            if (totalShieldAmplify > 0 && Shields.Length > 0)
-            { 
-                var bonuses          = EmpireShipBonuses.Get(loyalty, shipData);
-                float shieldAmplify  = totalShieldAmplify / Shields.Count(s => s.Active);
-                shield_max     = (shield_max + totalShieldAmplify) * bonuses.ShieldMod;
-                foreach (ShipModule shield in Shields)
-                    shield.UpdateAmplification(shieldAmplify);
-            }
+            shield_max = ShipUtils.CalcShieldAmplification(shield_max, shipData, loyalty, totalShieldAmplify, 
+                Shields.Filter(s => s.Active));
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
-
 
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
-            shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
-            SensorRange += sensorBonus;
+
+            shield_percent = (100.0 * shield_power / shield_max).ClampMin(0);
+            SensorRange   += sensorBonus;
 
             //Apply modifiers to stats
             if (hasLoyalty)
@@ -1417,7 +1412,7 @@ namespace Ship_Game.Ships
                 //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
                 //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
                 if (IsPlatform)
-                    SensorRange = Math.Max(SensorRange, 10000);
+                    SensorRange = SensorRange.ClampMin(10000);
 
                 SensorRange   *= loyalty.data.SensorModifier;
             }
