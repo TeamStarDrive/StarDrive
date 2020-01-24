@@ -136,11 +136,14 @@ namespace Ship_Game.AI.Tasks
                 return;
             }
 
-            TaskForce.Clear();
             ClearHoldOnGoal();
 
-            if (WhichFleet == -1) return;
-            if (Fleet == null)    return;
+            if (WhichFleet == -1 || Fleet == null)
+            {
+                Owner.ForcePoolAdd(TaskForce);
+                TaskForce.Clear();
+                return;
+            }
 
             if (Fleet != null && !Fleet.IsCoreFleet)
                 Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
@@ -210,10 +213,7 @@ namespace Ship_Game.AI.Tasks
         {
             TaskForce = fleet.Ships;
             Fleet.Reset();
-            foreach(var ship in TaskForce)
-            {
-                ship.loyalty.ForcePoolAdd(ship);
-            }
+            Owner.ForcePoolAdd(TaskForce);
             TaskForce.Clear();
         }
 
