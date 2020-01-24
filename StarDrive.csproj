@@ -193,7 +193,7 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\FleetRatios.cs" />
-    <Compile Include="Ship_Game\AI\StrategyAI\Fleet.FleetGoal.cs" />
+    <Compile Include="Ship_Game\Fleets\Fleet.FleetGoal.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\AssaultShipCombat.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\ShipAI.AttackRun.cs" />
     <Compile Include="Ship_Game\AI\Research\ChooseTech.cs" />
@@ -299,6 +299,9 @@
     <Compile Include="Ship_Game\ExtensionMethods\TypeExt.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\CollectionFindClosestTo.cs" />
     <Compile Include="Ship_Game\ExtensionMethods\Vectors.cs" />
+    <Compile Include="Ship_Game\Fleets\FleetGoals\FleetGoal.cs" />
+    <Compile Include="Ship_Game\Fleets\FleetTactics\CombatPreferences.cs" />
+    <Compile Include="Ship_Game\Fleets\GroupLeader.cs" />
     <Compile Include="Ship_Game\Gameplay\CurrentGame.cs" />
     <Compile Include="Ship_Game\Gameplay\ImpactPredictor.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ColonyScreen_Build.cs" />
@@ -340,6 +343,7 @@
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
     <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
+    <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ProjectorInfluence.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Troop.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Warp.cs" />
@@ -983,7 +987,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\GameScreens\Universe\RequisitionScreen.cs">
+    <Compile Include="Ship_Game\GameScreens\FleetDesign\RequisitionScreen.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
