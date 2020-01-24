@@ -2,11 +2,11 @@ using System;
 
 namespace Ship_Game
 {
-	public sealed class AnomalyManager : IDisposable
-	{
-		public BatchRemovalCollection<Anomaly> AnomaliesList = new BatchRemovalCollection<Anomaly>();
+    public sealed class AnomalyManager : IDisposable
+    {
+        public BatchRemovalCollection<Anomaly> AnomaliesList = new BatchRemovalCollection<Anomaly>();
 
-	    public void Dispose()
+        public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);

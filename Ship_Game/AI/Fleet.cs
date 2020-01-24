@@ -5,6 +5,7 @@ using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
 using System.Linq;
+using Ship_Game.Fleets.FleetTactics;
 
 namespace Ship_Game.AI
 {
@@ -43,6 +44,8 @@ namespace Ship_Game.AI
         public bool HasOrdnanceSupplyShuttles { get; private set; } // FB: fleets with supply bays will be able to resupply ships
         public bool ReadyForWarp { get; private set; }
 
+        public bool InFormationWarp { get; private set; }
+
         public override string ToString()
             => $"{Owner.Name} {Name} ships={Ships.Count} pos={FinalPosition} guid={Guid} id={FleetTask?.WhichFleet ?? -1}";
 
@@ -50,6 +53,7 @@ namespace Ship_Game.AI
         public Fleet()
         {
             FleetIconIndex = RandomMath.IntBetween(1, 10);
+            SetCommandShip(null);
         }
 
         public void SetNameByFleetIndex(int index)
@@ -83,8 +87,9 @@ namespace Ship_Game.AI
                 return;
 
             UpdateOurFleetShip(newShip);
-            AddShipToNodes(newShip);
+            SortIntoFlanks(newShip, CommandShip?.DesignRole ?? ShipData.RoleName.capital);
             AssignPositionTo(newShip);
+            AddShipToNodes(newShip);
         }
 
         void UpdateOurFleetShip(Ship ship)
@@ -98,7 +103,9 @@ namespace Ship_Game.AI
         public void AddExistingShip(Ship ship, FleetDataNode node)
         {
             node.Ship = ship;
-            AddShipToNodes(ship);
+            base.AddShip(ship);
+            ship.fleet = this;
+            ship.AI.FleetNode = node;
         }
 
         void AddShipToNodes(Ship shipToAdd)
@@ -133,57 +140,44 @@ namespace Ship_Game.AI
             }
 
             var mainShipList = new Array<Ship>(Ships);
-            var largestShip = mainShipList.FindMax(ship => (int)(ship.DesignRole));
-            ShipData.RoleName largestCombat = largestShip.DesignRole;
+            var largestShip = CommandShip ?? mainShipList.FindMax(ship => (int)(ship.DesignRole));
 
             for (int i = mainShipList.Count - 1; i >= 0; i--)
             {
                 Ship ship = mainShipList[i];
-
-                if (ship.DesignRole >= ShipData.RoleName.fighter && ship.DesignRole == largestCombat)
-                {
-                    ScreenShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
-                else if (ship.DesignRole            == ShipData.RoleName.troop ||
-                         ship.DesignRole            == ShipData.RoleName.freighter ||
-                         ship.shipData.ShipCategory == ShipData.Category.Civilian ||
-                         ship.DesignRole            == ShipData.RoleName.troopShip
-                )
-                {
-                    RearShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
-                else if (ship.DesignRole < ShipData.RoleName.fighter)
-                {
-                    CenterShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
-                else
-                {
-                    int leftOver = mainShipList.Count;
-                    if (leftOver % 2 == 0)
-                        RightShips.Add(ship);
-                    else
-                        LeftShips.Add(ship);
-                    mainShipList.RemoveAtSwapLast(i);
-                }
+                SortIntoFlanks(ship, largestShip.DesignRole);
             }
+        }
 
-            int totalShips = CenterShips.Count;
-            foreach (Ship ship in mainShipList.OrderByDescending(ship => ship.GetStrength() + ship.SurfaceArea))
+        void SortIntoFlanks(Ship ship, ShipData.RoleName largest)
+        {
+            int leftCount = LeftShips.Count;
+            if (ship.DesignRole == ShipData.RoleName.troop
+                         || ship.DesignRole == ShipData.RoleName.freighter
+                         || ship.shipData.ShipCategory == ShipData.Category.Civilian
+                         || ship.DesignRole == ShipData.RoleName.troopShip)
             {
-                if      (totalShips < 4)  CenterShips.Add(ship);
-                else if (totalShips < 8)  LeftShips.Add(ship);
-                else if (totalShips < 12) RightShips.Add(ship);
-                else if (totalShips < 16) ScreenShips.Add(ship);
-                else if (totalShips < 20 && RearShips.Count == 0) RearShips.Add(ship);
-
-                ++totalShips;
-                if (totalShips == 16)
-                {
-                    totalShips = 0;
-                }
+                RearShips.AddUniqueRef(ship);
+            }
+            else if (CommandShip == ship || ship.DesignRole < ShipData.RoleName.fighter)
+            {
+                CenterShips.AddUniqueRef(ship);
+            }
+            else if (CenterShips.Count -2 <= ScreenShips.Count)
+            {
+                CenterShips.AddUniqueRef(ship);
+            }
+            else if (ScreenShips.Count <= leftCount)
+            {
+                ScreenShips.AddUniqueRef(ship);
+            }
+            else if (leftCount <= RightShips.Count)
+            {
+                LeftShips.AddUniqueRef(ship);
+            }
+            else
+            {
+                RightShips.AddUniqueRef(ship);
             }
         }
 
@@ -310,7 +304,7 @@ namespace Ship_Game.AI
             });
 
             var squad = new Squad { Fleet = this };
-            destSquad.Add(squad);
+
             for (int x = 0; x < allShips.Count; ++x)
             {
                 if (squad.Ships.Count < 4)
@@ -319,8 +313,8 @@ namespace Ship_Game.AI
                 if (squad.Ships.Count != 4 && x != allShips.Count - 1)
                     continue;
 
-                squad = new Squad { Fleet = this };
                 destSquad.Add(squad);
+                squad = new Squad { Fleet = this };
             }
             return destSquad;
         }
@@ -681,10 +675,8 @@ namespace Ship_Game.AI
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!IsFleetSupplied())
-                        TaskStep = 5;
-                    ShipsOffMission(task);
-                    TaskStep = 3;
+                    if (ShipsOffMission(task))
+                        TaskStep = 3;
                     break;
                 case 5:
                     SendFleetToResupply();
@@ -1061,7 +1053,7 @@ namespace Ship_Game.AI
 
         bool ShipsOffMission(MilitaryTask task)
         {
-            return AllButRearShips.Any(ship => !ship.AI.HasPriorityOrder
+            return AllButRearShips.Any(ship => (!ship.AI.HasPriorityOrder && ship.FleetCapableShip())
                                      && (!ship.InCombat
                                          && ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
         }
@@ -1542,7 +1534,13 @@ namespace Ship_Game.AI
         public void Update(float elapsedTime)
         {
             HasRepair = false;
-            ReadyForWarp = true;
+            bool readyForWarp = true;
+            Ship commandShip = null;
+            if (Ships.Count == 0) return;
+            if (CommandShip != null && !CommandShip.FleetCapableShip())
+                SetCommandShip(null);
+            
+
             for (int i = Ships.Count - 1; i >= 0; --i)
             {
                 Ship ship = Ships[i];
@@ -1558,6 +1556,12 @@ namespace Ship_Game.AI
                     continue;
                 }
 
+                if (CommandShip == null && ship.FleetCapableShip())
+                {
+                    if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
+                        commandShip = ship;
+                }
+
                 Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
 
                 // if combat in move position do not move in formation. 
@@ -1565,19 +1569,21 @@ namespace Ship_Game.AI
                                                            && ship.AI.HasPriorityOrder 
                                                            && ship.engineState == Ship.MoveState.Sublight)
                 {
-                    if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
+                    if (CombatStatusOfShipInArea(ship, ship.Center, 7500) != CombatStatus.ClearSpace)
                     {
                         ClearPriorityOrderIfSubLight(ship);
                     }
                 }
 
+                if (!InFormationWarp) InFormationWarp = ship.AI.State == AIState.FormationWarp;
+
                 UpdateOurFleetShip(ship);
 
                 // get fleet assembled before going to warp. 
-                if (ReadyForWarp && ship.AI.State == AIState.FormationWarp)
+                if (ship.AI.State == AIState.FormationWarp)
                 {
-                    if (IsFleetAssembled(15) == MoveStatus.Assembled)
-                        ReadyForWarp = ship.ShipReadyForFormationWarp() > ShipStatus.Poor;
+                    if (readyForWarp)
+                        readyForWarp = ship.ShipEngineses.ReadyForFormationWarp > Status.Poor;
                 }
 
                 // once in warp clear assembling flag. 
@@ -1586,6 +1592,30 @@ namespace Ship_Game.AI
 
             if (Ships.Count > 0 && HasFleetGoal)
                 GoalStack.Peek().Evaluate(elapsedTime);
+
+            if (commandShip != null) 
+                SetCommandShip(commandShip);
+            ReadyForWarp = readyForWarp;
+        }
+
+        public void OffensiveTactic()
+        {
+            var fleetTactics = new CombatPreferences();
+            fleetTactics.SetTacticDefense(ScreenShips);
+            fleetTactics.SetTacticIntercept(LeftShips);
+            fleetTactics.SetTacticIntercept(RightShips);
+            fleetTactics.SetTacticIntercept(RearShips);
+            fleetTactics.SetTacticAttack(CenterShips, CommandShip?.SensorRange ?? 150000);
+        }
+
+        public void DefensiveTactic()
+        {
+            var fleetTactics = new CombatPreferences();
+            fleetTactics.SetTacticDefense(ScreenShips);
+            fleetTactics.SetTacticIntercept(LeftShips);
+            fleetTactics.SetTacticIntercept(RightShips);
+            fleetTactics.SetTacticDefense(RearShips);
+            fleetTactics.SetTacticDefense(CenterShips, CommandShip?.SensorRange ?? 150000);
         }
 
         public enum FleetCombatStatus

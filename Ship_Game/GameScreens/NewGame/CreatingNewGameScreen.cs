@@ -264,7 +264,8 @@ namespace Ship_Game
 
         void CreateOpponents(ProgressCounter step)
         {
-            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(data => data.Name != Player.data.Name);
+            IEmpireData[] majorRaces = ResourceManager.MajorRaces.Filter(
+                                data => data.ArchetypeName != Player.data.ArchetypeName);
 
             // create a randomly shuffled list of opponents
             var opponents = new Array<IEmpireData>(majorRaces);
