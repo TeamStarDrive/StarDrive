@@ -666,9 +666,9 @@ namespace Ship_Game.Ships
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
-                if (proj?.Weapon.EMPDamage > 0 && !damagingShields)
+                if (proj?.Weapon.EMPDamage >= damageThreshold/10 && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
-                
+
                 if (modifiedDamage < damageThreshold)
                     return false; // no damage could be done, the projectile was deflected.
             }
