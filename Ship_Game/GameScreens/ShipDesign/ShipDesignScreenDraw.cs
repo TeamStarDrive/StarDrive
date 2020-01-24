@@ -473,7 +473,7 @@ namespace Ship_Game
             int fixedTargets               = 0;
             int numWeaponSlots             = 0;
             float totalShieldAmplify       = 0;
-            float shieldAmplify            = 0;
+            float shieldAmplifyPerShield   = 0;
 
             HullBonus bonus                 = ActiveHull.Bonuses;
             Array<ShipModule> shields = new Array<ShipModule>();
@@ -561,7 +561,7 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
-
+            shieldAmplifyPerShield = shields.Count > 0 ? totalShieldAmplify / shields.Count : 0;
             shieldPower = ShipUtils.CalcShieldAmplification(shieldPower, ActiveHull, 
                 EmpireManager.Player, totalShieldAmplify, shields.ToArray());
 
@@ -609,11 +609,11 @@ namespace Ship_Game
             DrawFtlTime();
             WriteLine(ref cursor);
 
-            Color shieldMaxColor = shieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
+            Color shieldMaxColor = totalShieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
             DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
             if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
             if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
-            if (shieldAmplify > 0) DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplify, 257, Color.Goldenrod));
+            if (shieldAmplifyPerShield > 0) DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplifyPerShield, 257, Color.Goldenrod));
             if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
             if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
             WriteLine(ref cursor);
