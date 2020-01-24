@@ -258,6 +258,7 @@ namespace Ship_Game
             {
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
+                
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, player);

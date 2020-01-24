@@ -264,7 +264,7 @@ namespace Ship_Game.AI
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.SurfaceArea, sizeAvg, FleetNode.SizeWeight);
                 copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
-                //ShipWiegth is a struct so we are working with a copy. Need to overwrite existing value. 
+                //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
                 NearByShips[i] = copyWeight;
             }
         }
