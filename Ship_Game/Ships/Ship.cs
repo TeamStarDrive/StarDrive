@@ -1202,10 +1202,11 @@ namespace Ship_Game.Ships
                 ShieldManager.RemoveShieldLights(Shields);
         }
 
-        public void PerformRegeneration()
+        void PerformRegeneration()
         {
             if (!HasRegeneratingModules)
                 return;
+
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
@@ -1409,7 +1410,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            shield_max = ShipUtils.CalcShieldAmplification(shield_max, shipData, loyalty, totalShieldAmplify, 
+            shield_max = ShipUtils.UpdateShieldAmplification(shield_max, shipData, loyalty, totalShieldAmplify, 
                 Shields.Filter(s => s.Active));
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);

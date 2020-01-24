@@ -3,7 +3,7 @@
     public static class ShipUtils
     {
         // This will also update shield max power of modules if there are amplifiers
-        public static float CalcShieldAmplification(float shieldMax, ShipData data, Empire empire, 
+        public static float UpdateShieldAmplification(float shieldMax, ShipData data, Empire empire, 
             float totalShieldAmplify, ShipModule[] activeShields)
         {
             if (activeShields.Length == 0)
