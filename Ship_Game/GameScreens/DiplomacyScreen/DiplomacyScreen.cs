@@ -273,7 +273,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             batch.Begin();
 
             DrawBackground(batch);
-
+            base.Draw(batch);
             foreach (GenericButton taf in TAFButtons)
             {
                 taf.DrawWithShadowCaps(batch);
@@ -311,7 +311,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
                     OfferTextSL.ResetWithParseText(Fonts.Consolas18, txt, DialogRect.Width - 30);
                     OfferTextSL.Visible = TheirItemsSL.Visible = OurItemsSL.Visible = true;
-
+                        base.Draw(batch);
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
                         SendOffer.DrawWithShadow(batch);
@@ -325,9 +325,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     OurAttitudeBtn_Respectful.Draw(ScreenManager);
 
                     var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
-                    batch.DrawString(Fonts.Pirulen12, Localizer.Token(1221), drawCurs, Color.White);
+                    batch.DrawString(Fonts.Pirulen12, new LocalizedText(GameText.WeHave), drawCurs, Color.White);
                     drawCurs = new Vector2((ThemRect.X + 10), (ThemRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
-                    batch.DrawString(Fonts.Pirulen12, Localizer.Token(1222), drawCurs, Color.White);
+                    batch.DrawString(Fonts.Pirulen12, new LocalizedText(GameText.TheyHave), drawCurs, Color.White);
                     break;
                 }
                 case DialogState.TheirOffer:
@@ -541,12 +541,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override bool HandleInput(InputState input)
         {
-            if (new Rectangle(TrustRect.X - (int)Fonts.Pirulen16.MeasureString("Trust").X, TrustRect.Y, (int)Fonts.Pirulen16.MeasureString("Trust").X + TrustRect.Width, 14).HitTest(input.CursorPosition))
+            if (TrustRect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(47);
-            if (new Rectangle(AngerRect.X - (int)Fonts.Pirulen16.MeasureString("Anger").X, AngerRect.Y, (int)Fonts.Pirulen16.MeasureString("Anger").X + AngerRect.Width, 14).HitTest(input.CursorPosition))
+            if (AngerRect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(48);
-            if (new Rectangle(FearRect.X - (int)Fonts.Pirulen16.MeasureString("Fear").X, FearRect.Y, (int)Fonts.Pirulen16.MeasureString("Fear").X + FearRect.Width, 14).HitTest(input.CursorPosition))
+            if (FearRect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(49);
+
             if (Exit.HandleInput(input) && dState != DialogState.TheirOffer)
             {
                 ExitScreen();
@@ -779,22 +780,22 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             TrustRect  = new Rectangle(Portrait.X + 125, Trust.R.Y + 2, 100, Trust.R.Height);
             AngerRect  = new Rectangle(Portrait.X + 125, Anger.R.Y + 2, 100, Anger.R.Height);
             FearRect   = new Rectangle(Portrait.X + 125, Fear.R.Y + 2, 100, Fear.R.Height);
-            DialogRect = new Rectangle(ScreenWidth / 2 - 350, Portrait.Bottom -120, 700, 75);
+            DialogRect = new Rectangle(Portrait.X + 175, Portrait.Bottom - 175, Portrait.Width - 350, 150);
 
             if (ScreenHeight < 820)
             {
                 DialogRect.Y = Portrait.Y + Portrait.Height - 100;
             }
             R = DialogRect;
-            R.Height += 75;
+            R.Height += 50;
             if (R.Y + R.Height > ScreenHeight)
             {
                 R.Y -= (R.Y + R.Height - ScreenHeight + 2);
             }
 
-            Attitude_Pleading_Rect   = new Rectangle(R.X + 45,       R.Y + R.Height - 48, 180, 48);
-            Attitude_Respectful_Rect = new Rectangle(R.X + 250 + 5,  R.Y + R.Height - 48, 180, 48);
-            Attitude_Threaten_Rect   = new Rectangle(R.X + 450 + 15, R.Y + R.Height - 48, 180, 48);
+            Attitude_Respectful_Rect = new Rectangle(DialogRect.CenterX() - 90, DialogRect.Bottom +20, 180, 48);
+            Attitude_Pleading_Rect   = new Rectangle(Attitude_Respectful_Rect.Left - 200, Attitude_Respectful_Rect.Top , 180, 48);
+            Attitude_Threaten_Rect   = new Rectangle(Attitude_Respectful_Rect.Left + 200, Attitude_Respectful_Rect.Top, 180, 48);
             ToneContainerRect = new Rectangle(ScreenWidth / 2 - 324, Attitude_Pleading_Rect.Y, 648, 48);
             OurAttitudeBtn_Pleading   = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(1207), Fonts.Pirulen12);
             OurAttitudeBtn_Respectful = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12) { ToggleOn = true };
@@ -803,8 +804,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
             Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
 
-            Negotiate_Right = new Rectangle(ScreenWidth - 242, ScreenHeight - 280, 192, 280);
-            Negotiate_Left = new Rectangle(0, ScreenHeight - 280, 192, 280);
+            Negotiate_Right = new Rectangle(BridgeRect.Right - 280, BridgeRect.Bottom - 280, 80, 280);
+            Negotiate_Left = new Rectangle(BridgeRect.Left + 5, BridgeRect.Bottom - 280, 80, 280);
             BigTradeRect = new Rectangle(DialogRect.X + 75, DialogRect.Y - 202, DialogRect.Width - 150, 200);
 
             UsRect = new Rectangle(Negotiate_Right.X + 20, Negotiate_Right.Y + 35, BigTradeRect.Width / 2 - 9, 300);
@@ -812,8 +813,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
 
             var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 30));
-            OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 15));
-            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing +12));
+            OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
+            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
             OurItemsSL   = Add(new ScrollList2<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
             TheirItemsSL = Add(new ScrollList2<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
             
