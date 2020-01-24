@@ -16,6 +16,17 @@ namespace Ship_Game.Ships
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
 
+        public void ShowSceneObjectAt(Vector3 position)
+        {
+            if (ShipSO == null)
+            {
+                Log.Info("Showing SceneObject");
+                CreateSceneObject();
+            }
+            ShipSO.World = Matrix.CreateTranslation(position);
+            ShipSO.Visibility = GlobalStats.ShipVisibility;
+        }
+
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
@@ -33,7 +44,7 @@ namespace Ship_Game.Ships
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
-        void RemoveSceneObject()
+        public void RemoveSceneObject()
         {
             SceneObject so = ShipSO;
             ShipSO = null;
@@ -111,6 +122,8 @@ namespace Ship_Game.Ships
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
 
+            SetFleetCapableStatus();
+
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
         }
@@ -174,6 +187,7 @@ namespace Ship_Game.Ships
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);
+
             ResetFrameThrustState();
         }
 

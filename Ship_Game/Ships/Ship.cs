@@ -160,6 +160,21 @@ namespace Ship_Game.Ships
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
 
+        Status FleetCapableStatus;
+        public bool FleetCapableShip() => FleetCapableStatus == Status.Good;
+
+        void SetFleetCapableStatus()
+        {
+            if (ShipEngineses.EngineStatus > Status.Poor
+                                      && AI.State != AIState.Resupply
+                                      && AI.State != AIState.Refit
+                                      && AI.State != AIState.Scrap
+                                      && AI.State != AIState.Scuttle)
+                FleetCapableStatus = Status.Good;
+            else
+                FleetCapableStatus = Status.Poor;
+        }
+
         // This bit field marks all the empires which are influencing
         // us within their borders via Subspace projectors
 
@@ -355,12 +370,12 @@ namespace Ship_Game.Ships
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;
 
-        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > ShipStatus.Critical
-                                                                 && OrdnanceStatus != ShipStatus.NotApplicable;
+        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > Status.Critical
+                                                                 && OrdnanceStatus != Status.NotApplicable;
 
-        public ShipStatus OrdnanceStatus => OrdnanceStatusWithincoming(0);
+        public Status OrdnanceStatus => OrdnanceStatusWithincoming(0);
 
-        public ShipStatus OrdnanceStatusWithincoming(float incomingAmount)
+        public Status OrdnanceStatusWithincoming(float incomingAmount)
         {
             if (IsInWarp
                 || AI.State == AIState.Scrap
@@ -370,7 +385,7 @@ namespace Ship_Game.Ships
                 || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
                 || OrdinanceMax < 1
                 || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
-                return ShipStatus.NotApplicable;
+                return Status.NotApplicable;
 
             float amount = Ordinance;
             if (incomingAmount > 0)
@@ -384,23 +399,23 @@ namespace Ship_Game.Ships
                 int bombBays = BombBays.Count;
                 switch (Bomb60SecStatus())
                 {
-                    case ShipStatus.Critical:      return bombBays / 10;
-                    case ShipStatus.Poor:          return bombBays / 5;
-                    case ShipStatus.Average:
-                    case ShipStatus.Good:          return bombBays / 2;
-                    case ShipStatus.Excellent:
-                    case ShipStatus.Maximum:       return bombBays;
-                    case ShipStatus.NotApplicable: return 0;
+                    case Status.Critical:      return bombBays / 10;
+                    case Status.Poor:          return bombBays / 5;
+                    case Status.Average:
+                    case Status.Good:          return bombBays / 2;
+                    case Status.Excellent:
+                    case Status.Maximum:       return bombBays;
+                    case Status.NotApplicable: return 0;
                 }
                 return 0;
             }
 
         }
 
-        public ShipStatus Bomb60SecStatus()
+        public Status Bomb60SecStatus()
         {
-            if (BombBays.Count <= 0) return ShipStatus.NotApplicable;
-            if (OrdnanceStatus < ShipStatus.Poor) return ShipStatus.Critical;
+            if (BombBays.Count <= 0) return Status.NotApplicable;
+            if (OrdnanceStatus < Status.Poor) return Status.Critical;
             //we need a standard formula for calculating the below.
             //one is the alpha strike. the other is the continued firing. The below only gets the sustained.
             //so the effect is that it might not have enough ordnance to fire the alpha strike. But it will do.
@@ -582,6 +597,7 @@ namespace Ship_Game.Ships
 
         public bool InRadiusOfSystem(SolarSystem system) =>
             system != null && InRadius(system.Position, system.Radius);
+
         public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
         public bool InRadius(Vector2 worldPos, float radius)
@@ -1009,6 +1025,8 @@ namespace Ship_Game.Ships
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
+            ShipEngineses.Update();
+
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
                 EMPDamage -= EmpRecovery;
@@ -1278,7 +1296,7 @@ namespace Ship_Game.Ships
             return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
         }
 
-        public ShipStatus HealthStatus
+        public Status HealthStatus
         {
             get
             {
@@ -1286,7 +1304,7 @@ namespace Ship_Game.Ships
                     || AI.State == AIState.Refit
                     || AI.State == AIState.Resupply)
                 {
-                    return ShipStatus.NotApplicable;
+                    return Status.NotApplicable;
                 }
 
                 Health = Health.Clamped(0, HealthMax);
@@ -1866,18 +1884,18 @@ namespace Ship_Game.Ships
             return ShipIsGoodForGoals(float.MinValue, empire);
         }
 
-        public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
+        public Status ToShipStatus(float valueToCheck, float maxValue)
         {
-            if (maxValue <= 0) return ShipStatus.NotApplicable;
+            if (maxValue <= 0) return Status.NotApplicable;
             if (valueToCheck > maxValue)
             {
                 Log.Info("MaxValue of check as greater than value to check");
-                return ShipStatus.NotApplicable;
+                return Status.NotApplicable;
             }
 
             float ratio = 0.5f + ShipStatusCount * valueToCheck / maxValue;
             ratio = ratio.Clamped(1, ShipStatusCount);
-            return (ShipStatus)(int)ratio;
+            return (Status)(int)ratio;
         }
 
         // if the shipstatus enum is added to then "5" will need to be changed.
@@ -1885,7 +1903,7 @@ namespace Ship_Game.Ships
         const int ShipStatusCount = 6;
     }
 
-    public enum ShipStatus
+    public enum Status
     {
         Critical = 1,
         Poor,

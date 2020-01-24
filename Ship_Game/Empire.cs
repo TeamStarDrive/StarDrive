@@ -21,7 +21,8 @@ namespace Ship_Game
         Normal,
         Spy,
         Diplomacy,
-        Event
+        Event,
+        Scrap
     }
     public sealed partial class Empire : IDisposable
     {
@@ -653,7 +654,7 @@ namespace Ship_Game
 
         public void AddShipNextFrame(Ship s) => ShipsToAdd.Add(s);
 
-        private void InitColonyRankModifier() // controls amount of orbital defense by difficuly
+        private void InitColonyRankModifier() // controls amount of orbital defense by difficulty
         {
             if (isPlayer) return;
             switch (CurrentGame.Difficulty)
@@ -898,6 +899,7 @@ namespace Ship_Game
             UnlockedHullsDict[hullName] = true;
             ShipTechs.Add(techUID);
         }
+
         public void UnlockEmpireTroop(string troopName)
         {
             UnlockedTroopDict[troopName] = true;
@@ -939,6 +941,7 @@ namespace Ship_Game
                 case TechUnlockType.Event     when techEntry.Unlock(this):
                 case TechUnlockType.Diplomacy when techEntry.UnlockFromDiplomacy(this, otherEmpire):
                 case TechUnlockType.Spy       when techEntry.UnlockFromSpy(this, otherEmpire):
+                case TechUnlockType.Scrap     when techEntry.UnlockFromScrap(this, otherEmpire):
                     UpdateForNewTech(); break;
             }
         }
@@ -2234,6 +2237,106 @@ namespace Ship_Game
                     if (kv.Value.AtWar && !kv.Key.isFaction) atWarCount++;
                 }
             AtWarCount = atWarCount;
+        }
+
+        public void TryUnlockByScrap(Ship ship)
+        {
+            string hullName = ship.shipData.Hull;
+            if (IsHullUnlocked(hullName))
+                return; // It's ours or we got it elsewhere
+
+
+            if (!TryReverseEngineer(ship, out TechEntry hullTech, out Empire empire))
+                return; // We could not reverse engineer this, too bad
+
+            UnlockTech(hullTech, TechUnlockType.Scrap, empire);
+
+            if (isPlayer)
+            {
+                string modelIcon  = ship.BaseHull.ActualIconPath;
+                string hullString = ship.BaseHull.ToString();
+                if (hullTech.Unlocked)
+                {
+                    string message = $"{hullString}{new LocalizedText(GameText.ReverseEngineered).Text}";
+                    Universe.NotificationManager.AddScrapUnlockNotification(message, modelIcon, "ShipDesign");
+                }
+                else
+                {
+                    string message = $"{hullString}{new LocalizedText(GameText.HullScrappedAdvancingResearch).Text}";
+                    Universe.NotificationManager.AddScrapProgressNotification(message, modelIcon, "ResearchScreen", hullTech.UID);
+                }
+            }
+        }
+
+        private bool TryReverseEngineer(Ship ship, out TechEntry hullTech, out Empire empire)
+        {
+            if (!TryGetTechFromHull(ship, out hullTech, out empire))
+                return false;
+
+            if (hullTech.Locked)
+                return true; // automatically advance in research
+
+            float unlockChance;
+            switch (ship.shipData.HullRole)
+            {
+                case ShipData.RoleName.fighter:  unlockChance = 90;    break;
+                case ShipData.RoleName.corvette: unlockChance = 80;    break;
+                case ShipData.RoleName.frigate:  unlockChance = 60;    break;
+                case ShipData.RoleName.cruiser:  unlockChance = 40;    break;
+                case ShipData.RoleName.capital:  unlockChance = 20f;   break;
+                default:                         unlockChance = 50f;   break;
+            }
+
+            unlockChance *= 1 + data.Traits.ModHpModifier; // skilled or bad engineers
+            return RandomMath.RollDice(unlockChance);
+        }
+
+        bool TryGetTechFromHull(Ship ship, out TechEntry techEntry, out Empire empire)
+        {
+            techEntry        = null;
+            empire           = null;
+            string hullName  = ship.shipData.Hull;
+            foreach (string techName in ship.shipData.TechsNeeded)
+            {
+                techEntry = GetTechEntry(techName);
+                foreach (var hull in techEntry.Tech.HullsUnlocked)
+                {
+                    if (hull.Name == hullName)
+                    {
+                        empire = EmpireManager.GetEmpireByShipType(hull.ShipType);
+                        if (empire == null)
+                        {
+                            Log.Warning("Unlock by Scrap - tried to unlock rom an empire which does" +
+                                        $"not exist in this game ({hull.ShipType}), probably " +
+                                        "due to debug spawn ships or fleets.");
+
+                            return false;
+                        }
+
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public void AddBoardSuccessNotification(Ship ship)
+        {
+            if (!isPlayer)
+                return;
+
+            string message = new LocalizedText(GameText.ShipCapturedByYou).Text;
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
+        }
+
+        public void AddBoardedNotification(Ship ship)
+        {
+            if (!isPlayer) 
+                return;
+
+            string message = new LocalizedText(GameText.YourShipWasCaptured).Text;
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
         }
 
         private void CalculateScore()

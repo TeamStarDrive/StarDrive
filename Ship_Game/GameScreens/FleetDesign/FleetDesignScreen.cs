@@ -68,29 +68,18 @@ namespace Ship_Game
             EmpireUI.empire.UpdateShipsWeCanBuild();
         }
 
-        void ShowSceneObject(Ship ship)
-        {
-            if (ship == null)
-                return;
-            if (ship.GetSO() == null)
-            {
-                Log.Info("FleetDesign CreateSceneObject");
-                ship.CreateSceneObject();
-            }
-            ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, 0f));
-            ship.GetSO().Visibility = GlobalStats.ShipVisibility;
-        }
-
         public void ChangeFleet(int which)
         {
             SelectedNodeList.Clear();
+            // dear scroll list branch. How are you? the object visiblility is being changed here.
+            // so make sure that the so's are removed and added at each fleet button press.
             if (FleetToEdit != -1)
             {
                 foreach (var kv in EmpireManager.Player.GetFleetsDict())
                 {
                     foreach (Ship ship in kv.Value.Ships)
                     {
-                        ShowSceneObject(ship);
+                        ship.RemoveSceneObject();
                     }
                 }
             }
@@ -130,7 +119,7 @@ namespace Ship_Game
             SelectedFleet = EmpireManager.Player.GetFleet(which);
             foreach (Ship ship in SelectedFleet.Ships)
             {
-                ShowSceneObject(ship);
+                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, 0f));
             }
         }
 
@@ -279,8 +268,7 @@ namespace Ship_Game
             for (int i = fleet.Ships.Count - 1; i >= 0; i--)
             {
                 Ship ship = fleet.Ships[i];
-                ShowSceneObject(ship);
-                ship.GetSO().World =  Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
+                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, -1000000f));
                 ship?.fleet?.RemoveShip(ship);         
             }
             SelectedFleet.DataNodes.Clear();

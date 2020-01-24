@@ -59,8 +59,8 @@ namespace Ship_Game
             }
             foreach (Ship ship in F.Ships)
             {
-                ship.GetSO().World = Matrix.CreateTranslation(new Vector3(ship.RelativeFleetOffset, -1000000f));
-            }                        
+                ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, -1000000f));
+            }                       
             F.Owner.GetFleetsDict()[Fds.FleetToEdit] = F;
             Fds.ChangeFleet(Fds.FleetToEdit);
             UpdateRequisitionStatus();

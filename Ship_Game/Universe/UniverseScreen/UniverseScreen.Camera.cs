@@ -55,7 +55,6 @@ namespace Ship_Game
             SelectedSystem = null;
             SelectedPlanet = null;
             snappingToShip = true;
-            HeightOnSnap = CamHeight;
             CamDestination.Z = 3500f;
             AdjustCamTimer = 1.0f;
             transitionElapsedTime = 0.0f;
@@ -181,6 +180,25 @@ namespace Ship_Game
                 SelectedItem = null;
                 SelectedShipList.Clear();
             }
+        }
+
+        public void SnapViewShip(object sender)
+        {
+            ShowShipNames = false;
+            if (SelectedShip == null)
+                return;
+
+            CamDestination  = new Vector3(SelectedShip.Center.X, SelectedShip.Center.Y + 400f, 2500f);
+            LookingAtPlanet = false;
+            transitionStartPosition = CamPos;
+            AdjustCamTimer  = 2f;
+            transitionElapsedTime = 0.0f;
+            transDuration  = 5f;
+            snappingToShip = true;
+            ViewingShip    = true;
+            SelectedFleet  = null;
+            SelectedItem   = null;
+            SelectedShipList.Clear();
         }
 
         private void ViewSystem(SolarSystem system)
