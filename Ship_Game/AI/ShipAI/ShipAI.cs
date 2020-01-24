@@ -454,7 +454,7 @@ namespace Ship_Game.AI
                 return false;
             if (BadGuysNear)
                 return false;
-            if (!Owner.FleetCapableShip()) return false;
+            if (!Owner.CanTakeFleetMoveOrders()) return false;
             if (State == AIState.Orbit ||
                 State == AIState.AwaitingOffenseOrders ||
                 State == AIState.AwaitingOrders)
@@ -466,7 +466,7 @@ namespace Ship_Game.AI
         {
             if (DoNearFleetOffset(elapsedTime))
             {
-                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.FleetCapableShip())
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
                 return;
             }
@@ -488,7 +488,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.FleetCapableShip())
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
             }
         }

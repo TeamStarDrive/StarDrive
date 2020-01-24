@@ -646,14 +646,26 @@ namespace Ship_Game
             //Get all available ships from AO's
             var ships = GetShipsFromOffensePools();
             //return a fleet creator. 
-            var readyShips = ships.Filter(s=> s.fleet == null &&
-                                              !s.AI.HasPriorityOrder &&
-                                              s.AI.State != AIState.Refit &&
-                                              s.AI.State != AIState.Scrap &&
-                                              s.AI.State != AIState.Resupply &&
-                                              s.AI.State != AIState.SystemDefender &&
-                                              !s.AI.BadGuysNear);
-            return readyShips;
+            //ships.Filter(s=> s.fleet == null &&
+            //s.CanTakeFleetOrders() &&
+            //!s.AI.BadGuysNear);
+            var readyShips = new Array<Ship>();
+            foreach(Ship ship in ships)
+            {
+                if (ship.fleet != null) 
+                    continue;
+                if (ship.AI.State == AIState.Resupply
+                                      && ship.AI.State == AIState.Refit
+                                      && ship.AI.State == AIState.Scrap
+                                      && ship.AI.State == AIState.Scuttle) 
+                    continue;
+                if (ship.AI.BadGuysNear)
+                    continue;
+                if (ship.IsInHostileProjectorRange && !ship.IsInFriendlyProjectorRange)
+                    continue;
+                readyShips.Add(ship);
+            }
+            return readyShips.ToArray();
         }
 
         public FleetShips AllFleetReadyShipsNearestTarget(Vector2 targetPosition)

@@ -37,7 +37,7 @@ namespace Ship_Game.Ships
         {
             if (Owner.EnginesKnockedOut)
                 return Status.Critical;
-            if (Owner.Inhibited || Owner.EMPdisabled)
+            if (Owner.Inhibited || Owner.EMPdisabled || Owner.IsInhibitedByUnfriendlyGravityWell)
                 return Status.Poor;
 
             //add more status based on engine damage.
@@ -48,7 +48,7 @@ namespace Ship_Game.Ships
         {
             if (Owner.fleet == null) return Status.NotApplicable;
 
-            if (!Owner.FleetCapableShip())
+            if (!Owner.CanTakeFleetMoveOrders())
                 return Status.NotApplicable;
 
             Status warpStatus = ReadyForWarp;
