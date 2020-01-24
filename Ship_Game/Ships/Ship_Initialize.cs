@@ -534,8 +534,7 @@ namespace Ship_Game.Ships
                 for (int i = 0; i < Shields.Length; i++)
                 {
                     ShipModule shield = Shields[i];
-                    shield.UpdateAmplification(shieldAmplify);
-                    shield.InitShieldPower();
+                    shield.InitShieldPower(shieldAmplify);
                 }
             }
 

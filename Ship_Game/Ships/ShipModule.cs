@@ -238,8 +238,9 @@ namespace Ship_Game.Ships
         // Used to configure how good of a target this module is
         public int ModuleTargetingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
 
-        public void InitShieldPower()
+        public void InitShieldPower(float shieldAmplify)
         {
+            UpdateAmplification(shieldAmplify);
             ShieldPower = ActualShieldPowerMax;
         }
 
@@ -1147,8 +1148,7 @@ namespace Ship_Game.Ships
             if (Regenerate <= 0 || !Powered && PowerDraw > 0f)
                 return;
 
-            float repairAmount = Regenerate / RepairDifficulty;
-            SetHealth(Health + repairAmount);
+            SetHealth(Health + Regenerate);
         }
 
         public void VisualizeRepair()
