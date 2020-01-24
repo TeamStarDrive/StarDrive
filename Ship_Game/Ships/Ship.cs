@@ -1411,7 +1411,7 @@ namespace Ship_Game.Ships
             }
 
             shield_max = ShipUtils.UpdateShieldAmplification(shield_max, shipData, loyalty, totalShieldAmplify, 
-                Shields.Filter(s => s.Active));
+                Shields);
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
