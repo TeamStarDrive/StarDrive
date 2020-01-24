@@ -26,11 +26,13 @@ namespace Ship_Game.AI {
             Ratios = new FleetRatios(OwnerEmpire);
         }
 
-        public FleetShips(Empire ownerEmpire, Array<Ship> ships)
+        public FleetShips(Empire ownerEmpire, Array<Ship> ships) : this(ownerEmpire)
         {
-            OwnerEmpire = ownerEmpire;
-            Ratios = new FleetRatios(OwnerEmpire);
+            foreach (var ship in ships) AddShip(ship);
+        }
 
+        public FleetShips(Empire ownerEmpire, Ship[] ships) : this(ownerEmpire)
+        {
             foreach (var ship in ships) AddShip(ship);
         }
 
@@ -66,8 +68,7 @@ namespace Ship_Game.AI {
                 || ship.AI.State == AIState.Scrap
                 || ship.AI.State == AIState.Resupply
                 || ship.AI.State == AIState.Refit
-                || ship.fleet != null
-                || ship.ShipIsGoodForGoals() == false)
+                || ship.fleet != null)
                 return false;
 
             AccumulatedStrength += ship.GetStrength();

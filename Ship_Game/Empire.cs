@@ -575,9 +575,9 @@ namespace Ship_Game
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
 
-        public SolarSystem[] GetBorderSystems(Empire them)
+        public Array<SolarSystem> GetBorderSystems(Empire them)
         {
-            var solarSystems = new HashSet<SolarSystem>();
+            var solarSystems = new Array<SolarSystem>();
 
             foreach (var solarSystem in GetOwnedSystems())
             {
@@ -585,9 +585,9 @@ namespace Ship_Game
                 if (ss == null)
                     break;
                 if (!ss.IsExploredBy(this)) continue;
-                solarSystems.Add(ss);
+                solarSystems.AddUniqueRef(ss);
             }
-            return solarSystems.ToArray();
+            return solarSystems;
         }
 
         public void RemovePlanet(Planet planet, Empire attacker)
@@ -638,6 +638,29 @@ namespace Ship_Game
             if(!onlyAO)
                 ships.AddRange(ForcePool);
             return ships;
+        }
+
+        public Ship[] AllFleetReadyShips()
+        {
+            //Get all available ships from AO's
+            var ships = GetShipsFromOffensePools();
+            //return a fleet creator. 
+            var readyShips = ships.Filter(s=> s.fleet == null &&
+                                              !s.AI.HasPriorityOrder &&
+                                              s.AI.State != AIState.Refit &&
+                                              s.AI.State != AIState.Scrap &&
+                                              s.AI.State != AIState.Resupply &&
+                                              s.AI.State != AIState.SystemDefender &&
+                                              !s.AI.BadGuysNear);
+            return readyShips;
+        }
+
+        public FleetShips AllFleetReadyShipsNearestTarget(Vector2 targetPosition)
+        {
+            var ships = AllFleetReadyShips();
+            ships.Sort(s => s.Center.SqDist(targetPosition));
+            //return a fleet creator. 
+            return new FleetShips(this, ships);
         }
 
         public BatchRemovalCollection<Ship> GetProjectors() => OwnedProjectors;
@@ -2380,6 +2403,15 @@ namespace Ship_Game
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;
             CalculateScore();
+        }
+
+        public void ForcePoolAdd(Array<Ship> ships)
+        {
+            for (int i = 0; i < ships.Count; i++)
+            {
+                var s = ships[i];
+                ForcePoolAdd(s);
+            }
         }
 
         public void ForcePoolAdd(Ship s)
