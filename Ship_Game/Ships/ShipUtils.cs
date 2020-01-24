@@ -11,15 +11,20 @@
                 return 0; // no active shields
 
             var bonuses         = EmpireShipBonuses.Get(empire, data);
-            float shieldAmplify = totalShieldAmplify / shields.Length;
+            float shieldAmplify = GetShieldAmplification(totalShieldAmplify, shields);
 
             for (int i = 0; i < activeShields.Length; i++)
             {
                 ShipModule shield = activeShields[i];
-                shield.UpdateAmplification(shieldAmplify);
+                shield.UpdateShieldPowerMax(shieldAmplify);
             }
 
             return (shieldMax + totalShieldAmplify) * bonuses.ShieldMod;
+        }
+        
+        public static float GetShieldAmplification(float totalShieldAmplifyPower, ShipModule[] shields)
+        {
+            return shields.Length > 0 ? totalShieldAmplifyPower / shields.Length : 0;
         }
     }
 }
