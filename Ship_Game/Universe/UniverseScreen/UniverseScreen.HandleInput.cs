@@ -415,6 +415,7 @@ namespace Ship_Game
                 fleet.Owner = player;
 
                 AddSelectedShipsToFleet(fleet);
+                fleet.SetCommandShip(null);
                 player.GetFleetsDict()[index] = fleet;
                 RecomputeFleetButtons(true);
             }
@@ -1204,6 +1205,8 @@ namespace Ship_Game
                     fleet.AddShip(ship);
                 }
             }
+            fleet.SetCommandShip(null);
+            fleet.Update(0);
             fleet.AutoArrange();
             InputCheckPreviousShip();
 

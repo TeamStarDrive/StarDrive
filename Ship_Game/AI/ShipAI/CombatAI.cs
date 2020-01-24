@@ -75,14 +75,13 @@ namespace Ship_Game.AI
             if (nearbyShip == null) 
                 return weight;
 
-            if (Owner.AI.Target as Ship == nearbyShip)
-                weight += 3;
+            if (Owner.AI.Target == nearbyShip)
+                weight += 1.5f;
 
             if (nearbyShip?.Weapons.Count == 0) 
-                weight = weight + PirateWeight;
-
-            if (nearbyShip.Health / nearbyShip.HealthMax < 0.5f) 
-                weight += VultureWeight;
+                weight += PirateWeight;
+            float healthRatio = 1 -(nearbyShip.Health / nearbyShip.HealthMax);
+            weight += VultureWeight * healthRatio;
 
             weight += SizeAttackWeight(weight, nearbyShip);
             weight += RangeWeight(nearbyShip, weight);
