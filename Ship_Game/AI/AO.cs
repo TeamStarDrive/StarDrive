@@ -302,11 +302,12 @@ namespace Ship_Game.AI
                         CoreFleetAddShip(waiting);
                     }
                 }
-                
-                CoreFleet.FinalPosition = CoreWorld.Center;
-                CoreFleet.AutoArrange();
-                CoreFleet.MoveToNow(Center, Vectors.Up);
-            
+                if (CoreFleet.Ships.Count > 0)
+                {
+                    CoreFleet.FinalPosition = CoreWorld.Center;
+                    CoreFleet.AutoArrange();
+                    CoreFleet.MoveToNow(Center, Vectors.Up);
+                }
                 TurnsToRelax +=  1;
             }
             else

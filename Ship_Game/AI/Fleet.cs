@@ -539,7 +539,6 @@ namespace Ship_Game.AI
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
-                    SetRestrictedCombatWeights(5000);
                     TaskStep = 1;
                     break;
                 case 1:
@@ -1053,9 +1052,9 @@ namespace Ship_Game.AI
 
         bool ShipsOffMission(MilitaryTask task)
         {
-            return AllButRearShips.Any(ship => (!ship.AI.HasPriorityOrder && ship.FleetCapableShip())
+            return AllButRearShips.Any(ship => (!ship.AI.HasPriorityOrder && ship.CanTakeFleetOrders)
                                      && (!ship.InCombat
-                                         && ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
+                                         || ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
         }
 
         void SetRestrictedCombatWeights(float ordersRadius)
@@ -1134,22 +1133,15 @@ namespace Ship_Game.AI
             {
                 ShipAI ai = ship.AI;
                 ai.CombatState = ship.shipData.CombatState;
-                if (ship.AI.State == AIState.Resupply || !ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
+                if (!ship.CanTakeFleetOrders || !ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
                     continue;
 
                 ai.CancelIntercept();
-                ai.FleetNode.AssistWeight   = 1f;
-                ai.FleetNode.DefenderWeight = 1f;
-                ai.FleetNode.VultureWeight  = 0;
-                ai.FleetNode.DPSWeight      = 1;
-                ai.FleetNode.SizeWeight     = 0.25f;
-                ai.FleetNode.OrdersRadius   = ship.WeaponsMaxRange;
+                if (ai.State == AIState.HoldPosition)
+                    ai.State = AIState.FormationWarp;
                 switch (type)
                 {
                     case InvasionTactics.Screen:
-                        ai.FleetNode.DefenderWeight = 1;
-                        ai.FleetNode.AssistWeight   = 0;
-                        ai.FleetNode.VultureWeight  = 0f;
                         if (!ship.InCombat)
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
@@ -1163,21 +1155,12 @@ namespace Ship_Game.AI
                         break;
 
                     case InvasionTactics.Center:
-                        ai.FleetNode.DefenderWeight       = 0.25f;
-                        ai.FleetNode.AssistWeight         = 1;
-                        ai.FleetNode.SizeWeight           = 0.75f;
-                        ai.FleetNode.DPSWeight            = 1;
-                        ai.FleetNode.ArmoredWeight        = 1;
-                        ai.FleetNode.AttackShieldedWeight = 1;
 
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
 
                     case InvasionTactics.Side:
-                        ai.FleetNode.DefenderWeight       = 0;
-                        ai.FleetNode.AssistWeight         = 1;
-                        ai.FleetNode.SizeWeight           = 0;
                         if (!ship.InCombat)
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
@@ -1537,7 +1520,7 @@ namespace Ship_Game.AI
             bool readyForWarp = true;
             Ship commandShip = null;
             if (Ships.Count == 0) return;
-            if (CommandShip != null && !CommandShip.FleetCapableShip())
+            if (CommandShip != null && !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
             
 
@@ -1556,7 +1539,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                if (CommandShip == null && ship.FleetCapableShip())
+                if (CommandShip == null && ship.CanTakeFleetMoveOrders())
                 {
                     if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
                         commandShip = ship;
@@ -1575,7 +1558,8 @@ namespace Ship_Game.AI
                     }
                 }
 
-                if (!InFormationWarp) InFormationWarp = ship.AI.State == AIState.FormationWarp;
+                if (!InFormationWarp) 
+                    InFormationWarp = ship.AI.State == AIState.FormationWarp;
 
                 UpdateOurFleetShip(ship);
 
