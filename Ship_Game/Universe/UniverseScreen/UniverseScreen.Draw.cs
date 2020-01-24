@@ -6,6 +6,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using Ship_Game.Ships.AI;
+using SynapseGaming.LightingSystem.Lights;
 
 namespace Ship_Game
 {
@@ -401,7 +402,9 @@ namespace Ship_Game
 
             View = matrix;
             if (GlobalStats.RenderBloom)
-                bloomComponent.Draw(gameTime);
+            {
+                bloomComponent?.Draw(gameTime);
+            }
 
             batch.Begin(SpriteBlendMode.AlphaBlend);
 
@@ -614,14 +617,14 @@ namespace Ship_Game
         }
 
 
-        private UILabel DebugText;
+        UILabel DebugText;
 
-        private void HideDebugGameInfo()
+        void HideDebugGameInfo()
         {
             DebugText?.Hide();
         }
 
-        private void ShowDebugGameInfo()
+        void ShowDebugGameInfo()
         {
             if (DebugText == null)
                 DebugText = Label(ScreenWidth - 250f, 44f, "");

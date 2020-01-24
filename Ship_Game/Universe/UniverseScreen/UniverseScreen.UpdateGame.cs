@@ -13,15 +13,18 @@ namespace Ship_Game
 
         void ProcessTurnsMonitored()
         {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            Log.Write(ConsoleColor.Cyan, $"Start Universe.ProcessTurns Thread #{threadId}");
             Log.AddThreadMonitor();
             ProcessTurns();
             Log.RemoveThreadMonitor();
+            Log.Write(ConsoleColor.Cyan, $"Stop Universe.ProcessTurns Thread #{threadId}");
         }
 
         void ProcessTurns()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
-            while (true)
+            while (ProcessTurnsThread != null)
             {
                 try
                 {
@@ -176,30 +179,29 @@ namespace Ship_Game
             SimulationDeltaTime = elapsedTime;
             perfavg5.Start(); // total do work perf counter
 
-            GlobalStats.BeamTests     = 0;
-            GlobalStats.Comparisons   = 0;
+            GlobalStats.BeamTests = 0;
+            GlobalStats.Comparisons = 0;
             GlobalStats.ComparisonCounter += 1;
             GlobalStats.ModuleUpdates = 0;
 
             if (ProcessTurnEmpires(elapsedTime))
-                return;
+            {
+                UpdateShipsAndFleets(elapsedTime);
 
-            UpdateShipsAndFleets(elapsedTime);
+                // this will update all ship Center coordinates
+                ProcessTurnShipsAndSystems(elapsedTime);
 
-            // this will update all ship Center coordinates
-            ProcessTurnShipsAndSystems(elapsedTime);
+                // update spatial manager after ships have moved.
+                // all the collisions will be triggered here:
+                SpaceManager.Update(elapsedTime);
 
-            // update spatial manager after ships have moved.
-            // all the collisions will be triggered here:
-            SpaceManager.Update(elapsedTime);
+                ProcessTurnUpdateMisc(elapsedTime);
 
-            ProcessTurnUpdateMisc(elapsedTime);
-
-            // bulk remove all dead projectiles to prevent their update next frame
-            RemoveDeadProjectiles();
+                // bulk remove all dead projectiles to prevent their update next frame
+                RemoveDeadProjectiles();
+            }
 
             perfavg5.Stop();
-            Lag = perfavg5.AvgTime;
         }
 
         void RemoveDeadProjectiles()
@@ -300,13 +302,6 @@ namespace Ship_Game
             {
                 perStarDateTimer = StarDate + 0.1f;
                 perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
-                empireShipCountReserve = EmpireManager.Empires.Sum(empire =>
-                    {
-                        if (empire == player || empire.data.Defeated || empire.isFaction)
-                            return 0;
-                        return empire.EmpireShipCountReserve;
-                    }
-                );
                 globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && !ship.loyalty.isPlayer && !ship.loyalty.isFaction) &&
                                                                   ship.shipData.Role != ShipData.RoleName.troop &&
                                                                   ship.Mothership == null).Length;
@@ -333,11 +328,14 @@ namespace Ship_Game
                         {
                             SolarSystem system = SolarSystemList[x];
 
-                            if (!ship.InRadiusOfSystem(system))
-                                continue;
-                            system.SetExploredBy(ship.loyalty);
-                            ship.SetSystem(system);
-                            break; // No need to keep looping through all other systems if one is found -Gretman
+                            if (ship.InRadiusOfSystem(system))
+                            {
+                                system.SetExploredBy(ship.loyalty);
+                                ship.SetSystem(system);
+                                // No need to keep looping through all other systems
+                                // if one is found -Gretman
+                                break;
+                            }
                         }
                     }
                 }
@@ -385,7 +383,9 @@ namespace Ship_Game
                 ShowingSysTooltip = false;
                 ShowingPlanetToolTip = false;
             }
+
             RecomputeFleetButtons(false);
+
             if (SelectedShip != null)
             {
                 ProjectPieMenu(SelectedShip.Position, 0.0f);
@@ -394,6 +394,7 @@ namespace Ship_Game
             {
                 ProjectPieMenu(SelectedPlanet.Center, 2500f);
             }
+
             if (GlobalStats.RemnantArmageddon)
             {
                 if (!Paused) ArmageddonTimer -= elapsedTime;
@@ -412,6 +413,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
@@ -419,12 +421,13 @@ namespace Ship_Game
             if (Paused)
             {
                 PreEmpirePerf.Stop();
-                return false;
+                return true;
             }
 
-            bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
             if (IsActive)
             {
+                bool rebuildPathingMap = false;
+
                 for (int i = 0; i < EmpireManager.NumEmpires; i++)
                 {
                     Empire empire = EmpireManager.Empires[i];
@@ -433,26 +436,29 @@ namespace Ship_Game
                     empire.AddShipsToForcePoolFromShipsToAdd();
                     rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }
+                
+                if (rebuildPathingMap)
+                    DoPathingMapRebuild();
             }
-
-            if (rebuildPathingMap)
-                DoPathingMapRebuild();
 
             PreEmpirePerf.Stop();
 
-            if (!IsActive)
-                return true;
-
-            EmpireUpdatePerf.Start();
-            for (var i = 0; i < EmpireManager.NumEmpires; i++)
+            if (IsActive)
             {
-                Empire empire = EmpireManager.Empires[i];
-                empire.Update(elapsedTime);
-            }
-            MasterShipList.ApplyPendingRemovals();
+                EmpireUpdatePerf.Start();
+                for (var i = 0; i < EmpireManager.NumEmpires; i++)
+                {
+                    Empire empire = EmpireManager.Empires[i];
+                    empire.Update(elapsedTime);
+                }
 
-            shiptimer -= elapsedTime; // 0.01666667f;//
-            EmpireUpdatePerf.Stop();
+                MasterShipList.ApplyPendingRemovals();
+
+                shiptimer -= elapsedTime; // 0.01666667f;//
+                EmpireUpdatePerf.Stop();
+                return true;
+            }
+
             return false;
         }
 

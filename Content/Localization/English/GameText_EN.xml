@@ -4731,12 +4731,20 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space.</Text>
     </Token>
     <Token>
-      <Index>1939</Index>
-      <Text>Proximity</Text>
+      <Index>1932</Index>
+      <Text> was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!</Text>
     </Token>
     <Token>
-      <Index>1940</Index>
-      <Text>Owner</Text>
+      <Index>1933</Index>
+      <Text> was scrapped, helping us advance in our own research\ntoward this hull type.</Text>
+    </Token>
+    <Token>
+      <Index>1934</Index>
+      <Text>You have managed to capture a ship! You can scrap it\nto get some research point towards your own hull\nresearch of that type, or maybe even unlock this specific\nhull, if you already able to build this type.</Text>
+    </Token>
+    <Token>
+      <Index>1935</Index>
+      <Text>One of your ships was boarded!</Text>
     </Token>
     <Token>
       <Index>1941</Index>
@@ -8341,7 +8349,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7005</Index>
-      <Text>Order ship back to the shipyards to be scrapped.</Text>
+      <Text>Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull.</Text>
     </Token>
   <Token>
       <Index>7006</Index>

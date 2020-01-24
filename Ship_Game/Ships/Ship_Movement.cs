@@ -15,6 +15,7 @@ namespace Ship_Game.Ships
         public float Thrust;
         public float TurnThrust;
         public float RotationRadiansPerSecond;
+        public ShipEngines ShipEngineses;
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
@@ -97,11 +98,16 @@ namespace Ship_Game.Ships
 
         public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
         {
-            IsTurning = true;
+            
             float rotAmount = rotationDir * elapsedTime * RotationRadiansPerSecond;
             if (Math.Abs(rotAmount) > angleDiff)
             {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
+                IsTurning = true;
+            }
+            else
+            {
+                IsTurning = false;
             }
 
             if (rotAmount > 0f) // Y-bank:
@@ -133,6 +139,7 @@ namespace Ship_Game.Ships
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
+            if (yRotation.AlmostZero()) IsTurning = false;
         }
 
         public float GetMinDecelerationDistance(float velocity)
@@ -338,7 +345,6 @@ namespace Ship_Game.Ships
             {
                 RestoreYBankRotation(elapsedTime);
             }
-            IsTurning = false;
 
             if ((engineState == MoveState.Warp || ThrustThisFrame > 0) && Velocity.Length() < SpeedLimit)
             {
