@@ -16,7 +16,7 @@ namespace Ship_Game.Ships
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
 
-        public void ShowSceneObjectWithMatrix(Vector3 position)
+        public void ShowSceneObjectAt(Vector3 position)
         {
             if (ShipSO == null)
             {
