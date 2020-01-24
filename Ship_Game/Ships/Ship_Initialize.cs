@@ -526,8 +526,8 @@ namespace Ship_Game.Ships
                     Ordinance += module.OrdinanceCapacity;
                 }
             }
-            
-            float shieldAmplify  = Shields.Length > 0 ? totalShieldAmplify / Shields.Length : 0;
+
+            float shieldAmplify = ShipUtils.GetShieldAmplification(totalShieldAmplify, Shields);
 
             if (!fromSave)
             {
