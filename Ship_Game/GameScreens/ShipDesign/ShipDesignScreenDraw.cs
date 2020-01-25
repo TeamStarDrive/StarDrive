@@ -473,7 +473,6 @@ namespace Ship_Game
             int fixedTargets               = 0;
             int numWeaponSlots             = 0;
             float totalShieldAmplify       = 0;
-            float shieldAmplifyPerShield   = 0;
 
             HullBonus bonus                 = ActiveHull.Bonuses;
             Array<ShipModule> shields = new Array<ShipModule>();
@@ -562,7 +561,7 @@ namespace Ship_Game
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
 
-            shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(totalShieldAmplify, shields.ToArray());
+            float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(totalShieldAmplify, shields.ToArray());
             shieldPower = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, shields.ToArray());
 
             Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
