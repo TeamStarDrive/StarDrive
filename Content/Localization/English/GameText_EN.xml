@@ -6472,7 +6472,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>248</Index>
-      <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. \n \n Construction cannot be rushed if there are ground invaders on your colony.</Text>
+      <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. If the item is complete when you rush, your empire will be charged 10% of the item's cost, up to 10 credits.\n \nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
