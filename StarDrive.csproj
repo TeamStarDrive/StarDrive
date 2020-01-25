@@ -1786,10 +1786,10 @@
     <Content Include="Content\ShipModules\ConstructionArray.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\ShipModules\UnitTest\TEST-ModuleAmplifier.xml">
+    <Content Include="Content\ShipModules\TEST-ModuleAmplifier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\ShipModules\UnitTest\TEST-ModuleShield.xml">
+    <Content Include="Content\ShipModules\TEST-ModuleShield.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipRoles\Shipyard.xml">
