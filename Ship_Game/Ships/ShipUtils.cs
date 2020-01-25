@@ -3,12 +3,13 @@
     public static class ShipUtils
     {
         // This will also update shield max power of modules if there are amplifiers
-        public static float UpdateShieldAmplification(float totalShieldAmplify, ShipModule[] shields, int numActiveShields)
+        public static float UpdateShieldAmplification(float totalShieldAmplify, ShipModule[] shields)
         {
-            if (numActiveShields == 0)
+            int numShields = shields.Length;
+            if (numShields == 0)
                 return 0; 
 
-            float shieldAmplify = GetShieldAmplification(totalShieldAmplify, numActiveShields);
+            float shieldAmplify = GetShieldAmplification(totalShieldAmplify, shields);
             float shieldMax     = 0;
             for (int i = 0; i < shields.Length; i++)
             {
@@ -23,9 +24,9 @@
             return shieldMax;
         }
         
-        public static float GetShieldAmplification(float totalShieldAmplifyPower, int numActiveShields)
+        public static float GetShieldAmplification(float totalShieldAmplifyPower, ShipModule[] shields)
         {
-            return numActiveShields > 0 ? totalShieldAmplifyPower / numActiveShields : 0;
+            return shields.Length > 0 ? totalShieldAmplifyPower / shields.Length : 0;
         }
     }
 }

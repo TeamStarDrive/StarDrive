@@ -346,6 +346,7 @@ namespace Ship_Game.Ships
 
             module.Health = module.ActualMaxHealth;
             module.UpdateModuleRadius();
+            module.UpdateShieldPowerMax(0);
 
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.Is(ShipModuleType.Armor)             ? -1 : 0;

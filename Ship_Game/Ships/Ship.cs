@@ -1334,7 +1334,6 @@ namespace Ship_Game.Ships
             shipStatusChanged           = false;
             float totalShieldAmplify    = 0;
             float sensorBonus           = 0f;
-            int numActiveShields        = 0;
             Thrust                      = 0f;
             Mass                        = SurfaceArea;
             shield_max                  = 0f;
@@ -1393,9 +1392,6 @@ namespace Ship_Game.Ships
                     BonusEMP_Protection += module.EMP_Protection;
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
-                    if (module.Is(ShipModuleType.Shield))
-                        numActiveShields++;
-
                     totalShieldAmplify  += module.AmplifyShields;
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
@@ -1410,7 +1406,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            shield_max = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, Shields, numActiveShields);
+            shield_max = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, Shields);
             NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
             NormalWarpThrust = WarpThrust;
