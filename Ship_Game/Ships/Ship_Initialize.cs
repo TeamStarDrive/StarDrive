@@ -512,7 +512,6 @@ namespace Ship_Game.Ships
                 PowerStoreMax += module.ActualPowerStoreMax;
                 PowerCurrent  += module.ActualPowerStoreMax;
                 PowerFlowMax  += module.ActualPowerFlowMax;
-                shield_max    += module.shield_power_max;
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
@@ -549,7 +548,7 @@ namespace Ship_Game.Ships
 
         void InitShieldsPower(float totalShieldAmplify)
         {
-            float shieldAmplify = ShipUtils.GetShieldAmplification(totalShieldAmplify, Shields);
+            float shieldAmplify = ShipUtils.GetShieldAmplification(totalShieldAmplify, Shields.Length);
             for (int i = 0; i < Shields.Length; i++)
             {
                 ShipModule shield = Shields[i];

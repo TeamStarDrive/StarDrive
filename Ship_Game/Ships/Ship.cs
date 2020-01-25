@@ -1334,6 +1334,7 @@ namespace Ship_Game.Ships
             shipStatusChanged           = false;
             float totalShieldAmplify    = 0;
             float sensorBonus           = 0f;
+            int numActiveShields        = 0;
             Thrust                      = 0f;
             Mass                        = SurfaceArea;
             shield_max                  = 0f;
@@ -1356,7 +1357,6 @@ namespace Ship_Game.Ships
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
-
 
             bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
@@ -1394,7 +1394,7 @@ namespace Ship_Game.Ships
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
                     if (module.Is(ShipModuleType.Shield))
-                        shield_max += module.shield_power_max;
+                        numActiveShields++;
 
                     totalShieldAmplify  += module.AmplifyShields;
                     Thrust              += module.thrust;
@@ -1410,10 +1410,8 @@ namespace Ship_Game.Ships
                 }
             }
 
-            shield_max = ShipUtils.UpdateShieldAmplification(shield_max, shipData, loyalty, totalShieldAmplify, 
-                Shields);
-
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            shield_max = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, Shields, numActiveShields);
+            NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.

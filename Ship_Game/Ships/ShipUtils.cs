@@ -3,28 +3,29 @@
     public static class ShipUtils
     {
         // This will also update shield max power of modules if there are amplifiers
-        public static float UpdateShieldAmplification(float shieldMax, ShipData data, Empire empire, 
-            float totalShieldAmplify, ShipModule[] shields)
+        public static float UpdateShieldAmplification(float totalShieldAmplify, ShipModule[] shields, int numActiveShields)
         {
-            ShipModule[] activeShields = shields.Filter(s => s.Active);
-            if (activeShields.Length == 0)
-                return 0; // no active shields
+            if (numActiveShields == 0)
+                return 0; 
 
-            var bonuses         = EmpireShipBonuses.Get(empire, data);
-            float shieldAmplify = GetShieldAmplification(totalShieldAmplify, shields);
-
-            for (int i = 0; i < activeShields.Length; i++)
+            float shieldAmplify = GetShieldAmplification(totalShieldAmplify, numActiveShields);
+            float shieldMax     = 0;
+            for (int i = 0; i < shields.Length; i++)
             {
-                ShipModule shield = activeShields[i];
-                shield.UpdateShieldPowerMax(shieldAmplify);
+                ShipModule shield = shields[i];
+                if (shield.Active)
+                {
+                    shield.UpdateShieldPowerMax(shieldAmplify);
+                    shieldMax += shield.ActualShieldPowerMax;
+                }
             }
 
-            return (shieldMax + totalShieldAmplify) * bonuses.ShieldMod;
+            return shieldMax;
         }
         
-        public static float GetShieldAmplification(float totalShieldAmplifyPower, ShipModule[] shields)
+        public static float GetShieldAmplification(float totalShieldAmplifyPower, int numActiveShields)
         {
-            return shields.Length > 0 ? totalShieldAmplifyPower / shields.Length : 0;
+            return numActiveShields > 0 ? totalShieldAmplifyPower / numActiveShields : 0;
         }
     }
 }
