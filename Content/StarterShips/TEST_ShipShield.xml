@@ -4,7 +4,7 @@
   <experience>0</experience>
   <Level>0</Level>
   <SelectionGraphic />
-  <Name>TEST-ShipShield</Name>
+  <Name>TEST_ShipShield</Name>
   <HasFixedCost>false</HasFixedCost>
   <FixedCost>0</FixedCost>
   <FixedUpkeep>0</FixedUpkeep>
@@ -39,7 +39,7 @@
         <X>232</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>TEST-ModuleShield</InstalledModuleUID>
+      <InstalledModuleUID>TEST_ModuleShield</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -52,7 +52,7 @@
         <X>248</X>
         <Y>232</Y>
       </Position>
-      <InstalledModuleUID>TEST-ModuleAmplifier</InstalledModuleUID>
+      <InstalledModuleUID>TEST_ModuleAmplifier</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -104,7 +104,7 @@
         <X>264</X>
         <Y>232</Y>
       </Position>
-      <InstalledModuleUID>TEST-ModuleAmplifier</InstalledModuleUID>
+      <InstalledModuleUID>TEST_ModuleAmplifier</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -156,7 +156,7 @@
         <X>280</X>
         <Y>264</Y>
       </Position>
-      <InstalledModuleUID>TEST-ModuleShield</InstalledModuleUID>
+      <InstalledModuleUID>TEST_ModuleShield</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>

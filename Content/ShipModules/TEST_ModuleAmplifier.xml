@@ -13,7 +13,7 @@
   <ModuleType>Armor</ModuleType>
   <Name>Internal Bulkhead</Name>
   <Restrictions>I</Restrictions>
-  <UID>TEST-ModuleAmplifier</UID>
+  <UID>TEST_ModuleAmplifier</UID>
   <TexturePath>Textures/transparent</TexturePath>
   <IconTexturePath>Modules/Bulkhead_1x1</IconTexturePath>
 
