@@ -40,6 +40,7 @@ namespace Ship_Game.Ships
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         ShipModule[] Shields;
+        ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
@@ -1332,7 +1333,6 @@ namespace Ship_Game.Ships
         public void ShipStatusChange()
         {
             shipStatusChanged           = false;
-            float totalShieldAmplify    = 0;
             float sensorBonus           = 0f;
             Thrust                      = 0f;
             Mass                        = SurfaceArea;
@@ -1392,7 +1392,6 @@ namespace Ship_Game.Ships
                     BonusEMP_Protection += module.EMP_Protection;
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
-                    totalShieldAmplify  += module.AmplifyShields;
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
@@ -1406,7 +1405,7 @@ namespace Ship_Game.Ships
                 }
             }
 
-            shield_max = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, Shields);
+            shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
             NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
             NormalWarpThrust = WarpThrust;

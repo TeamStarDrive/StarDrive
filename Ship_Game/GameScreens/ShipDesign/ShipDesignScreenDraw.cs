@@ -474,8 +474,10 @@ namespace Ship_Game
             int numWeaponSlots             = 0;
             float totalShieldAmplify       = 0;
 
-            HullBonus bonus                 = ActiveHull.Bonuses;
-            Array<ShipModule> shields = new Array<ShipModule>();
+            HullBonus bonus              = ActiveHull.Bonuses;
+            Array<ShipModule> shields    = new Array<ShipModule>();
+            Array<ShipModule> amplifiers = new Array<ShipModule>();
+
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
                 bool wasOffenseDefenseAdded = false;
@@ -507,6 +509,9 @@ namespace Ship_Game
 
                 if (slot.Module.Is(ShipModuleType.Shield))
                     shields.Add(slot.Module);
+
+                if (slot.Module.AmplifyShields > 0)
+                    amplifiers.Add(slot.Module);
 
                 empResist          += slot.Module.EMP_Protection;
                 warpableMass       += slot.Module.WarpMassCapacity;
@@ -561,8 +566,8 @@ namespace Ship_Game
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
 
-            float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(totalShieldAmplify, shields.ToArray());
-            shieldPower = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, shields.ToArray());
+            float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(amplifiers.ToArray(), shields.ToArray());
+            shieldPower = ShipUtils.UpdateShieldAmplification(amplifiers.ToArray(), shields.ToArray());
 
             Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 

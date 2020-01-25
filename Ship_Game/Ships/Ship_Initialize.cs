@@ -548,7 +548,7 @@ namespace Ship_Game.Ships
 
         void InitShieldsPower(float totalShieldAmplify)
         {
-            float shieldAmplify = ShipUtils.GetShieldAmplification(totalShieldAmplify, Shields);
+            float shieldAmplify = ShipUtils.GetShieldAmplification(Amplifiers, Shields);
             for (int i = 0; i < Shields.Length; i++)
             {
                 ShipModule shield = Shields[i];
