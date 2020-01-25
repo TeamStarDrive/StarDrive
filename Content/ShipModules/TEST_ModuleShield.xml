@@ -11,7 +11,7 @@
   <YSIZE>1</YSIZE>
   <Name>Fighter Shield</Name>
   <Restrictions>IO</Restrictions>
-  <UID>TEST-ModuleShield</UID>
+  <UID>TEST_ModuleShield</UID>
   <IconTexturePath>Modules/Fighter Shield</IconTexturePath>
   <Mass>2</Mass>
   <Health>100</Health>
