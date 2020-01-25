@@ -1337,7 +1337,7 @@ namespace Ship_Game
             LoadBasicContentForTesting();
 
             FileInfo[] ships = shipsList != null
-                ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/{ship}.xml"))
+                ? shipsList.Select(ship => GetModOrVanillaFile($"StarterShips/UnitTest/{ship}.xml"))
                 : GatherFilesModOrVanilla("StarterShips", "xml");
 
             ShipsDict.Clear();
