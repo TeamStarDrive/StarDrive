@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xna.Framework;
-using Ship_Game.Gameplay;
+using Ship_Game;
 using Ship_Game.Ships;
 
 namespace UnitTests.Ships
@@ -17,20 +12,29 @@ namespace UnitTests.Ships
         {
             LoadStarterShips("TEST-ShipShield");
             CreateGameInstance();
-            CreateUniverseAndPlayerEmpire(out _);
+        }
+
+        void CreateTestEnv(out Ship ship)
+        {
+            CreateUniverseAndPlayerEmpire(out Empire empire);
+            ship = Ship.CreateShipAtPoint("TEST-ShipShield", empire, Vector2.Zero);
         }
 
         [TestMethod]
         public void AmplifierDestroyed()
         {
-            Ship ship = SpawnShip("TEST-ShipShield", Player, Vector2.Zero);
+            CreateTestEnv(out Ship ship);
+            Assert.IsNotNull(ship);
             Assert.That.Equal(ship.shield_max, 1400);
+
             ShipModule amplifier = ship.TestGetModule("TEST-ModuleAmplifier");
             Assert.IsNotNull(amplifier);
             Assert.That.Equal(amplifier.AmplifyShields, 200);
+
             amplifier.Active = false;
             ship.ShipStatusChange();
             Assert.That.Equal(ship.shield_max, 1200);
+
             amplifier.Active = true;
             ship.ShipStatusChange();
             Assert.That.Equal(ship.shield_max, 1400);
