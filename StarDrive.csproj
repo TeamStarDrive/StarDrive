@@ -1780,16 +1780,16 @@
     <Content Include="Content\Localization\Spanish\GameText.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\StarterShips\TEST-ShipShield.xml">
+    <Content Include="Content\StarterShips\TEST_ShipShield.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipModules\ConstructionArray.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\ShipModules\TEST-ModuleAmplifier.xml">
+    <Content Include="Content\ShipModules\TEST_ModuleAmplifier.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\ShipModules\TEST-ModuleShield.xml">
+    <Content Include="Content\ShipModules\TEST_ModuleShield.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipRoles\Shipyard.xml">

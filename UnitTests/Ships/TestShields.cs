@@ -10,14 +10,14 @@ namespace UnitTests.Ships
     {
         public TestShields()
         {
-            LoadStarterShips("TEST-ShipShield");
+            LoadStarterShips("TEST_ShipShield");
             CreateGameInstance();
         }
 
         void CreateTestEnv(out Ship ship)
         {
             CreateUniverseAndPlayerEmpire(out Empire empire);
-            ship = Ship.CreateShipAtPoint("TEST-ShipShield", empire, Vector2.Zero);
+            ship = Ship.CreateShipAtPoint("TEST_ShipShield", empire, Vector2.Zero);
         }
 
         [TestMethod]
@@ -27,7 +27,7 @@ namespace UnitTests.Ships
             Assert.IsNotNull(ship);
             Assert.That.Equal(ship.shield_max, 1400);
 
-            ShipModule amplifier = ship.TestGetModule("TEST-ModuleAmplifier");
+            ShipModule amplifier = ship.TestGetModule("TEST_ModuleAmplifier");
             Assert.IsNotNull(amplifier);
             Assert.That.Equal(amplifier.AmplifyShields, 200);
 
