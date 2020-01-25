@@ -407,21 +407,21 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.27f, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.27f, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Width * 0.33f, lineSpacing: 0);
+            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Width * 0.27f, lineSpacing: 0);
             WriteLine(ref cursor);
         }
 
@@ -429,7 +429,7 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, color, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+            ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, color, toolTipId, spacing: ActiveModSubMenu.Width * 0.27f, isPercent: isPercent);
         }
 
         void DrawString(ref Vector2 cursor, string text, bool valueCheck)

@@ -788,7 +788,7 @@ namespace Ship_Game
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
 
             var statCursor = new Vector2(cursor.X + Spacing(spacing), cursor.Y);
-            Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
+            Vector2 statNameCursor = FontSpace(statCursor, -20, words, font);
 
             DrawString(statNameCursor, nameColor, words, font);
             DrawString(statCursor, statColor, stat, font);
@@ -953,7 +953,7 @@ namespace Ship_Game
             cursor.Y += stat.LineSpacing;
 
             Vector2 statCursor = new Vector2(cursor.X + Spacing(stat.Spacing), cursor.Y);
-            DrawString(FontSpace(statCursor, -40, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
+            DrawString(FontSpace(statCursor, -20, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
 
             string valueText = stat.ValueText;
             DrawString(statCursor, stat.ValueColor, valueText, font);
