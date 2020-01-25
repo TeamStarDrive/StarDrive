@@ -562,9 +562,8 @@ namespace Ship_Game
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
 
-            shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(totalShieldAmplify, shields.ToArray());
-            shieldPower = ShipUtils.UpdateShieldAmplification(shieldPower, ActiveHull, 
-                EmpireManager.Player, totalShieldAmplify, shields.ToArray());
+            shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(totalShieldAmplify, shields.Count);
+            shieldPower = ShipUtils.UpdateShieldAmplification(totalShieldAmplify, shields.ToArray(), shields.Count);
 
             Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
