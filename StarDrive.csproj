@@ -1795,7 +1795,7 @@
     <Content Include="Content\UnitTestShips\Supply Shuttle.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\UnitTestShips\TEST-ShipShield.xml">
+    <Content Include="Content\StarterShips\TEST-ShipShield.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipModules\ConstructionArray.xml">
