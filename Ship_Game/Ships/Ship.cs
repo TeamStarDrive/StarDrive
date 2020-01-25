@@ -1761,6 +1761,17 @@ namespace Ship_Game.Ships
                 empire.CanBuildShipyards = true;
         }
 
+        // For Unit Tests
+        public ShipModule TestGetModule(string uid)
+        {
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                if (module.UID == uid)
+                    return module;
+            }
+            return null;
+        }
+
         // @todo autocalculate during ship instance init
         private int DPS;
         public float CalculateShipStrength()
