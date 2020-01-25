@@ -85,6 +85,7 @@ namespace Ship_Game
             upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
             
             var right = screen.UnprojectToWorldPosition(new Vector2(screen.ScreenWidth, 0f));
+
             right = new Vector2(HelperFunctions.RoundTo(right.X, 1), 0f);
             
             float xdist = (right.X - upperLeftView.X) * Scale;
@@ -101,13 +102,13 @@ namespace Ship_Game
                 lookingAt.Width  = 2;
                 lookingAt.Height = 2;
             }
-            if (lookingAt.X < ActualMap.X) lookingAt.X = ActualMap.X;
-            if (lookingAt.Y < ActualMap.Y) lookingAt.Y = ActualMap.Y;
+            float lookRightEdge = lookingAt.X;
+            float lookBottomEdge = lookingAt.Y;
 
-            float lookRightEdge  = lookingAt.X + lookingAt.Width;
-            float lookBottomEdge = lookingAt.Y + lookingAt.Height;
-            lookingAt.X          = lookRightEdge > ActualMap.Width + ActualMap.X ? ActualMap.X + ActualMap.Width - lookingAt.Width : lookingAt.X;
-            lookingAt.Y          = lookBottomEdge > ActualMap.Height + ActualMap.Y ? ActualMap.Height + ActualMap.Y  - lookingAt.Height : lookingAt.Y;
+            lookingAt.X = (int)lookRightEdge.UpperBound(ActualMap.X + ActualMap.Width - lookingAt.Width);
+            lookingAt.Y = (int)lookBottomEdge.UpperBound(ActualMap.Height + ActualMap.Y - lookingAt.Height);
+            lookingAt.X = (int)lookingAt.X.ClampMin(ActualMap.X);
+            lookingAt.Y = (int)lookingAt.Y.ClampMin(ActualMap.Y);
 
             batch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
             batch.DrawRectangle(lookingAt, Color.White);
@@ -134,9 +135,8 @@ namespace Ship_Game
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
-                    if (!Empire.Universe.Debug)
-                        if (!node.Known)
-                            continue;
+                    if (!Empire.Universe.Debug || !node.Known)
+                        continue;
 
                     float nodeRad = WorldToMiniRadius(node.Radius);
                     if (node.SourceObject is GameplayObject)
