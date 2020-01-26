@@ -55,8 +55,9 @@ namespace Ship_Game.Ships
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
-            Shields    = ShipUtils.GetShields(ModuleSlotList);
-            Amplifiers = ShipUtils.GetAmplifiers(ModuleSlotList);
+            ShipUtils.CacheModules cachedModules = new ShipUtils.CacheModules(ModuleSlotList);
+            Shields    = cachedModules.Shields;
+            Amplifiers = cachedModules.Amplifiers;
 
             if (EnableDebugGridExport)
             {
