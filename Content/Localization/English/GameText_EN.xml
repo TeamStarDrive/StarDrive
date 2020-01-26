@@ -4687,6 +4687,30 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1908</Index>
+      <Text>Regenerate</Text>
+    </Token>
+    <Token>
+      <Index>1909</Index>
+      <Text>This module has Self Regeneration Nano Technology and will repair itself with this amount per second as long as it is getting power.</Text>
+    </Token>
+    <Token>
+      <Index>1910</Index>
+      <Text>Shield Amp</Text>
+    </Token>
+    <Token>
+      <Index>1911</Index>
+      <Text>Each of the ship shield's maximum power will be amplified by this number.</Text>
+    </Token>
+    <Token>
+      <Index>1912</Index>
+      <Text>When powered, this amplifies the Maximum Power of the shields in your ships. This number is also divided by the total number of shields.</Text>
+    </Token>
+    <Token>
+      <Index>1913</Index>
+      <Text>Shield Amplify</Text>
+    </Token>
+    <Token>
       <Index>1914</Index>
       <Text>Relative Strength</Text>
     </Token>
@@ -4745,6 +4769,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>1935</Index>
       <Text>One of your ships was boarded!</Text>
+    </Token>
+    <Token>
+      <Index>1939</Index>
+      <Text>Proximity</Text>
+    </Token>
+    <Token>
+      <Index>1940</Index>
+      <Text>Owner</Text>
     </Token>
     <Token>
       <Index>1941</Index>
@@ -5248,7 +5280,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2065</Index>
-      <Text>Indicates the hitpoints of this shield</Text>
+      <Text>Indicates the hitpoints of this shield. If the title is Golden, it indicates that this shield is being amplified by Shield Amplifiers within your ship.</Text>
     </Token>
     <Token>
       <Index>2066</Index>
@@ -5292,7 +5324,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2076</Index>
-      <Text>Indicates the total hitpoints of all of the ship's shield modules combined</Text>
+      <Text>Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold, if any Shield Amplifiers are installed.</Text>
     </Token>
     <Token>
       <Index>2077</Index>
@@ -6448,7 +6480,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>248</Index>
-      <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. \n \n Construction cannot be rushed if there are ground invaders on your colony.</Text>
+      <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. If the item is complete when you rush, your empire will be charged 10% of the item's cost, up to 10 credits.\n \nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
@@ -8646,7 +8678,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7078</Index>
-      <Text>Weapons which do less damage (or EMP damage) than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
+      <Text>Weapons which do less damage than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability. Deflection has 10% efficiency vs. EMP Damage.</Text>
     </Token>
   <Token>
       <Index>7079</Index>

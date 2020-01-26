@@ -120,7 +120,7 @@ namespace Ship_Game
                 if (ApplyProdHover && p.IsConstructing)
                 {
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-                    if (p.Construction.RushProduction(0, maxAmount))
+                    if (p.Construction.RushProduction(0, maxAmount, playerRush: true))
                         GameAudio.AcceptClick();
                     else
                         GameAudio.NegativeClick();

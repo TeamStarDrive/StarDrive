@@ -43,7 +43,7 @@ namespace Ship_Game
             InputState input = GameBase.ScreenManager.input;
 
             float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-            if (Planet.Construction.RushProduction(index, maxAmount))
+            if (Planet.Construction.RushProduction(index, maxAmount, playerRush: true))
                 GameAudio.AcceptClick();
             else
                 GameAudio.NegativeClick();

@@ -54,6 +54,8 @@ namespace Ship_Game
             base.OnTabChangedEvt(newIndex);
         }
 
+        float ActiveModStatSpacing => ActiveModSubMenu.Width * 0.27f;
+
         public bool HitTest(InputState input)
         {
             return Rect.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
@@ -371,29 +373,33 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+
+            Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+
+            Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;
-            Screen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModSubMenu.Width * 0.33f, lineSpacing: 0);
+
+            Screen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModStatSpacing, lineSpacing: 0);
             WriteLine(ref cursor);
         }
 
-        void DrawStatShieldResist(ref Vector2 cursor, int titleId, float stat, int toolTipId, bool isPercent = true)
+        void DrawStatCustomColor(ref Vector2 cursor, int titleId, float stat, int toolTipId, Color color, bool isPercent = true)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModSubMenu.Width * 0.33f, isPercent: isPercent);
+
+            Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
         void DrawString(SpriteBatch batch, ref Vector2 cursor, string text, bool valueCheck)
@@ -434,26 +440,35 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, Localizer.Token(2064), mod.WarpThrust, 92);
             DrawStat(ref modTitlePos, Localizer.Token(2260), mod.TurnThrust, 148);
 
-            float shieldMax = mod.ActualShieldPowerMax;
-            DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
+
+            float shieldMax           = mod.ActualShieldPowerMax;
+            float amplifyShields      = mod.AmplifyShields;
+            DrawStat(ref modTitlePos, Localizer.Token(1910), amplifyShields, 258);
+
+            if (mod.IsAmplified)
+                DrawStatCustomColor(ref modTitlePos, 132, shieldMax, 93, Color.Gold, isPercent: false);
+            else
+                DrawStat(ref modTitlePos, Localizer.Token(132), shieldMax, 93);
 
             DrawStat(ref modTitlePos, Localizer.Token(133), mod.shield_radius, 94);
             DrawStat(ref modTitlePos, Localizer.Token(134), mod.shield_recharge_rate, 95);
             DrawStat(ref modTitlePos, Localizer.Token(1994), mod.shield_recharge_combat_rate, 1993);
 
             // Doc: new shield resistances, UI info.
-            DrawStatShieldResist(ref modTitlePos, 6162, mod.shield_kinetic_resist, 209);
-            DrawStatShieldResist(ref modTitlePos, 6163, mod.shield_energy_resist, 210);
-            DrawStatShieldResist(ref modTitlePos, 6164, mod.shield_explosive_resist, 211);
-            DrawStatShieldResist(ref modTitlePos, 6165, mod.shield_missile_resist, 212);
-            DrawStatShieldResist(ref modTitlePos, 6166, mod.shield_flak_resist, 213);
-            DrawStatShieldResist(ref modTitlePos, 6167, mod.shield_hybrid_resist, 214);
-            DrawStatShieldResist(ref modTitlePos, 6168, mod.shield_railgun_resist, 215);
-            DrawStatShieldResist(ref modTitlePos, 6169, mod.shield_subspace_resist, 216);
-            DrawStatShieldResist(ref modTitlePos, 6170, mod.shield_warp_resist, 217);
-            DrawStatShieldResist(ref modTitlePos, 6171, mod.shield_beam_resist, 218);
-            DrawStatShieldResist(ref modTitlePos, 6176, mod.shield_threshold, 222, isPercent: false);
+            Color shieldResistColor = Color.LightSkyBlue;
+            DrawStatCustomColor(ref modTitlePos, 6162, mod.shield_kinetic_resist, 209, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6163, mod.shield_energy_resist, 210, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6164, mod.shield_explosive_resist, 211, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6165, mod.shield_missile_resist, 212, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6166, mod.shield_flak_resist, 213, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6167, mod.shield_hybrid_resist, 214, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6168, mod.shield_railgun_resist, 215, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6169, mod.shield_subspace_resist, 216, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6170, mod.shield_warp_resist, 217, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6171, mod.shield_beam_resist, 218, shieldResistColor);
+            DrawStatCustomColor(ref modTitlePos, 6176, mod.shield_threshold, 222, shieldResistColor, isPercent: false);
 
+            DrawStat(ref modTitlePos, 1908, mod.Regenerate, 1909);
             DrawStat(ref modTitlePos, 126,  mod.SensorRange, 96);
             DrawStat(ref modTitlePos, 6121, mod.SensorBonus, 167);
             DrawStat(ref modTitlePos, 6131, mod.HealPerTurn, 174);
