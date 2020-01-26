@@ -521,5 +521,11 @@ namespace Ship_Game
         TreasuryGoalProjection = 255,
         /// <summary>Relative Strength</summary>
         RelativeStrength = 256,
+        /// <summary>Ship Total Shield Amp</summary>
+        ShipShieldAmplify = 257,
+        /// <summary>Module Shield Amplify</summary>
+        ModuleShieldAmplify = 258,
+        /// <summary>Self Regeneration Technology</summary>
+        SelfRegeneration = 259
     }
 }

@@ -439,7 +439,11 @@ namespace Ship_Game
             int troopCount                 = 0;
             int fixedTargets               = 0;
             int numWeaponSlots             = 0;
-            HullBonus bonus                 = ActiveHull.Bonuses;
+            float totalShieldAmplify       = 0;
+
+            HullBonus bonus              = ActiveHull.Bonuses;
+            Array<ShipModule> shields    = new Array<ShipModule>();
+            Array<ShipModule> amplifiers = new Array<ShipModule>();
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -470,21 +474,29 @@ namespace Ship_Game
                 if (!slot.Module.Powered)
                     continue;
 
-                empResist        += slot.Module.EMP_Protection;
-                warpableMass     += slot.Module.WarpMassCapacity;
-                warpDraw         += slot.Module.PowerDrawAtWarp;
-                shieldPower      += slot.Module.ActualShieldPowerMax;
-                thrust           += slot.Module.thrust;
-                warpThrust       += slot.Module.WarpThrust;
-                turnThrust       += slot.Module.TurnThrust;
-                repairRate       += slot.Module.ActualBonusRepairRate;
-                ordnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
-                targets          += slot.Module.TargetTracking;
-                totalEcm          = Math.Max(slot.Module.ECM, totalEcm);
-                sensorRange       = Math.Max(slot.Module.SensorRange, sensorRange);
-                sensorBonus       = Math.Max(slot.Module.SensorBonus, sensorBonus);
-                fixedTargets      = Math.Max(slot.Module.FixedTracking, fixedTargets);
-                ordnanceUsed     += slot.Module.BayOrdnanceUsagePerSecond;
+                if (slot.Module.Is(ShipModuleType.Shield))
+                    shields.Add(slot.Module);
+
+                if (slot.Module.AmplifyShields > 0)
+                    amplifiers.Add(slot.Module);
+
+                empResist          += slot.Module.EMP_Protection;
+                warpableMass       += slot.Module.WarpMassCapacity;
+                warpDraw           += slot.Module.PowerDrawAtWarp;
+                shieldPower        += slot.Module.shield_power_max;
+                totalShieldAmplify += slot.Module.AmplifyShields;
+                thrust             += slot.Module.thrust;
+                warpThrust         += slot.Module.WarpThrust;
+                turnThrust         += slot.Module.TurnThrust;
+                repairRate         += slot.Module.ActualBonusRepairRate;
+                ordnanceRecoverd   += slot.Module.OrdnanceAddedPerSecond;
+                targets            += slot.Module.TargetTracking;
+                totalEcm            = Math.Max(slot.Module.ECM, totalEcm);
+                sensorRange         = Math.Max(slot.Module.SensorRange, sensorRange);
+                sensorBonus         = Math.Max(slot.Module.SensorBonus, sensorBonus);
+                fixedTargets        = Math.Max(slot.Module.FixedTracking, fixedTargets);
+                ordnanceUsed       += slot.Module.BayOrdnanceUsagePerSecond;
+
 
                 if (slot.Module.IsCommandModule)
                     hasBridge = true;
@@ -520,6 +532,10 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
+
+            float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(amplifiers.ToArray(), shields.ToArray());
+            shieldPower = ShipUtils.UpdateShieldAmplification(amplifiers.ToArray(), shields.ToArray());
+
             Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
@@ -564,9 +580,11 @@ namespace Ship_Game
             DrawFtlTime();
             WriteLine(ref cursor);
 
+            Color shieldMaxColor = totalShieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
             DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
             if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
-            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, Color.Goldenrod));
+            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
+            if (shieldAmplifyPerShield > 0) DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplifyPerShield, 257, Color.Goldenrod));
             if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
             if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
             WriteLine(ref cursor);
@@ -740,7 +758,7 @@ namespace Ship_Game
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
 
             var statCursor = new Vector2(cursor.X + Spacing(spacing), cursor.Y);
-            Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
+            Vector2 statNameCursor = FontSpace(statCursor, -20, words, font);
 
             DrawString(statNameCursor, nameColor, words, font);
             DrawString(statCursor, statColor, stat, font);
@@ -891,7 +909,7 @@ namespace Ship_Game
             cursor.Y += stat.LineSpacing;
 
             Vector2 statCursor = new Vector2(cursor.X + Spacing(stat.Spacing), cursor.Y);
-            DrawString(FontSpace(statCursor, -40, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
+            DrawString(FontSpace(statCursor, -20, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
 
             string valueText = stat.ValueText;
             DrawString(statCursor, stat.ValueColor, valueText, font);
