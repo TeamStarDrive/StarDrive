@@ -342,6 +342,7 @@
     <Compile Include="Ship_Game\PathFinder\NodeVector.cs" />
     <Compile Include="Ship_Game\Ships\AI\WayPoints.cs" />
     <Compile Include="Ship_Game\Ships\CarrierBays.cs" />
+    <Compile Include="Ship_Game\Ships\ShipUtils.cs" />
     <Compile Include="Ship_Game\Ships\ShipEngines.cs" />
     <Compile Include="Ship_Game\Ships\Ship_ProjectorInfluence.cs" />
     <Compile Include="Ship_Game\Ships\Ship_Troop.cs" />
@@ -1779,7 +1780,16 @@
     <Content Include="Content\Localization\Spanish\GameText.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\StarterShips\TEST_ShipShield.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\ShipModules\ConstructionArray.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\TEST_ModuleAmplifier.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\TEST_ModuleShield.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipRoles\Shipyard.xml">

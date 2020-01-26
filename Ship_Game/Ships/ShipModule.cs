@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
         public int YSIZE = 1;
         public Vector2 XMLPosition; // module slot location in the ship design; the coordinate system axis is {256,256}
         bool CanVisualizeDamage;
-        public float ShieldPower;
+        public float ShieldPower { get; private set; }
         public short OrdinanceCapacity;
         bool OnFire;
         Vector3 Center3D;
@@ -179,7 +179,9 @@ namespace Ship_Game.Ships
         public int ExplosionRadius               => Flyweight.ExplosionRadius;
         public float RepairDifficulty            => Flyweight.RepairDifficulty;
         public string ShieldBubbleColor          => Flyweight.ShieldBubbleColor;
+        public float Regenerate                  => Flyweight.Regenerate; // Self regenerating modules
         public bool IsRotatable                  => Flyweight.IsRotable;
+        public float AmplifyShields              => Flyweight.AmplifyShields;
         public bool IsWeapon    => ModuleType == ShipModuleType.Spacebomb
                                 || ModuleType == ShipModuleType.Turret
                                 || ModuleType == ShipModuleType.MainGun
@@ -211,7 +213,7 @@ namespace Ship_Game.Ships
         public float ActualPowerStoreMax   => PowerStoreMax * Bonuses.FuelCellMod;
         public float ActualPowerFlowMax    => PowerFlowMax  * Bonuses.PowerFlowMod;
         public float ActualBonusRepairRate => BonusRepairRate * Bonuses.RepairRateMod;
-        public float ActualShieldPowerMax  => shield_power_max * Bonuses.ShieldMod;
+        public float ActualShieldPowerMax { get; private set; }
         public float ActualMaxHealth       => TemplateMaxHealth * Bonuses.HealthMod;
 
         public bool HasInternalRestrictions => Restrictions == Restrictions.I || Restrictions == Restrictions.IO;
@@ -235,6 +237,11 @@ namespace Ship_Game.Ships
         // Used to configure how good of a target this module is
         public int ModuleTargetingValue => TargetValue + (Health < ActualMaxHealth ? 1 : 0); // prioritize already damaged modules
 
+        public void InitShieldPower(float shieldAmplify)
+        {
+            UpdateShieldPowerMax(shieldAmplify);
+            ShieldPower = ActualShieldPowerMax;
+        }
 
         // @note This should only be used in Testing
         // @todo Is there a way to limit visibility to unit tests only?
@@ -259,6 +266,13 @@ namespace Ship_Game.Ships
             }
             Parent.AddShipHealth(healthChange);
         }
+
+        public void UpdateShieldPowerMax(float shieldAmplify)
+        {
+            ActualShieldPowerMax = (shield_power_max + shieldAmplify) * Bonuses.ShieldMod;
+        }
+
+        public bool IsAmplified => ActualShieldPowerMax > shield_power_max * Bonuses.ShieldMod;
 
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
@@ -332,6 +346,7 @@ namespace Ship_Game.Ships
 
             module.Health = module.ActualMaxHealth;
             module.UpdateModuleRadius();
+            module.UpdateShieldPowerMax(0);
 
             // @todo This might need to be updated with latest ModuleType logic?
             module.TargetValue += module.Is(ShipModuleType.Armor)             ? -1 : 0;
@@ -652,10 +667,8 @@ namespace Ship_Game.Ships
             if (beam == null) // only for projectiles
             {
                 float damageThreshold = damagingShields ? shield_threshold : DamageThreshold;
-                if (proj?.Weapon.EMPDamage >= damageThreshold && !damagingShields)
-                {
-                    CauseEmpDamage(proj); // EMP damage can be applied if its above the damage threshold and not hitting shields
-                }
+                if (proj?.Weapon.EMPDamage >= damageThreshold/10 && !damagingShields)
+                    CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
                 if (modifiedDamage < damageThreshold)
                     return false; // no damage could be done, the projectile was deflected.
@@ -1129,6 +1142,14 @@ namespace Ship_Game.Ships
             return repairLeft;
         }
 
+        public void RegenerateSelf()
+        {
+            if (Regenerate <= 0 || !Powered && PowerDraw > 0f)
+                return;
+
+            SetHealth(Health + Regenerate);
+        }
+
         public void VisualizeRepair()
         {
             if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
@@ -1260,6 +1281,8 @@ namespace Ship_Game.Ships
             def += ActualPowerFlowMax / 50;
             def += TroopCapacity * 50;
             def += BonusRepairRate / 2f;
+            def += AmplifyShields / 20f;
+            def += Regenerate / (10 * RepairDifficulty).ClampMin(0.1f);
 
             return def;
         }
