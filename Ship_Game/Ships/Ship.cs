@@ -161,7 +161,7 @@ namespace Ship_Game.Ships
         }
 
         Status FleetCapableStatus;
-        public bool FleetCapableShip() => FleetCapableStatus == Status.Good;
+        public bool FleetCapableShip() => FleetCapableStatus >= Status.Good;
 
         void SetFleetCapableStatus()
         {
