@@ -44,30 +44,29 @@
             return totalAmplifyPower / numShields;
         }
 
-        public static ShipModule[] GetShields(ShipModule[] moduleList)
+        public struct CacheModules
         {
-            Array<ShipModule> shields = new Array<ShipModule>();
-            for (int i = 0; i<moduleList.Length; ++i)
+            public readonly ShipModule[] Shields;
+            public readonly ShipModule[] Amplifiers;
+
+            public CacheModules(ShipModule[] moduleList)
             {
-                ShipModule shield = moduleList[i];
-                if (shield.shield_power_max > 0f)
-                    shields.Add(shield);
+                Array<ShipModule> shields    = new Array<ShipModule>();
+                Array<ShipModule> amplifiers = new Array<ShipModule>();
+
+                for (int i = 0; i < moduleList.Length; ++i)
+                {
+                    ShipModule module = moduleList[i];
+                    if (module.shield_power_max > 0f)
+                        shields.Add(module);
+
+                    if (module.AmplifyShields > 0f)
+                        amplifiers.Add(module);
+                }
+
+                Shields    = shields.ToArray();
+                Amplifiers = amplifiers.ToArray();
             }
-
-            return shields.ToArray();
-        }
-
-        public static ShipModule[] GetAmplifiers(ShipModule[] moduleList)
-        {
-            Array<ShipModule> amplifiers = new Array<ShipModule>();
-            for (int i = 0; i < moduleList.Length; ++i)
-            {
-                ShipModule amplifier = moduleList[i];
-                if (amplifier.AmplifyShields > 0f)
-                    amplifiers.Add(amplifier);
-            }
-
-            return amplifiers.ToArray();
         }
     }
 }
