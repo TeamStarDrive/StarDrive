@@ -576,7 +576,7 @@ namespace Ship_Game
                 {
                     ConstructionQueue.RemoveAt(i);
                     ConstructionQueue.Insert(0, q);
-                    Construction.RushProduction(0);
+                    Construction.RushProduction(0, ProdHere);
                     break;
                 }
             }
