@@ -467,8 +467,10 @@ namespace Ship_Game
 
         void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
         {
-            string defaultShip         = empire.data.StartingShip;
-            string selectedShip        = GetDefenseShipName(roleName, empire) ?? defaultShip;
+            string selectedShip        = GetDefenseShipName(roleName, empire);
+            if (selectedShip.IsEmpty()) // the empire does not have any ship of this role to launch
+                return;
+
             Vector2 launchVector       = MathExt.RandomOffsetAndDistance(Center, 1000);
             Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, launchVector, this);
             if (defenseShip == null)
