@@ -422,7 +422,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-             if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null
+            if (EndInvalidTask(!eventBuildingFound || task.TargetPlanet.Owner != null
                                                    && task.TargetPlanet.Owner != Owner))
                 return;
 
@@ -539,7 +539,7 @@ namespace Ship_Game.AI
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
-                    SetRestrictedCombatWeights(5000);
+                    SetOrdersRadius(5000);
                     TaskStep = 1;
                     break;
                 case 1:
@@ -563,13 +563,6 @@ namespace Ship_Game.AI
                     WaitingForPlanetAssault(task);
                     if (ShipsOffMission(task))
                         TaskStep = 3;
-                    if (!IsFleetSupplied())
-                        TaskStep = 5;
-                    break;
-
-                case 5:
-                    SendFleetToResupply();
-                    TaskStep = 3;
                     break;
             }
         }
@@ -628,20 +621,8 @@ namespace Ship_Game.AI
                 case 4:
                     if (EndInvalidTask(task.TargetPlanet.Owner != null))
                         break;
-                    if (!IsFleetSupplied())
-                        TaskStep = 5;
-
                     if (ShipsOffMission(task))
                         TaskStep = 3;
-                    break;
-                case 5:
-                    SendFleetToResupply();
-                    TaskStep = 6;
-                    break;
-                case 6:
-                    if (!IsFleetSupplied())
-                        break;
-                    TaskStep = 3;
                     break;
             }
         }
@@ -654,7 +635,7 @@ namespace Ship_Game.AI
             switch (TaskStep)
             {
                 case 0:
-                    SetLooseCombatWeights();
+                    SetOrdersRadius(task.AORadius);
                     FleetTaskGatherAtRally(task);
                     TaskStep = 1;
                     break;
@@ -678,15 +659,6 @@ namespace Ship_Game.AI
                     if (ShipsOffMission(task))
                         TaskStep = 3;
                     break;
-                case 5:
-                    SendFleetToResupply();
-                    TaskStep = 6;
-                    break;
-                case 6:
-                    if (!IsFleetSupplied())
-                        break;
-                    TaskStep = 3;
-                    break;
             }
         }
 
@@ -702,7 +674,7 @@ namespace Ship_Game.AI
                         CoreFleetSubTask = null;
                         break;
                     }
-                    SetRestrictedCombatWeights(task.AORadius);
+                    SetOrdersRadius(task.AORadius);
                     TaskStep = 2;
                     break;
                 case 2:
@@ -720,27 +692,8 @@ namespace Ship_Game.AI
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!IsFleetSupplied())
-                    {
-                        TaskStep = 5;
-                        break;
-                    }
                     if (ShipsOffMission(CoreFleetSubTask))
                         TaskStep = 3;
-                    for (int i = 0; i < Ships.Count; i++)
-                    {
-                        Ship ship = Ships[i];
-                        if (ship.AI.BadGuysNear)
-                            ship.AI.ClearPriorityOrder();
-                    }
-                    break;
-
-                case 5:
-                    SendFleetToResupply();
-                    TaskStep = 4;
-                    break;
-                case 6:
-                    IsFleetSupplied(wantedSupplyRatio: .9f);
                     break;
             }
         }
@@ -837,7 +790,7 @@ namespace Ship_Game.AI
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
-                    SetRestrictedCombatWeights(task.AORadius);
+                    SetOrdersRadius(task.AORadius);
                     TaskStep = 1;
                     break;
                 case 1:
@@ -864,17 +817,6 @@ namespace Ship_Game.AI
                         break;
                     if (ShipsOffMission(task))
                         TaskStep = 3;
-                    if (!IsFleetSupplied())
-                        TaskStep = 5;
-                    break;
-                case 5:
-                    SendFleetToResupply();
-                    TaskStep = 6;
-                    break;
-                case 6:
-                    if (!IsFleetSupplied(wantedSupplyRatio: .9f))
-                        break;
-                    TaskStep = 4;
                     break;
             }
         }
@@ -1058,25 +1000,12 @@ namespace Ship_Game.AI
                                          && ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
         }
 
-        void SetRestrictedCombatWeights(float ordersRadius)
+        void SetOrdersRadius(float ordersRadius)
         {
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                ship.AI.FleetNode.AssistWeight   = 1f;
-                ship.AI.FleetNode.DefenderWeight = 1f;
                 ship.AI.FleetNode.OrdersRadius   = ordersRadius;
-            }
-        }
-
-        void SetLooseCombatWeights()
-        {
-            for (int i = 0; i < Ships.Count; i++)
-            {
-                Ship ship = Ships[i];
-                ship.AI.FleetNode.AssistWeight = 1f;
-                ship.AI.FleetNode.DefenderWeight = 1f;
-                ship.AI.FleetNode.OrdersRadius = ship.SensorRange;
             }
         }
 
@@ -1539,7 +1468,6 @@ namespace Ship_Game.AI
             if (Ships.Count == 0) return;
             if (CommandShip != null && !CommandShip.FleetCapableShip())
                 SetCommandShip(null);
-            
 
             for (int i = Ships.Count - 1; i >= 0; --i)
             {
