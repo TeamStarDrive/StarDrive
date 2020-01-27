@@ -75,6 +75,8 @@ namespace Ship_Game.AI.CombatTactics
 
         void ZigOrZag(float distanceToTarget)
         {
+            if (Owner.IsTurning) return;
+
             if (Owner.loyalty.isFaction)
             {
                 ZigZag = Vector2.Zero;
