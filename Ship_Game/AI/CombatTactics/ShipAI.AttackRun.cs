@@ -58,7 +58,7 @@ namespace Ship_Game.AI.CombatTactics
                 float distance = (distanceToAttack*0.75f) + 50.0f;
                 PrepareToDisengage(distance);
             }
-            else if (distanceToAttack < 500f)
+            else if (distanceToAttack < Owner.Velocity.Length())
             {
 
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
@@ -75,13 +75,7 @@ namespace Ship_Game.AI.CombatTactics
 
         void ZigOrZag(float distanceToTarget)
         {
-            if (Owner.IsTurning) return;
-
-            if (Owner.loyalty.isFaction)
-            {
-                ZigZag = Vector2.Zero;
-                return;
-            }
+            if (Owner.IsTurning || Owner.AI.IsFiringAtMainTarget) return;
 
             int rng = RandomMath.RollAvgPercentVarianceFrom50();
             if (rng > 30)
@@ -179,8 +173,7 @@ namespace Ship_Game.AI.CombatTactics
             if (distanceToAttack <= spacerDistance)
                 return true;
 
-            int salvosRemaining = Owner.Weapons.Sum(w => w.SalvosToFire);
-            if (salvosRemaining != 0) return false;
+            if (Owner.AI.IsFiringAtMainTarget) return false;
 
             float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer);
             if (cooldownTime <= 0f) return false;

@@ -272,6 +272,7 @@ namespace Ship_Game.AI
         void UpdateCombatStateAI(float elapsedTime)
         {
             TriggerDelay -= elapsedTime;
+            FireOnMainTargetTime -= elapsedTime;
             if (BadGuysNear && !IgnoreCombat)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
@@ -295,6 +296,7 @@ namespace Ship_Game.AI
             else
             {
                 int count = Owner.Weapons.Count;
+                FireOnMainTargetTime = 0;
                 Weapon[] items = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
