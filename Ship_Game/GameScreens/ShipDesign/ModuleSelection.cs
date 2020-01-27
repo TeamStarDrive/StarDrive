@@ -419,15 +419,8 @@ namespace Ship_Game
 
             DrawStat(ref modTitlePos, 123, mass, 79);
             DrawStat(ref modTitlePos, 124, mod.ActualMaxHealth, 80);
-            float powerDraw;
-            if (mod.ModuleType != ShipModuleType.PowerPlant)
-            {
-                powerDraw = -mod.PowerDraw;
-            }
-            else
-            {
-                powerDraw = (mod.PowerDraw > 0f ? -mod.PowerDraw : mod.ActualPowerFlowMax);
-            }
+
+            float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
             DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
             DrawStat(ref modTitlePos, Localizer.Token(2231), mod.MechanicalBoardingDefense, 143);
             DrawStat(ref modTitlePos, Localizer.Token(135)+"+", mod.ActualBonusRepairRate, 97);
@@ -593,12 +586,12 @@ namespace Ship_Game
 
             float cost  = m.ActualCost;
             float mass  = m.Mass * EmpireManager.Player.data.MassModifier;
-            float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
+            //float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
             DrawStat(ref cursor, Localizer.Token(123), mass, 79);
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
-            DrawStat(ref cursor, Localizer.Token(125), power, 81);
+            //DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
 
             if (isBeam)
