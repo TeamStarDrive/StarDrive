@@ -36,7 +36,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         bool IsCrippled => P.CrippledTurns > 0 || P.RecentCombat;
 
-        public bool RushProduction(int itemIndex, float maxAmount = 1000f)
+        public bool RushProduction(int itemIndex, float maxAmount, bool playerRush = false)
         {
             // don't allow rush if we're crippled
             if (IsCrippled || ConstructionQueue.IsEmpty || Owner == null)
@@ -50,7 +50,7 @@ namespace Ship_Game.Universe.SolarBodies
                 amount = SurplusThisTurn = 1000;
             }
 
-            return ApplyProductionToQueue(maxAmount: amount, itemIndex);
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex, playerRush);
         }
 
         // The Remnant get a "magic" production cheat
@@ -84,7 +84,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool playerRush = false)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -109,7 +109,15 @@ namespace Ship_Game.Universe.SolarBodies
                     if (q.isBuilding)   ok = OnBuildingComplete(q);
                     else if (q.isShip)  ok = OnShipComplete(q);
                     else if (q.isTroop) ok = TrySpawnTroop(q);
+                    if (ok && playerRush && !Empire.Universe.Debug && !System.Diagnostics.Debugger.IsAttached)
+                    {
+                        // player rush will be charged 10% of item cost up to 10 credits if the item was complete
+                        float credits = (q.Cost * 0.1f).Clamped(1f, 10f);
+                        Owner.AddMoney(-credits);
+                    }
+
                     Finish(q, success: ok);
+
                     continue; // this item was removed, so skip
                 }
                 ++i;
