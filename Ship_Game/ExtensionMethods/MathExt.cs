@@ -86,6 +86,10 @@ namespace Ship_Game
         {
             return Max(min, value);
         }
+        public static double ClampMin(this double value, float min)
+        {
+            return Max(min, value);
+        }
 
         /// <summary>
         /// Constrain upper end of value
