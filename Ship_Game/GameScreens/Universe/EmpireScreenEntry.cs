@@ -291,7 +291,7 @@ namespace Ship_Game
                 eScreen.ClickTimer = 0.25f;
 
                 float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-                if (p.Construction.RushProduction(0, maxAmount))
+                if (p.Construction.RushProduction(0, maxAmount, playerRush: true))
                     GameAudio.AcceptClick();
                 else
                     GameAudio.NegativeClick();
