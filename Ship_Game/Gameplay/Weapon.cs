@@ -614,7 +614,7 @@ namespace Ship_Game.Gameplay
                     PickShipTarget(mainTarget, enemyShips);
                 }
             }
-            
+
             if (FireTarget != null)
             {
                 if (isBeam)

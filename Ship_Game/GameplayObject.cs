@@ -191,6 +191,10 @@ namespace Ship_Game
         {
             return false;
         }
+        public virtual bool IsShip(Ship ship) 
+        {
+            return false;
+        }
 
         public virtual void Update(float elapsedTime)
         {
