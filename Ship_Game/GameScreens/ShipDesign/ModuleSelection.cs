@@ -618,12 +618,12 @@ namespace Ship_Game
 
             float cost  = m.ActualCost;
             float mass  = m.Mass * EmpireManager.Player.data.MassModifier;
-            //float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
+            float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
             DrawStat(ref cursor, Localizer.Token(123), mass, 79);
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
-            //DrawStat(ref cursor, Localizer.Token(125), power, 81);
+            DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
 
             if (isBeam)
