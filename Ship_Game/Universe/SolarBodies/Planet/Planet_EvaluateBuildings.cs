@@ -164,7 +164,9 @@ namespace Ship_Game
 
         void CalcPopulationPriorities()
         {
+            float eatableRatio = IsCybernetic ? Storage.ProdRatio : Storage.FoodRatio;
             float popGrowth = (10 - PopulationRatio*10).ClampMin(0);
+            popGrowth      *= eatableRatio;
             float popCap    = FreeHabitableTiles > 0 ? (PopulationRatio*10).Clamped(0, 10) : 0;
             popGrowth       = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
             popCap          = ApplyGovernorBonus(popCap, 1f, 1f, 1f, 1f, 1f);
@@ -425,7 +427,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ProdFlat], b.PlusFlatProductionAmount);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerCol], b.PlusProdPerColonist);
             score += EvalTraits(Priorities[ColonyPriority.ProdPerRichness], b.PlusProdPerRichness);
-            score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation / 5);
+            score += EvalTraits(Priorities[ColonyPriority.PopGrowth], b.PlusFlatPopulation / 10);
             score += EvalTraits(Priorities[ColonyPriority.PopCap], b.MaxPopIncrease / 200);
             score += EvalTraits(Priorities[ColonyPriority.StorageNeeds], (float)b.StorageAdded / 50);
             score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount * 3);
