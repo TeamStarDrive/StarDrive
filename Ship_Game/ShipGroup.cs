@@ -456,23 +456,27 @@ namespace Ship_Game
                 position = FinalPosition;
 
             MoveStatus moveStatus = MoveStatus.Assembled;
-            bool inCombat = false;
+
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.IsReadyForWarp)
+                if (ship.engineState == Ship.MoveState.Sublight && !ship.IsSpooling)
                 {
-                    inCombat |= ship.LastDamagedBy != null;
-                    if (!ship.Center.InRadius(position + ship.FleetOffset, radius) && ! ship.inborders)
+                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, 75))
                     {
-                        moveStatus = MoveStatus.Dispersed;
-                        if (inCombat)
+                        if (ship.CanTakeFleetOrders)
+                            moveStatus = MoveStatus.Dispersed;
+
+                        if (ship.AI.BadGuysNear)
+                        {
+                            moveStatus = MoveStatus.InCombat;
                             break;
+                        }
                     }
                 }
+                else if (ship.CanTakeFleetOrders)
+                    moveStatus = MoveStatus.Dispersed;
             }
-
-            moveStatus = (inCombat && moveStatus == MoveStatus.Dispersed) ? MoveStatus.InCombat : moveStatus;
             return moveStatus;
         }
 
@@ -501,7 +505,7 @@ namespace Ship_Game
 
         protected CombatStatus CombatStatusOfShipInArea(Ship ship, Vector2 position, float radius)
         {
-            if (ship.Center.OutsideRadius(position, radius))
+            if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position, radius))
                 return CombatStatus.ClearSpace;
 
             if (ship.InCombat) return CombatStatus.InCombat;

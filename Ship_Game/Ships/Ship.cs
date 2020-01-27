@@ -162,11 +162,12 @@ namespace Ship_Game.Ships
 
         Status FleetCapableStatus;
         public bool CanTakeFleetMoveOrders() => 
-            FleetCapableStatus == Status.Good && ShipEngineses.EngineStatus > Status.Poor;
+            FleetCapableStatus == Status.Good && ShipEngineses.EngineStatus >= Status.Poor;
 
         void SetFleetCapableStatus()
         {
-            if (AI.State != AIState.Resupply && 
+            if (!EMPdisabled && !InhibitedByEnemy &&
+                AI.State != AIState.Resupply && 
                 AI.State != AIState.Refit && 
                 AI.State != AIState.Scrap && 
                 AI.State != AIState.Scuttle)

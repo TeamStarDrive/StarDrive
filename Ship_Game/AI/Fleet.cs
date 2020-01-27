@@ -640,7 +640,8 @@ namespace Ship_Game.AI
                     TaskStep = 1;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(5000)) break;
+                    if (!HasArrivedAtRallySafely(5000)) 
+                        break;
                     GatherAtAO(task, 3000);
                     TaskStep = 2;
                     break;
@@ -844,7 +845,7 @@ namespace Ship_Game.AI
         {
             foreach (Ship ship in Ships)
             {
-                if (!ship.Center.OutsideRadius(pos, radius) &&
+                if (ship.CanTakeFleetOrders && !ship.Center.OutsideRadius(pos, radius) &&
                     ship.AI.State == AIState.FormationWarp)
                 {
                     ship.AI.State = AIState.AwaitingOrders;
@@ -858,7 +859,8 @@ namespace Ship_Game.AI
             for (int i = 0; i < ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                ship.AI.SetPriorityOrder(true);
+                if (ship.CanTakeFleetOrders)
+                    ship.AI.SetPriorityOrder(true);
             }
         }
 
@@ -995,9 +997,10 @@ namespace Ship_Game.AI
 
         bool ShipsOffMission(MilitaryTask task)
         {
-            return AllButRearShips.Any(ship => (!ship.AI.HasPriorityOrder && ship.CanTakeFleetOrders)
-                                     && (!ship.InCombat
-                                         || ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
+            return AllButRearShips.Any(ship => ship.CanTakeFleetOrders && 
+                                               !ship.AI.HasPriorityOrder && 
+                                               !ship.InCombat &&
+                                               ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f));
         }
 
         void SetOrdersRadius(float ordersRadius)

@@ -37,7 +37,7 @@ namespace Ship_Game.Ships
         {
             if (Owner.EnginesKnockedOut)
                 return Status.Critical;
-            if (Owner.Inhibited || Owner.EMPdisabled || Owner.IsInhibitedByUnfriendlyGravityWell)
+            if (Owner.Inhibited || Owner.EMPdisabled)
                 return Status.Poor;
 
             //add more status based on engine damage.
