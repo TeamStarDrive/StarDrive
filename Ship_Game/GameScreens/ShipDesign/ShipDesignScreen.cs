@@ -37,7 +37,8 @@ namespace Ship_Game
         Rectangle BottomSep;
         Rectangle BlackBar;
 
-        public ModuleSelection ModulesList;
+        // this contains module selection list and active module selection info
+        ModuleSelection ModuleSelectComponent;
         ScrollList2<ShipHullListItem> HullSelectList;
 
         public ShipModule HighlightedModule;
@@ -346,7 +347,7 @@ namespace Ship_Game
         {
             Log.Info("ShipDesignScreen.LoadContent");
             RemoveAll();
-            ModulesList = Add(new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490))));
+            ModuleSelectComponent = Add(new ModuleSelection(this, new Rectangle(5, (LowRes ? 45 : 100), 305, (LowRes ? 350 : 490))));
 
             var hulls = EmpireManager.Player.GetHDict();
             foreach (KeyValuePair<string, bool> hull in hulls)
