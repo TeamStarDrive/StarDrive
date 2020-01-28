@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
@@ -66,8 +67,6 @@ namespace Ship_Game
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
         }
-
-        
 
         Array<Guid> FindContestedSystemGUIDs()
         {
@@ -179,64 +178,63 @@ namespace Ship_Game
 
         public WarState ConductWar()
         {
-            switch(WarType)
+            var tasks = new Array<MilitaryTask>();
+            switch (WarType)
             {
                 case WarType.DefensiveWar:
-                case WarType.BorderConflict: return ConductBorderConflictWar();
-                
-                case WarType.SkirmishWar:    return ConductSkirmishWar();
-
+                case WarType.BorderConflict: tasks.AddRange(ConductBorderConflictWar()); break;
+                case WarType.SkirmishWar:    tasks.AddRange(ConductSkirmishWar()); break;
                 case WarType.ImperialistWar:
-                case WarType.GenocidalWar:   return ConductImperialisticWar();
+                case WarType.GenocidalWar:   tasks.AddRange(ConductImperialisticWar()); break;
             }
-            return WarState.ColdWar;
-        }
 
-        private WarState AttackContestedSystems()
-        {
-            if (ContestedSystemCount == 0) return WarState.NotApplicable;
-
-            var sortedContestSystems = ContestedSystems;
-            sortedContestSystems.Sort(s => !Us.GetEmpireAI().IsInOurAOs(s.Position));
-            StandardAssault(sortedContestSystems);
+            Us.GetEmpireAI().TaskList.AddRange(tasks);
 
             return GetWarScoreState();
         }
 
-        WarState ConductBorderConflictWar()
+        private Array<MilitaryTask> AttackContestedSystems()
         {
-            var warState = AttackContestedSystems();
-            if (warState == WarState.NotApplicable)
-                warState = ConductSkirmishWar();
-            return warState;
+            var tasks = new Array<MilitaryTask>();
+            if (ContestedSystemCount == 0) return tasks;
+
+            var sortedContestSystems = ContestedSystems;
+            sortedContestSystems.Sort(s => !Us.GetEmpireAI().IsInOurAOs(s.Position));
+            return StandardAssault(sortedContestSystems);
         }
 
-        WarState ConductSkirmishWar()
+        Array<MilitaryTask> ConductBorderConflictWar()
+        {
+            var tasks = new Array<MilitaryTask>();
+            tasks.AddRange(AttackContestedSystems());
+            return tasks.IsEmpty ? ConductSkirmishWar() : tasks;
+        }
+
+        Array<MilitaryTask> ConductSkirmishWar()
         {
             var targetSystemsInAO = Us.GetBorderSystems(Them).Filter(s => Us.GetEmpireAI().IsInOurAOs(s.Position));
             var targetSystemsNotInAO = Us.GetBorderSystems(Them).Filter(s => !Us.GetEmpireAI().IsInOurAOs(s.Position));
             targetSystemsNotInAO.Sorted(s => Us.GetEmpireAI().DistanceToClosestAO(s.Position));
 
-            
-            if (!StandardAssault(targetSystemsInAO) && !StandardAssault(targetSystemsNotInAO))
-                ConductImperialisticWar();
-            return GetWarScoreState();
+            var tasks = StandardAssault(targetSystemsInAO);
+            tasks.AddRange(StandardAssault(targetSystemsNotInAO));
+            if (tasks.IsEmpty)
+                tasks.AddRange(ConductImperialisticWar());
+            return tasks;
         }
 
-        WarState ConductImperialisticWar()
+        Array<MilitaryTask> ConductImperialisticWar()
         {
-            AttackContestedSystems();
-            var targetSystems = Them.GetOwnedSystems().SortedDescending(s =>
-                {
-                    return s.PlanetList.Sum(p => p.ColonyBaseValue(Us));
-                });
-            StandardAssault(targetSystems);
-            return GetWarScoreState();
+            var tasks = AttackContestedSystems();
+
+            tasks.AddRange(StandardAssault(Them.GetOwnedSystems().ToArray()));
+            return tasks;
         }
 
-        bool StandardAssault(SolarSystem[] systemsToAttack)
+        Array<MilitaryTask> StandardAssault(SolarSystem[] systemsToAttack)
         {
             bool targetFound = false;
+            var tasks = new Array<MilitaryTask>();
             systemsToAttack.Sort(s => s.PlanetList.Sum(p => p.ColonyBaseValue(Us)));
 
             foreach (var system in systemsToAttack)
@@ -247,14 +245,13 @@ namespace Ship_Game
                     {
                         if (!IsAlreadyAssaultingPlanet(planet))
                         {
-                            Us.GetEmpireAI().TaskList.Add(new MilitaryTask(planet, Us));
-                            targetFound = true;
+                            tasks.Add(new MilitaryTask(planet, Us));
                         }
                     }
                 }
             }
 
-            return targetFound;
+            return tasks;
         }
 
         bool IsAlreadyAssaultingSystem(SolarSystem system)

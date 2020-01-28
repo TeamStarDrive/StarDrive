@@ -776,10 +776,14 @@ namespace Ship_Game
             return n;
         }
 
-        public static void AddUniqueRef<T>(this Array<T> list, T item) where T : class
+        public static bool AddUniqueRef<T>(this Array<T> list, T item) where T : class
         {
             if (!list.ContainsRef(item))
+            {
                 list.Add(item);
+                return true;
+            }
+            return false;
         }
 
         public static void RemoveInActiveObjects<T>(this Array<T> list) where T : GameplayObject

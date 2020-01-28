@@ -48,7 +48,7 @@ namespace Ship_Game.Ships
         {
             if (Owner.fleet == null) return Status.NotApplicable;
 
-            if (!Owner.FleetCapableShip())
+            if (!Owner.CanTakeFleetMoveOrders())
                 return Status.NotApplicable;
 
             Status warpStatus = ReadyForWarp;

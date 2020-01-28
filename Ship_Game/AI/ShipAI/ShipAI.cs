@@ -272,6 +272,7 @@ namespace Ship_Game.AI
         void UpdateCombatStateAI(float elapsedTime)
         {
             TriggerDelay -= elapsedTime;
+            FireOnMainTargetTime -= elapsedTime;
             if (BadGuysNear && !IgnoreCombat)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
@@ -295,6 +296,7 @@ namespace Ship_Game.AI
             else
             {
                 int count = Owner.Weapons.Count;
+                FireOnMainTargetTime = 0;
                 Weapon[] items = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
@@ -454,7 +456,7 @@ namespace Ship_Game.AI
                 return false;
             if (BadGuysNear)
                 return false;
-            if (!Owner.FleetCapableShip()) return false;
+            if (!Owner.CanTakeFleetMoveOrders()) return false;
             if (State == AIState.Orbit ||
                 State == AIState.AwaitingOffenseOrders ||
                 State == AIState.AwaitingOrders)
@@ -466,7 +468,7 @@ namespace Ship_Game.AI
         {
             if (DoNearFleetOffset(elapsedTime))
             {
-                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.FleetCapableShip())
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
                 return;
             }
@@ -488,7 +490,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.FleetCapableShip())
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
                     State = AIState.AwaitingOrders;
             }
         }

@@ -18,6 +18,7 @@ namespace Ship_Game.Ships
         public bool IsSpooling { get; private set; }
         public float InhibitedTimer;
         public bool Inhibited { get; private set; }
+        public bool InhibitedByEnemy { get; private set; }
         public MoveState engineState;
         public float WarpThrust;
         public bool BaseCanWarp;
@@ -166,6 +167,7 @@ namespace Ship_Game.Ships
 
         void UpdateInhibitedFromEnemyShips()
         {
+            InhibitedByEnemy = false;
             foreach (Empire e in EmpireManager.Empires)
             {
                 if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
@@ -176,6 +178,7 @@ namespace Ship_Game.Ships
                         if (ship != null && Center.InRadius(ship.Position, ship.InhibitionRadius))
                         {
                             Inhibited = true;
+                            InhibitedByEnemy = true;
                             InhibitedTimer = 5f;
                             return;
                         }
