@@ -66,6 +66,11 @@ namespace Ship_Game
             CreateSOFromActiveHull();
             UpdateActiveCombatButton();
             UpdateCarrierShip();
+
+            // force modules list to reset itself, so if we change from Battleship to Fighter
+            // the available modules list is adjusted correctly
+            ModuleSelectComponent.SelectedIndex = -1;
+
             ZoomCameraToEncloseHull(ActiveHull);
         }
 
