@@ -300,7 +300,7 @@ namespace Ship_Game
             for (int i = 0; i < count; ++i)
             {
                 Ship ship = items[i];
-                if (ship != commandShip && ship.FleetCapableShip())
+                if (ship != commandShip && ship.CanTakeFleetMoveOrders())
                 {
                     float ratio            = ship.SurfaceArea / commandShipSize;
                     fleetCapableShipCount += 1 * ratio;
@@ -456,23 +456,27 @@ namespace Ship_Game
                 position = FinalPosition;
 
             MoveStatus moveStatus = MoveStatus.Assembled;
-            bool inCombat = false;
+
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.IsReadyForWarp)
+                if (ship.engineState == Ship.MoveState.Sublight && !ship.IsSpooling)
                 {
-                    inCombat |= ship.InCombat;
-                    if (!ship.Center.InRadius(position + ship.FleetOffset, radius))
+                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, 75))
                     {
-                        moveStatus = MoveStatus.Dispersed;
-                        if (inCombat)
+                        if (ship.CanTakeFleetOrders)
+                            moveStatus = MoveStatus.Dispersed;
+
+                        if (ship.AI.BadGuysNear)
+                        {
+                            moveStatus = MoveStatus.InCombat;
                             break;
+                        }
                     }
                 }
+                else if (ship.CanTakeFleetOrders)
+                    moveStatus = MoveStatus.Dispersed;
             }
-
-            moveStatus = (inCombat && moveStatus == MoveStatus.Dispersed) ? MoveStatus.InCombat : moveStatus;
             return moveStatus;
         }
 
@@ -501,7 +505,7 @@ namespace Ship_Game
 
         protected CombatStatus CombatStatusOfShipInArea(Ship ship, Vector2 position, float radius)
         {
-            if (ship.Center.OutsideRadius(position, radius))
+            if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position, radius))
                 return CombatStatus.ClearSpace;
 
             if (ship.InCombat) return CombatStatus.InCombat;
@@ -535,7 +539,7 @@ namespace Ship_Game
             {
                 Ship ship = Ships[i];
 
-                if (ship.FleetCapableShip() && !ship.InCombat)
+                if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
                     if (CommandShip == null || ship.Center.InRadius(AveragePos, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
