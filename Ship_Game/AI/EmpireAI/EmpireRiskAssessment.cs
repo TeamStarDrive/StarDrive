@@ -72,11 +72,10 @@ namespace Ship_Game.AI
         {
             if (!Relation.Known || Them.data.Defeated)
                 return 0;
-
+            //&& !(Relation.TotalAnger > (us.data.DiplomaticPersonality?.Territorialism ?? 50f))
             float risk = 0; 
             float strength = Math.Max(100, us.CurrentMilitaryStrength);
-            if (!Them.isFaction && !Relation.AtWar && !Relation.PreparingForWar &&
-                !(Relation.TotalAnger > (us.data.DiplomaticPersonality?.Territorialism ?? 50f )))
+            if (!Them.isFaction && !Relation.AtWar && !Relation.PreparingForWar)
                 return 0;
 
             if (!Them.isFaction)
@@ -86,8 +85,10 @@ namespace Ship_Game.AI
             }
 
             var s = new HashSet<SolarSystem>();
-            foreach (MilitaryTask task in us.GetEmpireAI().TaskList)
+            var list = us.GetEmpireAI().TaskList;
+            for (int i = 0; i < list.Count; i++)
             {
+                MilitaryTask task = list[i];
                 if (task.type != MilitaryTask.TaskType.DefendClaim)
                     continue;
 
@@ -99,6 +100,7 @@ namespace Ship_Game.AI
                 if (test > 0 && test < risk)
                     risk = test;
             }
+
             risk /= strength;
             return risk; 
         }

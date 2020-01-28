@@ -13,6 +13,7 @@ namespace Ship_Game.AI.CombatTactics
         Vector2 DisengageStart;
         Vector2 DisengagePos1;
         Vector2 DisengagePos2;
+        Vector2 ZigZag;
         enum RunState
         {
             Strafing,
@@ -57,16 +58,51 @@ namespace Ship_Game.AI.CombatTactics
                 float distance = (distanceToAttack*0.75f) + 50.0f;
                 PrepareToDisengage(distance);
             }
-            else if (distanceToAttack < 500f)
+            else if (distanceToAttack - spacerDistance < Owner.Velocity.Length() && Owner.AI.IsFiringAtMainTarget)
             {
-
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);
             }
             else
             {
+                ZigOrZag(distanceToAttack);
+                attackPos += ZigZag;
                 StrafeTowardsTarget(elapsedTime, distanceToAttack, attackPos);
+            }
+        }
+
+        void ZigOrZag(float distanceToTarget)
+        {
+            if (Owner.IsTurning || 
+                Owner.AI.IsFiringAtMainTarget)
+            {
+                ZigZag = Vector2.Zero;
+                return;
+            }
+
+            int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
+            racialMod    += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
+            float mod     = 10 * Owner.RotationRadiansPerSecond * (Owner.Level + racialMod);
+            int rng       = RandomMath.RollAvgPercentVarianceFrom50();
+
+            if (rng < 30 - mod)
+            {
+                ZigZag = Vector2.Zero;
+            }
+            else
+            {
+                if (ZigZag != Vector2.Zero)
+                    return;
+                Vector2 dir = Owner.Center.DirectionToTarget(Owner.AI.Target.Center);
+                if (RandomMath.IntBetween(0, 1) == 1)
+                {
+                    ZigZag = dir.RightVector() * distanceToTarget;
+                }
+                else
+                {
+                    ZigZag = dir.LeftVector() * distanceToTarget;
+                }
             }
         }
 
@@ -142,8 +178,7 @@ namespace Ship_Game.AI.CombatTactics
             if (distanceToAttack <= spacerDistance)
                 return true;
 
-            int salvosRemaining = Owner.Weapons.Sum(w => w.SalvosToFire);
-            if (salvosRemaining != 0) return false;
+            if (Owner.AI.IsFiringAtMainTarget) return false;
 
             float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer);
             if (cooldownTime <= 0f) return false;

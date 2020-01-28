@@ -94,18 +94,6 @@ namespace Ship_Game.AI.Tasks
             newFleet.AutoArrange();
         }
 
-        private FleetShips AllFleetReadyShipsNearestTarget(Vector2 targetPosition)
-        {
-            //Get all available ships from AO's
-            var ships = Owner.GetShipsFromOffensePools();
-            //Get specialized ships
-            ships.AddRange(Owner.GetForcePool());
-            //Massive sort.
-            ships.Sort(s => s.Center.SqDist(targetPosition));
-            //return a fleet creator. 
-            return new FleetShips(Owner, ships);
-        }
-
         //not deleting yet. need to investigate usability
         private Array<Ship> GetShipsFromDefense(float tfstrength, float minimumEscortStrength)
         {
@@ -382,17 +370,17 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.NoRallyPoint;
 
 
-            FleetShips fleetShips = AllFleetReadyShipsNearestTarget(rallyPoint.Center);
+            FleetShips fleetShips = Owner.AllFleetReadyShipsNearestTarget(rallyPoint.Center);
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
 
             //if have bombers but not enough... wait for more.
-            if (Owner.canBuildBombers && fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
-                return RequisitionStatus.NotEnoughBomberStrength;
+            //if (Owner.canBuildBombers && fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
+            //    return RequisitionStatus.NotEnoughBomberStrength;
 
             //if we cant build bombers then convert bombtime to troops. 
             //This assume a standard troop strength of 10 
-            if (!Owner.canBuildBombers)
-                NeededTroopStrength += TaskBombTimeNeeded * 10;
+            if (fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
+                NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable) * 10;
 
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
