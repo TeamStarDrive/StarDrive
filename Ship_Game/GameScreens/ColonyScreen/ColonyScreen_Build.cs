@@ -253,7 +253,7 @@ namespace Ship_Game
                     position = new Vector2(creditsRect.X + 26,
                         creditsRect.Y + creditsRect.Height / 2 -
                         Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int)Player.EstimateCreditCost(cost)).ToString(),
+                    batch.DrawString(Font12, (Player.EstimateCreditCost(cost)).ToString(),
                         position, Color.White);
                 }
                 else
@@ -324,7 +324,7 @@ namespace Ship_Game
                     position = new Vector2(creditsRect.X + 26,
                         creditsRect.Y + creditsRect.Height / 2 -
                         Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int)Player.EstimateCreditCost(cost)).ToString(),
+                    batch.DrawString(Font12, (Player.EstimateCreditCost(cost)).ToString(),
                         position, Color.White);
 
                     DrawSelectedShipInfo((int)position.X, entry.CenterY, ship, batch);
