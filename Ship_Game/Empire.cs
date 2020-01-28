@@ -143,13 +143,17 @@ namespace Ship_Game
 
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
-        public float NetIncome                => GrossIncome - BuildingAndShipMaint;
+        public float NetIncome                => GrossIncome - AllSpending;
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
+        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange());
+
+        public float MoneySpendOnProductionThisTurn { get; private set; }
+        public float CreditPerProductionMultiplier { get; private set; }
 
         public readonly EmpireResearch Research;
 
@@ -750,6 +754,7 @@ namespace Ship_Game
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
             InitColonyRankModifier();
+            InitCreditsPerProductionMultiplier();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this);
 
@@ -765,6 +770,12 @@ namespace Ship_Game
 
             if (ThrustColor1 == Color.Black)
                 ThrustColor1 = Color.OrangeRed;
+        }
+
+        public void InitCreditsPerProductionMultiplier()
+        {
+            CreditMultiplier creditMultiplier = new CreditMultiplier(CurrentGame.Difficulty);
+            CreditPerProductionMultiplier = isPlayer ? creditMultiplier.Player : creditMultiplier.AI;
         }
 
         private void ResetTechsUsableByShips(Array<Ship> ourShips, bool unlockBonuses)
@@ -1420,9 +1431,15 @@ namespace Ship_Game
             ++TurnCount;
 
             UpdateTradeIncome();
+            ResetMoneySpentOnProduction();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             Money += NetIncome;
+        }
+
+        void ResetMoneySpentOnProduction()
+        {
+            MoneySpendOnProductionThisTurn = 0; // reset for next turn
         }
 
         public void UpdateNetPlanetIncomes()
@@ -1494,7 +1511,7 @@ namespace Ship_Game
         public float EstimateNetIncomeAtTaxRate(float rate)
         {
             float plusNetIncome = (rate-data.TaxRate) * NetPlanetIncomes;
-            return GrossIncome + plusNetIncome - BuildingAndShipMaint;
+            return GrossIncome + plusNetIncome - AllSpending;
         }
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
@@ -2799,6 +2816,56 @@ namespace Ship_Game
                 for (int i = 0; i < forcePool.Length; ++i)
                     ForcePoolAdd(forcePool[i]);
             }
+        }
+
+        private struct CreditMultiplier
+        {
+            public readonly float Player;
+            public readonly float AI;
+
+            public CreditMultiplier(UniverseData.GameDifficulty difficulty)
+            {
+                switch (difficulty)
+                {
+                    case UniverseData.GameDifficulty.Easy:
+                        Player = 0.25f;
+                        AI     = 0.5f;
+                        break;
+                    case UniverseData.GameDifficulty.Normal:
+                        Player = 0.5f;
+                        AI     = 0.5f;
+                        break;
+                    case UniverseData.GameDifficulty.Hard:
+                        Player = 0.75f;
+                        AI     = 0.25f;
+                        break;
+                    case UniverseData.GameDifficulty.Brutal:
+                    default:
+                        Player = 1f;
+                        AI     = 0.25f;
+                        break;
+                }
+            }
+        }
+
+        public float EstimateCreditCost(float itemCost)
+        {
+            return ProductionCreditCost(itemCost);
+        }
+
+        public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
+        {
+            if (q.IsMilitary || q.isShip)
+            {
+                float creditsToCharge = ProductionCreditCost(spentProduction);
+                MoneySpendOnProductionThisTurn += creditsToCharge;
+                AddMoney(-creditsToCharge);
+            }
+        }
+
+        float ProductionCreditCost(float spentProduction)
+        {
+                return spentProduction * (1 - data.TaxRate) * CreditPerProductionMultiplier;
         }
 
         public class InfluenceNode
