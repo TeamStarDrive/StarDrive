@@ -36,7 +36,7 @@ namespace Ship_Game
             }
 
             batch.Begin();
-            if (ActiveModule != null && !ModulesList.HitTest(Input))
+            if (ActiveModule != null && !ModuleSelectComponent.HitTest(Input))
                 DrawActiveModule(batch);
 
             DrawUi(batch);
