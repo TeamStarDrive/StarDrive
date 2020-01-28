@@ -335,13 +335,35 @@ namespace Ship_Game.AI
         {
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
-
-            foreach(var kv in OwnerEmpire.AllRelations.Sorted
-                (r=> (int?)r.Value.ActiveWar?.GetWarScoreState() ?? (int)WarState.NotApplicable))
+            WarState worstWar = WarState.NotApplicable;
+            foreach(var kv in OwnerEmpire.AllRelations)
             {
-                var relation = kv.Value;
-                var warState = relation.ActiveWar?.ConductWar() ?? WarState.NotApplicable;
+                var rel = kv.Value;
+                if (rel.ActiveWar == null) continue;
+                var currentWar = rel.ActiveWar.ConductWar();
+                worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
+            if (!GlobalStats.RestrictAIPlayerInteraction && worstWar > WarState.EvenlyMatched)
+            {
+                foreach (var kv in OwnerEmpire.AllRelations)
+                {
+                    var rel = kv.Value;
+                    if (!rel.Treaty_Peace && rel.PreparingForWar)
+                        ShouldStartWar(kv.Key, rel.PreparingForWarType);
+                }
+            }
+        }
+        bool ShouldStartWar(Empire them, WarType warType)
+        {
+            float enemyStrength = them.CurrentMilitaryStrength;
+
+            var fleets = OwnerEmpire.AllFleetReadyShipsNearestTarget(them.GetWeightedCenter());
+            if (enemyStrength < fleets.AccumulatedStrength)
+            {
+                OwnerEmpire.GetEmpireAI().DeclareWarOn(them, warType);
+                return true;
+            }
+            return false;
         }
     }
 }

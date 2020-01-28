@@ -277,6 +277,8 @@ namespace Ship_Game.Ships
         public Ship GetHangarShip() => hangarShip;
         public Ship GetParent()     => Parent;
 
+        public override bool ParentIsThis(Ship ship) => Parent == ship;
+
         ShipModule() : base(GameObjectType.ShipModule)
         {
             DisableSpatialCollision = true;
