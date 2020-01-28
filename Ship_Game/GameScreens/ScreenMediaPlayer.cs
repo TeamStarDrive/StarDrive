@@ -249,7 +249,9 @@ namespace Ship_Game.GameScreens
             {
                 // don't grab lo-fi default video thumbnail while video is looping around
                 if (CaptureThumbnail || Player.PlayPosition.TotalMilliseconds > 0)
+                {
                     Frame = Player.GetTexture();
+                }
 
                 if (Frame != null)
                     batch.Draw(Frame, rect, null, color, rotation, Vector2.Zero, effects, 0.9f);
