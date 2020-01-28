@@ -141,7 +141,7 @@ namespace Ship_Game
                     position = new Vector2( (r.X - 60),
                          (1 + r.Y + r.Height / 2 -
                                  Font12.LineSpacing / 2));
-                    string maintenance = b.Maintenance.ToString("F2");
+                    string maintenance = b.ActualMaintenance(P).ToString("F2");
                     batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~~
@@ -164,8 +164,7 @@ namespace Ship_Game
 
                     position = new Vector2((r.X - 60),
                                            (1 + r.Y + r.Height / 2 - Font12.LineSpacing / 2));
-                    float actualMaint = b.Maintenance + b.Maintenance * P.Owner.data.Traits.MaintMod;
-                    string maintenance = actualMaint.ToString("F2");
+                    string maintenance = b.ActualMaintenance(P).ToString("F2");
                     batch.DrawString(Font8, string.Concat(maintenance, " BC/Y"), position, Color.Salmon);
 
                     // ~~~
@@ -212,14 +211,21 @@ namespace Ship_Game
                     //Forgive my hacks this code of nightmare must GO!
                     position.X = (entry.Right - 120);
                     var iconProd = ResourceManager.Texture("NewUI/icon_production");
-                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+
+                    var prodRect = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    batch.Draw(iconProd, prodRect, Color.White);
+
+                    var iconCredits = ResourceManager.Texture("UI/icon_money_22");
+                    var creditsRect = new Rectangle((int)position.X - 60, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+
+                    batch.Draw(iconCredits, creditsRect, Color.White);
 
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
-                    position = new Vector2((destinationRectangle2.X - 60),
-                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
+                    position = new Vector2((creditsRect.X - 60),
+                        (1 + prodRect.Y + prodRect.Height / 2 - Font12.LineSpacing / 2));
                     // Use correct upkeep method depending on mod settings
                     string upkeep;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -235,10 +241,19 @@ namespace Ship_Game
 
                     // ~~~
 
-                    position = new Vector2(destinationRectangle2.X + 26,
-                        destinationRectangle2.Y + destinationRectangle2.Height / 2 -
+                    int cost = (int)(ship.GetCost(P.Owner) * P.ShipBuildingModifier);
+
+                    position = new Vector2(prodRect.X + 26,
+                        prodRect.Y + prodRect.Height / 2 -
                         Font12.LineSpacing / 2);
-                    batch.DrawString(Font12, ((int) (ship.GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(),
+
+                    batch.DrawString(Font12, (cost).ToString(),
+                        position, Color.White);
+
+                    position = new Vector2(creditsRect.X + 26,
+                        creditsRect.Y + creditsRect.Height / 2 -
+                        Font12.LineSpacing / 2);
+                    batch.DrawString(Font12, ((int)Player.EstimateCreditCost(cost)).ToString(),
                         position, Color.White);
                 }
                 else
@@ -269,14 +284,19 @@ namespace Ship_Game
 
                     position.X = (entry.Right - 120);
                     SubTexture iconProd = ResourceManager.Texture("NewUI/icon_production");
-                    var destinationRectangle2 = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
+                    var prodRect = new Rectangle((int) position.X, entry.CenterY - iconProd.Height / 2 - 5,
                         iconProd.Width, iconProd.Height);
-                    batch.Draw(iconProd, destinationRectangle2, Color.White);
+                    batch.Draw(iconProd, prodRect, Color.White);
 
+                    var iconCredits = ResourceManager.Texture("UI/icon_money_22");
+                    var creditsRect = new Rectangle((int)position.X - 60, entry.CenterY - iconProd.Height / 2 - 5,
+                        iconProd.Width, iconProd.Height);
+
+                    batch.Draw(iconCredits, creditsRect, Color.White);
                     // The Doctor - adds new UI information in the build menus for the per tick upkeep of ship
 
-                    position = new Vector2((destinationRectangle2.X - 60),
-                        (1 + destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
+                    position = new Vector2((creditsRect.X - 60),
+                        (1 + prodRect.Y + prodRect.Height / 2 - Font12.LineSpacing / 2));
                     // Use correct upkeep method depending on mod settings
                     string upkeep;
                     if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
@@ -292,12 +312,20 @@ namespace Ship_Game
 
                     // ~~~
 
-                    position = new Vector2((destinationRectangle2.X + 26),
-                        (destinationRectangle2.Y + destinationRectangle2.Height / 2 - Font12.LineSpacing / 2));
-                    batch.DrawString(Font12,
-                        ((int) (entry.Get<Ship>().GetCost(P.Owner) * P.ShipBuildingModifier)).ToString(), position,
-                        Color.White);
-                    entry.DrawPlusEdit(batch);
+                    int cost = (int)(ship.GetCost(P.Owner) * P.ShipBuildingModifier);
+
+                    position = new Vector2(prodRect.X + 26,
+                        prodRect.Y + prodRect.Height / 2 -
+                        Font12.LineSpacing / 2);
+
+                    batch.DrawString(Font12, (cost).ToString(),
+                        position, Color.White);
+
+                    position = new Vector2(creditsRect.X + 26,
+                        creditsRect.Y + creditsRect.Height / 2 -
+                        Font12.LineSpacing / 2);
+                    batch.DrawString(Font12, ((int)Player.EstimateCreditCost(cost)).ToString(),
+                        position, Color.White);
 
                     DrawSelectedShipInfo((int)position.X, entry.CenterY, ship, batch);
                 }
