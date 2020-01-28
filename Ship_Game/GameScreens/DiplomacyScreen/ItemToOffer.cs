@@ -46,16 +46,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override void Draw(SpriteBatch batch)
         {
-            Color orange;
-            if (Selected)
-            {
-                orange = Color.Orange;
-            }
-            else
-            {
-                orange = (Hovered ? Color.White : new Color(255, 255, 255, 220));
-            }
-            batch.DrawString(Fonts.Arial12Bold, Words, Pos, orange);
+            Color textColor = Selected ? Color.Orange
+                            : Hovered ? Color.White
+                            : Color.White.Alpha(0.7f);
+
+            if (Hovered)
+                batch.FillRectangle(Rect, Color.Black.Alpha(0.5f));
+
+            batch.DrawString(Fonts.Arial12Bold, Words, Pos, textColor);
         }
 
         public override bool HandleInput(InputState input)

@@ -266,9 +266,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override void Draw(SpriteBatch batch)
         {
-            if (!IsActive)
-                return;
-
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 4 / 5);
             batch.Begin();
 
@@ -624,13 +621,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                         TheirOffer = new Offer { Them = Them };
                     }
 
-                    if (OfferTextSL.HandleInput(input))
-                        return true;
-                    if (OurItemsSL.HandleInput(input))
-                        return true;
-                    if (TheirItemsSL.HandleInput(input))
-                        return true;
-
                     if (OurAttitudeBtn_Pleading.HandleInput(input))
                     {
                         OurAttitudeBtn_Pleading.ToggleOn = true;
@@ -812,11 +802,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
 
-            var offerTextMenu = new Submenu(new Rectangle(R.X, R.Y, R.Width, R.Height - 30));
+            var offerTextMenu = new Rectangle(R.X, R.Y, R.Width, R.Height - 30);
             OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(new Submenu(offerTextMenu.Rect), Fonts.Consolas18.LineSpacing + 2));
-            OurItemsSL   = Add(new ScrollList2<ItemToOffer>(new Submenu(UsRect), Fonts.Consolas18.LineSpacing + 5));
-            TheirItemsSL = Add(new ScrollList2<ItemToOffer>(new Submenu(ThemRect), Fonts.Consolas18.LineSpacing + 5));
+            StatementsSL = Add(new ScrollList2<DialogOptionListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
+            OurItemsSL   = Add(new ScrollList2<ItemToOffer>(UsRect, Fonts.Consolas18.LineSpacing + 5));
+            TheirItemsSL = Add(new ScrollList2<ItemToOffer>(ThemRect, Fonts.Consolas18.LineSpacing + 5));
             
             OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
             TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);
