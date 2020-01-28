@@ -2828,29 +2828,29 @@ namespace Ship_Game
                 switch (difficulty)
                 {
                     case UniverseData.GameDifficulty.Easy:
-                        Player = 0.25f;
-                        AI     = 0.5f;
+                        Player = 0.1f;
+                        AI     = 0.25f;
                         break;
                     case UniverseData.GameDifficulty.Normal:
-                        Player = 0.5f;
-                        AI     = 0.5f;
+                        Player = 0.2f;
+                        AI     = 0.2f;
                         break;
                     case UniverseData.GameDifficulty.Hard:
-                        Player = 0.75f;
-                        AI     = 0.25f;
+                        Player = 0.3f;
+                        AI     = 0.1f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
                     default:
-                        Player = 1f;
-                        AI     = 0.25f;
+                        Player = 0.5f;
+                        AI     = 0.05f;
                         break;
                 }
             }
         }
 
-        public float EstimateCreditCost(float itemCost)
+        public int EstimateCreditCost(float itemCost)
         {
-            return ProductionCreditCost(itemCost);
+            return (int)Math.Round(ProductionCreditCost(itemCost), 0);
         }
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
@@ -2865,7 +2865,9 @@ namespace Ship_Game
 
         float ProductionCreditCost(float spentProduction)
         {
-                return spentProduction * (1 - data.TaxRate) * CreditPerProductionMultiplier;
+            // fixed costs for players, feedback tax loop for the AI
+            float taxModifer = isPlayer ? 1 : 1 - data.TaxRate;
+            return spentProduction * taxModifer * CreditPerProductionMultiplier;
         }
 
         public class InfluenceNode
