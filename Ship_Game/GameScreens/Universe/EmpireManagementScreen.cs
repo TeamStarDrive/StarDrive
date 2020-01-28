@@ -35,8 +35,9 @@ namespace Ship_Game
             eui = empUI;
 
             var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
-            Menu2 titleBkg = Add(new Menu2(titleRect));
-            Add(new UILabel(titleBkg.Center, text:383, Fonts.Laserian14, Cream) { Align = TextAlign.Center });
+            Add(new Menu2(titleRect));
+            Add(new UILabel(titleRect, GameText.EmpireManagement, Fonts.Laserian14, Cream)
+                { Align = TextAlign.Center });
 
             var mainBkg = new Rectangle(2, titleRect.Bottom + 5, ScreenWidth - 10, ScreenHeight - titleRect.Bottom - 7);
             Add(new Menu2(mainBkg));

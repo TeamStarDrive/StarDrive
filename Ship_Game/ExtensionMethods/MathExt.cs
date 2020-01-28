@@ -183,8 +183,12 @@ namespace Ship_Game
                 != ContainmentType.Disjoint; // Disjoint: no intersection at all
         }
 
-
-        public static Color Alpha(this Color color, float newAlpha) => new Color(color, newAlpha);
+        /// <summary>
+        /// Example: Color halfOpaqueBlack = Color.Black.Alpha(0.5f);
+        /// </summary>
+        /// <returns>Copy of this Color with a new alpha value</returns>
+        public static Color Alpha(this Color color, float newAlpha)
+            => new Color(color, newAlpha);
 
         public static bool HitTest(this Rectangle r, Vector2 pos)
         {
