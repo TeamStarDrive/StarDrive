@@ -2194,14 +2194,14 @@ namespace Ship_Game
 
                             var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
 
-                            if (planet.TroopsHere.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.TroopsHere.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
                             {
                                 var t = RandomMath.RandItem(planet.TroopsHere);
                                 if (t != null)
                                     troop.ChangeLoyalty(rebels);
                             }
 
-                            if (planet.BuildingList.NotEmpty && RandomMath.RollDiceAvg(chance * 50))
+                            if (planet.BuildingList.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
                             {
                                 var building = RandomMath.RandItem(planet.BuildingList
                                                                    .Filter(b=> !b.IsBiospheres));

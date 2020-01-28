@@ -133,7 +133,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int FixedTrackingPower;
         public bool ShipInitialized;
-        public override bool IsShip(Ship ship) => this == ship;
+        public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
 
         public float FTLModifier { get; private set; } = 1f;

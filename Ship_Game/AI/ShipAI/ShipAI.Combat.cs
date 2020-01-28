@@ -64,7 +64,7 @@ namespace Ship_Game.AI
             {
                 var weapon = weapons[i];
                 if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
-                    weapon.FireTarget.IsShip(Target))
+                    weapon.FireTarget.ParentIsThis(Target))
                     FireOnMainTargetTime = 
                         (weapon.isBeam ? weapon.BeamDuration : weapon.SalvoDuration).ClampMin(FireOnMainTargetTime);
             }

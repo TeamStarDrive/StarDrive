@@ -191,7 +191,7 @@ namespace Ship_Game
         {
             return false;
         }
-        public virtual bool IsShip(Ship ship) 
+        public virtual bool ParentIsThis(Ship ship) 
         {
             return false;
         }
