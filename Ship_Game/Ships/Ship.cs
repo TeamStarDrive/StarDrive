@@ -133,7 +133,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int FixedTrackingPower;
         public bool ShipInitialized;
-
+        public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
 
         public float FTLModifier { get; private set; } = 1f;
@@ -163,19 +163,22 @@ namespace Ship_Game.Ships
         }
 
         Status FleetCapableStatus;
-        public bool FleetCapableShip() => FleetCapableStatus == Status.Good;
+        public bool CanTakeFleetMoveOrders() => 
+            FleetCapableStatus == Status.Good && ShipEngineses.EngineStatus >= Status.Poor;
 
         void SetFleetCapableStatus()
         {
-            if (ShipEngineses.EngineStatus > Status.Poor
-                                      && AI.State != AIState.Resupply
-                                      && AI.State != AIState.Refit
-                                      && AI.State != AIState.Scrap
-                                      && AI.State != AIState.Scuttle)
+            if (!EMPdisabled && !InhibitedByEnemy &&
+                AI.State != AIState.Resupply && 
+                AI.State != AIState.Refit && 
+                AI.State != AIState.Scrap && 
+                AI.State != AIState.Scuttle)
                 FleetCapableStatus = Status.Good;
             else
                 FleetCapableStatus = Status.Poor;
         }
+
+        public bool CanTakeFleetOrders => FleetCapableStatus == Status.Good;
 
         // This bit field marks all the empires which are influencing
         // us within their borders via Subspace projectors
