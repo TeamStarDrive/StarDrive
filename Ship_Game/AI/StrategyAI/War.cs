@@ -182,13 +182,10 @@ namespace Ship_Game
             switch (WarType)
             {
                 case WarType.DefensiveWar:
-                case WarType.BorderConflict: tasks.AddRange(ConductBorderConflictWar());
-                    break;
-                case WarType.SkirmishWar:    tasks.AddRange(ConductSkirmishWar());
-                    break;
+                case WarType.BorderConflict: tasks.AddRange(ConductBorderConflictWar()); break;
+                case WarType.SkirmishWar:    tasks.AddRange(ConductSkirmishWar()); break;
                 case WarType.ImperialistWar:
-                case WarType.GenocidalWar:   tasks.AddRange(ConductImperialisticWar());
-                    break;
+                case WarType.GenocidalWar:   tasks.AddRange(ConductImperialisticWar()); break;
             }
 
             Us.GetEmpireAI().TaskList.AddRange(tasks);

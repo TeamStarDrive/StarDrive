@@ -58,9 +58,8 @@ namespace Ship_Game.AI.CombatTactics
                 float distance = (distanceToAttack*0.75f) + 50.0f;
                 PrepareToDisengage(distance);
             }
-            else if (distanceToAttack < Owner.Velocity.Length())
+            else if (distanceToAttack - spacerDistance < Owner.Velocity.Length() && Owner.AI.IsFiringAtMainTarget)
             {
-
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
                 DrawDebugTarget(AI.Target.Center, Owner.Radius);
@@ -75,28 +74,34 @@ namespace Ship_Game.AI.CombatTactics
 
         void ZigOrZag(float distanceToTarget)
         {
-            if (Owner.IsTurning || Owner.AI.IsFiringAtMainTarget) return;
-
-            int rng = RandomMath.RollAvgPercentVarianceFrom50();
-            if (rng > 30)
+            if (Owner.IsTurning || 
+                Owner.AI.IsFiringAtMainTarget)
             {
-                if (rng < 35)
+                ZigZag = Vector2.Zero;
+                return;
+            }
+
+            int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
+            racialMod    += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
+            float mod     = 10 * Owner.RotationRadiansPerSecond * (Owner.Level + racialMod);
+            int rng       = RandomMath.RollAvgPercentVarianceFrom50();
+
+            if (rng < 30 - mod)
+            {
+                ZigZag = Vector2.Zero;
+            }
+            else
+            {
+                if (ZigZag != Vector2.Zero)
+                    return;
+                Vector2 dir = Owner.Center.DirectionToTarget(Owner.AI.Target.Center);
+                if (RandomMath.IntBetween(0, 1) == 1)
                 {
-                    ZigZag = Vector2.Zero;
+                    ZigZag = dir.RightVector() * distanceToTarget;
                 }
                 else
                 {
-                    if (ZigZag != Vector2.Zero)
-                        return;
-                    Vector2 dir = AI.Owner.Center.DirectionToTarget(Owner.AI.Target.Center);
-                    if (RandomMath.IntBetween(0, 1) == 1)
-                    {
-                        ZigZag = dir.RightVector() * distanceToTarget;
-                    }
-                    else
-                    {
-                        ZigZag = dir.LeftVector() * distanceToTarget;
-                    }
+                    ZigZag = dir.LeftVector() * distanceToTarget;
                 }
             }
         }
