@@ -387,7 +387,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void DrawBackground(SpriteBatch batch)
         {
-            if (RacialVideo.IsPlaying)
+            if (RacialVideo.IsPlaying || RacialVideo.IsPaused)
             {
                 Color color = Color.White;
                 if (WarDeclared || UsAndThem.AtWar)
@@ -400,13 +400,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             }
             else
             {
-                batch.Draw(ResourceManager.Texture("Portraits/" + Them.PortraitName), Portrait, Color.White);
+                batch.Draw(Them.data.PortraitTex, Portrait, Color.White);
             }
 
             batch.DrawDropShadowText(Them.data.Traits.Name, EmpireNamePos, Fonts.Pirulen20);
-            batch.FillRectangle(dState == DialogState.Negotiate
-                ? new Rectangle(0, R.Y, 1920, R.Height)
-                : new Rectangle(0, DialogRect.Y, 1920, R.Height), new Color(0, 0, 0, 150));
+            batch.FillRectangle(new Rectangle(0, R.Y, 1920, R.Height), new Color(0, 0, 0, 150));
             batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
         }
 
