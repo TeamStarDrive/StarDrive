@@ -221,7 +221,7 @@ namespace Ship_Game
 
             if (numNegativeEnvBuildings > 0) // not full potential due to bad env buildings
                 text += $"Scrap {numNegativeEnvBuildings} environment degrading buildings. ";
-
+            
             if (numUninhabitableTiles > 0)
                 text += $"Make {numUninhabitableTiles} tiles habitable. ";
 
