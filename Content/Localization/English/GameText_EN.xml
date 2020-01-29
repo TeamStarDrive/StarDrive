@@ -4687,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1861</Index>
+      <Text>Fixed Ship And Buildings Cost</Text>
+    </Token>
+    <Token>
+      <Index>1862</Index>
+      <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
+    </Token>
+    <Token>
       <Index>1908</Index>
       <Text>Regenerate</Text>
     </Token>
