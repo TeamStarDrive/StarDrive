@@ -98,6 +98,7 @@ namespace Ship_Game
         public static bool WarpBehaviorsEnabled => WarpBehaviorsSetting
                                                 || ActiveModInfo?.UseShieldWarpBehavior == true;
         public static bool DisableAsteroids;
+        public static bool FixedPlayerCreditCharge;
 
         public static int ShipCountLimit;
         public static int FreighterLimit            = 50;
