@@ -8,34 +8,28 @@ namespace Ship_Game.GameScreens.DiplomacyScreen {
     {
         readonly ScrollList2<ItemToOffer> List;
         ItemToOffer Offer;
-        Vector2 Cursor;
 
         public DiplomacyItemsLayout(ScrollList2<ItemToOffer> list, Rectangle rect)
         {
             List = list;
             Offer = null;
-            Cursor = new Vector2((rect.X + 10), (rect.Y + Fonts.Pirulen12.LineSpacing + 2));
         }
 
-        void AddItem(int tokenId, string response)
+        void AddItem(in LocalizedText text, string response)
         {
-            Offer = List.AddItem(new ItemToOffer(tokenId, response, Cursor));
-            Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
+            Offer = List.AddItem(new ItemToOffer(text, response));
         }
 
-        public void AddSubItem(LocalizedText text, string response, string inquiry)
+        public void AddSubItem(in LocalizedText text, string response, string inquiry)
         {
-            var item = new ItemToOffer(text.Text, response, Cursor) { SpecialInquiry = inquiry };
-            Cursor.Y += (Fonts.Arial12Bold.LineSpacing + 5);
+            var item = new ItemToOffer(text.Text, response) { SpecialInquiry = inquiry };
             Offer.AddSubItem(item);
         }
 
         public void AddCategory(GameText text, Action populateSubItems)
         {
-            Offer = List.AddItem(new ItemToOffer(new LocalizedText(text)));
-            Cursor.X += 10f;
+            Offer = List.AddItem(new ItemToOffer(text, true));
             populateSubItems();
-            Cursor.X -= 10f;
         }
 
         public void AddRelationItems(Relationship relations)
