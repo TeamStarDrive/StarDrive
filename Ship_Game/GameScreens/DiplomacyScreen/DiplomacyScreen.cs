@@ -93,19 +93,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case "Declare War Defense":
                 case "Declare War Defense BrokenNA":
                 case "Declare War BC":
-                    TheirText = GetDialogueByName(whichDialog);
-                    DState = DialogState.End;
+                    TheirText   = GetDialogueByName(whichDialog);
+                    DState      = DialogState.End;
                     WarDeclared = true;
                     break;
                 case "Conquered_Player":
                 case "Compliment Military":
                 case "Compliment Military Better":
                 case "Insult Military":
-                    TheirText = GetDialogueByName(whichDialog);
-                    DState = DialogState.End;
+                    TheirText   = GetDialogueByName(whichDialog);
+                    DState      = DialogState.End;
                     break;
                 default:
-                    TheirText = GetDialogueFromAttitude();
+                    TheirText   = GetDialogueFromAttitude();
                     break;
             }
         }
@@ -138,8 +138,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case "Declare War Defense":
                 case "Declare War BC":
                 case "Declare War BC TarSys":
-                    TheirText = GetDialogueByName(whichDialog);
-                    DState = DialogState.End;
+                    TheirText   = GetDialogueByName(whichDialog);
+                    DState      = DialogState.End;
                     WarDeclared = true;
                     break;
                 default:
@@ -160,15 +160,15 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 case "Declare War Defense":
                 case "Declare War BC":
                 case "Declare War BC TarSys":
-                    TheirText = GetDialogueByName(whichDialog);
-                    DState = DialogState.End;
+                    TheirText   = GetDialogueByName(whichDialog);
+                    DState      = DialogState.End;
                     WarDeclared = true;
                     break;
                 case "Stole Claim":
                 case "Stole Claim 2":
                 case "Stole Claim 3":
                     TheirText = GetDialogueByName(whichDialog);
-                    DState = DialogState.End;
+                    DState    = DialogState.End;
                     break;
                 default:
                     TheirText = GetDialogueFromAttitude();
@@ -481,12 +481,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override bool HandleInput(InputState input)
         {
-            if (TrustRect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(47);
-            if (AngerRect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(48);
-            if (FearRect.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(49);
+            if (TrustRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(47);
+            if (AngerRect.HitTest(input.CursorPosition)) ToolTip.CreateTooltip(48);
+            if (FearRect.HitTest(input.CursorPosition))  ToolTip.CreateTooltip(49);
 
             if (Exit.HandleInput(input) && DState != DialogState.TheirOffer)
             {
@@ -494,13 +491,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 return true;
             }
 
-            if (DState == DialogState.End)
-                return false;
+            if (DState == DialogState.End) return false;
 
-            if (DState != DialogState.Negotiate)
-            {
-                TheirOffersList.Visible = OurOffersList.Visible = false;
-            }
+            if (DState != DialogState.Negotiate) TheirOffersList.Visible = OurOffersList.Visible = false;
 
             if (DState != DialogState.TheirOffer)
             {
@@ -543,10 +536,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                             foreach (DialogOption opt1 in set.DialogOptions)
                             {
                                 string str = opt1.SpecialInquiry.NotEmpty() ? GetDialogueByName(opt1.SpecialInquiry) : opt1.Words;
-                                var opt2 = new DialogOption(n++, str);
-                                
-                                opt2.Words = ParseTextDiplomacy(str, (DialogRect.Width - 25));
-                                opt2.Response = opt1.Response;
+                                var opt2   = new DialogOption(n++, str)
+                                {
+                                    Words    = ParseTextDiplomacy(str, (DialogRect.Width - 25)),
+                                    Response = opt1.Response
+                                };
+
                                 var optionList = new DialogOptionListItem(opt2);
                                 
                                 StatementsSL.AddItem(optionList);
@@ -602,10 +597,9 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             {
                 if (Accept.HandleInput(input))
                 {
-                    if (TheirOffer.ValueToModify != null)
-                        TheirOffer.ValueToModify.Value = false;
-                    if (OurOffer.ValueToModify != null)
-                        OurOffer.ValueToModify.Value = true;
+                    if (TheirOffer.ValueToModify != null) TheirOffer.ValueToModify.Value = false;
+                    if (OurOffer.ValueToModify != null)   OurOffer.ValueToModify.Value = true;
+
                     DState = DialogState.End;
                     TheirText = GetDialogueByName(TheirOffer.AcceptDL);
                     Us.GetEmpireAI().AcceptOffer(TheirOffer, OurOffer, Us, Them);
@@ -686,10 +680,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Attitude_Respectful_Rect = new Rectangle(DialogRect.CenterX() - 90, DialogRect.Bottom +20, 180, 48);
             Attitude_Pleading_Rect   = new Rectangle(Attitude_Respectful_Rect.Left - 200, Attitude_Respectful_Rect.Top , 180, 48);
             Attitude_Threaten_Rect   = new Rectangle(Attitude_Respectful_Rect.Left + 200, Attitude_Respectful_Rect.Top, 180, 48);
+
             ToneContainerRect = new Rectangle(ScreenWidth / 2 - 324, Attitude_Pleading_Rect.Y, 648, 48);
             OurAttitudeBtn_Pleading   = new GenericButton(Attitude_Pleading_Rect,   Localizer.Token(1207), Fonts.Pirulen12);
             OurAttitudeBtn_Respectful = new GenericButton(Attitude_Respectful_Rect, Localizer.Token(1209), Fonts.Pirulen12) { ToggleOn = true };
             OurAttitudeBtn_Threaten   = new GenericButton(Attitude_Threaten_Rect,   Localizer.Token(1208), Fonts.Pirulen12);
+
             AccRejRect = new Rectangle(R.X + R.Width / 2 - 220, R.Y + R.Height - 48, 440, 48);
             Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
             Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
@@ -794,12 +790,12 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             switch (responseName)
             {
-                case "Target_Opinion": RespondTargetOpinion(); break;
-                case "EmpireDiscuss": RespondEmpireDiscuss(); break;
-                case "Hardcoded_EmpireChoose": RespondHardcodedEmpireChoose(); break;
-                case "Hardcoded_War_Analysis": RespondHardcodedWarAnalysis(); break;
+                case "Target_Opinion"               : RespondTargetOpinion(); break;
+                case "EmpireDiscuss"                : RespondEmpireDiscuss(); break;
+                case "Hardcoded_EmpireChoose"       : RespondHardcodedEmpireChoose(); break;
+                case "Hardcoded_War_Analysis"       : RespondHardcodedWarAnalysis(); break;
                 case "Hardcoded_Federation_Analysis": RespondHardcodedFederationAnalysis(); break;
-                case "Hardcoded_Grievances": RespondHardcodedGrievances(); break;
+                case "Hardcoded_Grievances"         : RespondHardcodedGrievances(); break;
                 default:
                     StatementsSL.Reset();
                     TheirText = GetDialogueByName(responseName);
