@@ -310,8 +310,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     {
                         SendOffer.DrawWithShadow(batch);
                     }
-                    batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Right"), Negotiate_Right, Color.White);
-                    batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Left"), Negotiate_Left, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Tone"), ToneContainerRect, Color.White);
                     
                     OurAttitudeBtn_Pleading.Draw(ScreenManager);
@@ -645,8 +643,15 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override void LoadContent()
         {
-            BridgeRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
-            Portrait = new Rectangle(ScreenWidth / 2 - 640, ScreenHeight / 2 - 360, 1280, 720);
+            int bridgeWidth = Math.Min(1920, ScreenWidth);
+            int bridgeHeight = Math.Min(1080, ScreenHeight);
+            BridgeRect = new Rectangle(ScreenWidth/2 - bridgeWidth/2,
+                                       ScreenHeight/2 - bridgeHeight/2, bridgeWidth, bridgeHeight);
+
+            int portraitWidth  = (int)(bridgeWidth * (1280f/1920f));
+            int portraitHeight = (int)(bridgeHeight * (1280f/1920f));
+            Portrait = new Rectangle(ScreenWidth/2 - portraitWidth/2,
+                                     ScreenHeight/2 - portraitHeight/2, portraitWidth, portraitHeight);
 
             var cursor = new Vector2(Portrait.X + Portrait.Width - 85, Portrait.Y + 140);
             EmpireNamePos = new Vector2(cursor.X - Fonts.Pirulen20.MeasureString(Them.data.Traits.Name).X, Portrait.Y + 40);
@@ -692,8 +697,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Accept = new GenericButton(new Rectangle(AccRejRect.X, AccRejRect.Y, 220, 48), Localizer.Token(1210), Fonts.Pirulen12);
             Reject = new GenericButton(new Rectangle(AccRejRect.X + 220, AccRejRect.Y, 220, 48), Localizer.Token(1211), Fonts.Pirulen12);
 
-            Negotiate_Right = new Rectangle(BridgeRect.Right - 280, BridgeRect.Bottom - 280, 80, 280);
-            Negotiate_Left = new Rectangle(BridgeRect.Left + 5, BridgeRect.Bottom - 280, 80, 280);
 
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
 
@@ -701,11 +704,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
             StatementsSL = Add(new ScrollList2<DialogOptionListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
             
-            int offersWidth = (DialogRect.Width - 150) / 2 - 10;
-            var usRect = new Rectangle(Negotiate_Right.X + 20, Negotiate_Right.Y + 35, offersWidth, 300);
-            var themRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, offersWidth, 300);
-            OurOffersList = Add(new DiplomacyOffersComponent(Us, Them, usRect));
-            TheirOffersList = Add(new DiplomacyOffersComponent(Them, Us, themRect));
+            StatementsSL.DebugDraw = true;
+            OfferTextSL.DebugDraw = true;
+
+            SubTexture ourBkg   = TransientContent.LoadTextureOrDefault("Textures/GameScreens/Negotiate_Right");
+            SubTexture theirBkg = TransientContent.LoadTextureOrDefault("Textures/GameScreens/Negotiate_Left");
+            int offerW = 220;
+            int offerH = 280;
+            int offerY = BridgeRect.Bottom - offerH;
+            var usRect   = new Rectangle(BridgeRect.Right - (5 + offerW), offerY, offerW, offerH);
+            var themRect = new Rectangle(BridgeRect.Left + 5, offerY, offerW, offerH);
+            
+            OurOffersList   = Add(new DiplomacyOffersComponent(Us, Them, usRect, ourBkg));
+            TheirOffersList = Add(new DiplomacyOffersComponent(Them, Us, themRect, theirBkg));
 
             PlayRaceVideoAndMusic();
         }

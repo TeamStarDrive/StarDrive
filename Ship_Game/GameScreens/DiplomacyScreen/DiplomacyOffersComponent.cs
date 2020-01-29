@@ -15,17 +15,24 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         Offer OurOffer;
         Offer TheirOffer;
 
-        public DiplomacyOffersComponent(Empire empire, Empire other, Rectangle rect)
-            : base(rect)
+        public DiplomacyOffersComponent(Empire empire, Empire other,
+                                        Rectangle rect, SubTexture background) : base(rect)
         {
             Visible = false;
             Us = empire;
             Them = other;
-            List = Add(new ScrollList2<ItemToOffer>(rect, 20));
-            DebugDraw = true;
+            
+            int backW = background.Width + 40;
+            int backH = (int)(backW / background.AspectRatio);
+            var back = new Rectangle(rect.X-5, rect.Y-5, backW, backH);
+            Add(new UIPanel(back, background));
+
+            var list = new Rectangle(rect.X + 10, rect.Y + 30,
+                                     rect.Width - 10, rect.Height - 40);
+            List = Add(new ScrollList2<ItemToOffer>(list));
 
             GameText title = empire.isPlayer ? GameText.WeHave : GameText.TheyHave;
-            Add(new UILabel(new Vector2(rect.X + 10, rect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2),
+            Add(new UILabel(new Vector2(rect.X + 26, rect.Y + 14),
                             title, Fonts.Pirulen12));
         }
 
@@ -53,6 +60,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void OnDiplomacyItemClicked(ItemToOffer ourItem)
         {
+            ourItem.Selected = !ourItem.Selected;
             bool selected = ourItem.Selected;
             switch (ourItem.Response)
             {
