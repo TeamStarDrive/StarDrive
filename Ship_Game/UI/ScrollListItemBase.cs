@@ -26,7 +26,7 @@ namespace Ship_Game
 
         // If TRUE, this entry acts as a special ScrollList Item Header
         // Which can be expanded and collapsed
-        public readonly bool IsHeader;
+        public bool IsHeader;
         public readonly string HeaderText;
 
         protected Array<ScrollListItemBase> SubEntries;
@@ -37,11 +37,11 @@ namespace Ship_Game
         protected Array<Element> DynamicElements;
 
 
-        public ScrollListItemBase()
+        protected ScrollListItemBase()
         {
         }
 
-        public ScrollListItemBase(string headerText)
+        protected ScrollListItemBase(string headerText)
         {
             HeaderText = headerText;
             IsHeader = true;
@@ -210,15 +210,22 @@ namespace Ship_Game
             {
                 int width = Math.Min(350, (int)Width - 40);
                 var r = new Rectangle((int)X, (int)Y+4, width, (int)Height - 10);
-                new Selector(r, Hovered ? new Color(95, 82, 47) : new Color(32, 30, 18)).Draw(batch);
 
-                var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
-                batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
+                if (HeaderText != null)
+                {
+                    Color bkgColor = !Enabled ? Color.Gray
+                                    : Hovered ? new Color(95, 82, 47)
+                                    : new Color(32, 30, 18);
+                    new Selector(r, bkgColor).Draw(batch);
+
+                    var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
+                    batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
+                }
 
                 if (SubEntries != null && SubEntries.NotEmpty)
                 {
                     string open = Expanded ? "-" : "+";
-                    textPos = new Vector2(r.Right - 26, r.CenterY() - Fonts.Arial20Bold.LineSpacing / 2 - 2);
+                    var textPos = new Vector2(r.Right - 26, r.CenterY() - Fonts.Arial20Bold.LineSpacing / 2 - 2);
                     batch.DrawString(Fonts.Arial20Bold, open, textPos, Color.White);
                 }
             }

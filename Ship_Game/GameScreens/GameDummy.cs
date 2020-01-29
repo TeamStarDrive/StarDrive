@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -29,6 +30,16 @@ namespace Ship_Game
             base.Initialize();
         }
 
+        protected override void Update(GameTime gameTime)
+        {
+            UpdateGame(gameTime);
+        }
+
+        protected override void Draw(GameTime gameTime)
+        {
+            ScreenManager.Draw();
+        }
+        
         /// <summary>
         /// Currently broken Due to sun resource loading. 
         /// </summary>

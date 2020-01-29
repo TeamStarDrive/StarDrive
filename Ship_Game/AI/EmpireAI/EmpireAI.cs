@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Ship_Game.Commands.Goals;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI

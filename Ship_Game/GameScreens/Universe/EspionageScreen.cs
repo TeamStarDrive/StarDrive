@@ -35,7 +35,7 @@ namespace Ship_Game
                 string espionage = Localizer.Token(6089);
                 var titlePos = new Vector2(titleRect.Center.X - Fonts.Laserian14.MeasureString(espionage).X / 2f, 
                                            titleRect.Center.Y - Fonts.Laserian14.LineSpacing / 2);
-                Label(titlePos, espionage, Fonts.Laserian14, new Color(255, 239, 208));
+                Label(titlePos, espionage, Fonts.Laserian14, Colors.Cream);
             }
 
 
@@ -84,8 +84,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped || input.RightMouseClick ||
-                (input.KeyPressed(Keys.E) && !GlobalStats.TakingInput))
+            if (input.KeyPressed(Keys.E) && !GlobalStats.TakingInput)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
@@ -100,15 +99,21 @@ namespace Ship_Game
         class EmpiresPanel : UIElementContainer
         {
             readonly EspionageScreen Screen;
-            readonly ScrollList OperationsSL;
+            //readonly ScrollList<OperationsListItem> OperationsSL;
 
-            public EmpiresPanel(EspionageScreen screen, Rectangle rect, Rectangle operationsRect) : base(screen, rect)
+            //class OperationsListItem : ScrollList<OperationsListItem>.Entry
+            //{
+            //    public Operation Operation;
+            //}
+
+            public EmpiresPanel(EspionageScreen screen, in Rectangle rect, Rectangle operationsRect) 
+                : base(rect)
             {
                 Screen = screen;
 
-                var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
-                                            operationsRect.Width - 40, operationsRect.Height - 45);
-                OperationsSL = new ScrollList(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
+                //var opsRect = new Rectangle(operationsRect.X + 20, operationsRect.Y + 20, 
+                //                            operationsRect.Width - 40, operationsRect.Height - 45);
+                //OperationsSL = new ScrollList<OperationsListItem>(new Submenu(opsRect), Fonts.Arial12Bold.LineSpacing + 5);
 
                 var empires = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
@@ -119,7 +124,7 @@ namespace Ship_Game
 
                 UIList list = AddList(new Vector2(Pos.X + 10, rect.Y + 40));
                 list.Padding = new Vector2(10f, 10f);
-                list.LayoutStyle = ListLayoutStyle.Resize;
+                list.LayoutStyle = ListLayoutStyle.ResizeList;
                 list.Direction = new Vector2(1f, 0f);
 
                 foreach (Empire e in empires)
@@ -134,16 +139,15 @@ namespace Ship_Game
                 if (EmpireManager.Player == button.Empire || EmpireManager.Player.GetRelations(button.Empire).Known)
                 {
                     Screen.SelectedEmpire = button.Empire;
-                    if (EmpireManager.Player == button.Empire)
-                    {
-                        foreach (ScrollList.Entry f in OperationsSL.VisibleEntries)
-                            f.Get<Operation>().Selected = false;
-                    }
+                    //if (EmpireManager.Player == button.Empire)
+                    //{
+                    //    foreach (OperationsListItem item in OperationsSL.AllEntries)
+                    //        item.Operation.Selected = false;
+                    //}
                     Screen.Agents.Reinitialize();
                 }
             }
         }
-
 
         class EmpireButton : UIElementV2
         {
@@ -151,7 +155,8 @@ namespace Ship_Game
             readonly EspionageScreen Screen;
             readonly Action<EmpireButton> OnClick;
 
-            public EmpireButton(EspionageScreen screen, Empire e, Rectangle rect, Action<EmpireButton> onClick) : base(null, rect)
+            public EmpireButton(EspionageScreen screen, Empire e, in Rectangle rect, Action<EmpireButton> onClick)
+                : base(rect)
             {
                 Empire = e;
                 Screen = screen;
@@ -234,7 +239,7 @@ namespace Ship_Game
 
         class AgentsPanel : UIPanel
         {
-            public AgentsPanel(EspionageScreen screen, Rectangle rect) : base(rect, PanelBackground)
+            public AgentsPanel(EspionageScreen screen, in Rectangle rect) : base(rect, PanelBackground)
             {
                 Label(rect.X + 20, rect.Y + 10, 6090, Fonts.Arial20Bold);
             }
@@ -245,7 +250,7 @@ namespace Ship_Game
         class DossierPanel : UIPanel
         {
             readonly EspionageScreen Screen;
-            public DossierPanel(EspionageScreen screen, Rectangle rect) : base(rect, PanelBackground)
+            public DossierPanel(EspionageScreen screen, in Rectangle rect) : base(rect, PanelBackground)
             {
                 Screen = screen;
                 Label(rect.X + 20, rect.Y + 10, 6092, Fonts.Arial20Bold);
@@ -299,7 +304,7 @@ namespace Ship_Game
             readonly EspionageScreen Screen;
             readonly UILabel AgentName;
             readonly UILabel AgentLevel;
-            public OperationsPanel(EspionageScreen screen, Rectangle rect) : base(rect, PanelBackground)
+            public OperationsPanel(EspionageScreen screen, in Rectangle rect) : base(rect, PanelBackground)
             {
                 Screen = screen;
                 AgentName  = Label(rect.X + 20, rect.Y + 10, "", Fonts.Arial20Bold);
@@ -310,7 +315,7 @@ namespace Ship_Game
             public override void Draw(SpriteBatch batch)
             {
                 Agent agent = Screen.Agents.SelectedAgent;
-                AgentName.Visible = agent != null;
+                AgentName.Visible  = agent != null;
                 AgentLevel.Visible = agent != null;
                 if (agent != null)
                 {
