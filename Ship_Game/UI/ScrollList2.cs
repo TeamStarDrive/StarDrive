@@ -57,7 +57,7 @@ namespace Ship_Game
         {
         }
 
-        public ScrollList2(in Rectangle rect, int entryHeight, ListStyle style = ListStyle.Default)
+        public ScrollList2(in Rectangle rect, int entryHeight = 40, ListStyle style = ListStyle.Default)
         {
             Rect = rect;
             Style = style;
