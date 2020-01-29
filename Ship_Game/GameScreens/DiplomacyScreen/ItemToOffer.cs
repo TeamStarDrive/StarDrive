@@ -12,6 +12,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         readonly SpriteFont Font = Fonts.Arial12Bold;
         UILabel Text;
 
+        public override int ItemHeight => Font.LineSpacing + 2;
+
         public ItemToOffer(in LocalizedText words)
         {
             Initialize(words, false);
@@ -23,25 +25,22 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             Response = response;
         }
 
-        public ItemToOffer(in LocalizedText words, bool isHeader) : base(words.Text)
+        public ItemToOffer(in LocalizedText words, bool isHeader)
         {
-            Initialize(words, isHeader:true);
+            Initialize(words, isHeader);
         }
 
         void Initialize(in LocalizedText words, bool isHeader)
         {
             Words = words;
-            if (!isHeader)
-            {
-                Text = Add(new UILabel(words, Font));
-                Text.Align = TextAlign.VerticalCenter;
-            }
+            IsHeader = isHeader;
+            Text = Add(new UILabel(words, Font));
+            Text.Align = TextAlign.VerticalCenter;
         }
 
         public override void PerformLayout()
         {
-            if (Text != null)
-                Text.Rect = Rect;
+            Text.Rect = Rect;
             base.PerformLayout();
         }
 
@@ -58,28 +57,21 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override void Draw(SpriteBatch batch)
         {
-            if (Text != null)
-            {
-                Text.Color = Selected ? Color.Orange
-                           : Hovered ? Color.LightYellow
-                           : Color.White.Alpha(0.8f);
-            }
-
-            if (Hovered && !IsHeader)
+            if (Hovered)
                 batch.FillRectangle(Rect, Color.Black.AddRgb(0.05f).Alpha(0.33f));
-
-            base.Draw(batch); // this will draw our Label or Header
+            
+            Text.Color = Selected ? Color.Orange
+                       : Hovered ? Color.LightYellow
+                       : Color.White.Alpha(0.8f);
+            Text.Draw(batch);
         }
 
-
+        Vector2 TipPos => X < (GlobalStats.XRES*0.25f)
+                          ? TopRight
+                          : TopLeft - new Vector2(320, 0);
 
         public override bool HandleInput(InputState input)
         {
-            if (Hovered && input.LeftMouseClick)
-            {
-                Selected = !Selected;
-            }
-
             // this will trigger the item on-click event
             if (base.HandleInput(input))
                 return true;
@@ -89,19 +81,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 switch (Response)
                 {
                     case "NAPact":
-                        ToolTip.CreateTooltip(GameTips.NonAggression, "", BotRight);
+                        ToolTip.CreateTooltip(GameTips.NonAggression, "", TipPos);
                         break;
                     case "OpenBorders":
-                        ToolTip.CreateTooltip(GameTips.OpenBorders, "", BotRight);
+                        ToolTip.CreateTooltip(GameTips.OpenBorders, "", TipPos);
                         break;
                     case "Peace Treaty":
-                        ToolTip.CreateTooltip(GameTips.PeaceTreaty, "", BotRight);
+                        ToolTip.CreateTooltip(GameTips.PeaceTreaty, "", TipPos);
                         break;
                     case "TradeTreaty":
-                        ToolTip.CreateTooltip(GameTips.TradeTreaty, "", BotRight);
+                        ToolTip.CreateTooltip(GameTips.TradeTreaty, "", TipPos);
                         break;
                     case "OfferAlliance":
-                        ToolTip.CreateTooltip(GameTips.AllianceTreaty, "", BotRight);
+                        ToolTip.CreateTooltip(GameTips.AllianceTreaty, "", TipPos);
                         break;
                 }
             }
