@@ -13,6 +13,7 @@ namespace Ship_Game
         public Troop Troop;
         string BuildingDescr;
         readonly SubTexture ProdIcon = ResourceManager.Texture("NewUI/icon_production");
+        readonly SubTexture CostIcon = ResourceManager.Texture("UI/icon_money_22");
         readonly SpriteFont Font8 = Fonts.Arial8Bold;
         readonly SpriteFont Font12 = Fonts.Arial12Bold;
         readonly bool LowRes;
@@ -95,16 +96,27 @@ namespace Ship_Game
             else if (Ship != null)   DrawShip(batch, Ship);
         }
 
-        void DrawProductionInfo(SpriteBatch batch, float maintenance, float cost)
+        void DrawProductionInfo(SpriteBatch batch, float maintenance, float prod, int cost = 0)
         {
             SpriteFont font = LowRes ? Fonts.Arial10 : Font12;
             float x = Right - ProdWidth;
             float y = Y+4;
             var iconSize = new Vector2(font.LineSpacing+2);
             batch.Draw(ProdIcon, new Vector2(x, y), iconSize); // Production Icon
-            batch.DrawString(font, cost.String(), x + iconSize.X + 2, y); // Build Cost
+            batch.DrawString(font, prod.String(), x + iconSize.X + 2, y); // Build Production Cost
+
+            string maintString = maintenance.String(2)+ " BC/Y";
+            float maintX       = x;
+
+            batch.Draw(CostIcon, new Vector2(x, y+iconSize.Y), iconSize); // Credits Icon
+            if (cost > 0)
+            {
+                batch.DrawString(font, cost.String(), x + iconSize.X + 2, y+iconSize.Y); // Build Credit Cost
+                maintX = x - (font.MeasureString(maintString).X + 2); 
+            }
+
             if (maintenance > 0f)
-                batch.DrawString(font, maintenance.String(2)+" BC/Y", x, y+iconSize.Y, Color.Salmon); // Maintenance
+                batch.DrawString(font, maintString, maintX, y+iconSize.Y, Color.DarkRed); // Maintenance
         }
 
         void DrawBuilding(SpriteBatch batch, Building b)
@@ -120,7 +132,8 @@ namespace Ship_Game
             batch.Draw(b.IconTex, new Vector2(X, Y-2), new Vector2(IconSize), buildColor); // Icon
             batch.DrawString(Font12, Localizer.Token(b.NameTranslationIndex), TextX+2, Y+2, buildColor); // Title
             batch.DrawString(Font8, BuildingDescr, TextX+4, Y+16, profitColor); // Description
-            DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost);
+            int creditCost = b.IsMilitary ? GetCreditCharge((int)b.ActualCost) : 0;
+            DrawProductionInfo(batch, GetMaintenance(b), b.ActualCost, creditCost);
         }
 
         void DrawTroop(SpriteBatch batch, Troop troop)
@@ -138,7 +151,10 @@ namespace Ship_Game
             batch.DrawString(Font12, GetShipName(ship), TextX+2, Y+2, Hovered ? Color.Green : Color.White); // Title
             batch.DrawLine(Font8, TextX+4, Y+16, 
                 (ship.BaseHull.Name, Color.DarkGray), ($" strength:{ship.BaseStrength.String(0)}", Color.Orange)); // Description
-            DrawProductionInfo(batch, GetShipUpkeep(ship), GetShipCost(ship));
+
+            int shipProdCost = GetShipProdCost(ship);
+            int shipCost     = GetCreditCharge(shipProdCost);
+            DrawProductionInfo(batch, GetShipUpkeep(ship), shipProdCost, shipCost);
         }
 
         static string GetShipName(Ship ship)
@@ -154,9 +170,14 @@ namespace Ship_Game
             return ship.GetMaintCost(Screen.P.Owner);
         }
 
-        int GetShipCost(Ship ship)
+        int GetShipProdCost(Ship ship)
         {
             return (int)(ship.GetCost(Screen.P.Owner) * Screen.P.ShipBuildingModifier);
+        }
+
+        int GetCreditCharge(float cost)
+        {
+            return Screen.P.Owner.EstimateCreditCost(cost);
         }
 
         float GetMaintenance(Building b) => b.Maintenance + b.Maintenance * Screen.P.Owner.data.Traits.MaintMod;
