@@ -421,23 +421,21 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             var layout = new DiplomacyItemsLayout(list, rect);
 
             layout.AddRelationItems(empire.GetRelations(other));
-            Array<TechEntry> tradableTech = empire.GetEmpireAI().TradableTechs(other);
+            Array<TechEntry> tradeAbleTechs = empire.GetEmpireAI().TradableTechs(other);
             layout.AddCategory(GameText.Technology, () =>
             {
-                foreach (TechEntry entry in tradableTech)
+                foreach (TechEntry entry in tradeAbleTechs)
                 {
                     Technology tech = entry.Tech;
-                    string techName = new LocalizedText(tech.NameIndex).Text;
-                    layout.AddSubItem($"{techName}: {(int) tech.ActualCost}",
-                                      "Tech", entry.UID);
+                    var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost}");
+                    layout.AddSubItem(text, "Tech", entry.UID);
                 }
             });
 
             layout.AddCategory(GameText.Artifacts, () =>
             {
                 foreach (Artifact artifact in empire.data.OwnedArtifacts)
-                    layout.AddSubItem(new LocalizedText(artifact.NameIndex).Text,
-                                      "Artifacts", artifact.Name);
+                    layout.AddSubItem(artifact.NameIndex, "Artifacts", artifact.Name);
             });
 
             layout.AddCategory(GameText.Colonies, () =>
@@ -675,12 +673,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             return base.HandleInput(input);
         }
 
-        void OnItemToOfferClicked(ItemToOffer ourItem, ScrollList2<ItemToOffer> theirOffers, Offer ourOffer, Offer theirOffer)
-        {
-            ProcessResponse(ourItem, ourItem.Response, theirOffers, ourOffer, theirOffer);
-        }
-
-        static void SetItemToOfferSelected(ScrollList2<ItemToOffer> theirItems, string response, bool selected)
+        static void SelectTheirItem(ScrollList2<ItemToOffer> theirItems, string response, bool selected)
         {
             foreach (ItemToOffer theirs in theirItems.AllEntries)
                 if (theirs.Response == response)
@@ -690,39 +683,35 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
         }
 
-        void ProcessResponse(ItemToOffer item, string response, ScrollList2<ItemToOffer> theirs, Offer ourOffer, Offer theirOffer)
+        void OnItemToOfferClicked(ItemToOffer ourItem, ScrollList2<ItemToOffer> theirOfferedItems, Offer ourOffer, Offer theirOffer)
         {
-            switch (response)
+            bool selected = ourItem.Selected;
+            switch (ourItem.Response)
             {
                 case "NAPact":
-                    ourOffer.NAPact  = !ourOffer.NAPact;
-                    theirOffer.NAPact = ourOffer.NAPact;
-                    SetItemToOfferSelected(theirs, "NAPact", item.Selected);
+                    ourOffer.NAPact = theirOffer.NAPact = selected;
+                    SelectTheirItem(theirOfferedItems, ourItem.Response, selected);
                     return;
                 case "We Declare War":
-                    ourOffer.NAPact  = !ourOffer.NAPact;
-                    theirOffer.NAPact = ourOffer.NAPact;
-                    SetItemToOfferSelected(theirs, "NAPact", item.Selected);
+                    ourOffer.NAPact = theirOffer.NAPact = selected;
+                    SelectTheirItem(theirOfferedItems, "NAPact", selected);
                     return;
                 case "Peace Treaty":
-                    ourOffer.PeaceTreaty = !ourOffer.PeaceTreaty;
-                    theirOffer.PeaceTreaty = ourOffer.PeaceTreaty;
-                    SetItemToOfferSelected(theirs, "Peace Treaty", item.Selected);
+                    ourOffer.PeaceTreaty = theirOffer.PeaceTreaty = selected;
+                    SelectTheirItem(theirOfferedItems, ourItem.Response, selected);
                     return;
                 case "OfferAlliance":
-                    ourOffer.Alliance  = !ourOffer.Alliance;
-                    theirOffer.Alliance = ourOffer.Alliance;
-                    SetItemToOfferSelected(theirs, "OfferAlliance", item.Selected);
+                    ourOffer.Alliance = theirOffer.Alliance = selected;
+                    SelectTheirItem(theirOfferedItems, ourItem.Response, selected);
                     return;
-                case "OpenBorders": ourOffer.OpenBorders = !ourOffer.OpenBorders;            return;
-                case "Declare War": item.ChangeSpecialInquiry(ourOffer.EmpiresToWarOn);      return;
-                case "Tech":        item.ChangeSpecialInquiry(ourOffer.TechnologiesOffered); return;
-                case "Artifacts":   item.ChangeSpecialInquiry(ourOffer.ArtifactsOffered);    return;
-                case "Colony":      item.ChangeSpecialInquiry(ourOffer.ColoniesOffered);     return;
+                case "OpenBorders": ourOffer.OpenBorders = selected;                    return;
+                case "Declare War": ourItem.ChangeSpecialInquiry(ourOffer.EmpiresToWarOn);      return;
+                case "Tech":        ourItem.ChangeSpecialInquiry(ourOffer.TechnologiesOffered); return;
+                case "Artifacts":   ourItem.ChangeSpecialInquiry(ourOffer.ArtifactsOffered);    return;
+                case "Colony":      ourItem.ChangeSpecialInquiry(ourOffer.ColoniesOffered);     return;
                 case "TradeTreaty":
-                    ourOffer.TradeTreaty  = !ourOffer.TradeTreaty;
-                    theirOffer.TradeTreaty = ourOffer.TradeTreaty;
-                    SetItemToOfferSelected(theirs, "TradeTreaty", item.Selected);
+                    ourOffer.TradeTreaty = theirOffer.TradeTreaty = selected;
+                    SelectTheirItem(theirOfferedItems, "TradeTreaty", selected);
                     return;
             }
         }
