@@ -25,21 +25,30 @@ namespace Ship_Game.UI
         {
             First = first;
             Second = second;
-            Height = Math.Max(First.Height, Second.Height);
-            Width  = First.Width + Second.Width + 2f;
+            Size.X = First.Size.X + Second.Size.X + 2f;
+            Size.Y = Math.Max(First.Size.Y, Second.Size.Y);
         }
 
         public override void PerformLayout()
         {
             First.Pos = Pos;
             First.PerformLayout();
-
-            if (Split > 0f) Second.Pos.X = Pos.X + Split;
-            else            Second.Pos.X = (Right - Second.Width) + Split;
+            
+            if (Split > 0f) // Second is at Pos.X + Split (auto-width)
+            {
+                Second.Pos.X = Pos.X + Split;
+                float secondRight = (Second.Pos.X + Second.Size.X);
+                Size.X = (secondRight - Pos.X) + 2f;
+            }
+            else // Second hugs Right| (size fill)
+            {
+                float thisRight = Pos.X + Size.X;
+                Second.Pos.X = (thisRight - Second.Size.X) + Split;
+            }
             Second.Pos.Y = Pos.Y;
             Second.PerformLayout();
-
-            Height = Math.Max(First.Height, Second.Height);
+            
+            Size.Y = Math.Max(First.Size.Y, Second.Size.Y);
         }
 
         public override bool HandleInput(InputState input)
@@ -51,6 +60,7 @@ namespace Ship_Game.UI
         {
             First.Update(deltaTime);
             Second.Update(deltaTime);
+            RequiresLayout |= First.RequiresLayout | Second.RequiresLayout;
             base.Update(deltaTime);
         }
         public override void Draw(SpriteBatch batch)

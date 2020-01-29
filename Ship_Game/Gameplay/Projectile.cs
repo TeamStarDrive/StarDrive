@@ -281,7 +281,7 @@ namespace Ship_Game.Gameplay
             return false;
         }
 
-        int LastDrawId;
+        static int LastDrawId;
 
         public void Draw(SpriteBatch batch, GameScreen screen)
         {

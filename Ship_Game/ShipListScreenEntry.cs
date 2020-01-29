@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
@@ -376,7 +376,7 @@ namespace Ship_Game
             if (RefitButton.HandleInput(input))
             {
                 GameAudio.EchoAffirmative();
-                screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
+                //screen.ScreenManager.AddScreen(new RefitToWindow(screen, this));
             }
 
             if (ScrapButton.HandleInput(input))

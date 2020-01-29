@@ -128,6 +128,13 @@ namespace Ship_Game
             }
         }
 
+        // Creates a new lazy-initialized parseable text
+        // Example usage: new UILabel(LocalizedText.Parse("{RaceNameSingular}: "));
+        public static LocalizedText Parse(string parseableText)
+        {
+            return new LocalizedText(parseableText, LocalizationMethod.Parse);
+        }
+
         // @note This cache speeds up all text parsing ~8x by sacrificing ~1MB of memory
         static readonly Map<string, string> ParseCache = new Map<string, string>();
 
@@ -142,6 +149,7 @@ namespace Ship_Game
          * "  {80}: {81}"  -- parsed to '  Astronomers: Races that have extensively studied......'
          * "\{ {80} \}"    -- parsed to '{ Astronomers }'
          * "\"{80}\""      -- parsed to '"Astronomers"'
+         * "{RaceNameSingular}: " -- parse to '"Race Name Singular"'
          * If there are no parentheses, then the text is not parsed!!
          */
         public static string ParseText(string text)
@@ -171,12 +179,30 @@ namespace Ship_Game
                     }
 
                     string idString = text.Substring(i+1, (j - i)-1);
-                    if (!int.TryParse(idString, out int id))
+                    if (char.IsDigit(idString[0]))
+                    {
+                        if (!int.TryParse(idString, out int id))
+                        {
+                            Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
+                            continue;
+                        }
+                        sb.Append(Localizer.Token(id));
+                    }
+                    else if (char.IsLetter(idString[0]))
+                    {
+                        if (!Enum.TryParse(idString, out GameText gameText))
+                        {
+                            Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
+                            continue;
+                        }
+                        sb.Append(Localizer.Token(gameText));
+                    }
+                    else
                     {
                         Log.Error($"Failed to parse localization id: {idString}! -- LocalizedText not parsed correctly: {text}");
                         continue;
                     }
-                    sb.Append(Localizer.Token(id));
+
                     i = j;
                 }
                 else if (c == '\\') // escape character
