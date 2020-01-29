@@ -65,10 +65,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                            : Color.White.Alpha(0.8f);
             }
 
-            if (Hovered)
+            if (Hovered && !IsHeader)
                 batch.FillRectangle(Rect, Color.Black.AddRgb(0.05f).Alpha(0.33f));
 
-            base.Draw(batch); // this will draw our Label
+            base.Draw(batch); // this will draw our Label or Header
         }
 
 
