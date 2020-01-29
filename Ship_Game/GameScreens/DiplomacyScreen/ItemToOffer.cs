@@ -5,32 +5,44 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 {
     public sealed class ItemToOffer : ScrollListItem<ItemToOffer>
     {
-        public string Words;
+        LocalizedText Words;
         public string SpecialInquiry = "";
         public string Response;
         public bool Selected;
+        readonly SpriteFont Font = Fonts.Arial12Bold;
+        UILabel Text;
 
-        public ItemToOffer(string words, Vector2 cursor) : base (words)
+        public ItemToOffer(in LocalizedText words)
         {
-            Words = words;
-            SpriteFont font = Fonts.Arial12Bold;
-            int width = (int)font.MeasureString(words).X;
-            Rect = new Rectangle((int)cursor.X, (int)cursor.Y, width, font.LineSpacing);
+            Initialize(words, false);
         }
 
-        public ItemToOffer(string words, string response, Vector2 cursor) : this(words, cursor)
+        public ItemToOffer(in LocalizedText words, string response)
         {
+            Initialize(words, false);
             Response = response;
         }
 
-        public ItemToOffer(LocalizedText header) : base (header.Text)
+        public ItemToOffer(in LocalizedText words, bool isHeader) : base(words.Text)
         {
-            Words = header.Text;
+            Initialize(words, isHeader:true);
         }
 
-        public ItemToOffer(int localization, string response, Vector2 cursor)
-            : this(Localizer.Token(localization), response, cursor)
+        void Initialize(in LocalizedText words, bool isHeader)
         {
+            Words = words;
+            if (!isHeader)
+            {
+                Text = Add(new UILabel(words, Font));
+                Text.Align = TextAlign.VerticalCenter;
+            }
+        }
+
+        public override void PerformLayout()
+        {
+            if (Text != null)
+                Text.Rect = Rect;
+            base.PerformLayout();
         }
 
         public override string ToString()
@@ -46,47 +58,54 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         public override void Draw(SpriteBatch batch)
         {
-            Color textColor = Selected ? Color.Orange
-                            : Hovered ? Color.White
-                            : Color.White.Alpha(0.7f);
+            if (Text != null)
+            {
+                Text.Color = Selected ? Color.Orange
+                           : Hovered ? Color.LightYellow
+                           : Color.White.Alpha(0.8f);
+            }
 
             if (Hovered)
-                batch.FillRectangle(Rect, Color.Black.Alpha(0.5f));
+                batch.FillRectangle(Rect, Color.Black.AddRgb(0.05f).Alpha(0.33f));
 
-            batch.DrawString(Fonts.Arial12Bold, Words, Pos, textColor);
+            base.Draw(batch); // this will draw our Label
         }
+
+
 
         public override bool HandleInput(InputState input)
         {
-            bool captured = base.HandleInput(input);
+            if (Hovered && input.LeftMouseClick)
+            {
+                Selected = !Selected;
+            }
+
+            // this will trigger the item on-click event
+            if (base.HandleInput(input))
+                return true;
+
             if (Hovered)
             {
-                if (Response == "NAPact")
+                switch (Response)
                 {
-                    ToolTip.CreateTooltip(129);
-                }
-                else if (Response == "OpenBorders")
-                {
-                    ToolTip.CreateTooltip(130);
-                }
-                else if (Response == "Peace Treaty")
-                {
-                    ToolTip.CreateTooltip(131);
-                }
-                else if (Response == "TradeTreaty")
-                {
-                    ToolTip.CreateTooltip(132);
-                }
-                else if (Response == "OfferAlliance")
-                {
-                    ToolTip.CreateTooltip(133);
-                }
-                if (input.LeftMouseClick)
-                {
-                    Selected = !Selected;
+                    case "NAPact":
+                        ToolTip.CreateTooltip(GameTips.NonAggression, "", BotRight);
+                        break;
+                    case "OpenBorders":
+                        ToolTip.CreateTooltip(GameTips.OpenBorders, "", BotRight);
+                        break;
+                    case "Peace Treaty":
+                        ToolTip.CreateTooltip(GameTips.PeaceTreaty, "", BotRight);
+                        break;
+                    case "TradeTreaty":
+                        ToolTip.CreateTooltip(GameTips.TradeTreaty, "", BotRight);
+                        break;
+                    case "OfferAlliance":
+                        ToolTip.CreateTooltip(GameTips.AllianceTreaty, "", BotRight);
+                        break;
                 }
             }
-            return captured;
+            return false;
         }
     }
 }

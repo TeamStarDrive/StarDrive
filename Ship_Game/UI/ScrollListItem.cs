@@ -9,10 +9,10 @@ namespace Ship_Game
     {
         public override string ToString() => IsHeader ? $"{TypeName} Header={HeaderText}" : base.ToString();
 
-        public ScrollListItem() { }
+        protected ScrollListItem() { }
 
         // Creates a ScrollList Item Header which can be expanded
-        public ScrollListItem(string headerText) : base(headerText) { }
+        protected ScrollListItem(string headerText) : base(headerText) { }
 
         void AddElement(Vector2 relPos, in ToolTipText tooltip, Action onClick, Func<ScrollListStyleTextures.Hoverable> getHoverable)
         {
