@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-    class ColonySliderGroup : UIElementContainer
+    sealed class ColonySliderGroup : UIElementContainer
     {
         readonly ColonySlider[] Sliders = new ColonySlider[3];
         ColonySlider Food, Prod, Res;
@@ -17,6 +17,7 @@ namespace Ship_Game
         {
             P = p;
             DrawIcons = drawIcons;
+            PerformLayout();
         }
 
         public override void PerformLayout()
