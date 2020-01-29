@@ -75,7 +75,9 @@ namespace Ship_Game.Universe.SolarBodies
             MathExt.Consume(ref SurplusThisTurn, ref spend);
             P.Storage.ConsumeProduction(ref spend);
 
-            q.ProductionSpent += (spendMax - spend); // apply it
+            float netSpend     = spendMax - spend;
+            q.ProductionSpent += (netSpend); // apply it
+            Owner.ChargeCreditsOnProduction(q, netSpend); // charge credits
 
             // if we spent everything, this QueueItem is complete
             return spend <= 0f;
