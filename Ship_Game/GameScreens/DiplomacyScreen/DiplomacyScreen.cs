@@ -21,13 +21,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
         GenericButton Exit;
 
         Rectangle DialogRect;
-        Rectangle UsRect;
-        Rectangle ThemRect;
-        Rectangle BigTradeRect;
 
         ScrollList2<DialogOptionListItem> StatementsSL;
-        ScrollList2<ItemToOffer> OurItemsSL;
-        ScrollList2<ItemToOffer> TheirItemsSL;
+        DiplomacyOffersComponent OurOffersList; // NAPact, Peace Treaty, Open Borders...
+        DiplomacyOffersComponent TheirOffersList;
 
         GenericButton Accept;
         GenericButton Reject;
@@ -285,16 +282,15 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 batch.Draw(ResourceManager.Texture("UI/bw_bargradient_2"), FearRect, Color.Red);
             }
 
-            OfferTextSL.Visible = TheirItemsSL.Visible = OurItemsSL.Visible = false;
+            OfferTextSL.Visible = false;
 
             switch (dState)
             {
                 case DialogState.Them:
                 {
                     string text = ParseTextDiplomacy(TheirText, (DialogRect.Width - 25));
-                        var position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
-                        HelperFunctions.ClampVectorToInt(ref position);
-                    DrawDropShadowText(text, position, Fonts.Consolas18);
+                    Vector2 position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
+                    batch.DrawDropShadowText(text, position, Fonts.Consolas18);
                     break;
                 }
                 case DialogState.Discuss:
@@ -303,12 +299,13 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
                 case DialogState.Negotiate:
                 {
-                        
                     TheirOffer.Them = Them;
                     string txt = OurOffer.FormulateOfferText(Attitude, TheirOffer);
                     OfferTextSL.ResetWithParseText(Fonts.Consolas18, txt, DialogRect.Width - 30);
-                    OfferTextSL.Visible = TheirItemsSL.Visible = OurItemsSL.Visible = true;
-                        base.Draw(batch);
+                    OfferTextSL.Visible = true;
+
+                    base.Draw(batch);
+                    
                     if (!TheirOffer.IsBlank() || !OurOffer.IsBlank() || OurOffer.Alliance)
                     {
                         SendOffer.DrawWithShadow(batch);
@@ -316,15 +313,10 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Right"), Negotiate_Right, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Left"), Negotiate_Left, Color.White);
                     batch.Draw(ResourceManager.Texture("GameScreens/Negotiate_Tone"), ToneContainerRect, Color.White);
-
+                    
                     OurAttitudeBtn_Pleading.Draw(ScreenManager);
                     OurAttitudeBtn_Threaten.Draw(ScreenManager);
                     OurAttitudeBtn_Respectful.Draw(ScreenManager);
-
-                    var drawCurs = new Vector2((UsRect.X + 10), (UsRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
-                    batch.DrawString(Fonts.Pirulen12, new LocalizedText(GameText.WeHave), drawCurs, Color.White);
-                    drawCurs = new Vector2((ThemRect.X + 10), (ThemRect.Y - Fonts.Pirulen12.LineSpacing * 2 + 2));
-                    batch.DrawString(Fonts.Pirulen12, new LocalizedText(GameText.TheyHave), drawCurs, Color.White);
                     break;
                 }
                 case DialogState.TheirOffer:
@@ -332,8 +324,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                     batch.Draw(ResourceManager.Texture("UI/AcceptReject"), AccRejRect, Color.White);
                     string text = ParseTextDiplomacy(TheirText, DialogRect.Width - 25);
                     Vector2 position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
-
-                    DrawDropShadowText(text, position, Fonts.Consolas18);
+                    batch.DrawDropShadowText(text, position, Fonts.Consolas18);
                     Accept.DrawWithShadow(batch);
                     Reject.DrawWithShadow(batch);
                     break;
@@ -342,8 +333,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 {
                     string text = ParseTextDiplomacy(TheirText, DialogRect.Width - 25);
                     Vector2 position = GetCenteredTextPosition(DialogRect, text, Fonts.Consolas18);
-                    HelperFunctions.ClampVectorToInt(ref position);
-                    DrawDropShadowText(text, position, Fonts.Consolas18);
+                    batch.DrawDropShadowText(text, position, Fonts.Consolas18);
                     break;
                 }
             }
@@ -408,55 +398,16 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             batch.Draw(ResourceManager.Texture("GameScreens/Bridge"), BridgeRect, Color.White);
         }
 
-        void DrawDropShadowText(string Text, Vector2 Pos, SpriteFont Font)
+        void BeginNegotiations()
         {
-            var offset = new Vector2(2f, 2f);
-            ScreenManager.SpriteBatch.DrawString(Font, Text, Pos + offset, Color.Black);
-            ScreenManager.SpriteBatch.DrawString(Font, Text, Pos, Color.White);
-        }
+            StatementsSL.Reset();
+            StatementsSL.Visible = false;
 
-        static void FillItems(Empire empire, Empire other, ScrollList2<ItemToOffer> list, Rectangle rect)
-        {
-            list.Reset();
-            var layout = new DiplomacyItemsLayout(list, rect);
-
-            layout.AddRelationItems(empire.GetRelations(other));
-            Array<TechEntry> tradeAbleTechs = empire.GetEmpireAI().TradableTechs(other);
-            layout.AddCategory(GameText.Technology, () =>
-            {
-                foreach (TechEntry entry in tradeAbleTechs)
-                {
-                    Technology tech = entry.Tech;
-                    var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost}");
-                    layout.AddSubItem(text, "Tech", entry.UID);
-                }
-            });
-
-            layout.AddCategory(GameText.Artifacts, () =>
-            {
-                foreach (Artifact artifact in empire.data.OwnedArtifacts)
-                    layout.AddSubItem(artifact.NameIndex, "Artifacts", artifact.Name);
-            });
-
-            layout.AddCategory(GameText.Colonies, () =>
-            {
-                foreach (Planet p in empire.GetPlanets())
-                    layout.AddSubItem(p.Name, "Colony", p.Name);
-            });
-        }
-
-        void CreateOurOffer()
-        {
             OurOffer = new Offer();
-            FillItems(Us, Them, OurItemsSL, UsRect);
-        }
-
-        void CreateTheirOffer()
-        {
             TheirOffer = new Offer { Them = Them };
-            FillItems(Them, Us, TheirItemsSL, ThemRect);
+            OurOffersList.StartNegotiation(TheirOffersList, OurOffer, TheirOffer);
+            TheirOffersList.StartNegotiation(OurOffersList, TheirOffer, OurOffer);
         }
-
 
         string GetDialogueFromAttitude()
         {
@@ -546,8 +497,14 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 ExitScreen();
                 return true;
             }
+
             if (dState == DialogState.End)
                 return false;
+
+            if (dState != DialogState.Negotiate)
+            {
+                TheirOffersList.Visible = OurOffersList.Visible = false;
+            }
 
             if (dState != DialogState.TheirOffer)
             {
@@ -641,11 +598,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
                 if (Negotiate.HandleInput(input))
                 {
-                    StatementsSL.Reset();
-                    StatementsSL.Visible = false;
                     dState = DialogState.Negotiate;
-                    CreateOurOffer();
-                    CreateTheirOffer();
+                    BeginNegotiations();
                 }
             }
             if (dState == DialogState.TheirOffer)
@@ -671,49 +625,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 }
             }
             return base.HandleInput(input);
-        }
-
-        static void SelectTheirItem(ScrollList2<ItemToOffer> theirItems, string response, bool selected)
-        {
-            foreach (ItemToOffer theirs in theirItems.AllEntries)
-                if (theirs.Response == response)
-                {
-                    theirs.Selected = selected;
-                    break;
-                }
-        }
-
-        void OnItemToOfferClicked(ItemToOffer ourItem, ScrollList2<ItemToOffer> theirOfferedItems, Offer ourOffer, Offer theirOffer)
-        {
-            bool selected = ourItem.Selected;
-            switch (ourItem.Response)
-            {
-                case "NAPact":
-                    ourOffer.NAPact = theirOffer.NAPact = selected;
-                    SelectTheirItem(theirOfferedItems, ourItem.Response, selected);
-                    return;
-                case "We Declare War":
-                    ourOffer.NAPact = theirOffer.NAPact = selected;
-                    SelectTheirItem(theirOfferedItems, "NAPact", selected);
-                    return;
-                case "Peace Treaty":
-                    ourOffer.PeaceTreaty = theirOffer.PeaceTreaty = selected;
-                    SelectTheirItem(theirOfferedItems, ourItem.Response, selected);
-                    return;
-                case "OfferAlliance":
-                    ourOffer.Alliance = theirOffer.Alliance = selected;
-                    SelectTheirItem(theirOfferedItems, ourItem.Response, selected);
-                    return;
-                case "OpenBorders": ourOffer.OpenBorders = selected;                    return;
-                case "Declare War": ourItem.ChangeSpecialInquiry(ourOffer.EmpiresToWarOn);      return;
-                case "Tech":        ourItem.ChangeSpecialInquiry(ourOffer.TechnologiesOffered); return;
-                case "Artifacts":   ourItem.ChangeSpecialInquiry(ourOffer.ArtifactsOffered);    return;
-                case "Colony":      ourItem.ChangeSpecialInquiry(ourOffer.ColoniesOffered);     return;
-                case "TradeTreaty":
-                    ourOffer.TradeTreaty = theirOffer.TradeTreaty = selected;
-                    SelectTheirItem(theirOfferedItems, "TradeTreaty", selected);
-                    return;
-            }
         }
 
         GenericButton Button(ref Vector2 cursor, int locId)
@@ -783,20 +694,19 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
             Negotiate_Right = new Rectangle(BridgeRect.Right - 280, BridgeRect.Bottom - 280, 80, 280);
             Negotiate_Left = new Rectangle(BridgeRect.Left + 5, BridgeRect.Bottom - 280, 80, 280);
-            BigTradeRect = new Rectangle(DialogRect.X + 75, DialogRect.Y - 202, DialogRect.Width - 150, 200);
 
-            UsRect = new Rectangle(Negotiate_Right.X + 20, Negotiate_Right.Y + 35, BigTradeRect.Width / 2 - 9, 300);
-            ThemRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, BigTradeRect.Width / 2 - 10, 300);
             SendOffer = new GenericButton(new Rectangle(R.X + R.Width / 2 - 90, R.Y - 40, 180, 33), Localizer.Token(1212), Fonts.Pirulen20);
 
             var offerTextMenu = new Rectangle(R.X, R.Y, R.Width, R.Height - 30);
             OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
             StatementsSL = Add(new ScrollList2<DialogOptionListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            OurItemsSL   = Add(new ScrollList2<ItemToOffer>(UsRect, Fonts.Consolas18.LineSpacing + 5));
-            TheirItemsSL = Add(new ScrollList2<ItemToOffer>(ThemRect, Fonts.Consolas18.LineSpacing + 5));
             
-            OurItemsSL.OnClick = item => OnItemToOfferClicked(item, TheirItemsSL, OurOffer, TheirOffer);
-            TheirItemsSL.OnClick = item => OnItemToOfferClicked(item, OurItemsSL, TheirOffer, OurOffer);
+            int offersWidth = (DialogRect.Width - 150) / 2 - 10;
+            var usRect = new Rectangle(Negotiate_Right.X + 20, Negotiate_Right.Y + 35, offersWidth, 300);
+            var themRect = new Rectangle(Negotiate_Left.X + 15, Negotiate_Left.Y + 35, offersWidth, 300);
+            OurOffersList = Add(new DiplomacyOffersComponent(Us, Them, usRect));
+            TheirOffersList = Add(new DiplomacyOffersComponent(Them, Us, themRect));
+
             PlayRaceVideoAndMusic();
         }
 

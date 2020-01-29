@@ -315,7 +315,7 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\GovernorDetailsComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ShipInfoOverlayComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
-    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyScreen.DiplomacyItemsLayout.cs" />
+    <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyOffersComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Draw.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_HandleInput.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Update.cs" />

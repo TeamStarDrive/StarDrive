@@ -213,7 +213,11 @@ namespace Ship_Game
 
                 if (HeaderText != null)
                 {
-                    new Selector(r, Hovered ? new Color(95, 82, 47) : new Color(32, 30, 18)).Draw(batch);
+                    Color bkgColor = !Enabled ? Color.Gray
+                                    : Hovered ? new Color(95, 82, 47)
+                                    : new Color(32, 30, 18);
+                    new Selector(r, bkgColor).Draw(batch);
+
                     var textPos = new Vector2(r.X + 10, r.CenterY() - Fonts.Pirulen12.LineSpacing / 2);
                     batch.DrawString(Fonts.Pirulen12, HeaderText, textPos, Color.White);
                 }
