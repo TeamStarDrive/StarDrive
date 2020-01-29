@@ -2827,24 +2827,15 @@ namespace Ship_Game
             {
                 switch (difficulty)
                 {
-                    case UniverseData.GameDifficulty.Easy:
-                        Player = 0.1f;
-                        AI     = 0.25f;
-                        break;
-                    case UniverseData.GameDifficulty.Normal:
-                        Player = 0.2f;
-                        AI     = 0.2f;
-                        break;
-                    case UniverseData.GameDifficulty.Hard:
-                        Player = 0.3f;
-                        AI     = 0.1f;
-                        break;
-                    case UniverseData.GameDifficulty.Brutal:
                     default:
-                        Player = 0.5f;
-                        AI     = 0.05f;
-                        break;
+                    case UniverseData.GameDifficulty.Easy: Player  = 0.1f; AI = 0.25f; break;
+                    case UniverseData.GameDifficulty.Normal:Player = 0.2f; AI = 0.2f;  break;
+                    case UniverseData.GameDifficulty.Hard:Player   = 0.3f; AI = 0.1f;  break;
+                    case UniverseData.GameDifficulty.Brutal:Player = 0.5f; AI = 0.05f ;break;
                 }
+
+                if (GlobalStats.FixedPlayerCreditCharge && difficulty != UniverseData.GameDifficulty.Easy)
+                    Player = 0.2f;
             }
         }
 
