@@ -1,17 +1,16 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+
         void ProcessTurnsMonitored()
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;

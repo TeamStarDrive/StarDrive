@@ -253,7 +253,11 @@ namespace Ship_Game
         // visible range is [begin, end)
         protected int VisibleItemsBegin, VisibleItemsEnd;
 
+        // this is the default height for scroll list items
+        // usually set to 40px at construction, but if ScrollListItem defines
+        // override int ItemHeight, then this is overwritten
         protected int EntryHeight;
+
         protected int MaxVisibleItems;
         
         protected abstract void FlattenEntries();

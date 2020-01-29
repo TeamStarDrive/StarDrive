@@ -16,7 +16,6 @@ namespace Ship_Game
 {
     public sealed class CreatingNewGameScreen : GameScreen
     {
-        readonly float Scale;
         readonly int NumSystems;
         readonly Array<Vector2> ClaimedSpots = new Array<Vector2>();
         readonly RaceDesignScreen.GameMode Mode;
@@ -33,7 +32,7 @@ namespace Ship_Game
 
         public CreatingNewGameScreen(Empire player, string universeSize, 
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
-                float pace, int scale, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
+                float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
             CanEscapeFromScreen = false;
             GlobalStats.RemnantArmageddon = false;
@@ -44,10 +43,6 @@ namespace Ship_Game
                 art.Discovered = false;
 
             Difficulty = difficulty;
-            if      (scale == 5) Scale = 8;
-            else if (scale == 6) Scale = 16;
-            else                     Scale = scale;
-
             Mode = mode;
             NumOpponents = numOpponents;
             EmpireManager.Clear();
@@ -85,7 +80,6 @@ namespace Ship_Game
             NumSystems = (int)(size * starNumModifier);           
             //Log.Info($"Empire.ProjectorRadius = {Empire.ProjectorRadius}");
             
-            Data.Size *= Scale;
             Data.EmpireList.Add(player);
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
@@ -353,7 +347,7 @@ namespace Ship_Game
                 if (systemData == null)
                 {
                     sys = new SolarSystem();
-                    sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, Scale, e);
+                    sys.GenerateStartingSystem(e.data.Traits.HomeSystemName, 1f, e);
                 }
                 else sys = SolarSystem.GenerateSystemFromData(systemData, e);
 
@@ -385,7 +379,7 @@ namespace Ship_Game
             for (; systemCount < NumSystems; ++systemCount)
             {
                 var solarSystem2 = new SolarSystem();
-                solarSystem2.GenerateRandomSystem(nameGenerator.NextName, Scale);
+                solarSystem2.GenerateRandomSystem(nameGenerator.NextName, 1f);
                 Data.SolarSystemsList.Add(solarSystem2);
                 step.Advance();
             }
@@ -570,7 +564,7 @@ namespace Ship_Game
 
         bool SystemPosOK(Vector2 sysPos)
         {
-            return SystemPosOK(sysPos, 300000f * Scale);
+            return SystemPosOK(sysPos, 300000f);
         }
 
         bool SystemPosOK(Vector2 sysPos, float spacing)
@@ -596,7 +590,6 @@ namespace Ship_Game
             Planet homePlanet = Player.GetPlanets()[0];
             us = new UniverseScreen(Data, Player)
             {
-                GameScale = Scale,
                 ScreenManager = ScreenManager,
                 CamPos = new Vector3(homePlanet.Center.X, homePlanet.Center.Y, 5000f),
             };

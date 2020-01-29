@@ -165,7 +165,7 @@ namespace Ship_Game
         public int FreeTilesWithRebaseOnTheWay
         {
             get {
-                int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
+                 int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
                                           .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
                 return (FreeTiles - rebasingTroops).Clamped(0, TileArea);
             }

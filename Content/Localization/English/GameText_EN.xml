@@ -4771,6 +4771,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>One of your ships was boarded!</Text>
     </Token>
     <Token>
+      <Index>1939</Index>
+      <Text>Proximity</Text>
+    </Token>
+    <Token>
+      <Index>1940</Index>
+      <Text>Owner</Text>
+    </Token>
+    <Token>
       <Index>1941</Index>
       <Text>Governor Will Not Scrap Buildings</Text>
     </Token>
