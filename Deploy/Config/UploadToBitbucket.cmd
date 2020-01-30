@@ -10,7 +10,7 @@ echo APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT%
 if "%APPVEYOR_REPO_BRANCH%" NEQ "develop"  (set AutoDeploy=true)
 else (echo "%APPVEYOR_REPO_BRANCH%" | findstr /ibc:"test/" set AutoDeploy=true)
 
-
+if "%AutoDeploy%" NEQ "true"
 ( echo Auto-Deploy is only enabled for develop branch && goto :eof )
 
 for /f %%r in ('dir /B /O-D C:\Projects\BlackBox\Deploy\upload') do set file_name=%%r
