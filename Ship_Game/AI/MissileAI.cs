@@ -23,6 +23,7 @@ namespace Ship_Game.AI
         float RandomDirectionTimer;
         float RandomNozzleDirection;
 
+        readonly float MaxNozzleDirection = 0.5f;
         readonly float InitialPhaseDirection;
         float InitialPhaseTimer = 0.5f;
 
@@ -31,13 +32,18 @@ namespace Ship_Game.AI
         {
             Missile = missile;
             Target  = target;
+
+            if (Missile.Weapon != null && Missile.Weapon.Tag_Torpedo)
+                MaxNozzleDirection = 0.02f; // Torpedoes wiggle less
+
             if (Empire.Universe == null)
                 return;
 
             if (Missile.Owner != null)
             {
                 TargetList = Missile.Owner.AI.PotentialTargets;
-                Level = Missile.Owner.Level;
+                Level      = Missile.Owner.Level;
+
             }
             else if (Missile.Planet != null)
             {
@@ -203,7 +209,7 @@ namespace Ship_Game.AI
             if (RandomDirectionTimer <= 0f)
             {
                 RandomDirectionTimer = 0.5f;
-                RandomNozzleDirection = RandomMath.RandomBetween(-0.5f, +0.5f);
+                RandomNozzleDirection = RandomMath.RandomBetween(-MaxNozzleDirection, +MaxNozzleDirection);
             }
 
             float nozzleDirection = RandomNozzleDirection;
