@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Ship_Game
+namespace Ship_Game.GameScreens.Espionage
 {
     public sealed class MissionListItem : ScrollListItem<MissionListItem>
     {
@@ -23,8 +23,11 @@ namespace Ship_Game
 
         void DoMission_OnClick(UIButton button)
         {
-            Component.SelectedAgent.AssignMission(TheMission, 
-                EmpireManager.Player, Component.EspionageScreen.SelectedEmpire.data.Traits.Name);
+            if (Component.SelectedAgent.Mission == AgentMission.Defending)
+            {
+                Component.SelectedAgent.AssignMission(TheMission,
+                    EmpireManager.Player, Component.EspionageScreen.SelectedEmpire.data.Traits.Name);
+            }
             UpdateMissionAvailability();
         }
 
@@ -129,7 +132,7 @@ namespace Ship_Game
 
             if (EmpireManager.Player.Money < cost || 
                 Component.EspionageScreen.SelectedEmpire.data.Defeated || 
-                Component.SelectedAgent.Mission == AgentMission.Recovering)
+                Component.SelectedAgent.Mission != AgentMission.Defending)
             {
                 MissionAvailable = false;
             }

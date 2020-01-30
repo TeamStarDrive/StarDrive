@@ -316,6 +316,11 @@
     <Compile Include="Ship_Game\GameScreens\ColonyScreen\ShipInfoOverlayComponent.cs" />
     <Compile Include="Ship_Game\GameScreens\CombatScreen\CombatScreenOrbitListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\DiplomacyScreen\DiplomacyOffersComponent.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\AgentsPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\DossierPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\EmpiresButton.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\EmpiresPanel.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\OperationsPanel.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Draw.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_HandleInput.cs" />
     <Compile Include="Ship_Game\GameScreens\FleetDesign\FleetDesignScreen_Update.cs" />
@@ -414,7 +419,7 @@
     <Compile Include="Ship_Game\Spatial\Quadtree.cs" />
     <Compile Include="Ship_Game\SpriteSystem\AnimationCurve.cs" />
     <Compile Include="Ship_Game\SpriteSystem\DrawableSprite.cs" />
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\AgentListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ArtifactItemListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\ResponseListItem.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\WikiHelpCategoryListItem.cs" />
@@ -426,7 +431,7 @@
     <Compile Include="Ship_Game\SpriteSystem\TextureInfo.cs" />
     <Compile Include="Ship_Game\SpriteSystem\TexturePacker.cs" />
     <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentMissionData.cs" />
-    <Compile Include="Ship_Game\GameScreens\Universe\EspionageScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\Espionage\EspionageScreen.cs" />
     <Compile Include="Ship_Game\HullBonus.cs" />
     <Compile Include="Ship_Game\GameScreens\LoadSaveItems\LoadRaceScreen.cs" />
     <Compile Include="Ship_Game\UI\Effects\UIEffect.cs" />
@@ -1317,7 +1322,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\MissionListItem.cs">
+    <Compile Include="Ship_Game\GameScreens\Espionage\MissionListItem.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
@@ -1329,7 +1334,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\StoryAndEvents\Agents\AgentComponent.cs">
+    <Compile Include="Ship_Game\GameScreens\Espionage\AgentComponent.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>

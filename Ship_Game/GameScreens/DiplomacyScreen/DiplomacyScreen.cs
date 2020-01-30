@@ -696,9 +696,6 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             var offerTextMenu = new Rectangle(R.X, R.Y, R.Width, R.Height - 30);
             OfferTextSL  = Add(new ScrollList2<TextListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
             StatementsSL = Add(new ScrollList2<DialogOptionListItem>(offerTextMenu, Fonts.Consolas18.LineSpacing + 2));
-            
-            StatementsSL.DebugDraw = true;
-            OfferTextSL.DebugDraw  = true;
 
             SubTexture ourBkg   = TransientContent.LoadTextureOrDefault("Textures/GameScreens/Negotiate_Right");
             SubTexture theirBkg = TransientContent.LoadTextureOrDefault("Textures/GameScreens/Negotiate_Left");
