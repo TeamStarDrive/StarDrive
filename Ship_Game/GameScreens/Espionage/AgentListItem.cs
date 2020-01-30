@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace Ship_Game
+namespace Ship_Game.GameScreens.Espionage
 {
     public class AgentListItem : ScrollListItem<AgentListItem>
     {
