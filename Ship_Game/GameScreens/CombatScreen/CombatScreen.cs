@@ -216,6 +216,29 @@ namespace Ship_Game
             }
         }
 
+        void DrawTroopDragDestinations()
+        {
+            if (!IsDraggingTroop)
+                return;
+
+            foreach (PlanetGridSquare pgs in ReversedList)
+            {
+                if ((pgs.building == null && pgs.TroopsHere.Count == 0) ||
+                    (pgs.building != null && pgs.building.CombatStrength == 0 && pgs.TroopsHere.Count == 0))
+                {
+                    Vector2 center = pgs.ClickRect.Center();
+                    DrawCircle(center, 8f, Color.White, 4f);
+                    DrawCircle(center, 6f, Color.Black, 3f);
+                }
+            }
+
+            PlanetGridSquare toLand = p.FindTileUnderMouse(Input.CursorPosition);
+            if (toLand != null)
+            {
+                DrawCircle(toLand.ClickRect.Center(), 12f, Color.Orange, 2f);
+            }
+        }
+
         Color OwnerColor => p.Owner?.EmpireColor ?? Color.Gray;
 
         public override void Draw(SpriteBatch batch)
@@ -248,19 +271,7 @@ namespace Ship_Game
 
             assetsUI.Draw(gameTime);
 
-            if (IsDraggingTroop)
-            {
-                foreach (PlanetGridSquare pgs in ReversedList)
-                {
-                    if ((pgs.building == null && pgs.TroopsHere.Count == 0) ||
-                        (pgs.building != null && pgs.building.CombatStrength == 0 && pgs.TroopsHere.Count == 0))
-                    {
-                        Vector2 center = pgs.ClickRect.Center();
-                        DrawCircle(center, 5f, Color.White, 5f);
-                        DrawCircle(center, 5f, Color.Black);
-                    }
-                }
-            }
+            DrawTroopDragDestinations();
             
             base.Draw(batch);
             batch.End();
@@ -486,6 +497,7 @@ namespace Ship_Game
 
         void OnTroopItemDrag(CombatScreenOrbitListItem item, DragEvent evt)
         {
+            Log.Warning($"OnTroopItemDrag: {evt}");
             if (evt == DragEvent.Begin)
             {
                 IsDraggingTroop = true;
@@ -493,7 +505,7 @@ namespace Ship_Game
             else if (evt == DragEvent.End)
             {
                 IsDraggingTroop = false;
-                PlanetGridSquare toLand = p.TilesList.Find(pgs => pgs.NoTroopsOnTile && !pgs.CombatBuildingOnTile);
+                PlanetGridSquare toLand = p.FindTileUnderMouse(Input.CursorPosition);
                 TryLandTroop(item, toLand);
             }
         }
@@ -768,6 +780,7 @@ namespace Ship_Game
 
             OrbitalAssetsTimer = 2;
 
+            Log.Warning(ConsoleColor.Red, "Reset OrbitSL, add NEW items");
             OrbitSL.Reset();
             using (EmpireManager.Player.GetShips().AcquireReadLock())
             {

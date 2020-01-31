@@ -183,9 +183,41 @@ namespace Ship_Game
         }
 
         protected ScrollListItemBase DraggedEntry;
-        protected Vector2 DraggedOffset;
+        Vector2 DraggedOffset;
 
-        protected abstract void HandleDraggable(InputState input);
+        void HandleDraggable(InputState input)
+        {
+            if (!EnableDragEvents)
+                return;
+
+            if (DraggedEntry == null)
+            {
+                if (input.LeftMouseHeld(DragBeginDelay) && Rect.HitTest(input.StartLeftHold))
+                {
+                    Vector2 cursor = input.CursorPosition;
+                    for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+                    {
+                        ScrollListItemBase e = FlatEntries[i];
+                        if (e.Rect.HitTest(cursor))
+                        {
+                            DraggedEntry = e;
+                            DraggedOffset = e.TopLeft - cursor;
+                            OnItemDragged(e, DragEvent.Begin);
+                            return;
+                        }
+                    }
+                }
+            }
+            else // already dragging
+            {
+                if (input.LeftMouseUp)
+                {
+                    OnItemDragged(DraggedEntry, DragEvent.End);
+                    DraggedEntry = null;
+                }
+            }
+        }
+
         protected abstract void HandleElementDragging(InputState input);
 
         public override bool HandleInput(InputState input)
