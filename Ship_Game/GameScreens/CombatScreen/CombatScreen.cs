@@ -33,7 +33,7 @@ namespace Ship_Game
         Array<PointSet> pointsList   = new Array<PointSet>();
         bool ResetNextFrame;
         public PlanetGridSquare ActiveTile;
-        float OrbitalAssetsTimer; // 2 seconds per update
+        float OrbitalAssetsTimer; // X seconds per Orbital Assets update
 
         Array<PlanetGridSquare> ReversedList              = new Array<PlanetGridSquare>();
         BatchRemovalCollection<SmallExplosion> Explosions = new BatchRemovalCollection<SmallExplosion>();
@@ -778,41 +778,53 @@ namespace Ship_Game
             if (OrbitalAssetsTimer > 0f)
                 return;
 
-            OrbitalAssetsTimer = 2;
+            OrbitalAssetsTimer = 1;
 
-            Log.Warning(ConsoleColor.Red, "Reset OrbitSL, add NEW items");
-            OrbitSL.Reset();
-            using (EmpireManager.Player.GetShips().AcquireReadLock())
+            Array<Troop> orbitingTroops = GetOrbitingTroops(EmpireManager.Player);
+
+            OrbitSL.RemoveFirstIf(item => !orbitingTroops.ContainsRef(item.Troop));
+            Troop[] toAdd = orbitingTroops.Filter(troop => !OrbitSL.Any(item => item.Troop == troop));
+
+            foreach (Troop troop in toAdd)
             {
-                foreach (Ship ship in EmpireManager.Player.GetShips())
-                {
-                    if (ship == null)
-                        continue;
-
-                    if (ship.Center.OutsideRadius(p.Center, p.ObjectRadius + ship.Radius + 1500f))
-                        continue;
-
-                    if (ship.shipData.Role != ShipData.RoleName.troop)
-                    {
-                        if (!ship.HasOurTroops || (!ship.Carrier.HasActiveTroopBays && !ship.Carrier.HasTransporters && !(p.HasSpacePort && p.Owner == ship.loyalty)))  // fbedard
-                            continue; // if the ship has no troop bays and there is no other means of landing them (like a spaceport)
-
-                        int landingLimit = LandingLimit(ship);
-                        foreach (Troop troop in ship.GetOurTroops(landingLimit))
-                            OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
-                    }
-                    else if (ship.AI.State != AI.AIState.Rebase
-                             && ship.AI.State != AI.AIState.RebaseToShip
-                             && ship.AI.State != AI.AIState.AssaultPlanet)
-                    {
-                        // this the default 1 troop ship or assault shuttle
-                        if (ship.GetOurFirstTroop(out Troop first))
-                            OrbitSL.AddItem(new CombatScreenOrbitListItem(first));
-                    }
-                }
+                OrbitSL.AddItem(new CombatScreenOrbitListItem(troop));
             }
+
             UpdateLandAllButton(OrbitSL.NumEntries);
         }
+
+        Array<Troop> GetOrbitingTroops(Empire owner)
+        {
+            // get our friendly ships
+            GameplayObject[] orbitingShips = UniverseScreen.SpaceManager.FindNearby(
+                                            p.Center, p.ObjectRadius+1500f,
+                                            GameObjectType.Ship, owner);
+
+            // get a list of all the troops on those ships
+            var troops = new Array<Troop>();
+            foreach (GameplayObject go in orbitingShips)
+            {
+                var ship = (Ship)go;
+                if (ship.shipData.Role != ShipData.RoleName.troop)
+                {
+                    if (ship.HasOurTroops && (ship.Carrier.HasActiveTroopBays || ship.Carrier.HasTransporters || p.HasSpacePort && p.Owner == ship.loyalty))  // fbedard
+                    {
+                        int landingLimit = LandingLimit(ship);
+                        troops.AddRange(ship.GetOurTroops(landingLimit));
+                    }
+                }
+                else if (ship.AI.State != AI.AIState.Rebase
+                         && ship.AI.State != AI.AIState.RebaseToShip
+                         && ship.AI.State != AI.AIState.AssaultPlanet)
+                {
+                    // this the default 1 troop ship or assault shuttle
+                    if (ship.GetOurFirstTroop(out Troop first))
+                        troops.Add(first);
+                }
+            }
+            return troops;
+        }
+
 
         int LandingLimit(Ship ship)
         {

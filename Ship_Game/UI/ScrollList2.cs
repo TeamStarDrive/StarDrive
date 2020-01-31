@@ -159,6 +159,12 @@ namespace Ship_Game
                 RequiresLayout = true;
         }
 
+        public bool Any(Predicate<T> predicate)
+        {
+            return Entries.Any(predicate)
+                || FlatEntries.Any((e) => predicate((T)e));
+        }
+
         public void Sort<TValue>(Func<T, TValue> predicate)
         {
             T[] sorted = Entries.OrderBy(predicate).ToArray();
