@@ -1040,10 +1040,10 @@ namespace Ship_Game
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
         public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
+        public int TotalHabitableTiles   => TilesList.Count(tile => tile.Habitable);
 
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
-        public float BuiltCoverage   => TotalBuildings / TotalHabitableTiles;
+        public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
 
 

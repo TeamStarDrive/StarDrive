@@ -190,7 +190,7 @@ namespace Ship_Game
             if (!fertEnvMultiplier.AlmostEqual(1))
             {
                 Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
-                var fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y);
+                var fertMultiplier = new Vector2(position3.X + Font12.MeasureString($"{fertility} ").X, position3.Y+2);
                 batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
             }
             if (P.TerraformPoints > 0)
