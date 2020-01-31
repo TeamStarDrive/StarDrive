@@ -15,7 +15,6 @@ namespace Ship_Game
         public Planet p;
         Vector2 TitlePos;
         Rectangle gridPos;
-        Submenu orbitalResourcesSub;
 
         ScrollList2<CombatScreenOrbitListItem> OrbitSL;
         //private bool LowRes;
@@ -58,23 +57,22 @@ namespace Ship_Game
             tInfo                 = new TroopInfoUIElement(SelectedItemRect, ScreenManager, Empire.Universe);
             hInfo                 = new TroopInfoUIElement(HoveredItemRect, ScreenManager, Empire.Universe);
             var colonyGrid  = new Rectangle(screenWidth / 2 - screenWidth * 2 / 3 / 2, 130, screenWidth * 2 / 3, screenWidth * 2 / 3 * 5 / 7);
-            var CombatField = new Menu2(colonyGrid);
-            var orbitalRect = new Rectangle(5, colonyGrid.Y, (screenWidth - colonyGrid.Width) / 2 - 20, colonyGrid.Height+20);
-            var OrbitalResources = new Menu1(orbitalRect);
-            var psubRect    = new Rectangle(AssetsRect.X + 225, AssetsRect.Y+23, 200, AssetsRect.Height * 2);
-            orbitalResourcesSub = new Submenu(psubRect);
+            
+            int assetsX = AssetsRect.X + 240;
 
-            OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalResourcesSub));
+            LandAll   = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y, "Land All", OnLandAllClicked);
+            LaunchAll = Button(ButtonStyle.DanButtonBlue, assetsX, AssetsRect.Y + 30, "Launch All", OnLaunchAllClicked);
+            LandAll.TextAlign = LaunchAll.TextAlign = ButtonTextAlign.Left;
+            LandAll.Tooltip   = GameText.LandAllTroopsListedIn;
+            LaunchAll.Tooltip = GameText.LaunchToSpaceAllTroops;
+
+            var orbitalAssetsTab = new Submenu(assetsX, AssetsRect.Y + 60, 200, AssetsRect.Height * 2, SubmenuStyle.Blue);
+            orbitalAssetsTab.AddTab("In Orbit");
+            OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalAssetsTab, ListStyle.Blue));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDrag = OnTroopItemDrag;
             OrbitSL.EnableDragEvents = true;
 
-            orbitalResourcesSub.AddTab("In Orbit");
-
-            LandAll   = Button(orbitalResourcesSub.X + 20, orbitalResourcesSub.Y - 2, "Land All", OnLandAllClicked);
-            LaunchAll = Button(orbitalResourcesSub.X + 20, LandAll.Y - 2 - LandAll.Rect.Height, "Launch All", OnLaunchAllClicked);
-            LandAll.Tooltip   = Localizer.Token(1951);
-            LaunchAll.Tooltip = Localizer.Token(1952);
 
             gridPos   = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
             int xSize = gridPos.Width / 7;
