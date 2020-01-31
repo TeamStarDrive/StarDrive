@@ -191,35 +191,29 @@ namespace Ship_Game
 
             if (DraggedEntry == null)
             {
-                if (input.LeftMouseUp)
+                if (input.LeftMouseHeld(DragBeginDelay) && Rect.HitTest(input.StartLeftHold))
                 {
-                    ClickTimer = 0f;
-                }
-                else
-                {
-                    ClickTimer += 0.0166666675f;
-                    if (ClickTimer > TimerDelay)
+                    Vector2 cursor = input.CursorPosition;
+                    for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
                     {
-                        Vector2 cursor = input.CursorPosition;
-                        for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+                        ScrollListItemBase e = FlatEntries[i];
+                        if (e.Rect.HitTest(cursor))
                         {
-                            ScrollListItemBase e = FlatEntries[i];
-                            if (e.Rect.HitTest(cursor))
-                            {
-                                DraggedEntry = e;
-                                DraggedOffset = e.TopLeft - input.CursorPosition;
-                                OnItemDragged(e, DragEvent.Begin);
-                                break;
-                            }
+                            DraggedEntry = e;
+                            DraggedOffset = e.TopLeft - cursor;
+                            OnItemDragged(e, DragEvent.Begin);
+                            return;
                         }
                     }
                 }
             }
-            if (DraggedEntry != null && input.LeftMouseUp)
+            else // already dragging
             {
-                OnItemDragged(DraggedEntry, DragEvent.End);
-                ClickTimer = 0f;
-                DraggedEntry = null;
+                if (input.LeftMouseUp)
+                {
+                    OnItemDragged(DraggedEntry, DragEvent.End);
+                    DraggedEntry = null;
+                }
             }
         }
 

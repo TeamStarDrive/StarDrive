@@ -41,8 +41,8 @@ namespace Ship_Game
         protected bool ScrollBarPosChanged;
         protected bool ShouldDrawScrollBar;
 
-        protected float ClickTimer;
-        protected const float TimerDelay = 0.05f;
+        // Minimum time that must be elapsed before we start dragging
+        protected const float DragBeginDelay = 0.075f;
 
         // By default, 4px padding between items, 0px from edges
         public Vector2 ItemPadding = new Vector2(0f, 4f);
@@ -270,7 +270,7 @@ namespace Ship_Game
             int begin = (int)Math.Floor(fraction);
             int end   = (int)Math.Ceiling(fraction + 0.5f + maxVisibleItems);
             VisibleItemsBegin = begin.Clamped(0, Math.Max(0, FlatEntries.Count - maxVisibleItems));
-            VisibleItemsEnd   = end.Clamped(0, Math.Max(0, FlatEntries.Count));
+            VisibleItemsEnd   = end.Clamped(0, FlatEntries.Count);
         }
 
         public override void PerformLayout()
