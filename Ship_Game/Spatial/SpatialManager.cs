@@ -127,8 +127,16 @@ namespace Ship_Game.Gameplay
             QuadTree.CollideAll();
         }
 
-        public GameplayObject[] FindNearby(GameplayObject obj, float radius, GameObjectType filter = GameObjectType.None)
-            => QuadTree.FindNearby(obj, radius, filter);
+        public GameplayObject[] FindNearby(GameplayObject obj, float radius,
+                                           GameObjectType filter = GameObjectType.None,
+                                           Empire loyaltyFilter = null)
+            => QuadTree.FindNearby(obj.Center, radius, filter, toIgnore:obj, loyaltyFilter);
+
+        public GameplayObject[] FindNearby(Vector2 worldPos, float radius,
+                                           GameObjectType filter = GameObjectType.None,
+                                           Empire loyaltyFilter = null)
+            => QuadTree.FindNearby(worldPos, radius, filter, toIgnore:null, loyaltyFilter);
+
 
         // @note This is called every time an exploding projectile hits a target and dies
         //       so everything nearby receives additional splash damage
