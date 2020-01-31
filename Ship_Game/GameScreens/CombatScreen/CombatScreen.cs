@@ -48,7 +48,6 @@ namespace Ship_Game
             int screenWidth       = ScreenWidth;
             GridRect              = new Rectangle(screenWidth / 2 - 639, ScreenHeight - 490, 1278, 437);
             Rectangle titleRect   = new Rectangle(screenWidth / 2 - 250, 44, 500, 80);
-            var TitleBar          = new Menu2(titleRect);
             TitlePos              = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Arial20Bold.MeasureString(p.Name).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
             SelectedItemRect      = new Rectangle(screenWidth - 240, 100, 225, 205);
             AssetsRect            = new Rectangle(10, 48, 225, 200);
@@ -72,7 +71,6 @@ namespace Ship_Game
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDrag = OnTroopItemDrag;
             OrbitSL.EnableDragEvents = true;
-
 
             gridPos   = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
             int xSize = gridPos.Width / 7;
