@@ -379,18 +379,16 @@ namespace Ship_Game
             return Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
         }
 
-        // FB - this is the main logic for land troops. 
-        public bool TryLandTroop(Planet planet)
+        // FB - this is the main logic for land troops
+        // if tile != null, it will assign troops to nearest available tile
+        public bool TryLandTroop(Planet planet, PlanetGridSquare tile = null)
         {
             planet = planet ?? HostPlanet;
-            return planet.FreeTiles > 0 && AssignTroopToRandomFreeTile(planet);
-        }
+            if (planet.FreeTiles == 0)
+                return false;
 
-        // FB - this is the main logic for land troops if they need the nearest tile from a target tile 
-        public bool TryLandTroop(Planet planet, PlanetGridSquare tile)
-        {
-            planet = planet ?? HostPlanet;
-            return planet.FreeTiles > 0 && AssignTroopToNearestAvailableTile(tile, planet);
+            return tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
+                                : AssignTroopToRandomFreeTile(planet);
         }
 
         // FB - For newly recruited troops (so they will be able to launch or move immediately)

@@ -478,7 +478,7 @@ namespace Ship_Game
 
         void OnTroopItemDoubleClick(CombatScreenOrbitListItem item)
         {
-            TryLandTroop(item, where: null);
+            TryLandTroop(item);
         }
 
         bool IsDraggingTroop;
@@ -497,7 +497,8 @@ namespace Ship_Game
             }
         }
 
-        public void TryLandTroop(CombatScreenOrbitListItem item, PlanetGridSquare where)
+        void TryLandTroop(CombatScreenOrbitListItem item,
+                          PlanetGridSquare where = null)
         {
             if (item.Troop.TryLandTroop(p, where))
             {
