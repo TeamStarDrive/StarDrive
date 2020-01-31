@@ -186,7 +186,10 @@ namespace Ship_Game
 
         protected override void HandleDraggable(InputState input)
         {
-            if (EnableDragEvents && DraggedEntry == null)
+            if (!EnableDragEvents)
+                return;
+
+            if (DraggedEntry == null)
             {
                 if (input.LeftMouseUp)
                 {
@@ -212,7 +215,7 @@ namespace Ship_Game
                     }
                 }
             }
-            if (input.LeftMouseUp)
+            if (DraggedEntry != null && input.LeftMouseUp)
             {
                 OnItemDragged(DraggedEntry, DragEvent.End);
                 ClickTimer = 0f;
