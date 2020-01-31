@@ -63,6 +63,9 @@ namespace Ship_Game
         // If TRUE, items will trigger click events
         public bool EnableItemEvents = true;
 
+        // DEBUG: Enable special debug features for Scroll List Debugging
+        public bool DebugDrawScrollList;
+
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
         public UIElementV2 Background
@@ -478,14 +481,21 @@ namespace Ship_Game
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
             {
                 var e = FlatEntries[i];
-                e.Draw(batch);
-                // DEBUG:
-                //batch.DrawRectangle(e.Rect, i % 2 == 0 ? Color.Green.Alpha(0.5f) : Color.Blue.Alpha(0.5f));
+                if (e != DraggedEntry)
+                {
+                    e.Draw(batch);
+                }
+                if (DebugDrawScrollList)
+                {
+                    batch.DrawRectangle(e.Rect, i % 2 == 0 ? Color.Green.Alpha(0.5f) : Color.Blue.Alpha(0.5f));
+                }
             }
-
-            // DEBUG:
-            //batch.DrawRectangle(ScrollHousing, Color.Red);
-            //batch.DrawRectangle(ItemsHousing, Color.Magenta);
+            
+            if (DebugDrawScrollList)
+            {
+                batch.DrawRectangle(ScrollHousing, Color.Red);
+                batch.DrawRectangle(ItemsHousing, Color.Magenta);
+            }
 
             if (EnableItemHighlight)
                 Highlight?.Draw(batch);

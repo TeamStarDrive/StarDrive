@@ -22,20 +22,18 @@ namespace Ship_Game
         {
             Color nameColor = Color.LightGray;
             Color statsColor = nameColor;
+            Color backColor = Color.Black;
             if (Hovered)
             {
                 nameColor  = Color.Gold;
                 statsColor = Color.Orange;
+                backColor = Color.Black.AddRgb(0.2f);
             }
             
-            var bCursor = new Vector2(X + 25, Y);
-            batch.Draw(Troop.TextureDefault, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-
-            var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-            batch.DrawString(Fonts.Arial12Bold, Troop.Name, tCursor, nameColor);
-
-            tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-            batch.DrawString(Fonts.Arial8Bold, Troop.StrengthText + ", Level: " + Troop.Level, tCursor, statsColor);
+            batch.FillRectangle(Rect, backColor.Alpha(0.3f));
+            Troop.Draw(batch, new RectF(X + 2, Y, Height, Height));
+            batch.DrawString(Fonts.Arial12Bold, Troop.Name, X + 40, Y + 2, nameColor);
+            batch.DrawString(Fonts.Arial8Bold, $"{Troop.StrengthText}, Level: {Troop.Level}", X + 40, Y + 14, statsColor);
         }
     }
 }
