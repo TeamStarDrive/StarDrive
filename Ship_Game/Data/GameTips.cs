@@ -526,6 +526,16 @@ namespace Ship_Game
         /// <summary>Module Shield Amplify</summary>
         ModuleShieldAmplify = 258,
         /// <summary>Self Regeneration Technology</summary>
-        SelfRegeneration = 259
+        SelfRegeneration = 259,
+        /// <summary>Number of Habitable Tiles</summary>
+        NumhabitableTiles = 260,
+        /// <summary>Population Pe Tile</summary>
+        PopPerTile = 261,
+        /// <summary>Biosphered Planet Population</summary>
+        BiospheredPopPotential = 262,
+        /// <summary>Terraformed Planet Population</summary>
+        TerraformedPopPotential = 263,
+        /// <summary>Planetary Shield Strength</summary>
+        PlanetaryShieldStr = 264
     }
 }

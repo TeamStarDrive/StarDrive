@@ -32,10 +32,17 @@ namespace Ship_Game
         readonly Rectangle RightRect;
         readonly Rectangle PlanetIconRect;
         readonly Rectangle FlagRect;
+
+        readonly Rectangle TilesRect;
+        readonly Rectangle PopPerTileRect;
+        readonly Rectangle BiospheredPopRect;
+        readonly Rectangle TerraformedPopRect;
         readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
         Rectangle Mark;
         AssignLaborComponent AssignLabor;
 
+        readonly SpriteFont Font8  = Fonts.Arial8Bold;
+        readonly SpriteFont Font12 = Fonts.Arial12Bold;
 
         public PlanetInfoUIElement(in Rectangle r, ScreenManager sm, UniverseScreen screen)
         {
@@ -66,6 +73,12 @@ namespace Ship_Game
             InjuryRect       = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 44, 22, 22);
             ShieldRect       = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 66, 22, 22);
             DefenseShipsRect = new Rectangle(leftRect.X + 13, Housing.Y + 114 + 88, 22, 22);
+
+            // Use the same positions for unexplored planet data
+            TilesRect          = DefenseRect;
+            PopPerTileRect     = OffenseRect;
+            BiospheredPopRect  = InjuryRect;
+            TerraformedPopRect = ShieldRect;
         }
 
         public override void Update(GameTime gameTime)
@@ -83,30 +96,6 @@ namespace Ship_Game
 
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
             ToolTipItems.Clear();
-            var def = new TippedItem
-            {
-                r = DefenseRect,
-                TIP_ID = 31
-            };
-            ToolTipItems.Add(def);
-            var injury = new TippedItem
-            {
-                r = InjuryRect,
-                TIP_ID = 249
-            };
-            ToolTipItems.Add(injury);
-            var offense = new TippedItem
-            {
-                r = OffenseRect,
-                TIP_ID = 250
-            };
-            ToolTipItems.Add(offense);
-            var defenseShips = new TippedItem
-            {
-                r = DefenseShipsRect,
-                TIP_ID = 251
-            };
-            ToolTipItems.Add(defenseShips);
             var population = new TippedItem
             {
                 r = PopRect,
@@ -126,6 +115,7 @@ namespace Ship_Game
                 return;
             }
 
+            AddExploredTips();
             batch.DrawString(Fonts.Arial20Bold, P.Name, NamePos, tColor);
             batch.Draw(ResourceManager.Flag(P.Owner), FlagRect, P.Owner.EmpireColor);
             var cursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65, NamePos.Y + Fonts.Arial20Bold.LineSpacing / 2 - Fonts.Arial12Bold.LineSpacing / 2 + 2f);
@@ -195,12 +185,6 @@ namespace Ship_Game
                     Localizer.Token(1429) + P.LocalizedCategory, namePos, tColor);
                 var textCursor = new Vector2(Sel.Rect.X + Sel.Rect.Width - 65,
                     namePos.Y + Fonts.Arial20Bold.LineSpacing / 2f - Fonts.Arial12Bold.LineSpacing / 2f + 2f);
-                string pop = P.PopulationStringForPlayer;
-                textCursor.X = textCursor.X - (Fonts.Arial12Bold.MeasureString(pop).X + 5f);
-                batch.DrawString(Fonts.Arial12Bold, pop, textCursor, tColor);
-
-                PopRect = new Rectangle((int) textCursor.X - 23, (int) textCursor.Y - 3, 22, 22);
-                batch.Draw(ResourceManager.Texture("UI/icon_pop_22"), PopRect, Color.White);
 
                 string text = Localizer.Token(1430);
                 var cursor = new Vector2(Housing.X + 20, Housing.Y + 115);
@@ -236,7 +220,7 @@ namespace Ship_Game
             batch.Draw(P.PlanetTexture, PlanetIconRect,
                 Color.White);
             batch.DrawString(Fonts.Arial12Bold, PlanetTypeRichness, PlanetTypeCursor, tColor);
-            Rectangle fIcon = new Rectangle(240,
+            Rectangle fIcon = new Rectangle(200,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_food").Height,
                 ResourceManager.Texture("NewUI/icon_food").Width, ResourceManager.Texture("NewUI/icon_food").Height);
             batch.Draw(ResourceManager.Texture("NewUI/icon_food"), fIcon, Color.White);
@@ -247,7 +231,18 @@ namespace Ship_Game
             };
             ToolTipItems.Add(ti);
             Vector2 tcurs = new Vector2(fIcon.X + 25, Housing.Y + 205);
-            batch.DrawString(Fonts.Arial12Bold, P.FertilityFor(EmpireManager.Player).String(), tcurs, tColor);
+            float fertility = P.FertilityFor(EmpireManager.Player);
+            batch.DrawString(Fonts.Arial12Bold, fertility.String(2), tcurs, tColor);
+            
+            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
+            if (!fertEnvMultiplier.AlmostEqual(1))
+            {
+                Color fertEnvColor = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
+                var fertMultiplier = new Vector2(tcurs.X + Font12.MeasureString($"{fertility.String(2)} ").X, tcurs.Y+2);
+                batch.DrawString(Font8, $"(x {fertEnvMultiplier.String(2)})", fertMultiplier, fertEnvColor);
+            }
+
+
             Rectangle pIcon = new Rectangle(300,
                 Housing.Y + 210 + Fonts.Arial12Bold.LineSpacing - ResourceManager.Texture("NewUI/icon_production").Height,
                 ResourceManager.Texture("NewUI/icon_production").Width,
@@ -259,8 +254,25 @@ namespace Ship_Game
                 TIP_ID = 21
             };
             ToolTipItems.Add(ti);
+
+            AddUnExploredTips();
             tcurs = new Vector2(325f, Housing.Y + 205);
             batch.DrawString(Fonts.Arial12Bold, P.MineralRichness.String(), tcurs, tColor);
+
+            int numHabitableTile    = P.TotalHabitableTiles;
+            int numUnhabitableTiles = P.TileArea - numHabitableTile;
+            float popPerTile     = P.BasePopPerTile * fertEnvMultiplier;
+            float biospheredPop  = P.MaxPopulationBillionFor(EmpireManager.Player) + P.BasePopPerTile * numUnhabitableTiles / 1000;
+            float terraformedPop = EmpireManager.Player.RacialEnvModifer(EmpireManager.Player.data.PreferredEnv) * P.BasePopPerTile * P.TileArea / 1000;
+
+            DrawPlanetStats(TilesRect, $"{numHabitableTile}", "NewUI/icon_tiles", Color.White, Color.White);
+            DrawPlanetStats(PopPerTileRect, $"{popPerTile.String(0)}m", "NewUI/icon_poppertile", Color.White, Color.White);
+            DrawPlanetStats(BiospheredPopRect, biospheredPop.String(1), "NewUI/icon_biospheres", Color.White, Color.White);
+
+            if (EmpireManager.Player.IsBuildingUnlocked(Building.TerraformerId))
+                DrawPlanetStats(TerraformedPopRect, terraformedPop.String(1), 
+                    "NewUI/icon_terraformer", Color.White, Color.White);
+
             Mark = new Rectangle(RightRect.X - 10, Housing.Y + 150, 182, 25);
             Vector2 Text = new Vector2(RightRect.X + 25, Mark.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2 - 2);
             batch.Draw(ResourceManager.Texture("UI/dan_button_blue"), Mark, Color.White);
@@ -348,6 +360,68 @@ namespace Ship_Game
             return false;
         }
 
+        void AddExploredTips()
+        {
+            TippedItem ti = new TippedItem
+            {
+                r = DefenseRect,
+                TIP_ID = 31
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = InjuryRect,
+                TIP_ID = 249
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = OffenseRect,
+                TIP_ID = 250
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = ShieldRect,
+                TIP_ID = 264
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = DefenseShipsRect,
+                TIP_ID = 251
+            };
+            ToolTipItems.Add(ti);
+        }
+
+        void AddUnExploredTips()
+        {
+            TippedItem ti = new TippedItem
+            {
+                r = TilesRect,
+                TIP_ID = 1904
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = PopPerTileRect,
+                TIP_ID = 1905
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = BiospheredPopRect,
+                TIP_ID = 1906
+            };
+            ToolTipItems.Add(ti);
+            ti = new TippedItem
+            {
+                r = TerraformedPopRect,
+                TIP_ID = 1907
+            };
+            ToolTipItems.Add(ti);
+        }
+
         void DrawPlanetStats(Rectangle rect, string data, string texturePath, Color color, Color texcolor)
         {
             SpriteFont font = Fonts.Arial12Bold;
@@ -361,10 +435,6 @@ namespace Ship_Game
             if (P == null)
             {
                 return false;
-            }
-            if (ShieldRect.HitTest(input.CursorPosition))
-            {
-                ToolTip.CreateTooltip(Localizer.Token(2240));
             }
             foreach (TippedItem ti in ToolTipItems)
             {
