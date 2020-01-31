@@ -25,7 +25,10 @@ namespace Ship_Game
         public Action<T> OnDoubleClick;
 
         // EVENT: Called when an item drag starts or item drag ends
-        public Action<T, DragEvent> OnDrag;
+        // @param T item that was dragged
+        // @param DragEvent evt Description of the event
+        // @param bool outside If TRUE, mouse cursor is outside of ScrollList Rect
+        public Action<T, DragEvent, bool> OnDrag;
 
         static Rectangle GetOurRectFromBackground(UIElementV2 background)
         {
@@ -80,9 +83,9 @@ namespace Ship_Game
             OnDoubleClick?.Invoke((T)item);
         }
 
-        public override void OnItemDragged(ScrollListItemBase item, DragEvent evt)
+        public override void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside)
         {
-            OnDrag?.Invoke((T)item, evt);
+            OnDrag?.Invoke((T)item, evt, outside);
         }
 
         // Number of non-flattened entries
@@ -159,6 +162,12 @@ namespace Ship_Game
                 RequiresLayout = true;
         }
 
+        public bool Any(Predicate<T> predicate)
+        {
+            return Entries.Any(predicate)
+                || FlatEntries.Any((e) => predicate((T)e));
+        }
+
         public void Sort<TValue>(Func<T, TValue> predicate)
         {
             T[] sorted = Entries.OrderBy(predicate).ToArray();
@@ -182,47 +191,9 @@ namespace Ship_Game
                 Entries[i].GetFlattenedVisibleExpandedEntries(FlatEntries);
         }
 
-        #region HandleInput Draggable
-
-        protected override void HandleDraggable(InputState input)
-        {
-            if (EnableDragEvents && DraggedEntry == null)
-            {
-                if (input.LeftMouseUp)
-                {
-                    ClickTimer = 0f;
-                }
-                else
-                {
-                    ClickTimer += 0.0166666675f;
-                    if (ClickTimer > TimerDelay)
-                    {
-                        Vector2 cursor = input.CursorPosition;
-                        for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
-                        {
-                            ScrollListItemBase e = FlatEntries[i];
-                            if (e.Rect.HitTest(cursor))
-                            {
-                                DraggedEntry = e;
-                                DraggedOffset = e.TopLeft - input.CursorPosition;
-                                OnItemDragged(e, DragEvent.Begin);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            if (input.LeftMouseUp)
-            {
-                OnItemDragged(DraggedEntry, DragEvent.End);
-                ClickTimer = 0f;
-                DraggedEntry = null;
-            }
-        }
-
         protected override void HandleElementDragging(InputState input)
         {
-            if (DraggedEntry == null || !input.LeftMouseDown)
+            if (!EnableDragReorderItems || DraggedEntry == null || !input.LeftMouseDown)
                 return;
 
             Vector2 cursor = input.CursorPosition;
@@ -237,7 +208,7 @@ namespace Ship_Game
                         T toReplace = Entries[i];
                         Entries[i] = Entries[dragged];
                         Entries[dragged] = toReplace;
-                        DraggedEntry = Entries[i];
+                        DraggedEntry = Entries[i]; // this is crucial
                         break;
                     }
                     if (i > dragged)
@@ -248,14 +219,12 @@ namespace Ship_Game
                             Entries[j - 1] = Entries[j];
                         }
                         Entries[i] = toRemove;
-                        DraggedEntry = Entries[i];
+                        DraggedEntry = Entries[i]; // this is crucial
                         break;
                     }
                 }
             }
         }
-
-        #endregion
     }
 
     internal sealed class ScrollListDebugView<T> where T : ScrollListItem<T>
