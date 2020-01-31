@@ -6,45 +6,27 @@ namespace Ship_Game
 {
     public sealed class Encounter
     {
+        // TODO: What is serialized here??
         public int Step;
         public string Name;
         public string Faction;
         public string DescriptionText;
         public Array<Message> MessageList;
-        public int CurrentMessage;
+        public int CurrentMessageId;
 
-        Rectangle ResponseRect;
-        Rectangle BlackRect;
-        ScrollList2<ResponseListItem> ResponseSL;
+
         Empire playerEmpire;
         SolarSystem sysToDiscuss;
         Empire empToDiscuss;
 
-        public void LoadContent(ScreenManager screenManager, Rectangle fitRect)
-        {
-            BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 240);
-            ResponseRect = new Rectangle(fitRect.X, BlackRect.Y + BlackRect.Height + 10, fitRect.Width, 180);
-            var resp = new Submenu(ResponseRect);
-            ResponseSL = new ScrollList2<ResponseListItem>(resp, 20);
-            LoadResponseScrollList();
-        }
+        public Message Current => MessageList[CurrentMessageId];
 
-        void LoadResponseScrollList()
-        {
-            ResponseSL.Reset();
-            foreach (Response r in MessageList[CurrentMessage].ResponseOptions)
-            {
-                ResponseSL.AddItem(new ResponseListItem(r));
-            }
-            ResponseSL.OnClick = OnResponseItemClicked;
-        }
-
-        void OnResponseItemClicked(ResponseListItem item)
+        public void OnResponseItemClicked(ResponseListItem item)
         {
             Response r = item.Response;
             if (r.DefaultIndex != -1)
             {
-                CurrentMessage = r.DefaultIndex;
+                CurrentMessageId = r.DefaultIndex;
             }
             else
             {
@@ -55,11 +37,11 @@ namespace Ship_Game
                     ok = false;
                 if (!ok)
                 {
-                    CurrentMessage = r.FailIndex;
+                    CurrentMessageId = r.FailIndex;
                 }
                 else
                 {
-                    CurrentMessage = r.SuccessIndex;
+                    CurrentMessageId = r.SuccessIndex;
                     if (r.MoneyToThem > 0 && playerEmpire.Money >= r.MoneyToThem)
                     {
                         playerEmpire.AddMoney(-r.MoneyToThem);
@@ -67,62 +49,24 @@ namespace Ship_Game
                 }
             }
 
-            if (MessageList[CurrentMessage].SetWar)
+            if (MessageList[CurrentMessageId].SetWar)
             {
                 empToDiscuss.GetEmpireAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
             }
 
-            if (MessageList[CurrentMessage].EndWar)
+            if (MessageList[CurrentMessageId].EndWar)
             {
                 empToDiscuss.GetEmpireAI().EndWarFromEvent(playerEmpire);
             }
 
             playerEmpire.GetRelations(empToDiscuss).EncounterStep =
-                MessageList[CurrentMessage].SetEncounterStep;
-
-            LoadResponseScrollList();
+                MessageList[CurrentMessageId].SetEncounterStep;
         }
 
-        public void Draw(SpriteBatch batch)
+        public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
         {
-            batch.FillRectangle(BlackRect, Color.Black);
-            batch.FillRectangle(ResponseRect, Color.Black);
-            Vector2 TheirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
-            string theirText = ParseTextEncounters(MessageList[CurrentMessage].text, BlackRect.Width - 20, Fonts.Verdana12Bold);
-            TheirTextPos.X = (int)TheirTextPos.X;
-            TheirTextPos.Y = (int)TheirTextPos.Y;
-            batch.DrawString(Fonts.Verdana12Bold, theirText, TheirTextPos, Color.White);
-            if (MessageList[CurrentMessage].EndTransmission)
-            {
-                var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
-                batch.DrawString(Fonts.Arial12Bold, "Escape or Right Click to End Transmission:", responsePos, Color.White);
-            }
-            else
-            {
-                var drawCurs = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
-                batch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
-                ResponseSL.Draw(batch);
-            }
-        }
-
-        public bool HandleInput(InputState input, GameScreen caller)
-        {
-            if (ResponseSL.HandleInput(input))
-                return true;
-
-            if (MessageList[CurrentMessage].EndTransmission &&
-                (input.Escaped || input.RightMouseClick))
-            {
-                caller.ExitScreen();
-                return true;
-            }
-
-            return false;
-        }
-
-        string ParseTextEncounters(string text, float maxLineWidth, SpriteFont font)
-        {
-            string[] wordArray = text.Split(' ');
+            Message current = Current;
+            string[] wordArray = current.text.Split(' ');
             for (int i = 0; i < wordArray.Length; ++i)
                 wordArray[i] = ParseEncounterKeyword(wordArray[i]);
 
