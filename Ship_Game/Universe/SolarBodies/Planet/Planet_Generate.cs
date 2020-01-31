@@ -404,6 +404,9 @@ namespace Ship_Game
 
         protected void AddEventsAndCommodities()
         {
+            if (!Habitable)
+                return;
+
             foreach (RandomItem item in ResourceManager.RandomItemsList)
             {
                 (float chance, float maxInstance) = item.ChanceAndMaxInstance(Category);
