@@ -495,9 +495,8 @@ namespace Ship_Game
 
         bool IsDraggingTroop;
 
-        void OnTroopItemDrag(CombatScreenOrbitListItem item, DragEvent evt)
+        void OnTroopItemDrag(CombatScreenOrbitListItem item, DragEvent evt, bool outside)
         {
-            Log.Warning($"OnTroopItemDrag: {evt}");
             if (evt == DragEvent.Begin)
             {
                 IsDraggingTroop = true;
@@ -505,8 +504,15 @@ namespace Ship_Game
             else if (evt == DragEvent.End)
             {
                 IsDraggingTroop = false;
-                PlanetGridSquare toLand = p.FindTileUnderMouse(Input.CursorPosition);
-                TryLandTroop(item, toLand);
+                if (outside)
+                {
+                    PlanetGridSquare toLand = p.FindTileUnderMouse(Input.CursorPosition);
+                    TryLandTroop(item, toLand);
+                }
+                else
+                {
+                    GameAudio.NegativeClick();
+                }
             }
         }
 

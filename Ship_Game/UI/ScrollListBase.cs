@@ -88,7 +88,7 @@ namespace Ship_Game
         public abstract void OnItemHovered(ScrollListItemBase item);
         public abstract void OnItemClicked(ScrollListItemBase item);
         public abstract void OnItemDoubleClicked(ScrollListItemBase item);
-        public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt);
+        public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside);
 
         public virtual void OnItemExpanded(ScrollListItemBase item, bool expanded)
         {
@@ -202,7 +202,7 @@ namespace Ship_Game
                         {
                             DraggedEntry = e;
                             DraggedOffset = e.TopLeft - cursor;
-                            OnItemDragged(e, DragEvent.Begin);
+                            OnItemDragged(e, DragEvent.Begin, false);
                             return;
                         }
                     }
@@ -212,7 +212,8 @@ namespace Ship_Game
             {
                 if (input.LeftMouseUp)
                 {
-                    OnItemDragged(DraggedEntry, DragEvent.End);
+                    bool outside = !Rect.HitTest(input.CursorPosition);
+                    OnItemDragged(DraggedEntry, DragEvent.End, outside);
                     DraggedEntry = null;
                 }
             }
