@@ -173,6 +173,7 @@ namespace Ship_Game
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
             ConstructionQueue.EnableDragEvents = true;
+            ConstructionQueue.EnableDragReorderItems = true;
 
             PlanetIcon = new Rectangle((int)PlanetInfo.Right - 148, (int)PlanetInfo.Y + ((int)PlanetInfo.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
