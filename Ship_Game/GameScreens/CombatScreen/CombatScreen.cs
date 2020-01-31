@@ -67,6 +67,7 @@ namespace Ship_Game
             OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalResourcesSub));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
             OrbitSL.OnDrag = OnTroopItemDrag;
+            OrbitSL.EnableDragEvents = true;
 
             orbitalResourcesSub.AddTab("In Orbit");
 
