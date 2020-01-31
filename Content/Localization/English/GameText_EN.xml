@@ -4695,6 +4695,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
     </Token>
     <Token>
+      <Index>1904</Index>
+      <Text>This indicates how many tiles are habitable on this planet</Text>
+    </Token>
+    <Token>
+      <Index>1905</Index>
+      <Text>This indicates how much population is available per tile in millions, after any racial modifiers for that planet's environment. There is a minimum default population for the planet.</Text>
+    </Token>
+    <Token>
+      <Index>1906</Index>
+      <Text>This indicates what would the maximum population of this planet be, if you built biospheres on all unhabitable tiles.</Text>
+    </Token>
+    <Token>
+      <Index>1907</Index>
+      <Text>This indicates what would the maximum population of this planet be, if you fully terraformed this planet. This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance.</Text>
+    </Token>
+    <Token>
       <Index>1908</Index>
       <Text>Regenerate</Text>
     </Token>
