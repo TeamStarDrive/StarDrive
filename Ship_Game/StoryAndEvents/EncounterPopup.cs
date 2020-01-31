@@ -12,11 +12,15 @@ namespace Ship_Game
         public string UID;
         public Encounter encounter;
 
+        Rectangle ResponseRect;
+        Rectangle BlackRect;
+        ScrollList2<ResponseListItem> ResponseSL;
+
         EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, Encounter e) : base(s, 600, 600)
         {
             Screen = s;
             encounter = e;
-            encounter.CurrentMessage = 0;
+            encounter.CurrentMessageId = 0;
             encounter.SetPlayerEmpire(playerEmpire);
             encounter.SetSys(null);
             encounter.SetTarEmp(targetEmp);
@@ -39,17 +43,44 @@ namespace Ship_Game
             {
                 ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             }
+
             base.Draw(batch);
 
             batch.Begin();
-            encounter.Draw(batch);
+            DrawEncounter(batch);
             batch.End();
+        }
+
+        void DrawEncounter(SpriteBatch batch)
+        {
+            batch.FillRectangle(BlackRect, Color.Black);
+            batch.FillRectangle(ResponseRect, Color.Black);
+            Vector2 theirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
+            string theirText = encounter.ParseCurrentEncounterText(BlackRect.Width - 20, Fonts.Verdana12Bold);
+            theirTextPos.X = (int)theirTextPos.X;
+            theirTextPos.Y = (int)theirTextPos.Y;
+            batch.DrawString(Fonts.Verdana12Bold, theirText, theirTextPos, Color.White);
+            if (encounter.Current.EndTransmission)
+            {
+                var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
+                batch.DrawString(Fonts.Arial12Bold, "Escape or Right Click to End Transmission:", responsePos, Color.White);
+            }
+            else
+            {
+                var drawCurs = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 5);
+                batch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
+                ResponseSL.Draw(batch);
+            }
         }
 
         public override bool HandleInput(InputState input)
         {
-            return encounter.HandleInput(input, this)
-                && base.HandleInput(input);
+            if (encounter.Current.EndTransmission && (input.Escaped || input.RightMouseClick))
+            {
+                ExitScreen();
+                return true;
+            }
+            return base.HandleInput(input);
         }
 
         public override void LoadContent()
@@ -57,7 +88,25 @@ namespace Ship_Game
             TitleText = encounter.Name;
             MiddleText = encounter.DescriptionText;
             base.LoadContent();
-            encounter.LoadContent(Screen.ScreenManager, new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height)));
+            Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, 
+                TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
+
+            BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 300);
+            ResponseRect = new Rectangle(fitRect.X, BlackRect.Y + BlackRect.Height + 10, fitRect.Width, 110);
+            var resp = new Submenu(ResponseRect);
+            ResponseSL = Add(new ScrollList2<ResponseListItem>(resp, 20));
+            LoadResponseScrollList();
         }
+
+        void LoadResponseScrollList()
+        {
+            ResponseSL.Reset();
+            foreach (Response r in encounter.Current.ResponseOptions)
+            {
+                ResponseSL.AddItem(new ResponseListItem(r));
+            }
+            ResponseSL.OnClick = encounter.OnResponseItemClicked;
+        }
+
     }
 }
