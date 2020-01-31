@@ -182,41 +182,6 @@ namespace Ship_Game
                 Entries[i].GetFlattenedVisibleExpandedEntries(FlatEntries);
         }
 
-        #region HandleInput Draggable
-
-        protected override void HandleDraggable(InputState input)
-        {
-            if (!EnableDragEvents)
-                return;
-
-            if (DraggedEntry == null)
-            {
-                if (input.LeftMouseHeld(DragBeginDelay) && Rect.HitTest(input.StartLeftHold))
-                {
-                    Vector2 cursor = input.CursorPosition;
-                    for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
-                    {
-                        ScrollListItemBase e = FlatEntries[i];
-                        if (e.Rect.HitTest(cursor))
-                        {
-                            DraggedEntry = e;
-                            DraggedOffset = e.TopLeft - cursor;
-                            OnItemDragged(e, DragEvent.Begin);
-                            return;
-                        }
-                    }
-                }
-            }
-            else // already dragging
-            {
-                if (input.LeftMouseUp)
-                {
-                    OnItemDragged(DraggedEntry, DragEvent.End);
-                    DraggedEntry = null;
-                }
-            }
-        }
-
         protected override void HandleElementDragging(InputState input)
         {
             if (DraggedEntry == null || !input.LeftMouseDown)
@@ -234,7 +199,6 @@ namespace Ship_Game
                         T toReplace = Entries[i];
                         Entries[i] = Entries[dragged];
                         Entries[dragged] = toReplace;
-                        DraggedEntry = Entries[i];
                         break;
                     }
                     if (i > dragged)
@@ -245,14 +209,11 @@ namespace Ship_Game
                             Entries[j - 1] = Entries[j];
                         }
                         Entries[i] = toRemove;
-                        DraggedEntry = Entries[i];
                         break;
                     }
                 }
             }
         }
-
-        #endregion
     }
 
     internal sealed class ScrollListDebugView<T> where T : ScrollListItem<T>
