@@ -193,7 +193,7 @@ namespace Ship_Game
 
         protected override void HandleElementDragging(InputState input)
         {
-            if (DraggedEntry == null || !input.LeftMouseDown)
+            if (!EnableDragReorderItems || DraggedEntry == null || !input.LeftMouseDown)
                 return;
 
             Vector2 cursor = input.CursorPosition;
@@ -208,6 +208,7 @@ namespace Ship_Game
                         T toReplace = Entries[i];
                         Entries[i] = Entries[dragged];
                         Entries[dragged] = toReplace;
+                        DraggedEntry = Entries[i]; // this is crucial
                         break;
                     }
                     if (i > dragged)
@@ -218,6 +219,7 @@ namespace Ship_Game
                             Entries[j - 1] = Entries[j];
                         }
                         Entries[i] = toRemove;
+                        DraggedEntry = Entries[i]; // this is crucial
                         break;
                     }
                 }
