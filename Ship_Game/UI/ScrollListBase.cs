@@ -85,6 +85,9 @@ namespace Ship_Game
         // If TRUE, allows automatic dragging of ScrollList Items
         public bool EnableDragEvents = false;
 
+        // If TRUE, allows to drag and reordering of ScrollList Items
+        public bool EnableDragReorderItems = false;
+
         public abstract void OnItemHovered(ScrollListItemBase item);
         public abstract void OnItemClicked(ScrollListItemBase item);
         public abstract void OnItemDoubleClicked(ScrollListItemBase item);
@@ -215,6 +218,7 @@ namespace Ship_Game
                     bool outside = !Rect.HitTest(input.CursorPosition);
                     OnItemDragged(DraggedEntry, DragEvent.End, outside);
                     DraggedEntry = null;
+                    RequiresLayout = true; // refresh the items
                 }
             }
         }
