@@ -25,7 +25,10 @@ namespace Ship_Game
         public Action<T> OnDoubleClick;
 
         // EVENT: Called when an item drag starts or item drag ends
-        public Action<T, DragEvent> OnDrag;
+        // @param T item that was dragged
+        // @param DragEvent evt Description of the event
+        // @param bool outside If TRUE, mouse cursor is outside of ScrollList Rect
+        public Action<T, DragEvent, bool> OnDrag;
 
         static Rectangle GetOurRectFromBackground(UIElementV2 background)
         {
@@ -80,9 +83,9 @@ namespace Ship_Game
             OnDoubleClick?.Invoke((T)item);
         }
 
-        public override void OnItemDragged(ScrollListItemBase item, DragEvent evt)
+        public override void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside)
         {
-            OnDrag?.Invoke((T)item, evt);
+            OnDrag?.Invoke((T)item, evt, outside);
         }
 
         // Number of non-flattened entries
