@@ -29,7 +29,6 @@ namespace Ship_Game.AI
             KnownThreat = RiskAssessment(us);
             Risk        = Expansion + Border + KnownThreat;
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
-
         }
 
         private float ExpansionRiskAssessment(Empire us)

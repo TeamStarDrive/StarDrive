@@ -40,6 +40,7 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask()
         {
         }
+
         public static MilitaryTask CreateClaimTask(Planet targetPlanet, float minStrength)
         {
             var militaryTask = new MilitaryTask
@@ -75,27 +76,6 @@ namespace Ship_Game.AI.Tasks
             WhichFleet = ao.WhichFleet;
             IsCoreFleetTask = true;
             SetEmpire(ao.GetCoreFleet().Owner);
-        }
-
-        public MilitaryTask(Vector2 location, float radius, Array<Goal> goalsToHold, Empire owner, float str = 0)
-        {
-            type = TaskType.ClearAreaOfEnemies;
-            AO = location;
-            AORadius = radius;
-            InitialEnemyStrength = str;
-
-            foreach (Goal g in goalsToHold)
-            {
-                g.Held = true;
-                HeldGoals.Add(g.guid);
-            }
-
-            EnemyStrength = owner.CurrentMilitaryStrength * .001f;
-            if (InitialEnemyStrength < 1)
-                InitialEnemyStrength = owner.GetEmpireAI().ThreatMatrix.PingRadarStr(location, radius, owner);
-
-            MinimumTaskForceStrength = EnemyStrength;
-            Owner = owner;
         }
 
         public MilitaryTask(Planet target, Empire owner)
@@ -494,9 +474,7 @@ namespace Ship_Game.AI.Tasks
 
             if (type == TaskType.Exploration ||type ==TaskType.AssaultPlanet)
             {
-
                 float ourGroundStrength = TargetPlanet.GetGroundStrength(Owner);
-
                 if (ourGroundStrength > 0)
                 {
                     if (type == TaskType.Exploration)
@@ -522,8 +500,9 @@ namespace Ship_Game.AI.Tasks
             }
 
             float currentStrength = 0f;
-            foreach (Ship ship in fleet.Ships)
+            for (int i = fleet.Ships.Count-1; i >= 0; --i)
             {
+                Ship ship = fleet.Ships[i];
                 // remove dead or scrapping ships
                 if (!ship.Active || ship.InCombat && Step < 1 || ship.AI.State == AIState.Scrap)
                 {
@@ -540,7 +519,7 @@ namespace Ship_Game.AI.Tasks
             float currentEnemyStrength = Owner.GetEmpireAI().ThreatMatrix
                                         .StrengthOfHostilesInRadius(Owner, AO, AORadius);
 
-            if (currentStrength < 0.15f * StartingStrength && currentEnemyStrength > currentStrength)
+            if (!fleet.CanTakeThisFight(currentEnemyStrength))
             {
                 EndTask();
                 return;
