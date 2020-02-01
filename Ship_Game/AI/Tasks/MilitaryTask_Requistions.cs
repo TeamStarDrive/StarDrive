@@ -218,7 +218,7 @@ namespace Ship_Game.AI.Tasks
             };
 
 
-            closestCoreFleet.Owner.GetEmpireAI().TasksToAdd.Add(clearArea);
+            closestCoreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
             clearArea.WhichFleet       = Owner.GetFleetsDict().FindFirstKeyForValue(closestCoreFleet);
             closestCoreFleet.FleetTask = clearArea;
             clearArea.IsCoreFleetTask  = true;

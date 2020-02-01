@@ -12,7 +12,7 @@ using Ship_Game.Commands.Goals;
 namespace Ship_Game.AI
 {
     [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
-    public sealed partial class EmpireAI : IDisposable
+    public sealed partial class EmpireAI
     {
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
@@ -28,10 +28,8 @@ namespace Ship_Game.AI
         public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
-        public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
-        public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();
-        public float Toughnuts                               = 0;
-        public int Recyclepool                               = 0;
+        public float Toughnuts = 0;
+        public int Recyclepool = 0;
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
 
@@ -53,15 +51,6 @@ namespace Ship_Game.AI
                 case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
                 case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
             }
-        }
-
-        public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
-
-        public void RemoveFromTaskList(MilitaryTask task)
-        {
-            if (task == null)
-                Log.Error("Attempting to Remove null task from Empire TaskList");
-            TaskList.Remove(task);
         }
 
         void RunManagers()
@@ -224,7 +213,7 @@ namespace Ship_Game.AI
 
         public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
 
-        public void InitialzeAOsFromSave(UniverseData data)
+        public void InitializeAOsFromSave(UniverseData data)
         {
             foreach (AO area in AreasOfOperations)
                 area.InitFromSave(data, OwnerEmpire);
@@ -248,13 +237,12 @@ namespace Ship_Game.AI
                     theirTargetPlanets.Add(g.ColonizationTarget);
             }
             SolarSystem sharedSystem = null;
-            them.Key.GetShips().ForEach(ship =>
-            {
-                if (ship.AI.State != AIState.Colonize || ship.AI.ColonizeTarget == null)
-                    return;
 
-                theirTargetPlanets.Add(ship.AI.ColonizeTarget);
-            }, false, false);
+            foreach (Ship s in them.Key.GetShips())
+            {
+                if (s.AI.State == AIState.Colonize && s.AI.ColonizeTarget != null)
+                    theirTargetPlanets.Add(s.AI.ColonizeTarget);
+            }
 
             foreach (Planet p in ourTargetPlanets)
             {
@@ -358,22 +346,6 @@ namespace Ship_Game.AI
                     return;
                 }
             }
-        }
-
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        ~EmpireAI() { Destroy(); }
-
-        void Destroy()
-        {
-            TaskList?.Dispose(ref TaskList);
-            DefensiveCoordinator?.Dispose(ref DefensiveCoordinator);
-            Goals?.Dispose(ref Goals);
         }
     }
 }

@@ -330,9 +330,8 @@ namespace Ship_Game.AI
                     if (CoreFleet.Owner == null)
                     {
                         CoreFleet.Owner = CoreWorld.Owner;
-                        CoreFleet.Owner.GetEmpireAI().TaskList.Add(clearArea);
                     }
-                    else CoreFleet.Owner.GetEmpireAI().TaskList.Add(clearArea);
+                    CoreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
                 }
                 TurnsToRelax = 1;
             }
