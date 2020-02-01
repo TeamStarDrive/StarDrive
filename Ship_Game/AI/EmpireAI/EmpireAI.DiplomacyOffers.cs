@@ -43,19 +43,9 @@ namespace Ship_Game.AI
                 {
                     OwnerEmpire.GetFleetsDict()[relation.DefenseFleet].FleetTask.EndTask();
                 }
-                using (TaskList.AcquireWriteLock())
-                {
-                    for (int i = TaskList.Count - 1; i >= 0; i--)
-                    {
-                        MilitaryTask task = TaskList[i];
-                        if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
-                            task.TargetPlanet.Owner != Them)
-                        {
-                            continue;
-                        }
-                        task.EndTask();
-                    }
-                }
+
+                RemoveMilitaryTasksTargeting(Them);
+
                 relation.ActiveWar = null;
                 Relationship relationThem = Them.GetRelations(OwnerEmpire);
                 relationThem.AtWar = false;
@@ -87,20 +77,8 @@ namespace Ship_Game.AI
                     {
                         Them.GetFleetsDict()[relationThem.DefenseFleet].FleetTask.EndTask();
                     }
-                    //lock (GlobalStats.TaskLocker)
-                    {
-                        //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
-                        Them.GetEmpireAI()
-                            .TaskList.ForEach(task =>
-                            {
-                                if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
-                                    task.TargetPlanet.Owner != OwnerEmpire)
-                                {
-                                    return;
-                                }
-                                task.EndTask();
-                            }, false, false, false);
-                    }
+
+                    Them.GetEmpireAI().RemoveMilitaryTasksTargeting(OwnerEmpire);
                 }
                 relationThem.ActiveWar = null;
                 if (Them == Empire.Universe.PlayerEmpire || OwnerEmpire == Empire.Universe.PlayerEmpire)
@@ -434,14 +412,9 @@ namespace Ship_Game.AI
                 {
                     OwnerEmpire.GetFleetsDict()[OwnerEmpire.GetRelations(Them).DefenseFleet].FleetTask.EndTask();
                 }
-                //lock (GlobalStats.TaskLocker)
-                {
-                    TaskList.ForEach(task => //foreach (MilitaryTask task in this.TaskList)
-                    {
-                        if (task.TargetPlanet?.Owner != null && task.TargetPlanet.Owner == Them)
-                            task.EndTask();
-                    });
-                }
+
+                RemoveMilitaryTasksTargeting(Them);
+
                 OwnerEmpire.GetRelations(Them).ActiveWar = null;
                 Them.GetRelations(OwnerEmpire).AtWar = false;
                 Them.GetRelations(OwnerEmpire).PreparingForWar = false;
@@ -472,19 +445,7 @@ namespace Ship_Game.AI
                     {
                         Them.GetFleetsDict()[Them.GetRelations(OwnerEmpire).DefenseFleet].FleetTask.EndTask();
                     }
-                    //lock (GlobalStats.TaskLocker)
-                    {
-                        Them.GetEmpireAI()
-                            .TaskList.ForEach(task => //foreach (MilitaryTask task in Them.GetGSAI().TaskList)
-                            {
-                                if (task.TargetPlanet == null || task.TargetPlanet.Owner == null ||
-                                    task.TargetPlanet.Owner != OwnerEmpire)
-                                {
-                                    return;
-                                }
-                                task.EndTask();
-                            }, false, false, false);
-                    }
+                    Them.GetEmpireAI().RemoveMilitaryTasksTargeting(OwnerEmpire);
                 }
                 Them.GetRelations(OwnerEmpire).ActiveWar = null;
             }
