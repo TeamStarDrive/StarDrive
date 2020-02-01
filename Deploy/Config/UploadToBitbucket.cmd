@@ -7,11 +7,10 @@ echo APPVEYOR_REPO_BRANCH=%APPVEYOR_REPO_BRANCH%
 echo APPVEYOR_REPO_COMMIT=%APPVEYOR_REPO_COMMIT%
 ::git name-rev --name-only %APPVEYOR_REPO_COMMIT%
 ::for /f %%b in ('git name-rev --name-only HEAD') do set BRANCH_NAME=%%b
-if "%APPVEYOR_REPO_BRANCH%" NEQ "develop"  (set AutoDeploy=true)
-else (echo "%APPVEYOR_REPO_BRANCH%" | findstr /ibc:"test/" set AutoDeploy=true)
-
-
-( echo Auto-Deploy is only enabled for develop branch && goto :eof )
+set AutoDeploy=0
+if "%APPVEYOR_REPO_BRANCH%" EQ "develop" ( set AutoDeploy=1 )
+if "%APPVEYOR_REPO_BRANCH%:~0,5" EQ "test/" ( set AutoDeploy=1 )
+if %AutoDeploy% NEQ 1 ( echo Auto-Deploy is not enabled for this branch && goto :eof )
 
 for /f %%r in ('dir /B /O-D C:\Projects\BlackBox\Deploy\upload') do set file_name=%%r
 set file=C:/Projects/BlackBox/Deploy/upload/%file_name%
