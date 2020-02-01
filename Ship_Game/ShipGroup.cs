@@ -50,6 +50,9 @@ namespace Ship_Game
         protected Vector2 AverageOffsetFromZero;
         int LastAveragePosUpdate = -1;
 
+        protected float Strength;
+        int LastStrengthUpdate = -1;
+
         public int CountShips => Ships.Count;
         public override string ToString() => $"FleetGroup ships={Ships.Count}";
 
@@ -104,6 +107,7 @@ namespace Ship_Game
         {
             Ships.Add(ship);
             LastAveragePosUpdate = -1; // deferred position refresh
+            LastStrengthUpdate = -1;
         }
 
         protected void AssignPositionTo(Ship ship)
@@ -199,6 +203,7 @@ namespace Ship_Game
             Ship[] ships = ConsistentSort(shipList);
             Ships.AddRange(ships);
             LastAveragePosUpdate = -1; // deferred position refresh
+            LastStrengthUpdate = -1;
 
             float shipSpacing = GetMaxRadius(ships) + 500f;
             float fleetWidth = start.Distance(end);
@@ -341,6 +346,23 @@ namespace Ship_Game
             return AveragePos;
         }
 
+        public float GetStrength()
+        {
+            // Update Strength once per frame, OR if LastStrengthUpdate was invalidated
+            if (LastStrengthUpdate != StarDriveGame.Instance.FrameId)
+            {
+                LastStrengthUpdate = StarDriveGame.Instance.FrameId;
+                Strength = 0f;
+                for (int i = 0; i < Ships.Count; i++)
+                {
+                    Ship ship = Ships[i];
+                    if (ship.Active)
+                        Strength += ship.GetStrength();
+                }
+            }
+            return Strength;
+        }
+
         public Ship GetClosestShipTo(Vector2 worldPos)
         {
             return Ships.FindMin(ship => ship.Center.SqDist(worldPos));
@@ -416,17 +438,6 @@ namespace Ship_Game
                 ship.AI.SetPriorityOrder(false);
                 ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null);
             }
-        }
-
-        public float GetStrength()
-        {
-            float totalStrength = 0.0f;
-            for (int i = 0; i < Ships.Count; i++)
-            {
-                Ship ship = Ships[i];
-                if (ship.Active) totalStrength += ship.GetStrength();
-            }
-            return totalStrength;
         }
 
         /// <summary>

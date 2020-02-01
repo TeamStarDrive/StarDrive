@@ -21,6 +21,7 @@ namespace Ship_Game
             CreateStartingEquipment(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
+            ResetGarrisonSize();
             Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
             NewColonyAffectRelations();
             NewColonyAffectPresentTroops();
