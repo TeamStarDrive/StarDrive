@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using Ship_Game.Ships;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     /// <summary>
     /// used to classify a group of ships into fleets according to the fleet ratios.
     /// usage: create class and give it ships. it will talley their fleet characteristics
@@ -26,24 +27,11 @@ namespace Ship_Game.AI {
             Ratios = new FleetRatios(OwnerEmpire);
         }
 
-        public FleetShips(Empire ownerEmpire, Array<Ship> ships) : this(ownerEmpire)
-        {
-            foreach (var ship in ships) AddShip(ship);
-        }
-
         public FleetShips(Empire ownerEmpire, Ship[] ships) : this(ownerEmpire)
         {
             foreach (var ship in ships) AddShip(ship);
         }
 
-        public void AddShips(Array<Ship> ships)
-        {
-            for (int x = 0; x < ships.Count; x++)
-            {
-                var ship = ships[x];
-                AddShip(ship);
-            }
-        }
         public bool AddShip(Ship ship)
         {
             if (!ship.ShipIsGoodForGoals())
@@ -72,7 +60,7 @@ namespace Ship_Game.AI {
                 return false;
 
             AccumulatedStrength += ship.GetStrength();
-            Ships.AddUnique(ship);
+            Ships.Add(ship);
 
             if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Troop)
             {

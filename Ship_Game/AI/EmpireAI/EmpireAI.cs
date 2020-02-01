@@ -12,7 +12,7 @@ using Ship_Game.Commands.Goals;
 namespace Ship_Game.AI
 {
     [Guid("2CC355DF-EA7A-49C8-8940-00AA0713EFE3")]
-    public sealed partial class EmpireAI : IDisposable
+    public sealed partial class EmpireAI
     {
         private int NumberOfShipGoals  = 6;
         private int NumberTroopGoals   = 2;
@@ -28,10 +28,8 @@ namespace Ship_Game.AI
         public ThreatMatrix ThreatMatrix                     = new ThreatMatrix();
         public Array<AO> AreasOfOperations                   = new Array<AO>();
         public Array<int> UsedFleets                         = new Array<int>();
-        public BatchRemovalCollection<MilitaryTask> TaskList = new BatchRemovalCollection<MilitaryTask>();
-        public Array<MilitaryTask> TasksToAdd                = new Array<MilitaryTask>();
-        public float Toughnuts                               = 0;
-        public int Recyclepool                               = 0;
+        public float Toughnuts = 0;
+        public int Recyclepool = 0;
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
 
@@ -53,15 +51,6 @@ namespace Ship_Game.AI
                 case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
                 case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
             }
-        }
-
-        public void AddToTaskList(MilitaryTask task) => TaskList.Add(task);
-
-        public void RemoveFromTaskList(MilitaryTask task)
-        {
-            if (task == null)
-                Log.Error("Attempting to Remove null task from Empire TaskList");
-            TaskList.Remove(task);
         }
 
         void RunManagers()
@@ -118,13 +107,10 @@ namespace Ship_Game.AI
             return knownPlanets;
         }
 
-        public void RemoveShipFromForce(Ship ship) => RemoveShipFromForce(ship, null);
-        public void RemoveShipFromForce(Ship ship, AO ao)
+        public void RemoveShipFromForce(Ship ship, AO ao = null)
         {
-            if (ship == null) return;
-            OwnerEmpire.ForcePoolRemove(ship);
             if (ao == null)
-                foreach (var aos in AreasOfOperations)
+                foreach (AO aos in AreasOfOperations)
                     aos.RemoveShip(ship);
             else
                 ao.RemoveShip(ship);
@@ -132,70 +118,36 @@ namespace Ship_Game.AI
             DefensiveCoordinator.Remove(ship);
         }
 
-
-        public void AssignShipToForce(Ship toAdd)
+        // @return TRUE if ship was added to AI defense coordinator or AreaseOfOperations
+        public bool AssignShipToForce(Ship toAdd)
         {
-            toAdd.ClearFleet();
-            if (OwnerEmpire.GetShipsFromOffensePools(true).ContainsRef(toAdd))
-            {
-                //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
-                //this is broken. its checking all AO pools and force pool but only removes from force pool.
-                OwnerEmpire.ForcePoolRemove(toAdd);
-            }
-
             int numWars = OwnerEmpire.AtWarCount;
 
             float baseDefensePct = 0.1f;
-            baseDefensePct = baseDefensePct + 0.15f * numWars;
-            if(toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0
-                                                            || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
+            baseDefensePct += 0.15f * numWars;
+            if (toAdd.DesignRole < ShipData.RoleName.fighter ||
+                toAdd.BaseStrength <= 0f || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
             {
-                OwnerEmpire.GetForcePool().AddUnique(toAdd);
-                return;
+                return false; // we don't need this ship
             }
 
             if (baseDefensePct > 0.35f)
                 baseDefensePct = 0.35f;
 
-            bool needDef = OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr >0 && DefensiveCoordinator.DefenseDeficit >0;
-
+            bool needDef = (OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr) > 0 
+                        && DefensiveCoordinator.DefenseDeficit > 0;
             if (needDef)
             {
                 DefensiveCoordinator.AddShip(toAdd);
-                return;
+                return true;
             }
-            //need to rework this better divide the ships.
+
+            // need to rework this better divide the ships.
             AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-            if (!area?.AddShip(toAdd) ?? false)
-            {
-                OwnerEmpire.GetForcePool().Add(toAdd);
-            }
-        }
+            if (area?.AddShip(toAdd) == true)
+                return true;
 
-        private Vector2 FindAveragePosition(Empire e)
-        {
-            IReadOnlyList<Planet> planets = e.GetPlanets();
-            if (planets.Count <= 0)
-                return Vector2.Zero;
-
-            var avgPos = Vector2.Zero;
-            foreach (Planet p in planets)
-                avgPos += p.Center;
-
-            avgPos /= planets.Count;
-            return avgPos;
-        }
-
-        public float GetDistanceFromOurAO(Planet p)
-        {
-            IOrderedEnumerable<AO> sortedList =
-                from area in AreasOfOperations
-                orderby Vector2.Distance(p.Center, area.Center)
-                select area;
-            if (!sortedList.Any())
-                return 0f;
-
-            return Vector2.Distance(p.Center, sortedList.First().Center);
+            return false; // nothing to do with you
         }
 
         public AO FindClosestAOTo(Vector2 position)
@@ -224,7 +176,7 @@ namespace Ship_Game.AI
 
         public bool IsInOurAOs(Vector2 location) => AoContainingPosition(location) != null;
 
-        public void InitialzeAOsFromSave(UniverseData data)
+        public void InitializeAOsFromSave(UniverseData data)
         {
             foreach (AO area in AreasOfOperations)
                 area.InitFromSave(data, OwnerEmpire);
@@ -248,13 +200,12 @@ namespace Ship_Game.AI
                     theirTargetPlanets.Add(g.ColonizationTarget);
             }
             SolarSystem sharedSystem = null;
-            them.Key.GetShips().ForEach(ship =>
-            {
-                if (ship.AI.State != AIState.Colonize || ship.AI.ColonizeTarget == null)
-                    return;
 
-                theirTargetPlanets.Add(ship.AI.ColonizeTarget);
-            }, false, false);
+            foreach (Ship s in them.Key.GetShips())
+            {
+                if (s.AI.State == AIState.Colonize && s.AI.ColonizeTarget != null)
+                    theirTargetPlanets.Add(s.AI.ColonizeTarget);
+            }
 
             foreach (Planet p in ourTargetPlanets)
             {
@@ -358,22 +309,6 @@ namespace Ship_Game.AI
                     return;
                 }
             }
-        }
-
-
-        public void Dispose()
-        {
-            Destroy();
-            GC.SuppressFinalize(this);
-        }
-
-        ~EmpireAI() { Destroy(); }
-
-        void Destroy()
-        {
-            TaskList?.Dispose(ref TaskList);
-            DefensiveCoordinator?.Dispose(ref DefensiveCoordinator);
-            Goals?.Dispose(ref Goals);
         }
     }
 }

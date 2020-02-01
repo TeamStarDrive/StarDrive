@@ -1092,7 +1092,7 @@ namespace Ship_Game
                         if (node.Ship.GetSO() != null)
                             node.Ship.ShowSceneObjectAt(new Vector3(node.Ship.RelativeFleetOffset, -500000f));
                         SelectedFleet.Ships.Remove(node.Ship);
-                        node.Ship.fleet?.RemoveShip(node.Ship);
+                        node.Ship.ClearFleet();
                     }
                     SelectedNodeList.Clear();
                     ResetLists();
@@ -1528,7 +1528,7 @@ namespace Ship_Game
             {
                 Ship ship = fleet.Ships[i];
                 ship.ShowSceneObjectAt(new Vector3(ship.RelativeFleetOffset, -1000000f));
-                ship?.fleet?.RemoveShip(ship);         
+                ship.ClearFleet();
             }
             SelectedFleet.DataNodes.Clear();
             SelectedFleet.Ships.Clear();
