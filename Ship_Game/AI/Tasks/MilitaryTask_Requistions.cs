@@ -193,8 +193,9 @@ namespace Ship_Game.AI.Tasks
                 return null;
             }
 
-            AO closestAo = aos.FindMaxFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
-                ao => -ao.Center.SqDist(AO));
+            AO closestAo = aos.FindMinFiltered(ao => ao.GetCoreFleet().GetStrength() > strWanted,
+                                               ao => ao.Center.SqDist(AO));
+
             if (closestAo == null)
             {
                 Empire.Universe?.DebugWin?.DebugLogText($"Tasks ({Owner.Name}) Requistiions: No Core Fleets Stronger than ({strWanted}) found. CoreFleets#: {aos.Count} ", DebugModes.Normal);
@@ -203,11 +204,16 @@ namespace Ship_Game.AI.Tasks
             return closestAo.GetCoreFleet();
         }
 
-        void SendSofteningFleet(AO closestAO)
+        void SendSofteningFleet(float enemyStrength)
         {
             Fleet closestCoreFleet = FindClosestCoreFleet(MinimumTaskForceStrength);
             if (closestCoreFleet == null || closestCoreFleet.FleetTask != null)
                 return;
+
+            // don't send the fleet if it definitely cannot take the fight
+            if (!closestCoreFleet.CanTakeThisFight(enemyStrength))
+                return;
+
             var clearArea = new MilitaryTask(closestCoreFleet.Owner)
             {
                 AO = TargetPlanet.Center,
@@ -216,7 +222,6 @@ namespace Ship_Game.AI.Tasks
                 TargetPlanet = TargetPlanet,
                 TargetPlanetGuid = TargetPlanet.guid
             };
-
 
             closestCoreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
             clearArea.WhichFleet       = Owner.GetFleetsDict().FindFirstKeyForValue(closestCoreFleet);
@@ -385,7 +390,7 @@ namespace Ship_Game.AI.Tasks
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
                 //send a core fleet and wait.
-                SendSofteningFleet(closestAO);
+                SendSofteningFleet(EnemyStrength);
                 return  RequisitionStatus.NotEnoughShipStrength;
             }
 
@@ -419,7 +424,7 @@ namespace Ship_Game.AI.Tasks
                         TaskBombTimeNeeded = BombTimeNeeded().ClampMin(minBombMinutes);
                 }
             }
-            EnemyStrength = GetEnemyShipStrengthInAO(minFleetStrength); ;
+            EnemyStrength = GetEnemyShipStrengthInAO(minFleetStrength);
         }
 
 

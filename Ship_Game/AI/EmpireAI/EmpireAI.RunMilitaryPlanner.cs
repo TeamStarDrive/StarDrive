@@ -103,8 +103,8 @@ namespace Ship_Game.AI
 
         public MilitaryTask[] GetClaimTasks()
         {
-            return TaskList.Filter(task => task.IsCoreFleetTask
-                || task.type == MilitaryTask.TaskType.DefendClaim);
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+                                        && task.TargetPlanet != null);
         }
 
         public bool HasTaskOfType(MilitaryTask.TaskType type)

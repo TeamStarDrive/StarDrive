@@ -1037,24 +1037,30 @@ namespace Ship_Game.AI
         void DebugInfo(MilitaryTask task, string text)
             => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
+        // @return TRUE if we can take this fight, potentially, maybe...
+        public bool CanTakeThisFight(float enemyFleetStrength)
+        {
+            float ourStrengthThreshold = GetStrength() * 2;
+            return enemyFleetStrength <= ourStrengthThreshold;
+        }
+
         bool StillCombatEffective(MilitaryTask task)
         {
-            float targetStrength =
-                Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
-            float fleetStrengthThreshold = GetStrength() * 2;
-            if (!(targetStrength >= fleetStrengthThreshold))
+            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
+            if (CanTakeThisFight(enemyStrength))
                 return true;
-            DebugInfo(task, $"Enemy Strength too high. Them: {targetStrength} Us: {fleetStrengthThreshold}");
+
+            DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
             return false;
         }
 
         bool StillInvasionEffective(MilitaryTask task)
         {
-            bool troopsOnPlanet        = task.TargetPlanet.AnyOfOurTroops(Owner);
-            bool invasionTroops               = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
+            bool troopsOnPlanet = task.TargetPlanet.AnyOfOurTroops(Owner);
+            bool invasionTroops = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
             bool stillMissionEffective = troopsOnPlanet || invasionTroops;
             if (!stillMissionEffective)
-                DebugInfo(task, $" No Troops on Planet and No Ships.");
+                DebugInfo(task, " No Troops on Planet and No Ships.");
             return stillMissionEffective;
         }
 

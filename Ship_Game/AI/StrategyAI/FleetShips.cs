@@ -2,7 +2,8 @@
 using System.Diagnostics;
 using Ship_Game.Ships;
 
-namespace Ship_Game.AI {
+namespace Ship_Game.AI
+{
     /// <summary>
     /// used to classify a group of ships into fleets according to the fleet ratios.
     /// usage: create class and give it ships. it will talley their fleet characteristics
