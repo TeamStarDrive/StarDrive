@@ -77,6 +77,7 @@ namespace Ship_Game.AI.Tasks
                 Name = Name,
                 Owner = Owner
             };
+
             ///// asdaljksdjalsdkjal;sdkjla;sdkjasl;dkj i will rebuild this better.
             ///// this is acessing a lot of other classes stuff.
             int fleetNum = FindUnusedFleetNumber();
@@ -86,9 +87,9 @@ namespace Ship_Game.AI.Tasks
             newFleet.FleetTask = this;
             foreach (Ship ship in ships)
             {
-                newFleet.AddShip(ship);
                 ship.AI.ClearOrders();
-                Owner.GetEmpireAI().RemoveShipFromForce(ship);
+                Owner.RemoveShipFromFleetAndPools(ship);
+                newFleet.AddShip(ship);
             }
 
             newFleet.AutoArrange();

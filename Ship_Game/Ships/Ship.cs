@@ -1668,7 +1668,6 @@ namespace Ship_Game.Ships
             HostileTroops.Clear();
             RepairBeams.Clear();
 
-            ClearFleet();
             loyalty.RemoveShip(this);
             SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
@@ -1677,7 +1676,7 @@ namespace Ship_Game.Ships
             base.RemoveFromUniverseUnsafe();
         }
 
-        public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
+        public void ClearFleet() => fleet?.RemoveShip(this);
 
         public void Dispose()
         {

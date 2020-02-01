@@ -107,13 +107,10 @@ namespace Ship_Game.AI
             return knownPlanets;
         }
 
-        public void RemoveShipFromForce(Ship ship) => RemoveShipFromForce(ship, null);
-        public void RemoveShipFromForce(Ship ship, AO ao)
+        public void RemoveShipFromForce(Ship ship, AO ao = null)
         {
-            if (ship == null) return;
-            OwnerEmpire.ForcePoolRemove(ship);
             if (ao == null)
-                foreach (var aos in AreasOfOperations)
+                foreach (AO aos in AreasOfOperations)
                     aos.RemoveShip(ship);
             else
                 ao.RemoveShip(ship);
@@ -121,70 +118,36 @@ namespace Ship_Game.AI
             DefensiveCoordinator.Remove(ship);
         }
 
-
-        public void AssignShipToForce(Ship toAdd)
+        // @return TRUE if ship was added to AI defense coordinator or AreaseOfOperations
+        public bool AssignShipToForce(Ship toAdd)
         {
-            toAdd.ClearFleet();
-            if (OwnerEmpire.GetShipsFromOffensePools(true).ContainsRef(toAdd))
-            {
-                //@TODO fix the cause of having ships already in forcepool when a ship is being added to the force pool
-                //this is broken. its checking all AO pools and force pool but only removes from force pool.
-                OwnerEmpire.ForcePoolRemove(toAdd);
-            }
-
             int numWars = OwnerEmpire.AtWarCount;
 
             float baseDefensePct = 0.1f;
-            baseDefensePct = baseDefensePct + 0.15f * numWars;
-            if(toAdd.DesignRole < ShipData.RoleName.fighter || toAdd.BaseStrength <=0
-                                                            || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
+            baseDefensePct += 0.15f * numWars;
+            if (toAdd.DesignRole < ShipData.RoleName.fighter ||
+                toAdd.BaseStrength <= 0f || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
             {
-                OwnerEmpire.GetForcePool().AddUnique(toAdd);
-                return;
+                return false; // we don't need this ship
             }
 
             if (baseDefensePct > 0.35f)
                 baseDefensePct = 0.35f;
 
-            bool needDef = OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr >0 && DefensiveCoordinator.DefenseDeficit >0;
-
+            bool needDef = (OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr) > 0 
+                        && DefensiveCoordinator.DefenseDeficit > 0;
             if (needDef)
             {
                 DefensiveCoordinator.AddShip(toAdd);
-                return;
+                return true;
             }
-            //need to rework this better divide the ships.
+
+            // need to rework this better divide the ships.
             AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-            if (!area?.AddShip(toAdd) ?? false)
-            {
-                OwnerEmpire.GetForcePool().Add(toAdd);
-            }
-        }
+            if (area?.AddShip(toAdd) == true)
+                return true;
 
-        private Vector2 FindAveragePosition(Empire e)
-        {
-            IReadOnlyList<Planet> planets = e.GetPlanets();
-            if (planets.Count <= 0)
-                return Vector2.Zero;
-
-            var avgPos = Vector2.Zero;
-            foreach (Planet p in planets)
-                avgPos += p.Center;
-
-            avgPos /= planets.Count;
-            return avgPos;
-        }
-
-        public float GetDistanceFromOurAO(Planet p)
-        {
-            IOrderedEnumerable<AO> sortedList =
-                from area in AreasOfOperations
-                orderby Vector2.Distance(p.Center, area.Center)
-                select area;
-            if (!sortedList.Any())
-                return 0f;
-
-            return Vector2.Distance(p.Center, sortedList.First().Center);
+            return false; // nothing to do with you
         }
 
         public AO FindClosestAOTo(Vector2 position)
