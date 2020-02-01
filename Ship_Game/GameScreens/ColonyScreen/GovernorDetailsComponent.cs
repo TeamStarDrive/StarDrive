@@ -16,6 +16,7 @@ namespace Ship_Game
         UILabel WorldType, WorldDescription;
         DropOptions<Planet.ColonyType> ColonyTypeList;
         UICheckBox GovOrbitals, GovMilitia, GovNoScrap;
+        private FloatSlider Garrison;
         readonly bool UseVideo;
 
         public GovernorDetailsComponent(GameScreen screen, 
@@ -49,6 +50,8 @@ namespace Ship_Game
             GovMilitia  = Add(new UICheckBox(() => Planet.GovMilitia,  Fonts.Arial12Bold, title:1956, tooltip:1957));
             GovNoScrap  = Add(new UICheckBox(() => Planet.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
 
+            Garrison = Slider(200, 200, 200, 40, "Garrison Size", 0, 10,Planet.GarrisonSize);
+            Garrison.Tip = 1903;
             // Dropdown will go on top of everything else
             ColonyTypeList = Add(new DropOptions<Planet.ColonyType>(100, 18));
             ColonyTypeList.AddOption(option:"--", Planet.ColonyType.Colony);
@@ -79,6 +82,7 @@ namespace Ship_Game
             GovOrbitals.Pos = new Vector2(Portrait.X, Bottom - 40);
             GovMilitia.Pos  = new Vector2(Portrait.X, Bottom - 24);
             GovNoScrap.Pos  = new Vector2(Portrait.X + 240, Bottom - 40);
+            Garrison.Pos    = new Vector2(Portrait.X + 300, Bottom - 188);
 
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }
@@ -99,11 +103,12 @@ namespace Ship_Game
         public override void Update(float deltaTime)
         {
             GovOrbitals.Visible = Planet.Owner.isPlayer && Planet.colonyType != Planet.ColonyType.Colony;
-            GovMilitia.Visible = GovOrbitals.Visible;
+            GovMilitia.Visible  = GovOrbitals.Visible;
+            Garrison.Visible    = Planet.Owner.isPlayer;
+            Planet.GarrisonSize = (int)Garrison.AbsoluteValue;
 
             // not for trade hubs, which do not build structures anyway
             GovNoScrap.Visible = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
-
 
             base.Update(deltaTime);
         }

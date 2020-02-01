@@ -93,6 +93,7 @@ namespace Ship_Game
             p.colonyType         = psdata.ColonyType;
             p.GovOrbitals        = psdata.GovOrbitals;
             p.GovMilitia         = psdata.GovMilitia;
+            p.GarrisonSize       = psdata.GarrisonSize;
             p.DontScrapBuildings = psdata.DontScrapBuildings;
             p.NumShipyards       = psdata.NumShipyards;
             p.FS                 = psdata.FoodState;

@@ -142,6 +142,7 @@ namespace Ship_Game
             CreateHomeWorldEnvironment();
             SetTileHabitability(0, out _); // Create the homeworld's tiles without making them habitable yet
             SetHomeworldTiles();
+            ResetGarrisonSize();
 
             if (Owner.isPlayer)
                 colonyType = ColonyType.Colony;
