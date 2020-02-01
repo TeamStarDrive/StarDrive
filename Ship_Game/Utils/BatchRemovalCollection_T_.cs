@@ -63,11 +63,6 @@ namespace Ship_Game
             PendingRemovals.Clear();
         }
 
-        public bool IsPendingRemoval(T item)
-        {
-            return PendingRemovals.Contains(item);
-        }
-
         public new void Add(T item)
         {
             ThisLock.EnterWriteLock();
@@ -89,14 +84,6 @@ namespace Ship_Game
             PendingRemovals = new ConcurrentStack<T>(this); 
             base.Clear();
             ThisLock.ExitWriteLock();
-        }
-
-        public void ClearAll()
-        {
-            ThisLock.EnterWriteLock();
-            base.Clear();
-            ThisLock.ExitWriteLock();
-            PendingRemovals?.Clear();
         }
 
         public new bool Remove(T item)
@@ -128,80 +115,6 @@ namespace Ship_Game
             ThisLock.EnterWriteLock();
             base.AddRange(collection);
             ThisLock.ExitWriteLock();
-        }
-
-        public new void AddRange(IEnumerable<T> enumerable)
-        {
-            ThisLock.EnterWriteLock();
-            base.AddRange(enumerable);
-            ThisLock.ExitWriteLock();
-        }
-
-        // to use this:
-        // somelist.foreach(action => { do some action with action},false,false,false);
-        // to enable parallel mode set the last false to "true'
-        public void ForEach(Action<T> action, bool performActionOnClones = true, bool asParallel = true, bool inParallel = false)
-        {
-            if (action == null)
-            {
-                throw new ArgumentNullException(nameof(action));
-            }
-            var wrapper = new Action<T>(obj =>
-            {
-                try
-                {
-                    action(obj);
-                }
-                catch (ArgumentNullException)
-                {
-                    //if a null gets into the list then swallow an ArgumentNullException so we can continue adding
-                }
-            });
-            if (performActionOnClones)
-            {
-                ThisLock.EnterReadLock();
-                var clones = Clone();
-                if (asParallel)
-                {
-                    clones.AsParallel().ForAll(wrapper);
-                }
-                else if (inParallel)
-                {
-                    System.Threading.Tasks.Parallel.ForEach(clones, wrapper);
-                }
-                else
-                {
-                    clones.ForEach(wrapper);
-                }
-                ThisLock.ExitReadLock();
-            }
-            else
-            {
-                ThisLock.EnterReadLock();
-                {
-                    if (asParallel)
-                    {
-                        this.AsParallel().ForAll(wrapper);
-                    }
-                    else if (inParallel)
-                    {
-                        System.Threading.Tasks.Parallel.ForEach(this, wrapper);
-                    }
-                    else
-                    {
-                        base.ForEach(wrapper);
-                    }
-                }
-                ThisLock.ExitReadLock();
-            }
-        }
-
-        public new Array<T> Clone()
-        {
-            ThisLock.EnterReadLock();
-            var copy = new Array<T>(this);
-            ThisLock.ExitReadLock();
-            return copy;
         }
 
         // This is used to reduce the time locks are held. Downside is higher memory usage

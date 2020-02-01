@@ -487,7 +487,7 @@ namespace Ship_Game
 
             int hullSelY = SelectSize(45, 100, 100);
             int hullSelW = SelectSize(260, 280, 320);
-            int hullSelH = SelectSize(350, 500, 600);
+            int hullSelH = SelectSize(250, 400, 500);
             var hullSelectionBkg = new Submenu(ScreenWidth - 285, hullSelY, hullSelW, hullSelH);
             // rounded black background
             hullSelectionBkg.Background = new Selector(hullSelectionBkg.Rect.CutTop(25), new Color(0,0,0,210));

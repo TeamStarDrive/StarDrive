@@ -4695,6 +4695,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
     </Token>
     <Token>
+      <Index>1903</Index>
+      <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually.</Text>
+    </Token>
+    <Token>
       <Index>1904</Index>
       <Text>This indicates how many tiles are habitable on this planet</Text>
     </Token>
@@ -4864,11 +4868,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1956</Index>
-      <Text>Governor Builds Militia</Text>
+      <Text>Auto Build Garrison</Text>
     </Token>
     <Token>
       <Index>1957</Index>
-      <Text>The Governor will create a small militia for the planet. 4 Troops for Research colonies, 6 Troops for Core colonies, 7 Troops for Military colonies and 5 for other colonies.</Text>
+      <Text>The Governor will create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off loaded below the Garrison size, and will train new troops to replace them.</Text>
     </Token>
     <Token>
       <Index>1958</Index>

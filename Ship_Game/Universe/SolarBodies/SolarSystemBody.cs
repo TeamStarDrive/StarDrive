@@ -499,6 +499,7 @@ namespace Ship_Game
             }
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
+            thisPlanet.ResetGarrisonSize();
             TurnsSinceTurnover = 0;
             ConstructionQueue.Clear();
             ParentSystem.OwnerList.Clear();
