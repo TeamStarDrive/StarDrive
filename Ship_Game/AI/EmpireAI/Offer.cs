@@ -540,7 +540,7 @@ namespace Ship_Game
                 text.Append(Localizer.Token(3015));
                 if (TheirOffer.TechnologiesOffered.Count == 1)
                 {
-                    text.Append(". ", TechOffer(0));
+                    text.Append(". ", TheirOffer.TechOffer(0));
                 }
                 else if (TheirOffer.TechnologiesOffered.Count != 2)
                 {
