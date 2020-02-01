@@ -258,12 +258,12 @@ namespace Ship_Game
             get => FleetsDict[1];
             set
             {
-                for (int index = 0; index < FleetsDict[1].Ships.Count; index++)
+                Fleet existing = FleetsDict[1];
+                if (existing != value)
                 {
-                    Ship s = FleetsDict[1].Ships[index];
-                    s?.fleet?.RemoveShip(s);
+                    existing.Reset();
+                    FleetsDict[1] = value;
                 }
-                FleetsDict[1] = value;
             }
         }
 
@@ -429,7 +429,7 @@ namespace Ship_Game
                 ship.AI.ClearOrders();
             }
             EmpireAI.Goals.Clear();
-            EmpireAI.TaskList.Clear();
+            EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict)
                 kv.Value.Reset();
 
@@ -470,7 +470,7 @@ namespace Ship_Game
             }
 
             EmpireAI.Goals.Clear();
-            EmpireAI.TaskList.Clear();
+            EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             OwnedShips.Clear();
             data.AgentList.Clear();
@@ -2445,14 +2445,14 @@ namespace Ship_Game
             {
                 OwnedShips.Add(ship);
                 ship.loyalty = this;
-                ship.fleet?.RemoveShip(ship);
+                ship.ClearFleet();
                 ship.AI.ClearOrders();
             }
             foreach (Ship ship in target.GetProjectors())
             {
                 OwnedProjectors.Add(ship);
                 ship.loyalty = this;
-                ship.fleet?.RemoveShip(ship);
+                ship.ClearFleet();
                 ship.AI.ClearOrders();
             }
             target.GetShips().Clear();
@@ -2487,18 +2487,14 @@ namespace Ship_Game
                 Money += target.Money;
                 target.Money = 0.0f;
             }
+
             target.SetAsMerged();
             ResetBorders();
             UpdateShipsWeCanBuild();
             if (this != EmpireManager.Player)
             {
                 data.difficulty = Difficulty.Brutal;
-                EmpireAI.TaskList.ForEach(
-                    militaryTask =>
-                    {
-                        militaryTask.EndTask();
-                    }, false, false, false);
-                EmpireAI.TaskList.ApplyPendingRemovals();
+                EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
                 ForcePool.Clear();
@@ -2521,35 +2517,34 @@ namespace Ship_Game
             CalculateScore();
         }
 
+        public void RemoveShipFromFleetAndPools(Ship ship)
+        {
+            ship.ClearFleet();
+            ForcePool.RemoveRef(ship);
+            EmpireAI.RemoveShipFromForce(ship);
+        }
+
         public void ForcePoolAdd(Array<Ship> ships)
         {
             for (int i = 0; i < ships.Count; i++)
-            {
-                var s = ships[i];
-                ForcePoolAdd(s);
-            }
+                ForcePoolAdd(ships[i]);
         }
 
-        public void ForcePoolAdd(Ship s)
+        public void ForcePoolAdd(Ship ship)
         {
-            if (s.shipData.Role > ShipData.RoleName.freighter && s.shipData.ShipCategory != ShipData.Category.Civilian)
+            if (ship.shipData.Role > ShipData.RoleName.freighter &&
+                ship.shipData.ShipCategory != ShipData.Category.Civilian)
             {
-                EmpireAI.AssignShipToForce(s);
+                RemoveShipFromFleetAndPools(ship);
+
+                if (!EmpireAI.AssignShipToForce(ship))
+                {
+                    ForcePool.Add(ship);
+                }
             }
         }
 
-        public void ForcePoolRemove(Ship s) => ForcePool.RemoveRef(s);
         public bool ForcePoolContains(Ship s) => ForcePool.ContainsRef(s);
-
-        public Array<Ship> GetForcePool() => ForcePool;
-
-        public float GetForcePoolStrength()
-        {
-            float num = 0.0f;
-            foreach (Ship ship in ForcePool)
-                num += ship.GetStrength();
-            return num;
-        }
 
         public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);
 
@@ -2711,22 +2706,9 @@ namespace Ship_Game
                 OwnedProjectors.RemoveRef(ship);
             else
                 OwnedShips.RemoveRef(ship);
-
-            GetEmpireAI().DefensiveCoordinator.Remove(ship);
-
+            
             ship.AI.ClearOrders();
-            ship.ClearFleet();
-        }
-
-        public void RemoveShipFromAOs(Ship ship)
-        {
-            Array<AO> aos = GetEmpireAI().AreasOfOperations;
-            for (int x = 0; x < aos.Count; x++)
-            {
-                var ao = aos[x];
-                if (ao.RemoveShip(ship))
-                    break;
-            }
+            RemoveShipFromFleetAndPools(ship);
         }
 
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
@@ -2788,17 +2770,18 @@ namespace Ship_Game
             ShipsToAdd.Clear();
         }
 
-        public void ResetForcePool()
+        public void RemoveInvalidShipsFromForcePool()
         {
-            //I am guessing the point of this is to filter ships out of the forcepool
-            //that should not be in it/
-            //I think this might be a hack to cover up a bug.
-            if (!isPlayer)
+            if (isPlayer && ForcePool.Count > 0)
+                Log.Warning($"Player ForcePool should be empty!: {ForcePool.Count}");
+
+            for (int i = ForcePool.Count-1; i >= 0; --i)
             {
-                Ship[] forcePool = ForcePool.ToArray();
-                ForcePool.Clear();
-                for (int i = 0; i < forcePool.Length; ++i)
-                    ForcePoolAdd(forcePool[i]);
+                Ship ship = ForcePool[i];
+                if (!ship.Active)
+                {
+                    RemoveShipFromFleetAndPools(ship);
+                }
             }
         }
 
@@ -2846,7 +2829,6 @@ namespace Ship_Game
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
             OwnedShips?.Dispose(ref OwnedShips);
-            EmpireAI?.Dispose(ref EmpireAI);
             if (data != null)
             {
                 data.AgentList = new BatchRemovalCollection<Agent>();

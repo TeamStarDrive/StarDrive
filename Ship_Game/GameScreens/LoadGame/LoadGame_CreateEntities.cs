@@ -397,41 +397,38 @@ namespace Ship_Game
         static void CreateAOs(UniverseData data)
         {
             foreach (Empire e in data.EmpireList)
-                e.GetEmpireAI().InitialzeAOsFromSave(data);
+                e.GetEmpireAI().InitializeAOsFromSave(data);
         }
 
         static void CreateMilitaryTasks(SavedGame.EmpireSaveData d, Empire e, UniverseData data)
         {
-            lock (GlobalStats.TaskLocker)
+            foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
             {
-                foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
+                task.SetEmpire(e);
+                if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
+                    task.SetTargetPlanet(p);
+
+                foreach (Guid guid in task.HeldGoals)
                 {
-                    task.SetEmpire(e);
-                    e.GetEmpireAI().TaskList.Add(task);
-
-                    if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
-                        task.SetTargetPlanet(p);
-
-                    foreach (Guid guid in task.HeldGoals)
+                    foreach (Goal g in e.GetEmpireAI().Goals)
                     {
-                        foreach (Goal g in e.GetEmpireAI().Goals)
+                        if (g.guid == guid)
                         {
-                            if (g.guid == guid)
-                            {
-                                g.Held = true;
-                                break;
-                            }
+                            g.Held = true;
+                            break;
                         }
                     }
+                }
 
-                    if (task.WhichFleet != -1)
-                    {
-                        if (e.GetFleetsDict().TryGetValue(task.WhichFleet, out Fleet fleet))
-                            fleet.FleetTask = task;
-                        else task.WhichFleet = 0;
-                    }
+                if (task.WhichFleet != -1)
+                {
+                    if (e.GetFleetsDict().TryGetValue(task.WhichFleet, out Fleet fleet))
+                        fleet.FleetTask = task;
+                    else task.WhichFleet = 0;
                 }
             }
+
+            e.GetEmpireAI().ReadFromSave(d.GSAIData);
         }
 
         static bool IsShipGoalInvalid(SavedGame.GoalSave g)
