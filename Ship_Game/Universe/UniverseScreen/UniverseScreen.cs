@@ -368,13 +368,14 @@ namespace Ship_Game
         void InitializeCamera()
         {
             float univSizeOnScreen = 10f;
-            MaxCamHeight = 4E+07f;
+            MaxCamHeight = 4000000f;
+            CreateProjectionMatrix();
 
             while (univSizeOnScreen < (ScreenWidth + 50))
             {
                 float univRadius = UniverseSize / 2f;
-                Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
-                                                                new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
+                var camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
+                                                             new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
 
                 Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
                 Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
@@ -383,8 +384,8 @@ namespace Ship_Game
                     MaxCamHeight -= 0.1f * MaxCamHeight;
             }
 
-            if (MaxCamHeight > 23000000)
-                MaxCamHeight = 23000000;
+            if (MaxCamHeight > 11000000)
+                MaxCamHeight = 11000000;
 
             if (!loading)
             {
@@ -555,7 +556,7 @@ namespace Ship_Game
             defensiveFleetAt.TaskStep = 3;
             militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
             EmpireManager.Remnants.GetFleetsDict().Add(militaryTask.WhichFleet, defensiveFleetAt);
-            EmpireManager.Remnants.GetEmpireAI().TaskList.Add(militaryTask);
+            EmpireManager.Remnants.GetEmpireAI().AddPendingTask(militaryTask);
             militaryTask.Step = 2;
         }
 
@@ -601,7 +602,6 @@ namespace Ship_Game
             int width   = GameBase.ScreenWidth;
             int height  = GameBase.ScreenHeight;
 
-            CreateProjectionMatrix();
             LoadParticles(content, device);
 
             bg = new Background();

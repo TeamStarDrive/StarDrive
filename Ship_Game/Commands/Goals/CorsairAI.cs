@@ -26,37 +26,26 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CorsairPlan()
         {
-            bool alreadyAttacking = false;
-            // @todo Wtf?
-            foreach (MilitaryTask task in empire.GetEmpireAI().TaskList)
-            {
-                if (task.type != MilitaryTask.TaskType.CorsairRaid)
-                    return GoalStep.TryAgain;
-                alreadyAttacking = true;
-            }
-
-            if (!alreadyAttacking)
+            bool alreadyRaiding = empire.GetEmpireAI().HasTaskOfType(MilitaryTask.TaskType.CorsairRaid);
+            if (!alreadyRaiding)
             {
                 foreach (KeyValuePair<Empire, Relationship> r in empire.AllRelations)
                 {
-                    if (!r.Value.AtWar || r.Key.GetPlanets().Count <= 0 || empire.GetShips().Count <= 0)
+                    if (r.Value.AtWar && r.Key.GetPlanets().Count > 0 && empire.GetShips().Count > 0)
                     {
-                        continue;
+                        var center = new Vector2();
+                        foreach (Ship ship in empire.GetShips())
+                            center += ship.Center;
+                        center /= empire.GetShips().Count;
+
+                        var task = new MilitaryTask(empire);
+                        task.SetTargetPlanet(r.Key.GetPlanets().FindMin(p => p.Center.SqDist(center)));
+                        task.TaskTimer = 300f;
+                        task.type = MilitaryTask.TaskType.CorsairRaid;
+                        empire.GetEmpireAI().AddPendingTask(task);
                     }
-
-                    var center = new Vector2();
-                    foreach (Ship ship in empire.GetShips())
-                        center += ship.Center;
-                    center /= empire.GetShips().Count;
-
-                    var task = new MilitaryTask(empire);
-                    task.SetTargetPlanet(r.Key.GetPlanets().FindMin(p => p.Center.SqDist(center)));
-                    task.TaskTimer = 300f;
-                    task.type = MilitaryTask.TaskType.CorsairRaid;
-                    empire.GetEmpireAI().TaskList.Add(task);
                 }
             }
-
             return GoalStep.TryAgain;
         }
     }

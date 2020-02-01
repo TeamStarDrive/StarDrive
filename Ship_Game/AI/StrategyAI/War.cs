@@ -178,25 +178,21 @@ namespace Ship_Game
 
         public WarState ConductWar()
         {
-            var tasks = new Array<MilitaryTask>();
             switch (WarType)
             {
                 case WarType.DefensiveWar:
-                case WarType.BorderConflict: tasks.AddRange(ConductBorderConflictWar()); break;
-                case WarType.SkirmishWar:    tasks.AddRange(ConductSkirmishWar()); break;
+                case WarType.BorderConflict: Us.GetEmpireAI().AddPendingTasks(ConductBorderConflictWar()); break;
+                case WarType.SkirmishWar:    Us.GetEmpireAI().AddPendingTasks(ConductSkirmishWar()); break;
                 case WarType.ImperialistWar:
-                case WarType.GenocidalWar:   tasks.AddRange(ConductImperialisticWar()); break;
+                case WarType.GenocidalWar:   Us.GetEmpireAI().AddPendingTasks(ConductImperialisticWar()); break;
             }
-
-            Us.GetEmpireAI().TaskList.AddRange(tasks);
-
             return GetWarScoreState();
         }
 
-        private Array<MilitaryTask> AttackContestedSystems()
+        Array<MilitaryTask> AttackContestedSystems()
         {
-            var tasks = new Array<MilitaryTask>();
-            if (ContestedSystemCount == 0) return tasks;
+            if (ContestedSystemCount == 0)
+                return new Array<MilitaryTask>();
 
             var sortedContestSystems = ContestedSystems;
             sortedContestSystems.Sort(s => !Us.GetEmpireAI().IsInOurAOs(s.Position));
@@ -233,7 +229,6 @@ namespace Ship_Game
 
         Array<MilitaryTask> StandardAssault(SolarSystem[] systemsToAttack)
         {
-            bool targetFound = false;
             var tasks = new Array<MilitaryTask>();
             systemsToAttack.Sort(s => s.PlanetList.Sum(p => p.ColonyBaseValue(Us)));
 
@@ -256,33 +251,12 @@ namespace Ship_Game
 
         bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
-            using (Us.GetEmpireAI().TaskList.AcquireReadLock())
-                return Us.GetEmpireAI().TaskList.Any(task =>
-                {
-                    if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
-                        task.TargetPlanet?.ParentSystem == system) 
-                        return true;
-                    return false;
-                });
+            return Us.GetEmpireAI().IsAlreadyAssaultingSystem(system);
         }
 
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
         {
-            using (Us.GetEmpireAI().TaskList.AcquireReadLock())
-                return Us.GetEmpireAI().TaskList.Any(task =>
-                {
-                    if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
-                        task.TargetPlanet == planetToAssault)
-                        return true;
-                    return false;
-                });
-        }
-
-        public MilitaryTask[] TasksForThisWar()
-        {
-            using (Us.GetEmpireAI().TaskList.AcquireReadLock())
-                return Us.GetEmpireAI().TaskList.Filter(task =>
-                    task.TargetPlanet?.Owner == Them);
+            return Us.GetEmpireAI().IsAlreadyAssaultingPlanet(planetToAssault);
         }
 
         public void ShipWeLost(Ship target)
@@ -318,14 +292,14 @@ namespace Ship_Game
                 ColoniesWon++;
         }
 
-        public DebugTextBlock WarDebugData(DebugTextBlock debug)
+        public void WarDebugData(ref DebugTextBlock debug)
         {
             string pad = "     ";
             string pad2 = pad + "  *";
-            debug.AddLine($"{pad}War Type:{WarType}");
-            debug.AddLine($"{pad}War State:{GetWarScoreState()}");
-            debug.AddLine($"{pad}With : {ThemName}");
-            debug.AddLine($"{pad}Threat Ratio = % {(int)(TotalThreatAgainst * 100)}");
+            debug.AddLine($"{pad}WarType:{WarType}");
+            debug.AddLine($"{pad}WarState:{GetWarScoreState()}");
+            debug.AddLine($"{pad}With: {ThemName}");
+            debug.AddLine($"{pad}ThreatRatio = % {(int)(TotalThreatAgainst * 100)}");
             debug.AddLine($"{pad}StartDate {StartDate}");
             debug.AddLine($"{pad}Their Strength killed:{StrengthKilled}");
             debug.AddLine($"{pad}Our Strength killed:{StrengthLost}");
@@ -336,22 +310,21 @@ namespace Ship_Game
 
             foreach (var system in ContestedSystems)
             {
-                bool weAreThere = system.OwnerList.Contains(Us);
-                bool theyAreThere = system.OwnerList.Contains(Them);
+                bool ourForcesPresent = system.OwnerList.Contains(Us);
+                bool theirForcesPresent = system.OwnerList.Contains(Them);
                 int value = (int)system.PlanetList.Sum(p => p.ColonyBaseValue(Us));
                 bool hasFleetTask = IsAlreadyAssaultingSystem(system);
-                debug.AddLine($"{pad2}System : {system.Name} : value :{value}");
-                debug.AddLine($"{pad2}We are there :{weAreThere} They are there {theyAreThere}");
+                debug.AddLine($"{pad2}System: {system.Name}  value:{value}  task:{hasFleetTask}");
+                debug.AddLine($"{pad2}OurForcesPresent:{ourForcesPresent}  TheirForcesPresent:{theirForcesPresent}");
             }
-            foreach (var fleet in TasksForThisWar())
+
+            foreach (MilitaryTask task in Us.GetEmpireAI().GetMilitaryTasksTargeting(Them))
             {
-                debug.AddLine($"{pad} Type:{fleet.type}");
-                debug.AddLine($"{pad2} System: {fleet.TargetPlanet.ParentSystem.Name}");
-                debug.AddLine($"{pad2} Has Fleet: {fleet.WhichFleet}");
-                debug.AddLine($"{pad2} Fleet MinStr: {(int)fleet.MinimumTaskForceStrength}");
-                
+                debug.AddLine($"{pad} Type:{task.type}");
+                debug.AddLine($"{pad2} System: {task.TargetPlanet.ParentSystem.Name}");
+                debug.AddLine($"{pad2} Has Fleet: {task.WhichFleet}");
+                debug.AddLine($"{pad2} Fleet MinStr: {(int)task.MinimumTaskForceStrength}");
             }
-            return debug;
         }
 
     }
