@@ -260,10 +260,7 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!IsCoreFleetTask && WhichFleet != -1 && Owner != EmpireManager.Player)
                 {
-                    foreach (Ship ship in Fleet.Ships)
-                    {
-                        Owner.ForcePoolAdd(ship);
-                    }
+                    Fleet.Reset();
                 }
                 return;
             }
@@ -279,7 +276,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     foreach (Ship ship in Fleet.Ships)
                     {
-                        Fleet.RemoveShip(ship);
+                        Owner.RemoveShipFromFleetAndPools(ship);
                         closestAo.AddShip(ship);
                         closestAo.TurnsToRelax = 0;
                     }
@@ -506,7 +503,7 @@ namespace Ship_Game.AI.Tasks
                 // remove dead or scrapping ships
                 if (!ship.Active || ship.InCombat && Step < 1 || ship.AI.State == AIState.Scrap)
                 {
-                    fleet.RemoveShip(ship);
+                    ship.ClearFleet();
                     if (ship.Active && ship.AI.State != AIState.Scrap)
                         Owner.ForcePoolAdd(ship);
                 }
@@ -541,7 +538,7 @@ namespace Ship_Game.AI.Tasks
                     foreach (Ship ship in Owner.GetFleetOrNull(WhichFleet).Ships)
                     {
                         ship.AI.ClearOrders();
-                        Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);
+                        ship.ClearFleet();
                         ship.HyperspaceReturn();
 
                         if (ship.shipData.Role != ShipData.RoleName.troop)
