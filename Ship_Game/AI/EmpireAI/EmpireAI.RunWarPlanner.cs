@@ -248,7 +248,7 @@ namespace Ship_Game.AI
             OwnerEmpire.GetRelations(them).AtWar = false;
             them.GetRelations(OwnerEmpire).AtWar = false;
 
-            foreach (MilitaryTask task in TaskList.AtomicCopy())
+            foreach (MilitaryTask task in TaskList.ToArray())
             {
                 if (OwnerEmpire.GetFleetsDict().Get(task.WhichFleet, out Fleet fleet) &&
                     OwnerEmpire.data.Traits.Name == "Corsairs")
