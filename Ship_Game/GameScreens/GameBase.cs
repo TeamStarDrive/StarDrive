@@ -78,7 +78,7 @@ namespace Ship_Game
             e.GraphicsDeviceInformation.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PlatformContents;
         }
 
-        protected void UpdateRendererPreferences(ref GraphicsSettings settings)
+        void UpdateRendererPreferences(ref GraphicsSettings settings)
         {
             var p = new LightingSystemPreferences
             {
@@ -95,6 +95,7 @@ namespace Ship_Game
                 return; // nothing changed.
 
             Log.Write(ConsoleColor.Magenta, "Apply 3D Graphics Preferences:");
+            Log.Write(ConsoleColor.Magenta, $"  Resolution:      {settings.Width}x{settings.Height} Fullscreen:{Graphics.IsFullScreen}");
             Log.Write(ConsoleColor.Magenta, $"  ShadowQuality:   {p.ShadowQuality}");
             Log.Write(ConsoleColor.Magenta, $"  ShadowDetail:    {p.ShadowDetail}");
             Log.Write(ConsoleColor.Magenta, $"  EffectDetail:    {p.EffectDetail}");
@@ -169,10 +170,17 @@ namespace Ship_Game
                 form.ClientSize = new Size(settings.Width, settings.Height);
 
                 // set form to the center of the primary screen
-                Size size = Screen.PrimaryScreen.Bounds.Size;
-                form.Location = new System.Drawing.Point(
+                var bounds = Screen.PrimaryScreen.Bounds;
+                Size size = bounds.Size;
+                var pt = new System.Drawing.Point(
                     size.Width / 2 - settings.Width / 2,
                     size.Height / 2 - settings.Height / 2);
+
+                // but also make sure that we stay inside the screen, otherwise XNA mouse cursor
+                // position reporting goes crazy
+                if (pt.X < bounds.Left) pt.X = bounds.Left;
+                if (pt.Y < bounds.Top) pt.Y = bounds.Top; 
+                form.Location = pt;
             }
 
             return deviceChanged;

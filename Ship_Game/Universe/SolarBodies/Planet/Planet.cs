@@ -36,6 +36,7 @@ namespace Ship_Game
         public bool GovMilitia         = false;
         public bool DontScrapBuildings = false;
         public bool AllowInfantry;
+        public int GarrisonSize;
 
         public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
@@ -925,17 +926,23 @@ namespace Ship_Game
             Construction.AutoApplyProduction(prodSurplus);
         }
 
-        public int GarrisonSize
+        public void ResetGarrisonSize()
+        {
+            GarrisonSize = !Owner.isPlayer ? 0 : 5; // Default is 5 for players. AI manages it's own troops
+        }
+
+        public int NumTroopsCanLaunch
         {
             get
             {
-                if (!Owner.isPlayer)
-                    return 0;  // AI manages It's own troops
+                if (MightBeAWarZone(Owner))
+                    return 0;
 
-                if (GovMilitia && colonyType != ColonyType.Colony)
-                    return 0; // Player Governor will replace garrisoned troops with new ones
+                int threshold = 0;
+                if (Owner.isPlayer)
+                    threshold = GovMilitia ? 0 : GarrisonSize;
 
-                return 5; // Default value for non Governor Player Colonies
+                return TroopsHere.Count - threshold;
             }
         }
 

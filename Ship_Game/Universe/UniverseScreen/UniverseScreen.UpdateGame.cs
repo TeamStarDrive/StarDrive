@@ -432,7 +432,7 @@ namespace Ship_Game
                 {
                     Empire empire = EmpireManager.Empires[i];
 
-                    empire.ResetForcePool();
+                    empire.RemoveInvalidShipsFromForcePool();
                     empire.AddShipsToForcePoolFromShipsToAdd();
                     rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
                 }

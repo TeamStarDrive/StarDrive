@@ -110,35 +110,16 @@ namespace Ship_Game.AI
                 || ship.DesignRole == ShipData.RoleName.troopShip 
                 || ship.DesignRole == ShipData.RoleName.support)
                 return false;
-            if (!OffensiveForcePool.AddUniqueRef(ship))
-            {
-                Log.Warning("offensive forcepool already contains this ship. not adding");
-                Array<AO> aos = Owner.GetEmpireAI().AreasOfOperations;
-                for (int i = 0; i < aos.Count; i++)
-                {
-                    var ao = aos[i];
-                    ao.RemoveShip(ship);
-                }
+            
 
-                ship.ClearFleet();                
-                OffensiveForcePool.Add(ship);
-                return true;
-            }
-            if (ship.fleet != null)
-                Log.Error("corefleet ship in {0}" , ship.fleet.Name);
-            Owner.GetEmpireAI().RemoveShipFromForce(ship);
             if (IsCoreFleetFull() || GetPoolStrength() < Owner.CurrentMilitaryStrength * .05f) 
             {
-                OffensiveForcePool.Add(ship);
-
-                return true;
+                OffensiveForcePool.AddUniqueRef(ship);
             }
-
-            if (ShipsWaitingForCoreFleet.ContainsRef(ship))
-                Log.Error("ships waiting for corefleet already contains this ship");
-
-            ShipsWaitingForCoreFleet.Add(ship);            
-
+            else
+            {
+                ShipsWaitingForCoreFleet.AddUniqueRef(ship);
+            }
             return true;
         }
 
@@ -150,8 +131,8 @@ namespace Ship_Game.AI
                 CoreFleet.RemoveShip(ship);
                 Log.Error("Ship was in core fleet");
             }
-            ShipsWaitingForCoreFleet.Remove(ship);            
-            return OffensiveForcePool.Remove(ship);
+            ShipsWaitingForCoreFleet.RemoveRef(ship);            
+            return OffensiveForcePool.RemoveRef(ship);
         }
 
         public void InitFromSave(UniverseData data, Empire owner)
@@ -256,7 +237,7 @@ namespace Ship_Game.AI
                 OurPlanetsInAo = PlanetsInAo.Filter(p => p.Owner == Owner);
             }
 
-            for (int i = ShipsWaitingForCoreFleet.Count - 1; i >= 0; i--)
+            for (int i = ShipsWaitingForCoreFleet.Count - 1; i >= 0; --i)
             {
                 Ship ship = ShipsWaitingForCoreFleet[i];
                 if (ship.fleet != null)
@@ -264,31 +245,36 @@ namespace Ship_Game.AI
                     ShipsWaitingForCoreFleet.RemoveAtSwapLast(i);
                     Log.Error("ship {0} in fleet {1}", ship.Name, ship.fleet.Name);
                 }
+
                 if (OffensiveForcePool.ContainsRef(ship))
+                {
                     Log.Error("warning. Ship in offensive and waiting {0} ", CoreWorld.Name);
+                    ShipsWaitingForCoreFleet.RemoveAtSwapLast(i); // remove it
+                }
                 
             }
-            for (int i = 0; i < OffensiveForcePool.Count;)
+            for (int i = OffensiveForcePool.Count-1; i >= 0; --i)
             {
                 Ship ship = OffensiveForcePool[i];
-                if (ship.Active && ship.fleet == null && ship.shipData.Role != ShipData.RoleName.troop && 
-                    ship.GetStrength() > 0) {
-                    ++i;
-                    continue;
+                if (!ship.Active || ship.fleet != null ||
+                    ship.shipData.Role == ShipData.RoleName.troop ||
+                    ship.GetStrength() <= 0)
+                {
+                    OffensiveForcePool.RemoveAtSwapLast(i);
                 }
-                OffensiveForcePool.RemoveAtSwapLast(i);
             }
-                        
+
             if (CoreFleet.FleetTask == null && ShipsWaitingForCoreFleet.Count > 0)
             {
                 while (ShipsWaitingForCoreFleet.Count > 0)
                 {
                     Ship waiting = ShipsWaitingForCoreFleet.PopLast();
-                    if (!waiting.Active) continue;
+                    if (!waiting.Active)
+                        continue;
 
                     if (IsCoreFleetFull())
                     {
-                        OffensiveForcePool.AddUnique(waiting);
+                        OffensiveForcePool.AddUniqueRef(waiting);
                     }
                     else
                     {
@@ -296,7 +282,8 @@ namespace Ship_Game.AI
                         {
                             if (waiting.fleet == CoreFleet)
                                 Log.Warning("Ship already in CoreFleet (duplication bug)");
-                            else Log.Error("Ship already in another fleet");
+                            else
+                                Log.Error("Ship already in another fleet");
                             continue;
                         }
                         CoreFleetAddShip(waiting);
@@ -314,8 +301,7 @@ namespace Ship_Game.AI
             {
                 foreach(Ship ship in ShipsWaitingForCoreFleet)
                 {
-                    OffensiveForcePool.AddUnique(ship);
-
+                    OffensiveForcePool.AddUniqueRef(ship);
                 }
                 ShipsWaitingForCoreFleet.Clear();
             }
@@ -330,9 +316,8 @@ namespace Ship_Game.AI
                     if (CoreFleet.Owner == null)
                     {
                         CoreFleet.Owner = CoreWorld.Owner;
-                        CoreFleet.Owner.GetEmpireAI().TaskList.Add(clearArea);
                     }
-                    else CoreFleet.Owner.GetEmpireAI().TaskList.Add(clearArea);
+                    CoreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
                 }
                 TurnsToRelax = 1;
             }
@@ -343,7 +328,7 @@ namespace Ship_Game.AI
         {
             var fleetShips = new FleetShips(Owner);
             foreach (Ship ship in OffensiveForcePool)
-            {                
+            {
                 if (ShipsWaitingForCoreFleet.ContainsRef(ship))
                 {
                     Log.Error("AO: ship is in waiting list amd offensiveList. removing from waiting");
