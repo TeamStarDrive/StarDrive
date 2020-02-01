@@ -675,10 +675,10 @@ namespace Ship_Game.Debug
                             sysName = sys.Name;
                     }
                     NewLine();
-                    DrawString($"FleetTask: {task.type} ({sysName})");
-                    DrawString(15f, "Step: " + task.Step);
-                    DrawString(15f, "Str Needed: " + task.MinimumTaskForceStrength);
-                    DrawString(15f, "Which Fleet: " + task.WhichFleet);
+                    DrawString($"FleetTask: {task.type} {sysName} {task.TargetPlanet?.Name}");
+                    DrawString(15f, "Step:  " + task.Step);
+                    DrawString(15f, "Fleet: " + task.WhichFleet);
+                    DrawString(15f, "EnemyStrength: " + task.EnemyStrength);
                 }
 
                 NewLine();
