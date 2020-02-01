@@ -52,7 +52,7 @@ namespace Ship_Game
             if (item == null) // we're not hovering the scroll list, just highlight the active ship
             {
                 foreach (FighterListItem e in AllEntries)
-                    if (ActiveModule.hangarShipUID == e.Ship.Name)
+                    if (ActiveModule?.hangarShipUID == e.Ship.Name)
                         Highlight = new Selector(e.Rect);
             }
             base.OnItemHovered(item);
@@ -72,14 +72,15 @@ namespace Ship_Game
             ShipModule highlightedModule = Screen.HighlightedModule;
 
             activeModule = activeModule ?? highlightedModule;
-            if (activeModule?.ModuleType == ShipModuleType.Hangar &&
-                !activeModule.IsTroopBay && !activeModule.IsSupplyBay)
+            if (activeModule?.ModuleType == ShipModuleType.Hangar 
+                && !activeModule.IsTroopBay 
+                && !activeModule.IsSupplyBay)
             {
                 ActiveModule = activeModule;
                 SetActiveHangarModule(activeModule, ActiveHangarModule);
                 
                 base.HandleInput(input);
-                return true;
+                return HitTest(input);
             }
             
             base.HandleInput(input);
