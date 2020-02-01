@@ -291,6 +291,7 @@ namespace Ship_Game
             => Button(ButtonStyle.Medium, new Vector2(x, y), text, click);
 
         public UIButton Button(ButtonStyle style, in LocalizedText text, Action<UIButton> click, string clickSfx = null)
+
             => Button(new UIButton(style, text), click, clickSfx);
 
         public UIButton ButtonMedium(in LocalizedText text, Action<UIButton> click, string clickSfx = null)
@@ -333,19 +334,30 @@ namespace Ship_Game
         /////////////////////////////////////////////////////////////////////////////////////////////////
         
         public UIPanel Panel(in Rectangle r, Color c, DrawableSprite s = null)
-            => Add(new UIPanel(r, c, s));
+            => Add(new UIPanel(r, c, s));     
+        
+        public UIPanel Panel(in Rectangle r, DrawableSprite s = null)
+            => Add(new UIPanel(r, s));
 
         public UIPanel Panel(in Rectangle r, Color c, SubTexture s)
             => Panel(r, c, new DrawableSprite(s));
 
+        public UIPanel Panel(in Rectangle r, SubTexture s)
+            => Panel(r, new DrawableSprite(s));
+
+        public UIPanel Panel(float x, float y, SubTexture s)
+            => Add(new UIPanel(new Vector2(x,y), s));
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
+
 
         public UIList AddList(Vector2 pos, Vector2 size) => Add(new UIList(pos, size));
 
+        public UIList AddList(float x, float y) => AddList(new Vector2(x, y));
         public UIList AddList(Vector2 pos)
         {
             UIList list = Add(new UIList(pos, new Vector2(100f, 100f)));
-            list.LayoutStyle = ListLayoutStyle.Resize;
+            list.LayoutStyle = ListLayoutStyle.ResizeList;
             return list;
         }
 

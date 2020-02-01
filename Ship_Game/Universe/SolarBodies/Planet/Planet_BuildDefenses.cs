@@ -304,23 +304,9 @@ namespace Ship_Game
 
             if (CanBuildInfantry)
             {
-                int troopsWeWant = TroopsWeWant();
                 int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
-
-                if (troopsWeHave < troopsWeWant)
+                if (troopsWeHave < GarrisonSize)
                     BuildSingleMilitiaTroop();
-            }
-
-            // local function
-            int TroopsWeWant()
-            {
-                switch (colonyType)
-                {
-                    case ColonyType.Research: return 4;
-                    case ColonyType.Core:     return 6;
-                    case ColonyType.Military: return 7;
-                    default:                  return 5;
-                }
             }
         }
 

@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
 using Ship_Game.Gameplay;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.Espionage;
 
 namespace Ship_Game
 {
@@ -529,7 +530,7 @@ namespace Ship_Game
                 if (input.KeyPressed(Keys.U))
 			    {
 				    GameAudio.EchoAffirmative();
-                    Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
+                    Empire.Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, this));
 			    }
                 if (input.KeyPressed(Keys.I))
 			    {
@@ -675,7 +676,7 @@ namespace Ship_Game
                     }
 					else if (str5 == "Empire")
 					{
-                        Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
+                        Empire.Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, this));
 						GameAudio.EchoAffirmative();
 					}
 					else if (str5 == "Diplomacy")
@@ -797,7 +798,7 @@ namespace Ship_Game
                     }
 					else if (str3 == "Empire")
 					{
-                        Empire.Universe.ScreenManager.AddScreen(new EmpireScreen(Empire.Universe, this));
+                        Empire.Universe.ScreenManager.AddScreen(new EmpireManagementScreen(Empire.Universe, this));
 						GameAudio.EchoAffirmative();
 					}
 					else if (str3 == "Diplomacy")

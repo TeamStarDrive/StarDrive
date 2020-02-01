@@ -20,7 +20,13 @@ namespace Ship_Game
         readonly bool WithSubMenu;
 
 
-        public Menu1(int x, int y, int width, int height) : this(new Rectangle(x, y, width, height))
+        public Menu1(int x, int y, int width, int height)
+            : this(new Rectangle(x, y, width, height))
+        {
+        }
+
+        public Menu1(int x, int y, int width, int height, bool withSub)
+            : this(new Rectangle(x, y, width, height), withSub)
         {
         }
 

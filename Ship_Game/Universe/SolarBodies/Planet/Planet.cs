@@ -36,6 +36,7 @@ namespace Ship_Game
         public bool GovMilitia         = false;
         public bool DontScrapBuildings = false;
         public bool AllowInfantry;
+        public int GarrisonSize;
 
         public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
@@ -165,7 +166,7 @@ namespace Ship_Game
         public int FreeTilesWithRebaseOnTheWay
         {
             get {
-                int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
+                 int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
                                           .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
                 return (FreeTiles - rebasingTroops).Clamped(0, TileArea);
             }
@@ -925,17 +926,23 @@ namespace Ship_Game
             Construction.AutoApplyProduction(prodSurplus);
         }
 
-        public int GarrisonSize
+        public void ResetGarrisonSize()
+        {
+            GarrisonSize = !Owner.isPlayer ? 0 : 5; // Default is 5 for players. AI manages it's own troops
+        }
+
+        public int NumTroopsCanLaunch
         {
             get
             {
-                if (!Owner.isPlayer)
-                    return 0;  // AI manages It's own troops
+                if (MightBeAWarZone(Owner))
+                    return 0;
 
-                if (GovMilitia && colonyType != ColonyType.Colony)
-                    return 0; // Player Governor will replace garrisoned troops with new ones
+                int threshold = 0;
+                if (Owner.isPlayer)
+                    threshold = GovMilitia ? 0 : GarrisonSize;
 
-                return 5; // Default value for non Governor Player Colonies
+                return TroopsHere.Count - threshold;
             }
         }
 
@@ -1040,10 +1047,10 @@ namespace Ship_Game
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
         public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
+        public int TotalHabitableTiles   => TilesList.Count(tile => tile.Habitable);
 
         public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
-        public float BuiltCoverage   => TotalBuildings / TotalHabitableTiles;
+        public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
         public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
 
 

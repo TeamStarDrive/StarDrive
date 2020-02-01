@@ -4687,6 +4687,26 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1903</Index>
+      <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually.</Text>
+    </Token>
+    <Token>
+      <Index>1904</Index>
+      <Text>This indicates how many tiles are habitable on this planet</Text>
+    </Token>
+    <Token>
+      <Index>1905</Index>
+      <Text>This indicates how much population is available per tile in millions, after any racial modifiers for that planet's environment. There is a minimum default population for the planet.</Text>
+    </Token>
+    <Token>
+      <Index>1906</Index>
+      <Text>This indicates what would the maximum population of this planet be, if you built biospheres on all unhabitable tiles.</Text>
+    </Token>
+    <Token>
+      <Index>1907</Index>
+      <Text>This indicates what would the maximum population of this planet be, if you fully terraformed this planet. This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance.</Text>
+    </Token>
+    <Token>
       <Index>1908</Index>
       <Text>Regenerate</Text>
     </Token>
@@ -4771,6 +4791,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>One of your ships was boarded!</Text>
     </Token>
     <Token>
+      <Index>1939</Index>
+      <Text>Proximity</Text>
+    </Token>
+    <Token>
+      <Index>1940</Index>
+      <Text>Owner</Text>
+    </Token>
+    <Token>
       <Index>1941</Index>
       <Text>Governor Will Not Scrap Buildings</Text>
     </Token>
@@ -4832,11 +4860,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1956</Index>
-      <Text>Governor Builds Militia</Text>
+      <Text>Auto Build Garrison</Text>
     </Token>
     <Token>
       <Index>1957</Index>
-      <Text>The Governor will create a small militia for the planet. 4 Troops for Research colonies, 6 Troops for Core colonies, 7 Troops for Military colonies and 5 for other colonies.</Text>
+      <Text>The Governor will create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off loaded below the Garrison size, and will train new troops to replace them.</Text>
     </Token>
     <Token>
       <Index>1958</Index>
