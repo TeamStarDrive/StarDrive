@@ -428,7 +428,7 @@ namespace Ship_Game
                 ship.AI.ClearOrders();
             }
             EmpireAI.Goals.Clear();
-            EmpireAI.TaskList.Clear();
+            EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict)
                 kv.Value.Reset();
 
@@ -469,7 +469,7 @@ namespace Ship_Game
             }
 
             EmpireAI.Goals.Clear();
-            EmpireAI.TaskList.Clear();
+            EmpireAI.EndAllTasks();
             foreach (var kv in FleetsDict) kv.Value.Reset();
             OwnedShips.Clear();
             data.AgentList.Clear();
@@ -2486,18 +2486,14 @@ namespace Ship_Game
                 Money += target.Money;
                 target.Money = 0.0f;
             }
+
             target.SetAsMerged();
             ResetBorders();
             UpdateShipsWeCanBuild();
             if (this != EmpireManager.Player)
             {
                 data.difficulty = Difficulty.Brutal;
-                EmpireAI.TaskList.ForEach(
-                    militaryTask =>
-                    {
-                        militaryTask.EndTask();
-                    }, false, false, false);
-                EmpireAI.TaskList.ApplyPendingRemovals();
+                EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
                 ForcePool.Clear();
@@ -2845,7 +2841,6 @@ namespace Ship_Game
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);
             OwnedShips?.Dispose(ref OwnedShips);
-            EmpireAI?.Dispose(ref EmpireAI);
             if (data != null)
             {
                 data.AgentList = new BatchRemovalCollection<Agent>();

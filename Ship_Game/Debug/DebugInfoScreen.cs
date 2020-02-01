@@ -663,11 +663,10 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                for (int j = 0; j < e.GetEmpireAI().TaskList.Count; j++)
+                MilitaryTask[] tasks = e.GetEmpireAI().GetAtomicTasksCopy();
+                for (int j = 0; j < tasks.Length; j++)
                 {
-                    MilitaryTask task = e.GetEmpireAI().TaskList[j];
-                    if (task == null)
-                        continue;
+                    MilitaryTask task = tasks[j];
                     string sysName = "Deep Space";
                     for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
                     {

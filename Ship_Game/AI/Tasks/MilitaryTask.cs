@@ -30,6 +30,8 @@ namespace Ship_Game.AI.Tasks
         [Serialize(16)] public int Priority;
         [Serialize(17)] public int TaskBombTimeNeeded;
 
+        [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
+
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
@@ -129,7 +131,8 @@ namespace Ship_Game.AI.Tasks
         public void EndTask()
         {
             Debug_TallyFailedTasks();
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().QueueForRemoval(this);
+
             if (Owner.isFaction)
             {
                 FactionEndTask();
@@ -220,7 +223,6 @@ namespace Ship_Game.AI.Tasks
         private void Debug_TallyFailedTasks()
         {
             DebugInfoScreen.CanceledMtasksCount++;
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
             switch (type)
             {
                 case TaskType.Exploration:
@@ -269,7 +271,7 @@ namespace Ship_Game.AI.Tasks
 
         public void EndTaskWithMove()
         {
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().QueueForRemoval(this);
 
             ClearHoldOnGoal();
 
@@ -596,7 +598,7 @@ namespace Ship_Game.AI.Tasks
                     toLaunch.Clear();
                 }
             }
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().QueueForRemoval(this);
         }
 
         public void SetEmpire(Empire e)
