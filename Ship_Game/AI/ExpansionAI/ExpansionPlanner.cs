@@ -125,7 +125,7 @@ namespace Ship_Game.AI.ExpansionAI
         void CreateClaimFleets()
         {
             var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
-            int desiredClaims = (DesiredColonyGoals * 2) - claimTasks.Count;
+            int desiredClaims = (DesiredColonyGoals * 2) - claimTasks.Length;
             var colonizing    = GetMarkedPlanets();
             var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
 
