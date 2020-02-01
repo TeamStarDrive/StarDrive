@@ -374,9 +374,10 @@ namespace Ship_Game.AI
 
         public void Reset()
         {
-            while (Ships.Count > 0) {
+            while (Ships.Count > 0)
+            {
                 var ship = Ships.PopLast();
-                ship.ClearFleet();
+                RemoveShip(ship);
             }
             TaskStep  = 0;
             FleetTask = null;
@@ -1267,10 +1268,10 @@ namespace Ship_Game.AI
                 //Log.Warning($"Fleet.UpdateAI reset fleet (no fleet task): {this}");
 
                 Owner.GetEmpireAI().UsedFleets.Remove(which);
-                for (int i = 0; i < Ships.Count; ++i)
+                for (int i = Ships.Count-1; i >= 0; --i)
                 {
                     Ship s = Ships[i];
-                    RemoveShipAt(s, i--);
+                    RemoveShip(s);
 
                     s.AI.ClearOrders();
                     s.HyperspaceReturn();
@@ -1314,13 +1315,6 @@ namespace Ship_Game.AI
                     }
                 }
             }
-        }
-
-        void RemoveShipAt(Ship ship, int index)
-        {
-            ship.fleet = null;
-            RemoveFromAllSquads(ship);
-            Ships.RemoveAtSwapLast(index);
         }
 
         public bool RemoveShip(Ship ship)

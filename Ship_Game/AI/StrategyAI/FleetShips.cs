@@ -27,24 +27,11 @@ namespace Ship_Game.AI
             Ratios = new FleetRatios(OwnerEmpire);
         }
 
-        public FleetShips(Empire ownerEmpire, Array<Ship> ships) : this(ownerEmpire)
-        {
-            foreach (var ship in ships) AddShip(ship);
-        }
-
         public FleetShips(Empire ownerEmpire, Ship[] ships) : this(ownerEmpire)
         {
             foreach (var ship in ships) AddShip(ship);
         }
 
-        public void AddShips(Array<Ship> ships)
-        {
-            for (int x = 0; x < ships.Count; x++)
-            {
-                var ship = ships[x];
-                AddShip(ship);
-            }
-        }
         public bool AddShip(Ship ship)
         {
             if (!ship.ShipIsGoodForGoals())
@@ -73,7 +60,7 @@ namespace Ship_Game.AI
                 return false;
 
             AccumulatedStrength += ship.GetStrength();
-            Ships.AddUnique(ship);
+            Ships.Add(ship);
 
             if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Troop)
             {
