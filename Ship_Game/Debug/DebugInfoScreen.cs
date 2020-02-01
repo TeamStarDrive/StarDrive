@@ -677,8 +677,15 @@ namespace Ship_Game.Debug
                     NewLine();
                     DrawString($"FleetTask: {task.type} {sysName} {task.TargetPlanet?.Name}");
                     DrawString(15f, "Step:  " + task.Step);
-                    DrawString(15f, "Fleet: " + task.WhichFleet);
                     DrawString(15f, "EnemyStrength: " + task.EnemyStrength);
+                    DrawString(15f, "MinStrNeeded: " + task.MinimumTaskForceStrength);
+                    if (task.WhichFleet != -1)
+                    {
+                        DrawString(15f, "Fleet: " + task.Fleet.Name);
+                        DrawString(15f, " Ships: " + task.Fleet.Ships.Count);
+                        DrawString(15f, " Strength: " + task.Fleet.GetStrength());
+                        DrawString(15f, " CanTakeThisFight: " + task.Fleet.CanTakeThisFight(task.EnemyStrength));
+                    }
                 }
 
                 NewLine();
