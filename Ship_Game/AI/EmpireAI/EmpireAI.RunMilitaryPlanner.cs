@@ -81,14 +81,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public void RemoveFromTaskList(MilitaryTask task)
-        {
-            if (task == null)
-                Log.Error("Attempting to Remove null task from Empire TaskList");
-            TaskList.RemoveRef(task);
-        }
-
-        public void RemoveMilitaryTasksTargeting(Empire empire)
+        void RemoveMilitaryTasksTargeting(Empire empire)
         {
             for (int i = TaskList.Count - 1; i >= 0; i--)
             {
@@ -108,16 +101,10 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.TargetPlanet?.Owner == empire);
         }
 
-        public Array<MilitaryTask> GetClaimTasks()
+        public MilitaryTask[] GetClaimTasks()
         {
-            var list = new Array<MilitaryTask>();
-            for (int i = TaskList.Count - 1; i >= 0; --i)
-            {
-                MilitaryTask task = TaskList[i];
-                if (task.IsCoreFleetTask || task.type == MilitaryTask.TaskType.DefendClaim)
-                    list.Add(task);
-            }
-            return list;
+            return TaskList.Filter(task => task.IsCoreFleetTask
+                || task.type == MilitaryTask.TaskType.DefendClaim);
         }
 
         public bool HasTaskOfType(MilitaryTask.TaskType type)
