@@ -12,10 +12,15 @@ namespace Ship_Game.AI
 
     public sealed partial class EmpireAI
     {
-        private void RunMilitaryPlanner()
+        readonly Array<MilitaryTask> TaskList = new Array<MilitaryTask>();
+        readonly Array<MilitaryTask> TasksToAdd = new Array<MilitaryTask>();
+        readonly Array<MilitaryTask> TasksToRemove = new Array<MilitaryTask>();
+
+        void RunMilitaryPlanner()
         {
             if (OwnerEmpire.isPlayer)
                 return;
+
             RunGroundPlanner();
             NumberOfShipGoals = 3;
             int goalsInConstruction = SearchForGoals(GoalType.BuildOffensiveShips).Count;
@@ -24,21 +29,144 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
 
-            //this where the global AI attack stuff happenes.
-            using (TaskList.AcquireReadLock())
+            // this where the global AI attack stuff happens.
+            Toughnuts = 0;
+            foreach (MilitaryTask task in TaskList)
             {
-                int toughNutCount = 0;
-
-                foreach (var task in TaskList)
+                if (!task.QueuedForRemoval)
                 {
-                    if (task.IsToughNut) toughNutCount++;
+                    if (task.IsToughNut)
+                        Toughnuts++;
                     task.Evaluate(OwnerEmpire);
                 }
-                Toughnuts = toughNutCount;
             }
+            ApplyPendingChanges();
+        }
+
+        void ApplyPendingChanges()
+        {
+            foreach (MilitaryTask remove in TasksToRemove)
+                TaskList.RemoveRef(remove);
+            TasksToRemove.Clear();
+
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();
-            TaskList.ApplyPendingRemovals();
+        }
+
+        public void AddPendingTask(MilitaryTask task)
+        {
+            TasksToAdd.Add(task);
+        }
+
+        public void AddPendingTasks(Array<MilitaryTask> tasks)
+        {
+            TasksToAdd.AddRange(tasks);
+        }
+
+        public void EndAllTasks()
+        {
+            foreach (MilitaryTask task in TaskList.ToArray())
+                task.EndTask();
+            TasksToAdd.Clear();
+            TasksToRemove.Clear();
+            TaskList.Clear();
+        }
+
+        public void QueueForRemoval(MilitaryTask task)
+        {
+            if (!task.QueuedForRemoval)
+            {
+                task.QueuedForRemoval = true;
+                TasksToRemove.Add(task);
+            }
+        }
+
+        public void RemoveFromTaskList(MilitaryTask task)
+        {
+            if (task == null)
+                Log.Error("Attempting to Remove null task from Empire TaskList");
+            TaskList.RemoveRef(task);
+        }
+
+        public void RemoveMilitaryTasksTargeting(Empire empire)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; i--)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.TargetPlanet?.Owner == empire)
+                    task.EndTask();
+            }
+        }
+
+        public MilitaryTask[] GetAtomicTasksCopy()
+        {
+            return TaskList.ToArray();
+        }
+
+        public MilitaryTask[] GetMilitaryTasksTargeting(Empire empire)
+        {
+            return TaskList.Filter(task => task.TargetPlanet?.Owner == empire);
+        }
+
+        public Array<MilitaryTask> GetClaimTasks()
+        {
+            var list = new Array<MilitaryTask>();
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.IsCoreFleetTask || task.type == MilitaryTask.TaskType.DefendClaim)
+                    list.Add(task);
+            }
+            return list;
+        }
+
+        public bool HasTaskOfType(MilitaryTask.TaskType type)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+                if (TaskList[i].type == type)
+                    return true;
+            return false;
+        }
+
+        public bool IsAlreadyAssaultingSystem(SolarSystem system)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
+                    task.TargetPlanet?.ParentSystem == system)
+                    return true;
+            }
+            return false;
+        }
+
+        public bool IsAlreadyAssaultingPlanet(Planet planet)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
+                    task.TargetPlanet == planet)
+                    return true;
+            }
+            return false;
+        }
+
+        public void WriteToSave(SavedGame.GSAISAVE aiSave)
+        {
+            ApplyPendingChanges();
+            aiSave.MilitaryTaskList = new Array<MilitaryTask>(TaskList);
+            foreach (MilitaryTask task in aiSave.MilitaryTaskList)
+            {
+                if (task.TargetPlanet != null)
+                    task.TargetPlanetGuid = task.TargetPlanet.guid;
+            }
+        }
+
+        public void ReadFromSave(SavedGame.GSAISAVE aiSave)
+        {
+            TaskList.Clear();
+            TaskList.AddRange(aiSave.MilitaryTaskList);
         }
 
         public void SendExplorationFleet(Planet p)
@@ -51,14 +179,13 @@ namespace Ship_Game.AI
             };
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
-            TaskList.Add(militaryTask);
+            AddPendingTask(militaryTask);
         }
 
-        private void BuildWarShips(int goalsInConstruction)
+        void BuildWarShips(int goalsInConstruction)
         {
             int shipCountLimit = GlobalStats.ShipCountLimit;
-            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
-
+            var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
 
             while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool

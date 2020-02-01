@@ -384,7 +384,6 @@ namespace Ship_Game.AI
         }
 
         void EvaluateTask(float elapsedTime)
-
         {
             if (Ships.Count == 0)
                 FleetTask.EndTask();
@@ -407,7 +406,6 @@ namespace Ship_Game.AI
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
             }
-            Owner.GetEmpireAI().TaskList.ApplyPendingRemovals();
         }
 
         void DoExplorePlanet(MilitaryTask task)
@@ -499,9 +497,9 @@ namespace Ship_Game.AI
         {
             fleet.TaskStep = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
-            owner.GetEmpireAI().RemoveFromTaskList(task);
+            owner.GetEmpireAI().QueueForRemoval(task);
             fleet.FleetTask = postInvasion;
-            owner.GetEmpireAI().AddToTaskList(postInvasion);
+            owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
         void DoAssaultPlanet(MilitaryTask task)
@@ -512,7 +510,7 @@ namespace Ship_Game.AI
                 {
                     CreatePostInvasionFromCurrentTask(this, task, Owner);
 
-                    for (int x =0; x < Ships.Count; ++x)
+                    for (int x = 0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
                         if (ship.Carrier.AnyAssaultOpsAvailable)

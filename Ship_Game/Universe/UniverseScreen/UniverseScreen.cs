@@ -559,7 +559,7 @@ namespace Ship_Game
             defensiveFleetAt.TaskStep = 3;
             militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
             EmpireManager.Remnants.GetFleetsDict().Add(militaryTask.WhichFleet, defensiveFleetAt);
-            EmpireManager.Remnants.GetEmpireAI().TaskList.Add(militaryTask);
+            EmpireManager.Remnants.GetEmpireAI().AddPendingTask(militaryTask);
             militaryTask.Step = 2;
         }
 
