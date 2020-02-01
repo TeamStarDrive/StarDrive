@@ -759,7 +759,7 @@ namespace Ship_Game.Gameplay
             debug.AddLine($"Anger From Diplomatic Faux pas: {(int)Anger_DiplomaticConflict}");
             debug.AddLine($"Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
 
-            ActiveWar?.WarDebugData(debug);
+            ActiveWar?.WarDebugData(ref debug);
             return debug;
         }
     }

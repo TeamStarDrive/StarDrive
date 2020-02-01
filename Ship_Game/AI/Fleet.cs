@@ -374,9 +374,10 @@ namespace Ship_Game.AI
 
         public void Reset()
         {
-            while (Ships.Count > 0) {
+            while (Ships.Count > 0)
+            {
                 var ship = Ships.PopLast();
-                ship.ClearFleet();
+                RemoveShip(ship);
             }
             TaskStep  = 0;
             FleetTask = null;
@@ -384,7 +385,6 @@ namespace Ship_Game.AI
         }
 
         void EvaluateTask(float elapsedTime)
-
         {
             if (Ships.Count == 0)
                 FleetTask.EndTask();
@@ -407,7 +407,6 @@ namespace Ship_Game.AI
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
             }
-            Owner.GetEmpireAI().TaskList.ApplyPendingRemovals();
         }
 
         void DoExplorePlanet(MilitaryTask task)
@@ -499,9 +498,9 @@ namespace Ship_Game.AI
         {
             fleet.TaskStep = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
-            owner.GetEmpireAI().RemoveFromTaskList(task);
+            owner.GetEmpireAI().QueueForRemoval(task);
             fleet.FleetTask = postInvasion;
-            owner.GetEmpireAI().AddToTaskList(postInvasion);
+            owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
         void DoAssaultPlanet(MilitaryTask task)
@@ -512,7 +511,7 @@ namespace Ship_Game.AI
                 {
                     CreatePostInvasionFromCurrentTask(this, task, Owner);
 
-                    for (int x =0; x < Ships.Count; ++x)
+                    for (int x = 0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
                         if (ship.Carrier.AnyAssaultOpsAvailable)
@@ -1039,24 +1038,30 @@ namespace Ship_Game.AI
         void DebugInfo(MilitaryTask task, string text)
             => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
+        // @return TRUE if we can take this fight, potentially, maybe...
+        public bool CanTakeThisFight(float enemyFleetStrength)
+        {
+            float ourStrengthThreshold = GetStrength() * 2;
+            return enemyFleetStrength <= ourStrengthThreshold;
+        }
+
         bool StillCombatEffective(MilitaryTask task)
         {
-            float targetStrength =
-                Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
-            float fleetStrengthThreshold = GetStrength() * 2;
-            if (!(targetStrength >= fleetStrengthThreshold))
+            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
+            if (CanTakeThisFight(enemyStrength))
                 return true;
-            DebugInfo(task, $"Enemy Strength too high. Them: {targetStrength} Us: {fleetStrengthThreshold}");
+
+            DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
             return false;
         }
 
         bool StillInvasionEffective(MilitaryTask task)
         {
-            bool troopsOnPlanet        = task.TargetPlanet.AnyOfOurTroops(Owner);
-            bool invasionTroops               = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
+            bool troopsOnPlanet = task.TargetPlanet.AnyOfOurTroops(Owner);
+            bool invasionTroops = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
             bool stillMissionEffective = troopsOnPlanet || invasionTroops;
             if (!stillMissionEffective)
-                DebugInfo(task, $" No Troops on Planet and No Ships.");
+                DebugInfo(task, " No Troops on Planet and No Ships.");
             return stillMissionEffective;
         }
 
@@ -1263,10 +1268,10 @@ namespace Ship_Game.AI
                 //Log.Warning($"Fleet.UpdateAI reset fleet (no fleet task): {this}");
 
                 Owner.GetEmpireAI().UsedFleets.Remove(which);
-                for (int i = 0; i < Ships.Count; ++i)
+                for (int i = Ships.Count-1; i >= 0; --i)
                 {
                     Ship s = Ships[i];
-                    RemoveShipAt(s, i--);
+                    RemoveShip(s);
 
                     s.AI.ClearOrders();
                     s.HyperspaceReturn();
@@ -1310,13 +1315,6 @@ namespace Ship_Game.AI
                     }
                 }
             }
-        }
-
-        void RemoveShipAt(Ship ship, int index)
-        {
-            ship.fleet = null;
-            RemoveFromAllSquads(ship);
-            Ships.RemoveAtSwapLast(index);
         }
 
         public bool RemoveShip(Ship ship)
