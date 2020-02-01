@@ -14,7 +14,7 @@ namespace Ship_Game
     {
         Fill, // fill to width of the list
         Clip, // clip elements to width of the list
-        Resize, // auto resize list itself
+        ResizeList, // auto resize list itself
     }
 
     // Static list of elements, not scrollable
@@ -103,7 +103,7 @@ namespace Ship_Game
             base.RemoveAll();
         }
 
-        void LayoutItem(UIElementV2 item, Vector2 pos, Vector2 size)
+        void LayoutItem(UIElementV2 item, Vector2 pos, Vector2 itemSize)
         {
             bool updated = false;
             if (item.Pos.NotEqual(pos))
@@ -112,21 +112,27 @@ namespace Ship_Game
                 updated = true;
             }
 
-            if (LayoutStyle == ListLayoutStyle.Clip ||
-                LayoutStyle == ListLayoutStyle.Resize)
+            if (LayoutStyle == ListLayoutStyle.Clip)
             {
-                size.X = Math.Min(size.X, item.Width);
-                size.Y = Math.Min(size.Y, item.Height);
+                // clip size to list boundary
+                itemSize.X = Math.Min(itemSize.X, item.Width);
+                itemSize.Y = Math.Min(itemSize.Y, item.Height);
+            }
+            else if (LayoutStyle == ListLayoutStyle.Fill)
+            {
+                // expand the size if item doesn't fill to list width
+                itemSize.X = Math.Max(itemSize.X, item.Width);
+                itemSize.Y = Math.Max(itemSize.Y, item.Height);
             }
 
-            if (size.X.NotZero() && item.Width.NotEqual(size.X))
+            if (itemSize.X.NotZero() && item.Width.NotEqual(itemSize.X))
             {
-                item.Width = size.X;
+                item.Width = itemSize.X;
                 updated = true;
             }
-            if (size.Y.NotZero() && item.Height.NotEqual(size.Y))
+            if (itemSize.Y.NotZero() && item.Height.NotEqual(itemSize.Y))
             {
-                item.Height = size.Y;
+                item.Height = itemSize.Y;
                 updated = true;
             }
 
@@ -136,51 +142,66 @@ namespace Ship_Game
             }
         }
 
-        void LayoutItem(UIElementV2 item, ref Vector2 pos, Vector2 size, Vector2 padding)
+        void LayoutItem(UIElementV2 item, ref Vector2 pos, Vector2 itemSize, Vector2 padding)
         {
-            LayoutItem(item, pos, size);
+            LayoutItem(item, pos, itemSize);
             pos += Direction * (item.Size + padding);
         }
 
         Vector2 MaxDimensions()
         {
-            var d = new Vector2(Width, Height);
-            if (LayoutStyle == ListLayoutStyle.Resize)
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
             {
+                var d = new Vector2(8, 8);
                 for (int i = 0; i < Items.Count; ++i)
                 {
                     d.X = Math.Max(d.X, Items[i].Width);
                     d.Y = Math.Max(d.Y, Items[i].Height);
                 }
                 d += Padding*2f;
+                return d;
             }
-            return d;
+
+            return new Vector2(Width, Height);
         }
 
         public override void PerformLayout()
         {
             Vector2 pos = Pos + Padding;
+            Vector2 maxElemSize = MaxDimensions();
 
-            Vector2 dim = MaxDimensions();
             // swap will enforce Width during Vertical and Height during Horizontal
-            Vector2 elemSize = Direction.Swapped() * (dim - Padding*2f);
+            Vector2 elemSize = Direction.Swapped() * (maxElemSize - Padding*2f);
             elemSize = elemSize.AbsVec(); // make sure size is absolute
 
-            if (elemSize.X.NotZero()) // Vertical list
-                Width = dim.X;
-            if (elemSize.Y.NotZero()) // horizontal list
-                Height = dim.Y;
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
+            {
+                // set initialize Width/Height of the list
+                if (elemSize.X.NotZero()) // Vertical list
+                    Width = maxElemSize.X;
+                if (elemSize.Y.NotZero()) // horizontal list
+                    Height = maxElemSize.Y;
+            }
+            
+            float maxItemWidth = 0;
 
             if (HeaderElement != null)
+            {
                 LayoutItem(HeaderElement, ref pos, elemSize, Padding + new Vector2(2f));
+                maxItemWidth = HeaderElement.Width;
+            }
 
             for (int i = 0; i < Items.Count; ++i)
             {
                 UIElementV2 item = Items[i];
-                if (item.Visible) LayoutItem(item, ref pos, elemSize, Padding);
+                if (item.Visible)
+                {
+                    LayoutItem(item, ref pos, elemSize, Padding);
+                    maxItemWidth = Math.Max(maxItemWidth, item.Width);
+                }
             }
 
-            if (LayoutStyle == ListLayoutStyle.Resize)
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
             {
                 if (pos.Y > Bottom)
                     Bottom = pos.Y;
@@ -191,7 +212,16 @@ namespace Ship_Game
                 pos = (BotLeft + Padding*Direction.Swapped())
                     - Direction * (FooterElement.Size + Padding);
                 LayoutItem(FooterElement, pos, elemSize);
+                maxItemWidth = Math.Max(maxItemWidth, FooterElement.Width);
             }
+            
+            if (LayoutStyle == ListLayoutStyle.ResizeList)
+            {
+                if (maxItemWidth.NotZero())
+                    Width = maxItemWidth;
+            }
+
+
             RequiresLayout = false;
         }
 

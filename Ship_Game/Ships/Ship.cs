@@ -1418,13 +1418,11 @@ namespace Ship_Game.Ships
             shield_percent = (100.0 * shield_power / shield_max).ClampMin(0);
             SensorRange   += sensorBonus;
 
-            //Apply modifiers to stats
+            // Apply modifiers to stats
             if (hasLoyalty)
             {
-                Mass          *= loyalty.data.MassModifier;
-                RepairRate    += (float)(RepairRate * Level * 0.05);
-                //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
-                //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
+                Mass *= loyalty.data.MassModifier;
+                RepairRate += (float)(RepairRate * Level * 0.05);
                 if (IsPlatform)
                     SensorRange = SensorRange.ClampMin(10000);
 

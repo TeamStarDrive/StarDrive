@@ -10,6 +10,7 @@ namespace Ship_Game
     {
         Center,
         Left,
+        Right,
     }
 
     // Refactored by RedFox
@@ -21,10 +22,19 @@ namespace Ship_Game
         }
         public PressState  State = PressState.Default;
         public ButtonStyle Style = ButtonStyle.Default;
+        public StyleTextures CustomStyle;
         public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
         public LocalizedText Text;
         public ToolTipText Tooltip;
         public string ClickSfx = "echo_affirm";
+
+        public SpriteFont Font = Fonts.Arial12Bold;
+
+        // If set TRUE, this button will also capture Right Mouse Clicks
+        public bool AcceptRightClicks;
+
+        // If set TRUE, text will be drawn with dark shadow
+        public bool TextShadows;
 
         public Action<UIButton> OnClick;
 
@@ -66,6 +76,13 @@ namespace Ship_Game
             Style = style;
         }
 
+        public UIButton(StyleTextures customStyle, Vector2 size, in LocalizedText text)
+        {
+            CustomStyle = customStyle;
+            Text = text;
+            Size = size;
+        }
+
         protected virtual void OnButtonClicked()
         {
             OnClick?.Invoke(this);
@@ -78,7 +95,7 @@ namespace Ship_Game
 
         SubTexture ButtonTexture()
         {
-            StyleTextures styling = GetStyle(Style);
+            StyleTextures styling = CustomStyle ?? GetStyle(Style);
             switch (State)
             {
                 default:                 return styling.Normal;
@@ -87,14 +104,25 @@ namespace Ship_Game
             }
         }
 
-        Color TextColor()
+        Color BackgroundColor()
         {
-            StyleTextures styling = GetStyle(Style);
+            StyleTextures styling = CustomStyle ?? GetStyle(Style);
             switch (State)
             {
                 default:                 return styling.DefaultColor;
                 case PressState.Hover:   return styling.HoverColor;
                 case PressState.Pressed: return styling.PressColor;
+            }
+        }
+
+        Color TextColor()
+        {
+            StyleTextures styling = CustomStyle ?? GetStyle(Style);
+            switch (State)
+            {
+                default:                 return styling.DefaultTextColor;
+                case PressState.Hover:   return styling.HoverTextColor;
+                case PressState.Pressed: return styling.PressTextColor;
             }
         }
 
@@ -104,26 +132,46 @@ namespace Ship_Game
                 return;
 
             Rectangle r = Rect;
-            batch.Draw(ButtonTexture(), r, Color.White);
+            SubTexture texture = ButtonTexture();
+            if (texture != null)
+            {
+                batch.Draw(texture, r, Color.White);
+            }
+            else
+            {
+                Color c = BackgroundColor();
+                batch.FillRectangle(r, c.Alpha(0.75f));
+                batch.DrawRectangle(r, c.AddRgb(-0.1f), 2);
+            }
 
             if (Text.NotEmpty)
             {
-                SpriteFont font = Fonts.Arial12Bold;
+                SpriteFont font = Font;
                 string text = Text.Text;
 
                 Vector2 textCursor;
                 if (TextAlign == ButtonTextAlign.Center)
                     textCursor.X = r.X + r.Width / 2 - font.MeasureString(text).X / 2f;
-                else
+                else if (TextAlign == ButtonTextAlign.Left)
                     textCursor.X = r.X + 25f;
+                else
+                    textCursor.X = r.Right - font.MeasureString(text).X;
 
                 textCursor.Y = r.Y + r.Height / 2 - font.LineSpacing / 2;
                 if (State == PressState.Pressed)
                     textCursor.Y += 1f; // pressed down effect
 
-                batch.DrawString(font, text, textCursor, Enabled ? TextColor() : Color.Gray);
+                Color textColor = Enabled ? TextColor() : Color.Gray;
+                if (TextShadows)
+                    batch.DrawDropShadowText(text, textCursor, font, textColor);
+                else
+                    batch.DrawString(font, text, textCursor, textColor);
             }
         }
+
+        bool Released(InputState input) => input.LeftMouseReleased || (AcceptRightClicks && input.RightMouseReleased);
+        bool Clicked(InputState input)  => input.LeftMouseClick    || (AcceptRightClicks && input.RightMouseClick);
+        bool HeldDown(InputState input) => input.LeftMouseHeldDown || (AcceptRightClicks && input.RightMouseHeldDown);
 
         public override bool HandleInput(InputState input)
         {
@@ -144,7 +192,7 @@ namespace Ship_Game
                 GameAudio.MouseOver();
             }
 
-            if (State == PressState.Pressed && input.LeftMouseReleased)
+            if (State == PressState.Pressed && Released(input))
             {
                 State = PressState.Hover;
                 OnButtonClicked();
@@ -153,12 +201,12 @@ namespace Ship_Game
                 return true;
             }
 
-            if (State != PressState.Pressed && input.LeftMouseClick)
+            if (State != PressState.Pressed && Clicked(input))
             {
                 State = PressState.Pressed;
                 return true;
             }
-            if (State == PressState.Pressed && input.LeftMouseHeldDown)
+            if (State == PressState.Pressed && HeldDown(input))
             {
                 State = PressState.Pressed;
                 return true;
@@ -169,7 +217,7 @@ namespace Ship_Game
             {
                 if (Tooltip.IsValid)
                 {
-                    ToolTip.CreateTooltip(Tooltip);
+                    ToolTip.CreateTooltip(Tooltip, "", Pos + Size);
                 }
             }
 

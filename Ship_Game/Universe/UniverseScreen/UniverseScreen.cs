@@ -15,6 +15,7 @@ using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
 
 namespace Ship_Game
@@ -31,7 +32,6 @@ namespace Ship_Game
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public float GamePace = 1f;
-        public float GameScale = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
@@ -118,16 +118,12 @@ namespace Ship_Game
         RenderTarget2D LightsTarget;
         public Effect basicFogOfWarEffect;
         public Rectangle SectorMap;
-        public Rectangle SectorSourceRect;
-        public Rectangle GalaxyMap;
         public Rectangle SelectedStuffRect;
         public NotificationManager NotificationManager;
         public Rectangle MinimapDisplayRect;
         public Rectangle mmShowBorders;
         public Rectangle mmDSBW;
         public Rectangle mmShipView;
-        public Rectangle mmAutomation;
-        public Rectangle mmGalaxyView;
         public Rectangle mmHousing;
         protected float MaxCamHeight;
         public AnomalyManager anomalyManager;
@@ -621,18 +617,14 @@ namespace Ship_Game
             //mmButtons          = new MinimapButtons(mmHousing, EmpireUI);
             mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
             mmDSBW             = new Rectangle(mmShowBorders.X + 32, mmShowBorders.Y, 64, 32);
-            mmAutomation       = new Rectangle(mmDSBW.X + mmDSBW.Width, mmShowBorders.Y, 96, 32);
             mmShipView         = new Rectangle(MinimapDisplayRect.X - 32, MinimapDisplayRect.Y, 32, 105);
-            mmGalaxyView       = new Rectangle(mmShipView.X, mmShipView.Y + 105, 32, 105);
             SectorMap          = new Rectangle(width - 300, height - 150, 150, 150);
-            GalaxyMap          = new Rectangle(SectorMap.X + SectorMap.Width, height - 150, 150, 150);
             SelectedStuffRect  = new Rectangle(0, height - 247, 407, 242);
             ShipInfoUIElement  = new ShipInfoUIElement(SelectedStuffRect, ScreenManager, this);
             sInfoUI            = new SystemInfoUIElement(SelectedStuffRect, ScreenManager, this);
             pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
-            SectorSourceRect   = new Rectangle((width - 720) / 2, (height - 720) / 2, 720, 720);
             EmpireUI           = new EmpireUIOverlay(player, device);
 
             if (GlobalStats.RenderBloom)
@@ -724,7 +716,6 @@ namespace Ship_Game
         {
             if (LookingAtPlanet) workersPanel.Update(deltaTime);
             if (showingDSBW) dsbw.Update(deltaTime);
-
             pieMenu.Update(deltaTime);
             SelectedSomethingTimer -= deltaTime;
 

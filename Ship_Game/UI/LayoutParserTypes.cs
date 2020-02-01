@@ -31,7 +31,7 @@ namespace Ship_Game.UI
         [StarData] public readonly Vector2 Pos;
         [StarData] public readonly Vector2 Size;
         [StarData] public readonly Vector2 Padding = new Vector2(5f, 5f);
-        [StarData] public readonly ListLayoutStyle ListLayout = ListLayoutStyle.Resize;
+        [StarData] public readonly ListLayoutStyle ListLayout = ListLayoutStyle.ResizeList;
         [StarData] public readonly ButtonStyle ButtonStyle = ButtonStyle.Default;
         [StarData] public readonly string ClickSfx = "echo_affirm";
         /**

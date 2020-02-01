@@ -32,16 +32,16 @@ namespace Ship_Game
             if (sdata.empireData == null)
             {
                 e.data.Traits = sdata.Traits;
-                e.EmpireColor = new Color((byte)sdata.Traits.R, (byte)sdata.Traits.G, (byte)sdata.Traits.B);
+                e.EmpireColor = sdata.Traits.Color;
             }
             else
             {
                 e.data = sdata.empireData;
                 e.data.ResearchQueue = sdata.empireData.ResearchQueue;
                 e.Research.SetTopic(sdata.ResearchTopic);
-                e.PortraitName       = e.data.PortraitName;
-                e.dd                 = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
-                e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
+                e.PortraitName = e.data.PortraitName;
+                e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
+                e.EmpireColor  = e.data.Traits.Color;
                 e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
@@ -93,6 +93,7 @@ namespace Ship_Game
             p.colonyType         = psdata.ColonyType;
             p.GovOrbitals        = psdata.GovOrbitals;
             p.GovMilitia         = psdata.GovMilitia;
+            p.GarrisonSize       = psdata.GarrisonSize;
             p.DontScrapBuildings = psdata.DontScrapBuildings;
             p.NumShipyards       = psdata.NumShipyards;
             p.FS                 = psdata.FoodState;

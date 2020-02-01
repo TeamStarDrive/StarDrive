@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using Ship_Game.Debug;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.Gameplay
 {
