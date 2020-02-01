@@ -46,6 +46,7 @@ namespace Ship_Game
             var chooseFighterSub = new Submenu(chooseFighterRect);
             chooseFighterSub.AddTab("Choose Fighter");
             ChooseFighterSL = Add(new FighterScrollList(chooseFighterSub, Screen));
+            ChooseFighterSL.EnableItemHighlight = true;
         }
 
         protected override void OnTabChangedEvt(int newIndex)
