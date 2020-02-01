@@ -157,8 +157,8 @@ List: buttons
   Padding: [5,15]
   # Fill -- fill to width of the list
   # Clip -- clip elements to width of the list
-  # Resize -- auto resize list itself
-  ListLayout: Resize
+  # ResizeList -- auto resize list itself
+  ListLayout: ResizeList
   Children:
     Button: new_game
       ButtonStyle: Default

@@ -4,7 +4,6 @@ using Ship_Game.AI;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 // ReSharper disable once CheckNamespace
@@ -12,133 +11,99 @@ namespace Ship_Game
 {
     public class ModuleSelection : Submenu
     {
-        WeaponScrollList WeaponSl;
-        readonly ShipDesignScreen ParentScreen;
-        public Rectangle Window;
-        Submenu ActiveModSubMenu;
-        readonly ScreenManager ScreenManager;
-        Submenu ChooseFighterSub;
-        public FighterScrollList ChooseFighterSL;
-        public Rectangle Choosefighterrect;
+        readonly ShipDesignScreen Screen;
+        readonly FighterScrollList ChooseFighterSL;
+        readonly ModuleSelectScrollList ModuleSelectList;
+        readonly Submenu ActiveModSubMenu;
 
-        public void ResetLists() => WeaponSl.ResetOnNextDraw = true;
-
-        public ModuleSelection(ShipDesignScreen parentScreen, Rectangle window) : base(window)
+        public ModuleSelection(ShipDesignScreen screen, in Rectangle window) : base(window)
         {
-            ParentScreen = parentScreen;
-            Window = window;
-            ScreenManager = parentScreen.ScreenManager;
-            LoadContent();
-        }
+            Screen = screen;
+            // rounded black background
+            Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210));
 
-        public void LoadContent()
-        {
             AddTab("Wpn");
             AddTab("Pwr");
             AddTab("Def");
             AddTab("Spc");
-            WeaponSl = new WeaponScrollList(this, ParentScreen);
-            var active = new Rectangle(Window.X, Window.Y + Window.Height + 15, Window.Width, 300);
-            //activeModWindow = new Menu1(ScreenManager, active);
-            var acsub = new Rectangle(active.X, Window.Y + Window.Height + 15, 305, 370);
+            ModuleSelectList = Add(new ModuleSelectScrollList(this, Screen));
 
-            ActiveModSubMenu = new Submenu(acsub);
+            var acsub = new Rectangle(Rect.X, Rect.Bottom + 15, 305, 370);
+
+            ActiveModSubMenu = Add(new Submenu(acsub));
             ActiveModSubMenu.AddTab("Active Module");
-            Choosefighterrect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
-            if (Choosefighterrect.Y + Choosefighterrect.Height >
-                ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight)
+            // rounded black background
+            ActiveModSubMenu.Background = new Selector(ActiveModSubMenu.Rect.CutTop(25), new Color(0, 0, 0, 210));
+
+            var chooseFighterRect = new Rectangle(acsub.X + acsub.Width + 5, acsub.Y - 90, 240, 270);
+            if (chooseFighterRect.Bottom > Screen.ScreenHeight)
             {
-                int diff = Choosefighterrect.Y + Choosefighterrect.Height - ScreenManager.GraphicsDevice
-                               .PresentationParameters.BackBufferHeight;
-                Choosefighterrect.Height = Choosefighterrect.Height - (diff + 10);
+                int diff = chooseFighterRect.Bottom - Screen.ScreenHeight;
+                chooseFighterRect.Height -= (diff + 10);
             }
-            Choosefighterrect.Height = acsub.Height;
-            ChooseFighterSub = new Submenu(Choosefighterrect);
-            ChooseFighterSub.AddTab("Choose Fighter");
-            ChooseFighterSL = new FighterScrollList(ChooseFighterSub, ParentScreen);
+            chooseFighterRect.Height = acsub.Height;
+
+            var chooseFighterSub = new Submenu(chooseFighterRect);
+            chooseFighterSub.AddTab("Choose Fighter");
+            ChooseFighterSL = Add(new FighterScrollList(chooseFighterSub, Screen));
+            ChooseFighterSL.EnableItemHighlight = true;
         }
+
+        protected override void OnTabChangedEvt(int newIndex)
+        {
+            ModuleSelectList.SetActiveCategory(newIndex);
+            base.OnTabChangedEvt(newIndex);
+        }
+
+        float ActiveModStatSpacing => ActiveModSubMenu.Width * 0.27f;
 
         public bool HitTest(InputState input)
         {
-            return Window.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
+            return Rect.HitTest(input.CursorPosition) || ChooseFighterSL.HitTest(input);
         }
 
-        float ActiveModStatSpacing => ActiveModSubMenu.Width* 0.27f;
-
-        public bool HandleInput(InputState input, ShipModule activeModule, ShipModule highlightedModule)
+        public override bool HandleInput(InputState input)
         {
-            if (HitTest(input) && WeaponSl.HandleInput(input))
-                return true;
-            ChooseFighterSL.HandleInput(input, activeModule, highlightedModule);
-            ActiveModSubMenu.HandleInputNoReset(input);
-            if (!base.HandleInput(input))
-                return false;
-            ResetLists();
-            return false;
-
+            return base.HandleInput(input);
         }
-        public new void Draw(SpriteBatch batch)
-        {
-            Rectangle r = Rect;
-            r.Y += 25;
-            r.Height -= 25;
-            Selector sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(ScreenManager.SpriteBatch);
 
-            WeaponSl.Draw(batch);
-            if (ParentScreen.ActiveModule != null || ParentScreen.HighlightedModule != null)
-            {
-                ActiveModSubMenu.Draw(batch);
-                DrawActiveModuleData();
-            }
-            ChooseFighterSL.Draw(batch);
+        public override void Update(float deltaTime)
+        {
+            if (SelectedIndex == -1)
+                SelectedIndex = 0; // this will trigger OnTabChangedEvt
+
+            ActiveModSubMenu.Visible = Screen.ActiveModule != null || Screen.HighlightedModule != null;
+            base.Update(deltaTime);
+        }
+
+        public override void Draw(SpriteBatch batch)
+        {
             base.Draw(batch);
-        }
-
-        string ParseText(string text, float width, SpriteFont font)
-        {
-            string line = string.Empty;
-            string returnString = string.Empty;
-            string[] strArrays = text.Split(' ');
-            for (int i = 0; i < strArrays.Length; i++)
+            if (ActiveModSubMenu.Visible)
             {
-                string word = strArrays[i];
-                if (font.MeasureString(string.Concat(line, word)).Length() > width)
-                {
-                    returnString = string.Concat(returnString, line, '\n');
-                    line = string.Empty;
-                }
-                line = string.Concat(line, word, ' ');
+                DrawActiveModuleData(batch);
             }
-            return string.Concat(returnString, line);
         }
 
-
-        void DrawString(ref Vector2 cursorPos, string text, SpriteFont font = null)
+        static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, SpriteFont font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
-            ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, Color.SpringGreen);
-            cursorPos.X = cursorPos.X + Fonts.Arial8Bold.MeasureString(text).X;
+            batch.DrawString(font, text, cursorPos, Color.SpringGreen);
+            cursorPos.X += font.TextWidth(text);
         }
 
-        void DrawString(ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
+        static void DrawString(SpriteBatch batch, ref Vector2 cursorPos, string text, Color color, SpriteFont font = null)
         {
             if (font == null) font = Fonts.Arial8Bold;
-            ScreenManager.SpriteBatch.DrawString(font, text, cursorPos, color);
-            cursorPos.X = cursorPos.X + font.MeasureString(text).X;
+            batch.DrawString(font, text, cursorPos, color);
+            cursorPos.X += font.TextWidth(text);
         }
 
-        void DrawActiveModuleData()
+        void DrawActiveModuleData(SpriteBatch batch)
         {
-            Rectangle r = ActiveModSubMenu.Rect;
-            int down = 25;
-            r.Y += down;
-            r.Height -= down;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(ScreenManager.SpriteBatch);
-            ShipModule mod = ParentScreen.ActiveModule ?? ParentScreen.HighlightedModule;
+            ShipModule mod = Screen.ActiveModule ?? Screen.HighlightedModule;
 
-            if (!ActiveModSubMenu.Tabs[0].Selected || mod == null)
+            if (ActiveModSubMenu.SelectedIndex != 0 || mod == null)
                 return;
 
             ShipModule moduleTemplate = ResourceManager.GetModuleTemplate(mod.UID);
@@ -146,16 +111,16 @@ namespace Ship_Game
             //Added by McShooterz: Changed how modules names are displayed for allowing longer names
             var modTitlePos = new Vector2(ActiveModSubMenu.X + 10, ActiveModSubMenu.Y + 35);
 
-            if (Fonts.Arial20Bold.MeasureString(Localizer.Token(moduleTemplate.NameIndex)).X + 16 <
+            if (Fonts.Arial20Bold.TextWidth(Localizer.Token(moduleTemplate.NameIndex))+16 <
                 ActiveModSubMenu.Width)
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
+                batch.DrawString(Fonts.Arial20Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
                 modTitlePos.Y += (Fonts.Arial20Bold.LineSpacing + 6);
             }
             else
             {
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
+                batch.DrawString(Fonts.Arial14Bold, Localizer.Token(moduleTemplate.NameIndex),
                     modTitlePos, Color.White);
                 modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
             }
@@ -344,10 +309,10 @@ namespace Ship_Game
             }
 
             //DrawString(ref modTitlePos, string.Concat(Localizer.Token(122), ": ", rest));
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, Localizer.Token(122)+": "+rest, modTitlePos, Color.Orange);
-            modTitlePos.Y = modTitlePos.Y + Fonts.Arial8Bold.LineSpacing;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
-            modTitlePos.Y = modTitlePos.Y + (Fonts.Arial8Bold.LineSpacing + 11);
+            batch.DrawString(Fonts.Arial8Bold, Localizer.Token(122)+": "+rest, modTitlePos, Color.Orange);
+            modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
+            batch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
+            modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 11);
             int startx = (int)modTitlePos.X;
             if (moduleTemplate.IsWeapon && moduleTemplate.BombType == null)
             {
@@ -380,50 +345,53 @@ namespace Ship_Game
                 if (weaponTemplate.Tag_SpaceBomb) sb.Append("SPACEBOMB ");
                 if (weaponTemplate.Tag_Drone)     sb.Append("DRONE ");
                 if (weaponTemplate.Tag_Cannon)    sb.Append("CANNON ");
-                DrawString(ref modTitlePos, sb.ToString(), Fonts.Arial8Bold);
+                DrawString(batch, ref modTitlePos, sb.ToString(), Fonts.Arial8Bold);
 
-                modTitlePos.Y = modTitlePos.Y + (Fonts.Arial8Bold.LineSpacing + 5);
+                modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 5);
                 modTitlePos.X = startx;
             }
 
-            string txt = ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
-                                   ActiveModSubMenu.Width - 20, Fonts.Arial12);
+            string txt = Fonts.Arial12.ParseText(Localizer.Token(moduleTemplate.DescriptionIndex),
+                                                 ActiveModSubMenu.Width - 20);
 
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
-            modTitlePos.Y = modTitlePos.Y + (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
+            batch.DrawString(Fonts.Arial12, txt, modTitlePos, Color.White);
+            modTitlePos.Y += (Fonts.Arial12Bold.MeasureString(txt).Y + 8f);
             float starty = modTitlePos.Y;
             modTitlePos.X = 10;
-            float strength = mod.CalculateModuleOffenseDefense(ParentScreen.ActiveHull.ModuleSlots.Length);
+            float strength = mod.CalculateModuleOffenseDefense(Screen.ActiveHull.ModuleSlots.Length);
             DrawStat(ref modTitlePos, "Offense", strength, 227);
 
             if (mod.BombType == null && !mod.isWeapon || mod.InstalledWeapon == null)
             {
-                DrawModuleStats(mod, modTitlePos, starty);
+                DrawModuleStats(batch, mod, modTitlePos, starty);
             }
             else
             {
-                DrawWeaponStats(modTitlePos, mod, mod.InstalledWeapon, starty);
+                DrawWeaponStats(batch, modTitlePos, mod, mod.InstalledWeapon, starty);
             }
         }
         void DrawStat(ref Vector2 cursor, string text, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
+
+            Screen.DrawStat(ref cursor, text, stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, int textId, float stat, int toolTipId, bool isPercent = false)
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
+
+            Screen.DrawStat(ref cursor, Localizer.Token(textId), stat, Color.White, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
         void DrawStat(ref Vector2 cursor, string text, string stat, int toolTipId)
         {
             if (stat.IsEmpty())
                 return;
-            ParentScreen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModStatSpacing, lineSpacing: 0);
+
+            Screen.DrawStat(ref cursor, text, stat, toolTipId, Color.White, Color.LightGreen, spacing: ActiveModStatSpacing, lineSpacing: 0);
             WriteLine(ref cursor);
         }
 
@@ -431,18 +399,19 @@ namespace Ship_Game
         {
             if (stat.AlmostEqual(0.0f))
                 return;
-            ParentScreen.DrawStat(ref cursor, Localizer.Token(titleId), stat, color, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
+
+            Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
-        void DrawString(ref Vector2 cursor, string text, bool valueCheck)
+        void DrawString(SpriteBatch batch, ref Vector2 cursor, string text, bool valueCheck)
         {
             if (!valueCheck)
                 return;
             WriteLine(ref cursor);
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
+            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.OrangeRed);
     }
 
-        void DrawModuleStats(ShipModule mod, Vector2 modTitlePos, float starty)
+        void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
             float mass = mod.Mass * EmpireManager.Player.data.MassModifier;
@@ -455,7 +424,7 @@ namespace Ship_Game
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
             DrawStat(ref modTitlePos, Localizer.Token(125), powerDraw, 81);
             DrawStat(ref modTitlePos, Localizer.Token(2231), mod.MechanicalBoardingDefense, 143);
-            DrawStat(ref modTitlePos, string.Concat(Localizer.Token(135), "+"), mod.ActualBonusRepairRate, 97);
+            DrawStat(ref modTitlePos, Localizer.Token(135)+"+", mod.ActualBonusRepairRate, 97);
 
             float maxDepth = modTitlePos.Y;
             modTitlePos.X = modTitlePos.X + 152f;
@@ -513,7 +482,7 @@ namespace Ship_Game
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
             ShipModule[] modlist = { mod };
-            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, ParentScreen.ActiveHull.ShieldsBehavior, true);
+            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, Screen.ActiveHull.ShieldsBehavior, true);
             DrawStat(ref modTitlePos, Localizer.Token(6011), -modNetWarpPowerDraw.NetWarpPowerDraw, 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
@@ -527,7 +496,7 @@ namespace Ship_Game
             }
             if (mod.explodes)
             {
-                DrawString(ref modTitlePos, "Explodes", mod.explodes);
+                DrawString(batch, ref modTitlePos, "Explodes", mod.explodes);
                 DrawStat(ref modTitlePos, Localizer.Token(1998), mod.ExplosionDamage, 238);
                 DrawStat(ref modTitlePos, Localizer.Token(1997), mod.ExplosionRadius, 239);
             }
@@ -564,9 +533,9 @@ namespace Ship_Game
             {
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
                 Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
-                string bestShip = ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20, Fonts.Arial12Bold);
+                string bestShip = Fonts.Arial12Bold.ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20);
                 Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
-                DrawString(ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
+                DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
                 return;
             }
             Ship ship = ResourceManager.GetShipTemplate(mod.hangarShipUID, false);
@@ -574,7 +543,7 @@ namespace Ship_Game
             modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial12Bold.LineSpacing;
             Vector2 shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
             string name = ship.VanityName.IsEmpty() ? ship.Name : ship.VanityName;
-            DrawString(ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
+            DrawString(batch, ref shipSelectionPos, string.Concat(Localizer.Token(137), " : ", name), Fonts.Arial20Bold);
             shipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
             shipSelectionPos.Y += Fonts.Arial12Bold.LineSpacing *2;
             DrawStat(ref shipSelectionPos, "LaunchCost", ship.ShipOrdLaunchCost, -1);
@@ -600,7 +569,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawWeaponStats(Vector2 cursor, ShipModule m, Weapon w, float startY)
+        void DrawWeaponStats(SpriteBatch batch, Vector2 cursor, ShipModule m, Weapon w, float startY)
         {
             float range = ModifiedWeaponStat(w, WeaponStat.Range);
             float delay = ModifiedWeaponStat(w, WeaponStat.FireDelay) * GetHullFireRateBonus();
@@ -687,24 +656,24 @@ namespace Ship_Game
             if (w.TruePD)
             {
                 WriteLine(ref cursor);
-                DrawString(ref cursor, "Cannot Target Ships" );
+                DrawString(batch, ref cursor, "Cannot Target Ships" );
             }
             else
             if (w.Excludes_Fighters || w.Excludes_Corvettes ||
                 w.Excludes_Capitals || w.Excludes_Stations)
             {
                 WriteLine(ref cursor);
-                DrawString(ref cursor, "Cannot Target:");
+                DrawString(batch, ref cursor, "Cannot Target:");
 
                 if (w.Excludes_Fighters)
                 {
                     if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useDrones)
-                        WriteLine(ref cursor, "Drones");
-                    WriteLine(ref cursor, "Fighters");
+                        WriteLine(batch, ref cursor, "Drones");
+                    WriteLine(batch, ref cursor, "Fighters");
                 }
-                if (w.Excludes_Corvettes) WriteLine(ref cursor, "Corvettes");
-                if (w.Excludes_Capitals) WriteLine(ref cursor, "Capitals");
-                if (w.Excludes_Stations) WriteLine(ref cursor, "Stations");
+                if (w.Excludes_Corvettes) WriteLine(batch, ref cursor, "Corvettes");
+                if (w.Excludes_Capitals) WriteLine(batch, ref cursor, "Capitals");
+                if (w.Excludes_Stations) WriteLine(batch, ref cursor, "Stations");
             }
         }
 
@@ -714,9 +683,9 @@ namespace Ship_Game
             WriteLine(ref cursor);
         }
 
-        void WriteLine(ref Vector2 cursor, string text)
+        void WriteLine(SpriteBatch batch, ref Vector2 cursor, string text)
         {
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
+            batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.LightCoral);
             WriteLine(ref cursor);
         }
 
@@ -756,7 +725,7 @@ namespace Ship_Game
         float GetHullDamageBonus()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
+                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f + bonus.DamageBonus;
             return 1f;
         }
@@ -764,7 +733,7 @@ namespace Ship_Game
         float GetHullFireRateBonus()
         {
             if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useHullBonuses &&
-                ResourceManager.HullBonuses.TryGetValue(ParentScreen.ActiveHull.Hull, out HullBonus bonus))
+                ResourceManager.HullBonuses.TryGetValue(Screen.ActiveHull.Hull, out HullBonus bonus))
                 return 1f - bonus.FireRateBonus;
             return 1f;
         }

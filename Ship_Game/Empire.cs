@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Empires;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game
 {
@@ -1672,9 +1673,7 @@ namespace Ship_Game
         {
             troopShip = null;
             Array<Planet> candidatePlanets = new Array<Planet>(OwnedPlanets
-                .Filter(p => p.CountEmpireTroops(this) > p.GarrisonSize
-                             && !p.MightBeAWarZone(this)
-                             && p.Name != planetName)
+                .Filter(p => p.NumTroopsCanLaunch > 0 && p.Name != planetName)
                 .OrderBy(distance => Vector2.Distance(distance.Center, objectCenter)));
 
             if (candidatePlanets.Count == 0)

@@ -87,7 +87,7 @@ namespace Ship_Game
             SaveData.AutoPickBestFreighter = EmpireManager.Player.AutoPickBestFreighter;
             SaveData.AutoProjectors        = EmpireManager.Player.AutoBuild;
             SaveData.GamePacing            = CurrentGame.Pace;
-            SaveData.GameScale             = screenToSave.GameScale;
+            SaveData.GameScale             = 1f;
             SaveData.StarDate              = screenToSave.StarDate;
             SaveData.FTLModifier           = screenToSave.FTLModifier;
             SaveData.EnemyFTLModifier      = screenToSave.EnemyFTLModifier;
@@ -641,6 +641,7 @@ namespace Ship_Game
             [Serialize(36)] public bool GovMilitia;
             [Serialize(37)] public int NumShipyards;
             [Serialize(38)] public bool DontScrapBuildings;
+            [Serialize(39)] public int GarrisonSize;
         }
 
         public struct ProjectileSaveData
