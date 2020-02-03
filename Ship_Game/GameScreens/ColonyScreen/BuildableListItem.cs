@@ -64,8 +64,8 @@ namespace Ship_Game
 
         public void BuildIt(int numItemsToBuild = 1)
         {
-            if (Building != null) Screen.Build(Building);
-            else if (Ship != null) Screen.Build(Ship, numItemsToBuild);
+            if (Building != null)   Screen.Build(Building);
+            else if (Ship != null)  Screen.Build(Ship, GetShipCost(Ship), numItemsToBuild);
             else if (Troop != null) Screen.Build(Troop, numItemsToBuild);
         }
 
