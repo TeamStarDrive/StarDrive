@@ -623,7 +623,7 @@ namespace Ship_Game.Debug
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
-                DrawString("Ship Maint:    "+e.TotalShipMaintenance);
+                DrawString($"Ship Maint:    {(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
 
                 Array<Ship> ships = e.GetShips();
                 DrawString($"Ship Count:    {ships.Count}" +
