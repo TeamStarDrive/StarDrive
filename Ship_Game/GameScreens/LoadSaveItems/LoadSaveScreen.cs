@@ -8,8 +8,8 @@ namespace Ship_Game
 {
     public sealed class LoadSaveScreen : GenericLoadSaveScreen
     {
-        private UniverseScreen screen;
-        private MainMenuScreen mmscreen;
+        UniverseScreen screen;
+        MainMenuScreen mmscreen;
 
         public LoadSaveScreen(UniverseScreen screen) : base(screen, SLMode.Load, "", Localizer.Token(6), "Saved Games")
         {
@@ -30,7 +30,7 @@ namespace Ship_Game
             try
             {
                 // find header of save file
-                var headerToDel = new FileInfo(Path + "Headers/" + fileToDel.Name.Substring(0, fileToDel.Name.LastIndexOf('.')));
+                var headerToDel = new FileInfo(Path + "Headers/"+FileToDelete.FileLink.NameNoExt());
                 headerToDel.Delete();
             }
             catch { }
@@ -40,10 +40,10 @@ namespace Ship_Game
 
         protected override void Load()
         {
-            if (selectedFile != null)
+            if (SelectedFile != null)
             {
                 screen?.ExitScreen();
-                ScreenManager.AddScreen(new LoadUniverseScreen(selectedFile.FileLink));
+                ScreenManager.AddScreen(new LoadUniverseScreen(SelectedFile.FileLink));
                 mmscreen?.ExitScreen();
             }
             else
@@ -60,7 +60,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    HeaderData data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveHeaderFile);
+                    var data = ResourceManager.HeaderSerializer.Deserialize<HeaderData>(saveHeaderFile);
                     if (data.SaveGameVersion != SavedGame.SaveGameVersion)
                         continue;
                     if (string.IsNullOrEmpty(data.SaveName))
@@ -86,21 +86,18 @@ namespace Ship_Game
                         continue; // skip non-mod savegames
 
                     string info = data.PlayerName + " StarDate " + data.StarDate + " (sav)"; ;
-
                     string extraInfo = data.RealDate;
-                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo));
+
+                    IEmpireData empire = ResourceManager.AllRaces.FirstOrDefault(e => e.Name == data.PlayerName)
+                                      ?? ResourceManager.AllRaces[0];
+                    saves.Add(new FileData(data.FI, data, data.SaveName, info, extraInfo, empire.Traits.FlagIcon, empire.Traits.Color));
                 }
                 catch
                 {
                 }
             }
 
-            var sortedList = from header in saves
-                             orderby (header.Data as HeaderData)?.Time 
-                             descending select header;
-
-            foreach (FileData data in sortedList)
-                SavesSL.AddItem(data).AddSubItem(data.FileLink);
+            AddItemsToSaveSL(saves.OrderByDescending(header => (header.Data as HeaderData)?.Time));
         }
 
     }

@@ -18,15 +18,11 @@ namespace Ship_Game
 
         private Ship SelectedShip;
 
-        private ScrollList ShipSL;
+        private ScrollList2<ShipListScreenItem> ShipSL;
 
         public EmpireUIOverlay empUI;
 
-        private Submenu ShipSubMenu;
-
         private Rectangle leftRect;
-
-        private CloseButton close;
 
         private DropOptions<int> ShowRoles;
 
@@ -37,10 +33,6 @@ namespace Ship_Game
         private Rectangle eRect;
 
         public bool PlayerDesignsOnly;
-
-        private float ClickTimer;
-
-        private float ClickDelay = 0.25f;
 
         private static int indexLast;
 
@@ -59,8 +51,6 @@ namespace Ship_Game
         private Rectangle STL;
         private SortButton SB_STL;
 
-        private int CurrentLine;
-
         public ShipListScreen(UniverseScreen parent, EmpireUIOverlay empUI, string audioCue = "") : base(parent)
         {
             if (!string.IsNullOrEmpty(audioCue))
@@ -69,19 +59,20 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             IsPopup = true;
-            var titleRect = new Rectangle(2, 44, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth * 2 / 3, 80);
+            var titleRect = new Rectangle(2, 44, ScreenWidth * 2 / 3, 80);
             TitleBar = new Menu2(titleRect);
             TitlePos = new Vector2(titleRect.X + titleRect.Width / 2 - Fonts.Laserian14.MeasureString(Localizer.Token(190)).X / 2f, titleRect.Y + titleRect.Height / 2 - Fonts.Laserian14.LineSpacing / 2);
-            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 10, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
+            leftRect = new Rectangle(2, titleRect.Y + titleRect.Height + 5, ScreenWidth - 10, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             EMenu = new Menu2(leftRect);
-            close = new CloseButton(leftRect.X + leftRect.Width - 40, leftRect.Y + 20);
-            eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth - 40, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - (titleRect.Y + titleRect.Height) - 7);
+            Add(new CloseButton(leftRect.Right - 40, leftRect.Y + 20));
+            eRect = new Rectangle(2, titleRect.Y + titleRect.Height + 25, ScreenWidth - 40, ScreenHeight - (titleRect.Y + titleRect.Height) - 7);
             while (eRect.Height % 80 != 0)
             {
                 eRect.Height = eRect.Height - 1;
             }
-            ShipSubMenu = new Submenu(eRect);
-            ShipSL = new ScrollList(ShipSubMenu, 30);
+
+            ShipSL = Add(new ScrollList2<ShipListScreenItem>(eRect, 30));
+            ShipSL.OnClick = OnShipListScreenItemClicked;
 
             Add(new UICheckBox(TitleBar.Menu.Right + 10, TitleBar.Menu.Y + 15,
                 () => PlayerDesignsOnly,
@@ -123,66 +114,52 @@ namespace Ship_Game
             ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
             batch.Begin();
             TitleBar.Draw(batch);
-            batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, new Color(255, 239, 208));
+            batch.DrawString(Fonts.Laserian14, Localizer.Token(190), TitlePos, Colors.Cream);
             EMenu.Draw(batch);
-            var textColor = new Color(118, 102, 67, 50);
-            ShipSL.Draw(batch);
 
             base.Draw(batch);
 
-            if (ShipSL.NumExpandedEntries > 0)
+            // Draw List Header
+            if (ShipSL.NumEntries > 0)
             {
-                var e1 = ShipSL.ItemAtTop<ShipListScreenEntry>();
-                var cursor = new Vector2(e1.SysNameRect.CenterX() - Fonts.Arial20Bold.TextWidth(192) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
-                SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(192), Fonts.Arial20Bold.LineSpacing);
+                ShipListScreenItem e1 = ShipSL.ItemAtTop;
+                SpriteFont font = Fonts.Arial20Bold;
+                var cursor = new Vector2(e1.SysNameRect.CenterX() - font.TextWidth(192) / 2f, eRect.Y - font.LineSpacing + 28);
+                SortSystem.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(192), font.LineSpacing);
                 
-                SortSystem.Draw(ScreenManager, Fonts.Arial20Bold);
-                cursor = new Vector2(e1.ShipNameRect.CenterX() - Fonts.Arial20Bold.TextWidth(193) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
-                SortName.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(193), Fonts.Arial20Bold.LineSpacing);
+                SortSystem.Draw(ScreenManager, font);
+                cursor = new Vector2(e1.ShipNameRect.CenterX() - font.TextWidth(193) / 2f, eRect.Y - font.LineSpacing + 28);
+                SortName.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(193), font.LineSpacing);
                 
-                SortName.Draw(ScreenManager, Fonts.Arial20Bold);
+                SortName.Draw(ScreenManager, font);
                 
-                cursor = new Vector2(e1.RoleRect.CenterX() - Fonts.Arial20Bold.TextWidth(194) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 28);
-                SortRole.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(194), Fonts.Arial20Bold.LineSpacing);					
-                SortRole.Draw(ScreenManager, Fonts.Arial20Bold);
+                cursor = new Vector2(e1.RoleRect.CenterX() - font.TextWidth(194) / 2f, eRect.Y - font.LineSpacing + 28);
+                SortRole.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(194), font.LineSpacing);					
+                SortRole.Draw(ScreenManager, font);
 
-                cursor = new Vector2(e1.OrdersRect.CenterX() - Fonts.Arial20Bold.TextWidth(195) / 2f, eRect.Y - Fonts.Arial20Bold.LineSpacing + 30);
-                SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, Fonts.Arial20Bold.TextWidth(195), Fonts.Arial20Bold.LineSpacing);
-                SortOrder.Draw(ScreenManager, Fonts.Arial20Bold);
-                //base.batch.DrawString(Fonts.Arial20Bold, Localizer.Token(195), TextCursor, new Color(255, 239, 208));
+                cursor = new Vector2(e1.OrdersRect.CenterX() - font.TextWidth(195) / 2f, eRect.Y - font.LineSpacing + 30);
+                SortOrder.rect = new Rectangle((int)cursor.X, (int)cursor.Y, font.TextWidth(195), font.LineSpacing);
+                SortOrder.Draw(ScreenManager, font);
 
                 STRIconRect = new Rectangle(e1.STRRect.X + e1.STRRect.Width / 2 - 6, eRect.Y - 18 + 30, 18, 18);
                 SB_STR.rect = STRIconRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_fighting_small"), STRIconRect, Color.White);                    
                 MaintRect = new Rectangle(e1.MaintRect.X + e1.MaintRect.Width / 2 - 7, eRect.Y - 20 + 30, 21, 20);
                 Maint.rect = MaintRect;
-                //this.Maint.Draw(base.ScreenManager, null);
                 batch.Draw(ResourceManager.Texture("NewUI/icon_money"), MaintRect, Color.White);
                 TroopRect = new Rectangle(e1.TroopRect.X + e1.TroopRect.Width / 2 - 5, eRect.Y - 22 + 30, 18, 22);
                 SB_Troop.rect = TroopRect;
                 batch.Draw(ResourceManager.Texture("UI/icon_troop"), TroopRect, Color.White);
                 cursor = new Vector2(e1.FTLRect.X + e1.FTLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("FTL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref cursor);
-                batch.DrawString(Fonts.Arial12Bold, "FTL", cursor, new Color(255, 239, 208));
+                batch.DrawString(Fonts.Arial12Bold, "FTL", cursor, Colors.Cream);
                 FTL = new Rectangle(e1.FTLRect.X, eRect.Y - 20 + 35, e1.FTLRect.Width, 20);
                 SB_FTL.rect = FTL;
                 STL = new Rectangle(e1.STLRect.X, eRect.Y - 20 + 35, e1.STLRect.Width, 20);
                 SB_STL.rect = STL;
                 cursor = new Vector2(e1.STLRect.X + e1.STLRect.Width / 2 - Fonts.Arial12Bold.MeasureString("STL").X / 2f + 4f, eRect.Y - Fonts.Arial12Bold.LineSpacing + 28);
                 HelperFunctions.ClampVectorToInt(ref cursor);
-                batch.DrawString(Fonts.Arial12Bold, "STL", cursor, new Color(255, 239, 208));
-            
-                foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
-                {
-                    var entry = e.Get<ShipListScreenEntry>();
-                    if (entry.Selected)
-                    {
-                        batch.FillRectangle(entry.TotalEntrySize, Color.DarkGreen);
-                    }
-                    entry.SetNewPos(eRect.X + 22, e.Y);
-                    entry.Draw(ScreenManager, GameTime);
-                    batch.DrawRectangle(entry.TotalEntrySize, textColor);
-                }
+                batch.DrawString(Fonts.Arial12Bold, "STL", cursor, Colors.Cream);
 
                 void DrawLine(int aX, int aY, int bX, int bY)
                 {
@@ -215,17 +192,29 @@ namespace Ship_Game
                 DrawHorizontalSeparator(eRect.Y + 35);
             }
             ShowRoles.Draw(batch);
-            close.Draw(batch);
             batch.End();
         }
-
+        
+        void OnShipListScreenItemClicked(ShipListScreenItem item)
+        {
+            ExitScreen();
+            UniverseScreen universe = Empire.Universe;
+            if (universe.SelectedShip != null && universe.previousSelection != universe.SelectedShip && universe.SelectedShip != item.ship) //fbedard
+                universe.previousSelection = universe.SelectedShip;
+            universe.SelectedShipList.Clear();
+            universe.SelectedShip = item.ship;                        
+            universe.ViewToShip();
+            universe.returnToShip = true;
+        }
 
         public override bool HandleInput(InputState input)
         {
             if (!IsActive)
                 return false;
 
-            ShipSL.HandleInput(input);
+            if (ShipSL.HandleInput(input))
+                return true;
+
             ShowRoles.HandleInput(input);
             if (ShowRoles.ActiveIndex != indexLast)
             {
@@ -234,54 +223,7 @@ namespace Ship_Game
                 return true;
             }
 
-            int i = ShipSL.FirstVisibleIndex;
-            foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
-            {
-                var entry = e.Get<ShipListScreenEntry>();
-                entry.HandleInput(input);
-                if (entry.TotalEntrySize.HitTest(input.CursorPosition) && input.LeftMouseClick)
-                {
-                    if (ClickTimer >= ClickDelay)
-                    {
-                        ClickTimer = 0f;
-                    }
-                    else
-                    {
-                        ExitScreen();
-                        if (Empire.Universe.SelectedShip != null && Empire.Universe.previousSelection != Empire.Universe.SelectedShip && Empire.Universe.SelectedShip != entry.ship) //fbedard
-                            Empire.Universe.previousSelection = Empire.Universe.SelectedShip;
-                        Empire.Universe.SelectedShipList.Clear();
-                        Empire.Universe.SelectedShip = entry.ship;                        
-                        Empire.Universe.ViewToShip();
-                        Empire.Universe.returnToShip = true;
-                    }
-                    if (SelectedShip != entry.ship)
-                    {
-                        GameAudio.AcceptClick();
-                        if (!input.KeysCurr.IsKeyDown(Keys.LeftShift) && !input.KeysCurr.IsKeyDown(Keys.LeftControl))
-                        {
-                            foreach (ShipListScreenEntry slEntry in ShipSL.AllExpandedItems<ShipListScreenEntry>())
-                                slEntry.Selected = false;
-                        }
-                        if (input.KeysCurr.IsKeyDown(Keys.LeftShift) && SelectedShip != null)
-                        {
-                            if (i >= CurrentLine)
-                                for (int l = CurrentLine; l <= i; l++)
-                                    ShipSL.ItemAt<ShipListScreenEntry>(l).Selected = true;
-                            else
-                                for (int l = i; l <= CurrentLine; l++)
-                                    ShipSL.ItemAt<ShipListScreenEntry>(l).Selected = true;
-                        }
-
-                        SelectedShip = entry.ship;
-                        entry.Selected = true;
-                        CurrentLine = i;
-                    }
-                }
-                ++i;
-            }
-
-            void Sort<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
+            void Sort<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
             {
                 GameAudio.AcceptClick();
                 button.Ascending = !button.Ascending;
@@ -304,18 +246,17 @@ namespace Ship_Game
             if (SB_STR.HandleInput(input)) Sort(SB_STR, sl => sl.ship.GetStrength());
             else if (SB_STR.Hover) ToolTip.CreateTooltip("Indicates Ship Strength; sortable");
 
-            void SortAndReset<T>(SortButton button, Func<ShipListScreenEntry, T> sortPredicate)
+            void SortAndReset<T>(SortButton button, Func<ShipListScreenItem, T> sortPredicate)
             {
                 GameAudio.BlipClick();
                 button.Ascending = !button.Ascending;
                 if (button.Ascending) ShipSL.Sort(sortPredicate);
                 else ShipSL.SortDescending(sortPredicate);
-                ResetPos();
             }
 
             if (SortName.HandleInput(input))   SortAndReset(SortName,  sl => sl.ship.VanityName);
             if (SortRole.HandleInput(input))   SortAndReset(SortRole,  sl => sl.ship.shipData.Role);
-            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenEntry.GetStatusText(sl.ship));
+            if (SortOrder.HandleInput(input))  SortAndReset(SortOrder, sl => ShipListScreenItem.GetStatusText(sl.ship));
             if (SortSystem.HandleInput(input)) SortAndReset(SortOrder, sl => sl.ship.SystemName);
 
             if (input.KeyPressed(Keys.K) && !GlobalStats.TakingInput)
@@ -332,7 +273,7 @@ namespace Ship_Game
                     Empire.Universe.SelectedSystem = null;
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip = false;
-                    foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                    foreach (ShipListScreenItem sel in ShipSL.AllEntries)
                         if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
@@ -349,7 +290,7 @@ namespace Ship_Game
                 return base.HandleInput(input);
             }
 
-            if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
+            if (input.Escaped || input.RightMouseClick)
             {
                 ExitScreen();
                 Empire.Universe.SelectedShipList.Clear();
@@ -361,7 +302,7 @@ namespace Ship_Game
                     Empire.Universe.SelectedSystem = null;
                     Empire.Universe.SelectedPlanet = null;
                     Empire.Universe.returnToShip   = false;
-                    foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
+                    foreach (ShipListScreenItem sel in ShipSL.AllEntries)
                         if (sel.Selected) Empire.Universe.SelectedShipList.AddUnique(sel.ship);
 
                     if (Empire.Universe.SelectedShipList.Count == 1)
@@ -414,32 +355,17 @@ namespace Ship_Game
             {
                 if (ShouldAddForCategory(ship, category))
                 {
-                    ShipSL.AddItem(new ShipListScreenEntry(ship, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
+                    ShipSL.AddItem(new ShipListScreenItem(ship, eRect.X + 22, leftRect.Y + 20, EMenu.Menu.Width - 30, 30, this));
                 }
             }
             SelectedShip = null;
-            CurrentLine = 0;
-        }
-
-        void ResetPos()
-        {
-            foreach (ScrollList.Entry e in ShipSL.VisibleEntries)
-            {
-                var entry = (ShipListScreenEntry)e.item;
-                entry.SetNewPos(eRect.X + 22, e.Y);
-            }
         }
 
         public void ResetStatus()
         {
-            foreach (ShipListScreenEntry sel in ShipSL.AllItems<ShipListScreenEntry>())
-                sel.Status_Text = ShipListScreenEntry.GetStatusText(sel.ship);
+            foreach (ShipListScreenItem sel in ShipSL.AllEntries)
+                sel.Status_Text = ShipListScreenItem.GetStatusText(sel.ship);
         }
 
-        public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
-        {
-            ClickTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
-        }
     }
 }

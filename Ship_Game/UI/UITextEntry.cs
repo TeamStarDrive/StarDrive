@@ -21,14 +21,21 @@ namespace Ship_Game
         public bool HandlingInput;
         public bool Hover;
 
+        public bool ResetTextOnInput;
+
         // If TRUE, this text element will capture input
         public bool InputEnabled = true;
 
         public SpriteFont Font = Fonts.Arial20Bold;
         public Color Color = Color.Orange;
         public Color HoverColor = Color.White;
+        public Color InputColor = Color.BurlyWood;
 
         public UITextEntry()
+        {
+        }
+
+        public UITextEntry(string text) : this(Vector2.Zero, Fonts.Arial20Bold, text)
         {
         }
 
@@ -38,6 +45,7 @@ namespace Ship_Game
 
         public UITextEntry(Vector2 pos, SpriteFont font, string text)
         {
+            TextInputCaptured = false; // reset this global flag
             Font = font;
             Text = text;
             ClickableArea = new Rectangle((int)pos.X, (int)pos.Y - 2, font.TextWidth(Text) + 20, font.LineSpacing);
@@ -45,10 +53,18 @@ namespace Ship_Game
 
         public bool HandleTextInput(ref string text, InputState input)
         {
-            if (!HandlingInput || input.IsEnterOrEscape)
+            if (!HandlingInput)
             {
                 HandlingInput = false;
+                TextInputCaptured = false;
                 return false;
+            }
+
+            if (input.IsEnterOrEscape)
+            {
+                HandlingInput = false;
+                TextInputCaptured = false;
+                return true;
             }
 
             boop++;
@@ -80,25 +96,26 @@ namespace Ship_Game
                     return true;
                 }
             }
-            return false;
+            // NOTE: always force input capture
+            return true;
         }
+
+        static bool TextInputCaptured;
 
         public override bool HandleInput(InputState input)
         {
-            if (!InputEnabled)
+            if (!InputEnabled || (TextInputCaptured && !HandlingInput))
                 return false;
 
-            if (!ClickableArea.HitTest(input.CursorPosition))
+            Hover = ClickableArea.HitTest(input.CursorPosition);
+            if (Hover && !HandlingInput)
             {
-                Hover = false;
-            }
-            else
-            {
-                Hover = true;
                 if (input.LeftMouseClick)
                 {
                     HandlingInput = true;
-                    Text = "";
+                    TextInputCaptured = true;
+                    if (ResetTextOnInput)
+                        Text = "";
                     return true;
                 }
             }
@@ -121,7 +138,11 @@ namespace Ship_Game
         public override void Draw(SpriteBatch batch)
         {
             Vector2 pos = Pos;
-            batch.DrawString(Font, Text, pos, Hover ? HoverColor : Color);
+            Color color = Color;
+            if (HandlingInput) color = InputColor;
+            else if (Hover)    color = HoverColor;
+
+            batch.DrawString(Font, Text, pos, color);
             pos.X += Font.MeasureString(Text).X;
             if (HandlingInput)
             {

@@ -41,8 +41,8 @@ namespace Ship_Game
         protected bool ScrollBarPosChanged;
         protected bool ShouldDrawScrollBar;
 
-        protected float ClickTimer;
-        protected const float TimerDelay = 0.05f;
+        // Minimum time that must be elapsed before we start dragging
+        protected const float DragBeginDelay = 0.075f;
 
         // By default, 4px padding between items, 0px from edges
         public Vector2 ItemPadding = new Vector2(0f, 4f);
@@ -62,6 +62,9 @@ namespace Ship_Game
 
         // If TRUE, items will trigger click events
         public bool EnableItemEvents = true;
+
+        // DEBUG: Enable special debug features for Scroll List Debugging
+        public bool DebugDrawScrollList;
 
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
@@ -85,10 +88,13 @@ namespace Ship_Game
         // If TRUE, allows automatic dragging of ScrollList Items
         public bool EnableDragEvents = false;
 
+        // If TRUE, allows to drag and reordering of ScrollList Items
+        public bool EnableDragReorderItems = false;
+
         public abstract void OnItemHovered(ScrollListItemBase item);
         public abstract void OnItemClicked(ScrollListItemBase item);
         public abstract void OnItemDoubleClicked(ScrollListItemBase item);
-        public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt);
+        public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside);
 
         public virtual void OnItemExpanded(ScrollListItemBase item, bool expanded)
         {
@@ -183,9 +189,43 @@ namespace Ship_Game
         }
 
         protected ScrollListItemBase DraggedEntry;
-        protected Vector2 DraggedOffset;
+        Vector2 DraggedOffset;
 
-        protected abstract void HandleDraggable(InputState input);
+        void HandleDraggable(InputState input)
+        {
+            if (!EnableDragEvents)
+                return;
+
+            if (DraggedEntry == null)
+            {
+                if (input.LeftMouseHeld(DragBeginDelay) && Rect.HitTest(input.StartLeftHold))
+                {
+                    Vector2 cursor = input.CursorPosition;
+                    for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+                    {
+                        ScrollListItemBase e = FlatEntries[i];
+                        if (e.Rect.HitTest(cursor))
+                        {
+                            DraggedEntry = e;
+                            DraggedOffset = e.TopLeft - cursor;
+                            OnItemDragged(e, DragEvent.Begin, false);
+                            return;
+                        }
+                    }
+                }
+            }
+            else // already dragging
+            {
+                if (input.LeftMouseUp)
+                {
+                    bool outside = !Rect.HitTest(input.CursorPosition);
+                    OnItemDragged(DraggedEntry, DragEvent.End, outside);
+                    DraggedEntry = null;
+                    RequiresLayout = true; // refresh the items
+                }
+            }
+        }
+
         protected abstract void HandleElementDragging(InputState input);
 
         public override bool HandleInput(InputState input)
@@ -253,7 +293,11 @@ namespace Ship_Game
         // visible range is [begin, end)
         protected int VisibleItemsBegin, VisibleItemsEnd;
 
+        // this is the default height for scroll list items
+        // usually set to 40px at construction, but if ScrollListItem defines
+        // override int ItemHeight, then this is overwritten
         protected int EntryHeight;
+
         protected int MaxVisibleItems;
         
         protected abstract void FlattenEntries();
@@ -266,7 +310,7 @@ namespace Ship_Game
             int begin = (int)Math.Floor(fraction);
             int end   = (int)Math.Ceiling(fraction + 0.5f + maxVisibleItems);
             VisibleItemsBegin = begin.Clamped(0, Math.Max(0, FlatEntries.Count - maxVisibleItems));
-            VisibleItemsEnd   = end.Clamped(0, Math.Max(0, FlatEntries.Count));
+            VisibleItemsEnd   = end.Clamped(0, FlatEntries.Count);
         }
 
         public override void PerformLayout()
@@ -437,14 +481,21 @@ namespace Ship_Game
             for (int i = VisibleItemsBegin; i < VisibleItemsEnd; ++i)
             {
                 var e = FlatEntries[i];
-                e.Draw(batch);
-                // DEBUG:
-                //batch.DrawRectangle(e.Rect, i % 2 == 0 ? Color.Green.Alpha(0.5f) : Color.Blue.Alpha(0.5f));
+                if (e != DraggedEntry)
+                {
+                    e.Draw(batch);
+                }
+                if (DebugDrawScrollList)
+                {
+                    batch.DrawRectangle(e.Rect, i % 2 == 0 ? Color.Green.Alpha(0.5f) : Color.Blue.Alpha(0.5f));
+                }
             }
-
-            // DEBUG:
-            //batch.DrawRectangle(ScrollHousing, Color.Red);
-            //batch.DrawRectangle(ItemsHousing, Color.Magenta);
+            
+            if (DebugDrawScrollList)
+            {
+                batch.DrawRectangle(ScrollHousing, Color.Red);
+                batch.DrawRectangle(ItemsHousing, Color.Magenta);
+            }
 
             if (EnableItemHighlight)
                 Highlight?.Draw(batch);

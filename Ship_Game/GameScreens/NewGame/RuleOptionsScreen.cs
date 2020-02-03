@@ -56,8 +56,8 @@ namespace Ship_Game
         {
             base.LoadContent();
             RemoveAll();
-            int width  = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth;
-            int height = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
+            int width  = ScreenWidth;
+            int height = ScreenHeight;
 
             var titleRect = new Rectangle(width / 2 - 203, (LowRes ? 10 : 44), 406, 80);
             var nameRect  = new Rectangle(width / 2 - height / 4, titleRect.Y + titleRect.Height + 5, width / 2, 150);

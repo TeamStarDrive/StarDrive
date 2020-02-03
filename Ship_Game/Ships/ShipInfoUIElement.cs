@@ -104,11 +104,10 @@ namespace Ship_Game.Ships
             };
             ToolTipItems.Add(ti);
             ShipInfoRect = new Rectangle(Housing.X + 60, Housing.Y + 110, 115, 115);
-            int screenHeight = ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight;
-            Vector2 gridRect = new Vector2(Housing.X + 16, screenHeight - 45);
+            Vector2 gridRect = new Vector2(Housing.X + 16, Screen.ScreenHeight - 45);
             GridButton = new ToggleButton(gridRect, ToggleButtonStyle.Grid, "SelectionBox/icon_grid")
             {
-                Active = true
+                IsToggled = true
             };
             OrderButtons(spacing, pOrderRect);
         }
@@ -121,11 +120,10 @@ namespace Ship_Game.Ships
             {
                 var button = new ToggleButton(ordersBarPos, ToggleButtonStyle.Formation, icon)
                 {
-                    State        = state,
-                    HasToolTip   = true,
-                    WhichToolTip = toolTip,
+                    CombatState   = state,
+                    Tooltip = toolTip,
                 };
-                button.OnClick += OnOrderButtonClicked;
+                button.OnClick = (b) => OnOrderButtonClicked(state);
                 CombatStatusButtons.Add(button);
                 ordersBarPos.X += 25f;
             }
@@ -143,9 +141,8 @@ namespace Ship_Game.Ships
             AddOrderBtn("SelectionBox/icon_formation_bright", CombatState.BroadsideLeft, toolTip: 160);
         }
 
-        void OnOrderButtonClicked(ToggleButton button)
+        void OnOrderButtonClicked(CombatState state)
         {
-            var state = (CombatState)button.State;
             Ship.AI.CombatState = state;
             if (state == CombatState.HoldPosition)
                 Ship.AI.OrderAllStop();
@@ -170,7 +167,7 @@ namespace Ship_Game.Ships
         void UpdateOrderButtonToggles()
         {
             foreach (ToggleButton toggleButton in CombatStatusButtons)
-                toggleButton.Active = (Ship.AI.CombatState == (CombatState)toggleButton.State);
+                toggleButton.IsToggled = (Ship.AI.CombatState == toggleButton.CombatState);
         }
 
         bool OrderButtonInput(InputState input)
@@ -210,13 +207,13 @@ namespace Ship_Game.Ships
             //longName = string.Concat(ship.Name, " - ", Localizer.GetRole(ship.shipData.Role, ship.loyalty));
             string longName = string.Concat(Ship.Name, " - ", Ship.DesignRole);
             if (Ship.shipData.ShipCategory != ShipData.Category.Unclassified)
-                longName += string.Concat(" - ", Ship.shipData.GetCategory());
+                longName += " - "+Ship.shipData.GetCategory();
 
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
             string text;
             Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 170, Housing.Y + 68);
-            text                            = Fonts.Arial10.ParseText(ShipListScreenEntry.GetStatusText(Ship), 155f);
+            text                            = Fonts.Arial10.ParseText(ShipListScreenItem.GetStatusText(Ship), 155f);
             HelperFunctions.ClampVectorToInt(ref shipStatus);
             batch.DrawString(Fonts.Arial10, text, shipStatus, tColor);
             shipStatus.Y += Fonts.Arial12Bold.MeasureString(text).Y;
@@ -247,7 +244,7 @@ namespace Ship_Game.Ships
                 foreach (ToggleButton button in CombatStatusButtons)
                 {
                     button.Draw(ScreenManager);
-                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, (CombatState)button.State);
+                    if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, button.CombatState);
                 }
             }
             else  //fbedard: Display race icon of enemy ship in Ship UI
@@ -307,7 +304,7 @@ namespace Ship_Game.Ships
             batch.Draw(iconPack, packRect, Color.White);
             var textPos          = new Vector2(packRect.X + 26, packRect.Y + 15);
             float damageModifier = Ship.PackDamageModifier * 100f;
-            batch.DrawString(Fonts.Arial12, string.Concat(damageModifier.ToString("0"), "%"), textPos, Color.White);
+            batch.DrawString(Fonts.Arial12, damageModifier.ToString("0")+"%", textPos, Color.White);
             if (packRect.HitTest(mousePos))
                 ToolTip.CreateTooltip(Localizer.Token(2245));
 
@@ -550,7 +547,7 @@ namespace Ship_Game.Ships
                 {
                     GameAudio.AcceptClick();
                     ShowModules = !ShowModules;
-                    GridButton.Active = ShowModules;
+                    GridButton.IsToggled = ShowModules;
                 }
                 return true;
             }

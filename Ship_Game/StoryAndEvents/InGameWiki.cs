@@ -55,7 +55,7 @@ namespace Ship_Game
             }
 
             CategoriesRect = new Rectangle(Rect.X + 25, Rect.Y + 130, 330, 430);
-            HelpCategories = Add(new ScrollList2<WikiHelpCategoryListItem>(CategoriesRect, 40));
+            HelpCategories = Add(new ScrollList2<WikiHelpCategoryListItem>(CategoriesRect));
             TextRect       = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
             var textSlRect = new Rectangle(CategoriesRect.X + CategoriesRect.Width + 5, CategoriesRect.Y + 10, 375, 420);
             HelpEntries = Add(new ScrollList2<TextListItem>(textSlRect, Fonts.Arial12Bold.LineSpacing + 2));

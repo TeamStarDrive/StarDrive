@@ -142,6 +142,7 @@ namespace Ship_Game
             CreateHomeWorldEnvironment();
             SetTileHabitability(0, out _); // Create the homeworld's tiles without making them habitable yet
             SetHomeworldTiles();
+            ResetGarrisonSize();
 
             if (Owner.isPlayer)
                 colonyType = ColonyType.Colony;
@@ -404,6 +405,9 @@ namespace Ship_Game
 
         protected void AddEventsAndCommodities()
         {
+            if (!Habitable)
+                return;
+
             foreach (RandomItem item in ResourceManager.RandomItemsList)
             {
                 (float chance, float maxInstance) = item.ChanceAndMaxInstance(Category);

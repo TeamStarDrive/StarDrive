@@ -1290,5 +1290,45 @@
       <Title>Relative Strength</Title>
       <Data>1915</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>257</TIP_ID>
+      <Title>Ship Total Shield Amp</Title>
+      <Data>1911</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>258</TIP_ID>
+      <Title>Module Shield Amp</Title>
+      <Data>1912</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>259</TIP_ID>
+      <Title>Regeneration</Title>
+      <Data>1909</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>260</TIP_ID>
+      <Title>Habitable Tiles</Title>
+      <Data>1904</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>261</TIP_ID>
+      <Title>Pop Per Tile</Title>
+      <Data>1905</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>262</TIP_ID>
+      <Title>Biosphered Pop</Title>
+      <Data>1906</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>263</TIP_ID>
+      <Title>Terraformed Pop</Title>
+      <Data>1907</Data>
+    </ToolTip>
+    <ToolTip>
+      <TIP_ID>264</TIP_ID>
+      <Title>Planetary Shield Strength</Title>
+      <Data>2240</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>

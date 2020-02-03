@@ -36,7 +36,7 @@ namespace Ship_Game
 					}
 					if (!s.Contains(" "))
 					{
-						s = string.Concat(s.Substring(0, 1), s.Substring(1).ToLower());
+						s = s.Substring(0, 1)+s.Substring(1).ToLower();
 					}
 					else
 					{
@@ -48,7 +48,7 @@ namespace Ship_Game
 							{
 								if (tokens[t].Length != 1)
 								{
-									tokens[t] = string.Concat(tokens[t].Substring(0, 1), tokens[t].Substring(1).ToLower());
+									tokens[t] = tokens[t].Substring(0, 1)+tokens[t].Substring(1).ToLower();
 								}
 								else
 								{
@@ -56,9 +56,9 @@ namespace Ship_Game
 								}
 								if (!string.IsNullOrEmpty(s))
 								{
-									s = string.Concat(s, " ");
+									s = s+" ";
 								}
-								s = string.Concat(s, tokens[t]);
+								s = s+tokens[t];
 							}
 						}
 					}
