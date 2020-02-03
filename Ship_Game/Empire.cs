@@ -81,6 +81,9 @@ namespace Ship_Game
         private float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
+        public float TotalWarShipMaintenance { get; private set; }
+        public float TotalCivShipMaintenance { get; private set; }
+
         public float updateContactsTimer = .2f;
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
@@ -633,7 +636,7 @@ namespace Ship_Game
         public Array<Ship> GetShipsFromOffensePools(bool onlyAO = false)
         {
             var ships = new Array<Ship>();
-            foreach (AO ao in GetEmpireAI().AreasOfOperations)
+            foreach (AO ao in EmpireAI.AreasOfOperations)
                 ships.AddRange(ao.GetOffensiveForcePool());
 
             if(!onlyAO)
@@ -1427,6 +1430,8 @@ namespace Ship_Game
         private void UpdateShipMaintenance()
         {
             TotalShipMaintenance = 0.0f;
+            TotalWarShipMaintenance = 0f;
+            TotalCivShipMaintenance = 0f;
 
             using (OwnedShips.AcquireReadLock())
                 foreach (Ship ship in OwnedShips)
@@ -1439,6 +1444,10 @@ namespace Ship_Game
                     {
                         data.DefenseBudget -= maintenance;
                     }
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) >= ShipData.RoleType.Warship)
+                        TotalWarShipMaintenance += maintenance;
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) <= ShipData.RoleType.EmpireSupport)
+                        TotalCivShipMaintenance += maintenance;
                     TotalShipMaintenance += maintenance;
                 }
 
