@@ -165,7 +165,7 @@ namespace Ship_Game
             return false;
         }
 
-        public void Build(Ship ship, int repeat = 1)
+        public void Build(Ship ship, float cost, int repeat = 1)
         {
             for (int i = 0; i < repeat; i++)
             {
@@ -186,7 +186,7 @@ namespace Ship_Game
                         isShip = true,
                         isOrbital = ship.IsPlatformOrStation,
                         sData = ship.shipData,
-                        Cost = ship.GetCost(P.Owner),
+                        Cost = cost,
                         ProductionSpent = 0f
                     });
                 }
