@@ -805,7 +805,6 @@ namespace Ship_Game
                     for (int x = 0; x < fleetButton.Fleet.Ships.Count; ++x)
                     {
                         Ship ship = fleetButton.Fleet.Ships[x];
-
                         var iconHousing = new Rectangle((int) shipSpacingH.X, (int) shipSpacingH.Y, 15, 15);
                         shipSpacingH.X +=  15f;
                         if (shipSpacingH.X > 200f)

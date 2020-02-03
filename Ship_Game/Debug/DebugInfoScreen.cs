@@ -663,11 +663,10 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                for (int j = 0; j < e.GetEmpireAI().TaskList.Count; j++)
+                MilitaryTask[] tasks = e.GetEmpireAI().GetAtomicTasksCopy();
+                for (int j = 0; j < tasks.Length; j++)
                 {
-                    MilitaryTask task = e.GetEmpireAI().TaskList[j];
-                    if (task == null)
-                        continue;
+                    MilitaryTask task = tasks[j];
                     string sysName = "Deep Space";
                     for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
                     {
@@ -676,10 +675,17 @@ namespace Ship_Game.Debug
                             sysName = sys.Name;
                     }
                     NewLine();
-                    DrawString($"FleetTask: {task.type} ({sysName})");
-                    DrawString(15f, "Step: " + task.Step);
-                    DrawString(15f, "Str Needed: " + task.MinimumTaskForceStrength);
-                    DrawString(15f, "Which Fleet: " + task.WhichFleet);
+                    DrawString($"FleetTask: {task.type} {sysName} {task.TargetPlanet?.Name}");
+                    DrawString(15f, "Step:  " + task.Step);
+                    DrawString(15f, "EnemyStrength: " + task.EnemyStrength);
+                    DrawString(15f, "MinStrNeeded: " + task.MinimumTaskForceStrength);
+                    if (task.WhichFleet != -1)
+                    {
+                        DrawString(15f, "Fleet: " + task.Fleet.Name);
+                        DrawString(15f, " Ships: " + task.Fleet.Ships.Count);
+                        DrawString(15f, " Strength: " + task.Fleet.GetStrength());
+                        DrawString(15f, " CanTakeThisFight: " + task.Fleet.CanTakeThisFight(task.EnemyStrength));
+                    }
                 }
 
                 NewLine();

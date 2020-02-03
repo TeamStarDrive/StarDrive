@@ -30,6 +30,8 @@ namespace Ship_Game.AI.Tasks
         [Serialize(16)] public int Priority;
         [Serialize(17)] public int TaskBombTimeNeeded;
 
+        [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
+
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
@@ -38,6 +40,7 @@ namespace Ship_Game.AI.Tasks
         public MilitaryTask()
         {
         }
+
         public static MilitaryTask CreateClaimTask(Planet targetPlanet, float minStrength)
         {
             var militaryTask = new MilitaryTask
@@ -75,27 +78,6 @@ namespace Ship_Game.AI.Tasks
             SetEmpire(ao.GetCoreFleet().Owner);
         }
 
-        public MilitaryTask(Vector2 location, float radius, Array<Goal> goalsToHold, Empire owner, float str = 0)
-        {
-            type = TaskType.ClearAreaOfEnemies;
-            AO = location;
-            AORadius = radius;
-            InitialEnemyStrength = str;
-
-            foreach (Goal g in goalsToHold)
-            {
-                g.Held = true;
-                HeldGoals.Add(g.guid);
-            }
-
-            EnemyStrength = owner.CurrentMilitaryStrength * .001f;
-            if (InitialEnemyStrength < 1)
-                InitialEnemyStrength = owner.GetEmpireAI().ThreatMatrix.PingRadarStr(location, radius, owner);
-
-            MinimumTaskForceStrength = EnemyStrength;
-            Owner = owner;
-        }
-
         public MilitaryTask(Planet target, Empire owner)
         {
             var threatMatrix = owner.GetEmpireAI().ThreatMatrix;
@@ -129,18 +111,22 @@ namespace Ship_Game.AI.Tasks
         public void EndTask()
         {
             Debug_TallyFailedTasks();
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().QueueForRemoval(this);
+
             if (Owner.isFaction)
             {
                 FactionEndTask();
                 return;
             }
 
-            TaskForce.Clear();
             ClearHoldOnGoal();
 
-            if (WhichFleet == -1) return;
-            if (Fleet == null)    return;
+            if (WhichFleet == -1 || Fleet == null)
+            {
+                Owner.ForcePoolAdd(TaskForce);
+                TaskForce.Clear();
+                return;
+            }
 
             if (Fleet != null && !Fleet.IsCoreFleet)
                 Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
@@ -210,17 +196,13 @@ namespace Ship_Game.AI.Tasks
         {
             TaskForce = fleet.Ships;
             Fleet.Reset();
-            foreach(var ship in TaskForce)
-            {
-                ship.loyalty.ForcePoolAdd(ship);
-            }
+            Owner.ForcePoolAdd(TaskForce);
             TaskForce.Clear();
         }
 
         private void Debug_TallyFailedTasks()
         {
             DebugInfoScreen.CanceledMtasksCount++;
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
             switch (type)
             {
                 case TaskType.Exploration:
@@ -269,7 +251,7 @@ namespace Ship_Game.AI.Tasks
 
         public void EndTaskWithMove()
         {
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().QueueForRemoval(this);
 
             ClearHoldOnGoal();
 
@@ -278,10 +260,7 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!IsCoreFleetTask && WhichFleet != -1 && Owner != EmpireManager.Player)
                 {
-                    foreach (Ship ship in Fleet.Ships)
-                    {
-                        Owner.ForcePoolAdd(ship);
-                    }
+                    Fleet.Reset();
                 }
                 return;
             }
@@ -297,7 +276,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     foreach (Ship ship in Fleet.Ships)
                     {
-                        Fleet.RemoveShip(ship);
+                        Owner.RemoveShipFromFleetAndPools(ship);
                         closestAo.AddShip(ship);
                         closestAo.TurnsToRelax = 0;
                     }
@@ -492,9 +471,7 @@ namespace Ship_Game.AI.Tasks
 
             if (type == TaskType.Exploration ||type ==TaskType.AssaultPlanet)
             {
-
                 float ourGroundStrength = TargetPlanet.GetGroundStrength(Owner);
-
                 if (ourGroundStrength > 0)
                 {
                     if (type == TaskType.Exploration)
@@ -520,12 +497,13 @@ namespace Ship_Game.AI.Tasks
             }
 
             float currentStrength = 0f;
-            foreach (Ship ship in fleet.Ships)
+            for (int i = fleet.Ships.Count-1; i >= 0; --i)
             {
+                Ship ship = fleet.Ships[i];
                 // remove dead or scrapping ships
                 if (!ship.Active || ship.InCombat && Step < 1 || ship.AI.State == AIState.Scrap)
                 {
-                    fleet.RemoveShip(ship);
+                    ship.ClearFleet();
                     if (ship.Active && ship.AI.State != AIState.Scrap)
                         Owner.ForcePoolAdd(ship);
                 }
@@ -538,7 +516,7 @@ namespace Ship_Game.AI.Tasks
             float currentEnemyStrength = Owner.GetEmpireAI().ThreatMatrix
                                         .StrengthOfHostilesInRadius(Owner, AO, AORadius);
 
-            if (currentStrength < 0.15f * StartingStrength && currentEnemyStrength > currentStrength)
+            if (!fleet.CanTakeThisFight(currentEnemyStrength))
             {
                 EndTask();
                 return;
@@ -560,7 +538,7 @@ namespace Ship_Game.AI.Tasks
                     foreach (Ship ship in Owner.GetFleetOrNull(WhichFleet).Ships)
                     {
                         ship.AI.ClearOrders();
-                        Owner.GetFleetsDict()[WhichFleet].RemoveShip(ship);
+                        ship.ClearFleet();
                         ship.HyperspaceReturn();
 
                         if (ship.shipData.Role != ShipData.RoleName.troop)
@@ -596,7 +574,7 @@ namespace Ship_Game.AI.Tasks
                     toLaunch.Clear();
                 }
             }
-            Owner.GetEmpireAI().TaskList.QueuePendingRemoval(this);
+            Owner.GetEmpireAI().QueueForRemoval(this);
         }
 
         public void SetEmpire(Empire e)

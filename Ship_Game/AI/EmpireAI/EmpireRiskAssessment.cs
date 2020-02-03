@@ -29,7 +29,6 @@ namespace Ship_Game.AI
             KnownThreat = RiskAssessment(us);
             Risk        = Expansion + Border + KnownThreat;
             MaxRisk     = MathExt.Max3(Expansion, Border, KnownThreat);
-
         }
 
         private float ExpansionRiskAssessment(Empire us)
@@ -75,8 +74,7 @@ namespace Ship_Game.AI
 
             float risk = 0; 
             float strength = Math.Max(100, us.CurrentMilitaryStrength);
-            if (!Them.isFaction && !Relation.AtWar && !Relation.PreparingForWar &&
-                !(Relation.TotalAnger > (us.data.DiplomaticPersonality?.Territorialism ?? 50f )))
+            if (!Them.isFaction && !Relation.AtWar && !Relation.PreparingForWar)
                 return 0;
 
             if (!Them.isFaction)
@@ -85,20 +83,21 @@ namespace Ship_Game.AI
                 return risk; 
             }
 
-            var s = new HashSet<SolarSystem>();
-            foreach (MilitaryTask task in us.GetEmpireAI().TaskList)
-            {
-                if (task.type != MilitaryTask.TaskType.DefendClaim)
-                    continue;
+            var checkedSystems = new HashSet<SolarSystem>();
 
+            var claimTasks = us.GetEmpireAI().GetClaimTasks();
+            foreach (MilitaryTask task in claimTasks)
+            {
                 Planet p = task.TargetPlanet;
                 SolarSystem ss = p.ParentSystem;
-                if (!s.Add(ss))
-                    continue;
-                float test = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
-                if (test > 0 && test < risk)
-                    risk = test;
+                if (checkedSystems.Add(ss))
+                {
+                    float test = us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
+                    if (test > 0 && test < risk)
+                        risk = test;
+                }
             }
+
             risk /= strength;
             return risk; 
         }

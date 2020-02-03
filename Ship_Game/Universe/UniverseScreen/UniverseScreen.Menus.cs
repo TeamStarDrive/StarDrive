@@ -102,7 +102,7 @@ namespace Ship_Game
             else
             {
                 GameAudio.AcceptClick();
-                dsbw = new DeepSpaceBuildingWindow(ScreenManager, this);
+                dsbw = new DeepSpaceBuildingWindow(this);
                 showingDSBW = true;
             }
         }

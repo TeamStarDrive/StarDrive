@@ -10,6 +10,8 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
+        public bool IsFiringAtMainTarget => FireOnMainTargetTime > 0;
+        float FireOnMainTargetTime;
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;

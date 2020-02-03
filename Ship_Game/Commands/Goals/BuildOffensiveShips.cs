@@ -40,10 +40,10 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null || PlanetBuildingAt.NotConstructing)
                 return GoalStep.TryAgain;
 
-            if (PlanetBuildingAt.ConstructionQueue[0].Goal == this)
+            if (PlanetBuildingAt.ConstructionQueue[0].Goal == this) 
             {
                 if (PlanetBuildingAt.Storage.ProdRatio > 0.5f)
-                    PlanetBuildingAt.Construction.RushProduction(0);
+                    PlanetBuildingAt.Construction.RushProduction(0, PlanetBuildingAt.ProdHere);
             }
             return GoalStep.TryAgain;
         }

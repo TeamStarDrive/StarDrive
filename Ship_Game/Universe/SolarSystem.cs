@@ -594,6 +594,7 @@ namespace Ship_Game
                     ColonyType           = planet.colonyType,
                     GovOrbitals          = planet.GovOrbitals,
                     GovMilitia           = planet.GovMilitia,
+                    GarrisonSize         = planet.GarrisonSize,
                     DontScrapBuildings   = planet.DontScrapBuildings,
                     NumShipyards         = planet.NumShipyards,
                     SpecialDescription   = planet.SpecialDescription,

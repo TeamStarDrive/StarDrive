@@ -182,9 +182,9 @@ namespace Ship_Game.Ships
         }
 
         public static void CreateDesignRoleToolTip(ShipData.RoleName designRole, Rectangle designRoleRect)
-            => CreateDesignRoleToolTip(designRole, Fonts.Arial12, designRoleRect, true);
+            => CreateDesignRoleToolTip(designRole, Fonts.Arial12, designRoleRect);
 
-        public static void CreateDesignRoleToolTip(ShipData.RoleName role, SpriteFont roleFont, Rectangle designRoleRect, bool alwaysShow = false)
+        public static void CreateDesignRoleToolTip(ShipData.RoleName role, SpriteFont roleFont, Rectangle designRoleRect)
         {
             string text = $"Autoassigned Role Change\n{RoleDesignString(role)}";
             Vector2 spacing = roleFont.MeasureString(text);

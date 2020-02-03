@@ -12,6 +12,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 
