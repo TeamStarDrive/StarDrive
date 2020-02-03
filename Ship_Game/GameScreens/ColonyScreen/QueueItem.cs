@@ -56,7 +56,7 @@ namespace Ship_Game
         {
             var r = new Rectangle((int)at.X, (int)at.Y, 29, 30);
             var tCursor = new Vector2(at.X + 40f, at.Y);
-            var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing, 150, 18);
+            var pbRect = new Rectangle((int)tCursor.X, (int)tCursor.Y + Fonts.Arial12Bold.LineSpacing + 4, 150, 18);
             var pb = new ProgressBar(pbRect, Cost, ProductionSpent);
 
             if (isBuilding)
@@ -68,7 +68,8 @@ namespace Ship_Game
             else if (isShip)
             {
                 batch.Draw(sData.Icon, r);
-                batch.DrawString(Fonts.Arial12Bold, sData.Name, tCursor, Color.White);
+                string name = DisplayName.IsEmpty() ? sData.Name : DisplayName;
+                batch.DrawString(Fonts.Arial12Bold, name, tCursor, Color.White);
                 pb.Draw(batch);
             }
             else if (isTroop)
