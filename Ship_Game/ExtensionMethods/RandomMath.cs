@@ -62,10 +62,24 @@ namespace Ship_Game
             return IntBetween(1, dieSize);
         }
 
-        public static bool RollDiceAvg(float percent)
+        public static bool Roll3DiceAvg(float percent) => RollDiceAvg(3, 100) < percent;
+
+        public static int RollDiceAvg(int numberOfDice, int size)
         {
-            float result = RandomBetween(0f, 100f) + RandomBetween(0f, 100f) + RandomBetween(0f, 100f);
-            return result / 3 < percent;
+            if (numberOfDice == 0) return 0;
+
+            float result = 0;
+            for (int i =0; i< numberOfDice; i++)
+            {
+                result += RandomBetween(0f, size);
+            }
+            return (int)result / numberOfDice;
+        }
+
+        public static int RollAvgPercentVarianceFrom50()
+        {
+            float result = RollDiceAvg(3, 100);
+            return Math.Abs((int)result - 50);
         }
 
         public static T RandItem<T>(IReadOnlyList<T> items)

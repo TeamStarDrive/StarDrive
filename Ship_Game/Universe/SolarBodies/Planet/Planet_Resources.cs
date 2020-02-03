@@ -103,7 +103,7 @@ namespace Ship_Game
                 if (needFood && Population > 2000f)
                     return GoodState.EXPORT;
 
-                if (!needFood && MaxPopulation > 200f && PopulationRatio < 0.8f)
+                if (!needFood && PopulationRatio < 0.8f)
                     return GoodState.IMPORT;
 
                 if (MaxPopulation > 2000 && PopulationRatio > 0.9f)
@@ -120,7 +120,7 @@ namespace Ship_Game
 
             if (Owner.NonCybernetic)
             {
-                if (Food.NetIncome <= -0.01 && Storage.FoodRatio < 0.5f)
+                if (Food.NetIncome <= -0.1 && Storage.FoodRatio < 0.5f)
                     return true;
             }
             else if (Prod.NetIncome.Less(0.2f) && Storage.ProdRatio < 0.5f)

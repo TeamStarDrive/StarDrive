@@ -21,6 +21,12 @@ namespace Ship_Game
             return new ToolTipText{ Id = (int)gameTip };
         }
 
+        // Allows button.Tooltip = GameText.LandAllTroopsListedIn;
+        public static implicit operator ToolTipText(GameText gameText)
+        {
+            return new ToolTipText{ Id = (int)gameText };
+        }
+
         public static implicit operator ToolTipText(string text)
         {
             return new ToolTipText{ Text = text };

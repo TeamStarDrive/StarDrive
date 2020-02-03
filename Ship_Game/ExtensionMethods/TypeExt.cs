@@ -71,5 +71,33 @@ namespace Ship_Game
             bool reftype = type.IsClass || type.IsSealed;
             return reftype ? IntPtr.Size : Marshal.SizeOf(type);
         }
+
+        /// <returns>Ordinal integer value of the Enum value</returns>
+        public static int GetOrdinal<TEnum>(this TEnum value)
+            where TEnum : Enum
+        {
+            return ((IConvertible)value).ToInt32(null);
+        }
+
+        /// <summary>
+        /// Increments an enum value and applies a wraparound,
+        /// so the value is always in the enum range
+        /// </summary>
+        public static TEnum IncrementWithWrap<TEnum>(this TEnum value, int increment)
+            where TEnum : Enum
+        {
+            var enumValues = (TEnum[])typeof(TEnum).GetEnumValues();
+
+            TEnum first = enumValues[0];
+            TEnum last = enumValues[enumValues.Length - 1];
+
+            int iFirst = first.GetOrdinal();
+            int iLast = last.GetOrdinal();
+            int newValue = value.GetOrdinal() + increment;
+            if      (newValue < iFirst) newValue = iLast;
+            else if (newValue > iLast)  newValue = iFirst;
+            
+            return (TEnum)Enum.ToObject(typeof(TEnum), newValue);
+        }
     }
 }

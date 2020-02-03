@@ -374,9 +374,10 @@ namespace Ship_Game.AI
 
         public void Reset()
         {
-            while (Ships.Count > 0) {
+            while (Ships.Count > 0)
+            {
                 var ship = Ships.PopLast();
-                ship.ClearFleet();
+                RemoveShip(ship);
             }
             TaskStep  = 0;
             FleetTask = null;
@@ -384,7 +385,6 @@ namespace Ship_Game.AI
         }
 
         void EvaluateTask(float elapsedTime)
-
         {
             if (Ships.Count == 0)
                 FleetTask.EndTask();
@@ -407,7 +407,6 @@ namespace Ship_Game.AI
                 case MilitaryTask.TaskType.DefendPostInvasion:         DoPostInvasionDefense(FleetTask); break;
                 case MilitaryTask.TaskType.GlassPlanet:                DoGlassPlanet(FleetTask); break;
             }
-            Owner.GetEmpireAI().TaskList.ApplyPendingRemovals();
         }
 
         void DoExplorePlanet(MilitaryTask task)
@@ -499,9 +498,9 @@ namespace Ship_Game.AI
         {
             fleet.TaskStep = 0;
             var postInvasion = MilitaryTask.CreatePostInvasion(task.TargetPlanet, task.WhichFleet, owner);
-            owner.GetEmpireAI().RemoveFromTaskList(task);
+            owner.GetEmpireAI().QueueForRemoval(task);
             fleet.FleetTask = postInvasion;
-            owner.GetEmpireAI().AddToTaskList(postInvasion);
+            owner.GetEmpireAI().AddPendingTask(postInvasion);
         }
 
         void DoAssaultPlanet(MilitaryTask task)
@@ -512,7 +511,7 @@ namespace Ship_Game.AI
                 {
                     CreatePostInvasionFromCurrentTask(this, task, Owner);
 
-                    for (int x =0; x < Ships.Count; ++x)
+                    for (int x = 0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
                         if (ship.Carrier.AnyAssaultOpsAvailable)
@@ -640,7 +639,8 @@ namespace Ship_Game.AI
                     TaskStep = 1;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(5000)) break;
+                    if (!HasArrivedAtRallySafely(5000)) 
+                        break;
                     GatherAtAO(task, 3000);
                     TaskStep = 2;
                     break;
@@ -844,7 +844,7 @@ namespace Ship_Game.AI
         {
             foreach (Ship ship in Ships)
             {
-                if (!ship.Center.OutsideRadius(pos, radius) &&
+                if (ship.CanTakeFleetOrders && !ship.Center.OutsideRadius(pos, radius) &&
                     ship.AI.State == AIState.FormationWarp)
                 {
                     ship.AI.State = AIState.AwaitingOrders;
@@ -858,7 +858,8 @@ namespace Ship_Game.AI
             for (int i = 0; i < ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                ship.AI.SetPriorityOrder(true);
+                if (ship.CanTakeFleetOrders)
+                    ship.AI.SetPriorityOrder(true);
             }
         }
 
@@ -995,9 +996,10 @@ namespace Ship_Game.AI
 
         bool ShipsOffMission(MilitaryTask task)
         {
-            return AllButRearShips.Any(ship => (!ship.AI.HasPriorityOrder && ship.FleetCapableShip())
-                                     && (!ship.InCombat
-                                         && ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f)));
+            return AllButRearShips.Any(ship => ship.CanTakeFleetOrders && 
+                                               !ship.AI.HasPriorityOrder && 
+                                               !ship.InCombat &&
+                                               ship.Center.OutsideRadius(task.AO, task.AORadius * 1.5f));
         }
 
         void SetOrdersRadius(float ordersRadius)
@@ -1036,24 +1038,30 @@ namespace Ship_Game.AI
         void DebugInfo(MilitaryTask task, string text)
             => Empire.Universe?.DebugWin?.DebugLogText($"{task.type}: ({Owner.Name}) Planet: {task.TargetPlanet?.Name ?? "None"} {text}", DebugModes.Normal);
 
+        // @return TRUE if we can take this fight, potentially, maybe...
+        public bool CanTakeThisFight(float enemyFleetStrength)
+        {
+            float ourStrengthThreshold = GetStrength() * 2;
+            return enemyFleetStrength <= ourStrengthThreshold;
+        }
+
         bool StillCombatEffective(MilitaryTask task)
         {
-            float targetStrength =
-                Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
-            float fleetStrengthThreshold = GetStrength() * 2;
-            if (!(targetStrength >= fleetStrengthThreshold))
+            float enemyStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(task.AO, task.AORadius, Owner);
+            if (CanTakeThisFight(enemyStrength))
                 return true;
-            DebugInfo(task, $"Enemy Strength too high. Them: {targetStrength} Us: {fleetStrengthThreshold}");
+
+            DebugInfo(task, $"Enemy Strength too high. Them: {enemyStrength} Us: {GetStrength()}");
             return false;
         }
 
         bool StillInvasionEffective(MilitaryTask task)
         {
-            bool troopsOnPlanet        = task.TargetPlanet.AnyOfOurTroops(Owner);
-            bool invasionTroops               = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
+            bool troopsOnPlanet = task.TargetPlanet.AnyOfOurTroops(Owner);
+            bool invasionTroops = Ships.Any(troops => troops.Carrier.AnyAssaultOpsAvailable);
             bool stillMissionEffective = troopsOnPlanet || invasionTroops;
             if (!stillMissionEffective)
-                DebugInfo(task, $" No Troops on Planet and No Ships.");
+                DebugInfo(task, " No Troops on Planet and No Ships.");
             return stillMissionEffective;
         }
 
@@ -1063,22 +1071,15 @@ namespace Ship_Game.AI
             {
                 ShipAI ai = ship.AI;
                 ai.CombatState = ship.shipData.CombatState;
-                if (ship.AI.State == AIState.Resupply || !ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
+                if (!ship.CanTakeFleetOrders || !ship.Center.OutsideRadius(FleetTask.TargetPlanet.Center, FleetTask.AORadius))
                     continue;
 
                 ai.CancelIntercept();
-                ai.FleetNode.AssistWeight   = 1f;
-                ai.FleetNode.DefenderWeight = 1f;
-                ai.FleetNode.VultureWeight  = 0;
-                ai.FleetNode.DPSWeight      = 1;
-                ai.FleetNode.SizeWeight     = 0.25f;
-                ai.FleetNode.OrdersRadius   = ship.WeaponsMaxRange;
+                if (ai.State == AIState.HoldPosition)
+                    ai.State = AIState.FormationWarp;
                 switch (type)
                 {
                     case InvasionTactics.Screen:
-                        ai.FleetNode.DefenderWeight = 1;
-                        ai.FleetNode.AssistWeight   = 0;
-                        ai.FleetNode.VultureWeight  = 0f;
                         if (!ship.InCombat)
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
@@ -1092,21 +1093,12 @@ namespace Ship_Game.AI
                         break;
 
                     case InvasionTactics.Center:
-                        ai.FleetNode.DefenderWeight       = 0.25f;
-                        ai.FleetNode.AssistWeight         = 1;
-                        ai.FleetNode.SizeWeight           = 0.75f;
-                        ai.FleetNode.DPSWeight            = 1;
-                        ai.FleetNode.ArmoredWeight        = 1;
-                        ai.FleetNode.AttackShieldedWeight = 1;
 
                         if (!ship.InCombat || (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber))
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
 
                     case InvasionTactics.Side:
-                        ai.FleetNode.DefenderWeight       = 0;
-                        ai.FleetNode.AssistWeight         = 1;
-                        ai.FleetNode.SizeWeight           = 0;
                         if (!ship.InCombat)
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
                         break;
@@ -1276,10 +1268,10 @@ namespace Ship_Game.AI
                 //Log.Warning($"Fleet.UpdateAI reset fleet (no fleet task): {this}");
 
                 Owner.GetEmpireAI().UsedFleets.Remove(which);
-                for (int i = 0; i < Ships.Count; ++i)
+                for (int i = Ships.Count-1; i >= 0; --i)
                 {
                     Ship s = Ships[i];
-                    RemoveShipAt(s, i--);
+                    RemoveShip(s);
 
                     s.AI.ClearOrders();
                     s.HyperspaceReturn();
@@ -1323,13 +1315,6 @@ namespace Ship_Game.AI
                     }
                 }
             }
-        }
-
-        void RemoveShipAt(Ship ship, int index)
-        {
-            ship.fleet = null;
-            RemoveFromAllSquads(ship);
-            Ships.RemoveAtSwapLast(index);
         }
 
         public bool RemoveShip(Ship ship)
@@ -1466,7 +1451,7 @@ namespace Ship_Game.AI
             bool readyForWarp = true;
             Ship commandShip = null;
             if (Ships.Count == 0) return;
-            if (CommandShip != null && !CommandShip.FleetCapableShip())
+            if (CommandShip != null && !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
 
             for (int i = Ships.Count - 1; i >= 0; --i)
@@ -1484,7 +1469,7 @@ namespace Ship_Game.AI
                     continue;
                 }
 
-                if (CommandShip == null && ship.FleetCapableShip())
+                if (CommandShip == null && ship.CanTakeFleetMoveOrders())
                 {
                     if ((commandShip?.SurfaceArea ?? 0) < ship.SurfaceArea)
                         commandShip = ship;
@@ -1503,7 +1488,8 @@ namespace Ship_Game.AI
                     }
                 }
 
-                if (!InFormationWarp) InFormationWarp = ship.AI.State == AIState.FormationWarp;
+                if (!InFormationWarp) 
+                    InFormationWarp = ship.AI.State == AIState.FormationWarp;
 
                 UpdateOurFleetShip(ship);
 

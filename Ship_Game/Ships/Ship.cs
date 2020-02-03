@@ -40,6 +40,7 @@ namespace Ship_Game.Ships
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         ShipModule[] Shields;
+        ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
@@ -50,6 +51,7 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
+        public bool HasRegeneratingModules;
         Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -131,7 +133,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int FixedTrackingPower;
         public bool ShipInitialized;
-
+        public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
 
         public float FTLModifier { get; private set; } = 1f;
@@ -161,19 +163,22 @@ namespace Ship_Game.Ships
         }
 
         Status FleetCapableStatus;
-        public bool FleetCapableShip() => FleetCapableStatus >= Status.Good;
+        public bool CanTakeFleetMoveOrders() => 
+            FleetCapableStatus == Status.Good && ShipEngineses.EngineStatus >= Status.Poor;
 
         void SetFleetCapableStatus()
         {
-            if (ShipEngineses.EngineStatus > Status.Poor
-                                      && AI.State != AIState.Resupply
-                                      && AI.State != AIState.Refit
-                                      && AI.State != AIState.Scrap
-                                      && AI.State != AIState.Scuttle)
+            if (!EMPdisabled && !InhibitedByEnemy &&
+                AI.State != AIState.Resupply && 
+                AI.State != AIState.Refit && 
+                AI.State != AIState.Scrap && 
+                AI.State != AIState.Scuttle)
                 FleetCapableStatus = Status.Good;
             else
                 FleetCapableStatus = Status.Poor;
         }
+
+        public bool CanTakeFleetOrders => FleetCapableStatus == Status.Good;
 
         // This bit field marks all the empires which are influencing
         // us within their borders via Subspace projectors
@@ -1190,6 +1195,8 @@ namespace Ship_Game.Ships
                     float repair = InCombat ? RepairRate * 0.1f : RepairRate;
                     ApplyAllRepair(repair, Level);
                 }
+
+                PerformRegeneration();
             }
 
             UpdateResupply();
@@ -1197,6 +1204,18 @@ namespace Ship_Game.Ships
 
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
+        }
+
+        void PerformRegeneration()
+        {
+            if (!HasRegeneratingModules)
+                return;
+
+            for (int i = 0; i < ModuleSlotList.Length; i++)
+            {
+                ShipModule module = ModuleSlotList[i];
+                module.RegenerateSelf();
+            }
         }
 
         public void UpdateResupply()
@@ -1316,8 +1335,8 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged = false;
-            float sensorBonus = 0f;
+            shipStatusChanged           = false;
+            float sensorBonus           = 0f;
             Thrust                      = 0f;
             Mass                        = SurfaceArea;
             shield_max                  = 0f;
@@ -1343,8 +1362,9 @@ namespace Ship_Game.Ships
 
             bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
-            foreach (ShipModule module in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
+                ShipModule module = ModuleSlotList[i];
                 // active internal slots
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
@@ -1375,9 +1395,6 @@ namespace Ship_Game.Ships
                     BonusEMP_Protection += module.EMP_Protection;
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
-                    if (module.Is(ShipModuleType.Shield))
-                        shield_max += module.ActualShieldPowerMax;
-
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
@@ -1391,23 +1408,23 @@ namespace Ship_Game.Ships
                 }
             }
 
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
+            NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
-            shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
-            SensorRange += sensorBonus;
 
-            //Apply modifiers to stats
+            shield_percent = (100.0 * shield_power / shield_max).ClampMin(0);
+            SensorRange   += sensorBonus;
+
+            // Apply modifiers to stats
             if (hasLoyalty)
             {
-                Mass          *= loyalty.data.MassModifier;
-                RepairRate    += (float)(RepairRate * Level * 0.05);
-                //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
-                //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
+                Mass *= loyalty.data.MassModifier;
+                RepairRate += (float)(RepairRate * Level * 0.05);
                 if (IsPlatform)
-                    SensorRange = Math.Max(SensorRange, 10000);
+                    SensorRange = SensorRange.ClampMin(10000);
 
                 SensorRange   *= loyalty.data.SensorModifier;
             }
@@ -1649,7 +1666,6 @@ namespace Ship_Game.Ships
             HostileTroops.Clear();
             RepairBeams.Clear();
 
-            ClearFleet();
             loyalty.RemoveShip(this);
             SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
@@ -1658,7 +1674,7 @@ namespace Ship_Game.Ships
             base.RemoveFromUniverseUnsafe();
         }
 
-        public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
+        public void ClearFleet() => fleet?.RemoveShip(this);
 
         public void Dispose()
         {
@@ -1742,6 +1758,17 @@ namespace Ship_Game.Ships
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;
+        }
+
+        // For Unit Tests
+        public ShipModule TestGetModule(string uid)
+        {
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                if (module.UID == uid)
+                    return module;
+            }
+            return null;
         }
 
         // @todo autocalculate during ship instance init

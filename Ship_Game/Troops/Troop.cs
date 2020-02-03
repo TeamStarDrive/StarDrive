@@ -143,6 +143,11 @@ namespace Ship_Game
 
         public string StrengthText => $"Strength: {Strength:0.}";
 
+        public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size)
+        {
+            Draw(batch, new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y));
+        }
+
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
         // to a central location to be used by any animated image. 
         public void Draw(SpriteBatch spriteBatch, Rectangle drawRect)
@@ -248,12 +253,11 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            Troop troop        = this;
             UpdateTimer -= elapsedTime;
             if (UpdateTimer > 0f)
                 return;
 
-            first_frame = ResourceManager.GetTroopTemplate(troop.Name).first_frame;
+            first_frame = ResourceManager.GetTroopTemplate(Name).first_frame;
             int whichFrame = WhichFrame;
             if (!Idle)
             {
@@ -282,10 +286,12 @@ namespace Ship_Game
             }
         }
 
-        // Added by McShooterz, FB: changed it to level up every kill since troops are dying like flies
+        // Added by McShooterz, FB: changed it to level up every kill with decreasing chances
+        // since troops are dying like flies
         public void LevelUp()
         {
-            Level = (Level +1).Clamped(0,10);
+            if (RandomMath.RollDie(10) > Level)
+                Level = (Level + 1).Clamped(0,10);
         }
 
         public void DamageTroop(float amount)
@@ -375,18 +381,16 @@ namespace Ship_Game
             return Ship.CreateTroopShipAtPoint(Owner.data.DefaultTroopShip, Owner, createAt, this);
         }
 
-        // FB - this is the main logic for land troops. 
-        public bool TryLandTroop(Planet planet)
+        // FB - this is the main logic for land troops
+        // if tile != null, it will assign troops to nearest available tile
+        public bool TryLandTroop(Planet planet, PlanetGridSquare tile = null)
         {
             planet = planet ?? HostPlanet;
-            return planet.FreeTiles > 0 && AssignTroopToRandomFreeTile(planet);
-        }
+            if (planet.FreeTiles == 0)
+                return false;
 
-        // FB - this is the main logic for land troops if they need the nearest tile from a target tile 
-        public bool TryLandTroop(Planet planet, PlanetGridSquare tile)
-        {
-            planet = planet ?? HostPlanet;
-            return planet.FreeTiles > 0 && AssignTroopToNearestAvailableTile(tile, planet);
+            return tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
+                                : AssignTroopToRandomFreeTile(planet);
         }
 
         // FB - For newly recruited troops (so they will be able to launch or move immediately)

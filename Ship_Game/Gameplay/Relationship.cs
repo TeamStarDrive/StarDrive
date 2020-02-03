@@ -4,6 +4,7 @@ using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
 using Ship_Game.Debug;
+using Ship_Game.GameScreens.DiplomacyScreen;
 
 namespace Ship_Game.Gameplay
 {
@@ -759,7 +760,7 @@ namespace Ship_Game.Gameplay
             debug.AddLine($"Anger From Diplomatic Faux pas: {(int)Anger_DiplomaticConflict}");
             debug.AddLine($"Trust: {(int)Trust} TrustUsed: {(int)TrustUsed}");
 
-            ActiveWar?.WarDebugData(debug);
+            ActiveWar?.WarDebugData(ref debug);
             return debug;
         }
     }

@@ -36,11 +36,10 @@ namespace Ship_Game
             }
 
             batch.Begin();
-            if (ActiveModule != null && !ModSel.HitTest(Input))
+            if (ActiveModule != null && !ModuleSelectComponent.HitTest(Input))
                 DrawActiveModule(batch);
 
-            DrawUi();
-            selector?.Draw(batch);
+            DrawUi(batch);
             ArcsButton.DrawWithShadowCaps(batch);
             if (Debug)
                 DrawDebug();
@@ -394,41 +393,9 @@ namespace Ship_Game
         void DrawDebug()
         {
             var pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString("Debug").X / 2, 120f);
-            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, "Debug", pos, Fonts.Arial20Bold);
+            ScreenManager.SpriteBatch.DrawDropShadowText("Debug", pos, Fonts.Arial20Bold);
             pos = new Vector2(CenterX - Fonts.Arial20Bold.MeasureString(Operation.ToString()).X / 2, 140f);
-            HelperFunctions.DrawDropShadowText(ScreenManager.SpriteBatch, Operation.ToString(), pos, Fonts.Arial20Bold);
-        }
-
-        void DrawHullSelection(SpriteBatch batch)
-        {
-            Rectangle  r = HullSelectionSub.Rect;
-            r.Y      += 25;
-            r.Height -= 25;
-            var sel = new Selector(r, new Color(0, 0, 0, 210));
-            sel.Draw(batch);
-            HullSL.Draw(batch);
-            Vector2 mousePos = Mouse.GetState().Pos();
-            HullSelectionSub.Draw(batch);
-
-            foreach (ScrollList.Entry e in HullSL.VisibleExpandedEntries)
-            {
-                var bCursor = new Vector2(HullSelectionSub.X + 10, e.Y);
-                if (e.item is ModuleHeader header)
-                {
-                    header.Draw(ScreenManager, bCursor);
-                }
-                else if (e.item is ShipData ship)
-                {
-                    bCursor.X += 10f;
-                    batch.Draw(ship.Icon, new Rectangle((int) bCursor.X, (int) bCursor.Y, 29, 30), Color.White);
-                    var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                    batch.DrawString(Fonts.Arial12Bold, ship.Name, tCursor, Color.White);
-                    tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                    batch.DrawString(Fonts.Arial8Bold, Localizer.GetRole(ship.HullRole, EmpireManager.Player), tCursor, Color.Orange);
-
-                    e.CheckHover(mousePos);
-                }
-            }
+            ScreenManager.SpriteBatch.DrawDropShadowText(Operation.ToString(), pos, Fonts.Arial20Bold);
         }
 
         // @todo - need to make all these calcs in one place. Right now they are also done in Ship.cs
@@ -472,7 +439,11 @@ namespace Ship_Game
             int troopCount                 = 0;
             int fixedTargets               = 0;
             int numWeaponSlots             = 0;
-            HullBonus bonus                 = ActiveHull.Bonuses;
+            float totalShieldAmplify       = 0;
+
+            HullBonus bonus              = ActiveHull.Bonuses;
+            Array<ShipModule> shields    = new Array<ShipModule>();
+            Array<ShipModule> amplifiers = new Array<ShipModule>();
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -503,21 +474,29 @@ namespace Ship_Game
                 if (!slot.Module.Powered)
                     continue;
 
-                empResist        += slot.Module.EMP_Protection;
-                warpableMass     += slot.Module.WarpMassCapacity;
-                warpDraw         += slot.Module.PowerDrawAtWarp;
-                shieldPower      += slot.Module.ActualShieldPowerMax;
-                thrust           += slot.Module.thrust;
-                warpThrust       += slot.Module.WarpThrust;
-                turnThrust       += slot.Module.TurnThrust;
-                repairRate       += slot.Module.ActualBonusRepairRate;
-                ordnanceRecoverd += slot.Module.OrdnanceAddedPerSecond;
-                targets          += slot.Module.TargetTracking;
-                totalEcm          = Math.Max(slot.Module.ECM, totalEcm);
-                sensorRange       = Math.Max(slot.Module.SensorRange, sensorRange);
-                sensorBonus       = Math.Max(slot.Module.SensorBonus, sensorBonus);
-                fixedTargets      = Math.Max(slot.Module.FixedTracking, fixedTargets);
-                ordnanceUsed     += slot.Module.BayOrdnanceUsagePerSecond;
+                if (slot.Module.Is(ShipModuleType.Shield))
+                    shields.Add(slot.Module);
+
+                if (slot.Module.AmplifyShields > 0)
+                    amplifiers.Add(slot.Module);
+
+                empResist          += slot.Module.EMP_Protection;
+                warpableMass       += slot.Module.WarpMassCapacity;
+                warpDraw           += slot.Module.PowerDrawAtWarp;
+                shieldPower        += slot.Module.shield_power_max;
+                totalShieldAmplify += slot.Module.AmplifyShields;
+                thrust             += slot.Module.thrust;
+                warpThrust         += slot.Module.WarpThrust;
+                turnThrust         += slot.Module.TurnThrust;
+                repairRate         += slot.Module.ActualBonusRepairRate;
+                ordnanceRecoverd   += slot.Module.OrdnanceAddedPerSecond;
+                targets            += slot.Module.TargetTracking;
+                totalEcm            = Math.Max(slot.Module.ECM, totalEcm);
+                sensorRange         = Math.Max(slot.Module.SensorRange, sensorRange);
+                sensorBonus         = Math.Max(slot.Module.SensorBonus, sensorBonus);
+                fixedTargets        = Math.Max(slot.Module.FixedTracking, fixedTargets);
+                ordnanceUsed       += slot.Module.BayOrdnanceUsagePerSecond;
+
 
                 if (slot.Module.IsCommandModule)
                     hasBridge = true;
@@ -553,6 +532,10 @@ namespace Ship_Game
                 else
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
             }
+
+            float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(amplifiers.ToArray(), shields.ToArray());
+            shieldPower = ShipUtils.UpdateShieldAmplification(amplifiers.ToArray(), shields.ToArray());
+
             Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
@@ -597,9 +580,11 @@ namespace Ship_Game
             DrawFtlTime();
             WriteLine(ref cursor);
 
+            Color shieldMaxColor = totalShieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
             DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
             if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
-            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, Color.Goldenrod));
+            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
+            if (shieldAmplifyPerShield > 0) DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplifyPerShield, 257, Color.Goldenrod));
             if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
             if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
             WriteLine(ref cursor);
@@ -690,7 +675,7 @@ namespace Ship_Game
 
             void DrawPropulsion()
             {
-                DrawStatPropulsion(ref cursor, string.Concat(Localizer.Token(2170), ":"), warpString, 135);
+                DrawStatPropulsion(ref cursor, Localizer.Token(2170)+":", warpString, 135);
 
                 if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
             }
@@ -773,7 +758,7 @@ namespace Ship_Game
             cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
 
             var statCursor = new Vector2(cursor.X + Spacing(spacing), cursor.Y);
-            Vector2 statNameCursor = FontSpace(statCursor, -40, words, font);
+            Vector2 statNameCursor = FontSpace(statCursor, -20, words, font);
 
             DrawString(statNameCursor, nameColor, words, font);
             DrawString(statCursor, statColor, stat, font);
@@ -816,23 +801,30 @@ namespace Ship_Game
         {
             cursor.Y += Fonts.Arial12Bold.LineSpacing * lines;
         }
-
-        void DrawUi()
+        
+        static void DrawTitle(SpriteBatch batch, float x, string title)
         {
-            EmpireUI.Draw(ScreenManager.SpriteBatch);
+            int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
+            var pos = new Vector2(x, buttonHeight);
+            batch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
+        }
+
+        void DrawUi(SpriteBatch batch)
+        {
+            EmpireUI.Draw(batch);
             DrawShipInfoPanel();
 
-            CategoryList.Draw(ScreenManager.SpriteBatch);
+            CategoryList.Draw(batch);
 
-            DrawTitle(ScreenWidth * 0.375f, "Repair Options");
-            DrawTitle(ScreenWidth * 0.5f, "Behavior Presets");
-            DrawTitle(ScreenWidth * 0.65f, "Hangar Designation");
-            HangarOptionsList.Draw(ScreenManager.SpriteBatch);
+            DrawTitle(batch, ScreenWidth * 0.375f, "Repair Options");
+            DrawTitle(batch, ScreenWidth * 0.5f, "Behavior Presets");
+            DrawTitle(batch, ScreenWidth * 0.65f, "Hangar Designation");
+            HangarOptionsList.Draw(batch);
 
             if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
             {
-                DrawTitle(ScreenWidth * 0.65f, "Shields State At Warp");
-                ShieldsBehaviorList.Draw(ScreenManager.SpriteBatch);
+                DrawTitle(batch, ScreenWidth * 0.65f, "Shields State At Warp");
+                ShieldsBehaviorList.Draw(batch);
             }
 
             float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
@@ -840,54 +832,33 @@ namespace Ship_Game
             Rectangle r = BlackBar;
             if (IsTransitioning)
                 r.Y += (int)(transitionOffset * 50f);
-            ScreenManager.SpriteBatch.FillRectangle(r, Color.Black);
+            batch.FillRectangle(r, Color.Black);
 
 
             r = BottomSep;
             if (IsTransitioning)
                 r.Y += (int) (transitionOffset * 50f);
-            ScreenManager.SpriteBatch.FillRectangle(r, new Color(77, 55, 25));
+            batch.FillRectangle(r, new Color(77, 55, 25));
 
 
             r = SearchBar;
             if (IsTransitioning)
                 r.Y += (int)(transitionOffset * 50f);
-            ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
+            batch.FillRectangle(r, new Color(54, 54, 54));
 
 
             SpriteFont font = Fonts.Arial20Bold.MeasureString(ActiveHull.Name).X <= (SearchBar.Width - 5)
                             ? Fonts.Arial20Bold : Fonts.Arial12Bold;
             var cursor1 = new Vector2(SearchBar.X + 3, r.Y + 14 - font.LineSpacing / 2);
-            ScreenManager.SpriteBatch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
+            batch.DrawString(font, ActiveHull.Name, cursor1, Color.White);
 
 
             r = new Rectangle(r.X - r.Width - 12, r.Y, r.Width, r.Height);
             DesignRoleRect = new Rectangle(r.X , r.Y, r.Width, r.Height);
-            ScreenManager.SpriteBatch.FillRectangle(r, new Color(54, 54, 54));
+            batch.FillRectangle(r, new Color(54, 54, 54));
 
-            {
-                var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
-            }
-
-            if (IsTransitioning)
-            {
-                //SaveButton.Y += (int)(transitionOffset * 50f);
-                //LoadButton.Y += (int)(transitionOffset * 50f);
-                //ToggleOverlayButton.Y += (int)(transitionOffset * 50f);
-                //SymmetricDesignButton.Y += (int)(transitionOffset * 50f);
-            }
-
-            ModSel.Draw(ScreenManager.SpriteBatch);
-
-            DrawHullSelection(ScreenManager.SpriteBatch);
-
-            void DrawTitle(float x, string title)
-            {
-                int buttonHeight = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_132px").Height + 10;
-                var pos = new Vector2(x, buttonHeight);
-                ScreenManager.SpriteBatch.DrawString(Fonts.Arial14Bold, title, pos, Color.Orange);
-            }
+            var cursor = new Vector2(r.X + 3, r.Y + 14 - Fonts.Arial20Bold.LineSpacing / 2);
+            batch.DrawString(Fonts.Arial20Bold, Localizer.GetRole(Role, EmpireManager.Player), cursor, Color.White);
         }
 
         enum ValueTint
@@ -938,7 +909,7 @@ namespace Ship_Game
             cursor.Y += stat.LineSpacing;
 
             Vector2 statCursor = new Vector2(cursor.X + Spacing(stat.Spacing), cursor.Y);
-            DrawString(FontSpace(statCursor, -40, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
+            DrawString(FontSpace(statCursor, -20, stat.Title, font), stat.TitleColor, stat.Title, font); // @todo Replace with DrawTitle?
 
             string valueText = stat.ValueText;
             DrawString(statCursor, stat.ValueColor, valueText, font);
