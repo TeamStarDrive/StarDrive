@@ -135,7 +135,7 @@ namespace Ship_Game
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
-                    if (!Empire.Universe.Debug || !node.Known)
+                    if (!node.Known)
                         continue;
 
                     float nodeRad = WorldToMiniRadius(node.Radius);
@@ -163,10 +163,11 @@ namespace Ship_Game
             foreach (Empire e in EmpireManager.Empires)
             {
                 Relationship rel = EmpireManager.Player.GetRelations(e);
-                if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
-                    continue;
-                DrawNode(e, e.BorderNodes, batch);
-                DrawNode(e, e.SensorNodes, batch);
+                if (Screen.Debug || e == EmpireManager.Player || rel.Known)
+                {
+                    DrawNode(e, e.BorderNodes, batch);
+                    DrawNode(e, e.SensorNodes, batch);
+                }
             }
         }
 
