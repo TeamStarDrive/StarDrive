@@ -64,13 +64,18 @@ namespace Ship_Game
         {
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
-            foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
-                                                                     || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
+            var goals = owner.GetEmpireAI().Goals;
+            for (int i = 0; i < goals.Count; i++)
             {
-                if (ResourceManager.GetShipTemplate(goal.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role
-                                                                                       && !orbital.shipData.IsShipyard)
+                Goal g = goals[i];
+                if (g != null && g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this 
+                              || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid)
                 {
-                    numOrbitals++;
+                    if (ResourceManager.GetShipTemplate(g.ToBuildUID, out Ship orbital) && orbital.shipData.Role == role
+                                                                                        && !orbital.shipData.IsShipyard)
+                    {
+                        numOrbitals++;
+                    }
                 }
             }
 
