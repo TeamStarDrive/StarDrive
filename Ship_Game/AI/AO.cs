@@ -14,7 +14,7 @@ namespace Ship_Game.AI
     {
         public static readonly Planet[] NoPlanets = new Planet[0];
 
-        [XmlIgnore][JsonIgnore] Planet CoreWorld;
+        [XmlIgnore][JsonIgnore] public Planet CoreWorld { get; private set; }
         [XmlIgnore][JsonIgnore] Array<Ship> OffensiveForcePool                = new Array<Ship>();
         [XmlIgnore][JsonIgnore] Fleet CoreFleet                               = new Fleet();
         [XmlIgnore][JsonIgnore] readonly Array<Ship> ShipsWaitingForCoreFleet = new Array<Ship>();

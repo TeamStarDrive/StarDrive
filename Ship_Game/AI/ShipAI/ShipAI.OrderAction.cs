@@ -489,14 +489,21 @@ namespace Ship_Game.AI
 
         void AwaitOrders(float elapsedTime)
         {
+            if (Owner.IsPlatformOrStation) return;
+
             if (State != AIState.Resupply)
                 HasPriorityOrder = false;
             if (AwaitClosest != null)
             {
-                Orbit.Orbit(AwaitClosest, elapsedTime);
-                return;
+                if (SystemToDefend != null || Owner.loyalty.isPlayer)
+                {
+                    Orbit.Orbit(AwaitClosest, elapsedTime);
+                    return;
+                }
+                if (AwaitClosest.ParentSystem.OwnerList.Count > 0)
+                    AwaitClosest = null;
             }
-            SolarSystem home = Owner.System;
+            SolarSystem home = Owner.System?.OwnerList.Count > 1 ? null : Owner.System;
             if (home == null)
             {
                 if (SystemToDefend != null)
@@ -508,8 +515,25 @@ namespace Ship_Game.AI
 
                 if (!Owner.loyalty.isFaction) // for empire find whatever is close. might add to this for better logic.
                 {
-                    home = Owner.loyalty.GetOwnedSystems()
+                    if (!Owner.loyalty.isPlayer)
+                    {
+                        var nearAO = Owner.loyalty.GetEmpireAI()
+                            .AreasOfOperations.FindMin(ao => ao.Center.SqDist(Owner.Center));
+                        if (nearAO.CoreWorld.ParentSystem.OwnerList.Count == 1)
+                        {
+                            home = nearAO.CoreWorld.ParentSystem;
+                        }
+                        else
+                        {
+                            home = nearAO.GetPlanets().FindMinFiltered(p => p.ParentSystem.OwnerList.Count < 2,
+                                                                      p => p.Center.SqDist(Owner.Center))?.ParentSystem;
+                        }
+                    }
+                    else
+                    {
+                        home = Owner.loyalty.GetOwnedSystems().Filter(sys => sys.OwnerList.Count < 2)
                         .FindMin(s => Owner.Center.SqDist(s.Position));
+                    }
                 }
                 else //for factions look for ships in a system so they group up.
                 {
@@ -520,9 +544,8 @@ namespace Ship_Game.AI
 
                 if (home == null) //Find any system with no owners and planets.
                 {
-                    home = Empire.Universe.SolarSystemDict.Values.ToArrayList()
-                        .FindMinFiltered(o => o.OwnerList.Count == 0 && o.PlanetList.Count > 0,
-                            ss => Owner.Center.SqDist(ss.Position));
+                    home = Empire.Universe.SolarSystemDict.FindMinValue(ss => 
+                                                           Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count +1));
                 }
             }
 

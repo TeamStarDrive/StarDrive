@@ -289,6 +289,7 @@ namespace Ship_Game
                     rallyPlanets.Add(Universe.PlanetsDict.First().Value);
 
                 RallyPoints = rallyPlanets.ToArray();
+                RallyPoints.Sort(rp => rp.ParentSystem.OwnerList.Count > 1);
                 return;
             }
 
@@ -649,26 +650,25 @@ namespace Ship_Game
         {
             //Get all available ships from AO's
             var ships = GetShipsFromOffensePools();
-            //return a fleet creator. 
-            //ships.Filter(s=> s.fleet == null &&
-            //s.CanTakeFleetOrders() &&
-            //!s.AI.BadGuysNear);
+
             var readyShips = new Array<Ship>();
-            foreach(Ship ship in ships)
+            for (int i = 0; i < ships.Count; i++)
             {
-                if (ship.fleet != null) 
+                Ship ship = ships[i];
+                if (ship.fleet != null)
                     continue;
                 if (ship.AI.State == AIState.Resupply
-                                      && ship.AI.State == AIState.Refit
-                                      && ship.AI.State == AIState.Scrap
-                                      && ship.AI.State == AIState.Scuttle) 
+                    && ship.AI.State == AIState.Refit
+                    && ship.AI.State == AIState.Scrap
+                    && ship.AI.State == AIState.Scuttle)
                     continue;
-                if (ship.AI.BadGuysNear)
+                if (ship.InCombat)
                     continue;
                 if (ship.IsInHostileProjectorRange && !ship.IsInFriendlyProjectorRange)
                     continue;
                 readyShips.Add(ship);
             }
+
             return readyShips.ToArray();
         }
 
@@ -2534,6 +2534,12 @@ namespace Ship_Game
         public void ForcePoolAdd(Array<Ship> ships)
         {
             for (int i = 0; i < ships.Count; i++)
+                ForcePoolAdd(ships[i]);
+        }
+
+        public void ForcePoolAdd(Ship[] ships)
+        {
+            for (int i = 0; i < ships.Length -1; i++)
                 ForcePoolAdd(ships[i]);
         }
 
