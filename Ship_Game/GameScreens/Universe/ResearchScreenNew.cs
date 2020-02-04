@@ -250,7 +250,10 @@ namespace Ship_Game
                 camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
 
             if (Empire.Universe.Debug && HandleDebugInput(input)) // DEBUG unlock inputs
+            {
+                EmpireManager.Player.UpdateForNewTech();
                 return true;
+            }
 
             if (Queue.HandleInput(input))
                 return true;
