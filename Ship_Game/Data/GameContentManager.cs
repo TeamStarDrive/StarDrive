@@ -301,7 +301,7 @@ namespace Ship_Game.Data
         public T LoadAsset<T>(string assetName, bool useCache)
         {
             var asset = new AssetName(assetName);
-            if (LoadedAssets == null)
+            if (false && LoadedAssets == null)
                 throw new ObjectDisposedException(ToString());
 
             if (EnableLoadInfoLog)
@@ -425,6 +425,17 @@ namespace Ship_Game.Data
                 return DefaultTexture();
             var texture = Load<Texture2D>(modTexPath);
             return new SubTexture(texture.Name, texture);
+        }
+
+        public Video LoadVideoFile(string file)
+        {
+            if (EnableLoadInfoLog)
+                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Video).Name}> {file}");
+            if (file.StartsWith(GlobalStats.ModPath))
+                file = "../" + file;
+            var path = file.Replace("\\", "/");
+            path = path.Substring(0, (path.Length - 4).ClampMin(0));
+            return ReadAsset<Video>(path, RecordDisposableObject);
         }
 
         public StaticMesh LoadStaticMesh(string modelName)
