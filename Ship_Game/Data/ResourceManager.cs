@@ -1625,7 +1625,11 @@ namespace Ship_Game
 
         public static Video LoadVideo(GameContentManager content, string videoPath)
         {
-            var video = content.Load<Video>("Video/" + videoPath);
+            FileInfo file = GetModOrVanillaFile("Video/" + videoPath +".xnb");
+            if (file == null)
+                return null;
+            var path = file.RelPathFromContent();
+            var video = content.LoadVideoFile(path);
             if (video != null)
                 return video;
 

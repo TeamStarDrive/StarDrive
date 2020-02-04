@@ -111,6 +111,11 @@ namespace Ship_Game
             return info.FullName.Substring(AppRoot.Length + 1);
         }
 
+        public static string RelPathFromContent(this FileInfo info)
+        {
+            return info.FullName.Substring(AppRoot.Length + 1).Replace("Content\\", ""); ;
+
+        }
         // Creates a clean relative file path, useful for resource loading
         // Ex: "Content\\Textures\\blank.xnb"    --> "Textures/blank"
         // Ex: "Mods/MyMod/Textures\\blank.xnb"  --> "Textures/blank"
