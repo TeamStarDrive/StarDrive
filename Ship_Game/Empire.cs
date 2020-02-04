@@ -981,7 +981,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateForNewTech()
+        public void UpdateForNewTech()
         {
             UpdateShipsWeCanBuild();
             EmpireAI.TriggerRefit();
