@@ -54,8 +54,6 @@ namespace Ship_Game
 
         object DetailInfo;
         Building ToScrap;
-        public BuildableListItem ActiveBuildingEntry;
-
 
         public bool ClickedTroop;
         int EditHoverState;
@@ -157,7 +155,10 @@ namespace Ship_Game
 
             BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
             BuildableList.EnableItemHighlight = true;
-            BuildableList.OnDoubleClick = OnBuildableItemDoubleClicked;
+            BuildableList.EnableDragEvents    = true;
+            BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
+            BuildableList.OnHovered           = OnBuildableHoverChange;
+            BuildableList.OnDrag              = OnBuildableListDrag;
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
                                                        ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
@@ -196,7 +197,6 @@ namespace Ship_Game
             }
 
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
-            BuildableList.OnHovered = OnBuildableHoverChange;
         }
 
         public float PositiveTerraformTargetFertility()
@@ -306,32 +306,25 @@ namespace Ship_Game
         void OnBuildableHoverChange(BuildableListItem item)
         {
             ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item?.Y ?? 0f), item?.Ship);
+        }
 
-            if (item != null)
+        void OnBuildableListDrag(BuildableListItem item, DragEvent evt, bool outside)
+        {
+            if (evt != DragEvent.End)
+                return;
+
+            if (outside)
             {
-                if (ActiveBuildingEntry == null && item.Building != null && Input.LeftMouseHeld(0.1f))
-                    ActiveBuildingEntry = item;
-
-                int troopsLanding = P.Owner.GetShips()
-                    .Filter(s => s.HasOurTroops && s.AI.State != AIState.Resupply && s.AI.State != AIState.Orbit)
-                    .Count(troopAI => troopAI.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == P));
-
-                if (troopsLanding > 0)
+                Building b = item.Building;
+                if (b != null)
                 {
-                    CallTroops.Text = $"Incoming Troops: {troopsLanding}";
-                    CallTroops.Style = ButtonStyle.Military;
+                    PlanetGridSquare tile = P.FindTileUnderMouse(Input.CursorPosition);
+                    if (tile != null && Build(b, tile))
+                        return;
                 }
-                else
-                {
-                    CallTroops.Text = "Call Troops";
-                    CallTroops.Style = ButtonStyle.Default;
-                }
-
-                UpdateButtonText(LaunchAllTroops, P.TroopsHere.Count(t => t.CanMove), "Launch All Troops");
-                UpdateButtonText(BuildPlatform, P.NumPlatforms, "Build Platform");
-                UpdateButtonText(BuildStation, P.NumStations, "Build Station");
-                UpdateButtonText(BuildShipyard, P.NumShipyards, "Build Shipyard");
             }
+
+            GameAudio.NegativeClick();
         }
     }
 }
