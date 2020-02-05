@@ -112,9 +112,6 @@ namespace Ship_Game
             if (ApplyProductionRect.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(50);
 
-            if (base.HandleInput(input))
-                return true;
-
             if (input.LeftMouseClick)
             {
                 if (ApplyProdHover && p.IsConstructing)
@@ -124,6 +121,8 @@ namespace Ship_Game
                         GameAudio.AcceptClick();
                     else
                         GameAudio.NegativeClick();
+
+                    return true;
                 }
 
                 if (p.NonCybernetic && foodDropDown.r.HitTest(input.CursorPosition))
@@ -133,6 +132,8 @@ namespace Ship_Game
                     p.FS = (Planet.GoodState) ((int) p.FS + (int) Planet.GoodState.IMPORT);
                     if (p.FS > Planet.GoodState.EXPORT)
                         p.FS = Planet.GoodState.STORE;
+
+                    return true;
                 }
 
                 if (prodDropDown.r.HitTest(input.CursorPosition))
@@ -142,10 +143,11 @@ namespace Ship_Game
                     p.PS = (Planet.GoodState) ((int) p.PS + (int) Planet.GoodState.IMPORT);
                     if (p.PS > Planet.GoodState.EXPORT)
                         p.PS = Planet.GoodState.STORE;
+
+                    return true;
                 }
-                return true;
             }
-            return false;
+            return base.HandleInput(input);
         }
 
         public override void Draw(SpriteBatch batch)
