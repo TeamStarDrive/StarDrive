@@ -17,7 +17,8 @@ namespace Ship_Game
 
         void OnBuildableTabChanged(int tabIndex)
         {
-            PlayerDesignsToggle.Visible = BuildableTabs.IsSelected(ShipsTabText);
+            PlayerDesignsToggle.Visible    = BuildableTabs.IsSelected(ShipsTabText);
+            BuildableList.EnableDragEvents = BuildableTabs.IsSelected(BuildingsTabText);
             ResetBuildableList = true;
         }
 
@@ -242,38 +243,6 @@ namespace Ship_Game
                 GameAudio.AffirmativeClick();
             else
                 GameAudio.NegativeClick();
-        }
-
-
-        void DrawActiveBuildingEntry(SpriteBatch batch)
-        {
-            if (ActiveBuildingEntry == null) return; // nothing to draw
-
-            var b = ActiveBuildingEntry.Building;
-            var icon = ResourceManager.Texture($"Buildings/icon_{b.Icon}_48x48");
-            var rect = new Rectangle(Input.MouseX, Input.MouseY, icon.Width, icon.Height);
-
-            bool canBuild = P.FindTileUnderMouse(Input.CursorPosition)?.CanBuildHere(b) == true;
-            batch.Draw(icon, rect, canBuild ? Color.White : Color.OrangeRed);
-        }
-
-        bool HandleDragBuildingOntoTile(InputState input)
-        {
-            if (ActiveBuildingEntry == null) return false;
-
-            Building b = ActiveBuildingEntry.Building;
-            if (input.LeftMouseReleased)
-            {
-                PlanetGridSquare tile = P.FindTileUnderMouse(input.CursorPosition);
-                if (tile == null || !Build(b, tile))
-                    GameAudio.NegativeClick();
-                return true;
-            }
-            
-            if (input.RightMouseClick || input.LeftMouseClick)
-                return true;
-
-            return ActiveBuildingEntry != null && b.Unique && P.BuildingBuiltOrQueued(b);
         }
     }
 }

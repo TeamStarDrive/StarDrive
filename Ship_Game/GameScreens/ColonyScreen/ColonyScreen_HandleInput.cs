@@ -46,12 +46,6 @@ namespace Ship_Game
 
             HandleExportImportButtons(input);
 
-            if (HandleDragBuildingOntoTile(input))
-            {
-                ActiveBuildingEntry = null; // building was placed or discarded
-                return true;
-            }
-
             return base.HandleInput(input);
         }
 
