@@ -303,7 +303,6 @@ namespace Ship_Game
 
             DrawFoodAndStorage(batch);
             DrawOrbitalStats(batch);
-            DrawActiveBuildingEntry(batch); // draw dragged item as topmost
 
             base.Draw(batch);
         }
