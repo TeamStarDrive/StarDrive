@@ -882,9 +882,6 @@ namespace Ship_Game
             public float Spacing;
             public int LineSpacing;
 
-            /*public Color ValueColor => Tint == ValueTint.GoodBad ? (Value > 0f ? Color.LightGreen : Color.LightPink) :
-                Tint == ValueTint.Bad ? Color.LightPink : Color.White;*/
-
             public Color ValueColor
             {
                 get
