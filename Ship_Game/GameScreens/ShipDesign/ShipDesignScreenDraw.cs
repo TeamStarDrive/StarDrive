@@ -570,7 +570,8 @@ namespace Ship_Game
             DrawStatColor(ref cursor, TintedValue(115, (int)mass, 79, Color.White));
             WriteLine(ref cursor);
 
-            DrawStatColor(ref cursor, TintedValue(110, powerCapacity, 100, Color.LightSkyBlue));
+            float powerConsumed = weaponPowerNeeded - powerRecharge;
+            DrawStatColor(ref cursor, CompareValues(110, powerCapacity, powerConsumed , 100, Color.LightSkyBlue));
             DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
 
             float fDrawAtWarp;
@@ -707,12 +708,11 @@ namespace Ship_Game
                 if (!bEnergyWeapons)
                     return;
 
-                float powerConsumed = weaponPowerNeeded - powerRecharge;
-                if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into acount recharge
+                if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
                 {
                     DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, 243, Color.LightSkyBlue));
                     float energyDuration = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, TintedValue("Wpn Fire Power Time", energyDuration, 163, Color.LightSkyBlue));
+                    DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", energyDuration, 163, Color.LightSkyBlue));
                 }
                 else
                     DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
@@ -865,7 +865,9 @@ namespace Ship_Game
         {
             None,
             Bad,
-            GoodBad
+            GoodBad,
+            BadLowerThan2,
+            CompareValue
         }
 
         struct StatValue
@@ -873,14 +875,32 @@ namespace Ship_Game
             public string Title;
             public Color TitleColor;
             public float Value;
+            public float CompareValue;
             public int Tooltip;
             public ValueTint Tint;
             public bool IsPercent;
             public float Spacing;
             public int LineSpacing;
 
-            public Color ValueColor => Tint == ValueTint.GoodBad ? (Value > 0f ? Color.LightGreen : Color.LightPink) :
-                Tint == ValueTint.Bad ? Color.LightPink : Color.White;
+            /*public Color ValueColor => Tint == ValueTint.GoodBad ? (Value > 0f ? Color.LightGreen : Color.LightPink) :
+                Tint == ValueTint.Bad ? Color.LightPink : Color.White;*/
+
+            public Color ValueColor
+            {
+                get
+                {
+                    switch (Tint)
+                    {
+                        case ValueTint.GoodBad: return Value > 0f ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.Bad: return Color.LightPink;
+                        case ValueTint.BadLowerThan2: return Value > 2f ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.CompareValue: return CompareValue < Value ? Color.LightGreen : Color.LightPink;
+                        case ValueTint.None:
+                        default: return Color.White;
+                    }
+                }
+            }
+
 
             public string ValueText => IsPercent ? Value.ToString("P1") : Value.GetNumberString();
         }
@@ -893,6 +913,12 @@ namespace Ship_Game
 
         static StatValue TintedValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = title+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
+
+        static StatValue LowBadValue(string title, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = title + ":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.BadLowerThan2, Spacing = spacing, LineSpacing = lineSpacing };
+
+        static StatValue CompareValues(int titleId, float value, float compareValue, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
+            => new StatValue { Title = Localizer.Token(titleId)+ ":", Value = value, CompareValue = compareValue, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.CompareValue, Spacing = spacing, LineSpacing = lineSpacing };
 
         static StatValue TintedValue(int titleId, float value, int tooltip, Color titleColor, float spacing = 165, int lineSpacing = 1)
             => new StatValue { Title = Localizer.Token(titleId)+":", Value = value, Tooltip = tooltip, TitleColor = titleColor, Tint = ValueTint.GoodBad, Spacing = spacing, LineSpacing = lineSpacing };
