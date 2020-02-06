@@ -410,7 +410,7 @@ namespace Ship_Game
             }
 
             GlobalStats.TakingInput = false;
-            return false;
+            return base.HandleInput(input);
         }
 
         void SetNewPos(int x, int y)
