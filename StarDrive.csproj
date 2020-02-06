@@ -193,7 +193,6 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunWarPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireRiskAssessment.cs" />
     <Compile Include="Ship_Game\AI\StrategyAI\FleetRatios.cs" />
-    <Compile Include="Ship_Game\Fleets\Fleet.FleetGoal.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\AssaultShipCombat.cs" />
     <Compile Include="Ship_Game\AI\CombatTactics\ShipAI.AttackRun.cs" />
     <Compile Include="Ship_Game\AI\Research\ChooseTech.cs" />
@@ -1022,7 +1021,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\AI\Fleet.cs">
+    <Compile Include="Ship_Game\Fleets\Fleet.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
