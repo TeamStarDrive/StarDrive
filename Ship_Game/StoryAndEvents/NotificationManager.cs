@@ -267,7 +267,7 @@ namespace Ship_Game
 
         public void AddExplorerDestroyedNotification(Ship ship)
         {
-            string message = $"{ship.Name} was destroyed ";
+            string message = $"{ship.Name} ";
             Notification explorerDestroyed = new Notification
             {
                 IconPath = ship.BaseHull.IconPath ?? "ResearchMenu/icon_event_science_bad"
@@ -275,13 +275,13 @@ namespace Ship_Game
 
             if (ship.System != null)
             {
-                message += $"while exploring {ship.System.Name}";
+                message += $"{new LocalizedText(GameText.WasDestroyedWhileExploringSystem).Text} {ship.System.Name}";
                 explorerDestroyed.ReferencedItem1 = ship.System;
                 explorerDestroyed.Action          = "SnapToSystem";
             }
             else
             {
-                message += "in deep space while exploring the galaxy";
+                message += new LocalizedText(GameText.WasDestroyedWhileExploringDeepSpace).Text;
             }
 
             explorerDestroyed.Message = message;
