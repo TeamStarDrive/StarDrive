@@ -319,7 +319,11 @@ namespace Ship_Game.Universe.SolarBodies
                     Owner.GetEmpireAI().Goals.Remove(q.Goal);
                 }
             }
+
             P.ConstructionQueue.Remove(q);
+            if (q.isBuilding)
+                P.RefreshBuildingsWeCanBuildHere();
+
             q.OnComplete?.Invoke(success: false);
         }
 
