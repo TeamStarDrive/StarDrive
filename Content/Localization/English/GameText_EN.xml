@@ -5340,7 +5340,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2072</Index>
-      <Text>Indicates the maximum amount of power that can be stored in this ship's reserves</Text>
+      <Text>Indicates the maximum amount of power that can be stored in this ship's reserves. Red value is an indication that the ship's energy consumption when firing is overwhelming the power reserve, and you need to add more reserves or more reactors.</Text>
     </Token>
     <Token>
       <Index>2073</Index>
@@ -8441,7 +8441,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds.</Text>
     </Token>
     <Token>
       <Index>7013</Index>
