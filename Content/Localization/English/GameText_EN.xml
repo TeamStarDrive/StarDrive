@@ -4687,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1901</Index>
+      <Text>was destroyed while exploring</Text>
+    </Token>
+    <Token>
+      <Index>1902</Index>
+      <Text>was destroyed in deep space while exploring the galaxy</Text>
+    </Token>
+    <Token>
       <Index>1903</Index>
       <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually.</Text>
     </Token>
