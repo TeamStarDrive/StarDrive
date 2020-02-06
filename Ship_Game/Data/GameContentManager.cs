@@ -257,7 +257,7 @@ namespace Ship_Game.Data
                     NoExt     = assetName.Substring(0, assetName.Length - 4);
                 }
 
-                NoExt = NoExt.Replace("\\", "/"); // normalize path
+                NoExt = NoExt.DoubleBackSlashToForwardSlash(); // normalize path
 
                 if (NoExt.StartsWith("./"))
                     NoExt = NoExt.Substring(2);
@@ -301,7 +301,7 @@ namespace Ship_Game.Data
         public T LoadAsset<T>(string assetName, bool useCache)
         {
             var asset = new AssetName(assetName);
-            if (false && LoadedAssets == null)
+            if (LoadedAssets == null)
                 throw new ObjectDisposedException(ToString());
 
             if (EnableLoadInfoLog)
@@ -431,9 +431,10 @@ namespace Ship_Game.Data
         {
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Video).Name}> {file}");
-            if (file.StartsWith(GlobalStats.ModPath))
+            // "content: is being prefixed here i have not found why
+            if (GlobalStats.HasMod && file.StartsWith(GlobalStats.ModPath))
                 file = "../" + file;
-            var path = file.Replace("\\", "/");
+            var path = file.DoubleBackSlashToForwardSlash();
             path = path.Substring(0, (path.Length - 4).ClampMin(0));
             return ReadAsset<Video>(path, RecordDisposableObject);
         }

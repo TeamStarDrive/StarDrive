@@ -70,7 +70,7 @@ namespace Ship_Game
         }
 
         static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                                         .Replace('\\', '/');
+                                            .DoubleBackSlashToForwardSlash();
 
         // {AppData}/StarDrive/
         // This is where all the saved games and cache files are stored

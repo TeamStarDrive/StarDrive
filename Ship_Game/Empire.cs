@@ -12,6 +12,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Empires;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using Ship_Game.Fleets;
 
 namespace Ship_Game
 {
