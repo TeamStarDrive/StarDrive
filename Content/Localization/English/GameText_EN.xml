@@ -4687,6 +4687,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1900</Index>
+      <Text>Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet providing that the number of troops on that colony exceeds the Garrison Threshold.</Text>
+    </Token>
+    <Token>
       <Index>1901</Index>
       <Text>was destroyed while exploring</Text>
     </Token>
