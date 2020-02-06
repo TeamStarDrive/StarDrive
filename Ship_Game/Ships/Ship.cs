@@ -1498,6 +1498,12 @@ namespace Ship_Game.Ships
             killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
         }
 
+        void NotifyPlayerIfDiedExploring()
+        {
+            if (AI.State == AIState.Explore && loyalty.isPlayer)
+                Empire.Universe.NotificationManager.AddExplorerDestroyedNotification(this);
+        }
+
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum) return;
@@ -1566,6 +1572,7 @@ namespace Ship_Game.Ships
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
 
+            NotifyPlayerIfDiedExploring();
             Carrier.ScuttleNonWarpHangarShips();
             ResetProjectorInfluence();
 
