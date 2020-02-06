@@ -265,6 +265,29 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
+        public void AddExplorerDestroyedNotification(Ship ship)
+        {
+            string message = $"{ship.Name} was destroyed ";
+            Notification explorerDestroyed = new Notification
+            {
+                IconPath = ship.BaseHull.IconPath ?? "ResearchMenu/icon_event_science_bad"
+            };
+
+            if (ship.System != null)
+            {
+                message += $"while exploring {ship.System.Name}";
+                explorerDestroyed.ReferencedItem1 = ship.System;
+                explorerDestroyed.Action          = "SnapToSystem";
+            }
+            else
+            {
+                message += "in deep space while exploring the galaxy";
+            }
+
+            explorerDestroyed.Message = message;
+            AddNotification(explorerDestroyed, "sd_ui_notification_encounter");
+        }
+
         public void AddScrapUnlockNotification(string message, string iconPath, string action)
         {
             AddNotification(new Notification
