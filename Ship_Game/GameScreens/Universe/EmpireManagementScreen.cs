@@ -47,6 +47,7 @@ namespace Ship_Game
                                                                 ScreenWidth - 40, (0.7f * mainBkg.Height).RoundUpTo(40), 80));
             ColoniesList.OnClick       = OnColonyListItemClicked;
             ColoniesList.OnDoubleClick = OnColonyListItemDoubleClicked;
+            ColoniesList.EnableItemHighlight = true;
             eRect = ColoniesList.Rect;
 
             SbPop   = new SortButton(eui.empire.data.ESSort, "pop");
@@ -317,11 +318,11 @@ namespace Ship_Game
             }
         }
 
-        
         void OnColonyListItemClicked(ColoniesListItem item)
         {
             SelectedPlanet = item.p;
             GovernorDetails.SetPlanetDetails(SelectedPlanet);
+            GovernorDetails.PerformLayout();
         }
 
         void OnColonyListItemDoubleClicked(ColoniesListItem item)
@@ -340,15 +341,13 @@ namespace Ship_Game
                 return true;
             }
 
-            if (base.HandleInput(input))
-                return true;
-
             HandleSortButton(input, SbPop, 2278, p => p.PopulationBillion);
             HandleSortButton(input, SbFood, 139, p => p.Food.NetIncome);
             HandleSortButton(input, SbProd, 140, p => p.Prod.NetIncome);
             HandleSortButton(input, SbRes, 141, p => p.Res.NetIncome);
-            HandleSortButton(input, SbRes, 142, p => p.Money.NetRevenue);
-            return false;
+            HandleSortButton(input, SbMoney, 142, p => p.Money.NetRevenue);
+
+            return base.HandleInput(input);
         }
 
         void HandleSortButton(InputState input, SortButton button, int tooltip, Func<Planet, float> selector)
@@ -377,6 +376,7 @@ namespace Ship_Game
 
             SelectedPlanet = ColoniesList.AllEntries[0].p;
             GovernorDetails.SetPlanetDetails(SelectedPlanet);
+            GovernorDetails.PerformLayout();
         }
     }
 }
