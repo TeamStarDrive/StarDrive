@@ -65,7 +65,7 @@ namespace Ship_Game
         public void BuildIt(int numItemsToBuild = 1)
         {
             if (Building != null)   Screen.Build(Building);
-            else if (Ship != null)  Screen.Build(Ship, GetShipCost(Ship), numItemsToBuild);
+            else if (Ship != null)  Screen.Build(Ship, GetShipProdCost(Ship), numItemsToBuild);
             else if (Troop != null) Screen.Build(Troop, numItemsToBuild);
         }
 
@@ -105,18 +105,17 @@ namespace Ship_Game
             batch.Draw(ProdIcon, new Vector2(x, y), iconSize); // Production Icon
             batch.DrawString(font, prod.String(), x + iconSize.X + 2, y); // Build Production Cost
 
-            string maintString = maintenance.String(2)+ " BC/Y";
-            float maintX       = x;
+            string maintString = maintenance.String(2) + " BC/Y";
+            float maintX       = x + iconSize.X + 50;
 
-            batch.Draw(CostIcon, new Vector2(x, y+iconSize.Y), iconSize); // Credits Icon
             if (cost > 0)
             {
-                batch.DrawString(font, cost.String(), x + iconSize.X + 2, y+iconSize.Y); // Build Credit Cost
-                maintX = x - (font.MeasureString(maintString).X + 2); 
+                batch.Draw(CostIcon, new Vector2(x, y + iconSize.Y + 5), iconSize); // Credits Icon
+                batch.DrawString(font, cost.String(), x + iconSize.X + 2, y + iconSize.Y + 5); // Build Credit Cost
             }
 
             if (maintenance > 0f)
-                batch.DrawString(font, maintString, maintX, y+iconSize.Y, Color.DarkRed); // Maintenance
+                batch.DrawString(Font8, maintString, maintX, y + iconSize.Y + 6, Color.DarkRed); // Maintenance
         }
 
         void DrawBuilding(SpriteBatch batch, Building b)
