@@ -65,6 +65,7 @@ namespace Ship_Game
             LocalizedText colonizeText = !MarkedForColonization ? new LocalizedText(1425) : "Cancel Colonize";
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
+            SendTroops.Tooltip = new LocalizedText(1900);
 
             int nextX = x;
             Rectangle NextRect(float width)

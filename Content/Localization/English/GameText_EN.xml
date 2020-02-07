@@ -4695,6 +4695,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
     </Token>
     <Token>
+      <Index>1900</Index>
+      <Text>Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet providing that the number of troops on that colony exceeds the Garrison Threshold.</Text>
+    </Token>
+    <Token>
+      <Index>1901</Index>
+      <Text>was destroyed while exploring</Text>
+    </Token>
+    <Token>
+      <Index>1902</Index>
+      <Text>was destroyed in deep space while exploring the galaxy</Text>
+    </Token>
+    <Token>
       <Index>1903</Index>
       <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually.</Text>
     </Token>
@@ -5336,7 +5348,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2072</Index>
-      <Text>Indicates the maximum amount of power that can be stored in this ship's reserves</Text>
+      <Text>Indicates the maximum amount of power that can be stored in this ship's reserves. Red value is an indication that the ship's energy consumption when firing is overwhelming the power reserve, and you need to add more reserves or more reactors.</Text>
     </Token>
     <Token>
       <Index>2073</Index>
@@ -8437,7 +8449,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds.</Text>
     </Token>
     <Token>
       <Index>7013</Index>
