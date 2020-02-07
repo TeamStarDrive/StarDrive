@@ -1330,5 +1330,10 @@
       <Title>Planetary Shield Strength</Title>
       <Data>2240</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>265</TIP_ID>
+      <Title>Planet Panel</Title>
+      <Data>1899</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
