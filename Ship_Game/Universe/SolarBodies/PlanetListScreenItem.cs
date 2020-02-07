@@ -26,6 +26,7 @@ namespace Ship_Game
         private readonly Color Cream           = Colors.Cream;
         private readonly SpriteFont NormalFont = Fonts.Arial20Bold;
         private readonly SpriteFont SmallFont  = Fonts.Arial12Bold;
+        private readonly SpriteFont TinyFont   = Fonts.Arial8Bold;
         private readonly Color PlanetStatColor;
         private readonly Color EmpireColor;
 
@@ -118,8 +119,18 @@ namespace Ship_Game
             var namePos = new Vector2(PlanetNameEntry.ClickableArea.X, PlanetNameEntry.ClickableArea.Y + 3);
             Label(namePos, Planet.Name, NormalFont, EmpireColor);
             // Now add Richness
-            namePos.Y += NormalFont.LineSpacing - 1;
-            Label(namePos, Planet.LocalizedRichness, SmallFont, EmpireColor);
+            namePos.Y += NormalFont.LineSpacing;
+            string richness = Planet.LocalizedRichness;
+            Label(namePos, richness, SmallFont, EmpireColor);
+
+            float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(Planet.Category);
+            if (!fertEnvMultiplier.AlmostEqual(1))
+            {
+                Color fertEnvColor       = fertEnvMultiplier.Less(1) ? Color.Pink : Color.LightGreen;
+                string multiplierString  = $" (x {fertEnvMultiplier.String(2)})";
+                var fertEnvMultiplierPos = new Vector2(namePos.X + SmallFont.MeasureString(richness).X + 5, namePos.Y + 2);
+                Label(fertEnvMultiplierPos, multiplierString, TinyFont, fertEnvColor);
+            }
         }
 
         void AddPlanetStats()
@@ -156,11 +167,14 @@ namespace Ship_Game
         void AddPlanetTextureAndStatus()
         {
             var planetIcon = new Rectangle(PlanetNameRect.X + 5, PlanetNameRect.Y + 5, PlanetNameRect.Height - 10, PlanetNameRect.Height - 10);
-            Panel(planetIcon, ResourceManager.Texture(Planet.IconPath));
-            if (Planet.Owner != null)
+            Add( new UIPanel(planetIcon, ResourceManager.Texture(Planet.IconPath))
             {
+                Tooltip = GameTips.PlanetPanel
+            });
+
+            if (Planet.Owner != null)
                 Panel(planetIcon, EmpireColor, ResourceManager.Flag(Planet.Owner));
-            }
+
             AddPlanetStatusIcons(planetIcon);
         }
 

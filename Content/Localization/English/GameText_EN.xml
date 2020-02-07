@@ -4695,6 +4695,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
     </Token>
     <Token>
+      <Index>1899</Index>
+      <Text>Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's suitable environments.</Text>
+    </Token>
+    <Token>
       <Index>1900</Index>
       <Text>Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet providing that the number of troops on that colony exceeds the Garrison Threshold.</Text>
     </Token>
