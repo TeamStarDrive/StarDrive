@@ -643,14 +643,11 @@ namespace Ship_Game
             if (w.Tag_Guided && GlobalStats.HasMod && GlobalStats.ActiveModInfo.enableECM)
                 DrawStatPercentLine(ref cursor, Localizer.Token(6005), w.ECMResist, 155);
 
-            //if (w.EffectVsArmor != 1f)
-                DrawResistancePercent(ref cursor, w, "VS Armor", WeaponStat.Armor);
-            //if (w.EffectVSShields != 1f)
-                DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
-            //if (w.ShieldPenChance > 0)
-                DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);
-                DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
-
+            DrawResistancePercent(ref cursor, w, "VS Armor", WeaponStat.Armor);
+            DrawResistancePercent(ref cursor, w, "VS Shield", WeaponStat.Shield);
+            DrawStat(ref cursor, "Shield Pen", w.ShieldPenChance / 100, 181, isPercent: true);
+            DrawStat(ref cursor, Localizer.Token(2129), m.OrdinanceCapacity, 124);
+            DrawStat(ref cursor, Localizer.Token(6175), m.DamageThreshold, 221);
             if (m.RepairDifficulty > 0) DrawStat(ref cursor, Localizer.Token(1992), m.RepairDifficulty, 241); // Complexity
 
             if (w.TruePD)
