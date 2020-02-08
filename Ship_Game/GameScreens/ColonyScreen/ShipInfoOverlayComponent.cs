@@ -112,7 +112,7 @@ namespace Ship_Game
                 return;
 
             WriteLine(ref cursor, font);
-            var ident = new Vector2(cursor.X + (TextWidth*0.5f).RoundTo10(), cursor.Y);
+            var ident = new Vector2(cursor.X + (TextWidth*0.6f).RoundTo10(), cursor.Y);
             batch.DrawString(font, description, cursor, color);
             batch.DrawString(font, data.GetNumberString(), ident, color);
         }
