@@ -469,6 +469,7 @@ namespace Ship_Game
             });
             BtnSymmetricDesign.ClickSfx = "blip_click";
             BtnSymmetricDesign.Tooltip  = Localizer.Token(1984);
+            BtnSymmetricDesign.HotKey   = "M";
             BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
 
             SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);

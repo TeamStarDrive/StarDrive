@@ -26,6 +26,7 @@ namespace Ship_Game
         public ButtonTextAlign TextAlign = ButtonTextAlign.Center;
         public LocalizedText Text;
         public ToolTipText Tooltip;
+        public string HotKey;
         public string ClickSfx = "echo_affirm";
 
         public SpriteFont Font = Fonts.Arial12Bold;
@@ -217,7 +218,7 @@ namespace Ship_Game
             {
                 if (Tooltip.IsValid)
                 {
-                    ToolTip.CreateTooltip(Tooltip, "", Pos + Size);
+                    ToolTip.CreateTooltip(Tooltip, HotKey, Pos + Size);
                 }
             }
 

@@ -257,11 +257,10 @@ namespace Ship_Game
             if (Hover)
             {
                 if (!wasHovered)
-                {
                     GameAudio.ButtonMouseOver();
-                    if (Tooltip.IsValid)
+
+                if (Tooltip.IsValid)
                         ToolTip.CreateTooltip(Tooltip);
-                }
 
                 if (input.LeftMouseClick)
                 {
