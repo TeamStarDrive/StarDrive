@@ -873,6 +873,7 @@ namespace Ship_Game
 
             InitColonyRankModifier();
             CreateThrusterColors();
+            UpdateForNewTech();
             Research.Update();
         }
 
