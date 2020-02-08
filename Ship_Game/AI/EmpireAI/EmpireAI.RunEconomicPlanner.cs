@@ -25,6 +25,8 @@ namespace Ship_Game.AI
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
+            // gamestate attempts to increase the budget if there are wars or lack of some resources. 
+            // its primarily geared at ship building. 
             float gameState                = GetRisk().Clamped(0,1);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(gameState, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);

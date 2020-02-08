@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -70,7 +71,7 @@ namespace Ship_Game
         }
 
         static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                                            .DoubleBackSlashToForwardSlash();
+                                            .NormalizedFilePath();
 
         // {AppData}/StarDrive/
         // This is where all the saved games and cache files are stored
@@ -111,11 +112,31 @@ namespace Ship_Game
             return info.FullName.Substring(AppRoot.Length + 1);
         }
 
-        public static string RelPathFromContent(this FileInfo info)
+        public static string CleanFullVideoResPath(this FileInfo info)
         {
-            return info.FullName.Substring(AppRoot.Length + 1).Replace("Content\\", ""); ;
+            // some mod assets like video need the full resource path to work
+            // for example mod/modname/file name no ext. 
+            var videoResPath = info.FullName.Substring(AppRoot.Length + 1);
 
+            videoResPath = videoResPath.NormalizedFilePath();
+
+            // but videos dont need the content prefix so strip content  
+            videoResPath = Regex.Replace(videoResPath, "Content/", "", RegexOptions.IgnoreCase);
+
+            // mod videos have an issue with the content manager where the root path is stardrive\content.
+            // so this hack expects that readasset will change the path will be to \content\mods\<modname>\<videoPath>
+            if (videoResPath.StartsWith("Mods", StringComparison.OrdinalIgnoreCase))
+                videoResPath = "../" + videoResPath;
+
+            return videoResPath.StripExtension();
         }
+
+        public static string StripExtension(this string filePath)
+        {
+            int i = filePath.LastIndexOf('.');
+            return i == -1 ? filePath : filePath.Substring(0, i);
+        }
+
         // Creates a clean relative file path, useful for resource loading
         // Ex: "Content\\Textures\\blank.xnb"    --> "Textures/blank"
         // Ex: "Mods/MyMod/Textures\\blank.xnb"  --> "Textures/blank"
@@ -128,11 +149,10 @@ namespace Ship_Game
             else if (filePath.StartsWith("Mods", StringComparison.OrdinalIgnoreCase))
                 filePath = filePath.Substring(GlobalStats.ModPath.Length);
 
-            filePath = filePath.Replace('\\', '/');
+            filePath = filePath.NormalizedFilePath();
             if (!stripExt) return filePath;
 
-            int i = filePath.LastIndexOf('.');
-            return i == -1 ? filePath : filePath.Substring(0, i);
+            return StripExtension(filePath);
         }
     }
 }

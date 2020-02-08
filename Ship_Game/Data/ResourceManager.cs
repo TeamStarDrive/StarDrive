@@ -1628,14 +1628,14 @@ namespace Ship_Game
             FileInfo file = GetModOrVanillaFile("Video/" + videoPath +".xnb");
             if (file == null)
                 return null;
-            var path = file.RelPathFromContent();
+            var path  = file.CleanFullVideoResPath();
             var video = content.LoadVideoFile(path);
-            if (video != null)
+
+            if (video != null) 
                 return video;
 
             Log.Error($"LoadVideo failed: {videoPath}");
             return content.Load<Video>("Video/Loading 2");
-
         }
     }
 }

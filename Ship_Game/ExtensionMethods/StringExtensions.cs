@@ -21,7 +21,7 @@ namespace Ship_Game
             return sb.Append(a).Append(b).Append(c).Append(d);
         }
 
-        public static string DoubleBackSlashToForwardSlash(this string text)
+        public static string NormalizedFilePath(this string text)
         {
             return text.Replace('\\', '/');
         }
