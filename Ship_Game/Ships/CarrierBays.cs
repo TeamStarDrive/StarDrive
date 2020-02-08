@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships
@@ -337,8 +338,12 @@ namespace Ship_Game.Ships
             if (Owner == null || !Owner.RecallFightersBeforeFTL || !HasActiveHangars)
                 return false;
 
+            Vector2 moveTo = Owner.AI.OrderQueue.PeekFirst?.MovePosition ?? Vector2.Zero; ;
+            if (moveTo == Vector2.Zero)
+                return false;
+
             bool recallFighters       = false;
-            float jumpDistance        = Owner.Center.Distance(Owner.AI.MovePosition);
+            float jumpDistance        = Owner.Center.Distance(moveTo);
             float slowestFighterSpeed = Owner.SpeedLimit * 2;
 
             RecallingShipsBeforeWarp = true;
@@ -355,12 +360,12 @@ namespace Ship_Game.Ships
                     }
                     slowestFighterSpeed = Math.Min(slowestFighterSpeed, hangarShip.SpeedLimit);
 
-                    float rangeTocarrier = hangarShip.Center.Distance(Owner.Center);
+                    float rangeToCarrier = hangarShip.Center.Distance(Owner.Center);
                     if (hangarShip.EMPdisabled
                         || !hangarShip.hasCommand
                         || hangarShip.dying
                         || hangarShip.EnginesKnockedOut
-                        || rangeTocarrier > 25000f )
+                        || rangeToCarrier > 25000f )
                     {
                         recallFighters = false;
                         if (hangarShip.ScuttleTimer <= 0f && hangarShip.WarpThrust < 1f)

@@ -536,6 +536,8 @@ namespace Ship_Game
         /// <summary>Terraformed Planet Population</summary>
         TerraformedPopPotential = 263,
         /// <summary>Planetary Shield Strength</summary>
-        PlanetaryShieldStr = 264
+        PlanetaryShieldStr = 264,
+        /// <summary>planet Panel</summary>
+        PlanetPanel = 265
     }
 }
