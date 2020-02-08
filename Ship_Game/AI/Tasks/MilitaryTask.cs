@@ -195,8 +195,7 @@ namespace Ship_Game.AI.Tasks
 
         private void DisbandFleet(Fleet fleet)
         {
-            Ship[] fleetShips = new Ship[fleet.Ships.Count];
-            fleet.Ships.CopyTo(fleetShips);
+            Ship[] fleetShips = fleet.Ships.ToArray();
             Fleet.Reset();
             Owner.ForcePoolAdd(fleetShips);
             TaskForce.Clear();

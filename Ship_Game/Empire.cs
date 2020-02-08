@@ -315,6 +315,27 @@ namespace Ship_Game
                 Log.Error("SetRallyPoint: No Planets found");
         }
 
+        public Planet[] GetSafeAOCoreWorlds()
+        {
+            var nearAO = EmpireAI.AreasOfOperations
+                .FilterSelect(ao => ao.CoreWorld.ParentSystem.OwnerList.Count ==1,
+                              ao => ao.CoreWorld);
+            return nearAO;
+        }
+
+        public Planet[] GetSafeAOWorlds()
+        {
+            var safeWorlds = new Array<Planet>();
+            for (int i = 0; i < EmpireAI.AreasOfOperations.Count; i++)
+            {
+                var ao      = EmpireAI.AreasOfOperations[i];
+                var planets = ao.GetPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
+                safeWorlds.AddRange(planets);
+            }
+
+            return safeWorlds.ToArray();
+        }
+
         Array<Planet> GetPlanetsNearStations()
         {
             var planets = new Array<Planet>();

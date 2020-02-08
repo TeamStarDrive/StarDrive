@@ -257,7 +257,7 @@ namespace Ship_Game.Data
                     NoExt     = assetName.Substring(0, assetName.Length - 4);
                 }
 
-                NoExt = NoExt.DoubleBackSlashToForwardSlash(); // normalize path
+                NoExt = NoExt.NormalizedFilePath(); // normalize path
 
                 if (NoExt.StartsWith("./"))
                     NoExt = NoExt.Substring(2);
@@ -431,12 +431,8 @@ namespace Ship_Game.Data
         {
             if (EnableLoadInfoLog)
                 Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Video).Name}> {file}");
-            // "content: is being prefixed here i have not found why
-            if (GlobalStats.HasMod && file.StartsWith(GlobalStats.ModPath))
-                file = "../" + file;
-            var path = file.DoubleBackSlashToForwardSlash();
-            path = path.Substring(0, (path.Length - 4).ClampMin(0));
-            return ReadAsset<Video>(path, RecordDisposableObject);
+
+            return ReadAsset<Video>(file, RecordDisposableObject);
         }
 
         public StaticMesh LoadStaticMesh(string modelName)

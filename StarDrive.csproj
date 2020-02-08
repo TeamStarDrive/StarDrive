@@ -185,7 +185,6 @@
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunAgentManager.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunDiplomaticPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunEconomicPlanner.cs" />
-    <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunExpansionPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunGroundPlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunInfrastructurePlanner.cs" />
     <Compile Include="Ship_Game\AI\EmpireAI\EmpireAI.RunMilitaryPlanner.cs" />

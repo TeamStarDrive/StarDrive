@@ -517,16 +517,16 @@ namespace Ship_Game.AI
                 {
                     if (!Owner.loyalty.isPlayer)
                     {
-                        var nearAO = Owner.loyalty.GetEmpireAI()
-                            .AreasOfOperations.FindMin(ao => ao.Center.SqDist(Owner.Center));
-                        if (nearAO.CoreWorld.ParentSystem.OwnerList.Count == 1)
+                        var nearAO = Owner.loyalty.GetSafeAOCoreWorlds();
+                        var coreWorld = nearAO?.FindMin(ao => ao.Center.SqDist(Owner.Center));
+
+                        if (coreWorld != null)
                         {
-                            home = nearAO.CoreWorld.ParentSystem;
+                            home = coreWorld.ParentSystem;
                         }
                         else
                         {
-                            home = nearAO.GetPlanets().FindMinFiltered(p => p.ParentSystem.OwnerList.Count < 2,
-                                                                      p => p.Center.SqDist(Owner.Center))?.ParentSystem;
+                            home = Owner.loyalty.GetSafeAOWorlds().FindMin(p => p.Center.SqDist(Owner.Center))?.ParentSystem;
                         }
                     }
                     else
