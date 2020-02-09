@@ -302,8 +302,9 @@ namespace Ship_Game
                 }
 
                 ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
-                ModuleGrid.RecalculatePower();
             }
+
+            ModuleGrid.RecalculatePower();
         }
 
         DesignModuleGrid ModuleGrid;
