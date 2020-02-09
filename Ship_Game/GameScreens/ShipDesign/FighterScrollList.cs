@@ -60,9 +60,9 @@ namespace Ship_Game
 
         public override void OnItemClicked(ScrollListItemBase item)
         {
-            var fighterItem = (FighterListItem)item;
             if (ActiveModule != null)
             {
+                var fighterItem            = (FighterListItem)item;
                 ActiveModule.hangarShipUID = fighterItem.Ship.Name;
                 HangarShipUIDLast          = fighterItem.Name;
             }

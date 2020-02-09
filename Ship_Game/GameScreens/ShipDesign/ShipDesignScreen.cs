@@ -282,6 +282,30 @@ namespace Ship_Game
             GameAudio.SubBassWhoosh();
         }
 
+        void StripModules()
+        {
+            ModuleGrid.StartUndoableAction();
+            for (int i = 0; i < ModuleGrid.SlotsList.Count; i++)
+            {
+                SlotStruct slot = ModuleGrid.SlotsList[i];
+                if (slot.Module == null)
+                    continue;
+
+                ShipModule module = slot.Module;
+                if (module.Is(ShipModuleType.Armor)
+                    || module.Is(ShipModuleType.Engine)
+                    || module.Is(ShipModuleType.Shield)
+                    || module.Is(ShipModuleType.Command)
+                    || module.DamageThreshold > 0)
+                {
+                    continue;
+                }
+
+                ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
+                ModuleGrid.RecalculatePower();
+            }
+        }
+
         DesignModuleGrid ModuleGrid;
 
         void SetupSlots()
