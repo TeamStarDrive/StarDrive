@@ -1695,7 +1695,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, remove buildings which are harmful to the environment, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
     </Token>
     <Token>
       <Index>463</Index>
@@ -4686,6 +4686,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Expansionists</Text>
     </Token>
     <!-- Data added in Venus -->
+    <Token>
+      <Index>1896</Index>
+      <Text>Million Colonists could be living on this land if you built Biospheres.</Text>
+    </Token>
+    <Token>
+      <Index>1897</Index>
+      <Text>Million Colonists can live under the biospheres here.</Text>
+    </Token>
+    <Token>
+      <Index>1898</Index>
+      <Text>Million Colonists can live on this tile.</Text>
+    </Token>
     <Token>
       <Index>1899</Index>
       <Text>Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's suitable environments.</Text>
