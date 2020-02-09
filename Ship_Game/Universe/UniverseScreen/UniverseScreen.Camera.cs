@@ -63,7 +63,7 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void ViewPlanet()
+        public void SnapViewColony()
         {
             ShowShipNames = false;
             if (SelectedPlanet == null)
@@ -136,52 +136,6 @@ namespace Ship_Game
             SelectedItem = null;
         }
 
-        public void SnapViewPlanet(object sender)
-        {
-            ShowShipNames = false;
-            if (SelectedPlanet == null)
-                return;
-            CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
-            if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
-            {
-                GameAudio.NegativeClick();
-            }
-            else
-            {
-                bool flag = player.data.MoleList.Any(mole => mole.PlanetGuid == SelectedPlanet.guid);
-
-                if (SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null)
-                    workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
-                else if (SelectedPlanet.Owner != null)
-                {
-                    workersPanel = new UnownedPlanetScreen(this, SelectedPlanet);
-                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
-                        95000f);
-                }
-                else
-                {
-                    workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
-                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
-                        95000f);
-                }
-                SelectedPlanet.SetExploredBy(player);
-                LookingAtPlanet = true;
-                transitionStartPosition = CamPos;
-                AdjustCamTimer = 2f;
-                transitionElapsedTime = 0.0f;
-                transDuration = 5f;
-                if (ViewingShip) returnToShip = true;
-                ViewingShip = false;
-                snappingToShip = false;
-                SelectedFleet = null;
-                if (SelectedShip != null && previousSelection != SelectedShip) //fbedard
-                    previousSelection = SelectedShip;
-                SelectedShip = null;
-                SelectedItem = null;
-                SelectedShipList.Clear();
-            }
-        }
-
         public void SnapViewShip(object sender)
         {
             ShowShipNames = false;
@@ -203,18 +157,38 @@ namespace Ship_Game
 
         private void ViewSystem(SolarSystem system)
         {
-            CamDestination = new Vector3(system.Position, 147000f);
-            ViewingShip = false;
-            AdjustCamTimer = 1f;
-            transDuration = 3f;
+            CamDestination        = new Vector3(system.Position, 147000f);
+            ViewingShip           = false;
+            AdjustCamTimer        = 1f;
+            transDuration         = 3f;
+            transitionElapsedTime = 0.0f;
+        }
+
+        private void ViewPlanet(UnivScreenState zoomLevel)
+        {
+            CamDestination        = new Vector3(SelectedPlanet.Center, GetZfromScreenState(zoomLevel));
+            ViewingShip           = false;
+            SelectedFleet         = null;
+            SelectedItem          = null;
+            AdjustCamTimer        = 1f;
+            transDuration         = 3f;
+            transitionElapsedTime = 0.0f;
+        }
+
+        private void ViewFleet(UnivScreenState zoomLevel)
+        {
+            CamDestination        = new Vector3(SelectedFleet.AveragePosition(), GetZfromScreenState(zoomLevel));
+            ViewingShip           = false;
+            SelectedItem          = null;
+            AdjustCamTimer        = 1f;
+            transDuration         = 3f;
             transitionElapsedTime = 0.0f;
         }
 
         private void AdjustCamera(float elapsedTime)
         {
-            if (ShipToView == null)
+            if (ShipToView == null) 
                 ViewingShip = false;
-
 
 #if DEBUG
             float minCamHeight = 400.0f;
@@ -315,11 +289,25 @@ namespace Ship_Game
         public void InputZoomToShip()
         {
             GameAudio.AcceptClick();
-            AdjustCamTimer = 1f;
-            transitionElapsedTime = 0.0f;
-            CamDestination.Z = 4500f;
-            snappingToShip = true;
-            ViewingShip = true;
+            if (SelectedShip != null)
+            {
+                ViewingShip = false;
+                ChaseCam();
+            }
+            else if (SelectedPlanet != null)
+            {
+                ViewPlanet( UnivScreenState.PlanetView);
+            }
+            else if (SelectedSystem != null)
+            {
+                ViewSystem(SelectedSystem);
+            }
+            else if (SelectedFleet != null)
+            {
+                ViewFleet(UnivScreenState.PlanetView);
+            }
+
+
         }
 
         public void InputZoomOut()
