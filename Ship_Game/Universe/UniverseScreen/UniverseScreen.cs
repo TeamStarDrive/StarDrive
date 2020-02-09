@@ -367,8 +367,8 @@ namespace Ship_Game
 
         void InitializeCamera()
         {
-            float univSizeOnScreen = 10f;
-            MaxCamHeight = 4000000f;
+             float univSizeOnScreen = 10f;
+            MaxCamHeight = 15000000;
             CreateProjectionMatrix();
 
             while (univSizeOnScreen < (ScreenWidth + 50))
@@ -972,6 +972,7 @@ namespace Ship_Game
         {
             DetailView = 10000,
             ShipView   = 30000,
+            PlanetView = 45000,
             SystemView = 250000,
             SectorView = 1775000,
             GalaxyView
