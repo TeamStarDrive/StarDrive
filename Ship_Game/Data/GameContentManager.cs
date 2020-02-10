@@ -427,14 +427,6 @@ namespace Ship_Game.Data
             return new SubTexture(texture.Name, texture);
         }
 
-        public Video LoadVideoFile(string file)
-        {
-            if (EnableLoadInfoLog)
-                Log.Info(ConsoleColor.Cyan, $"Load<{typeof(Video).Name}> {file}");
-
-            return ReadAsset<Video>(file, RecordDisposableObject);
-        }
-
         public StaticMesh LoadStaticMesh(string modelName)
         {
             return Load<StaticMesh>(modelName);
