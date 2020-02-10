@@ -23,8 +23,8 @@ namespace Ship_Game
             CrippledTurns = 0;
             ResetGarrisonSize();
             Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
-            NewColonyAffectRelations();
             NewColonyAffectPresentTroops();
+            NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
