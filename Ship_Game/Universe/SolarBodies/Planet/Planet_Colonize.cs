@@ -67,9 +67,10 @@ namespace Ship_Game
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != Owner &&
                     Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
                 {
-                    t.Launch();
+                    Ship troopship = t.Launch(ignoreMovement: true);
                     troopsRemoved        = true;
                     playerTroopsRemoved |= t.Loyalty.isPlayer;
+                    troopship?.AI.OrderRebaseToNearest();
                 }
             }
 
