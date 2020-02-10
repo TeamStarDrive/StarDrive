@@ -4687,6 +4687,10 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1894</Index>
+      <Text>Recall all troops based on this planet. They will rebase to your nearest colony</Text>
+    </Token>
+    <Token>
       <Index>1895</Index>
       <Text>Strips the ship of any module but armor (or anything with deflection), shields, engines, and Command modules. Useful when using a template ship for a new design.</Text>
     </Token>
