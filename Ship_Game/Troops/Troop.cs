@@ -330,7 +330,7 @@ namespace Ship_Game
         }
 
         // Launch a troop which it's tile location is unknown
-        public Ship Launch()
+        public Ship Launch(bool ignoreMovement = false)
         {
             if (HostPlanet == null)
                 return null;
@@ -338,16 +338,16 @@ namespace Ship_Game
             foreach (PlanetGridSquare tile in HostPlanet.TilesList)
             {
                 if (tile.TroopsHere.ContainsRef(this))
-                    return LaunchToSpace(tile);
+                    return LaunchToSpace(tile, ignoreMovement);
             }
             // Tile not found
             return null;
         }
 
         // Launch a troop from a specific tile
-        public Ship Launch(PlanetGridSquare tile)
+        public Ship Launch(PlanetGridSquare tile, bool ignoreMovement = false)
         {
-            return HostPlanet != null ? LaunchToSpace(tile) : null;
+            return HostPlanet != null ? LaunchToSpace(tile, ignoreMovement) : null;
         }
 
         // Launch a troop which was created in a planet but there was no room for it.
@@ -356,9 +356,9 @@ namespace Ship_Game
             return CreateShipForTroop(planet);
         }
 
-        Ship LaunchToSpace(PlanetGridSquare tile)
+        Ship LaunchToSpace(PlanetGridSquare tile, bool ignoreMovement = false)
         {
-            if (!CanMove)
+            if (!CanMove && !ignoreMovement)
                 return null;
 
             using (HostPlanet.TroopsHere.AcquireWriteLock())
