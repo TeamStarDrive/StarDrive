@@ -112,25 +112,6 @@ namespace Ship_Game
             return info.FullName.Substring(AppRoot.Length + 1);
         }
 
-        public static string CleanFullVideoResPath(this FileInfo info)
-        {
-            // some mod assets like video need the full resource path to work
-            // for example mod/modname/file name no ext. 
-            var videoResPath = info.FullName.Substring(AppRoot.Length + 1);
-
-            videoResPath = videoResPath.NormalizedFilePath();
-
-            // but videos dont need the content prefix so strip content  
-            videoResPath = Regex.Replace(videoResPath, "Content/", "", RegexOptions.IgnoreCase);
-
-            // mod videos have an issue with the content manager where the root path is stardrive\content.
-            // so this hack expects that readasset will change the path will be to \content\mods\<modname>\<videoPath>
-            if (videoResPath.StartsWith("Mods", StringComparison.OrdinalIgnoreCase))
-                videoResPath = "../" + videoResPath;
-
-            return videoResPath.StripExtension();
-        }
-
         public static string StripExtension(this string filePath)
         {
             int i = filePath.LastIndexOf('.');
