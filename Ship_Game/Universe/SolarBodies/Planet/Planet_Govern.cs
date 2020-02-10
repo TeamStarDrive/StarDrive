@@ -40,8 +40,8 @@ namespace Ship_Game
             {
                 case ColonyType.TradeHub:
                     AssignCoreWorldWorkers();
-                    DetermineFoodState(0.15f, 0.15f);
-                    DetermineProdState(0.15f, 0.15f);
+                    DetermineFoodState(0.2f, 0.8f);
+                    DetermineProdState(0.2f, 0.8f);
                     break;
                 case ColonyType.Core:
                     AssignCoreWorldWorkers();
