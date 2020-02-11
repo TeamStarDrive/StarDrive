@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Ship_Game.Debug;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
@@ -194,9 +195,9 @@ namespace Ship_Game.AI.Tasks
 
         private void DisbandFleet(Fleet fleet)
         {
-            TaskForce = fleet.Ships;
+            Ship[] fleetShips = fleet.Ships.ToArray();
             Fleet.Reset();
-            Owner.ForcePoolAdd(TaskForce);
+            Owner.ForcePoolAdd(fleetShips);
             TaskForce.Clear();
         }
 
