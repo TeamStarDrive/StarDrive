@@ -68,7 +68,7 @@ namespace Ship_Game
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
             SendTroops.Tooltip = new LocalizedText(1900);
-            RecallTroops = Button(ButtonStyle.Medium, "Recall Troops", OnRecallTroopsClicked);
+            RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.CountEmpireTroops(Player)})", OnRecallTroopsClicked);
             RecallTroops.Tooltip = new LocalizedText(1894);
 
             int nextX = x;
@@ -329,7 +329,7 @@ namespace Ship_Game
         void OnRecallTroopsClicked(UIButton b)
         {
             bool troopLaunched = false;
-            for (int i = 0; i < Planet.TroopsHere.Count; i++)
+            for (int i = Planet.TroopsHere.Count-1; i >= 0; i--)
             {
                 Troop t = Planet.TroopsHere[i];
                 if (t.Loyalty != Player)
