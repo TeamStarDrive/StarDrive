@@ -23,8 +23,8 @@ namespace Ship_Game
             CrippledTurns = 0;
             ResetGarrisonSize();
             Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
-            NewColonyAffectRelations();
             NewColonyAffectPresentTroops();
+            NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
             StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
@@ -67,9 +67,10 @@ namespace Ship_Game
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != Owner &&
                     Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
                 {
-                    t.Launch();
+                    Ship troopship = t.Launch(ignoreMovement: true);
                     troopsRemoved        = true;
                     playerTroopsRemoved |= t.Loyalty.isPlayer;
+                    troopship?.AI.OrderRebaseToNearest();
                 }
             }
 

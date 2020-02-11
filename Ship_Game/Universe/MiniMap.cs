@@ -162,7 +162,10 @@ namespace Ship_Game
             for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
                 Empire e = EmpireManager.Empires[i];
-                if (e.isPlayer) continue;
+                // Draw player nodes last so it will be over allied races - this is a temp solution
+                if (e.isPlayer) 
+                    continue; 
+
                 Relationship rel = EmpireManager.Player.GetRelations(e);
                 if (Screen.Debug || e == EmpireManager.Player || rel.Known)
                 {
