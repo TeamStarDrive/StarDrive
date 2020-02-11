@@ -253,7 +253,7 @@ namespace Ship_Game.Universe.SolarBodies
                 DisplayName   = $"Construction Ship ({platform.Name})",
                 QueueNumber   = ConstructionQueue.Count,
                 sData         = constructor.shipData,
-                Cost          = platform.GetCost(Owner)
+                Cost          = platform.GetCost(Owner) * P.ShipBuildingModifier
             };
             if (goal != null) goal.PlanetBuildingAt = P;
             ConstructionQueue.Add(qi);
