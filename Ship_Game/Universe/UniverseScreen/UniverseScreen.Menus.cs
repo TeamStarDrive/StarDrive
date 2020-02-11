@@ -12,7 +12,7 @@ namespace Ship_Game
             pieMenu = new PieMenu();
             planetMenu = new PieMenuNode();
             shipMenu = new PieMenuNode();
-            planetMenu.Add(new PieMenuNode("View Planet", viewPlanetIcon, ViewPlanet));
+            planetMenu.Add(new PieMenuNode("View Planet", viewPlanetIcon, SnapViewColony));
             planetMenu.Add(new PieMenuNode("Mark for Colonization", viewPlanetIcon, MarkForColonization));
         }
 
@@ -20,7 +20,7 @@ namespace Ship_Game
         {
             planetMenu.Children.Clear();
             planetMenu.Add(new PieMenuNode(Localizer.Token(1421), ResourceManager.Texture("UI/viewPlanetIcon"),
-                ViewPlanet));
+                SnapViewColony));
             if (!Owned && Habitable)
                 planetMenu.Add(new PieMenuNode(Localizer.Token(1422),
                     ResourceManager.Texture("UI/ColonizeIcon"), MarkForColonization));
