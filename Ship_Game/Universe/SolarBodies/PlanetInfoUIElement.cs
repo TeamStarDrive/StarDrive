@@ -501,7 +501,7 @@ namespace Ship_Game
             {
                 if (Inspect.HandleInput(input))
                 {
-                    Screen.ViewPlanet();
+                    Screen.SnapViewColony();
                 }
                 if (Invade.HandleInput(input))
                 {
