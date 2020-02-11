@@ -204,7 +204,7 @@ namespace Ship_Game
             var buildingList = P.BuildingList.Filter(b => b.MaxFertilityOnBuild > 0);
             float positiveFertilityOnBuild = buildingList.Sum(b => b.MaxFertilityOnBuild);
 
-            return 1 + positiveFertilityOnBuild / Player.RacialEnvModifer(Player.data.PreferredEnv);
+            return 1 + positiveFertilityOnBuild * Player.RacialEnvModifer(Player.data.PreferredEnv);
         }
 
         string TerraformPotential(out Color color)
@@ -217,26 +217,23 @@ namespace Ship_Game
             float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
                                           + P.BuildingList.Sum(b => b.MaxPopIncrease);
 
-            string text = "Terraformer Process Stages: ";
+            string text = "Terraformer Process Stages:\n";
             string initialText = text;
 
-            if (numNegativeEnvBuildings > 0) // not full potential due to bad env buildings
-                text += $"Scrap {numNegativeEnvBuildings} environment degrading buildings. ";
-            
             if (numUninhabitableTiles > 0)
-                text += $"Make {numUninhabitableTiles} tiles habitable. ";
+                text += $"  * Make {numUninhabitableTiles} tiles habitable\n";
 
             if (P.Category != Player.data.PreferredEnv)
-                text += $"Terraform the planet to {Player.data.PreferredEnv.ToString()}. ";
+                text += $"  * Terraform the planet to {Player.data.PreferredEnv.ToString()}.\n";
 
             if (numBiospheres > 0)
-                text += $"Remove {numBiospheres} Biospheres. ";
-
-            if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
-                text += $"Increase Population to a minimum of {(minEstimatedMaxPop / 1000).String(2)} Billion colonists. ";
+                text += $"  * Remove {numBiospheres} Biospheres.\n";
 
             if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
-                text += $"Fertility will be changed to {targetFertility}.";
+                text += $"  * Max Fertility will be changed to {targetFertility}.\n";
+
+            if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
+                text += $"  * Expected Max Population will be at least {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
 
             if (text == initialText)
             {
