@@ -113,6 +113,62 @@ namespace Ship_Game
 
             }
         }
+        public void SnapViewColony(object sender)
+        {
+            ShowShipNames = false;
+
+            if (SelectedPlanet == null)
+                return;
+
+            CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f, 2500f);
+
+            if (!SelectedPlanet.ParentSystem.IsExploredBy(player))
+            {
+                GameAudio.NegativeClick();
+            }
+            else
+            {
+                bool flag = player.data.MoleList.Any(mole => mole.PlanetGuid == SelectedPlanet.guid);
+
+                if (SelectedPlanet.Owner == player || flag || Debug && SelectedPlanet.Owner != null)
+                {
+                    workersPanel = new ColonyScreen(this, SelectedPlanet, EmpireUI);
+                }
+                else if (SelectedPlanet.Owner != null)
+                {
+                    workersPanel   = new UnownedPlanetScreen(this, SelectedPlanet);
+                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,
+                        95000f);
+
+                }
+                else
+                {
+                    workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
+                    CamDestination = new Vector3(SelectedPlanet.Center.X, SelectedPlanet.Center.Y + 400f,95000f);
+                }
+
+                SelectedPlanet.SetExploredBy(player);
+
+                LookingAtPlanet         = true;
+                transitionStartPosition = CamPos;
+                AdjustCamTimer          = 2f;
+                transitionElapsedTime   = 0.0f;
+                transDuration           = 5f;
+
+                if (ViewingShip) returnToShip = true;
+
+                ViewingShip    = false;
+                snappingToShip = false;
+                SelectedFleet  = null;
+
+                if (SelectedShip != null && previousSelection != SelectedShip)
+                    previousSelection = SelectedShip;
+
+                SelectedShip = null;
+                SelectedItem = null;
+                SelectedShipList.Clear();
+            }
+        }
 
         public void SnapViewSystem(SolarSystem system, UnivScreenState camHeight)
         {
@@ -306,8 +362,6 @@ namespace Ship_Game
             {
                 ViewFleet(UnivScreenState.PlanetView);
             }
-
-
         }
 
         public void InputZoomOut()
