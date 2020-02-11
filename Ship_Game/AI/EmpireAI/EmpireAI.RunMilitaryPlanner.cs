@@ -217,7 +217,7 @@ namespace Ship_Game.AI
                 var ratios = new FleetRatios(OwnerEmpire);
                 foreach (var kv in ShipCounts)
                 {
-                    kv.Value.CalculateBasicCounts(ratios, capacity);
+                    kv.Value.CalculateBasicCounts(ratios);
                     TotalFleetMaintenanceMin += kv.Value.FleetRatioMaintenance;
                     totalMaintenance += kv.Value.CurrentMaintenance;
                 }
@@ -294,7 +294,7 @@ namespace Ship_Game.AI
             }
             public class RoleCounts
             {
-                public float PerUnitMaintenanceAverage { get; private set; }
+                public float PerUnitMaintenanceMax { get; private set; }
                 public float FleetRatioMaintenance { get; private set; }
                 public float CurrentMaintenance { get; private set; }
                 public float CurrentCount { get; private set; }
@@ -310,7 +310,7 @@ namespace Ship_Game.AI
                     Role = role;
                 }
 
-                public void CalculateBasicCounts(FleetRatios ratio, float buildCapacity)
+                public void CalculateBasicCounts(FleetRatios ratio)
                 {
                     if (CurrentShips.NotEmpty)
                     {
@@ -319,9 +319,9 @@ namespace Ship_Game.AI
                     }
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceAverage = BuildableShips.Average(ship => ship.GetMaintCost());
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost());
                     float minimum = CombatRoleToRatioMin(ratio);
-                    FleetRatioMaintenance = PerUnitMaintenanceAverage * minimum;
+                    FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
                 }
 
                 public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
@@ -330,7 +330,7 @@ namespace Ship_Game.AI
                     if (minimum.AlmostZero())
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
-                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceAverage.ClampMin(0.001f)); // MinimumMaintenance));
+                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceMax.ClampMin(0.001f)); // MinimumMaintenance));
                     if (Role < CombatRole.Frigate)
                         DesiredCount = Math.Min(50, DesiredCount);
                 }
@@ -381,22 +381,27 @@ namespace Ship_Game.AI
                 public void ScrapAsNeeded(Empire empire)
                 {
                     if (CurrentCount <= DesiredCount + 1
-                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceAverage)
+                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
                         return;
 
                     foreach (var ship in CurrentShips
-                        .Filter(ship => !ship.InCombat &&
+                        .OrderBy(ship => ship.shipData.TechsNeeded.Count))
+                    {
+                        if(!ship.InCombat &&
                                         (!ship.fleet?.IsCoreFleet ?? true)
                                         && ship.AI.State != AIState.Scrap
                                         && ship.AI.State != AIState.Scuttle
                                         && ship.AI.State != AIState.Resupply
                                         && ship.Mothership == null && ship.Active
                                         && ship.GetMaintCost(empire) > 0)
-                        .OrderBy(ship => ship.shipData.TechsNeeded.Count))
-                    {
-                        CurrentCount--;
-                        CurrentMaintenance -= ship.GetMaintCost();
-                        ship.AI.OrderScrapShip();
+                        { 
+                            CurrentCount--;
+                            CurrentMaintenance -= ship.GetMaintCost();
+                            ship.AI.OrderScrapShip();
+                            if (CurrentCount <= DesiredCount + 1
+                                && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                                break;
+                        }
                     }
                 }
 

@@ -25,6 +25,8 @@ namespace Ship_Game.AI
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
+            // gamestate attempts to increase the budget if there are wars or lack of some resources. 
+            // its primarily geared at ship building. 
             float gameState                = GetRisk().Clamped(0,1);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(gameState, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
@@ -85,8 +87,7 @@ namespace Ship_Game.AI
         {
             //gremlin: Use self adjusting tax rate based on wanted treasury of 10(1 full year) of total income.
             float treasuryGoal = Math.Max(OwnerEmpire.PotentialIncome, 0)
-                                 + OwnerEmpire.data.FlatMoneyBonus
-                                 + OwnerEmpire.BuildingAndShipMaint / 5;
+                                 + OwnerEmpire.data.FlatMoneyBonus;
 
             treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
             float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;

@@ -546,7 +546,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.SnapViewPlanet(p);
+            Screen.SnapViewColony(p);
         }
 
         public void SnapToShip(Ship s)
