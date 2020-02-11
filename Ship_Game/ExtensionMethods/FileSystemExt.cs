@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 
 namespace Ship_Game
@@ -70,7 +71,7 @@ namespace Ship_Game
         }
 
         static string AppData => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                                         .Replace('\\', '/');
+                                            .NormalizedFilePath();
 
         // {AppData}/StarDrive/
         // This is where all the saved games and cache files are stored
@@ -111,6 +112,12 @@ namespace Ship_Game
             return info.FullName.Substring(AppRoot.Length + 1);
         }
 
+        public static string StripExtension(this string filePath)
+        {
+            int i = filePath.LastIndexOf('.');
+            return i == -1 ? filePath : filePath.Substring(0, i);
+        }
+
         // Creates a clean relative file path, useful for resource loading
         // Ex: "Content\\Textures\\blank.xnb"    --> "Textures/blank"
         // Ex: "Mods/MyMod/Textures\\blank.xnb"  --> "Textures/blank"
@@ -123,11 +130,10 @@ namespace Ship_Game
             else if (filePath.StartsWith("Mods", StringComparison.OrdinalIgnoreCase))
                 filePath = filePath.Substring(GlobalStats.ModPath.Length);
 
-            filePath = filePath.Replace('\\', '/');
+            filePath = filePath.NormalizedFilePath();
             if (!stripExt) return filePath;
 
-            int i = filePath.LastIndexOf('.');
-            return i == -1 ? filePath : filePath.Substring(0, i);
+            return StripExtension(filePath);
         }
     }
 }
