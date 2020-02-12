@@ -256,7 +256,7 @@ namespace Ship_Game
                 return true;
             }
 
-            if (input.DesignMirrorToggled)
+            if (input.DesignMirrorToggled) // This is done only for the hotkey
             {
                 OnSymmetricDesignToggle();
                 return true;
@@ -584,6 +584,11 @@ namespace Ship_Game
             IsSymmetricDesignMode       = !IsSymmetricDesignMode;
             BtnSymmetricDesign.Text     = SymmetricDesignBtnText;
             BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
+        }
+
+        void OnStripShipToggle()
+        {
+            StripModules();
         }
 
         void UpdateActiveCombatButton()

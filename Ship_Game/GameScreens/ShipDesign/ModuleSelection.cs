@@ -400,7 +400,7 @@ namespace Ship_Game
             if (stat.AlmostEqual(0.0f))
                 return;
 
-            Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, Color.LightSkyBlue, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
+            Screen.DrawStat(ref cursor, Localizer.Token(titleId), stat, color, toolTipId, spacing: ActiveModStatSpacing, isPercent: isPercent);
         }
 
         void DrawString(SpriteBatch batch, ref Vector2 cursor, string text, bool valueCheck)

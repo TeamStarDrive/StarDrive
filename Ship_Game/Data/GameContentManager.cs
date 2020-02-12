@@ -257,7 +257,7 @@ namespace Ship_Game.Data
                     NoExt     = assetName.Substring(0, assetName.Length - 4);
                 }
 
-                NoExt = NoExt.Replace("\\", "/"); // normalize path
+                NoExt = NoExt.NormalizedFilePath(); // normalize path
 
                 if (NoExt.StartsWith("./"))
                     NoExt = NoExt.Substring(2);

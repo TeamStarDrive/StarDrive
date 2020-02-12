@@ -34,6 +34,7 @@ namespace Ship_Game
         private readonly UITextEntry PlanetNameEntry = new UITextEntry();
         private UIButton Colonize;
         private UIButton SendTroops;
+        private UIButton RecallTroops;
         private readonly PlanetListScreen Screen;
         private readonly float Distance;
         private bool MarkedForColonization;
@@ -67,6 +68,8 @@ namespace Ship_Game
             Colonize   = Button(colonizeStyle, colonizeText, OnColonizeClicked);
             SendTroops = Button(ButtonStyle.BigDip, "Send Troops", OnSendTroopsClicked);
             SendTroops.Tooltip = new LocalizedText(1900);
+            RecallTroops = Button(ButtonStyle.Medium, $"Recall Troops ({Planet.CountEmpireTroops(Player)})", OnRecallTroopsClicked);
+            RecallTroops.Tooltip = new LocalizedText(1894);
 
             int nextX = x;
             Rectangle NextRect(float width)
@@ -93,8 +96,12 @@ namespace Ship_Game
             var btn = ResourceManager.Texture("EmpireTopBar/empiretopbar_btn_168px");
             Colonize.Rect      = new Rectangle(OrdersRect.X + 10, OrdersRect.Y + OrdersRect.Height / 2 - btn.Height / 2, btn.Width, btn.Height);
             SendTroops.Rect    = new RectF(OrdersRect.X + Colonize.Width + 10, Colonize.Y, Colonize.Width, Colonize.Height);
-            Colonize.Visible   = Planet.Owner == null && Planet.Habitable;
-            SendTroops.Visible = Planet.Habitable;
+            RecallTroops.Rect  = new RectF(OrdersRect.X + Colonize.Width*2 + 10, Colonize.Y, Colonize.Width, Colonize.Height);
+
+            Colonize.Visible     = Planet.Owner == null && Planet.Habitable;
+            SendTroops.Visible   = Planet.Habitable;
+            RecallTroops.Visible = Planet.Owner != Player && Planet.CountEmpireTroops(Player) > 0;
+
 
             AddSystemName();
             AddPlanetName();
@@ -317,6 +324,34 @@ namespace Ship_Game
             }
             else
                 GameAudio.NegativeClick();
+        }
+
+        void OnRecallTroopsClicked(UIButton b)
+        {
+            bool troopLaunched = false;
+            for (int i = Planet.TroopsHere.Count-1; i >= 0; i--)
+            {
+                Troop t = Planet.TroopsHere[i];
+                if (t.Loyalty != Player)
+                    continue;
+
+                Ship troopShip = t.Launch();
+                if (troopShip != null)
+                {
+                    troopLaunched = true;
+                    troopShip.AI.OrderRebaseToNearest();
+                }
+            }
+
+            if (troopLaunched)
+            {
+                GameAudio.EchoAffirmative();
+                PerformLayout();
+            }
+            else
+            {
+                GameAudio.NegativeClick();
+            }
         }
 
         void OnColonizeClicked(UIButton b)
