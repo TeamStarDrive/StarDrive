@@ -159,16 +159,27 @@ namespace Ship_Game
 
         void DrawInfluenceNodes(SpriteBatch batch)
         {
-
-            foreach (Empire e in EmpireManager.Empires)
+            for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
+                Empire e = EmpireManager.Empires[i];
+                // Draw player nodes last so it will be over allied races - this is a temp solution
+                if (e.isPlayer) 
+                    continue; 
+
                 Relationship rel = EmpireManager.Player.GetRelations(e);
                 if (Screen.Debug || e == EmpireManager.Player || rel.Known)
                 {
-                    DrawNode(e, e.BorderNodes, batch);
-                    DrawNode(e, e.SensorNodes, batch);
+                    DrawNode(e, batch);
                 }
             }
+            Empire player = EmpireManager.Player;
+            DrawNode(player, batch);
+        }
+        
+        void DrawNode(Empire e, SpriteBatch batch)
+        {
+            DrawNode(e, e.BorderNodes, batch);
+            DrawNode(e, e.SensorNodes, batch);
         }
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)

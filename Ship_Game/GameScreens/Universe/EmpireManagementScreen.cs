@@ -328,7 +328,7 @@ namespace Ship_Game
         void OnColonyListItemDoubleClicked(ColoniesListItem item)
         {
             Empire.Universe.SelectedPlanet = item.p;
-            Empire.Universe.ViewPlanet();
+            Empire.Universe.SnapViewColony();
             ExitScreen();
         }
 

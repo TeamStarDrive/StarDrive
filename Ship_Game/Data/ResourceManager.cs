@@ -279,7 +279,8 @@ namespace Ship_Game
             Log.ShowConsoleWindow();
             //TestTechTextures();
 
-            Log.HideConsoleWindow();
+            if (!Debugger.IsAttached)
+                Log.HideConsoleWindow();
         }
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
@@ -1630,7 +1631,6 @@ namespace Ship_Game
 
             Log.Error($"LoadVideo failed: {videoPath}");
             return content.Load<Video>("Video/Loading 2");
-
         }
     }
 }

@@ -512,17 +512,22 @@ namespace Ship_Game
                     break;
 
                 case PlanetGridSquare pgs:
+                    float popPerTile = P.BasePopPerTile * Player.RacialEnvModifer(P.Category);
                     switch (pgs.building)
                     {
                         case null when pgs.Habitable && pgs.Biosphere:
                             batch.DrawString(Font20, Localizer.Token(348), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
+                            bCursor.Y += Font20.LineSpacing * 5;
+                            batch.DrawString(Font12, $"{P.BasePopPerTile} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
+                            bCursor.Y += Font20.LineSpacing * 5;
+                            batch.DrawString(Font12, $"{popPerTile} {MultiLineFormat(1898)}", bCursor, Color.LightGreen);
                             return;
                     }
 
@@ -533,11 +538,16 @@ namespace Ship_Game
                             batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(352), bCursor, color);
-                            return;
                         }
-                        batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
-                        bCursor.Y += Font20.LineSpacing + 5;
-                        batch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
+                        else
+                        {
+                            batch.DrawString(Font20, Localizer.Token(351), bCursor, color);
+                            bCursor.Y += Font20.LineSpacing + 5;
+                            batch.DrawString(Font12, MultiLineFormat(353), bCursor, color);
+                        }
+
+                        bCursor.Y += Font20.LineSpacing * 5;
+                        batch.DrawString(Font12, $"{P.BasePopPerTile} {MultiLineFormat(1896)}", bCursor, Color.Gold);
                         return;
                     }
 
@@ -555,7 +565,7 @@ namespace Ship_Game
                     if (!pgs.building.Scrappable)
                         return;
 
-                    bCursor.Y += (Font12.LineSpacing + 10);
+                    bCursor.Y += (Font12.LineSpacing * 3);
                     batch.DrawString(Font12, "You may scrap this building by right clicking it", bCursor, Color.White);
                     break;
 
@@ -615,10 +625,10 @@ namespace Ship_Game
 
             if (b.PlusTerraformPoints > 0)
             {
-                string terraformStats = MultiLineFormat(TerraformPotential(out Color terraformColor));
-                bCursor.Y += Font12.LineSpacing * 2;
-                batch.DrawString(Font12, terraformStats, bCursor, terraformColor);
+                string terraformStats = TerraformPotential(out Color terraformColor);
                 bCursor.Y += Font12.LineSpacing;
+                batch.DrawString(Font12, terraformStats, bCursor, terraformColor);
+                bCursor.Y += Font12.LineSpacing * 4;
             }
         }
     }
