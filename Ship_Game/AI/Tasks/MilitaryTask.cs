@@ -112,6 +112,9 @@ namespace Ship_Game.AI.Tasks
         public void EndTask()
         {
             Debug_TallyFailedTasks();
+            if (Owner == null)
+                return;
+
             Owner.GetEmpireAI().QueueForRemoval(this);
 
             if (Owner.isFaction)
