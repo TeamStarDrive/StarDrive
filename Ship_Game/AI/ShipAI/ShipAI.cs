@@ -232,7 +232,8 @@ namespace Ship_Game.AI
             ClearOrders(AIState.ResupplyEscort);
 
             float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
-            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection(), null, supplyType, strafeOffset);
+            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection()
+                , null, supplyType, strafeOffset, pushToFront: true);
         }
 
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -260,11 +261,10 @@ namespace Ship_Game.AI
                     return;
             }
 
-            Owner.AI.HasPriorityOrder = false;            
-            Owner.AI.State            = AIState.AwaitingOrders;
-            Owner.AI.IgnoreCombat     = false;
-
             DequeueCurrentOrder();
+            Owner.AI.HasPriorityOrder = false;
+            Owner.AI.State = AIState.AwaitingOrders;
+            Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
         }
@@ -370,9 +370,9 @@ namespace Ship_Game.AI
                 case Plan.Stop:
                     if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }
                     break;
-                case Plan.Scrap:                    ScrapShip(elapsedTime, goal); break;
-                case Plan.Bombard:           return DoBombard(elapsedTime, goal);
-                case Plan.Exterminate:       return DoExterminate(elapsedTime, goal);
+                case Plan.Bombard:                  return DoBombard(elapsedTime, goal);
+                case Plan.Exterminate:              return DoExterminate(elapsedTime, goal);
+                case Plan.Scrap:                    ScrapShip(elapsedTime, goal);                break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, goal); break;
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, goal);    break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, goal);         break;
