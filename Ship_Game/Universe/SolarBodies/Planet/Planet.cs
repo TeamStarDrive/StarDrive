@@ -954,7 +954,7 @@ namespace Ship_Game
             float distance = GravityWellRadius.Clamped(7500, 15000);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, distance))
+                if (Owner.IsEmpireAttackable(ship.loyalty, ship) && ship.InRadius(Center, distance))
                     return true;
             }
             return false;
