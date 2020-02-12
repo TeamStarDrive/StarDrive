@@ -142,18 +142,18 @@ namespace Ship_Game
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
-            }, "sd_notify_alert");
+            }, "sd_troop_march_01");
         }
 
         public void AddTroopsRemovedNotification(Planet where)
         {
             AddNotification(new Notification
             {
-                Message         = "Your troops stationed on " + where.Name + " had to evacuate when " + where.Owner.data.Traits.Name + " colonized the planet",
+                Message         = "Your troops stationed on " + where.Name + " had to evacuate when\n" + where.Owner.data.Traits.Name + " colonized the planet",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
-            }, "sd_notify_alert");
+            }, "sd_troop_march_01");
         }
 
         public void AddNotify(ExplorationEvent expEvent)
@@ -546,7 +546,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.SnapViewPlanet(p);
+            Screen.SnapViewColony(p);
         }
 
         public void SnapToShip(Ship s)

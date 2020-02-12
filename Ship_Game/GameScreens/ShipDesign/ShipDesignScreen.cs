@@ -29,6 +29,7 @@ namespace Ship_Game
         Vector2 Offset;
         readonly Array<ShipData> AvailableHulls = new Array<ShipData>();
         UIButton BtnSymmetricDesign; // Symmetric Module Placement Feature by Fat Bastard
+        UIButton BtnStripShip;       // Removes all modules but armor, shields and command modules
         Submenu StatsSub;
         Menu1 ShipStats;
         GenericButton ArcsButton;
@@ -281,6 +282,31 @@ namespace Ship_Game
             GameAudio.SubBassWhoosh();
         }
 
+        void StripModules()
+        {
+            ModuleGrid.StartUndoableAction();
+            for (int i = 0; i < ModuleGrid.SlotsList.Count; i++)
+            {
+                SlotStruct slot = ModuleGrid.SlotsList[i];
+                if (slot.Module == null)
+                    continue;
+
+                ShipModule module = slot.Module;
+                if (module.Is(ShipModuleType.Armor)
+                    || module.Is(ShipModuleType.Engine)
+                    || module.Is(ShipModuleType.Shield)
+                    || module.Is(ShipModuleType.Command)
+                    || module.DamageThreshold > 0)
+                {
+                    continue;
+                }
+
+                ModuleGrid.ClearSlots(slot.Root, slot.Root.Module);
+            }
+
+            ModuleGrid.RecalculatePower();
+        }
+
         DesignModuleGrid ModuleGrid;
 
         void SetupSlots()
@@ -442,11 +468,11 @@ namespace Ship_Game
             AddCombatStatusBtn(CombatState.BroadsideLeft,  "SelectionBox/icon_formation_bleft", 159);
             AddCombatStatusBtn(CombatState.BroadsideRight, "SelectionBox/icon_formation_bright", 160);
             
-            UIList bottomList = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
-            bottomList.LayoutStyle = ListLayoutStyle.ResizeList;
-            bottomList.Direction = new Vector2(-1, 0);
-            bottomList.Padding = new Vector2(16f, 2f);
-            bottomList.Add(ButtonStyle.Medium, 105, click: b =>
+            UIList bottomListRight = AddList(new Vector2(ScreenWidth - 250f, ScreenHeight - 50f));
+            bottomListRight.LayoutStyle = ListLayoutStyle.ResizeList;
+            bottomListRight.Direction = new Vector2(-1, 0);
+            bottomListRight.Padding = new Vector2(16f, 2f);
+            bottomListRight.Add(ButtonStyle.Medium, 105, click: b =>
             {
                 if (!CheckDesign()) {
                     GameAudio.NegativeClick();
@@ -455,15 +481,15 @@ namespace Ship_Game
                 }
                 ScreenManager.AddScreen(new DesignManager(this, ActiveHull.Name));
             });
-            bottomList.Add(ButtonStyle.Medium, 8, click: b =>
+            bottomListRight.Add(ButtonStyle.Medium, 8, click: b =>
             {
                 ScreenManager.AddScreen(new LoadDesigns(this));
             });
-            bottomList.Add(ButtonStyle.Medium, 106, click: b =>
+            bottomListRight.Add(ButtonStyle.Medium, 106, click: b =>
             {
                 ToggleOverlay = !ToggleOverlay;
             }).ClickSfx = "blip_click";
-            BtnSymmetricDesign = bottomList.Add(ButtonStyle.Medium, SymmetricDesignBtnText, click: b =>
+            BtnSymmetricDesign = bottomListRight.Add(ButtonStyle.Medium, SymmetricDesignBtnText, click: b =>
             {
                 OnSymmetricDesignToggle();
             });
@@ -472,7 +498,20 @@ namespace Ship_Game
             BtnSymmetricDesign.HotKey   = "M";
             BtnSymmetricDesign.Style    = SymmetricDesignBtnStyle;
 
-            SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomList.Y, 210, 25);
+
+            UIList bottomListLeft = AddList(new Vector2(50f, ScreenHeight - 50f));
+            bottomListLeft.LayoutStyle = ListLayoutStyle.ResizeList;
+            bottomListLeft.Direction = new Vector2(+1, 0);
+            bottomListLeft.Padding = new Vector2(16f, 2f);
+
+            BtnStripShip = bottomListLeft.Add(ButtonStyle.Medium, "Strip Ship",click: b =>
+            {
+                OnStripShipToggle();
+            });
+            BtnStripShip.ClickSfx = "blip_click";
+            BtnStripShip.Tooltip = Localizer.Token(1895);
+
+            SearchBar = new Rectangle((int)ScreenCenter.X, (int)bottomListRight.Y, 210, 25);
             LoadContentFinish();
             BindListsToActiveHull();
 
