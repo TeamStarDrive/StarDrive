@@ -5,6 +5,7 @@
 
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;

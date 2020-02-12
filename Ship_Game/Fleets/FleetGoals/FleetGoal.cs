@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Ship_Game.AI;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.Fleets.FleetGoals
 {
@@ -22,10 +23,10 @@ namespace Ship_Game.Fleets.FleetGoals
         {
             switch (Type)
             {
-                case AI.Fleet.FleetGoalType.AttackMoveTo:
+                case Fleets.Fleet.FleetGoalType.AttackMoveTo:
                     AttackMoveTo(elapsedTime);
                     break;
-                case AI.Fleet.FleetGoalType.MoveTo:
+                case Fleets.Fleet.FleetGoalType.MoveTo:
                     MoveTo(elapsedTime);
                     break;
             }
