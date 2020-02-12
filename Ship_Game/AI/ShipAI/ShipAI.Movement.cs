@@ -262,7 +262,10 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             if (Owner.Velocity.AlmostZero())
+            {
+                Owner.Velocity = Vector2.Zero;
                 return true;
+            }
 
             float deceleration = Owner.VelocityMaximum * elapsedTime;
             if (Owner.CurrentVelocity < deceleration) // we are almost at zero, lets stop.

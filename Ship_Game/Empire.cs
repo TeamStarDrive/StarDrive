@@ -12,6 +12,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Empires;
 using Ship_Game.GameScreens.DiplomacyScreen;
+using Ship_Game.Fleets;
 
 namespace Ship_Game
 {
@@ -82,6 +83,9 @@ namespace Ship_Game
         private float UpdateTimer;
         public bool isPlayer;
         public float TotalShipMaintenance { get; private set; }
+        public float TotalWarShipMaintenance { get; private set; }
+        public float TotalCivShipMaintenance { get; private set; }
+
         public float updateContactsTimer = .2f;
         private bool InitializedHostilesDict;
         public float NetPlanetIncomes { get; private set; }
@@ -286,6 +290,7 @@ namespace Ship_Game
                     rallyPlanets.Add(Universe.PlanetsDict.First().Value);
 
                 RallyPoints = rallyPlanets.ToArray();
+                RallyPoints.Sort(rp => rp.ParentSystem.OwnerList.Count > 1);
                 return;
             }
 
@@ -308,6 +313,27 @@ namespace Ship_Game
             RallyPoints = rallyPlanets.ToArray();
             if (RallyPoints.Length == 0)
                 Log.Error("SetRallyPoint: No Planets found");
+        }
+
+        public Planet[] GetSafeAOCoreWorlds()
+        {
+            var nearAO = EmpireAI.AreasOfOperations
+                .FilterSelect(ao => ao.CoreWorld.ParentSystem.OwnerList.Count ==1,
+                              ao => ao.CoreWorld);
+            return nearAO;
+        }
+
+        public Planet[] GetSafeAOWorlds()
+        {
+            var safeWorlds = new Array<Planet>();
+            for (int i = 0; i < EmpireAI.AreasOfOperations.Count; i++)
+            {
+                var ao      = EmpireAI.AreasOfOperations[i];
+                var planets = ao.GetPlanets().Filter(p => p.ParentSystem.OwnerList.Count == 1);
+                safeWorlds.AddRange(planets);
+            }
+
+            return safeWorlds.ToArray();
         }
 
         Array<Planet> GetPlanetsNearStations()
@@ -634,7 +660,7 @@ namespace Ship_Game
         public Array<Ship> GetShipsFromOffensePools(bool onlyAO = false)
         {
             var ships = new Array<Ship>();
-            foreach (AO ao in GetEmpireAI().AreasOfOperations)
+            foreach (AO ao in EmpireAI.AreasOfOperations)
                 ships.AddRange(ao.GetOffensiveForcePool());
 
             if(!onlyAO)
@@ -646,26 +672,25 @@ namespace Ship_Game
         {
             //Get all available ships from AO's
             var ships = GetShipsFromOffensePools();
-            //return a fleet creator. 
-            //ships.Filter(s=> s.fleet == null &&
-            //s.CanTakeFleetOrders() &&
-            //!s.AI.BadGuysNear);
+
             var readyShips = new Array<Ship>();
-            foreach(Ship ship in ships)
+            for (int i = 0; i < ships.Count; i++)
             {
-                if (ship.fleet != null) 
+                Ship ship = ships[i];
+                if (ship.fleet != null)
                     continue;
                 if (ship.AI.State == AIState.Resupply
-                                      && ship.AI.State == AIState.Refit
-                                      && ship.AI.State == AIState.Scrap
-                                      && ship.AI.State == AIState.Scuttle) 
+                    && ship.AI.State == AIState.Refit
+                    && ship.AI.State == AIState.Scrap
+                    && ship.AI.State == AIState.Scuttle)
                     continue;
-                if (ship.AI.BadGuysNear)
+                if (ship.InCombat)
                     continue;
                 if (ship.IsInHostileProjectorRange && !ship.IsInFriendlyProjectorRange)
                     continue;
                 readyShips.Add(ship);
             }
+
             return readyShips.ToArray();
         }
 
@@ -873,6 +898,7 @@ namespace Ship_Game
 
             InitColonyRankModifier();
             CreateThrusterColors();
+            UpdateForNewTech();
             Research.Update();
         }
 
@@ -1463,6 +1489,8 @@ namespace Ship_Game
         private void UpdateShipMaintenance()
         {
             TotalShipMaintenance = 0.0f;
+            TotalWarShipMaintenance = 0f;
+            TotalCivShipMaintenance = 0f;
 
             using (OwnedShips.AcquireReadLock())
                 foreach (Ship ship in OwnedShips)
@@ -1475,6 +1503,10 @@ namespace Ship_Game
                     {
                         data.DefenseBudget -= maintenance;
                     }
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) >= ShipData.RoleType.Warship)
+                        TotalWarShipMaintenance += maintenance;
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) <= ShipData.RoleType.EmpireSupport)
+                        TotalCivShipMaintenance += maintenance;
                     TotalShipMaintenance += maintenance;
                 }
 
@@ -2525,6 +2557,12 @@ namespace Ship_Game
         public void ForcePoolAdd(Array<Ship> ships)
         {
             for (int i = 0; i < ships.Count; i++)
+                ForcePoolAdd(ships[i]);
+        }
+
+        public void ForcePoolAdd(Ship[] ships)
+        {
+            for (int i = 0; i < ships.Length -1; i++)
                 ForcePoolAdd(ships[i]);
         }
 

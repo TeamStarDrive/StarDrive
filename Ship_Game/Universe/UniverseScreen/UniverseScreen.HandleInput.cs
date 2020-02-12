@@ -6,6 +6,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 
 namespace Ship_Game
 {
@@ -673,7 +674,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    ViewPlanet();
+                    SnapViewColony();
                     SelectionBox = new Rectangle();
                 }
                 else
@@ -954,7 +955,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        ViewPlanet();
+                        SnapViewColony();
                     }
                 }
             }
