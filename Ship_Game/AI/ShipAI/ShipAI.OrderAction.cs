@@ -375,7 +375,8 @@ namespace Ship_Game.AI
             Target       = null;
             OrbitTarget  = toOrbit;
             AwaitClosest = toOrbit;
-            OrderMoveTo(toOrbit.Center, Vectors.Up, clearOrders, toOrbit);
+
+            AddResupplyPlanetGoal(toOrbit);
             State = AIState.Resupply;
         }
 
