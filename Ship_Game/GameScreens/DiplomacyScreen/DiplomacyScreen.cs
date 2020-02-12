@@ -386,7 +386,8 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
                 RacialVideo.Draw(batch, color);
             }
-            else
+            // the size will be zero if video is null. 
+            else if (RacialVideo.Size == Vector2.Zero)
             {
                 batch.Draw(Them.data.PortraitTex, Portrait, Color.White);
             }
