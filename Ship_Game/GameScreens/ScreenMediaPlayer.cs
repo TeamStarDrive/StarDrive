@@ -1,9 +1,9 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
 using Ship_Game.Audio;
 using Ship_Game.Data;
+using System;
 
 namespace Ship_Game.GameScreens
 {
@@ -43,7 +43,7 @@ namespace Ship_Game.GameScreens
         public string Name { get; private set; } = "";
         public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
 
-        public bool ReadyToPlay => Frame !=null || IsPlaying || IsPlaying;
+        public bool ReadyToPlay => Frame !=null || IsPlaying || IsPaused;
 
         // Player.Play() is too slow, so we start it in a background thread
         TaskResult BeginPlayTask;
