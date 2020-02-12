@@ -6,6 +6,7 @@ using SynapseGaming.LightingSystem.Core;
 using System.Collections.Generic;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Ship_Game.Fleets;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game

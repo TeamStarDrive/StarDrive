@@ -256,7 +256,7 @@ namespace Ship_Game.GameScreens
                 if (Frame != null)
                     batch.Draw(Frame, rect, null, color, rotation, Vector2.Zero, effects, 0.9f);
             }
-            
+
             if (EnableInteraction)
             {
                 batch.DrawRectangle(rect, new Color(32, 30, 18));
