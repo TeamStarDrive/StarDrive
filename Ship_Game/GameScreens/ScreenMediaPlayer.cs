@@ -43,6 +43,8 @@ namespace Ship_Game.GameScreens
         public string Name { get; private set; } = "";
         public Vector2 Size => Video != null ? new Vector2(Video.Width, Video.Height) : Vector2.Zero;
 
+        public bool ReadyToPlay => Frame !=null || IsPlaying || IsPlaying;
+
         // Player.Play() is too slow, so we start it in a background thread
         TaskResult BeginPlayTask;
 
@@ -252,11 +254,11 @@ namespace Ship_Game.GameScreens
                 {
                     Frame = Player.GetTexture();
                 }
-
-                if (Frame != null)
-                    batch.Draw(Frame, rect, null, color, rotation, Vector2.Zero, effects, 0.9f);
             }
-            
+
+            if (Frame != null)
+                batch.Draw(Frame, rect, null, color, rotation, Vector2.Zero, effects, 0.9f);
+
             if (EnableInteraction)
             {
                 batch.DrawRectangle(rect, new Color(32, 30, 18));
