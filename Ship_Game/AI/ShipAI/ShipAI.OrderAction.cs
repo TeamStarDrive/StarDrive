@@ -172,7 +172,7 @@ namespace Ship_Game.AI
             Target = null;
             if (clearWayPoints)
                 ClearWayPoints();
-            ClearOrders(priority: (Owner.loyalty == EmpireManager.Player));
+            ClearOrders(AIState.MoveTo, priority: (Owner.loyalty == EmpireManager.Player));
 
             WayPoints.Enqueue(new WayPoint(position, finalDir));
             MovePosition = position;
@@ -186,14 +186,14 @@ namespace Ship_Game.AI
             WayPoint[] wayPoints = WayPoints.ToArray();
             WayPoint wp = wayPoints[0];
 
-            AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction, AIState.MoveTo);
+            AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction, State);
 
             // set moveto1000 for each waypoint except for the last one. 
             // if only one waypoint skip this. 
             for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
                 wp = wayPoints[i];
-                AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit, AIState.MoveTo);
+                AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit, State);
             }
             // set final move position.
             // move to within 1000 of the position.
@@ -201,9 +201,9 @@ namespace Ship_Game.AI
             // rotate to desired facing <= this needs to be fixed.
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
-            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, AIState.MoveTo);
-            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, AIState.MoveTo);
-            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal, AIState.MoveTo);
+            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
+            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
+            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal, State);
         }
 
         public void OrderOrbitNearest(bool clearOrders)
