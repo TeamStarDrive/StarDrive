@@ -152,10 +152,6 @@ namespace Ship_Game.AI
             ScanForThreat(elapsedTime);
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
             UpdateUtilityModuleAI(elapsedTime);
-
-            if (State == AIState.ManualControl)
-                return;
-
             ThrustTarget = Vector2.Zero;
 
             if (UpdateOrderQueueAI(elapsedTime))
@@ -233,7 +229,7 @@ namespace Ship_Game.AI
 
             float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
             AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection()
-                , null, supplyType, strafeOffset, pushToFront: true);
+                , null, supplyType, strafeOffset, AIState.ResupplyEscort, pushToFront: true);
         }
 
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -481,7 +477,7 @@ namespace Ship_Game.AI
                     HasPriorityOrder = true;
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
-                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection);
+                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
                 }
                 else
                 {

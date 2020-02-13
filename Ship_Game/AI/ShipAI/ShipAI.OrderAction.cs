@@ -17,7 +17,7 @@ namespace Ship_Game.AI
 
         public void OrderHoldPosition(Vector2 position, Vector2 direction)
         {
-            AddShipGoal(Plan.HoldPosition, position, direction);
+            AddShipGoal(Plan.HoldPosition, position, direction, AIState.HoldPosition);
             HasPriorityOrder = true;
             IgnoreCombat     = true;
         }
@@ -67,10 +67,10 @@ namespace Ship_Game.AI
         {
             if (toColonize == null)
                 return;
+
             ColonizeTarget = toColonize;
             OrderMoveTo(toColonize.Center, Vectors.Up, true, toColonize);
-            AddShipGoal(Plan.Colonize, toColonize.Center, Vectors.Up, toColonize, g);
-            State = AIState.Colonize;
+            AddShipGoal(Plan.Colonize, toColonize.Center, Vectors.Up, toColonize, g, AIState.Colonize);
         }
 
         public void OrderDeepSpaceBuild(Goal goal)
@@ -80,9 +80,9 @@ namespace Ship_Game.AI
             Vector2 dir = Owner.Center.DirectionToTarget(pos);
             OrderMoveTo(pos, dir, true, goal.PlanetBuildingAt, goal);
             if (goal.type == GoalType.DeepSpaceConstruction) // deep space structures
-                AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f);
+                AddShipGoal(Plan.DeployStructure, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
             else // orbitals for planet defense
-                AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f);
+                AddShipGoal(Plan.DeployOrbital, pos, dir, goal, goal.ToBuildUID, 0f, AIState.MoveTo);
         }
 
         public void OrderExplore()
@@ -186,14 +186,14 @@ namespace Ship_Game.AI
             WayPoint[] wayPoints = WayPoints.ToArray();
             WayPoint wp = wayPoints[0];
 
-            AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction);
+            AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction, AIState.MoveTo);
 
             // set moveto1000 for each waypoint except for the last one. 
             // if only one waypoint skip this. 
             for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
                 wp = wayPoints[i];
-                AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit);
+                AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit, AIState.MoveTo);
             }
             // set final move position.
             // move to within 1000 of the position.
@@ -201,9 +201,9 @@ namespace Ship_Game.AI
             // rotate to desired facing <= this needs to be fixed.
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
-            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
-            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
-            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal);
+            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, AIState.MoveTo);
+            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, AIState.MoveTo);
+            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal, AIState.MoveTo);
         }
 
         public void OrderOrbitNearest(bool clearOrders)
@@ -360,9 +360,8 @@ namespace Ship_Game.AI
         public void OrderRefitTo(Planet refitPlanet, Goal refitGoal)
         {
             OrderMoveTo(refitPlanet.Center, Vectors.Up, true, refitPlanet);
-            AddShipGoal(Plan.Refit, refitPlanet, refitGoal);
+            AddShipGoal(Plan.Refit, refitPlanet, refitGoal, AIState.Refit);
             IgnoreCombat = true;
-            State        = AIState.Refit;
             SetPriorityOrder(clearOrders: false);
         }
 
@@ -377,7 +376,6 @@ namespace Ship_Game.AI
             AwaitClosest = toOrbit;
 
             AddResupplyPlanetGoal(toOrbit);
-            State = AIState.Resupply;
         }
 
         public void OrderReturnToHangar()
