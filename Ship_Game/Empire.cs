@@ -1858,13 +1858,7 @@ namespace Ship_Game
                              && rel.Treaty_Alliance;
             bool known     = wellKnown || EmpireManager.Player.TryGetRelations(this, out Relationship relKnown)
                              && (relKnown.Treaty_Trade || relKnown.Treaty_OpenBorders);
-            var allies     = new Array<Empire>();
-
-            foreach (KeyValuePair<Empire, Relationship> keyValuePair in Relationships)
-            {
-                if (keyValuePair.Value.Treaty_Alliance)
-                    allies.Add(keyValuePair.Key);
-            }
+            var allies     = EmpireManager.GetAllies(this);
 
             SetBordersKnownByAllies(allies, wellKnown);
             SetBordersByPlanet(known);
@@ -1879,8 +1873,9 @@ namespace Ship_Game
                 });
 
             Inhibitors.Clear();
-            foreach (Ship ship in OwnedShips)
+            for (int i = 0; i < OwnedShips.Count; i++)
             {
+                Ship ship = OwnedShips[i];
                 if (ship.InhibitionRadius > 0.0f)
                     Inhibitors.Add(ship);
 
@@ -1891,8 +1886,9 @@ namespace Ship_Game
                 SensorNodes.Add(influenceNode);
             }
 
-            foreach (Ship ship in OwnedProjectors)
+            for (int i = 0; i < OwnedProjectors.Count; i++)
             {
+                Ship ship = OwnedProjectors[i];
                 if (ship.InhibitionRadius > 0f)
                     Inhibitors.Add(ship);
 
@@ -1900,11 +1896,11 @@ namespace Ship_Game
                 InfluenceNode influenceNodeB = BorderNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNodeS.Position     = ship.Center;
-                influenceNodeS.Radius       = ProjectorRadius;  //projectors used as sensors again
+                influenceNodeS.Radius       = ProjectorRadius; //projectors used as sensors again
                 influenceNodeS.SourceObject = ship;
 
                 influenceNodeB.Position     = ship.Center;
-                influenceNodeB.Radius       = ProjectorRadius;  //projectors used as sensors again
+                influenceNodeB.Radius       = ProjectorRadius; //projectors used as sensors again
                 influenceNodeB.SourceObject = ship;
                 bool seen                   = known || EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid);
                 influenceNodeB.Known        = seen;
@@ -1912,17 +1908,20 @@ namespace Ship_Game
                 SensorNodes.Add(influenceNodeS);
                 BorderNodes.Add(influenceNodeB);
             }
+
             BorderNodes.ClearPendingRemovals();
             SensorNodes.ClearPendingRemovals();
             using (BorderNodes.AcquireReadLock())
-                foreach (InfluenceNode item5 in BorderNodes)
+                for (int i = 0; i < BorderNodes.Count; i++)
                 {
+                    InfluenceNode item5 = BorderNodes[i];
                     foreach (InfluenceNode item6 in BorderNodes)
                     {
                         if (item6.SourceObject == item5.SourceObject && item6.Radius < item5.Radius)
                             BorderNodes.QueuePendingRemoval(item6);
                     }
                 }
+
             BorderNodes.ApplyPendingRemovals();
         }
 
@@ -1948,8 +1947,9 @@ namespace Ship_Game
                 influenceNode1.Radius = 1f;
                 if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.usePlanetaryProjection)
                 {
-                    foreach (Building t in planet.BuildingList)
+                    for (int i = 0; i < planet.BuildingList.Count; i++)
                     {
+                        Building t = planet.BuildingList[i];
                         if (influenceNode1.Radius < t.ProjectorRange)
                             influenceNode1.Radius = t.ProjectorRange;
                     }
@@ -1965,8 +1965,9 @@ namespace Ship_Game
                 influenceNode3.Position      = planet.Center;
                 influenceNode3.Radius        = isFaction ? 1f : data.SensorModifier;
                 influenceNode3.Known         = known;
-                foreach (Building t in planet.BuildingList) // FB - change this to the planet sensorRange
+                for (int i = 0; i < planet.BuildingList.Count; i++)
                 {
+                    Building t = planet.BuildingList[i];
                     if (t.SensorRange * data.SensorModifier > influenceNode3.Radius)
                     {
                         influenceNode3.Radius = t.SensorRange * data.SensorModifier;
@@ -1985,16 +1986,16 @@ namespace Ship_Game
                 Planet[] array = empire.OwnedPlanets.ToArray();
                 for (int y = 0; y < array.Length; y++)
                 {
-                    Planet planet = array[y];
+                    Planet planet                = array[y];
                     InfluenceNode influenceNode2 = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                    influenceNode2.Position = planet.Center;
-                    influenceNode2.Radius = isFaction
+                    influenceNode2.Position      = planet.Center;
+                    influenceNode2.Radius        = isFaction
                         ? 1f
-                        : this == Universe.PlayerEmpire
+                        : this                   == Universe.PlayerEmpire
                             ? ProjectorRadius / 5f * empire.data.SensorModifier
                             : ProjectorRadius / 3f * empire.data.SensorModifier;
                     foreach (Building building in planet.BuildingList)
-                        influenceNode2.Radius =
+                        influenceNode2.Radius    =
                             Math.Max(influenceNode2.Radius, building.SensorRange * data.SensorModifier);
 
                     if (influenceNode2.Radius <= 1) continue;
@@ -2017,14 +2018,14 @@ namespace Ship_Game
                 BatchRemovalCollection<Ship> projectors = empire.GetProjectors();
                 for (int z = 0; z < projectors.Count; z++)
                 {
-                    Ship ship = projectors[z];
+                    Ship ship                   = projectors[z];
                     //loop over all ALLIED projectors
                     InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
-                    influenceNode.Position = ship.Center;
-                    influenceNode.Radius = ProjectorRadius; //projectors currently use their projection radius as sensors
+                    influenceNode.Position      = ship.Center;
+                    influenceNode.Radius        = ProjectorRadius; //projectors currently use their projection radius as sensors
                     SensorNodes.Add(influenceNode);
-                    influenceNode.SourceObject = ship;
-                    influenceNode.Known = wellKnown;
+                    influenceNode.SourceObject  = ship;
+                    influenceNode.Known         = wellKnown;
                 }
             }
         }
