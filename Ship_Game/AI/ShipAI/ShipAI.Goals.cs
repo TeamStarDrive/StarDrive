@@ -97,36 +97,36 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan));
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, AIState wantedState)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f, wantedState), wantedState);
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
-                         string variableString, float variableNumber, bool pushToFront = false)
+                         string variableString, float variableNumber, AIState wantedState, bool pushToFront = false)
         {
-            ShipGoal goal = new ShipGoal(plan, pos, dir, null, theGoal, 0f, variableString, variableNumber);
-            EnqueueOrPush(goal, pushToFront);
+            ShipGoal goal = new ShipGoal(plan, pos, dir, null, theGoal, 0f, variableString, variableNumber, wantedState);
+            EnqueueOrPush(goal, wantedState, pushToFront);
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, Goal empireGoal)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, Goal empireGoal, AIState wantedState)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f, wantedState), wantedState);
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, AIState wantedState)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f, wantedState), wantedState);
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, float speedLimit)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, float speedLimit, AIState wantedState)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f, wantedState), wantedState);
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal)
+        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal, AIState wantedState)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f, wantedState), wantedState);
         }
 
         internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
@@ -135,7 +135,7 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer));
         }
 
-        bool AddShipGoal(Plan plan, Planet target, Goal theGoal, bool pushToFront = false)
+        bool AddShipGoal(Plan plan, Planet target, Goal theGoal, AIState wantedState, bool pushToFront = false)
         {
             if (target == null)
             {
@@ -143,24 +143,25 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            ShipGoal goal = new ShipGoal(plan, target.Center, Vectors.Up, target, theGoal, 0f, "", 0f);
-            EnqueueOrPush(goal, pushToFront);
+            ShipGoal goal = new ShipGoal(plan, target.Center, Vectors.Up, target, theGoal, 0f, "", 0f, wantedState);
+            EnqueueOrPush(goal, wantedState, pushToFront);
             return true;
         }
 
-        void EnqueueOrPush(ShipGoal goal, bool pushToFront)
+        void EnqueueOrPush(ShipGoal goal, AIState wantedState, bool pushToFront = false)
         {
             if (pushToFront)
                 OrderQueue.PushToFront(goal);
             else
                 OrderQueue.Enqueue(goal);
+
+            State = wantedState;
         }
 
         void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false, bool pushToFront = false)
         {
-            if (AddShipGoal(plan, planet, null, pushToFront))
+            if (AddShipGoal(plan, planet, null, newState, pushToFront))
             {
-                State       = newState;
                 OrbitTarget = planet;
                 if (priority)
                     SetPriorityOrder(false);
@@ -199,6 +200,7 @@ namespace Ship_Game.AI
             public readonly float SpeedLimit;
             public readonly string VariableString;
             public readonly float VariableNumber;
+            public readonly AIState WantedState; 
             public TradePlan Trade;
 
             public float GetSpeedLimitFor(Ship ship) => ship.fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
@@ -211,16 +213,17 @@ namespace Ship_Game.AI
             }
 
             public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
-                            float speedLimit, string variableString, float variableNumber)
+                            float speedLimit, string variableString, float variableNumber, AIState wantedState)
             {
-                Plan         = plan;
-                MovePosition = pos;
-                Direction    = dir;
-                TargetPlanet = targetPlanet;
-                Goal         = theGoal;
-                SpeedLimit   = speedLimit;
+                Plan           = plan;
+                MovePosition   = pos;
+                Direction      = dir;
+                TargetPlanet   = targetPlanet;
+                Goal           = theGoal;
+                SpeedLimit     = speedLimit;
                 VariableString = variableString;
                 VariableNumber = variableNumber;
+                WantedState    = wantedState;
             }
 
             public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer)
@@ -231,9 +234,10 @@ namespace Ship_Game.AI
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
             {
-                Plan = sg.Plan;
+                Plan         = sg.Plan;
                 MovePosition = sg.MovePosition;
-                Direction = sg.Direction;
+                Direction    = sg.Direction;
+                WantedState  = sg.WantedState;
 
                 TargetPlanet = data.FindPlanetOrNull(sg.TargetPlanetGuid);
 
