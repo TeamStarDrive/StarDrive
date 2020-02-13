@@ -259,7 +259,6 @@ namespace Ship_Game.AI
 
             DequeueCurrentOrder();
             Owner.AI.HasPriorityOrder = false;
-            Owner.AI.State = AIState.AwaitingOrders;
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
