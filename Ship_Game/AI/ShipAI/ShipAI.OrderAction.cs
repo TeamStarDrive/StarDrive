@@ -172,7 +172,7 @@ namespace Ship_Game.AI
             Target = null;
             if (clearWayPoints)
                 ClearWayPoints();
-            ClearOrders(AIState.MoveTo, priority: (Owner.loyalty == EmpireManager.Player));
+            ClearOrders(priority: (Owner.loyalty == EmpireManager.Player));
 
             WayPoints.Enqueue(new WayPoint(position, finalDir));
             MovePosition = position;
