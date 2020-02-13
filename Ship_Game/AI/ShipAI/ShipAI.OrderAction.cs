@@ -11,8 +11,8 @@ namespace Ship_Game.AI
         public void OrderAllStop()
         {
             ClearWayPoints();
-            ClearOrders(AIState.HoldPosition);
-            AddShipGoal(Plan.Stop);
+            ClearOrders();
+            AddShipGoal(Plan.Stop, AIState.HoldPosition);
         }
 
         public void OrderHoldPosition(Vector2 position, Vector2 direction)
@@ -52,8 +52,8 @@ namespace Ship_Game.AI
                 CombatState = Owner.shipData.CombatState;
             TargetQueue.Add(toAttack);
             HasPriorityTarget = true;
-            ClearOrders(AIState.AttackTarget);
-            AddShipGoal(Plan.DoCombat);
+            ClearOrders();
+            AddShipGoal(Plan.DoCombat, AIState.AttackTarget);
         }
 
         public void OrderBombardPlanet(Planet toBombard)
@@ -90,8 +90,8 @@ namespace Ship_Game.AI
             if (State == AIState.Explore && ExplorationTarget != null)
                 return;
             ClearWayPoints();
-            ClearOrders(AIState.Explore);
-            AddShipGoal(Plan.Explore);
+            ClearOrders();
+            AddShipGoal(Plan.Explore, AIState.Explore);
         }
 
         public void OrderExterminatePlanet(Planet toBombard)
@@ -353,8 +353,7 @@ namespace Ship_Game.AI
             EscortTarget = ship;
             IgnoreCombat = true;
             ClearOrders();
-            State = AIState.RebaseToShip;
-            AddShipGoal(Plan.RebaseToShip);
+            AddShipGoal(Plan.RebaseToShip, AIState.RebaseToShip);
         }
 
         public void OrderRefitTo(Planet refitPlanet, Goal refitGoal)
@@ -380,14 +379,14 @@ namespace Ship_Game.AI
 
         public void OrderReturnToHangar()
         {
-            ClearOrders(AIState.ReturnToHangar, priority: true);
-            AddShipGoal(Plan.ReturnToHangar);
+            ClearOrders(priority: true);
+            AddShipGoal(Plan.ReturnToHangar, AIState.ReturnToHangar);
         }
 
         public void OrderReturnHome()
         {
-            ClearOrders(AIState.ReturnHome, priority:true);
-            AddShipGoal(Plan.ReturnHome);
+            ClearOrders(priority:true);
+            AddShipGoal(Plan.ReturnHome, AIState.ReturnHome);
         }
 
         public void OrderScrapShip()
@@ -420,10 +419,10 @@ namespace Ship_Game.AI
         public void AddSupplyShipGoal(Ship supplyTarget)
         {
             IgnoreCombat = true;
-            ClearOrders(AIState.Ferrying);
+            ClearOrders();
             //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
-            AddShipGoal(Plan.SupplyShip);
+            AddShipGoal(Plan.SupplyShip, AIState.Ferrying);
         }
         public void OrderSystemDefense(SolarSystem system)
         {
@@ -449,8 +448,7 @@ namespace Ship_Game.AI
                     {
                         AwaitClosest = potentials[UniverseRandom.InRange(potentials.Count)];
                         OrderMoveTo(AwaitClosest.Center, Vectors.Up, true, null);
-                        AddShipGoal(Plan.DefendSystem);
-                        State = AIState.SystemDefender;
+                        AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
                     }
                     else
                         GoOrbitNearestPlanetAndResupply(true);

@@ -611,15 +611,15 @@ namespace Ship_Game.AI
         public void OrderTroopToBoardShip(Ship s)
         {
             EscortTarget = s;
-            ClearOrders(State, priority: true);
-            AddShipGoal(Plan.BoardShip);
+            ClearOrders(priority: true);
+            AddShipGoal(Plan.BoardShip, State);
         }
 
         public void OrderTroopToShip(Ship s)
         {
             EscortTarget = s;
-            ClearOrders(State);
-            AddShipGoal(Plan.TroopToShip);
+            ClearOrders();
+            AddShipGoal(Plan.TroopToShip, State);
         }
 
         void ScanForThreat(float elapsedTime)
