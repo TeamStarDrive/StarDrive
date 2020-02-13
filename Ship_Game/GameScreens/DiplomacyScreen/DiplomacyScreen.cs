@@ -375,19 +375,22 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
 
         void DrawBackground(SpriteBatch batch)
         {
-            if (RacialVideo.IsPlaying || RacialVideo.IsPaused)
+            if (RacialVideo.Size != Vector2.Zero)
             {
-                Color color = Color.White;
-                if (WarDeclared || UsAndThem.AtWar)
+                if (RacialVideo.ReadyToPlay)
                 {
-                    color.B = 100;
-                    color.G = 100;
-                }
+                    Color color = Color.White;
+                    if (WarDeclared || UsAndThem.AtWar)
+                    {
+                        color.B = 100;
+                        color.G = 100;
+                    }
 
-                RacialVideo.Draw(batch, color);
+                    RacialVideo.Draw(batch, color);
+                }
             }
             // the size will be zero if video is null. 
-            else if (RacialVideo.Size == Vector2.Zero)
+            else
             {
                 batch.Draw(Them.data.PortraitTex, Portrait, Color.White);
             }
