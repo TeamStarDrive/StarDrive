@@ -21,7 +21,12 @@ namespace Ship_Game.AI
         void DequeueCurrentOrder()
         {
             if (OrderQueue.TryDequeue(out ShipGoal goal))
+            {
                 goal.Dispose();
+                ShipGoal nextGoal = OrderQueue.PeekFirst;
+                if (nextGoal != null)
+                    ChangeAIState(nextGoal.WantedState);
+            }
         }
 
         public void ClearOrders(AIState newState = AIState.AwaitingOrders, bool priority = false)
@@ -92,9 +97,9 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(sg, data, Owner));
         }
 
-        void AddShipGoal(Plan plan)
+        void AddShipGoal(Plan plan, AIState wantedState)
         {
-            OrderQueue.Enqueue(new ShipGoal(plan));
+            EnqueueOrPush(new ShipGoal(plan), wantedState);
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, AIState wantedState)
@@ -132,7 +137,7 @@ namespace Ship_Game.AI
         internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
         {
             ClearOrders(AIState.SystemTrader);
-            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer));
+            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer, AIState.SystemDefender));
         }
 
         bool AddShipGoal(Plan plan, Planet target, Goal theGoal, AIState wantedState, bool pushToFront = false)
@@ -155,7 +160,7 @@ namespace Ship_Game.AI
             else
                 OrderQueue.Enqueue(goal);
 
-            State = wantedState;
+            ChangeAIState(wantedState);
         }
 
         void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false, bool pushToFront = false)
@@ -226,10 +231,11 @@ namespace Ship_Game.AI
                 WantedState    = wantedState;
             }
 
-            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer)
+            public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer, AIState wantedState)
             {
                 Plan = plan;
                 Trade = new TradePlan(exportPlanet, importPlanet, goods, freighter, blockadeTimer);
+                WantedState = wantedState;
             }
 
             public ShipGoal(SavedGame.ShipGoalSave sg, UniverseData data, Ship ship)
@@ -270,9 +276,9 @@ namespace Ship_Game.AI
 
                 if (sg.Trade != null)
                     Trade = new TradePlan(sg.Trade, data, ship);
-                if (Plan == Plan.SupplyShip && ship.AI.EscortTarget != null)
+                if (Plan == Plan.SupplyShip)
                 {
-                    ship.AI.EscortTarget.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
+                    ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
                 }
             }
 
