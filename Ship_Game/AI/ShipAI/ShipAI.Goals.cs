@@ -98,45 +98,45 @@ namespace Ship_Game.AI
 
         void AddShipGoal(Plan plan, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan), wantedState);
+            EnqueueOrPush(new ShipGoal(plan, wantedState));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f, wantedState), wantedState);
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f, wantedState));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
                          string variableString, float variableNumber, AIState wantedState, bool pushToFront = false)
         {
             ShipGoal goal = new ShipGoal(plan, pos, dir, null, theGoal, 0f, variableString, variableNumber, wantedState);
-            EnqueueOrPush(goal, wantedState, pushToFront);
+            EnqueueOrPush(goal, pushToFront);
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, Goal empireGoal, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f, wantedState), wantedState);
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f, wantedState));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f, wantedState), wantedState);
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f, wantedState));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, float speedLimit, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f, wantedState), wantedState);
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f, wantedState));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f, wantedState), wantedState);
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f, wantedState));
         }
 
         internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
         {
             ClearOrders(AIState.SystemTrader);
-            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer, AIState.SystemDefender));
+            OrderQueue.Enqueue(new ShipGoal(plan, exportPlanet, importPlanet, goodsType, Owner, blockadeTimer, AIState.SystemTrader));
         }
 
         bool AddShipGoal(Plan plan, Planet target, Goal theGoal, AIState wantedState, bool pushToFront = false)
@@ -148,18 +148,18 @@ namespace Ship_Game.AI
             }
 
             ShipGoal goal = new ShipGoal(plan, target.Center, Vectors.Up, target, theGoal, 0f, "", 0f, wantedState);
-            EnqueueOrPush(goal, wantedState, pushToFront);
+            EnqueueOrPush(goal, pushToFront);
             return true;
         }
 
-        void EnqueueOrPush(ShipGoal goal, AIState wantedState, bool pushToFront = false)
+        void EnqueueOrPush(ShipGoal goal, bool pushToFront = false)
         {
             if (pushToFront)
                 OrderQueue.PushToFront(goal);
             else
                 OrderQueue.Enqueue(goal);
 
-            ChangeAIState(wantedState);
+            ChangeAIState(goal.WantedState);
         }
 
         void AddPlanetGoal(Plan plan, Planet planet, AIState newState, bool priority = false, bool pushToFront = false)
@@ -211,9 +211,10 @@ namespace Ship_Game.AI
 
             public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 
-            public ShipGoal(Plan plan)
+            public ShipGoal(Plan plan, AIState wantedState)
             {
-                Plan = plan;
+                Plan        = plan;
+                WantedState = wantedState;
             }
 
             public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
