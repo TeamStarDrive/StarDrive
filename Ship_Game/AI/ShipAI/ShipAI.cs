@@ -278,7 +278,7 @@ namespace Ship_Game.AI
                                       && goal.Plan != Plan.Bombard
                                       && goal.Plan != Plan.BoardShip))
                     {
-                        OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
+                        OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
                     }
 
                     if (TriggerDelay < 0)
