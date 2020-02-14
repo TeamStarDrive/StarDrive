@@ -172,14 +172,42 @@ namespace Ship_Game.AI
             }
         }
 
-        void AddScrapGoal(Planet p)          => AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
-        void AddRebaseGoal(Planet p)         => AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         void AddLandTroopGoal(Planet p)      => AddPlanetGoal(Plan.LandTroop, p, AIState.AssaultPlanet);
         void AddBombPlanetGoal(Planet p)     => AddPlanetGoal(Plan.Bombard, p, AIState.Bombard);
         void AddExterminateGoal(Planet p)    => AddPlanetGoal(Plan.Exterminate, p, AIState.Exterminate);
         void AddResupplyPlanetGoal(Planet p) => AddPlanetGoal(Plan.Orbit, p, AIState.Resupply, pushToFront: true);
 
         void AddOrbitPlanetGoal(Planet p, AIState newState = AIState.Orbit) => AddPlanetGoal(Plan.Orbit, p, newState);
+
+        public void OrderMoveAndColonize(Planet planet, Goal g)
+        {
+            OrderMoveTo(planet.Center, Vectors.Up, true, planet, AIState.Colonize);
+            AddShipGoal(Plan.Colonize, planet.Center, Vectors.Up, planet, g, AIState.Colonize);
+        }
+
+        public void OrderMoveAndRebase(Planet p)
+        {
+            OrderMoveTo(p.Center, Vectors.Up, false, p, AIState.Rebase);
+            AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
+        }
+
+        public void OrderMoveAndRefit(Planet planet, Goal g)
+        {
+            OrderMoveTo(planet.Center, Vectors.Up, true, planet, AIState.Refit);
+            AddShipGoal(Plan.Refit, planet, g, AIState.Refit);
+        }
+
+        public void OrderMoveAndScrap(Planet p)
+        {
+            OrderMoveTo(p.Center, Vectors.Up, true, p, AIState.Scrap);
+            AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
+        }
+
+        public void OderMoveAndDefendSystem(Planet p)
+        {
+            OrderMoveTo(p.Center, Vectors.Up, true, null, AIState.SystemDefender);
+            AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
+        }
 
         public class ShipGoal : IDisposable
         {
