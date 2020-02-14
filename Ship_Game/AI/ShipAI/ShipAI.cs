@@ -358,7 +358,6 @@ namespace Ship_Game.AI
         bool EvaluateNextOrderQueueItem(float elapsedTime)
         {
             ShipGoal goal = OrderQueue.PeekFirst;
-            Planet planet = goal.TargetPlanet;
             switch (goal.Plan)
             {
                 case Plan.HoldPosition: HoldPosition(); break;
