@@ -96,9 +96,9 @@ namespace Ship_Game.AI
             OrderQueue.Enqueue(new ShipGoal(sg, data, Owner));
         }
 
-        void AddShipGoal(Plan plan, AIState wantedState)
+        void AddShipGoal(Plan plan, AIState wantedState, bool pushToFront = false)
         {
-            EnqueueOrPush(new ShipGoal(plan, wantedState));
+            EnqueueOrPush(new ShipGoal(plan, wantedState), pushToFront);
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, AIState wantedState)
