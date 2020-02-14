@@ -1280,7 +1280,7 @@ namespace Ship_Game.Fleets
                     if (s.shipData.Role == ShipData.RoleName.troop)
                         s.AI.OrderRebaseToNearest();
                     else
-                        Owner.ForcePoolAdd(s);
+                        Owner.ForcePools.ForcePoolAdd(s);
                 }
                 Reset();
             }

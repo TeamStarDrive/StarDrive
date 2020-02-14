@@ -124,7 +124,7 @@ namespace Ship_Game.AI.Tasks
 
             if (WhichFleet == -1 || Fleet == null)
             {
-                Owner.ForcePoolAdd(TaskForce);
+                Owner.ForcePools.ForcePoolAdd(TaskForce);
                 TaskForce.Clear();
                 return;
             }
@@ -197,7 +197,7 @@ namespace Ship_Game.AI.Tasks
         {
             Ship[] fleetShips = fleet.Ships.ToArray();
             Fleet.Reset();
-            Owner.ForcePoolAdd(fleetShips);
+            Owner.ForcePools.ForcePoolAdd(fleetShips);
             TaskForce.Clear();
         }
 
@@ -506,7 +506,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     ship.ClearFleet();
                     if (ship.Active && ship.AI.State != AIState.Scrap)
-                        Owner.ForcePoolAdd(ship);
+                        Owner.ForcePools.ForcePoolAdd(ship);
                 }
                 else
                 {
