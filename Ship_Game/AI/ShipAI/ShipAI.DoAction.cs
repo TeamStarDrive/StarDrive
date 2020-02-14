@@ -59,7 +59,6 @@ namespace Ship_Game.AI
             if (target == null)
             {
                 DequeueCurrentOrder();
-                State = DefaultAIState;
                 Owner.InCombat = false;
                 return;
             }

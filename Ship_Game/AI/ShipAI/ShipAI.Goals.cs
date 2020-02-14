@@ -24,7 +24,7 @@ namespace Ship_Game.AI
             {
                 goal.Dispose();
                 ShipGoal nextGoal = OrderQueue.PeekFirst;
-                ChangeAIState(nextGoal?.WantedState ?? AIState.AwaitingOrders);
+                ChangeAIState(nextGoal?.WantedState ?? DefaultAIState);
             }
         }
 
