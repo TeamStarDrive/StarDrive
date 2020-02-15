@@ -108,7 +108,7 @@ namespace Ship_Game
         {
             foreach (string ship in FriendlyShipsToSpawn)
             {
-                triggerer.ForcePools.ForcePoolAdd(Ship.CreateShipAt(ship, triggerer, p, true));
+                triggerer.Pool.ForcePoolAdd(Ship.CreateShipAt(ship, triggerer, p, true));
             }
             foreach (string ship in RemnantShipsToSpawn)
             {
