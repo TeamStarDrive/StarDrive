@@ -419,7 +419,7 @@ namespace Ship_Game.AI.Tasks
             EnemyStrength = GetEnemyShipStrengthInAO();
             MinimumTaskForceStrength = Math.Max(minFleetStrength, EnemyStrength);
             if (!Owner.isPlayer)
-                MinimumTaskForceStrength *= Owner.DifficultyModifers.TaskForceStrength;
+                MinimumTaskForceStrength *= Owner.DifficultyModifiers.TaskForceStrength;
         }
 
         enum RequisitionStatus

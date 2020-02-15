@@ -78,7 +78,7 @@ namespace Ship_Game.Ships
             Level += owner.data.BaseShipLevel;
             // during new game creation, universeScreen can still be null its not supposed to work on players.
             if (Empire.Universe != null && !owner.isPlayer)
-                Level += owner.DifficultyModifers.ShipLevel;
+                Level += owner.DifficultyModifiers.ShipLevel;
 
             InitializeShip(loadingFromSaveGame: false);
             owner.AddShip(this);

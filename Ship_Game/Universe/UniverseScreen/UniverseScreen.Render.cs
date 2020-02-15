@@ -709,7 +709,7 @@ namespace Ship_Game
             if (alpha > 0)
             {
                 if (SelectedShip != null &&
-                    (Debug || player.DifficultyModifers.ShowTacticalData
+                    (Debug || player.DifficultyModifiers.ShowTacticalData
                            || !player.IsEmpireAttackable(SelectedShip.loyalty)))
                 {
                     DrawShipGoalsAndWayPoints(SelectedShip, alpha);
