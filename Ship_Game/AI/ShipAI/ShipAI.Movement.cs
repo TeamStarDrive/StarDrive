@@ -274,7 +274,7 @@ namespace Ship_Game.AI
                 return true; // stopped
             }
 
-            Owner.Decelerate();
+            Owner.AllStop();
             return false;
         }
 
