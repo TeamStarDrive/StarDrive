@@ -15,11 +15,10 @@ namespace Ship_Game.Ships
         public float Thrust;
         public float TurnThrust;
         public float RotationRadiansPerSecond;
-        public ShipEngines ShipEngineses;
+        public ShipEngines ShipEngines;
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
-
         // we need to store the applied thrust for correct
         // VelocityVerlet integration
         // > 0: forward/acceleration

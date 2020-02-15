@@ -165,7 +165,7 @@ namespace Ship_Game.Ships
 
         Status FleetCapableStatus;
         public bool CanTakeFleetMoveOrders() => 
-            FleetCapableStatus == Status.Good && ShipEngineses.EngineStatus >= Status.Poor;
+            FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;
 
         void SetFleetCapableStatus()
         {
@@ -1031,7 +1031,7 @@ namespace Ship_Game.Ships
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
-            ShipEngineses.Update();
+            ShipEngines.Update();
 
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
@@ -1875,7 +1875,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {loyalty} Role {DesignRole} State {AI.State}" ;
+            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {loyalty} Role {DesignRole} State {AI?.State}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
