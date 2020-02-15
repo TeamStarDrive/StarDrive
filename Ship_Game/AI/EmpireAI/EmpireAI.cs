@@ -108,17 +108,6 @@ namespace Ship_Game.AI
             return knownPlanets;
         }
 
-        public void RemoveShipFromForce(Ship ship, AO ao = null)
-        {
-            if (ao == null)
-                foreach (AO aos in AreasOfOperations)
-                    aos.RemoveShip(ship);
-            else
-                ao.RemoveShip(ship);
-
-            DefensiveCoordinator.Remove(ship);
-        }
-        
         public AO FindClosestAOTo(Vector2 position)
         {
             var aos = AreasOfOperations;
@@ -216,7 +205,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            var offPool = OwnerEmpire.ForcePools.GetShipsFromOffensePools(onlyAO: true);
+            var offPool = OwnerEmpire.Pool.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
