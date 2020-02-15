@@ -193,7 +193,7 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == Them)
                 return;
 
-            Amount *= Us.DifficultyModifers.Anger;
+            Amount *= Us.DifficultyModifiers.Anger;
             string str = why;
             string str1 = str;
             if (str != null)

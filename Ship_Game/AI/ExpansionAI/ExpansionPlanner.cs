@@ -41,7 +41,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             get
             {
-                float baseColonyGoals = OwnerEmpire.DifficultyModifers.BaseColonyGoals;
+                float baseColonyGoals = OwnerEmpire.DifficultyModifiers.BaseColonyGoals;
                 if (OwnerEmpire.isPlayer) 
                     return (int)baseColonyGoals; // BaseColonyGoals for player
 
@@ -68,7 +68,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             //we are going to keep a list of wanted planets. 
             int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Values.Count(p => p.Habitable) 
-                                          * OwnerEmpire.DifficultyModifers.MaxDesiredPlanets).ClampMin(10);
+                                          * OwnerEmpire.DifficultyModifiers.MaxDesiredPlanets).ClampMin(10);
 
             if (maxDesiredPlanets < 1)
                 return;

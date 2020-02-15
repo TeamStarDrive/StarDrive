@@ -36,8 +36,8 @@ namespace Ship_Game.AI
 
             public MinMaxStrength(float maxStrength, Empire empire)
             {
-                Min = empire.DifficultyModifers.ShipBuildStrMin * maxStrength;
-                Max = empire.DifficultyModifers.ShipBuildStrMax * maxStrength;
+                Min = empire.DifficultyModifiers.ShipBuildStrMin * maxStrength;
+                Max = empire.DifficultyModifiers.ShipBuildStrMax * maxStrength;
             }
 
             public bool InRange(float strength) => strength.InRange(Min, Max);

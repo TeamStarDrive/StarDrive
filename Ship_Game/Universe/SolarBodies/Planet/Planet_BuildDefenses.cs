@@ -259,7 +259,7 @@ namespace Ship_Game
                 case ColonyType.Core: rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
             }
-            rank += Owner.DifficultyModifers.ColonyRankModifier;
+            rank += Owner.DifficultyModifiers.ColonyRankModifier;
             return rank.Clamped(0, 15);
         }
 

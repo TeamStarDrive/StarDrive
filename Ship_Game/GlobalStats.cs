@@ -440,7 +440,7 @@ namespace Ship_Game
             float expTrigger = ShipRole.GetMaxExpValue();
             if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (RemnantKills >= (expTrigger + empire.DifficultyModifers.RemnantStory) &&
+                if (RemnantKills >= (expTrigger + empire.DifficultyModifiers.RemnantStory) &&
                     RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;

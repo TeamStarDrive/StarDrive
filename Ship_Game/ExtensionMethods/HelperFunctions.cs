@@ -308,7 +308,7 @@ namespace Ship_Game
             if (empire.isPlayer || empire.GetRelations(EmpireManager.Player).Treaty_Alliance)
                 return true;
 
-            return empire.DifficultyModifers.DataVisibleToPlayer;
+            return empire.DifficultyModifiers.DataVisibleToPlayer;
         }
 
         public static SortedList<int, Array<T>> BucketItems<T>(Array<T> items, Func<T, int> bucketSort)
