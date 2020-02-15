@@ -237,7 +237,7 @@ namespace Ship_Game.Ships
             foreach (Thruster thruster in ThrusterList)
             {
                 thruster.UpdatePosition();
-                if (ThrustThisFrame != 0)
+                if (ThrustThisFrame != Ships.Thrust.Coast)
                 {
                     if (engineState == MoveState.Warp)
                     {
@@ -290,7 +290,7 @@ namespace Ship_Game.Ships
                 return;
 
             // for a cool death effect, make the ship accelerate out of control:
-            ApplyThrust(200f, +1);
+            ApplyThrust(200f, Ships.Thrust.Forward);
             UpdateVelocityAndPosition(elapsedTime);
 
             int num1 = UniverseRandom.IntBetween(0, 60);
