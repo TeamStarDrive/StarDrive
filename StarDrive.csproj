@@ -224,6 +224,8 @@
     <Compile Include="Ship_Game\Debug\Page\DebugWar.cs" />
     <Compile Include="Ship_Game\EmpireResearch.cs" />
     <Compile Include="Ship_Game\Empires\EmpireUI.cs" />
+    <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
+    <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />

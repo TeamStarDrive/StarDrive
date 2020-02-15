@@ -386,7 +386,7 @@ namespace Ship_Game.AI
 
         public void OrderScrapShip()
         {
-            Owner.loyalty.RemoveShipFromFleetAndPools(Owner);
+            Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
 
             if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
             {
