@@ -126,7 +126,6 @@ namespace Ship_Game
         public float MaxColonyValue { get; private set; }
         public Ship BestPlatformWeCanBuild { get; private set; }
         public Ship BestStationWeCanBuild { get; private set; }
-        public int ColonyRankModifier { get; private set; }
         public HashSet<string> ShipTechs = new HashSet<string>();
         public EmpireUI UI;
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
@@ -158,6 +157,7 @@ namespace Ship_Game
 
         public readonly EmpireResearch Research;
 
+        public EmpireDifficultyModifiers.DifficultyModifiers DifficultyModifers { get; private set; }
         // Empire unique ID. If this is 0, then this empire is invalid!
         // Set in EmpireManager.cs
         public int Id;
@@ -714,16 +714,9 @@ namespace Ship_Game
 
         public void AddShipNextFrame(Ship s) => ShipsToAdd.Add(s);
 
-        private void InitColonyRankModifier() // controls amount of orbital defense by difficulty
+        void InitDifficultyModifiers()
         {
-            if (isPlayer) return;
-            switch (CurrentGame.Difficulty)
-            {
-                case UniverseData.GameDifficulty.Easy:   ColonyRankModifier = -2; break;
-                case UniverseData.GameDifficulty.Normal: ColonyRankModifier = 0;  break;
-                case UniverseData.GameDifficulty.Hard:   ColonyRankModifier = 1;  break;
-                case UniverseData.GameDifficulty.Brutal: ColonyRankModifier = 2; break;
-            }
+            DifficultyModifers = new EmpireDifficultyModifiers.DifficultyModifiers(this, CurrentGame.Difficulty);
         }
 
         public void Initialize()
@@ -775,7 +768,8 @@ namespace Ship_Game
 
             if (EmpireManager.NumEmpires ==0)
                 UpdateTimer = 0;
-            InitColonyRankModifier();
+
+            InitDifficultyModifiers();
             CreateThrusterColors();
             EmpireAI = new EmpireAI(this);
 
@@ -894,9 +888,7 @@ namespace Ship_Game
                 ShipsWeCanBuild.Add(ship);
 
             UpdateShipsWeCanBuild();
-
-
-            InitColonyRankModifier();
+            InitDifficultyModifiers();
             CreateThrusterColors();
             UpdateForNewTech();
             Research.Update();
@@ -2523,7 +2515,6 @@ namespace Ship_Game
             UpdateShipsWeCanBuild();
             if (this != EmpireManager.Player)
             {
-                data.difficulty = Difficulty.Brutal;
                 EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
@@ -2636,7 +2627,7 @@ namespace Ship_Game
             if (!they.isPlayer) return false;
             if (GlobalStats.ActiveModInfo?.removeRemnantStory == true) return false;
             ShipRole.Race killedExpSettings = ShipRole.GetExpSettings(killedShip);
-            GlobalStats.IncrementRemnantKills((int)killedExpSettings.KillExp);
+            GlobalStats.IncrementRemnantKills((int)killedExpSettings.KillExp, they);
             return true;
         }
 

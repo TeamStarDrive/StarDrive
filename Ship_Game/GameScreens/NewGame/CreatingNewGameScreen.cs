@@ -46,8 +46,18 @@ namespace Ship_Game
             Mode = mode;
             NumOpponents = numOpponents;
             EmpireManager.Clear();
-
             ResourceManager.LoadEncounters();
+
+            Data = new UniverseData
+            {
+                FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
+                GravityWells = GlobalStats.PlanetaryGravityWells,
+                FTLinNeutralSystem = GlobalStats.WarpInSystem,
+                difficulty = difficulty
+            };
+
+            CurrentGame.StartNew(Data, pace);
             Player = player;
             player.isPlayer = true;
             player.Initialize();
@@ -55,15 +65,6 @@ namespace Ship_Game
             player.data.CurrentAutoColony    = player.data.ColonyShip;
             player.data.CurrentAutoFreighter = player.data.FreighterShip;
             player.data.CurrentConstructor   = player.data.ConstructorShip;
-            Data = new UniverseData
-            {
-                FTLSpeedModifier      = GlobalStats.FTLInSystemModifier,
-                EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,                    
-                GravityWells          = GlobalStats.PlanetaryGravityWells,
-                FTLinNeutralSystem    = GlobalStats.WarpInSystem,
-                difficulty            = difficulty
-            };
-
             bool corners = Mode == RaceDesignScreen.GameMode.Corners;
             int size;
             switch (universeSize)
@@ -84,8 +85,6 @@ namespace Ship_Game
             EmpireManager.Add(player);
             GalacticCenter = new Vector2(0f, 0f);  // Gretman (for new negative Map dimensions)
             StatTracker.Reset();
-
-            CurrentGame.StartNew(Data, pace);
         }
 
         public override void LoadContent()
@@ -131,8 +130,6 @@ namespace Ship_Game
                         planet.Station = new SpaceStation(planet);
                         planet.Station.LoadContent(ScreenManager);
                     }
-
-
                 }
             }
 
