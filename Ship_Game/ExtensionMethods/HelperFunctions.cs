@@ -303,12 +303,12 @@ namespace Ship_Game
             return single.ToString("#", invariant) + "k"; // 1000k
         }
 
-        public static bool DataVisibleToPlayer(Empire empire, UniverseData.GameDifficulty maxDifficulty)
+        public static bool DataVisibleToPlayer(Empire empire)
         {
             if (empire.isPlayer || empire.GetRelations(EmpireManager.Player).Treaty_Alliance)
                 return true;
 
-            return CurrentGame.Difficulty <= maxDifficulty;
+            return empire.DifficultyModifers.DataVisibleToPlayer;
         }
 
         public static SortedList<int, Array<T>> BucketItems<T>(Array<T> items, Func<T, int> bucketSort)

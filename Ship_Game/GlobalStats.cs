@@ -434,13 +434,13 @@ namespace Ship_Game
         }
 
         // @todo Why is this here??
-        public static void IncrementRemnantKills(int exp)
+        public static void IncrementRemnantKills(int exp, Empire empire)
         {
             RemnantKills = RemnantKills + exp;
             float expTrigger = ShipRole.GetMaxExpValue();
             if (ActiveModInfo != null && ActiveModInfo.RemnantTechCount > 0)
             {
-                if (RemnantKills >= (expTrigger + (int)CurrentGame.Difficulty * 3) &&
+                if (RemnantKills >= (expTrigger + empire.DifficultyModifers.RemnantStory) &&
                     RemnantActivation < ActiveModInfo.RemnantTechCount)
                 {
                     RemnantActivation += 1;
