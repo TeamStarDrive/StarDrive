@@ -108,49 +108,6 @@ namespace Ship_Game.AI
             return knownPlanets;
         }
 
-        public void RemoveShipFromForce(Ship ship, AO ao = null)
-        {
-            if (ao == null)
-                foreach (AO aos in AreasOfOperations)
-                    aos.RemoveShip(ship);
-            else
-                ao.RemoveShip(ship);
-
-            DefensiveCoordinator.Remove(ship);
-        }
-
-        // @return TRUE if ship was added to AI defense coordinator or AreaseOfOperations
-        public bool AssignShipToForce(Ship toAdd)
-        {
-            int numWars = OwnerEmpire.AtWarCount;
-
-            float baseDefensePct = 0.1f;
-            baseDefensePct += 0.15f * numWars;
-            if (toAdd.DesignRole < ShipData.RoleName.fighter ||
-                toAdd.BaseStrength <= 0f || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
-            {
-                return false; // we don't need this ship
-            }
-
-            if (baseDefensePct > 0.35f)
-                baseDefensePct = 0.35f;
-
-            bool needDef = (OwnerEmpire.CurrentMilitaryStrength * baseDefensePct - DefStr) > 0 
-                        && DefensiveCoordinator.DefenseDeficit > 0;
-            if (needDef)
-            {
-                DefensiveCoordinator.AddShip(toAdd);
-                return true;
-            }
-
-            // need to rework this better divide the ships.
-            AO area = AreasOfOperations.FindMin(ao => toAdd.Position.SqDist(ao.Center));
-            if (area?.AddShip(toAdd) == true)
-                return true;
-
-            return false; // nothing to do with you
-        }
-
         public AO FindClosestAOTo(Vector2 position)
         {
             var aos = AreasOfOperations;
@@ -248,7 +205,7 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer)
                 return;
 
-            var offPool = OwnerEmpire.GetShipsFromOffensePools(onlyAO: true);
+            var offPool = OwnerEmpire.Pool.GetShipsFromOffensePools(onlyAO: true);
             for (int i = offPool.Count - 1; i >= 0; i--)
             {
                 Ship ship = offPool[i];
