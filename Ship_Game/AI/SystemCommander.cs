@@ -37,7 +37,7 @@ namespace Ship_Game.AI
         {
             System = system;
             Us = e;
-            GameDifficultyModifier = (int)(((int)CurrentGame.Difficulty + 1) * 0.75f + 0.5f);
+            GameDifficultyModifier = e.DifficultyModifers.SysComModifier;
         }
 
         public float UpdateSystemValue()
