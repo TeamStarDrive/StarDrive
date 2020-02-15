@@ -89,7 +89,7 @@ namespace Ship_Game.AI.Tasks
             foreach (Ship ship in ships)
             {
                 ship.AI.ClearOrders();
-                Owner.RemoveShipFromFleetAndPools(ship);
+                Owner.Pool.RemoveShipFromFleetAndPools(ship);
                 newFleet.AddShip(ship);
             }
 
