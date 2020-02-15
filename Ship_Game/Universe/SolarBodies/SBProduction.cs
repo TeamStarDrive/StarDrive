@@ -187,7 +187,7 @@ namespace Ship_Game.Universe.SolarBodies
             shipAt.AllowInterEmpireTrade  = q.AllowInterEmpireTrade;
 
             if (!Owner.isPlayer)
-                Owner.ForcePoolAdd(shipAt);
+                Owner.Pool.ForcePoolAdd(shipAt);
             return true;
         }
 

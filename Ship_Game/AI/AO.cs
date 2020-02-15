@@ -207,15 +207,17 @@ namespace Ship_Game.AI
         public float GetPoolStrength()
         {
             float str = 0;
-            foreach (Ship ship in OffensiveForcePool)
+            for (int i = 0; i < OffensiveForcePool.Count; i++)
             {
+                Ship ship = OffensiveForcePool[i];
                 if (ship.AI.State == AIState.Scrap
                     || ship.AI.State == AIState.Refit
                     || ship.AI.State == AIState.Resupply
                     || !ship.ShipIsGoodForGoals()
-                    ) continue;
+                ) continue;
                 str += ship.GetStrength();
             }
+
             return str;
         }
 
@@ -323,29 +325,6 @@ namespace Ship_Game.AI
                 TurnsToRelax = 1;
             }
             AOFull = ThreatLevel < CoreFleet.GetStrength() && OffensiveForcePool.Count > 0;
-        }
-
-        public FleetShips GetFleetShips()
-        {
-            var fleetShips = new FleetShips(Owner);
-            foreach (Ship ship in OffensiveForcePool)
-            {
-                if (ShipsWaitingForCoreFleet.ContainsRef(ship))
-                {
-                    Log.Error("AO: ship is in waiting list amd offensiveList. removing from waiting");
-                    ShipsWaitingForCoreFleet.Remove(ship);
-                }
-
-                if (Empire.Universe.Debug)
-                    foreach (AO ao in Owner.GetEmpireAI().AreasOfOperations)
-                    {
-                        if (ao == this) continue;
-                        if (ao.OffensiveForcePoolContains(ship))
-                            Log.Info($"Ship {ship.Name} in another AO {ao.GetPlanet().Name}");
-                    }
-                fleetShips.AddShip(ship);
-            }
-            return fleetShips;
         }
 
         public void Dispose()
