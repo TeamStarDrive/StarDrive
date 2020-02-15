@@ -42,7 +42,7 @@ namespace Ship_Game
                         DataVisibleToPlayer = true;
                         ShipLevel           = 0;
                         ShowTacticalData    = true;
-                        MaxDesiredPlanets   = 0.3f;
+                        MaxDesiredPlanets   = 0.25f;
                         break;
                     default:
                     case UniverseData.GameDifficulty.Normal:
@@ -61,7 +61,7 @@ namespace Ship_Game
                         TaskForceStrength  = 1.1f;
                         ShipLevel          = 2;
                         ShowTacticalData   = false;
-                        MaxDesiredPlanets  = 1f;
+                        MaxDesiredPlanets  = 0.75f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
                         ShipBuildStrMin    = 0.9f;
