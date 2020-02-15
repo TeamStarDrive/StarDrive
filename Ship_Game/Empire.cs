@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Empires;
+using Ship_Game.Empires.ShipPools;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
 
@@ -43,7 +44,7 @@ namespace Ship_Game
 
         public Map<string, TechEntry> TechnologyDict = new Map<string, TechEntry>(StringComparer.InvariantCultureIgnoreCase);
         public Array<Ship> Inhibitors = new Array<Ship>();
-        public Array<Ship> ShipsToAdd = new Array<Ship>();
+        //public Array<Ship> ShipsToAdd = new Array<Ship>();
         public Array<SpaceRoad> SpaceRoadsList = new Array<SpaceRoad>();
 
         float MoneyValue = 1000f;
@@ -119,7 +120,7 @@ namespace Ship_Game
         public bool CanBuildStations;
         public bool CanBuildShipyards;
         public float CurrentMilitaryStrength;
-        public ShipForcePools ForcePools;
+        public ShipPool Pool;
         public float CurrentTroopStrength { get; private set; }
         public Color ThrustColor0;
         public Color ThrustColor1;
@@ -161,12 +162,13 @@ namespace Ship_Game
         public int Id;
 
         public string Name => data.Traits.Name;
+        public void AddShipNextFrame(Ship s) => Pool.AddShipNextFame(s);
 
         public Empire()
         {
             UI         = new EmpireUI(this);
             Research   = new EmpireResearch(this);
-            ForcePools = new ShipForcePools(this);
+            Pool = new ShipPool(this);
 
             // @note @todo This is very flaky and weird!
             UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
@@ -177,7 +179,7 @@ namespace Ship_Game
             UI = new EmpireUI(this);
             Research = new EmpireResearch(this);
             TechnologyDict = parentEmpire.TechnologyDict;
-            ForcePools = new ShipForcePools(this);
+            Pool = new ShipPool(this);
         }
 
 
@@ -407,7 +409,7 @@ namespace Ship_Game
             Relationships.Clear();
             EmpireAI = null;
             HostilesPresent.Clear();
-            ForcePools.ClearForcePools();
+            Pool.ClearForcePools();
             KnownShips.Clear();
             SensorNodes.Clear();
             BorderNodes.Clear();
@@ -423,7 +425,6 @@ namespace Ship_Game
             UnlockedTroops.Clear();
             Inhibitors.Clear();
             OwnedProjectors.Clear();
-            ShipsToAdd.Clear();
             ShipsWeCanBuild.Clear();
             structuresWeCanBuild.Clear();
             data.MoleList.Clear();
@@ -660,7 +661,7 @@ namespace Ship_Game
         public Ship[] AllFleetReadyShips()
         {
             //Get all available ships from AO's
-            var ships = ForcePools.GetShipsFromOffensePools();
+            var ships = Pool.GetShipsFromOffensePools();
 
             var readyShips = new Array<Ship>();
             for (int i = 0; i < ships.Count; i++)
@@ -700,8 +701,6 @@ namespace Ship_Game
             else
                 OwnedShips.Add(s);
         }
-
-        public void AddShipNextFrame(Ship s) => ShipsToAdd.Add(s);
 
         private void InitColonyRankModifier() // controls amount of orbital defense by difficulty
         {
@@ -2518,7 +2517,7 @@ namespace Ship_Game
                 EmpireAI.EndAllTasks();
                 EmpireAI.DefensiveCoordinator.DefensiveForcePool.Clear();
                 EmpireAI.DefensiveCoordinator.DefenseDict.Clear();
-                ForcePools.ClearForcePools();
+                Pool.ClearForcePools();
                 foreach (Ship s in OwnedShips)
                 {
                     // added by gremlin Do not include 0 strength ships in defensive force pool
@@ -2536,13 +2535,6 @@ namespace Ship_Game
             target.data.AgentList.Clear();
             target.data.AbsorbedBy = data.Traits.Name;
             CalculateScore();
-        }
-
-        public void RemoveShipFromFleetAndPools(Ship ship)
-        {
-            ship.ClearFleet();
-            ForcePools.Remove(ship);
-            EmpireAI.RemoveShipFromForce(ship);
         }
 
         public bool HavePreReq(string techId) => GetTechEntry(techId).HasPreReq(this);
@@ -2707,7 +2699,7 @@ namespace Ship_Game
                 OwnedShips.RemoveRef(ship);
             
             ship.AI.ClearOrders();
-            RemoveShipFromFleetAndPools(ship);
+            Pool.RemoveShipFromFleetAndPools(ship);
         }
 
         public bool IsEmpireAttackable(Empire targetEmpire, GameplayObject target = null)
@@ -2798,7 +2790,7 @@ namespace Ship_Game
 
         void Destroy()
         {
-            ForcePools?.Dispose(ref ForcePools);
+            Pool?.Dispose(ref Pool);
             BorderNodes?.Dispose(ref BorderNodes);
             SensorNodes?.Dispose(ref SensorNodes);
             KnownShips?.Dispose(ref KnownShips);

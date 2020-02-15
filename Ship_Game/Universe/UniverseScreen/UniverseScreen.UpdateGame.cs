@@ -384,7 +384,7 @@ namespace Ship_Game
                 {
                     Empire empire = EmpireManager.Empires[i];
 
-                    empire.ForcePools.UpdatePools();
+                    empire.Pool.UpdatePools();
                     empire.UpdateContactsAndBorders(0.01666667f);
                 }
             }
