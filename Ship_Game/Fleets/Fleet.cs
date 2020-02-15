@@ -1280,7 +1280,7 @@ namespace Ship_Game.Fleets
                     if (s.shipData.Role == ShipData.RoleName.troop)
                         s.AI.OrderRebaseToNearest();
                     else
-                        Owner.ForcePoolAdd(s);
+                        Owner.Pool.ForcePoolAdd(s);
                 }
                 Reset();
             }
@@ -1499,7 +1499,7 @@ namespace Ship_Game.Fleets
                 if (ship.AI.State == AIState.FormationWarp)
                 {
                     if (readyForWarp)
-                        readyForWarp = ship.ShipEngineses.ReadyForFormationWarp > Status.Poor;
+                        readyForWarp = ship.ShipEngines.ReadyForFormationWarp > Status.Poor;
                 }
 
                 // once in warp clear assembling flag. 
