@@ -15,16 +15,15 @@ namespace Ship_Game.Ships
         public float Thrust;
         public float TurnThrust;
         public float RotationRadiansPerSecond;
-        public ShipEngines ShipEngineses;
+        public ShipEngines ShipEngines;
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
-
         // we need to store the applied thrust for correct
         // VelocityVerlet integration
         // > 0: forward/acceleration
         // < 0: reverse/deceleration
-        int ThrustThisFrame;
+        Thrust ThrustThisFrame;
 
         // this is an important variable for hi-precision impact predictor
         public Vector2 Acceleration { get; private set; }
@@ -152,22 +151,22 @@ namespace Ship_Game.Ships
             return distance;
         }
 
-        public void SubLightAccelerate(float speedLimit = 0f, int direction = +1)
+        public void SubLightAccelerate(float speedLimit = 0f, Thrust direction = Ships.Thrust.Forward)
         {
             if (engineState == MoveState.Warp)
                 return; // Warp speed is updated in UpdateEnginesAndVelocity
-            ApplyThrust(speedLimit, direction);
+            ApplyThrust(speedLimit, (Thrust)direction);
         }
 
-        void ApplyThrust(float speedLimit, int direction)
+        void ApplyThrust(float speedLimit, Thrust direction)
         {
             SpeedLimit = speedLimit;
             ThrustThisFrame = direction;
         }
 
-        public void Decelerate()
+        public void AllStop()
         {
-            ThrustThisFrame = -1;
+            ThrustThisFrame = Ships.Thrust.AllStop;
         }
 
         void UpdateVelocityAndPosition(float elapsedTime)
@@ -251,11 +250,11 @@ namespace Ship_Game.Ships
                 {
                     newAcc += left * thrustAcceleration * SASThrusterPower;
                 }
-                else if (ThrustThisFrame == 0 && // no thrust this frame?
+                else if (ThrustThisFrame == Ships.Thrust.Coast && // no thrust this frame?
                          travel < -0.5f && engineState != MoveState.Warp)
                 {
                     // we are drifting reverse, accelerate forward!
-                    ApplyThrust(0f, direction: +1);
+                    ApplyThrust(0f,  Ships.Thrust.Forward);
                 }
             }
 
@@ -283,10 +282,10 @@ namespace Ship_Game.Ships
             // we are pretty much at the speed limit already, don't do anything
             if (velocity.AlmostEqual(speedLimit))
             {
-                ThrustThisFrame = 0; // turn off engine VFX
+                ThrustThisFrame = Ships.Thrust.Coast; // turn off engine VFX
             }
             // we are already over max vel? forget about accelerating, slow down!
-            else if (velocity > speedLimit)
+            else if (velocity > speedLimit || ThrustThisFrame == Ships.Thrust.AllStop)
             {
                 if (travel > 0.2f) // we are traveling forward, decelerate normally
                 {
@@ -298,11 +297,11 @@ namespace Ship_Game.Ships
                 }
                 // else: we aren't facing drift direction, so thrusting is pointless
             }
-            else if (ThrustThisFrame > 0)
+            else if (ThrustThisFrame == Ships.Thrust.Forward)
             {
                 newAcc += thrustDirection * thrustAcceleration;
             }
-            else if (ThrustThisFrame < 0)
+            else if (ThrustThisFrame == Ships.Thrust.Reverse)
             {
                 newAcc -= thrustDirection * thrustAcceleration * DecelerationRate;
             }
@@ -323,7 +322,7 @@ namespace Ship_Game.Ships
         // and must be reset after every update
         void ResetFrameThrustState()
         {
-            ThrustThisFrame = 0;
+            ThrustThisFrame = Ships.Thrust.Coast;
             SpeedLimit = VelocityMaximum;
             if (AI.State == AIState.FormationWarp)
                 SpeedLimit = AI.FormationWarpSpeed(VelocityMaximum);
@@ -346,11 +345,12 @@ namespace Ship_Game.Ships
                 RestoreYBankRotation(elapsedTime);
             }
 
-            if ((engineState == MoveState.Warp || ThrustThisFrame > 0) && Velocity.Length() < SpeedLimit)
+            if ((engineState == MoveState.Warp || ThrustThisFrame == Ships.Thrust.Forward) 
+                                               && Velocity.Length() < SpeedLimit)
             {
                 // enable full thrust, but don't touch the SpeedLimit
                 // so that FormationWarp can work correctly
-                ThrustThisFrame = +1;
+                ThrustThisFrame = Ships.Thrust.Forward;
             }
 
             UpdateVelocityAndPosition(elapsedTime);
@@ -358,5 +358,12 @@ namespace Ship_Game.Ships
             if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
                 UpdateWarpSpooling(elapsedTime);
         }
+    }
+    public enum Thrust
+    {
+        Reverse,
+        Coast,
+        Forward,
+        AllStop
     }
 }
