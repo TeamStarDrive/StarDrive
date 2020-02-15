@@ -76,12 +76,11 @@ namespace Ship_Game.AI
                 CombatState = CombatState.AssaultShip;
 
             // in range:
-            if (target.Center.InRadius(Owner.Center, 7500f))
+            float distanceToTarget = target.Center.Distance(Owner.Center);
+            if (distanceToTarget < 7500f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
-                if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
-                    Owner.Carrier.ScrambleFighters();
             }
             else
             {
@@ -126,6 +125,12 @@ namespace Ship_Game.AI
                     ThrustOrWarpToPos(prediction, elapsedTime);
                     return;
                 }
+            }
+
+            if (Owner.engineState == Ship.MoveState.Sublight && distanceToTarget <= Owner.SensorRange)
+            {
+                if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
+                    Owner.Carrier.ScrambleFighters();
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
