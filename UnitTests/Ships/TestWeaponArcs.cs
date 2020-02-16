@@ -76,6 +76,7 @@ namespace UnitTests.Ships
 
             Weapon rockets = enemy.Weapons.Find(w => w.UID == "Rocket");
             Assert.IsTrue(rockets.UpdateAndFireAtTarget(us, NoProjectiles, NoShips), "Fire at target must succeed");
+            enemy.AI.OrderHoldPosition(enemy.Center, enemy.Direction);
             enemy.Update(0.01f); // update weapons & projectiles
 
             var projectiles = new Array<Projectile>(enemy.CopyProjectiles);
