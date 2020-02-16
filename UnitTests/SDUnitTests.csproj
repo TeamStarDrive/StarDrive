@@ -68,7 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AITests\TestExpansionPlanner.cs" />
+    <Compile Include="AITests\Empire\TestExpansionPlanner.cs" />
     <Compile Include="AssertExtensions.cs" />
     <Compile Include="Collections\TestDequeT.cs" />
     <Compile Include="Collections\TestEnumFlatMap.cs" />
@@ -153,7 +153,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="AITests\Ships\" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
