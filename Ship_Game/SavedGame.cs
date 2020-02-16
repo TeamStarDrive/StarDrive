@@ -715,6 +715,7 @@ namespace Ship_Game
             [Serialize(6)] public Vector2 Direction;
             [Serialize(7)] public Guid TargetPlanetGuid;
             [Serialize(8)] public TradePlanSave Trade;
+            [Serialize(9)] public AIState WantedState;
         }
 
         public class TradePlanSave

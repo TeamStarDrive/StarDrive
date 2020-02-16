@@ -771,8 +771,7 @@ namespace Ship_Game.Ships
 
         public void DoEscort(Ship escortTarget)
         {
-            AI.ClearOrders();
-            AI.State        = AIState.Escort;
+            AI.ClearOrders(AIState.Escort);
             AI.EscortTarget = escortTarget;
         }
 

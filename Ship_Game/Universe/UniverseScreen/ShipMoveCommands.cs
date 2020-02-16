@@ -244,22 +244,22 @@ namespace Ship_Game.Universe
             if (Input.QueueAction)
             {
                 if (Input.OrderOption)
-                    ship.AI.OrderMoveDirectlyTo(pos, direction, false);
+                    ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo);
                 else
-                    ship.AI.OrderMoveTo(pos, direction, false, null);
+                    ship.AI.OrderMoveTo(pos, direction, false, null, AI.AIState.MoveTo);
             }
             else if (Input.OrderOption)
             {
-                ship.AI.OrderMoveDirectlyTo(pos, direction, true);
+                ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo);
             }
             else if (Input.IsCtrlKeyDown)
             {
-                ship.AI.OrderMoveTo(pos, direction, true, null);
+                ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo);
                 ship.AI.OrderHoldPosition(pos, direction);
             }
             else
             {
-                ship.AI.OrderMoveTo(pos, direction, true, null);
+                ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo);
             }
         }
     }
