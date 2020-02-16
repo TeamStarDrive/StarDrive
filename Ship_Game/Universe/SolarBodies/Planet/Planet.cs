@@ -105,6 +105,10 @@ namespace Ship_Game
             => TroopManager.EmpireTroops(empire, maxToTake);
         public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
             => TroopManager.TroopsReadForLaunch(strengthNeeded);
+        public GameplayObject[] GetNearByShips() => UniverseScreen.SpaceManager.FindNearby(
+                                            Center, GravityWellRadius,
+                                            GameObjectType.Ship, Owner);
+        
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
