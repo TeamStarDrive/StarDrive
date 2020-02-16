@@ -954,7 +954,7 @@ namespace Ship_Game.Fleets
                         continue;
                     }
                     Vector2 vFacing = ship.Center.DirectionToTarget(kv.Key);
-                    ship.AI.OrderMoveTo(kv.Key, vFacing, true, null);
+                    ship.AI.OrderMoveTo(kv.Key, vFacing, true, null, AIState.MoveTo);
                     ship.ForceCombatTimer();
 
                     availableShips.RemoveAtSwapLast(i);
@@ -970,7 +970,7 @@ namespace Ship_Game.Fleets
             }
 
             foreach (Ship ship in availableShips)
-                ship.AI.OrderMoveDirectlyTo(task.AO, Vectors.Up, true);
+                ship.AI.OrderMoveDirectlyTo(task.AO, Vectors.Up, true, AIState.MoveTo);
 
             return true;
         }
@@ -1083,26 +1083,26 @@ namespace Ship_Game.Fleets
                 {
                     case InvasionTactics.Screen:
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true, ai.State);
                         break;
 
                     case InvasionTactics.Rear:
                         if (!ai.HasPriorityOrder)
                         {
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset
-                                , FinalDirection, true, SpeedLimit * 0.75f);
+                                , FinalDirection, true, ai.State, SpeedLimit * 0.75f);
                         }
                         break;
 
                     case InvasionTactics.Center:
 
                         if (!ship.InCombat || ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber)
-                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true, ai.State);
                         break;
 
                     case InvasionTactics.Side:
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true);
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true, ai.State);
                         break;
 
                     case InvasionTactics.Wait:
