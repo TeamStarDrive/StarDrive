@@ -115,6 +115,14 @@ namespace Ship_Game
             TransientContent?.Dispose(ref TransientContent);
         }
 
+        // select size based on current res: Low, Normal, Hi
+        protected int SelectSize(int lowRes, int normalRes, int hiRes)
+        {
+            if (LowRes) return lowRes;
+            if (HiRes) return hiRes;
+            return normalRes;
+        }
+
         public void UpdateViewport() => Viewport = GameBase.Viewport;
 
         public void AddObject(ISceneObject so)    => ScreenManager.AddObject(so);
@@ -451,8 +459,9 @@ namespace Ship_Game
 
         public float ProjectToScreenSize(float sizeInWorld)
         {
-            Vector2 zero = ProjectToScreenPosition(Vector2.Zero);
-            return zero.Distance(ProjectToScreenPosition(new Vector2(sizeInWorld, 0f)));
+            Vector2 a = ProjectToScreenPosition(Vector2.Zero);
+            Vector2 b = ProjectToScreenPosition(new Vector2(sizeInWorld, 0f));
+            return a.Distance(b);
         }
 
         public Vector3 UnprojectToWorldPosition3D(Vector2 screenSpace)

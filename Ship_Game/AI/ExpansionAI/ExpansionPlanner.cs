@@ -37,15 +37,6 @@ namespace Ship_Game.AI.ExpansionAI
             return list.ToArray();
         }
 
-        MilitaryTask[] GetClaimTasks()
-        {
-            var list = new Array<MilitaryTask>();
-            foreach (var task in OwnerEmpire.GetEmpireAI().TaskList)
-                if (task.IsCoreFleetTask || task.type == MilitaryTask.TaskType.DefendClaim)
-                    list.Add(task);
-            return list.ToArray();
-        }
-
         int DesiredColonyGoals
         {
             get
@@ -133,7 +124,7 @@ namespace Ship_Game.AI.ExpansionAI
         /// </summary>
         void CreateClaimFleets()
         {
-            var claimTasks    = GetClaimTasks();
+            var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
             int desiredClaims = (DesiredColonyGoals * 2) - claimTasks.Length;
             var colonizing    = GetMarkedPlanets();
             var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
@@ -146,7 +137,7 @@ namespace Ship_Game.AI.ExpansionAI
                 if (taskTargets.Contains(rank.Planet))
                     continue;
                 var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength);
-                OwnerEmpire.GetEmpireAI().TasksToAdd.Add(task);
+                OwnerEmpire.GetEmpireAI().AddPendingTask(task);
                 desiredClaims--;
             }
         }
@@ -169,8 +160,7 @@ namespace Ship_Game.AI.ExpansionAI
 
                 AO ao = OwnerEmpire.GetEmpireAI().FindClosestAOTo(sys.Position);
 
-                float systemEnemyStrength = OwnerEmpire.GetEmpireAI().ThreatMatrix
-                    .PingRadarStr(sys.Position, sys.Radius, OwnerEmpire);
+                float systemEnemyStrength = OwnerEmpire.KnownEnemyStrengthIn(sys);
                 
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {

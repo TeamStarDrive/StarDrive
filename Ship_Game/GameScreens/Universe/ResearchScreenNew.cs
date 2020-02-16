@@ -44,7 +44,7 @@ namespace Ship_Game
             var main = new Rectangle(0, 0, ScreenWidth, ScreenHeight);
             MainMenu       = new Menu2(main);
             MainMenuOffset = new Vector2(main.X + 20, main.Y + 30);
-            close          = Add(new CloseButton(main.X + main.Width - 40, main.Y + 20));
+            close          = Add(new CloseButton(main.Right - 40, main.Y + 20));
 
             RootNodes.Clear();
             AllTechNodes.Clear();
@@ -54,7 +54,7 @@ namespace Ship_Game
 
             GridHeight = (main.Height - 40) / numDiscoveredRoots;
             MainMenuOffset.Y = main.Y + GridHeight / 3;
-            if (ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight <= 720)
+            if (ScreenHeight <= 720)
             {
                 MainMenuOffset.Y = MainMenuOffset.Y + 8f;
             }
@@ -239,7 +239,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if (input.Escaped || input.ResearchExitScreen)
+            if (input.ResearchExitScreen)
             {
                 GameAudio.EchoAffirmative();
                 ExitScreen();
@@ -250,7 +250,10 @@ namespace Ship_Game
                 camera.MoveClamped(input.CursorVelocity, ScreenCenter, new Vector2(3200));
 
             if (Empire.Universe.Debug && HandleDebugInput(input)) // DEBUG unlock inputs
+            {
+                EmpireManager.Player.UpdateForNewTech();
                 return true;
+            }
 
             if (Queue.HandleInput(input))
                 return true;

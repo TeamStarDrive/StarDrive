@@ -86,6 +86,20 @@ namespace Ship_Game
             return null;
         }
 
+        public static Empire GetEmpireByShipType(string shipType)
+        {
+            if (shipType.IsEmpty())
+                return null;
+
+            foreach (Empire empire in Empires)
+            {
+                if (empire.data.Traits.ShipType == shipType)
+                    return empire;
+            }
+
+            return null;
+        }
+
         static Empire FindPlayerEmpire()
         {
             foreach (Empire empire in Empires)
@@ -94,15 +108,20 @@ namespace Ship_Game
             return null;
         }
 
+        public static Array<Empire> GetPlayerAllies() => GetAllies(Player);
         public static Array<Empire> GetAllies(Empire e)
         {
             var allies = new Array<Empire>();
             if (e.isFaction)
                 return allies;
 
-            foreach (Empire empire in Empires)
-                if (!empire.isPlayer && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Alliance)
+            for (int i = 0; i < Empires.Count; i++)
+            {
+                Empire empire = Empires[i];
+                if (empire != e && e.TryGetRelations(empire, out Relationship r) && r.Known && r.Treaty_Alliance)
                     allies.Add(empire);
+            }
+
             return allies;
         }
 

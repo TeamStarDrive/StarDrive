@@ -1,4 +1,6 @@
-namespace Ship_Game.Gameplay
+using Ship_Game.Gameplay;
+
+namespace Ship_Game.GameScreens.DiplomacyScreen
 {
 	public sealed class DiplomacyDialog
 	{

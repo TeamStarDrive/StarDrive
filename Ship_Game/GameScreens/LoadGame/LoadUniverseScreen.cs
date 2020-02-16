@@ -97,9 +97,9 @@ namespace Ship_Game
 
             ScreenManager.GraphicsDevice.Clear(Color.Black);
             batch.Begin();
-            var artRect = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 960, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 540, 1920, 1080);
+            var artRect = new Rectangle(ScreenWidth / 2 - 960, ScreenHeight / 2 - 540, 1920, 1080);
             batch.Draw(LoadingImage, artRect, Color.White);
-            var meterBar = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 150, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight - 25, 300, 25);
+            var meterBar = new Rectangle(ScreenWidth / 2 - 150, ScreenHeight - 25, 300, 25);
 
             float percentLoaded = Progress.Percent;
             var pb = new ProgressBar(meterBar)
@@ -145,8 +145,7 @@ namespace Ship_Game
             GlobalStats.TurnTimer            = usData.TurnTimer != 0 ? usData.TurnTimer : 5;
             PlayerLoyalty = usData.PlayerLoyalty;
             RandomEventManager.ActiveEvent = null;
-            StatTracker.SnapshotsDict.Clear();
-            StatTracker.SnapshotsDict = usData.Snapshots;
+            StatTracker.SetSnapshots(usData.Snapshots);
 
             step.Finish();
             return usData;
@@ -192,7 +191,6 @@ namespace Ship_Game
             var us = new UniverseScreen(data, PlayerLoyalty)
             {
                 GamePace       = save.GamePacing,
-                GameScale      = save.GameScale,
                 StarDate       = save.StarDate,
                 ScreenManager  = ScreenManager,
                 CamPos         = new Vector3(save.campos.X, save.campos.Y, save.camheight),
@@ -236,7 +234,7 @@ namespace Ship_Game
 
                 if (ship.loyalty != EmpireManager.Player && ship.fleet == null)
                 {
-                    if (!ship.AddedOnLoad) ship.loyalty.ForcePoolAdd(ship);
+                    if (!ship.AddedOnLoad) ship.loyalty.Pool.ForcePoolAdd(ship);
                 }
                 else if (ship.AI.State == AIState.SystemDefender)
                 {

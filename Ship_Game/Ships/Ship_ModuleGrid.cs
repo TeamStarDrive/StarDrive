@@ -26,7 +26,6 @@ namespace Ship_Game.Ships
         {
             float minX = 0f, maxX = 0f, minY = 0f, maxY = 0f;
 
-            int numShields = 0;
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule module = ModuleSlotList[i];
@@ -37,31 +36,28 @@ namespace Ship_Game.Ships
                 if (topLeft.Y  < minY) minY = topLeft.Y;
                 if (botRight.X > maxX) maxX = botRight.X;
                 if (botRight.Y > maxY) maxY = botRight.Y;
-
-                if (module.shield_power_max > 0f)
-                    ++numShields;
             }
 
+            float spanX = maxX - minX;
+            float spanY = maxY - minY;
+
             GridOrigin = new Vector2(minX, minY);
-            GridWidth  = (int)(maxX - minX) / 16;
-            GridHeight = (int)(maxY - minY) / 16;
+            GridWidth  = (int)spanX / 16;
+            GridHeight = (int)spanY / 16;
             SparseModuleGrid   = new ShipModule[GridWidth * GridHeight];
             ExternalModuleGrid = new ShipModule[GridWidth * GridHeight];
+
+            // Ship radius is half of Module Grid's Diagonal Length
+            Radius = 0.5f * (float)Math.Sqrt(spanX*spanX + spanY*spanY);
 
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 UpdateGridSlot(SparseModuleGrid, ModuleSlotList[i], becameActive: true);
             }
 
-            // build active shields list
-            Shields = new ShipModule[numShields];
-            numShields = 0;
-            for (int i = 0; i < ModuleSlotList.Length; ++i)
-            {
-                ShipModule module = ModuleSlotList[i];
-                if (module.shield_power_max > 0f)
-                    Shields[numShields++] = module;
-            }
+            ShipUtils.CacheModules cachedModules = new ShipUtils.CacheModules(ModuleSlotList);
+            Shields    = cachedModules.Shields;
+            Amplifiers = cachedModules.Amplifiers;
 
             if (EnableDebugGridExport)
             {

@@ -1,5 +1,7 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.AI;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -133,18 +135,18 @@ namespace Ship_Game
         };
     }
 
+    // TODO: Replace with UIButton
     public class ToggleButton : UIElementV2
     {
+        // If TRUE, this ToggleButton is Toggled Active [x], if false, it is inactive [ ]
+        public bool IsToggled;
+
         // user defined metadata
-        public object State;
-
-        public bool Active;
+        public CombatState CombatState; // TODO Move this somewhere else
         public bool Hover;
-        bool Pressed;
+        bool WasClicked; // purely visual
 
-        public int WhichToolTip;
-        public bool HasToolTip;
-        public Color BaseColor = Color.White;
+        public ToolTipText Tooltip;
 
         readonly ToggleButtonStyle Style;
         SubTexture IconTexture, IconActive;
@@ -153,14 +155,12 @@ namespace Ship_Game
         string IconPath;
         Rectangle IconRect;
 
-        public delegate void ClickHandler(ToggleButton button);
-        public event ClickHandler OnClick;
+        public Action<ToggleButton> OnClick;
 
-        public override string ToString() => $"ToggleButton {ElementDescr} Icon:{IconPath} Status:{State}";
+        public override string ToString() => $"{TypeName} [{(IsToggled?"x":" ")}] {ElementDescr} Icon:{IconPath} Status:{CombatState}";
 
-        public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "", UIElementV2 container = null)
+        public ToggleButton(Vector2 pos, ToggleButtonStyle style, string iconPath = "")
         {
-            Parent = container;
             Pos = pos;
             Size = new Vector2(style.Width, style.Height);
             Style = style;
@@ -169,30 +169,28 @@ namespace Ship_Game
             this.PerformLayout();
         }
 
-        public ToggleButton(ToggleButtonStyle style, string iconPath, ClickHandler onClick)
+        public ToggleButton(ToggleButtonStyle style, string iconPath, Action<ToggleButton> onClick)
         {
             Size = new Vector2(style.Width, style.Height);
             Style = style;
             IconPath = iconPath;
+            OnClick = onClick;
             UpdateStyle();
             this.PerformLayout();
-
-            if (onClick != null)
-                OnClick += onClick;
         }
 
         public override void PerformLayout()
         {
             if (IconTexture == null)
             {
-                WordPos = new Vector2(Pos.X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f,
-                    Rect.Y + 12 - Fonts.Arial12Bold.LineSpacing / 2);             
+                WordPos = new Vector2(X + 12 - Fonts.Arial12Bold.MeasureString(IconPath).X / 2f,
+                                      Y + 12 - Fonts.Arial12Bold.LineSpacing / 2f);             
             }
             else
             {
-                IconRect = new Rectangle(Rect.X + Rect.Width  / 2 - IconTexture.Width  / 2,
-                    Rect.Y + Rect.Height / 2 - IconTexture.Height / 2,
-                    IconTexture.Width, IconTexture.Height);
+                IconRect = new Rectangle((int)CenterX - IconTexture.Width  / 2,
+                                         (int)CenterY - IconTexture.Height / 2,
+                                         IconTexture.Width, IconTexture.Height);
             }
         }
 
@@ -215,19 +213,23 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            if (!Visible)
+                return;
+
             UpdateStyle();
 
-            if (Pressed)
+            if (WasClicked)
             {
+                WasClicked = false;
                 batch.Draw(Style.Press, Rect, Color.White);
+            }
+            if (IsToggled)
+            {
+                batch.Draw(Style.Active, Rect, Color.White);
             }
             else if (Hover)
             {
                 batch.Draw(Style.Hover, Rect, Color.White);                
-            }
-            else if (Active)
-            {
-                batch.Draw(Style.Active, Rect, Color.White);
             }
             else
             {
@@ -236,13 +238,7 @@ namespace Ship_Game
 
             if (IconTexture == null)
             {
-                if (Active)
-                {
-                    batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.White);
-                    return;
-                }
-
-                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, Color.Gray);
+                batch.DrawString(Fonts.Arial12Bold, IconPath, WordPos, IsToggled ? Color.White : Color.Gray);
             }
             else
             {
@@ -253,33 +249,32 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            Pressed = false;
-            if (!Rect.HitTest(input.CursorPosition))
-            {
-                Hover = false;
+            if (!Visible || !Enabled)
                 return false;
-            }
-            if (!Hover)
-            {
-                GameAudio.ButtonMouseOver();
-                if (WhichToolTip != 0)
-                    ToolTip.CreateTooltip(WhichToolTip);
-            }
-            Hover = true;
 
-            if (input.LeftMouseClick)
+            bool wasHovered = Hover;
+            Hover = base.HitTest(input.CursorPosition);
+            if (Hover)
             {
-                if (OnClick != null)
+                if (!wasHovered)
+                    GameAudio.ButtonMouseOver();
+
+                if (Tooltip.IsValid)
+                        ToolTip.CreateTooltip(Tooltip);
+
+                if (input.LeftMouseClick)
                 {
                     GameAudio.AcceptClick();
-                    OnClick(this);
+                    IsToggled = !IsToggled;
+                    WasClicked = true;
+                    OnClick?.Invoke(this);
+                    return true;
                 }
-                Pressed = true;
-                return true;
-            }
 
-            // edge case: capture mouse release events
-            return input.LeftMouseReleased;
+                // edge case: capture mouse release events
+                return input.LeftMouseReleased;
+            }
+            return false;
         }
     }
 }

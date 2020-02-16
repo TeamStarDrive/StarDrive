@@ -9,7 +9,7 @@
   <DefaultSmallTransport>Creeper Transport</DefaultSmallTransport>
   <DefaultTroopShip>Opteris Troop</DefaultTroopShip>
   <DefaultColonyShip>Opteris Hivepod</DefaultColonyShip>
-  <DefaultConstructor>Creeper Transport</DefaultConstructor>
+  <DefaultConstructor>Opteris Constructor</DefaultConstructor>
   
   <RebelName>Liberated Opteris AI</RebelName>
   <RebelSing>Liberated AI</RebelSing>

@@ -16,6 +16,17 @@ namespace Ship_Game.Ships
         // after X seconds of ships being invisible, we remove their scene objects
         const float RemoveInvisibleSceneObjectsAfterTime = 15f;
 
+        public void ShowSceneObjectAt(Vector3 position)
+        {
+            if (ShipSO == null)
+            {
+                Log.Info("Showing SceneObject");
+                CreateSceneObject();
+            }
+            ShipSO.World = Matrix.CreateTranslation(position);
+            ShipSO.Visibility = GlobalStats.ShipVisibility;
+        }
+
         // NOTE: This is called on the main UI Thread by UniverseScreen
         // check UniverseScreen.QueueShipSceneObject()
         public void CreateSceneObject()
@@ -24,15 +35,16 @@ namespace Ship_Game.Ships
                 return; // allow creating invisible ships in Unit Tests
 
             //Log.Info($"CreateSO {Id} {Name}");
-            shipData.LoadModel(out ShipSO, Empire.Universe);
-            Radius = shipData.BaseHull.Radius;
+            shipData.LoadModel(out ShipSO, Empire.Universe.ContentManager);
             ShipSO.World = Matrix.CreateTranslation(new Vector3(Position, 0f));
-            UpdateVisibility(0f);
+
+            // Since we just created the object, it must be visible
+            UpdateVisibility(0f, forceVisible: true);
 
             ScreenManager.Instance.AddObject(ShipSO);
         }
 
-        void RemoveSceneObject()
+        public void RemoveSceneObject()
         {
             SceneObject so = ShipSO;
             ShipSO = null;
@@ -44,9 +56,9 @@ namespace Ship_Game.Ships
             }
         }
 
-        void UpdateVisibility(float elapsedTime)
+        void UpdateVisibility(float elapsedTime, bool forceVisible)
         {
-            bool inFrustum = (System == null || System.isVisible)
+            bool inFrustum = forceVisible || (System == null || System.isVisible)
                 && Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView
                 && (Empire.Universe.Frustum.Contains(Position, 2000f) || 
                     (AI?.Target != null &&
@@ -98,7 +110,7 @@ namespace Ship_Game.Ships
                 if (ScuttleTimer <= 0f) Die(null, true);
             }
 
-            UpdateVisibility(elapsedTime);
+            UpdateVisibility(elapsedTime, forceVisible: false);
             ShieldRechargeTimer += elapsedTime;
 
             if (TetheredTo != null)
@@ -109,6 +121,8 @@ namespace Ship_Game.Ships
             }
             if (Mothership != null && !Mothership.Active) //Problematic for drones...
                 Mothership = null;
+
+            SetFleetCapableStatus();
 
             if (!dying) UpdateAlive(elapsedTime);
             else        UpdateDying(elapsedTime);
@@ -173,6 +187,7 @@ namespace Ship_Game.Ships
             }
 
             SoundEmitter.Position = new Vector3(Center, 0);
+
             ResetFrameThrustState();
         }
 

@@ -4,22 +4,22 @@ using System.Reflection;
 
 namespace Ship_Game
 {
-	public sealed class Ref<T>
-	{
-		private readonly Func<T>   Getter;
-		private readonly Action<T> Setter;
+    public sealed class Ref<T>
+    {
+        readonly Func<T>   Getter;
+        readonly Action<T> Setter;
 
-		public T Value
-		{
-			get => Getter();
-		    set => Setter(value);
-		}
+        public T Value
+        {
+            get => Getter();
+            set => Setter(value);
+        }
 
-		public Ref(Func<T> getter, Action<T> setter)
-		{
-			Getter = getter;
-			Setter = setter;
-		}
+        public Ref(Func<T> getter, Action<T> setter)
+        {
+            Getter = getter;
+            Setter = setter;
+        }
 
         // Create a property reference to a FIELD or PROPERTY
         // Usage:

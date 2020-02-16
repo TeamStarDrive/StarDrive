@@ -257,7 +257,7 @@ namespace Ship_Game.Data
                     NoExt     = assetName.Substring(0, assetName.Length - 4);
                 }
 
-                NoExt = NoExt.Replace("\\", "/"); // normalize path
+                NoExt = NoExt.NormalizedFilePath(); // normalize path
 
                 if (NoExt.StartsWith("./"))
                     NoExt = NoExt.Substring(2);
@@ -311,14 +311,28 @@ namespace Ship_Game.Data
             if (assetType == typeof(SubTexture))   return (T)(object)LoadSubTexture(assetName);
             if (assetType == typeof(TextureAtlas)) return (T)(object)LoadTextureAtlas(assetName, useCache);
 
+
+
             if (useCache && TryGetAsset(assetName, out T existing))
                 return existing;
-
             T loaded;
+
+            var xnaPath = asset.NoExt;
+
+            // hack to make sure the video asset is loaded with the mod WMV path
+            if (GlobalStats.HasMod && assetType == typeof(Video))
+            {
+                var info = new FileInfo(GlobalStats.ModPath + assetName + ".xnb");
+                if (info.Exists)
+                {
+                    xnaPath = "../" + GlobalStats.ModPath + assetName;
+                }
+            }
+
             if (asset.NonXnaAsset)
-                loaded = (T)RawContent.LoadAsset(assetName, asset.Extension);
+                loaded = (T) RawContent.LoadAsset(assetName, asset.Extension);
             else
-                loaded = ReadAsset<T>(asset.NoExt, DoNothingWithDisposable);
+                loaded = ReadAsset<T>(xnaPath, DoNothingWithDisposable);
 
             // detect possible resource leaks -- this is very slow, so only enable on demand
             #if false
@@ -460,6 +474,8 @@ namespace Ship_Game.Data
         {
             try
             {
+                // NOTE: This will not create the path properly for XNB pointer files like video.
+
                 // trying to do a direct Mod asset load, this may be different from currently active mod
                 if (assetName.StartsWith("Mods/", StringComparison.OrdinalIgnoreCase)) 
                 {
@@ -469,7 +485,10 @@ namespace Ship_Game.Data
                 if (GlobalStats.HasMod)
                 {
                     var info = new FileInfo(GlobalStats.ModPath + assetName + ".xnb");
-                    if (info.Exists) return info.OpenRead();
+                    if (info.Exists)
+                    {
+                        return info.OpenRead();
+                    }
                 }
                 return File.OpenRead("Content/" + assetName + ".xnb");
             }

@@ -42,9 +42,9 @@ namespace UnitTests
                 CachedVisibility = Visible;
                 Form.Visible = Visible;
             }
-            if (!Visible)
-                return;
 
+            // Always Update, even if game is not visible
+            // Let the ScreenManager/GameScreen system figure out what to do
             Keys = Keyboard.GetState();
             base.Update(time);
 
@@ -54,9 +54,8 @@ namespace UnitTests
 
         protected override void Draw(GameTime time)
         {
-            if (!Visible)
-                return;
-
+            // Always Draw, even if game is not visible
+            // Because we want our unit tests to go through the entire system
             GraphicsDevice.Clear(Color.Black);
             ScreenManager.UpdateGraphicsDevice();
 

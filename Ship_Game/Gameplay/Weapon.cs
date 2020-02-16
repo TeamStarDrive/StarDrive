@@ -614,7 +614,7 @@ namespace Ship_Game.Gameplay
                     PickShipTarget(mainTarget, enemyShips);
                 }
             }
-            
+
             if (FireTarget != null)
             {
                 if (isBeam)
@@ -904,8 +904,8 @@ namespace Ship_Game.Gameplay
                 off += EMPDamage * SalvoCount * ProjectileCount * (1f / NetFireDelay) * .5f;
             }
 
-            //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit. Setting at flat 25% currently.
-            off *= Tag_Guided ? 1.25f : 1f;
+            //Doctor: Guided weapons attract better offensive rating than unguided - more likely to hit
+            off *= Tag_Guided ? 3f : 1f;
 
             //FB: Range margins are less steep for missiles
             off *= !Tag_Missile && !Tag_Torpedo ? (BaseRange / 4000) * (BaseRange / 4000) : (BaseRange / 4000);
@@ -919,6 +919,9 @@ namespace Ship_Game.Gameplay
             off *= TruePD ? .2f : 1f;
             off *= Tag_Intercept && Tag_Missile ? .8f : 1f;
             off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
+
+            // FB: Missiles which can be intercepted might get str modifiers
+            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.ClampMin(2) : 1;
 
             // FB: offense calcs for damage radius
             off *= DamageRadius > 24 && !TruePD ? DamageRadius / 24f : 1f;
@@ -940,9 +943,7 @@ namespace Ship_Game.Gameplay
             if (m == null)
                 return off * OffPowerMod;
 
-            //Doctor: If there are manual XML override modifiers to a weapon for manual balancing, apply them.
-
-            //FB: Kinetics which does also require more than minimal power to shoot is less effective
+            // FB: Kinetics which does also require more than minimal power to shoot is less effective
             off *= Tag_Kinetic && PowerRequiredToFire > 10 * m.Area ? 0.5f : 1f;
 
             //FB: Kinetics which does also require more than minimal power to maintain is less effective

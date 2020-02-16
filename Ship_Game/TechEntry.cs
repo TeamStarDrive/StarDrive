@@ -19,6 +19,9 @@ namespace Ship_Game
         [Serialize(6)] public bool shipDesignsCanuseThis = true;
         [Serialize(7)] public Array<string> WasAcquiredFrom;
 
+
+        public bool Locked => !Unlocked;
+
         /// <summary>
         /// Checks if list  contains restricted trade type. 
         /// </summary>
@@ -467,6 +470,27 @@ namespace Ship_Game
             return false;
         }
 
+        public bool UnlockFromScrap(Empire us, Empire them)
+        {
+            if (Locked)
+            {
+                float percentToAdd = 0.25f * (1 + us.data.Traits.ModHpModifier); // skilled or bad engineers
+                AddToProgress(TechCost * percentToAdd, us, out bool unLocked);
+                if (unLocked)
+                    us.UnlockTech(this, TechUnlockType.Normal, null);
+
+                return true;
+            }
+
+            if (WasAcquiredFrom.AddUnique(them.data.Traits.ShipType))
+            {
+                UnlockTechContentOnly(us, them);
+                return true;
+            }
+
+            return false;
+        }
+
         public bool UnlockFromDiplomacy(Empire us, Empire them)
         {
             if (!Unlocked)
@@ -837,6 +861,7 @@ namespace Ship_Game
                 case "Shield Power Bonus": data.ShieldPowerMod += unlockedBonus.Bonus; break;
                 case "Ship Experience Bonus": data.ExperienceMod += unlockedBonus.Bonus; break;
                 case "Kinetic Shield Penetration Chance Bonus": data.ShieldPenBonusChance += unlockedBonus.Bonus; break;
+                case "Tax Goods": data.Traits.TaxGoods = true; break;
             }
         }
 

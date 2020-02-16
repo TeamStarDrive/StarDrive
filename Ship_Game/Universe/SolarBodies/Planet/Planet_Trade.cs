@@ -63,7 +63,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.EXPORT)
                     return 0;
 
-                return (int)(PopulationBillion / 2);
+                return (int)(PopulationBillion / 3);
             }
         }
 
@@ -74,10 +74,10 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportFood)
                     return 0;
 
-                if (NoGovernorAndNotTradeHub && Storage.FoodRatio > 0.5f)
-                    return 0;  // for players with no governor or with trade hub - only 50% storage or less will open slots
+                if (NoGovernorAndNotTradeHub && Storage.FoodRatio > 0.9f)
+                    return 0;  // for players with no governor or with trade hub - only 90% storage or less will open slots
 
-                if (!ShortOnFood())
+                if (Owner.AutoTrade && !ShortOnFood())
                     return 0; // for auto trade, the planet also needs to be short on food
 
                 int foodIncomeSlots  = (int)(1 - Food.NetIncome);
@@ -93,15 +93,15 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
-                if (Owner.NonCybernetic)
+                if (NonCybernetic)
                 {
-                    if (ConstructionQueue.Count > 0 && Storage.ProdRatio.AlmostEqual(1))
+                    if (ConstructionQueue.Count == 0 && Storage.ProdRatio.AlmostEqual(1))
                         return 0; // for non governor cases when all full and not constructing
 
                     return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,6);
                 }
 
-                return ((int)(Storage.Max - Storage.Prod / 10)).Clamped(0, 8);
+                return ((int)(Storage.Max - Storage.Prod) / 10).Clamped(0, 8);
             }
         }
 
@@ -112,7 +112,7 @@ namespace Ship_Game
                 if (TradeBlocked || ColonistsTradeState != GoodState.IMPORT)
                     return 0;
 
-                return (int)(MaxPopulationBillion - PopulationBillion).Clamped(0, 5);
+                return (int)(8 - PopulationBillion).Clamped(0, 5);
             }
         }
 

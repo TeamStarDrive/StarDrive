@@ -54,14 +54,14 @@ namespace Ship_Game
             }
         }
 
-        public SpatialObj(GameplayObject go, float radius)
+        public SpatialObj(Vector2 center, float radius)
         {
-            Obj           = go;
-            Type          = go.Type;
-            Loyalty       = (byte)go.GetLoyaltyId();
+            Obj           = null;
+            Type          = GameObjectType.None;
+            Loyalty       = 0;
             OverlapsQuads = 0;
             LastUpdate    = 0;
-            Center        = go.Center;
+            Center        = center;
             Radius        = radius;
             X             = Center.X - radius;
             Y             = Center.Y - radius;
@@ -676,58 +676,81 @@ namespace Ship_Game
             return projectile.Touch(victim);
         }
 
-        static void FindNearbyAtNode(Node node, ref SpatialObj nearbyDummy, GameObjectType filter, 
-                                     ref int numNearby, ref GameplayObject[] nearby)
+        static void FindNearbyAtNode(Node node, ref SpatialObj searchAreaRect,
+                                     GameObjectType filter, ref int numNearby, ref GameplayObject[] nearby)
         {
+            byte loyalty = searchAreaRect.Loyalty;
             int count = node.Count;
             SpatialObj[] items = node.Items;
             for (int i = 0; i < count; ++i)
             {
                 ref SpatialObj so = ref items[i];
-                if (filter != GameObjectType.None && (so.Obj.Type & filter) == 0)
+                GameplayObject go = so.Obj;
+                if (go == null)
+                    continue; // bah!
+
+                if (filter != GameObjectType.None && (go.Type & filter) == 0)
                     continue; // no filter match
 
+                // filter by loyalty?
+                if (loyalty != 0 && loyalty != so.Loyalty)
+                    continue;
+
                 // ignore self  and  ensure in radius
-                if (so.Obj == nearbyDummy.Obj || !nearbyDummy.HitTestNearby(ref so))
+                if (go == searchAreaRect.Obj || !searchAreaRect.HitTestNearby(ref so))
                     continue;
 
                 if (numNearby == nearby.Length) // "clever" resize
                     Array.Resize(ref nearby, numNearby + count);
 
-                nearby[numNearby++] = so.Obj;
+                nearby[numNearby++] = go;
             }
             if (node.NW != null)
             {
-                FindNearbyAtNode(node.NW, ref nearbyDummy, filter, ref numNearby, ref nearby);
-                FindNearbyAtNode(node.NE, ref nearbyDummy, filter, ref numNearby, ref nearby);
-                FindNearbyAtNode(node.SE, ref nearbyDummy, filter, ref numNearby, ref nearby);
-                FindNearbyAtNode(node.SW, ref nearbyDummy, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.NW, ref searchAreaRect, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.NE, ref searchAreaRect, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.SE, ref searchAreaRect, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node.SW, ref searchAreaRect, filter, ref numNearby, ref nearby);
             }
         }
 
-        public GameplayObject[] FindNearby(GameplayObject obj, float radius, GameObjectType filter = GameObjectType.None)
+        /// <summary>
+        /// Finds nearby GameplayObjects using multiple filters
+        /// </summary>
+        /// <param name="worldPos">Origin of the search</param>
+        /// <param name="radius">Radius of the search area</param>
+        /// <param name="filter">Game object types to filter by, eg Ships or Projectiles</param>
+        /// <param name="toIgnore">Single game object to ignore (usually our own ship), null (default): no ignore</param>
+        /// <param name="loyaltyFilter">Filter results by loyalty, usually friendly, null (default): no filtering</param>
+        /// <returns></returns>
+        public GameplayObject[] FindNearby(Vector2 worldPos, float radius, GameObjectType filter = GameObjectType.None,
+                                           GameplayObject toIgnore = null, // null: accept all results
+                                           Empire loyaltyFilter = null)
         {
             // assume most results will be either empty, or only from a single quadrant
             // this means using a dynamic Array will be way more wasteful
             int numNearby = 0;
             GameplayObject[] nearby = Empty<GameplayObject>.Array;
 
-            var nearbyDummy = new SpatialObj(obj, radius); // dummy object to simplify our search interface
+            // we create a dummy object which covers our search radius
+            var enclosingRectangle = new SpatialObj(worldPos, radius);
+            enclosingRectangle.Obj = toIgnore; // This object will be excluded from the search
+            enclosingRectangle.Loyalty = (byte)(loyaltyFilter?.Id ?? 0); // filter by loyalty?
 
             // find the deepest enclosing node
-            Node node = FindEnclosingNode(ref nearbyDummy);
+            Node node = FindEnclosingNode(ref enclosingRectangle);
             if (node != null)
-                FindNearbyAtNode(node, ref nearbyDummy, filter, ref numNearby, ref nearby);
+                FindNearbyAtNode(node, ref enclosingRectangle, filter, ref numNearby, ref nearby);
 
             if (numNearby != nearby.Length)
                 Array.Resize(ref nearby, numNearby);
 
-            if (ShouldStoreDebugInfo) AddNearbyDebug(obj, radius, nearby);
-            else                      DebugFindNearby.Clear();
             return nearby;
         }
 
-        static bool ShouldStoreDebugInfo => Empire.Universe.Debug && Empire.Universe.DebugWin != null;
+        static bool ShouldStoreDebugInfo => Empire.Universe.Debug
+                                         && Empire.Universe.DebugWin != null
+                                         && Debug.DebugInfoScreen.Mode == Debug.DebugModes.SpatialManager;
 
         static void AddNearbyDebug(GameplayObject obj, float radius, GameplayObject[] nearby)
         {
@@ -754,7 +777,6 @@ namespace Ship_Game
         static readonly Color Brown  = new Color(Color.SaddleBrown, 150);
         static readonly Color Violet = new Color(Color.MediumVioletRed, 100);
 
-        static readonly Color Golden = new Color(Color.Gold, 100);
         // "Allies are Blue, Enemies are Red, what should I do, with our Quadtree?" - RedFox
         static readonly Color Blue   = new Color(Color.CadetBlue, 100);
         static readonly Color Red    = new Color(Color.OrangeRed, 100);

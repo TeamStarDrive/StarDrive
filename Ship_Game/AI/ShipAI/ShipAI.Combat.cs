@@ -62,7 +62,11 @@ namespace Ship_Game.AI
 
             for (int i = 0; i < count; ++i)
             {
-                weapons[i].UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets);
+                var weapon = weapons[i];
+                if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
+                    weapon.FireTarget.ParentIsThis(Target))
+                    FireOnMainTargetTime = 
+                        (weapon.isBeam ? weapon.BeamDuration : weapon.SalvoDuration).ClampMin(FireOnMainTargetTime);
             }
         }
 
@@ -77,10 +81,10 @@ namespace Ship_Game.AI
             if (Owner.TrackingPower <= 0 || !hasPointDefense)
                 return;
 
-            // @todo This usage of GetNearby is slow! Consider creating a specific SpatialManager search function
-            foreach (GameplayObject go in Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange))
+            GameplayObject[] projectiles = Owner.GetObjectsInSensors(GameObjectType.Proj, Owner.WeaponsMaxRange);
+            foreach (GameplayObject go in projectiles)
             {
-                var missile = (Projectile) go;
+                var missile = (Projectile)go;
                 if (missile.Weapon.Tag_Intercept && Owner.loyalty.IsEmpireAttackable(missile.Loyalty))
                     TrackProjectiles.Add(missile);
             }
@@ -264,7 +268,7 @@ namespace Ship_Game.AI
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.armor_max, armorAvg, FleetNode.ArmoredWeight);
                 copyWeight += FleetNode.ApplyWeight(copyWeight.Ship.SurfaceArea, sizeAvg, FleetNode.SizeWeight);
                 copyWeight += FleetNode.ApplyFleetWeight(Owner.fleet, copyWeight.Ship);
-                //ShipWiegth is a struct so we are working with a copy. Need to overwrite existing value. 
+                //ShipWeight is a struct so we are working with a copy. Need to overwrite existing value. 
                 NearByShips[i] = copyWeight;
             }
         }

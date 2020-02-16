@@ -7,13 +7,11 @@ namespace Ship_Game
 {
     public sealed class ResearchPopup : PopupWindow
     {
-        public bool fade = true;
+        public bool fade;
         public bool FromGame;
         public string TechUID;
-        private ScrollList UnlockSL;
-        private Rectangle UnlocksRect;
-
-        private readonly Technology Technology;
+        ScrollList2<UnlockListItem> UnlockSL;
+        readonly Technology Technology;
         
         public ResearchPopup(UniverseScreen s, string uid) : base(s, 600, 600)
         {
@@ -35,104 +33,101 @@ namespace Ship_Game
             MiddleText = Localizer.Token(techEntry.Tech.DescriptionIndex);
         }
 
-        public override void Draw(SpriteBatch batch)
+        class UnlockListItem : ScrollListItem<UnlockListItem>
         {
-            if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
-
-            base.Draw(batch);
-
-            batch.Begin();
-            UnlockSL.Draw(batch);
-
-            foreach (ScrollList.Entry entry in UnlockSL.VisibleExpandedEntries)
+            readonly UnlockItem Unlock;
+            public UnlockListItem(UnlockItem unlock)
             {
-                void DrawTitleAndDescr(string title, string descr)
-                {
-                    string wrappedDescr = Fonts.Arial12.ParseText(descr, entry.W - 100);
-                    float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
-                    var pos = new Vector2(entry.X + 100, entry.CenterY - (int)(textHeight / 2f));
+                Unlock = unlock;
+            }
+            void DrawTitleAndDescr(SpriteBatch batch, string title, string descr)
+            {
+                string wrappedDescr = Fonts.Arial12.ParseText(descr, Width - 100);
+                float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
+                var pos = new Vector2(X + 100, CenterY - (int)(textHeight / 2f));
 
-                    HelperFunctions.DrawDropShadowText(batch, title, pos, Fonts.Arial14Bold, Color.Orange);
-                    batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
-                }
-
-                var unlockItem = (UnlockItem)entry.item;
-                switch (unlockItem.Type)
+                batch.DrawDropShadowText(title, pos, Fonts.Arial14Bold, Color.Orange);
+                batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                switch (Unlock.Type)
                 {
                     case UnlockType.SHIPMODULE:
                     {
                         Rectangle DestinationRect(int width, int height)
                         {
-                            return new Rectangle(entry.X + 48 - width / 2, entry.CenterY - height / 2, width, height);
+                            return new Rectangle((int)X + 48 - width / 2, (int)CenterY - height / 2, width, height);
                         }
 
-                        int modW = unlockItem.module.XSIZE, modH = unlockItem.module.YSIZE;
+                        int modW = Unlock.module.XSIZE, modH = Unlock.module.YSIZE;
                         Rectangle r = DestinationRect(64, 64);
                         if (modW != 1 || modH != 1)
                         {
                             r = DestinationRect(modW * 16, modH * 16);
-                            while (r.Height < entry.H) r = DestinationRect(r.Width + modW, r.Height + modH);
-                            while (r.Height > entry.H) r = DestinationRect(r.Width - modW, r.Height - modH);                                    
+                            while (r.Height < Height) r = DestinationRect(r.Width + modW, r.Height + modH);
+                            while (r.Height > Height) r = DestinationRect(r.Width - modW, r.Height - modH);                                    
                         }
-                        batch.Draw(ResourceManager.Texture(unlockItem.module.IconTexturePath), r, Color.White);
+                        batch.Draw(ResourceManager.Texture(Unlock.module.IconTexturePath), r, Color.White);
 
-                        DrawTitleAndDescr(unlockItem.privateName, unlockItem.Description);
+                        DrawTitleAndDescr(batch, Unlock.privateName, Unlock.Description);
                         break;
                     }
                     case UnlockType.TROOP:
                     {
-                        var r = new Rectangle(UnlocksRect.X + 16, entry.CenterY - 32, 64, 64);
-                        unlockItem.troop.Draw(batch, r);
+                        var r = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
+                        Unlock.troop.Draw(batch, r);
 
-                        DrawTitleAndDescr(unlockItem.troop.Name, unlockItem.troop.Description);
+                        DrawTitleAndDescr(batch, Unlock.troop.Name, Unlock.troop.Description);
                         break;
                     }
                     case UnlockType.BUILDING:
                     {
-                        var r = new Rectangle(UnlocksRect.X + 16, entry.CenterY - 32, 64, 64);
-                        batch.Draw(ResourceManager.Texture($"Buildings/icon_{unlockItem.building.Icon}_64x64"), r, Color.White);
+                        var r = new Rectangle((int)X + 16, (int)CenterY - 32, 64, 64);
+                        batch.Draw(ResourceManager.Texture($"Buildings/icon_{Unlock.building.Icon}_64x64"), r, Color.White);
 
-                        string title = Localizer.Token(unlockItem.building.NameTranslationIndex);
-                        string descr = Localizer.Token(unlockItem.building.DescriptionIndex);
-                        DrawTitleAndDescr(title, descr);
+                        string title = Localizer.Token(Unlock.building.NameTranslationIndex);
+                        string descr = Localizer.Token(Unlock.building.DescriptionIndex);
+                        DrawTitleAndDescr(batch, title, descr);
                         break;
                     }
                     case UnlockType.HULL:
                     {
-                        if (ResourceManager.Hull(unlockItem.privateName, out ShipData hull))
+                        if (ResourceManager.Hull(Unlock.privateName, out ShipData hull))
                         {
-                            var r = new Rectangle(UnlocksRect.X, entry.Y, 96, 96);
+                            var r = new Rectangle((int)X, (int)CenterY - 32, 96, 96);
                             batch.Draw(hull.Icon, r, Color.White);
-                            DrawTitleAndDescr(unlockItem.HullUnlocked, unlockItem.Description);
+                            DrawTitleAndDescr(batch, Unlock.HullUnlocked, Unlock.Description);
                         }
                         break;
                     }
                     case UnlockType.ADVANCE:
                     {
-                        var r = new Rectangle(UnlocksRect.X + 24, entry.Y + 24, 48, 48);
+                        var r = new Rectangle((int)X + 24, (int)Y + 24, 48, 48);
                         batch.Draw(ResourceManager.Texture("TechIcons/star"), r, Color.White);
-                        DrawTitleAndDescr(unlockItem.privateName, unlockItem.Description);
+                        DrawTitleAndDescr(batch, Unlock.privateName, Unlock.Description);
                         break;
                     }
                 }
             }
-            batch.End();
         }
 
-        public override bool HandleInput(InputState input)
+        public override void Draw(SpriteBatch batch)
         {
-            UnlockSL.HandleInput(input);
-            return base.HandleInput(input);
+            if (fade) ScreenManager.FadeBackBufferToBlack((TransitionAlpha * 2) / 3);
+
+            base.Draw(batch);
         }
 
         public override void LoadContent()
         {
             base.LoadContent();
-            UnlocksRect = new Rectangle(MidContainer.X + 20, 
-                                        MidContainer.Y + MidContainer.Height - 20, 
-                                        Rect.Width - 40, 
-                                        Rect.Height - MidContainer.Height - TitleRect.Height - 20);
-            UnlockSL = new ScrollList(new Submenu(UnlocksRect), 100);
+
+            var rect = new Rectangle(MidContainer.X + 20, 
+                                     MidContainer.Y + MidContainer.Height - 20, 
+                                     Rect.Width - 40, 
+                                     Rect.Height - MidContainer.Height - TitleRect.Height - 20);
+            UnlockSL = Add(new ScrollList2<UnlockListItem>(rect, 100));
 
             // @todo What is this?
             bool IsShipType(string type)
@@ -145,64 +140,70 @@ namespace Ship_Game
 
             foreach (Technology.UnlockedMod module in Technology.ModulesUnlocked)
             {
-                if (!IsShipType(module.Type))
-                    continue;
-                ShipModule template = ResourceManager.GetModuleTemplate(module.ModuleUID);
-                var unlock = new UnlockItem
+                if (IsShipType(module.Type))
                 {
-                    Type = UnlockType.SHIPMODULE,
-                    module = template,
-                    Description = Localizer.Token(template.DescriptionIndex),
-                    privateName = Localizer.Token(template.NameIndex)
-                };
-                UnlockSL.AddItem(unlock);
+                    ShipModule template = ResourceManager.GetModuleTemplate(module.ModuleUID);
+                    var unlock = new UnlockItem
+                    {
+                        Type = UnlockType.SHIPMODULE,
+                        module = template,
+                        Description = Localizer.Token(template.DescriptionIndex),
+                        privateName = Localizer.Token(template.NameIndex)
+                    };
+                    UnlockSL.AddItem(new UnlockListItem(unlock));
+                }
             }
             foreach (Technology.UnlockedTroop troop in Technology.TroopsUnlocked)
             {
-                if (!IsShipType(troop.Type))
-                    continue;
-                var unlock = new UnlockItem
+                if (IsShipType(troop.Type))
                 {
-                    Type = UnlockType.TROOP,
-                    troop = ResourceManager.GetTroopTemplate(troop.Name)
-                };
-                UnlockSL.AddItem(unlock);
+                    var unlock = new UnlockItem
+                    {
+                        Type = UnlockType.TROOP,
+                        troop = ResourceManager.GetTroopTemplate(troop.Name)
+                    };
+                    UnlockSL.AddItem(new UnlockListItem(unlock));
+                }
             }
             foreach (Technology.UnlockedHull hull in Technology.HullsUnlocked)
             {
-                if (!IsShipType(hull.ShipType) || !ResourceManager.Hull(hull.Name, out ShipData hullData))
-                    continue;
-                var unlock = new UnlockItem
+                if (IsShipType(hull.ShipType) && ResourceManager.Hull(hull.Name, out ShipData hullData))
                 {
-                    Type = UnlockType.HULL,
-                    privateName = hull.Name,
-                    HullUnlocked = hullData.Name
-                };
-                unlock.Description = Localizer.Token(4042) + " " + Localizer.GetRole(hullData.Role, EmpireManager.Player);
-                UnlockSL.AddItem(unlock);
+                    var unlock = new UnlockItem
+                    {
+                        Type = UnlockType.HULL,
+                        privateName = hull.Name,
+                        HullUnlocked = hullData.Name
+                    };
+                    unlock.Description = Localizer.Token(4042) + " " +
+                                         Localizer.GetRole(hullData.Role, EmpireManager.Player);
+                    UnlockSL.AddItem(new UnlockListItem(unlock));
+                }
             }
             foreach (Technology.UnlockedBuilding building in Technology.BuildingsUnlocked)
             {
-                if (!IsShipType(building.Type))
-                    continue;
-                var unlock = new UnlockItem
+                if (IsShipType(building.Type))
                 {
-                    Type = UnlockType.BUILDING,
-                    building = ResourceManager.GetBuildingTemplate(building.Name)
-                };
-                UnlockSL.AddItem(unlock);
+                    var unlock = new UnlockItem
+                    {
+                        Type = UnlockType.BUILDING,
+                        building = ResourceManager.GetBuildingTemplate(building.Name)
+                    };
+                    UnlockSL.AddItem(new UnlockListItem(unlock));
+                }
             }
             foreach (Technology.UnlockedBonus bonus in Technology.BonusUnlocked)
             {
-                if (!IsShipType(bonus.Type))
-                    continue;
-                var unlock = new UnlockItem
+                if (IsShipType(bonus.Type))
                 {
-                    Type = UnlockType.ADVANCE,
-                    privateName = bonus.Name,
-                    Description = Localizer.Token(bonus.BonusIndex)
-                };
-                UnlockSL.AddItem(unlock);
+                    var unlock = new UnlockItem
+                    {
+                        Type = UnlockType.ADVANCE,
+                        privateName = bonus.Name,
+                        Description = Localizer.Token(bonus.BonusIndex)
+                    };
+                    UnlockSL.AddItem(new UnlockListItem(unlock));
+                }
             }
         }
     }

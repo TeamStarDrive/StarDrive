@@ -97,7 +97,7 @@ namespace Ship_Game
         bool PlayerFilter(IEmpireData d)
         {
             if (PlayerPreference.NotEmpty())
-                return d.Name.Contains(PlayerPreference);
+                return d.ArchetypeName.Contains(PlayerPreference);
             return d.IsCybernetic == PlayerIsCybernetic;
         }
 
@@ -111,7 +111,8 @@ namespace Ship_Game
             CurrentGame.StartNew(sandbox, pace:1f);
 
             IEmpireData player = RandomMath.RandItem(ResourceManager.MajorRaces.Filter(PlayerFilter));
-            IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(data => data.Name != player.Name);
+            IEmpireData[] opponents = ResourceManager.MajorRaces.Filter(
+                               data => data.ArchetypeName != player.ArchetypeName);
 
             var races = new Array<IEmpireData>(opponents);
             races.Shuffle();
