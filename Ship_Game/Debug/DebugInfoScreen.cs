@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Ships.AI;
 using static Ship_Game.AI.ShipAI;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.Debug
 {
@@ -86,7 +87,7 @@ namespace Ship_Game.Debug
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    if (empire.ForcePoolContains(ship)) continue;
+                    if (empire.Pool.ForcePoolContains(ship)) continue;
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {
@@ -400,6 +401,9 @@ namespace Ship_Game.Debug
                         DrawString(fleet.FleetTask.TargetPlanet.Name);
 
                     DrawString("Step: "+fleet.TaskStep);
+                    DrawString("Fleet Speed: " + fleet.SpeedLimit);
+                    DrawString("Ready For Warp: " + fleet.ReadyForWarp);
+                    DrawString("In Formation Warp: " + fleet.InFormationWarp);
                 }
                 else
                 {
@@ -411,8 +415,8 @@ namespace Ship_Game.Debug
                     DrawString("FleetSpeed: " + fleet.SpeedLimit);
                     DrawString("Distance: " + fleet.FinalPosition.Distance(fleet.AveragePosition()));
 
-                    string shipAI = fleet.Ships?.FirstOrDefault()?.AI.State.ToString() ?? "";
-                    DrawString("Ship State: " + shipAI);
+                    DrawString("Ready For Warp: " + fleet.ReadyForWarp);
+                    DrawString("In Formation Warp: " + fleet.InFormationWarp);
                     DrawCircleImm(fleet.AveragePosition(), 30, Color.Magenta);
                     DrawCircleImm(fleet.AveragePosition(), 60, Color.DarkMagenta);
                 }
@@ -448,7 +452,7 @@ namespace Ship_Game.Debug
                     DrawString($"Fleet speed: {ship.fleet.SpeedLimit}");
                 }
 
-                DrawString(!ship.loyalty.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
+                DrawString(!ship.loyalty.Pool.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
 
                 if (ship.AI.State == AIState.SystemDefender)
                 {
@@ -620,7 +624,7 @@ namespace Ship_Game.Debug
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float taxRate = e.data.TaxRate * 100f;
                 DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
-                DrawString("Ship Maint:    "+e.TotalShipMaintenance);
+                DrawString($"Ship Maint:    {(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
 
                 Array<Ship> ships = e.GetShips();
                 DrawString($"Ship Count:    {ships.Count}" +
@@ -660,11 +664,10 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                for (int j = 0; j < e.GetEmpireAI().TaskList.Count; j++)
+                MilitaryTask[] tasks = e.GetEmpireAI().GetAtomicTasksCopy();
+                for (int j = 0; j < tasks.Length; j++)
                 {
-                    MilitaryTask task = e.GetEmpireAI().TaskList[j];
-                    if (task == null)
-                        continue;
+                    MilitaryTask task = tasks[j];
                     string sysName = "Deep Space";
                     for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
                     {
@@ -673,10 +676,17 @@ namespace Ship_Game.Debug
                             sysName = sys.Name;
                     }
                     NewLine();
-                    DrawString($"FleetTask: {task.type} ({sysName})");
-                    DrawString(15f, "Step: " + task.Step);
-                    DrawString(15f, "Str Needed: " + task.MinimumTaskForceStrength);
-                    DrawString(15f, "Which Fleet: " + task.WhichFleet);
+                    DrawString($"FleetTask: {task.type} {sysName} {task.TargetPlanet?.Name}");
+                    DrawString(15f, "Step:  " + task.Step);
+                    DrawString(15f, "EnemyStrength: " + task.EnemyStrength);
+                    DrawString(15f, "MinStrNeeded: " + task.MinimumTaskForceStrength);
+                    if (task.WhichFleet != -1)
+                    {
+                        DrawString(15f, "Fleet: " + task.Fleet.Name);
+                        DrawString(15f, " Ships: " + task.Fleet.Ships.Count);
+                        DrawString(15f, " Strength: " + task.Fleet.GetStrength());
+                        DrawString(15f, " CanTakeThisFight: " + task.Fleet.CanTakeThisFight(task.EnemyStrength));
+                    }
                 }
 
                 NewLine();

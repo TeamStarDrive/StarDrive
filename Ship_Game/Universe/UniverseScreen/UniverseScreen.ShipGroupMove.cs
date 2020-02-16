@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 
 namespace Ship_Game
@@ -258,6 +259,7 @@ namespace Ship_Game
             {
                 Log.Info("MoveShipGroupToMouse (NEW)");
                 // assemble brand new group
+                
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, player);

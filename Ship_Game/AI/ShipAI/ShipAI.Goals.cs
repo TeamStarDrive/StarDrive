@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Ship_Game.Fleets;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
@@ -191,6 +192,8 @@ namespace Ship_Game.AI
             public readonly string VariableString;
             public readonly float VariableNumber;
             public TradePlan Trade;
+
+            public float GetSpeedLimitFor(Ship ship) => ship.fleet?.GetSpeedLimitFor(ship) ?? SpeedLimit;
 
             public override string ToString() => $"{Plan} pos:{MovePosition} dir:{Direction}";
 

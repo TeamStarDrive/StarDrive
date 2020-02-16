@@ -64,12 +64,18 @@ namespace Ship_Game
 
             try
             {
+                // WARNING: This must be called before ANY Log calls
+                // @note This will override and initialize global system settings
+                GlobalStats.LoadConfig();
+                Log.Initialize();
+
                 using (var instance = new SingleGlobalInstance())
                 {
                     if (!instance.UniqueInstance)
                     {
-                        MessageBox.Show("Another instance of SD-BlackBox is already running!");
-                        return;
+                        // TODO: Uncomment this
+                        //MessageBox.Show("Another instance of SD-BlackBox is already running!");
+                        //return;
                     }
 
                     Thread.CurrentThread.Name = "Main Thread";

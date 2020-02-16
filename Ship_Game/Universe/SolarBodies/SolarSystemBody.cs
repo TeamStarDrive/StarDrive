@@ -177,8 +177,9 @@ namespace Ship_Game
         public float GravityWellRadius { get; protected set; }
         public Array<PlanetGridSquare> TilesList = new Array<PlanetGridSquare>(35);
         public float Density;
-        public float BaseFertility { get; protected set; }
-        public float BaseMaxFertility { get; protected set; }
+        public float BaseFertility { get; protected set; } // This is clamped to a minimum of 0, cannot be negative
+        public float BaseMaxFertility { get; protected set; } // Natural Fertility, this is clamped to a minimum of 0, cannot be negative
+        public float BuildingsFertility { get; protected set; }  // Fertility change by all relevant buildings. Can be negative
         public float MineralRichness;
 
         public Array<Building> BuildingList = new Array<Building>();
@@ -498,6 +499,7 @@ namespace Ship_Game
             }
             newOwner.AddPlanet(thisPlanet, Owner);
             Owner = newOwner;
+            thisPlanet.ResetGarrisonSize();
             TurnsSinceTurnover = 0;
             ConstructionQueue.Clear();
             ParentSystem.OwnerList.Clear();

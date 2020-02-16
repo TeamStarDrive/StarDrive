@@ -32,7 +32,7 @@ namespace Ship_Game
             {
                 try
                 {
-                    RaceSave data = fileInfo.Deserialize<RaceSave>();
+                    var data = fileInfo.Deserialize<RaceSave>();
 
                     if (string.IsNullOrEmpty(data.Name))
                     {
@@ -50,16 +50,14 @@ namespace Ship_Game
                         info ="Race Name: " + data.Traits.Name;
                         extraInfo = data.ModName != "" ? "Mod: " + data.ModName : "Default";
                     }
-                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo));
+                    saves.Add(new FileData(fileInfo, data, data.Name, info, extraInfo, data.Traits.FlagIcon, data.Traits.Color));
                 }
                 catch
                 {
                 }
             }
 
-            var sortedList = from data in saves orderby data.FileName select data;
-            foreach (FileData data in sortedList)
-                SavesSL.AddItem(data).AddSubItem(data.FileLink);
+            AddItemsToSaveSL(saves.OrderBy(data => data.FileName));
         }
     }
 }

@@ -33,7 +33,9 @@ namespace Ship_Game.Debug
             if (Footer.NotEmpty()) text.Add(Footer);
             return text;
         }
-        public void AddLine(string text) => AddLine(text, GetLastColor());        
+
+        public void AddLine(string text) => AddLine(text, GetLastColor());
+
         public void AddLine(string text, Color color)
         {
             Lines = Lines ?? new Array<string>();
@@ -41,6 +43,7 @@ namespace Ship_Game.Debug
             Lines.Add(text);
             LineColor.Add(color);
         }
+
         Color GetLastColor()
         {
             if (LineColor?.IsEmpty ?? true) return Color.White;

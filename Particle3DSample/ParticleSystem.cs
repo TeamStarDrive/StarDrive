@@ -273,13 +273,6 @@ namespace Particle3DSample
             rs.DepthBufferWriteEnable = false;
         }
 
-        public void UnloadContent()
-        {
-            Particles = null;
-            VertexDeclaration.Dispose();
-            VertexBuffer.Dispose();
-        }
-
         public void Update(float deltaTime)
         {
             CurrentTime += deltaTime;
@@ -293,6 +286,7 @@ namespace Particle3DSample
 
         public void Dispose()
         {
+            Particles = null;
             VertexBuffer?.Dispose(ref VertexBuffer);
             VertexDeclaration?.Dispose(ref VertexDeclaration);
             GC.SuppressFinalize(this);

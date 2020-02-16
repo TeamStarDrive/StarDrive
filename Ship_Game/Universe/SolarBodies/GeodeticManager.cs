@@ -101,7 +101,6 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
         public void AffectNearbyShips() // Refactored by Fat Bastard - 23, July 2018
         {
             float repairPool = CalcRepairPool();
-            int garrisonSize = P.GarrisonSize;
             bool spaceCombat = P.SpaceCombatNearPlanet;
             for (int i = 0; i < ParentSystem.ShipList.Count; i++)
             {
@@ -118,7 +117,10 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                         SupplyShip(ship);
                         RepairShip(ship, repairPool);
                         if (!spaceCombat)
-                            LoadTroops(ship, garrisonSize);
+                        {
+                            LoadTroops(ship, P.NumTroopsCanLaunch);
+                            DisengageTroopsFromCapturedShips(ship);
+                        }
                     }
                 }
             }
@@ -163,12 +165,8 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private void LoadTroops(Ship ship, int garrisonSize)
         {
-            if (TroopsHere.Count <= garrisonSize || ship.TroopCapacity == 0 
-                                                 || ship.TroopCapacity <= ship.TroopCount 
-                                                 || P.MightBeAWarZone(P.Owner))
-            {
+            if (ship.TroopCapacity == 0 || ship.TroopCapacity <= ship.TroopCount)
                 return;
-            }
 
             int troopCount = ship.Carrier.NumTroopsInShipAndInSpace;
             foreach (PlanetGridSquare pgs in TilesList)
@@ -179,9 +177,25 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (pgs.TroopsAreOnTile && pgs.SingleTroop.Loyalty == Owner)
                 {
                     Ship troopShip = pgs.SingleTroop.Launch();
-                    troopShip?.AI.OrderRebaseToShip(ship);
+                    if (troopShip != null)
+                    {
+                        garrisonSize--;
+                        troopShip.AI.OrderRebaseToShip(ship);
+                    }
                 }
             }
+        }
+
+        void DisengageTroopsFromCapturedShips(Ship ship)
+        {
+            if (ship.TroopCount == 0)
+                return;
+
+            // If we left garrisoned troops on a captured ship
+            // remove them now as they are replaced with regular ship crew
+            int troopsToTRemove = (ship.GetOurTroops().Count - ship.TroopCapacity).ClampMin(0);
+            if (troopsToTRemove > 0)
+                ship.DisengageExcessTroops(ship.GetOurTroops().Count - ship.TroopCapacity);
         }
 
         private void AddTroopsForFactions(Ship ship)

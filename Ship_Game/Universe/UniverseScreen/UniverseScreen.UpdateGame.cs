@@ -1,28 +1,31 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 
 namespace Ship_Game
 {
     public partial class UniverseScreen
     {
+
         void ProcessTurnsMonitored()
         {
+            int threadId = Thread.CurrentThread.ManagedThreadId;
+            Log.Write(ConsoleColor.Cyan, $"Start Universe.ProcessTurns Thread #{threadId}");
             Log.AddThreadMonitor();
             ProcessTurns();
             Log.RemoveThreadMonitor();
+            Log.Write(ConsoleColor.Cyan, $"Stop Universe.ProcessTurns Thread #{threadId}");
         }
 
         void ProcessTurns()
         {
             int failedLoops = 0; // for detecting cyclic crash loops
-            while (true)
+            while (ProcessTurnsThread != null)
             {
                 try
                 {
@@ -122,53 +125,6 @@ namespace Ship_Game
             }
         }
 
-        void PathGridtranslateBordernode(Empire empire, byte weight, byte[,] grid)
-        {
-            //this.reducer = (int)(Empire.ProjectorRadius *.5f  );
-            int granularity = (int) (UniverseSize / PathMapReducer);
-            foreach (var node in empire.BorderNodes)
-            {
-                byte modifiedWeight = weight;
-
-                Point point = WorldToPathMap(node.Position, granularity);
-
-
-                Vector2 upscale = new Vector2(point.X * PathMapReducer,
-                    point.Y * PathMapReducer);
-
-                if (modifiedWeight != 0 && modifiedWeight < 81 && upscale.InRadius(node.Position, node.Radius))
-                {
-                    grid[point.X, point.Y] = modifiedWeight;
-
-                }
-
-                float increaser = modifiedWeight == 0 ? 1.25f : 1;
-
-                ApplyWeightToMapArea(node.Position,node.Radius * increaser, modifiedWeight, granularity, grid);
-            }
-        }
-
-        public bool MapPointInWorldRadius(Point mapPoint, Vector2 worldPosition, float worldRadius, int universeOffset)
-        {
-            worldRadius -= PathMapReducer * .25f;
-            Vector2 mapInWorld = PathMapPointToWorld(mapPoint.X, mapPoint.Y, universeOffset);
-            return mapInWorld.InRadius(worldPosition, worldRadius);
-        }
-
-        public void ApplyWeightToMapArea(Vector2 worldPosition, float worldRadius, byte weight, int universeOffset, byte[,] grid)
-        {
-            Point topLeft = WorldToPathMap(new Vector2 (worldPosition.X - worldRadius , worldPosition.Y - worldRadius), universeOffset);
-            Point bottomRight = WorldToPathMap(new Vector2(worldPosition.X + worldRadius, worldPosition.Y + worldRadius), universeOffset);
-
-            for (int x = topLeft.X; x <= bottomRight.X  ; x++)
-                for (int y = topLeft.Y  ; y <= bottomRight.Y ; y++)
-                {
-                    if (grid[x, y] == 0) continue;
-                    if (MapPointInWorldRadius(new Point(x,y), worldPosition, worldRadius, universeOffset))
-                        grid[x, y] = weight;
-                }
-        }
-
         // This is different than normal DeltaTime
         public float SimulationDeltaTime { get; private set; }
 
@@ -177,30 +133,29 @@ namespace Ship_Game
             SimulationDeltaTime = elapsedTime;
             perfavg5.Start(); // total do work perf counter
 
-            GlobalStats.BeamTests     = 0;
-            GlobalStats.Comparisons   = 0;
+            GlobalStats.BeamTests = 0;
+            GlobalStats.Comparisons = 0;
             GlobalStats.ComparisonCounter += 1;
             GlobalStats.ModuleUpdates = 0;
 
             if (ProcessTurnEmpires(elapsedTime))
-                return;
+            {
+                UpdateShipsAndFleets(elapsedTime);
 
-            UpdateShipsAndFleets(elapsedTime);
+                // this will update all ship Center coordinates
+                ProcessTurnShipsAndSystems(elapsedTime);
 
-            // this will update all ship Center coordinates
-            ProcessTurnShipsAndSystems(elapsedTime);
+                // update spatial manager after ships have moved.
+                // all the collisions will be triggered here:
+                SpaceManager.Update(elapsedTime);
 
-            // update spatial manager after ships have moved.
-            // all the collisions will be triggered here:
-            SpaceManager.Update(elapsedTime);
+                ProcessTurnUpdateMisc(elapsedTime);
 
-            ProcessTurnUpdateMisc(elapsedTime);
-
-            // bulk remove all dead projectiles to prevent their update next frame
-            RemoveDeadProjectiles();
+                // bulk remove all dead projectiles to prevent their update next frame
+                RemoveDeadProjectiles();
+            }
 
             perfavg5.Stop();
-            Lag = perfavg5.AvgTime;
         }
 
         void RemoveDeadProjectiles()
@@ -301,13 +256,6 @@ namespace Ship_Game
             {
                 perStarDateTimer = StarDate + 0.1f;
                 perStarDateTimer = (float) Math.Round(perStarDateTimer, 1);
-                empireShipCountReserve = EmpireManager.Empires.Sum(empire =>
-                    {
-                        if (empire == player || empire.data.Defeated || empire.isFaction)
-                            return 0;
-                        return empire.EmpireShipCountReserve;
-                    }
-                );
                 globalshipCount = MasterShipList.Filter(ship => (ship.loyalty != null && !ship.loyalty.isPlayer && !ship.loyalty.isFaction) &&
                                                                   ship.shipData.Role != ShipData.RoleName.troop &&
                                                                   ship.Mothership == null).Length;
@@ -334,11 +282,14 @@ namespace Ship_Game
                         {
                             SolarSystem system = SolarSystemList[x];
 
-                            if (!ship.InRadiusOfSystem(system))
-                                continue;
-                            system.SetExploredBy(ship.loyalty);
-                            ship.SetSystem(system);
-                            break; // No need to keep looping through all other systems if one is found -Gretman
+                            if (ship.InRadiusOfSystem(system))
+                            {
+                                system.SetExploredBy(ship.loyalty);
+                                ship.SetSystem(system);
+                                // No need to keep looping through all other systems
+                                // if one is found -Gretman
+                                break;
+                            }
                         }
                     }
                 }
@@ -386,7 +337,9 @@ namespace Ship_Game
                 ShowingSysTooltip = false;
                 ShowingPlanetToolTip = false;
             }
+
             RecomputeFleetButtons(false);
+
             if (SelectedShip != null)
             {
                 ProjectPieMenu(SelectedShip.Position, 0.0f);
@@ -395,6 +348,7 @@ namespace Ship_Game
             {
                 ProjectPieMenu(SelectedPlanet.Center, 2500f);
             }
+
             if (GlobalStats.RemnantArmageddon)
             {
                 if (!Paused) ArmageddonTimer -= elapsedTime;
@@ -413,6 +367,7 @@ namespace Ship_Game
                     }
                 }
             }
+
             //clear out general object removal.
             TotallyRemoveGameplayObjects();
             MasterShipList.ApplyPendingRemovals();
@@ -420,40 +375,38 @@ namespace Ship_Game
             if (Paused)
             {
                 PreEmpirePerf.Stop();
-                return false;
+                return true;
             }
 
-            bool rebuildPathingMap = false; // REBUILD WHAT??? Pathing map.
             if (IsActive)
             {
                 for (int i = 0; i < EmpireManager.NumEmpires; i++)
                 {
                     Empire empire = EmpireManager.Empires[i];
 
-                    empire.ResetForcePool();
-                    empire.AddShipsToForcePoolFromShipsToAdd();
-                    rebuildPathingMap = empire.UpdateContactsAndBorders(0.01666667f);
+                    empire.Pool.UpdatePools();
+                    empire.UpdateContactsAndBorders(0.01666667f);
                 }
             }
 
-            if (rebuildPathingMap)
-                DoPathingMapRebuild();
-
             PreEmpirePerf.Stop();
 
-            if (!IsActive)
-                return true;
-
-            EmpireUpdatePerf.Start();
-            for (var i = 0; i < EmpireManager.NumEmpires; i++)
+            if (IsActive)
             {
-                Empire empire = EmpireManager.Empires[i];
-                empire.Update(elapsedTime);
-            }
-            MasterShipList.ApplyPendingRemovals();
+                EmpireUpdatePerf.Start();
+                for (var i = 0; i < EmpireManager.NumEmpires; i++)
+                {
+                    Empire empire = EmpireManager.Empires[i];
+                    empire.Update(elapsedTime);
+                }
 
-            shiptimer -= elapsedTime; // 0.01666667f;//
-            EmpireUpdatePerf.Stop();
+                MasterShipList.ApplyPendingRemovals();
+
+                shiptimer -= elapsedTime; // 0.01666667f;//
+                EmpireUpdatePerf.Stop();
+                return true;
+            }
+
             return false;
         }
 
@@ -474,68 +427,6 @@ namespace Ship_Game
             y = y.Clamped(0, universeOffSet * 2);
             x = x.Clamped(0, universeOffSet * 2);
             return new Point(x, y);
-        }
-
-        public void DoPathingMapRebuild()
-        {
-            PathMapReducer = (int) (SubSpaceProjectors.Radius);
-            int universeOffSet = (int) (UniverseSize  / PathMapReducer);
-            int elegran = universeOffSet * 2;
-            int elements =0;
-            var power2 = new int[] {0,32, 64, 128, 256, 512, 1024 };
-            for (int x = 0; x < power2.Length; x++)
-            {
-                int power = power2[x];
-                if (power < elegran) continue;
-                elements = power;
-                break;
-            }
-            byte[,] grid = new byte[elements, elements];
-            for (int x = 0; x < elements; x++)
-            for (int y = 0; y < elements; y++)
-            {
-                    if (x > elegran || y > elegran)
-                        grid[x, y] = 0;
-                    else
-                        grid[x, y] = 80;
-            }
-            bool blockSystems = !FTLInNuetralSystems || EnemyFTLModifier < 1 || FTLModifier < 1;
-            foreach (var ss in SolarSystemDict)
-            {
-                var point = WorldToPathMap(ss.Value.Position, universeOffSet);
-                grid[point.X, point.Y] = 0;
-                byte weight = blockSystems ? (byte)0 : (byte)90;
-                ApplyWeightToMapArea(ss.Value.Position, ss.Value.Radius, weight, universeOffSet, grid);
-
-                foreach(var p in PlanetsDict)
-                {
-                    point = WorldToPathMap(p.Value.Center, universeOffSet);
-                    grid[point.X, point.Y] = 0;
-                }
-            }
-
-            for (int i = 0; i < EmpireManager.NumEmpires; i++)
-            {
-                var empire = EmpireManager.Empires[i];
-
-                byte[,] grid1 = new byte[elements, elements];
-                Array.Copy(grid, grid1, grid.Length);
-
-                foreach (KeyValuePair<Empire, Relationship> rels in empire.AllRelations)
-                {
-                    if (!rels.Value.Known)
-                        continue;
-                    if (rels.Value.Treaty_Alliance)
-                        PathGridtranslateBordernode(rels.Key, 1, grid1);
-                    else if (rels.Value.AtWar || rels.Value.Treaty_OpenBorders)
-                        PathGridtranslateBordernode(rels.Key, 80, grid1);
-                    else
-                        PathGridtranslateBordernode(rels.Key, 0, grid1);
-                }
-                PathGridtranslateBordernode(empire, 1, grid1);
-                empire.grid = grid1;
-                empire.granularity = universeOffSet;
-            }
         }
 
         void DeepSpaceThread(float elapsedTime)

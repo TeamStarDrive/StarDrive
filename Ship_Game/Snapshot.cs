@@ -2,16 +2,20 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-    public sealed class NRO
+    public struct NRO
     {
         [Serialize(0)] public Vector2 Node;
         [Serialize(1)] public float Radius;
-        [Serialize(2)] public float StarDateMade;
+        public NRO(Vector2 pos, float radius = 300000f)
+        {
+            Node = pos;
+            Radius = radius;
+        }
     }
 
     public sealed class Snapshot
-	{
-		[Serialize(0)] public Array<NRO> EmpireNodes = new Array<NRO>();
+    {
+        [Serialize(0)] public Array<NRO> EmpireNodes = new Array<NRO>();
         [Serialize(1)] public int ShipCount;
         [Serialize(2)] public float MilitaryStrength;
         [Serialize(3)] public float Population;
@@ -27,13 +31,13 @@ namespace Ship_Game
         [Serialize(13)] public int TotalMaintenance;
         [Serialize(14)] public int TotalPopulation;
 
-		public Snapshot(float date)
-		{
-			StarDate = date;
-		}
+        public Snapshot(float date)
+        {
+            StarDate = date;
+        }
 
-		public Snapshot()
-		{
-		}
-	}
+        public Snapshot()
+        {
+        }
+    }
 }

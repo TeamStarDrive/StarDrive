@@ -2253,6 +2253,10 @@ namespace Ship_Game
         Generalists = 1859,
         /// <summary>Expansionists</summary>
         Expansionists = 1860,
+        /// <summary>was destroyed while exploring</summary>
+        WasDestroyedWhileExploringSystem = 1901,
+        /// <summary>was destroyed in deep space while exploring the galaxy</summary>
+        WasDestroyedWhileExploringDeepSpace = 1902,
         /// <summary>Relative Strength</summary>
         RelativeStrength = 1914,
         /// <summary>This is the strength of the ship divided by it's</summary>
@@ -2273,6 +2277,16 @@ namespace Ship_Game
         PopulationInBillionsVsMax = 1929,
         /// <summary>was removed as part of the terraforming process due to</summary>
         WasRemovedAsPartOf = 1930,
+        /// <summary>This Construction module provides the infrastructure required for building</summary>
+        ConstructionModule = 1931,
+        /// <summary>was reverse engineered during the scrap process</summary>
+        ReverseEngineered = 1932,
+        /// <summary>was scrapped, helping us advance in our own research\ntoward this hull type</summary>
+        HullScrappedAdvancingResearch = 1933,
+        /// <summary>You captured a ship</summary>
+        ShipCapturedByYou = 1934,
+        /// <summary>your Ship was captured</summary>
+        YourShipWasCaptured = 1935,
         /// <summary>Governor Will Not Scrap Buildings</summary>
         GovernorWillNotScrapBuildings = 1941,
         /// <summary>Normally, Governors operate within a budget limit which it tied</summary>

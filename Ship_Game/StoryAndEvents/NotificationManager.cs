@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -141,18 +142,18 @@ namespace Ship_Game
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
-            }, "sd_notify_alert");
+            }, "sd_troop_march_01");
         }
 
         public void AddTroopsRemovedNotification(Planet where)
         {
             AddNotification(new Notification
             {
-                Message         = "Your troops stationed on " + where.Name + " had to evacuate when " + where.Owner.data.Traits.Name + " colonized the planet",
+                Message         = "Your troops stationed on " + where.Name + " had to evacuate when\n" + where.Owner.data.Traits.Name + " colonized the planet",
                 ReferencedItem1 = where,
                 IconPath        = where.IconPath,
                 Action          = "SnapToPlanet"
-            }, "sd_notify_alert");
+            }, "sd_troop_march_01");
         }
 
         public void AddNotify(ExplorationEvent expEvent)
@@ -261,6 +262,61 @@ namespace Ship_Game
                 Action          = action,
                 ReferencedItem1 = p,
                 IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddExplorerDestroyedNotification(Ship ship)
+        {
+            string message = $"{ship.Name} ";
+            Notification explorerDestroyed = new Notification
+            {
+                IconPath = ship.BaseHull.IconPath ?? "ResearchMenu/icon_event_science_bad"
+            };
+
+            if (ship.System != null)
+            {
+                message += $"{new LocalizedText(GameText.WasDestroyedWhileExploringSystem).Text} {ship.System.Name}";
+                explorerDestroyed.ReferencedItem1 = ship.System;
+                explorerDestroyed.Action          = "SnapToSystem";
+            }
+            else
+            {
+                message += new LocalizedText(GameText.WasDestroyedWhileExploringDeepSpace).Text;
+            }
+
+            explorerDestroyed.Message = message;
+            AddNotification(explorerDestroyed, "sd_ui_notification_encounter");
+        }
+
+        public void AddScrapUnlockNotification(string message, string iconPath, string action)
+        {
+            AddNotification(new Notification
+            {
+                Message  = message,
+                Action   = action,
+                IconPath = iconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter");
+        }
+
+        public void AddBoardNotification(string message, string iconPath, string action, Ship s)
+        {
+            AddNotification(new Notification
+            {
+                Message         = message,
+                Action          = action,
+                ReferencedItem1 = s,
+                IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
+            }, "sd_ui_notification_encounter"); 
+        }
+
+        public void AddScrapProgressNotification(string message, string iconPath, string action, string techName)
+        {
+            AddNotification(new Notification
+            {
+                Message = message,
+                Action = action,
+                ReferencedItem1 = techName,
+                IconPath = iconPath ?? "ResearchMenu/icon_event_science_bad"
             }, "sd_ui_notification_encounter");
         }
 
@@ -443,6 +499,12 @@ namespace Ship_Game
                                 case "SnapToExpandSystem":
                                     SnapToExpandedSystem(n.ReferencedItem2 as Planet, n.ReferencedItem1 as SolarSystem);
                                     break;
+                                case "ShipDesign":
+                                    ScreenManager.AddScreen(new ShipDesignScreen(Empire.Universe, Screen.EmpireUI));
+                                    break;
+                                case "SnapToShip":
+                                    SnapToShip(n.ReferencedItem1 as Ship);
+                                    break;
                             }
                             retValue = true;
                         }
@@ -477,10 +539,6 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            if (!Screen.SnapBackToSystem)
-            {
-                Screen.HeightOnSnap = Screen.CamHeight;
-            }
             Screen.OpenCombatMenu();
         }
 
@@ -488,11 +546,14 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            if (!Screen.SnapBackToSystem)
-            {
-                Screen.HeightOnSnap = Screen.CamHeight;
-            }
-            Screen.SnapViewPlanet(p);
+            Screen.SnapViewColony(p);
+        }
+
+        public void SnapToShip(Ship s)
+        {
+            GameAudio.SubBassWhoosh();
+            Screen.SelectedShip = s;
+            Screen.SnapViewShip(s);
         }
 
         public void SnapToExpandedSystem(Planet p, SolarSystem system)

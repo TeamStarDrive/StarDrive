@@ -32,6 +32,12 @@ namespace Ship_Game.AI
             SetCombatTactics(ship.AI.CombatState);
         }
 
+        public void ClearTargets()
+        {
+            Owner.AI.Target = null;
+            Owner.AI.PotentialTargets.Clear();
+        }
+
         public void UpdateTargetPriorities(Ship ship)
         {
             if (ship.SurfaceArea <= 0)
@@ -69,14 +75,13 @@ namespace Ship_Game.AI
             if (nearbyShip == null) 
                 return weight;
 
-            if (Owner.AI.Target as Ship == nearbyShip)
-                weight += 3;
+            if (Owner.AI.Target == nearbyShip)
+                weight += 1.5f;
 
             if (nearbyShip?.Weapons.Count == 0) 
-                weight = weight + PirateWeight;
-
-            if (nearbyShip.Health / nearbyShip.HealthMax < 0.5f) 
-                weight += VultureWeight;
+                weight += PirateWeight;
+            float healthRatio = 1 -(nearbyShip.Health / nearbyShip.HealthMax);
+            weight += VultureWeight * healthRatio;
 
             weight += SizeAttackWeight(weight, nearbyShip);
             weight += RangeWeight(nearbyShip, weight);

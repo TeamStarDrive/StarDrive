@@ -22,6 +22,7 @@ namespace Ship_Game.AI
         public bool HasWayPoints => WayPoints.Count > 0;
         public WayPoint[] CopyWayPoints() => WayPoints.ToArray();
 
+        public Vector2 DebugDrawPosition => Owner.Center + Owner.Velocity.Normalized() * Owner.Radius;
         void ClearWayPoints()
         {
             WayPoints.Clear();
@@ -43,11 +44,8 @@ namespace Ship_Game.AI
 
         internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
-            if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
-                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
-
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
-            float angleDiff = (float)Math.Acos(wantedForward.Dot(currentForward));
+            float angleDiff = AngleDifferenceToDirection(wantedForward, currentForward);
             if (angleDiff > minDiff)
             {
                 float rotationDir = wantedForward.Dot(currentForward.RightVector()) > 0f ? 1f : -1f;
@@ -57,6 +55,14 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public float AngleDifferenceToDirection(Vector2 wantedForward, Vector2 currentForward)
+        {
+            if (wantedForward.AlmostZero() || !wantedForward.IsUnitVector())
+                Log.Error($"RotateToDirection {wantedForward} not a unit vector! This is a bug!");
+
+            return (float)Math.Acos(wantedForward.Dot(currentForward));
+        }
+        
         internal bool RotateTowardsPosition(Vector2 lookAt, float elapsedTime, float minDiff)
         {
             if (lookAt.AlmostZero())
@@ -153,7 +159,8 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             Vector2 targetPos = goal.MovePosition;
-            if (goal.Fleet != null) targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
+            if (goal.Fleet != null && targetPos.AlmostZero()) 
+                targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
 
             if (Owner.EnginesKnockedOut)
                 return;
@@ -166,7 +173,7 @@ namespace Ship_Game.AI
             float distance = Owner.Center.Distance(targetPos);
             if (distance <= 75f) // final stop, by this point our speed should be sufficiently
             {
-                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, "STOP", Color.Red);
+                if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
@@ -188,22 +195,26 @@ namespace Ship_Game.AI
 
             float vel = Owner.CurrentVelocity;
             float stoppingDistance = Owner.GetMinDecelerationDistance(vel);
+
             if (distance <= stoppingDistance)
             {
                 ReverseThrustUntilStopped(elapsedTime);
-                if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
+                if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"REV {distance:0} <= {stoppingDistance:0} ", Color.Red);
             }
             else if (isFacingTarget)
             {
-                if (vel < 25f || distance > stoppingDistance)
-                {
-                    float speedLimit = (distance * 0.4f);
+                // make sure to not get at stupid slow speeds but try not to accelerate while slowing down.
+                const float minimumSpeed = 25f;
+                if (vel < Math.Max(distance, stoppingDistance).ClampMin(minimumSpeed))
+                { 
+                    float speedLimit = distance;
                     if (goal.SpeedLimit > 0f)
-                        speedLimit = Math.Max(speedLimit, goal.SpeedLimit);
-                    speedLimit = Math.Max(speedLimit, 25f);
+                        speedLimit = Math.Max(speedLimit, goal.GetSpeedLimitFor(Owner));
+                    speedLimit = Math.Max(speedLimit, minimumSpeed);
 
                     Owner.SubLightAccelerate(speedLimit);
-                    if (debug) Empire.Universe.DebugWin.DrawText(Owner.Center, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
+                    if (debug)
+                        Empire.Universe.DebugWin.DrawText(DebugDrawPosition, $"ACC {distance:0}  {speedLimit:0} ", Color.Red);
                 }
             }
         }
@@ -251,10 +262,13 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
             if (Owner.Velocity.AlmostZero())
+            {
+                Owner.Velocity = Vector2.Zero;
                 return true;
+            }
 
-            float deceleration = Owner.VelocityMaximum * elapsedTime;
-            if (Owner.CurrentVelocity < deceleration) // we are almost at zero, lets stop.
+            float deceleration = (Owner.VelocityMaximum * elapsedTime);
+            if (Owner.CurrentVelocity.LessOrEqual(deceleration)) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
                 return true; // stopped
@@ -274,6 +288,11 @@ namespace Ship_Game.AI
             Vector2 prediction = new ImpactPredictor(Owner.Center, Owner.Velocity, targetPos).PredictMovePos();
             ThrustTarget = prediction;
             return prediction;
+        }
+
+        internal void CombatThrust()
+        {
+
         }
 
         /**
@@ -339,7 +358,7 @@ namespace Ship_Game.AI
             if (State != AIState.FormationWarp || Owner.fleet == null) // not in a fleet
             {
                 // only warp towards actual warp pos
-                if (actualDiff < 0.05f)
+                if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
                     if      (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
@@ -360,7 +379,7 @@ namespace Ship_Game.AI
                     DisEngageFormationWarp();
                 }
 
-                //speedLimit = FormationWarpSpeed(speedLimit);
+                speedLimit = FormationWarpSpeed(speedLimit);
                 Owner.SubLightAccelerate(speedLimit);
             }
         }
@@ -424,13 +443,16 @@ namespace Ship_Game.AI
 
         public void EngageFormationWarp()
         {
-            if (!Owner.Carrier.RecallingFighters() && Owner.fleet.ReadyForWarp)
+            if (Owner.fleet.ReadyForWarp)
             {
                 if (Owner.engineState == Ship.MoveState.Sublight)
                     Owner.EngageStarDrive();
             }
-            else if(Owner.engineState == Ship.MoveState.Warp)
-                Owner.HyperspaceReturn();
+            else
+            {
+                if(Owner.engineState == Ship.MoveState.Warp && Owner.ShipEngines.ReadyForFormationWarp > Status.Good) 
+                    Owner.HyperspaceReturn();
+            }
         }
 
         public void DisEngageFormationWarp()

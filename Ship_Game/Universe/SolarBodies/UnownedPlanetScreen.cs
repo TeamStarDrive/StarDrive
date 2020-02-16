@@ -7,22 +7,14 @@ namespace Ship_Game
 	public sealed class UnownedPlanetScreen : PlanetScreen
 	{
 		private Planet p;
-
 		private Menu2 TitleBar;
-
 		private Vector2 TitlePos;
-
 		private Menu1 PlanetMenu;
 
 		//private Rectangle titleRect;
 
 		private Submenu PlanetInfo;
-
 		private Rectangle PlanetIcon;
-
-		private MouseState currentMouse;
-
-		private MouseState previousMouse;
 
 		public UnownedPlanetScreen(GameScreen parent, Planet p) : base(parent)
 		{
@@ -47,26 +39,26 @@ namespace Ship_Game
 		public override void Draw(SpriteBatch batch)
 		{
 			TitleBar.Draw(batch);
-			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Laserian14, p.Name, TitlePos, Colors.Cream);
 			PlanetMenu.Draw(batch);
 			PlanetInfo.Draw(batch);
 			batch.Draw(p.PlanetTexture, PlanetIcon, Color.White);
 			var pNameCursor = new Vector2(PlanetInfo.X + 20, PlanetInfo.Y + 45);
-			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial20Bold, p.Name, pNameCursor, Colors.Cream);
 			pNameCursor.Y = pNameCursor.Y + Fonts.Arial20Bold.LineSpacing * 2;
 			float amount = 80f;
 			if (GlobalStats.IsGerman)
 			{
 				amount = amount + 25f;
 			}
-			batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(384), ":"), pNameCursor, Color.Orange);
+			batch.DrawString(Fonts.Arial12Bold, Localizer.Token(384)+":", pNameCursor, Color.Orange);
 			var infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, new Color(255, 239, 208));
+			batch.DrawString(Fonts.Arial12Bold, p.LocalizedCategory, infoCursor, Colors.Cream);
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
-            batch.DrawString(Fonts.Arial12Bold, string.Concat(Localizer.Token(385), ":"), pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, new Color(255, 239, 208));
-			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(385), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            batch.DrawString(Fonts.Arial12Bold, Localizer.Token(385)+":", pNameCursor, Color.Orange);
+            batch.DrawString(Fonts.Arial12Bold, p.PopulationStringForPlayer, infoCursor, Colors.Cream);
+			var hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(385)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(75);
@@ -74,8 +66,8 @@ namespace Ship_Game
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(386)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, new Color(255, 239, 208));
-			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(386), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            batch.DrawString(Fonts.Arial12Bold, p.FertilityFor(EmpireManager.Player).String(), infoCursor, Colors.Cream);
+			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(386)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(20);
@@ -83,39 +75,14 @@ namespace Ship_Game
 			pNameCursor.Y = pNameCursor.Y + (Fonts.Arial12Bold.LineSpacing + 2);
 			infoCursor = new Vector2(pNameCursor.X + amount, pNameCursor.Y);
             batch.DrawString(Fonts.Arial12Bold, Localizer.Token(387)+":", pNameCursor, Color.Orange);
-            batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, new Color(255, 239, 208));
-			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(string.Concat(Localizer.Token(387), ":")).X, Fonts.Arial12Bold.LineSpacing);
+            batch.DrawString(Fonts.Arial12Bold, p.MineralRichness.String(), infoCursor, Colors.Cream);
+			hoverRect = new Rectangle((int)pNameCursor.X, (int)pNameCursor.Y, (int)Fonts.Arial12Bold.MeasureString(Localizer.Token(387)+":").X, Fonts.Arial12Bold.LineSpacing);
 			if (hoverRect.HitTest(Input.CursorPosition))
 			{
 				ToolTip.CreateTooltip(21);
 			}
 			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
-			batch.DrawString(Fonts.Arial12Bold, parseText(p.Description, PlanetInfo.Width - 40), pNameCursor, new Color(255, 239, 208));
-		}
-
-		public override bool HandleInput(InputState input)
-		{
-			currentMouse = Mouse.GetState();
-			previousMouse = Mouse.GetState();
-            return base.HandleInput(input);
-		}
-
-		private string parseText(string text, float Width)
-		{
-			string line = string.Empty;
-			string returnString = string.Empty;
-			string[] strArrays = text.Split(' ');
-			for (int i = 0; i < strArrays.Length; i++)
-			{
-				string word = strArrays[i];
-				if (Fonts.Arial12Bold.MeasureString(string.Concat(line, word)).Length() > Width)
-				{
-					returnString = string.Concat(returnString, line, '\n');
-					line = string.Empty;
-				}
-				line = string.Concat(line, word, ' ');
-			}
-			return string.Concat(returnString, line);
+			batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
 		}
 	}
 }

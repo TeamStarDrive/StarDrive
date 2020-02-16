@@ -10,6 +10,8 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
+        public bool IsFiringAtMainTarget => FireOnMainTargetTime > 0;
+        float FireOnMainTargetTime;
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
@@ -74,12 +76,11 @@ namespace Ship_Game.AI
                 CombatState = CombatState.AssaultShip;
 
             // in range:
-            if (target.Center.InRadius(Owner.Center, 7500f))
+            float distanceToTarget = target.Center.Distance(Owner.Center);
+            if (distanceToTarget < 7500f)
             {
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
-                if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
-                    Owner.Carrier.ScrambleFighters();
             }
             else
             {
@@ -124,6 +125,12 @@ namespace Ship_Game.AI
                     ThrustOrWarpToPos(prediction, elapsedTime);
                     return;
                 }
+            }
+
+            if (Owner.engineState == Ship.MoveState.Sublight && distanceToTarget <= Owner.SensorRange)
+            {
+                if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
+                    Owner.Carrier.ScrambleFighters();
             }
 
             if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
@@ -210,7 +217,7 @@ namespace Ship_Game.AI
                     if (node.Position == g.Goal.BuildPosition)
                     {
                         node.Platform = platform;
-                        StatTracker.StatAddRoad(node, Owner.loyalty);
+                        StatTracker.StatAddRoad(Empire.Universe.StarDate, node, Owner.loyalty);
                         return;
                     }
                 }
@@ -360,7 +367,7 @@ namespace Ship_Game.AI
             // force the ship out of warp if we get too close
             // this is a balance feature
             ThrustOrWarpToPos(landingSpot, elapsedTime, warpExitDistance: Owner.WarpOutDistance);
-            if (Owner.IsDefaultAssaultShuttle) LandTroopsViaSingleTransport(planet, landingSpot, elapsedTime);
+            if (Owner.IsDefaultAssaultShuttle)      LandTroopsViaSingleTransport(planet, landingSpot, elapsedTime);
             else if (Owner.IsDefaultTroopShip)      LandTroopsViaSingleTransport(planet, landingSpot,elapsedTime);
             else                                    LandTroopsViaTroopShip(elapsedTime, planet, landingSpot);
         }
@@ -399,14 +406,6 @@ namespace Ship_Game.AI
                 else
                     ClearOrders();
             }
-        }
-
-        void DoRebase(ShipGoal goal)
-        {
-            if (!Owner.HasOurTroops)
-                Owner.QueueTotalRemoval(); // troops not found, vanish the ship
-            else if (!Owner.TryLandSingleTroopOnPlanet(goal.TargetPlanet))
-                ClearOrders();
         }
 
         void DoRefit(ShipGoal goal)

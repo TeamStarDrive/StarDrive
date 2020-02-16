@@ -53,16 +53,16 @@ namespace Ship_Game
 
             if (_outcome.SelectRandomPlanet && _outcome.GetPlanet() != null)
             {
-                theirTextPos = DrawString(Fonts.Arial12Bold, string.Concat("Relevant Planet: ", _outcome.GetPlanet().Name), theirTextPos, Color.LightGreen);				
+                theirTextPos = DrawString(Fonts.Arial12Bold, "Relevant Planet: "+_outcome.GetPlanet().Name, theirTextPos, Color.LightGreen);				
             }
             if (_outcome.GetArtifact() != null)
             {
                 //theirTextPos.Y = theirTextPos.Y + Fonts.Arial12Bold.LineSpacing ;
-                string theirText = string.Concat("Artifact Granted: ", _outcome.GetArtifact().Name);
+                string theirText = "Artifact Granted: "+_outcome.GetArtifact().Name;
                 theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.LightGreen);
                 
                 Rectangle icon = new Rectangle((int)theirTextPos.X, (int)theirTextPos.Y, 64, 64);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture(string.Concat("Artifact Icons/", _outcome.GetArtifact().Name)), icon, Color.White);
+                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Artifact Icons/"+_outcome.GetArtifact().Name), icon, Color.White);
                 theirTextPos.Y += icon.Height;
                 
                 //theirTextPos.Y = theirTextPos.Y + 36f;			    
@@ -80,8 +80,7 @@ namespace Ship_Game
             {
                 if (!_outcome.WeHadIt)
                 {                                        
-                    string theirText = string.Concat("Technology Acquired: ",
-                        Localizer.Token(ResourceManager.TechTree[_outcome.UnlockTech].NameIndex));
+                    string theirText = "Technology Acquired: "+Localizer.Token(ResourceManager.TechTree[_outcome.UnlockTech].NameIndex);
                     theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
                     if (ResourceManager.TechTree[_outcome.UnlockTech].ModulesUnlocked.Count > 0)
                     {
@@ -118,7 +117,7 @@ namespace Ship_Game
             }
             if (_outcome.MoneyGranted > 0)
             {				
-                string theirText = string.Concat("Money Granted: ", _outcome.MoneyGranted.ToString());
+                string theirText = "Money Granted: "+_outcome.MoneyGranted.ToString();
                 theirTextPos = DrawString(Fonts.Arial12Bold, theirText, theirTextPos, Color.White);
             }
             if (_outcome.ScienceBonus > 0f)

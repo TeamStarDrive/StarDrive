@@ -36,6 +36,7 @@ namespace Ship_Game
         public bool GovMilitia         = false;
         public bool DontScrapBuildings = false;
         public bool AllowInfantry;
+        public int GarrisonSize;
 
         public int CrippledTurns;
         public int TotalDefensiveStrength { get; private set; }
@@ -68,7 +69,7 @@ namespace Ship_Game
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
-        public float ConsumptionPerColonist => 1 + Owner.data.Traits.ConsumptionModifier;
+        public float ConsumptionPerColonist     => 1 + Owner.data.Traits.ConsumptionModifier;
         public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
         public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
 
@@ -93,7 +94,9 @@ namespace Ship_Game
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
-        public bool ForeignTroopHere(Empire empire)      => TroopManager.ForeignTroopHere(empire);
+        public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
+        public bool NoGovernorAndNotTradeHub            => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
+        public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
 
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
@@ -103,13 +106,11 @@ namespace Ship_Game
         public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
             => TroopManager.TroopsReadForLaunch(strengthNeeded);
 
-        public bool NoGovernorAndNotTradeHub             => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
-
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
         public float FertilityFor(Empire empire)    => BaseFertility * empire?.RacialEnvModifer(Category) ?? BaseFertility;
-        public float MaxFertilityFor(Empire empire) => BaseMaxFertility * empire?.RacialEnvModifer(Category) ?? BaseMaxFertility;
-        public int SpecialCommodities               => BuildingList.Count(b => b.IsCommodity);
+        public float MaxFertilityFor(Empire empire) => (BaseMaxFertility + BuildingsFertility) * empire?.RacialEnvModifer(Category) 
+                                                       ?? BaseMaxFertility + BuildingsFertility;
 
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
@@ -165,7 +166,7 @@ namespace Ship_Game
         public int FreeTilesWithRebaseOnTheWay
         {
             get {
-                int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
+                 int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
                                           .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
                 return (FreeTiles - rebasingTroops).Clamped(0, TileArea);
             }
@@ -467,8 +468,10 @@ namespace Ship_Game
 
         void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
         {
-            string defaultShip         = empire.data.StartingShip;
-            string selectedShip        = GetDefenseShipName(roleName, empire) ?? defaultShip;
+            string selectedShip        = GetDefenseShipName(roleName, empire);
+            if (selectedShip.IsEmpty()) // the empire does not have any ship of this role to launch
+                return;
+
             Vector2 launchVector       = MathExt.RandomOffsetAndDistance(Center, 1000);
             Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, launchVector, this);
             if (defenseShip == null)
@@ -549,8 +552,9 @@ namespace Ship_Game
 
         private void PostBuildingRemoval(Building b)
         {
-            if (b.MaxFertilityOnBuild > 0)
-                AddMaxBaseFertility(-b.MaxFertilityOnBuild); // FB - we are reversing positive MaxFertilityOnBuild when scrapping
+            // FB - we are reversing MaxFertilityOnBuild when scrapping even bad
+            // environment buildings can be scrapped and the planet will slowly recover
+            AddBuildingsFertility(-b.MaxFertilityOnBuild); 
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
@@ -755,34 +759,38 @@ namespace Ship_Game
 
         void UpdateBaseFertility()
         {
-            if (BaseFertility.AlmostEqual(BaseMaxFertility))
+            float totalFertility = BaseMaxFertility + BuildingsFertility;
+            if (BaseFertility.AlmostEqual(totalFertility))
                 return;
 
-            if (BaseFertility < BaseMaxFertility)
-                BaseFertility = (BaseFertility + 0.01f).Clamped(0, BaseMaxFertility); // FB - Slowly increase fertility to max fertility
-            else if (BaseFertility > BaseMaxFertility)
+            if (BaseFertility < totalFertility)
+                BaseFertility = (BaseFertility + 0.01f).Clamped(0, totalFertility); // FB - Slowly increase fertility to max fertility
+            else if (BaseFertility > totalFertility)
                 BaseFertility = BaseFertility.Clamped(0, BaseFertility - 0.01f); // FB - Slowly decrease fertility to max fertility
         }
 
         public void SetBaseFertility(float fertility, float maxFertility)
         {
-            BaseMaxFertility = maxFertility;
-            BaseFertility = fertility;
+            BaseMaxFertility   = maxFertility;
+            BaseFertility      = fertility;
         }
 
         public void SetBaseFertilityMinMax(float fertility) => SetBaseFertility(fertility, fertility);
 
         public void AddMaxBaseFertility(float amount)
         {
-            BaseMaxFertility += amount;
-            BaseMaxFertility  = Math.Max(0, BaseMaxFertility);
+            BaseMaxFertility    = (BaseMaxFertility + amount).ClampMin(0);
+        }
+
+        public void AddBuildingsFertility(float amount)
+        {
+            BuildingsFertility += amount;
         }
 
         // FB: to enable bombs to temp change fertility immediately by specified amount
         public void AddBaseFertility(float amount)
         {
-            BaseFertility += amount;
-            BaseFertility  = Math.Max(0, BaseFertility);
+            BaseFertility = (BaseFertility + amount).ClampMin(0);
         }
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen
@@ -918,17 +926,23 @@ namespace Ship_Game
             Construction.AutoApplyProduction(prodSurplus);
         }
 
-        public int GarrisonSize
+        public void ResetGarrisonSize()
+        {
+            GarrisonSize = !Owner.isPlayer ? 0 : 5; // Default is 5 for players. AI manages it's own troops
+        }
+
+        public int NumTroopsCanLaunch
         {
             get
             {
-                if (!Owner.isPlayer)
-                    return 0;  // AI manages It's own troops
+                if (MightBeAWarZone(Owner))
+                    return 0;
 
-                if (GovMilitia && colonyType != ColonyType.Colony)
-                    return 0; // Player Governor will replace garrisoned troops with new ones
+                int threshold = 0;
+                if (Owner.isPlayer)
+                    threshold = GovMilitia ? 0 : GarrisonSize;
 
-                return 5; // Default value for non Governor Player Colonies
+                return TroopsHere.Count - threshold;
             }
         }
 
@@ -940,7 +954,7 @@ namespace Ship_Game
             float distance = GravityWellRadius.Clamped(7500, 15000);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, distance))
+                if (Owner.IsEmpireAttackable(ship.loyalty, ship) && ship.InRadius(Center, distance))
                     return true;
             }
             return false;
@@ -1033,30 +1047,12 @@ namespace Ship_Game
         public float HabitablePercentage     => (float)TilesList.Count(tile => tile.Habitable) / TileArea;
 
         public int FreeHabitableTiles    => TilesList.Count(tile => tile.Habitable && tile.NoBuildingOnTile);
-        public float TotalHabitableTiles => TilesList.Count(tile => tile.Habitable);
+        public int TotalHabitableTiles   => TilesList.Count(tile => tile.Habitable);
 
-        public int TotalBuildings     => TilesList.Count(tile => tile.BuildingOnTile);
-        public float BuiltCoverage    => TotalBuildings / TotalHabitableTiles;
-        public bool TerraformingHere  => BuildingList.Any(b => b.IsTerraformer);
+        public int TotalBuildings    => TilesList.Count(tile => tile.BuildingOnTile);
+        public float BuiltCoverage   => (float)TotalBuildings / TotalHabitableTiles;
+        public bool TerraformingHere => BuildingList.Any(b => b.IsTerraformer);
 
-        // FB - This will give the Max Fertility the planet should have after terraforming is complete
-        public float TerraformMaxFertilityTarget
-        {
-            get
-            {
-                float sumPositiveFertilityChange = NonCybernetic ? 1 : 0;
-
-                for (int i = 0; i < BuildingList.Count; i++)
-                {
-                    Building b = BuildingList[i];
-                    if (b.MaxFertilityOnBuild > 0)
-                        sumPositiveFertilityChange += b.MaxFertilityOnBuild;
-                }
-
-                float racialEnvDivider = 1 / Owner?.RacialEnvModifer(Owner.data.PreferredEnv) ?? 1;
-                return racialEnvDivider * sumPositiveFertilityChange;
-            }
-        }
 
         private void RepairBuildings(int repairAmount)
         {
@@ -1127,8 +1123,6 @@ namespace Ship_Game
             string eatsWhat = NonCybernetic ? "Food" : "Prod";
             debug.AddLine($"Eats: {Consumption} {eatsWhat}");
             debug.AddLine("");
-
-
             return debug;
         }
     }

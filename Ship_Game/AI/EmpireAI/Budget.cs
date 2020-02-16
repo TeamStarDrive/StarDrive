@@ -28,7 +28,7 @@ namespace Ship_Game.AI.Budget
             SysCom = planet?.Owner?.GetEmpireAI().
                 DefensiveCoordinator.GetSystemCommander(planet.ParentSystem);
 
-            if (planet == null || SysCom == null) 
+            if (planet == null || SysCom == null)
                 return;
 
             Planet              = planet;
@@ -42,12 +42,9 @@ namespace Ship_Game.AI.Budget
             float orbitalRatio  = 1 - groundRatio;
             MilitaryBuildings   = defenseBudget * groundRatio - planet.MilitaryBuildingsMaintenance;
             Orbitals            = defenseBudget * orbitalRatio - planet.OrbitalsMaintenance;
-
-            if (CivilianBuildings < 0)
-                CivilianBuildings = (CivilianBuildings + planet.ColonyDebtTolerance).Clamped(-float.MaxValue, 0);
-
-            Budget      = Orbitals + MilitaryBuildings + CivilianBuildings; // total budget for this planet
-            Initialized = true;
+            CivilianBuildings  += planet.ColonyDebtTolerance;
+            Budget              = Orbitals + MilitaryBuildings + CivilianBuildings; // total budget for this planet
+            Initialized         = true;
         }
 
         // This is Orbitals vs. Military Buildings ratio of budget, since Building maintenance is much less than Orbitals.

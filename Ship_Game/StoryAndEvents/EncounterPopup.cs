@@ -4,32 +4,32 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Ship_Game
 {
-	public sealed class EncounterPopup : PopupWindow
-	{
-		public bool fade = true;
+    public sealed class EncounterPopup : PopupWindow
+    {
+        readonly UniverseScreen Screen;
+        public bool fade;
+        public bool FromGame;
+        public string UID;
+        public Encounter encounter;
 
-		public bool FromGame;
+        Rectangle ResponseRect;
+        Rectangle BlackRect;
+        ScrollList2<ResponseListItem> ResponseSL;
 
-		private UniverseScreen screen;
-
-		public string UID;
-
-		public Encounter encounter;
-
-		EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, Encounter e) : base(s, 600, 600)
-		{
-			screen = s;
-			encounter = e;
-			encounter.CurrentMessage = 0;
-			encounter.SetPlayerEmpire(playerEmpire);
-			encounter.SetSys(null);
-			encounter.SetTarEmp(targetEmp);
-			fade = true;
-			IsPopup = true;
-			FromGame = true;
-			TransitionOnTime = 0.25f;
-			TransitionOffTime = 0f;
-		}
+        EncounterPopup(UniverseScreen s, Empire playerEmpire, Empire targetEmp, Encounter e) : base(s, 600, 600)
+        {
+            Screen = s;
+            encounter = e;
+            encounter.CurrentMessageId = 0;
+            encounter.SetPlayerEmpire(playerEmpire);
+            encounter.SetSys(null);
+            encounter.SetTarEmp(targetEmp);
+            fade = true;
+            IsPopup = true;
+            FromGame = true;
+            TransitionOnTime = 0.25f;
+            TransitionOffTime = 0f;
+        }
 
         public static void Show(UniverseScreen s, Empire player, Empire them, Encounter e)
         {
@@ -37,31 +37,76 @@ namespace Ship_Game
             ScreenManager.Instance.AddScreenDeferred(screen);
         }
 
-		public override void Draw(SpriteBatch batch)
-		{
-			if (fade)
-			{
-				ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
-			}
-			base.Draw(batch);
+        public override void Draw(SpriteBatch batch)
+        {
+            if (fade)
+            {
+                ScreenManager.FadeBackBufferToBlack(TransitionAlpha * 2 / 3);
+            }
 
-			ScreenManager.SpriteBatch.Begin();
-			encounter.Draw(ScreenManager);
-			ScreenManager.SpriteBatch.End();
-		}
+            base.Draw(batch);
 
-		public override bool HandleInput(InputState input)
-		{
-			encounter.HandleInput(input, this);
-			return base.HandleInput(input);
-		}
+            batch.Begin();
+            DrawEncounter(batch);
+            batch.End();
+        }
 
-		public override void LoadContent()
-		{
-			TitleText = encounter.Name;
-			MiddleText = encounter.DescriptionText;
-			base.LoadContent();
-			encounter.LoadContent(screen.ScreenManager, new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height)));
-		}
-	}
+        void DrawEncounter(SpriteBatch batch)
+        {
+            batch.FillRectangle(BlackRect, Color.Black);
+            batch.FillRectangle(ResponseRect, Color.Black);
+            Vector2 theirTextPos = new Vector2(BlackRect.X + 10, BlackRect.Y + 10);
+            string theirText = encounter.ParseCurrentEncounterText(BlackRect.Width - 20, Fonts.Verdana12Bold);
+            theirTextPos.X = (int)theirTextPos.X;
+            theirTextPos.Y = (int)theirTextPos.Y;
+            batch.DrawString(Fonts.Verdana12Bold, theirText, theirTextPos, Color.White);
+            if (encounter.Current.EndTransmission)
+            {
+                var responsePos = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 10);
+                batch.DrawString(Fonts.Arial12Bold, "Escape or Right Click to End Transmission:", responsePos, Color.White);
+            }
+            else
+            {
+                var drawCurs = new Vector2(ResponseRect.X + 10, ResponseRect.Y + 5);
+                batch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
+                ResponseSL.Draw(batch);
+            }
+        }
+
+        public override bool HandleInput(InputState input)
+        {
+            if (encounter.Current.EndTransmission && (input.Escaped || input.RightMouseClick))
+            {
+                ExitScreen();
+                return true;
+            }
+            return base.HandleInput(input);
+        }
+
+        public override void LoadContent()
+        {
+            TitleText = encounter.Name;
+            MiddleText = encounter.DescriptionText;
+            base.LoadContent();
+            Rectangle fitRect = new Rectangle(TitleRect.X - 4, TitleRect.Y + TitleRect.Height + MidContainer.Height + 10, 
+                TitleRect.Width, 600 - (TitleRect.Height + MidContainer.Height));
+
+            BlackRect = new Rectangle(fitRect.X, fitRect.Y, fitRect.Width, 300);
+            ResponseRect = new Rectangle(fitRect.X, BlackRect.Y + BlackRect.Height + 10, fitRect.Width, 110);
+            var resp = new Submenu(ResponseRect);
+            ResponseSL = Add(new ScrollList2<ResponseListItem>(resp, 20));
+            LoadResponseScrollList();
+        }
+
+        void LoadResponseScrollList()
+        {
+            ResponseSL.Reset();
+            foreach (Response r in encounter.Current.ResponseOptions)
+            {
+                ResponseSL.AddItem(new ResponseListItem(r));
+            }
+            ResponseSL.OnClick = encounter.OnResponseItemClicked;
+        }
+
+    }
 }
