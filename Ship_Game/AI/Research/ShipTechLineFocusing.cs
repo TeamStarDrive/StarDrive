@@ -114,7 +114,7 @@ namespace Ship_Game.AI.Research
                 if (!shortTermBest.shipData.UnLockable) continue;
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
-
+                if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name)) continue;
                 researchableShips.Add(shortTermBest);
             }
             return researchableShips;
@@ -312,24 +312,56 @@ namespace Ship_Game.AI.Research
         {
             HashSet<string> shipTechs       = new HashSet<string>();
             HashSet<string> nonShipTechs    = new HashSet<string>();
+            var needShipTech = modifier.Contains("Ship");
 
             foreach (TechEntry techEntry in availableTechs)
             {
-                if (techEntry.IsShipTech() && (techEntry.Tech.ModulesUnlocked.NotEmpty || techEntry.Tech.HullsUnlocked.NotEmpty))
-                    shipTechs.Add(techEntry.UID);
-                if (techEntry.HasNonShipTech())
-                    nonShipTechs.Add(techEntry.UID);
+                var isShipTech = techEntry.IsShipTech();
+
+                if (needShipTech)
+                {
+                    if (isShipTech)
+                    {
+                        // try to focus tech on just the important items. 
+                        // non ship tech will have ship tech that doesnt unlock ship components. 
+                        // currently the idea is make it so that when not researching ship tech no
+                        // non ship tech will be in the mix. 
+                        // but we also want bonus type type be unlockable when researching a ship.
+                        if (techEntry.Tech.ModulesUnlocked.NotEmpty || techEntry.Tech.HullsUnlocked.NotEmpty)
+                        {
+                            shipTechs.Add(techEntry.UID);
+                        }
+                        else
+                        {
+                            nonShipTechs.Add(techEntry.UID);
+                        }
+                    }
+                    else
+                    {
+                        nonShipTechs.Add(techEntry.UID);
+                    }
+                }
+                // when not researching a ship we want no ship tech getting into the mix and diluting
+                // the cost analysis when choosing a tech. 
+                else
+                {
+                    if (!isShipTech)
+                        nonShipTechs.Add(techEntry.UID);
+                }
             }
             //if not researching shiptechs then dont research any shiptechs.
-            if (!modifier.Contains("Ship"))
+            if (!needShipTech)
                 return nonShipTechs;
 
             // if we have a best ship already then use that and return.
             // But only if not using a script
             if (BestCombatShip != null && command == "RANDOM")
+            {
                 return UseBestShipTechs(shipTechs, nonShipTechs);
+            }
 
             //doesn't have a best ship so find one.
+
             //filter out ships we cant use
             Array<Ship> racialShips        = FilterRacialShips();
             Array<Ship> researchableShips = GetResearchableShips(racialShips);
@@ -348,8 +380,10 @@ namespace Ship_Game.AI.Research
 
         private HashSet<string> UseBestShipTechs(HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
-            //filter out all current shiptechs that dont match the best ships techs.
-            IEnumerable<string> bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded);
+            //Match researchable techs to techs ship needs.
+            string[] bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
+            if (bestShipTechs.Length == 0)
+                BestCombatShip = null;
             return UseOnlyWantedShipTechs(bestShipTechs, nonShipTechs);
         }
         private HashSet<string> UseResearchableShipTechs(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
