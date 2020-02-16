@@ -487,9 +487,62 @@ namespace Ship_Game.AI
             AddOrbitPlanetGoal(toOrbit);
         }
 
+        bool SetAwaitClosestForSystemToDefend()
+        {
+            if (SystemToDefend == null) return false;
+            AwaitClosest = SystemToDefend.PlanetList[0];
+            return true;
+        }
+
+        bool SetAwaitClosestForFaction()
+        {
+            if (!Owner.loyalty.isFaction) return false;
+            var solarSystem = Owner.loyalty.GetShips()
+                .FindMinFiltered(ship => ship.System != null,
+                                ship => Owner.Center.SqDist(ship.Center))?.System;
+            AwaitClosest = solarSystem.PlanetList.FindMax(p => p.GetNearByShips().Length);
+            return true;
+
+        }
+
+        bool SetAwaitClosestForPlayer()
+        {
+            if (!Owner.loyalty.isPlayer) return false;
+
+            AwaitClosest = Owner.loyalty.GetPlanets().FindMin(p => Owner.Center.SqDist(p.Center));
+            return true;
+        }
+
+        bool SetAwaitClosestForAIEmpire()
+        {
+            if (Owner.loyalty.isFaction || Owner.loyalty.isPlayer) return false;
+
+            SolarSystem home = Owner.System?.OwnerList.Contains(Owner.loyalty) != true? null : Owner.System;
+            if (home == null)
+            {
+                AwaitClosest = Owner.loyalty.GetBestNearbyPlanetToOrbitForAI(Owner);
+
+                if (AwaitClosest == null) //Find any system with no owners and planets.
+                {
+                    var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
+                               Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                    AwaitClosest = system.PlanetList.FindClosestTo(Owner);
+                }
+            }
+            else
+            {
+                AwaitClosest = home.PlanetList.FindMinFiltered(p => p.Owner == Owner.loyalty
+                                                            , p => p.Center.SqDist(Owner.Center));
+            }
+            return true;
+        }
+
         void AwaitOrders(float elapsedTime)
         {
             if (Owner.IsPlatformOrStation) return;
+
+            if (Owner.shipData.CarrierShip)
+                return;
 
             if (State != AIState.Resupply)
                 HasPriorityOrder = false;
@@ -503,60 +556,17 @@ namespace Ship_Game.AI
                 if (AwaitClosest.ParentSystem.OwnerList.Count > 0)
                     AwaitClosest = null;
             }
-            SolarSystem home = Owner.System?.OwnerList.Count > 1 ? null : Owner.System;
-            if (home == null)
+
+            if (SetAwaitClosestForSystemToDefend() 
+                || SetAwaitClosestForFaction()
+                || SetAwaitClosestForPlayer()
+                || SetAwaitClosestForAIEmpire() && AwaitClosest != null)
             {
-                if (SystemToDefend != null)
-                {
-                    Orbit.Orbit(SystemToDefend.PlanetList[0], elapsedTime);
-                    AwaitClosest = SystemToDefend.PlanetList[0];
-                    return;
-                }
-
-                if (!Owner.loyalty.isFaction) // for empire find whatever is close. might add to this for better logic.
-                {
-                    if (!Owner.loyalty.isPlayer)
-                    {
-                        var nearAO = Owner.loyalty.GetSafeAOCoreWorlds();
-                        var coreWorld = nearAO?.FindMin(ao => ao.Center.SqDist(Owner.Center));
-
-                        if (coreWorld != null)
-                        {
-                            home = coreWorld.ParentSystem;
-                        }
-                        else
-                        {
-                            home = Owner.loyalty.GetSafeAOWorlds().FindMin(p => p.Center.SqDist(Owner.Center))?.ParentSystem;
-                        }
-                    }
-                    else
-                    {
-                        home = Owner.loyalty.GetOwnedSystems().Filter(sys => sys.OwnerList.Count < 2)
-                        .FindMin(s => Owner.Center.SqDist(s.Position));
-                    }
-                }
-                else //for factions look for ships in a system so they group up.
-                {
-                    home = Owner.loyalty.GetShips()
-                        .FindMinFiltered(inSystem => inSystem.System != null,
-                            inSystem => Owner.Center.SqDist(inSystem.Center))?.System;
-                }
-
-                if (home == null) //Find any system with no owners and planets.
-                {
-                    home = Empire.Universe.SolarSystemDict.FindMinValue(ss => 
-                                                           Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count +1));
-                }
+                Orbit.Orbit(AwaitClosest, elapsedTime);
             }
-
-            if (home != null)
+            else
             {
-                AwaitClosest = home.PlanetList.FindMinFiltered(p =>
-                {
-                    if (Owner.loyalty.isFaction)
-                        return p.Owner != null || p.Habitable; // for factions it just has to be habitable
-                    return p.Owner == Owner.loyalty; // our empire owns this planet
-                }, p => Owner.Center.SqDist(p.Center)); // pick closest
+                Log.Warning($"Could not find planet to idle at for {Owner}");
             }
         }
 
