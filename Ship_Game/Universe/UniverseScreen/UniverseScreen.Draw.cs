@@ -665,7 +665,7 @@ namespace Ship_Game
                     Fleet fleet = fleets[i];
                     if (fleet.Ships.Count <= 0)
                         continue;
-                    if (!Debug && player.DifficultyModifiers.ShowTacticalData && player.IsEmpireAttackable(fleet.Owner))
+                    if (!Debug && player.DifficultyModifiers.HideTacticalData && player.IsEmpireAttackable(fleet.Owner))
                         continue;
                     Vector2 averagePos = fleet.AveragePosition();
                     bool inSensors = player.IsPointInSensors(averagePos);
