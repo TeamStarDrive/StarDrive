@@ -12,6 +12,7 @@ using System.Linq;
 using System.Xml.Serialization;
 using Ship_Game.Data;
 using Ship_Game.Data.Yaml;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.SpriteSystem;
 using Ship_Game.Universe.SolarBodies;
 
@@ -278,7 +279,8 @@ namespace Ship_Game
             Log.ShowConsoleWindow();
             //TestTechTextures();
 
-            Log.HideConsoleWindow();
+            if (!Debugger.IsAttached)
+                Log.HideConsoleWindow();
         }
 
         // Gets FileInfo for Mod or Vanilla file. Mod file is checked first
@@ -849,7 +851,7 @@ namespace Ship_Game
                 if (t.ShipType.IsEmpty())
                 {
                     t.ShipType = e.Singular;
-                    Log.Warning($"Empire {e.Name} invalid ShipType ''. Using '{e.Singular}' instead.");
+                    Log.Warning($"Empire '{e.Name}' invalid ShipType ''. Using '{e.Singular}' instead.");
                 }
             }
         }
@@ -1629,7 +1631,6 @@ namespace Ship_Game
 
             Log.Error($"LoadVideo failed: {videoPath}");
             return content.Load<Video>("Video/Loading 2");
-
         }
     }
 }

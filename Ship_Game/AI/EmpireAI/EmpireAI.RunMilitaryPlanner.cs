@@ -12,10 +12,15 @@ namespace Ship_Game.AI
 
     public sealed partial class EmpireAI
     {
-        private void RunMilitaryPlanner()
+        readonly Array<MilitaryTask> TaskList = new Array<MilitaryTask>();
+        readonly Array<MilitaryTask> TasksToAdd = new Array<MilitaryTask>();
+        readonly Array<MilitaryTask> TasksToRemove = new Array<MilitaryTask>();
+
+        void RunMilitaryPlanner()
         {
             if (OwnerEmpire.isPlayer)
                 return;
+
             RunGroundPlanner();
             NumberOfShipGoals = 3;
             int goalsInConstruction = SearchForGoals(GoalType.BuildOffensiveShips).Count;
@@ -24,21 +29,131 @@ namespace Ship_Game.AI
 
             Goals.ApplyPendingRemovals();
 
-            //this where the global AI attack stuff happenes.
-            using (TaskList.AcquireReadLock())
+            // this where the global AI attack stuff happens.
+            Toughnuts = 0;
+            foreach (MilitaryTask task in TaskList)
             {
-                int toughNutCount = 0;
-
-                foreach (var task in TaskList)
+                if (!task.QueuedForRemoval)
                 {
-                    if (task.IsToughNut) toughNutCount++;
+                    if (task.IsToughNut)
+                        Toughnuts++;
                     task.Evaluate(OwnerEmpire);
                 }
-                Toughnuts = toughNutCount;
             }
+            ApplyPendingChanges();
+        }
+
+        void ApplyPendingChanges()
+        {
+            foreach (MilitaryTask remove in TasksToRemove)
+                TaskList.RemoveRef(remove);
+            TasksToRemove.Clear();
+
             TaskList.AddRange(TasksToAdd);
             TasksToAdd.Clear();
-            TaskList.ApplyPendingRemovals();
+        }
+
+        public void AddPendingTask(MilitaryTask task)
+        {
+            TasksToAdd.Add(task);
+        }
+
+        public void AddPendingTasks(Array<MilitaryTask> tasks)
+        {
+            TasksToAdd.AddRange(tasks);
+        }
+
+        public void EndAllTasks()
+        {
+            foreach (MilitaryTask task in TaskList.ToArray())
+                task.EndTask();
+            TasksToAdd.Clear();
+            TasksToRemove.Clear();
+            TaskList.Clear();
+        }
+
+        public void QueueForRemoval(MilitaryTask task)
+        {
+            if (!task.QueuedForRemoval)
+            {
+                task.QueuedForRemoval = true;
+                TasksToRemove.Add(task);
+            }
+        }
+
+        void RemoveMilitaryTasksTargeting(Empire empire)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; i--)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.TargetPlanet?.Owner == empire)
+                    task.EndTask();
+            }
+        }
+
+        public MilitaryTask[] GetAtomicTasksCopy()
+        {
+            return TaskList.ToArray();
+        }
+
+        public MilitaryTask[] GetMilitaryTasksTargeting(Empire empire)
+        {
+            return TaskList.Filter(task => task.TargetPlanet?.Owner == empire);
+        }
+
+        public MilitaryTask[] GetClaimTasks()
+        {
+            return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+                                        && task.TargetPlanet != null);
+        }
+
+        public bool HasTaskOfType(MilitaryTask.TaskType type)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+                if (TaskList[i].type == type)
+                    return true;
+            return false;
+        }
+
+        public bool IsAlreadyAssaultingSystem(SolarSystem system)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
+                    task.TargetPlanet?.ParentSystem == system)
+                    return true;
+            }
+            return false;
+        }
+
+        public bool IsAlreadyAssaultingPlanet(Planet planet)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
+                    task.TargetPlanet == planet)
+                    return true;
+            }
+            return false;
+        }
+
+        public void WriteToSave(SavedGame.GSAISAVE aiSave)
+        {
+            ApplyPendingChanges();
+            aiSave.MilitaryTaskList = new Array<MilitaryTask>(TaskList);
+            foreach (MilitaryTask task in aiSave.MilitaryTaskList)
+            {
+                if (task.TargetPlanet != null)
+                    task.TargetPlanetGuid = task.TargetPlanet.guid;
+            }
+        }
+
+        public void ReadFromSave(SavedGame.GSAISAVE aiSave)
+        {
+            TaskList.Clear();
+            TaskList.AddRange(aiSave.MilitaryTaskList);
         }
 
         public void SendExplorationFleet(Planet p)
@@ -51,14 +166,13 @@ namespace Ship_Game.AI
             };
             militaryTask.SetTargetPlanet(p);
             militaryTask.SetEmpire(OwnerEmpire);
-            TaskList.Add(militaryTask);
+            AddPendingTask(militaryTask);
         }
 
-        private void BuildWarShips(int goalsInConstruction)
+        void BuildWarShips(int goalsInConstruction)
         {
             int shipCountLimit = GlobalStats.ShipCountLimit;
-            RoleBuildInfo buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
-
+            var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
 
             while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget
                    && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
@@ -103,7 +217,7 @@ namespace Ship_Game.AI
                 var ratios = new FleetRatios(OwnerEmpire);
                 foreach (var kv in ShipCounts)
                 {
-                    kv.Value.CalculateBasicCounts(ratios, capacity);
+                    kv.Value.CalculateBasicCounts(ratios);
                     TotalFleetMaintenanceMin += kv.Value.FleetRatioMaintenance;
                     totalMaintenance += kv.Value.CurrentMaintenance;
                 }
@@ -180,7 +294,7 @@ namespace Ship_Game.AI
             }
             public class RoleCounts
             {
-                public float PerUnitMaintenanceAverage { get; private set; }
+                public float PerUnitMaintenanceMax { get; private set; }
                 public float FleetRatioMaintenance { get; private set; }
                 public float CurrentMaintenance { get; private set; }
                 public float CurrentCount { get; private set; }
@@ -196,7 +310,7 @@ namespace Ship_Game.AI
                     Role = role;
                 }
 
-                public void CalculateBasicCounts(FleetRatios ratio, float buildCapacity)
+                public void CalculateBasicCounts(FleetRatios ratio)
                 {
                     if (CurrentShips.NotEmpty)
                     {
@@ -205,9 +319,9 @@ namespace Ship_Game.AI
                     }
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceAverage = BuildableShips.Average(ship => ship.GetMaintCost());
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost());
                     float minimum = CombatRoleToRatioMin(ratio);
-                    FleetRatioMaintenance = PerUnitMaintenanceAverage * minimum;
+                    FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
                 }
 
                 public void CalculateDesiredShips(FleetRatios ratio, float buildCapacity, float totalFleetMaintenance)
@@ -216,7 +330,7 @@ namespace Ship_Game.AI
                     if (minimum.AlmostZero())
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
-                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceAverage.ClampMin(0.001f)); // MinimumMaintenance));
+                    DesiredCount = (int)(RoleBuildBudget / PerUnitMaintenanceMax.ClampMin(0.001f)); // MinimumMaintenance));
                     if (Role < CombatRole.Frigate)
                         DesiredCount = Math.Min(50, DesiredCount);
                 }
@@ -267,22 +381,27 @@ namespace Ship_Game.AI
                 public void ScrapAsNeeded(Empire empire)
                 {
                     if (CurrentCount <= DesiredCount + 1
-                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceAverage)
+                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
                         return;
 
                     foreach (var ship in CurrentShips
-                        .Filter(ship => !ship.InCombat &&
+                        .OrderBy(ship => ship.shipData.TechsNeeded.Count))
+                    {
+                        if(!ship.InCombat &&
                                         (!ship.fleet?.IsCoreFleet ?? true)
                                         && ship.AI.State != AIState.Scrap
                                         && ship.AI.State != AIState.Scuttle
                                         && ship.AI.State != AIState.Resupply
                                         && ship.Mothership == null && ship.Active
                                         && ship.GetMaintCost(empire) > 0)
-                        .OrderBy(ship => ship.shipData.TechsNeeded.Count))
-                    {
-                        CurrentCount--;
-                        CurrentMaintenance -= ship.GetMaintCost();
-                        ship.AI.OrderScrapShip();
+                        { 
+                            CurrentCount--;
+                            CurrentMaintenance -= ship.GetMaintCost();
+                            ship.AI.OrderScrapShip();
+                            if (CurrentCount <= DesiredCount + 1
+                                && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                                break;
+                        }
                     }
                 }
 

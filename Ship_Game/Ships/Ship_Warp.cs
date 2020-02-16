@@ -15,10 +15,10 @@ namespace Ship_Game.Ships
         // This is both for balancing and for realism, since sub-light
         // ships should not get even close to light speed
         public const float MaxSubLightSpeed = 1800f;
-
-        bool IsSpooling;
+        public bool IsSpooling { get; private set; }
         public float InhibitedTimer;
         public bool Inhibited { get; private set; }
+        public bool InhibitedByEnemy { get; private set; }
         public MoveState engineState;
         public float WarpThrust;
         public bool BaseCanWarp;
@@ -30,38 +30,52 @@ namespace Ship_Game.Ships
         public float WarpOutDistance => 3200f + MaxSTLSpeed * 3f;
         public string WarpState => engineState == MoveState.Warp ? "FTL" : "Sublight";
 
+        public bool IsReadyForWarp
+        {
+            get
+            {
+                Status warpReady = ShipEngines.ReadyForWarp;
+                return warpReady > Status.Poor && warpReady < Status.NotApplicable;
+            }
+        }
+
         public void ResetJumpTimer()
         {
             JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
         }
 
-        string GetStartWarpCue()
+        public static string GetStartWarpCue(IEmpireData data, int surfaceArea)
         {
-            if (loyalty.data.WarpStart != null)
-                return loyalty.data.WarpStart;
-            if (SurfaceArea < 60)
+            if (data.WarpStart != null)
+                return data.WarpStart;
+            if (surfaceArea < 60)
                 return "sd_warp_start_small";
-            return SurfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
+            return surfaceArea > 350 ? "sd_warp_start_large" : "sd_warp_start_02";
         }
 
-        string GetEndWarpCue()
+        public static string GetEndWarpCue(IEmpireData data, int surfaceArea)
         {
-            if (loyalty.data.WarpStart != null)
-                return loyalty.data.WarpEnd;
-            if (SurfaceArea < 60)
+            if (data.WarpStart != null)
+                return data.WarpEnd;
+            if (surfaceArea < 60)
                 return "sd_warp_stop_small";
-            return SurfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
+            return surfaceArea > 350 ? "sd_warp_stop_large" : "sd_warp_stop";
         }
+
+        string GetStartWarpCue() => GetStartWarpCue(loyalty.data, SurfaceArea);
+        string GetEndWarpCue()   => GetEndWarpCue(loyalty.data, SurfaceArea);
 
         public void EngageStarDrive() // added by gremlin: Fighter recall and stuff
         {
             if (IsSpoolingOrInWarp)
                 return;
 
-            if (Carrier.RecallingFighters())
+            var warpStatus = ShipEngines.ReadyForWarp;
+
+            if (warpStatus == Status.Poor)
                 return;
 
-            if (EnginesKnockedOut || Inhibited)
+            if (warpStatus == Status.Critical)
             {
                 HyperspaceReturn();
                 return;
@@ -77,7 +91,9 @@ namespace Ship_Game.Ships
         public void HyperspaceReturn()
         {
             if (!IsSpoolingOrInWarp)
+            {
                 return;
+            }
 
             // stop the SFX and always reset the replay timeout
             JumpSfx.Stop();
@@ -100,7 +116,6 @@ namespace Ship_Game.Ships
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();
 
-        
         void UpdateHyperspaceInhibited(float elapsedTime)
         {
             InhibitedTimer -= elapsedTime;
@@ -152,6 +167,7 @@ namespace Ship_Game.Ships
 
         void UpdateInhibitedFromEnemyShips()
         {
+            InhibitedByEnemy = false;
             foreach (Empire e in EmpireManager.Empires)
             {
                 if (e != loyalty && !loyalty.GetRelations(e).Treaty_OpenBorders)
@@ -162,6 +178,7 @@ namespace Ship_Game.Ships
                         if (ship != null && Center.InRadius(ship.Position, ship.InhibitionRadius))
                         {
                             Inhibited = true;
+                            InhibitedByEnemy = true;
                             InhibitedTimer = 5f;
                             return;
                         }
@@ -170,46 +187,14 @@ namespace Ship_Game.Ships
             }
         }
         
-        public ShipStatus WarpDuration(float neededRange = 300000)
+        public Status WarpDuration(float neededRange = 300000)
         {
             float powerDuration = NetPower.PowerDuration(this, MoveState.Warp);
             if (powerDuration.AlmostEqual(float.MaxValue))
-                return ShipStatus.Excellent;
+                return Status.Excellent;
             if (powerDuration * MaxFTLSpeed < neededRange)
-                return ShipStatus.Critical;
-            return ShipStatus.Good;
+                return Status.Critical;
+            return Status.Good;
         }
-
-        public ShipStatus ShipReadyForWarp()
-        {
-            if (MaxFTLSpeed < 1 || Inhibited || EnginesKnockedOut || !Active)
-                return ShipStatus.NotApplicable;
-
-            if (AI.HasPriorityOrder || AI.State == AIState.Resupply)
-                return ShipStatus.NotApplicable;
-
-            if (!IsSpooling && WarpDuration() < ShipStatus.Good)
-                return ShipStatus.Critical;
-
-            if (engineState == MoveState.Warp)
-                return ShipStatus.Good;
-
-            if (Carrier.HasActiveHangars)
-                return ShipStatus.Poor;
-            return ShipStatus.Excellent;
-        }
-
-        public ShipStatus ShipReadyForFormationWarp()
-        {
-            //the original logic here was confusing. If aistate was formation warp it ignored all other
-            //cases and returned good. I am guessing that once the state is formation warp it is
-            //expecting it has passes all other cases. But i can not verify that as the logic is spread out.
-            //I believe what we need here is to centralize the engine and navigation logic.
-            ShipStatus warpStatus = ShipReadyForWarp();
-            if (warpStatus > ShipStatus.Poor && warpStatus != ShipStatus.NotApplicable)
-                if (AI.State != AIState.FormationWarp) return ShipStatus.Good;
-            return warpStatus;
-        }
-
     }
 }

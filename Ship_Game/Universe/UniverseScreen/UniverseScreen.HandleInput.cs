@@ -1,14 +1,12 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.AI;
-using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Ship_Game.Audio;
+using Ship_Game.Fleets;
 
 namespace Ship_Game
 {
@@ -244,10 +242,7 @@ namespace Ship_Game
             }
 
             // ensure universe has the correct light rig
-            if (ScreenManager.LightRigIdentity != GameScreens.LightRigIdentity.UniverseScreen)
-            {
-                ResetLighting();
-            }
+            ResetLighting(forceReset: false);
 
             HandleEdgeDetection(input);
             if (HandleDragAORect(input))
@@ -276,7 +271,7 @@ namespace Ship_Game
             if (input.UseRealLights)
             {
                 UseRealLights = !UseRealLights; // toggle real lights
-                ResetLighting();
+                ResetLighting(forceReset: true);
             }
             if (input.ShowExceptionTracker)
             {
@@ -418,6 +413,7 @@ namespace Ship_Game
                 fleet.Owner = player;
 
                 AddSelectedShipsToFleet(fleet);
+                fleet.SetCommandShip(null);
                 player.GetFleetsDict()[index] = fleet;
                 RecomputeFleetButtons(true);
             }
@@ -678,7 +674,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    ViewPlanet();
+                    SnapViewColony();
                     SelectionBox = new Rectangle();
                 }
                 else
@@ -959,9 +955,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        if (!SnapBackToSystem)
-                            HeightOnSnap = CamHeight;
-                        ViewPlanet();
+                        SnapViewColony();
                     }
                 }
             }
@@ -993,7 +987,6 @@ namespace Ship_Game
                         if (system.systemToClick.IsExploredBy(player))
                         {
                             GameAudio.SubBassWhoosh();
-                            HeightOnSnap = CamHeight;
                             ViewSystem(system.systemToClick);
                         }
                         else
@@ -1210,6 +1203,8 @@ namespace Ship_Game
                     fleet.AddShip(ship);
                 }
             }
+            fleet.SetCommandShip(null);
+            fleet.Update(0);
             fleet.AutoArrange();
             InputCheckPreviousShip();
 
@@ -1336,13 +1331,13 @@ namespace Ship_Game
                     {
                         CamDestination.Z = 60000f;
                         AdjustCamTimer = 1f;
-                        transitionElapsedTime = 0.0f;
+                        transitionElapsedTime = 0f;
                     }
                     else
                     {
-                        CamDestination.Z = 4200000f * GameScale;
+                        CamDestination.Z = 4200000f;
                         AdjustCamTimer = 1f;
-                        transitionElapsedTime = 0.0f;
+                        transitionElapsedTime = 0f;
                     }
                 }
             }

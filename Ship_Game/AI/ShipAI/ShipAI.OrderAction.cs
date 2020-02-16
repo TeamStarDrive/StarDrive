@@ -122,14 +122,14 @@ namespace Ship_Game.AI
 
         public void OrderFormationWarp(Vector2 destination, Vector2 direction)
         {
-            float speedLimit = Owner.fleet?.SpeedLimit ?? 0f;
+            float speedLimit = Owner.fleet?.GetSpeedLimitFor(Owner) ?? 0;
             OrderMoveDirectlyTo(destination, direction, true, speedLimit);
             State = AIState.FormationWarp;
         }
 
         public void OrderFormationWarpQ(Vector2 destination, Vector2 direction)
         {
-            float speedLimit = Owner.fleet?.SpeedLimit ?? 0f;
+            float speedLimit = Owner.fleet?.GetSpeedLimitFor(Owner) ?? 0;
             OrderMoveDirectlyTo(destination, direction, false, speedLimit);
             State = AIState.FormationWarp;
         }
@@ -182,17 +182,24 @@ namespace Ship_Game.AI
             //              fleet move & queued move,
             //              ship group move & queued move,
             //              priority movement for all of the above while in combat
+            //              Verify ships can complete move to planet goals like colonization.
             WayPoint[] wayPoints = WayPoints.ToArray();
             WayPoint wp = wayPoints[0];
 
             AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction);
-            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit);
 
-            for (int i = 1; i < wayPoints.Length - 1; ++i)
+            // set moveto1000 for each waypoint except for the last one. 
+            // if only one waypoint skip this. 
+            for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
                 wp = wayPoints[i];
                 AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit);
             }
+            // set final move position.
+            // move to within 1000 of the position.
+            // make a precision approach.
+            // rotate to desired facing <= this needs to be fixed.
+            // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
             AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
             AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal);
@@ -386,8 +393,8 @@ namespace Ship_Game.AI
 
         public void OrderScrapShip()
         {
-            Owner.ClearFleet();
-            Owner.loyalty.ForcePoolRemove(Owner);
+            Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
+
             if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
             {
                 Owner.ScuttleTimer = 1;
@@ -482,14 +489,21 @@ namespace Ship_Game.AI
 
         void AwaitOrders(float elapsedTime)
         {
+            if (Owner.IsPlatformOrStation) return;
+
             if (State != AIState.Resupply)
                 HasPriorityOrder = false;
             if (AwaitClosest != null)
             {
-                Orbit.Orbit(AwaitClosest, elapsedTime);
-                return;
+                if (SystemToDefend != null || Owner.loyalty.isPlayer)
+                {
+                    Orbit.Orbit(AwaitClosest, elapsedTime);
+                    return;
+                }
+                if (AwaitClosest.ParentSystem.OwnerList.Count > 0)
+                    AwaitClosest = null;
             }
-            SolarSystem home = Owner.System;
+            SolarSystem home = Owner.System?.OwnerList.Count > 1 ? null : Owner.System;
             if (home == null)
             {
                 if (SystemToDefend != null)
@@ -501,8 +515,25 @@ namespace Ship_Game.AI
 
                 if (!Owner.loyalty.isFaction) // for empire find whatever is close. might add to this for better logic.
                 {
-                    home = Owner.loyalty.GetOwnedSystems()
+                    if (!Owner.loyalty.isPlayer)
+                    {
+                        var nearAO = Owner.loyalty.GetSafeAOCoreWorlds();
+                        var coreWorld = nearAO?.FindMin(ao => ao.Center.SqDist(Owner.Center));
+
+                        if (coreWorld != null)
+                        {
+                            home = coreWorld.ParentSystem;
+                        }
+                        else
+                        {
+                            home = Owner.loyalty.GetSafeAOWorlds().FindMin(p => p.Center.SqDist(Owner.Center))?.ParentSystem;
+                        }
+                    }
+                    else
+                    {
+                        home = Owner.loyalty.GetOwnedSystems().Filter(sys => sys.OwnerList.Count < 2)
                         .FindMin(s => Owner.Center.SqDist(s.Position));
+                    }
                 }
                 else //for factions look for ships in a system so they group up.
                 {
@@ -513,9 +544,8 @@ namespace Ship_Game.AI
 
                 if (home == null) //Find any system with no owners and planets.
                 {
-                    home = Empire.Universe.SolarSystemDict.Values.ToArrayList()
-                        .FindMinFiltered(o => o.OwnerList.Count == 0 && o.PlanetList.Count > 0,
-                            ss => Owner.Center.SqDist(ss.Position));
+                    home = Empire.Universe.SolarSystemDict.FindMinValue(ss => 
+                                                           Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count +1));
                 }
             }
 

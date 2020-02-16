@@ -15,7 +15,9 @@ using System.IO;
 using System.Threading;
 using Ship_Game.Audio;
 using Ship_Game.GameScreens;
+using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Universe;
+using Ship_Game.Fleets;
 
 namespace Ship_Game
 {
@@ -31,7 +33,6 @@ namespace Ship_Game
         public static Array<SolarSystem> SolarSystemList = new Array<SolarSystem>();
         public static BatchRemovalCollection<SpaceJunk> JunkList = new BatchRemovalCollection<SpaceJunk>();
         public float GamePace = 1f;
-        public float GameScale = 1f;
         public float GameSpeed = 1f;
         public float StarDate = 1000f;
         public string StarDateString => StarDate.StarDateString();
@@ -51,8 +52,6 @@ namespace Ship_Game
         public bool FTLInNuetralSystems = true;
         public Vector3 transitionStartPosition;
         public Vector3 camTransitionPosition;
-        public Array<NebulousOverlay> Stars        = new Array<NebulousOverlay>();
-        public Array<NebulousOverlay> NebulousShit = new Array<NebulousOverlay>();
         Rectangle ScreenRectangle;
         public Map<Guid, Planet> PlanetsDict          = new Map<Guid, Planet>();
         public Map<Guid, SolarSystem> SolarSystemDict = new Map<Guid, SolarSystem>();
@@ -65,13 +64,7 @@ namespace Ship_Game
         float sTooltipTimer = 0.5f;
         float TurnFlipCounter;
         int Auto = 1;
-        AutoResetEvent   ShipGateKeeper         = new AutoResetEvent(false);
-        ManualResetEvent SystemThreadGateKeeper = new ManualResetEvent(false);
-        AutoResetEvent   DeepSpaceGateKeeper    = new AutoResetEvent(false);
-        ManualResetEvent DeepSpaceDone          = new ManualResetEvent(false);
-        AutoResetEvent   EmpireGateKeeper       = new AutoResetEvent(false);
-        ManualResetEvent EmpireDone             = new ManualResetEvent(false);
-        Array<Ship> DeepSpaceShips  = new Array<Ship>();
+        Array<Ship> DeepSpaceShips = new Array<Ship>();
         public bool ViewingShip             = false;
         public float transDuration          = 3f;
         public Vector2 mouseWorldPos;
@@ -122,22 +115,16 @@ namespace Ship_Game
         public Texture2D FogMap;
         RenderTarget2D FogMapTarget;
         public RenderTarget2D MainTarget;
-        public RenderTarget2D MiniMapSector;
         public RenderTarget2D BorderRT;
-        public RenderTarget2D StencilRT;
         RenderTarget2D LightsTarget;
         public Effect basicFogOfWarEffect;
         public Rectangle SectorMap;
-        public Rectangle SectorSourceRect;
-        public Rectangle GalaxyMap;
         public Rectangle SelectedStuffRect;
         public NotificationManager NotificationManager;
         public Rectangle MinimapDisplayRect;
         public Rectangle mmShowBorders;
         public Rectangle mmDSBW;
         public Rectangle mmShipView;
-        public Rectangle mmAutomation;
-        public Rectangle mmGalaxyView;
         public Rectangle mmHousing;
         protected float MaxCamHeight;
         public AnomalyManager anomalyManager;
@@ -163,7 +150,6 @@ namespace Ship_Game
         int ArmageddonCounter;
         float shiptimer;
         public Ship ShipToView;
-        public float HeightOnSnap;
         public float AdjustCamTimer;
         public bool SnapBackToSystem;
         public AutomationWindow aw;
@@ -190,14 +176,11 @@ namespace Ship_Game
         Effect AtmoEffect;
         Model atmoModel;
         public PlanetScreen workersPanel;
-        ResolveTexture2D sceneMap;
         CursorState cState;
         float radlast;
         int SelectorFrame;
         public int globalshipCount;
-        public int empireShipCountReserve;
         readonly Array<GameplayObject> GamePlayObjectToRemove = new Array<GameplayObject>();
-        public float Lag = 0;
         public Ship previousSelection;
 
         public UIButton ShipsInCombat;
@@ -205,13 +188,16 @@ namespace Ship_Game
         public int lastshipcombat   = 0;
         public int lastplanetcombat = 0;
         public int PathMapReducer   = 1;
-        public float screenDelay    = 0f;
         public SubSpaceProjectors SubSpaceProjectors;
 
         ShipMoveCommands ShipCommands;
 
         // for really specific debugging
         public static int TurnId;
+
+        // To avoid double-loading universe thread when
+        // graphics setting changes cause 
+        bool IsUniverseInitialized;
 
         public bool IsViewingCombatScreen(Planet p) => LookingAtPlanet && workersPanel is CombatScreen cs && cs.p == p;
 
@@ -231,7 +217,6 @@ namespace Ship_Game
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
-            DoPathingMapRebuild();
             ShipCommands = new ShipMoveCommands(this);
         }
 
@@ -253,7 +238,6 @@ namespace Ship_Game
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
-            DoPathingMapRebuild();
             ShipCommands = new ShipMoveCommands(this);
         }
 
@@ -261,13 +245,14 @@ namespace Ship_Game
         {
             if (PlanetsDict.TryGetValue(guid, out Planet planet))
                 return planet;
-            Log.Error($"Guid for planet not found guid: {guid}");
+            Log.Error($"Guid for planet not found: {guid}");
             return null;
         }
 
-        void ResetLighting()
+        // NOTE: this relies on MaxCamHeight and UniverseSize
+        void ResetLighting(bool forceReset)
         {
-            if (ScreenManager.LightRigIdentity == LightRigIdentity.UniverseScreen)
+            if (!forceReset && ScreenManager.LightRigIdentity == LightRigIdentity.UniverseScreen)
                 return;
 
             if (!UseRealLights)
@@ -276,11 +261,11 @@ namespace Ship_Game
                 return;
             }
 
-            ScreenManager.RemoveAllLights();
+            RemoveLighting();
             ScreenManager.LightRigIdentity = LightRigIdentity.UniverseScreen;
 
-            AddLight("Global Fill Light", new Vector2(0, 0), .7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
-            AddLight("Global Back Light", new Vector2(0, 0), .6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, +MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+            AddLight("Global Fill Light", new Vector2(0, 0), 0.7f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, -MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
+            AddLight("Global Back Light", new Vector2(0, 0), 0.6f, UniverseSize * 2 + MaxCamHeight * 10, Color.White, +MaxCamHeight * 10, fillLight: false, shadowQuality: 0f);
 
             foreach (SolarSystem system in SolarSystemList)
             {
@@ -292,6 +277,11 @@ namespace Ship_Game
                 AddLight("LocalFill",         system, intensity * 0.55f, radius,         Color.White, 0);
                 //AddLight("Back", system, intensity * 0.5f , radius, color, 2500, fallOff: 0, fillLight: true);
             }
+        }
+
+        void RemoveLighting()
+        {
+            ScreenManager.RemoveAllLights();
         }
 
         void AddLight(string name, SolarSystem system, float intensity, float radius, Color color, float zpos, float fallOff = 1f, bool fillLight = false)
@@ -354,38 +344,105 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
+            Log.Write(ConsoleColor.Cyan, "UniverseScreen.LoadContent");
             RemoveAll();
+            UnloadGraphics();
+            
+            Empire.Universe = this;
+
             GlobalStats.ResearchRootUIDToDisplay = "Colonization";
             SystemInfoUIElement.SysFont  = Fonts.Arial12Bold;
             SystemInfoUIElement.DataFont = Fonts.Arial10;
+
             NotificationManager = new NotificationManager(ScreenManager, this);
             aw = Add(new AutomationWindow(this));
-            for (int i = 0; i < UniverseSize / 5000.0f; ++i)
+
+            InitializeCamera(); // ResetLighting requires MaxCamHeight
+            ResetLighting(forceReset: true);
+            LoadGraphics();
+
+            InitializeUniverse();
+        }
+
+        void InitializeCamera()
+        {
+             float univSizeOnScreen = 10f;
+            MaxCamHeight = 15000000;
+            CreateProjectionMatrix();
+
+            while (univSizeOnScreen < (ScreenWidth + 50))
             {
-                var nebulousOverlay = new NebulousOverlay
-                {
-                    Path = "Textures/smoke",
-                    Position = new Vector3(
-                        RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
-                        RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
-                        RandomMath.RandomBetween(-200000f, -2E+07f)),
-                    Scale = RandomMath.RandomBetween(10f, 100f)
-                };
-                nebulousOverlay.WorldMatrix = Matrix.CreateScale(50f)
-                    * Matrix.CreateScale(nebulousOverlay.Scale)
-                    * Matrix.CreateRotationZ(RandomMath.RandomBetween(0.0f, 6.283185f))
-                    * Matrix.CreateTranslation(nebulousOverlay.Position);
-                Stars.Add(nebulousOverlay);
+                float univRadius = UniverseSize / 2f;
+                var camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
+                                                             new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
+
+                Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
+                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
+                univSizeOnScreen = univBotRight.X - univTopLeft.X;
+                if (univSizeOnScreen < (ScreenWidth + 50))
+                    MaxCamHeight -= 0.1f * MaxCamHeight;
             }
 
-            LoadGraphics();
-            DoParticleLoad();
-            bg3d = new Background3D(this);
-            StarField = new StarField(this);
+            if (MaxCamHeight > 11000000)
+                MaxCamHeight = 11000000;
 
-            CreateProjectionMatrix();
-            ResetLighting();
+            if (!loading)
+            {
+                CamPos.X = PlayerEmpire.GetPlanets()[0].Center.X;
+                CamPos.Y = PlayerEmpire.GetPlanets()[0].Center.Y;
+                CamHeight = 2750f;
+            }
+
+            CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
+        }
+
+        void InitializeUniverse()
+        {
+            if (IsUniverseInitialized)
+                return;
+            IsUniverseInitialized = true;
+
             CreateStartingShips();
+
+            InitializeSolarSystems();
+            CreatePlanetsLookupTable();
+            CreateStationTethers();
+            CreateProcessTurnsThread();
+        }
+
+        void CreateProcessTurnsThread()
+        {
+            ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
+            ProcessTurnsThread.Name = "Universe.ProcessTurns";
+            ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
+            ProcessTurnsThread.Start();
+        }
+
+        void CreatePlanetsLookupTable()
+        {
+            PlanetsDict.Clear();
+            SolarSystemDict.Clear();
+            foreach (SolarSystem solarSystem in SolarSystemList)
+            {
+                SolarSystemDict.Add(solarSystem.guid, solarSystem);
+                foreach (Planet planet in solarSystem.PlanetList)
+                    PlanetsDict.Add(planet.guid, planet);
+            }
+        }
+
+        void CreateStationTethers()
+        {
+            foreach (Ship ship in MasterShipList)
+            {
+                if (ship.TetherGuid != Guid.Empty)
+                    ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
+            }
+        }
+
+        void InitializeSolarSystems()
+        {
+            anomalyManager = new AnomalyManager();
+
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 SpawnRemnantsInSolarSystem(solarSystem);
@@ -397,7 +454,6 @@ namespace Ship_Game
                         {
                             Ship.CreateShipAt(key, p.Owner, p, true);
                         }
-
                         continue;
                     }
                     // Added by McShooterz: alternate hostile fleets populate universe
@@ -435,57 +491,13 @@ namespace Ship_Game
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
                 {
                     if (anomaly.type == "DP")
-                        anomalyManager.AnomaliesList.Add(new DimensionalPrison(solarSystem.Position + anomaly.Position));
+                        anomalyManager.AnomaliesList.Add(
+                            new DimensionalPrison(solarSystem.Position + anomaly.Position));
                 }
             }
-            float univSizeOnScreen = 10f;
-            MaxCamHeight = 4E+07f;
-            while (univSizeOnScreen < (ScreenWidth + 50))
-            {
-                float univRadius = UniverseSize / 2f;
-                Matrix camMaxToUnivCenter = Matrix.CreateLookAt(new Vector3(-univRadius, univRadius, MaxCamHeight),
-                                                                new Vector3(-univRadius, univRadius, 0.0f), Vector3.Up);
-
-                Vector3 univTopLeft  = Viewport.Project(Vector3.Zero, Projection, camMaxToUnivCenter, Matrix.Identity);
-                Vector3 univBotRight = Viewport.Project(new Vector3(UniverseSize, UniverseSize, 0.0f), Projection, camMaxToUnivCenter, Matrix.Identity);
-                univSizeOnScreen = univBotRight.X - univTopLeft.X;
-                if (univSizeOnScreen < (ScreenWidth + 50))
-                    MaxCamHeight -= 0.1f * MaxCamHeight;
-            }
-            if (MaxCamHeight > 23000000)
-                MaxCamHeight = 23000000;
-
-            if (!loading)
-            {
-                CamPos.X = PlayerEmpire.GetPlanets()[0].Center.X;
-                CamPos.Y = PlayerEmpire.GetPlanets()[0].Center.Y;
-                CamHeight = 2750f;
-            }
-            CamDestination = new Vector3(CamPos.X, CamPos.Y, CamHeight);
-            foreach (NebulousOverlay nebulousOverlay in Stars)
-                star_particles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
-
-            PlanetsDict.Clear();
-            SolarSystemDict.Clear();
-            foreach (SolarSystem solarSystem in SolarSystemList)
-            {
-                SolarSystemDict.Add(solarSystem.guid, solarSystem);
-                foreach (Planet planet in solarSystem.PlanetList)
-                    PlanetsDict.Add(planet.guid, planet);
-            }
-            foreach (Ship ship in MasterShipList)
-            {
-                if (ship.TetherGuid != Guid.Empty)
-                    ship.TetherToPlanet(GetPlanet(ship.TetherGuid));
-            }
-
-            ProcessTurnsThread = new Thread(ProcessTurnsMonitored);
-            ProcessTurnsThread.Name = "Universe.ProcessTurns";
-            ProcessTurnsThread.IsBackground = false; // RedFox - make sure ProcessTurns runs with top priority
-            ProcessTurnsThread.Start();
         }
 
-        private void CreateStartingShips()
+        void CreateStartingShips()
         {
             if (StarDate > 1000f) // not a new game
                 return;
@@ -543,14 +555,12 @@ namespace Ship_Game
             defensiveFleetAt.TaskStep = 3;
             militaryTask.WhichFleet = EmpireManager.Remnants.GetFleetsDict().Count + 10;
             EmpireManager.Remnants.GetFleetsDict().Add(militaryTask.WhichFleet, defensiveFleetAt);
-            EmpireManager.Remnants.GetEmpireAI().TaskList.Add(militaryTask);
+            EmpireManager.Remnants.GetEmpireAI().AddPendingTask(militaryTask);
             militaryTask.Step = 2;
         }
 
-        void DoParticleLoad()
+        void LoadParticles(Data.GameContentManager content, GraphicsDevice device)
         {
-            var content              = TransientContent;
-            var device               = ScreenManager.GraphicsDevice;
             beamflashes              = new ParticleSystem(content, "3DParticles/BeamFlash", device);
             explosionParticles       = new ParticleSystem(content, "3DParticles/ExplosionSettings", device);
             photonExplosionParticles = new ParticleSystem(content, "3DParticles/PhotonExplosionSettings", device);
@@ -569,7 +579,20 @@ namespace Ship_Game
             neb_particles            = new ParticleSystem(content, "3DParticles/GalaxyParticle", device);
         }
 
-        public void LoadGraphics()
+        void CreateStarParticles()
+        {
+            int numStars = (int)(UniverseSize / 5000.0f);
+            for (int i = 0; i < numStars; ++i)
+            {
+                var position = new Vector3(
+                    RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
+                    RandomMath.RandomBetween(-0.5f * UniverseSize, UniverseSize + 0.5f * UniverseSize),
+                    RandomMath.RandomBetween(-200000f, -2E+07f));
+                star_particles.AddParticleThreadA(position, Vector3.Zero);
+            }
+        }
+
+        void LoadGraphics()
         {
             const int minimapOffSet = 14;
 
@@ -578,10 +601,14 @@ namespace Ship_Game
             int width   = GameBase.ScreenWidth;
             int height  = GameBase.ScreenHeight;
 
-            Empire.Universe = this;
+            LoadParticles(content, device);
 
-            CreateProjectionMatrix();
             bg = new Background();
+            bg3d = new Background3D(this);
+            StarField = new StarField(this);
+            
+            CreateStarParticles();
+
             Frustum            = new BoundingFrustum(View * Projection);
             mmHousing          = new Rectangle(width - (276 + minimapOffSet), height - 256, 276 + minimapOffSet, 256);
             MinimapDisplayRect = new Rectangle(mmHousing.X + 61 + minimapOffSet, mmHousing.Y + 43, 200, 200);
@@ -589,54 +616,32 @@ namespace Ship_Game
             //mmButtons          = new MinimapButtons(mmHousing, EmpireUI);
             mmShowBorders      = new Rectangle(MinimapDisplayRect.X, MinimapDisplayRect.Y - 25, 32, 32);
             mmDSBW             = new Rectangle(mmShowBorders.X + 32, mmShowBorders.Y, 64, 32);
-            mmAutomation       = new Rectangle(mmDSBW.X + mmDSBW.Width, mmShowBorders.Y, 96, 32);
             mmShipView         = new Rectangle(MinimapDisplayRect.X - 32, MinimapDisplayRect.Y, 32, 105);
-            mmGalaxyView       = new Rectangle(mmShipView.X, mmShipView.Y + 105, 32, 105);
             SectorMap          = new Rectangle(width - 300, height - 150, 150, 150);
-            GalaxyMap          = new Rectangle(SectorMap.X + SectorMap.Width, height - 150, 150, 150);
             SelectedStuffRect  = new Rectangle(0, height - 247, 407, 242);
             ShipInfoUIElement  = new ShipInfoUIElement(SelectedStuffRect, ScreenManager, this);
             sInfoUI            = new SystemInfoUIElement(SelectedStuffRect, ScreenManager, this);
             pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
-            SectorSourceRect   = new Rectangle((width - 720) / 2, (height - 720) / 2, 720, 720);
             EmpireUI           = new EmpireUIOverlay(player, device);
-            bloomComponent     = new BloomComponent(ScreenManager);
-            bloomComponent.LoadContent();
+
+            if (GlobalStats.RenderBloom)
+            {
+                bloomComponent = new BloomComponent(ScreenManager);
+                bloomComponent.LoadContent();
+            }
+
             SurfaceFormat backBufferFormat = device.PresentationParameters.BackBufferFormat;
-            sceneMap      = new ResolveTexture2D(device, width, height, 1, backBufferFormat);
             MainTarget    = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             LightsTarget  = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
-            MiniMapSector = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
             BorderRT      = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
-            StencilRT     = BloomComponent.CreateRenderTarget(device, 1, backBufferFormat);
 
             NotificationManager.ReSize();
 
-            if (loadFogPath != null)
-            {
-                try
-                {
-                    using (FileStream fs = File.OpenRead($"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png"))
-                        FogMap = Texture2D.FromFile(device, fs);
-                }
-                catch (Exception e) // whatever issue with fog map
-                {
-                    Log.Warning(e.Message);
-                }
-            }
-
-            if (FogMap == null)
-            {
-                FogMap = ResourceManager.Texture2D("UniverseFeather");
-            }
-
-            FogMapTarget = new RenderTarget2D(device, 512, 512, 1, backBufferFormat, device.PresentationParameters.MultiSampleType, device.PresentationParameters.MultiSampleQuality);
-            basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
+            CreateFogMap(content, device, backBufferFormat);
             LoadMenu();
 
-            anomalyManager = new AnomalyManager();
             xnaPlanetModel = content.Load<Model>("Model/SpaceObjects/planet");
             atmoModel      = content.Load<Model>("Model/sphere");
             AtmoEffect     = content.Load<Effect>("Effects/PlanetHalo");
@@ -670,8 +675,38 @@ namespace Ship_Game
             PlanetsInCombat = ButtonMediumMenu(width - 135, height - 280, "Planets: 0");
         }
 
+        void CreateFogMap(Data.GameContentManager content, GraphicsDevice device, SurfaceFormat backBufferFormat)
+        {
+            if (loadFogPath != null)
+            {
+                try
+                {
+                    string fogCache = $"{Dir.StarDriveAppData}/Saved Games/Fog Maps/{loadFogPath}.png";
+                    using (FileStream fs = File.OpenRead(fogCache))
+                    {
+                        FogMap = Texture2D.FromFile(device, fs);
+                    }
+                }
+                catch (Exception e) // whatever issue with fog map
+                {
+                    Log.Warning(e.Message);
+                }
+            }
+
+            if (FogMap == null)
+            {
+                FogMap = ResourceManager.Texture2D("UniverseFeather");
+            }
+
+            FogMapTarget = new RenderTarget2D(device, 512, 512, 1, backBufferFormat,
+                device.PresentationParameters.MultiSampleType,
+                device.PresentationParameters.MultiSampleQuality);
+            basicFogOfWarEffect = content.Load<Effect>("Effects/BasicFogOfWar");
+        }
+
         public override void UnloadContent()
         {
+            Log.Write(ConsoleColor.Cyan, "UniverseScreen.UnloadContent");
             ScreenManager.UnloadSceneObjects();
             base.UnloadContent();
         }
@@ -680,15 +715,7 @@ namespace Ship_Game
         {
             if (LookingAtPlanet) workersPanel.Update(deltaTime);
             if (showingDSBW) dsbw.Update(deltaTime);
-
             pieMenu.Update(deltaTime);
-
-            if (viewState > UnivScreenState.ShipView)
-            {
-                foreach (NebulousOverlay nebulousOverlay in NebulousShit)
-                    engineTrailParticles.AddParticleThreadA(nebulousOverlay.Position, Vector3.Zero);
-            }
-
             SelectedSomethingTimer -= deltaTime;
 
             if (++SelectorFrame > 299)
@@ -718,34 +745,107 @@ namespace Ship_Game
 
         void ProjectPieMenu(Vector2 position, float z)
         {
-            var proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
+            Vector3 proj = Viewport.Project(position.ToVec3(z), Projection, View, Matrix.Identity);
             pieMenu.Position    = proj.ToVec2();
             pieMenu.Radius      = 75f;
             pieMenu.ScaleFactor = 1f;
         }
 
-        //added by gremlin replace redundant code with method
+        void UnloadGraphics()
+        {
+            Log.Write(ConsoleColor.Cyan, "Universe.UnloadGraphics");
+            bloomComponent?.Dispose(ref bloomComponent);
+            bg3d          ?.Dispose(ref bg3d);
+            StarField     ?.Dispose(ref StarField);
+            FogMap      ?.Dispose(ref FogMap);
+            FogMapTarget?.Dispose(ref FogMapTarget);
+            BorderRT    ?.Dispose(ref BorderRT);
+            MainTarget  ?.Dispose(ref MainTarget);
+            LightsTarget?.Dispose(ref LightsTarget);
+
+            beamflashes             ?.Dispose(ref beamflashes);
+            explosionParticles      ?.Dispose(ref explosionParticles);
+            photonExplosionParticles?.Dispose(ref photonExplosionParticles);
+            explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
+            projectileTrailParticles?.Dispose(ref projectileTrailParticles);
+            fireTrailParticles      ?.Dispose(ref fireTrailParticles);
+            smokePlumeParticles     ?.Dispose(ref smokePlumeParticles);
+            fireParticles           ?.Dispose(ref fireParticles);
+            engineTrailParticles    ?.Dispose(ref engineTrailParticles);
+            flameParticles          ?.Dispose(ref flameParticles);
+            SmallflameParticles     ?.Dispose(ref SmallflameParticles);
+            sparks                  ?.Dispose(ref sparks);
+            lightning               ?.Dispose(ref lightning);
+            flash                   ?.Dispose(ref flash);
+            star_particles          ?.Dispose(ref star_particles);
+            neb_particles           ?.Dispose(ref neb_particles);
+        }
+
+        protected override void Destroy()
+        {
+            UnloadGraphics();
+
+            ItemsToBuild       ?.Dispose(ref ItemsToBuild);
+            anomalyManager     ?.Dispose(ref anomalyManager);
+            MasterShipList     ?.Dispose(ref MasterShipList);
+            BombList           ?.Dispose(ref BombList);
+            SelectedShipList   ?.Dispose(ref SelectedShipList);
+            NotificationManager?.Dispose(ref NotificationManager);
+
+            base.Destroy();
+        }
+
         public override void ExitScreen()
         {
             IsExiting = true;
+
             Thread processTurnsThread = ProcessTurnsThread;
             ProcessTurnsThread = null;
             DrawCompletedEvt.Set(); // notify processTurnsThread that we're terminating
             processTurnsThread?.Join(250);
 
-            //SpaceManager.Destroy();
+            RemoveLighting();
             ScreenManager.Music.Stop();
-            NebulousShit.Clear();
-            bloomComponent = null;
-            bg3d?.Dispose(ref bg3d);
-            StarField?.Dispose();
 
-            ShipToView = null;
             for (int i = 0; i < MasterShipList.Count; ++i)
                 MasterShipList[i]?.RemoveFromUniverseUnsafe();
             MasterShipList.ClearPendingRemovals();
             MasterShipList.Clear();
 
+            ClearSolarSystems();
+            ClearSpaceJunk();
+
+            foreach (Empire empire in EmpireManager.Empires)
+                empire.CleanOut();
+            EmpireManager.Clear();
+
+            ShipToView = null;
+            SelectedShip   = null;
+            SelectedFleet  = null;
+            SelectedPlanet = null;
+            SelectedSystem = null;
+
+            ShieldManager.Clear();
+            PlanetsDict.Clear();
+            ClickableFleetsList.Clear();
+            ClickableShipsList.Clear();
+            ClickPlanetList.Clear();
+            ClickableSystems.Clear();
+            SolarSystemDict.Clear();
+
+            SpaceManager.Destroy();
+
+            Empire.Universe = null;
+            StatTracker.Reset();
+
+            base.ExitScreen();
+            Dispose(); // will call Destroy() and UnloadGraphics()
+
+            HelperFunctions.CollectMemory();
+        }
+
+        void ClearSolarSystems()
+        {
             foreach (SolarSystem solarSystem in SolarSystemList)
             {
                 solarSystem.FiveClosestSystems.Clear();
@@ -772,54 +872,15 @@ namespace Ship_Game
                 }
                 solarSystem.MoonList.Clear();
             }
+            SolarSystemList.Clear();
+        }
 
-            foreach (Empire empire in EmpireManager.Empires)
-                empire.CleanOut();
+        void ClearSpaceJunk()
+        {
             JunkList.ApplyPendingRemovals();
             foreach (SpaceJunk spaceJunk in JunkList)
                 spaceJunk.DestroySceneObject();
             JunkList.Clear();
-
-
-            SelectedShip   = null;
-            SelectedFleet  = null;
-            SelectedPlanet = null;
-            SelectedSystem = null;
-            ShieldManager.Clear();
-            PlanetsDict.Clear();
-            ClickableFleetsList.Clear();
-            ClickableShipsList.Clear();
-            ClickPlanetList.Clear();
-            ClickableSystems.Clear();
-            SpaceManager.Destroy();
-            SolarSystemList.Clear();
-            SolarSystemList.Clear();
-            SolarSystemDict.Clear();
-
-            beamflashes?.UnloadContent();
-            explosionParticles?.UnloadContent();
-            photonExplosionParticles?.UnloadContent();
-            explosionSmokeParticles?.UnloadContent();
-            projectileTrailParticles?.UnloadContent();
-            fireTrailParticles?.UnloadContent();
-            smokePlumeParticles?.UnloadContent();
-            fireParticles?.UnloadContent();
-            engineTrailParticles?.UnloadContent();
-            flameParticles?.UnloadContent();
-            SmallflameParticles?.UnloadContent();
-            sparks?.UnloadContent();
-            lightning?.UnloadContent();
-            flash?.UnloadContent();
-            star_particles?.UnloadContent();
-            neb_particles?.UnloadContent();
-
-            Empire.Universe = null;
-            StatTracker.SnapshotsDict.Clear();
-            EmpireManager.Clear();
-
-            HelperFunctions.CollectMemory();
-            base.ExitScreen();
-            Dispose();
         }
 
 
@@ -861,45 +922,6 @@ namespace Ship_Game
         {
             while (GamePlayObjectToRemove.TryPopLast(out GameplayObject toRemove))
                 toRemove.RemoveFromUniverseUnsafe();
-        }
-
-        protected override void Destroy()
-        {
-            StarField               ?.Dispose(ref StarField);
-            DeepSpaceDone           ?.Dispose(ref DeepSpaceDone);
-            EmpireDone              ?.Dispose(ref EmpireDone);
-            DeepSpaceGateKeeper     ?.Dispose(ref DeepSpaceGateKeeper);
-            ItemsToBuild            ?.Dispose(ref ItemsToBuild);
-            anomalyManager          ?.Dispose(ref anomalyManager);
-            bloomComponent          ?.Dispose(ref bloomComponent);
-            ShipGateKeeper          ?.Dispose(ref ShipGateKeeper);
-            SystemThreadGateKeeper  ?.Dispose(ref SystemThreadGateKeeper);
-            //FogMap                  ?.Dispose(ref FogMap);
-            MasterShipList          ?.Dispose(ref MasterShipList);
-            EmpireGateKeeper        ?.Dispose(ref EmpireGateKeeper);
-            BombList                ?.Dispose(ref BombList);
-            flash                   ?.Dispose(ref flash);
-            lightning               ?.Dispose(ref lightning);
-            neb_particles           ?.Dispose(ref neb_particles);
-            photonExplosionParticles?.Dispose(ref photonExplosionParticles);
-            projectileTrailParticles?.Dispose(ref projectileTrailParticles);
-            sceneMap                ?.Dispose(ref sceneMap);
-            smokePlumeParticles     ?.Dispose(ref smokePlumeParticles);
-            sparks                  ?.Dispose(ref sparks);
-            star_particles          ?.Dispose(ref star_particles);
-            engineTrailParticles    ?.Dispose(ref engineTrailParticles);
-            explosionParticles      ?.Dispose(ref explosionParticles);
-            explosionSmokeParticles ?.Dispose(ref explosionSmokeParticles);
-            fireTrailParticles      ?.Dispose(ref fireTrailParticles);
-            fireParticles           ?.Dispose(ref fireParticles);
-            flameParticles          ?.Dispose(ref flameParticles);
-            SmallflameParticles     ?.Dispose(ref SmallflameParticles);
-            beamflashes             ?.Dispose(ref beamflashes);
-            SelectedShipList        ?.Dispose(ref SelectedShipList);
-            NotificationManager     ?.Dispose(ref NotificationManager);
-            FogMapTarget            ?.Dispose(ref FogMapTarget);
-
-            base.Destroy();
         }
 
         public struct ClickablePlanets
@@ -949,6 +971,7 @@ namespace Ship_Game
         {
             DetailView = 10000,
             ShipView   = 30000,
+            PlanetView = 45000,
             SystemView = 250000,
             SectorView = 1775000,
             GalaxyView

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -9,84 +10,63 @@ namespace Ship_Game
 {
     public abstract class GenericLoadSaveScreen : GameScreen
     {
-        protected Vector2 Cursor = Vector2.Zero;
-
         protected Rectangle Window;
-
         protected Menu1 SaveMenu;
-
         protected Submenu NameSave;
-
         protected Submenu AllSaves;
-
         protected Vector2 TitlePosition;
-
-        protected Vector2 EnternamePos;
-
         protected UITextEntry EnterNameArea;
-
-        protected ScrollList SavesSL;
-
+        protected ScrollList2<SaveLoadListItem> SavesSL;
         protected UIButton DoBtn;
-
         public enum SLMode { Load, Save }
-
-        protected SLMode mode;
+        protected SLMode Mode;
 
         protected string InitText;
-        protected string TitleText;
-        protected string OverWriteText = "";
+        protected string Title;
+        protected string OverwriteText = "";
         protected string Path = "";
         protected string TabText;
 
-        protected CloseButton close;
+        protected FileData FileToDelete;
+        protected FileData SelectedFile;
+        protected int EntryHeight = 55; // element height
 
-        protected MouseState currentMouse;
-
-        protected MouseState previousMouse;
-
-        protected Selector selector;
-
-        protected FileInfo fileToDel;
-
-        protected FileData selectedFile;
-
-        protected int eHeight = 55;      // element height
-
-        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText)
+        protected GenericLoadSaveScreen(
+            GameScreen parent, SLMode mode, string initText, string title, string tabText)
             : base(parent)
         {
-            this.mode = mode;
-            this.InitText = InitText;
-            this.TitleText = TitleText;
-            this.TabText = TabText;
+            Mode = mode;
+            InitText = initText;
+            Title = title;
+            TabText = tabText;
             IsPopup = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
         }
 
-        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText) 
-            : this(parent, mode, InitText, TitleText, TabText)
+        protected GenericLoadSaveScreen(
+            GameScreen parent, SLMode mode, string initText, string title, string tabText, string overwriteText) 
+            : this(parent, mode, initText, title, tabText)
         {
-            this.OverWriteText = OverWriteText;
+            OverwriteText = overwriteText;
         }
 
-        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, int eHeight) 
-            : this(parent, mode, InitText, TitleText, TabText)
+        protected GenericLoadSaveScreen(
+            GameScreen parent, SLMode mode, string initText, string title, string tabText, int entryHeight) 
+            : this(parent, mode, initText, title, tabText)
         {
-            this.eHeight = eHeight;
+            EntryHeight = entryHeight;
         }
 
-        public GenericLoadSaveScreen(GameScreen parent, SLMode mode, string InitText, string TitleText, string TabText, string OverWriteText, int eHeight) 
-            : this(parent, mode, InitText, TitleText, TabText, OverWriteText)
+        protected GenericLoadSaveScreen(
+            GameScreen parent, SLMode mode, string initText, string title, string tabText, string overwriteText, int entryHeight) 
+            : this(parent, mode, initText, title, tabText, overwriteText)
         {
-            this.eHeight = eHeight;
+            EntryHeight = entryHeight;
         }
 
         public virtual void DoSave()
         {
-            //SavedGame savedGame = new SavedGame(this.screen, this.EnterNameArea.Text);
-            //this.ExitScreen();
         }
 
         protected virtual void DeleteFile()
@@ -95,13 +75,10 @@ namespace Ship_Game
             
             try
             {
-                fileToDel.Delete();        // delete the file
+                FileToDelete.FileLink.Delete(); // delete the file
             } catch { }
 
-            int iAT = SavesSL.FirstVisibleIndex;
-            LoadContent();
-            SavesSL.FirstVisibleIndex = iAT;
-
+            SavesSL.RemoveFirstIf(item => item.Data == FileToDelete);
         }
 
         public override void Draw(SpriteBatch batch)
@@ -111,160 +88,143 @@ namespace Ship_Game
             SaveMenu.Draw(batch);
             NameSave.Draw(batch);
             AllSaves.Draw(batch);
-            var bCursor = new Vector2(AllSaves.X + 20, AllSaves.Y + 20);
-            foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
-            {
-                var data = (FileData)e.item;
-                bCursor.Y = (float)e.Y - 7;
-                batch.Draw(data.icon, new Rectangle((int)bCursor.X, (int)bCursor.Y, 29, 30), Color.White);
-                var tCursor = new Vector2(bCursor.X + 40f, bCursor.Y + 3f);
-                batch.DrawString(Fonts.Arial20Bold, data.FileName, tCursor, Color.Orange);
-                tCursor.Y += Fonts.Arial20Bold.LineSpacing;
-                batch.DrawString(Fonts.Arial12Bold, data.Info, tCursor, Color.White);
-                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                batch.DrawString(Fonts.Arial12Bold, data.ExtraInfo, tCursor, Color.White);
-                e.DrawCancel(batch, Input, "Delete File");
-            }
-            SavesSL.Draw(batch);
-            EnterNameArea.Draw(batch, Fonts.Arial12Bold, EnternamePos, (EnterNameArea.Hover ? Color.White : Color.Orange));
 
             base.Draw(batch);
 
-            selector?.Draw(batch);
-            close.Draw(batch);
             batch.End();
         }
 
         protected virtual void Load()
         {
-
         }
-
-        protected void SwitchFile(ScrollList.Entry e)
-        {
-            if( SLMode.Load == mode )
-                selectedFile = (e.item as FileData);
-
-            GameAudio.AcceptClick();
-            EnterNameArea.Text = (e.item as FileData).FileName;
-        }
-
-
-        public override bool HandleInput(InputState input)
-        {
-            currentMouse = input.MouseCurr;
-            SavesSL.HandleInput(input);
-            selector = null;
-            foreach (ScrollList.Entry e in SavesSL.VisibleEntries)
-            {
-                if (!e.CheckHover(input))
-                    continue;
-
-                selector = e.CreateSelector();
-                if (e.WasCancelHovered(Input) && input.InGameSelect) // handle file delete
-                {
-                    fileToDel = e.Get<FileData>().FileLink;
-                    var messageBox = new MessageBoxScreen(this, "Confirm Delete:");
-                    messageBox.Accepted += DeleteFile;
-                    ScreenManager.AddScreen(messageBox);
-                }
-                else if (input.InGameSelect)
-                {
-                    SwitchFile(e);
-                }
-            }
-            if (input.Escaped || input.RightMouseClick || close.HandleInput(input))
-            {
-                ExitScreen();
-                return true;
-            }
-            if (SLMode.Save == mode)       // Only check name field change when saving
-            {
-                if (!EnterNameArea.ClickableArea.HitTest(MousePos))
-                {
-                    EnterNameArea.Hover = false;
-                }
-                else
-                {
-                    EnterNameArea.Hover = true;
-                    if (input.LeftMouseClick)
-                    {
-                        EnterNameArea.HandlingInput = true;
-                        EnterNameArea.Text = "";
-                    }
-                }
-                if (EnterNameArea.HandlingInput)
-                {
-                    EnterNameArea.HandleTextInput(ref EnterNameArea.Text, input);
-                    if (input.IsKeyDown(Keys.Enter))
-                    {
-                        EnterNameArea.HandlingInput = false;
-                    }
-                }
-            }
-            previousMouse = input.MousePrev;
-            return base.HandleInput(input);
-        }
-
-        protected abstract void InitSaveList();        // To be implemented in subclasses
+        
+        protected abstract void InitSaveList(); // To be implemented in subclasses
 
         public override void LoadContent()
         {
-            Window = new Rectangle(ScreenManager.GraphicsDevice.PresentationParameters.BackBufferWidth / 2 - 300, ScreenManager.GraphicsDevice.PresentationParameters.BackBufferHeight / 2 - 300, 600, 600);
+            Window = new Rectangle(ScreenWidth / 2 - 300, ScreenHeight / 2 - 300, 600, 600);
             SaveMenu = new Menu1(Window);
-            close = new CloseButton(Window.X + Window.Width - 35, Window.Y + 10);
+            CloseButton(Window.X + Window.Width - 35, Window.Y + 10);
+
             var sub = new Rectangle(Window.X + 20, Window.Y + 20, Window.Width - 40, 80);
             NameSave = new Submenu(sub);
-            NameSave.AddTab(TitleText);
+            NameSave.AddTab(Title);
             TitlePosition = new Vector2(sub.X + 20, sub.Y + 45);
             var scrollList = new Rectangle(sub.X, sub.Y + 90, sub.Width, Window.Height - sub.Height - 50);
             AllSaves = new Submenu(scrollList);
             AllSaves.AddTab(TabText);
-            SavesSL = new ScrollList(AllSaves, eHeight, ListControls.Cancel);
+            SavesSL = Add(new ScrollList2<SaveLoadListItem>(AllSaves, EntryHeight));
+            SavesSL.OnClick = OnSaveLoadItemClicked;
+            SavesSL.EnableItemHighlight = true;
             InitSaveList();
 
-            EnternamePos = TitlePosition;
-            EnterNameArea = new UITextEntry();
+            EnterNameArea = Add(new UITextEntry(TitlePosition, Fonts.Arial20Bold, InitText));
+            EnterNameArea.InputEnabled = (Mode == SLMode.Save); // Only enable name field change when saving
 
-            EnterNameArea.Text = InitText;
-            EnterNameArea.ClickableArea = new Rectangle((int)EnternamePos.X, (int)EnternamePos.Y - 2, (int)Fonts.Arial20Bold.MeasureString(EnterNameArea.Text).X + 20, Fonts.Arial20Bold.LineSpacing);
-
-            string title = mode == SLMode.Save ? "Save" : "Load";
-            DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.ClickableArea.Y - 2, title, b =>
+            string title = Mode == SLMode.Save ? "Save" : "Load";
+            DoBtn = ButtonSmall(sub.X + sub.Width - 88, EnterNameArea.Y - 2, title, b =>
             {
-                if (mode == SLMode.Save)
+                if (Mode == SLMode.Save)
                     TrySave();
-                else if (mode == SLMode.Load)
+                else if (Mode == SLMode.Load)
                     Load();
             });
 
             base.LoadContent();
         }
 
-        private void OverWriteAccepted()
+        protected virtual void OnSaveLoadItemClicked(SaveLoadListItem item)
+        {
+            SwitchFile(item.Data);
+        }
+
+
+        protected void SwitchFile(FileData file)
+        {
+            if (SLMode.Load == Mode)
+                SelectedFile = file;
+
+            GameAudio.AcceptClick();
+            EnterNameArea.Text = file.FileName;
+        }
+
+        void OverWriteAccepted()
         {
             DoSave();
         }
 
-        private bool IsSaveOk()
+        bool IsSaveOk()
         {
-            foreach (FileData data in SavesSL.AllItems<FileData>())
-                if (EnterNameArea.Text == data.FileName) // check if item already exists
+            foreach (SaveLoadListItem item in SavesSL.AllEntries)
+                if (EnterNameArea.Text == item.Data.FileName) // check if item already exists
                     return false;
             return true;
         }
 
-        private void TrySave()
+        void TrySave()
         {
-            if (IsSaveOk())
+            if (EnterNameArea.Text.IsEmpty())
+            {
+                GameAudio.NegativeClick();
+                ScreenManager.AddScreen(new MessageBoxScreen(this, "Please enter file name", MessageBoxButtons.Ok));
+            }
+            else if (IsSaveOk())
             {
                 DoSave();
             }
             else
             {
-                var messageBox = new MessageBoxScreen(this, OverWriteText);
-                messageBox.Accepted += OverWriteAccepted;
-                ScreenManager.AddScreen(messageBox);
+                ScreenManager.AddScreen(new MessageBoxScreen(this, OverwriteText)
+                {
+                    Accepted = OverWriteAccepted
+                });
+            }
+        }
+
+        protected void AddItemToSaveSL(FileInfo info, SubTexture icon)
+        {
+            var data = new FileData(info, info, info.NameNoExt(), "", "", icon, Color.White);
+            var item = new SaveLoadListItem(this, data);
+            SavesSL.AddItem(item);
+        }
+
+        protected void AddItemsToSaveSL(IEnumerable<FileData> files)
+        {
+            foreach (FileData data in files)
+                SavesSL.AddItem(new SaveLoadListItem(this, data));
+        }
+
+        protected class SaveLoadListItem : ScrollListItem<SaveLoadListItem>
+        {
+            readonly GenericLoadSaveScreen Screen;
+            public FileData Data;
+            public SaveLoadListItem(GenericLoadSaveScreen screen, FileData data)
+            {
+                Screen = screen;
+                Data = data;
+                AddCancel(new Vector2(-30, 0), "Delete Save File", OnDeleteClicked);
+            }
+            void OnDeleteClicked()
+            {
+                Screen.FileToDelete = Data;
+                Screen.ScreenManager.AddScreen(new MessageBoxScreen(Screen, "Confirm Delete:")
+                {
+                    Accepted = Screen.DeleteFile
+                });
+            }
+            public override void Draw(SpriteBatch batch)
+            {
+                float iconHeight = (int)(Height * 0.89f);
+                batch.Draw(Data.Icon, Pos, new Vector2(iconHeight*Data.Icon.AspectRatio, iconHeight), Data.IconColor);
+
+                var tCursor = new Vector2(X + 50f, Y);
+                batch.DrawString(Fonts.Arial20Bold, Data.FileName, tCursor, Color.Orange);
+
+                tCursor.Y += Fonts.Arial20Bold.LineSpacing;
+                batch.DrawString(Fonts.Arial12Bold, Data.Info, tCursor, Color.White);
+
+                tCursor.Y += Fonts.Arial12Bold.LineSpacing;
+                batch.DrawString(Fonts.Arial12Bold, Data.ExtraInfo, tCursor, Color.White);
             }
         }
 
@@ -273,42 +233,21 @@ namespace Ship_Game
             public string FileName;
             public string Info;
             public string ExtraInfo;
-            public SubTexture icon;
+            public SubTexture Icon;
+            public Color IconColor;
             public FileInfo FileLink;
             public object Data;
 
-            public FileData()
+            public FileData(FileInfo fileLink, object data, 
+                string fileName, string info, string extraInfo, SubTexture icon, Color iconColor)
             {
-            }
-
-            public FileData(FileInfo fileLink, object data, string fileName)
-            {
-                icon = ResourceManager.Texture("ShipIcons/Wisp");
-                FileName = fileName;
-                Info = "";
-                ExtraInfo = "";
-                FileLink = fileLink;
-                Data = data;
-            }
-
-            public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo)
-            {
-                icon = ResourceManager.Texture("ShipIcons/Wisp");
                 FileName = fileName;
                 Info = info;
                 ExtraInfo = extraInfo;
                 FileLink = fileLink;
                 Data = data;
-            }
-
-            public FileData(FileInfo fileLink, object data, string fileName, string info, string extraInfo, SubTexture icon)
-            {
-                this.icon = icon;
-                FileName = fileName;
-                Info = info;
-                ExtraInfo = extraInfo;
-                FileLink = fileLink;
-                Data = data;
+                Icon = icon ?? ResourceManager.Texture("ShipIcons/Wisp");
+                IconColor = iconColor;
             }
         }
     }

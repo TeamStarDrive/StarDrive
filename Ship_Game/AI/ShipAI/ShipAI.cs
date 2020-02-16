@@ -132,6 +132,7 @@ namespace Ship_Game.AI
             }
             ClearOrders(State);
             goal.TargetPlanet.ProdHere += Owner.GetCost(Owner.loyalty) / 2f;
+            Owner.loyalty.TryUnlockByScrap(Owner);
             Owner.QueueTotalRemoval();
             Owner.loyalty.GetEmpireAI().Recyclepool++;
         }
@@ -271,6 +272,7 @@ namespace Ship_Game.AI
         void UpdateCombatStateAI(float elapsedTime)
         {
             TriggerDelay -= elapsedTime;
+            FireOnMainTargetTime -= elapsedTime;
             if (BadGuysNear && !IgnoreCombat)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
@@ -294,6 +296,7 @@ namespace Ship_Game.AI
             else
             {
                 int count = Owner.Weapons.Count;
+                FireOnMainTargetTime = 0;
                 Weapon[] items = Owner.Weapons.GetInternalArrayItems();
                 for (int x = 0; x < count; x++)
                     items[x].ClearFireTarget();
@@ -378,7 +381,7 @@ namespace Ship_Game.AI
                 case Plan.Orbit:                    Orbit.Orbit(goal.TargetPlanet, elapsedTime); break;
                 case Plan.Colonize:                 Colonize(goal.TargetPlanet, goal);           break;
                 case Plan.Explore:                  DoExplore(elapsedTime);                      break;
-                case Plan.Rebase:                   DoRebase(goal);                              break;
+                case Plan.Rebase:                   DoLandTroop(elapsedTime, goal);              break;
                 case Plan.DefendSystem:             DoSystemDefense(elapsedTime);                break;
                 case Plan.DoCombat:                 DoCombat(elapsedTime);                       break;
                 case Plan.DeployStructure:          DoDeploy(goal);                              break;
@@ -432,7 +435,7 @@ namespace Ship_Game.AI
 
         bool DoNearFleetOffset(float elapsedTime)
         {
-            if (Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f))
+            if (NearFleetPosition())
             {
                 ReverseThrustUntilStopped(elapsedTime);
                 RotateToDirection(Owner.fleet.FinalDirection, elapsedTime, 0.02f);
@@ -440,6 +443,8 @@ namespace Ship_Game.AI
             }
             return false;
         }
+
+        bool NearFleetPosition() => Owner.Center.InRadius(Owner.fleet.GetFinalPos(Owner), 75f);
 
         bool ShouldReturnToFleet()
         {
@@ -451,6 +456,7 @@ namespace Ship_Game.AI
                 return false;
             if (BadGuysNear)
                 return false;
+            if (!Owner.CanTakeFleetMoveOrders()) return false;
             if (State == AIState.Orbit ||
                 State == AIState.AwaitingOffenseOrders ||
                 State == AIState.AwaitingOrders)
@@ -461,7 +467,11 @@ namespace Ship_Game.AI
         void IdleFleetAI(float elapsedTime)
         {
             if (DoNearFleetOffset(elapsedTime))
+            {
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
+                    State = AIState.AwaitingOrders;
                 return;
+            }
 
             if (ShouldReturnToFleet())
             {
@@ -477,6 +487,11 @@ namespace Ship_Game.AI
                 {
                     WarpToFleet();
                 }
+            }
+            else
+            {
+                if (State != AIState.HoldPosition && !Owner.fleet.HasFleetGoal && Owner.CanTakeFleetMoveOrders())
+                    State = AIState.AwaitingOrders;
             }
         }
 

@@ -170,7 +170,10 @@ namespace Ship_Game.GameScreens.MainMenu
             if (base.Update(deltaTime))
             {
                 if (!Ship.Spawn.DisableJumpSfx)
-                    Ship.PlaySfx("sd_warp_stop");
+                {
+                    string cue = Ships.Ship.GetEndWarpCue(Ship.Spawn.Empire, Ship.HullSize);
+                    Ship.PlaySfx(cue);
+                }
                 Ship.Position = End;
                 Ship.Scale = Vector3.One;
                 return true;
@@ -195,7 +198,10 @@ namespace Ship_Game.GameScreens.MainMenu
             Start = ship.Position;
             End   = ship.Position + ship.Forward * 50000f;
             if (!ship.Spawn.DisableJumpSfx)
-                ship.PlaySfx("sd_warp_start_large");
+            {
+                string cue = Ships.Ship.GetStartWarpCue(ship.Spawn.Empire, ship.HullSize);
+                ship.PlaySfx(cue);
+            }
             base.Initialize(ship);
         }
         public override bool Update(float deltaTime)

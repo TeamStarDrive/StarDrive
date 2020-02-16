@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using Ship_Game.Universe.SolarBodies;
@@ -32,16 +33,16 @@ namespace Ship_Game
             if (sdata.empireData == null)
             {
                 e.data.Traits = sdata.Traits;
-                e.EmpireColor = new Color((byte)sdata.Traits.R, (byte)sdata.Traits.G, (byte)sdata.Traits.B);
+                e.EmpireColor = sdata.Traits.Color;
             }
             else
             {
                 e.data = sdata.empireData;
                 e.data.ResearchQueue = sdata.empireData.ResearchQueue;
                 e.Research.SetTopic(sdata.ResearchTopic);
-                e.PortraitName       = e.data.PortraitName;
-                e.dd                 = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
-                e.EmpireColor = new Color((byte)e.data.Traits.R, (byte)e.data.Traits.G, (byte)e.data.Traits.B);
+                e.PortraitName = e.data.PortraitName;
+                e.dd           = ResourceManager.GetDiplomacyDialog(e.data.DiplomacyDialogPath);
+                e.EmpireColor  = e.data.Traits.Color;
                 e.data.CurrentAutoScout     = sdata.CurrentAutoScout     ?? e.data.ScoutShip;
                 e.data.CurrentAutoColony    = sdata.CurrentAutoColony    ?? e.data.ColonyShip;
                 e.data.CurrentAutoFreighter = sdata.CurrentAutoFreighter ?? e.data.FreighterShip;
@@ -93,6 +94,7 @@ namespace Ship_Game
             p.colonyType         = psdata.ColonyType;
             p.GovOrbitals        = psdata.GovOrbitals;
             p.GovMilitia         = psdata.GovMilitia;
+            p.GarrisonSize       = psdata.GarrisonSize;
             p.DontScrapBuildings = psdata.DontScrapBuildings;
             p.NumShipyards       = psdata.NumShipyards;
             p.FS                 = psdata.FoodState;
@@ -127,6 +129,7 @@ namespace Ship_Game
                 };
                 if (pgs.Biosphere)
                     p.BuildingList.Add(ResourceManager.CreateBuilding(Building.BiospheresId));
+
                 p.TilesList.Add(pgs);
                 foreach (Troop t in d.TroopsHere)
                 {
@@ -148,6 +151,7 @@ namespace Ship_Game
                 pgs.building.Scrappable = template.Scrappable;
                 pgs.building.CalcMilitaryStrength();
                 p.BuildingList.Add(pgs.building);
+                p.AddBuildingsFertility(pgs.building.MaxFertilityOnBuild);
             }
             return p;
         }
@@ -395,41 +399,38 @@ namespace Ship_Game
         static void CreateAOs(UniverseData data)
         {
             foreach (Empire e in data.EmpireList)
-                e.GetEmpireAI().InitialzeAOsFromSave(data);
+                e.GetEmpireAI().InitializeAOsFromSave(data);
         }
 
         static void CreateMilitaryTasks(SavedGame.EmpireSaveData d, Empire e, UniverseData data)
         {
-            lock (GlobalStats.TaskLocker)
+            foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
             {
-                foreach (MilitaryTask task in d.GSAIData.MilitaryTaskList)
+                task.SetEmpire(e);
+                if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
+                    task.SetTargetPlanet(p);
+
+                foreach (Guid guid in task.HeldGoals)
                 {
-                    task.SetEmpire(e);
-                    e.GetEmpireAI().TaskList.Add(task);
-
-                    if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
-                        task.SetTargetPlanet(p);
-
-                    foreach (Guid guid in task.HeldGoals)
+                    foreach (Goal g in e.GetEmpireAI().Goals)
                     {
-                        foreach (Goal g in e.GetEmpireAI().Goals)
+                        if (g.guid == guid)
                         {
-                            if (g.guid == guid)
-                            {
-                                g.Held = true;
-                                break;
-                            }
+                            g.Held = true;
+                            break;
                         }
                     }
+                }
 
-                    if (task.WhichFleet != -1)
-                    {
-                        if (e.GetFleetsDict().TryGetValue(task.WhichFleet, out Fleet fleet))
-                            fleet.FleetTask = task;
-                        else task.WhichFleet = 0;
-                    }
+                if (task.WhichFleet != -1)
+                {
+                    if (e.GetFleetsDict().TryGetValue(task.WhichFleet, out Fleet fleet))
+                        fleet.FleetTask = task;
+                    else task.WhichFleet = 0;
                 }
             }
+
+            e.GetEmpireAI().ReadFromSave(d.GSAIData);
         }
 
         static bool IsShipGoalInvalid(SavedGame.GoalSave g)

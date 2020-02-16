@@ -21,11 +21,12 @@ namespace Ship_Game
             CreateStartingEquipment(colonyShip);
             AddMaxBaseFertility(Owner.data.EmpireFertilityBonus);
             CrippledTurns = 0;
+            ResetGarrisonSize();
             Owner.GetEmpireAI().RemoveGoal(GoalType.Colonize, g => g.ColonizationTarget == this);
-            NewColonyAffectRelations();
             NewColonyAffectPresentTroops();
+            NewColonyAffectRelations();
             SetupCyberneticsWorkerAllocations();
-            StatTracker.StatAddColony(this, Owner, Empire.Universe);
+            StatTracker.StatAddColony(Empire.Universe.StarDate, this);
         }
 
         void SetupColonyType()
@@ -66,9 +67,10 @@ namespace Ship_Game
                 if (owner != null && !owner.isFaction && owner.data.DefaultTroopShip != null && owner != Owner &&
                     Owner.TryGetRelations(owner, out Relationship rel) && !rel.AtWar)
                 {
-                    t.Launch();
+                    Ship troopship = t.Launch(ignoreMovement: true);
                     troopsRemoved        = true;
                     playerTroopsRemoved |= t.Loyalty.isPlayer;
+                    troopship?.AI.OrderRebaseToNearest();
                 }
             }
 

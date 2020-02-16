@@ -257,7 +257,7 @@
     </Token>
     <Token>
       <Index>67</Index>
-      <Text>Mercantile races are natural traders, and gain .5 Credits for each unit of food or production moved via freighter within the empire</Text>
+      <Text>Mercantile races are natural traders, and gain 0.5 Credits for each unit of food or production moved via freighter within the empire</Text>
     </Token>
     <Token>
       <Index>68</Index>
@@ -1460,7 +1460,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>394</Index>
-      <Text>Governor will control production levels as a core system, but will not build any structure</Text>
+      <Text>Governor will control production levels as a core system, but will not build any structures. It will start importing if stores are below 20% and continue importing until they reach 40%. It will start exporting if stores are above 80% and continue exporting until stores go down to 40%.</Text>
     </Token>
     
     
@@ -1695,7 +1695,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>462</Index>
-      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, remove buildings which are harmful to the environment, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
+      <Text>These machines, while expensive to maintain, will tirelessly transform barren hunks of rock into livable worlds with breathable atmospheres. This building does not need to be built under a biosphere. Terraformers will first make all parts of the planet Habitable, and then slowly transform the planet to a heaven for your Empire. After the planet was terraformed, any remaining biospheres will be removed to complete the process.</Text>
     </Token>
     <Token>
       <Index>463</Index>
@@ -4687,6 +4687,86 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1894</Index>
+      <Text>Recall all troops based on this planet. They will rebase to your nearest colony</Text>
+    </Token>
+    <Token>
+      <Index>1895</Index>
+      <Text>Strips the ship of any module but armor (or anything with deflection), shields, engines, and Command modules. Useful when using a template ship for a new design.</Text>
+    </Token>
+    <Token>
+      <Index>1896</Index>
+      <Text>Million Colonists could be living on this land if you built Biospheres.</Text>
+    </Token>
+    <Token>
+      <Index>1897</Index>
+      <Text>Million Colonists can live under the biospheres here.</Text>
+    </Token>
+    <Token>
+      <Index>1898</Index>
+      <Text>Million Colonists can live on this tile.</Text>
+    </Token>
+    <Token>
+      <Index>1899</Index>
+      <Text>Planet type and Richness. The number in parentheses (if available) indicates the Fertility and Population modifiers of this planet, based on your empire's suitable environments.</Text>
+    </Token>
+    <Token>
+      <Index>1900</Index>
+      <Text>Send available troops to this planet. Any available troop transports in space can be sent. Troops from your your nearest colony will be sent to this planet providing that the number of troops on that colony exceeds the Garrison Threshold.</Text>
+    </Token>
+    <Token>
+      <Index>1901</Index>
+      <Text>was destroyed while exploring</Text>
+    </Token>
+    <Token>
+      <Index>1902</Index>
+      <Text>was destroyed in deep space while exploring the galaxy</Text>
+    </Token>
+    <Token>
+      <Index>1903</Index>
+      <Text>Garrison Size ensures a number of troops always staying on the planet, regardless of any resupply requests from troop ships. You still have to train the troops manually.</Text>
+    </Token>
+    <Token>
+      <Index>1904</Index>
+      <Text>This indicates how many tiles are habitable on this planet</Text>
+    </Token>
+    <Token>
+      <Index>1905</Index>
+      <Text>This indicates how much population is available per tile in millions, after any racial modifiers for that planet's environment. There is a minimum default population for the planet.</Text>
+    </Token>
+    <Token>
+      <Index>1906</Index>
+      <Text>This indicates what would the maximum population of this planet be, if you built biospheres on all unhabitable tiles.</Text>
+    </Token>
+    <Token>
+      <Index>1907</Index>
+      <Text>This indicates what would the maximum population of this planet be, if you fully terraformed this planet. This number might be the same as Biosphered Planet, but a Terraformed planet does not cost Biosphere maintenance.</Text>
+    </Token>
+    <Token>
+      <Index>1908</Index>
+      <Text>Regenerate</Text>
+    </Token>
+    <Token>
+      <Index>1909</Index>
+      <Text>This module has Self Regeneration Nano Technology and will repair itself with this amount per second as long as it is getting power.</Text>
+    </Token>
+    <Token>
+      <Index>1910</Index>
+      <Text>Shield Amp</Text>
+    </Token>
+    <Token>
+      <Index>1911</Index>
+      <Text>Each of the ship shield's maximum power will be amplified by this number.</Text>
+    </Token>
+    <Token>
+      <Index>1912</Index>
+      <Text>When powered, this amplifies the Maximum Power of the shields in your ships. This number is also divided by the total number of shields.</Text>
+    </Token>
+    <Token>
+      <Index>1913</Index>
+      <Text>Shield Amplify</Text>
+    </Token>
+    <Token>
       <Index>1914</Index>
       <Text>Relative Strength</Text>
     </Token>
@@ -4724,7 +4804,35 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1930</Index>
-      <Text> was removed as part of the terraforming process due to its harmful environmental effect.</Text>
+      <Text>Construction Array</Text>
+    </Token>
+    <Token>
+      <Index>1931</Index>
+      <Text>This Construction module provides the infrastructure required for building Platforms and Stations in orbit or in deep space.</Text>
+    </Token>
+    <Token>
+      <Index>1932</Index>
+      <Text> was reverse engineered during the scrap process.\nThis hull can now be used to build our own ships!</Text>
+    </Token>
+    <Token>
+      <Index>1933</Index>
+      <Text> was scrapped, helping us advance in our own research\ntoward this hull type.</Text>
+    </Token>
+    <Token>
+      <Index>1934</Index>
+      <Text>You have managed to capture a ship! You can scrap it\nto get some research point towards your own hull\nresearch of that type, or maybe even unlock this specific\nhull, if you already able to build this type.</Text>
+    </Token>
+    <Token>
+      <Index>1935</Index>
+      <Text>One of your ships was boarded!</Text>
+    </Token>
+    <Token>
+      <Index>1939</Index>
+      <Text>Proximity</Text>
+    </Token>
+    <Token>
+      <Index>1940</Index>
+      <Text>Owner</Text>
     </Token>
     <Token>
       <Index>1941</Index>
@@ -4788,11 +4896,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1956</Index>
-      <Text>Governor Builds Militia</Text>
+      <Text>Auto Build Garrison</Text>
     </Token>
     <Token>
       <Index>1957</Index>
-      <Text>The Governor will create a small militia for the planet. 4 Troops for Research colonies, 6 Troops for Core colonies, 7 Troops for Military colonies and 5 for other colonies.</Text>
+      <Text>The Governor will create a Garrison force for the planet, based on the Garrison size you set. It will allow troops to be off loaded below the Garrison size, and will train new troops to replace them.</Text>
     </Token>
     <Token>
       <Index>1958</Index>
@@ -4897,7 +5005,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1984</Index>
-      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them (hotkey M)</Text>
+      <Text>You can switch from Normal Design mode to Symmetric Design mode, in which modules will be installed symmetrically (left and right) onto the ship, if possible. They will be also deleted together and their fire arcs will be adjusted to the opposite direction if you change them</Text>
     </Token>
     <Token>
       <Index>1985</Index>
@@ -5228,7 +5336,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2065</Index>
-      <Text>Indicates the hitpoints of this shield</Text>
+      <Text>Indicates the hitpoints of this shield. If the title is Golden, it indicates that this shield is being amplified by Shield Amplifiers within your ship.</Text>
     </Token>
     <Token>
       <Index>2066</Index>
@@ -5256,7 +5364,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2072</Index>
-      <Text>Indicates the maximum amount of power that can be stored in this ship's reserves</Text>
+      <Text>Indicates the maximum amount of power that can be stored in this ship's reserves. Red value is an indication that the ship's energy consumption when firing is overwhelming the power reserve, and you need to add more reserves or more reactors.</Text>
     </Token>
     <Token>
       <Index>2073</Index>
@@ -5272,7 +5380,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2076</Index>
-      <Text>Indicates the total hitpoints of all of the ship's shield modules combined</Text>
+      <Text>Indicates the total hitpoints of all of the ship's shield modules combined, including all Shield Amplifiers. The Color of the title will be Gold, if any Shield Amplifiers are installed.</Text>
     </Token>
     <Token>
       <Index>2077</Index>
@@ -6428,7 +6536,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>248</Index>
-      <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. \n \n Construction cannot be rushed if there are ground invaders on your colony.</Text>
+      <Text>Click to rush production from this colony's storage. \n \n A single click will apply 10 production from storage to current production. CTRL-Click to add as much production as is available. If the item is complete when you rush, your empire will be charged 10% of the item's cost, up to 10 credits.\n \nConstruction cannot be rushed if there are ground invaders on your colony.</Text>
     </Token>
     <Token>
       <Index>215</Index>
@@ -8329,7 +8437,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7005</Index>
-      <Text>Order ship back to the shipyards to be scrapped.</Text>
+      <Text>Order ship back to the shipyards to be scrapped. If that ship is of a foreign hull, your engineers might be able to reverse engineer the hull.</Text>
     </Token>
   <Token>
       <Index>7006</Index>
@@ -8357,7 +8465,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>7012</Index>
-      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing</Text>
+      <Text>Indicates the maximum time in seconds this ship may continuously fire all weapons before exhausting energy reserves, based on power usage of all weapons when firing. Red value indicates insufficient power to maintain fire more than 2 seconds.</Text>
     </Token>
     <Token>
       <Index>7013</Index>
@@ -8626,7 +8734,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>7078</Index>
-      <Text>Weapons which do less damage (or EMP damage) than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability.</Text>
+      <Text>Weapons which do less damage than this value will simply be deflected by this Armor due to it's thickness. Beams are not affected by this due to their tunneling ability. Deflection has 10% efficiency vs. EMP Damage.</Text>
     </Token>
   <Token>
       <Index>7079</Index>

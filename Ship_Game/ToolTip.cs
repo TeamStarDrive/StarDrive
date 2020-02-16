@@ -172,6 +172,10 @@ namespace Ship_Game
         public static void Draw(SpriteBatch batch, float deltaTime)
         {
             TipItem[] tips = ActiveTips.ToArray();
+            if (tips.Length == 0)
+                return;
+            
+            batch.Begin();
             foreach (TipItem tipItem in tips)
             {
                 if (tipItem.Update(deltaTime))
@@ -183,6 +187,7 @@ namespace Ship_Game
                     ActiveTips.Remove(tipItem);
                 }
             }
+            batch.End();
         }
     }
 }

@@ -38,6 +38,7 @@ namespace Ship_Game
             ActualMap      = new Rectangle(housing.X + 61 + 20, housing.Y + 33, 200, 210);
 
             UIList list = AddList(new Vector2(Housing.X + 14, Housing.Y + 70));
+            list.Name = "MiniMapButtons";
             ZoomToShip     = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomctrl", ZoomToShip_OnClick));
             ZoomOut        = list.Add(new ToggleButton(ToggleButtonStyle.ButtonC, "Minimap/icons_zoomout", ZoomOut_OnClick));
             PlanetScreen   = list.Add(new ToggleButton(ToggleButtonStyle.ButtonB, "UI/icon_planetslist", PlanetScreen_OnClick));
@@ -84,6 +85,7 @@ namespace Ship_Game
             upperLeftView = new Vector2(HelperFunctions.RoundTo(upperLeftView.X, 1), HelperFunctions.RoundTo(upperLeftView.Y, 1));
             
             var right = screen.UnprojectToWorldPosition(new Vector2(screen.ScreenWidth, 0f));
+
             right = new Vector2(HelperFunctions.RoundTo(right.X, 1), 0f);
             
             float xdist = (right.X - upperLeftView.X) * Scale;
@@ -100,13 +102,13 @@ namespace Ship_Game
                 lookingAt.Width  = 2;
                 lookingAt.Height = 2;
             }
-            if (lookingAt.X < ActualMap.X) lookingAt.X = ActualMap.X;
-            if (lookingAt.Y < ActualMap.Y) lookingAt.Y = ActualMap.Y;
+            float lookRightEdge = lookingAt.X;
+            float lookBottomEdge = lookingAt.Y;
 
-            float lookRightEdge  = lookingAt.X + lookingAt.Width;
-            float lookBottomEdge = lookingAt.Y + lookingAt.Height;
-            lookingAt.X          = lookRightEdge > ActualMap.Width + ActualMap.X ? ActualMap.X + ActualMap.Width - lookingAt.Width : lookingAt.X;
-            lookingAt.Y          = lookBottomEdge > ActualMap.Height + ActualMap.Y ? ActualMap.Height + ActualMap.Y  - lookingAt.Height : lookingAt.Y;
+            lookingAt.X = (int)lookRightEdge.UpperBound(ActualMap.X + ActualMap.Width - lookingAt.Width);
+            lookingAt.Y = (int)lookBottomEdge.UpperBound(ActualMap.Height + ActualMap.Y - lookingAt.Height);
+            lookingAt.X = (int)lookingAt.X.ClampMin(ActualMap.X);
+            lookingAt.Y = (int)lookingAt.Y.ClampMin(ActualMap.Y);
 
             batch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
             batch.DrawRectangle(lookingAt, Color.White);
@@ -119,10 +121,10 @@ namespace Ship_Game
             batch.DrawLine(new Vector2(ActualMap.X, leftMiddleView.Y), leftMiddleView, Color.White);
             batch.DrawLine(new Vector2(ActualMap.X + ActualMap.Width, rightMiddleView.Y), rightMiddleView, Color.White);
 
-            ShipScreen.Active     = screen.showingFTLOverlay;
-            DeepSpaceBuild.Active = screen.showingDSBW;
-            AIScreen.Active       = screen.aw.IsOpen;
-            Fleets.Active         = screen.showingRangeOverlay;            
+            ShipScreen.IsToggled     = screen.showingFTLOverlay;
+            DeepSpaceBuild.IsToggled = screen.showingDSBW;
+            AIScreen.IsToggled       = screen.aw.IsOpen;
+            Fleets.IsToggled         = screen.showingRangeOverlay;            
             base.Draw(batch);
         }
 
@@ -133,9 +135,8 @@ namespace Ship_Game
                 for (int i = 0; i < list.Count; i++)
                 {
                     Empire.InfluenceNode node = list[i];
-                    if (!Empire.Universe.Debug)
-                        if (!node.Known)
-                            continue;
+                    if (!node.Known)
+                        continue;
 
                     float nodeRad = WorldToMiniRadius(node.Radius);
                     if (node.SourceObject is GameplayObject)
@@ -158,15 +159,27 @@ namespace Ship_Game
 
         void DrawInfluenceNodes(SpriteBatch batch)
         {
-
-            foreach (Empire e in EmpireManager.Empires)
+            for (int i = 0; i < EmpireManager.Empires.Count; i++)
             {
+                Empire e = EmpireManager.Empires[i];
+                // Draw player nodes last so it will be over allied races - this is a temp solution
+                if (e.isPlayer) 
+                    continue; 
+
                 Relationship rel = EmpireManager.Player.GetRelations(e);
-                if (!Screen.Debug && e != EmpireManager.Player && !rel.Known)
-                    continue;
-                DrawNode(e, e.BorderNodes, batch);
-                DrawNode(e, e.SensorNodes, batch);
+                if (Screen.Debug || e == EmpireManager.Player || rel.Known)
+                {
+                    DrawNode(e, batch);
+                }
             }
+            Empire player = EmpireManager.Player;
+            DrawNode(player, batch);
+        }
+        
+        void DrawNode(Empire e, SpriteBatch batch)
+        {
+            DrawNode(e, e.BorderNodes, batch);
+            DrawNode(e, e.SensorNodes, batch);
         }
 
         void ZoomToShip_OnClick(ToggleButton toggleButton)

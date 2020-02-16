@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Audio;
 using Ship_Game.AI;
 using Ship_Game.Audio;
 using Ship_Game.Debug;
+using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using SynapseGaming.LightingSystem.Rendering;
 using System;
@@ -40,6 +41,7 @@ namespace Ship_Game.Ships
         public Vector2 FleetOffset;
         public Vector2 RelativeFleetOffset;
         ShipModule[] Shields;
+        ShipModule[] Amplifiers;
         public Array<ShipModule> BombBays = new Array<ShipModule>();
         public CarrierBays Carrier;
         public ShipResupply Supply;
@@ -50,6 +52,7 @@ namespace Ship_Game.Ships
         public bool IsSupplyShip;
         public bool IsReadonlyDesign;
         public bool isColonyShip;
+        public bool HasRegeneratingModules;
         Planet TetheredTo;
         public Vector2 TetherOffset;
         public Guid TetherGuid;
@@ -131,7 +134,7 @@ namespace Ship_Game.Ships
         public int TrackingPower;
         public int FixedTrackingPower;
         public bool ShipInitialized;
-
+        public override bool ParentIsThis(Ship ship) => this == ship;
         public float BoardingDefenseTotal => (MechanicalBoardingDefense + TroopBoardingDefense);
 
         public float FTLModifier { get; private set; } = 1f;
@@ -140,7 +143,8 @@ namespace Ship_Game.Ships
 
         public Weapon FastestWeapon => Weapons.FindMax(w => w.ProjectileSpeed);
 
-        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None, float radius = float.MaxValue)
+        public GameplayObject[] GetObjectsInSensors(GameObjectType filter = GameObjectType.None,
+                                                    float radius = float.MaxValue)
         {
             radius = Math.Min(radius, SensorRange);
             return UniverseScreen.SpaceManager.FindNearby(this, radius, filter);
@@ -158,6 +162,24 @@ namespace Ship_Game.Ships
             get => DesignRole == ShipData.RoleName.construction;
             set => DesignRole = value ? ShipData.RoleName.construction : GetDesignRole();
         }
+
+        Status FleetCapableStatus;
+        public bool CanTakeFleetMoveOrders() => 
+            FleetCapableStatus == Status.Good && ShipEngines.EngineStatus >= Status.Poor;
+
+        void SetFleetCapableStatus()
+        {
+            if (!EMPdisabled && !InhibitedByEnemy &&
+                AI.State != AIState.Resupply && 
+                AI.State != AIState.Refit && 
+                AI.State != AIState.Scrap && 
+                AI.State != AIState.Scuttle)
+                FleetCapableStatus = Status.Good;
+            else
+                FleetCapableStatus = Status.Poor;
+        }
+
+        public bool CanTakeFleetOrders => FleetCapableStatus == Status.Good;
 
         // This bit field marks all the empires which are influencing
         // us within their borders via Subspace projectors
@@ -354,12 +376,12 @@ namespace Ship_Game.Ships
 
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;
 
-        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > ShipStatus.Critical
-                                                                 && OrdnanceStatus != ShipStatus.NotApplicable;
+        public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > Status.Critical
+                                                                 && OrdnanceStatus != Status.NotApplicable;
 
-        public ShipStatus OrdnanceStatus => OrdnanceStatusWithincoming(0);
+        public Status OrdnanceStatus => OrdnanceStatusWithincoming(0);
 
-        public ShipStatus OrdnanceStatusWithincoming(float incomingAmount)
+        public Status OrdnanceStatusWithincoming(float incomingAmount)
         {
             if (IsInWarp
                 || AI.State == AIState.Scrap
@@ -369,7 +391,7 @@ namespace Ship_Game.Ships
                 || (shipData.HullRole < ShipData.RoleName.fighter && shipData.HullRole != ShipData.RoleName.station)
                 || OrdinanceMax < 1
                 || (IsTethered && shipData.HullRole == ShipData.RoleName.platform))
-                return ShipStatus.NotApplicable;
+                return Status.NotApplicable;
 
             float amount = Ordinance;
             if (incomingAmount > 0)
@@ -383,23 +405,23 @@ namespace Ship_Game.Ships
                 int bombBays = BombBays.Count;
                 switch (Bomb60SecStatus())
                 {
-                    case ShipStatus.Critical:      return bombBays / 10;
-                    case ShipStatus.Poor:          return bombBays / 5;
-                    case ShipStatus.Average:
-                    case ShipStatus.Good:          return bombBays / 2;
-                    case ShipStatus.Excellent:
-                    case ShipStatus.Maximum:       return bombBays;
-                    case ShipStatus.NotApplicable: return 0;
+                    case Status.Critical:      return bombBays / 10;
+                    case Status.Poor:          return bombBays / 5;
+                    case Status.Average:
+                    case Status.Good:          return bombBays / 2;
+                    case Status.Excellent:
+                    case Status.Maximum:       return bombBays;
+                    case Status.NotApplicable: return 0;
                 }
                 return 0;
             }
 
         }
 
-        public ShipStatus Bomb60SecStatus()
+        public Status Bomb60SecStatus()
         {
-            if (BombBays.Count <= 0) return ShipStatus.NotApplicable;
-            if (OrdnanceStatus < ShipStatus.Poor) return ShipStatus.Critical;
+            if (BombBays.Count <= 0) return Status.NotApplicable;
+            if (OrdnanceStatus < Status.Poor) return Status.Critical;
             //we need a standard formula for calculating the below.
             //one is the alpha strike. the other is the continued firing. The below only gets the sustained.
             //so the effect is that it might not have enough ordnance to fire the alpha strike. But it will do.
@@ -581,6 +603,7 @@ namespace Ship_Game.Ships
 
         public bool InRadiusOfSystem(SolarSystem system) =>
             system != null && InRadius(system.Position, system.Radius);
+
         public bool InRadiusOfCurrentSystem => InRadiusOfSystem(System);
 
         public bool InRadius(Vector2 worldPos, float radius)
@@ -1008,6 +1031,8 @@ namespace Ship_Game.Ships
                 Rotation += 0.003f + RandomMath.AvgRandomBetween(0.0001f, 0.0005f);
             }
 
+            ShipEngines.Update();
+
             if (deltaTime > 0 && (EMPDamage > 0 || EMPdisabled))
             {
                 EMPDamage -= EmpRecovery;
@@ -1171,6 +1196,8 @@ namespace Ship_Game.Ships
                     float repair = InCombat ? RepairRate * 0.1f : RepairRate;
                     ApplyAllRepair(repair, Level);
                 }
+
+                PerformRegeneration();
             }
 
             UpdateResupply();
@@ -1178,6 +1205,18 @@ namespace Ship_Game.Ships
 
             if (!AI.BadGuysNear)
                 ShieldManager.RemoveShieldLights(Shields);
+        }
+
+        void PerformRegeneration()
+        {
+            if (!HasRegeneratingModules)
+                return;
+
+            for (int i = 0; i < ModuleSlotList.Length; i++)
+            {
+                ShipModule module = ModuleSlotList[i];
+                module.RegenerateSelf();
+            }
         }
 
         public void UpdateResupply()
@@ -1277,7 +1316,7 @@ namespace Ship_Game.Ships
             return cost + (int)(10 * CurrentGame.Pace); // extra refit cost: accord for GamePace;
         }
 
-        public ShipStatus HealthStatus
+        public Status HealthStatus
         {
             get
             {
@@ -1285,7 +1324,7 @@ namespace Ship_Game.Ships
                     || AI.State == AIState.Refit
                     || AI.State == AIState.Resupply)
                 {
-                    return ShipStatus.NotApplicable;
+                    return Status.NotApplicable;
                 }
 
                 Health = Health.Clamped(0, HealthMax);
@@ -1297,8 +1336,8 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged = false;
-            float sensorBonus = 0f;
+            shipStatusChanged           = false;
+            float sensorBonus           = 0f;
             Thrust                      = 0f;
             Mass                        = SurfaceArea;
             shield_max                  = 0f;
@@ -1324,8 +1363,9 @@ namespace Ship_Game.Ships
 
             bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
-            foreach (ShipModule module in ModuleSlotList)
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
+                ShipModule module = ModuleSlotList[i];
                 // active internal slots
                 if (module.HasInternalRestrictions && module.Active)
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
@@ -1356,9 +1396,6 @@ namespace Ship_Game.Ships
                     BonusEMP_Protection += module.EMP_Protection;
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
-                    if (module.Is(ShipModuleType.Shield))
-                        shield_max += module.ActualShieldPowerMax;
-
                     Thrust              += module.thrust;
                     WarpThrust          += module.WarpThrust;
                     TurnThrust          += module.TurnThrust;
@@ -1372,23 +1409,23 @@ namespace Ship_Game.Ships
                 }
             }
 
-            NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
+            NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
             NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
-            shield_percent = Math.Max(100.0 * shield_power / shield_max, 0);
-            SensorRange += sensorBonus;
 
-            //Apply modifiers to stats
+            shield_percent = (100.0 * shield_power / shield_max).ClampMin(0);
+            SensorRange   += sensorBonus;
+
+            // Apply modifiers to stats
             if (hasLoyalty)
             {
-                Mass          *= loyalty.data.MassModifier;
-                RepairRate    += (float)(RepairRate * Level * 0.05);
-                //PowerFlowMax  += PowerFlowMax * loyalty.data.PowerFlowMod;
-                //PowerStoreMax += PowerStoreMax * loyalty.data.FuelCellModifier;
+                Mass *= loyalty.data.MassModifier;
+                RepairRate += (float)(RepairRate * Level * 0.05);
                 if (IsPlatform)
-                    SensorRange = Math.Max(SensorRange, 10000);
+                    SensorRange = SensorRange.ClampMin(10000);
 
                 SensorRange   *= loyalty.data.SensorModifier;
             }
@@ -1462,6 +1499,12 @@ namespace Ship_Game.Ships
             killedShip.loyalty.TheyKilledOurShip(loyalty, killedShip);
         }
 
+        void NotifyPlayerIfDiedExploring()
+        {
+            if (AI.State == AIState.Explore && loyalty.isPlayer)
+                Empire.Universe.NotificationManager.AddExplorerDestroyedNotification(this);
+        }
+
         void ExplodeShip(float size, bool addWarpExplode)
         {
             if (!InFrustum) return;
@@ -1530,6 +1573,7 @@ namespace Ship_Game.Ships
                 GameAudio.PlaySfxAsync(dieSoundEffect, SoundEmitter);
             }
 
+            NotifyPlayerIfDiedExploring();
             Carrier.ScuttleNonWarpHangarShips();
             ResetProjectorInfluence();
 
@@ -1630,7 +1674,6 @@ namespace Ship_Game.Ships
             HostileTroops.Clear();
             RepairBeams.Clear();
 
-            ClearFleet();
             loyalty.RemoveShip(this);
             SetSystem(null); // @warning this resets Spatial
             TetheredTo = null;
@@ -1639,7 +1682,7 @@ namespace Ship_Game.Ships
             base.RemoveFromUniverseUnsafe();
         }
 
-        public bool ClearFleet() => fleet?.RemoveShip(this) ?? false;
+        public void ClearFleet() => fleet?.RemoveShip(this);
 
         public void Dispose()
         {
@@ -1723,6 +1766,17 @@ namespace Ship_Game.Ships
             }
             if (shipData.IsShipyard)
                 empire.CanBuildShipyards = true;
+        }
+
+        // For Unit Tests
+        public ShipModule TestGetModule(string uid)
+        {
+            foreach (ShipModule module in ModuleSlotList)
+            {
+                if (module.UID == uid)
+                    return module;
+            }
+            return null;
         }
 
         // @todo autocalculate during ship instance init
@@ -1821,7 +1875,7 @@ namespace Ship_Game.Ships
         public string ShipName => VanityName.NotEmpty() ? VanityName : Name;
 
         public override string ToString() =>
-            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {loyalty} Role {DesignRole}" ;
+            $"Ship Id={Id} '{ShipName}' Pos {Position} {System} Loyalty {loyalty} Role {DesignRole} State {AI?.State}" ;
 
         public bool ShipIsGoodForGoals(float baseStrengthNeeded = 0, Empire empire = null)
         {
@@ -1867,18 +1921,18 @@ namespace Ship_Game.Ships
             return ShipIsGoodForGoals(float.MinValue, empire);
         }
 
-        public ShipStatus ToShipStatus(float valueToCheck, float maxValue)
+        public Status ToShipStatus(float valueToCheck, float maxValue)
         {
-            if (maxValue <= 0) return ShipStatus.NotApplicable;
+            if (maxValue <= 0) return Status.NotApplicable;
             if (valueToCheck > maxValue)
             {
                 Log.Info("MaxValue of check as greater than value to check");
-                return ShipStatus.NotApplicable;
+                return Status.NotApplicable;
             }
 
             float ratio = 0.5f + ShipStatusCount * valueToCheck / maxValue;
             ratio = ratio.Clamped(1, ShipStatusCount);
-            return (ShipStatus)(int)ratio;
+            return (Status)(int)ratio;
         }
 
         // if the shipstatus enum is added to then "5" will need to be changed.
@@ -1886,7 +1940,7 @@ namespace Ship_Game.Ships
         const int ShipStatusCount = 6;
     }
 
-    public enum ShipStatus
+    public enum Status
     {
         Critical = 1,
         Poor,

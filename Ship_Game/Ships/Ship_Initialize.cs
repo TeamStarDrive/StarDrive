@@ -266,7 +266,7 @@ namespace Ship_Game.Ships
         // Refactored by RedFox - Normal Shipyard ship creation
         public static Ship CreateShipAt(string shipName, Empire owner, Planet p, bool doOrbit)
         {
-            return CreateShipAt(shipName, owner, p, RandomMath.Vector2D(100), doOrbit);
+            return CreateShipAt(shipName, owner, p, RandomMath.Vector2D(300), doOrbit);
         }
 
         // Added by McShooterz: for refit to keep name
@@ -351,9 +351,6 @@ namespace Ship_Game.Ships
         public void InitializeShip(bool loadingFromSaveGame = false)
         {
             Center = Position;
-
-            // NOTE: this will be overwritten later by CreateSceneObject()
-            Radius = shipData.Radius > 0 ? shipData.Radius : 50f;
             Empire.Universe?.QueueSceneObjectCreation(this);
 
             if (VanityName.IsEmpty())
@@ -430,6 +427,7 @@ namespace Ship_Game.Ships
             
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
+            ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             InitializeStatusFromModules(fromSave);
             if (FTLSpoolTime <= 0f)
@@ -453,9 +451,11 @@ namespace Ship_Game.Ships
         {
             RepairBeams.Clear();
 
-            float sensorBonus = 0f;
-            foreach (ShipModule module in ModuleSlotList)
+            float sensorBonus        = 0f;
+            float totalShieldAmplify = 0;
+            for (int i = 0; i < ModuleSlotList.Length; i++)
             {
+                ShipModule module = ModuleSlotList[i];
                 if (module.UID == "Dummy") // ignore legacy dummy modules
                     continue;
 
@@ -467,7 +467,8 @@ namespace Ship_Game.Ships
 
                 if (module.SensorRange > SensorRange) SensorRange = module.SensorRange;
                 if (module.SensorBonus > sensorBonus) sensorBonus = module.SensorBonus;
-                if (module.ECM > ECMValue) ECMValue = module.ECM.Clamped(0f, 1f);
+                if (module.ECM > ECMValue)            ECMValue    = module.ECM.Clamped(0f, 1f);
+                if (module.Regenerate > 0) HasRegeneratingModules = true;
 
                 switch (module.ModuleType)
                 {
@@ -506,11 +507,11 @@ namespace Ship_Game.Ships
                 TurnThrust += module.TurnThrust;
                 Health     += module.Health;
 
+                totalShieldAmplify += module.AmplifyShields;
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;
                 PowerCurrent  += module.ActualPowerStoreMax;
                 PowerFlowMax  += module.ActualPowerFlowMax;
-                shield_max    += module.ActualShieldPowerMax;
                 if (module.Is(ShipModuleType.Armor))
                     armor_max += module.ActualMaxHealth;
 
@@ -525,12 +526,16 @@ namespace Ship_Game.Ships
                 }
             }
 
+            if (!fromSave)
+                InitShieldsPower(totalShieldAmplify);
+
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
             Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity         = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
-            MechanicalBoardingDefense = Math.Max(1, MechanicalBoardingDefense);
+
+            MechanicalBoardingDefense = MechanicalBoardingDefense.ClampMin(1);
             shipStatusChanged         = true;
             SensorRange              += sensorBonus;
             DesignRole                = GetDesignRole();
@@ -539,6 +544,16 @@ namespace Ship_Game.Ships
             // the shipdata should have the base but the ship should have live values. no sense in having in the ship. Think this has been messed up for a while.
             shipData.BaseCanWarp      = WarpThrust > 0;
             BaseCanWarp               = WarpThrust > 0;
+        }
+
+        void InitShieldsPower(float totalShieldAmplify)
+        {
+            float shieldAmplify = ShipUtils.GetShieldAmplification(Amplifiers, Shields);
+            for (int i = 0; i < Shields.Length; i++)
+            {
+                ShipModule shield = Shields[i];
+                shield.InitShieldPower(shieldAmplify);
+            }
         }
 
         float GetBaseCost()

@@ -177,7 +177,7 @@ namespace Ship_Game.GameScreens.MainMenu
         {
             foreach (MenuFleet fleet in Fleets)
             {
-                fleet.Update(gameTime, this);
+                fleet.Update(this);
             }
         }
         

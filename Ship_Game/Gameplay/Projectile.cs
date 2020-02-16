@@ -295,7 +295,7 @@ namespace Ship_Game.Gameplay
                 return;
             }
             LastDrawId = thisFrame;
-
+                
             InFrustum = Empire.Universe.viewState < UniverseScreen.UnivScreenState.SystemView 
                          && Empire.Universe.Frustum.Contains(Center, Radius*100f);
             if (!InFrustum)

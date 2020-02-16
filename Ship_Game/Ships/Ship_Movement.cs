@@ -15,10 +15,10 @@ namespace Ship_Game.Ships
         public float Thrust;
         public float TurnThrust;
         public float RotationRadiansPerSecond;
+        public ShipEngines ShipEngines;
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
-
         // we need to store the applied thrust for correct
         // VelocityVerlet integration
         // > 0: forward/acceleration
@@ -97,11 +97,16 @@ namespace Ship_Game.Ships
 
         public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
         {
-            IsTurning = true;
+            
             float rotAmount = rotationDir * elapsedTime * RotationRadiansPerSecond;
             if (Math.Abs(rotAmount) > angleDiff)
             {
                 rotAmount = rotAmount <= 0f ? -angleDiff : angleDiff;
+                IsTurning = true;
+            }
+            else
+            {
+                IsTurning = false;
             }
 
             if (rotAmount > 0f) // Y-bank:
@@ -133,6 +138,7 @@ namespace Ship_Game.Ships
                 if (yRotation > 0f)
                     yRotation = 0f;
             }
+            if (yRotation.AlmostZero()) IsTurning = false;
         }
 
         public float GetMinDecelerationDistance(float velocity)
@@ -331,16 +337,15 @@ namespace Ship_Game.Ships
             switch (engineState)
             {
                 case MoveState.Sublight: VelocityMaximum = MaxSTLSpeed; break;
-                case MoveState.Warp:     VelocityMaximum = MaxFTLSpeed; break;
+                case MoveState.Warp: VelocityMaximum = MaxFTLSpeed; break;
             }
 
             if (!IsTurning)
             {
                 RestoreYBankRotation(elapsedTime);
             }
-            IsTurning = false;
 
-            if (engineState == MoveState.Warp)
+            if ((engineState == MoveState.Warp || ThrustThisFrame > 0) && Velocity.Length() < SpeedLimit)
             {
                 // enable full thrust, but don't touch the SpeedLimit
                 // so that FormationWarp can work correctly

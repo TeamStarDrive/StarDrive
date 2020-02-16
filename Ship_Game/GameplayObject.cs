@@ -162,9 +162,10 @@ namespace Ship_Game
                 ship.shipStatusChanged = true;
                 ship.loyalty = changeTo;
 
-                foreach (Troop troop in ship.GetOurTroops())
-                    if (troop.Loyalty == oldLoyalty)
-                        troop.ChangeLoyalty(changeTo);
+                ship.SwitchTroopLoyalty(ship.loyalty);
+                ship.ReCalculateTroopsAfterBoard();
+                changeTo.AddBoardSuccessNotification(ship);
+                oldLoyalty.AddBoardedNotification(ship);
             }
 
             // this resets the spatial management
@@ -187,6 +188,10 @@ namespace Ship_Game
         }
 
         public virtual bool IsAttackable(Empire attacker, Relationship attackerRelationThis)
+        {
+            return false;
+        }
+        public virtual bool ParentIsThis(Ship ship) 
         {
             return false;
         }
