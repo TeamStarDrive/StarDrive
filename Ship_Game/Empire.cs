@@ -338,6 +338,41 @@ namespace Ship_Game
             return safeWorlds.ToArray();
         }
 
+        /// <summary>
+        /// Find nearest safe world to orbit.
+        /// first check AI coreworlds
+        /// then check ai area of operation worlds.
+        /// then check any planet in closest ao.
+        /// then just find a planet. 
+        /// </summary>
+        public Planet GetBestNearbyPlanetToOrbitForAI(Ship ship)
+        {
+            var coreWorld = ship.loyalty.GetSafeAOCoreWorlds()?.FindClosestTo(ship);
+            Planet home = null;
+
+            if (coreWorld != null)
+            {
+                home = coreWorld;
+            }
+            else
+            {
+                home = ship.loyalty.GetSafeAOWorlds().FindClosestTo(ship);
+            }
+
+            if (home == null)
+            {
+                var nearestAO = ship.loyalty.GetEmpireAI().FindClosestAOTo(ship.Center);
+                home = nearestAO.GetPlanets().FindClosestTo(ship);
+            }
+
+            if (home == null)
+            {
+                home = Universe.PlanetsDict.FindMinValue(p => p.Center.Distance(ship.Center));
+            }
+
+            return home;
+        }
+
         Array<Planet> GetPlanetsNearStations()
         {
             var planets = new Array<Planet>();
