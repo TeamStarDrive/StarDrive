@@ -41,11 +41,13 @@ namespace Ship_Game.AI.ExpansionAI
         {
             get
             {
-                if (OwnerEmpire.isPlayer) return 10;
+                float baseColonyGoals = OwnerEmpire.DifficultyModifiers.BaseColonyGoals;
+                if (OwnerEmpire.isPlayer) 
+                    return (int)baseColonyGoals; // BaseColonyGoals for player
+
                 float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                float diffMod   = (float)CurrentGame.Difficulty * 2.5f * OwnerEmpire.Research.Strategy.ExpansionRatio;
                 int plusGoals   = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
-                float goals     = (float)Math.Round(baseValue + diffMod + plusGoals, 0);
+                float goals     = (float)Math.Round(baseValue + baseColonyGoals + plusGoals, 0);
                 return (int)goals.Clamped(1f, 5f);
             }
         }
@@ -65,7 +67,8 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             //we are going to keep a list of wanted planets. 
-            int maxDesiredPlanets = (Empire.Universe.PlanetsDict.Count / 10).ClampMin(10);
+            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Values.Count(p => p.Habitable) 
+                                          * OwnerEmpire.DifficultyModifiers.MaxDesiredPlanets).ClampMin(10);
 
             if (maxDesiredPlanets < 1)
                 return;

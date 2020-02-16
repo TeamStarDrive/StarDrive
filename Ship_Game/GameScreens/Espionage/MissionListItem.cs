@@ -19,6 +19,7 @@ namespace Ship_Game.GameScreens.Espionage
             Component = parent;
             TheMission = am;
             DoMission = ButtonLow(0f, 0f, "Go", DoMission_OnClick);
+            UpdateMissionAvailability();
         }
 
         void DoMission_OnClick(UIButton button)
@@ -76,8 +77,8 @@ namespace Ship_Game.GameScreens.Espionage
 
         bool IsRivalEmpire => Component.EspionageScreen.SelectedEmpire != EmpireManager.Player;
 
-        bool SelectedAgentAvailable => Component.SelectedAgent.Mission == AgentMission.Defending
-                                            || Component.SelectedAgent.Mission == AgentMission.Undercover;
+        bool SelectedAgentAvailable => Component.SelectedAgent?.Mission == AgentMission.Defending
+                                            || Component.SelectedAgent?.Mission == AgentMission.Undercover;
 
         //added by gremlin deveks missionInit
         public void UpdateMissionAvailability()
@@ -132,7 +133,7 @@ namespace Ship_Game.GameScreens.Espionage
 
             if (EmpireManager.Player.Money < cost || 
                 Component.EspionageScreen.SelectedEmpire.data.Defeated || 
-                Component.SelectedAgent.Mission != AgentMission.Defending)
+                Component.SelectedAgent?.Mission != AgentMission.Defending)
             {
                 MissionAvailable = false;
             }

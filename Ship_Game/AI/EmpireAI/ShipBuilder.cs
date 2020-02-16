@@ -36,34 +36,8 @@ namespace Ship_Game.AI
 
             public MinMaxStrength(float maxStrength, Empire empire)
             {
-                if (empire.isPlayer) // always select the best for player
-                {
-                    Min = maxStrength * 0.9f;
-                    Max = maxStrength;
-                }
-                else // for AI, set the range based on difficulty
-                {
-                    switch (CurrentGame.Difficulty)
-                    {
-                        case UniverseData.GameDifficulty.Easy:
-                            Min = maxStrength * 0.3f;
-                            Max = maxStrength * 0.8f;
-                            break;
-                        case UniverseData.GameDifficulty.Normal:
-                            Min = maxStrength * 0.7f;
-                            Max = maxStrength;
-                            break;
-                        case UniverseData.GameDifficulty.Hard:
-                            Min = maxStrength * 0.8f;
-                            Max = maxStrength;
-                            break;
-                        case UniverseData.GameDifficulty.Brutal:
-                        default:
-                            Min = maxStrength * 0.9f;
-                            Max = maxStrength;
-                            break;
-                    }
-                }
+                Min = empire.DifficultyModifiers.ShipBuildStrMin * maxStrength;
+                Max = empire.DifficultyModifiers.ShipBuildStrMax * maxStrength;
             }
 
             public bool InRange(float strength) => strength.InRange(Min, Max);
