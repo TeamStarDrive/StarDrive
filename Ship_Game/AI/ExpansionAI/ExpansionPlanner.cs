@@ -67,8 +67,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             //we are going to keep a list of wanted planets. 
-            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Values.Count(p => p.Habitable) 
-                                          * OwnerEmpire.DifficultyModifiers.MaxDesiredPlanets).ClampMin(10);
+            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Count / 10).ClampMin(10);
 
             if (maxDesiredPlanets < 1)
                 return;
@@ -84,7 +83,8 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 var ranker = allPlanetsRanker[i];
                 planetsRanked.Add(ranker);
-                maxDesiredPlanets--;
+                if (ranker.CantColonize == false)
+                    maxDesiredPlanets--;
             }
             RankedPlanets = planetsRanked.ToArray();
 
