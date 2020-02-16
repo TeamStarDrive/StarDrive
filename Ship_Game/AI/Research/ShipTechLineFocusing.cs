@@ -97,13 +97,24 @@ namespace Ship_Game.AI.Research
             return false;
         }
 
+        private bool ShipHasResearchableTech(Ship ship)
+        {
+            foreach (string techName in ship.shipData.TechsNeeded)
+            {
+                var tech = OwnerEmpire.GetTechEntry(techName);
+                if (!tech.Unlocked && tech.IsShipTech())
+                    return true;
+            }
+            return false;
+        }
+
         private Array<Ship> GetResearchableShips(Array<Ship> racialShips)
         {
             var researchableShips = new Array<Ship>();
             foreach (Ship shortTermBest in racialShips)
             {
                 // don't try to research ships we have all the tech for.
-                if (shortTermBest.shipData.TechsNeeded.Except(OwnerEmpire.ShipTechs).Any() == false) continue;
+                if (!ShipHasResearchableTech(shortTermBest)) continue;
                 // Don't build ships intended for carriers if there arent any carriers.
                 if (!OwnerEmpire.canBuildCarriers && shortTermBest.shipData.CarrierShip)
                     continue;
@@ -114,7 +125,7 @@ namespace Ship_Game.AI.Research
                 if (!shortTermBest.shipData.UnLockable) continue;
                 if (ShipHasUndiscoveredTech(shortTermBest)) continue;
                 if (!shortTermBest.ShipGoodToBuild(OwnerEmpire)) continue;
-                if (OwnerEmpire.ShipsWeCanBuild.Contains(shortTermBest.Name)) continue;
+
                 researchableShips.Add(shortTermBest);
             }
             return researchableShips;
