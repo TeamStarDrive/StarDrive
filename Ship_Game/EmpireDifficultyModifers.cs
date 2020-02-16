@@ -10,9 +10,6 @@ using System.Xml.Serialization;
 
 namespace Ship_Game
 {
-    public static class EmpireDifficultyModifiers
-    {
-
         public struct DifficultyModifiers
         {
             public readonly int SysComModifier;
@@ -26,7 +23,7 @@ namespace Ship_Game
             public readonly float Anger;
             public readonly int RemnantStory;
             public readonly int ShipLevel;
-            public readonly bool ShowTacticalData;
+            public readonly bool HideTacticalData;
             public readonly float MaxDesiredPlanets;
 
             public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
@@ -41,7 +38,7 @@ namespace Ship_Game
                         TaskForceStrength   = 0.8f;
                         DataVisibleToPlayer = true;
                         ShipLevel           = 0;
-                        ShowTacticalData    = true;
+                        HideTacticalData    = false;
                         MaxDesiredPlanets   = 0.25f;
                         break;
                     default:
@@ -51,7 +48,7 @@ namespace Ship_Game
                         ColonyRankModifier = 0;
                         TaskForceStrength  = 1f;
                         ShipLevel          = 0;
-                        ShowTacticalData   = true;
+                        HideTacticalData   = false;
                         MaxDesiredPlanets  = 0.5f;
                         break;
                     case UniverseData.GameDifficulty.Hard:
@@ -60,7 +57,7 @@ namespace Ship_Game
                         ColonyRankModifier = 1;
                         TaskForceStrength  = 1.1f;
                         ShipLevel          = 2;
-                        ShowTacticalData   = false;
+                        HideTacticalData   = true;
                         MaxDesiredPlanets  = 0.75f;
                         break;
                     case UniverseData.GameDifficulty.Brutal:
@@ -69,7 +66,7 @@ namespace Ship_Game
                         ColonyRankModifier = 2;
                         TaskForceStrength  = 1.2f;
                         ShipLevel          = 3;
-                        ShowTacticalData   = false;
+                        HideTacticalData   = true;
                         MaxDesiredPlanets  = 1f;
                         break;
                 }
@@ -99,6 +96,4 @@ namespace Ship_Game
                 }
             }
         }
-
     }
-}

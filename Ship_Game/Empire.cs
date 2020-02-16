@@ -156,7 +156,7 @@ namespace Ship_Game
 
         public readonly EmpireResearch Research;
 
-        public EmpireDifficultyModifiers.DifficultyModifiers DifficultyModifiers { get; private set; }
+        public DifficultyModifiers DifficultyModifiers { get; private set; }
         // Empire unique ID. If this is 0, then this empire is invalid!
         // Set in EmpireManager.cs
         public int Id;
@@ -704,7 +704,7 @@ namespace Ship_Game
 
         void InitDifficultyModifiers()
         {
-            DifficultyModifiers = new EmpireDifficultyModifiers.DifficultyModifiers(this, CurrentGame.Difficulty);
+            DifficultyModifiers = new DifficultyModifiers(this, CurrentGame.Difficulty);
         }
 
         public void TestInitDifficultyModifiers() // For UnitTests only
