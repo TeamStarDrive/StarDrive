@@ -500,7 +500,13 @@ namespace Ship_Game.AI
             var solarSystem = Owner.loyalty.GetShips()
                 .FindMinFiltered(ship => ship.System != null,
                                 ship => Owner.Center.SqDist(ship.Center))?.System;
-            AwaitClosest = solarSystem.PlanetList.FindMax(p => p.GetNearByShips().Length);
+            AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+            if (AwaitClosest == null)
+            {
+                var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
+                             Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                AwaitClosest = system.PlanetList.FindClosestTo(Owner);
+            }
             return true;
 
         }
