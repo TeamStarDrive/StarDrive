@@ -367,7 +367,6 @@ namespace Ship_Game
                     }
 
                     SelectedNodeList.Clear();
-                    ResetLists();
                 }
             }
 
