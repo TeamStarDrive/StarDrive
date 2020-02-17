@@ -490,6 +490,7 @@ namespace Ship_Game
             {
                 troop.SetOwner(forOwner);
                 troop.HealTroop(troop.ActualStrengthMax);
+                troop.Level = forOwner.data.MinimumTroopLevel;
             }
             return troop;
         }

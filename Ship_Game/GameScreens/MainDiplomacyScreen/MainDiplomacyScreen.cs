@@ -51,7 +51,7 @@ namespace Ship_Game
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0.25f;
             PlayerEmpire = EmpireManager.Player;
-            Friends = EmpireManager.GetAllies(PlayerEmpire);
+            Friends = EmpireManager.GetPlayerAllies();
             Traders = EmpireManager.GetTradePartners(PlayerEmpire);
             HashSet<Empire> empires = new HashSet<Empire>();            
             foreach(Empire empire in EmpireManager.Empires)

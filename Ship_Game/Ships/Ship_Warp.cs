@@ -34,7 +34,7 @@ namespace Ship_Game.Ships
         {
             get
             {
-                Status warpReady = ShipEngineses.ReadyForWarp;
+                Status warpReady = ShipEngines.ReadyForWarp;
                 return warpReady > Status.Poor && warpReady < Status.NotApplicable;
             }
         }
@@ -70,7 +70,7 @@ namespace Ship_Game.Ships
             if (IsSpoolingOrInWarp)
                 return;
 
-            var warpStatus = ShipEngineses.ReadyForWarp;
+            var warpStatus = ShipEngines.ReadyForWarp;
 
             if (warpStatus == Status.Poor)
                 return;

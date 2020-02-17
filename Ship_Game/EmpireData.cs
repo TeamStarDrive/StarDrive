@@ -248,6 +248,9 @@ namespace Ship_Game
         [Serialize(107)] public float EnvBarren;
         [Serialize(108)] public PlanetCategory PreferredEnv;
 
+        // FB - Minimum Troop Level
+        [Serialize(109)] public int MinimumTroopLevel;
+
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
 

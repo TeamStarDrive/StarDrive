@@ -217,7 +217,6 @@ namespace Ship_Game
             PlayerEmpire.isPlayer = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
-            DoPathingMapRebuild();
             ShipCommands = new ShipMoveCommands(this);
         }
 
@@ -239,7 +238,6 @@ namespace Ship_Game
             loading               = true;
             SubSpaceProjectors    = new SubSpaceProjectors(UniverseSize);
             SpaceManager.Setup(UniverseSize);
-            DoPathingMapRebuild();
             ShipCommands = new ShipMoveCommands(this);
         }
 

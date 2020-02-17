@@ -267,14 +267,14 @@ namespace Ship_Game.AI
                 return true;
             }
 
-            float deceleration = Owner.VelocityMaximum * elapsedTime;
-            if (Owner.CurrentVelocity < deceleration) // we are almost at zero, lets stop.
+            float deceleration = (Owner.VelocityMaximum * elapsedTime);
+            if (Owner.CurrentVelocity.LessOrEqual(deceleration)) // we are almost at zero, lets stop.
             {
                 Owner.Velocity = Vector2.Zero;
                 return true; // stopped
             }
 
-            Owner.Decelerate();
+            Owner.AllStop();
             return false;
         }
 
@@ -358,7 +358,7 @@ namespace Ship_Game.AI
             if (State != AIState.FormationWarp || Owner.fleet == null) // not in a fleet
             {
                 // only warp towards actual warp pos
-                if (actualDiff < 0.05f)
+                if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
                     if      (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
@@ -450,7 +450,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                if(Owner.engineState == Ship.MoveState.Warp && Owner.ShipEngineses.ReadyForFormationWarp > Status.Good) 
+                if(Owner.engineState == Ship.MoveState.Warp && Owner.ShipEngines.ReadyForFormationWarp > Status.Good) 
                     Owner.HyperspaceReturn();
             }
         }

@@ -105,6 +105,10 @@ namespace Ship_Game
             => TroopManager.EmpireTroops(empire, maxToTake);
         public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
             => TroopManager.TroopsReadForLaunch(strengthNeeded);
+        public GameplayObject[] GetNearByShips() => UniverseScreen.SpaceManager.FindNearby(
+                                            Center, GravityWellRadius,
+                                            GameObjectType.Ship, Owner);
+        
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
@@ -954,7 +958,7 @@ namespace Ship_Game
             float distance = GravityWellRadius.Clamped(7500, 15000);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner.IsEmpireAttackable(ship.loyalty) && ship.InRadius(Center, distance))
+                if (Owner.IsEmpireAttackable(ship.loyalty, ship) && ship.InRadius(Center, distance))
                     return true;
             }
             return false;

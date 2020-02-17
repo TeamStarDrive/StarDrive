@@ -276,7 +276,7 @@ namespace Ship_Game.Ships
 
         void DrawStatusIcons(UniverseScreen us, float screenRadius, Vector2 screenPos)
         {
-            if (!HelperFunctions.DataVisibleToPlayer(loyalty, UniverseData.GameDifficulty.Easy))
+            if (!HelperFunctions.DataVisibleToPlayer(loyalty))
                 return;
 
             Vector2 offSet = new Vector2(screenRadius * .75f, screenRadius * .75f);

@@ -930,8 +930,8 @@ namespace Ship_Game.AI {
                                 }
                                 if (check.Treaty_NAPact)
                                     weight *= .5f;
-                                if (enemy.isPlayer)
-                                    weight *= ((int)CurrentGame.Difficulty + 1);
+                                if (enemy.isPlayer) // FB - wtf, its not even used because of exit condition above
+                                    weight *= OwnerEmpire.DifficultyModifiers.DiploWeightVsPlayer;
 
                                 if (check.Anger_TerritorialConflict > 0)
                                     check.Anger_TerritorialConflict += (check.Anger_TerritorialConflict + CheckBorders.RankImportance * weight) / (check.Anger_TerritorialConflict);
