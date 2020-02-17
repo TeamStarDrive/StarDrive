@@ -29,10 +29,8 @@ namespace Ship_Game.Empires.ShipPools
         public void RemoveShipFromFleetAndPools(Ship ship)
         {
             ship.ClearFleet();
-            if(!Remove(ship))
-            {
-                Log.Warning($"Removal found nothing to remove from Empire Force Pool. Ship: {ship}");
-            }
+            Remove(ship);
+
             RemoveFromOtherPools(ship);
         }
 

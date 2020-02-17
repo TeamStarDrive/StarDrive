@@ -324,13 +324,40 @@ namespace Ship_Game.AI.Tasks
                 EndTask();
                 return;
             }
-
+            EnemyStrength = GetEnemyShipStrengthInAO();
             AO = TargetPlanet.Center;
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 1);
 
-            float battleFleetSize = 0.25f;
+            float battleFleetSize = 0.55f;
 
             if (CreateTaskFleet("Invasion Fleet", battleFleetSize) == RequisitionStatus.Complete)
+            {
+                Step = 1;
+            }
+            if (!Owner.GetEmpireAI().IsAlreadyGlassingSystem(TargetPlanet.ParentSystem))
+            {
+                CreateGlassPlanetTask(TargetPlanet, EnemyStrength);
+            }
+        }
+
+        void RequisitionGlassForce()
+        {
+            if (AO.AlmostZero())
+                Log.Error($"no area of operation set for task: {type}");
+
+            if (TargetPlanet.Owner == null || TargetPlanet.Owner == Owner ||
+                Owner.GetRelations(TargetPlanet.Owner).Treaty_Peace)
+            {
+                EndTask();
+                return;
+            }
+            EnemyStrength = TargetPlanet.ParentSystem.ShipList.Sum(s => s.loyalty == TargetPlanet.Owner ? s.BaseStrength : 0);
+            AO = TargetPlanet.Center;
+            InitFleetRequirements(minFleetStrength: 1000, minTroopStrength: 0, minBombMinutes: 2);
+
+            float battleFleetSize = 0.75f;
+
+            if (CreateTaskFleet("Doom Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
                 Step = 1;
             }
@@ -368,10 +395,6 @@ namespace Ship_Game.AI.Tasks
 
             FleetShips fleetShips = Owner.AllFleetReadyShipsNearestTarget(rallyPoint.Center);
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
-
-            //if have bombers but not enough... wait for more.
-            //if (Owner.canBuildBombers && fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
-            //    return RequisitionStatus.NotEnoughBomberStrength;
 
             //if we cant build bombers then convert bombtime to troops. 
             //This assume a standard troop strength of 10 
