@@ -59,6 +59,7 @@ namespace Ship_Game
         Rectangle SelectionBox;
         readonly Array<FleetDataNode> SelectedNodeList = new Array<FleetDataNode>();
         readonly Array<FleetDataNode> HoveredNodeList = new Array<FleetDataNode>();
+        readonly ShipInfoOverlayComponent ShipInfoOverlay;
 
         public FleetDesignScreen(GameScreen parent, EmpireUIOverlay empireUI, string audioCue ="") : base(parent)
         {
@@ -67,6 +68,7 @@ namespace Ship_Game
             EmpireUI = empireUI;
             TransitionOnTime = 0.75f;
             EmpireUI.empire.UpdateShipsWeCanBuild();
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
         }
 
         public void ChangeFleet(int which)
@@ -173,6 +175,11 @@ namespace Ship_Game
             SubShips.SelectedIndex = 0;
             ShipSL = Add(new ScrollList2<FleetDesignShipListItem>(SubShips, 40));
             ShipSL.OnClick = OnDesignShipItemClicked;
+            ShipSL.EnableItemHighlight = true;
+            ShipSL.OnHovered = (item) =>
+            {
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+            };
 
             ResetLists();
             SelectedStuffRect = new Rectangle(ScreenWidth / 2 - 220, -13 + ScreenHeight - 200, 440, 210);
@@ -289,53 +296,62 @@ namespace Ship_Game
 
         public void ResetLists()
         {
-            AvailableShips.Clear();
-            AvailableShips.AddRange(EmpireManager.Player.GetShips()
-                                    .Filter(s => s.fleet == null && s.Active));
-
             ShipSL.Reset();
             if (SubShips.SelectedIndex == 0)
             {
-                var roles = new Array<string>();
-                foreach (string shipname in EmpireManager.Player.ShipsWeCanBuild)
+                var shipList = new Array<Ship>();
+                foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
                 {
-                    Ship ship = ResourceManager.GetShipTemplate(shipname);
-                    if (!roles.Contains(ship.DesignRoleName))
-                    {
-                        roles.Add(ship.DesignRoleName);
-
-                        FleetDesignShipListItem header = ShipSL.AddItem(
-                            new FleetDesignShipListItem(this, ship.DesignRoleName));
-
-                        foreach (string shipname2 in EmpireManager.Player.ShipsWeCanBuild)
-                        {
-                            Ship ship2 = ResourceManager.ShipsDict[shipname2];
-                            if (ship2.DesignRoleName == header.HeaderText)
-                                header.AddSubItem(new FleetDesignShipListItem(this, ship));
-                        }
-                    }
+                    Ship ship = ResourceManager.GetShipTemplate(shipName);
+                    shipList.Add(ship);
                 }
+
+                SortShipSL(shipList);
             }
             else if (SubShips.SelectedIndex == 1)
             {
-                var roles = new Array<string>();
-                foreach (Ship ship in AvailableShips)
+                AvailableShips.Clear();
+                AvailableShips.AddRange(EmpireManager.Player.GetShips()
+                                        .Filter(s => s.fleet == null && s.Active));
+
+                SortShipSL(AvailableShips);
+            }
+        }
+
+        void SortShipSL(Array<Ship> shipList)
+        {
+            var roles = new Array<string>();
+            foreach (Ship ship in shipList)
+            {
+                if (IsCandidateShip(ship))
+                    roles.AddUnique(ship.DesignRoleName);
+            }
+
+            roles.Sort();
+            foreach (string role in roles)
+            {
+                FleetDesignShipListItem header = ShipSL.AddItem(
+                    new FleetDesignShipListItem(this, role));
+
+                foreach (string shipName in EmpireManager.Player.ShipsWeCanBuild)
                 {
-                    if (!roles.Contains(ship.DesignRoleName) && ship.shipData.Role != ShipData.RoleName.troop)
-                    {
-                        roles.Add(ship.DesignRoleName);
-
-                        FleetDesignShipListItem header = ShipSL.AddItem(
-                            new FleetDesignShipListItem(this, ship.DesignRoleName));
-
-                        foreach (Ship ship2 in AvailableShips)
-                        {
-                            if (ship2.shipData.Role != ShipData.RoleName.troop && ship2.DesignRoleName == header.HeaderText)
-                                header.AddSubItem(new FleetDesignShipListItem(this, ship2));
-                        }
-                    }
+                    Ship ship = ResourceManager.ShipsDict[shipName];
+                    if (IsCandidateShip(ship) && ship.DesignRoleName == header.HeaderText)
+                        header.AddSubItem(new FleetDesignShipListItem(this, ship));
                 }
             }
+        }
+
+        bool IsCandidateShip(Ship ship)
+        {
+            if (ship.shipData.Role == ShipData.RoleName.troop
+                || ship.DesignRole == ShipData.RoleName.ssp
+                || ship.DesignRole == ShipData.RoleName.construction)
+            {
+                return false;
+            }
+
+            return true;
         }
         
         void UpdateSelectedFleet()
