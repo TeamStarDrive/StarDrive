@@ -20,12 +20,14 @@ namespace Ship_Game
                 if (!ship.Active
                     || ship.shipData.Role != ShipData.RoleName.troop
                     || !ship.IsDefaultTroopTransport
-                    || ship.fleet         != null
-                    || ship.Mothership    != null
-                    || ship.AI.State      == AIState.Scrap
-                    || ship.AI.State      == AIState.RebaseToShip
+                    || ship.fleet != null
+                    || ship.Mothership != null
+                    || ship.AI.State == AIState.Scrap
+                    || ship.AI.State == AIState.RebaseToShip
                     || ship.AI.HasPriorityOrder)
+                {
                     continue;
+                }
                 ships.Add(ship);
             }
 

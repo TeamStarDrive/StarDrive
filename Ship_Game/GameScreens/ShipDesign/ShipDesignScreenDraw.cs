@@ -214,7 +214,9 @@ namespace Ship_Game
                 if (slot.Module.PowerDraw <= 0f
                     || slot.Module.Powered
                     || slot.Module.ModuleType == ShipModuleType.PowerConduit)
-                        continue;
+                {
+                    continue;
+                }
                 spriteBatch.Draw(ResourceManager.Texture("UI/lightningBolt"),
                     slot.Center, Color.White, 0f, lightOrigin, 1f, SpriteEffects.None, 1f);
             }
@@ -422,7 +424,7 @@ namespace Ship_Game
             float sensorRange              = 0f;
             float sensorBonus              = 0f;
             float ordnanceUsed             = 0f;
-            float ordnanceRecoverd         = 0f;
+            float ordnanceRecovered        = 0f;
             float weaponPowerNeeded        = 0f;
             float warpSpoolTimer           = 0f;
             float empResist                = 0f;
@@ -489,7 +491,7 @@ namespace Ship_Game
                 warpThrust         += slot.Module.WarpThrust;
                 turnThrust         += slot.Module.TurnThrust;
                 repairRate         += slot.Module.ActualBonusRepairRate;
-                ordnanceRecoverd   += slot.Module.OrdnanceAddedPerSecond;
+                ordnanceRecovered  += slot.Module.OrdnanceAddedPerSecond;
                 targets            += slot.Module.TargetTracking;
                 totalEcm            = Math.Max(slot.Module.ECM, totalEcm);
                 sensorRange         = Math.Max(slot.Module.SensorRange, sensorRange);
@@ -660,14 +662,14 @@ namespace Ship_Game
 
             void DrawOrdnance()
             {
-                if (ordnanceRecoverd > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecoverd, 162, Color.IndianRed));
+                if (ordnanceRecovered > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, 162, Color.IndianRed));
                 if (!(ordnanceCap > 0))
                     return;
 
                 DrawStatColor(ref cursor, TintedValue(118, ordnanceCap, 108, Color.IndianRed));
-                if (ordnanceUsed - ordnanceRecoverd > 0)
+                if (ordnanceUsed - ordnanceRecovered > 0)
                 {
-                    float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecoverd);
+                    float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecovered);
                     DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, 164, Color.IndianRed));
                 }
                 else
