@@ -126,6 +126,11 @@ namespace Ship_Game
             }
         }
 
+        public void OnSubShipsTabChanged(int tabIndex)
+        {
+            ResetLists();
+        }
+
         protected override void Destroy()
         {
             StarField?.Dispose(ref StarField);
@@ -173,6 +178,7 @@ namespace Ship_Game
             SubShips.AddTab("Designs");
             SubShips.AddTab("Owned");
             SubShips.SelectedIndex = 0;
+            SubShips.OnTabChange = OnSubShipsTabChanged;
             ShipSL = Add(new ScrollList2<FleetDesignShipListItem>(SubShips, 40));
             ShipSL.OnClick = OnDesignShipItemClicked;
             ShipSL.EnableItemHighlight = true;
