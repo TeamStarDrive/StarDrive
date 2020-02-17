@@ -31,6 +31,10 @@ namespace Ship_Game.AI
 
             // this where the global AI attack stuff happens.
             Toughnuts = 0;
+            var olderWar = OwnerEmpire.GetOldestWar();
+
+
+            TaskList.Sort(t => t.TargetPlanet?.Owner == olderWar?.Them);
             foreach (MilitaryTask task in TaskList)
             {
                 if (!task.QueuedForRemoval)
@@ -127,6 +131,30 @@ namespace Ship_Game.AI
             return false;
         }
 
+        public bool IsAlreadyClaimingSystem(SolarSystem system)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.type == MilitaryTask.TaskType.DefendClaim &&
+                    task.TargetPlanet?.ParentSystem == system)
+                    return true;
+            }
+            return false;
+        }
+
+        public bool IsAlreadyGlassingSystem(SolarSystem system)
+        {
+            for (int i = TaskList.Count - 1; i >= 0; --i)
+            {
+                MilitaryTask task = TaskList[i];
+                if (task.type == MilitaryTask.TaskType.GlassPlanet &&
+                    task.TargetPlanet?.ParentSystem == system)
+                    return true;
+            }
+            return false;
+        }
+
         public bool IsAlreadyAssaultingPlanet(Planet planet)
         {
             for (int i = TaskList.Count - 1; i >= 0; --i)
@@ -173,10 +201,8 @@ namespace Ship_Game.AI
         {
             int shipCountLimit = GlobalStats.ShipCountLimit;
             var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
-
-            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget
-                   && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
-                       || OwnerEmpire.empireShipTotal < OwnerEmpire.EmpireShipCountReserve))
+            //
+            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget)
             {
                 string s = GetAShip(buildRatios);
                 if (string.IsNullOrEmpty(s))
@@ -319,7 +345,7 @@ namespace Ship_Game.AI
                     }
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost());
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost(ship.loyalty));
                     float minimum = CombatRoleToRatioMin(ratio);
                     FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
                 }
@@ -338,8 +364,11 @@ namespace Ship_Game.AI
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
                 {
                     if (wantedMin < .01f) return;
-                    float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
-                    RoleBuildBudget = totalCapacity * maintenanceRatio;
+                    //float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
+                    float buildCapFleetMultiplier = totalCapacity / totalFleetMaintenance;
+                    RoleBuildBudget = PerUnitMaintenanceMax * buildCapFleetMultiplier;
+                    RoleBuildBudget *= wantedMin;
+                    //RoleBuildBudget = totalCapacity * maintenanceRatio;
                 }
 
                 private float CombatRoleToRatioMin(FleetRatios ratio)
@@ -374,14 +403,14 @@ namespace Ship_Game.AI
 
                 public float BuildPriority()
                 {
-                    if (CurrentCount >= DesiredCount || CurrentMaintenance > RoleBuildBudget)
+                    if (CurrentCount >= DesiredCount && CurrentMaintenance >= RoleBuildBudget)
                         return 0;
-                    return CurrentCount.ClampMin(1) / DesiredCount;
+                    return CurrentMaintenance.ClampMin(.00001f) / RoleBuildBudget;
                 }
                 public void ScrapAsNeeded(Empire empire)
                 {
                     if (CurrentCount <= DesiredCount + 1
-                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                       || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
                         return;
 
                     foreach (var ship in CurrentShips
