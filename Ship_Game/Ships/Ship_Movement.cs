@@ -155,7 +155,7 @@ namespace Ship_Game.Ships
         {
             if (engineState == MoveState.Warp)
                 return; // Warp speed is updated in UpdateEnginesAndVelocity
-            ApplyThrust(speedLimit, (Thrust)direction);
+            ApplyThrust(speedLimit, direction);
         }
 
         void ApplyThrust(float speedLimit, Thrust direction)
