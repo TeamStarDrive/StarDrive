@@ -55,6 +55,19 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateGlassPlanetTask(Planet targetPlanet, float minStrength)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetPlanet             = targetPlanet,
+                AO                       = targetPlanet.Center,
+                type                     = TaskType.GlassPlanet,
+                AORadius                 = targetPlanet.GravityWellRadius,
+                MinimumTaskForceStrength = minStrength
+            };
+            return militaryTask;
+        }
+
         public static MilitaryTask CreatePostInvasion(Planet planet, int fleetId, Empire owner)
         {
             var militaryTask = new MilitaryTask
@@ -459,6 +472,21 @@ namespace Ship_Game.AI.Tasks
                                 }
                             default:
                                 return;
+                        }
+                        break;
+                    }
+                case TaskType.GlassPlanet:
+                    {
+                        if (Step == 0) RequisitionGlassForce();
+                        else
+                        {
+                            if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
+                            {
+                                if (fleet.Ships.Count > 0)
+                                    break;
+                            }
+
+                            EndTask();
                         }
                         break;
                     }
