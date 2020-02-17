@@ -623,11 +623,11 @@ namespace Ship_Game.Debug
                 }
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float taxRate = e.data.TaxRate * 100f;
-                DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
-                DrawString($"Ship Maint:    {(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
+                DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
+                DrawString($"Ship Maint:  Bgt:{(int)e.GetEmpireAI().BuildCapacity} T:{(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
 
                 Array<Ship> ships = e.GetShips();
-                DrawString($"Ship Count:    {ships.Count}" +
+                DrawString($"Ship Count:  {ships.Count}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
                            $" :{ships.Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
@@ -636,7 +636,7 @@ namespace Ship_Game.Debug
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
-                DrawString("Build Maint:   "+e.TotalBuildingMaintenance);
+                DrawString("Build Maint:   "+(int)e.TotalBuildingMaintenance);
                 DrawString("Spy Count:     "+e.data.AgentList.Count);
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
                 DrawString("Planet Count:  "+e.GetPlanets().Count);

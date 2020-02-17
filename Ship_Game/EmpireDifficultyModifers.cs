@@ -25,6 +25,7 @@ namespace Ship_Game
             public readonly int ShipLevel;
             public readonly bool HideTacticalData;
             public readonly float MaxDesiredPlanets;
+            public readonly float FleetRatioMultiplier;
 
             public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
             {
@@ -32,43 +33,47 @@ namespace Ship_Game
                 switch (difficulty)
                 {
                     case UniverseData.GameDifficulty.Easy:
-                        ShipBuildStrMin     = 0.3f;
-                        ShipBuildStrMax     = 0.8f;
-                        ColonyRankModifier  = -2;
-                        TaskForceStrength   = 0.8f;
-                        DataVisibleToPlayer = true;
-                        ShipLevel           = 0;
-                        HideTacticalData    = false;
-                        MaxDesiredPlanets   = 0.25f;
+                        ShipBuildStrMin      = 0.3f;
+                        ShipBuildStrMax      = 0.8f;
+                        ColonyRankModifier   = -2;
+                        TaskForceStrength    = 0.8f;
+                        DataVisibleToPlayer  = true;
+                        ShipLevel            = 0;
+                        HideTacticalData     = false;
+                        MaxDesiredPlanets    = 0.25f;
+                        FleetRatioMultiplier = 1;
                         break;
                     default:
                     case UniverseData.GameDifficulty.Normal:
-                        ShipBuildStrMin    = 0.7f;
-                        ShipBuildStrMax    = 1;
-                        ColonyRankModifier = 0;
-                        TaskForceStrength  = 1f;
-                        ShipLevel          = 0;
-                        HideTacticalData   = false;
-                        MaxDesiredPlanets  = 0.5f;
-                        break;
+                        ShipBuildStrMin      = 0.7f;
+                        ShipBuildStrMax      = 1;
+                        ColonyRankModifier   = 0;
+                        TaskForceStrength    = 1f;
+                        ShipLevel            = 0;
+                        HideTacticalData     = false;
+                        MaxDesiredPlanets    = 0.5f;
+                        FleetRatioMultiplier = 1;
+                    break;
                     case UniverseData.GameDifficulty.Hard:
-                        ShipBuildStrMin    = 0.8f;
-                        ShipBuildStrMax    = 1f;
-                        ColonyRankModifier = 1;
-                        TaskForceStrength  = 1.1f;
-                        ShipLevel          = 2;
-                        HideTacticalData   = true;
-                        MaxDesiredPlanets  = 0.75f;
-                        break;
+                        ShipBuildStrMin      = 0.8f;
+                        ShipBuildStrMax      = 1f;
+                        ColonyRankModifier   = 1;
+                        TaskForceStrength    = 1.1f;
+                        ShipLevel            = 2;
+                        HideTacticalData     = true;
+                        MaxDesiredPlanets    = 0.75f;
+                        FleetRatioMultiplier = 2;
+                    break;
                     case UniverseData.GameDifficulty.Brutal:
-                        ShipBuildStrMin    = 0.9f;
-                        ShipBuildStrMax    = 1f;
-                        ColonyRankModifier = 2;
-                        TaskForceStrength  = 1.2f;
-                        ShipLevel          = 3;
-                        HideTacticalData   = true;
-                        MaxDesiredPlanets  = 1f;
-                        break;
+                        ShipBuildStrMin      = 0.9f;
+                        ShipBuildStrMax      = 1f;
+                        ColonyRankModifier   = 2;
+                        TaskForceStrength    = 1.2f;
+                        ShipLevel            = 3;
+                        HideTacticalData     = true;
+                        MaxDesiredPlanets    = 1f;
+                        FleetRatioMultiplier = 3;
+                    break;
                 }
 
                 if (empire.isPlayer)

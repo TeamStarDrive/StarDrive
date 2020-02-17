@@ -32,7 +32,8 @@ namespace Ship_Game
         private Empire Us;
         public string UsName;
         public string ThemName;
-        private Empire Them;
+        [JsonIgnore][XmlIgnore]
+        public Empire Them { get; private set; }
         public int StartingNumContestedSystems;
         [JsonIgnore][XmlIgnore]
         public SolarSystem[] ContestedSystems { get; private set; }
