@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
 {
@@ -59,6 +60,17 @@ namespace Ship_Game.AI
 
         private void SetCounts(int[] counts)
         {
+            float difficultyMod = OwnerEmpire.DifficultyModifiers.FleetRatioMultiplier;
+            float multiplier    = (int)(OwnerEmpire.GetEmpireAI().BuildCapacity / 10).ClampMin(difficultyMod);
+
+            if (multiplier > 1)
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    var item = counts[i];
+                    counts[i] = (int)Math.Ceiling(item * multiplier);
+                }
+            }
             MinFighters  = counts[0];
             MinCorvettes = counts[1];
             MinFrigates  = counts[2];

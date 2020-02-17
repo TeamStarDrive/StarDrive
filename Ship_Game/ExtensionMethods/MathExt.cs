@@ -652,5 +652,10 @@ namespace Ship_Game
         {
             return new Vector2(v.X.RoundTo10(), v.Y.RoundTo10());
         }
+
+        public static float RoundToFractionOf10(this float value)
+        {
+            return (float)Round(value, 1);
+        }
     }
 }

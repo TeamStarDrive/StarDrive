@@ -1196,6 +1196,21 @@ namespace Ship_Game
                 relationship.DamageRelationship(this, e, why, amount, p);
         }
 
+        public War GetOldestWar()
+        {
+            War olderWar = null;
+            foreach(var kv in AllRelations)
+            {
+                if ( kv.Value.AtWar)
+                {
+                    var war = kv.Value.ActiveWar;
+                    if (olderWar == null || olderWar.StartDate > war.StartDate)
+                        olderWar = war;
+                }
+            }
+            return olderWar;
+        }
+
         void DoFirstContact(Empire e)
         {
             Relationships[e].SetInitialStrength(e.data.Traits.DiplomacyMod * 100f);
@@ -1521,21 +1536,27 @@ namespace Ship_Game
             TotalShipMaintenance = 0.0f;
             TotalWarShipMaintenance = 0f;
             TotalCivShipMaintenance = 0f;
-
+            var maintenenceInScrap = 0f;
             using (OwnedShips.AcquireReadLock())
                 foreach (Ship ship in OwnedShips)
                 {
-                    if (!ship.Active || ship.AI.State >= AIState.Scrap) continue;
                     float maintenance = ship.GetMaintCost();
+                    if (!ship.Active || ship.AI.State >= AIState.Scrap)
+                    {
+                        maintenenceInScrap += maintenance;
+                        continue;
+                    }
                     if (data.DefenseBudget > 0 && ((ship.shipData.HullRole == ShipData.RoleName.platform && ship.IsTethered)
                                                    || (ship.shipData.HullRole == ShipData.RoleName.station &&
                                                        (ship.shipData.IsOrbitalDefense || !ship.shipData.IsShipyard))))
                     {
                         data.DefenseBudget -= maintenance;
                     }
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) >= ShipData.RoleType.Warship)
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WwarSupport)
                         TotalWarShipMaintenance += maintenance;
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) <= ShipData.RoleType.EmpireSupport)
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Warship)
+                        TotalWarShipMaintenance += maintenance;
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.EmpireSupport)
                         TotalCivShipMaintenance += maintenance;
                     TotalShipMaintenance += maintenance;
                 }

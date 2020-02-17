@@ -252,14 +252,10 @@ namespace Ship_Game.Universe
             {
                 ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo);
             }
-            else if (Input.IsCtrlKeyDown)
-            {
-                ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo);
-                ship.AI.OrderHoldPosition(pos, direction);
-            }
             else
             {
                 ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo);
+                ship.AI.OrderHoldPosition(pos, direction);
             }
         }
     }
