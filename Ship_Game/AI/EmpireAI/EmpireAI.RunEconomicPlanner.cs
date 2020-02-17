@@ -27,7 +27,7 @@ namespace Ship_Game.AI
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
-            float gameState                = GetRisk().Clamped(0,1);
+            float gameState = GetRisk().Clamped(0,1.25f);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(gameState, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
@@ -39,7 +39,7 @@ namespace Ship_Game.AI
         float DetermineDefenseBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float adjustor = risk + strat.MilitaryRatio;
+            float adjustor = (risk + strat.MilitaryRatio) /3;
             return SetBudgetForeArea(0.01f, adjustor, money);
         }
         float DetermineSSPBudget(float money)
@@ -53,8 +53,9 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float buildRatio = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
-            buildRatio /= 2;
-            return  SetBudgetForeArea(0.01f, buildRatio + risk, money);
+            buildRatio /= 3;
+            float buildBudget = SetBudgetForeArea(0.01f, buildRatio + risk, money);
+            return buildBudget - OwnerEmpire.TotalCivShipMaintenance;
 
         }
 
