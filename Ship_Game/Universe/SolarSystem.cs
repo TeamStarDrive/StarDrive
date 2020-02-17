@@ -71,9 +71,12 @@ namespace Ship_Game
                 SunLayerState layer = SunLayers[i];
                 layer.Update(elapsedTime);
             }
-
-            foreach (var status in Status)
-                status.Value.Update(realTime);
+            var solarStatus = Status.Values.ToArray();
+            for (int i = 0; i < solarStatus.Length; i++)
+            {
+                var status = solarStatus[i];
+                status.Update(realTime);
+            }
 
             isVisible = universe.Frustum.Contains(Position, Radius)
                     && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView)
