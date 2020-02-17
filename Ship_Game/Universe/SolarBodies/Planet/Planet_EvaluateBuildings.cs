@@ -54,7 +54,7 @@ namespace Ship_Game
             UpdateGovernorPriorities();
             if (budget < 0f)
             {
-                TryScrapBuilding(budget); // we must scrap something to bring us above of our debt tolerance
+                TryScrapBuilding(); // we must scrap something to bring us above of our debt tolerance
             }
             else
             {
@@ -212,8 +212,8 @@ namespace Ship_Game
 
         void CalcSpacePortPriorities()
         {
-            float spacePort = PopulationBillion;
-            spacePort       = ApplyGovernorBonus(spacePort, 1.5f, 0.75f, 0.75f, 0.75f, 2f);
+            float spacePort = PopulationBillion - 2;
+            spacePort       = ApplyGovernorBonus(spacePort, 1.5f, 1f, 1f, 1f, 2f);
             Priorities[ColonyPriority.SpacePort] = spacePort;
         }
 
@@ -244,22 +244,18 @@ namespace Ship_Game
             return bestBuilding != null && Construction.AddBuilding(bestBuilding);
         }
 
-        bool TryScrapBuilding(float budget)
+        bool TryScrapBuilding(bool scrapZeroMaintenance = false)
         {
             if (GovernorShouldNotScrapBuilding)
                 return false;  // Player decided not to allow governors to scrap buildings
 
-            Building toScrap;
-            if (budget > 0) // pick the building with the lowest score
-                ChooseWorstBuilding(BuildingList, out toScrap);
-            else // we have no budget - get rid of the fattest building
-                ChooseMostExpensiveBuilding(BuildingList, out toScrap);
+            ChooseWorstBuilding(BuildingList, scrapZeroMaintenance, out Building toScrap);
 
             if (toScrap == null)
                 return false;
 
             Log.Info(ConsoleColor.Blue, $"{Owner.PortraitName} SCRAPPED {toScrap.Name} on planet {Name}");
-            ScrapBuilding(toScrap); // scrap the worst/most expensive building we have on the planet
+            ScrapBuilding(toScrap); // scrap the worst building we have on the planet
             return true;
         }
 
@@ -268,7 +264,7 @@ namespace Ship_Game
             if (GovernorShouldNotScrapBuilding)
                 return;  // Player decided not to allow governors to scrap buildings
 
-            float worstBuildingScore = ChooseWorstBuilding(BuildingList, out Building worstBuilding);
+            float worstBuildingScore = ChooseWorstBuilding(BuildingList, scrapZeroMaintenance: true, out Building worstBuilding);
             if (worstBuilding == null)
                 return;
 
@@ -324,7 +320,7 @@ namespace Ship_Game
             return highestScore;
         }
 
-        float ChooseWorstBuilding(Array<Building> buildings, out Building worst)
+        float ChooseWorstBuilding(Array<Building> buildings, bool scrapZeroMaintenance, out Building worst)
         {
             worst = null;
             if (buildings.Count == 0)
@@ -338,7 +334,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForScrap(b, storageInUse))
+                if (NotSuitableForScrap(b, storageInUse, scrapZeroMaintenance))
                     continue;
 
                 // construction multiplier is 1 since there is no need to build anything, we are checking for scrap
@@ -407,9 +403,9 @@ namespace Ship_Game
             return false;
         }
 
-        bool NotSuitableForScrap(Building b, float storageInUse)
+        bool NotSuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance)
         {
-            if (NotSuitableForScrap(b))
+            if (NotSuitableForScrap(b) || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero())
                 return true;
 
             return IsStorageWasted(storageInUse, b.StorageAdded);
@@ -490,19 +486,17 @@ namespace Ship_Game
                 return;
 
             Building terraformer = TerraformersWeCanBuild;
-            PlanetGridSquare tile = null; 
-            if (TilesList.Any(t => !t.Habitable && !t.BuildingOnTile))
-                tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
-
-            if (tile != null) // try to build a terraformer on an unhabitable tile first
+            var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
+            if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
             {
+                PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
                 Construction.AddBuilding(terraformer, tile);
             }
             else if (!Construction.AddBuilding(terraformer)) 
             {
                 // If could not add a terraformer anywhere due to planet being full
                 // try to scrap a building and then retry construction
-                if (TryScrapBuilding(budget))
+                if (TryScrapBuilding(scrapZeroMaintenance: true))
                     Construction.AddBuilding(terraformer);
             }}
         
@@ -510,7 +504,7 @@ namespace Ship_Game
         {
             get
             {
-                if (TerraformersWeCanBuild == null)
+                if (!Owner.IsBuildingUnlocked(Building.TerraformerId))
                     return 0;
 
                 int num = 0;
