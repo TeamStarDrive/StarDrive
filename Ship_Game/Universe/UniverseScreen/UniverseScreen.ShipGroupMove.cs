@@ -19,17 +19,6 @@ namespace Ship_Game
             if (Input.RightMouseClick)
                 SelectedSomethingTimer = 3f;
 
-            // prevent projection while player is in manual control
-            if (SelectedShip != null && SelectedShip.AI.State == AIState.ManualControl)
-            {
-                Vector2 worldPos = UnprojectToWorldPosition(Input.StartRightHold);
-                if (worldPos.InRadius(SelectedShip.Center, 5000f))
-                {
-                    Log.Info("Input.StartRightHold.InRadius(SelectedShip.Center, 5000f)");
-                    return;
-                }
-            }
-
             if (Input.RightMouseHeld(0.1f))
             {
                 // active RMB projection

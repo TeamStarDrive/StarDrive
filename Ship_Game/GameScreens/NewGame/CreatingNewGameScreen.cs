@@ -46,8 +46,18 @@ namespace Ship_Game
             Mode = mode;
             NumOpponents = numOpponents;
             EmpireManager.Clear();
-
             ResourceManager.LoadEncounters();
+
+            Data = new UniverseData
+            {
+                FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
+                GravityWells = GlobalStats.PlanetaryGravityWells,
+                FTLinNeutralSystem = GlobalStats.WarpInSystem,
+                difficulty = difficulty
+            };
+
+            CurrentGame.StartNew(Data, pace);
             Player = player;
             player.isPlayer = true;
             Data = new UniverseData
@@ -65,7 +75,6 @@ namespace Ship_Game
             player.data.CurrentAutoColony    = player.data.ColonyShip;
             player.data.CurrentAutoFreighter = player.data.FreighterShip;
             player.data.CurrentConstructor   = player.data.ConstructorShip;
-
 
             bool corners = Mode == RaceDesignScreen.GameMode.Corners;
             int size;
@@ -132,8 +141,6 @@ namespace Ship_Game
                         planet.Station = new SpaceStation(planet);
                         planet.Station.LoadContent(ScreenManager);
                     }
-
-
                 }
             }
 

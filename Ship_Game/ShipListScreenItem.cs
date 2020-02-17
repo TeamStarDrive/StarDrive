@@ -208,7 +208,6 @@ namespace Ship_Game
                     return string.Concat(Localizer.Token(158), " ", (ship.AI.Target as Ship).loyalty.data.Traits.Name);
                 }
                 case AIState.HoldPosition:   return Localizer.Token(180);
-                case AIState.ManualControl:  return Localizer.Token(171);
                 case AIState.AwaitingOrders: return Localizer.Token(153);
                 case AIState.AttackTarget:
                     if (ship.AI.Target == null)

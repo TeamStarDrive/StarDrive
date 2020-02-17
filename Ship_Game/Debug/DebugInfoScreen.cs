@@ -87,7 +87,7 @@ namespace Ship_Game.Debug
                 {
                     if (ship?.Active != true) continue;
                     if (ship.DesignRole < ShipData.RoleName.troopShip) continue;
-                    if (empire.ForcePoolContains(ship)) continue;
+                    if (empire.Pool.ForcePoolContains(ship)) continue;
 
                     foreach (AO ao in empire.GetEmpireAI().AreasOfOperations)
                     {
@@ -452,7 +452,7 @@ namespace Ship_Game.Debug
                     DrawString($"Fleet speed: {ship.fleet.SpeedLimit}");
                 }
 
-                DrawString(!ship.loyalty.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
+                DrawString(!ship.loyalty.Pool.ForcePoolContains(ship) ? "NOT In Force Pool" : "In Force Pool");
 
                 if (ship.AI.State == AIState.SystemDefender)
                 {

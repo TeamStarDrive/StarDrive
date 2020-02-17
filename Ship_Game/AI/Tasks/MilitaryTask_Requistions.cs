@@ -89,7 +89,7 @@ namespace Ship_Game.AI.Tasks
             foreach (Ship ship in ships)
             {
                 ship.AI.ClearOrders();
-                Owner.RemoveShipFromFleetAndPools(ship);
+                Owner.Pool.RemoveShipFromFleetAndPools(ship);
                 newFleet.AddShip(ship);
             }
 
@@ -419,19 +419,7 @@ namespace Ship_Game.AI.Tasks
             EnemyStrength = GetEnemyShipStrengthInAO();
             MinimumTaskForceStrength = Math.Max(minFleetStrength, EnemyStrength);
             if (!Owner.isPlayer)
-                MinimumTaskForceStrength = GetStrengthModifiedByDifficulty(MinimumTaskForceStrength);
-        }
-
-        float GetStrengthModifiedByDifficulty(float strength)
-        {
-            switch (CurrentGame.Difficulty)
-            {
-                default:
-                case UniverseData.GameDifficulty.Easy:   return strength * 0.5f;
-                case UniverseData.GameDifficulty.Normal: return strength * 0.8f;
-                case UniverseData.GameDifficulty.Hard:   return strength * 1.0f;
-                case UniverseData.GameDifficulty.Brutal: return strength * 1.2f;
-            }
+                MinimumTaskForceStrength *= Owner.DifficultyModifiers.TaskForceStrength;
         }
 
         enum RequisitionStatus
