@@ -13,6 +13,7 @@ namespace Ship_Game.Ships
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
+        private bool InCombat;
 
         public const Status ResupplyShuttleOrdnanceThreshold = Status.Average;
 
@@ -23,11 +24,13 @@ namespace Ship_Game.Ships
         public Map<SupplyType, float> IncomingSupply;
         public ShipResupply(Ship ship)
         {
-            Ship = ship;
+            Ship           = ship;
+            InCombat       = false;
             IncomingSupply = new Map<SupplyType, float>();
-            foreach (SupplyType suuply in Enum.GetValues(typeof(SupplyType)))
-                IncomingSupply.Add(suuply, 0);
+            foreach (SupplyType supply in Enum.GetValues(typeof(SupplyType)))
+                IncomingSupply.Add(supply, 0);
         }
+
         private static float DamageThreshold(ShipData.Category category)
         {
             float threshold;
@@ -51,11 +54,12 @@ namespace Ship_Game.Ships
         {
             if (Ship.DesignRole < ShipData.RoleName.colony || Ship.DesignRole == ShipData.RoleName.troop
                                                            || Ship.DesignRole == ShipData.RoleName.supply
-                                                           || Ship.AI.HasPriorityOrder)
+                                                           || Ship.AI.HasPriorityOrder && Ship.AI.State != AIState.Bombard)
             {
                 return ResupplyReason.NotNeeded;
             }
 
+            InCombat = Ship.InCombat || Ship.AI.State == AIState.Bombard;
             // this saves calculating supply again for ships already in supply states. 
             // but sometimes we want to get the reason (like displaying it to the player when he selects a ship in resupply)
             if (!forceSupplyStateCheck && (Ship.AI.State == AIState.Resupply
@@ -74,7 +78,7 @@ namespace Ship_Game.Ships
                 return ResupplyReason.LowHealth;
 
             if (ResupplyNeededLowOrdnance())
-                return Ship.InCombat ? ResupplyReason.LowOrdnanceCombat : ResupplyReason.LowOrdnanceNonCombat;
+                return InCombat ? ResupplyReason.LowOrdnanceCombat : ResupplyReason.LowOrdnanceNonCombat;
 
             if (ResupplyNeededLowTroops())
                 return ResupplyReason.LowTroops;
@@ -141,7 +145,7 @@ namespace Ship_Game.Ships
                 && Ship.loyalty.isPlayer)
                 return false; // only player manual command will convince Kamikaze ship to resupply
 
-            float threshold = Ship.InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
+            float threshold = InCombat ? OrdnanceThresholdCombat : OrdnanceThresholdNonCombat;
             
             return Ship.OrdnancePercent < threshold;
         }
@@ -151,7 +155,7 @@ namespace Ship_Game.Ships
             if (Ship.OrdinanceMax < 1 || Ship.Weapons.IsEmpty && Ship.BombBays.IsEmpty)
                 return false;
 
-            if (!Ship.InCombat)
+            if (!InCombat)
                 return true; // ships not in combat will want to resupply if they have Ordnance storage from this method point of view
 
             int numWeapons = Ship.Weapons.Count(weapon => weapon.Module.Active && !weapon.TruePD);
@@ -182,7 +186,7 @@ namespace Ship_Game.Ships
             if (Ship.AI.HasPriorityTarget)
                 productionThreshold = OrdnanceProductionThresholdPriority;
             else
-                productionThreshold = Ship.InCombat ? OrdnanceProductionThresholdCombat
+                productionThreshold = InCombat ? OrdnanceProductionThresholdCombat
                                                     : OrdnanceProductionThresholdNonCombat;
 
             return (Ship.OrdinanceMax - Ship.Ordinance) / Ship.OrdAddedPerSecond > productionThreshold;
@@ -196,24 +200,24 @@ namespace Ship_Game.Ships
 
         private bool HealthOk()
         {
-            float threshold = Ship.InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1)
-                                                : RepairDoneThreshold;
+            float threshold = InCombat ? (DamageThreshold(Ship.shipData.ShipCategory) * 1.2f).Clamped(0, 1)
+                                       : RepairDoneThreshold;
 
-            float healthTypeToCheck = Ship.InCombat ? Ship.InternalSlotsHealthPercent
-                                                    : Ship.HealthPercent;
+            float healthTypeToCheck = InCombat ? Ship.InternalSlotsHealthPercent
+                                               : Ship.HealthPercent;
 
             return healthTypeToCheck >= threshold && Ship.hasCommand;
         }
 
         private bool OrdnanceOk()
         {
-            float threshold = Ship.InCombat ? OrdnanceThresholdCombat  : OrdnanceThresholdNonCombat;
+            float threshold = InCombat ? OrdnanceThresholdCombat  : OrdnanceThresholdNonCombat;
             return Ship.OrdnancePercent >= threshold;
         }
 
         private bool TroopsOk()
         {
-            if (Ship.InCombat || Ship.TroopCapacity == 0)
+            if (InCombat || Ship.TroopCapacity == 0)
                 return true;
 
             return Ship.Carrier.TroopsMissingVsTroopCapacity >= 1f;
