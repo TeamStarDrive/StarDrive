@@ -33,6 +33,7 @@ namespace Ship_Game
         Submenu StatsSub;
         Menu1 ShipStats;
         GenericButton ArcsButton;
+        GenericButton WarningButton;
         float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
@@ -562,9 +563,17 @@ namespace Ship_Game
             StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
+            WarningButton = new GenericButton(new Vector2(HullSelectList.X, HullSelectList.Y  + HullSelectList.Height + 60), "Warning!", Fonts.Pirulen20, Fonts.Pirulen16);
+            WarningButton.HoveredColor = Color.White;
+            WarningButton.UnHoveredColor = Color.Green;
 
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
+        }
+
+        void ChangeWarningButtonColor()
+        {
+            WarningButton.UnHoveredColor = CurrentWarningColor;
         }
 
         void InitializeShipHullsList()
