@@ -252,12 +252,12 @@ namespace Ship_Game
 
         bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
-            return Us.GetEmpireAI().IsAlreadyAssaultingSystem(system);
+            return Us.GetEmpireAI().IsAssaultingSystem(system);
         }
 
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
         {
-            return Us.GetEmpireAI().IsAlreadyAssaultingPlanet(planetToAssault);
+            return Us.GetEmpireAI().IsAssaultingPlanet(planetToAssault);
         }
 
         public void ShipWeLost(Ship target)

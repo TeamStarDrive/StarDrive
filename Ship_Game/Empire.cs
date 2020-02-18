@@ -250,9 +250,9 @@ namespace Ship_Game
             return null;
         }
         public float KnownEnemyStrengthIn(SolarSystem system)
-                     => EmpireAI.ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, this);
+                     => EmpireAI.ThreatMatrix.PingHostileStr(system.Position, system.Radius, this);
         public float KnownEnemyStrengthIn(AO ao)
-             => EmpireAI.ThreatMatrix.PingNetRadarStr(ao.Center, ao.Radius, this);
+             => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
@@ -2758,15 +2758,14 @@ namespace Ship_Game
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
-
+            if (isFaction || targetEmpire.isFaction)
+                return true;
             if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
                 return false;
             if(!rel.Known || rel.AtWar)
                 return true;
             if (rel.Treaty_NAPact || rel.Treaty_Peace)
                 return false;
-            if (isFaction || targetEmpire.isFaction)
-                return true;
             if (rel.TotalAnger > 50)
                 return true;
 
@@ -2777,6 +2776,17 @@ namespace Ship_Game
             //but an additional check can be done if a gameplay object is passed.
             //maybe its a freighter or something along those lines which might not be attackable.
             return target.IsAttackable(this, rel);
+        }
+
+        public bool IsEmpireHostile(Empire targetEmpire)
+        {
+            if (targetEmpire == this || targetEmpire == null)
+                return false;
+            if (isFaction || targetEmpire.isFaction)
+                return true;
+            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
+                return false;
+            return rel.AtWar || rel.PreparingForWar;
         }
 
         public Planet FindPlanet(Guid planetGuid)

@@ -632,6 +632,7 @@ namespace Ship_Game.AI.Tasks
 
         public enum TaskType
         {
+            // The order of these can not change without breaking save games. 
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,
