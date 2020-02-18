@@ -571,11 +571,6 @@ namespace Ship_Game
             OriginalZ = CameraPosition.Z;
         }
 
-        void ChangeWarningButtonColor()
-        {
-            WarningButton.UnHoveredColor = CurrentWarningColor;
-        }
-
         void InitializeShipHullsList()
         {
             var categories = new Array<string>();

@@ -42,6 +42,12 @@ namespace Ship_Game
 
             DrawUi(batch);
             ArcsButton.DrawWithShadowCaps(batch);
+            if (CurrentDesignIssues.Count > 0)
+            {
+                WarningButton.UnHoveredColor = CurrentWarningColor;
+                WarningButton.DrawWithShadowCaps(batch);
+            }
+
             if (Debug)
                 DrawDebug();
 
@@ -447,6 +453,7 @@ namespace Ship_Game
             HullBonus bonus              = ActiveHull.Bonuses;
             Array<ShipModule> shields    = new Array<ShipModule>();
             Array<ShipModule> amplifiers = new Array<ShipModule>();
+            CurrentDesignIssues.Clear();
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -626,6 +633,15 @@ namespace Ship_Game
 
             DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots, 1982);
 
+            if (!emptySlots)
+                CheckDesignIssues();
+
+
+            void CheckDesignIssues()
+            {
+                CheckIssueNoCommand(hasBridge);
+            }
+
             void DrawHullBonuses()
             {
                 if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
@@ -739,6 +755,12 @@ namespace Ship_Game
                 else
                     DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
+        }
+
+        void CheckIssueNoCommand(bool hasCommandModule)
+        {
+            if (!hasCommandModule)
+                AddToDesignIssues(DesignIssueType.NoCommand);
         }
 
         void DrawRequirement(ref Vector2 cursor, string words, bool met, int tooltipId = 0, float lineSpacing = 2)
@@ -948,7 +970,7 @@ namespace Ship_Game
         {
             DesignIssueDetails details = new DesignIssueDetails(type);
             CurrentDesignIssues.Add(details);
-
+            UpdateCurrentWarningLevel(details.Severity);
         }
 
         void UpdateCurrentWarningLevel(WarningLevel level)
