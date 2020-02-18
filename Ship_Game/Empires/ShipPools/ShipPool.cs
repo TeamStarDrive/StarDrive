@@ -77,8 +77,15 @@ namespace Ship_Game.Empires.ShipPools
 
             if (!AssignShipsToOtherPools(ship))
             {
-                if (!ForcePool.AddUniqueRef(ship))
-                    Log.Warning($"Attempted to add an existing ship to Empire forcePool. ShipRole: {ship}");
+                if (ship.DesignRole != ShipData.RoleName.scout && 
+                    (ship.DesignRole == ShipData.RoleName.troopShip ||
+                ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WwarSupport)
+                    )
+
+                {
+                    if (!ForcePool.AddUniqueRef(ship))
+                        Log.Warning($"Attempted to add an existing ship to Empire forcePool. ShipRole: {ship}");
+                }
             }
         }
 

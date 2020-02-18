@@ -439,7 +439,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (ArrivedAtOffsetRally(task))
+                    if (ArrivedAtCombatRally(task))
                         TaskStep = 3;
                     break;
                 case 3:
@@ -551,10 +551,8 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtOffsetRally(task)) break;
+                    if (!ArrivedAtCombatRally(task)) break;
                     TaskStep = 3;
-                    //AssembleFleet2(task.TargetPlanet.Center,
-                    //               AveragePosition().DirectionToTarget(FinalPosition));
                     break;
                 case 3:
                     EscortingToPlanet(task);
@@ -874,7 +872,7 @@ namespace Ship_Game.Fleets
 
         bool ArrivedAtOffsetRally(MilitaryTask task)
         {
-            if (IsFleetAssembled(5000f) != MoveStatus.Assembled)
+            if (IsFleetAssembled(5000f) == MoveStatus.Dispersed)
                 return false;
 
             HoldFleetPosition();
@@ -988,7 +986,7 @@ namespace Ship_Game.Fleets
 
         void WaitingForPlanetAssault(MilitaryTask task)
         {
-             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
+            float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
             bool bombing              = BombPlanet(ourGroundStrength, task);
             if (ReadyToInvade(task))
@@ -1051,6 +1049,9 @@ namespace Ship_Game.Fleets
                     continue;
 
                 ai.CancelIntercept();
+                if (ai.State == AIState.HoldPosition)
+                    ai.ClearOrders();
+
                 switch (type)
                 {
                     case InvasionTactics.Screen:
@@ -1078,6 +1079,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     case InvasionTactics.Wait:
+                        ai.HoldPosition();
                         break;
                 }
             }
