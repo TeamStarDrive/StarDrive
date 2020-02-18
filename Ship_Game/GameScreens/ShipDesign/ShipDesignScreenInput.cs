@@ -242,10 +242,19 @@ namespace Ship_Game
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134, "Tab");
 
+            if (WarningButton.R.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(134);
+
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
                 ShowAllArcs = ArcsButton.ToggleOn;
+                return true;
+            }
+
+            if (WarningButton.HandleInput(input))
+            {
+                ScreenManager.AddScreen(new ShipDesignWarningScreen(this, EmpireManager.Player, CurrentDesignIssues, CurrentWarningColor));
                 return true;
             }
 

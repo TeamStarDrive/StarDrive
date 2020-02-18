@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Ship_Game.GameScreens.ShipDesignScreen;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -940,5 +941,37 @@ namespace Ship_Game
             DrawString(statCursor, stat.ValueColor, valueText, font);
             CheckToolTip(stat.Tooltip, cursor, stat.Title, valueText, font, MousePos);
         }
+
+        private Array<DesignIssueDetails> CurrentDesignIssues = new Array<DesignIssueDetails>();
+
+        void AddToDesignIssues(DesignIssueType type)
+        {
+            DesignIssueDetails details = new DesignIssueDetails(type);
+            CurrentDesignIssues.Add(details);
+
+        }
+
+        void UpdateCurrentWarningLevel(WarningLevel level)
+        {
+            if (level > CurrentWarningLevel)
+                CurrentWarningLevel = level;
+        }
+
+        Color CurrentWarningColor
+        {
+            get
+            {
+                switch (CurrentWarningLevel)
+                {
+                    default:
+                    case WarningLevel.None:     return Color.Green;
+                    case WarningLevel.Minor:    return Color.Yellow;
+                    case WarningLevel.Major:    return Color.Orange;
+                    case WarningLevel.Critical: return Color.Red;
+                }
+            }
+        }
+
+        private WarningLevel CurrentWarningLevel = WarningLevel.None;
     }
 }
