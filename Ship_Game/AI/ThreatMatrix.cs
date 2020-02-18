@@ -16,9 +16,18 @@ namespace Ship_Game.AI
             [Serialize(1)] public float Strength;
             [Serialize(2)] public string EmpireName;
             [Serialize(3)] public bool InBorders;
+            [Serialize(4)] public int EmpireId = 0;
             [XmlIgnore][JsonIgnore] public Ship Ship;
+
+            public Empire GetEmpire()
+            {
+                if (EmpireId > 0) return EmpireManager.GetEmpireById(EmpireId);
+                if (EmpireName.NotEmpty()) return EmpireManager.GetEmpireByName(EmpireName);
+                return Ship?.loyalty;
+            }
         }
 
+        //not sure we need this.
         readonly ReaderWriterLockSlim PinsMutex = new ReaderWriterLockSlim();
         readonly Map<Guid, Pin> Pins = new Map<Guid, Pin>();
 
@@ -45,7 +54,7 @@ namespace Ship_Game.AI
             {
                 foreach (Pin pin in Pins.Values)
                 {
-                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    Empire pinEmpire = pin.GetEmpire();
                     if (pinEmpire == them  && pin.InBorders)   
                         str += pin.Strength + 1;
                 }
@@ -60,7 +69,7 @@ namespace Ship_Game.AI
             {
                 foreach (Pin pin in Pins.Values)
                 {
-                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    Empire pinEmpire = pin.GetEmpire();
                     if (pinEmpire != null && !pinEmpire.isFaction && empire.IsEmpireAttackable(pinEmpire))
                         str += pin.Strength;
                 }
@@ -75,7 +84,7 @@ namespace Ship_Game.AI
             {
                 foreach (Pin pin in Pins.Values)
                 {
-                    Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                    Empire pinEmpire = pin.GetEmpire();
                     if (pinEmpire == empire)
                         str += pin.Strength;
                 }
@@ -90,7 +99,8 @@ namespace Ship_Game.AI
             {
                 foreach (Pin pin in Pins.Values)
                 {
-                    if (pin.EmpireName.NotEmpty() && pin.EmpireName == empire.data.Traits.Name)
+                    var pinEmpire = pin.GetEmpire();
+                    if (pinEmpire == empire)
                         if (pin.Position.InRadius(system.Position, system.Radius))
                             str += pin.Strength;
                 }
@@ -107,7 +117,7 @@ namespace Ship_Game.AI
                 {
                     if (pin.Ship != null && pin.Position.InRadius(center, radius))
                     {
-                        Empire pinEmp = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
+                        Empire pinEmp = pin.GetEmpire();
                         if (pinEmp != us && (pinEmp.isFaction || us.GetRelations(pinEmp).AtWar))
                             str += pin.Strength;
                     }
@@ -240,7 +250,12 @@ namespace Ship_Game.AI
         public float PingNetRadarStr(Vector2 position, float radius, Empire us)
             => PingRadarStr(position, radius, us, netStrength:true);
 
-        public float PingRadarStr(Vector2 position, float radius, Empire us, bool netStrength = false)
+        public float PingHostileStr(Vector2 position, float radius, Empire us)
+            => PingRadarStr(position, radius, us, netStrength: false, true);
+        public float PingNetHostileStr(Vector2 position, float radius, Empire us)
+            => PingRadarStr(position, radius, us, netStrength: true, true);
+
+        public float PingRadarStr(Vector2 position, float radius, Empire us, bool netStrength = false, bool hostileOnly = false)
         {
             float str = 0f;
             using (PinsMutex.AcquireReadLock())
@@ -250,14 +265,16 @@ namespace Ship_Game.AI
                     if (pin.Position.InRadius(position, radius))
                     {
                         Empire pinEmpire = pin.Ship?.loyalty ?? EmpireManager.GetEmpireByName(pin.EmpireName);
-                        if (pinEmpire != us && us.IsEmpireAttackable(pinEmpire))
+                        if (!hostileOnly)
                         {
-                            str += pin.Strength;
+                            str += us.IsEmpireAttackable(pinEmpire) ? pin.Strength : 0;
                         }
-                        else if (pinEmpire == us && netStrength)
+                        else
                         {
-                            str -= pin.Strength;
+                            str += us.IsEmpireHostile(pinEmpire) ? pin.Strength : 0;
                         }
+                        if (netStrength)
+                            str -= pinEmpire == us ? pin.Strength : 0;
                     }
                 }
             }
@@ -280,9 +297,10 @@ namespace Ship_Game.AI
                 {
                     Pins.Add(ship.guid, new Pin
                     {
-                        Position = ship.Center,
-                        Strength = ship.GetStrength(),
-                        EmpireName = ship.loyalty.data.Traits.Name
+                        Position   = ship.Center,
+                        Strength   = ship.GetStrength(),
+                        EmpireName = ship.loyalty.data.Traits.Name,
+                        EmpireId   = ship.loyalty.Id
                     });
                 }
             }
@@ -306,6 +324,7 @@ namespace Ship_Game.AI
                     pin.Position   = ship.Center;
                     pin.Strength   = ship.GetStrength();
                     pin.EmpireName = ship.loyalty.data.Traits.Name;
+                    pin.EmpireId   = ship.loyalty.Id;
                 }
                 pin.InBorders = shipInBorders;
                 pin.Ship      = ship; // NOTE: always setting because of save game data?
