@@ -260,7 +260,7 @@ namespace Ship_Game.AI.Tasks
 
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
 
-            float battleFleetSize = 0.5f;
+            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletnessMin;
 
             if (CreateTaskFleet("Defensive Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
@@ -283,7 +283,7 @@ namespace Ship_Game.AI.Tasks
 
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 0, minBombMinutes: 0);
 
-            float battleFleetSize = 0.25f;
+            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletnessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
@@ -305,7 +305,7 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Center;
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 40, minBombMinutes: 1);
 
-            float battleFleetSize = 0.25f;
+            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletnessMin;
 
             if (CreateTaskFleet("Exploration Force", battleFleetSize) == RequisitionStatus.Complete)
             {
@@ -328,15 +328,11 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Center;
             InitFleetRequirements(minFleetStrength: 100, minTroopStrength: 100 ,minBombMinutes: 1);
 
-            float battleFleetSize = 0.55f;
+            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletnessMin;
 
             if (CreateTaskFleet("Invasion Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
                 Step = 1;
-            }
-            if (!Owner.GetEmpireAI().IsAlreadyGlassingSystem(TargetPlanet.ParentSystem))
-            {
-                CreateGlassPlanetTask(TargetPlanet, EnemyStrength);
             }
         }
 
@@ -355,7 +351,7 @@ namespace Ship_Game.AI.Tasks
             AO = TargetPlanet.Center;
             InitFleetRequirements(minFleetStrength: 1000, minTroopStrength: 0, minBombMinutes: 2);
 
-            float battleFleetSize = 0.75f;
+            float battleFleetSize = Owner.DifficultyModifiers.FleetCompletnessMin;
 
             if (CreateTaskFleet("Doom Fleet", battleFleetSize) == RequisitionStatus.Complete)
             {
@@ -413,7 +409,7 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.NotEnoughTroopStrength;
 
             //All's Good... Make a fleet
-            TaskForce = fleetShips.ExtractShipSet(EnemyStrength, TaskBombTimeNeeded
+            TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, TaskBombTimeNeeded
                 , NeededTroopStrength, troopsOnPlanets);
             if (TaskForce.IsEmpty)
                 return RequisitionStatus.FailedToCreateAFleet;
