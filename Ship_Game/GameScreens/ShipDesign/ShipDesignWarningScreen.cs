@@ -110,9 +110,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 case DesignIssueType.NoCommand: 
                     Severity    = WarningLevel.Critical; 
                     Color       = Color.Red;
-                    Title       = "No Command";
-                    Problem     = "No Command";
-                    Remediation = "do this and that";
+                    Title       = "Command Module Missing";
+                    Problem     = "You Ship does not have a power command module, like a Cockpit or a bridge";
+                    Remediation = "Add a command module to your ship (Cockpit, Bridge, etc.) amd make sure it is powered";
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
             }
