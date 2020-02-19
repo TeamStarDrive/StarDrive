@@ -25,6 +25,7 @@ namespace Ship_Game.GameScreens.ShipDesign
             IssueTexture = Add(new UIPanel(Vector2.Zero, IssueDetails.Texture));
             IssueTexture.SetRelPos(0, 0);
             IssueTexture.Size = new Vector2(96, 96);
+            IssueTexture.DebugDraw = true;
 
 
             // need to make a method out of this
@@ -33,18 +34,30 @@ namespace Ship_Game.GameScreens.ShipDesign
             WarningLabel.Size = new Vector2(100, 80);
             WarningLabel.SetRelPos(100, 0);
 
-            WarningLabel = Add(new UILabel(Severity, NormalFont, Color.White));
+            WarningLabel = Add(new UILabel(Severity, NormalFont, IssueDetails.Color));
             WarningLabel.Align = TextAlign.Center;
             WarningLabel.Size = new Vector2(100, 80);
             WarningLabel.SetRelPos(200, 0);
 
-            WarningLabel = Add(new UILabel(IssueDetails.Problem, SmallFont, Color.White));
-            WarningLabel.Size = new Vector2(350, 20);
+            string text = SmallFont.ParseText(IssueDetails.Problem, 330);
+            WarningLabel = Add(new UILabel(text, SmallFont, Color.White));
+            WarningLabel.Size = new Vector2(350, 80);
+            WarningLabel.Align = TextAlign.VerticalCenter;
             WarningLabel.SetRelPos(300, 0);
 
             WarningLabel = Add(new UILabel(IssueDetails.Remediation, SmallFont, Color.White));
-            WarningLabel.Size = new Vector2(350, 20);
+            WarningLabel.Size = new Vector2(350, 80);
+            WarningLabel.Align = TextAlign.VerticalCenter;
             WarningLabel.SetRelPos(650, 0);
+        }
+
+        void AddIssueLabel(string text, float sizeX, float relativeX, TextAlign align)
+        {
+            string parsedText = SmallFont.ParseText(text, sizeX-20);
+            WarningLabel = Add(new UILabel(text, SmallFont, Color.White));
+            WarningLabel.Size = new Vector2(sizeX, 80);
+            WarningLabel.Align = align;
+            WarningLabel.SetRelPos(relativeX, 0);
         }
 
         public override void Draw(SpriteBatch batch)
