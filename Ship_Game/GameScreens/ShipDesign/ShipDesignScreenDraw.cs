@@ -787,7 +787,7 @@ namespace Ship_Game
 
         void CheckIssueBackupCommand(int numCommand, int size)
         {
-            if (ActiveHull.Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
+            if (ActiveHull.Role != ShipData.RoleName.platform && numCommand <= 1 && size >= 500)
                 AddToDesignIssues(DesignIssueType.BackUpCommand);
         }
 

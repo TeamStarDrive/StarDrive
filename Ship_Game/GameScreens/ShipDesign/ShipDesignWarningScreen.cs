@@ -37,6 +37,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
             IssueList = Add(new ScrollList2<ShipDesignIssuesListItem>(x, y, w, h, 80));
             IssueList.EnableItemHighlight = true;
+            //IssueList.DebugDrawScrollList = true;
+            //IssueList.DebugDraw = true;
         }
 
         void PopulateIssues()

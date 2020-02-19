@@ -21,10 +21,13 @@ namespace Ship_Game.GameScreens.ShipDesign
         {
             IssueDetails = details;
 
-            IssueTexture = Add(new UIPanel(Vector2.Zero, IssueDetails.Texture));
+            IssueTexture = Add(new UIPanel(Pos, IssueDetails.Texture));
             IssueTexture.SetRelPos(100, 80);
-            IssueTexture.Size      = new Vector2(96, 96);
+            //IssueTexture.Pos = new Vector2(580, 320);
+            IssueTexture.Size      = new Vector2(60, 60);
             IssueTexture.DebugDraw = true;
+            //IssueTexture.RelPos = new Vector2(80, 80);
+            //IssueTexture.ZOrder = 1;
 
             AddIssueLabel(TitleLabel, IssueDetails.Title, 100, 0, SmallFont, TextAlign.Center, IssueDetails.Color);
             AddIssueLabel(ProblemLabel, IssueDetails.Problem, 380, 200, SmallFont, TextAlign.VerticalCenter, Color.MintCream);
