@@ -404,6 +404,7 @@ namespace Ship_Game.Debug
                     DrawString("Fleet Speed: " + fleet.SpeedLimit);
                     DrawString("Ready For Warp: " + fleet.ReadyForWarp);
                     DrawString("In Formation Warp: " + fleet.InFormationWarp);
+                    DrawString("Ships: " + fleet.Ships.Count);
                 }
                 else
                 {
