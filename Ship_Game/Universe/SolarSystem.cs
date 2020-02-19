@@ -75,7 +75,7 @@ namespace Ship_Game
             for (int i = 0; i < solarStatus.Length; i++)
             {
                 var status = solarStatus[i];
-                status.Update(realTime);
+                status.Update(realTime, elapsedTime);
             }
 
             isVisible = universe.Frustum.Contains(Position, Radius)
@@ -216,7 +216,20 @@ namespace Ship_Game
             return status;
         }
 
+        /// <summary>
+        /// Forces present are not an immediate threat but can be attacked. 
+        /// </summary>
         public bool HostileForcesPresent(Empire empire)
+        {
+            if (empire == null)
+                return false;
+            return GetStatus(empire).HostileForcesPresent;
+        }
+
+        /// <summary>
+        /// Forces present are an immediate threat to the system
+        /// </summary>
+        public bool DangerousForcesPresent(Empire empire)
         {
             if (empire == null)
                 return false;
