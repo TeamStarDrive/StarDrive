@@ -79,7 +79,7 @@ namespace Ship_Game.Empires.ShipPools
             {
                 if (ship.DesignRole != ShipData.RoleName.scout && 
                     (ship.DesignRole == ShipData.RoleName.troopShip ||
-                ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WwarSupport)
+                ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WarSupport)
                     )
 
                 {

@@ -49,7 +49,6 @@ namespace Ship_Game.AI
 
             if (ship.IsPlatformOrStation
                 || ship.AI.BadGuysNear
-                || ship.Inhibited
                 || ship.engineState == Ship.MoveState.Warp
                 || ship.fleet != null
                 || ship.Mothership != null
