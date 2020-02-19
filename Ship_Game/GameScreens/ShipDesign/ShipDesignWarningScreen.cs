@@ -53,7 +53,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
             //Screen Title
             string title = "Current Ship Issues";
-            Label(Window.Menu.CenterTextX(title, Fonts.Pirulen16), Window.Menu.Y + 20, title, Fonts.Pirulen16);
+            Label(Window.Menu.CenterTextX(title, Fonts.Laserian14), Window.Menu.Y + 30, title, Fonts.Laserian14);
             PopulateIssues();
             base.LoadContent();
         }
@@ -110,9 +110,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 case DesignIssueType.NoCommand: 
                     Severity    = WarningLevel.Critical; 
                     Color       = Color.Red;
-                    Title       = "Command Module Missing";
-                    Problem     = "You Ship does not have a power command module, like a Cockpit or a bridge";
-                    Remediation = "Add a command module to your ship (Cockpit, Bridge, etc.) amd make sure it is powered";
+                    Title       = "Missing Command Module";
+                    Problem     = "Your Ship does not have a powered command module";
+                    Remediation = "Add a command module to your ship (Cockpit, Bridge, etc.) and make sure it is getting power";
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
             }

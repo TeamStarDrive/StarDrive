@@ -11,11 +11,10 @@ namespace Ship_Game.GameScreens.ShipDesign
         private readonly SpriteFont SmallFont = Fonts.Arial12Bold;
         private readonly SpriteFont TinyFont = Fonts.Arial8Bold;
 
-        UILabel WarningLabel;
-        UIPanel IssueTexture;
-        UILabel SeverityLabel;
+        UILabel TitleLabel;
         UILabel ProblemLabel;
         UILabel RemediationLabel;
+        UIPanel IssueTexture;
 
 
         public ShipDesignIssuesListItem(DesignIssueDetails details)
@@ -23,41 +22,22 @@ namespace Ship_Game.GameScreens.ShipDesign
             IssueDetails = details;
 
             IssueTexture = Add(new UIPanel(Vector2.Zero, IssueDetails.Texture));
-            IssueTexture.SetRelPos(0, 0);
-            IssueTexture.Size = new Vector2(96, 96);
+            IssueTexture.SetRelPos(100, 80);
+            IssueTexture.Size      = new Vector2(96, 96);
             IssueTexture.DebugDraw = true;
 
-
-            // need to make a method out of this
-            WarningLabel = Add(new UILabel(IssueDetails.Title, NormalFont, Color.White));
-            WarningLabel.Align = TextAlign.Center;
-            WarningLabel.Size = new Vector2(100, 80);
-            WarningLabel.SetRelPos(100, 0);
-
-            WarningLabel = Add(new UILabel(Severity, NormalFont, IssueDetails.Color));
-            WarningLabel.Align = TextAlign.Center;
-            WarningLabel.Size = new Vector2(100, 80);
-            WarningLabel.SetRelPos(200, 0);
-
-            string text = SmallFont.ParseText(IssueDetails.Problem, 330);
-            WarningLabel = Add(new UILabel(text, SmallFont, Color.White));
-            WarningLabel.Size = new Vector2(350, 80);
-            WarningLabel.Align = TextAlign.VerticalCenter;
-            WarningLabel.SetRelPos(300, 0);
-
-            WarningLabel = Add(new UILabel(IssueDetails.Remediation, SmallFont, Color.White));
-            WarningLabel.Size = new Vector2(350, 80);
-            WarningLabel.Align = TextAlign.VerticalCenter;
-            WarningLabel.SetRelPos(650, 0);
+            AddIssueLabel(TitleLabel, IssueDetails.Title, 100, 0, SmallFont, TextAlign.Center, IssueDetails.Color);
+            AddIssueLabel(ProblemLabel, IssueDetails.Problem, 380, 200, SmallFont, TextAlign.VerticalCenter, Color.MintCream);
+            AddIssueLabel(RemediationLabel, IssueDetails.Remediation, 380, 580, SmallFont, TextAlign.VerticalCenter, Color.White);
         }
 
-        void AddIssueLabel(string text, float sizeX, float relativeX, TextAlign align)
+        void AddIssueLabel(UILabel label, string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
         {
-            string parsedText = SmallFont.ParseText(text, sizeX-20);
-            WarningLabel = Add(new UILabel(text, SmallFont, Color.White));
-            WarningLabel.Size = new Vector2(sizeX, 80);
-            WarningLabel.Align = align;
-            WarningLabel.SetRelPos(relativeX, 0);
+            string parsedText = font.ParseText(text, sizeX-20);
+            label             = Add(new UILabel(parsedText, font, color));
+            label.Size        = new Vector2(sizeX, 80);
+            label.Align       = align;
+            label.SetRelPos(relativeX, 0);
         }
 
         public override void Draw(SpriteBatch batch)
