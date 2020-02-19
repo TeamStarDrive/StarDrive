@@ -25,16 +25,11 @@ namespace Ship_Game.AI
                 if (areasOfOperation.GetPlanet().Owner != Owner)
                 {
                     AreasOfOperations.RemoveAt(index);
-
+                    areasOfOperation.ClearOut();
                     areasOfOperation.Dispose();
                     continue;
                 }
-                areasOfOperation.ThreatLevel = 0;
-                areasOfOperation.ThreatLevel = (int)ThreatMatrix.PingRadarStrengthLargestCluster(areasOfOperation.Center, areasOfOperation.Radius, Owner, 50000);
-
-                int min =(int)(areasOfOperation.GetOffensiveForcePool().Sum(str => str.BaseStrength) * 0.1f) + 100;
-                if (areasOfOperation.ThreatLevel < min)
-                    areasOfOperation.ThreatLevel = min;
+                areasOfOperation.SetThreatLevel();
             }
             
             Planet[] aoPlanets = GetAOPlanets(out HashSet<SolarSystem> aoSystems);
