@@ -184,11 +184,15 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (distance > Owner.Radius)
+            if (distance > 75)
             {
                 // prediction to enhance movement precision
                 Vector2 predictedPoint = PredictThrustPosition(targetPos);
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
+            }
+            else
+            {
+                direction = Owner.Center.DirectionToTarget(targetPos);
             }
 
             bool isFacingTarget = !RotateToDirection(direction, elapsedTime, 0.05f);
