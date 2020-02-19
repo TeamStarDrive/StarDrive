@@ -485,7 +485,8 @@ namespace Ship_Game
             if (NumWantedTerraformers <= 0 || TerraformerInTheWorks)
                 return;
 
-            Building terraformer = TerraformersWeCanBuild;
+            Building terraformer = ResourceManager.GetBuildingTemplate(Building.TerraformerId);
+
             var unHabitableTiles = TilesList.Filter(t => !t.Habitable && !t.BuildingOnTile);
             if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
             {
