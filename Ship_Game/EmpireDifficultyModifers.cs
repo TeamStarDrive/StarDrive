@@ -25,7 +25,7 @@ namespace Ship_Game
             public readonly int ShipLevel;
             public readonly bool HideTacticalData;
             public readonly float MaxDesiredPlanets;
-            public readonly float FleetRatioMultiplier;
+            public readonly float FleetCompletnessMin;
 
             public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
             {
@@ -41,7 +41,7 @@ namespace Ship_Game
                         ShipLevel            = 0;
                         HideTacticalData     = false;
                         MaxDesiredPlanets    = 0.25f;
-                        FleetRatioMultiplier = 1;
+                        FleetCompletnessMin = 0.25f;
                         break;
                     default:
                     case UniverseData.GameDifficulty.Normal:
@@ -52,7 +52,7 @@ namespace Ship_Game
                         ShipLevel            = 0;
                         HideTacticalData     = false;
                         MaxDesiredPlanets    = 0.5f;
-                        FleetRatioMultiplier = 1;
+                        FleetCompletnessMin  = 0.25f;
                     break;
                     case UniverseData.GameDifficulty.Hard:
                         ShipBuildStrMin      = 0.8f;
@@ -62,7 +62,7 @@ namespace Ship_Game
                         ShipLevel            = 2;
                         HideTacticalData     = true;
                         MaxDesiredPlanets    = 0.75f;
-                        FleetRatioMultiplier = 2;
+                        FleetCompletnessMin  = 0.5f;
                     break;
                     case UniverseData.GameDifficulty.Brutal:
                         ShipBuildStrMin      = 0.9f;
@@ -72,7 +72,7 @@ namespace Ship_Game
                         ShipLevel            = 3;
                         HideTacticalData     = true;
                         MaxDesiredPlanets    = 1f;
-                        FleetRatioMultiplier = 3;
+                        FleetCompletnessMin  = 1;
                     break;
                 }
 
