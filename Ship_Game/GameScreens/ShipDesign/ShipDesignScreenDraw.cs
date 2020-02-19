@@ -442,13 +442,14 @@ namespace Ship_Game
             float beamPeakPowerNeeded      = 0f;
             float beamLongestDuration      = 0f;
             float weaponPowerNeededNoBeams = 0f;
-            bool hasBridge                 = false;
-            bool emptySlots                = true;
+            int numCommandModules          = 0;
             bool bEnergyWeapons            = false;
             int troopCount                 = 0;
             int fixedTargets               = 0;
+            int numSlots                   = 0;
             int numWeaponSlots             = 0;
             float totalShieldAmplify       = 0;
+            int numTurrets                 = 0;
 
             HullBonus bonus              = ActiveHull.Bonuses;
             Array<ShipModule> shields    = new Array<ShipModule>();
@@ -459,13 +460,14 @@ namespace Ship_Game
             {
                 bool wasOffenseDefenseAdded = false;
                 size += 1;
-                if (slot.Root.ModuleUID == null)
-                    emptySlots = false;
+
                 if (slot.Module == null)
                     continue;
+
                 if (slot.Module.InstalledWeapon != null)
                     numWeaponSlots += slot.Module.Area;
 
+                numSlots      += slot.Module.Area;
                 hitPoints     += slot.Module.ActualMaxHealth;
                 mass          += slot.Module.ActualMass;
                 troopCount    += slot.Module.TroopCapacity;
@@ -481,6 +483,7 @@ namespace Ship_Game
                     defense  += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                     wasOffenseDefenseAdded = true;
                 }
+
                 if (!slot.Module.Powered)
                     continue;
 
@@ -509,11 +512,8 @@ namespace Ship_Game
 
 
                 if (slot.Module.IsCommandModule)
-                    hasBridge = true;
-                if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.PowerRequiredToFire > 0)
-                    bEnergyWeapons = true;
-                if (slot.Module.InstalledWeapon != null && slot.Module.InstalledWeapon.BeamPowerCostPerSecond > 0)
-                    bEnergyWeapons = true;
+                    numCommandModules += 1;
+
                 if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
                     warpSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
                 if (slot.Module.FTLSpeed > 0f)
@@ -526,21 +526,35 @@ namespace Ship_Game
                     offense += slot.Module.CalculateModuleOffense();
                     defense += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                 }
-                //added by gremlin collect weapon stats
-                if (!slot.Module.isWeapon && slot.Module.BombType == null)
-                    continue;
 
                 Weapon weapon = slot.Module.InstalledWeapon;
+                if (weapon == null)
+                    continue;
+
+                if (weapon.PowerRequiredToFire > 0)
+                    bEnergyWeapons = true;
+                if (weapon.BeamPowerCostPerSecond > 0)
+                    bEnergyWeapons = true;
+                if (weapon.isTurret)
+                    numTurrets += 1;
+
+                //added by gremlin collect weapon stats
+                //if (!slot.Module.isWeapon && slot.Module.BombType == null)
+                 //   continue;
+
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
+
                 // added by Fat Bastard for Energy power calcs
                 if (weapon.isBeam)
                 {
                     beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
-                    beamLongestDuration  = Math.Max(beamLongestDuration, weapon.BeamDuration);
+                    beamLongestDuration = Math.Max(beamLongestDuration, weapon.BeamDuration);
                 }
                 else
+                {
                     weaponPowerNeededNoBeams += weapon.PowerFireUsagePerSecond; // FB: need non beam weapons power cost to add to the beam peak power cost
+                }
             }
 
             float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(amplifiers.ToArray(), shields.ToArray());
@@ -628,18 +642,22 @@ namespace Ship_Game
             }
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
+            /*
             if (ActiveHull.Role != ShipData.RoleName.platform)
-                DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);
+                DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);*/
 
-            DrawRequirement(ref cursorReq, Localizer.Token(121), emptySlots, 1982);
+            DrawCompletion(ref cursorReq, Localizer.Token(121), numSlots, size, 1982);
 
-            if (!emptySlots)
-                CheckDesignIssues();
+            //if (!emptySlots)
+            CheckDesignIssues();
 
 
             void CheckDesignIssues()
             {
-                CheckIssueNoCommand(hasBridge);
+                CurrentDesignIssues.Clear();
+                CurrentWarningLevel = WarningLevel.None;
+                CheckIssueNoCommand(numCommandModules);
+                CheckIssueBackupCommand(numCommandModules, size);
             }
 
             void DrawHullBonuses()
@@ -755,26 +773,51 @@ namespace Ship_Game
                 else
                     DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
-        }
 
-        void CheckIssueNoCommand(bool hasCommandModule)
+            
+        }
+        float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
+        bool DesignComplete(int numSlots, int size)   => numSlots == size;
+
+        void CheckIssueNoCommand(int numCommand)
         {
-            if (!hasCommandModule)
+            if (ActiveHull.Role != ShipData.RoleName.platform && numCommand == 0)
                 AddToDesignIssues(DesignIssueType.NoCommand);
         }
 
-        void DrawRequirement(ref Vector2 cursor, string words, bool met, int tooltipId = 0, float lineSpacing = 2)
+        void CheckIssueBackupCommand(int numCommand, int size)
         {
-            float amount = 165f;
+            if (ActiveHull.Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
+                AddToDesignIssues(DesignIssueType.BackUpCommand);
+        }
+
+        void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, int tooltipId = 0, float lineSpacing = 2)
+        {
+            float amount    = 165f;
             SpriteFont font = Fonts.Arial12Bold;
-            if (GlobalStats.IsGermanFrenchOrPolish) amount = amount + 35f;
-            cursor.Y += lineSpacing > 0 ? Fonts.Arial12Bold.LineSpacing + lineSpacing : 0;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, words, cursor, met ? Color.LightGreen : Color.LightPink);
-            string stats = met ? "OK" : "X";
-            cursor.X += amount - Fonts.Arial12Bold.MeasureString(stats).X;
-            ScreenManager.SpriteBatch.DrawString(Fonts.Arial12Bold, stats, cursor, met ? Color.LightGreen : Color.LightPink);
-            cursor.X -= amount - Fonts.Arial12Bold.MeasureString(stats).X;
-            if (tooltipId > 0) CheckToolTip(tooltipId, cursor, words, stats, font, MousePos);
+            if (GlobalStats.IsGermanFrenchOrPolish) 
+                amount += 35f;
+
+            cursor.Y += lineSpacing > 0 ? font.LineSpacing + lineSpacing : 0;
+            ScreenManager.SpriteBatch.DrawString(font, words, cursor, Color.White);
+            float percentComplete = PercentComplete(numSlots, size);
+            string stats          = (percentComplete * 100).String(0) + "%";
+            cursor.X += amount - font.MeasureString(stats).X;
+            ScreenManager.SpriteBatch.DrawString(font, stats, cursor, TextColor(percentComplete));
+            cursor.X -= amount - font.MeasureString(stats).X;
+            if (tooltipId > 0) 
+                CheckToolTip(tooltipId, cursor, words, stats, font, MousePos);
+
+            Color TextColor(float percent)
+            {
+                Color color;
+                if (percent.AlmostEqual(1)) color = Color.LightGreen;
+                else if (percent < 0.33f)     color = Color.Red;
+                else if (percent < 0.66f)     color = Color.Orange;
+                else                          color = Color.Yellow;
+
+                return color;
+            }
         }
 
         public void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)

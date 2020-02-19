@@ -477,7 +477,7 @@
     </Token>
     <Token>
       <Index>121</Index>
-      <Text>No Empty Slots</Text>
+      <Text>Design Completion</Text>
     </Token>
     <Token>
       <Index>122</Index>
@@ -6276,8 +6276,32 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2307</Index>
       <Text>Current Research</Text>
     </Token>
+    <!-- Ship Design Issues 2501 +  -->
+    <Token>
+      <Index>2501</Index>
+      <Text>Missing Command Module</Text>
+    </Token>
+    <Token>
+      <Index>2502</Index>
+      <Text>Your Ship does not have a Command Module or all your Command Modules are not getting power</Text>
+    </Token>
+    <Token>
+      <Index>2503</Index>
+      <Text>Add a Command Module to your ship (Cockpit, Bridge, etc.) and make sure it is getting power</Text>
+    </Token>
+    <Token>
+      <Index>2504</Index>
+      <Text>No Backup Command Module</Text>
+    </Token>
+    <Token>
+      <Index>2505</Index>
+      <Text>When all Command Modules of a ship are destroyed, it cannot identify targets and will usually retreat for repairs. Your ship currently has only a single Command Module</Text>
+    </Token>
+    <Token>
+      <Index>2506</Index>
+      <Text>Add a backup Command Module to your ship (it can be a small one), preferably far from your main Command Module in order to maintain sustainability of the ship.</Text>
+    </Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
-
     <Token>
       <Index>3000</Index>
       <Text>We feel that the time for hostilities is at an end, and request a peace treaty. </Text>
