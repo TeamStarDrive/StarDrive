@@ -83,7 +83,7 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 var ranker = allPlanetsRanker[i];
                 planetsRanked.Add(ranker);
-                if (ranker.CantColonize == false)
+                if (!ranker.CantColonize)
                     maxDesiredPlanets--;
             }
             RankedPlanets = planetsRanked.ToArray();

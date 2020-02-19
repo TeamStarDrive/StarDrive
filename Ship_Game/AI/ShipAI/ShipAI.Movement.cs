@@ -171,7 +171,7 @@ namespace Ship_Game.AI
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
-            if (distance <= 75f) // final stop, by this point our speed should be sufficiently
+            if (distance <= 75) // final stop, by this point our speed should be sufficiently
             {
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
@@ -266,7 +266,7 @@ namespace Ship_Game.AI
                 Owner.Velocity = Vector2.Zero;
                 return true;
             }
-
+            
             float deceleration = (Owner.VelocityMaximum * elapsedTime);
             if (Owner.CurrentVelocity.LessOrEqual(deceleration)) // we are almost at zero, lets stop.
             {
