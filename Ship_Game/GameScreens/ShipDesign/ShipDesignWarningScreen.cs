@@ -110,9 +110,17 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 case DesignIssueType.NoCommand: 
                     Severity    = WarningLevel.Critical; 
                     Color       = Color.Red;
-                    Title       = "Missing Command Module";
-                    Problem     = "Your Ship does not have a powered command module";
-                    Remediation = "Add a command module to your ship (Cockpit, Bridge, etc.) and make sure it is getting power";
+                    Title       = new LocalizedText(2501).Text;
+                    Problem     = new LocalizedText(2502).Text; ;
+                    Remediation = new LocalizedText(2503).Text; ;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.BackUpCommand:
+                    Severity    = WarningLevel.Major;
+                    Color       = Color.Orange;
+                    Title       = new LocalizedText(2504).Text;
+                    Problem     = new LocalizedText(2505).Text; ;
+                    Remediation = new LocalizedText(2506).Text; ;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
             }
@@ -121,6 +129,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 
     public enum DesignIssueType
     {
-        NoCommand
+        NoCommand,
+        BackUpCommand
     }
 }
