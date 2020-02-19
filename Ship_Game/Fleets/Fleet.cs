@@ -1078,7 +1078,14 @@ namespace Ship_Game.Fleets
                         break;
 
                     case InvasionTactics.Wait:
-                        ai.HoldPosition();
+                        if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Troop)
+                        {
+                            ai.HoldPosition();
+                        }
+                        else
+                        {
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true, ai.State, ship.MaxFTLSpeed * 0.75f);
+                        }
                         break;
                 }
             }
