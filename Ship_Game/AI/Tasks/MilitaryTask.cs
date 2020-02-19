@@ -179,7 +179,7 @@ namespace Ship_Game.AI.Tasks
             {
                 Troop t = TargetPlanet.TroopsHere[index];
                 if (t.Loyalty != Owner
-                    || TargetPlanet.EnemyInRange()
+                    || TargetPlanet.EnemyInRange(true)
                     || t.AvailableAttackActions == 0
                     || t.MoveTimer > 0)
                     continue;
@@ -632,6 +632,7 @@ namespace Ship_Game.AI.Tasks
 
         public enum TaskType
         {
+            // The order of these can not change without breaking save games. 
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,

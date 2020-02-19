@@ -950,15 +950,17 @@ namespace Ship_Game
             }
         }
 
-        public bool EnemyInRange()
+        /// <param name="clearAndPresentDanger">indicates that threat is a clear and present danger</param>
+        public bool EnemyInRange(bool clearAndPresentDanger = false)
         {
-            if (!ParentSystem.HostileForcesPresent(Owner))
+            if (clearAndPresentDanger ? !ParentSystem.DangerousForcesPresent(Owner) 
+                                      : !ParentSystem.HostileForcesPresent(Owner))
                 return false;
 
             float distance = GravityWellRadius.Clamped(7500, 15000);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner.IsEmpireAttackable(ship.loyalty, ship) && ship.InRadius(Center, distance))
+                if (Owner?.IsEmpireAttackable(ship.loyalty, ship) == true)// && ship.InRadius(Center, distance))
                     return true;
             }
             return false;

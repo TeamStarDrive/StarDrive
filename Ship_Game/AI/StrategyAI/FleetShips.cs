@@ -49,7 +49,6 @@ namespace Ship_Game.AI
 
             if (ship.IsPlatformOrStation
                 || ship.AI.BadGuysNear
-                || ship.Inhibited
                 || ship.engineState == Ship.MoveState.Warp
                 || ship.fleet != null
                 || ship.Mothership != null
@@ -79,17 +78,20 @@ namespace Ship_Game.AI
             float accumulatedStrength;
             int completeFleets = 0;
             ships = new Array<Ship>();
+            var utilityShips = new Array<Ship>();
             do
             {
-                var gatheredShips = GetBasicFleet();
+                var gatheredShips = GetCoreFleet();
                 if (gatheredShips.IsEmpty)
                     break;
                 if (gatheredShips.Count >= Ratios.MinCombatFleet * setCompletePercent)
                     completeFleets++;
                 accumulatedStrength = gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
+                utilityShips.AddRange(GetSupplementalFleet());
             }
             while (accumulatedStrength < strength);
+            ships.AddRange(utilityShips);
             return completeFleets;
         }
 
@@ -101,6 +103,23 @@ namespace Ship_Game.AI
             ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate));
             ships.AddRange(ExtractShips(Ships, Ratios.MinCruisers, ShipData.RoleName.cruiser));
             ships.AddRange(ExtractShips(Ships, Ratios.MinCapitals, ShipData.RoleName.capital));
+            return ships;
+        }
+
+        public Array<Ship> GetCoreFleet()
+        {
+            var ships = new Array<Ship>();
+            ships.AddRange(ExtractShips(Ships, Ratios.MinFighters, ShipData.RoleName.fighter));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCorvettes, ShipData.RoleName.corvette));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinFrigates, ShipData.RoleName.frigate));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCruisers, ShipData.RoleName.cruiser));
+            ships.AddRange(ExtractShips(Ships, Ratios.MinCapitals, ShipData.RoleName.capital));
+            return ships;
+        }
+
+        public Array<Ship> GetSupplementalFleet()
+        {
+            var ships = new Array<Ship>();
             ships.AddRange(ExtractShips(Ships, Ratios.MinCarriers, ShipData.RoleName.carrier));
             ships.AddRange(ExtractShips(Ships, Ratios.MinSupport, ShipData.RoleName.support));
             return ships;
@@ -111,14 +130,15 @@ namespace Ship_Game.AI
             Array<Ship> ships = new Array<Ship>();
             int fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage,
                 out Array<Ship> fleetShips);
-            ships.AddRange(fleetShips);
+            if (fleetCount > 0)
+                ships.AddRange(fleetShips);
 
-            if (fleetCount < 1)
-            {
-                ExtractFleetShipsUpToStrength(strength, setCompletePercentage,
-                    out Array<Ship> extraFleetShips);
-                ships.AddRange(extraFleetShips);
-            }
+            //if (fleetCount < 1)
+            //{
+            //    ExtractFleetShipsUpToStrength(strength, setCompletePercentage,
+            //        out Array<Ship> extraFleetShips);
+            //    ships.AddRange(extraFleetShips);
+            //}
 
             return ships;
         }
