@@ -364,7 +364,7 @@ namespace Ship_Game.Ships
             Orbital,
             EmpireSupport,
             Warship,
-            WwarSupport,
+            WarSupport,
             Troop,
             NotApplicable
         }
@@ -388,7 +388,7 @@ namespace Ship_Game.Ships
                 case RoleName.scout:
                 case RoleName.support:
                 case RoleName.bomber:
-                    return RoleType.WwarSupport;
+                    return RoleType.WarSupport;
                 case RoleName.troop:
                 case RoleName.troopShip:
                     return RoleType.Troop;

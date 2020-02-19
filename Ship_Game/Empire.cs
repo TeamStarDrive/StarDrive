@@ -152,7 +152,7 @@ namespace Ship_Game
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange());
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange(true));
 
         public readonly EmpireResearch Research;
 
@@ -163,6 +163,16 @@ namespace Ship_Game
 
         public string Name => data.Traits.Name;
         public void AddShipNextFrame(Ship s) => Pool.AddShipNextFame(s);
+        public void AddShipNextFrame(Ship[] s)
+        {
+            foreach (var ship in s)
+                Pool.AddShipNextFame(ship);
+        }
+        public void AddShipNextFrame(Array<Ship> s)
+        {
+            foreach (var ship in s)
+                Pool.AddShipNextFame(ship);
+        }
 
         public Empire()
         {
@@ -299,7 +309,7 @@ namespace Ship_Game
             rallyPlanets = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort && !planet.EnemyInRange())
+                if (planet.HasSpacePort && !planet.EnemyInRange(true))
                     rallyPlanets.Add(planet);
             }
 
@@ -1543,7 +1553,7 @@ namespace Ship_Game
                     {
                         data.DefenseBudget -= maintenance;
                     }
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WwarSupport)
+                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WarSupport)
                         TotalWarShipMaintenance += maintenance;
                     if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Warship)
                         TotalWarShipMaintenance += maintenance;
@@ -2780,7 +2790,7 @@ namespace Ship_Game
 
         public bool IsEmpireHostile(Empire targetEmpire)
         {
-            if (targetEmpire == this || targetEmpire == null)
+            if (targetEmpire == this || targetEmpire == null || targetEmpire == this)
                 return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;

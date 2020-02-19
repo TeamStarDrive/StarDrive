@@ -134,8 +134,8 @@ namespace Ship_Game.AI
                 foreach (Pin pin in Pins.Values)
                 {                                
                     Ship ship = pin.Ship;
-                    if (ship != null && position.InRadius(pin.Position, radius)
-                                     && empire.IsEmpireAttackable(ship.loyalty, ship))
+                    if (ship != null && empire.IsEmpireHostile(ship.loyalty) 
+                                     && position.InRadius(pin.Position, radius))
                     {
                         results.Add(pin.Ship);
                     }

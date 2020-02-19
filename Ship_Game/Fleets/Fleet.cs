@@ -154,14 +154,13 @@ namespace Ship_Game.Fleets
         void SortIntoFlanks(Ship ship, ShipData.RoleName largest)
         {
             int leftCount = LeftShips.Count;
-            if (ship.DesignRole == ShipData.RoleName.troop
-                         || ship.DesignRole == ShipData.RoleName.freighter
-                         || ship.shipData.ShipCategory == ShipData.Category.Civilian
-                         || ship.DesignRole == ShipData.RoleName.troopShip)
+            var roleType = ShipData.ShipRoleToRoleType(ship.DesignRole);
+            if (roleType != ShipData.RoleType.Warship || ship.DesignRole == ShipData.RoleName.carrier)
             {
                 RearShips.AddUniqueRef(ship);
             }
-            else if (CommandShip == ship || ship.DesignRole < ShipData.RoleName.fighter)
+            else if (CommandShip == ship || ship.DesignRole > ShipData.RoleName.fighter 
+                                         && largest == ship.DesignRole )
             {
                 CenterShips.AddUniqueRef(ship);
             }
@@ -435,7 +434,7 @@ namespace Ship_Game.Fleets
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(5000)) break;
-                    GatherAtAO(task, distanceFromAO: 50000f);
+                    GatherAtAO(task, distanceFromAO: task.TargetPlanet.GravityWellRadius);
                     TaskStep = 2;
                     break;
                 case 2:
@@ -547,7 +546,7 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely(5000))
                         break;
 
-                    GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.1f);
+                    GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.5f);
                     TaskStep = 2;
                     break;
                 case 2:
@@ -881,7 +880,7 @@ namespace Ship_Game.Fleets
 
         bool ArrivedAtCombatRally(MilitaryTask task)
         {
-            return IsFleetAssembled(5000f, task.AO) != MoveStatus.Dispersed;
+            return IsFleetAssembled(5000f) != MoveStatus.Dispersed;
         }
         bool ArrivedAtCombatRally(float distanceFromRally, Vector2 rally)
         {
