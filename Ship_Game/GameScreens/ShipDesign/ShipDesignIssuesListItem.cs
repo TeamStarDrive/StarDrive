@@ -22,10 +22,10 @@ namespace Ship_Game.GameScreens.ShipDesign
             IssueDetails = details;
 
             IssueTexture = Add(new UIPanel(Pos, IssueDetails.Texture));
-            //IssueTexture.Pos = new Vector2(580, 320);
+            //IssueTexture.Pos = new Vector2(Pos.X + 100, Pos.Y + 40);
             IssueTexture.Size      = new Vector2(60, 60);
-            IssueTexture.SetRelPos(100, 0);
-            IssueTexture.DebugDraw = true;
+            //IssueTexture.SetRelPos(100, 0);
+            //IssueTexture.DebugDraw = true;
 
             TitleLabel       = AddIssueLabel(IssueDetails.Title, 100, 0, SmallFont, TextAlign.Center, IssueDetails.Color);
             ProblemLabel     = AddIssueLabel(IssueDetails.Problem, 380, 200, SmallFont, TextAlign.VerticalCenter, Color.MintCream);
@@ -34,7 +34,7 @@ namespace Ship_Game.GameScreens.ShipDesign
 
         UILabel AddIssueLabel(string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
         {
-            string parsedText = font.ParseText(text, sizeX-20);
+            string parsedText = font.ParseText(text, sizeX-40);
             UILabel label     = Add(new UILabel(parsedText, font, color));
             label.Size        = new Vector2(sizeX, 80);
             label.Align       = align;
@@ -47,6 +47,8 @@ namespace Ship_Game.GameScreens.ShipDesign
         public override void Draw(SpriteBatch batch)
         {
             batch.FillRectangle(Rect, RectColor);
+            // workaround  for UIpanel which the Pos of the item is not set in the constructor
+            IssueTexture.Pos = new Vector2(Pos.X + 125, Pos.Y + 10);
             base.Draw(batch);
         }
 
