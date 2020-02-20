@@ -18,8 +18,8 @@ namespace Ship_Game.AI
         public void OrderHoldPosition(Vector2 position, Vector2 direction)
         {
             AddShipGoal(Plan.HoldPosition, position, direction, AIState.HoldPosition);
-            HasPriorityOrder = true;
-            IgnoreCombat     = true;
+            ChangePriorityOrder(true);
+            IgnoreCombat = true;
         }
 
         public void OrderAttackSpecificTarget(Ship toAttack)
@@ -306,7 +306,7 @@ namespace Ship_Game.AI
                     State = AIState.AttackTarget;
                     TargetQueue.Add(toAttack);
                     HasPriorityTarget = true;
-                    HasPriorityOrder = false;
+                    ChangePriorityOrder(false);
                     return;
                 }
                 OrderInterceptShip(toAttack);
@@ -536,13 +536,15 @@ namespace Ship_Game.AI
 
         void AwaitOrders(float elapsedTime)
         {
-            if (Owner.IsPlatformOrStation) return;
+            if (Owner.IsPlatformOrStation) 
+                return;
 
             if (Owner.shipData.CarrierShip)
                 return;
 
             if (State != AIState.Resupply)
-                HasPriorityOrder = false;
+                ChangePriorityOrder(false);
+
             if (AwaitClosest != null)
             {
                 if (SystemToDefend != null || Owner.loyalty.isPlayer)
@@ -569,7 +571,7 @@ namespace Ship_Game.AI
 
         void AwaitOrdersPlayer(float elapsedTime)
         {
-            HasPriorityOrder = false;
+            ChangePriorityOrder(false);
             if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
                 ScanForThreatTimer = 0;
             if (EscortTarget != null)

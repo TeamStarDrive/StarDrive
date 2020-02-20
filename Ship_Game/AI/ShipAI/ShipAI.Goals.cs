@@ -8,8 +8,13 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public bool HasPriorityOrder;
+        public bool HasPriorityOrder { get; private set;}
         public bool HadPO;
+
+        public void ChangePriorityOrder(bool priority)
+        {
+            HasPriorityOrder = priority;
+        }
 
         void DequeueWayPointAndOrder()
         {
@@ -34,7 +39,7 @@ namespace Ship_Game.AI
                 g.Dispose();
             ChangeAIState(newState);
             OrderQueue.Clear();
-            HasPriorityOrder = priority;
+            ChangePriorityOrder(priority);
         }
 
         public void ChangeAIState(AIState newState)
@@ -57,7 +62,7 @@ namespace Ship_Game.AI
 
         public void ClearPriorityOrder()
         {
-            HasPriorityOrder  = false;
+            ChangePriorityOrder(false);
             Intercepting      = false;
             HasPriorityTarget = false;
         }
@@ -72,7 +77,8 @@ namespace Ship_Game.AI
         {
             if (clearOrders)
                 ClearOrders(State, true);
-            HasPriorityOrder  = true;
+
+            ChangePriorityOrder(true);
             Intercepting      = false;
             HasPriorityTarget = false;
         }

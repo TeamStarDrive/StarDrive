@@ -62,6 +62,9 @@ namespace Ship_Game
 
         int OrbitalsBeingBuilt(ShipData.RoleName role, Empire owner)
         {
+            if (owner == null)
+                return 0;
+
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
             var goals = owner.GetEmpireAI().Goals;
