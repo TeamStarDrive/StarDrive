@@ -28,8 +28,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             //IssueTexture.DebugDraw = true;
 
             TitleLabel       = AddIssueLabel(IssueDetails.Title, 100, 0, SmallFont, TextAlign.Center, IssueDetails.Color);
-            ProblemLabel     = AddIssueLabel(IssueDetails.Problem, 380, 200, SmallFont, TextAlign.VerticalCenter, Color.MintCream);
-            RemediationLabel = AddIssueLabel(IssueDetails.Remediation, 380, 580, SmallFont, TextAlign.VerticalCenter, Color.White);
+            ProblemLabel     = AddIssueLabel(IssueDetails.Problem, 380, 200, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
+            RemediationLabel = AddIssueLabel(IssueDetails.Remediation, 380, 580, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
         }
 
         UILabel AddIssueLabel(string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
