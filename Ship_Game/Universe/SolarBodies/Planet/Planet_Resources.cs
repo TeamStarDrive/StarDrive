@@ -56,10 +56,8 @@ namespace Ship_Game
         public float PopulationBillion { get; private set; }
         public float PlusFlatPopulationPerTurn;
 
-        public bool HasProduction               => Prod.GrossIncome > 1.0f;
-        public float PopulationRatio           => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
-        public Building BiospheresWeCanBuild   => BuildingsCanBuild.Find(b => b.IsBiospheres);
-        public Building TerraformersWeCanBuild => BuildingsCanBuild.Find(b => b.IsTerraformer);
+        public bool HasProduction    => Prod.GrossIncome > 1.0f;
+        public float PopulationRatio => MaxPopulation.AlmostZero() ? 0 : Storage.Population / MaxPopulation;
 
         public string PopulationStringForPlayer
         {
