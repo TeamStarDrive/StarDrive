@@ -2,11 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
-using Ship_Game.Gameplay;
-using Ship_Game.UI;
-using System;
-using System.Linq;
-using Ship_Game.GameScreens.ShipDesign;
+using Ship_Game.GameScreens.ShipDesign.DesignIssues;
 
 namespace Ship_Game.GameScreens.ShipDesignScreen
 {
@@ -82,64 +78,5 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             }
             return base.HandleInput(input);
         }
-    }
-
-    public enum WarningLevel
-    {
-        None,
-        Minor,
-        Major,
-        Critical
-    }
-
-    public struct DesignIssueDetails
-    {
-        public readonly DesignIssueType Type;
-        public readonly WarningLevel Severity;
-        public readonly Color Color;
-        public readonly string Title;
-        public readonly string Problem;
-        public readonly string Remediation;
-        public readonly SubTexture Texture;
-
-        public DesignIssueDetails(DesignIssueType issueType)
-        {
-            Type = issueType;
-            switch (issueType)
-            {
-                default:
-                case DesignIssueType.NoCommand: 
-                    Severity    = WarningLevel.Critical; 
-                    Color       = Color.Red;
-                    Title       = new LocalizedText(2501).Text;
-                    Problem     = new LocalizedText(2502).Text; ;
-                    Remediation = new LocalizedText(2503).Text; ;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
-                    break;
-                case DesignIssueType.BackUpCommand:
-                    Severity    = WarningLevel.Major;
-                    Color       = Color.Orange;
-                    Title       = new LocalizedText(2504).Text;
-                    Problem     = new LocalizedText(2505).Text; ;
-                    Remediation = new LocalizedText(2506).Text; ;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
-                    break;
-                case DesignIssueType.UnpoweredModules:
-                    Severity    = WarningLevel.Major;
-                    Color       = Color.Orange;
-                    Title       = new LocalizedText(2507).Text;
-                    Problem     = new LocalizedText(2508).Text; ;
-                    Remediation = new LocalizedText(2509).Text; ;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
-                    break;
-            }
-        }
-    }
-
-    public enum DesignIssueType
-    {
-        NoCommand,
-        BackUpCommand,
-        UnpoweredModules
     }
 }

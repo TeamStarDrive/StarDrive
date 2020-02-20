@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Ship_Game.GameScreens.ShipDesignScreen;
+using Ship_Game.GameScreens.ShipDesign.DesignIssues;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -623,7 +623,9 @@ namespace Ship_Game
             if (afterSpeed > 0) DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterSpeed, 105, Color.DarkSeaGreen));
             WriteLine(ref cursor);
 
+            float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecovered);
             DrawOrdnance();
+
             if (troopCount > 0) DrawStatColor(ref cursor, TintedValue(6132, troopCount, 180, Color.IndianRed));
             WriteLine(ref cursor);
 
@@ -665,6 +667,7 @@ namespace Ship_Game
                 CheckIssueNoCommand(numCommandModules);
                 CheckIssueBackupCommand(numCommandModules, size);
                 CheckIssueUnpoweredModules(unpoweredModules);
+                CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
             }
 
             void DrawHullBonuses()
@@ -710,10 +713,7 @@ namespace Ship_Game
 
                 DrawStatColor(ref cursor, TintedValue(118, ordnanceCap, 108, Color.IndianRed));
                 if (ordnanceUsed - ordnanceRecovered > 0)
-                {
-                    float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecovered);
                     DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, 164, Color.IndianRed));
-                }
                 else
                     DrawStatOrdnance(ref cursor, "Ammo Time", "INF", 164);
             }
@@ -783,6 +783,7 @@ namespace Ship_Game
 
             
         }
+
         float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
         bool DesignComplete(int numSlots, int size)   => numSlots == size;
 
@@ -803,6 +804,22 @@ namespace Ship_Game
             if (unpoweredModules)
                 AddToDesignIssues(DesignIssueType.UnpoweredModules);
         }
+
+        void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime, int size)
+        {
+            if ((ordnanceUsed - ordnanceRecovered).LessOrEqual(0))
+                return;  // Inf ammo
+
+            if (ammoTime.AlmostZero())
+                AddToDesignIssues(DesignIssueType.NoOrdnance);
+
+            int goodAmmoTime = LargeCraft ? 60 : 30;
+            if (ammoTime < goodAmmoTime)
+                AddToDesignIssues(DesignIssueType.LowOrdnance);
+        }
+
+        bool LargeCraft => ActiveHull.HullRole == ShipData.RoleName.freighter || ActiveHull.HullRole == ShipData.RoleName.destroyer
+                           || ActiveHull.HullRole == ShipData.RoleName.cruiser || ActiveHull.HullRole == ShipData.RoleName.capital;
 
         void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, int tooltipId = 0, float lineSpacing = 2)
         {
