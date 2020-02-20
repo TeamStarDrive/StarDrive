@@ -405,7 +405,7 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                ship.AI.SetPriorityOrder(!queueOrder);
+                ship.AI.ResetPriorityOrder(!queueOrder);
                 if (queueOrder)
                     ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection);
                 else
@@ -423,7 +423,7 @@ namespace Ship_Game
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
-                    ship.AI.SetPriorityOrder(true);
+                    ship.AI.ResetPriorityOrder(true);
                     ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo);
                 }
             }
@@ -435,7 +435,7 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
-                ship.AI.SetPriorityOrder(false);
+                ship.AI.ResetPriorityOrder(false);
                 ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null, AIState.MoveTo);
             }
         }
