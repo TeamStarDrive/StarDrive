@@ -107,10 +107,8 @@ namespace Ship_Game
             {
                 Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
                 if (weakest != null)
-                    ScrapOrbital(weakest); // remove this old garbage
-                else
-                    Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
-
+                    ScrapOrbital(weakest);
+               
                 return;
             }
 
@@ -136,7 +134,8 @@ namespace Ship_Game
                 Storage.Prod = expectedStorage;
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"SCRAPPED Orbital ----- {orbital.Name}, STR: {orbital.NormalizedStrength}");
+                Log.Info(ConsoleColor.Magenta,$"{Name}, {Owner.Name} - SCRAPPED Orbital ----- {orbital.Name}" +
+                         $", STR: {orbital.NormalizedStrength}");
 
             orbital.QueueTotalRemoval();
         }
@@ -159,7 +158,8 @@ namespace Ship_Game
         public void AddOrbital(Ship orbital)
         {
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.NormalizedStrength}");
+                Log.Info(ConsoleColor.Green,$"{Name}, {Owner.Name} - ADDED Orbital ----- {orbital.Name}, " +
+                         $"cost: {orbital.GetCost(Owner)}, STR: {orbital.NormalizedStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
@@ -178,13 +178,13 @@ namespace Ship_Game
                 return;
 
             if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
-                return;
+                return; // replace only if str is 20% more than the current weakest orbital
 
             ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild);
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
-                         $"STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
+                Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - REPLACING Orbital ----- {weakestWeHave.Name}" +
+                         $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
         }
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, float budget)
@@ -350,7 +350,7 @@ namespace Ship_Game
         void TryScrapMilitaryBuilding()
         {
             Building weakest = BuildingList.FindMinFiltered(b => b.IsMilitary 
-                                                                 && !b.Scrappable 
+                                                                 && b.Scrappable 
                                                                  && !b.IsPlayerAdded, b => b.CostEffectiveness);
 
             if (weakest != null)
