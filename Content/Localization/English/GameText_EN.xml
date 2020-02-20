@@ -6313,6 +6313,30 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2509</Index>
       <Text>You can add a Reactor near the unpowered modules, or increase the power radius of current Reactors by placing a Power Conduit next to them.</Text>
     </Token>
+    <Token>
+      <Index>2510</Index>
+      <Text>No Ordnance Detected</Text>
+    </Token>
+    <Token>
+      <Index>2511</Index>
+      <Text>Your particular ship design needs Ordnance to properly conduct combat. Currently you do not have ordnance stores on board your ship. Note that Hangars use Ordnance to launch ships.</Text>
+    </Token>
+    <Token>
+      <Index>2512</Index>
+      <Text>You must add Ordnance stores or Ordnance Fabricators to your ship. The more Ordnance your ship has on board, the longer it can sustain itself in the battlefield before needing resupply.</Text>
+    </Token>
+    <Token>
+      <Index>2513</Index>
+      <Text>Low Ordnance Time</Text>
+    </Token>
+    <Token>
+      <Index>2514</Index>
+      <Text>Your ship has low effective fighting time (for it's size) on the battlefield, due to the presence of Ordnance consuming weapons, coupled with low Ordnance stores.</Text>
+    </Token>
+    <Token>
+      <Index>2515</Index>
+      <Text>Add Ordnance stores or Ordnance Fabricators to your ship. The more Ordnance your ship has on board, the longer it can sustain itself in the battlefield before needing resupply.</Text>
+    </Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>

@@ -1,40 +1,35 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.GameScreens.ShipDesignScreen;
+using Ship_Game.GameScreens.ShipDesign.DesignIssues;
 
-namespace Ship_Game.GameScreens.ShipDesign
+namespace Ship_Game
 {
     public sealed class ShipDesignIssuesListItem : ScrollListItem<ShipDesignIssuesListItem>
     {
         private readonly DesignIssueDetails IssueDetails;
-        private readonly SpriteFont NormalFont = Fonts.Arial20Bold;
         private readonly SpriteFont SmallFont = Fonts.Arial12Bold;
-        private readonly SpriteFont TinyFont = Fonts.Arial8Bold;
 
         UILabel TitleLabel;
         UILabel ProblemLabel;
         UILabel RemediationLabel;
-        UIPanel IssueTexture;
+        readonly UIPanel IssueTexture;
 
 
         public ShipDesignIssuesListItem(DesignIssueDetails details)
         {
-            IssueDetails = details;
-
-            IssueTexture = Add(new UIPanel(Pos, IssueDetails.Texture));
-            //IssueTexture.Pos = new Vector2(Pos.X + 100, Pos.Y + 40);
-            IssueTexture.Size      = new Vector2(60, 60);
-            //IssueTexture.SetRelPos(100, 0);
+            IssueDetails      = details;
+            IssueTexture      = Add(new UIPanel(Pos, IssueDetails.Texture));
+            IssueTexture.Size = new Vector2(60, 60);
             //IssueTexture.DebugDraw = true;
 
-            TitleLabel       = AddIssueLabel(IssueDetails.Title, 100, 0, SmallFont, TextAlign.Center, IssueDetails.Color);
-            ProblemLabel     = AddIssueLabel(IssueDetails.Problem, 380, 200, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
-            RemediationLabel = AddIssueLabel(IssueDetails.Remediation, 380, 580, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
+            TitleLabel       = AddIssueLabel(IssueDetails.Title, 150, 50, SmallFont, TextAlign.Center, IssueDetails.Color);
+            ProblemLabel     = AddIssueLabel(IssueDetails.Problem, 370, 200, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
+            RemediationLabel = AddIssueLabel(IssueDetails.Remediation, 370, 560, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
         }
 
         UILabel AddIssueLabel(string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
         {
-            string parsedText = font.ParseText(text, sizeX-40);
+            string parsedText = font.ParseText(text, sizeX-30);
             UILabel label     = Add(new UILabel(parsedText, font, color));
             label.Size        = new Vector2(sizeX, 80);
             label.Align       = align;
@@ -42,13 +37,11 @@ namespace Ship_Game.GameScreens.ShipDesign
             return label;
         }
 
-        public override int ItemHeight => 80;
-
         public override void Draw(SpriteBatch batch)
         {
             batch.FillRectangle(Rect, RectColor);
             // workaround  for UIpanel which the Pos of the item is not set in the constructor
-            IssueTexture.Pos = new Vector2(Pos.X + 125, Pos.Y + 10);
+            IssueTexture.Pos = new Vector2(Pos.X, Pos.Y + 10);
             base.Draw(batch);
         }
 
