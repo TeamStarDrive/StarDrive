@@ -39,8 +39,10 @@ namespace Ship_Game.AI
         float DetermineDefenseBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float adjustor = (risk + strat.MilitaryRatio) /3;
-            return SetBudgetForeArea(0.01f, adjustor, money);
+            float territorialism = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
+            float adjustor = risk + territorialism / 100 + strat.MilitaryRatio;
+            float budget = SetBudgetForeArea(0.01f, adjustor, money);
+            return budget;
         }
         float DetermineSSPBudget(float money)
         {
@@ -55,14 +57,15 @@ namespace Ship_Game.AI
             float buildRatio = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
             buildRatio /= 3;
             float buildBudget = SetBudgetForeArea(0.01f, buildRatio + risk, money);
-            return buildBudget - OwnerEmpire.TotalCivShipMaintenance;
+            return buildBudget;
 
         }
 
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.01f, strat.IndustryRatio + strat.ExpansionRatio, money);
+            var budget = SetBudgetForeArea(0.01f, strat.IndustryRatio + strat.ExpansionRatio, money);
+            return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
         float DetermineSpyBudget(float risk, float money)

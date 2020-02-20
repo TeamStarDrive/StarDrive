@@ -64,7 +64,7 @@ namespace UnitTests.AITests
                 "unfiltered colonization targets should be 5");
 
             
-            var markedPlanet = expansionAI.GetMarkedPlanets();
+            var markedPlanet = expansionAI.GetColonizationGoals();
             Assert.AreEqual(3, markedPlanet.Length, "expected 3 colony goals ");
 
             //mock colonization success
