@@ -89,6 +89,9 @@ namespace Ship_Game
 
         private int ShipyardsBeingBuilt(Empire owner)
         {
+            if (owner == null)
+                return 0;
+
             int shipyardsInQ = 0;
             foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
