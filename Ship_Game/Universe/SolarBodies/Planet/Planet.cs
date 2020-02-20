@@ -95,8 +95,9 @@ namespace Ship_Game
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
         public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
-        public bool NoGovernorAndNotTradeHub            => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
+        public bool NoGovernorAndNotTradeHub            => !Governor && colonyType != ColonyType.TradeHub;
         public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
+        public bool Governor                            => colonyType != ColonyType.Colony;
 
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
