@@ -225,7 +225,7 @@ namespace Ship_Game.AI
 
         public void DoExplore(float elapsedTime)
         {
-            HasPriorityOrder = true;
+            SetPriorityOrder(true);
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
