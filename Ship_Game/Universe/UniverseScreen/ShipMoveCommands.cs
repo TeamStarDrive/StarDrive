@@ -215,7 +215,7 @@ namespace Ship_Game.Universe
             foreach (Ship ship in fleet.Ships)
             {
                 ship.AI.Target = null;
-                ship.AI.SetPriorityOrder(!Input.QueueAction);
+                ship.AI.ResetPriorityOrder(!Input.QueueAction);
             }
 
             Universe.player.GetEmpireAI().DefensiveCoordinator.RemoveShipList(Universe.SelectedShipList);

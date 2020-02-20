@@ -823,7 +823,7 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = Ships[i];
                 if (ship.CanTakeFleetOrders)
-                    ship.AI.SetPriorityOrder(true);
+                    ship.AI.ResetPriorityOrder(true);
             }
         }
 
@@ -1194,7 +1194,7 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = ships[x];
                 ship.AI.OrderLandAllTroops(task.TargetPlanet);
-                ship.AI.SetPriorityOrder(false);
+                ship.AI.ResetPriorityOrder(false);
             }
         }
 
