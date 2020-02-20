@@ -217,7 +217,7 @@ namespace Ship_Game.AI
                     TerminateResupplyIfDone();
                     return;
             }
-            ChangePriorityOrder(true);
+            SetPriorityOrder(true);
             DecideWhereToResupply(nearestRallyPoint);
         }
 
@@ -258,7 +258,7 @@ namespace Ship_Game.AI
             }
 
             DequeueCurrentOrder();
-            Owner.AI.ChangePriorityOrder(false);
+            Owner.AI.SetPriorityOrder(false);
             Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
                 OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, 
@@ -423,7 +423,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                ChangePriorityOrder(false);
+                SetPriorityOrder(false);
                 IdleFleetAI(elapsedTime);
             }
         }
@@ -473,7 +473,7 @@ namespace Ship_Game.AI
                 // check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.FinalPosition.InRadius(Owner.Center, 7500))
                 {
-                    ChangePriorityOrder(true);
+                    SetPriorityOrder(true);
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
                         Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
@@ -651,7 +651,7 @@ namespace Ship_Game.AI
                 || State == AIState.Refit 
                 || State == AIState.FormationWarp))
             {
-                ChangePriorityOrder(true);
+                SetPriorityOrder(true);
                 HadPO = false;
                 EscortTarget = null;
             }
@@ -672,7 +672,7 @@ namespace Ship_Game.AI
 
         void AIStateEscort(float elapsedTime)
         {
-            Owner.AI.ChangePriorityOrder(false);
+            Owner.AI.SetPriorityOrder(false);
             if (EscortTarget == null || !EscortTarget.Active)
             {
                 EscortTarget = null;
@@ -707,7 +707,7 @@ namespace Ship_Game.AI
 
             if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
             {
-                Owner.AI.ChangePriorityOrder(true);
+                Owner.AI.SetPriorityOrder(true);
                 Orbit.Orbit(EscortTarget, elapsedTime);
             }
         }

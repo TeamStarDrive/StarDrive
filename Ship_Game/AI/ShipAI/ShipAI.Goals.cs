@@ -11,11 +11,6 @@ namespace Ship_Game.AI
         public bool HasPriorityOrder { get; private set;}
         public bool HadPO;
 
-        public void ChangePriorityOrder(bool priority)
-        {
-            HasPriorityOrder = priority;
-        }
-
         void DequeueWayPointAndOrder()
         {
             if (WayPoints.Count > 0)
@@ -39,7 +34,7 @@ namespace Ship_Game.AI
                 g.Dispose();
             ChangeAIState(newState);
             OrderQueue.Clear();
-            ChangePriorityOrder(priority);
+            SetPriorityOrder(priority);
         }
 
         public void ChangeAIState(AIState newState)
@@ -54,6 +49,11 @@ namespace Ship_Game.AI
             State = newState;
         }
 
+        public void SetPriorityOrder(bool priority)
+        {
+            HasPriorityOrder = priority;
+        }
+
         public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
             ClearWayPoints();
@@ -62,23 +62,24 @@ namespace Ship_Game.AI
 
         public void ClearPriorityOrder()
         {
-            ChangePriorityOrder(false);
+            SetPriorityOrder(false);
             Intercepting      = false;
             HasPriorityTarget = false;
         }
 
-        void SetPriorityOrderWithClear()
+        void ResetPriorityOrderWithClear()
         {
-            SetPriorityOrder(true);
+            ResetPriorityOrder(true);
             ClearWayPoints();
         }
 
-        public void SetPriorityOrder(bool clearOrders)
+        // This will Reset The priority order along with Intercepting and Priority Target
+        public void ResetPriorityOrder(bool clearOrders)
         {
             if (clearOrders)
                 ClearOrders(State, true);
 
-            ChangePriorityOrder(true);
+            SetPriorityOrder(true);
             Intercepting      = false;
             HasPriorityTarget = false;
         }
@@ -174,7 +175,7 @@ namespace Ship_Game.AI
             {
                 OrbitTarget = planet;
                 if (priority)
-                    SetPriorityOrder(false);
+                    ResetPriorityOrder(false);
             }
         }
 
