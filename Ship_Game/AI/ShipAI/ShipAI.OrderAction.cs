@@ -63,6 +63,13 @@ namespace Ship_Game.AI
             AddBombPlanetGoal(toBombard);
         }
 
+        public void OrderBombardWithPriority(Planet toBombard)
+        {
+            Owner.InCombatTimer = 15f;
+            ClearOrdersAndWayPoints();
+            AddPriorityBombPlanetGoal(toBombard);
+        }
+
         public void OrderColonization(Planet toColonize, Goal g = null)
         {
             if (toColonize == null)
