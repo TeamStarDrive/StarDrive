@@ -642,8 +642,7 @@ namespace Ship_Game.AI
         void PrioritizePlayerCommands()
         {
             if (Owner.loyalty == EmpireManager.Player &&
-                (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f 
-                || State == AIState.Bombard 
+                (State == AIState.Bombard 
                 || State == AIState.AssaultPlanet 
                 || State == AIState.BombardTroops 
                 || State == AIState.Rebase 
