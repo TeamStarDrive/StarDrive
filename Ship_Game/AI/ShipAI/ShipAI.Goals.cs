@@ -8,7 +8,7 @@ namespace Ship_Game.AI
 {
     public sealed partial class ShipAI
     {
-        public bool HasPriorityOrder;
+        public bool HasPriorityOrder { get; private set;}
         public bool HadPO;
 
         void DequeueWayPointAndOrder()
@@ -34,7 +34,7 @@ namespace Ship_Game.AI
                 g.Dispose();
             ChangeAIState(newState);
             OrderQueue.Clear();
-            HasPriorityOrder = priority;
+            SetPriorityOrder(priority);
         }
 
         public void ChangeAIState(AIState newState)
@@ -49,6 +49,11 @@ namespace Ship_Game.AI
             State = newState;
         }
 
+        public void SetPriorityOrder(bool priority)
+        {
+            HasPriorityOrder = priority;
+        }
+
         public void ClearOrdersAndWayPoints(AIState newState = AIState.AwaitingOrders, bool priority = false)
         {
             ClearWayPoints();
@@ -57,22 +62,24 @@ namespace Ship_Game.AI
 
         public void ClearPriorityOrder()
         {
-            HasPriorityOrder  = false;
+            SetPriorityOrder(false);
             Intercepting      = false;
             HasPriorityTarget = false;
         }
 
-        void SetPriorityOrderWithClear()
+        void ResetPriorityOrderWithClear()
         {
-            SetPriorityOrder(true);
+            ResetPriorityOrder(true);
             ClearWayPoints();
         }
 
-        public void SetPriorityOrder(bool clearOrders)
+        // This will Reset The priority order along with Intercepting and Priority Target
+        public void ResetPriorityOrder(bool clearOrders)
         {
             if (clearOrders)
                 ClearOrders(State, true);
-            HasPriorityOrder  = true;
+
+            SetPriorityOrder(true);
             Intercepting      = false;
             HasPriorityTarget = false;
         }
@@ -168,7 +175,7 @@ namespace Ship_Game.AI
             {
                 OrbitTarget = planet;
                 if (priority)
-                    SetPriorityOrder(false);
+                    ResetPriorityOrder(false);
             }
         }
 
