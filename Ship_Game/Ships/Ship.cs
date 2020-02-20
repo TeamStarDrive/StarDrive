@@ -595,7 +595,7 @@ namespace Ship_Game.Ships
         public void Explore()
         {
             AI.State = AIState.Explore;
-            AI.HasPriorityOrder = true;
+            AI.ChangePriorityOrder(true);
         }
 
         /// <summary>Forces the ship to be in combat without a target.</summary>

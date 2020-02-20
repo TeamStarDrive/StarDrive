@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             ship.AI.ClearOrders(AIState.SystemDefender);
             ship.AI.SystemToDefend     = null;
             ship.AI.SystemToDefendGuid = Guid.Empty;
-            ship.AI.HasPriorityOrder   = false;
+            ship.AI.ChangePriorityOrder(false);
             DefenseDeficit            -= ship.GetStrength();
             DefensiveForcePool.AddUnique(ship);
         }

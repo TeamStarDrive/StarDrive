@@ -177,6 +177,11 @@ namespace Ship_Game.Universe.SolarBodies
             {
                 shipAt.IsConstructor = true;
                 shipAt.VanityName = "Construction Ship";
+                shipAt.AI.ChangePriorityOrder(true);
+            }
+            else
+            {
+                shipAt.AI.ChangePriorityOrder(false);
             }
 
             shipAt.DownloadTradeRoutes(q.TradeRoutes);

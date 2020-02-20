@@ -257,6 +257,8 @@ namespace Ship_Game.Universe
                 ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo);
                 ship.AI.OrderHoldPosition(pos, direction);
             }
+
+            ship.AI.ChangePriorityOrder(true);
         }
     }
 }
