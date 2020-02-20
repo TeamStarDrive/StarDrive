@@ -12,12 +12,11 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 {
     public sealed class ShipDesignWarningScreen : GameScreen
     {
-        readonly Empire Player;
-        Menu2 Window;
+        private readonly Empire Player;
+        private readonly Menu2 Window;
         private readonly Color TitleColor;
         private readonly Array<DesignIssueDetails> DesignIssues;
-
-        private ScrollList2<ShipDesignIssuesListItem> IssueList;
+        private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
 
         public ShipDesignWarningScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues, Color color) : base(screen)
         {
@@ -125,6 +124,14 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                     Remediation = new LocalizedText(2506).Text; ;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
+                case DesignIssueType.UnpoweredModules:
+                    Severity    = WarningLevel.Major;
+                    Color       = Color.Orange;
+                    Title       = new LocalizedText(2507).Text;
+                    Problem     = new LocalizedText(2508).Text; ;
+                    Remediation = new LocalizedText(2509).Text; ;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
             }
         }
     }
@@ -132,6 +139,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
     public enum DesignIssueType
     {
         NoCommand,
-        BackUpCommand
+        BackUpCommand,
+        UnpoweredModules
     }
 }

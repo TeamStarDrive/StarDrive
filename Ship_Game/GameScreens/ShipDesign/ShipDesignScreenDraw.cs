@@ -450,6 +450,7 @@ namespace Ship_Game
             int numWeaponSlots             = 0;
             float totalShieldAmplify       = 0;
             int numTurrets                 = 0;
+            bool unpoweredModules          = false;
 
             HullBonus bonus              = ActiveHull.Bonuses;
             Array<ShipModule> shields    = new Array<ShipModule>();
@@ -483,9 +484,11 @@ namespace Ship_Game
                     defense  += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                     wasOffenseDefenseAdded = true;
                 }
-
-                if (!slot.Module.Powered)
+                else if (!slot.Module.Powered)
+                {
+                    unpoweredModules = true;
                     continue;
+                }
 
                 if (slot.Module.Is(ShipModuleType.Shield))
                     shields.Add(slot.Module);
@@ -654,10 +657,14 @@ namespace Ship_Game
 
             void CheckDesignIssues()
             {
+                if (PercentComplete(numSlots, size) < 0.75f)
+                    return;
+
                 CurrentDesignIssues.Clear();
                 CurrentWarningLevel = WarningLevel.None;
                 CheckIssueNoCommand(numCommandModules);
                 CheckIssueBackupCommand(numCommandModules, size);
+                CheckIssueUnpoweredModules(unpoweredModules);
             }
 
             void DrawHullBonuses()
@@ -789,6 +796,12 @@ namespace Ship_Game
         {
             if (ActiveHull.Role != ShipData.RoleName.platform && numCommand <= 1 && size >= 500)
                 AddToDesignIssues(DesignIssueType.BackUpCommand);
+        }
+
+        void CheckIssueUnpoweredModules(bool unpoweredModules)
+        {
+            if (unpoweredModules)
+                AddToDesignIssues(DesignIssueType.UnpoweredModules);
         }
 
         void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, int tooltipId = 0, float lineSpacing = 2)

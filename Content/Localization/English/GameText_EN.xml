@@ -6301,6 +6301,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2506</Index>
       <Text>Add a backup Command Module to your ship (it can be a small one), preferably far from your main Command Module in order to maintain combat effectiveness of the ship.</Text>
     </Token>
+    <Token>
+      <Index>2507</Index>
+      <Text>Unpowered Modules Detected</Text>
+    </Token>
+    <Token>
+      <Index>2508</Index>
+      <Text>Some of the power consuming modules in your ship are not getting power. This reduces ship effectiveness as these modules won't work after the ship is built.</Text>
+    </Token>
+    <Token>
+      <Index>2509</Index>
+      <Text>You can add a Reactor near the unpowered modules, or increase the power radius of current Reactors by placing a Power Conduit next to them.</Text>
+    </Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>

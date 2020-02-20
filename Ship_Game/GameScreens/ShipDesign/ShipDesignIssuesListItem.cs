@@ -42,6 +42,8 @@ namespace Ship_Game.GameScreens.ShipDesign
             return label;
         }
 
+        public override int ItemHeight => 80;
+
         public override void Draw(SpriteBatch batch)
         {
             batch.FillRectangle(Rect, RectColor);
