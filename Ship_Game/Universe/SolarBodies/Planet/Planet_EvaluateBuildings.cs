@@ -54,23 +54,22 @@ namespace Ship_Game
             UpdateGovernorPriorities();
             if (budget < 0f)
             {
-                TryScrapBuilding(); // we must scrap something to bring us above of our debt tolerance
+                TryScrapBuilding(); // We must scrap something to bring us above of our debt tolerance
             }
             else
             {
                 TryBuildTerraformers(budget); // Build Terraformers if needed
-                if (FreeHabitableTiles > 0)
-                {
-                    SimpleBuild(budget); // lets try to build something within our budget
-                }
-                else
-                {
-                    if (BuildBiospheres(budget))
-                        return;
-
-                    ReplaceBuilding(budget); // we don't have room for expansion. Let's see if we can replace to a better value building
-                }
+                TryBuildBiospheres(budget); // Build Biospheres if needed
+                BuildOrReplaceBuilding(budget);
             }
+        }
+
+        void BuildOrReplaceBuilding(float budget)
+        {
+            if (FreeHabitableTiles > 0)
+                SimpleBuild(budget); // Let's try to build something within our budget
+            else
+                ReplaceBuilding(budget); // We don't have room for expansion. Let's see if we can replace to a better value building
         }
 
         // Fat Bastard - This will create a map with Governor priorities per building trait
@@ -523,17 +522,18 @@ namespace Ship_Game
             }
         }
 
-        bool BuildBiospheres(float budget)
+        bool TryBuildBiospheres(float budget)
         {
-            if (CivilianBuildingInTheWorks)
+            if (!Owner.IsBuildingUnlocked(Building.BiospheresId)
+                || CivilianBuildingInTheWorks
+                || HabitablePercentage.AlmostEqual(1)) // all tiles are habitable
+            {
                 return false;
+            }
 
-            if (HabitablePercentage.AlmostEqual(1))
-                return false; // All tiles are habitable
-
-            Building bio = BiospheresWeCanBuild;
-            if (bio == null || BiosphereInTheWorks && bio.ActualMaintenance(this) > budget)
-                return false; // not within budget or Biospheres are being built
+            Building bio = ResourceManager.GetBuildingTemplate(Building.BiospheresId);
+            if (bio == null || bio.ActualMaintenance(this) > budget)
+                return false; // not within budget
 
             if (PopulationRatio.GreaterOrEqual(0.9f) || BuiltCoverage.AlmostEqual(1))
             {

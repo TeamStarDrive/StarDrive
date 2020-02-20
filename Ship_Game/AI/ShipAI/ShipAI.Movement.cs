@@ -178,7 +178,8 @@ namespace Ship_Game.AI
                 {
                     if (Owner.loyalty == EmpireManager.Player)
                         HadPO = true;
-                    HasPriorityOrder = false;
+
+                    SetPriorityOrder(false);
                     DequeueCurrentOrder();
                 }
                 return;
@@ -463,7 +464,7 @@ namespace Ship_Game.AI
         {
             if (Owner.engineState == Ship.MoveState.Warp)
             {
-                HasPriorityOrder = false;
+                SetPriorityOrder(false);
                 Owner.HyperspaceReturn();
             }
         }
