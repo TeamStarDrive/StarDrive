@@ -72,6 +72,7 @@ namespace Ship_Game
             ModuleSelectComponent.SelectedIndex = -1;
 
             ZoomCameraToEncloseHull(ActiveHull);
+            DesignIssues = new ShipDesignIssues.ShipDesignIssues(ActiveHull);
         }
 
         void UpdateCarrierShip()
@@ -254,7 +255,9 @@ namespace Ship_Game
 
             if (WarningButton.HandleInput(input))
             {
-                ScreenManager.AddScreen(new ShipDesignWarningScreen(this, EmpireManager.Player, CurrentDesignIssues, CurrentWarningColor));
+                ScreenManager.AddScreen(new ShipDesignWarningScreen(this, EmpireManager.Player, 
+                    DesignIssues.CurrentDesignIssues, DesignIssues.CurrentWarningColor));
+
                 return true;
             }
 
