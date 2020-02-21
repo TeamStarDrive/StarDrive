@@ -51,7 +51,7 @@ namespace Ship_Game.GameScreens.ShipDesign.DesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.NoOrdnance:
-                    Severity    = WarningLevel.Major;
+                    Severity    = WarningLevel.Critical;
                     Color       = Color.Red;
                     Title       = new LocalizedText(2510).Text;
                     Problem     = new LocalizedText(2511).Text; ;
