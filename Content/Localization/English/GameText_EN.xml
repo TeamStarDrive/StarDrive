@@ -6347,8 +6347,57 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2518</Index>
+      <Text>Add Reactors to increase the power output of the ship, or Energy Storage to increase warp time.</Text>
+    </Token>
+    <Token>
+      <Index>2519</Index>
+      <Text>Negative Power Recharge</Text>
+    </Token>
+    <Token>
+      <Index>2520</Index>
+      <Text>Your ship does not have enough Reactors to properly recharge itself. It will have reduced or no effectiveness in the battlefield.</Text>
+    </Token>
+    <Token>
+      <Index>2521</Index>
       <Text>Add Reactors to increase the power output of the ship</Text>
     </Token>
+    <Token>
+      <Index>2522</Index>
+      <Text>No FTL Speed</Text>
+    </Token>
+    <Token>
+      <Index>2523</Index>
+      <Text>Your ship is not warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense</Text>
+    </Token>
+    <Token>
+      <Index>2524</Index>
+      <Text>Add Warp capable modules (usually Warp Engines) and power them to enable Warp capabilities.</Text>
+    </Token>
+    <Token>
+      <Index>2525</Index>
+      <Text>Slow FTL Speed</Text>
+    </Token>
+    <Token>
+      <Index>2526</Index>
+      <Text>Your ship has a low Warp Speed. Since fleets travel at the speed of the slowest ship, this ship will delay the fleet's speed capabilities if assigned to one.</Text>
+    </Token>
+    <Token>
+      <Index>2527</Index>
+      <Text>Add Warp capable modules (usually Warp Engines) and power them increase Warp Speed.</Text>
+    </Token>
+    <Token>
+      <Index>2528</Index>
+      <Text>No Sub light Speed</Text>
+    </Token>
+    <Token>
+      <Index>2529</Index>
+      <Text>Your ship cannot move at sub light speed.</Text>
+    </Token>
+    <Token>
+      <Index>2530</Index>
+      <Text>Add sub light Engines to give the ship some sub light speed capabilities.</Text>
+    </Token>
+
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
