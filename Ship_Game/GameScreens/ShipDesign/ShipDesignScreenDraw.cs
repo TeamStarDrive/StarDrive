@@ -448,8 +448,11 @@ namespace Ship_Game
             int numSlots                   = 0;
             int numWeaponSlots             = 0;
             float totalShieldAmplify       = 0;
-            int numTurrets                 = 0;
             bool unpoweredModules          = false;
+            bool canTargetFighters         = false;
+            bool canTargetCorvettes        = false;
+            bool canTargetCapitals         = false;
+            int pointDefenseValue          = 0;
 
             HullBonus bonus              = ActiveHull.Bonuses;
             Array<ShipModule> shields    = new Array<ShipModule>();
@@ -518,6 +521,7 @@ namespace Ship_Game
 
                 if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
                     warpSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
+
                 if (slot.Module.FTLSpeed > 0f)
                 {
                     ftlCount += 1f;
@@ -533,15 +537,26 @@ namespace Ship_Game
                 if (weapon == null)
                     continue;
 
-                if (weapon.PowerRequiredToFire > 0)
+                if (weapon.PowerRequiredToFire > 0 || weapon.BeamPowerCostPerSecond > 0)
                     bEnergyWeapons = true;
-                if (weapon.BeamPowerCostPerSecond > 0)
-                    bEnergyWeapons = true;
-                if (weapon.isTurret)
-                    numTurrets += 1;
 
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
+
+                if (!weapon.Excludes_Fighters)
+                    canTargetFighters = true;
+
+                if (!weapon.Excludes_Corvettes)
+                    canTargetCorvettes = true;
+
+                if (!weapon.Excludes_Capitals)
+                    canTargetCapitals = true;
+
+                if (weapon.TruePD)
+                    pointDefenseValue += 4;
+
+                if (weapon.Tag_PD)
+                    pointDefenseValue += 1;
 
                 // added by Fat Bastard for Energy power calcs
                 if (weapon.isBeam)
@@ -598,7 +613,7 @@ namespace Ship_Game
 
             float fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
             DrawPowerDrawAtWarp();
-            DrawEnergyStats();
+            DrawEnergyStats(out float energyDuration);
             DrawPeakPowerStats();
             float fWarpTime = -powerCapacity / fDrawAtWarp;
             DrawFtlTime();
@@ -660,6 +675,9 @@ namespace Ship_Game
                 DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, warpSpeed);
                 DesignIssues.CheckIssueNoWarp(modifiedSpeed, warpSpeed);
                 DesignIssues.CheckIssueNoSpeed(modifiedSpeed);
+                DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
+                DesignIssues.CheckTruePD(size, pointDefenseValue);
+                DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
             }
 
             void DrawHullBonuses()
@@ -737,16 +755,17 @@ namespace Ship_Game
                     DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
             }
 
-            void DrawEnergyStats()
+            void DrawEnergyStats(out float weaponFirePowerTime)
             {
+                weaponFirePowerTime = 0;
                 if (!bEnergyWeapons)
                     return;
 
                 if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
                 {
                     DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, 243, Color.LightSkyBlue));
-                    float energyDuration = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", energyDuration, 163, Color.LightSkyBlue));
+                    weaponFirePowerTime = powerCapacity / powerConsumed;
+                    DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", weaponFirePowerTime, 163, Color.LightSkyBlue));
                 }
                 else
                     DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
@@ -770,8 +789,6 @@ namespace Ship_Game
                 else
                     DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
-
-            
         }
 
         float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
