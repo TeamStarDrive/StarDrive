@@ -7,11 +7,12 @@ namespace Ship_Game
     public sealed class ShipDesignIssuesListItem : ScrollListItem<ShipDesignIssuesListItem>
     {
         private readonly DesignIssueDetails IssueDetails;
-        private readonly SpriteFont SmallFont = Fonts.Arial12Bold;
+        private readonly SpriteFont NormalFont = Fonts.Arial12Bold;
+        private readonly Color White = Color.White;
 
-        UILabel TitleLabel;
-        UILabel ProblemLabel;
-        UILabel RemediationLabel;
+        readonly UILabel TitleLabel;
+        readonly UILabel ProblemLabel;
+        readonly UILabel RemediationLabel;
         readonly UIPanel IssueTexture;
 
 
@@ -20,11 +21,10 @@ namespace Ship_Game
             IssueDetails      = details;
             IssueTexture      = Add(new UIPanel(Pos, IssueDetails.Texture));
             IssueTexture.Size = new Vector2(60, 60);
+            TitleLabel        = AddIssueLabel(IssueDetails.Title, 150, 65, NormalFont, TextAlign.VerticalCenter, IssueDetails.Color);
+            ProblemLabel      = AddIssueLabel(IssueDetails.Problem, 370, 200, NormalFont, TextAlign.VerticalCenter, White);
+            RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 370, 560, NormalFont, TextAlign.VerticalCenter, White);
             //IssueTexture.DebugDraw = true;
-
-            TitleLabel       = AddIssueLabel(IssueDetails.Title, 150, 50, SmallFont, TextAlign.Center, IssueDetails.Color);
-            ProblemLabel     = AddIssueLabel(IssueDetails.Problem, 370, 200, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
-            RemediationLabel = AddIssueLabel(IssueDetails.Remediation, 370, 560, SmallFont, TextAlign.VerticalCenter, Colors.Cream);
         }
 
         UILabel AddIssueLabel(string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)
@@ -34,27 +34,36 @@ namespace Ship_Game
             label.Size        = new Vector2(sizeX, 80);
             label.Align       = align;
             label.SetRelPos(relativeX, 0);
-            return label;
+           return label;
         }
 
         public override void Draw(SpriteBatch batch)
         {
-            batch.FillRectangle(Rect, RectColor);
+            Color borderColor = RectColor(IssueDetails.Color, 3);
+            batch.FillRectangle(Rect, RectColor(IssueDetails.Color, 10));
+            batch.DrawRectangle(Rect, borderColor);
+
+            int top            = Rect.Y;
+            int bot            = Rect.Y + Rect.Height;
+            var problemTop     = new Vector2(Rect.X + 190, top);
+            var problemBot     = new Vector2(Rect.X + 190, bot);
+            var descriptionTop = new Vector2(Rect.X + 550, top);
+            var descriptionBot = new Vector2(Rect.X + 550, bot);
+
+            batch.DrawLine(problemTop, problemBot, borderColor);
+            batch.DrawLine(descriptionTop, descriptionBot, borderColor);
+
             // workaround  for UIpanel which the Pos of the item is not set in the constructor
             IssueTexture.Pos = new Vector2(Pos.X, Pos.Y + 10);
             base.Draw(batch);
         }
 
-        Color RectColor
+        Color RectColor(Color color, int divider)
         {
-            get
-            {
-                int divider = 10;
-                Color color = new Color((byte)(IssueDetails.Color.R / divider),
-                                        (byte)(IssueDetails.Color.G / divider),
-                                        (byte)(IssueDetails.Color.B / divider));
-                return color;
-            }
+            Color divColor = new Color((byte)(color.R / divider),
+                                       (byte)(color.G / divider),
+                                       (byte)(color.B / divider));
+            return divColor;
         }
 
         string Severity
