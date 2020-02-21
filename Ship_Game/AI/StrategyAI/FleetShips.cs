@@ -147,7 +147,7 @@ namespace Ship_Game.AI
         {
             var ships = ExtractShipsByFeatures(Ships, planetAssaultTroopsWanted, 1, s =>
             {
-                if (ShipData.ShipRoleToRoleType(s.DesignRole) == ShipData.RoleType.Troop)
+                if (s.DesignRoleType == ShipData.RoleType.Troop)
                     return s.Carrier.PlanetAssaultCount;
                 return 0;
             });

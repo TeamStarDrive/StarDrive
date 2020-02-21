@@ -154,7 +154,7 @@ namespace Ship_Game.Fleets
         void SortIntoFlanks(Ship ship, ShipData.RoleName largest)
         {
             int leftCount = LeftShips.Count;
-            var roleType = ShipData.ShipRoleToRoleType(ship.DesignRole);
+            var roleType = ship.DesignRoleType;
             if (roleType != ShipData.RoleType.Warship || ship.DesignRole == ShipData.RoleName.carrier)
             {
                 RearShips.AddUniqueRef(ship);
@@ -1078,7 +1078,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     case InvasionTactics.Wait:
-                        if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Troop)
+                        if (ship.DesignRoleType == ShipData.RoleType.Troop)
                         {
                             ai.HoldPosition();
                         }
