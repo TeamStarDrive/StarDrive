@@ -541,10 +541,6 @@ namespace Ship_Game
                 if (weapon.isTurret)
                     numTurrets += 1;
 
-                //added by gremlin collect weapon stats
-                //if (!slot.Module.isWeapon && slot.Module.BombType == null)
-                 //   continue;
-
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
 
@@ -601,10 +597,11 @@ namespace Ship_Game
             DrawStatColor(ref cursor, CompareValues(110, powerCapacity, powerConsumed , 100, Color.LightSkyBlue));
             DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
 
-            float fDrawAtWarp;
+            float fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
             DrawPowerDrawAtWarp();
             DrawEnergyStats();
             DrawPeakPowerStats();
+            float fWarpTime = -powerCapacity / fDrawAtWarp;
             DrawFtlTime();
             WriteLine(ref cursor);
 
@@ -647,15 +644,9 @@ namespace Ship_Game
             }
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
-            /*
-            if (ActiveHull.Role != ShipData.RoleName.platform)
-                DrawRequirement(ref cursorReq, Localizer.Token(120), hasBridge, 1983);*/
 
             DrawCompletion(ref cursorReq, Localizer.Token(121), numSlots, size, 1982);
-
-            //if (!emptySlots)
             CheckDesignIssues();
-
 
             void CheckDesignIssues()
             {
@@ -668,6 +659,8 @@ namespace Ship_Game
                 CheckIssueBackupCommand(numCommandModules, size);
                 CheckIssueUnpoweredModules(unpoweredModules);
                 CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
+                CheckIssuePowerRecharge(powerRecharge);
+                CheckIssueWarpDraw(fDrawAtWarp, fWarpTime, warpSpeed);
             }
 
             void DrawHullBonuses()
@@ -727,7 +720,6 @@ namespace Ship_Game
 
             void DrawPowerDrawAtWarp() //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
             {
-                fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
                 if (warpSpeed > 0)
                     DrawStatColor(ref cursor, TintedValue(112, fDrawAtWarp, 102, Color.LightSkyBlue));
             }
@@ -738,7 +730,6 @@ namespace Ship_Game
                 if (!(warpSpeed > 0))
                     return;
 
-                float fWarpTime = (-powerCapacity / fDrawAtWarp) * 0.9f;
                 if (fDrawAtWarp < 0)
                     DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, 176, Color.LightSkyBlue));
                 else if (fWarpTime > 900)
@@ -790,19 +781,19 @@ namespace Ship_Game
         void CheckIssueNoCommand(int numCommand)
         {
             if (ActiveHull.Role != ShipData.RoleName.platform && numCommand == 0)
-                AddToDesignIssues(DesignIssueType.NoCommand);
+                AddDesignIssue(DesignIssueType.NoCommand, WarningLevel.Critical);
         }
 
         void CheckIssueBackupCommand(int numCommand, int size)
         {
             if (ActiveHull.Role != ShipData.RoleName.platform && numCommand <= 1 && size >= 500)
-                AddToDesignIssues(DesignIssueType.BackUpCommand);
+                AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
         }
 
         void CheckIssueUnpoweredModules(bool unpoweredModules)
         {
             if (unpoweredModules)
-                AddToDesignIssues(DesignIssueType.UnpoweredModules);
+                AddDesignIssue(DesignIssueType.UnpoweredModules, WarningLevel.Major);
         }
 
         void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime, int size)
@@ -812,14 +803,29 @@ namespace Ship_Game
 
             if (ammoTime < 5)
             {
-                AddToDesignIssues(DesignIssueType.NoOrdnance);
+                AddDesignIssue(DesignIssueType.NoOrdnance, WarningLevel.Critical);
             }
             else
             {
                 int goodAmmoTime = LargeCraft ? 50 : 25;
                 if (ammoTime < goodAmmoTime)
-                    AddToDesignIssues(DesignIssueType.LowOrdnance);
+                    AddDesignIssue(DesignIssueType.LowOrdnance, WarningLevel.Minor);
             }
+        }
+
+        void CheckIssuePowerRecharge(float recharge)
+        {
+            if (recharge.Less(0))
+                AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
+        }
+
+        void CheckIssueWarpDraw(float warpDraw, float ftlTime, float warpSpeed)
+        {
+            if (warpSpeed.AlmostZero() || warpDraw.GreaterOrEqual(0) || ftlTime > 900)
+                return;
+
+            WarningLevel severity = ftlTime < 60 ? WarningLevel.Critical : WarningLevel.Major;
+            AddDesignIssue(DesignIssueType.LowWarpTime, severity);
         }
 
         bool LargeCraft => ActiveHull.HullRole == ShipData.RoleName.freighter || ActiveHull.HullRole == ShipData.RoleName.destroyer
@@ -1043,9 +1049,9 @@ namespace Ship_Game
 
         private Array<DesignIssueDetails> CurrentDesignIssues = new Array<DesignIssueDetails>();
 
-        void AddToDesignIssues(DesignIssueType type)
+        void AddDesignIssue(DesignIssueType type, WarningLevel severity)
         {
-            DesignIssueDetails details = new DesignIssueDetails(type);
+            DesignIssueDetails details = new DesignIssueDetails(type, severity);
             CurrentDesignIssues.Add(details);
             UpdateCurrentWarningLevel(details.Severity);
         }
