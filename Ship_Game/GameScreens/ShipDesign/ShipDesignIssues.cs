@@ -235,37 +235,37 @@ namespace Ship_Game.ShipDesignIssues
                     Title       = new LocalizedText(2504).Text;
                     Problem     = new LocalizedText(2505).Text;
                     Remediation = new LocalizedText(2506).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueBackupCommand");
                     break;
                 case DesignIssueType.UnpoweredModules:
                     Title       = new LocalizedText(2507).Text;
                     Problem     = new LocalizedText(2508).Text;
                     Remediation = new LocalizedText(2509).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueUnpowered");
                     break;
                 case DesignIssueType.NoOrdnance:
                     Title       = new LocalizedText(2510).Text;
                     Problem     = new LocalizedText(2511).Text;
                     Remediation = new LocalizedText(2512).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoOrdnance.png");
                     break;
                 case DesignIssueType.LowOrdnance:
                     Title       = new LocalizedText(2513).Text;
                     Problem     = new LocalizedText(2514).Text;
                     Remediation = new LocalizedText(2515).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowOrdnance.png");
                     break;
                 case DesignIssueType.LowWarpTime:
                     Title       = new LocalizedText(2516).Text;
                     Problem     = new LocalizedText(2517).Text;
                     Remediation = new LocalizedText(2518).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowWarpTime");
                     break;
                 case DesignIssueType.NoWarp:
                     Title       = new LocalizedText(2522).Text;
                     Problem     = new LocalizedText(2523).Text;
                     Remediation = new LocalizedText(2524).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
                     Title       = new LocalizedText(2525).Text;
