@@ -10,6 +10,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesignScreen;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
+using Ship_Game.ShipDesignIssues;
 
 namespace Ship_Game
 {
@@ -39,6 +40,8 @@ namespace Ship_Game
         Rectangle BottomSep;
         Rectangle BlackBar;
 
+        public ShipDesignIssues.ShipDesignIssues DesignIssues;
+
         // this contains module selection list and active module selection info
         ModuleSelection ModuleSelectComponent;
         ScrollList2<ShipHullListItem> HullSelectList;
@@ -55,6 +58,7 @@ namespace Ship_Game
         CategoryDropDown CategoryList;
         ShieldBehaviorDropDown ShieldsBehaviorList;
         HangarDesignationDropDown HangarOptionsList;
+        
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
@@ -80,6 +84,8 @@ namespace Ship_Game
             Name = "ShipDesignScreen";
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
+
+
         #if SHIPYARD
             Debug = true;
         #endif

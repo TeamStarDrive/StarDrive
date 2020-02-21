@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Ship_Game.GameScreens.ShipDesign.DesignIssues;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game
@@ -42,9 +41,9 @@ namespace Ship_Game
 
             DrawUi(batch);
             ArcsButton.DrawWithShadowCaps(batch);
-            if (CurrentDesignIssues.Count > 0)
+            if (DesignIssues.CurrentDesignIssues.Count > 0)
             {
-                WarningButton.UnHoveredColor = CurrentWarningColor;
+                WarningButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
                 WarningButton.DrawWithShadowCaps(batch);
             }
 
@@ -455,7 +454,7 @@ namespace Ship_Game
             HullBonus bonus              = ActiveHull.Bonuses;
             Array<ShipModule> shields    = new Array<ShipModule>();
             Array<ShipModule> amplifiers = new Array<ShipModule>();
-            CurrentDesignIssues.Clear();
+            DesignIssues.Reset();
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -653,14 +652,12 @@ namespace Ship_Game
                 if (PercentComplete(numSlots, size) < 0.75f)
                     return;
 
-                CurrentDesignIssues.Clear();
-                CurrentWarningLevel = WarningLevel.None;
-                CheckIssueNoCommand(numCommandModules);
-                CheckIssueBackupCommand(numCommandModules, size);
-                CheckIssueUnpoweredModules(unpoweredModules);
-                CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
-                CheckIssuePowerRecharge(powerRecharge);
-                CheckIssueWarpDraw(fDrawAtWarp, fWarpTime, warpSpeed);
+                DesignIssues.CheckIssueNoCommand(numCommandModules);
+                DesignIssues.CheckIssueBackupCommand(numCommandModules, size);
+                DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
+                DesignIssues.CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
+                DesignIssues.CheckIssuePowerRecharge(powerRecharge);
+                DesignIssues.CheckIssueWarpDraw(fDrawAtWarp, fWarpTime, warpSpeed);
             }
 
             void DrawHullBonuses()
@@ -777,59 +774,6 @@ namespace Ship_Game
 
         float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
         bool DesignComplete(int numSlots, int size)   => numSlots == size;
-
-        void CheckIssueNoCommand(int numCommand)
-        {
-            if (ActiveHull.Role != ShipData.RoleName.platform && numCommand == 0)
-                AddDesignIssue(DesignIssueType.NoCommand, WarningLevel.Critical);
-        }
-
-        void CheckIssueBackupCommand(int numCommand, int size)
-        {
-            if (ActiveHull.Role != ShipData.RoleName.platform && numCommand <= 1 && size >= 500)
-                AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
-        }
-
-        void CheckIssueUnpoweredModules(bool unpoweredModules)
-        {
-            if (unpoweredModules)
-                AddDesignIssue(DesignIssueType.UnpoweredModules, WarningLevel.Major);
-        }
-
-        void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime, int size)
-        {
-            if ((ordnanceUsed - ordnanceRecovered).LessOrEqual(0))
-                return;  // Inf ammo
-
-            if (ammoTime < 5)
-            {
-                AddDesignIssue(DesignIssueType.NoOrdnance, WarningLevel.Critical);
-            }
-            else
-            {
-                int goodAmmoTime = LargeCraft ? 50 : 25;
-                if (ammoTime < goodAmmoTime)
-                    AddDesignIssue(DesignIssueType.LowOrdnance, WarningLevel.Minor);
-            }
-        }
-
-        void CheckIssuePowerRecharge(float recharge)
-        {
-            if (recharge.Less(0))
-                AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
-        }
-
-        void CheckIssueWarpDraw(float warpDraw, float ftlTime, float warpSpeed)
-        {
-            if (warpSpeed.AlmostZero() || warpDraw.GreaterOrEqual(0) || ftlTime > 900)
-                return;
-
-            WarningLevel severity = ftlTime < 60 ? WarningLevel.Critical : WarningLevel.Major;
-            AddDesignIssue(DesignIssueType.LowWarpTime, severity);
-        }
-
-        bool LargeCraft => ActiveHull.HullRole == ShipData.RoleName.freighter || ActiveHull.HullRole == ShipData.RoleName.destroyer
-                           || ActiveHull.HullRole == ShipData.RoleName.cruiser || ActiveHull.HullRole == ShipData.RoleName.capital;
 
         void DrawCompletion(ref Vector2 cursor, string words, int numSlots, int size, int tooltipId = 0, float lineSpacing = 2)
         {
@@ -1046,37 +990,5 @@ namespace Ship_Game
             DrawString(statCursor, stat.ValueColor, valueText, font);
             CheckToolTip(stat.Tooltip, cursor, stat.Title, valueText, font, MousePos);
         }
-
-        private Array<DesignIssueDetails> CurrentDesignIssues = new Array<DesignIssueDetails>();
-
-        void AddDesignIssue(DesignIssueType type, WarningLevel severity)
-        {
-            DesignIssueDetails details = new DesignIssueDetails(type, severity);
-            CurrentDesignIssues.Add(details);
-            UpdateCurrentWarningLevel(details.Severity);
-        }
-
-        void UpdateCurrentWarningLevel(WarningLevel level)
-        {
-            if (level > CurrentWarningLevel)
-                CurrentWarningLevel = level;
-        }
-
-        Color CurrentWarningColor
-        {
-            get
-            {
-                switch (CurrentWarningLevel)
-                {
-                    default:
-                    case WarningLevel.None:     return Color.Green;
-                    case WarningLevel.Minor:    return Color.Yellow;
-                    case WarningLevel.Major:    return Color.Orange;
-                    case WarningLevel.Critical: return Color.Red;
-                }
-            }
-        }
-
-        private WarningLevel CurrentWarningLevel = WarningLevel.None;
     }
 }
