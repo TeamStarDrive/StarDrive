@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
-using Ship_Game.GameScreens.ShipDesign.DesignIssues;
+using Ship_Game.ShipDesignIssues;
 
 namespace Ship_Game.GameScreens.ShipDesignScreen
 {
