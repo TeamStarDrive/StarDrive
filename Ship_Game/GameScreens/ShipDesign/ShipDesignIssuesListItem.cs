@@ -6,7 +6,7 @@ namespace Ship_Game
 {
     public sealed class ShipDesignIssuesListItem : ScrollListItem<ShipDesignIssuesListItem>
     {
-        private readonly DesignIssueDetails IssueDetails;
+        public readonly DesignIssueDetails IssueDetails;
         private readonly SpriteFont NormalFont = Fonts.Arial12Bold;
         private readonly Color White = Color.White;
 
@@ -52,8 +52,7 @@ namespace Ship_Game
 
             batch.DrawLine(problemTop, problemBot, borderColor);
             batch.DrawLine(descriptionTop, descriptionBot, borderColor);
-
-            // workaround  for UIpanel which the Pos of the item is not set in the constructor
+            // SetRelPos is not working for some reason, using Pos
             IssueTexture.Pos = new Vector2(Pos.X, Pos.Y + 10);
             base.Draw(batch);
         }

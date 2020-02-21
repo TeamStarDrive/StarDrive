@@ -57,6 +57,8 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
                 var d = new ShipDesignIssuesListItem(details);
                 IssueList.AddItem(d);
             }
+
+            IssueList.SortDescending(item => item.IssueDetails.Severity);
         }
 
         public override void LoadContent()
