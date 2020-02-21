@@ -1553,12 +1553,9 @@ namespace Ship_Game
                     {
                         data.DefenseBudget -= maintenance;
                     }
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WarSupport)
-                        TotalWarShipMaintenance += maintenance;
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Warship)
-                        TotalWarShipMaintenance += maintenance;
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.EmpireSupport)
-                        TotalCivShipMaintenance += maintenance;
+                    if (ship.DesignRoleType == ShipData.RoleType.WarSupport) TotalWarShipMaintenance += maintenance;
+                    if (ship.DesignRoleType == ShipData.RoleType.Warship)    TotalWarShipMaintenance += maintenance;
+                    if (ship.DesignRoleType == ShipData.RoleType.Civilian)   TotalCivShipMaintenance += maintenance;
                     TotalShipMaintenance += maintenance;
                 }
 
@@ -1616,7 +1613,8 @@ namespace Ship_Game
                 if (hulls != null && !hulls.Contains(ship.shipData.Hull))
                     continue;
 
-                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected || ShipsWeCanBuild.Contains(ship.Name))
+                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected 
+                                 || ShipsWeCanBuild.Contains(ship.Name))
                     continue;
                 if (!isPlayer && !ship.ShipGoodToBuild(this))
                     continue;
