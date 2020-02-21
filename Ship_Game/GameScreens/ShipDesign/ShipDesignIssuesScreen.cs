@@ -6,7 +6,7 @@ using Ship_Game.ShipDesignIssues;
 
 namespace Ship_Game.GameScreens.ShipDesignScreen
 {
-    public sealed class ShipDesignWarningScreen : GameScreen
+    public sealed class ShipDesignIssuesScreen : GameScreen
     {
         private readonly Empire Player;
         private readonly Menu2 Window;
@@ -16,7 +16,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
         private readonly SpriteFont LargeFont = Fonts.Arial20Bold;
 
-        public ShipDesignWarningScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues, Color color) : base(screen)
+        public ShipDesignIssuesScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues, Color color) : base(screen)
         {
             Player            = player;
             TitleColor        = color;

@@ -337,7 +337,7 @@
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen_RaceDescription.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssues.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesListItem.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignWarningScreen.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipHullListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceArchetypeListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\TraitsListItem.cs" />
