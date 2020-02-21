@@ -243,7 +243,7 @@ namespace Ship_Game
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134, "Tab");
 
-            if (WarningButton.R.HitTest(input.CursorPosition))
+            if (DesignIssuesButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134);
 
             if (ArcsButton.HandleInput(input))
@@ -253,9 +253,9 @@ namespace Ship_Game
                 return true;
             }
 
-            if (WarningButton.HandleInput(input))
+            if (DesignIssuesButton.HandleInput(input))
             {
-                ScreenManager.AddScreen(new ShipDesignWarningScreen(this, EmpireManager.Player, 
+                ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, 
                     DesignIssues.CurrentDesignIssues, DesignIssues.CurrentWarningColor));
 
                 return true;
