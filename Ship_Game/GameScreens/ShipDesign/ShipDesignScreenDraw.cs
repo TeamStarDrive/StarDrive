@@ -810,12 +810,16 @@ namespace Ship_Game
             if ((ordnanceUsed - ordnanceRecovered).LessOrEqual(0))
                 return;  // Inf ammo
 
-            if (ammoTime.AlmostZero())
+            if (ammoTime < 5)
+            {
                 AddToDesignIssues(DesignIssueType.NoOrdnance);
-
-            int goodAmmoTime = LargeCraft ? 60 : 30;
-            if (ammoTime < goodAmmoTime)
-                AddToDesignIssues(DesignIssueType.LowOrdnance);
+            }
+            else
+            {
+                int goodAmmoTime = LargeCraft ? 50 : 25;
+                if (ammoTime < goodAmmoTime)
+                    AddToDesignIssues(DesignIssueType.LowOrdnance);
+            }
         }
 
         bool LargeCraft => ActiveHull.HullRole == ShipData.RoleName.freighter || ActiveHull.HullRole == ShipData.RoleName.destroyer

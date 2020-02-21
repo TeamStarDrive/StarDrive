@@ -11,8 +11,10 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         private readonly Empire Player;
         private readonly Menu2 Window;
         private readonly Color TitleColor;
+        private readonly Color Cream = Colors.Cream;
         private readonly Array<DesignIssueDetails> DesignIssues;
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
+        private readonly SpriteFont LargeFont = Fonts.Arial20Bold;
 
         public ShipDesignWarningScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues, Color color) : base(screen)
         {
@@ -23,17 +25,29 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            Window    = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 600)));
-
-            int x = (int)Window.X + 20;
-            int y = (int)Window.Y + 60;
-            int w = (int)Window.Width - 30;
-            int h = (int)Window.Height - 80;
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 600)));
+            int x  = (int)Window.X + 20;
+            int y  = (int)Window.Y + 70;
+            int w  = (int)Window.Width - 30;
+            int h  = (int)Window.Height - 80;
 
             IssueList = Add(new ScrollList2<ShipDesignIssuesListItem>(x, y, w, h, 80));
             IssueList.EnableItemHighlight = true;
             //IssueList.DebugDrawScrollList = true;
             //IssueList.DebugDraw = true;
+
+            UILabel designIssueLabel = Add(new UILabel("Design Issue", LargeFont, Cream));
+            UILabel descriptionLabel = Add(new UILabel("Issue Description", LargeFont, Cream));
+            UILabel remediationLabel = Add(new UILabel("Remediation", LargeFont, Cream));
+            designIssueLabel.Size    = new Vector2(230, 20);
+            descriptionLabel.Size    = new Vector2(370, 20);
+            remediationLabel.Size    = new Vector2(370, 20);
+            designIssueLabel.Pos     = new Vector2(x, y - 10);
+            descriptionLabel.Pos     = new Vector2(x + 180, y - 10);
+            remediationLabel.Pos     = new Vector2(x + 550, y - 10);
+            designIssueLabel.Align   = TextAlign.HorizontalCenter;
+            descriptionLabel.Align   = TextAlign.HorizontalCenter;
+            remediationLabel.Align   = TextAlign.HorizontalCenter;
         }
 
         void PopulateIssues()
@@ -49,8 +63,9 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
         {
             CloseButton(Window.Menu.Right - 40, Window.Menu.Y + 20);
             //Screen Title
-            string title = "Current Ship Issues";
-            Label(Window.Menu.CenterTextX(title, Fonts.Laserian14), Window.Menu.Y + 30, title, Fonts.Laserian14);
+            string title    = "Current Ship Issues";
+            Vector2 menuPos = new Vector2(Window.Menu.CenterTextX(title, Fonts.Laserian14), Window.Menu.Y + 30);
+            Label(menuPos, title, Fonts.Laserian14, Cream);
             PopulateIssues();
             base.LoadContent();
         }
