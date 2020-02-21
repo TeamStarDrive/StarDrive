@@ -8,24 +8,20 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
 {
     public sealed class ShipDesignIssuesScreen : GameScreen
     {
-        private readonly Empire Player;
         private readonly Menu2 Window;
-        private readonly Color TitleColor;
         private readonly Color Cream = Colors.Cream;
         private readonly Array<DesignIssueDetails> DesignIssues;
         private readonly ScrollList2<ShipDesignIssuesListItem> IssueList;
         private readonly SpriteFont LargeFont = Fonts.Arial20Bold;
 
-        public ShipDesignIssuesScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues, Color color) : base(screen)
+        public ShipDesignIssuesScreen(GameScreen screen, Empire player, Array<DesignIssueDetails> issues) : base(screen)
         {
-            Player            = player;
-            TitleColor        = color;
             DesignIssues      = issues;
             IsPopup           = true;
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 600)));
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 620)));
             int x  = (int)Window.X + 20;
             int y  = (int)Window.Y + 70;
             int w  = (int)Window.Width - 30;
