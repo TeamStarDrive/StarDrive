@@ -31,8 +31,9 @@ namespace Ship_Game.ShipDesignIssues
         bool LargeCraft => Hull.HullRole == ShipData.RoleName.freighter || Hull.HullRole == ShipData.RoleName.destroyer
                            || Hull.HullRole == ShipData.RoleName.cruiser || Hull.HullRole == ShipData.RoleName.capital;
 
-
         bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole ==  ShipData.RoleName.platform;
+        bool Civilian   => Hull.Role == ShipData.RoleName.colony || Hull.Role == ShipData.RoleName.freighter
+                           || Hull.Role == ShipData.RoleName.construction || Hull.Role == ShipData.RoleName.scout;
 
         public void Reset()
         {
@@ -118,6 +119,50 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.NoSpeed, WarningLevel.Critical);
         }
 
+        public void CheckTargetExclusions(bool hasWeapons, bool canTargetFighters, bool  canTargetCorvettes, bool canTargetCapitals)
+        {
+            if (!hasWeapons)
+                return;
+
+            WarningLevel severity = LargeCraft ? WarningLevel.Major : WarningLevel.Critical;
+            if (!canTargetCapitals)
+                AddDesignIssue(DesignIssueType.CantTargetFighters, severity);
+
+            if (!canTargetCorvettes)
+                AddDesignIssue(DesignIssueType.CantTargetCorvettes, severity);
+
+            severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Minor;
+            if (!canTargetCapitals)
+                AddDesignIssue(DesignIssueType.CantTargetCapitals, severity);
+        }
+
+        public void CheckTruePD(int size, int pointDefenseValue)
+        {
+            int threshold = (size / 60);
+            if (size < 500 || pointDefenseValue > threshold)
+                return;
+
+            WarningLevel severity = pointDefenseValue < threshold / 2 ? WarningLevel.Major
+                                                                      : WarningLevel.Minor;
+
+            AddDesignIssue(DesignIssueType.NoTruePD, severity);
+        }
+
+        public void CheckWeaponPowerTime(bool hasEnergyWeapons, bool excessPowerConsumed, float weaponPowerTime)
+        {
+            if (!hasEnergyWeapons || !excessPowerConsumed)
+                return;
+
+            WarningLevel severity = WarningLevel.None;
+            if (weaponPowerTime < 2)       severity = WarningLevel.Critical;
+            else if (weaponPowerTime < 5)  severity = WarningLevel.Major;
+            else if (weaponPowerTime < 10) severity = WarningLevel.Minor;
+            else if (weaponPowerTime < 20) severity = WarningLevel.Informative;
+
+            if (severity > WarningLevel.None)
+                AddDesignIssue(DesignIssueType.LowWeaponPowerTime, severity);
+        }
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -145,7 +190,12 @@ namespace Ship_Game.ShipDesignIssues
         NoWarp,
         SlowWarp,
         NegativeRecharge,
-        NoSpeed
+        NoSpeed,
+        CantTargetFighters,
+        CantTargetCorvettes,
+        CantTargetCapitals,
+        NoTruePD,
+        LowWeaponPowerTime
     }
 
     public enum WarningLevel
@@ -233,6 +283,36 @@ namespace Ship_Game.ShipDesignIssues
                     Title       = new LocalizedText(2527).Text;
                     Problem     = new LocalizedText(2528).Text;
                     Remediation = new LocalizedText(2530).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.CantTargetFighters:
+                    Title       = new LocalizedText(2531).Text;
+                    Problem     = new LocalizedText(2532).Text;
+                    Remediation = new LocalizedText(2533).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.CantTargetCorvettes:
+                    Title       = new LocalizedText(2534).Text;
+                    Problem     = new LocalizedText(2535).Text;
+                    Remediation = new LocalizedText(2536).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.CantTargetCapitals:
+                    Title       = new LocalizedText(2537).Text;
+                    Problem     = new LocalizedText(2538).Text;
+                    Remediation = new LocalizedText(2539).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.NoTruePD:
+                    Title       = new LocalizedText(2540).Text;
+                    Problem     = new LocalizedText(2541).Text;
+                    Remediation = new LocalizedText(2542).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.LowWeaponPowerTime:
+                    Title       = new LocalizedText(2543).Text;
+                    Problem     = new LocalizedText(2544).Text;
+                    Remediation = new LocalizedText(2545).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
             }

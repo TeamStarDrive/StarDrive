@@ -6283,7 +6283,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2502</Index>
-      <Text>Your Ship does not have a Command Module or all your Command Modules are not getting power.</Text>
+      <Text>The Ship does not have a Command Module or all your Command Modules are not getting power.</Text>
     </Token>
     <Token>
       <Index>2503</Index>
@@ -6295,11 +6295,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2505</Index>
-      <Text>Your ship currently has only a single Command Module. When all Command Modules of a ship are destroyed, it cannot identify targets and will usually retreat for repairs.</Text>
+      <Text>The ship currently has only a single Command Module. When all Command Modules of a ship are destroyed, it cannot identify targets and will usually retreat for repairs.</Text>
     </Token>
     <Token>
       <Index>2506</Index>
-      <Text>Add a backup Command Module to your ship (it can be a small one), preferably far from your main Command Module in order to maintain combat effectiveness of the ship.</Text>
+      <Text>Add a backup Command Module to the ship (it can be a small one), preferably far from your main Command Module in order to maintain combat effectiveness of the ship.</Text>
     </Token>
     <Token>
       <Index>2507</Index>
@@ -6307,7 +6307,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2508</Index>
-      <Text>Some of the power consuming modules in your ship are not getting power. This reduces ship effectiveness as these modules won't work after the ship is built.</Text>
+      <Text>Some of the power consuming modules in this ship are not getting power. This reduces ship effectiveness as these modules won't work after the ship is built.</Text>
     </Token>
     <Token>
       <Index>2509</Index>
@@ -6319,7 +6319,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2511</Index>
-      <Text>Your particular ship design needs Ordnance to properly conduct combat. Currently you do not have ordnance stores on board your ship. Note that Hangars use Ordnance to launch ships.</Text>
+      <Text>This ship design needs Ordnance to properly conduct combat. Currently you do not have ordnance stores on board your ship. Note that Hangars use Ordnance to launch ships.</Text>
     </Token>
     <Token>
       <Index>2512</Index>
@@ -6331,7 +6331,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2514</Index>
-      <Text>Your ship has low effective fighting time (for it's size) on the battlefield, due to the presence of Ordnance consuming weapons, coupled with low Ordnance stores.</Text>
+      <Text>The ship has low effective fighting time (for it's size) on the battlefield, due to the presence of Ordnance consuming weapons, coupled with low Ordnance stores.</Text>
     </Token>
     <Token>
       <Index>2515</Index>
@@ -6343,7 +6343,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2517</Index>
-      <Text>Your ship's ability to sustain Warp Speed is limited</Text>
+      <Text>The ship's ability to sustain Warp Speed is limited</Text>
     </Token>
     <Token>
       <Index>2518</Index>
@@ -6355,7 +6355,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2520</Index>
-      <Text>Your ship does not have enough Reactors to properly recharge itself. It will have reduced or no effectiveness in the battlefield.</Text>
+      <Text>The ship does not have enough Reactors to properly recharge itself. It will have reduced or no effectiveness in the battlefield.</Text>
     </Token>
     <Token>
       <Index>2521</Index>
@@ -6367,7 +6367,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2523</Index>
-      <Text>Your ship is not warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense</Text>
+      <Text>The ship is not warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense.</Text>
     </Token>
     <Token>
       <Index>2524</Index>
@@ -6379,7 +6379,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2526</Index>
-      <Text>Your ship has a low Warp Speed. Since fleets travel at the speed of the slowest ship, this ship will delay the fleet's speed capabilities if assigned to one.</Text>
+      <Text>The ship has a low Warp Speed. Since fleets travel at the speed of the slowest ship, this ship will delay the fleet's speed capabilities if assigned to one.</Text>
     </Token>
     <Token>
       <Index>2527</Index>
@@ -6391,11 +6391,71 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2529</Index>
-      <Text>Your ship cannot move at sub light speed.</Text>
+      <Text>The ship cannot move at sub light speed.</Text>
     </Token>
     <Token>
       <Index>2530</Index>
       <Text>Add sub light Engines to give the ship some sub light speed capabilities.</Text>
+    </Token>
+    <Token>
+      <Index>2531</Index>
+      <Text>Cannot Target Fighters</Text>
+    </Token>
+    <Token>
+      <Index>2532</Index>
+      <Text>No weapon on board the ship can target Fighters. This will probably cripple the ship's ability to deal with Fighters, especially for small craft as Fighters or Corvettes.</Text>
+    </Token>
+    <Token>
+      <Index>2533</Index>
+      <Text>Add weapon systems which can target Fighters.</Text>
+    </Token>
+    <Token>
+      <Index>2534</Index>
+      <Text>Cannot Target Corvettes</Text>
+    </Token>
+    <Token>
+      <Index>2535</Index>
+      <Text>No weapon on board the ship can target Corvettes. This will probably cripple the ship's ability to deal with Corvettes, especially for small craft as Fighters or Corvettes.</Text>
+    </Token>
+    <Token>
+      <Index>2536</Index>
+      <Text>Add weapon systems which can target Corvettes.</Text>
+    </Token>
+    <Token>
+      <Index>2537</Index>
+      <Text>Cannot Target Capitals</Text>
+    </Token>
+    <Token>
+      <Index>2538</Index>
+      <Text>No weapon on board the ship can target larger ships as Frigates and above. This will probably cripple the ship's ability to deal with Capitals, especially for Capital ships.</Text>
+    </Token>
+    <Token>
+      <Index>2539</Index>
+      <Text>Add weapon systems which can target Capitals.</Text>
+    </Token>
+    <Token>
+      <Index>2540</Index>
+      <Text>Low Number of PD Weapons</Text>
+    </Token>
+    <Token>
+      <Index>2541</Index>
+      <Text>The ship does not have enough Point Defense weapons on board for it's size. This might make it vulnerable to Missile barrages.</Text>
+    </Token>
+    <Token>
+      <Index>2542</Index>
+      <Text>Add point Defense capable weapons. Note that dedicated Point Defense is generally better than dual purpose systems, as they are not distracted by other targets.</Text>
+    </Token>
+    <Token>
+      <Index>2543</Index>
+      <Text>Low Weapon Time</Text>
+    </Token>
+    <Token>
+      <Index>2544</Index>
+      <Text>The ship can fire all of it's Energy weapons for a limited time. This issue's severity is a function of the time the ship can fire. Low Energy weapon time may cripple the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2545</Index>
+      <Text>Add Reactors or Energy storage to increase Energy weapon times.</Text>
     </Token>
 
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
