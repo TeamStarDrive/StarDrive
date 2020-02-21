@@ -43,8 +43,8 @@ namespace Ship_Game
             ArcsButton.DrawWithShadowCaps(batch);
             if (DesignIssues.CurrentDesignIssues.Count > 0)
             {
-                WarningButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
-                WarningButton.DrawWithShadowCaps(batch);
+                DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
+                DesignIssuesButton.DrawWithShadowCaps(batch);
             }
 
             if (Debug)
