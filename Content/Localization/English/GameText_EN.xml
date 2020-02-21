@@ -6337,6 +6337,18 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2515</Index>
       <Text>Add Ordnance stores or Ordnance Fabricators to your ship. The more Ordnance your ship has on board, the longer it can sustain itself in the battlefield before needing resupply.</Text>
     </Token>
+    <Token>
+      <Index>2516</Index>
+      <Text>Low Warp Time</Text>
+    </Token>
+    <Token>
+      <Index>2517</Index>
+      <Text>Your ship's ability to sustain Warp Speed is limited</Text>
+    </Token>
+    <Token>
+      <Index>2518</Index>
+      <Text>Add Reactors to increase the power output of the ship</Text>
+    </Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
