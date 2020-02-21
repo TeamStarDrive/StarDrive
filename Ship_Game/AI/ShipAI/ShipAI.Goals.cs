@@ -179,6 +179,9 @@ namespace Ship_Game.AI
             }
         }
 
+        void AddPriorityBombPlanetGoal(Planet p) => AddPlanetGoal(Plan.Bombard, p
+                                                  , AIState.Bombard, true, true);
+
         void AddLandTroopGoal(Planet p)      => AddPlanetGoal(Plan.LandTroop, p, AIState.AssaultPlanet);
         void AddBombPlanetGoal(Planet p)     => AddPlanetGoal(Plan.Bombard, p, AIState.Bombard);
         void AddExterminateGoal(Planet p)    => AddPlanetGoal(Plan.Exterminate, p, AIState.Exterminate);

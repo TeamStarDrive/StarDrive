@@ -361,6 +361,7 @@ namespace Ship_Game.Ships
         }
         public enum RoleType
         {
+            Civilian,
             Orbital,
             EmpireSupport,
             Warship,
@@ -373,26 +374,20 @@ namespace Ship_Game.Ships
         {
             switch (role)
             {
-                case RoleName.disabled:
-                    return RoleType.NotApplicable;
-                case RoleName.shipyard:
-                case RoleName.construction:
+                case RoleName.disabled:  return RoleType.NotApplicable;
                 case RoleName.ssp:
+                case RoleName.construction:
+                case RoleName.shipyard:  return RoleType.EmpireSupport;
                 case RoleName.colony:
-                case RoleName.freighter:
-                    return RoleType.EmpireSupport;
-                case RoleName.platform:
-                case RoleName.station:
-                    return RoleType.Orbital;
-                case RoleName.supply:
                 case RoleName.scout:
+                case RoleName.freighter: return RoleType.Civilian;
+                case RoleName.platform:
+                case RoleName.station:   return RoleType.Orbital;
+                case RoleName.supply:
                 case RoleName.support:
-                case RoleName.bomber:
-                    return RoleType.WarSupport;
+                case RoleName.bomber:    return RoleType.WarSupport;
                 case RoleName.troop:
-                case RoleName.troopShip:
-                    return RoleType.Troop;
-
+                case RoleName.troopShip: return RoleType.Troop;
                 case RoleName.carrier:
                 case RoleName.fighter:
                 case RoleName.gunboat:
@@ -402,8 +397,7 @@ namespace Ship_Game.Ships
                 case RoleName.destroyer:
                 case RoleName.cruiser:
                 case RoleName.capital:
-                case RoleName.prototype:
-                    return RoleType.Warship;
+                case RoleName.prototype: return RoleType.Warship;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(role), role, null);
             }
