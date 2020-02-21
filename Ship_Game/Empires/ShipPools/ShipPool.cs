@@ -77,11 +77,9 @@ namespace Ship_Game.Empires.ShipPools
 
             if (!AssignShipsToOtherPools(ship))
             {
-                if (ship.DesignRole != ShipData.RoleName.scout && 
-                    (ship.DesignRole == ShipData.RoleName.troopShip ||
-                ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WarSupport)
-                    )
-
+                if (ship.DesignRoleType    == ShipData.RoleType.Troop 
+                    || ship.DesignRoleType == ShipData.RoleType.WarSupport
+                    || ship.DesignRole     == ShipData.RoleName.carrier)
                 {
                     if (!ForcePool.AddUniqueRef(ship))
                         Log.Warning($"Attempted to add an existing ship to Empire forcePool. ShipRole: {ship}");
@@ -94,7 +92,7 @@ namespace Ship_Game.Empires.ShipPools
             int numWars = Owner.AtWarCount;
 
             float baseDefensePct = 0.1f;
-            baseDefensePct += 0.15f * numWars;
+            baseDefensePct      += 0.15f * numWars;
             if (toAdd.DesignRole < ShipData.RoleName.fighter ||
                 toAdd.BaseStrength <= 0f || toAdd.WarpThrust <= 0f || !toAdd.BaseCanWarp)
             {

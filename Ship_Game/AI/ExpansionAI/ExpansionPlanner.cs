@@ -98,10 +98,14 @@ namespace Ship_Game.AI.ExpansionAI
             for (int i = 0; i < allPlanetsRanker.Count && maxDesiredPlanets > 0; i++)
             {
                 var ranker = allPlanetsRanker[i];
-                if (ranker.PoorPlanet && ranker.Value > backupPlanet.Value)
-                    backupPlanet = ranker;
-
+                if (ranker.PoorPlanet)
+                {
+                    if (ranker.Value > backupPlanet.Value)
+                        backupPlanet = ranker;
+                    continue;
+                }
                 planetsRanked.Add(ranker);
+
                 if (ranker.CantColonize) continue;
 
                 maxDesiredPlanets--;

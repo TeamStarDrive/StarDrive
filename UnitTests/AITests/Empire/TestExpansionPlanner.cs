@@ -59,7 +59,7 @@ namespace UnitTests.AITests
             Assert.AreEqual(0, expansionAI.ColonizationTargets.Length,
                 "All targets should have a colony goal");
             Assert.AreEqual(4, expansionAI.DesiredPlanets.Length,
-                "There should be 4 planets that we want");
+                "There should be 3 planets that we want");
             Assert.AreEqual(5, expansionAI.RankedPlanets.Length,
                 "unfiltered colonization targets should be 5");
 
@@ -69,9 +69,11 @@ namespace UnitTests.AITests
 
             //mock colonization success
             expansionAI.DesiredPlanets[0].Owner = TestEmpire;
+            TestEmpire.GetEmpireAI().EndAllTasks();
             expansionAI.RunExpansionPlanner();
             Assert.AreEqual(3, expansionAI.DesiredPlanets.Length);
             Assert.AreEqual(5, expansionAI.RankedPlanets.Length);
+            expansionAI.RunExpansionPlanner();
 
         }
     }
