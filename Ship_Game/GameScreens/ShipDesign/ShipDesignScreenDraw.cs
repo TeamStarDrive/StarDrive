@@ -657,7 +657,9 @@ namespace Ship_Game
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
                 DesignIssues.CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
                 DesignIssues.CheckIssuePowerRecharge(powerRecharge);
-                DesignIssues.CheckIssueWarpDraw(fDrawAtWarp, fWarpTime, warpSpeed);
+                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, warpSpeed);
+                DesignIssues.CheckIssueNoWarp(modifiedSpeed, warpSpeed);
+                DesignIssues.CheckIssueNoSpeed(modifiedSpeed);
             }
 
             void DrawHullBonuses()

@@ -32,6 +32,8 @@ namespace Ship_Game.ShipDesignIssues
                            || Hull.HullRole == ShipData.RoleName.cruiser || Hull.HullRole == ShipData.RoleName.capital;
 
 
+        bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole ==  ShipData.RoleName.platform;
+
         public void Reset()
         {
             CurrentDesignIssues.Clear();
@@ -46,7 +48,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckIssueBackupCommand(int numCommand, int size)
         {
-            if (Hull.Role != ShipData.RoleName.platform && numCommand <= 1 && size >= 500)
+            if (Hull.Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
                 AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
         }
 
@@ -79,13 +81,41 @@ namespace Ship_Game.ShipDesignIssues
                 AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
         }
 
-        public void CheckIssueWarpDraw(float warpDraw, float ftlTime, float warpSpeed)
+        public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
         {
             if (warpSpeed.AlmostZero() || warpDraw.GreaterOrEqual(0) || ftlTime > 900)
                 return;
 
             WarningLevel severity = ftlTime < 60 ? WarningLevel.Critical : WarningLevel.Major;
             AddDesignIssue(DesignIssueType.LowWarpTime, severity);
+        }
+
+        public void CheckIssueNoWarp(float speed, float warpSpeed)
+        {
+            if (speed.AlmostZero())
+                return; 
+
+            if (warpSpeed.LessOrEqual(0))
+            {
+                WarningLevel severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Informative;
+                AddDesignIssue(DesignIssueType.NoWarp, severity);
+            }
+            else if (warpSpeed.Less(10000))
+            {
+                AddDesignIssue(DesignIssueType.SlowWarp, WarningLevel.Major);
+            }
+            else if (warpSpeed.Less(20000))
+            {
+                AddDesignIssue(DesignIssueType.SlowWarp, WarningLevel.Minor);
+            }
+        }
+
+        public void CheckIssueNoSpeed(float speed)
+        {
+            if (speed.Greater(0) || Stationary)
+                return;
+
+            AddDesignIssue(DesignIssueType.NoSpeed, WarningLevel.Critical);
         }
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
@@ -95,10 +125,11 @@ namespace Ship_Game.ShipDesignIssues
             switch (severity)
             {
                 default:
-                case WarningLevel.None: return Color.Green;
-                case WarningLevel.Minor: return Color.Yellow;
-                case WarningLevel.Major: return Color.Orange;
-                case WarningLevel.Critical: return Color.Red;
+                case WarningLevel.None:        return Color.DarkGray;
+                case WarningLevel.Informative: return Color.Green;
+                case WarningLevel.Minor:       return Color.Yellow;
+                case WarningLevel.Major:       return Color.Orange;
+                case WarningLevel.Critical:    return Color.Red;
             }
         }
     }
@@ -110,13 +141,17 @@ namespace Ship_Game.ShipDesignIssues
         UnpoweredModules,
         NoOrdnance,
         LowOrdnance,
+        LowWarpTime,
+        NoWarp,
+        SlowWarp,
         NegativeRecharge,
-        LowWarpTime
+        NoSpeed
     }
 
     public enum WarningLevel
     {
         None,
+        Informative,
         Minor,
         Major,
         Critical
@@ -132,49 +167,73 @@ namespace Ship_Game.ShipDesignIssues
         public readonly string Remediation;
         public readonly SubTexture Texture;
 
-        public DesignIssueDetails(DesignIssueType issueType, WarningLevel severity) : this()
+        public DesignIssueDetails(DesignIssueType issueType, WarningLevel severity)
         {
-            Type = issueType;
+            Type     = issueType;
             Severity = severity;
-            Color = ShipDesignIssues.IssueColor(severity);
+            Color    = ShipDesignIssues.IssueColor(severity);
             switch (issueType)
             {
                 default:
                 case DesignIssueType.NoCommand:
-                    Title = new LocalizedText(2501).Text;
-                    Problem = new LocalizedText(2502).Text; ;
-                    Remediation = new LocalizedText(2503).Text; ;
-                    Texture = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Title       = new LocalizedText(2501).Text;
+                    Problem     = new LocalizedText(2502).Text;
+                    Remediation = new LocalizedText(2503).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.BackUpCommand:
-                    Title = new LocalizedText(2504).Text;
-                    Problem = new LocalizedText(2505).Text; ;
-                    Remediation = new LocalizedText(2506).Text; ;
-                    Texture = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Title       = new LocalizedText(2504).Text;
+                    Problem     = new LocalizedText(2505).Text;
+                    Remediation = new LocalizedText(2506).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.UnpoweredModules:
-                    Title = new LocalizedText(2507).Text;
-                    Problem = new LocalizedText(2508).Text; ;
-                    Remediation = new LocalizedText(2509).Text; ;
-                    Texture = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Title       = new LocalizedText(2507).Text;
+                    Problem     = new LocalizedText(2508).Text;
+                    Remediation = new LocalizedText(2509).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.NoOrdnance:
-                    Title = new LocalizedText(2510).Text;
-                    Problem = new LocalizedText(2511).Text; ;
-                    Remediation = new LocalizedText(2512).Text; ;
-                    Texture = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Title       = new LocalizedText(2510).Text;
+                    Problem     = new LocalizedText(2511).Text;
+                    Remediation = new LocalizedText(2512).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.LowOrdnance:
-                    Title = new LocalizedText(2513).Text;
-                    Problem = new LocalizedText(2514).Text; ;
-                    Remediation = new LocalizedText(2515).Text; ;
-                    Texture = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Title       = new LocalizedText(2513).Text;
+                    Problem     = new LocalizedText(2514).Text;
+                    Remediation = new LocalizedText(2515).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
                 case DesignIssueType.LowWarpTime:
-                    Title = new LocalizedText(2516).Text;
-                    Problem = new LocalizedText(2517).Text; ;
-                    Remediation = new LocalizedText(2518).Text; ;
-                    Texture = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Title       = new LocalizedText(2516).Text;
+                    Problem     = new LocalizedText(2517).Text;
+                    Remediation = new LocalizedText(2518).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.NoWarp:
+                    Title       = new LocalizedText(2522).Text;
+                    Problem     = new LocalizedText(2523).Text;
+                    Remediation = new LocalizedText(2524).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.SlowWarp:
+                    Title       = new LocalizedText(2525).Text;
+                    Problem     = new LocalizedText(2526).Text;
+                    Remediation = new LocalizedText(2527).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.NegativeRecharge:
+                    Title       = new LocalizedText(2519).Text;
+                    Problem     = new LocalizedText(2520).Text;
+                    Remediation = new LocalizedText(2521).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    break;
+                case DesignIssueType.NoSpeed:
+                    Title       = new LocalizedText(2527).Text;
+                    Problem     = new LocalizedText(2528).Text;
+                    Remediation = new LocalizedText(2530).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
             }
         }

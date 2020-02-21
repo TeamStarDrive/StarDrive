@@ -255,8 +255,7 @@ namespace Ship_Game
 
             if (DesignIssuesButton.HandleInput(input))
             {
-                ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, 
-                    DesignIssues.CurrentDesignIssues, DesignIssues.CurrentWarningColor));
+                ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, DesignIssues.CurrentDesignIssues));
 
                 return true;
             }

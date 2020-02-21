@@ -8,7 +8,7 @@ namespace Ship_Game
     {
         public readonly DesignIssueDetails IssueDetails;
         private readonly SpriteFont NormalFont = Fonts.Arial12Bold;
-        private readonly Color White = Color.White;
+        private readonly Color White = Color.LightGray;
 
         readonly UILabel TitleLabel;
         readonly UILabel ProblemLabel;
