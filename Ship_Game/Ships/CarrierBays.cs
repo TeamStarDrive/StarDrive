@@ -23,6 +23,11 @@ namespace Ship_Game.Ships
         public bool SendTroopsToShip;
         private bool RecallingShipsBeforeWarp;
         public SupplyShuttles SupplyShuttle;
+        public float HangarRange => HasActiveHangars ? 7500f : 0;
+        public bool IsPrimaryCarrierRole => HasActiveHangars &&
+                                            (Owner.DesignRole == ShipData.RoleName.carrier ||
+                                             Owner.DesignRole == ShipData.RoleName.support ||
+                                             Owner.DesignRoleType == ShipData.RoleType.Orbital);
 
         private CarrierBays(Ship owner, ShipModule[] slots)
         {
