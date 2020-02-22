@@ -172,6 +172,19 @@ namespace Ship_Game.ShipDesignIssues
             AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
         }
 
+        public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons)
+        {
+            if (numWeapons == 0)
+                return;
+
+            if (numOrdnanceWeapons < numWeapons)
+                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, WarningLevel.Informative);
+
+            float ordnanceToEnergyRatio = (float)numOrdnanceWeapons / numWeapons;
+            if (ordnanceToEnergyRatio.LessOrEqual(ShipResupply.KineticToEnergyRatio))
+                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyCombat, WarningLevel.Informative);
+        }       
+
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
 
         public static Color IssueColor(WarningLevel severity)
@@ -205,7 +218,9 @@ namespace Ship_Game.ShipDesignIssues
         CantTargetCapitals,
         LowPdValue,
         LowWeaponPowerTime,
-        LowBurstPowerTime
+        LowBurstPowerTime,
+        NoOrdnanceResupplyCombat,
+        NoOrdnanceResupplyPlayerOrder
     }
 
     public enum WarningLevel
@@ -326,10 +341,22 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyWeaponTime");
                     break;
                 case DesignIssueType.LowBurstPowerTime:
-                    Title       = new LocalizedText(2551).Text;
-                    Problem     = new LocalizedText(2552).Text;
-                    Remediation = new LocalizedText(2553).Text;
+                    Title       = new LocalizedText(2547).Text;
+                    Problem     = new LocalizedText(2548).Text;
+                    Remediation = new LocalizedText(2549).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyBurstTime");
+                    break;
+                case DesignIssueType.NoOrdnanceResupplyCombat:
+                    Title       = new LocalizedText(2550).Text;
+                    Problem     = new LocalizedText(2551).Text;
+                    Remediation = new LocalizedText(2552).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoAmmoResupplyCombat");
+                    break;
+                case DesignIssueType.NoOrdnanceResupplyPlayerOrder:
+                    Title       = new LocalizedText(2553).Text;
+                    Problem     = new LocalizedText(2554).Text;
+                    Remediation = new LocalizedText(2555).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoAmmoResupplyPlayer");
                     break;
             }
         }
