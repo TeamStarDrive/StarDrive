@@ -177,27 +177,6 @@ namespace Ship_Game.ShipDesignIssues
                 case WarningLevel.Critical:    return Color.Red;
             }
         }
-
-        public string DesignIssuesButtonText
-        {
-            get
-            {
-                string text;
-                switch (CurrentWarningLevel)
-                {
-                    default:
-                    case WarningLevel.None:        text = "No Issues";                     break;
-                    case WarningLevel.Informative: text = new LocalizedText(2546).Text; break;
-                    case WarningLevel.Minor:       text = new LocalizedText(2547).Text; break;
-                    case WarningLevel.Major:       text = new LocalizedText(2548).Text; break;
-                    case WarningLevel.Critical:    text = new LocalizedText(2549).Text; break;
-                }
-
-                text += $" ({CurrentDesignIssues.Count})";
-                return text;
-            }
-        }
-
     }
 
     public enum DesignIssueType

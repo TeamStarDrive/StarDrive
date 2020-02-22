@@ -1811,8 +1811,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation) offense  /= 2;
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea,
-                numWeaponSlots, offense, defense, shipData.Role, RotationRadiansPerSecond);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense);
         }
 
         private void ApplyRepairToShields(float repairPool)
