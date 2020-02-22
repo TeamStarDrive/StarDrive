@@ -402,7 +402,8 @@ namespace Ship_Game.AI
             ResupplyEscort,
             RebaseToShip,
             ReturnHome,
-            DeployOrbital
+            DeployOrbital,
+            HoldPositionOffensive
         }
     }
 }
