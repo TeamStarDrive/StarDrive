@@ -6473,6 +6473,30 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2549</Index>
       <Text>Add Reactors or Energy storage to increase burst Energy power times.</Text>
     </Token>
+    <Token>
+      <Index>2550</Index>
+      <Text>No Ammo Resupply in Combat</Text>
+    </Token>
+    <Token>
+      <Index>2551</Index>
+      <Text>Due to high ratio of Energy to Ordnance requiring weapons, the ship will not go to resupply if it's ammo reserves are low during combat.</Text>
+    </Token>
+    <Token>
+      <Index>2552</Index>
+      <Text>Generally, the ship will stay in combat with slightly reduced combat effectiveness, but it will be able to fight. It is up to you if you want to reduce the number of Energy weapons.</Text>
+    </Token>
+    <Token>
+      <Index>2553</Index>
+      <Text>Energy and Kinetic Blend</Text>
+    </Token>
+    <Token>
+      <Index>2554</Index>
+      <Text>This ship has a blend of Kinetics and Energy weapons (Point Defense is not counted). When you directly order it to attack a target, it will not go to resupply if it's ordnance reserves are low.</Text>
+    </Token>
+    <Token>
+      <Index>2555</Index>
+      <Text>The ship might have reduced effectiveness when fighting with only energy weapons under your direct order. It will, however, go to resupply when the designated target is destroyed.</Text>
+    </Token>
 
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>

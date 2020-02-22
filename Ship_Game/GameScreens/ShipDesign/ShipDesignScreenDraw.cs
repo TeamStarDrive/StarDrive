@@ -444,6 +444,8 @@ namespace Ship_Game
             int fixedTargets               = 0;
             int numSlots                   = 0;
             int numWeaponSlots             = 0;
+            int numWeapons                 = 0;
+            int numOrdnanceWeapons         = 0;
             float totalShieldAmplify       = 0;
             bool unpoweredModules          = false;
             bool canTargetFighters         = false;
@@ -463,9 +465,6 @@ namespace Ship_Game
 
                 if (slot.Module == null)
                     continue;
-
-                if (slot.Module.InstalledWeapon != null)
-                    numWeaponSlots += slot.Module.Area;
 
                 numSlots      += slot.Module.Area;
                 hitPoints     += slot.Module.ActualMaxHealth;
@@ -537,8 +536,15 @@ namespace Ship_Game
                 if (weapon.PowerRequiredToFire > 0 || weapon.BeamPowerCostPerSecond > 0)
                     bEnergyWeapons = true;
 
+                numWeaponSlots    += slot.Module.Area;
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
+                if (!weapon.TruePD)
+                {
+                    numWeapons += 1;
+                    if (weapon.OrdinanceRequiredToFire > 0)
+                        numOrdnanceWeapons += 1;
+                }
 
                 if (!weapon.Excludes_Fighters)
                     canTargetFighters = true;
@@ -639,6 +645,7 @@ namespace Ship_Game
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
                 DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
+                DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
                 UpdateDesignButton();
             }
         }
