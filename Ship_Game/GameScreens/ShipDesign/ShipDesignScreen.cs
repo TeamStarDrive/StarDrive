@@ -569,12 +569,20 @@ namespace Ship_Game
             StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
-            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X, HullSelectList.Y  + HullSelectList.Height + 60), "Warning!", Fonts.Pirulen20, Fonts.Pirulen16);
-            DesignIssuesButton.HoveredColor = Color.White;
+            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Y  + HullSelectList.Height + 40)
+                , "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);
+
+            DesignIssuesButton.HoveredColor   = Color.White;
             DesignIssuesButton.UnHoveredColor = Color.Green;
 
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
+        }
+
+        void UpdateDesignButton()
+        {
+            DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
+            //DesignIssuesButton.Text = DesignIssues.DesignIssuesButtonText;
         }
 
         void InitializeShipHullsList()

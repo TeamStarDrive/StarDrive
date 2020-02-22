@@ -145,7 +145,7 @@ namespace Ship_Game.ShipDesignIssues
             WarningLevel severity = pointDefenseValue < threshold / 2 ? WarningLevel.Major
                                                                       : WarningLevel.Minor;
 
-            AddDesignIssue(DesignIssueType.NoTruePD, severity);
+            AddDesignIssue(DesignIssueType.LowPdValue, severity);
         }
 
         public void CheckWeaponPowerTime(bool hasEnergyWeapons, bool excessPowerConsumed, float weaponPowerTime)
@@ -177,6 +177,27 @@ namespace Ship_Game.ShipDesignIssues
                 case WarningLevel.Critical:    return Color.Red;
             }
         }
+
+        public string DesignIssuesButtonText
+        {
+            get
+            {
+                string text;
+                switch (CurrentWarningLevel)
+                {
+                    default:
+                    case WarningLevel.None:        text = "No Issues";                     break;
+                    case WarningLevel.Informative: text = new LocalizedText(2546).Text; break;
+                    case WarningLevel.Minor:       text = new LocalizedText(2547).Text; break;
+                    case WarningLevel.Major:       text = new LocalizedText(2548).Text; break;
+                    case WarningLevel.Critical:    text = new LocalizedText(2549).Text; break;
+                }
+
+                text += $" ({CurrentDesignIssues.Count})";
+                return text;
+            }
+        }
+
     }
 
     public enum DesignIssueType
@@ -194,7 +215,7 @@ namespace Ship_Game.ShipDesignIssues
         CantTargetFighters,
         CantTargetCorvettes,
         CantTargetCapitals,
-        NoTruePD,
+        LowPdValue,
         LowWeaponPowerTime
     }
 
@@ -271,19 +292,19 @@ namespace Ship_Game.ShipDesignIssues
                     Title       = new LocalizedText(2525).Text;
                     Problem     = new LocalizedText(2526).Text;
                     Remediation = new LocalizedText(2527).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
                     Title       = new LocalizedText(2519).Text;
                     Problem     = new LocalizedText(2520).Text;
                     Remediation = new LocalizedText(2521).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueNegativeRecharge");
                     break;
                 case DesignIssueType.NoSpeed:
-                    Title       = new LocalizedText(2527).Text;
-                    Problem     = new LocalizedText(2528).Text;
+                    Title       = new LocalizedText(2528).Text;
+                    Problem     = new LocalizedText(2529).Text;
                     Remediation = new LocalizedText(2530).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueNoSublight");
                     break;
                 case DesignIssueType.CantTargetFighters:
                     Title       = new LocalizedText(2531).Text;
@@ -303,7 +324,7 @@ namespace Ship_Game.ShipDesignIssues
                     Remediation = new LocalizedText(2539).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
                     break;
-                case DesignIssueType.NoTruePD:
+                case DesignIssueType.LowPdValue:
                     Title       = new LocalizedText(2540).Text;
                     Problem     = new LocalizedText(2541).Text;
                     Remediation = new LocalizedText(2542).Text;

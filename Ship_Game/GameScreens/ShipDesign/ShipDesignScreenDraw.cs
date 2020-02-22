@@ -42,10 +42,7 @@ namespace Ship_Game
             DrawUi(batch);
             ArcsButton.DrawWithShadowCaps(batch);
             if (DesignIssues.CurrentDesignIssues.Count > 0)
-            {
-                DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
                 DesignIssuesButton.DrawWithShadowCaps(batch);
-            }
 
             if (Debug)
                 DrawDebug();
@@ -678,6 +675,7 @@ namespace Ship_Game
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
+                UpdateDesignButton();
             }
 
             void DrawHullBonuses()
