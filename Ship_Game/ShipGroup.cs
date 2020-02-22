@@ -410,6 +410,9 @@ namespace Ship_Game
                     ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection);
                 else
                     ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection);
+
+                if (ship.loyalty == EmpireManager.Player)
+                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
             }
         }
 
