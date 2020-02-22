@@ -955,10 +955,11 @@ namespace Ship_Game.Ships
             return weapons;
         }
 
-        static float[] GetWeaponsRanges(Array<Weapon> weapons)
+        float[] GetWeaponsRanges(Array<Weapon> weapons)
         {
-            var ranges = new float[weapons.Count];
-            for (int i = 0; i < ranges.Length; ++i) // using raw loops for perf
+            float[] ranges = new float[weapons.Count];
+
+            for (int i = 0; i < weapons.Count; ++i) // using raw loops for perf
                 ranges[i] = weapons[i].GetActualRange();
             return ranges;
         }
@@ -971,8 +972,28 @@ namespace Ship_Game.Ships
         {
             Array<Weapon> weapons = GetActiveWeapons();
             float[] ranges = GetWeaponsRanges(weapons);
-            WeaponsMinRange = ranges.Min();
-            WeaponsMaxRange = ranges.Max();
+
+            // Carriers will the carrier range for max range.
+            // for min range carriers will use the max range of normal weapons.
+            if (Carrier.IsPrimaryCarrierRole)
+            {
+                if (ranges.Length > 0)
+                {
+                    WeaponsMinRange = ranges.Max();
+                }
+                else
+                {
+                    WeaponsMinRange = Carrier.HangarRange;
+                }
+
+                WeaponsMaxRange = Math.Max(Carrier.HangarRange, ranges.Max());
+            }
+            else
+            {
+                WeaponsMinRange = ranges.Min();
+                WeaponsMaxRange = ranges.Max();
+            }
+
             WeaponsAvgRange = (int)ranges.Avg();
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
             InterceptSpeed = CalcInterceptSpeed(weapons);
