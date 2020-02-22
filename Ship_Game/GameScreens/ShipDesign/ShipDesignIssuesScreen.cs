@@ -21,7 +21,7 @@ namespace Ship_Game.GameScreens.ShipDesignScreen
             TransitionOnTime  = 0.25f;
             TransitionOffTime = 0.25f;
 
-            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 620)));
+            Window = Add(new Menu2(new Rectangle(ScreenWidth / 2 - 500, ScreenHeight / 2 - 300, 1000, 540)));
             int x  = (int)Window.X + 20;
             int y  = (int)Window.Y + 70;
             int w  = (int)Window.Width - 30;

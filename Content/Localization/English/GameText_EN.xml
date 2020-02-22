@@ -6295,7 +6295,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2505</Index>
-      <Text>The ship currently has only a single Command Module. When all Command Modules of a ship are destroyed, it cannot identify targets and will usually retreat for repairs.</Text>
+      <Text>The ship currently has only a single Command Module, which is a problem for a ship of this size. When all Command Modules of a ship are destroyed, it cannot identify targets and will usually retreat for repairs.</Text>
     </Token>
     <Token>
       <Index>2506</Index>

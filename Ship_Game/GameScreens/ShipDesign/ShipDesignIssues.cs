@@ -328,13 +328,13 @@ namespace Ship_Game.ShipDesignIssues
                     Title       = new LocalizedText(2540).Text;
                     Problem     = new LocalizedText(2541).Text;
                     Remediation = new LocalizedText(2542).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowPD");
                     break;
                 case DesignIssueType.LowWeaponPowerTime:
                     Title       = new LocalizedText(2543).Text;
                     Problem     = new LocalizedText(2544).Text;
                     Remediation = new LocalizedText(2545).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueNoCommand");
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowEnergyWeaponTime");
                     break;
             }
         }
