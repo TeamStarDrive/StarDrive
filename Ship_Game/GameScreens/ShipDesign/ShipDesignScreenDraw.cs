@@ -638,6 +638,7 @@ namespace Ship_Game
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
+                DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
                 UpdateDesignButton();
             }
         }

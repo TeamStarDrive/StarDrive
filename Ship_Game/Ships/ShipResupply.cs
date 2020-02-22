@@ -8,8 +8,8 @@ namespace Ship_Game.Ships
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
         public const float OrdnanceThresholdNonCombat          = 0.35f;
-        private const float KineticEnergyRatioWithPriority     = 0.9f;
-        private const float KineticEnergyRatioWithOutPriority  = 0.6f;
+        public const float KineticEnergyRatioWithPriority      = 0.9f;
+        public const float KineticEnergyRatioWithOutPriority   = 0.6f;
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;

@@ -53,7 +53,7 @@ namespace Ship_Game
             batch.DrawLine(problemTop, problemBot, borderColor);
             batch.DrawLine(descriptionTop, descriptionBot, borderColor);
             // SetRelPos is not working for some reason, using Pos
-            IssueTexture.Pos = new Vector2(Pos.X, Pos.Y + 10);
+            IssueTexture.Pos = new Vector2(Pos.X + 2, Pos.Y + 10);
             base.Draw(batch);
         }
 
