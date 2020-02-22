@@ -42,6 +42,17 @@ namespace Ship_Game.AI
             CombatState = CombatState.HoldPosition;
         }
 
+        public void HoldPositionOffensive()
+        {
+            ShipGoal goal = OrderQueue.PeekFirst;
+            if (goal != null && Owner.Position.Distance(goal.MovePosition) > 100f)
+            {
+                // previous order is finished and now we want to return to original position
+                OrderMoveTo(goal.MovePosition, goal.Direction, true, null, AIState.HoldPosition);
+                OrderHoldPositionOffensive(goal.MovePosition, goal.Direction);
+            }
+        }
+
         internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();

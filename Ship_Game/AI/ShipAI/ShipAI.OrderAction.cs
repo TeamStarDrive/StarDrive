@@ -22,6 +22,13 @@ namespace Ship_Game.AI
             IgnoreCombat = true;
         }
 
+        public void OrderHoldPositionOffensive(Vector2 position, Vector2 direction)
+        {
+            AddShipGoal(Plan.HoldPositionOffensive, position, direction, AIState.HoldPosition);
+            SetPriorityOrder(true);
+            IgnoreCombat = false;
+        }
+
         public void OrderAttackSpecificTarget(Ship toAttack)
         {
             TargetQueue.Clear();
