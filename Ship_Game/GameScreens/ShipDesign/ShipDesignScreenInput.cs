@@ -244,7 +244,7 @@ namespace Ship_Game
                 ToolTip.CreateTooltip(134, "Tab");
 
             if (DesignIssuesButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(2550);
+                ToolTip.CreateTooltip(2546);
 
             if (ArcsButton.HandleInput(input))
             {

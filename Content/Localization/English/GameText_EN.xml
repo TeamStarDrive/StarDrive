@@ -6459,23 +6459,19 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2546</Index>
-      <Text>Design Comments</Text>
+      <Text>States any design issues the current ship has. It is displayed after you completed 75% of the design.</Text>
     </Token>
     <Token>
       <Index>2547</Index>
-      <Text>Minor Design Issues</Text>
+      <Text>Low Beam Burst Time</Text>
     </Token>
     <Token>
       <Index>2548</Index>
-      <Text>Major Design Issues</Text>
+      <Text>The ship cannot sustain all of its beam weapons firing at once. It's energy reserves are too low.</Text>
     </Token>
     <Token>
       <Index>2549</Index>
-      <Text>Critical Design Issues</Text>
-    </Token>
-    <Token>
-      <Index>2550</Index>
-      <Text>States any design issues the current ship has. It is displayed after you completed 75% of the design.</Text>
+      <Text>Add Reactors or Energy storage to increase burst Energy power times.</Text>
     </Token>
 
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
