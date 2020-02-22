@@ -324,7 +324,7 @@ namespace Ship_Game
             if (ActiveModule.shield_power_max.AlmostZero())
                 return;
 
-            Vector2 normalizeShieldCircle;;
+            Vector2 normalizeShieldCircle;
             var center = new Vector2(Input.CursorPosition.X, Input.CursorPosition.Y);
             if (ActiveModState == ModuleOrientation.Normal || ActiveModState == ModuleOrientation.Rear)
                 normalizeShieldCircle = new Vector2(moduleTemplate.XSIZE * 8f, moduleTemplate.YSIZE * 8f);
@@ -585,74 +585,37 @@ namespace Ship_Game
             float speed         = thrust / mass;
             float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f);
             float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
-            string warpString   = warpSpeed.GetNumberString();
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
             float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier;
+            var cursor          = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
 
-            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
-
-            DrawHullBonuses();
-
-            float upkeep;
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working
-            else
-                upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
-
-            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
-            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
-            DrawStatColor(ref cursor, TintedValue(115, (int)mass, 79, Color.White));
+            DrawHullBonuses(ref cursor, ref cost, bonus);
+            DrawUpkeepSizeMass(ref cursor, cost, size, mass);
             WriteLine(ref cursor);
 
-            float powerConsumed = weaponPowerNeeded - powerRecharge;
-            DrawStatColor(ref cursor, CompareValues(110, powerCapacity, powerConsumed , 100, Color.LightSkyBlue));
-            DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
+            DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, powerCapacity, out float powerConsumed);
+            DrawPowerDrawAtWarp(ref cursor, warpSpeed, powerFlow, netPower.NetWarpPowerDraw, out float fDrawAtWarp);
+            DrawEnergyStats(ref cursor, bEnergyWeapons, powerConsumed, powerCapacity, out float energyDuration);
+            DrawPeakPowerStats(ref cursor, beamLongestDuration, beamPeakPowerNeeded, weaponPowerNeededNoBeams, powerRecharge, 
+                powerCapacity, out float burstEnergyDuration);
 
-            float fDrawAtWarp = powerFlow - netPower.NetWarpPowerDraw;
-            DrawPowerDrawAtWarp();
-            DrawEnergyStats(out float energyDuration);
-            DrawPeakPowerStats();
-            float fWarpTime = -powerCapacity / fDrawAtWarp;
-            DrawFtlTime();
+            DrawFtlTime(ref cursor, powerCapacity, fDrawAtWarp, warpSpeed, out float fWarpTime);
             WriteLine(ref cursor);
 
-            Color shieldMaxColor = totalShieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
-            DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
-            if (repairRate > 0)  DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); // Added by McShooterz: draw total repair
-            if (shieldPower > 0) DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
-            if (shieldAmplifyPerShield > 0) DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplifyPerShield, 257, Color.Goldenrod));
-            if (empResist > 0)   DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
-            if (totalEcm > 0)    DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
+            DrawHitPointsAndRepair(ref cursor, hitPoints, repairRate);
+            DrawShieldsStats(ref cursor, totalShieldAmplify, shieldPower, shieldAmplifyPerShield);
+            DrawEmpAndEcm(ref cursor, empResist, totalEcm);
             WriteLine(ref cursor);
 
-            DrawPropulsion();
-            DrawStatColor(ref cursor, TintedValue(116, modifiedSpeed, 105, Color.DarkSeaGreen));
-            DrawStatColor(ref cursor, TintedValue(117, turn, 107, Color.DarkSeaGreen));
-            if (afterSpeed > 0) DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterSpeed, 105, Color.DarkSeaGreen));
+            DrawWarpPropulsion(ref cursor, warpSpeed, warpSpoolTimer);
+            DrawPropulsion(ref cursor, modifiedSpeed, turn, afterSpeed);
             WriteLine(ref cursor);
 
-            float ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecovered);
-            DrawOrdnance();
-
-            if (troopCount > 0) DrawStatColor(ref cursor, TintedValue(6132, troopCount, 180, Color.IndianRed));
+            DrawOrdnanceAndTroops(ref cursor, ordnanceCap, ordnanceUsed, ordnanceRecovered, troopCount, out float ammoTime);
             WriteLine(ref cursor);
 
-            if (cargoSpace > 0) DrawStatColor(ref cursor, TintedValue(119, cargoSpace * bonus.CargoModifier, 109, Color.White));
-            if (targets > 0)    DrawStatColor(ref cursor, TintedValue(6188, targets + 1f, 232, Color.White));
-            if (sensorRange > 0)
-            {
-                float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
-                DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
-            }
-            bool isOrbital = ActiveHull.Role == ShipData.RoleName.platform || ActiveHull.Role ==  ShipData.RoleName.station;
-            if (isOrbital) offense /= 2;
-            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense, ActiveHull.Role, turn);
-            if (strength > 0)
-            {
-                DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
-                float relativeStrength = (float)Math.Round(strength / ActiveHull.ModuleSlots.Length, 2);
-                DrawStatColor(ref cursor, TintedValue(1914, relativeStrength, 256, Color.White));
-            }
+            DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, bonus);
+            DrawOffense(ref cursor, offense, defense, size, numWeaponSlots);
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
 
@@ -676,116 +639,6 @@ namespace Ship_Game
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
                 UpdateDesignButton();
-            }
-
-            void DrawHullBonuses()
-            {
-                if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
-                {
-                    if (bonus.ArmoredBonus     != 0 || bonus.ShieldBonus != 0
-                        || bonus.SensorBonus   != 0 || bonus.SpeedBonus != 0
-                        || bonus.CargoBonus    != 0 || bonus.DamageBonus != 0
-                        || bonus.FireRateBonus != 0 || bonus.RepairBonus != 0
-                        || bonus.CostBonus != 0)
-                    {
-                        DrawString(cursor, Color.Orange, Localizer.Token(6015), Fonts.Verdana14Bold);
-                        cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-                    }
-
-                    void HullBonus(float stat, string text)
-                    {
-                        if (stat > 0 || stat < 0) return;
-                        DrawString(cursor, Color.Orange, $"{stat * 100f}%  {text}", Fonts.Verdana12);
-                        cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
-                    }
-                    HullBonus(bonus.ArmoredBonus, Localizer.HullArmorBonus);
-                    HullBonus(bonus.ShieldBonus, Localizer.HullShieldBonus);
-                    HullBonus(bonus.SensorBonus, Localizer.HullSensorBonus);
-                    HullBonus(bonus.SpeedBonus, Localizer.HullSpeedBonus);
-                    HullBonus(bonus.CargoBonus, Localizer.HullCargoBonus);
-                    HullBonus(bonus.DamageBonus, Localizer.HullDamageBonus);
-                    HullBonus(bonus.FireRateBonus, Localizer.HullFireRateBonus);
-                    HullBonus(bonus.RepairBonus, Localizer.HullRepairBonus);
-                    HullBonus(bonus.CostBonus, Localizer.HullCostBonus);
-                }
-                cost += bonus.StartingCost * CurrentGame.Pace; // apply flat discount or extra price
-                cost *= (1f - bonus.CostBonus); // now apply % discount
-                DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));
-            }
-
-            void DrawOrdnance()
-            {
-                if (ordnanceRecovered > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, 162, Color.IndianRed));
-                if (!(ordnanceCap > 0))
-                    return;
-
-                DrawStatColor(ref cursor, TintedValue(118, ordnanceCap, 108, Color.IndianRed));
-                if (ordnanceUsed - ordnanceRecovered > 0)
-                    DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, 164, Color.IndianRed));
-                else
-                    DrawStatOrdnance(ref cursor, "Ammo Time", "INF", 164);
-            }
-
-            void DrawPropulsion()
-            {
-                DrawStatPropulsion(ref cursor, Localizer.Token(2170)+":", warpString, 135);
-
-                if (warpSpeed > 0 && warpSpoolTimer > 0) DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
-            }
-
-            void DrawPowerDrawAtWarp() //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
-            {
-                if (warpSpeed > 0)
-                    DrawStatColor(ref cursor, TintedValue(112, fDrawAtWarp, 102, Color.LightSkyBlue));
-            }
-
-
-            void DrawFtlTime()
-            {
-                if (!(warpSpeed > 0))
-                    return;
-
-                if (fDrawAtWarp < 0)
-                    DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, 176, Color.LightSkyBlue));
-                else if (fWarpTime > 900)
-                    DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
-                else
-                    DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
-            }
-
-            void DrawEnergyStats(out float weaponFirePowerTime)
-            {
-                weaponFirePowerTime = 0;
-                if (!bEnergyWeapons)
-                    return;
-
-                if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
-                {
-                    DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, 243, Color.LightSkyBlue));
-                    weaponFirePowerTime = powerCapacity / powerConsumed;
-                    DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", weaponFirePowerTime, 163, Color.LightSkyBlue));
-                }
-                else
-                    DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
-            }
-
-            void DrawPeakPowerStats()
-            {
-                // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs
-                // more power than actually needed. Need to find a better way to show accurate numbers to the player in such case
-                if (!(beamLongestDuration > 0))
-                    return;
-
-                float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
-                if (!(powerConsumedWithBeams > 0))
-                    return;
-
-                DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain", - powerConsumedWithBeams, 244, Color.LightSkyBlue));
-                float burstEnergyDuration = powerCapacity / powerConsumedWithBeams;
-                if (burstEnergyDuration < beamLongestDuration)
-                    DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time", burstEnergyDuration, 245, Color.LightSkyBlue));
-                else
-                    DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
             }
         }
 
@@ -819,6 +672,214 @@ namespace Ship_Game
 
                 return color;
             }
+        }
+
+        void DrawOffense(ref Vector2 cursor, float offense, float defense, int size, int numWeaponSlots)
+        {
+            bool isOrbital = ActiveHull.Role == ShipData.RoleName.platform || ActiveHull.Role == ShipData.RoleName.station;
+            if (isOrbital) 
+                offense /= 2;
+
+            float strength = ShipBuilder.GetModifiedStrength(size, numWeaponSlots, offense, defense);
+            if (strength > 0)
+            {
+                DrawStatColor(ref cursor, TintedValue(6190, strength, 227, Color.White));
+                float relativeStrength = (float)Math.Round(strength / ActiveHull.ModuleSlots.Length, 2);
+                DrawStatColor(ref cursor, TintedValue(1914, relativeStrength, 256, Color.White));
+            }
+        }
+
+        void DrawPeakPowerStats(ref Vector2 cursor, float beamLongestDuration, float beamPeakPowerNeeded, 
+            float weaponPowerNeededNoBeams, float powerRecharge, float powerCapacity, out float burstEnergyDuration)
+        {
+            // FB: @todo  using Beam Longest Duration for peak power calculation in case of variable beam durations in the ship will show the player he needs
+            // more power than actually needed. Need to find a better way to show accurate numbers to the player in such case
+            float powerConsumedWithBeams = beamPeakPowerNeeded + weaponPowerNeededNoBeams - powerRecharge;
+            burstEnergyDuration          = powerCapacity / powerConsumedWithBeams;
+            if (!(beamLongestDuration > 0))
+                return;
+
+            if (!(powerConsumedWithBeams > 0))
+                return;
+
+            DrawStatColor(ref cursor, NormalValue("Burst Wpn Pwr Drain", -powerConsumedWithBeams, 244, Color.LightSkyBlue));
+            if (burstEnergyDuration < beamLongestDuration)
+                DrawStatColor(ref cursor, BadValue("Burst Wpn Pwr Time", burstEnergyDuration, 245, Color.LightSkyBlue));
+            else
+                DrawStatEnergy(ref cursor, "Burst Wpn Pwr Time:", "INF", 245);
+        }
+
+        void DrawEnergyStats(ref Vector2 cursor, bool bEnergyWeapons, float powerConsumed, float powerCapacity, 
+            out float weaponFirePowerTime)
+        {
+            weaponFirePowerTime = 0;
+            if (!bEnergyWeapons)
+                return;
+
+            if (powerConsumed > 0) // There is power drain from ship's reserves when firing its energy weapons after taking into account recharge
+            {
+                DrawStatColor(ref cursor, NormalValue("Excess Wpn Pwr Drain", -powerConsumed, 243, Color.LightSkyBlue));
+                weaponFirePowerTime = powerCapacity / powerConsumed;
+                DrawStatColor(ref cursor, LowBadValue("Wpn Fire Power Time", weaponFirePowerTime, 163, Color.LightSkyBlue));
+            }
+            else
+                DrawStatEnergy(ref cursor, "Wpn Fire Power Time:", "INF", 163);
+        }
+
+        void DrawOrdnanceAndTroops(ref Vector2 cursor, float ordnanceCap, float ordnanceUsed, float ordnanceRecovered, 
+            float troopCount, out float ammoTime)
+        {
+            ammoTime = ordnanceCap / (ordnanceUsed - ordnanceRecovered);
+            if (ordnanceRecovered > 0) DrawStatColor(ref cursor, TintedValue("Ordnance Created / s", ordnanceRecovered, 162, Color.IndianRed));
+            if (!(ordnanceCap > 0))
+                return;
+
+            DrawStatColor(ref cursor, TintedValue(118, ordnanceCap, 108, Color.IndianRed));
+            if (ordnanceUsed - ordnanceRecovered > 0)
+                DrawStatColor(ref cursor, TintedValue("Ammo Time", ammoTime, 164, Color.IndianRed));
+            else
+                DrawStatOrdnance(ref cursor, "Ammo Time", "INF", 164);
+
+            if (troopCount > 0) 
+                DrawStatColor(ref cursor, TintedValue(6132, troopCount, 180, Color.IndianRed));
+        }
+
+        void DrawPropulsion(ref Vector2 cursor, float modifiedSpeed, float turn, float afterSpeed)
+        {
+            DrawStatColor(ref cursor, TintedValue(116, modifiedSpeed, 105, Color.DarkSeaGreen));
+            DrawStatColor(ref cursor, TintedValue(117, turn, 107, Color.DarkSeaGreen));
+            if (afterSpeed > 0) 
+                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterSpeed, 105, Color.DarkSeaGreen));
+        }
+
+        void DrawWarpPropulsion(ref Vector2 cursor, float warpSpeed, float warpSpoolTimer)
+        {
+            string warpString = warpSpeed.GetNumberString();
+            DrawStatPropulsion(ref cursor, Localizer.Token(2170) + ":", warpString, 135);
+            if (warpSpeed > 0 && warpSpoolTimer > 0) 
+                DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
+        }
+
+        void DrawEmpAndEcm(ref Vector2 cursor, float empResist, float totalEcm)
+        {
+            if (empResist > 0) 
+                DrawStatColor(ref cursor, TintedValue(6177, empResist, 220, Color.Goldenrod));
+
+            if (totalEcm > 0) 
+                DrawStatColor(ref cursor, TintedValue(6189, totalEcm, 234, Color.Goldenrod));
+        }
+
+        void DrawShieldsStats(ref Vector2 cursor, float totalShieldAmplify, float shieldPower, float shieldAmplifyPerShield)
+        {
+            Color shieldMaxColor = totalShieldAmplify > 0 ? Color.Gold : Color.Goldenrod;
+            if (shieldPower > 0) 
+                DrawStatColor(ref cursor, TintedValue(114, shieldPower, 104, shieldMaxColor));
+
+            if (shieldAmplifyPerShield > 0) 
+                DrawStatColor(ref cursor, TintedValue(1913, (int)shieldAmplifyPerShield, 257, Color.Goldenrod));
+        }
+
+        void DrawHitPointsAndRepair(ref Vector2 cursor, float hitPoints, float repairRate)
+        {
+            DrawStatColor(ref cursor, TintedValue(113, hitPoints, 103, Color.Goldenrod));
+            // Added by McShooterz: draw total repair
+            if (repairRate > 0) 
+                DrawStatColor(ref cursor, TintedValue(6013, repairRate, 236, Color.Goldenrod)); 
+        }
+
+        void DrawFtlTime(ref Vector2 cursor, float powerCapacity, float fDrawAtWarp, float warpSpeed, out float fWarpTime)
+        {
+            fWarpTime = -powerCapacity / fDrawAtWarp;
+            if (!(warpSpeed > 0))
+                return;
+
+            if (fDrawAtWarp < 0)
+                DrawStatColor(ref cursor, TintedValue("FTL Time", fWarpTime, 176, Color.LightSkyBlue));
+            else if (fWarpTime > 900)
+                DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
+            else
+                DrawStatEnergy(ref cursor, "FTL Time:", "INF", 176);
+        }
+
+        //added by McShooterz: Allow Warp draw and after burner values be displayed in ship info
+        void DrawPowerDrawAtWarp(ref Vector2 cursor, float warpSpeed, float powerFlow, float netWarpPowerDraw, out float fDrawAtWarp)
+        {
+            fDrawAtWarp = powerFlow - netWarpPowerDraw;
+            if (warpSpeed > 0)
+                DrawStatColor(ref cursor, TintedValue(112, fDrawAtWarp, 102, Color.LightSkyBlue));
+        }
+
+        void DrawPowerConsumedAndRecharge(ref Vector2 cursor, float weaponPowerNeeded, float powerRecharge, 
+            float powerCapacity, out float powerConsumed)
+        {
+            powerConsumed = weaponPowerNeeded - powerRecharge;
+            DrawStatColor(ref cursor, CompareValues(110, powerCapacity, powerConsumed, 100, Color.LightSkyBlue));
+            DrawStatColor(ref cursor, TintedValue(111, powerRecharge, 101, Color.LightSkyBlue));
+        }
+
+        void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass)
+        {
+            float upkeep;
+            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
+                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working
+            else
+                upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
+
+            DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
+            DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
+            DrawStatColor(ref cursor, TintedValue(115, (int)mass, 79, Color.White));
+        }
+
+        void DrawCargoTargetsAndSensors(ref Vector2 cursor, float cargoSpace, float targets, float sensorRange, 
+            float sensorBonus, HullBonus bonus)
+        {
+            if (cargoSpace > 0) 
+                DrawStatColor(ref cursor, TintedValue(119, cargoSpace* bonus.CargoModifier, 109, Color.White));
+
+            if (targets > 0)
+                DrawStatColor(ref cursor, TintedValue(6188, targets + 1f, 232, Color.White));
+
+            if (sensorRange > 0)
+            {
+                float modifiedSensorRange = (sensorRange + sensorBonus) * bonus.SensorModifier;
+                DrawStatColor(ref cursor, TintedValue(6130, modifiedSensorRange, 235, Color.White));
+            }
+        }
+
+        void DrawHullBonuses(ref Vector2 cursor, ref float cost,  HullBonus bonus)
+        {
+            if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
+            {
+                if (bonus.ArmoredBonus != 0 || bonus.ShieldBonus != 0
+                    || bonus.SensorBonus != 0 || bonus.SpeedBonus != 0
+                    || bonus.CargoBonus != 0 || bonus.DamageBonus != 0
+                    || bonus.FireRateBonus != 0 || bonus.RepairBonus != 0
+                    || bonus.CostBonus != 0)
+                {
+                    DrawString(cursor, Color.Orange, Localizer.Token(6015), Fonts.Verdana14Bold);
+                    cursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                }
+
+                void HullBonus(ref Vector2 bCursor, float stat, string text)
+                {
+                    if (stat > 0 || stat < 0)
+                        return;
+                    DrawString(bCursor, Color.Orange, $"{stat * 100f}%  {text}", Fonts.Verdana12);
+                    bCursor.Y += Fonts.Arial12Bold.LineSpacing + 2;
+                }
+                HullBonus(ref cursor, bonus.ArmoredBonus, Localizer.HullArmorBonus);
+                HullBonus(ref cursor, bonus.ShieldBonus, Localizer.HullShieldBonus);
+                HullBonus(ref cursor, bonus.SensorBonus, Localizer.HullSensorBonus);
+                HullBonus(ref cursor, bonus.SpeedBonus, Localizer.HullSpeedBonus);
+                HullBonus(ref cursor, bonus.CargoBonus, Localizer.HullCargoBonus);
+                HullBonus(ref cursor, bonus.DamageBonus, Localizer.HullDamageBonus);
+                HullBonus(ref cursor, bonus.FireRateBonus, Localizer.HullFireRateBonus);
+                HullBonus(ref cursor, bonus.RepairBonus, Localizer.HullRepairBonus);
+                HullBonus(ref cursor, bonus.CostBonus, Localizer.HullCostBonus);
+            }
+            cost += bonus.StartingCost * CurrentGame.Pace; // apply flat discount or extra price
+            cost *= (1f - bonus.CostBonus); // now apply % discount
+            DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));
         }
 
         public void DrawStat(ref Vector2 cursor, string words, string stat, int tooltipId, Color nameColor, Color statColor, float spacing = 165f, float lineSpacing = 2)

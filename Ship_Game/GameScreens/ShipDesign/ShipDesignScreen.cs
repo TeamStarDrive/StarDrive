@@ -582,7 +582,6 @@ namespace Ship_Game
         void UpdateDesignButton()
         {
             DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
-            //DesignIssuesButton.Text = DesignIssues.DesignIssuesButtonText;
         }
 
         void InitializeShipHullsList()
