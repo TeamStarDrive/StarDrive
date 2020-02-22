@@ -361,10 +361,8 @@ namespace Ship_Game.AI
             ShipGoal goal = OrderQueue.PeekFirst;
             switch (goal.Plan)
             {
-                case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
-                    if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }
-                    break;
+                    if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }       break;
                 case Plan.Bombard:                  return DoBombard(elapsedTime, goal);
                 case Plan.Exterminate:              return DoExterminate(elapsedTime, goal);
                 case Plan.Scrap:                    ScrapShip(elapsedTime, goal);                break;
@@ -392,6 +390,8 @@ namespace Ship_Game.AI
                 case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(elapsedTime);                   break;
                 case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
+                case Plan.HoldPosition:             HoldPosition();                              break;
+                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
             }
 
             return false;
