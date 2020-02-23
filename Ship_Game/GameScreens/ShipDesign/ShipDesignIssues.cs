@@ -9,15 +9,16 @@ namespace Ship_Game.ShipDesignIssues
         public readonly ShipData.RoleName Role;
         public Array<DesignIssueDetails> CurrentDesignIssues { get; }
         public WarningLevel CurrentWarningLevel { get; private set; }
-        private static readonly Empire Player = EmpireManager.Player;
+        private readonly Empire Player;
         private EmpireShipDesignStats EmpireStats;
 
         public ShipDesignIssues(ShipData hull)
         {
-            Hull = hull;
-            Role = hull.Role;
+            Hull   = hull;
+            Role   = hull.Role;
+            Player = EmpireManager.Player;
             CurrentDesignIssues = new Array<DesignIssueDetails>();
-            EmpireStats = new EmpireShipDesignStats(Player);
+            EmpireStats         = new EmpireShipDesignStats(Player);
         }
 
         void AddDesignIssue(DesignIssueType type, EmpireShipDesignStats stats, ShipData.RoleName role, WarningLevel severity)
