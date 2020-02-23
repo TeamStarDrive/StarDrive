@@ -397,7 +397,7 @@ namespace Ship_Game
                 || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
         }
 
-        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
+        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false, bool offensiveMove = false)
         {
             GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection, forceAssembly:true);
@@ -407,9 +407,9 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 ship.AI.ResetPriorityOrder(!queueOrder);
                 if (queueOrder)
-                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection);
+                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
                 else
-                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection);
+                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
 
                 if (ship.loyalty == EmpireManager.Player)
                     ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
