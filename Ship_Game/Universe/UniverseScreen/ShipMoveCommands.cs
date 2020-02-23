@@ -16,6 +16,8 @@ namespace Ship_Game.Universe
             Input = universe.Input;
         }
 
+        bool OffensiveMove => Input.IsCtrlKeyDown;
+
         public bool RightClickOnShip(Ship selectedShip, Ship targetShip)
         {
             if (targetShip == null || selectedShip == targetShip)
@@ -55,9 +57,10 @@ namespace Ship_Game.Universe
                 return;
             }
 
+            bool offensiveMove = Input.IsCtrlKeyDown;
             if (Input.IsShiftKeyDown) // Always order orbit if shift is down when right clicking on a planet
             {
-                ship.AI.OrderToOrbit(planet);
+                ship.OrderToOrbit(planet, offensiveMove);
             }
             else
             {
@@ -71,7 +74,7 @@ namespace Ship_Game.Universe
                 else if (ship.HasBombs)
                     PlanetRightClickBomber(ship, planet); // This ship can bomb planets
                 else
-                    ship.AI.OrderToOrbit(planet); // Default logic of right clicking
+                    ship.OrderToOrbit(planet, offensiveMove); // Default logic of right clicking
             }
         }
 
@@ -83,7 +86,7 @@ namespace Ship_Game.Universe
                 ship.AI.OrderToOrbit(planet);
         }
 
-        void PlanetRightClickTroopShip(Ship ship, Planet planet)
+        void PlanetRightClickTroopShip(Ship ship, Planet planet, bool offensiveMove = false)
         {
             if (planet.Owner != null && planet.Owner == Universe.player)
             {
@@ -94,7 +97,7 @@ namespace Ship_Game.Universe
                     // If our planet is being invaded, land the troops there
                     ship.AI.OrderLandAllTroops(planet);
                 else
-                    ship.AI.OrderToOrbit(planet); // Just orbit
+                    ship.OrderToOrbit(planet, offensiveMove); // Just orbit
             }
             else if (planet.Habitable && (planet.Owner == null ||
                                           ship.loyalty.IsEmpireAttackable(planet.Owner)))
@@ -104,7 +107,7 @@ namespace Ship_Game.Universe
             }
             else
             {
-                ship.AI.OrderToOrbit(planet);
+                ship.OrderToOrbit(planet, offensiveMove);
             }
         }
 
@@ -199,7 +202,7 @@ namespace Ship_Game.Universe
                 foreach (Ship ship in fleet.Ships)
                     ship.AI.ClearOrdersIfCombat();
 
-                fleet.FormationWarpTo(movePosition, direction, queueOrder: true);
+                fleet.FormationWarpTo(movePosition, direction, queueOrder: true, OffensiveMove);
                 return true;
             }
 
@@ -235,7 +238,7 @@ namespace Ship_Game.Universe
             if (Input.IsAltKeyDown)
                 fleet.MoveToNow(movePosition, facingDir);
             else
-                fleet.FormationWarpTo(movePosition, facingDir);
+                fleet.FormationWarpTo(movePosition, facingDir, offensiveMove: OffensiveMove);
         }
 
         public void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)
@@ -244,17 +247,17 @@ namespace Ship_Game.Universe
             if (Input.QueueAction)
             {
                 if (Input.OrderOption)
-                    ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo);
+                    ship.AI.OrderMoveDirectlyTo(pos, direction, false, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
                 else
-                    ship.AI.OrderMoveTo(pos, direction, false, null, AI.AIState.MoveTo);
+                    ship.AI.OrderMoveTo(pos, direction, false, null, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
             }
             else if (Input.OrderOption)
             {
-                ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo);
+                ship.AI.OrderMoveDirectlyTo(pos, direction, true, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
             }
             else
             {
-                ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo);
+                ship.AI.OrderMoveTo(pos, direction, true, null, AI.AIState.MoveTo, offensiveMove: OffensiveMove);
             }
 
             ship.AI.OrderHoldPositionOffensive(pos, direction);
