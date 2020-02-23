@@ -336,7 +336,7 @@ namespace Ship_Game.AI
         public void ClearOut()
         {
             if (CoreFleet != null)
-                Owner.AddShipNextFrame(CoreFleet.Ships);
+                Owner?.AddShipNextFrame(CoreFleet.Ships);
             if (OffensiveForcePool?.NotEmpty == true)
                 Owner.AddShipNextFrame(OffensiveForcePool);
             if (ShipsWaitingForCoreFleet?.NotEmpty == true)

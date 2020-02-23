@@ -421,8 +421,6 @@ namespace Ship_Game.Ships
             BaseCost                 = GetBaseCost();
             MaxBank                  = GetMaxBank();
 
-            UpdateWeaponRanges();
-            
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
             Supply  = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
@@ -431,6 +429,8 @@ namespace Ship_Game.Ships
             if (FTLSpoolTime <= 0f)
                 FTLSpoolTime = 3f;
             ActiveInternalSlotCount = InternalSlotCount;
+
+            UpdateWeaponRanges();
 
             InitDefendingTroopStrength();
             UpdateMaxVelocity();
