@@ -951,7 +951,7 @@ namespace Ship_Game
             }
         }
 
-        /// <param name="clearAndPresentDanger">indicates that threat is a clear and present danger</param>
+        /// <param name="clearAndPresentDanger">indicates threats can destroy friendly ships</param>
         public bool EnemyInRange(bool clearAndPresentDanger = false)
         {
             if (clearAndPresentDanger ? !ParentSystem.DangerousForcesPresent(Owner) 
