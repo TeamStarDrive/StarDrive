@@ -519,6 +519,11 @@ namespace Ship_Game.Ships
             return selectedShip;
         }
 
+        /// <summary>
+        /// Assaults the target ship.
+        /// </summary>
+        /// <param name="targetShip">The target ship.</param>
+        /// <returns></returns>
         public bool AssaultTargetShip(Ship targetShip)
         {
             if (Owner.Carrier.AnyAssaultOpsAvailable && targetShip != null)
@@ -539,6 +544,32 @@ namespace Ship_Game.Ships
                     }
                     return true;
                 }
+            }
+            return false;
+        }
+
+        public bool IsInHangarLaunchRange(GameplayObject target) 
+                                        => IsInHangarLaunchRange(target.Center.Distance(Owner.Center));
+
+        /// <summary>
+        /// Determines whether distance to target is near enough to launch hangar ships>.
+        /// </summary>
+        /// <param name="distanceToTarget">The distance to target.</param>
+        /// <returns>
+        ///   <c>true</c> if [is in hangar launch range] [the specified distance to target]; otherwise, <c>false</c>.
+        /// </returns>
+        public bool IsInHangarLaunchRange(float distanceToTarget)
+        {
+            if (HasActiveHangars && !Owner.IsSpoolingOrInWarp)
+            {
+                float range;
+                if (IsPrimaryCarrierRole && Owner.AI.CombatState != CombatState.ShortRange)
+                    range = Owner.SensorRange;
+                else
+                    range = Owner.DesiredCombatRange;
+
+                if (!Owner.ManualHangarOverride && distanceToTarget < range)
+                    return true;
             }
             return false;
         }
