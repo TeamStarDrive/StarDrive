@@ -265,7 +265,7 @@ namespace Ship_Game.AI
                             message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
                     }
 
-                    if (system.HostileForcesPresent(Owner.loyalty))
+                    if (system.DangerousForcesPresent(Owner.loyalty))
                         message.Append("\nCombat in system!!!");
 
                     if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(Owner.loyalty))
