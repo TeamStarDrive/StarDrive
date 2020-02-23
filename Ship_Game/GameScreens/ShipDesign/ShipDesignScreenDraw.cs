@@ -640,6 +640,7 @@ namespace Ship_Game
                 DesignIssues.CheckIssuePowerRecharge(powerRecharge);
                 DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, warpSpeed);
                 DesignIssues.CheckIssueNoWarp(modifiedSpeed, warpSpeed);
+                DesignIssues.CheckIssueSlowWarp(warpSpeed);
                 DesignIssues.CheckIssueNoSpeed(modifiedSpeed);
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
