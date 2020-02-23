@@ -126,15 +126,14 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (Owner.engineState == Ship.MoveState.Sublight && distanceToTarget <= Owner.SensorRange)
-            {
-                if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
-                    Owner.Carrier.ScrambleFighters();
-            }
+            if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget)) 
+                Owner.Carrier.ScrambleFighters();
 
-            if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(target.Center, Owner.DesiredCombatRange * 3f))
+            if (Intercepting && CombatState < CombatState.HoldPosition)
             {
+                // clamp the radius here so that it wont flounder if the ship has very long range weapons.
+                float radius = Math.Max(Owner.DesiredCombatRange * 3f, 15000f);
+                Owner.Center.OutsideRadius(target.Center, radius);
                 ThrustOrWarpToPos(target.Center, elapsedTime);
                 return;
             }
