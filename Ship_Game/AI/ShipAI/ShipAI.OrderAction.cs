@@ -261,7 +261,7 @@ namespace Ship_Game.AI
 
             var systemList = (
                 from sys in Owner.loyalty.GetOwnedSystems()
-                where !sys.HostileForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
+                where !sys.DangerousForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
                 orderby Owner.Center.Distance(sys.Position)
                 select sys).ToArray();
 
