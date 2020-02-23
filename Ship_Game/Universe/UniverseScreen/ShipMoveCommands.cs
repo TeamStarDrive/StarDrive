@@ -238,7 +238,7 @@ namespace Ship_Game.Universe
             if (Input.IsAltKeyDown)
                 fleet.MoveToNow(movePosition, facingDir);
             else
-                fleet.FormationWarpTo(movePosition, facingDir, offensiveMove: OffensiveMove);
+                fleet.FormationWarpTo(movePosition, facingDir, false, offensiveMove: OffensiveMove);
         }
 
         public void MoveShipToLocation(Vector2 pos, Vector2 direction, Ship ship)

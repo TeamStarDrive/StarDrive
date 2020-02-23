@@ -397,7 +397,7 @@ namespace Ship_Game
                 || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
         }
 
-        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false, bool offensiveMove = false)
+        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false)
         {
             GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection, forceAssembly:true);
