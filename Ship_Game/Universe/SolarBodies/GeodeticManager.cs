@@ -32,7 +32,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         public void Update(float elapsedTime)
         {
-            if (P.ParentSystem.HostileForcesPresent(Owner))
+            if (P.ParentSystem.DangerousForcesPresent(Owner))
                 SystemCombatTimer += elapsedTime;
             else
                 SystemCombatTimer = 0f;
