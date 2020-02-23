@@ -217,7 +217,7 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Forces present are not an immediate threat but can be attacked. 
+        /// Forces present can not cause damage to ships but can be destroyed. 
         /// </summary>
         public bool HostileForcesPresent(Empire empire)
         {
@@ -227,13 +227,13 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Forces present are an immediate threat to the system
+        /// Forces present can destroy friendly ships. 
         /// </summary>
         public bool DangerousForcesPresent(Empire empire)
         {
             if (empire == null)
                 return false;
-            return GetStatus(empire).HostileForcesPresent;
+            return GetStatus(empire).DangerousForcesPresent;
         }
 
         public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);
