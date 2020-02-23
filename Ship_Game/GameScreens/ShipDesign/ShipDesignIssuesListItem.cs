@@ -24,7 +24,6 @@ namespace Ship_Game
             TitleLabel        = AddIssueLabel(IssueDetails.Title, 150, 65, NormalFont, TextAlign.VerticalCenter, IssueDetails.Color);
             ProblemLabel      = AddIssueLabel(IssueDetails.Problem, 370, 200, NormalFont, TextAlign.VerticalCenter, White);
             RemediationLabel  = AddIssueLabel(IssueDetails.Remediation, 370, 560, NormalFont, TextAlign.VerticalCenter, White);
-            //IssueTexture.DebugDraw = true;
         }
 
         UILabel AddIssueLabel(string text, float sizeX, float relativeX, SpriteFont font, TextAlign align, Color color)

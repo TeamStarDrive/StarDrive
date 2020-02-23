@@ -6363,11 +6363,11 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2522</Index>
-      <Text>No FTL Speed</Text>
+      <Text>No Warp Speed</Text>
     </Token>
     <Token>
       <Index>2523</Index>
-      <Text>The ship is not warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense.</Text>
+      <Text>The ship is not Warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense.</Text>
     </Token>
     <Token>
       <Index>2524</Index>
@@ -6375,15 +6375,15 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2525</Index>
-      <Text>Slow FTL Speed</Text>
+      <Text>Slow Warp Speed</Text>
     </Token>
     <Token>
       <Index>2526</Index>
-      <Text>The ship has a low Warp Speed. Since fleets travel at the speed of the slowest ship, this ship will delay the fleet's speed capabilities if assigned to one.</Text>
+      <Text>The ship's Warp Speed below the average Ships' Warp speed available to your empire. Since fleets travel at the speed of the slowest ship, this ship will delay the fleet's speed capabilities if assigned to one.</Text>
     </Token>
     <Token>
       <Index>2527</Index>
-      <Text>Add Warp capable modules (usually Warp Engines) and power them increase Warp Speed.</Text>
+      <Text>Add Warp capable modules (usually Warp Engines) and power them to match the average Warp speed of</Text>
     </Token>
     <Token>
       <Index>2528</Index>
@@ -6496,6 +6496,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     <Token>
       <Index>2555</Index>
       <Text>The ship might have reduced effectiveness when fighting with only energy weapons under your direct order. It will, however, go to resupply when the designated target is destroyed.</Text>
+    </Token>
+    <Token>
+      <Index>2556</Index>
+      <Text>Civilian ships</Text>
+    </Token>
+    <Token>
+      <Index>2557</Index>
+      <Text>Military ships</Text>
     </Token>
 
     <!-- Formulate Offer Text for Diplomacy  3000 + -->

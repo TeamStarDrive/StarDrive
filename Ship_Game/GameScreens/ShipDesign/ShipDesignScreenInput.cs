@@ -790,7 +790,6 @@ namespace Ship_Game
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-
             ActiveHull = newTemplate.shipData;
             ActiveHull.UpdateBaseHull();
             ChangeHull(ActiveHull);

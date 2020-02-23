@@ -6,18 +6,23 @@ namespace Ship_Game.ShipDesignIssues
     public class ShipDesignIssues
     {
         public readonly ShipData Hull;
+        public readonly ShipData.RoleName Role;
         public Array<DesignIssueDetails> CurrentDesignIssues { get; }
         public WarningLevel CurrentWarningLevel { get; private set; }
+        private static readonly Empire Player = EmpireManager.Player;
+        private EmpireShipDesignStats EmpireStats;
 
         public ShipDesignIssues(ShipData hull)
         {
             Hull = hull;
+            Role = hull.Role;
             CurrentDesignIssues = new Array<DesignIssueDetails>();
+            EmpireStats = new EmpireShipDesignStats(Player);
         }
 
-        void AddDesignIssue(DesignIssueType type, WarningLevel severity)
+        void AddDesignIssue(DesignIssueType type, EmpireShipDesignStats stats, ShipData.RoleName role, WarningLevel severity)
         {
-            DesignIssueDetails details = new DesignIssueDetails(type, severity);
+            DesignIssueDetails details = new DesignIssueDetails(type, stats, role, severity);
             CurrentDesignIssues.Add(details);
             UpdateCurrentWarningLevel(details.Severity);
         }
@@ -28,12 +33,61 @@ namespace Ship_Game.ShipDesignIssues
                 CurrentWarningLevel = level;
         }
 
-        bool LargeCraft => Hull.HullRole == ShipData.RoleName.freighter || Hull.HullRole == ShipData.RoleName.destroyer
-                           || Hull.HullRole == ShipData.RoleName.cruiser || Hull.HullRole == ShipData.RoleName.capital;
+        public struct EmpireShipDesignStats
+        {
+            private float AverageWarpSpeedCivilian;
+            private float AverageWarpSpeedMilitary;
 
-        bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole ==  ShipData.RoleName.platform;
-        bool Civilian   => Hull.Role == ShipData.RoleName.colony || Hull.Role == ShipData.RoleName.freighter
-                           || Hull.Role == ShipData.RoleName.construction || Hull.Role == ShipData.RoleName.scout;
+            public EmpireShipDesignStats(Empire empire)
+            {
+                AverageWarpSpeedCivilian = 0;
+                AverageWarpSpeedMilitary = 0;
+                RecalculateEmpireStats(empire);
+            }
+
+            public void RecalculateEmpireStats(Empire empire)
+            {
+                float totalWarpSpeedCivilian = 0;
+                float totalWarpSpeedMilitary = 0;
+                int totalWarpShipsCivilian   = 0;
+                int totalWarpShipsMilitary   = 0;
+
+                foreach (string name in empire.ShipsWeCanBuild)
+                {
+                    var ship    = ResourceManager.GetShipTemplate(name);
+                    float speed = (ship.WarpThrust / (ship.Mass * empire.data.MassModifier)) * empire.data.FTLModifier;
+                    if (speed < 2000)
+                        continue;
+
+                    if (Civilian(ship.shipData.Role))
+                    {
+                        totalWarpShipsCivilian += 1;
+                        totalWarpSpeedCivilian += speed;
+                    }
+                    else
+                    {
+                        totalWarpShipsMilitary += 1;
+                        totalWarpSpeedMilitary += speed;
+                    }
+                }
+
+                AverageWarpSpeedCivilian = (totalWarpSpeedCivilian / totalWarpShipsCivilian).RoundTo10();
+                AverageWarpSpeedMilitary = (totalWarpSpeedMilitary / totalWarpShipsMilitary).RoundTo10();
+            }
+
+            public float AverageEmpireWarpSpeed(ShipData.RoleName role) => Civilian(role) ? AverageWarpSpeedCivilian
+                                                                                          : AverageWarpSpeedMilitary;
+        }
+
+        bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole == ShipData.RoleName.platform;
+        bool LargeCraft => Hull.HullRole == ShipData.RoleName.freighter || Hull.HullRole == ShipData.RoleName.destroyer
+                                                                        || Hull.HullRole == ShipData.RoleName.cruiser 
+                                                                        || Hull.HullRole == ShipData.RoleName.capital;
+
+        public static bool Civilian(ShipData.RoleName role) => 
+                                    role == ShipData.RoleName.colony || role == ShipData.RoleName.freighter 
+                                                                     || role == ShipData.RoleName.construction 
+                                                                     || role == ShipData.RoleName.scout;
 
         public void Reset()
         {
@@ -43,20 +97,20 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckIssueNoCommand(int numCommand)
         {
-            if (Hull.Role != ShipData.RoleName.platform && numCommand == 0)
-                AddDesignIssue(DesignIssueType.NoCommand, WarningLevel.Critical);
+            if (Role != ShipData.RoleName.platform && numCommand == 0)
+                AddDesignIssue(DesignIssueType.NoCommand, EmpireStats, Role,WarningLevel.Critical);
         }
 
         public void CheckIssueBackupCommand(int numCommand, int size)
         {
-            if (Hull.Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
-                AddDesignIssue(DesignIssueType.BackUpCommand, WarningLevel.Major);
+            if (Role != ShipData.RoleName.platform && numCommand == 1 && size >= 500)
+                AddDesignIssue(DesignIssueType.BackUpCommand, EmpireStats, Role, WarningLevel.Major);
         }
 
         public void  CheckIssueUnpoweredModules(bool unpoweredModules)
         {
             if (unpoweredModules)
-                AddDesignIssue(DesignIssueType.UnpoweredModules, WarningLevel.Major);
+                AddDesignIssue(DesignIssueType.UnpoweredModules, EmpireStats, Role, WarningLevel.Major);
         }
 
         public void CheckIssueOrdnance(float ordnanceUsed, float ordnanceRecovered, float ammoTime, int size)
@@ -66,20 +120,20 @@ namespace Ship_Game.ShipDesignIssues
 
             if (ammoTime < 5)
             {
-                AddDesignIssue(DesignIssueType.NoOrdnance, WarningLevel.Critical);
+                AddDesignIssue(DesignIssueType.NoOrdnance, EmpireStats, Role, WarningLevel.Critical);
             }
             else
             {
                 int goodAmmoTime = LargeCraft ? 50 : 25;
                 if (ammoTime < goodAmmoTime)
-                    AddDesignIssue(DesignIssueType.LowOrdnance, WarningLevel.Minor);
+                    AddDesignIssue(DesignIssueType.LowOrdnance, EmpireStats, Role, WarningLevel.Minor);
             }
         }
 
         public void CheckIssuePowerRecharge(float recharge)
         {
             if (recharge.Less(0))
-                AddDesignIssue(DesignIssueType.NegativeRecharge, WarningLevel.Critical);
+                AddDesignIssue(DesignIssueType.NegativeRecharge, EmpireStats, Role, WarningLevel.Critical);
         }
 
         public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
@@ -88,27 +142,35 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             WarningLevel severity = ftlTime < 60 ? WarningLevel.Critical : WarningLevel.Major;
-            AddDesignIssue(DesignIssueType.LowWarpTime, severity);
+            AddDesignIssue(DesignIssueType.LowWarpTime, EmpireStats, Role, severity);
         }
 
         public void CheckIssueNoWarp(float speed, float warpSpeed)
         {
             if (speed.AlmostZero())
-                return; 
+                return;
 
             if (warpSpeed.LessOrEqual(0))
             {
                 WarningLevel severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Informative;
-                AddDesignIssue(DesignIssueType.NoWarp, severity);
+                AddDesignIssue(DesignIssueType.NoWarp, EmpireStats, Role, severity);
             }
-            else if (warpSpeed.Less(10000))
-            {
-                AddDesignIssue(DesignIssueType.SlowWarp, WarningLevel.Major);
-            }
-            else if (warpSpeed.Less(20000))
-            {
-                AddDesignIssue(DesignIssueType.SlowWarp, WarningLevel.Minor);
-            }
+        }
+
+        public void CheckIssueSlowWarp(float warpSpeed)
+        {
+            if (warpSpeed.AlmostZero() )
+                return;
+
+            float averageWarpSpeed = EmpireStats.AverageEmpireWarpSpeed(Hull.Role);
+            if (warpSpeed.GreaterOrEqual(averageWarpSpeed * 0.9f))
+                return;
+
+            WarningLevel severity = WarningLevel.Informative;
+            if      (warpSpeed.Less(averageWarpSpeed / 2)) severity = WarningLevel.Major;
+            else if (warpSpeed.Less(averageWarpSpeed / 2)) severity = WarningLevel.Minor;
+
+            AddDesignIssue(DesignIssueType.SlowWarp, EmpireStats, Role, severity);
         }
 
         public void CheckIssueNoSpeed(float speed)
@@ -116,7 +178,7 @@ namespace Ship_Game.ShipDesignIssues
             if (speed.Greater(0) || Stationary)
                 return;
 
-            AddDesignIssue(DesignIssueType.NoSpeed, WarningLevel.Critical);
+            AddDesignIssue(DesignIssueType.NoSpeed, EmpireStats, Role, WarningLevel.Critical);
         }
 
         public void CheckTargetExclusions(bool hasWeapons, bool canTargetFighters, bool  canTargetCorvettes, bool canTargetCapitals)
@@ -126,14 +188,14 @@ namespace Ship_Game.ShipDesignIssues
 
             WarningLevel severity = LargeCraft ? WarningLevel.Major : WarningLevel.Critical;
             if (!canTargetFighters)
-                AddDesignIssue(DesignIssueType.CantTargetFighters, severity);
+                AddDesignIssue(DesignIssueType.CantTargetFighters, EmpireStats, Role, severity);
 
             if (!canTargetCorvettes)
-                AddDesignIssue(DesignIssueType.CantTargetCorvettes, severity);
+                AddDesignIssue(DesignIssueType.CantTargetCorvettes, EmpireStats, Role, severity);
 
             severity = LargeCraft ? WarningLevel.Critical : WarningLevel.Minor;
             if (!canTargetCapitals)
-                AddDesignIssue(DesignIssueType.CantTargetCapitals, severity);
+                AddDesignIssue(DesignIssueType.CantTargetCapitals, EmpireStats, Role, severity);
         }
 
         public void CheckTruePD(int size, int pointDefenseValue)
@@ -145,7 +207,7 @@ namespace Ship_Game.ShipDesignIssues
             WarningLevel severity = pointDefenseValue < threshold / 2 ? WarningLevel.Major
                                                                       : WarningLevel.Minor;
 
-            AddDesignIssue(DesignIssueType.LowPdValue, severity);
+            AddDesignIssue(DesignIssueType.LowPdValue, EmpireStats, Role, severity);
         }
 
         public void CheckWeaponPowerTime(bool hasEnergyWeapons, bool excessPowerConsumed, float weaponPowerTime)
@@ -160,7 +222,7 @@ namespace Ship_Game.ShipDesignIssues
             else if (weaponPowerTime < 20) severity = WarningLevel.Informative;
 
             if (severity > WarningLevel.None)
-                AddDesignIssue(DesignIssueType.LowWeaponPowerTime, severity);
+                AddDesignIssue(DesignIssueType.LowWeaponPowerTime, EmpireStats, Role, severity);
         }
 
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
@@ -169,7 +231,7 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             WarningLevel severity = burstEnergyPowerTime < 1 ? WarningLevel.Critical : WarningLevel.Major;
-            AddDesignIssue(DesignIssueType.LowBurstPowerTime, severity);
+            AddDesignIssue(DesignIssueType.LowBurstPowerTime, EmpireStats, Role, severity);
         }
 
         public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons)
@@ -178,11 +240,11 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             if (numOrdnanceWeapons < numWeapons)
-                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, WarningLevel.Informative);
+                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyPlayerOrder, EmpireStats, Role, WarningLevel.Informative);
 
             float ordnanceToEnergyRatio = (float)numOrdnanceWeapons / numWeapons;
             if (ordnanceToEnergyRatio.LessOrEqual(ShipResupply.KineticToEnergyRatio))
-                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyCombat, WarningLevel.Informative);
+                AddDesignIssue(DesignIssueType.NoOrdnanceResupplyCombat, EmpireStats, Role, WarningLevel.Informative);
         }       
 
         public Color CurrentWarningColor => IssueColor(CurrentWarningLevel);
@@ -242,7 +304,8 @@ namespace Ship_Game.ShipDesignIssues
         public readonly string Remediation;
         public readonly SubTexture Texture;
 
-        public DesignIssueDetails(DesignIssueType issueType, WarningLevel severity)
+        public DesignIssueDetails(DesignIssueType issueType, ShipDesignIssues.EmpireShipDesignStats stats, 
+               ShipData.RoleName role, WarningLevel severity)
         {
             Type     = issueType;
             Severity = severity;
@@ -293,10 +356,15 @@ namespace Ship_Game.ShipDesignIssues
                     Texture     = ResourceManager.Texture("NewUI/IssueNoWarp");
                     break;
                 case DesignIssueType.SlowWarp:
-                    Title       = new LocalizedText(2525).Text;
-                    Problem     = new LocalizedText(2526).Text;
-                    Remediation = new LocalizedText(2527).Text;
-                    Texture     = ResourceManager.Texture("NewUI/IssueSlowWarp");
+                    string civilianOrMilitary = ShipDesignIssues.Civilian(role) ? new LocalizedText(2556).Text
+                                                                               : new LocalizedText(2557).Text;
+
+                    float averageWarpSpeed = stats.AverageEmpireWarpSpeed(role);
+                    string averageWarp     = $" {civilianOrMilitary} ({averageWarpSpeed.GetNumberString()}).";
+                    Title                  = new LocalizedText(2525).Text;
+                    Problem                = new LocalizedText(2526).Text;
+                    Remediation            = new LocalizedText(2527).Text + averageWarp; 
+                    Texture                = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
                     Title       = new LocalizedText(2519).Text;
