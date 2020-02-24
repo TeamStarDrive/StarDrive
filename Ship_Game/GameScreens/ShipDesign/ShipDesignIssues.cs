@@ -57,7 +57,7 @@ namespace Ship_Game.ShipDesignIssues
                 {
                     var ship    = ResourceManager.GetShipTemplate(name);
                     float speed = (ship.WarpThrust / (ship.Mass * empire.data.MassModifier)) * empire.data.FTLModifier;
-                    if (speed < 2000)
+                    if (speed < 2000 || Scout(ship.shipData.Role))
                         continue;
 
                     if (Civilian(ship.shipData.Role))
@@ -85,10 +85,11 @@ namespace Ship_Game.ShipDesignIssues
                                                                         || Hull.HullRole == ShipData.RoleName.cruiser 
                                                                         || Hull.HullRole == ShipData.RoleName.capital;
 
-        public static bool Civilian(ShipData.RoleName role) => 
-                                    role == ShipData.RoleName.colony || role == ShipData.RoleName.freighter 
-                                                                     || role == ShipData.RoleName.construction 
-                                                                     || role == ShipData.RoleName.scout;
+        public static bool Civilian(ShipData.RoleName role) => role == ShipData.RoleName.colony 
+                                                               || role == ShipData.RoleName.freighter 
+                                                               || role == ShipData.RoleName.construction;
+
+        public static bool Scout(ShipData.RoleName role) => role == ShipData.RoleName.scout;
 
         public void Reset()
         {
