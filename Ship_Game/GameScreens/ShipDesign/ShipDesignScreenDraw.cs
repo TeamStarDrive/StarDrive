@@ -442,6 +442,7 @@ namespace Ship_Game
             bool bEnergyWeapons            = false;
             int troopCount                 = 0;
             int fixedTargets               = 0;
+            int numTroopBays               = 0;
             int numSlots                   = 0;
             int numWeaponSlots             = 0;
             int numWeapons                 = 0;
@@ -466,77 +467,82 @@ namespace Ship_Game
                 if (slot.Module == null)
                     continue;
 
-                numSlots      += slot.Module.Area;
-                hitPoints     += slot.Module.ActualMaxHealth;
-                mass          += slot.Module.ActualMass;
-                troopCount    += slot.Module.TroopCapacity;
-                powerCapacity += slot.Module.ActualPowerStoreMax;
-                ordnanceCap   += slot.Module.OrdinanceCapacity;
-                powerFlow     += slot.Module.ActualPowerFlowMax;
-                cost          += slot.Module.ActualCost;
-                cargoSpace    += slot.Module.Cargo_Capacity;
+                ShipModule module = slot.Module;
 
-                if (slot.Module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
+                numSlots      += module.Area;
+                hitPoints     += module.ActualMaxHealth;
+                mass          += module.ActualMass;
+                troopCount    += module.TroopCapacity;
+                powerCapacity += module.ActualPowerStoreMax;
+                ordnanceCap   += module.OrdinanceCapacity;
+                powerFlow     += module.ActualPowerFlowMax;
+                cost          += module.ActualCost;
+                cargoSpace    += module.Cargo_Capacity;
+
+                if (module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
                 {
-                    offense  += slot.Module.CalculateModuleOffense();
-                    defense  += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
+                    offense  += module.CalculateModuleOffense();
+                    defense  += module.CalculateModuleDefense(ModuleGrid.SlotsCount);
                     wasOffenseDefenseAdded = true;
                 }
-                else if (!slot.Module.Powered)
+                else if (!module.Powered)
                 {
                     unpoweredModules = true;
                     continue;
                 }
 
-                if (slot.Module.Is(ShipModuleType.Shield))
-                    shields.Add(slot.Module);
+                empResist          += module.EMP_Protection;
+                warpableMass       += module.WarpMassCapacity;
+                warpDraw           += module.PowerDrawAtWarp;
+                shieldPower        += module.shield_power_max;
+                totalShieldAmplify += module.AmplifyShields;
+                thrust             += module.thrust;
+                warpThrust         += module.WarpThrust;
+                turnThrust         += module.TurnThrust;
+                repairRate         += module.ActualBonusRepairRate;
+                ordnanceRecovered  += module.OrdnanceAddedPerSecond;
+                targets            += module.TargetTracking;
+                ordnanceUsed       += module.BayOrdnanceUsagePerSecond;
+                totalEcm            = module.ECM.ClampMin(totalEcm);
+                sensorRange         = module.SensorRange.ClampMin(sensorRange);
+                sensorBonus         = module.SensorBonus.ClampMin(sensorBonus);
+                fixedTargets        = module.FixedTracking.ClampMin(fixedTargets);
 
-                if (slot.Module.AmplifyShields > 0)
-                    amplifiers.Add(slot.Module);
+                if (module.IsTroopBay)
+                    numTroopBays += 1;
 
-                empResist          += slot.Module.EMP_Protection;
-                warpableMass       += slot.Module.WarpMassCapacity;
-                warpDraw           += slot.Module.PowerDrawAtWarp;
-                shieldPower        += slot.Module.shield_power_max;
-                totalShieldAmplify += slot.Module.AmplifyShields;
-                thrust             += slot.Module.thrust;
-                warpThrust         += slot.Module.WarpThrust;
-                turnThrust         += slot.Module.TurnThrust;
-                repairRate         += slot.Module.ActualBonusRepairRate;
-                ordnanceRecovered  += slot.Module.OrdnanceAddedPerSecond;
-                targets            += slot.Module.TargetTracking;
-                totalEcm            = Math.Max(slot.Module.ECM, totalEcm);
-                sensorRange         = Math.Max(slot.Module.SensorRange, sensorRange);
-                sensorBonus         = Math.Max(slot.Module.SensorBonus, sensorBonus);
-                fixedTargets        = Math.Max(slot.Module.FixedTracking, fixedTargets);
-                ordnanceUsed       += slot.Module.BayOrdnanceUsagePerSecond;
+                if (module.Is(ShipModuleType.Shield))
+                    shields.Add(module);
 
+                if (module.AmplifyShields > 0)
+                    amplifiers.Add(module);
 
-                if (slot.Module.IsCommandModule)
+                if (module.IsCommandModule)
                     numCommandModules += 1;
 
-                if (slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
-                    warpSpoolTimer = slot.Module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
+                if (module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
+                    warpSpoolTimer = module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
 
-                if (slot.Module.FTLSpeed > 0f)
+                if (module.FTLSpeed > 0f)
                 {
                     ftlCount += 1f;
-                    ftlSpeed += slot.Module.FTLSpeed;
-                }
-                if (!wasOffenseDefenseAdded)
-                {
-                    offense += slot.Module.CalculateModuleOffense();
-                    defense += slot.Module.CalculateModuleDefense(ModuleGrid.SlotsCount);
+                    ftlSpeed += module.FTLSpeed;
                 }
 
-                Weapon weapon = slot.Module.InstalledWeapon;
+                if (!wasOffenseDefenseAdded)
+                {
+                    offense += module.CalculateModuleOffense();
+                    defense += module.CalculateModuleDefense(ModuleGrid.SlotsCount);
+                }
+
+                Weapon weapon = module.InstalledWeapon;
                 if (weapon == null)
                     continue;
 
                 if (weapon.PowerRequiredToFire > 0 || weapon.BeamPowerCostPerSecond > 0)
                     bEnergyWeapons = true;
 
-                numWeaponSlots    += slot.Module.Area;
+                numWeaponSlots    += module.Area;
                 ordnanceUsed      += weapon.OrdnanceUsagePerSecond;
                 weaponPowerNeeded += weapon.PowerFireUsagePerSecond;
                 if (!weapon.TruePD)
@@ -565,7 +571,7 @@ namespace Ship_Game
                 if (weapon.isBeam)
                 {
                     beamPeakPowerNeeded += weapon.BeamPowerCostPerSecond;
-                    beamLongestDuration = Math.Max(beamLongestDuration, weapon.BeamDuration);
+                    beamLongestDuration  = Math.Max(beamLongestDuration, weapon.BeamDuration);
                 }
                 else
                 {
@@ -574,25 +580,23 @@ namespace Ship_Game
             }
 
             float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(amplifiers.ToArray(), shields.ToArray());
-            shieldPower = ShipUtils.UpdateShieldAmplification(amplifiers.ToArray(), shields.ToArray());
-
+            shieldPower                  = ShipUtils.UpdateShieldAmplification(amplifiers.ToArray(), shields.ToArray());
             Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
-
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
 
-            mass += (ActiveHull.ModuleSlots.Length);
+            mass += (ActiveHull.ModuleSlots.Length).ClampMin(1);
             mass *= EmpireManager.Player.data.MassModifier;
             cost += (int)(cost * EmpireManager.Player.data.Traits.ShipCostMod);
 
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
             float speed         = thrust / mass;
             float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f);
-            float warpSpeed     = (warpThrust / (mass + 0.1f)) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
+            float warpSpeed     = (warpThrust / mass) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
             float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
-            float afterSpeed    = (afterThrust / (mass + 0.1f)) * EmpireManager.Player.data.SubLightModifier;
+            float afterSpeed    = (afterThrust / mass) * EmpireManager.Player.data.SubLightModifier;
             var cursor          = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
 
             DrawHullBonuses(ref cursor, ref cost, bonus);
@@ -647,6 +651,8 @@ namespace Ship_Game
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
                 DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
                 DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
+                DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
+                DesignIssues.CheckTroops(troopCount, size);
                 UpdateDesignButton();
             }
         }
