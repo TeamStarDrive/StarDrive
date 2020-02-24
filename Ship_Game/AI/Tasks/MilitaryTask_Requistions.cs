@@ -108,7 +108,7 @@ namespace Ship_Game.AI.Tasks
             {
                 if (!IsCoreFleetTask)
                     foreach (var kv in Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict
-                        .OrderByDescending(system => system.Key.HostileForcesPresent(Owner)
+                        .OrderByDescending(system => system.Key.DangerousForcesPresent(Owner)
                             ? 1
                             : 2 * system.Key.Position.SqDist(TargetPlanet.Center))
                     )

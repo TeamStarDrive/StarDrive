@@ -399,7 +399,7 @@ namespace Ship_Game.Ships
                 case RoleName.capital:
                 case RoleName.prototype: return RoleType.Warship;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(role), role, null);
+                    return RoleType.NotApplicable;
             }
         }
     }
