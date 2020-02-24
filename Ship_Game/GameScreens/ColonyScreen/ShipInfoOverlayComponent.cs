@@ -68,7 +68,6 @@ namespace Ship_Game
 
             int size = (int)(Height - 56);
             var shipOverlay = new Rectangle((int)X + TextWidth, (int)Y + 40, size, size);
-            //batch.Draw(ResourceManager.Texture("NewUI/colonyShipBuildBG"), Rect);
             new Menu2(Rect).Draw(batch);
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
