@@ -363,7 +363,7 @@ namespace Ship_Game.AI.Tasks
                         Owner.GetFleetsDict()[1].FleetTask = this;
                         WhichFleet = 1;
                         Step = 1;
-                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1));
+                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1), false);
                         break;
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
