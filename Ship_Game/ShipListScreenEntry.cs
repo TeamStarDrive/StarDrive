@@ -273,34 +273,45 @@ namespace Ship_Game
                 case AIState.Orbit:
                     if (ship.AI.OrbitTarget == null)
                         return Localizer.Token(182);
-                    return string.Concat(Localizer.Token(182), " ", ship.AI.OrbitTarget.Name);
+
+                    Planet planet    = ship.AI.OrbitTarget;
+                    string orbitText = $"{Localizer.Token(182)} ";
+                    if (!ship.AI.HasPriorityOrder && ship.Center.Distance(planet.Center) > planet.ObjectRadius * 1.5)
+                        orbitText = $"{Localizer.Token(1893)} {orbitText}";
+
+                    return $"{orbitText} {planet.Name}";
                 case AIState.Colonize:
                     if (ship.AI.ColonizeTarget == null)
                         return "";
+
                     return string.Concat(Localizer.Token(169), " ", ship.AI.ColonizeTarget.Name);
                 case AIState.MoveTo:
                     if (ship.Velocity.NotZero() || ship.IsTurning)
                     {
-                        string text = string.Concat(Localizer.Token(187), " ");
+                        string moveText = $"{Localizer.Token(187)} ";
+                        if (!ship.AI.HasPriorityOrder)
+                            moveText = $"{Localizer.Token(1893)} {moveText}"; // offensive move
+
                         if (!ship.AI.OrderQueue.TryPeekLast(out ShipAI.ShipGoal last))
                         {
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
                             if (system.IsExploredBy(EmpireManager.Player))
-                                return string.Concat(text, Localizer.Token(189), " ", system.Name);
+                                return string.Concat(moveText, Localizer.Token(189), " ", system.Name);
+
                             return Localizer.Token(174);
                         }
                         if (last.Plan == ShipAI.Plan.DeployStructure || last.Plan == ShipAI.Plan.DeployOrbital)
                         {
-                            text = string.Concat(text, Localizer.Token(188));
+                            moveText = string.Concat(moveText, Localizer.Token(188));
                             if (last.Goal != null && ResourceManager.GetShipTemplate(last.Goal.ToBuildUID, out Ship toBuild))
-                                text = string.Concat(text, " ", toBuild.Name);
-                            return text;
+                                moveText = string.Concat(moveText, " ", toBuild.Name);
+                            return moveText;
                         }
                         else
                         {
                             SolarSystem system = UniverseScreen.SolarSystemList.FindMin(s => s.Position.Distance(ship.AI.MovePosition));
                             if (system.IsExploredBy(EmpireManager.Player))
-                                return text + system.Name;
+                                return moveText + system.Name;
                             return Localizer.Token(174);
                         }
                     }
