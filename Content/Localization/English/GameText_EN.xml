@@ -6509,6 +6509,34 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2557</Index>
       <Text>Military ships</Text>
     </Token>
+    <Token>
+      <Index>2558</Index>
+      <Text>Not Enough Troops to Launch</Text>
+    </Token>
+    <Token>
+      <Index>2559</Index>
+      <Text>The current number of Troops the ship has on board is lower than the number of Assault Bays installed. Not all Assault Shuttles will be able to launch when needed.</Text>
+    </Token>
+    <Token>
+      <Index>2560</Index>
+      <Text>Add more Barracks modules to the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2561</Index>
+      <Text>Low Garrison</Text>
+    </Token>
+    <Token>
+      <Index>2562</Index>
+      <Text>The ship has less than expected numbers of Troops on board for it's size. Troops garrisoned on board a ship help defend enemy boarding attempts.</Text>
+    </Token>
+    <Token>
+      <Index>2563</Index>
+      <Text>Add more Barracks modules to the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2564</Index>
+      <Text>more Troops needed.</Text>
+    </Token>
 
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
