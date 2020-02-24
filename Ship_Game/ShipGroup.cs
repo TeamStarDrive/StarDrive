@@ -337,7 +337,7 @@ namespace Ship_Game
         public Vector2 AveragePosition()
         {
             // Update Pos once per frame, OR if LastAveragePosUpdate was invalidated
-            if (LastAveragePosUpdate != StarDriveGame.Instance.FrameId)
+            if (LastAveragePosUpdate != (StarDriveGame.Instance?.FrameId ?? -1))
             {
                 LastAveragePosUpdate = StarDriveGame.Instance.FrameId;
                 AveragePos = GetAveragePosition(Ships, CommandShip);
