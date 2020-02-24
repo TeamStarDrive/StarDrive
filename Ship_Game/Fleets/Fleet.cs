@@ -431,16 +431,15 @@ namespace Ship_Game.Fleets
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
-                    SetPriorityOrderTo(Ships);
+                    SetPriorityOrderToShipsIf(Ships, s=> !s.AI.HasPriorityOrder);
                     TaskStep = 1;
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(5000))
                     {
-                        SetPriorityOrderTo(Ships);
                         break;
                     }
-                    ClearPriorityOrderIfSubLight()
+                    ClearAllShipsPriorityOrderIf(Ships, s => s.engineState == Ship.MoveState.Sublight);
                     GatherAtAO(task, distanceFromAO: task.TargetPlanet.GravityWellRadius);
                     TaskStep = 2;
                     break;
@@ -470,12 +469,19 @@ namespace Ship_Game.Fleets
             }
         }
 
-        bool ClearPriorityOrder(Array<Ship> ships, Func<Ship,bool> condition)
+        bool ClearAllShipsPriorityOrderIf(Array<Ship> ships, Func<Ship,bool> condition)
         {
-            foreach(var ship in ships)
+            bool clearedOrder = false;
+            for (int i = 0; i < ships.Count; i++)
             {
-                if (condition(ship)) ship.AI.ClearPriorityOrder();
+                var ship = ships[i];
+                if (condition(ship))
+                {
+                    ship.AI.ClearPriorityOrder();
+                    clearedOrder = true;
+                }
             }
+            return clearedOrder;
         }
 
         void DoPostInvasionDefense(MilitaryTask task)
@@ -565,10 +571,16 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtOffsetRally(task)) break;
+                    if (!ArrivedAtOffsetRally(task))
+                    {
+                        GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.1f);
+                        SetPriorityOrderToShipsIf(Ships, s =>
+                                        s.Center.OutsideRadius(FinalPosition, task.AORadius));
+                        break;
+                    }
                     TaskStep = 3;
                     AssembleFleet2(task.TargetPlanet.Center,
-                                   AveragePosition().DirectionToTarget(FinalPosition));
+                               AveragePosition().DirectionToTarget(FinalPosition));
                     break;
                 case 3:
                     EscortingToPlanet(task);
@@ -869,17 +881,17 @@ namespace Ship_Game.Fleets
             }
         }
 
-        void SetPriorityOrderTo(Array<Ship> ships)
+        void SetPriorityOrderToShipsIf(Array<Ship> ships, Func<Ship, bool> condition, bool clearOtherOrders = false)
         {
             for (int i = 0; i < ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                if (ship.CanTakeFleetOrders)
-                    ship.AI.SetPriorityOrder(true);
+                if (condition(ship))
+                    ship.AI.SetPriorityOrder(clearOtherOrders);
             }
         }
 
-        void SetAllShipsPriorityOrder() => SetPriorityOrderTo(Ships);
+        void SetAllShipsPriorityOrder() => SetPriorityOrderToShipsIf(Ships,s=> s.CanTakeFleetOrders);
 
         void FleetTaskGatherAtRally(MilitaryTask task)
         {
