@@ -431,11 +431,17 @@ namespace Ship_Game.Fleets
             {
                 case 0:
                     FleetTaskGatherAtRally(task);
+                    SetPriorityOrderTo(Ships);
                     TaskStep = 1;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely(5000)) break;
-                    GatherAtAO(task, distanceFromAO: 50000f);
+                    if (!HasArrivedAtRallySafely(5000))
+                    {
+                        SetPriorityOrderTo(Ships);
+                        break;
+                    }
+                    ClearPriorityOrderIfSubLight()
+                    GatherAtAO(task, distanceFromAO: task.TargetPlanet.GravityWellRadius);
                     TaskStep = 2;
                     break;
                 case 2:
@@ -461,6 +467,14 @@ namespace Ship_Game.Fleets
                     AssembleFleet2(task.TargetPlanet.Center,
                                    AveragePosition().DirectionToTarget(FinalPosition));
                     break;
+            }
+        }
+
+        bool ClearPriorityOrder(Array<Ship> ships, Func<Ship,bool> condition)
+        {
+            foreach(var ship in ships)
+            {
+                if (condition(ship)) ship.AI.ClearPriorityOrder();
             }
         }
 
