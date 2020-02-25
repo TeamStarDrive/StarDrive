@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace Ship_Game.AI
 {
@@ -84,8 +85,8 @@ namespace Ship_Game.AI
                 MinSupport = 0;
 
             MinCombatFleet = (int)(MinFighters + MinCorvettes + MinFrigates + MinCruisers
-                               + MinCapitals + MinSupport + MinCarriers);
-            TotalCount = MinCombatFleet + MinBombers + MinTroopShip;
+                               + MinCapitals);
+            TotalCount = MinCombatFleet + MinBombers + MinTroopShip + MinSupport + MinCarriers;
 
         }
     }

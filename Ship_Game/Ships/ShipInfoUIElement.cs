@@ -272,7 +272,7 @@ namespace Ship_Game.Ships
             int numStatus = 0;
 
             // FB - limit data display to non player ships
-            if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty, UniverseData.GameDifficulty.Easy))
+            if (HelperFunctions.DataVisibleToPlayer(Ship.loyalty))
             {
                 DrawCarrierStatus(mousePos);
                 DrawResupplyReason(Ship);

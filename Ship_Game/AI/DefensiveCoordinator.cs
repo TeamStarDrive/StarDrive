@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             ship.AI.ClearOrders(AIState.SystemDefender);
             ship.AI.SystemToDefend     = null;
             ship.AI.SystemToDefendGuid = Guid.Empty;
-            ship.AI.HasPriorityOrder   = false;
+            ship.AI.SetPriorityOrder(false);
             DefenseDeficit            -= ship.GetStrength();
             DefensiveForcePool.AddUnique(ship);
         }
@@ -283,37 +283,48 @@ namespace Ship_Game.AI
 
         void ManageTroops()
         {
-            TroopsInSystems troops = new TroopsInSystems(Us, DefenseDict);
-            int rebasedTroops      = 0;
-            if (!Us.isPlayer)
-                rebasedTroops      = RebaseIdleTroops(troops.TroopShips);
+            if (Us.isPlayer) 
+                return;
 
-            TroopsToTroopsWantedRatio          = (troops.TotalCurrentTroops + rebasedTroops) / (float) troops.TotalTroopWanted;
-
-            if (Us.isPlayer) return;
+            TroopsInSystems troops    = new TroopsInSystems(Us, DefenseDict);
+            int rebasedTroops         = RebaseIdleTroops(troops.TroopShips);
+            TroopsToTroopsWantedRatio = (troops.TotalCurrentTroops + rebasedTroops) / (float)troops.TotalTroopWanted;
 
             if (TroopsToTroopsWantedRatio > 1.25f)
+                ScrapExcessTroop(troops.TroopShips);
+            else
+                LaunchExcessTroops();
+        }
+
+        void ScrapExcessTroop(Array<Ship> troopShips)
+        {
+            foreach (Ship troopShip in troopShips)
             {
-                foreach (var troop in troops.TroopShips)
+                if (troopShip.DesignRole == ShipData.RoleName.troop 
+                    && troopShip.AI.State == AIState.AwaitingOrders
+                    && troopShip.GetOurFirstTroop(out Troop troop)
+                    && troop.Level == Us.data.MinimumTroopLevel) // only scrap rookies
                 {
-                    if (troop.DesignRole != ShipData.RoleName.troop) continue;
-                    if (troop.AI.State == AIState.AwaitingOrders)
-                        troop.AI.OrderScrapShip();
+                    troopShip.AI.OrderScrapShip();
+                    return;
                 }
             }
-            else
+        }
+
+        void LaunchExcessTroops()
+        {
+            foreach (var kv in DefenseDict)
             {
-                foreach (var kv in DefenseDict)
+                if (kv.Key.HostileForcesPresent(Us))
+                    continue;
+
+                var sysCom = kv.Value;
+                foreach (Planet p in kv.Value.OurPlanets)
                 {
-                    if (kv.Key.HostileForcesPresent(Us)) continue;
-                    var sysCom = kv.Value;
-                    foreach (Planet p in kv.Value.OurPlanets)
+                    if (p.GetDefendingTroopCount() > sysCom.PlanetTroopMin(p))
                     {
-                        if (p.GetDefendingTroopCount() > sysCom.PlanetTroopMin(p))
-                        {
-                            Troop l = p.TroopsHere.Find(loyalty => loyalty.Loyalty == Us);
-                            l?.Launch();
-                        }
+                        Troop l = p.TroopsHere.Find(loyalty => loyalty.Loyalty == Us);
+                        l?.Launch();
                     }
                 }
             }
@@ -350,8 +361,8 @@ namespace Ship_Game.AI
                             continue;
                         }
 
-                        if (troopAI.State == AIState.Rebase &&
-                            troopAI.OrderQueue.NotEmpty
+                        if ((troopAI.State == AIState.Rebase || troopAI.State == AIState.RebaseToShip)
+                            && troopAI.OrderQueue.NotEmpty
                             && troopAI.OrderQueue.Any(goal =>
                                 goal.TargetPlanet != null && kv.Key == goal.TargetPlanet.ParentSystem))
                         {

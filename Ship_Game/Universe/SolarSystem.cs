@@ -71,9 +71,12 @@ namespace Ship_Game
                 SunLayerState layer = SunLayers[i];
                 layer.Update(elapsedTime);
             }
-
-            foreach (var status in Status)
-                status.Value.Update(realTime);
+            var solarStatus = Status.Values.ToArray();
+            for (int i = 0; i < solarStatus.Length; i++)
+            {
+                var status = solarStatus[i];
+                status.Update(realTime, elapsedTime);
+            }
 
             isVisible = universe.Frustum.Contains(Position, Radius)
                     && (universe.viewState <= UniverseScreen.UnivScreenState.SectorView)
@@ -213,11 +216,24 @@ namespace Ship_Game
             return status;
         }
 
+        /// <summary>
+        /// Forces present can not cause damage to ships but can be destroyed. 
+        /// </summary>
         public bool HostileForcesPresent(Empire empire)
         {
             if (empire == null)
                 return false;
             return GetStatus(empire).HostileForcesPresent;
+        }
+
+        /// <summary>
+        /// Forces present can destroy friendly ships. 
+        /// </summary>
+        public bool DangerousForcesPresent(Empire empire)
+        {
+            if (empire == null)
+                return false;
+            return GetStatus(empire).DangerousForcesPresent;
         }
 
         public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);

@@ -397,7 +397,7 @@ namespace Ship_Game
                 || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
         }
 
-        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder = false)
+        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false)
         {
             GoalStack.Clear();
             AssembleFleet(finalPosition, finalDirection, forceAssembly:true);
@@ -405,11 +405,14 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                ship.AI.SetPriorityOrder(!queueOrder);
+                ship.AI.ResetPriorityOrder(!queueOrder);
                 if (queueOrder)
-                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection);
+                    ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
                 else
-                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection);
+                    ship.AI.OrderFormationWarp(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
+
+                if (ship.loyalty == EmpireManager.Player)
+                    ship.AI.OrderHoldPositionOffensive(FinalPosition + ship.FleetOffset, finalDirection);
             }
         }
 
@@ -423,8 +426,8 @@ namespace Ship_Game
                 //Prevent fleets with no tasks from and are near their distination from being dumb.
                 if (Owner.isPlayer || ship.AI.State == AIState.AwaitingOrders || ship.AI.State == AIState.AwaitingOffenseOrders)
                 {
-                    ship.AI.SetPriorityOrder(true);
-                    ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true);
+                    ship.AI.ResetPriorityOrder(true);
+                    ship.AI.OrderMoveDirectlyTo(FinalPosition + ship.FleetOffset, finalDirection, true, AIState.MoveTo);
                 }
             }
         }
@@ -435,8 +438,8 @@ namespace Ship_Game
 
             foreach (Ship ship in Ships)
             {
-                ship.AI.SetPriorityOrder(false);
-                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null);
+                ship.AI.ResetPriorityOrder(false);
+                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null, AIState.MoveTo);
             }
         }
 

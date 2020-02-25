@@ -59,7 +59,6 @@ namespace Ship_Game.AI
             if (target == null)
             {
                 DequeueCurrentOrder();
-                State = DefaultAIState;
                 Owner.InCombat = false;
                 return;
             }
@@ -127,15 +126,14 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (Owner.engineState == Ship.MoveState.Sublight && distanceToTarget <= Owner.SensorRange)
-            {
-                if (Owner.Carrier.HasHangars && !Owner.ManualHangarOverride)
-                    Owner.Carrier.ScrambleFighters();
-            }
+            if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget)) 
+                Owner.Carrier.ScrambleFighters();
 
-            if (Intercepting && CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade
-                && Owner.Center.OutsideRadius(target.Center, Owner.DesiredCombatRange * 3f))
+            if (Intercepting && CombatState < CombatState.HoldPosition)
             {
+                // clamp the radius here so that it wont flounder if the ship has very long range weapons.
+                float radius = Math.Max(Owner.DesiredCombatRange * 3f, 15000f);
+                Owner.Center.OutsideRadius(target.Center, radius);
                 ThrustOrWarpToPos(target.Center, elapsedTime);
                 return;
             }
@@ -226,7 +224,7 @@ namespace Ship_Game.AI
 
         public void DoExplore(float elapsedTime)
         {
-            HasPriorityOrder = true;
+            SetPriorityOrder(true);
             IgnoreCombat = true;
             if (ExplorationTarget == null)
             {
@@ -267,7 +265,7 @@ namespace Ship_Game.AI
                             message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
                     }
 
-                    if (system.HostileForcesPresent(Owner.loyalty))
+                    if (system.DangerousForcesPresent(Owner.loyalty))
                         message.Append("\nCombat in system!!!");
 
                     if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(Owner.loyalty))
@@ -669,21 +667,13 @@ namespace Ship_Game.AI
         bool DoBombard(float elapsedTime, ShipGoal goal)
         {
             Planet planet = goal.TargetPlanet;
-            if (Owner.Ordinance < 0.05 * Owner.OrdinanceMax //'Aint Got no bombs!
-                || planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
-                || (planet.GetGroundStrengthOther(Owner.loyalty) + 1) * 1.5
-                <= planet.GetGroundStrength(Owner.loyalty)
-                || (planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
-                )
-                //This will tilt the scale just enough so that if there are 0 troops, a planet can still be bombed.
+            if (planet.TroopsHere.Count == 0 && planet.Population <= 0f //Everyone is dead
+                || planet.Owner != null && !Owner.loyalty.IsEmpireAttackable(planet.Owner))
             {
-                //As far as I can tell, if there were 0 troops on the planet, then GetGroundStrengthOther and GetGroundStrength would both return 0,
-                //meaning that the planet could not be bombed since that part of the if statement would always be true (0 * 1.5 <= 0)
-                //Adding +1 to the result of GetGroundStrengthOther tilts the scale just enough so a planet with no troops at all can still be bombed
-                //but having even 1 allied troop will cause the bombing action to abort.
                 ClearOrders();
                 AddOrbitPlanetGoal(planet); // Stay in Orbit
             }
+
             Orbit.Orbit(planet, elapsedTime);
             float radius = planet.ObjectRadius + Owner.Radius + 1500;
             if (planet.Owner == Owner.loyalty)
