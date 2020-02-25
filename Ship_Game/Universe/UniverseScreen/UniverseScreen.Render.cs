@@ -339,7 +339,8 @@ namespace Ship_Game
                         ++num3;
                     }
 
-                    if (solarSystem.HostileForcesPresent(EmpireManager.Player))
+                    if (solarSystem.HostileForcesPresent(EmpireManager.Player)
+                        && solarSystem.IsExploredBy(EmpireManager.Player))
                     {
                         vector2.X += num3 * 20;
                         vector2.Y -= 2f;
@@ -709,7 +710,7 @@ namespace Ship_Game
             if (alpha > 0)
             {
                 if (SelectedShip != null &&
-                    (Debug || CurrentGame.Difficulty < UniverseData.GameDifficulty.Hard
+                    (Debug || !player.DifficultyModifiers.HideTacticalData
                            || !player.IsEmpireAttackable(SelectedShip.loyalty)))
                 {
                     DrawShipGoalsAndWayPoints(SelectedShip, alpha);

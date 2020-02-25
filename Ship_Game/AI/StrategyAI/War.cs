@@ -32,7 +32,8 @@ namespace Ship_Game
         private Empire Us;
         public string UsName;
         public string ThemName;
-        private Empire Them;
+        [JsonIgnore][XmlIgnore]
+        public Empire Them { get; private set; }
         public int StartingNumContestedSystems;
         [JsonIgnore][XmlIgnore]
         public SolarSystem[] ContestedSystems { get; private set; }
@@ -251,12 +252,12 @@ namespace Ship_Game
 
         bool IsAlreadyAssaultingSystem(SolarSystem system)
         {
-            return Us.GetEmpireAI().IsAlreadyAssaultingSystem(system);
+            return Us.GetEmpireAI().IsAssaultingSystem(system);
         }
 
         bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
         {
-            return Us.GetEmpireAI().IsAlreadyAssaultingPlanet(planetToAssault);
+            return Us.GetEmpireAI().IsAssaultingPlanet(planetToAssault);
         }
 
         public void ShipWeLost(Ship target)

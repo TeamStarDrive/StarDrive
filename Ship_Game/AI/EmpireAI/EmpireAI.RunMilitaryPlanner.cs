@@ -31,7 +31,9 @@ namespace Ship_Game.AI
 
             // this where the global AI attack stuff happens.
             Toughnuts = 0;
-            foreach (MilitaryTask task in TaskList)
+            var olderWar = OwnerEmpire.GetOldestWar();
+
+            foreach (MilitaryTask task in TasksSortedByPriority())
             {
                 if (!task.QueuedForRemoval)
                 {
@@ -115,28 +117,60 @@ namespace Ship_Game.AI
             return false;
         }
 
-        public bool IsAlreadyAssaultingSystem(SolarSystem system)
-        {
-            for (int i = TaskList.Count - 1; i >= 0; --i)
-            {
-                MilitaryTask task = TaskList[i];
-                if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
-                    task.TargetPlanet?.ParentSystem == system)
-                    return true;
-            }
-            return false;
-        }
+        public bool IsAssaultingSystem(SolarSystem system)
+                    => AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, system);
 
-        public bool IsAlreadyAssaultingPlanet(Planet planet)
+        public bool IsClaimingSystem(SolarSystem system)
+                    => AnyTaskTargeting(MilitaryTask.TaskType.DefendClaim, system);
+
+        public bool IsGlassingSystem(SolarSystem system)
+                    => AnyTaskTargeting(MilitaryTask.TaskType.GlassPlanet, system);
+
+        public bool IsAssaultingPlanet(Planet planet)
+                    => AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet);
+
+        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem)
+                    => TaskList.Any(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem);
+
+        public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
+                    => TaskList.Any(t => t.type == taskType && t.TargetPlanet == planet);
+
+        public MilitaryTask[] TasksSortedByPriority() => TaskList.Sorted(true, TaskPriority);
+        int TaskPriority(MilitaryTask task)
         {
-            for (int i = TaskList.Count - 1; i >= 0; --i)
+            // sort by tasktype.
+            // sort by enemy strength
+            // and the date the war started.
+            // the task priority number may be very high
+
+            int initialPriority;
+
+            switch (task.type)
             {
-                MilitaryTask task = TaskList[i];
-                if (task.type == MilitaryTask.TaskType.AssaultPlanet &&
-                    task.TargetPlanet == planet)
-                    return true;
+                case MilitaryTask.TaskType.AssaultPlanet             : initialPriority = 1; break;
+                case MilitaryTask.TaskType.GlassPlanet               : initialPriority = 2; break;
+                case MilitaryTask.TaskType.Resupply                  : initialPriority = 5; break;
+                case MilitaryTask.TaskType.CorsairRaid               : initialPriority = 6; break;
+                case MilitaryTask.TaskType.Exploration               : initialPriority = int.MinValue; break;
+                case MilitaryTask.TaskType.DefendSystem              : initialPriority = 8; break;
+                case MilitaryTask.TaskType.DefendClaim               : initialPriority = 7; break;
+                case MilitaryTask.TaskType.DefendPostInvasion        : initialPriority = 10; break;
+                default                                              : initialPriority = 20;
+                    if (task.IsCoreFleetTask) initialPriority = int.MaxValue;
+                    break;
             }
-            return false;
+
+            int strengthMod          = (int)(Math.Max(task.MinimumTaskForceStrength, task.EnemyStrength));
+            int targetEmpirePriority = 1;
+
+            if ((task.type == MilitaryTask.TaskType.AssaultPlanet 
+                 || task.type == MilitaryTask.TaskType.GlassPlanet)
+                 && task.TargetPlanet.Owner != null)
+            {
+                var targetRelation   = OwnerEmpire.GetRelations(task.TargetPlanet.Owner);
+                targetEmpirePriority = initialPriority * -(int)(targetRelation?.ActiveWar?.StartDate ?? 1);
+            }
+            return initialPriority + (strengthMod * targetEmpirePriority);
         }
 
         public void WriteToSave(SavedGame.GSAISAVE aiSave)
@@ -173,10 +207,8 @@ namespace Ship_Game.AI
         {
             int shipCountLimit = GlobalStats.ShipCountLimit;
             var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
-
-            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget
-                   && (Empire.Universe.globalshipCount < shipCountLimit + Recyclepool
-                       || OwnerEmpire.empireShipTotal < OwnerEmpire.EmpireShipCountReserve))
+            //
+            while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget)
             {
                 string s = GetAShip(buildRatios);
                 if (string.IsNullOrEmpty(s))
@@ -319,7 +351,7 @@ namespace Ship_Game.AI
                     }
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost());
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost(ship.loyalty));
                     float minimum = CombatRoleToRatioMin(ratio);
                     FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
                 }
@@ -338,8 +370,11 @@ namespace Ship_Game.AI
                 private void CalculateBuildCapacity(float totalCapacity, float wantedMin, float totalFleetMaintenance)
                 {
                     if (wantedMin < .01f) return;
-                    float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
-                    RoleBuildBudget = totalCapacity * maintenanceRatio;
+                    //float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
+                    float buildCapFleetMultiplier = totalCapacity / totalFleetMaintenance;
+                    RoleBuildBudget = PerUnitMaintenanceMax * buildCapFleetMultiplier;
+                    RoleBuildBudget *= wantedMin;
+                    //RoleBuildBudget = totalCapacity * maintenanceRatio;
                 }
 
                 private float CombatRoleToRatioMin(FleetRatios ratio)
@@ -374,14 +409,14 @@ namespace Ship_Game.AI
 
                 public float BuildPriority()
                 {
-                    if (CurrentCount >= DesiredCount || CurrentMaintenance > RoleBuildBudget)
+                    if (CurrentCount >= DesiredCount && CurrentMaintenance >= RoleBuildBudget)
                         return 0;
-                    return CurrentCount.ClampMin(1) / DesiredCount;
+                    return CurrentMaintenance.ClampMin(.00001f) / RoleBuildBudget;
                 }
                 public void ScrapAsNeeded(Empire empire)
                 {
                     if (CurrentCount <= DesiredCount + 1
-                       && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                       || CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
                         return;
 
                     foreach (var ship in CurrentShips

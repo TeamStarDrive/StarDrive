@@ -16,13 +16,14 @@ namespace Ship_Game
         public Ship itemToBuild;
         Vector2 TetherOffset;
         Guid TargetPlanet = Guid.Empty;
+        readonly ShipInfoOverlayComponent ShipInfoOverlay;
 
 
         public DeepSpaceBuildingWindow(UniverseScreen screen)
         {
             Screen = screen;
             const int windowWidth = 320;
-            Rect = new Rectangle(screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 225);
+            Rect = new Rectangle(screen.ScreenWidth - 5 - windowWidth, 260, windowWidth, 300);
 
             var background = new Submenu(Rect);
             background.Background = new Selector(Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
@@ -47,6 +48,12 @@ namespace Ship_Game
                     SL.AddItem(new ConstructionListItem{Ship = ResourceManager.ShipsDict[s]});
                 }
             }
+
+            ShipInfoOverlay = Add(new ShipInfoOverlayComponent(Screen));
+            SL.OnHovered = (item) =>
+            {
+                ShipInfoOverlay.ShowToLeftOf(item?.Pos ?? Vector2.Zero, item?.Ship);
+            };
         }
 
         class ConstructionListItem : ScrollListItem<ConstructionListItem>
@@ -86,7 +93,14 @@ namespace Ship_Game
 
             bool hovered = Rect.HitTest(input.CursorPosition);
             if (hovered) // disallow input while in placement and hovering our window
+            {
+                if (input.RightMouseClick)
+                    itemToBuild = null;
+
+                ShipInfoOverlay.Show();
                 return true;
+            }
+            ShipInfoOverlay.Hide();
 
             // right mouse click, we cancel the placement mode
             if (input.RightMouseClick)

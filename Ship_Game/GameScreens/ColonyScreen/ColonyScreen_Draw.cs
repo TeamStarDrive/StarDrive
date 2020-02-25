@@ -369,7 +369,7 @@ namespace Ship_Game
 
                 if (pgs.Biosphere && P.Owner != null)
                 {
-                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.3f));
+                    batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.4f));
                 }
 
                 DrawPGSIcons(batch, pgs);

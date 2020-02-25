@@ -74,19 +74,22 @@ namespace Ship_Game.AI.CombatTactics
 
         void ZigOrZag(float distanceToTarget)
         {
-            if (Owner.IsTurning || 
-                Owner.AI.IsFiringAtMainTarget)
+            if (Owner.AI.IsFiringAtMainTarget)
             {
                 ZigZag = Vector2.Zero;
+            }
+            
+            if (Owner.IsTurning)
+            {
                 return;
             }
 
+            int rng       = RandomMath.RollAvgPercentVarianceFrom50();
             int racialMod = Owner.loyalty.data.Traits.PhysicalTraitPonderous ? -1 : 0;
             racialMod    += Owner.loyalty.data.Traits.PhysicalTraitReflexes ? 1 : 0;
-            float mod     = 10 * Owner.RotationRadiansPerSecond * (Owner.Level + racialMod);
-            int rng       = RandomMath.RollAvgPercentVarianceFrom50();
+            float mod     = 5 * (Owner.RotationRadiansPerSecond * (Owner.Level + racialMod)).Clamped(0,10);
 
-            if (rng < 30 - mod)
+            if (rng < 25 - mod)
             {
                 ZigZag = Vector2.Zero;
             }
@@ -94,14 +97,15 @@ namespace Ship_Game.AI.CombatTactics
             {
                 if (ZigZag != Vector2.Zero)
                     return;
+
                 Vector2 dir = Owner.Center.DirectionToTarget(Owner.AI.Target.Center);
                 if (RandomMath.IntBetween(0, 1) == 1)
                 {
-                    ZigZag = dir.RightVector() * distanceToTarget;
+                    ZigZag = dir.RightVector() * 1000;
                 }
                 else
                 {
-                    ZigZag = dir.LeftVector() * distanceToTarget;
+                    ZigZag = dir.LeftVector() * 1000;
                 }
             }
         }

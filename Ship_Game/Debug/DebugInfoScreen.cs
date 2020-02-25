@@ -404,6 +404,7 @@ namespace Ship_Game.Debug
                     DrawString("Fleet Speed: " + fleet.SpeedLimit);
                     DrawString("Ready For Warp: " + fleet.ReadyForWarp);
                     DrawString("In Formation Warp: " + fleet.InFormationWarp);
+                    DrawString("Ships: " + fleet.Ships.Count);
                 }
                 else
                 {
@@ -623,27 +624,31 @@ namespace Ship_Game.Debug
                 }
                 DrawString($"Money: {e.Money.String()} A:({e.GetActualNetLastTurn().String()}) T:({e.GrossIncome.String()})");
                 float taxRate = e.data.TaxRate * 100f;
-                DrawString("Tax Rate:      "+taxRate.ToString("#.0")+"%");
-                DrawString($"Ship Maint:    {(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
+                DrawString("Tax Rate:     "+taxRate.ToString("#.0")+"%");
+                DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) T:{(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
 
                 Array<Ship> ships = e.GetShips();
-                DrawString($"Ship Count:    {ships.Count}" +
+                DrawString($"Ship Count:  {ships.Count}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
-                           $" :{ships.Count(warship=> warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" :{ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
                            $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
-                DrawString("Build Maint:   "+e.TotalBuildingMaintenance);
-                DrawString("Spy Count:     "+e.data.AgentList.Count);
+                DrawString($"Build Maint:   ({(int)e.data.ColonyBudget}) {(int)e.TotalBuildingMaintenance}");
+                DrawString($"Spy Count:     ({(int)e.data.SpyBudget}) {e.data.AgentList.Count}");
                 DrawString("Spy Defenders: "+e.data.AgentList.Count(defenders => defenders.Mission == AgentMission.Defending));
                 DrawString("Planet Count:  "+e.GetPlanets().Count);
                 if (e.Research.HasTopic)
                 {
                     DrawString($"Research: {e.Research.Current.Progress:0}/{e.Research.Current.TechCost:0}({e.Research.NetResearch.String()})");
                     DrawString("   --" + e.Research.Topic);
+                }
+                else
+                {
+                    NewLine(2);
                 }
 
                 NewLine(3);
@@ -664,7 +669,7 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                MilitaryTask[] tasks = e.GetEmpireAI().GetAtomicTasksCopy();
+                MilitaryTask[] tasks = e.GetEmpireAI().TasksSortedByPriority();
                 for (int j = 0; j < tasks.Length; j++)
                 {
                     MilitaryTask task = tasks[j];
