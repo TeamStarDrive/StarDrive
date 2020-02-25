@@ -335,6 +335,9 @@
     <Compile Include="Ship_Game\GameScreens\MainMenu\MainMenuShipAI.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\UIColorPicker.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceDesignScreen_RaceDescription.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssues.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesListItem.cs" />
+    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipDesignIssuesScreen.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\ShipHullListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\RaceArchetypeListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\NewGame\TraitsListItem.cs" />
@@ -1842,6 +1845,51 @@
     <Content Include="Content\Textures\Modules\ConstructionArray.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Textures\NewUI\IssueBackupCommand.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueCantTargetCapitals.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueCantTargetCorvettes.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueCantTargetFighters.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowEnergyBurstTime.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowEnergyWeaponTime.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowOrdnance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowPD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowTroops.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowTroopsForBays.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueLowWarpTime.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNegativeRecharge.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNoAmmoResupplyCombat.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNoAmmoResupplyPlayer.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNoCommand.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Textures\NewUI\icon_biospheres.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1861,6 +1909,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\icon_tiles.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNoOrdnance.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNoSublight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueNoWarp.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueSlowWarp.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Textures\NewUI\IssueUnpowered.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\NewUI\rounded_BL.png">
@@ -3881,9 +3944,6 @@
     </Content>
     <Content Include="Content\Textures\neutron\star_neutron_00008.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\Textures\NewUI\colonyShipBuildBG.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Textures\sd_explosion_07a_bb\sd_explosion_07a_cc_00000.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
