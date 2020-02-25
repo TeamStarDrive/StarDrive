@@ -152,10 +152,6 @@ namespace Ship_Game.AI
             ScanForThreat(elapsedTime);
             Owner.loyalty.data.Traits.ApplyTraitToShip(Owner);
             UpdateUtilityModuleAI(elapsedTime);
-
-            if (State == AIState.ManualControl)
-                return;
-
             ThrustTarget = Vector2.Zero;
 
             if (UpdateOrderQueueAI(elapsedTime))
@@ -221,7 +217,7 @@ namespace Ship_Game.AI
                     TerminateResupplyIfDone();
                     return;
             }
-            HasPriorityOrder = true;
+            SetPriorityOrder(true);
             DecideWhereToResupply(nearestRallyPoint);
         }
 
@@ -232,7 +228,8 @@ namespace Ship_Game.AI
             ClearOrders(AIState.ResupplyEscort);
 
             float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
-            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection(), null, supplyType, strafeOffset);
+            AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection()
+                , null, supplyType, strafeOffset, AIState.ResupplyEscort, pushToFront: true);
         }
 
         void DecideWhereToResupply(Planet nearestRallyPoint, bool cancelOrders = false)
@@ -260,13 +257,12 @@ namespace Ship_Game.AI
                     return;
             }
 
-            Owner.AI.HasPriorityOrder = false;            
-            Owner.AI.State            = AIState.AwaitingOrders;
-            Owner.AI.IgnoreCombat     = false;
-
             DequeueCurrentOrder();
+            Owner.AI.SetPriorityOrder(false);
+            Owner.AI.IgnoreCombat = false;
             if (Owner.fleet != null)
-                OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, Owner.fleet.FinalDirection, true, null);
+                OrderMoveTo(Owner.fleet.FinalPosition + Owner.RelativeFleetOffset, 
+                    Owner.fleet.FinalDirection, true, null, State);
         }
 
         void UpdateCombatStateAI(float elapsedTime)
@@ -283,7 +279,7 @@ namespace Ship_Game.AI
                                       && goal.Plan != Plan.Bombard
                                       && goal.Plan != Plan.BoardShip))
                     {
-                        OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat));
+                        OrderQueue.PushToFront(new ShipGoal(Plan.DoCombat, State));
                     }
 
                     if (TriggerDelay < 0)
@@ -363,16 +359,13 @@ namespace Ship_Game.AI
         bool EvaluateNextOrderQueueItem(float elapsedTime)
         {
             ShipGoal goal = OrderQueue.PeekFirst;
-            Planet planet = goal.TargetPlanet;
             switch (goal.Plan)
             {
-                case Plan.HoldPosition: HoldPosition(); break;
                 case Plan.Stop:
-                    if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }
-                    break;
-                case Plan.Scrap:                    ScrapShip(elapsedTime, goal); break;
-                case Plan.Bombard:           return DoBombard(elapsedTime, goal);
-                case Plan.Exterminate:       return DoExterminate(elapsedTime, goal);
+                    if (ReverseThrustUntilStopped(elapsedTime)) { DequeueCurrentOrder(); }       break;
+                case Plan.Bombard:                  return DoBombard(elapsedTime, goal);
+                case Plan.Exterminate:              return DoExterminate(elapsedTime, goal);
+                case Plan.Scrap:                    ScrapShip(elapsedTime, goal);                break;
                 case Plan.RotateToFaceMovePosition: RotateToFaceMovePosition(elapsedTime, goal); break;
                 case Plan.RotateToDesiredFacing:    RotateToDesiredFacing(elapsedTime, goal);    break;
                 case Plan.MoveToWithin1000:         MoveToWithin1000(elapsedTime, goal);         break;
@@ -397,6 +390,8 @@ namespace Ship_Game.AI
                 case Plan.ResupplyEscort:           DoResupplyEscort(elapsedTime, goal);         break;
                 case Plan.ReturnHome:               DoReturnHome(elapsedTime);                   break;
                 case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
+                case Plan.HoldPosition:             HoldPosition();                              break;
+                case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
             }
 
             return false;
@@ -428,7 +423,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                HasPriorityOrder = false;
+                SetPriorityOrder(false);
                 IdleFleetAI(elapsedTime);
             }
         }
@@ -478,10 +473,10 @@ namespace Ship_Game.AI
                 // check if inside minimum warp jump range. If not do a full warp process.
                 if (Owner.fleet.FinalPosition.InRadius(Owner.Center, 7500))
                 {
-                    HasPriorityOrder = true;
+                    SetPriorityOrder(true);
                     State = AIState.AwaitingOrders;
                     AddShipGoal(Plan.MakeFinalApproach,
-                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection);
+                        Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, AIState.MoveTo);
                 }
                 else
                 {
@@ -507,7 +502,7 @@ namespace Ship_Game.AI
             }
             else
             {
-                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null);
+                OrderMoveTo(Owner.fleet.GetFinalPos(Owner), Owner.fleet.FinalDirection, true, null, AIState.MoveTo);
             }
         }
 
@@ -615,15 +610,15 @@ namespace Ship_Game.AI
         public void OrderTroopToBoardShip(Ship s)
         {
             EscortTarget = s;
-            ClearOrders(State, priority: true);
-            AddShipGoal(Plan.BoardShip);
+            ClearOrders(priority: true);
+            AddShipGoal(Plan.BoardShip, State);
         }
 
         public void OrderTroopToShip(Ship s)
         {
             EscortTarget = s;
-            ClearOrders(State);
-            AddShipGoal(Plan.TroopToShip);
+            ClearOrders();
+            AddShipGoal(Plan.TroopToShip, State);
         }
 
         void ScanForThreat(float elapsedTime)
@@ -647,17 +642,14 @@ namespace Ship_Game.AI
         void PrioritizePlayerCommands()
         {
             if (Owner.loyalty == EmpireManager.Player &&
-                (State == AIState.MoveTo && Vector2.Distance(Owner.Center, MovePosition) > 100f 
-                || State == AIState.Bombard 
+                (State == AIState.Bombard 
                 || State == AIState.AssaultPlanet 
-                || State == AIState.BombardTroops 
                 || State == AIState.Rebase 
                 || State == AIState.Scrap 
                 || State == AIState.Resupply 
-                || State == AIState.Refit 
-                || State == AIState.FormationWarp))
+                || State == AIState.Refit))
             {
-                HasPriorityOrder = true;
+                SetPriorityOrder(true);
                 HadPO = false;
                 EscortTarget = null;
             }
@@ -678,7 +670,7 @@ namespace Ship_Game.AI
 
         void AIStateEscort(float elapsedTime)
         {
-            Owner.AI.HasPriorityOrder = false;
+            Owner.AI.SetPriorityOrder(false);
             if (EscortTarget == null || !EscortTarget.Active)
             {
                 EscortTarget = null;
@@ -713,7 +705,7 @@ namespace Ship_Game.AI
 
             if (Owner.InCombat && Owner.Center.OutsideRadius(EscortTarget.Center, Owner.AI.CombatAI.PreferredEngagementDistance))
             {
-                Owner.AI.HasPriorityOrder = true;
+                Owner.AI.SetPriorityOrder(true);
                 Orbit.Orbit(EscortTarget, elapsedTime);
             }
         }

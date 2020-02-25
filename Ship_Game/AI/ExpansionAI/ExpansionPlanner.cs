@@ -21,14 +21,14 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 return RankedPlanets.FilterSelect(ranker => !ranker.CantColonize &&
                                                         ranker.EnemyStrength < 1 &&
-                                                        !GetMarkedPlanets().Contains(ranker.Planet),
+                                                        !GetColonizationGoals().Contains(ranker.Planet),
                                                         p => p.Planet);
             }
         }
 
         private Array<Goal> Goals => OwnerEmpire.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
-        public Planet[] GetMarkedPlanets()
+        public Planet[] GetColonizationGoals()
         {
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
@@ -37,15 +37,30 @@ namespace Ship_Game.AI.ExpansionAI
             return list.ToArray();
         }
 
+        public bool AnyPlanetsMarkedForColonization()
+        {
+            var list = new Array<Planet>();
+            for (int i = 0; i < Goals.Count; i++)
+            {
+                Goal g = Goals[i];
+                if (g.type == GoalType.Colonize)
+                    return true;
+            }
+
+            return false;
+        }
+
         int DesiredColonyGoals
         {
             get
             {
-                if (OwnerEmpire.isPlayer) return 10;
+                float baseColonyGoals = OwnerEmpire.DifficultyModifiers.BaseColonyGoals;
+                if (OwnerEmpire.isPlayer) 
+                    return (int)baseColonyGoals; // BaseColonyGoals for player
+
                 float baseValue = 1.1f; // @note This value is very sensitive, don't mess around without testing
-                float diffMod   = (float)CurrentGame.Difficulty * 2.5f * OwnerEmpire.Research.Strategy.ExpansionRatio;
                 int plusGoals   = OwnerEmpire.data.EconomicPersonality?.ColonyGoalsPlus ?? 0;
-                float goals     = (float)Math.Round(baseValue + diffMod + plusGoals, 0);
+                float goals     = (float)Math.Round(baseValue + baseColonyGoals + plusGoals, 0);
                 return (int)goals.Clamped(1f, 5f);
             }
         }
@@ -65,7 +80,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             //we are going to keep a list of wanted planets. 
-            int maxDesiredPlanets = (Empire.Universe.PlanetsDict.Count / 10).ClampMin(10);
+            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Count / 10).ClampMin(10);
 
             if (maxDesiredPlanets < 1)
                 return;
@@ -76,13 +91,30 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             //Create a list of the top priority planets
-            var planetsRanked = new Array<PlanetRanker>();
+            var planetsRanked         = new Array<PlanetRanker>();
+            PlanetRanker backupPlanet = new PlanetRanker();
+            bool addBackupPlanet      = !AnyPlanetsMarkedForColonization();
+
             for (int i = 0; i < allPlanetsRanker.Count && maxDesiredPlanets > 0; i++)
             {
                 var ranker = allPlanetsRanker[i];
+                if (ranker.PoorPlanet)
+                {
+                    if (ranker.Value > backupPlanet.Value)
+                        backupPlanet = ranker;
+                    continue;
+                }
                 planetsRanked.Add(ranker);
+
+                if (ranker.CantColonize) continue;
+
                 maxDesiredPlanets--;
+                addBackupPlanet = false;
             }
+
+            if (addBackupPlanet && backupPlanet.Planet != null) 
+                planetsRanked.Add(backupPlanet);
+
             RankedPlanets = planetsRanked.ToArray();
 
             //take action on the found planets
@@ -95,7 +127,7 @@ namespace Ship_Game.AI.ExpansionAI
         /// </summary>
         void CreateColonyGoals()
         {
-            Planet[] markedPlanets = GetMarkedPlanets();
+            Planet[] markedPlanets = GetColonizationGoals();
             int desired            = DesiredColonyGoals;
             desired               -= markedPlanets.Length;
 
@@ -126,14 +158,18 @@ namespace Ship_Game.AI.ExpansionAI
         {
             var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
             int desiredClaims = (DesiredColonyGoals * 2) - claimTasks.Length;
-            var colonizing    = GetMarkedPlanets();
+            var colonizing    = GetColonizationGoals();
             var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
 
             for (int i = 0; i < RankedPlanets.Length && desiredClaims > 0; i++)
             {
                 var rank = RankedPlanets[i];
-                if (rank.CantColonize || rank.EnemyStrength < 1 && !colonizing.Contains(rank.Planet))
+
+                if (rank.CantColonize || rank.EnemyStrength < 1  || !colonizing.Contains(rank.Planet)
+                    || rank.Planet.ParentSystem.OwnerList.Contains(OwnerEmpire))
+                {
                     continue;
+                }
                 if (taskTargets.Contains(rank.Planet))
                     continue;
                 var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength);
@@ -145,8 +181,7 @@ namespace Ship_Game.AI.ExpansionAI
         /// Go through all known planets. filter planets by colonization rules. Rank remaining ones.
         Array<PlanetRanker> GatherAllPlanetRanks()
         {
-            //need a better way to find biosphere
-            bool canColonizeBarren = OwnerEmpire.GetBDict()["Biospheres"] || OwnerEmpire.IsCybernetic;
+            bool canColonizeBarren = OwnerEmpire.IsBuildingUnlocked(Building.BiospheresId);
             var allPlanetsRanker   = new Array<PlanetRanker>();
             float totalValue       = 0;
             int bestPlanetCount    = 0;
@@ -176,7 +211,7 @@ namespace Ship_Game.AI.ExpansionAI
                 }
             }
 
-            //sort and purge the list. 
+            // sort and purge the list. 
             // we are taking an average of all planets ranked and saying we only want
             // above average planets only. 
             var finalPlanetsRanker = new Array<PlanetRanker>();
@@ -187,10 +222,8 @@ namespace Ship_Game.AI.ExpansionAI
 
                 foreach (PlanetRanker rankedP in allPlanetsRanker)
                 {
-                    if (rankedP.Value > avgValue)
-                    {
-                        finalPlanetsRanker.Add(rankedP);
-                    }
+                    rankedP.EvaluatePoorness(avgValue);
+                    finalPlanetsRanker.Add(rankedP);
                 }
             }
             return finalPlanetsRanker;
@@ -241,10 +274,10 @@ namespace Ship_Game.AI.ExpansionAI
                 queryingShip.AI.ClearOrders();
                 return null;
             }
-            SolarSystem nearestToHome = sortedList.Find(s=> !s.HostileForcesPresent(OwnerEmpire));
+            SolarSystem nearestToHome = sortedList.Find(s=> !s.DangerousForcesPresent(OwnerEmpire));
             foreach (SolarSystem nearest in sortedList)
             {
-                if (nearest.HostileForcesPresent(OwnerEmpire))
+                if (nearest.DangerousForcesPresent(OwnerEmpire))
                     continue;
                 float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
                 float distanceToEarth = Vector2.Distance(empireCenter, nearest.Position);

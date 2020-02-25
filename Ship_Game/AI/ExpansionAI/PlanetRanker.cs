@@ -12,6 +12,7 @@ namespace Ship_Game.AI.ExpansionAI
         public bool OutOfRange;
         public bool CantColonize;
         public float EnemyStrength;
+        public bool PoorPlanet;
 
         public override string ToString()
         {
@@ -20,20 +21,24 @@ namespace Ship_Game.AI.ExpansionAI
 
         public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, AO closestAO, float enemyStr)
         {
-            Planet             = planet;
-            Distance           = planet.Center.Distance(closestAO.Center).ClampMin(1);
-            OutOfRange         = planet.Center.OutsideRadius(closestAO.Center, closestAO.Radius);
-            CantColonize       = false;
-            int rangeReduction = (int)Math.Ceiling(Distance / closestAO.Radius);
-            RawValue           = planet.ColonyPotentialValue(empire);
-            Value              = RawValue / rangeReduction;
-            EnemyStrength      = enemyStr;
+            Planet                = planet;
+            Distance              = planet.Center.Distance(closestAO.Center).ClampMin(1);
+            OutOfRange            = planet.Center.OutsideRadius(closestAO.Center, closestAO.Radius);
+            CantColonize          = false;
+            int rangeReduction    = (int)Math.Ceiling(Distance / closestAO.Radius);
+            RawValue              = planet.ColonyPotentialValue(empire);
+            Value                 = RawValue / rangeReduction;
+            EnemyStrength         = enemyStr;
+            PoorPlanet = false;
+
             if (enemyStr > 0)
                 Value *= (closestAO.OffensiveForcePoolStrength / enemyStr).Clamped(0.1f, 1f);
 
             bool moralityBlock = IsColonizeBlockedByMorals(planet.ParentSystem, empire);
             CantColonize       = planet.Owner != null || IsBadWorld(planet, canColonizeBarren) || moralityBlock;
         }
+
+        public void EvaluatePoorness(float avgValue) => PoorPlanet = Value < avgValue;
 
         static bool IsBadWorld(Planet planet, bool canColonizeBarren)
             => planet.IsBarrenType && !canColonizeBarren && planet.SpecialCommodities == 0;

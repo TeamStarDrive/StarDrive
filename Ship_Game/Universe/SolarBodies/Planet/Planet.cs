@@ -95,8 +95,9 @@ namespace Ship_Game
         public bool WeAreInvadingHere(Empire empire)    => TroopManager.WeAreInvadingHere(empire);
         public bool MightBeAWarZone(Empire empire)      => TroopManager.MightBeAWarZone(empire);
         public bool ForeignTroopHere(Empire empire)     => TroopManager.ForeignTroopHere(empire);
-        public bool NoGovernorAndNotTradeHub            => colonyType != ColonyType.Colony && colonyType != ColonyType.TradeHub;
+        public bool NoGovernorAndNotTradeHub            => !Governor && colonyType != ColonyType.TradeHub;
         public int SpecialCommodities                   => BuildingList.Count(b => b.IsCommodity);
+        public bool Governor                            => colonyType != ColonyType.Colony;
 
 
         public float GetGroundStrengthOther(Empire allButThisEmpire)
@@ -105,6 +106,10 @@ namespace Ship_Game
             => TroopManager.EmpireTroops(empire, maxToTake);
         public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
             => TroopManager.TroopsReadForLaunch(strengthNeeded);
+        public GameplayObject[] GetNearByShips() => UniverseScreen.SpaceManager.FindNearby(
+                                            Center, GravityWellRadius,
+                                            GameObjectType.Ship, Owner);
+        
 
         public float Fertility                      => FertilityFor(Owner);
         public float MaxFertility                   => MaxFertilityFor(Owner);
@@ -946,15 +951,17 @@ namespace Ship_Game
             }
         }
 
-        public bool EnemyInRange()
+        /// <param name="clearAndPresentDanger">indicates threats can destroy friendly ships</param>
+        public bool EnemyInRange(bool clearAndPresentDanger = false)
         {
-            if (!ParentSystem.HostileForcesPresent(Owner))
+            if (clearAndPresentDanger ? !ParentSystem.DangerousForcesPresent(Owner) 
+                                      : !ParentSystem.HostileForcesPresent(Owner))
                 return false;
 
             float distance = GravityWellRadius.Clamped(7500, 15000);
             foreach (Ship ship in ParentSystem.ShipList)
             {
-                if (Owner.IsEmpireAttackable(ship.loyalty, ship) && ship.InRadius(Center, distance))
+                if (Owner?.IsEmpireAttackable(ship.loyalty, ship) == true)// && ship.InRadius(Center, distance))
                     return true;
             }
             return false;

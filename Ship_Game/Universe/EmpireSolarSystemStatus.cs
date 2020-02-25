@@ -14,6 +14,7 @@ namespace Ship_Game.Universe
         public Empire Owner { get; }
 
         public bool HostileForcesPresent { get; private set; }
+        public bool DangerousForcesPresent { get; private set; }
         public float CombatTimer { get; private set; }
 
         public EmpireSolarSystemStatus(SolarSystem system, Empire empire)
@@ -22,9 +23,9 @@ namespace Ship_Game.Universe
             Owner = empire;
         }
 
-        public void Update(float deltaTime)
+        public void Update(float reaTime, float gameTime)
         {
-            CombatTimer -= deltaTime;
+            CombatTimer -= Owner.isPlayer ? reaTime : gameTime;
             if (CombatTimer <= 0f)
                 HostileForcesPresent = false;
 
@@ -38,10 +39,11 @@ namespace Ship_Game.Universe
                 if (ship.loyalty == Owner)
                     continue;
 
-                if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty))
+                if (ship.loyalty.isFaction || Owner.IsEmpireAttackable(ship.loyalty, ship))
                 {
                     HostileForcesPresent = true;
-                    CombatTimer = 5f;
+                    DangerousForcesPresent |= ship.BaseStrength > 0;
+                    CombatTimer = Owner.isPlayer ? 5f : 1f;
                     return;
                 }
             }

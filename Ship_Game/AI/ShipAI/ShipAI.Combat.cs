@@ -325,8 +325,7 @@ namespace Ship_Game.AI
 
         void EnterCombat()
         {
-            State = AIState.Combat;
-            AddShipGoal(Plan.DoCombat);
+            AddShipGoal(Plan.DoCombat, AIState.Combat, pushToFront: true);
         }
 
         public float GetSensorRadius() => GetSensorRadius(out Ship _);

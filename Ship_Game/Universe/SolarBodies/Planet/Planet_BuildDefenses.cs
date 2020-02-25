@@ -62,6 +62,9 @@ namespace Ship_Game
 
         int OrbitalsBeingBuilt(ShipData.RoleName role, Empire owner)
         {
+            if (owner == null)
+                return 0;
+
             // this also counts construction ships on the way, by checking the empire goals
             int numOrbitals = 0;
             var goals = owner.GetEmpireAI().Goals;
@@ -86,6 +89,9 @@ namespace Ship_Game
 
         private int ShipyardsBeingBuilt(Empire owner)
         {
+            if (owner == null)
+                return 0;
+
             int shipyardsInQ = 0;
             foreach (Goal goal in owner.GetEmpireAI().Goals.Filter(g => g.type == GoalType.BuildOrbital && g.PlanetBuildingAt == this
                                                                      || g.type == GoalType.DeepSpaceConstruction && g.TetherTarget == guid))
@@ -107,10 +113,8 @@ namespace Ship_Game
             {
                 Ship weakest = orbitalList.FindMin(s => s.NormalizedStrength);
                 if (weakest != null)
-                    ScrapOrbital(weakest); // remove this old garbage
-                else
-                    Log.Warning($"BuildOrScrapOrbitals: Weakest orbital is null even though orbitalList is not empty. Ignoring Scrap");
-
+                    ScrapOrbital(weakest);
+               
                 return;
             }
 
@@ -136,7 +140,8 @@ namespace Ship_Game
                 Storage.Prod = expectedStorage;
 
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"SCRAPPED Orbital ----- {orbital.Name}, STR: {orbital.NormalizedStrength}");
+                Log.Info(ConsoleColor.Magenta,$"{Name}, {Owner.Name} - SCRAPPED Orbital ----- {orbital.Name}" +
+                         $", STR: {orbital.NormalizedStrength}");
 
             orbital.QueueTotalRemoval();
         }
@@ -159,7 +164,8 @@ namespace Ship_Game
         public void AddOrbital(Ship orbital)
         {
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"ADDED Orbital ----- {orbital.Name}, cost: {orbital.GetCost(Owner)}, STR: {orbital.NormalizedStrength}");
+                Log.Info(ConsoleColor.Green,$"{Name}, {Owner.Name} - ADDED Orbital ----- {orbital.Name}, " +
+                         $"cost: {orbital.GetCost(Owner)}, STR: {orbital.NormalizedStrength}");
 
             Goal buildOrbital = new BuildOrbital(this, orbital.Name, Owner);
             Owner.GetEmpireAI().Goals.Add(buildOrbital);
@@ -178,13 +184,13 @@ namespace Ship_Game
                 return;
 
             if (bestWeCanBuild.NormalizedStrength.Less(weakestWeHave.NormalizedStrength * 1.2f))
-                return;
+                return; // replace only if str is 20% more than the current weakest orbital
 
             ScrapOrbital(weakestWeHave);
             AddOrbital(bestWeCanBuild);
             if (IsPlanetExtraDebugTarget())
-                Log.Info($"REPLACING Orbital ----- {weakestWeHave.Name} with  {bestWeCanBuild.Name}, " +
-                         $"STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
+                Log.Info(ConsoleColor.Cyan, $"{Name}, {Owner.Name} - REPLACING Orbital ----- {weakestWeHave.Name}" +
+                         $" with {bestWeCanBuild.Name}, STR: {weakestWeHave.NormalizedStrength} to {bestWeCanBuild.NormalizedStrength}");
         }
 
         private Ship PickOrbitalToBuild(ShipData.RoleName role, float budget)
@@ -259,7 +265,7 @@ namespace Ship_Game
                 case ColonyType.Core: rank += 1; break;
                 case ColonyType.Military: rank += 3; break;
             }
-            rank += Owner.ColonyRankModifier;
+            rank += Owner.DifficultyModifiers.ColonyRankModifier;
             return rank.Clamped(0, 15);
         }
 
@@ -350,7 +356,7 @@ namespace Ship_Game
         void TryScrapMilitaryBuilding()
         {
             Building weakest = BuildingList.FindMinFiltered(b => b.IsMilitary 
-                                                                 && !b.Scrappable 
+                                                                 && b.Scrappable 
                                                                  && !b.IsPlayerAdded, b => b.CostEffectiveness);
 
             if (weakest != null)
@@ -371,9 +377,9 @@ namespace Ship_Game
                 case 1: Platforms  = 0; Stations = 0; Shipyards = 0; break;
                 case 2: Platforms  = 0; Stations = 0; Shipyards = 0; break;
                 case 3: Platforms  = 3; Stations = 0; Shipyards = 0; break;
-                case 4: Platforms  = 5; Stations = 0; Shipyards = 0; break;
-                case 5: Platforms  = 7; Stations = 0; Shipyards = 0; break;
-                case 6: Platforms  = 2; Stations = 1; Shipyards = 1; break;
+                case 4: Platforms  = 4; Stations = 1; Shipyards = 0; break;
+                case 5: Platforms  = 5; Stations = 1; Shipyards = 1; break;
+                case 6: Platforms  = 6; Stations = 2; Shipyards = 1; break;
                 case 7: Platforms  = 3; Stations = 2; Shipyards = 1; break;
                 case 8: Platforms  = 5; Stations = 2; Shipyards = 1; break;
                 case 9: Platforms  = 2; Stations = 3; Shipyards = 1; break;

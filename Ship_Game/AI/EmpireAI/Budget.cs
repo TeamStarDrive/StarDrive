@@ -40,9 +40,9 @@ namespace Ship_Game.AI.Budget
             float defenseBudget = EmpireDefenseBudget * EmpireRatio;
             float groundRatio   = MilitaryBuildingsBudgetRatio();
             float orbitalRatio  = 1 - groundRatio;
-            MilitaryBuildings   = defenseBudget * groundRatio - planet.MilitaryBuildingsMaintenance;
-            Orbitals            = defenseBudget * orbitalRatio - planet.OrbitalsMaintenance;
-            CivilianBuildings  += planet.ColonyDebtTolerance;
+            MilitaryBuildings   = (defenseBudget * groundRatio - planet.MilitaryBuildingsMaintenance).RoundToFractionOf10();
+            Orbitals            = (defenseBudget * orbitalRatio - planet.OrbitalsMaintenance).RoundToFractionOf10();
+            CivilianBuildings   = (CivilianBuildings + planet.ColonyDebtTolerance).RoundToFractionOf10();
             Budget              = Orbitals + MilitaryBuildings + CivilianBuildings; // total budget for this planet
             Initialized         = true;
         }

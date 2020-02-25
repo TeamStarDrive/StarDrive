@@ -55,6 +55,19 @@ namespace Ship_Game.AI.Tasks
             return militaryTask;
         }
 
+        public static MilitaryTask CreateGlassPlanetTask(Planet targetPlanet, float minStrength)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetPlanet             = targetPlanet,
+                AO                       = targetPlanet.Center,
+                type                     = TaskType.GlassPlanet,
+                AORadius                 = targetPlanet.GravityWellRadius,
+                MinimumTaskForceStrength = minStrength
+            };
+            return militaryTask;
+        }
+
         public static MilitaryTask CreatePostInvasion(Planet planet, int fleetId, Empire owner)
         {
             var militaryTask = new MilitaryTask
@@ -112,6 +125,9 @@ namespace Ship_Game.AI.Tasks
         public void EndTask()
         {
             Debug_TallyFailedTasks();
+            if (Owner == null)
+                return;
+
             Owner.GetEmpireAI().QueueForRemoval(this);
 
             if (Owner.isFaction)
@@ -163,7 +179,7 @@ namespace Ship_Game.AI.Tasks
             {
                 Troop t = TargetPlanet.TroopsHere[index];
                 if (t.Loyalty != Owner
-                    || TargetPlanet.EnemyInRange()
+                    || TargetPlanet.EnemyInRange(true)
                     || t.AvailableAttackActions == 0
                     || t.MoveTimer > 0)
                     continue;
@@ -347,7 +363,7 @@ namespace Ship_Game.AI.Tasks
                         Owner.GetFleetsDict()[1].FleetTask = this;
                         WhichFleet = 1;
                         Step = 1;
-                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1));
+                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1), false);
                         break;
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
@@ -456,6 +472,21 @@ namespace Ship_Game.AI.Tasks
                                 }
                             default:
                                 return;
+                        }
+                        break;
+                    }
+                case TaskType.GlassPlanet:
+                    {
+                        if (Step == 0) RequisitionGlassForce();
+                        else
+                        {
+                            if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))
+                            {
+                                if (fleet.Ships.Count > 0)
+                                    break;
+                            }
+
+                            EndTask();
                         }
                         break;
                     }
@@ -601,6 +632,7 @@ namespace Ship_Game.AI.Tasks
 
         public enum TaskType
         {
+            // The order of these can not change without breaking save games. 
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,
