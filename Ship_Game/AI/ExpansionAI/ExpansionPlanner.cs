@@ -274,10 +274,10 @@ namespace Ship_Game.AI.ExpansionAI
                 queryingShip.AI.ClearOrders();
                 return null;
             }
-            SolarSystem nearestToHome = sortedList.Find(s=> !s.HostileForcesPresent(OwnerEmpire));
+            SolarSystem nearestToHome = sortedList.Find(s=> !s.DangerousForcesPresent(OwnerEmpire));
             foreach (SolarSystem nearest in sortedList)
             {
-                if (nearest.HostileForcesPresent(OwnerEmpire))
+                if (nearest.DangerousForcesPresent(OwnerEmpire))
                     continue;
                 float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
                 float distanceToEarth = Vector2.Distance(empireCenter, nearest.Position);

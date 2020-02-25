@@ -46,7 +46,7 @@ namespace Ship_Game.AI
             PercentageOfValue = 0f;
             OurPlanetsTotalValue = 0;
             OurPlanetsMaxValue = 0;
-            TotalValueToUs = System.HostileForcesPresent(Us) ? 5 : 0;
+            TotalValueToUs = System.DangerousForcesPresent(Us) ? 5 : 0;
             foreach (Planet p in System.PlanetList)
             {
                 if (!PlanetValues.TryGetValue(p, out PlanetTracker trackedPlanet))

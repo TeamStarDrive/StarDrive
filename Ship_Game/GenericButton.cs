@@ -15,7 +15,8 @@ namespace Ship_Game
 		private Vector2 TextPos;
 
 		public bool ToggleOn;
-
+		public Color HoveredColor   = Color.White;
+		public Color UnHoveredColor = Color.DarkGray;
 		private Vector2 CapitalPos;
 
 		private SpriteFont Cap;
@@ -60,7 +61,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				white = (Hover ? Color.White : Color.DarkGray);
+				white = (Hover ? HoveredColor : UnHoveredColor);
 			}
 			spriteBatch.DrawString(font, text, textPos, white);
 		}
@@ -77,7 +78,7 @@ namespace Ship_Game
 			}
 			else
 			{
-				white = (Hover ? Color.White : Color.DarkGray);
+				white = (Hover ? HoveredColor : UnHoveredColor);
 			}
 			HelperFunctions.DrawDropShadowText(batch, text, textPos, font, white);
 		}
@@ -91,7 +92,7 @@ namespace Ship_Game
             }
             else
             {
-                color = (Hover ? Color.White : Color.DarkGray);
+                color = (Hover ? HoveredColor : UnHoveredColor);
             }
 			HelperFunctions.DrawDropShadowText(batch, capT, CapitalPos, Cap, color);
 			HelperFunctions.DrawDropShadowText(batch, smallT, TextPos, Small, color);

@@ -8,8 +8,7 @@ namespace Ship_Game.Ships
         private readonly Ship Ship;
         public const float OrdnanceThresholdCombat             = 0.1f;
         public const float OrdnanceThresholdNonCombat          = 0.35f;
-        private const float KineticEnergyRatioWithPriority     = 0.9f;
-        private const float KineticEnergyRatioWithOutPriority  = 0.6f;
+        public const float KineticToEnergyRatio                = 0.6f;
         private const int OrdnanceProductionThresholdPriority  = 400;
         private const int OrdnanceProductionThresholdNonCombat = 150;
         private const int OrdnanceProductionThresholdCombat    = 75;
@@ -163,14 +162,11 @@ namespace Ship_Game.Ships
                                                                  && weapon.OrdinanceRequiredToFire > 0
                                                                  && !weapon.TruePD);
 
-            float ratioThreshold = Ship.AI.HasPriorityTarget ? KineticEnergyRatioWithPriority
-                                                             : KineticEnergyRatioWithOutPriority;
-
-            float ratio = (float)numKineticWeapons / numWeapons;
-            if (Ship.AI.HasPriorityTarget && ratio < 1f)
+            if (Ship.AI.HasPriorityTarget && numKineticWeapons < numWeapons)
                 return false; // if player ordered a specific attack and the ship has energy weapons, continue to fight
 
-            return ratio >= ratioThreshold;
+            float ratio = (float)numKineticWeapons / numWeapons;
+            return ratio.GreaterOrEqual(KineticToEnergyRatio); 
         }
 
         private bool InsufficientOrdnanceProduction()
