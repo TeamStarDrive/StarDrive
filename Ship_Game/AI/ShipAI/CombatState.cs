@@ -35,15 +35,28 @@ namespace Ship_Game.AI
         None
     }
 
+    /// <summary>
+    /// Group CombatStates .
+    /// </summary>
     public static class CombatStanceType
     {
         public enum StanceType
         {
+            /// <summary>
+            /// Combat Movement using ranges generally based on Ship weapons and modules. 
+            /// </summary>
             RangedCombatMovement,
-            SensorsMovement,
-            SensorsNoMovement,
+
+            /// <summary>
+            /// Non combat Movement or no movement generally using ranges based on ship sensors. 
+            /// </summary>
+            NonCombatMovement,
             None
         }
+
+        /// <summary>
+        /// Converts CombatState to a StanceType.
+        /// </summary>
         public static StanceType ToStanceType(CombatState combatState)
         {
             switch (combatState)
@@ -60,7 +73,7 @@ namespace Ship_Game.AI
                 case CombatState.HoldPosition:
                 case CombatState.Evade:
                 case CombatState.OrbitalDefense:
-                    return StanceType.SensorsNoMovement;
+                    return StanceType.NonCombatMovement;
             }
             return StanceType.None;
         }
