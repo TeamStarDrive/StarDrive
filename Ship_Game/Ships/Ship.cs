@@ -780,9 +780,9 @@ namespace Ship_Game.Ships
             AI.State = AIState.SystemDefender;
         }
 
-        public void OrderToOrbit(Planet orbit)
+        public void OrderToOrbit(Planet orbit, bool offensiveMove = false)
         {
-            AI.OrderToOrbit(orbit);
+            AI.OrderToOrbit(orbit, offensiveMove);
         }
 
         public void DoExplore()
@@ -1845,8 +1845,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation) offense  /= 2;
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea,
-                numWeaponSlots, offense, defense, shipData.Role, RotationRadiansPerSecond);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense);
         }
 
         private void ApplyRepairToShields(float repairPool)

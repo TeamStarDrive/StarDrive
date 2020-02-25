@@ -10,6 +10,7 @@ using Ship_Game.GameScreens;
 using Ship_Game.GameScreens.ShipDesignScreen;
 using Ship_Game.Ships;
 using SynapseGaming.LightingSystem.Rendering;
+using Ship_Game.ShipDesignIssues;
 
 namespace Ship_Game
 {
@@ -33,10 +34,13 @@ namespace Ship_Game
         Submenu StatsSub;
         Menu1 ShipStats;
         GenericButton ArcsButton;
+        GenericButton DesignIssuesButton;
         float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
         Rectangle BlackBar;
+
+        public ShipDesignIssues.ShipDesignIssues DesignIssues;
 
         // this contains module selection list and active module selection info
         ModuleSelection ModuleSelectComponent;
@@ -54,6 +58,7 @@ namespace Ship_Game
         CategoryDropDown CategoryList;
         ShieldBehaviorDropDown ShieldsBehaviorList;
         HangarDesignationDropDown HangarOptionsList;
+        
 
         bool ShowAllArcs;
         public bool ToggleOverlay = true;
@@ -79,6 +84,8 @@ namespace Ship_Game
             Name = "ShipDesignScreen";
             EmpireUI = empireUi;
             TransitionOnTime = 2f;
+
+
         #if SHIPYARD
             Debug = true;
         #endif
@@ -562,9 +569,19 @@ namespace Ship_Game
             StatsSub  = new Submenu(shipStatsPanel);
             StatsSub.AddTab(Localizer.Token(108));
             ArcsButton = new GenericButton(new Vector2(HullSelectList.X - 32, 97f), "Arcs", Fonts.Pirulen20, Fonts.Pirulen16);
+            DesignIssuesButton = new GenericButton(new Vector2(HullSelectList.X + 60, HullSelectList.Y  + HullSelectList.Height + 40)
+                , "Design Issues", Fonts.Pirulen20, Fonts.Pirulen16);
+
+            DesignIssuesButton.HoveredColor   = Color.White;
+            DesignIssuesButton.UnHoveredColor = Color.Green;
 
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
+        }
+
+        void UpdateDesignButton()
+        {
+            DesignIssuesButton.UnHoveredColor = DesignIssues.CurrentWarningColor;
         }
 
         void InitializeShipHullsList()

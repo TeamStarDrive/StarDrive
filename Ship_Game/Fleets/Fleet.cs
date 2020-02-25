@@ -583,7 +583,7 @@ namespace Ship_Game.Fleets
 
             AssembleFleet2(FinalPosition, Vector2.One);
             // ReSharper disable once PossibleNullReferenceException station should never be null here
-            FormationWarpTo(station.Position, Vector2.One);
+            FormationWarpTo(station.Position, Vector2.One, queueOrder: false);
             FleetTask.EndTaskWithMove();
         }
 
@@ -855,7 +855,7 @@ namespace Ship_Game.Fleets
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
             FinalPosition = task.AO.OffsetTowards(AveragePosition(), distanceFromAO);
-            FormationWarpTo(FinalPosition, AveragePosition().DirectionToTarget(task.AO));
+            FormationWarpTo(FinalPosition, AveragePosition().DirectionToTarget(task.AO), queueOrder: false);
         }
 
         void HoldFleetPosition()
@@ -1233,7 +1233,7 @@ namespace Ship_Game.Fleets
             {
                 Vector2 dir = AveragePosition().DirectionToTarget(position);
                 FinalPosition = position + dir * moveToWithin;
-                FormationWarpTo(FinalPosition, dir);
+                FormationWarpTo(FinalPosition, dir, queueOrder: false);
                 return 1;
             }
             return 0;
