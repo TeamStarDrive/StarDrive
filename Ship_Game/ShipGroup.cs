@@ -294,7 +294,7 @@ namespace Ship_Game
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Center;
+            if (commandShip != null) return commandShip.Center - commandShip.FleetOffset;
 
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
@@ -432,14 +432,20 @@ namespace Ship_Game
             }
         }
 
-        public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection)
+        public void MoveToNow(Vector2 finalPosition, Vector2 finalDirection, bool offensiveMove = false)
         {
             AssembleFleet(finalPosition, finalDirection, true);
 
             foreach (Ship ship in Ships)
             {
                 ship.AI.ResetPriorityOrder(false);
-                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset, finalDirection, true, null, AIState.MoveTo);
+                ship.AI.OrderMoveTo(FinalPosition + ship.FleetOffset
+                    , finalDirection
+                    , true
+                    , null
+                    , AIState.MoveTo
+                    , null
+                    , offensiveMove);
             }
         }
 
