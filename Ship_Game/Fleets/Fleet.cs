@@ -154,14 +154,13 @@ namespace Ship_Game.Fleets
         void SortIntoFlanks(Ship ship, ShipData.RoleName largest)
         {
             int leftCount = LeftShips.Count;
-            if (ship.DesignRole == ShipData.RoleName.troop
-                         || ship.DesignRole == ShipData.RoleName.freighter
-                         || ship.shipData.ShipCategory == ShipData.Category.Civilian
-                         || ship.DesignRole == ShipData.RoleName.troopShip)
+            var roleType = ship.DesignRoleType;
+            if (roleType != ShipData.RoleType.Warship || ship.DesignRole == ShipData.RoleName.carrier)
             {
                 RearShips.AddUniqueRef(ship);
             }
-            else if (CommandShip == ship || ship.DesignRole < ShipData.RoleName.fighter)
+            else if (CommandShip == ship || ship.DesignRole > ShipData.RoleName.fighter 
+                                         && largest == ship.DesignRole )
             {
                 CenterShips.AddUniqueRef(ship);
             }
@@ -435,11 +434,11 @@ namespace Ship_Game.Fleets
                     break;
                 case 1:
                     if (!HasArrivedAtRallySafely(5000)) break;
-                    GatherAtAO(task, distanceFromAO: 50000f);
+                    GatherAtAO(task, distanceFromAO: task.TargetPlanet.GravityWellRadius);
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (ArrivedAtOffsetRally(task))
+                    if (ArrivedAtCombatRally(task))
                         TaskStep = 3;
                     break;
                 case 3:
@@ -547,14 +546,12 @@ namespace Ship_Game.Fleets
                     if (!HasArrivedAtRallySafely(5000))
                         break;
 
-                    GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.1f);
+                    GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.5f);
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtOffsetRally(task)) break;
+                    if (!ArrivedAtCombatRally(task)) break;
                     TaskStep = 3;
-                    //AssembleFleet2(task.TargetPlanet.Center,
-                    //               AveragePosition().DirectionToTarget(FinalPosition));
                     break;
                 case 3:
                     EscortingToPlanet(task);
@@ -586,7 +583,7 @@ namespace Ship_Game.Fleets
 
             AssembleFleet2(FinalPosition, Vector2.One);
             // ReSharper disable once PossibleNullReferenceException station should never be null here
-            FormationWarpTo(station.Position, Vector2.One);
+            FormationWarpTo(station.Position, Vector2.One, queueOrder: false);
             FleetTask.EndTaskWithMove();
         }
 
@@ -826,7 +823,7 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = Ships[i];
                 if (ship.CanTakeFleetOrders)
-                    ship.AI.SetPriorityOrder(true);
+                    ship.AI.ResetPriorityOrder(true);
             }
         }
 
@@ -858,7 +855,7 @@ namespace Ship_Game.Fleets
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
             FinalPosition = task.AO.OffsetTowards(AveragePosition(), distanceFromAO);
-            FormationWarpTo(FinalPosition, AveragePosition().DirectionToTarget(task.AO));
+            FormationWarpTo(FinalPosition, AveragePosition().DirectionToTarget(task.AO), queueOrder: false);
         }
 
         void HoldFleetPosition()
@@ -874,7 +871,7 @@ namespace Ship_Game.Fleets
 
         bool ArrivedAtOffsetRally(MilitaryTask task)
         {
-            if (IsFleetAssembled(5000f) != MoveStatus.Assembled)
+            if (IsFleetAssembled(5000f) == MoveStatus.Dispersed)
                 return false;
 
             HoldFleetPosition();
@@ -883,7 +880,7 @@ namespace Ship_Game.Fleets
 
         bool ArrivedAtCombatRally(MilitaryTask task)
         {
-            return IsFleetAssembled(5000f, task.AO) != MoveStatus.Dispersed;
+            return IsFleetAssembled(5000f) != MoveStatus.Dispersed;
         }
         bool ArrivedAtCombatRally(float distanceFromRally, Vector2 rally)
         {
@@ -988,7 +985,7 @@ namespace Ship_Game.Fleets
 
         void WaitingForPlanetAssault(MilitaryTask task)
         {
-             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
+            float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
             bool bombing              = BombPlanet(ourGroundStrength, task);
             if (ReadyToInvade(task))
@@ -1051,6 +1048,9 @@ namespace Ship_Game.Fleets
                     continue;
 
                 ai.CancelIntercept();
+                if (ai.State == AIState.HoldPosition)
+                    ai.ClearOrders();
+
                 switch (type)
                 {
                     case InvasionTactics.Screen:
@@ -1078,6 +1078,14 @@ namespace Ship_Game.Fleets
                         break;
 
                     case InvasionTactics.Wait:
+                        if (ship.DesignRoleType == ShipData.RoleType.Troop)
+                        {
+                            ai.HoldPosition();
+                        }
+                        else
+                        {
+                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset, FinalDirection, true, ai.State, ship.MaxFTLSpeed * 0.75f);
+                        }
                         break;
                 }
             }
@@ -1186,7 +1194,7 @@ namespace Ship_Game.Fleets
             {
                 Ship ship = ships[x];
                 ship.AI.OrderLandAllTroops(task.TargetPlanet);
-                ship.AI.SetPriorityOrder(false);
+                ship.AI.ResetPriorityOrder(false);
             }
         }
 
@@ -1225,7 +1233,7 @@ namespace Ship_Game.Fleets
             {
                 Vector2 dir = AveragePosition().DirectionToTarget(position);
                 FinalPosition = position + dir * moveToWithin;
-                FormationWarpTo(FinalPosition, dir);
+                FormationWarpTo(FinalPosition, dir, queueOrder: false);
                 return 1;
             }
             return 0;

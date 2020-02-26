@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
@@ -38,7 +39,6 @@ namespace Ship_Game.AI
         public Planet[] GetPlanets()                       => OurPlanetsInAo;
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
-
         public float OffensiveForcePoolStrength
         {
             get
@@ -50,6 +50,12 @@ namespace Ship_Game.AI
             }
         }
 
+        public void SetThreatLevel()
+        {
+            ThreatLevel = (int)Owner.GetEmpireAI().ThreatMatrix.
+                PingRadarStrengthLargestCluster(Center, Radius, Owner, 50000);
+            ThreatLevel = ThreatLevel;
+        }
         public int NumOffensiveForcePoolShips => OffensiveForcePool.Count;
         public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
         public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
@@ -95,7 +101,7 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 str += ship.GetStrength();
 
-            return ThreatLevel < CoreFleet.GetStrength() + str;
+            return ThreatLevel + str.ClampMin(100) < CoreFleet.GetStrength();
         }
 
         private void CoreFleetAddShip(Ship ship)
@@ -309,7 +315,7 @@ namespace Ship_Game.AI
                 ShipsWaitingForCoreFleet.Clear();
             }
 
-            if (ThreatLevel * (1 - (TurnsToRelax / 10)) < CoreFleet.GetStrength())
+            if (ThreatLevel > 0 && ThreatLevel * (1 - (TurnsToRelax / 10)) < CoreFleet.GetStrength())
             {
                 if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)
                 {
@@ -325,6 +331,23 @@ namespace Ship_Game.AI
                 TurnsToRelax = 1;
             }
             AOFull = ThreatLevel < CoreFleet.GetStrength() && OffensiveForcePool.Count > 0;
+        }
+
+        public void ClearOut()
+        {
+            if (CoreFleet != null)
+                Owner?.AddShipNextFrame(CoreFleet.Ships);
+            if (OffensiveForcePool?.NotEmpty == true)
+                Owner.AddShipNextFrame(OffensiveForcePool);
+            if (ShipsWaitingForCoreFleet?.NotEmpty == true)
+                Owner.AddShipNextFrame(ShipsWaitingForCoreFleet);
+
+            OffensiveForcePool?.Clear();
+            ShipsWaitingForCoreFleet?.Clear();
+            CoreFleet?.Reset();
+            CoreWorld      = null;
+            PlanetsInAo    = null;
+            OurPlanetsInAo = null;
         }
 
         public void Dispose()

@@ -217,7 +217,7 @@ namespace Ship_Game
 
             if (ActiveShipDesign != null)
             {
-                if (input.LeftMouseClick)
+                if (input.LeftMouseClick && !ShipSL.HitTest(input.CursorPosition))
                 {
                     Viewport viewport = Viewport;
                     Vector3 nearPoint = viewport.Unproject(new Vector3(input.CursorPosition, 0f), Projection, View,
@@ -367,7 +367,6 @@ namespace Ship_Game
                     }
 
                     SelectedNodeList.Clear();
-                    ResetLists();
                 }
             }
 
