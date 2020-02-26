@@ -16,8 +16,7 @@
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
         public readonly float CreditsMultiplier;
-        public readonly float FleetRatioMultiplier;
-
+        public readonly float FleetCompletenessMin;
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
@@ -33,7 +32,7 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
-                    FleetRatioMultiplier = 1;
+                    FleetCompletenessMin = 0.25f;
                     CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     break;
                 default:
@@ -45,7 +44,7 @@
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
-                    FleetRatioMultiplier = 1;
+                    FleetCompletenessMin = 0.25f;
                     CreditsMultiplier    = 0.2f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
@@ -56,7 +55,7 @@
                     ShipLevel            = 2;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
-                    FleetRatioMultiplier = 2;
+                    FleetCompletenessMin = 0.5f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
@@ -67,7 +66,7 @@
                     ShipLevel            = 3;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
-                    FleetRatioMultiplier = 3;
+                    FleetCompletenessMin = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     break;
             }
@@ -79,7 +78,7 @@
             else
             {
                 EconomicResearchStrategy strategy = ResourceManager.GetEconomicStrategy(empire.data.EconomicPersonality.Name);
-                BaseColonyGoals = (float)difficulty * 2.5f * strategy.ExpansionRatio;
+                BaseColonyGoals                   = (float)difficulty * 2.5f * strategy.ExpansionRatio;
             }
 
             SysComModifier      = (int)(((int)difficulty + 1) * 0.75f + 0.5f);

@@ -153,7 +153,7 @@ namespace Ship_Game
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange());
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange(true));
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -166,6 +166,16 @@ namespace Ship_Game
 
         public string Name => data.Traits.Name;
         public void AddShipNextFrame(Ship s) => Pool.AddShipNextFame(s);
+        public void AddShipNextFrame(Ship[] s)
+        {
+            foreach (var ship in s)
+                Pool.AddShipNextFame(ship);
+        }
+        public void AddShipNextFrame(Array<Ship> s)
+        {
+            foreach (var ship in s)
+                Pool.AddShipNextFame(ship);
+        }
 
         public Empire()
         {
@@ -253,9 +263,9 @@ namespace Ship_Game
             return null;
         }
         public float KnownEnemyStrengthIn(SolarSystem system)
-                     => EmpireAI.ThreatMatrix.PingNetRadarStr(system.Position, system.Radius, this);
+                     => EmpireAI.ThreatMatrix.PingHostileStr(system.Position, system.Radius, this);
         public float KnownEnemyStrengthIn(AO ao)
-             => EmpireAI.ThreatMatrix.PingNetRadarStr(ao.Center, ao.Radius, this);
+             => EmpireAI.ThreatMatrix.PingHostileStr(ao.Center, ao.Radius, this);
 
         public WeaponTagModifier WeaponBonuses(WeaponTag which) => data.WeaponTags[which];
         public Map<int, Fleet> GetFleetsDict() => FleetsDict;
@@ -302,7 +312,7 @@ namespace Ship_Game
             rallyPlanets = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort && !planet.EnemyInRange())
+                if (planet.HasSpacePort && !planet.EnemyInRange(true))
                     rallyPlanets.Add(planet);
             }
 
@@ -1552,12 +1562,9 @@ namespace Ship_Game
                     {
                         data.DefenseBudget -= maintenance;
                     }
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.WwarSupport)
-                        TotalWarShipMaintenance += maintenance;
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.Warship)
-                        TotalWarShipMaintenance += maintenance;
-                    if (ShipData.ShipRoleToRoleType(ship.DesignRole) == ShipData.RoleType.EmpireSupport)
-                        TotalCivShipMaintenance += maintenance;
+                    if (ship.DesignRoleType == ShipData.RoleType.WarSupport) TotalWarShipMaintenance += maintenance;
+                    if (ship.DesignRoleType == ShipData.RoleType.Warship)    TotalWarShipMaintenance += maintenance;
+                    if (ship.DesignRoleType == ShipData.RoleType.Civilian)   TotalCivShipMaintenance += maintenance;
                     TotalShipMaintenance += maintenance;
                 }
 
@@ -1615,7 +1622,8 @@ namespace Ship_Game
                 if (hulls != null && !hulls.Contains(ship.shipData.Hull))
                     continue;
 
-                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected || ShipsWeCanBuild.Contains(ship.Name))
+                if (ship.Deleted || ResourceManager.ShipRoles[ship.shipData.Role].Protected 
+                                 || ShipsWeCanBuild.Contains(ship.Name))
                     continue;
                 if (!isPlayer && !ship.ShipGoodToBuild(this))
                     continue;
@@ -2767,15 +2775,14 @@ namespace Ship_Game
         {
             if (targetEmpire == this || targetEmpire == null)
                 return false;
-
+            if (isFaction || targetEmpire.isFaction)
+                return true;
             if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
                 return false;
             if(!rel.Known || rel.AtWar)
                 return true;
             if (rel.Treaty_NAPact || rel.Treaty_Peace)
                 return false;
-            if (isFaction || targetEmpire.isFaction)
-                return true;
             if (rel.TotalAnger > 50)
                 return true;
 
@@ -2786,6 +2793,17 @@ namespace Ship_Game
             //but an additional check can be done if a gameplay object is passed.
             //maybe its a freighter or something along those lines which might not be attackable.
             return target.IsAttackable(this, rel);
+        }
+
+        public bool IsEmpireHostile(Empire targetEmpire)
+        {
+            if (targetEmpire == this || targetEmpire == null || targetEmpire == this)
+                return false;
+            if (isFaction || targetEmpire.isFaction)
+                return true;
+            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
+                return false;
+            return rel.AtWar || rel.PreparingForWar;
         }
 
         public Planet FindPlanet(Guid planetGuid)

@@ -27,8 +27,8 @@ namespace Ship_Game.AI
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
-            float gameState = GetRisk().Clamped(0,1.25f);
-            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(gameState, treasuryGoal);
+            float gameState = GetRisk().Clamped(0, 1.25f);// * (1 - OwnerEmpire.data.TaxRate));
+            OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
             OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(gameState, treasuryGoal);
@@ -36,33 +36,39 @@ namespace Ship_Game.AI
 
             PlanetBudgetDebugInfo();
         }
+
         float DetermineDefenseBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float adjustor = (risk + strat.MilitaryRatio) /3;
-            return SetBudgetForeArea(0.01f, adjustor, money);
+            float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
+            float adjustor                 = risk + territorialism / 100 + strat.MilitaryRatio;
+            float budget                   = SetBudgetForeArea(0.01f, adjustor, money);
+            return budget;
         }
+
         float DetermineSSPBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float risk = strat.IndustryRatio + strat.ExpansionRatio;
+            float risk                     = strat.IndustryRatio + strat.ExpansionRatio;
             return SetBudgetForeArea(0.0025f, risk, money);
         }
 
         float DetermineBuildCapacity(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
-            buildRatio /= 3;
-            float buildBudget = SetBudgetForeArea(0.01f, buildRatio + risk, money);
-            return buildBudget - OwnerEmpire.TotalCivShipMaintenance;
+            float buildRatio               = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
+            buildRatio                    /= 3;
+            float buildBudget              = SetBudgetForeArea(0.01f, buildRatio + risk, money);
+            return buildBudget;
 
         }
 
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.01f, strat.IndustryRatio + strat.ExpansionRatio, money);
+            var budget                     = SetBudgetForeArea(0.01f, strat.IndustryRatio 
+                                                                      + strat.ExpansionRatio, money);
+            return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
         float DetermineSpyBudget(float risk, float money)
@@ -70,6 +76,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             return SetBudgetForeArea(0.15f, Math.Max(risk, strat.MilitaryRatio), money);
         }
+
         private void PlanetBudgetDebugInfo()
         {
             if (!Empire.Universe.Debug) return;
@@ -92,7 +99,7 @@ namespace Ship_Game.AI
 
             treasuryGoal *= OwnerEmpire.data.treasuryGoal * 200;
             float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
-            treasuryGoal = Math.Max(minGoal, treasuryGoal);
+            treasuryGoal  = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;
         }
 
@@ -116,9 +123,9 @@ namespace Ship_Game.AI
 
         private float SetBudgetForeArea(float percentOfIncome, float risk, float money)
         {
-            risk = OwnerEmpire.isPlayer ? 1 : risk;
+            risk         = OwnerEmpire.isPlayer ? 1 : risk;
             float budget = money * percentOfIncome * risk;
-            budget = Math.Max(1, budget);
+            budget       = Math.Max(1, budget);
             return budget;
         }
         public float GetRisk(float riskLimit = 2f)

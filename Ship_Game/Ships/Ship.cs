@@ -595,7 +595,7 @@ namespace Ship_Game.Ships
         public void Explore()
         {
             AI.State = AIState.Explore;
-            AI.HasPriorityOrder = true;
+            AI.SetPriorityOrder(true);
         }
 
         /// <summary>Forces the ship to be in combat without a target.</summary>
@@ -780,9 +780,9 @@ namespace Ship_Game.Ships
             AI.State = AIState.SystemDefender;
         }
 
-        public void OrderToOrbit(Planet orbit)
+        public void OrderToOrbit(Planet orbit, bool offensiveMove = false)
         {
-            AI.OrderToOrbit(orbit);
+            AI.OrderToOrbit(orbit, offensiveMove);
         }
 
         public void DoExplore()
@@ -930,6 +930,9 @@ namespace Ship_Game.Ships
         // @return Filtered list of purely offensive weapons
         public Weapon[] OffensiveWeapons => Weapons.Filter(w => w.DamageAmount > 0.1f && !w.TruePD);
 
+        /// <summary>
+        /// get weapons filtered  by the below.
+        /// If that gives no weapons use any weapon.<list type="bullet"><item> active</item><item>Have a damage greater than 0</item><item>Are not <font color="#b7dde8"><font style="background-color: #D8D8D8;"><strong>TruePD</strong></font></font>weapons</item></list><para><font color="#333333"></font></para></summary>
         Array<Weapon> GetActiveWeapons()
         {
             var weapons = new Array<Weapon>();
@@ -955,34 +958,65 @@ namespace Ship_Game.Ships
             return weapons;
         }
 
-        static float[] GetWeaponsRanges(Array<Weapon> weapons)
+        /// <summary>
+        /// Gets the distinct weapons ranges.
+        /// </summary>
+        /// <param name="weapons">The weapons.</param>
+        /// <returns></returns>
+        float[] GetDistinctWeaponsRanges(Array<Weapon> weapons)
         {
-            var ranges = new float[weapons.Count];
-            for (int i = 0; i < ranges.Length; ++i) // using raw loops for perf
-                ranges[i] = weapons[i].GetActualRange();
-            return ranges;
+            Array<float> ranges = new Array<float>();
+
+            for (int i = 0; i < weapons.Count; ++i) // using raw loops for perf
+                ranges.AddUnique(weapons[i].GetActualRange());
+            return ranges.ToArray();
         }
+
 
         /**
          * Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
          * weapons installed, Not utility/repair/truePD
          */
+
+        /// <summary>
+        ///   <para>
+        /// Updates the weapon ranges.
+        /// Updates the [min, max, avg, desired] weapon ranges based on "real" damage dealing
+        /// weapons installed, Not utility/repair/truePD.</para>
+        ///   <para>Carriers will the use the carrier hangar range for max range.
+        /// for min range carriers will use the max range of normal weapons.
+        /// </para>
+        /// </summary>
         void UpdateWeaponRanges()
         {
             Array<Weapon> weapons = GetActiveWeapons();
-            float[] ranges = GetWeaponsRanges(weapons);
-            WeaponsMinRange = ranges.Min();
-            WeaponsMaxRange = ranges.Max();
-            WeaponsAvgRange = (int)ranges.Avg();
+            float[] ranges = GetDistinctWeaponsRanges(weapons);
+
+            // Carriers will use the carrier range for max range.
+            // for min range carriers will use the max range of normal weapons.
+            if (Carrier.IsPrimaryCarrierRole)
+            {
+                WeaponsMinRange = Math.Min(ranges.Max(), Carrier.HangarRange);
+                WeaponsMaxRange = Math.Max(Carrier.HangarRange, ranges.Max());
+                float sumRanges = ranges.Sum() + Carrier.HangarRange;
+                WeaponsAvgRange = (int)Math.Min(sumRanges / (ranges.Length + 1), ranges.Max());
+            }
+            else
+            {
+                WeaponsMinRange = ranges.Min();
+                WeaponsMaxRange = ranges.Max();
+                WeaponsAvgRange = (int)ranges.Avg();
+            }
+
             DesiredCombatRange = CalcDesiredDesiredCombatRange(ranges, AI?.CombatState ?? CombatState.AttackRuns);
-            InterceptSpeed = CalcInterceptSpeed(weapons);
+            InterceptSpeed     = CalcInterceptSpeed(weapons);
         }
 
         // This is used for previewing range during CombatState change
         // Not performance critical.
         float GetDesiredCombatRangeForState(CombatState state)
         {
-            float[] ranges = GetWeaponsRanges(GetActiveWeapons());
+            float[] ranges = GetDistinctWeaponsRanges(GetActiveWeapons());
             return CalcDesiredDesiredCombatRange(ranges, state);
         }
 
@@ -1811,8 +1845,7 @@ namespace Ship_Game.Ships
             if (IsPlatformOrStation) offense  /= 2;
             if (!fighters && !weapons) offense = 0f;
 
-            return ShipBuilder.GetModifiedStrength(SurfaceArea,
-                numWeaponSlots, offense, defense, shipData.Role, RotationRadiansPerSecond);
+            return ShipBuilder.GetModifiedStrength(SurfaceArea, numWeaponSlots, offense, defense);
         }
 
         private void ApplyRepairToShields(float repairPool)
