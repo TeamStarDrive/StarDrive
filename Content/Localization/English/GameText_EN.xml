@@ -477,7 +477,7 @@
     </Token>
     <Token>
       <Index>121</Index>
-      <Text>No Empty Slots</Text>
+      <Text>Design Completion</Text>
     </Token>
     <Token>
       <Index>122</Index>
@@ -6280,8 +6280,265 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2307</Index>
       <Text>Current Research</Text>
     </Token>
-    <!-- Formulate Offer Text for Diplomacy  3000 + -->
+    <!-- Ship Design Issues 2501 +  -->
+    <Token>
+      <Index>2501</Index>
+      <Text>Missing Command Module</Text>
+    </Token>
+    <Token>
+      <Index>2502</Index>
+      <Text>The Ship does not have a Command Module or all your Command Modules are not getting power.</Text>
+    </Token>
+    <Token>
+      <Index>2503</Index>
+      <Text>Add a Command Module to your ship (Cockpit, Bridge, etc.) and make sure it is getting power.</Text>
+    </Token>
+    <Token>
+      <Index>2504</Index>
+      <Text>No Backup Command Module</Text>
+    </Token>
+    <Token>
+      <Index>2505</Index>
+      <Text>The ship currently has only a single Command Module, which is a problem for a ship of this size. When all Command Modules of a ship are destroyed, it cannot identify targets and will usually retreat for repairs.</Text>
+    </Token>
+    <Token>
+      <Index>2506</Index>
+      <Text>Add a backup Command Module to the ship (it can be a small one), preferably far from your main Command Module in order to maintain combat effectiveness of the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2507</Index>
+      <Text>Unpowered Modules Detected</Text>
+    </Token>
+    <Token>
+      <Index>2508</Index>
+      <Text>Some of the power consuming modules in this ship are not getting power. This reduces ship effectiveness as these modules won't work after the ship is built.</Text>
+    </Token>
+    <Token>
+      <Index>2509</Index>
+      <Text>You can add a Reactor near the unpowered modules, or increase the power radius of current Reactors by placing a Power Conduit next to them.</Text>
+    </Token>
+    <Token>
+      <Index>2510</Index>
+      <Text>No Ordnance Detected</Text>
+    </Token>
+    <Token>
+      <Index>2511</Index>
+      <Text>This ship design needs Ordnance to properly conduct combat. Currently you do not have ordnance stores on board your ship. Note that Hangars use Ordnance to launch ships.</Text>
+    </Token>
+    <Token>
+      <Index>2512</Index>
+      <Text>You must add Ordnance stores or Ordnance Fabricators to your ship. The more Ordnance your ship has on board, the longer it can sustain itself in the battlefield before needing resupply.</Text>
+    </Token>
+    <Token>
+      <Index>2513</Index>
+      <Text>Low Ordnance Time</Text>
+    </Token>
+    <Token>
+      <Index>2514</Index>
+      <Text>The ship has low effective fighting time (for it's size) on the battlefield, due to the presence of Ordnance consuming weapons, coupled with low Ordnance stores.</Text>
+    </Token>
+    <Token>
+      <Index>2515</Index>
+      <Text>Add Ordnance stores or Ordnance Fabricators to your ship. The more Ordnance your ship has on board, the longer it can sustain itself in the battlefield before needing resupply.</Text>
+    </Token>
+    <Token>
+      <Index>2516</Index>
+      <Text>Low Warp Time</Text>
+    </Token>
+    <Token>
+      <Index>2517</Index>
+      <Text>The ship's ability to sustain Warp Speed is limited</Text>
+    </Token>
+    <Token>
+      <Index>2518</Index>
+      <Text>Add Reactors to increase the power output of the ship, or Energy Storage to increase warp time.</Text>
+    </Token>
+    <Token>
+      <Index>2519</Index>
+      <Text>Negative Power Recharge</Text>
+    </Token>
+    <Token>
+      <Index>2520</Index>
+      <Text>The ship does not have enough Reactors to properly recharge itself. It will have reduced or no effectiveness in the battlefield.</Text>
+    </Token>
+    <Token>
+      <Index>2521</Index>
+      <Text>Add Reactors to increase the power output of the ship</Text>
+    </Token>
+    <Token>
+      <Index>2522</Index>
+      <Text>No Warp Speed</Text>
+    </Token>
+    <Token>
+      <Index>2523</Index>
+      <Text>The ship is not Warp capable. This might be ok for small craft like Fighters or even Corvettes dedicated for Carrier or Colony Defense.</Text>
+    </Token>
+    <Token>
+      <Index>2524</Index>
+      <Text>Add Warp capable modules (usually Warp Engines) and power them to enable Warp capabilities.</Text>
+    </Token>
+    <Token>
+      <Index>2525</Index>
+      <Text>Slow Warp Speed</Text>
+    </Token>
+    <Token>
+      <Index>2526</Index>
+      <Text>The ship's Warp Speed below the average Ships' Warp speed available to your empire. Since fleets travel at the speed of the slowest ship, this ship will delay the fleet's speed capabilities if assigned to one.</Text>
+    </Token>
+    <Token>
+      <Index>2527</Index>
+      <Text>Add Warp capable modules (usually Warp Engines) and power them to match the average Warp speed of</Text>
+    </Token>
+    <Token>
+      <Index>2528</Index>
+      <Text>No Sub light Speed</Text>
+    </Token>
+    <Token>
+      <Index>2529</Index>
+      <Text>The ship cannot move at sub light speed.</Text>
+    </Token>
+    <Token>
+      <Index>2530</Index>
+      <Text>Add sub light Engines to give the ship some sub light speed capabilities.</Text>
+    </Token>
+    <Token>
+      <Index>2531</Index>
+      <Text>Cannot Target Fighters</Text>
+    </Token>
+    <Token>
+      <Index>2532</Index>
+      <Text>No weapon on board the ship can target Fighters. This will probably cripple the ship's ability to deal with Fighters, especially for small craft as Fighters or Corvettes.</Text>
+    </Token>
+    <Token>
+      <Index>2533</Index>
+      <Text>Add weapon systems which can target Fighters.</Text>
+    </Token>
+    <Token>
+      <Index>2534</Index>
+      <Text>Cannot Target Corvettes</Text>
+    </Token>
+    <Token>
+      <Index>2535</Index>
+      <Text>No weapon on board the ship can target Corvettes. This will probably cripple the ship's ability to deal with Corvettes, especially for small craft as Fighters or Corvettes.</Text>
+    </Token>
+    <Token>
+      <Index>2536</Index>
+      <Text>Add weapon systems which can target Corvettes.</Text>
+    </Token>
+    <Token>
+      <Index>2537</Index>
+      <Text>Cannot Target Capitals</Text>
+    </Token>
+    <Token>
+      <Index>2538</Index>
+      <Text>No weapon on board the ship can target larger ships as Frigates and above. This will probably cripple the ship's ability to deal with Capitals, especially for Capital ships.</Text>
+    </Token>
+    <Token>
+      <Index>2539</Index>
+      <Text>Add weapon systems which can target Capitals.</Text>
+    </Token>
+    <Token>
+      <Index>2540</Index>
+      <Text>Low Number of PD Weapons</Text>
+    </Token>
+    <Token>
+      <Index>2541</Index>
+      <Text>The ship does not have enough Point Defense weapons on board for it's size. This might make it vulnerable to Missile barrages.</Text>
+    </Token>
+    <Token>
+      <Index>2542</Index>
+      <Text>Add point Defense capable weapons. Note that dedicated Point Defense is generally better than dual purpose systems, as they are not distracted by other targets.</Text>
+    </Token>
+    <Token>
+      <Index>2543</Index>
+      <Text>Low Weapon Time</Text>
+    </Token>
+    <Token>
+      <Index>2544</Index>
+      <Text>The ship can fire all of it's Energy weapons for a limited time. This issue's severity is a function of the time the ship can fire. Low Energy weapon time may cripple the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2545</Index>
+      <Text>Add Reactors or Energy storage to increase Energy weapon times.</Text>
+    </Token>
+    <Token>
+      <Index>2546</Index>
+      <Text>States any design issues the current ship has. It is displayed after you completed 75% of the design.</Text>
+    </Token>
+    <Token>
+      <Index>2547</Index>
+      <Text>Low Beam Burst Time</Text>
+    </Token>
+    <Token>
+      <Index>2548</Index>
+      <Text>The ship cannot sustain all of its beam weapons firing at once. It's energy reserves are too low.</Text>
+    </Token>
+    <Token>
+      <Index>2549</Index>
+      <Text>Add Reactors or Energy storage to increase burst Energy power times.</Text>
+    </Token>
+    <Token>
+      <Index>2550</Index>
+      <Text>No Ammo Resupply in Combat</Text>
+    </Token>
+    <Token>
+      <Index>2551</Index>
+      <Text>Due to high ratio of Energy to Ordnance requiring weapons, the ship will not go to resupply if it's ammo reserves are low during combat.</Text>
+    </Token>
+    <Token>
+      <Index>2552</Index>
+      <Text>Generally, the ship will stay in combat with slightly reduced combat effectiveness, but it will be able to fight. It is up to you if you want to reduce the number of Energy weapons.</Text>
+    </Token>
+    <Token>
+      <Index>2553</Index>
+      <Text>Energy and Kinetic Blend</Text>
+    </Token>
+    <Token>
+      <Index>2554</Index>
+      <Text>This ship has a blend of Kinetics and Energy weapons (Point Defense is not counted). When you directly order it to attack a target, it will not go to resupply if it's ordnance reserves are low.</Text>
+    </Token>
+    <Token>
+      <Index>2555</Index>
+      <Text>The ship might have reduced effectiveness when fighting with only energy weapons under your direct order. It will, however, go to resupply when the designated target is destroyed.</Text>
+    </Token>
+    <Token>
+      <Index>2556</Index>
+      <Text>Civilian ships</Text>
+    </Token>
+    <Token>
+      <Index>2557</Index>
+      <Text>Military ships</Text>
+    </Token>
+    <Token>
+      <Index>2558</Index>
+      <Text>Not Enough Troops to Launch</Text>
+    </Token>
+    <Token>
+      <Index>2559</Index>
+      <Text>The current number of Troops the ship has on board is lower than the number of Assault Bays installed. Not all Assault Shuttles will be able to launch when needed.</Text>
+    </Token>
+    <Token>
+      <Index>2560</Index>
+      <Text>Add more Barracks modules to the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2561</Index>
+      <Text>Low Garrison</Text>
+    </Token>
+    <Token>
+      <Index>2562</Index>
+      <Text>The ship has less than expected numbers of Troops on board for it's size. Troops garrisoned on board a ship help defend enemy boarding attempts.</Text>
+    </Token>
+    <Token>
+      <Index>2563</Index>
+      <Text>Add more Barracks modules to the ship.</Text>
+    </Token>
+    <Token>
+      <Index>2564</Index>
+      <Text>more Troops needed.</Text>
+    </Token>
 
+    <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>
       <Text>We feel that the time for hostilities is at an end, and request a peace treaty. </Text>
