@@ -38,10 +38,10 @@ namespace UnitTests.Ships
             CreateTestEnv(out Empire empire, out Ship ship);
 
             UpdateStatus(ship, CombatState.Artillery);
-            Assert.That.Equal(4000, ship.WeaponsMaxRange);
-            Assert.That.Equal(1000, ship.WeaponsMinRange);
-            Assert.That.Equal(2200, ship.WeaponsAvgRange);
-            Assert.That.Equal(3600, ship.DesiredCombatRange);
+            Assert.That.Equal(7500, ship.WeaponsMaxRange);
+            Assert.That.Equal(4000, ship.WeaponsMinRange);
+            Assert.That.Equal(4000, ship.WeaponsAvgRange);
+            Assert.That.Equal(6750, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
 
             UpdateStatus(ship, CombatState.Evade);
@@ -84,8 +84,8 @@ namespace UnitTests.Ships
 
             UpdateStatus(ship, CombatState.Artillery);
             Assert.That.Equal(8000, ship.WeaponsMaxRange);
-            Assert.That.Equal(2000, ship.WeaponsMinRange);
-            Assert.That.Equal(4400, ship.WeaponsAvgRange);
+            Assert.That.Equal(7500, ship.WeaponsMinRange);
+            Assert.That.Equal(5833, ship.WeaponsAvgRange);
             Assert.That.Equal(7200, ship.DesiredCombatRange);
             Assert.That.Equal(ship.OffensiveWeapons.Average(w => w.ProjectileSpeed), ship.InterceptSpeed);
         }

@@ -179,7 +179,7 @@ namespace Ship_Game.AI.Tasks
             {
                 Troop t = TargetPlanet.TroopsHere[index];
                 if (t.Loyalty != Owner
-                    || TargetPlanet.EnemyInRange()
+                    || TargetPlanet.EnemyInRange(true)
                     || t.AvailableAttackActions == 0
                     || t.MoveTimer > 0)
                     continue;
@@ -363,7 +363,7 @@ namespace Ship_Game.AI.Tasks
                         Owner.GetFleetsDict()[1].FleetTask = this;
                         WhichFleet = 1;
                         Step = 1;
-                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1));
+                        Owner.GetFleetsDict()[1].FormationWarpTo(TargetPlanet.Center, new Vector2(0f, -1), false);
                         break;
                     }
                 case TaskType.CohesiveClearAreaOfEnemies:
@@ -632,6 +632,7 @@ namespace Ship_Game.AI.Tasks
 
         public enum TaskType
         {
+            // The order of these can not change without breaking save games. 
             ClearAreaOfEnemies,
             Resupply,
             AssaultPlanet,

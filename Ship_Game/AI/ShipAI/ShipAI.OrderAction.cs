@@ -18,8 +18,14 @@ namespace Ship_Game.AI
         public void OrderHoldPosition(Vector2 position, Vector2 direction)
         {
             AddShipGoal(Plan.HoldPosition, position, direction, AIState.HoldPosition);
-            HasPriorityOrder = true;
-            IgnoreCombat     = true;
+            SetPriorityOrder(true);
+            IgnoreCombat = true;
+        }
+
+        public void OrderHoldPositionOffensive(Vector2 position, Vector2 direction)
+        {
+            AddShipGoal(Plan.HoldPositionOffensive, position, direction, AIState.HoldPosition);
+            IgnoreCombat = false;
         }
 
         public void OrderAttackSpecificTarget(Ship toAttack)
@@ -61,6 +67,13 @@ namespace Ship_Game.AI
             Owner.InCombatTimer = 15f;
             ClearOrdersAndWayPoints();
             AddBombPlanetGoal(toBombard);
+        }
+
+        public void OrderBombardWithPriority(Planet toBombard)
+        {
+            Owner.InCombatTimer = 15f;
+            ClearOrdersAndWayPoints();
+            AddPriorityBombPlanetGoal(toBombard);
         }
 
         public void OrderColonization(Planet toColonize, Goal g = null)
@@ -119,16 +132,16 @@ namespace Ship_Game.AI
             }
         }
 
-        public void OrderFormationWarp(Vector2 destination, Vector2 direction)
+        public void OrderFormationWarp(Vector2 destination, Vector2 direction, bool offensiveMove)
         {
             float speedLimit = Owner.fleet?.GetSpeedLimitFor(Owner) ?? 0;
-            OrderMoveDirectlyTo(destination, direction, true, AIState.FormationWarp, speedLimit);
+            OrderMoveDirectlyTo(destination, direction, true, AIState.FormationWarp, speedLimit, offensiveMove);
         }
 
-        public void OrderFormationWarpQ(Vector2 destination, Vector2 direction)
+        public void OrderFormationWarpQ(Vector2 destination, Vector2 direction, bool offensiveMove)
         {
             float speedLimit = Owner.fleet?.GetSpeedLimitFor(Owner) ?? 0;
-            OrderMoveDirectlyTo(destination, direction, false, AIState.FormationWarp, speedLimit);
+            OrderMoveDirectlyTo(destination, direction, false, AIState.FormationWarp, speedLimit, offensiveMove);
             State = AIState.FormationWarp;
         }
 
@@ -142,27 +155,27 @@ namespace Ship_Game.AI
 
         public void OrderLandAllTroops(Planet target)
         {
-            SetPriorityOrderWithClear();
+            ResetPriorityOrderWithClear();
             if (Owner.Carrier.AnyAssaultOpsAvailable) // This deals also with single Troop Ships / Assault Shuttles
                 AddLandTroopGoal(target);
         }
 
         public void OrderMoveDirectlyTo(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                                        AIState wantedState, float speedLimit = 0f)
+                                        AIState wantedState, float speedLimit = 0f, bool offensiveMove = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, targetPlanet: null, wantedState);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, targetPlanet: null, wantedState, offensiveMove);
         }
 
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                                Planet targetPlanet, AIState wantedState, Goal goal = null)
+                                Planet targetPlanet, AIState wantedState, Goal goal = null, bool offensiveMove = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, targetPlanet, wantedState, goal);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, targetPlanet, wantedState, offensiveMove, goal);
         }
 
         // Adds a WayPoint, optionally clears previous WayPoints
         // Then clears all existing ship orders and generates new move orders from WayPoints
         void AddWayPoint(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                         float speedLimit, Planet targetPlanet, AIState wantedState, Goal goal = null)
+                         float speedLimit, Planet targetPlanet, AIState wantedState, bool offensiveMove, Goal goal = null)
         {
             if (!finalDir.IsUnitVector())
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDir} must be a direction unit vector!");
@@ -170,8 +183,8 @@ namespace Ship_Game.AI
             Target = null;
             if (clearWayPoints)
                 ClearWayPoints();
-
-            ClearOrders(wantedState, priority: (Owner.loyalty == EmpireManager.Player));
+            // FB - if offensive move it true, ships will break and attack targets on the way to the destination
+            ClearOrders(wantedState, priority: !offensiveMove);
 
             WayPoints.Enqueue(new WayPoint(position, finalDir));
             MovePosition = position;
@@ -248,7 +261,7 @@ namespace Ship_Game.AI
 
             var systemList = (
                 from sys in Owner.loyalty.GetOwnedSystems()
-                where !sys.HostileForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
+                where !sys.DangerousForcesPresent(Owner.loyalty) && sys.Position.Distance(Owner.Position) > (sys.Radius*1.5f)
                 orderby Owner.Center.Distance(sys.Position)
                 select sys).ToArray();
 
@@ -306,7 +319,7 @@ namespace Ship_Game.AI
                     State = AIState.AttackTarget;
                     TargetQueue.Add(toAttack);
                     HasPriorityTarget = true;
-                    HasPriorityOrder = false;
+                    SetPriorityOrder(false);
                     return;
                 }
                 OrderInterceptShip(toAttack);
@@ -356,12 +369,12 @@ namespace Ship_Game.AI
         {
             OrderMoveAndRefit(refitPlanet, refitGoal);
             IgnoreCombat = true;
-            SetPriorityOrder(clearOrders: false);
+            ResetPriorityOrder(clearOrders: false);
         }
 
         public void OrderResupply(Planet toOrbit, bool clearOrders)
         {
-            SetPriorityOrder(clearOrders);
+            ResetPriorityOrder(clearOrders);
             HadPO = clearOrders;
             ClearWayPoints();
 
@@ -466,14 +479,17 @@ namespace Ship_Game.AI
             OrderMoveTo(position, direction, true, null, AIState.MoveTo);
         }
 
-        public void OrderToOrbit(Planet toOrbit)
+        public void OrderToOrbit(Planet toOrbit, bool offensiveMove = false)
         {
             ClearWayPoints();
             ClearOrders();
 
-            // fbedard: civilian ship will use projectors
-            if (Owner.shipData.ShipCategory == ShipData.Category.Civilian)
+            // FB - this will give priority order for the movement. if offensiveMove is true,
+            // it means the player ordered this specifically wanting combat ships to engage targets
+            // of opportunity, even dropping our of warp to engage them.
+            if (!offensiveMove || Owner.shipData.ShipCategory == ShipData.Category.Civilian)
                 OrderMoveTo(toOrbit.Center, Vectors.Up, false, toOrbit, AIState.MoveTo);
+
 
             AddOrbitPlanetGoal(toOrbit);
         }
@@ -536,13 +552,15 @@ namespace Ship_Game.AI
 
         void AwaitOrders(float elapsedTime)
         {
-            if (Owner.IsPlatformOrStation) return;
+            if (Owner.IsPlatformOrStation) 
+                return;
 
             if (Owner.shipData.CarrierShip)
                 return;
 
             if (State != AIState.Resupply)
-                HasPriorityOrder = false;
+                SetPriorityOrder(false);
+
             if (AwaitClosest != null)
             {
                 if (SystemToDefend != null || Owner.loyalty.isPlayer)
@@ -569,7 +587,7 @@ namespace Ship_Game.AI
 
         void AwaitOrdersPlayer(float elapsedTime)
         {
-            HasPriorityOrder = false;
+            SetPriorityOrder(false);
             if (Owner.InCombatTimer > elapsedTime * -5 && ScanForThreatTimer < 2 - elapsedTime * 5)
                 ScanForThreatTimer = 0;
             if (EscortTarget != null)

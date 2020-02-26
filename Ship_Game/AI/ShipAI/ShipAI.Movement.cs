@@ -42,6 +42,17 @@ namespace Ship_Game.AI
             CombatState = CombatState.HoldPosition;
         }
 
+        public void HoldPositionOffensive()
+        {
+            ShipGoal goal = OrderQueue.PeekFirst;
+            if (goal != null && Owner.Position.Distance(goal.MovePosition) > 100f)
+            {
+                // previous order is finished and now we want to return to original position
+                OrderMoveTo(goal.MovePosition, goal.Direction, true, null, AIState.HoldPosition);
+                OrderHoldPositionOffensive(goal.MovePosition, goal.Direction);
+            }
+        }
+
         internal bool RotateToDirection(Vector2 wantedForward, float elapsedTime, float minDiff)
         {
             Vector2 currentForward = Owner.Rotation.RadiansToDirection();
@@ -171,24 +182,29 @@ namespace Ship_Game.AI
             // to make the ship perfectly centered
             Vector2 direction = Owner.Direction;
             float distance = Owner.Center.Distance(targetPos);
-            if (distance <= 75f) // final stop, by this point our speed should be sufficiently
+            if (distance <= 75) // final stop, by this point our speed should be sufficiently
             {
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
                     if (Owner.loyalty == EmpireManager.Player)
                         HadPO = true;
-                    HasPriorityOrder = false;
+
+                    SetPriorityOrder(false);
                     DequeueCurrentOrder();
                 }
                 return;
             }
 
-            if (distance > Owner.Radius)
+            if (distance > 75)
             {
                 // prediction to enhance movement precision
                 Vector2 predictedPoint = PredictThrustPosition(targetPos);
                 direction = Owner.Center.DirectionToTarget(predictedPoint);
+            }
+            else
+            {
+                direction = Owner.Center.DirectionToTarget(targetPos);
             }
 
             bool isFacingTarget = !RotateToDirection(direction, elapsedTime, 0.05f);
@@ -266,7 +282,7 @@ namespace Ship_Game.AI
                 Owner.Velocity = Vector2.Zero;
                 return true;
             }
-
+            
             float deceleration = (Owner.VelocityMaximum * elapsedTime);
             if (Owner.CurrentVelocity.LessOrEqual(deceleration)) // we are almost at zero, lets stop.
             {
@@ -459,7 +475,7 @@ namespace Ship_Game.AI
         {
             if (Owner.engineState == Ship.MoveState.Warp)
             {
-                HasPriorityOrder = false;
+                SetPriorityOrder(false);
                 Owner.HyperspaceReturn();
             }
         }
