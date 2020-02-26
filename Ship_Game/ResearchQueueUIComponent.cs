@@ -39,6 +39,7 @@ namespace Ship_Game
             var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
             queuePanel.AddTab(Localizer.Token(1404));
             ResearchQueueList = Add(new ScrollList2<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
+            ResearchQueueList.EnableDragReorderItems = true;
             ReloadResearchQueue();
         }
 

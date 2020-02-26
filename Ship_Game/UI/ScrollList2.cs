@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
 namespace Ship_Game
@@ -197,29 +198,45 @@ namespace Ship_Game
                 return;
 
             Vector2 cursor = input.CursorPosition;
-            int dragged = Entries.FirstIndexOf(e => e.Rect == DraggedEntry.Rect);
+            int draggedEntryIdx = Entries.IndexOf(DraggedEntry);
+            if (draggedEntryIdx == -1)
+                return;
 
-            for (int i = VisibleItemsBegin; i < VisibleItemsEnd; i++)
+            for (int itemIdx = VisibleItemsBegin; itemIdx < VisibleItemsEnd; itemIdx++)
             {
-                if (Entries[i].Rect.HitTest(cursor) && dragged != -1)
+                T item = Entries[itemIdx];
+                if (item.Rect.HitTest(cursor))
                 {
-                    if (i < dragged)
+                    if (itemIdx != draggedEntryIdx)
                     {
-                        T toReplace = Entries[i];
-                        Entries[i] = Entries[dragged];
-                        Entries[dragged] = toReplace;
-                        DraggedEntry = Entries[i]; // this is crucial
-                        break;
-                    }
-                    if (i > dragged)
-                    {
-                        T toRemove = Entries[dragged];
-                        for (int j = dragged + 1; j <= i; j++)
+                        T draggedEntry = Entries[draggedEntryIdx];
+
+                        // destination item is BELOW dragged item:
+                        // [ dragged  ]
+                        // [ dragged+1]
+                        // [ dragged+2]
+                        // [ itemIdx  ]
+                        if (itemIdx > draggedEntryIdx)
                         {
-                            Entries[j - 1] = Entries[j];
+                            // UNSHIFT: move everyone up by one
+                            for (int j = draggedEntryIdx + 1; j <= itemIdx; ++j)
+                                Entries[j-1] = Entries[j];
                         }
-                        Entries[i] = toRemove;
-                        DraggedEntry = Entries[i]; // this is crucial
+                        // destination item is ABOVE dragged item:
+                        // [ itemIdx  ]
+                        // [ dragged-2]
+                        // [ dragged-1]
+                        // [ dragged  ]
+                        else if (itemIdx < draggedEntryIdx)
+                        {
+                            // SHIFT: move everyone down by one
+                            for (int j = draggedEntryIdx - 1; j >= itemIdx; --j)
+                                Entries[j+1] = Entries[j];
+                        }
+
+                        Entries[itemIdx] = draggedEntry;
+                        RequiresLayout = true;
+                        DragDestHighlight = new Selector(item.Rect.Bevel(4, 2));
                         break;
                     }
                 }

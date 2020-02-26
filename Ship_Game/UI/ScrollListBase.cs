@@ -190,6 +190,8 @@ namespace Ship_Game
 
         protected ScrollListItemBase DraggedEntry;
         Vector2 DraggedOffset;
+        protected Selector DragDestHighlight;
+        public bool IsDragging => DraggedEntry != null;
 
         void HandleDraggable(InputState input)
         {
@@ -253,7 +255,7 @@ namespace Ship_Game
                         {
                             createdSelector = true;
                             HighlightedIndex = i;
-                            Highlight = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
+                            Highlight = new Selector(item.Rect.Bevel(4, 2));
                         }
                     }
                 }
@@ -499,6 +501,12 @@ namespace Ship_Game
 
             if (EnableItemHighlight)
                 Highlight?.Draw(batch);
+
+            if (DragDestHighlight != null)
+            {
+                DragDestHighlight.Draw(batch);
+                DragDestHighlight = null;
+            }
 
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
             batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5);
