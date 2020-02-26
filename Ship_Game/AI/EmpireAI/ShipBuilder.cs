@@ -200,8 +200,7 @@ namespace Ship_Game.AI
             return freighter;
         }
 
-        public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense,
-            ShipData.RoleName role, float rotationSpeed)
+        public static float GetModifiedStrength(int shipSize, int numWeaponSlots, float offense, float defense)
         {
             float weaponRatio = (float)numWeaponSlots / shipSize;
             float modifiedStrength;
@@ -211,7 +210,6 @@ namespace Ship_Game.AI
             else
                 modifiedStrength = offense + defense;
 
-            //modifiedStrength += modifiedStrength * rotationSpeed / 100f; // FB - disabled to see if it has effects on remnant removal by AI
             return modifiedStrength;
         }
 
