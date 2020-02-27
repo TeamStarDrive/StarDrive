@@ -104,8 +104,7 @@ namespace Ship_Game
             => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
-        public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
-            => TroopManager.TroopsReadForLaunch(strengthNeeded);
+
         public GameplayObject[] GetNearByShips() => UniverseScreen.SpaceManager.FindNearby(
                                             Center, GravityWellRadius,
                                             GameObjectType.Ship, Owner);

@@ -29,12 +29,6 @@ namespace Ship_Game
         public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
         public float OwnerTroopStrength => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
-        public Troop[] TroopsReadForLaunch(float strengthNeeded)
-        {
-            if (MightBeAWarZone()) return new Troop[0];
-            return TroopList.Filter(t => t.CanMove && t.Loyalty == Ground.Owner && strengthNeeded - t.Strength >=0);
-        }
-
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
 
@@ -56,7 +50,9 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            if (Empire.Universe.Paused) return;
+            if (Empire.Universe.Paused) 
+                return;
+
             DecisionTimer -= elapsedTime;
             InCombatTimer -= elapsedTime;
             if (RecentCombat || TroopsAreOnPlanet)
@@ -79,12 +75,21 @@ namespace Ship_Game
 
             for (int i = 0; i < TilesList.Count; ++i)
             {
-                PlanetGridSquare pgs = TilesList[i];
-                if (pgs.TroopsAreOnTile)
-                    PerformGroundActions(pgs.SingleTroop, pgs);
+                PlanetGridSquare tile = TilesList[i];
+                if (tile.TroopsAreOnTile)
+                    PerformTroopsGroundActions(tile);
 
-                else if (pgs.BuildingPerformsAutoCombat(Ground))
-                    PerformGroundActions(pgs.building, pgs);
+                else if (tile.BuildingPerformsAutoCombat(Ground))
+                    PerformGroundActions(tile.building, tile);
+            }
+        }
+
+        private void PerformTroopsGroundActions(PlanetGridSquare tile)
+        {
+            for (int i = 0; i < tile.TroopsHere.Count; ++i)
+            {
+                Troop troop = tile.TroopsHere[i];
+                PerformGroundActions(troop, tile);
             }
         }
 
@@ -209,6 +214,7 @@ namespace Ship_Game
                 if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
                     return scannedTile;
             }
+
             return null;
         }
 

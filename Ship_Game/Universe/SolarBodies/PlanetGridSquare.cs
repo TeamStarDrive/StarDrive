@@ -40,7 +40,7 @@ namespace Ship_Game
             if (TroopsHere.Count >= MaxAllowedTroops || CombatBuildingOnTile)
                 return false;
 
-            for (int i = 0; i < TroopsHere.Count; i++)
+            for (int i = 0; i < TroopsHere.Count; ++i)
             {
                 Troop t = TroopsHere[i];
                 if (t.Loyalty == empire)
@@ -120,8 +120,17 @@ namespace Ship_Game
 
         public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
         {
-            return (TroopsAreOnTile && SingleTroop.Loyalty != us) || EventOnTile || 
-                   (CombatBuildingOnTile && planetOwner != us);  // also event ID needed
+            if (CombatBuildingOnTile && planetOwner != us || EventOnTile)
+                return true;
+
+            for (int i = 0; i < TroopsHere.Count; ++i)
+            {
+                Troop t = TroopsHere[i];
+                if (t.Loyalty != us)
+                    return true;
+            }
+
+            return false;
         }
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
