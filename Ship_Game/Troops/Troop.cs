@@ -240,10 +240,6 @@ namespace Ship_Game
         public void SetPlanet(Planet newPlanet)
         {
             HostPlanet = newPlanet;
-            if (HostPlanet != null && !HostPlanet.TroopsHere.Contains(this))
-            {
-                HostPlanet.TroopsHere.Add(this);
-            }
         }
 
         public void SetShip(Ship s)
@@ -401,14 +397,14 @@ namespace Ship_Game
 
         bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet)
         {
-            if (tile.IsTileFree)
+            if (tile.IsTileFree(Loyalty))
             {
                 AssignTroopToTile(planet, tile);
                 return true;
             }
 
             PlanetGridSquare[] nearbyFreeTiles = planet.TilesList.Filter(
-                pgs => pgs.IsTileFree && tile.InRangeOf(pgs, 1));
+                pgs => pgs.IsTileFree(Loyalty) && tile.InRangeOf(pgs, 1));
 
             if (nearbyFreeTiles.Length == 0)
                 return AssignTroopToRandomFreeTile(planet); // Fallback to assign troop to any available tile if no close tile available
@@ -420,7 +416,7 @@ namespace Ship_Game
 
         bool AssignTroopToRandomFreeTile(Planet planet, bool resetMove = true)
         {
-            PlanetGridSquare[] freeTiles = planet.TilesList.Filter(t => t.IsTileFree);
+            PlanetGridSquare[] freeTiles = planet.TilesList.Filter(t => t.IsTileFree(Loyalty));
             if (freeTiles.Length == 0)
                 return false;
 
@@ -436,10 +432,8 @@ namespace Ship_Game
 
         void AssignTroopToTile(Planet planet, PlanetGridSquare tile, bool resetMove = true)
         {
-            tile.TroopsHere.Add(this);
-            planet.TroopsHere.Add(this);
+            planet.AddTroop(this, tile);
             RemoveTroopFromHostShip();
-            SetPlanet(planet);
             facingRight = tile.x < planet.TileMaxX / 2;
             if (resetMove)
             {

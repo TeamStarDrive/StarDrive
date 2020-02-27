@@ -693,14 +693,14 @@ namespace Ship_Game
                         else if (pgs.x < ActiveTile.x)
                             ActiveTile.SingleTroop.facingRight = false;
 
-                        pgs.TroopsHere.Add(ActiveTile.SingleTroop);
+                        pgs.AddTroop(ActiveTile.SingleTroop);
                         Troop troop = pgs.SingleTroop;
                         troop.UpdateMoveActions(-1);
                         pgs.SingleTroop.ResetMoveTimer();
                         pgs.SingleTroop.MovingTimer = 0.75f;
                         pgs.SingleTroop.SetFromRect(ActiveTile.TroopClickRect);
                         GameAudio.PlaySfxAsync(pgs.SingleTroop.MovementCue);
-                        ActiveTile.TroopsHere.Clear();
+                        ActiveTile.TroopsHere.Remove(ActiveTile.SingleTroop); 
                         ActiveTile = null;
                         ActiveTile = pgs;
                         pgs.CanMoveTo = false;
