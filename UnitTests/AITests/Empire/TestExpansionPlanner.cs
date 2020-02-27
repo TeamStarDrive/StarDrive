@@ -56,7 +56,7 @@ namespace UnitTests.AITests
             var expansionAI = TestEmpire.GetEmpireAI().ExpansionAI;
             TestEmpire.AutoColonize = true;
             expansionAI.RunExpansionPlanner();
-            Assert.AreEqual(0, expansionAI.ColonizationTargets.Length,
+            Assert.AreEqual(0, expansionAI.GetColonizationTargets(expansionAI.GetColonizationGoalPlanets()).Length,
                 "All targets should have a colony goal");
             Assert.AreEqual(4, expansionAI.DesiredPlanets.Length,
                 "There should be 3 planets that we want");
@@ -64,7 +64,7 @@ namespace UnitTests.AITests
                 "unfiltered colonization targets should be 5");
 
             
-            var markedPlanet = expansionAI.GetColonizationGoals();
+            var markedPlanet = expansionAI.GetColonizationGoalPlanets();
             Assert.AreEqual(3, markedPlanet.Length, "expected 3 colony goals ");
 
             //mock colonization success
