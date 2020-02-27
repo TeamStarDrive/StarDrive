@@ -156,8 +156,8 @@ namespace Ship_Game
                 t.MovingTimer = 0.75f;
                 t.UpdateMoveActions(-1);
                 t.ResetMoveTimer();
-                moveToTile.TroopsHere.Add(t);
-                ourTile.TroopsHere.Clear();
+                moveToTile.AddTroop(t);
+                ourTile.TroopsHere.Remove(t);
             }
         }
         
