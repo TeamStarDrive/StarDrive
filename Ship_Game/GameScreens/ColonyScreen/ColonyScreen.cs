@@ -155,10 +155,9 @@ namespace Ship_Game
 
             BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
             BuildableList.EnableItemHighlight = true;
-            BuildableList.EnableDragEvents    = true;
             BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
             BuildableList.OnHovered           = OnBuildableHoverChange;
-            BuildableList.OnDrag              = OnBuildableListDrag;
+            BuildableList.OnDragOut           = OnBuildableListDrag;
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
                                                        ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
@@ -173,8 +172,7 @@ namespace Ship_Game
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
-            ConstructionQueue.EnableDragEvents = true;
-            ConstructionQueue.EnableDragReorderItems = true;
+            ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
 
             PlanetIcon = new Rectangle((int)PlanetInfo.Right - 148, (int)PlanetInfo.Y + ((int)PlanetInfo.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);
@@ -298,30 +296,6 @@ namespace Ship_Game
                 P.ScrapBuilding(ToScrap);
 
             Update(0f);
-        }
-
-        void OnBuildableHoverChange(BuildableListItem item)
-        {
-            ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item?.Y ?? 0f), item?.Ship);
-        }
-
-        void OnBuildableListDrag(BuildableListItem item, DragEvent evt, bool outside)
-        {
-            if (evt != DragEvent.End)
-                return;
-
-            if (outside)
-            {
-                Building b = item.Building;
-                if (b != null)
-                {
-                    PlanetGridSquare tile = P.FindTileUnderMouse(Input.CursorPosition);
-                    if (tile != null && Build(b, tile))
-                        return;
-                }
-            }
-
-            GameAudio.NegativeClick();
         }
     }
 }

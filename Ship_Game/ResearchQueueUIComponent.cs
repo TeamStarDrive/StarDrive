@@ -39,7 +39,15 @@ namespace Ship_Game
             var queuePanel = new Submenu(queue, SubmenuStyle.Blue);
             queuePanel.AddTab(Localizer.Token(1404));
             ResearchQueueList = Add(new ScrollList2<ResearchQItem>(queuePanel, 125, ListStyle.Blue));
+            ResearchQueueList.OnDragReorder = OnResearchItemReorder;
             ReloadResearchQueue();
+        }
+
+        void OnResearchItemReorder(ResearchQItem item, int oldIndex, int newIndex)
+        {
+            // we use +1 here, because [0] is the current research item
+            // which is not in the ScrollList
+            EmpireManager.Player.Research.ReorderTech(oldIndex+1, newIndex+1);
         }
 
         void OnBtnShowQueuePressed(UIButton button)
@@ -66,8 +74,14 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
-            if ((ResearchQueueList.Visible && input.RightMouseClick && ResearchQueueList.HitTest(input.CursorPosition))
-                || input.Escaped)
+            if (input.Escaped)
+            {
+                Screen.ExitScreen();
+                return true;
+            }
+
+            if (ResearchQueueList.Visible && input.RightMouseClick &&
+                ResearchQueueList.HitTest(input.CursorPosition))
             {
                 Screen.ExitScreen();
                 return true;
@@ -118,11 +132,10 @@ namespace Ship_Game
                             ? CreateQueueItem((TreeNode)Screen.AllTechNodes[EmpireManager.Player.Research.Topic])
                             : null;
 
-            Array<string> techIds = EmpireManager.Player.Research.Queue;
             var items = new Array<ResearchQItem>();
-            for (int i = 1; i < techIds.Count; ++i)
+            foreach (string tech in EmpireManager.Player.Research.QueuedItems)
             {
-                items.Add(CreateQueueItem((TreeNode)Screen.AllTechNodes[techIds[i]]));
+                items.Add(CreateQueueItem( (TreeNode)Screen.AllTechNodes[tech] ));
             }
             ResearchQueueList.SetItems(items);
 
