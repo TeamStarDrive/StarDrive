@@ -3,11 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 
 namespace Ship_Game
 {
+
+    // EVENT: Called when an item drag starts or item drag ends
+    // @param T item that was dragged
+    // @param DragEvent evt Description of the event
+    // @param bool outside If TRUE, mouse cursor is outside of ScrollList Rect
+    public delegate void ScrollListDragOutEvt<T>(T item, DragEvent type, bool outside) where T : ScrollListItem<T>;
+
+    // EVENT: Called when EnableDragReorderItems and an item changes its index
+    // @param T item that was dragged
+    // @param int oldIndex The old index that the dragged item had
+    // @param int newIndex The new index of the dragged item
+    public delegate void ScrollListDragReorderEvt<T>(T item, int oldIndex, int newIndex) where T : ScrollListItem<T>;
+
 
     [DebuggerTypeProxy(typeof(ScrollListDebugView<>))]
     [DebuggerDisplay("{TypeName}  Entries = {Entries.Count}  Expanded = {FlatEntries.Count}")]
@@ -15,21 +27,64 @@ namespace Ship_Game
     {
         readonly Array<T> Entries = new Array<T>();
 
+        Action<T> EvtHovered;
+        Action<T> EvtClick;
+        Action<T> EvtDoubleClick;
+        ScrollListDragOutEvt<T> EvtDragOut;
+        ScrollListDragReorderEvt<T> EvtDragReorder;
+
         // EVENT: Called when a new item is focused with mouse
         //        @note This is called again with <null> when mouse leaves focus
-        public Action<T> OnHovered;
+        public Action<T> OnHovered
+        {
+            set
+            {
+                EvtHovered = value;
+                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+            }
+        }
 
         // EVENT: Called when an item is clicked on
-        public Action<T> OnClick;
+        public Action<T> OnClick
+        {
+            set
+            {
+                EvtClick = value;
+                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+            }
+        }
 
         // EVENT: Called when an item is double-clicked
-        public Action<T> OnDoubleClick;
+        public Action<T> OnDoubleClick
+        {
+            set
+            {
+                EvtDoubleClick = value;
+                EnableItemEvents = EvtHovered != null || EvtClick != null || EvtDoubleClick != null;
+            }
+        }
 
         // EVENT: Called when an item drag starts or item drag ends
-        // @param T item that was dragged
-        // @param DragEvent evt Description of the event
-        // @param bool outside If TRUE, mouse cursor is outside of ScrollList Rect
-        public Action<T, DragEvent, bool> OnDrag;
+        // @see ScrollListDragOutEvt<T> for more documentation
+        public ScrollListDragOutEvt<T> OnDragOut
+        {
+            set
+            {
+                EvtDragOut = value;
+                EnableDragOutEvents = EvtDragOut != null;
+            }
+        }
+
+        // EVENT: Called when EnableDragReorderItems and an item changes its index
+        // @see ScrollListDragReorderEvt<T> for more documentation
+        public ScrollListDragReorderEvt<T> OnDragReorder
+        {
+            set
+            {
+                EvtDragReorder = value;
+                EnableDragReorderEvents = EvtDragReorder != null;
+            }
+        }
 
         static Rectangle GetOurRectFromBackground(UIElementV2 background)
         {
@@ -71,22 +126,36 @@ namespace Ship_Game
         public override void OnItemHovered(ScrollListItemBase item)
         {
             GameAudio.ButtonMouseOver();
-            OnHovered?.Invoke((T)item);
+            EvtHovered?.Invoke((T)item);
         }
 
         public override void OnItemClicked(ScrollListItemBase item)
         {
-            OnClick?.Invoke((T)item);
+            EvtClick?.Invoke((T)item);
         }
 
         public override void OnItemDoubleClicked(ScrollListItemBase item)
         {
-            OnDoubleClick?.Invoke((T)item);
+            EvtDoubleClick?.Invoke((T)item);
         }
 
         public override void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside)
         {
-            OnDrag?.Invoke((T)item, evt, outside);
+            EvtDragOut?.Invoke((T)item, evt, outside);
+        }
+
+        public override void OnItemDragReordered(ScrollListItemBase dragged, ScrollListItemBase destination)
+        {
+            int oldIndex = Entries.IndexOf(dragged);
+            int newIndex = Entries.IndexOf(destination);
+            if (oldIndex == -1 || newIndex == -1)
+            {
+                Log.Error($"ItemDragReorder failed oldIndex:{oldIndex} newIndex:{newIndex}, child-item moving is not implemented");
+                return;
+            }
+
+            Entries.Reorder(oldIndex, newIndex);
+            EvtDragReorder?.Invoke((T)dragged, oldIndex, newIndex);
         }
 
         // Number of non-flattened entries
@@ -190,57 +259,6 @@ namespace Ship_Game
             FlatEntries.Clear();
             for (int i = 0; i < Entries.Count; ++i)
                 Entries[i].GetFlattenedVisibleExpandedEntries(FlatEntries);
-        }
-
-        protected override void HandleElementDragging(InputState input)
-        {
-            if (!EnableDragReorderItems || DraggedEntry == null || !input.LeftMouseDown)
-                return;
-
-            Vector2 cursor = input.CursorPosition;
-            int draggedEntryIdx = Entries.IndexOf(DraggedEntry);
-            if (draggedEntryIdx == -1)
-                return;
-
-            for (int itemIdx = VisibleItemsBegin; itemIdx < VisibleItemsEnd; itemIdx++)
-            {
-                T item = Entries[itemIdx];
-                if (item.Rect.HitTest(cursor))
-                {
-                    if (itemIdx != draggedEntryIdx)
-                    {
-                        T draggedEntry = Entries[draggedEntryIdx];
-
-                        // destination item is BELOW dragged item:
-                        // [ dragged  ]
-                        // [ dragged+1]
-                        // [ dragged+2]
-                        // [ itemIdx  ]
-                        if (itemIdx > draggedEntryIdx)
-                        {
-                            // UNSHIFT: move everyone up by one
-                            for (int j = draggedEntryIdx + 1; j <= itemIdx; ++j)
-                                Entries[j-1] = Entries[j];
-                        }
-                        // destination item is ABOVE dragged item:
-                        // [ itemIdx  ]
-                        // [ dragged-2]
-                        // [ dragged-1]
-                        // [ dragged  ]
-                        else if (itemIdx < draggedEntryIdx)
-                        {
-                            // SHIFT: move everyone down by one
-                            for (int j = draggedEntryIdx - 1; j >= itemIdx; --j)
-                                Entries[j+1] = Entries[j];
-                        }
-
-                        Entries[itemIdx] = draggedEntry;
-                        RequiresLayout = true;
-                        DragDestHighlight = new Selector(item.Rect.Bevel(4, 2));
-                        break;
-                    }
-                }
-            }
         }
     }
 
