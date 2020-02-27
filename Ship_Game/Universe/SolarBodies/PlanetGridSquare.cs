@@ -27,13 +27,9 @@ namespace Ship_Game
         public bool BuildingOnTile       => building != null;
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
-        public bool AllTroopsDead        => TroopsStrength <= 0;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        public bool AllDestroyed         => BuildingDestroyed && AllTroopsDead;
         public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
-        public bool FreeForMovement      => !TroopsAreOnTile && !CombatBuildingOnTile;
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
-
 
         public bool IsTileFree(Empire empire)
         {
@@ -50,10 +46,21 @@ namespace Ship_Game
             return true;
         } 
 
-        // FB - all these are starting multiple troops per PGS support
-        public float TroopsStrength => TroopsHere.Sum(troop => troop.Strength);
-        public int TroopsHardAttack => TroopsHere.Sum(troop => troop.ActualHardAttack);
-        public int TroopsSoftAttack => TroopsHere.Sum(troop => troop.ActualSoftAttack);
+        public bool LockOnTroopTarget(Empire us, out Troop troop)
+        {
+            troop = null;
+            for (int i = 0; i < TroopsHere.Count; ++i)
+            {
+                Troop t = TroopsHere[i];
+                if (t.Loyalty != us)
+                {
+                    troop = t;
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         public PlanetGridSquare()
         {
