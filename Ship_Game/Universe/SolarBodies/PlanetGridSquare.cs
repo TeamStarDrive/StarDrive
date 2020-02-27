@@ -46,6 +46,7 @@ namespace Ship_Game
             return true;
         } 
 
+        // Get a troop that is not ours
         public bool LockOnTroopTarget(Empire us, out Troop troop)
         {
             troop = null;
@@ -53,6 +54,23 @@ namespace Ship_Game
             {
                 Troop t = TroopsHere[i];
                 if (t.Loyalty != us)
+                {
+                    troop = t;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Get a troop that is ours
+        public bool LockOnOurTroop(Empire us, out Troop troop)
+        {
+            troop = null;
+            for (int i = 0; i < TroopsHere.Count; ++i)
+            {
+                Troop t = TroopsHere[i];
+                if (t.Loyalty == us)
                 {
                     troop = t;
                     return true;
