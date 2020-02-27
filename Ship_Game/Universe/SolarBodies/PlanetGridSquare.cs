@@ -11,7 +11,7 @@ namespace Ship_Game
         public bool CanAttack;
         public bool CanMoveTo;
         public bool ShowAttackHover;
-        public int MaxAllowedTroops = 1; //FB - multiple troops per PGS is not supported yet
+        public int MaxAllowedTroops = 2; //FB - multiple troops per PGS is not supported yet
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public bool Biosphere;
         public Building building;
@@ -33,7 +33,22 @@ namespace Ship_Game
         public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
         public bool FreeForMovement      => !TroopsAreOnTile && !CombatBuildingOnTile;
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
-        public bool IsTileFree           => TroopsHere.Count < MaxAllowedTroops && !CombatBuildingOnTile;
+
+
+        public bool IsTileFree(Empire empire)
+        {
+            if (TroopsHere.Count >= MaxAllowedTroops || CombatBuildingOnTile)
+                return false;
+
+            for (int i = 0; i < TroopsHere.Count; i++)
+            {
+                Troop t = TroopsHere[i];
+                if (t.Loyalty == empire)
+                    return false;
+            }
+
+            return true;
+        } 
 
         // FB - all these are starting multiple troops per PGS support
         public float TroopsStrength => TroopsHere.Sum(troop => troop.Strength);
@@ -50,6 +65,11 @@ namespace Ship_Game
             this.y = y;
             Habitable = hab;
             building = b;
+        }
+
+        public void AddTroop(Troop troop)
+        {
+            TroopsHere.Add(troop);
         }
 
         public bool CanBuildHere(Building b)

@@ -138,9 +138,7 @@ namespace Ship_Game
                     var fix = ResourceManager.GetTroopTemplate(t.Name);
                     t.first_frame = fix.first_frame;
                     t.WhichFrame = fix.first_frame;
-                    pgs.TroopsHere.Add(t);
-                    p.TroopsHere.Add(t);
-                    t.SetPlanet(p);
+                    p.AddTroop(t, pgs);
                 }
 
                 if (pgs.building == null)
