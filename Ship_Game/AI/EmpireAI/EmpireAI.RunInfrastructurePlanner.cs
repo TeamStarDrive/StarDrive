@@ -170,12 +170,9 @@ namespace Ship_Game.AI
                             {
                                 if (qi.Goal == g)
                                 {
-                                    p.ProdHere += qi.ProductionSpent;
-                                    p.ConstructionQueue.QueuePendingRemoval(qi);
+                                    qi.IsCancelled = true; // cancel on next SBProduction update
                                 }
                             }
-
-                            p.ConstructionQueue.ApplyPendingRemovals();
                         }
 
                         using (OwnerEmpire.GetShips().AcquireReadLock())
