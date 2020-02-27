@@ -195,7 +195,6 @@ namespace Ship_Game
 
         protected ScrollListItemBase DraggedEntry;
         Vector2 DraggedOffset;
-        protected Selector DragDestHighlight;
         public bool IsDragging => DraggedEntry != null;
 
         void HandleDraggable(InputState input)
@@ -246,14 +245,16 @@ namespace Ship_Game
             for (int newIndex = VisibleItemsBegin; newIndex < VisibleItemsEnd; newIndex++)
             {
                 ScrollListItemBase newItem = FlatEntries[newIndex];
-                if (newItem.Rect.HitTest(cursor) && newIndex != oldIndex)
+                if (newItem != DraggedEntry && newIndex != oldIndex &&
+                    newItem.Rect.HitTest(cursor))
                 {
-                    DragDestHighlight = new Selector(newItem.Rect.Bevel(4, 2));
-
                     // reorder flat entries for this frame
                     FlatEntries.Reorder(oldIndex, newIndex);
+
                     // but queue recalculation just in case
                     RequiresLayout = true;
+                    DraggedEntry.RequiresLayout = true;
+                    newItem.RequiresLayout = true;
 
                     OnItemDragReordered(DraggedEntry, newItem);
                     break;
@@ -309,6 +310,21 @@ namespace Ship_Game
                 HighlightedIndex = -1;
                 Highlight = null;
                 OnItemHovered(null); // no longer hovering on anything
+            }
+
+            if (DraggedEntry != null)
+            {
+                // item is allowed to be dragged outside of the ScrollList?
+                if (EnableDragOutEvents)
+                {
+                    DraggedEntry.Pos = input.CursorPosition + DraggedOffset;
+                }
+                else // item must stay inside the ScrollList
+                {
+                    DraggedEntry.Y = (input.CursorPosition + DraggedOffset).Y;
+                }
+
+                DraggedEntry.RequiresLayout = true;
             }
 
             return captured;
@@ -533,12 +549,6 @@ namespace Ship_Game
             if (EnableItemHighlight)
                 Highlight?.Draw(batch);
 
-            if (DragDestHighlight != null)
-            {
-                DragDestHighlight.Draw(batch);
-                DragDestHighlight = null;
-            }
-
             batch.GraphicsDevice.RenderState.ScissorTestEnable = true;
             batch.GraphicsDevice.ScissorRectangle = new Rectangle(ItemsHousing.X - 10, ItemsHousing.Y - 5, ItemsHousing.Width + 20, ItemsHousing.Height + 5);
             batch.End();
@@ -548,15 +558,6 @@ namespace Ship_Game
             // Draw the currently dragged entry
             if (DraggedEntry != null)
             {
-                // item is allowed to be dragged outside of the ScrollList?
-                if (EnableDragOutEvents)
-                {
-                    DraggedEntry.Pos = GameBase.ScreenManager.input.CursorPosition + DraggedOffset;
-                }
-                else // item must stay inside the ScrollList
-                {
-                    DraggedEntry.Y = (GameBase.ScreenManager.input.CursorPosition + DraggedOffset).Y;
-                }
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
                 DraggedEntry.Draw(batch);
             }

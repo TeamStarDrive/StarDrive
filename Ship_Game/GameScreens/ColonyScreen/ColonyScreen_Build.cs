@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -79,7 +78,6 @@ namespace Ship_Game
             {
                 if (!ConstructionQueue.AllEntries.Select(item => item.Item).EqualElements(P.ConstructionQueue))
                 {
-                    Log.Info(ConsoleColor.Blue, "CQueue.Reset");
                     var newItems = P.ConstructionQueue.Select(qi => new ConstructionQueueScrollListItem(qi));
                     ConstructionQueue.SetItems(newItems);
                 }
