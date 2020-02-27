@@ -602,7 +602,7 @@ namespace Ship_Game
                         {
                             ActiveTile.building.UpdateAttackActions(-1);
                             ActiveTile.building.ResetAttackTimer();
-                            StartCombat(ActiveTile, pgs);
+                            //StartCombat(ActiveTile, pgs, p.Owner); // the building is the attacker
                         }
 
                         pgs.ShowAttackHover = true;
@@ -623,7 +623,7 @@ namespace Ship_Game
                             Troop availableMoveActions = ActiveTile.SingleTroop;
                             availableMoveActions.UpdateMoveActions(-1);
                             ActiveTile.SingleTroop.ResetMoveTimer();
-                            StartCombat(ActiveTile, pgs);
+                            //StartCombat(ActiveTile, pgs, ActiveTile.SingleTroop.Loyalty);
                         }
 
                         pgs.ShowAttackHover = true;
@@ -712,34 +712,24 @@ namespace Ship_Game
             return capturedInput;
         }
 
-        public void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender)
+        public static void StartCombat(Troop attacker, Troop defender, PlanetGridSquare defenseTile, Planet planet)
         {
-            Combat c = new Combat { AttackTile = attacker };
-
-            if (attacker.TroopsHere.Count <= 0)
-            {
-                GameAudio.PlaySfxAsync("sd_weapon_bigcannon_01");
-                GameAudio.PlaySfxAsync("uzi_loop");
-            }
-            else
-            {
-                attacker.SingleTroop.DoAttack();
-                GameAudio.PlaySfxAsync(attacker.SingleTroop.sound_attack);
-            }
-
-            c.DefenseTile = defender;
-            p.ActiveCombats.Add(c);
+            Combat c = new Combat(attacker, defender, defenseTile, planet);
+            attacker.DoAttack();
+            planet.ActiveCombats.Add(c);
         }
 
-        public static void StartCombat(PlanetGridSquare attacker, PlanetGridSquare defender, Planet p)
+        public static void StartCombat(Troop attacker, Building defender, PlanetGridSquare defenseTile, Planet planet)
         {
-            Combat c = new Combat { AttackTile = attacker };
+            Combat c = new Combat(attacker, defender, defenseTile, planet);
+            attacker.DoAttack();
+            planet.ActiveCombats.Add(c);
+        }
 
-            if (attacker.TroopsAreOnTile)
-                attacker.SingleTroop.DoAttack();
-
-            c.DefenseTile = defender;
-            p.ActiveCombats.Add(c);
+        public static void StartCombat(Building attacker, Troop defender, PlanetGridSquare defenseTile, Planet planet)
+        {
+            Combat c = new Combat(attacker, defender, defenseTile, planet);
+            planet.ActiveCombats.Add(c);
         }
 
         public override void Update(float elapsedTime)
