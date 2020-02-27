@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Ship_Game
 {
@@ -6,9 +7,19 @@ namespace Ship_Game
     {
         readonly Empire Empire;
 
-        // This is our research queue
         // The FIRST item (0) is always the Current research topic
-        public Array<string> Queue => Empire.data.ResearchQueue;
+        Array<string> Queue => Empire.data.ResearchQueue;
+
+        // Enumerates items in the back of the queue
+        // This does not include the Current research topic
+        public IEnumerable<string> QueuedItems
+        {
+            get
+            {
+                for (int i = 1; i < Queue.Count; ++i)
+                    yield return Queue[i];
+            }
+        }
 
         // NET research this turn
         public float NetResearch { get; private set; }
@@ -118,5 +129,12 @@ namespace Ship_Game
         public void RemoveFromQueue(string techUID) => Queue.Remove(techUID);
         public int IndexInQueue(string techUID) => Queue.IndexOf(techUID);
         public bool IsQueued(string tech) => Queue.Contains(tech);
+
+        // reorders tech in the queue
+        // [0] is the currently researched tech
+        public void ReorderTech(int oldIndex, int newIndex)
+        {
+            Queue.Reorder(oldIndex, newIndex);
+        }
     }
 }
