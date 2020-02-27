@@ -294,7 +294,7 @@ namespace Ship_Game
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Center - commandShip.FleetOffset;
+            if (commandShip != null) return commandShip.Center + commandShip.FleetOffset;
 
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
@@ -400,12 +400,11 @@ namespace Ship_Game
         public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false)
         {
             GoalStack.Clear();
-            AssembleFleet(finalPosition, finalDirection, forceAssembly:true);
+            AssembleFleet(finalPosition, finalDirection, forceAssembly: offensiveMove);
 
             for (int i = 0; i < Ships.Count; ++i)
             {
                 Ship ship = Ships[i];
-                ship.AI.ResetPriorityOrder(!queueOrder);
                 if (queueOrder)
                     ship.AI.OrderFormationWarpQ(FinalPosition + ship.FleetOffset, finalDirection, offensiveMove);
                 else
@@ -482,12 +481,12 @@ namespace Ship_Game
                 Ship ship = Ships[i];
                 if (ship.engineState == Ship.MoveState.Sublight && !ship.IsSpooling)
                 {
-                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, 75))
+                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, radius))
                     {
                         if (ship.CanTakeFleetOrders)
                             moveStatus = MoveStatus.Dispersed;
 
-                        if (ship.AI.BadGuysNear)
+                        if (ship.AI.BadGuysNear && ship.AI.Target?.BaseStrength > 0)
                         {
                             moveStatus = MoveStatus.InCombat;
                             break;
