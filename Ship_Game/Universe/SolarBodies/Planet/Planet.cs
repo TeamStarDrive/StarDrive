@@ -577,7 +577,6 @@ namespace Ship_Game
         {
             ++TurnsSinceTurnover;
             CrippledTurns = Math.Max(0, CrippledTurns - 1);
-            ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();

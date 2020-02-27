@@ -442,6 +442,45 @@ namespace Ship_Game
             return true;
         }
 
+        /// <summary>
+        /// Reorders an item from oldIndex to newIndex
+        /// The elements are shifted up and down as necessary
+        /// This is equivalent to RemoveAt(oldIndex) + InsertAt(newIndex),
+        /// however it's significantly faster since shift reinsertion is done in one pass
+        /// </summary>
+        /// <param name="oldIndex">Old index of the element</param>
+        /// <param name="newIndex">New index of the element</param>
+        public void Reorder(int oldIndex, int newIndex)
+        {
+            if ((uint)oldIndex >= (uint)Count) ThrowIndexOutOfBounds(oldIndex);
+            if ((uint)newIndex >= (uint)Count) ThrowIndexOutOfBounds(newIndex);
+            
+            T itemToMove = Items[oldIndex];
+
+            // destination item is BELOW dragged item:
+            // [ oldIndex  ]
+            // [ oldIndex+1]
+            // [ newIndex  ]
+            if (newIndex > oldIndex)
+            {
+                // UNSHIFT: move everyone up by one
+                for (int j = oldIndex + 1; j <= newIndex; ++j)
+                    Items[j-1] = Items[j];
+            }
+            // destination item is ABOVE dragged item:
+            // [ newIndex  ]
+            // [ oldIndex-1]
+            // [ oldIndex  ]
+            else if (newIndex < oldIndex)
+            {
+                // SHIFT: move everyone down by one
+                for (int j = oldIndex - 1; j >= newIndex; --j)
+                    Items[j+1] = Items[j];
+            }
+            
+            Items[newIndex] = itemToMove;
+        }
+
         // A quite memory efficient filtering function to replace Where clauses
         public T[] Filter(Predicate<T> predicate) => Items.Filter(Count, predicate);
 
