@@ -9,6 +9,9 @@ namespace UnitTests.Collections
     [TestClass]
     public class TestArrayT : StarDriveTest
     {
+        // common array generation utils
+        Array<string> MakeABCDE() => new Array<string>{ "a","b","c","d","e"};
+
         [TestMethod]
         public void Add()
         {
@@ -100,7 +103,7 @@ namespace UnitTests.Collections
         [TestMethod]
         public void RemoveAt()
         {
-            var arr = new Array<string> { "a", "b", "c", "d", "e" };
+            var arr = MakeABCDE();
             arr.RemoveAt(2);
             Assert.That.Equal(new[] { "a", "b", "d", "e" }, arr);
             arr.RemoveAt(0);
@@ -118,7 +121,7 @@ namespace UnitTests.Collections
         {
             // SwapLast is unstable, so the elements will be swapped around instead
             // of doing an expensive array unshift
-            var arr = new Array<string> { "a", "b", "c", "d", "e" };
+            var arr = MakeABCDE();
             arr.RemoveAtSwapLast(2);
             Assert.That.Equal(new[] { "a", "b", "e", "d" }, arr);
             arr.RemoveAtSwapLast(0);
@@ -243,9 +246,9 @@ namespace UnitTests.Collections
         public void ForEach()
         {
             string sum = "";
-            var arr = new Array<string> { "a", "b", "c", "d" };
+            var arr = MakeABCDE();
             arr.ForEach(s => sum += s);
-            Assert.AreEqual("abcd", sum);
+            Assert.AreEqual("abcde", sum);
         }
 
         [TestMethod]
@@ -425,6 +428,55 @@ namespace UnitTests.Collections
             Assert.IsTrue(arr.IsEmpty);
 
             Assert.IsFalse(arr.TryPopLast(out string _));
+        }
+
+        [TestMethod]
+        public void ReorderFrontToBack()
+        {
+            var arr = MakeABCDE();
+            arr.Reorder(oldIndex:0, newIndex:arr.Count-1);
+            Assert.That.Equal(new[] { "b","c","d","e",  "a" }, arr, "Reorder [0] to Last");
+
+            arr = MakeABCDE();
+            arr.Reorder(oldIndex:arr.Count-1, newIndex:0);
+            Assert.That.Equal(new[] { "e",  "a","b","c","d" }, arr, "Reorder Last to [0]");
+        }
+
+        [TestMethod]
+        public void ReorderSecondToLast()
+        {
+            var arr = MakeABCDE();
+            arr.Reorder(oldIndex:1, newIndex:arr.Count-1);
+            Assert.That.Equal(new[] { "a", "c","d","e",  "b" }, arr, "Reorder [1] to [Last]");
+
+            arr = MakeABCDE();
+            arr.Reorder(oldIndex:arr.Count-2, newIndex:0);
+            Assert.That.Equal(new[] { "d",  "a","b","c", "e" }, arr, "Reorder [Last-1] to [0]");
+        }
+
+        [TestMethod]
+        public void ReorderByOne()
+        {
+            var arr = MakeABCDE();
+            arr.Reorder(oldIndex:1, newIndex:2);
+            Assert.That.Equal(new[] { "a",  "c","b",  "d","e" }, arr, "Reorder [1] to [2]");
+
+            arr = MakeABCDE();
+            arr.Reorder(oldIndex:2, newIndex:1);
+            Assert.That.Equal(new[] { "a",  "c","b",  "d","e" }, arr, "Reorder [2] to [1]");
+        }
+
+        [TestMethod]
+        public void ReorderNothing()
+        {
+            var arr = MakeABCDE();
+            arr.Reorder(oldIndex:1, newIndex:1);
+            Assert.That.Equal(new[] { "a","b","c","d","e" }, arr, "Reorder [1] to [1]");
+
+            // and catch index errors
+            Assert.ThrowsException<IndexOutOfRangeException>(() => arr.Reorder(-1, 0));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => arr.Reorder(0, arr.Count));
+            Assert.ThrowsException<IndexOutOfRangeException>(() => arr.Reorder(-1, arr.Count));
         }
 
         [TestMethod]

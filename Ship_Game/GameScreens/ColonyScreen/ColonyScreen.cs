@@ -155,10 +155,9 @@ namespace Ship_Game
 
             BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
             BuildableList.EnableItemHighlight = true;
-            BuildableList.EnableDragEvents    = true;
             BuildableList.OnDoubleClick       = OnBuildableItemDoubleClicked;
             BuildableList.OnHovered           = OnBuildableHoverChange;
-            BuildableList.OnDrag              = OnBuildableListDrag;
+            BuildableList.OnDragOut           = OnBuildableListDrag;
 
             PlayerDesignsToggle = Add(new ToggleButton(new Vector2(BuildableTabs.Right - 270, BuildableTabs.Y),
                                                        ToggleButtonStyle.Grid, "SelectionBox/icon_grid"));
@@ -173,8 +172,7 @@ namespace Ship_Game
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
             ConstructionQueue.EnableItemHighlight = true;
-            ConstructionQueue.EnableDragEvents = true;
-            ConstructionQueue.EnableDragReorderItems = true;
+            ConstructionQueue.OnDragReorder = OnConstructionItemReorder;
 
             PlanetIcon = new Rectangle((int)PlanetInfo.Right - 148, (int)PlanetInfo.Y + ((int)PlanetInfo.Height - 25) / 2 - 64 + 25, 128, 128);
             GridPos = new Rectangle(subColonyGrid.Rect.X + 10, subColonyGrid.Rect.Y + 30, subColonyGrid.Rect.Width - 20, subColonyGrid.Rect.Height - 35);

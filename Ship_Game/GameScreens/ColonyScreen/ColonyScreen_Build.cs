@@ -18,7 +18,7 @@ namespace Ship_Game
         void OnBuildableTabChanged(int tabIndex)
         {
             PlayerDesignsToggle.Visible    = BuildableTabs.IsSelected(ShipsTabText);
-            BuildableList.EnableDragEvents = BuildableTabs.IsSelected(BuildingsTabText);
+            BuildableList.EnableDragOutEvents = BuildableTabs.IsSelected(BuildingsTabText);
             ResetBuildableList = true;
         }
 
@@ -180,6 +180,11 @@ namespace Ship_Game
             }
 
             GameAudio.NegativeClick();
+        }
+
+        void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int oldIndex, int newIndex)
+        {
+            P.ConstructionQueue.Reorder(oldIndex, newIndex);
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)
