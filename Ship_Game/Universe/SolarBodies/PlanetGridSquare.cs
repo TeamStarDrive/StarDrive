@@ -4,21 +4,23 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-    public sealed class PlanetGridSquare // Refactored by Fat Bastard, Feb 6, 2019
+    // Refactored by Fat Bastard, Feb 6, 2019
+    // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
+    public sealed class PlanetGridSquare 
     {
         public int x;
         public int y;
-        public bool CanAttack;
-        public bool CanMoveTo;
+        //public bool CanAttack;
+        //public bool CanMoveTo;
         public bool ShowAttackHover;
-        public int MaxAllowedTroops = 2; //FB - multiple troops per PGS is not supported yet
+        public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public bool Biosphere;
         public Building building;
-        public bool Habitable; // FB - this also affects max population (because of pop per habitalbe tile)
+        public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
-        public Rectangle ClickRect      = new Rectangle();
-        public Rectangle TroopClickRect = new Rectangle();
+        public Rectangle ClickRect       = new Rectangle();
+        //public Rectangle Troop1ClickRect = new Rectangle();
         public bool Highlighted;
 
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
@@ -28,7 +30,7 @@ namespace Ship_Game
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
+        //public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
 
         public bool IsTileFree(Empire empire)
@@ -47,7 +49,7 @@ namespace Ship_Game
         } 
 
         // Get a troop that is not ours
-        public bool LockOnTroopTarget(Empire us, out Troop troop)
+        public bool LockOnEnemyTroop(Empire us, out Troop troop)
         {
             troop = null;
             for (int i = 0; i < TroopsHere.Count; ++i)
@@ -78,6 +80,11 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        public bool EnemyTroopsHere(Empire us)
+        {
+            return LockOnEnemyTroop(us, out _);
         }
 
         public PlanetGridSquare()
@@ -171,7 +178,7 @@ namespace Ship_Game
 
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
         {
-            if (EventOnTile && TroopsAreOnTile && !SingleTroop.Loyalty.isFaction)
+            if (EventOnTile && LockOnOurTroop(empire, out _))
                 ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
         }
 

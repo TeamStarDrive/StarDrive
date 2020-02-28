@@ -108,7 +108,7 @@ namespace Ship_Game
                 return;
 
             // lock on enemy troop target
-            if (nearestTargetTile.LockOnTroopTarget(Owner, out Troop enemy))
+            if (nearestTargetTile.LockOnEnemyTroop(Owner, out Troop enemy))
             {
                 // start combat
                 b.UpdateAttackActions(-1);
@@ -135,7 +135,7 @@ namespace Ship_Game
                 t.facingRight = nearestTargetTile.x >= ourTile.x; // TODO Also need to check the troop rect if the combat is on the same tile
                 if (nearestTargetTile.BuildingOnTile)
                     CombatScreen.StartCombat(t, nearestTargetTile.building, nearestTargetTile, Ground);
-                else if (nearestTargetTile.LockOnTroopTarget(Owner, out Troop enemy))
+                else if (nearestTargetTile.LockOnEnemyTroop(Owner, out Troop enemy))
                     CombatScreen.StartCombat(t, enemy, nearestTargetTile, Ground);
             }
             else // move to targets
@@ -164,7 +164,7 @@ namespace Ship_Game
             // move to selected direction
             using(ourTile.TroopsHere.AcquireWriteLock())
             {
-                t.SetFromRect(ourTile.TroopClickRect);
+                t.SetFromRect(t.ClickRect);
                 t.MovingTimer = 0.75f;
                 t.UpdateMoveActions(-1);
                 t.ResetMoveTimer();

@@ -64,10 +64,7 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime) // refactored by  Fat Bastard Aug 6, 2018
         {
-            if (pgs == null)
-                return;
-
-            if (pgs.TroopsHere.Count == 0 && pgs.building == null)
+            if (pgs == null || pgs.NothingOnTile)
                 return;
 
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
@@ -76,7 +73,7 @@ namespace Ship_Game
             float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 mousePos = new Vector2(x, state.Y);
-            string slantText = pgs.TroopsHere.Count > 0 ? pgs.SingleTroop.Name : Localizer.Token(pgs.building.NameTranslationIndex);
+            string slantText = pgs.TroopsHere.Count > 0 ? pgs.TroopsHere[0].Name : Localizer.Token(pgs.building.NameTranslationIndex);
             Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), slantText);
             Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
             Color color = Color.White;
@@ -89,9 +86,9 @@ namespace Ship_Game
             batch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
             batch.Draw(ResourceManager.Texture("UI/icon_offense"), RangeRect, color);
 
-            if (pgs.TroopsHere.Count > 0) // draw troop_stats
+            if (pgs.TroopsAreOnTile) // draw troop_stats
             {
-                Troop troop = pgs.SingleTroop;
+                Troop troop = pgs.TroopsHere[0];
                 if (troop.Strength < troop.ActualStrengthMax)
                     DrawInfoData(batch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
                 else
@@ -207,7 +204,7 @@ namespace Ship_Game
         }
 
         public void SetPGS(PlanetGridSquare pgs)
-        {
+        {/*
             this.pgs = pgs;
             if (this.pgs == null)
                 return;
@@ -219,7 +216,7 @@ namespace Ship_Game
             else if (pgs.building != null)
             {
                 DescriptionSL.ResetWithParseText(Fonts.Arial12, Localizer.Token(pgs.building.DescriptionIndex), LeftRect.Width - 15);
-            }
+            }*/
         }
 
         private struct TippedItem

@@ -35,9 +35,10 @@ namespace Ship_Game
             cursor.Y += Font12.LineSpacing + 10;
         }
 
-        void DrawTroopLevel(Troop troop, Rectangle rect)
+        void DrawTroopLevel(Troop troop)
         {
             SpriteFont font = Font12;
+            Rectangle rect = troop.ClickRect;
             var levelRect = new Rectangle(rect.X + 30, rect.Y + 22, font.LineSpacing, font.LineSpacing + 5);
             var pos = new Vector2((rect.X + 15 + rect.Width / 2) - font.MeasureString(troop.Strength.String(1)).X / 2f,
                 (1 + rect.Y + 5 + rect.Height / 2 - font.LineSpacing / 2));
@@ -55,13 +56,16 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
             }
 
-            if (pgs.TroopsHere.Count > 0)
+            if (pgs.TroopsAreOnTile) // TODO - need to draw all troops
             {
-                Troop troop = pgs.SingleTroop;
-                pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 48, pgs.ClickRect.Y, 48, 48);
-                troop.DrawIcon(batch, pgs.TroopClickRect);
-                if (troop.Level > 0)
-                    DrawTroopLevel(troop, pgs.TroopClickRect);
+                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                {
+                    Troop troop = pgs.TroopsHere[i];
+                    troop.SetColonyScreenRect(pgs.ClickRect);
+                    troop.DrawIcon(batch, troop.ClickRect);
+                    if (troop.Level > 0)
+                        DrawTroopLevel(troop);
+                }
             }
 
             float numFood = 0f;
