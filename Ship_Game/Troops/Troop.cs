@@ -152,11 +152,13 @@ namespace Ship_Game
         public void SetCombatScreenRect(PlanetGridSquare tile, int width)
         {
             Rectangle rect = tile.ClickRect;
-            ClickRect =  new Rectangle(rect.X + rect.Width / 2 - width / 2, 
-                                       rect.Y + rect.Height / 2 - width / 2, 
+            if (tile.TroopsHere.Count < 2)
+            {
+                ClickRect = new Rectangle(rect.X + rect.Width / 2 - width / 2,
+                                       rect.Y + rect.Height / 2 - width / 2,
                                        width, width);
-
-            if (tile.TroopsHere.Count == 2)
+            }
+            else // 2 troops on tile
             {
                 if (tile.TroopsHere[0] == this)
                 {
@@ -173,9 +175,20 @@ namespace Ship_Game
             }
         }
 
-        public void SetColonyScreenRect(Rectangle rect)
+        public void SetColonyScreenRect(PlanetGridSquare tile)
         {
-            ClickRect = new Rectangle(rect.X + rect.Width - 48, rect.Y, 48, 48);
+            Rectangle rect = tile.ClickRect;
+            if (tile.TroopsHere.Count < 2)
+            {
+                ClickRect = new Rectangle(rect.X + rect.Width - 48, rect.Y, 48, 48);
+            }
+            else // 2 troops on tile
+            {
+                if (tile.TroopsHere[0] == this)
+                    ClickRect = new Rectangle(rect.X + rect.Width - 48, rect.Y + 36, 48, 48);
+                else
+                    ClickRect = new Rectangle(rect.X, rect.Y, 48, 48);
+            }
         }
 
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
