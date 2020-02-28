@@ -62,11 +62,13 @@ namespace Ship_Game
             SliderRect  = new Rectangle(PlanetNameRect.Right + 150, y - 30, sliderWidth, Rect.Height + 25);
             StorageRect = new Rectangle(PlanetNameRect.Right + sliderWidth + 150, y, (int)((Rect.Width - (sliderWidth + 120)) * 0.33f), Rect.Height);
             QueueRect   = new Rectangle(PlanetNameRect.Right + sliderWidth + StorageRect.Width + 150, y, (int)((Rect.Width - (sliderWidth + 150)) * 0.33f), Rect.Height);
-            
+
             if (AssignLabor == null)
             {
                 AssignLabor = Add(new AssignLaborComponent(p, new RectF(SliderRect), useTitleFrame: false));
             }
+            else
+                AssignLabor.Rect = SliderRect;
 
             FoodStorage = new ProgressBar(new Rectangle(StorageRect.X + 50, StorageRect.Y + (int)(0.25 * StorageRect.Height), (int)(0.4f * StorageRect.Width), 18))
             {
