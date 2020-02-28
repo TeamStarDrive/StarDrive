@@ -162,14 +162,14 @@ namespace Ship_Game
             {
                 if (tile.TroopsHere[0] == this)
                 {
-                    ClickRect = new Rectangle(rect.X + (int)(rect.Width / 2) + (int)(width / 10f),
+                    ClickRect = new Rectangle(rect.X + rect.Width / 2 + width / 10,
                                                rect.Y + (int)(rect.Height / 1.33) - width / 2,
                                                (int)(width * 0.8), (int)(width * 0.8));
                 }
                 else
                 {
-                    ClickRect = new Rectangle(rect.X + (rect.Width / 2) - (int)(width / 1.2f),
-                                              rect.Y + (rect.Height / 3) - width / 2,
+                    ClickRect = new Rectangle(rect.X + rect.Width / 2 - (int)(width / 1.2f),
+                                              rect.Y + rect.Height / 3 - width / 2,
                                                (int)(width * 0.8), (int)(width * 0.8));
                 }
             }
@@ -189,6 +189,14 @@ namespace Ship_Game
                 else
                     ClickRect = new Rectangle(rect.X, rect.Y, 48, 48);
             }
+        }
+
+        public void FaceEnemy(PlanetGridSquare targetTile, PlanetGridSquare ourTile)
+        {
+            if (targetTile != ourTile)
+                facingRight = targetTile.x >= ourTile.x;
+            else // troops are on the same tile
+                facingRight = ClickRect.X < ourTile.ClickRect.X + ClickRect.Width / 2;
         }
 
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
