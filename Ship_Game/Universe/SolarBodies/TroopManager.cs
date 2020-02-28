@@ -27,7 +27,7 @@ namespace Ship_Game
         public bool ForeignTroopHere(Empire us)   => TroopList.Any(t => t.Loyalty != null && t.Loyalty != us);
         public bool MightBeAWarZone(Empire us)    => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
         public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
-        public float OwnerTroopStrength => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
+        public float OwnerTroopStrength           => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
