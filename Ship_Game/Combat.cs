@@ -29,7 +29,7 @@ namespace Ship_Game
         {
             AttackingBuilding = attacker;
             DefendingTroop    = defender;
-            AttackerLoyalty   = Planet.Owner;
+            AttackerLoyalty   = planet.Owner;
             DefenseTile       = defenseTile;
             Planet            = planet;
         }

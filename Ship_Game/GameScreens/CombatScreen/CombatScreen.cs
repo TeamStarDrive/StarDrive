@@ -313,7 +313,7 @@ namespace Ship_Game
                 for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {
                     Troop troop = pgs.TroopsHere[i];
-                    troop.SetCombatScreenRect(pgs.ClickRect, width);
+                    troop.SetCombatScreenRect(pgs, width);
                     Rectangle troopClickRect = troop.ClickRect;
                     if (troop.MovingTimer > 0f)
                     {

@@ -131,12 +131,18 @@ namespace Ship_Game
             {
                 // start combat
                 t.UpdateAttackActions(-1);
-                t.UpdateMoveActions(-1);
+                
                 t.facingRight = nearestTargetTile.x >= ourTile.x; // TODO Also need to check the troop rect if the combat is on the same tile
                 if (nearestTargetTile.BuildingOnTile)
+                {
+                    t.UpdateMoveActions(-1);
                     CombatScreen.StartCombat(t, nearestTargetTile.building, nearestTargetTile, Ground);
-                else if (nearestTargetTile.LockOnEnemyTroop(Owner, out Troop enemy))
+                }
+                else if (nearestTargetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
+                {
                     CombatScreen.StartCombat(t, enemy, nearestTargetTile, Ground);
+                    MoveTowardsTarget(t, ourTile, nearestTargetTile);
+                }
             }
             else // move to targets
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
