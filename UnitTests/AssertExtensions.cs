@@ -135,7 +135,7 @@ namespace UnitTests
             }
             catch (AssertFailedException ex)
             {
-                throw new AssertFailedException($"\nExpected: {ToString(expected)}\nActual: {ToString(actual)}", ex);
+                throw new AssertFailedException($"{ex.Message}\nExpected: {ToString(expected)}\nActual: {ToString(actual)}");
             }
         }
     }
