@@ -131,8 +131,8 @@ namespace Ship_Game
             foreach (PlanetGridSquare pgs in p.TilesList)
                 ReversedList.Add(pgs);
         }
-
-        void DetermineAttackAndMove()
+        /*
+        void DetermineAttackAndMove() // TODO Fix this
         {
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
@@ -211,7 +211,7 @@ namespace Ship_Game
                 }
             }
         }
-
+        */
         void DrawTroopDragDestinations()
         {
             if (!IsDraggingTroop)
@@ -290,13 +290,13 @@ namespace Ship_Game
                  ActiveTile != pgs))
                 return;
 
-            var activeSel = new Rectangle(pgs.TroopClickRect.X - 5, pgs.TroopClickRect.Y - 5, pgs.TroopClickRect.Width + 10, pgs.TroopClickRect.Height + 10);
+            var activeSel = new Rectangle(pgs.ClickRect.X - 5, pgs.ClickRect.Y - 5, pgs.ClickRect.Width + 10, pgs.ClickRect.Height + 10);
             ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Square Selection"), activeSel, Color.White);
             foreach (PlanetGridSquare nearby in ReversedList)
             {
                 if (nearby != pgs && nearby.ShowAttackHover)
                     ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Ground_UI/GC_Attack_Confirm"),
-                        nearby.TroopClickRect, Color.White);
+                        nearby.ClickRect, Color.White);
             }
         }
 
@@ -304,91 +304,92 @@ namespace Ship_Game
         {
             SpriteBatch batch = ScreenManager.SpriteBatch;
 
-            float width = (pgs.y * 15 + 64);
-            if (width > 128f)
-                width = 128f;
-            if (pgs.building != null && pgs.building.CombatStrength > 0)
-                width = 64f;
+            int width = (pgs.y * 15 + 64).UpperBound(128);
+            if (pgs.CombatBuildingOnTile)
+                width = 64;
 
-            pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - (int)width / 2, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - (int)width / 2, (int)width, (int)width);
             if (pgs.TroopsAreOnTile)
             {
-                Troop troop = pgs.SingleTroop;
-                Rectangle troopClickRect = pgs.TroopClickRect;
-                if (troop.MovingTimer > 0f)
+                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {
-                    float amount          = 1f - troop.MovingTimer;
-                    troopClickRect.X      = (int)MathHelper.Lerp(troop.FromRect.X, pgs.TroopClickRect.X, amount);
-                    troopClickRect.Y      = (int)MathHelper.Lerp(troop.FromRect.Y, pgs.TroopClickRect.Y, amount);
-                    troopClickRect.Width  = (int)MathHelper.Lerp(troop.FromRect.Width, pgs.TroopClickRect.Width, amount);
-                    troopClickRect.Height = (int)MathHelper.Lerp(troop.FromRect.Height, pgs.TroopClickRect.Height, amount);
-                }
-                troop.Draw(batch, troopClickRect);
-                var moveRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 38, 12, 12);
-                if (troop.AvailableMoveActions <= 0)
-                {
-                    int moveTimer = (int)troop.MoveTimer + 1;
-                    HelperFunctions.DrawDropShadowText1(batch, moveTimer.ToString(), new Vector2((moveRect.X + 4), moveRect.Y), Fonts.Arial12, Color.White);
-                }
-                else
-                {
-                    batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Move"), moveRect, Color.White);
-                }
-                var attackRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 23, 12, 12);
-                if (troop.AvailableAttackActions <= 0)
-                {
-                    int attackTimer = (int)troop.AttackTimer + 1;
-                    HelperFunctions.DrawDropShadowText1(batch, attackTimer.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Fonts.Arial12, Color.White);
-                }
-                else
-                {
-                    batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
-                }
-
-                var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5,
-                                                 Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                DrawTroopData(batch, strengthRect, troop, troop.Strength.String(1), Color.White);
-
-                //Fat Bastard - show TroopLevel
-                if (pgs.SingleTroop.Level > 0)
-                {
-                    var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52,
-                                                  Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
-                    DrawTroopData(batch, levelRect, troop, troop.Level.ToString(), Color.Gold);
-                }
-
-                if (ActiveTile != null && ActiveTile == pgs)
-                {
-                    if (ActiveTile.SingleTroop.AvailableAttackActions > 0)
+                    Troop troop = pgs.TroopsHere[i];
+                    troop.SetCombatScreenRect(pgs.ClickRect, width);
+                    Rectangle troopClickRect = troop.ClickRect;
+                    if (troop.MovingTimer > 0f)
                     {
-                        foreach (PlanetGridSquare nearby in p.TilesList)
-                        {
-                            if (nearby == pgs || !nearby.CanAttack)
-                                continue;
-
-                            batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
-                        }
+                        float amount          = 1f - troop.MovingTimer;
+                        troopClickRect.X      = (int)MathHelper.Lerp(troop.FromRect.X, troop.ClickRect.X, amount);
+                        troopClickRect.Y      = (int)MathHelper.Lerp(troop.FromRect.Y, troop.ClickRect.Y, amount);
+                        troopClickRect.Width  = (int)MathHelper.Lerp(troop.FromRect.Width, troop.ClickRect.Width, amount);
+                        troopClickRect.Height = (int)MathHelper.Lerp(troop.FromRect.Height, troop.ClickRect.Height, amount);
+                    }
+                    troop.Draw(batch, troopClickRect);
+                    var moveRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 38, 12, 12);
+                    if (troop.AvailableMoveActions <= 0)
+                    {
+                        int moveTimer = (int)troop.MoveTimer + 1;
+                        HelperFunctions.DrawDropShadowText1(batch, moveTimer.ToString(), new Vector2((moveRect.X + 4), moveRect.Y), Fonts.Arial12, Color.White);
+                    }
+                    else
+                    {
+                        batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Move"), moveRect, Color.White);
+                    }
+                    var attackRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 23, 12, 12);
+                    if (troop.AvailableAttackActions <= 0)
+                    {
+                        int attackTimer = (int)troop.AttackTimer + 1;
+                        HelperFunctions.DrawDropShadowText1(batch, attackTimer.ToString(), new Vector2((attackRect.X + 4), attackRect.Y), Fonts.Arial12, Color.White);
+                    }
+                    else
+                    {
+                        batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                     }
 
-                    if (ActiveTile.SingleTroop.CanMove)
+                    var strengthRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 5,
+                                                     Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    DrawTroopData(batch, strengthRect, troop, troop.Strength.String(1), Color.White);
+
+                    //Fat Bastard - show TroopLevel
+                    if (troop.Level > 0)
                     {
-                        foreach (PlanetGridSquare nearby in p.TilesList)
+                        var levelRect = new Rectangle(troopClickRect.X + troopClickRect.Width + 2, troopClickRect.Y + 52,
+                                                      Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                        DrawTroopData(batch, levelRect, troop, troop.Level.ToString(), Color.Gold);
+                    }
+                    /* //TODO Fix this
+                    if (ActiveTile != null && ActiveTile == pgs)
+                    {
+                        if (troop.AvailableAttackActions > 0)
                         {
-                            if (nearby == pgs || !nearby.CanMoveTo)
+                            foreach (PlanetGridSquare nearby in p.TilesList)
                             {
-                                continue;
+                                if (nearby == pgs || !nearby.CanAttack)
+                                    continue;
+
+                                batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
                             }
-                            batch.FillRectangle(nearby.ClickRect, new Color(255, 255, 255, 30));
-                            Vector2 center = nearby.ClickRect.Center();
-                            DrawCircle(center, 5f, Color.White, 5f);
-                            DrawCircle(center, 5f, Color.Black);
                         }
-                    }
+
+                        if (troop.CanMove)
+                        {
+                            foreach (PlanetGridSquare nearby in p.TilesList)
+                            {
+                                if (nearby == pgs || !nearby.CanMoveTo)
+                                {
+                                    continue;
+                                }
+                                batch.FillRectangle(nearby.ClickRect, new Color(255, 255, 255, 30));
+                                Vector2 center = nearby.ClickRect.Center();
+                                DrawCircle(center, 5f, Color.White, 5f);
+                                DrawCircle(center, 5f, Color.Black);
+                            }
+                        }
+                    }*/
                 }
             }
             else if (pgs.BuildingOnTile)
             {
-                if (pgs.building.CombatStrength <= 0)
+                if (!pgs.CombatBuildingOnTile)
                 {
                     var bRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width / 2 - 32, pgs.ClickRect.Y + pgs.ClickRect.Height / 2 - 32, 64, 64);
                     var strengthRect = new Rectangle(bRect.X + bRect.Width + 2, bRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
@@ -400,7 +401,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    var attackRect = new Rectangle(pgs.TroopClickRect.X + pgs.TroopClickRect.Width + 2, pgs.TroopClickRect.Y + 23, 12, 12);
+                    var attackRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width + 2, pgs.ClickRect.Y + 23, 12, 12);
                     if (pgs.building.AvailableAttackActions <= 0)
                     {
                         int num = (int)pgs.building.AttackTimer + 1;
@@ -410,14 +411,14 @@ namespace Ship_Game
                     {
                         batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), attackRect, Color.White);
                     }
-                    var strengthRect = new Rectangle(pgs.TroopClickRect.X + pgs.TroopClickRect.Width + 2, pgs.TroopClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
+                    var strengthRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width + 2, pgs.ClickRect.Y + 5, Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                     batch.FillRectangle(strengthRect, new Color(0, 0, 0, 200));
                     batch.DrawRectangle(strengthRect, p.Owner?.EmpireColor ?? Color.LightGray);
                     var cursor = new Vector2((strengthRect.X + strengthRect.Width / 2) - Fonts.Arial12.MeasureString(pgs.building.CombatStrength.ToString()).X / 2f,
                                              (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
                     batch.DrawString(Fonts.Arial12, pgs.building.CombatStrength.ToString(), cursor, Color.White);
                 }
-
+                /* // TODO - fix this
                 if (ActiveTile != null && ActiveTile == pgs && ActiveTile.building.AvailableAttackActions > 0)
                 {
                     foreach (PlanetGridSquare nearby in p.TilesList)
@@ -428,7 +429,7 @@ namespace Ship_Game
                         }
                         batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
                     }
-                }
+                }*/
             }
         }
 
@@ -457,15 +458,15 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                if (pgs.NoTroopsOnTile || pgs.SingleTroop.Loyalty != Empire.Universe.player || !pgs.SingleTroop.CanMove)
+                if (pgs.NoTroopsOnTile || !pgs.LockOnOurTroop(EmpireManager.Player, out Troop troop) || !troop.CanMove)
                     continue;
 
                 try
                 {
 
-                    pgs.SingleTroop.UpdateAttackActions(-pgs.SingleTroop.MaxStoredActions);
-                    pgs.SingleTroop.ResetAttackTimer();
-                    Ship troopShip = pgs.SingleTroop.Launch(pgs);
+                    troop.UpdateAttackActions(-troop.MaxStoredActions);
+                    troop.ResetAttackTimer();
+                    Ship troopShip = troop.Launch(pgs);
                     if (troopShip != null)
                         play = true;
                 }
@@ -564,7 +565,7 @@ namespace Ship_Game
             if (ActiveTile != null)
                 tInfo.pgs = ActiveTile;
 
-            DetermineAttackAndMove();
+            //DetermineAttackAndMove();  // TODO - fix this
             hInfo.SetPGS(HoveredSquare);
 
             return base.HandleInput(input);
@@ -573,6 +574,7 @@ namespace Ship_Game
         bool HandleInputPlanetGridSquares()
         {
             bool capturedInput = false;
+            /*
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 if (!pgs.ClickRect.HitTest(Input.CursorPosition))
@@ -590,7 +592,7 @@ namespace Ship_Game
                     if (!pgs.CanAttack || ActiveTile == null)
                         continue;
 
-                    if (!pgs.TroopClickRect.HitTest(Input.CursorPosition))
+                    if (!pgs.Troop1ClickRect.HitTest(Input.CursorPosition))
                         pgs.ShowAttackHover = false;
                     else if (ActiveTile.NoTroopsOnTile)
                     {
@@ -633,7 +635,7 @@ namespace Ship_Game
                 {
                     if (pgs.TroopsAreOnTile)
                     {
-                        if (pgs.TroopClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
+                        if (pgs.Troop1ClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
                         {
                             if (pgs.SingleTroop.Loyalty != EmpireManager.Player)
                             {
@@ -656,7 +658,7 @@ namespace Ship_Game
                             }
                         }
                     }
-                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.TroopClickRect.HitTest(Input.CursorPosition) &&
+                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.Troop1ClickRect.HitTest(Input.CursorPosition) &&
                              Input.LeftMouseClick)
                     {
                         if (p.Owner != EmpireManager.Player)
@@ -698,7 +700,7 @@ namespace Ship_Game
                         troop.UpdateMoveActions(-1);
                         pgs.SingleTroop.ResetMoveTimer();
                         pgs.SingleTroop.MovingTimer = 0.75f;
-                        pgs.SingleTroop.SetFromRect(ActiveTile.TroopClickRect);
+                        pgs.SingleTroop.SetFromRect(ActiveTile.Troop1ClickRect);
                         GameAudio.PlaySfxAsync(pgs.SingleTroop.MovementCue);
                         ActiveTile.TroopsHere.Remove(ActiveTile.SingleTroop); 
                         ActiveTile = null;
@@ -708,7 +710,7 @@ namespace Ship_Game
                     }
                 }
             }
-
+            */
             return capturedInput;
         }
 
@@ -746,8 +748,9 @@ namespace Ship_Game
 
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
-                if (!pgs.NoTroopsOnTile)
-                    pgs.SingleTroop.Update(elapsedTime);
+                if (pgs.TroopsAreOnTile)
+                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                        pgs.TroopsHere[i].Update(elapsedTime);
             }
 
             using (Explosions.AcquireWriteLock())

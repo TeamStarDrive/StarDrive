@@ -67,8 +67,8 @@ namespace Ship_Game
 
                     pgs.Highlighted = true;
                 }
-
-                if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(MousePos))
+                /* TODO - fix that
+                if (pgs.TroopsHere.Count <= 0 || !pgs.Troop1ClickRect.HitTest(MousePos))
                     continue;
 
                 DetailInfo = pgs.SingleTroop;
@@ -78,7 +78,7 @@ namespace Ship_Game
                     pgs.SingleTroop.Launch(pgs);
                     ClickedTroop = true;
                     DetailInfo = null;
-                }
+                }*/
 
                 return true;
             }
@@ -109,9 +109,9 @@ namespace Ship_Game
                             return true;
                         }
                     }
-
-                    if (pgs.TroopsHere.Count <= 0 || !pgs.TroopClickRect.HitTest(input.CursorPosition))
-                        continue;
+                    /* TODO - fix that
+                    if (pgs.TroopsHere.Count <= 0 || !pgs.Troop1ClickRect.HitTest(input.CursorPosition))
+                        continue;*/
 
                     DetailInfo = pgs.TroopsHere;
                 }

@@ -352,7 +352,7 @@ namespace Ship_Game.AI
                     // remove troops which are not ours from the planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsAreOnTile && pgs.LockOnTroopTarget(us, out Troop troop))
+                        if (pgs.TroopsAreOnTile && pgs.LockOnEnemyTroop(us, out Troop troop))
                         {
                             troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
                             TroopShips.Add(troop.Launch(ignoreMovement: true));
@@ -697,7 +697,7 @@ namespace Ship_Game.AI
                     // remove troops which are not ours from the planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsAreOnTile && pgs.LockOnTroopTarget(us, out Troop troop))
+                        if (pgs.TroopsAreOnTile && pgs.LockOnEnemyTroop(us, out Troop troop))
                         {
                             troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
                             TroopShips.Add(troop.Launch(ignoreMovement: true));
