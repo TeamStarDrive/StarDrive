@@ -78,9 +78,9 @@ namespace Ship_Game
                     pgs.SingleTroop.Launch(pgs);
                     ClickedTroop = true;
                     DetailInfo = null;
-                }*/
+                }
 
-                return true;
+                return true;*/
             }
 
             if (!ClickedTroop)
