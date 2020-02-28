@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Ship_Game.Audio;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -67,20 +68,34 @@ namespace Ship_Game
 
                     pgs.Highlighted = true;
                 }
-                /* TODO - fix that
-                if (pgs.TroopsHere.Count <= 0 || !pgs.Troop1ClickRect.HitTest(MousePos))
-                    continue;
 
-                DetailInfo = pgs.SingleTroop;
-                if (input.RightMouseClick && pgs.SingleTroop.Loyalty == EmpireManager.Player)
+                if (pgs.TroopsAreOnTile)
                 {
-                    GameAudio.TroopTakeOff();
-                    pgs.SingleTroop.Launch(pgs);
-                    ClickedTroop = true;
-                    DetailInfo = null;
-                }
+                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                    {
+                        Troop troop = pgs.TroopsHere[i];
+                        if (troop.ClickRect.HitTest(MousePos))
+                        {
+                            DetailInfo = troop;
+                            if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
+                            {
+                                Ship troopShip = troop.Launch(pgs);
+                                if (troopShip != null)
+                                {
+                                    GameAudio.TroopTakeOff();
+                                    ClickedTroop = true;
+                                    DetailInfo = null;
+                                }
+                                else
+                                {
+                                    GameAudio.NegativeClick();
+                                }
+                            }
 
-                return true;*/
+                            return true;
+                        }
+                    }
+                }
             }
 
             if (!ClickedTroop)
@@ -109,11 +124,6 @@ namespace Ship_Game
                             return true;
                         }
                     }
-                    /* TODO - fix that
-                    if (pgs.TroopsHere.Count <= 0 || !pgs.Troop1ClickRect.HitTest(input.CursorPosition))
-                        continue;*/
-
-                    DetailInfo = pgs.TroopsHere;
                 }
             }
 

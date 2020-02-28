@@ -61,7 +61,7 @@ namespace Ship_Game
                 for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {
                     Troop troop = pgs.TroopsHere[i];
-                    troop.SetColonyScreenRect(pgs.ClickRect);
+                    troop.SetColonyScreenRect(pgs);
                     troop.DrawIcon(batch, troop.ClickRect);
                     if (troop.Level > 0)
                         DrawTroopLevel(troop);
