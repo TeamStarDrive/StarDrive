@@ -149,11 +149,28 @@ namespace Ship_Game
             Draw(batch, new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y));
         }
 
-        public void SetCombatScreenRect(Rectangle rect, int width)
+        public void SetCombatScreenRect(PlanetGridSquare tile, int width)
         {
+            Rectangle rect = tile.ClickRect;
             ClickRect =  new Rectangle(rect.X + rect.Width / 2 - width / 2, 
                                        rect.Y + rect.Height / 2 - width / 2, 
                                        width, width);
+
+            if (tile.TroopsHere.Count == 2)
+            {
+                if (tile.TroopsHere[0] == this)
+                {
+                    ClickRect = new Rectangle(rect.X + (int)(rect.Width / 2) + (int)(width / 10f),
+                                               rect.Y + (int)(rect.Height / 1.33) - width / 2,
+                                               (int)(width * 0.8), (int)(width * 0.8));
+                }
+                else
+                {
+                    ClickRect = new Rectangle(rect.X + (rect.Width / 2) - (int)(width / 1.2f),
+                                              rect.Y + (rect.Height / 3) - width / 2,
+                                               (int)(width * 0.8), (int)(width * 0.8));
+                }
+            }
         }
 
         public void SetColonyScreenRect(Rectangle rect)
