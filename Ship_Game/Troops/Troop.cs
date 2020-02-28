@@ -54,6 +54,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
+        [XmlIgnore][JsonIgnore] public Rectangle ClickRect { get; private set; }
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
@@ -146,6 +147,18 @@ namespace Ship_Game
         public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size)
         {
             Draw(batch, new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y));
+        }
+
+        public void SetCombatScreenRect(Rectangle rect, int width)
+        {
+            ClickRect =  new Rectangle(rect.X + rect.Width / 2 - width / 2, 
+                                       rect.Y + rect.Height / 2 - width / 2, 
+                                       width, width);
+        }
+
+        public void SetColonyScreenRect(Rectangle rect)
+        {
+            ClickRect = new Rectangle(rect.X + rect.Width - 48, rect.Y, 48, 48);
         }
 
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 

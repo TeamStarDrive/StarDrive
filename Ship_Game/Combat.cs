@@ -81,7 +81,7 @@ namespace Ship_Game
             if (isViewing)
             {
                 GameAudio.PlaySfxAsync("sd_troop_attack_hit");
-                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.TroopClickRect, 1);
+                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.ClickRect, 1);
             }
 
             if (DefendingTroop != null)
@@ -95,7 +95,7 @@ namespace Ship_Game
                 if (isViewing)
                 {
                     GameAudio.PlaySfxAsync("Explo1");
-                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.TroopClickRect, 4);
+                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.ClickRect, 4);
                 }
 
                 AttackingTroop?.LevelUp(); // FB - for now multi troops on same tile is not supported
