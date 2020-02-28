@@ -22,6 +22,10 @@ namespace Ship_Game
         float DebugDrawTimer;
         const float DebugDrawInterval = 0.5f;
 
+        // This is for debugging
+        int LastInputFrameId = -1;
+        int LastUpdateFrameId = -1;
+
         /// <summary>
         /// Hack: NEW Multi-Layered draw mode disables child element drawing
         /// </summary>
@@ -108,6 +112,12 @@ namespace Ship_Game
         {
             if (Visible && Enabled)
             {
+                if (LastInputFrameId != GameBase.Base.FrameId)
+                    LastInputFrameId = GameBase.Base.FrameId;
+                else
+                    Log.Warning(ConsoleColor.DarkRed, 
+                        "UIElement.HandleInput called twice per frame. This is a potential bug: "+this);
+
                 // iterate input in reverse, so we handle topmost objects before
                 for (int i = Elements.Count - 1; i >= 0; --i)
                 {
@@ -123,6 +133,12 @@ namespace Ship_Game
         {
             if (!Visible)
                 return;
+
+            if (LastUpdateFrameId != GameBase.Base.FrameId)
+                LastUpdateFrameId = GameBase.Base.FrameId;
+            else
+                Log.Warning(ConsoleColor.DarkRed, 
+                    "UIElement.Update called twice per frame. This is a potential bug: "+this);
 
             base.Update(deltaTime);
 
