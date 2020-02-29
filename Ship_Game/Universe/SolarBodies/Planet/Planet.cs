@@ -86,9 +86,9 @@ namespace Ship_Game
             return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.ClampMin(1)) : 0;
 
         }
-        public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
-        public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
-
+        public bool AnyOfOurTroops(Empire us)           => TroopManager.WeHaveTroopsHere(us);
+        public int GetGroundLandingSpots(Empire us)     => TroopManager.NumGroundLandingSpots(us);
+        public int GetEnemyAssets(Empire us)            => TroopManager.GetEnemyAssets(this, us);
         public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
         public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
