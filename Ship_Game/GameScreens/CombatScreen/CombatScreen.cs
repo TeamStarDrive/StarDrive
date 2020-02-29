@@ -551,10 +551,10 @@ namespace Ship_Game
                 ActiveTile = null;
 
             if (ActiveTile != null)
-                tInfo.pgs = ActiveTile;
+                tInfo.Tile = ActiveTile;
 
             DetermineAttackAndMove(); 
-            hInfo.SetPGS(HoveredSquare);
+            hInfo.SetTile(HoveredSquare);
 
             return base.HandleInput(input);
         }
@@ -562,7 +562,6 @@ namespace Ship_Game
         bool HandleInputPlanetGridSquares()
         {
             bool capturedInput = false;
-            /*
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
                 if (!pgs.ClickRect.HitTest(Input.CursorPosition))
@@ -574,14 +573,15 @@ namespace Ship_Game
 
                     pgs.Highlighted = true;
                 }
-
+                /*
                 if (pgs.CanAttack)
                 {
-                    if (!pgs.CanAttack || ActiveTile == null)
+                    if (ActiveTile == null)
                         continue;
 
                     if (!pgs.Troop1ClickRect.HitTest(Input.CursorPosition))
                         pgs.ShowAttackHover = false;
+
                     else if (ActiveTile.NoTroopsOnTile)
                     {
                         if (ActiveTile.NoBuildingOnTile || ActiveTile.building.CombatStrength <= 0 ||
@@ -619,16 +619,17 @@ namespace Ship_Game
                         pgs.ShowAttackHover = true;
                     }
                 }
-                else
+                else*/ if (pgs.TroopsAreOnTile)
                 {
-                    if (pgs.TroopsAreOnTile)
+                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                     {
-                        if (pgs.Troop1ClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
+                        Troop troop = pgs.TroopsHere[i];
+                        if (troop.ClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
                         {
-                            if (pgs.SingleTroop.Loyalty != EmpireManager.Player)
+                            if (p.Owner != EmpireManager.Player)
                             {
                                 ActiveTile = pgs;
-                                tInfo.SetPGS(pgs);
+                                tInfo.SetTile(pgs, troop);
                                 capturedInput = true;
                             }
                             else
@@ -641,64 +642,40 @@ namespace Ship_Game
                                 }
 
                                 ActiveTile = pgs;
-                                tInfo.SetPGS(pgs);
+                                tInfo.SetTile(pgs, troop);
                                 capturedInput = true;
                             }
                         }
                     }
-                    else if (pgs.building != null && !pgs.CanMoveTo && pgs.Troop1ClickRect.HitTest(Input.CursorPosition) &&
-                             Input.LeftMouseClick)
+
+                    if (ActiveTile == null 
+                        || !pgs.CanMoveTo 
+                        || ActiveTile.NoTroopsOnTile 
+                        ||!pgs.ClickRect.HitTest(Input.CursorPosition) 
+                        || ActiveTile.LockOnEnemyTroop(EmpireManager.Player, out _) 
+                        || Input.LeftMouseReleased 
+                        || ActiveTile.LockOnOurTroop(EmpireManager.Player, out Troop ourTroop) && ourTroop.CanMove)
                     {
-                        if (p.Owner != EmpireManager.Player)
-                        {
-                            ActiveTile = pgs;
-                            tInfo.SetPGS(pgs);
-                            capturedInput = true;
-                        }
-                        else
-                        {
-                            foreach (PlanetGridSquare p1 in p.TilesList)
-                            {
-                                p1.CanAttack = false;
-                                p1.CanMoveTo = false;
-                                p1.ShowAttackHover = false;
-                            }
-
-                            ActiveTile = pgs;
-                            tInfo.SetPGS(pgs);
-                            capturedInput = true;
-                        }
-                    }
-
-                    if (ActiveTile == null || !pgs.CanMoveTo || ActiveTile.NoTroopsOnTile ||
-                        !pgs.ClickRect.HitTest(Input.CursorPosition) ||
-                        ActiveTile.SingleTroop.Loyalty != EmpireManager.Player || Input.LeftMouseReleased ||
-                        !ActiveTile.SingleTroop.CanMove)
                         continue;
+                    }
 
                     if (Input.LeftMouseClick)
                     {
-                        if (pgs.x > ActiveTile.x)
-                            ActiveTile.SingleTroop.facingRight = true;
-                        else if (pgs.x < ActiveTile.x)
-                            ActiveTile.SingleTroop.facingRight = false;
-
-                        pgs.AddTroop(ActiveTile.SingleTroop);
-                        Troop troop = pgs.SingleTroop;
-                        troop.UpdateMoveActions(-1);
-                        pgs.SingleTroop.ResetMoveTimer();
-                        pgs.SingleTroop.MovingTimer = 0.75f;
-                        pgs.SingleTroop.SetFromRect(ActiveTile.Troop1ClickRect);
-                        GameAudio.PlaySfxAsync(pgs.SingleTroop.MovementCue);
-                        ActiveTile.TroopsHere.Remove(ActiveTile.SingleTroop); 
-                        ActiveTile = null;
-                        ActiveTile = pgs;
+                        ourTroop.facingRight = pgs.x > ActiveTile.x; 
+                        pgs.AddTroop(ourTroop);
+                        ourTroop.UpdateMoveActions(-1);
+                        ourTroop.ResetMoveTimer();
+                        ourTroop.MovingTimer = 0.75f;
+                        ourTroop.SetFromRect(ActiveTile.ClickRect);
+                        GameAudio.PlaySfxAsync(ourTroop.MovementCue);
+                        ActiveTile.TroopsHere.Remove(ourTroop); 
+                        ActiveTile    = pgs;
                         pgs.CanMoveTo = false;
                         capturedInput = true;
                     }
                 }
             }
-            */
+            
             return capturedInput;
         }
 
