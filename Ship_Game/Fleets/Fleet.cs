@@ -987,7 +987,7 @@ namespace Ship_Game.Fleets
         {
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
-            bool bombing              = BombPlanet(ourGroundStrength, task);
+            bool bombing              = BombPlanet(task);
             if (ReadyToInvade(task))
             {
                 bool invading = IsInvading(theirGroundStrength, ourGroundStrength, task, bombing ? 0 : 20);
@@ -1141,9 +1141,8 @@ namespace Ship_Game.Fleets
         }
 
         // @return TRUE if any ships are bombing planet
-        // Bombing is done if we have no ground strength or if
-        // there are more than provided free spaces (???)
-        bool BombPlanet(float ourGroundStrength, MilitaryTask task)
+        // Bombing is done if the target has enough military assets
+        bool BombPlanet(MilitaryTask task)
         {
             int militaryAssets = task.TargetPlanet.GetEnemyAssets(Owner);
             return militaryAssets >= Owner.DifficultyModifiers.AssetBombThreshold && StartBombing(task);
