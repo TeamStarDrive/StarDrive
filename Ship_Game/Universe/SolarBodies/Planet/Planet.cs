@@ -87,7 +87,7 @@ namespace Ship_Game
 
         }
         public bool AnyOfOurTroops(Empire us)           => TroopManager.WeHaveTroopsHere(us);
-        public int GetGroundLandingSpots(Empire us)     => TroopManager.NumGroundLandingSpots(us);
+        public int GetFreeTiles(Empire us)              => TroopManager.NumFreeTiles(us);
         public int GetEnemyAssets(Empire us)            => TroopManager.GetEnemyAssets(this, us);
         public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
         public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
@@ -119,9 +119,6 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int TileArea       => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
-        // FB - free tiles always leaves 1 free spot for invasions
-        public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
-                                     .Clamped(0, TileArea);
 
         public float MaxPopulationBillion                   => MaxPopulation / 1000;
         public float MaxPopulationBillionFor(Empire empire) => MaxPopulationFor(empire) / 1000;
@@ -167,13 +164,11 @@ namespace Ship_Game
             return Math.Max(minimumPop, MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus);
         }
 
-        public int FreeTilesWithRebaseOnTheWay
+        public int FreeTilesWithRebaseOnTheWay(Empire empire)
         {
-            get {
                  int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
                                           .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
-                return (FreeTiles - rebasingTroops).Clamped(0, TileArea);
-            }
+                return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
         void CreateManagers()
         {

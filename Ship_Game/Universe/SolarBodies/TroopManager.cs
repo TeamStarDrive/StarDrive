@@ -465,7 +465,7 @@ namespace Ship_Game
             return enemies;
         }
 
-        public int NumGroundLandingSpots(Empire empire) // FB - this is good if we support more than 1 troop per tile, which currently we are not.
+        public int NumFreeTiles(Empire empire)
         {
             return TilesList.Count(t => t.IsTileFree(empire));
         }

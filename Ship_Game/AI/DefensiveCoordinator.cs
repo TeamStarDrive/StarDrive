@@ -275,7 +275,7 @@ namespace Ship_Game.AI
             return DefenseDict.FindMaxKeyByValuesFiltered(
                 com => com.TroopStrengthNeeded > 0
                        && com.System.PlanetList.Count > 0
-                       && com.System.PlanetList.Sum(p => p.GetGroundLandingSpots(empire)) > 0,
+                       && com.System.PlanetList.Sum(p => p.GetFreeTiles(empire)) > 0,
                 com => (1f - ((float)com.TroopCount / com.IdealTroopCount ))
                        * com.TotalValueToUs * ((width - com.System.Position.SqDist(fromPos)) / width)
             );
@@ -398,7 +398,7 @@ namespace Ship_Game.AI
                 troopShips.RemoveAtSwapLast(i);
 
                 Planet target = defenseSystem.OurPlanets
-                    .FindMinFiltered(p => !p.MightBeAWarZone(Us) && p.GetGroundLandingSpots(Us) > 0,
+                    .FindMinFiltered(p => !p.MightBeAWarZone(Us) && p.GetFreeTiles(Us) > 0,
                         planet => planet.CountEmpireTroops(planet.Owner) / defenseSystem.PlanetTroopMin(planet));
 
                 if (target != null)
