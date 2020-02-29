@@ -56,7 +56,7 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, Color.White);
             }
 
-            if (pgs.TroopsAreOnTile) // TODO - need to draw all troops
+            if (pgs.TroopsAreOnTile)
             {
                 for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                 {

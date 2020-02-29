@@ -366,7 +366,7 @@ namespace Ship_Game
             else
             {
                 ResolveTacticalCombats(elapsedTime);
-                ActiveCombats.ApplyPendingRemovals(); // TODO shouldnt this be outside of the if?
+                ActiveCombats.ApplyPendingRemovals();
             }
 
             if (ActiveCombats.Count > 0)
