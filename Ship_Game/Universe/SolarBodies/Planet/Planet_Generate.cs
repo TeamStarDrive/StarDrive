@@ -262,7 +262,11 @@ namespace Ship_Game
             if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
                 return false;
 
+            if (TerraformPoints.AlmostZero()) // Starting to terraform
+                SetBaseFertilityTerraform();
+
             TerraformPoints += TerraformToAdd;
+            AddMaxBaseFertility(BaseFertilityTerraformRatio * TerraformToAdd);
             if (TerraformPoints.GreaterOrEqual(1))
             {
                 CompletePlanetTerraform();
@@ -403,6 +407,21 @@ namespace Ship_Game
             }
         }
 
+        private void SetBaseFertilityTerraform()
+        {
+            float ratio;
+            if (BaseMaxFertility.AlmostZero())             ratio = TerraformedMaxFertility;
+            else if (TerraformedMaxFertility.AlmostZero()) ratio = 0;
+            else                                           ratio = BaseMaxFertility / TerraformedMaxFertility;
+
+            BaseFertilityTerraformRatio = ratio;
+        }
+
+        public void RestoreBaseFertilityTerraformRatio(float ratio)
+        {
+            BaseFertilityTerraformRatio = ratio;
+        }
+            
         protected void AddEventsAndCommodities()
         {
             if (!Habitable)
