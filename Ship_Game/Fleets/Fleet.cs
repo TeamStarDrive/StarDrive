@@ -1158,7 +1158,7 @@ namespace Ship_Game.Fleets
 
             planetAssaultStrength += ourGroundStrength;
 
-            int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots(Owner);
+            int freeLandingSpots = task.TargetPlanet.GetFreeTiles(Owner);
 
             if (landingSpotsNeeded > 0)
             {

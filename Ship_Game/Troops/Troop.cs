@@ -433,7 +433,7 @@ namespace Ship_Game
         public bool TryLandTroop(Planet planet, PlanetGridSquare tile = null)
         {
             planet = planet ?? HostPlanet;
-            if (planet.FreeTiles == 0)
+            if (planet.GetFreeTiles(Loyalty) == 0)
                 return false;
 
             return tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
@@ -443,7 +443,7 @@ namespace Ship_Game
         // FB - For newly recruited troops (so they will be able to launch or move immediately)
         public bool PlaceNewTroop(Planet planet)
         {
-            return planet.FreeTiles > 0 && AssignTroopToRandomFreeTile(planet, resetMove: false);
+            return planet.GetFreeTiles(Loyalty) > 0 && AssignTroopToRandomFreeTile(planet, resetMove: false);
         }
 
         bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet)

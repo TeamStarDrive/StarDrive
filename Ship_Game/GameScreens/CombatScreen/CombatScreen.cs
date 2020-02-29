@@ -758,7 +758,7 @@ namespace Ship_Game
             if (numTroops > 0)
             {
                 LandAll.Enabled = true;
-                LandAll.Text    = $"Land All ({Math.Min(OrbitSL.NumEntries, p.FreeTiles)})";
+                LandAll.Text    = $"Land All ({Math.Min(OrbitSL.NumEntries, p.GetFreeTiles(EmpireManager.Player))})";
             }
             else
             {
