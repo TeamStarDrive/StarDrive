@@ -250,12 +250,7 @@ namespace Ship_Game
                 Rectangle biosphere = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y, 20, 20);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, White);
             }
-            /* //TODO - fix that
-            if (pgs.TroopsHere.Count > 0)
-            {
-                pgs.Troop1ClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 36, pgs.ClickRect.Y, 35, 35);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Troops/"+pgs.SingleTroop.TexturePath), pgs.Troop1ClickRect, White);
-            }*/
+
             float numFood = 0f;
             float numProd = 0f;
             float numRes = 0f;
