@@ -156,7 +156,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    range = troop.Range;
+                    range = troop.ActualRange;
                 }
 
                 foreach (PlanetGridSquare tile in p.TilesList)
@@ -495,7 +495,7 @@ namespace Ship_Game
                 else
                 {
                     Troop troop = ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
-                    if (!troop.TryLandTroop(p))
+                    if (!troop.TryLandTroop(p, p.TilesList[0]))
                         return false; // eek-eek
                 }
             }
