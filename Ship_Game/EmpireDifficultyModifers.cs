@@ -16,6 +16,8 @@
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
         public readonly float FleetCompletenessMin;
+        public readonly int AssetBombThreshold;
+        public readonly float EnemyTroopStrength;
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
@@ -32,6 +34,8 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
                     FleetCompletenessMin = 0.25f;
+                    AssetBombThreshold   = 20;
+                    EnemyTroopStrength   = 1f;
                     break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
@@ -43,6 +47,8 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
                     FleetCompletenessMin = 0.25f;
+                    AssetBombThreshold   = 10;
+                    EnemyTroopStrength   = 1.1f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -53,6 +59,8 @@
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
                     FleetCompletenessMin = 0.5f;
+                    AssetBombThreshold   = 7;
+                    EnemyTroopStrength   = 1.2f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -63,6 +71,8 @@
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     FleetCompletenessMin = 1f;
+                    AssetBombThreshold   = 5;
+                    EnemyTroopStrength   = 1.3f;
                     break;
             }
 

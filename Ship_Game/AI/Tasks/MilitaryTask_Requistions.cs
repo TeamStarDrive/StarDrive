@@ -164,9 +164,6 @@ namespace Ship_Game.AI.Tasks
             //this just counts how many there are and want 5 minutes per building.
             int bombTime = TargetPlanet.BuildingGeodeticCount * 5;
 
-            //ground landing spots. if we dont have a significant space to land troops. create them. 
-            bombTime    += TargetPlanet.GetGroundLandingSpots() < 25 ? 1 : 0;
-
             //shields are a real pain. this may need a lot more code to deal with. 
             bombTime    += TargetPlanet.ShieldStrengthMax > 0 ? 10 : 0;
             return bombTime;
@@ -437,7 +434,9 @@ namespace Ship_Game.AI.Tasks
                 else
                 {
                     if (minTroopStrength > 0)
-                        NeededTroopStrength = GetTargetPlanetGroundStrength(minTroopStrength);
+                        NeededTroopStrength = (int)(GetTargetPlanetGroundStrength(minTroopStrength) 
+                                                    * Owner.DifficultyModifiers.EnemyTroopStrength);
+
                     if (minBombMinutes > 0)
                         TaskBombTimeNeeded = BombTimeNeeded().ClampMin(minBombMinutes);
                 }

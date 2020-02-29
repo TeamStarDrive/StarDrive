@@ -1086,7 +1086,7 @@ namespace Ship_Game
             if (ship.AI.State == AIState.AssaultPlanet && ship.AI.OrbitTarget != null)
             {
                 var planet = ship.AI.OrbitTarget;
-                int spots = planet.GetGroundLandingSpots();
+                int spots = planet.GetGroundLandingSpots(EmpireManager.Player);
                 if (spots > 4)
                     DrawLineToPlanet(start, ship.AI.OrbitTarget.Center, Colors.CombatOrders(alpha));
                 else if (spots > 0)
