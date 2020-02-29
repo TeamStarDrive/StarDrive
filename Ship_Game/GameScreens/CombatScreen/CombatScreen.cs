@@ -69,8 +69,8 @@ namespace Ship_Game
             orbitalAssetsTab.AddTab("In Orbit");
             OrbitSL = Add(new ScrollList2<CombatScreenOrbitListItem>(orbitalAssetsTab, ListStyle.Blue));
             OrbitSL.OnDoubleClick = OnTroopItemDoubleClick;
-            OrbitSL.OnDrag = OnTroopItemDrag;
-            OrbitSL.EnableDragEvents = true;
+            OrbitSL.OnDragOut = OnTroopItemDrag;
+            OrbitSL.EnableDragOutEvents = true;
 
             gridPos   = new Rectangle(colonyGrid.X + 20, colonyGrid.Y + 20, colonyGrid.Width - 40, colonyGrid.Height - 40);
             int xSize = gridPos.Width / 7;
