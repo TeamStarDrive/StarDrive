@@ -573,19 +573,21 @@ namespace Ship_Game.Fleets
                     break;
                 case 3:
                     EscortingToPlanet(task);
-                    if (ClearAllShipsPriorityOrderIf(Ships, s => 
-                                                                s.Center.InRadius(task.AO + s.FleetOffset
-                                                                    , task.AORadius)))
-                    {
-                        SetOrdersRadius(task.AORadius);
-                        TaskStep = 4;
-                    }
+                    TaskStep = 4;
                     break;
                 case 4:
+                    ClearAllShipsPriorityOrderIf(Ships, s => !s.IsSpoolingOrInWarp);
+                    
+                    if (IsFleetAssembled(task.TargetPlanet.GravityWellRadius, task.TargetPlanet.Center) == MoveStatus.Assembled)
+                    {
+                        TaskStep = 5;
+                    }
+                    break;
+                case 5:
                     switch(StatusOfPlanetAssault(task))
                     {
                         case Status.NotApplicable: break;
-                        case Status.Good:          TaskStep = 5; break;
+                        case Status.Good:          TaskStep = 6; break;
                         case Status.Critical:
                         {
                                 EndInvalidTask(true);
@@ -593,7 +595,7 @@ namespace Ship_Game.Fleets
                         }
                     }
                     break;
-                case 5:
+                case 6:
                     if (ShipsOffMission(task))
                         TaskStep = 3;
                     break;
@@ -887,10 +889,10 @@ namespace Ship_Game.Fleets
 
         void GatherAtAO(MilitaryTask task, float distanceFromAO)
         {
-            GatherAtPosition(task.AO, distanceFromAO, false);
+            FleetMoveToPosition(task.AO, distanceFromAO, false);
         }
 
-        void GatherAtPosition(Vector2 position, float offsetToAO, bool combatMove)
+        void FleetMoveToPosition(Vector2 position, float offsetToAO, bool combatMove)
         {
             FinalPosition = position.OffsetTowards(AveragePosition(), offsetToAO);
             FormationWarpTo(FinalPosition
@@ -1092,7 +1094,7 @@ namespace Ship_Game.Fleets
                     continue;
 
                 ai.CancelIntercept();
-                if (ai.State == AIState.HoldPosition)
+                if (ai.State == AIState.HoldPosition || ai.State == AIState.FormationWarp)
                     ai.ClearOrders();
 
                 switch (type)
@@ -1119,7 +1121,7 @@ namespace Ship_Game.Fleets
                         }
                         break;
 
-                    case InvasionTactics.Center:
+                    case InvasionTactics.MainBattleGroup:
 
                         if (!ship.InCombat || ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber)
                             ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset
@@ -1130,9 +1132,9 @@ namespace Ship_Game.Fleets
                                 , false);
                         break;
 
-                    case InvasionTactics.Side:
+                    case InvasionTactics.FlankGuard:
                         if (!ship.InCombat)
-                            ai.OrderMoveDirectlyTo(moveTo + ship.FleetOffset
+                            ai.OrderMoveDirectlyTo(moveTo 
                                 , FinalDirection
                                 , true
                                 , ai.State
@@ -1161,20 +1163,22 @@ namespace Ship_Game.Fleets
         private enum InvasionTactics
         {
             Screen,
-            Center,
-            Side,
+            MainBattleGroup,
+            FlankGuard,
             Rear,
             Wait
         }
 
         bool EscortingToPlanet(MilitaryTask task)
         {
-            Vector2 targetPos = task.TargetPlanet.Center;
+            Vector2 targetPos = FleetTask.AO;
+            FinalDirection = FinalPosition.DirectionToTarget(targetPos);
+
             InvadeTactics(ScreenShips, InvasionTactics.Screen, targetPos);
-            InvadeTactics(CenterShips, InvasionTactics.Center, targetPos);
+            InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, targetPos);
             InvadeTactics(RearShips, InvasionTactics.Wait, targetPos);
-            InvadeTactics(RightShips, InvasionTactics.Side, targetPos);
-            InvadeTactics(LeftShips, InvasionTactics.Side, targetPos);
+            InvadeTactics(RightShips, InvasionTactics.FlankGuard, targetPos);
+            InvadeTactics(LeftShips, InvasionTactics.FlankGuard, targetPos);
 
             return ReadyToInvade(task);
         }

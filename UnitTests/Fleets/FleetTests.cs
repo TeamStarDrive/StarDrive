@@ -79,24 +79,25 @@ namespace UnitTests.Fleets
         /// BVTs the fleet.
         /// </summary>
         [TestMethod]
-        public void BVTFleet()
+        public void TestFleetAssembly()
         {
             CreateTestEnv();
             CreateWantedShipsAndAddThemToList(10, "Excalibur-Class Supercarrier", PlayerShips);
             CreateTestFleet(PlayerShips, PlayerFleets);
             var fleet = PlayerFleets[0];
             
-            //verify fleet created and has the expected ships
+            // verify fleet created and has the expected ships
             Assert.IsNotNull(fleet, "Fleet failed to create");
             Assert.AreEqual(10, fleet.CountShips,$"Expected 10 ships in fleet got {fleet.CountShips}");
 
-            //TestFleet assembly
+            // TestFleet assembly
             fleet.AutoArrange();
             int flankCount     = fleet.AllFlanks.Count;
             Assert.AreEqual(5, flankCount, $" expected 5 flanks got{flankCount}");
             var flanks         = fleet.AllFlanks;
-            Assert.AreEqual(3, flanks[0].Count, $"Expected 3 squads got {flanks[0].Count}");
-            int squadShipCount = flanks[0].Sum(sq => sq.Ships.Count);
+            int squadCount = flanks.Sum(sq => sq.Count);
+            Assert.AreEqual(3, squadCount, $"Expected 3 squads got {squadCount}");
+            int squadShipCount = flanks.Sum(sq => sq.Sum(s=> s.Ships.Count));
             Assert.AreEqual(10, squadShipCount, $"Expected 10 ships in fleet got {squadShipCount}");
 
         }
