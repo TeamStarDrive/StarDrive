@@ -145,7 +145,7 @@ namespace Ship_Game
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        public BatchRemovalCollection<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
+        public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
         public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
