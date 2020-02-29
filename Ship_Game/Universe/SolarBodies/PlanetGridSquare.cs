@@ -11,7 +11,6 @@ namespace Ship_Game
         public int x;
         public int y;
         public bool CanAttack;
-        public bool CanMoveTo;
         public bool ShowAttackHover;
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
@@ -77,6 +76,11 @@ namespace Ship_Game
             }
 
             return false;
+        }
+
+        public bool LockOnPlayerTroop(out Troop playerTroop)
+        {
+            return LockOnOurTroop(EmpireManager.Player, out playerTroop);
         }
 
         public bool EnemyTroopsHere(Empire us)
