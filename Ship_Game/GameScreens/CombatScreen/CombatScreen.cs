@@ -131,8 +131,8 @@ namespace Ship_Game
             foreach (PlanetGridSquare pgs in p.TilesList)
                 ReversedList.Add(pgs);
         }
-        /*
-        void DetermineAttackAndMove() // TODO Fix this
+
+        void DetermineAttackAndMove()
         {
             foreach (PlanetGridSquare pgs in p.TilesList)
             {
@@ -141,16 +141,7 @@ namespace Ship_Game
                 if (ActiveTile == null)
                     pgs.ShowAttackHover = false;
             }
-            if (ActiveTile == null)
-            {
-                //added by gremlin why two loops? moved hover clear to first loop and move null check to third loop.
-                //foreach (PlanetGridSquare pgs in this.p.TilesList)
-                //{
-                //    pgs.CanMoveTo = false;
-                //    pgs.CanAttack = false;
-                //    pgs.ShowAttackHover = false;
-                //}
-            }
+
             if (ActiveTile != null)
             {
                 foreach (PlanetGridSquare pgs in p.TilesList)
@@ -161,7 +152,7 @@ namespace Ship_Game
                     if (ActiveTile != pgs)
                         continue;
 
-                    if (ActiveTile.TroopsAreOnTile && ActiveTile.SingleTroop.CanAttack)
+                    if (ActiveTile.TroopsAreOnTile && ActiveTile.LockOnOurTroop(EmpireManager.Player, out Troop troop) && troop.CanAttack)
                     {
                         foreach (PlanetGridSquare nearby in p.TilesList)
                         {
@@ -170,11 +161,21 @@ namespace Ship_Game
 
                             int xTotalDistance = Math.Abs(pgs.x - nearby.x);
                             int yTotalDistance = Math.Abs(pgs.y - nearby.y);
-                            if (xTotalDistance > pgs.SingleTroop.Range || yTotalDistance > pgs.SingleTroop.Range || nearby.NoTroopsOnTile && (nearby.building == null || nearby.building.CombatStrength <= 0))
+                            if (xTotalDistance > troop.Range || yTotalDistance > troop.Range
+                                                             || nearby.NoTroopsOnTile && (nearby.building == null
+                                                             || !nearby.CombatBuildingOnTile))
+                            {
                                 continue;
+                            }
 
-                            if ((nearby.TroopsAreOnTile && nearby.SingleTroop.Loyalty != EmpireManager.Player) || (nearby.CombatBuildingOnTile && p.Owner != EmpireManager.Player))  //fbedard: cannot attack allies !
+                            if (nearby.TroopsAreOnTile && nearby.LockOnEnemyTroop(EmpireManager.Player, out _)
+                                || nearby.CombatBuildingOnTile && p.Owner != EmpireManager.Player)  //fbedard: cannot attack allies !
+                            {
                                 nearby.CanAttack = true;
+                            }
+
+                            if (nearby.IsTileFree(EmpireManager.Player))
+                                nearby.CanMoveTo = true;
                         }
                     }
                     else if (ActiveTile.CombatBuildingOnTile && ActiveTile.building.CanAttack)
@@ -189,29 +190,17 @@ namespace Ship_Game
                             if (xTotalDistance > 1 || yTotalDistance > 1 || nearby.NoTroopsOnTile && (nearby.building == null || nearby.building.CombatStrength <= 0))
                                 continue;
 
-                            if ((nearby.TroopsAreOnTile && nearby.SingleTroop.Loyalty != EmpireManager.Player) || (nearby.CombatBuildingOnTile && p.Owner != EmpireManager.Player))  //fbedard: cannot attack allies !
+                            if (nearby.TroopsAreOnTile && nearby.LockOnEnemyTroop(EmpireManager.Player, out _)
+                                || nearby.CombatBuildingOnTile && p.Owner != EmpireManager.Player)  //fbedard: cannot attack allies !
+                            {
                                 nearby.CanAttack = true;
+                            }
                         }
-                    }
-                    if (ActiveTile.NoTroopsOnTile || !ActiveTile.SingleTroop.CanAttack)
-                        continue;
-
-                    foreach (PlanetGridSquare nearby in p.TilesList)
-                    {
-                        if (nearby == pgs)
-                            continue;
-
-                        int xTotalDistance = Math.Abs(pgs.x - nearby.x);
-                        int yTotalDistance = Math.Abs(pgs.y - nearby.y);
-                        if (xTotalDistance > pgs.SingleTroop.Range || yTotalDistance > pgs.SingleTroop.Range || nearby.TroopsAreOnTile || nearby.BuildingOnTile && (nearby.NoBuildingOnTile || nearby.building.CombatStrength != 0))
-                            continue;
-
-                        nearby.CanMoveTo = true;
                     }
                 }
             }
         }
-        */
+
         void DrawTroopDragDestinations()
         {
             if (!IsDraggingTroop)
@@ -356,7 +345,6 @@ namespace Ship_Game
                                                       Fonts.Arial12.LineSpacing + 8, Fonts.Arial12.LineSpacing + 4);
                         DrawTroopData(batch, levelRect, troop, troop.Level.ToString(), Color.Gold);
                     }
-                    /* //TODO Fix this
                     if (ActiveTile != null && ActiveTile == pgs)
                     {
                         if (troop.AvailableAttackActions > 0)
@@ -384,7 +372,7 @@ namespace Ship_Game
                                 DrawCircle(center, 5f, Color.Black);
                             }
                         }
-                    }*/
+                    }
                 }
             }
             else if (pgs.BuildingOnTile)
@@ -418,7 +406,7 @@ namespace Ship_Game
                                              (1 + strengthRect.Y + strengthRect.Height / 2 - Fonts.Arial12.LineSpacing / 2));
                     batch.DrawString(Fonts.Arial12, pgs.building.CombatStrength.ToString(), cursor, Color.White);
                 }
-                /* // TODO - fix this
+
                 if (ActiveTile != null && ActiveTile == pgs && ActiveTile.building.AvailableAttackActions > 0)
                 {
                     foreach (PlanetGridSquare nearby in p.TilesList)
@@ -429,7 +417,7 @@ namespace Ship_Game
                         }
                         batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
                     }
-                }*/
+                }
             }
         }
 
@@ -565,7 +553,7 @@ namespace Ship_Game
             if (ActiveTile != null)
                 tInfo.pgs = ActiveTile;
 
-            //DetermineAttackAndMove();  // TODO - fix this
+            DetermineAttackAndMove(); 
             hInfo.SetPGS(HoveredSquare);
 
             return base.HandleInput(input);

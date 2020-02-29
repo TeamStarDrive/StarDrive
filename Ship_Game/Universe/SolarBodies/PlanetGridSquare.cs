@@ -10,8 +10,8 @@ namespace Ship_Game
     {
         public int x;
         public int y;
-        //public bool CanAttack;
-        //public bool CanMoveTo;
+        public bool CanAttack;
+        public bool CanMoveTo;
         public bool ShowAttackHover;
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
@@ -20,9 +20,7 @@ namespace Ship_Game
         public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
         public Rectangle ClickRect       = new Rectangle();
-        //public Rectangle Troop1ClickRect = new Rectangle();
         public bool Highlighted;
-
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
         public bool NoBuildingOnTile     => building == null;
@@ -30,7 +28,6 @@ namespace Ship_Game
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        //public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
 
         public bool IsTileFree(Empire empire)
