@@ -98,7 +98,7 @@ namespace Ship_Game
                     ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(DefenseTile.ClickRect, 4);
                 }
 
-                AttackingTroop?.LevelUp(); // FB - for now multi troops on same tile is not supported
+                AttackingTroop?.LevelUp();
             }
             else if (DefendingBuilding != null)
             {

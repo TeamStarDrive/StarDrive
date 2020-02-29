@@ -93,7 +93,7 @@ namespace Ship_Game
                 Troop troop = TargetTile.TroopsHere[i];
                 int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
 
-                // Reduce friendly fire chance (10%)
+                // Reduce friendly fire chance (10%) if bombing a tile with multiple troops
                 if (troop.Loyalty == bombOwner)
                     troopHitChance = (int)(troopHitChance * 0.1f);
 
