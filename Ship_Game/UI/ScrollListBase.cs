@@ -61,10 +61,26 @@ namespace Ship_Game
         public bool EnableItemHighlight;
 
         // If TRUE, items will trigger click events
+        // NOTE: This is automatically enabled by setting
+        //       ScrollList<T>.OnHovered/OnClick/OnDoubleClick event
         public bool EnableItemEvents = true;
+
+        // If TRUE, allows automatic dragging of ScrollList Items OUTSIDE of the list
+        // NOTE: This is automatically enabled by setting ScrollList<T>.OnDrag event
+        public bool EnableDragOutEvents = false;
+
+        // If TRUE, allows to drag and reordering of ScrollList Items INSIDE the list
+        // NOTE: This is automatically enabled by setting ScrollList<T>.OnDragReorder event
+        public bool EnableDragReorderEvents = false;
 
         // DEBUG: Enable special debug features for Scroll List Debugging
         public bool DebugDrawScrollList;
+
+        public abstract void OnItemHovered(ScrollListItemBase item);
+        public abstract void OnItemClicked(ScrollListItemBase item);
+        public abstract void OnItemDoubleClicked(ScrollListItemBase item);
+        public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside);
+        public abstract void OnItemDragReordered(ScrollListItemBase dragged, ScrollListItemBase destination);
 
         // If set to a valid UIElement instance, then this element will be drawn in the background
         UIElementV2 TheBackground;
@@ -84,17 +100,6 @@ namespace Ship_Game
                 }
             }
         }
-
-        // If TRUE, allows automatic dragging of ScrollList Items
-        public bool EnableDragEvents = false;
-
-        // If TRUE, allows to drag and reordering of ScrollList Items
-        public bool EnableDragReorderItems = false;
-
-        public abstract void OnItemHovered(ScrollListItemBase item);
-        public abstract void OnItemClicked(ScrollListItemBase item);
-        public abstract void OnItemDoubleClicked(ScrollListItemBase item);
-        public abstract void OnItemDragged(ScrollListItemBase item, DragEvent evt, bool outside);
 
         public virtual void OnItemExpanded(ScrollListItemBase item, bool expanded)
         {
@@ -190,10 +195,11 @@ namespace Ship_Game
 
         protected ScrollListItemBase DraggedEntry;
         Vector2 DraggedOffset;
+        public bool IsDragging => DraggedEntry != null;
 
         void HandleDraggable(InputState input)
         {
-            if (!EnableDragEvents)
+            if (!EnableDragOutEvents && !EnableDragReorderEvents)
                 return;
 
             if (DraggedEntry == null)
@@ -226,7 +232,35 @@ namespace Ship_Game
             }
         }
 
-        protected abstract void HandleElementDragging(InputState input);
+        protected void HandleElementDragging(InputState input)
+        {
+            if (!EnableDragReorderEvents || DraggedEntry == null || !input.LeftMouseDown)
+                return;
+
+            Vector2 cursor = input.CursorPosition;
+            int oldIndex = FlatEntries.IndexOf(DraggedEntry);
+            if (oldIndex == -1)
+                return;
+
+            for (int newIndex = VisibleItemsBegin; newIndex < VisibleItemsEnd; newIndex++)
+            {
+                ScrollListItemBase newItem = FlatEntries[newIndex];
+                if (newItem != DraggedEntry && newIndex != oldIndex &&
+                    newItem.Rect.HitTest(cursor))
+                {
+                    // reorder flat entries for this frame
+                    FlatEntries.Reorder(oldIndex, newIndex);
+
+                    // but queue recalculation just in case
+                    RequiresLayout = true;
+                    DraggedEntry.RequiresLayout = true;
+                    newItem.RequiresLayout = true;
+
+                    OnItemDragReordered(DraggedEntry, newItem);
+                    break;
+                }
+            }
+        }
 
         public override bool HandleInput(InputState input)
         {
@@ -253,7 +287,7 @@ namespace Ship_Game
                         {
                             createdSelector = true;
                             HighlightedIndex = i;
-                            Highlight = new Selector(item.Rect.Bevel(4, 2), useRealRect:true);
+                            Highlight = new Selector(item.Rect.Bevel(4, 2));
                         }
                     }
                 }
@@ -276,6 +310,21 @@ namespace Ship_Game
                 HighlightedIndex = -1;
                 Highlight = null;
                 OnItemHovered(null); // no longer hovering on anything
+            }
+
+            if (DraggedEntry != null)
+            {
+                // item is allowed to be dragged outside of the ScrollList?
+                if (EnableDragOutEvents)
+                {
+                    DraggedEntry.Pos = input.CursorPosition + DraggedOffset;
+                }
+                else // item must stay inside the ScrollList
+                {
+                    DraggedEntry.Y = (input.CursorPosition + DraggedOffset).Y;
+                }
+
+                DraggedEntry.RequiresLayout = true;
             }
 
             return captured;
@@ -505,10 +554,10 @@ namespace Ship_Game
             batch.End();
             batch.Begin();
             batch.GraphicsDevice.RenderState.ScissorTestEnable = false;
-
+            
+            // Draw the currently dragged entry
             if (DraggedEntry != null)
             {
-                DraggedEntry.Pos = GameBase.ScreenManager.input.CursorPosition + DraggedOffset;
                 batch.FillRectangle(DraggedEntry.Rect, new Color(0, 0, 0, 150));
                 DraggedEntry.Draw(batch);
             }
