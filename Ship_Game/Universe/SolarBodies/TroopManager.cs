@@ -127,7 +127,8 @@ namespace Ship_Game
                 return; // no targets on planet. no need to move or attack
 
             // find range
-            if (nearestTargetTile.InRangeOf(ourTile, t.ActualRange) && !nearestTargetTile.EventOnTile) 
+            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.ActualRange) 
+                            && !nearestTargetTile.EventOnTile) 
             {
                 // start combat
                 t.UpdateAttackActions(-1);
