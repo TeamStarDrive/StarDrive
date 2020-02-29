@@ -333,7 +333,7 @@ namespace Ship_Game.AI
 
             ClearOrders();
 
-            if (p.FreeTilesWithRebaseOnTheWay == 0)
+            if (p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) == 0)
                 return;
 
             IgnoreCombat = true;
@@ -343,7 +343,7 @@ namespace Ship_Game.AI
         public void OrderRebaseToNearest()
         {
             ClearWayPoints();
-            Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay > 0)
+            Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) > 0)
                                                       .FindMin(p => Vector2.Distance(Owner.Center, p.Center));
 
             if (planet == null)

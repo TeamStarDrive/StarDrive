@@ -2274,7 +2274,7 @@ namespace Ship_Game
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
 
-                            var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
+                            var chance = (planet.TileArea - planet.GetFreeTiles(this)) / planet.TileArea;
 
                             if (planet.TroopsHere.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
                             {
