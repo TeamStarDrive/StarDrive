@@ -515,7 +515,7 @@ namespace Ship_Game.Fleets
                     for (int x = 0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
-                        if (ship.Carrier.AnyAssaultOpsAvailable)
+                        if (ship.Carrier.AnyAssaultOpsAvailable) // why are we removing bigger troop ships?
                             RemoveShip(ship);
                     }
                 }
@@ -1145,7 +1145,9 @@ namespace Ship_Game.Fleets
         // there are more than provided free spaces (???)
         bool BombPlanet(float ourGroundStrength, MilitaryTask task)
         {
-            return StartBombing(task);
+            int militaryAssets = task.TargetPlanet.GetEnemyAssets(Owner);
+            return militaryAssets >= Owner.DifficultyModifiers.AssetBombThreshold && StartBombing(task);
+
         }
 
         bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int landingSpotsNeeded = 20)
@@ -1156,7 +1158,7 @@ namespace Ship_Game.Fleets
 
             planetAssaultStrength += ourGroundStrength;
 
-            int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots();
+            int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots(Owner);
 
             if (landingSpotsNeeded > 0)
             {

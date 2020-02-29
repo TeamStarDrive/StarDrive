@@ -465,12 +465,15 @@ namespace Ship_Game
             return enemies;
         }
 
-        public int NumGroundLandingSpots() // FB - this is good if we support more than 1 troop per tile, which currently we are not.
+        public int NumGroundLandingSpots(Empire empire) // FB - this is good if we support more than 1 troop per tile, which currently we are not.
         {
-            var nonMilitaryTiles = TilesList.Filter(t => !t.CombatBuildingOnTile);
-            int spotCount        = nonMilitaryTiles.Sum(spots => spots.MaxAllowedTroops); 
-            int troops           = TroopList.Filter(t => t.Loyalty == Owner).Length;
-            return spotCount - troops;
+            return TilesList.Count(t => t.IsTileFree(empire));
+        }
+
+        public int GetEnemyAssets(Planet planet, Empire empire)
+        {
+            return planet.TroopsHere.Count(t => t.Loyalty != empire)
+                   + planet.BuildingList.Count(b => b.CombatStrength > 0);
         }
 
         public Array<Troop> EmpireTroops(Empire empire, int maxToTake)
