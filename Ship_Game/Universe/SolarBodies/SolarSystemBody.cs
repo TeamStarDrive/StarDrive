@@ -188,6 +188,7 @@ namespace Ship_Game
         private float PosUpdateTimer = 1f;
         private float ZrotateAmount  = 0.03f;
         public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
+        public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
         public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
         public Planet.ColonyType colonyType;
         public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles
