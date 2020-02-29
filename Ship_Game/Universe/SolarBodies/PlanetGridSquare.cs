@@ -10,7 +10,6 @@ namespace Ship_Game
     {
         public int x;
         public int y;
-        public bool CanAttack;
         public bool ShowAttackHover;
         public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();

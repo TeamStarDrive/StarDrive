@@ -144,10 +144,20 @@ namespace Ship_Game
 
             if (ActiveTile != null)
             {
+                int range;
                 MovementTiles.Clear();
                 AttackTiles.Clear();
-                if (ActiveTile.LockOnPlayerTroop(out Troop troop))
-                    return;
+                if (!ActiveTile.LockOnPlayerTroop(out Troop troop))
+                {
+                    if (ActiveTile.CombatBuildingOnTile)
+                        range = 1;
+                    else
+                        return; // Nothing on this tile can move or attack
+                }
+                else
+                {
+                    range = troop.Range;
+                }
 
                 foreach (PlanetGridSquare tile in p.TilesList)
                 {
@@ -157,9 +167,11 @@ namespace Ship_Game
                     int xTotalDistance = Math.Abs(ActiveTile.x - tile.x);
                     int yTotalDistance = Math.Abs(ActiveTile.y - tile.y);
                     int rangeToTile    = Math.Max(xTotalDistance, yTotalDistance);
-                    if (rangeToTile <= troop.Range && tile.IsTileFree(EmpireManager.Player))
+                    if (rangeToTile <= range && tile.IsTileFree(EmpireManager.Player))
                     {
-                        MovementTiles.Add(tile);
+                        if (!ActiveTile.CombatBuildingOnTile) 
+                            MovementTiles.Add(tile); // Movement options only for mobile assets
+
                         if (tile.LockOnEnemyTroop(EmpireManager.Player, out _) || tile.CombatBuildingOnTile && p.Owner != EmpireManager.Player)
                             AttackTiles.Add(tile);
                     }
@@ -366,15 +378,11 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Arial12, pgs.building.CombatStrength.ToString(), cursor, Color.White);
                 }
 
-                if (ActiveTile != null && ActiveTile == pgs && ActiveTile.building.AvailableAttackActions > 0)
+                if (ActiveTile != null && ActiveTile == pgs && ActiveTile.building.CanAttack)
                 {
-                    foreach (PlanetGridSquare nearby in p.TilesList)
+                    foreach (PlanetGridSquare attackTile in AttackTiles)
                     {
-                        if (nearby == pgs || !nearby.CanAttack)
-                        {
-                            continue;
-                        }
-                        batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), nearby.ClickRect, Color.White);
+                        batch.Draw(ResourceManager.Texture("Ground_UI/GC_Potential_Attack"), attackTile.ClickRect, Color.White);
                     }
                 }
             }
@@ -533,6 +541,13 @@ namespace Ship_Game
                     pgs.Highlighted = true;
                 }
 
+                if (pgs.BuildingOnTile && pgs.ClickRect.HitTest(Input.CursorPosition) && Input.LeftMouseClick)
+                {
+                    ActiveTile = pgs;
+                    tInfo.SetTile(pgs);
+                    capturedInput = true;
+                }
+
                 if (pgs.TroopsAreOnTile)
                 {
                     for (int i = 0; i < pgs.TroopsHere.Count; ++i)
@@ -564,41 +579,50 @@ namespace Ship_Game
                 if (ActiveTile == null) 
                     continue;
 
-                if (Input.LeftMouseClick 
-                    && pgs.ClickRect.HitTest(Input.CursorPosition)
-                    && ActiveTile.LockOnPlayerTroop(out Troop ourTroop))
+                if (Input.LeftMouseClick && pgs.ClickRect.HitTest(Input.CursorPosition))
                 {
-                    if (AttackTiles.Contains(pgs))
+                    if (ActiveTile.CombatBuildingOnTile 
+                        && ActiveTile.building.CanAttack  // Attacking building
+                        && pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemy))
                     {
-                        if (pgs.CombatBuildingOnTile)
+                        ActiveTile.building.UpdateAttackActions(-1);
+                        ActiveTile.building.ResetAttackTimer();
+                        StartCombat(ActiveTile.building, enemy, pgs, p);
+                    }
+                    else if (ActiveTile.LockOnPlayerTroop(out Troop ourTroop)) // Attacking troops
+                    {
+                        if (AttackTiles.Contains(pgs))
                         {
-                            StartCombat(ourTroop, pgs.building, pgs, p);
-                            capturedInput = true;
+                            if (pgs.CombatBuildingOnTile) // Defending building
+                            {
+                                StartCombat(ourTroop, pgs.building, pgs, p);
+                                capturedInput = true;
+                            }
+                            else if (pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemyTroop))
+                            {
+                                ourTroop.UpdateAttackActions(-1);
+                                ourTroop.ResetAttackTimer();
+                                ourTroop.UpdateMoveActions(-1);
+                                ourTroop.ResetMoveTimer();
+                                StartCombat(ourTroop, enemyTroop, pgs, p);
+                                capturedInput = true;
+                            }
                         }
-                        else if (pgs.LockOnEnemyTroop(EmpireManager.Player, out Troop enemyTroop))
+
+                        if (MovementTiles.Contains(pgs))
                         {
-                            ourTroop.UpdateAttackActions(-1);
-                            ourTroop.ResetAttackTimer();
+                            ourTroop.facingRight = pgs.x > ActiveTile.x;
+                            pgs.AddTroop(ourTroop);
                             ourTroop.UpdateMoveActions(-1);
                             ourTroop.ResetMoveTimer();
-                            StartCombat(ourTroop, enemyTroop, pgs, p);
+                            ourTroop.MovingTimer = 0.75f;
+                            ourTroop.SetFromRect(ourTroop.ClickRect);
+                            GameAudio.PlaySfxAsync(ourTroop.MovementCue);
+                            ActiveTile.TroopsHere.Remove(ourTroop);
+                            ActiveTile = pgs;
+                            MovementTiles.Remove(pgs);
                             capturedInput = true;
                         }
-                    }
-
-                    if (MovementTiles.Contains(pgs))
-                    {
-                        ourTroop.facingRight = pgs.x > ActiveTile.x;
-                        pgs.AddTroop(ourTroop);
-                        ourTroop.UpdateMoveActions(-1);
-                        ourTroop.ResetMoveTimer();
-                        ourTroop.MovingTimer = 0.75f;
-                        ourTroop.SetFromRect(ourTroop.ClickRect);
-                        GameAudio.PlaySfxAsync(ourTroop.MovementCue);
-                        ActiveTile.TroopsHere.Remove(ourTroop);
-                        ActiveTile = pgs;
-                        MovementTiles.Remove(pgs);
-                        capturedInput = true;
                     }
                 }
             }
