@@ -259,7 +259,7 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(EmpireManager.Player, out Troop troop) && troop.CanMove)
+                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanMove)
                 {
                     play = true;
                     troop.Launch(pgs);
