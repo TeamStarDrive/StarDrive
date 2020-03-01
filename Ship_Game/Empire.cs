@@ -1372,6 +1372,8 @@ namespace Ship_Game
         {
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
+            UpdateContactsAndBorders(1f);
+            UpdateRelationships();
             UpdateShipMaintenance(); ;
             EmpireAI.RunEconomicPlanner();
         }
@@ -2351,7 +2353,7 @@ namespace Ship_Game
             return true;
         }
 
-        void UpdateRelationships()
+        public void UpdateRelationships()
         {
             if (isFaction) return;
             int atWarCount = 0;
@@ -2367,7 +2369,7 @@ namespace Ship_Game
         public void TryUnlockByScrap(Ship ship)
         {
             string hullName = ship.shipData.Hull;
-            if (IsHullUnlocked(hullName))
+            if (IsHullUnlocked(hullName) || ship.shipData.Role == ShipData.RoleName.prototype)
                 return; // It's ours or we got it elsewhere
 
 
@@ -2817,6 +2819,7 @@ namespace Ship_Game
         public bool UpdateContactsAndBorders(float elapsedTime)
         {
             bool bordersChanged = false;
+            updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
                 int oldBorderNodesCount = BorderNodes.Count;
@@ -2826,7 +2829,6 @@ namespace Ship_Game
                 UpdateKnownShips();
                 updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
             }
-            updateContactsTimer -= elapsedTime;
             return bordersChanged;
         }
 

@@ -40,7 +40,7 @@ namespace Ship_Game.Debug
     {
         public bool IsOpen = true;
         readonly UniverseScreen Screen;
-        Rectangle Win = new Rectangle(30, 200, 1200, 700);
+        Rectangle Win = new Rectangle(30, 100, 1200, 700);
         public static int ShipsDied;
         public static int ProjDied;
         public static int ProjCreated;
@@ -145,7 +145,7 @@ namespace Ship_Game.Debug
                 ResearchText.Clear();
                 HideAllDebugGameInfo();
                 Mode += input.KeyPressed(Keys.Left) ? -1 : +1;
-                if      (Mode > DebugModes.Last)   Mode = DebugModes.Normal;
+                if      (Mode >= DebugModes.Last)  Mode = DebugModes.Normal;
                 else if (Mode < DebugModes.Normal) Mode = DebugModes.Last - 1;
                 return true;
             }
@@ -209,22 +209,22 @@ namespace Ship_Game.Debug
                 SetTextCursor(50f, 50f, Color.Red);
 
                 DrawString(Color.Yellow, Mode.ToString());
-                DrawString("Ships Died:   " + ShipsDied);
-                DrawString("Proj Died:    " + ProjDied);
-                DrawString("Proj Created: " + ProjCreated);
-                DrawString("Mods Created: " + ModulesCreated);
-                DrawString("Mods Died:    " + ModulesDied);
+                //DrawString("Ships Died:   " + ShipsDied);
+                //DrawString("Proj Died:    " + ProjDied);
+                //DrawString("Proj Created: " + ProjCreated);
+                //DrawString("Mods Created: " + ModulesCreated);
+                //DrawString("Mods Died:    " + ModulesDied);
 
                 TextCursor.Y -= (float)(Fonts.Arial20Bold.LineSpacing + 2) * 4;
                 TextCursor.X += Fonts.Arial20Bold.TextWidth("XXXXXXXXXXXXXXXXXXXX");
-                DrawString("LastMTaskCanceled: " + CanceledMTaskName);
+                //DrawString("LastMTaskCanceled: " + CanceledMTaskName);
 
-                DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
-                DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
-                DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
-                DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
+                //DrawString(CanceledMTask1Name + ": " + CanceledMtask1Count);
+                //DrawString(CanceledMTask2Name + ": " + CanceledMtask2Count);
+                //DrawString(CanceledMTask3Name + ": " + CanceledMtask3Count);
+                //DrawString(CanceledMTask4Name + ": " + CanceledMtask4Count);
 
-                DrawString($"Ships not in Any Pool: {ShipsNotInForcePool} In Defenspool: {ShipsInDefForcePool} InAoPools: {ShipsInAoPool} ");
+                //DrawString($"Ships not in Any Pool: {ShipsNotInForcePool} In Defenspool: {ShipsInDefForcePool} InAoPools: {ShipsInAoPool} ");
                 DrawDebugPrimitives((float)gameTime.ElapsedGameTime.TotalSeconds);
                 TextFont = Fonts.Arial12Bold;
                 switch (Mode)
@@ -384,7 +384,8 @@ namespace Ship_Game.Debug
 
         void ShipInfo()
         {
-            SetTextCursor(Win.X + 10, 400f, Color.White);
+            float y = (ScreenHeight - 700f).Clamped(100, 400);
+            SetTextCursor(Win.X + 10, y, Color.White);
 
             if (Screen.SelectedFleet != null)
             {
@@ -614,7 +615,7 @@ namespace Ship_Game.Debug
                 if (e.isFaction || e.data.Defeated)
                     continue;
 
-                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 10, e.EmpireColor);
+                SetTextCursor(Win.X + 10 + 255 * column, Win.Y + 5, e.EmpireColor);
                 DrawString(e.data.Traits.Name);
 
                 if (e.data.DiplomaticPersonality != null)
@@ -628,14 +629,14 @@ namespace Ship_Game.Debug
                 DrawString($"Ship Maint:  ({(int)e.GetEmpireAI().BuildCapacity}) T:{(int)e.TotalShipMaintenance} - War:{(int)e.TotalWarShipMaintenance} - Civ:{(int)e.TotalCivShipMaintenance}");
 
                 Array<Ship> ships = e.GetShips();
-                DrawString($"Ship Count:  {ships.Count}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
-                           $" :{ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
+                DrawString($"Ship Count:  ({ships.Count}) " +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.platform || warship?.DesignRole == ShipData.RoleName.station)}" +
+                           $" {ships.Count(warship => warship?.DesignRole ==  ShipData.RoleName.fighter || warship?.DesignRole == ShipData.RoleName.corvette)}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.frigate)}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.cruiser )}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.capital)}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.carrier)}" +
+                           $" {ships.Count(warship => warship?.DesignRole == ShipData.RoleName.bomber)}"
                            );
                 DrawString($"Build Maint:   ({(int)e.data.ColonyBudget}) {(int)e.TotalBuildingMaintenance}");
                 DrawString($"Spy Count:     ({(int)e.data.SpyBudget}) {e.data.AgentList.Count}");

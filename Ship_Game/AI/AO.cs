@@ -54,7 +54,6 @@ namespace Ship_Game.AI
         {
             ThreatLevel = (int)Owner.GetEmpireAI().ThreatMatrix.
                 PingRadarStrengthLargestCluster(Center, Radius, Owner, 50000);
-            ThreatLevel = ThreatLevel;
         }
         public int NumOffensiveForcePoolShips => OffensiveForcePool.Count;
         public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);

@@ -27,7 +27,7 @@ namespace Ship_Game
         {
             Building = b;
         }
-        public BuildableListItem(ColonyScreen screen, Ship s) : this(screen, true, true)
+        public BuildableListItem(ColonyScreen screen, Ship s, bool edit = true) : this(screen, true, edit)
         {
             Ship = s;
         }
