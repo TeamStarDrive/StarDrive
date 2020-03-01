@@ -337,7 +337,7 @@ namespace Ship_Game.Ships
             switch (engineState)
             {
                 case MoveState.Sublight: VelocityMaximum = MaxSTLSpeed; break;
-                case MoveState.Warp: VelocityMaximum = MaxFTLSpeed; break;
+                case MoveState.Warp:     VelocityMaximum = MaxFTLSpeed; break;
             }
 
             if (!IsTurning)
@@ -345,8 +345,7 @@ namespace Ship_Game.Ships
                 RestoreYBankRotation(elapsedTime);
             }
 
-            if ((engineState == MoveState.Warp || ThrustThisFrame == Ships.Thrust.Forward) 
-                                               && Velocity.Length() < SpeedLimit)
+            if (engineState == MoveState.Warp && Velocity.Length() < SpeedLimit)
             {
                 // enable full thrust, but don't touch the SpeedLimit
                 // so that FormationWarp can work correctly
