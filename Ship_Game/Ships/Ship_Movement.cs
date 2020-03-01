@@ -1,9 +1,28 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
 
 namespace Ship_Game.Ships
 {
+    public enum Thrust
+    {
+        Reverse,
+        Coast,
+        Forward,
+        AllStop
+    }
+
+    // This is purely for DEBUGGING
+    public enum ThrustStatus
+    {
+        None,
+        AllStop,
+        MaxSpeed,
+        ThrustFwd,
+        ThrustRev,
+    }
+
     public partial class Ship
     {
         public float MaxFTLSpeed;
@@ -19,11 +38,12 @@ namespace Ship_Game.Ships
 
         // Velocity magnitude (scalar), always absolute
         public float CurrentVelocity => Velocity.Length();
-        // we need to store the applied thrust for correct
-        // VelocityVerlet integration
-        // > 0: forward/acceleration
-        // < 0: reverse/deceleration
-        Thrust ThrustThisFrame;
+
+        // The desired thrust Mode during this frame
+        // We don't apply velocity directly to avoid double-acceleration bugs
+        // and to ensure coordinate integration is done properly
+        public Thrust ThrustThisFrame;
+        public ThrustStatus DebugThrustStatus;
 
         // this is an important variable for hi-precision impact predictor
         public Vector2 Acceleration { get; private set; }
@@ -36,7 +56,7 @@ namespace Ship_Game.Ships
         // Currently applied external force. All of the external force is converted into acceleration
         Vector2 AppliedExternalForce;
 
-        const float DecelerationRate = 0.5f; // Reverse thrusters work at 50% total engine thrust
+        const float DecelThrustPower = 0.5f; // Reverse thrusters work at 50% total engine thrust
         const float SASThrusterPower = 0.25f; // Stability Assist thrusters work at 25% total engine thrust
 
         // This applies (accumulates) a Force vector for the duration of this frame.
@@ -85,7 +105,7 @@ namespace Ship_Game.Ships
             FTLModifier *= projectorBonus;
             FTLModifier *= loyalty.data.FTLModifier;
 
-            MaxFTLSpeed = (WarpThrust / Mass) * FTLModifier;
+            MaxFTLSpeed = (WarpThrust / Mass) * FTLModifier * WarpPercent;
         }
 
         void SetMaxSTLSpeed()
@@ -146,7 +166,7 @@ namespace Ship_Game.Ships
             // general formula for stopping distance:
             // https://www.johannes-strommer.com/diverses/pages-in-english/stopping-distance-acceleration-speed/#formel
             // s = v^2 / 2a
-            float acc = GetThrustAcceleration() * DecelerationRate;
+            float acc = GetThrustAcceleration() * DecelThrustPower;
             float distance = (velocity*velocity) / (2*acc);
             return distance;
         }
@@ -204,6 +224,56 @@ namespace Ship_Game.Ships
             Acceleration = newAcc;
         }
 
+        // apply thrust limit, so we don't cause oscillating SAS thrust
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void PrecisionAccelerate(ref Vector2 acc, in Vector2 dir,
+                                        float maxThrust, float desiredThrust)
+        {
+            float precisionThrust = Math.Min(maxThrust*2f, desiredThrust);
+            acc.X += dir.X * precisionThrust; // NOTE: intentional manual inlining
+            acc.Y += dir.Y * precisionThrust;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void PrecisionDecelerate(ref Vector2 acc, in Vector2 dir,
+                                        float maxThrust, float desiredThrust)
+        {
+            float precisionThrust = Math.Min(maxThrust*2f, desiredThrust);
+            acc.X -= dir.X * precisionThrust; // NOTE: intentional manual inlining
+            acc.Y -= dir.Y * precisionThrust;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void Accelerate(ref Vector2 acc, in Vector2 dir, float thrust)
+        {
+            acc.X += dir.X * thrust; // NOTE: intentional manual inlining
+            acc.Y += dir.Y * thrust;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static void Decelerate(ref Vector2 acc, in Vector2 dir, float thrust)
+        {
+            acc.X -= dir.X * thrust; // NOTE: intentional manual inlining
+            acc.Y -= dir.Y * thrust;
+        }
+
+        void PrecisionStop(ref Vector2 acc, in Vector2 dir, float travel, float maxThrust, float thrust)
+        {
+            if (travel > 0.2f) // we are traveling forward, decelerate normally
+            {
+                PrecisionDecelerate(ref acc, dir, maxThrust, thrust * DecelThrustPower);
+            }
+            else if (travel < -0.2f) // we are traveling reverse, accelerate to slow down
+            {
+                PrecisionAccelerate(ref acc, dir, maxThrust, thrust);
+            }
+            else
+            {
+                ThrustThisFrame = Ships.Thrust.Coast; // turn off engine VFX
+            }
+            DebugThrustStatus = ThrustStatus.AllStop;
+        }
+
         // @note This function is a bit longer than normal because it's very math
         //       heavy and we want to avoid too many function call overheads,
         //       hoping for better CLR optimization
@@ -220,8 +290,8 @@ namespace Ship_Game.Ships
 
             EnginesKnockedOut = false;
 
-            float thrustAcceleration = GetThrustAcceleration();
-            Vector2 newAcc = default;
+            float thrustAcc = GetThrustAcceleration();
+            Vector2 acc = default;
 
             // inline velocity magnitude and dir (speed optimization)
             float vx = Velocity.X, vy = Velocity.Y;
@@ -242,25 +312,26 @@ namespace Ship_Game.Ships
                 // remove sideways drift
                 Vector2 left = shipForward.LeftVector();
                 float drift = velocityDir.Dot(left);
-                if (drift > 0f) // leftwards drift
+                if (drift > 0f) // leftwards drift, decelerate LEFT (accelerate RIGHT)
                 {
-                    newAcc -= left * thrustAcceleration * SASThrusterPower;
+                    PrecisionDecelerate(ref acc, left, velocity, thrustAcc * SASThrusterPower);
                 }
-                else if (drift < 0f) // rightward drift
+                else if (drift < 0f) // rightward drift, accelerate LEFT
                 {
-                    newAcc += left * thrustAcceleration * SASThrusterPower;
+                    PrecisionAccelerate(ref acc, left, velocity, thrustAcc * SASThrusterPower);
                 }
                 else if (ThrustThisFrame == Ships.Thrust.Coast && // no thrust this frame?
                          travel < -0.5f && engineState != MoveState.Warp)
                 {
                     // we are drifting reverse, accelerate forward!
-                    ApplyThrust(0f,  Ships.Thrust.Forward);
+                    ThrustThisFrame = Ships.Thrust.Forward;
                 }
             }
 
-            if (AppliedExternalForce != Vector2.Zero)
+            if (AppliedExternalForce.X != 0f || AppliedExternalForce.Y != 0f)
             {
-                newAcc += (AppliedExternalForce / Mass);
+                acc.X += AppliedExternalForce.X / Mass;
+                acc.Y += AppliedExternalForce.Y / Mass;
                 AppliedExternalForce = Vector2.Zero;
             }
 
@@ -271,41 +342,58 @@ namespace Ship_Game.Ships
 
             // in Warp, we cannot go slower than LightSpeed
             if (engineState == MoveState.Warp)
+            {
                 speedLimit = Math.Max(speedLimit, LightSpeedConstant);
+                ThrustThisFrame = Ships.Thrust.Forward; // in Warp, we can only thrust forward
+            }
 
             // get the current thrust dir and reset the vector for now
             // (todo: maybe add a delay to thrust vector direction change?)
-            Vector2 thrustDirection = (Rotation + ThrustVector).RadiansToDirection();
+            Vector2 thrustDir = (Rotation + ThrustVector).RadiansToDirection();
             ThrustVector = 0f;
 
             // Main ACCELERATE / DECELERATE
-            // we are pretty much at the speed limit already, don't do anything
-            if (velocity.AlmostEqual(speedLimit))
+            if (ThrustThisFrame == Ships.Thrust.AllStop)
             {
-                ThrustThisFrame = Ships.Thrust.Coast; // turn off engine VFX
+                PrecisionStop(ref acc, thrustDir, travel, velocity, thrustAcc);
             }
-            // we are already over max vel? forget about accelerating, slow down!
-            else if (velocity > speedLimit || ThrustThisFrame == Ships.Thrust.AllStop)
+            else if (velocity >= speedLimit) // we are at the speed limit already
             {
-                if (travel > 0.2f) // we are traveling forward, decelerate normally
+                float overLimit = (velocity - speedLimit);
+                // in order to have direction control at max velocity limit
+                // we spend half thrust to slow down and half thrust to speed up in wanted dir
+                if (ThrustThisFrame == Ships.Thrust.Forward && overLimit < thrustAcc*0.01f)
                 {
-                    newAcc -= thrustDirection * thrustAcceleration * DecelerationRate;
+                    Decelerate(ref acc, velocityDir, thrustAcc);
+                    Accelerate(ref acc, thrustDir,   thrustAcc);
+                    DebugThrustStatus = ThrustStatus.MaxSpeed;
                 }
-                else if (travel < -0.2f) // we are traveling reverse, accelerate to slow down
+                else
                 {
-                    newAcc += thrustDirection * thrustAcceleration;
+                    PrecisionStop(ref acc, thrustDir, travel, velocity, thrustAcc);
                 }
-                // else: we aren't facing drift direction, so thrusting is pointless
             }
             else if (ThrustThisFrame == Ships.Thrust.Forward)
             {
-                newAcc += thrustDirection * thrustAcceleration;
+                Accelerate(ref acc, thrustDir, thrustAcc);
+                DebugThrustStatus = ThrustStatus.ThrustFwd;
             }
             else if (ThrustThisFrame == Ships.Thrust.Reverse)
             {
-                newAcc -= thrustDirection * thrustAcceleration * DecelerationRate;
+                Decelerate(ref acc, thrustDir, thrustAcc * DecelThrustPower);
+                DebugThrustStatus = ThrustStatus.ThrustRev;
             }
-            return newAcc;
+            else
+            {
+                DebugThrustStatus = ThrustStatus.None;
+                if (ThrustThisFrame == Ships.Thrust.Coast && velocity < 0.25f)
+                {
+                    Velocity = Vector2.Zero; // magic stop
+                    return Vector2.Zero;
+                }
+            }
+
+            return acc;
         }
 
         float GetThrustAcceleration()
@@ -357,12 +445,5 @@ namespace Ship_Game.Ships
             if (IsSpooling && !Inhibited && MaxFTLSpeed >= LightSpeedConstant)
                 UpdateWarpSpooling(elapsedTime);
         }
-    }
-    public enum Thrust
-    {
-        Reverse,
-        Coast,
-        Forward,
-        AllStop
     }
 }
