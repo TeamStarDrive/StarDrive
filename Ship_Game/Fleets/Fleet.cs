@@ -515,7 +515,7 @@ namespace Ship_Game.Fleets
                     for (int x = 0; x < Ships.Count; ++x)
                     {
                         var ship = Ships[x];
-                        if (ship.Carrier.AnyAssaultOpsAvailable) // why are we removing bigger troop ships?
+                        if (ship.Carrier.AnyAssaultOpsAvailable)
                             RemoveShip(ship);
                     }
                 }
@@ -987,7 +987,7 @@ namespace Ship_Game.Fleets
         {
             float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
             float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
-            bool bombing              = BombPlanet(task);
+            bool bombing              = BombPlanet(ourGroundStrength, task);
             if (ReadyToInvade(task))
             {
                 bool invading = IsInvading(theirGroundStrength, ourGroundStrength, task, bombing ? 0 : 20);
@@ -1141,12 +1141,11 @@ namespace Ship_Game.Fleets
         }
 
         // @return TRUE if any ships are bombing planet
-        // Bombing is done if the target has enough military assets
-        bool BombPlanet(MilitaryTask task)
+        // Bombing is done if we have no ground strength or if
+        // there are more than provided free spaces (???)
+        bool BombPlanet(float ourGroundStrength, MilitaryTask task)
         {
-            int militaryAssets = task.TargetPlanet.GetEnemyAssets(Owner);
-            return militaryAssets >= Owner.DifficultyModifiers.AssetBombThreshold && StartBombing(task);
-
+            return StartBombing(task);
         }
 
         bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int landingSpotsNeeded = 20)
