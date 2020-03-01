@@ -47,6 +47,9 @@ namespace Ship_Game
         // is this item finished constructing?
         public bool IsComplete => ProductionSpent.GreaterOrEqual(ActualCost); // float imprecision
 
+        // if TRUE, this QueueItem will be cancelled during next production queue update
+        public bool IsCancelled;
+
         public QueueItem(Planet planet)
         {
             Planet = planet;

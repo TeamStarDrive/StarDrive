@@ -19,7 +19,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool NotEmpty => ConstructionQueue.NotEmpty;
         public bool Empty => ConstructionQueue.IsEmpty;
         public int Count => ConstructionQueue.Count;
-        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
+        public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
 
         float ProductionHere
         {
@@ -103,7 +103,12 @@ namespace Ship_Game.Universe.SolarBodies
                 if (q.isTroop && !HasRoomForTroops()) // remove excess troops from queue
                 {
                     Cancel(q);
-                    continue;
+                    continue; // this item was removed, so skip ++i
+                }
+                if (q.IsCancelled)
+                {
+                    Cancel(q);
+                    continue; // this item was removed, so skip ++i
                 }
                 if (q.IsComplete)
                 {
@@ -119,12 +124,10 @@ namespace Ship_Game.Universe.SolarBodies
                     }
 
                     Finish(q, success: ok);
-
-                    continue; // this item was removed, so skip
+                    continue; // this item was removed, so skip ++i
                 }
                 ++i;
             }
-            ConstructionQueue.ApplyPendingRemovals();
             return true;
         }
 
@@ -300,7 +303,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Finish(QueueItem q)
         {
-            P.ConstructionQueue.Remove(q);
+            P.ConstructionQueue.RemoveRef(q);
             q.OnComplete?.Invoke(success: true);
         }
 
@@ -323,7 +326,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
-            P.ConstructionQueue.Remove(q);
+            P.ConstructionQueue.RemoveRef(q);
             if (q.isBuilding)
                 P.RefreshBuildingsWeCanBuildHere();
 
@@ -337,18 +340,6 @@ namespace Ship_Game.Universe.SolarBodies
             foreach (QueueItem b in ConstructionQueue)
                 if (b.isBuilding) maintenance += b.Building.ActualMaintenance(P);
             return maintenance;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~SBProduction() { Dispose(false); }
-        private void Dispose(bool disposing)
-        {
-            ConstructionQueue?.Dispose(ref ConstructionQueue);
         }
     }
 }

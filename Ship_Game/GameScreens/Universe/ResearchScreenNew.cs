@@ -255,9 +255,6 @@ namespace Ship_Game
                 return true;
             }
 
-            if (Queue.HandleInput(input))
-                return true;
-
             foreach (RootNode root in RootNodes.Values)
             {
                 if (root.HandleInput(input,camera))

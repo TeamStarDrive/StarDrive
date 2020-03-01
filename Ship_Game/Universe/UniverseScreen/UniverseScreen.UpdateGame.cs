@@ -309,22 +309,13 @@ namespace Ship_Game
         void ProcessTurnShipsAndSystems(float elapsedTime)
         {
             Perfavg2.Start();
-#if !PLAYERONLY
-            DeepSpaceThread(elapsedTime);
+            float shipTime = !Paused ? 0.01666667f : 0;
+            DeepSpaceThread(shipTime);
             var realTime = (float)StarDriveGame.Instance.GameTime.ElapsedRealTime.TotalSeconds;
             for (int i = 0; i < SolarSystemList.Count; i++)
             {
-                SolarSystemList[i].Update(!Paused ? 0.01666667f : 0.0f, this, realTime);
+                SolarSystemList[i].Update(shipTime, this, realTime);
             }
-#else
-            FleetTask DeepSpaceTask = FleetTask.Factory.StartNew(this.DeepSpaceThread);
-            foreach (SolarSystem solarsystem in this.SolarSystemDict.Values)
-            {
-                SystemUpdaterTaskBased(solarsystem);
-            }
-            if (DeepSpaceTask != null)
-                DeepSpaceTask.Wait();
- #endif
             Perfavg2.Stop();
         }
 
