@@ -66,7 +66,7 @@ namespace Ship_Game.AI
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            var budget                     = SetBudgetForeArea(0.01f, strat.IndustryRatio 
+            var budget                     = SetBudgetForeArea(0.011f, strat.IndustryRatio 
                                                                       + strat.ExpansionRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
