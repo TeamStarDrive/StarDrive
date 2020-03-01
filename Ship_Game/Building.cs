@@ -323,5 +323,15 @@ namespace Ship_Game
 
             return defenseShipScore * DefenseShipsCapacity;
         }
+
+        public bool MoneyBuildingAndProfitable(float maintenance, float populationBillion)
+        {
+            if (!IsMoneyBuilding)
+                return false;
+
+            // we use gross profit since we dont want tax rate change to affect this often
+            float grossProfit = PlusTaxPercentage * populationBillion + CreditsPerColonist * populationBillion;
+            return maintenance < grossProfit;
+        }
     }
 }
