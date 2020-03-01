@@ -479,9 +479,14 @@ namespace Ship_Game
             for (int i = 0; i < Ships.Count; i++)
             {
                 Ship ship = Ships[i];
-                if (ship.engineState == Ship.MoveState.Sublight && !ship.IsSpooling)
+                if (ship.AI.State == AIState.HoldPosition || ship.AI.State == AIState.Bombard 
+                                                          || ship.AI.State == AIState.AssaultPlanet)
+                    continue;
+                
+                if (!ship.IsSpoolingOrInWarp)
                 {
-                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, radius))
+                    var combatRadius = radius;// Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
+                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, combatRadius))
                     {
                         if (ship.CanTakeFleetOrders)
                             moveStatus = MoveStatus.Dispersed;
@@ -524,7 +529,8 @@ namespace Ship_Game
 
         protected CombatStatus CombatStatusOfShipInArea(Ship ship, Vector2 position, float radius)
         {
-            if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position, radius))
+            float combatRadius = Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
+            if (!ship.CanTakeFleetOrders || ship.Center.OutsideRadius(position + ship.FleetOffset, combatRadius))
                 return CombatStatus.ClearSpace;
 
             if (ship.InCombat) return CombatStatus.InCombat;
@@ -534,7 +540,7 @@ namespace Ship_Game
 
         protected void ClearPriorityOrderIfSubLight(Ship ship)
         {
-            if (ship.engineState != Ship.MoveState.Warp && ship.AI.State == AIState.FormationWarp)
+            if (!ship.IsSpoolingOrInWarp)
             {
                 ship.AI.ClearPriorityOrder();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);
