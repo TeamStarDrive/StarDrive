@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.Commands.Goals;
@@ -57,10 +59,11 @@ namespace Ship_Game.AI
         {
             using (empire.BorderNodes.AcquireReadLock())
             {
-                foreach (Empire.InfluenceNode border in empire.BorderNodes)
+                for (int i = 0; i < empire.BorderNodes.Count; i++)
                 {
-                    float extra = border.SourceObject is Ship ? 0 : empire.ProjectorRadius;
-                    if (pos.InRadius(border.Position, border.Radius - extra*0.75f))
+                    Empire.InfluenceNode border = empire.BorderNodes[i];
+                    float nodeRadius = Math.Max(empire.ProjectorRadius, border.Radius);
+                    if (pos.InRadius(border.Position, nodeRadius * 0.75f))
                         return true;
                 }
             }
@@ -69,16 +72,20 @@ namespace Ship_Game.AI
 
         public bool NodeAlreadyExistsAt(Vector2 pos)
         {
-            foreach (Goal g in Goals)
-                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, 1000f))
+            for (int gi = 0; gi < Goals.Count; gi++)
+            {
+                Goal g = Goals[gi];
+                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, OwnerEmpire.ProjectorRadius))
                     return true;
+            }
 
             // bugfix: make sure another construction ship isn't already deploying to pos
             var ships = OwnerEmpire.GetShips();
-            foreach (Ship ship in ships)
+            for (int si = 0; si < ships.Count; si++)
             {
+                Ship ship = ships[si];
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployStructure, out ShipAI.ShipGoal goal)
-                    && goal.MovePosition.InRadius(pos, 1000f))
+                    && goal.MovePosition.InRadius(pos, OwnerEmpire.ProjectorRadius))
                     return true;
             }
 
@@ -90,65 +97,84 @@ namespace Ship_Game.AI
             if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
                 return;
 
-            float nodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(OwnerEmpire);
-            float roadMaintenance = GetCurrentProjectorCount() * nodeMaintenance;
+            float perNodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(OwnerEmpire);
+            float roadMaintenance = GetCurrentProjectorCount() * perNodeMaintenance;
             float underConstruction = GetTotalConstructionGoalsMaintenance();
 
-            float roadBudget = OwnerEmpire.data.SSPBudget * 0.1f - roadMaintenance - underConstruction;
+            float availableRoadBudget = OwnerEmpire.data.SSPBudget -roadMaintenance - underConstruction;
+            float totalRoadBudget = OwnerEmpire.data.SSPBudget;
 
-            if (roadBudget > (nodeMaintenance * 2))
+            if (availableRoadBudget > perNodeMaintenance * 2)
             {
-                underConstruction = CreateNewRoads(roadBudget, nodeMaintenance, underConstruction);
+                CreateNewRoads(availableRoadBudget, perNodeMaintenance, underConstruction);
             }
-
-            roadBudget = OwnerEmpire.data.SSPBudget - roadMaintenance - underConstruction;
+            
             var toRemove = new Array<SpaceRoad>();
+
+            // iterate spaceroads. remove invalid roads. remove roads that exceed budget. replace and build 
+            // missing projectors in roads. 
             foreach (SpaceRoad road in OwnerEmpire.SpaceRoadsList.OrderBy(road => road.NumberOfProjectors))
             {
-                if (road.RoadNodesList.Count == 0 || roadBudget <= 0.0f)
+                // no nodes is invalid. remove. 
+                if (road.RoadNodesList.Count == 0)
                 {                    
                     toRemove.Add(road);
-                    roadBudget += road.NumberOfProjectors * nodeMaintenance;
+                    continue;
+                }
+                float roadCost = road.RoadNodesList.Count * perNodeMaintenance;
+                totalRoadBudget -= roadCost;
+
+                // no budget for road. remove. 
+                if (totalRoadBudget < 0)
+                {
+                    toRemove.Add(road);
+                    totalRoadBudget += roadCost;
                     continue;
                 }
 
-                RoadNode ssp = road.RoadNodesList.Find(notNull => notNull?.Platform != null);
-                    
-                if (ssp != null && (!road.Origin.OwnerList.Contains(OwnerEmpire) ||
-                                    !road.Destination.OwnerList.Contains(OwnerEmpire)))
+                // road end points are invalid remove. 
+                if (!road.Origin.OwnerList.Contains(OwnerEmpire) ||
+                                    !road.Destination.OwnerList.Contains(OwnerEmpire))
                 {
                     toRemove.Add(road);
-                    roadBudget += road.NumberOfProjectors * nodeMaintenance;
+                    totalRoadBudget += road.NumberOfProjectors * perNodeMaintenance;
                 }
                 else
                 {
-                    foreach (RoadNode node in road.RoadNodesList)
-                    {
-                        if (node.Platform == null || (node.Platform != null && !node.Platform.Active))
-                        {
-                            bool nodeExists = NodeAlreadyExistsAt(node.Position);
-                            if (OwnerEmpire.isPlayer) // DEBUG
-                                Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
-
-                            if (!nodeExists)
-                            {
-                                node.Platform = null;
-                                Log.Info($"BuildProjector {node.Position}");
-                                Goals.Add(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
-                            }
-                        }
-                    }
+                    // create missing road projectors this includes newly created roads above. 
+                    CreateRoadProjectors(road);
                 }
             }
 
-            if (OwnerEmpire != Empire.Universe.player)
+            if (!OwnerEmpire.isPlayer)
                 ScrapSpaceRoadsForAI(toRemove);
+        }
+
+        void CreateRoadProjectors(SpaceRoad road)
+        {
+            foreach (RoadNode node in road.RoadNodesList)
+            {
+                if (node.Platform?.Active != true)
+                {
+                    bool nodeExists = NodeAlreadyExistsAt(node.Position);
+                    if (OwnerEmpire.isPlayer) // DEBUG
+                        Log.Info($"NodeAlreadyExists? {node.Position}: {nodeExists}");
+
+                    if (!nodeExists)
+                    {
+                        node.Platform = null;
+                        Log.Info($"BuildProjector {node.Position}");
+                        Goals.Add(new BuildConstructionShip(node.Position, "Subspace Projector", OwnerEmpire));
+                    }
+                }
+            }
         }
 
         void ScrapSpaceRoadsForAI(Array<SpaceRoad> toRemove)
         {
-            foreach (SpaceRoad road in toRemove)
+            for (int i = 0; i < toRemove.Count; i++)
             {
+                SpaceRoad road = toRemove[i];
                 OwnerEmpire.SpaceRoadsList.Remove(road);
                 foreach (RoadNode node in road.RoadNodesList)
                 {
@@ -158,16 +184,20 @@ namespace Ship_Game.AI
                         continue;
                     }
 
-                    foreach (Goal g in Goals)
+                    for (int x = 0; x < Goals.Count; x++)
                     {
-                        if (g.type != GoalType.DeepSpaceConstruction || !(g.BuildPosition == node.Position))
+                        Goal g = Goals[x];
+                        if (g.type != GoalType.DeepSpaceConstruction || !g.BuildPosition.AlmostEqual(node.Position))
                             continue;
 
                         Goals.QueuePendingRemoval(g);
-                        foreach (Planet p in OwnerEmpire.GetPlanets())
+                        IReadOnlyList<Planet> ps = OwnerEmpire.GetPlanets();
+                        for (int pi = 0; pi < ps.Count; pi++)
                         {
-                            foreach (QueueItem qi in p.ConstructionQueue)
+                            Planet p = ps[pi];
+                            for (int gi = 0; gi < p.ConstructionQueue.Count; gi++)
                             {
+                                QueueItem qi = p.ConstructionQueue[gi];
                                 if (qi.Goal == g)
                                 {
                                     qi.IsCancelled = true; // cancel on next SBProduction update
@@ -177,8 +207,10 @@ namespace Ship_Game.AI
 
                         using (OwnerEmpire.GetShips().AcquireReadLock())
                         {
-                            foreach (Ship ship in OwnerEmpire.GetShips())
+                            var ships = OwnerEmpire.GetShips().ToArray();
+                            for (int si = 0; si < ships.Length; si++)
                             {
+                                Ship ship = ships[si];
                                 ShipAI.ShipGoal goal = ship.AI.OrderQueue.PeekLast;
                                 if (goal?.Goal != null &&
                                     goal.Goal.type == GoalType.DeepSpaceConstruction &&
@@ -200,16 +232,19 @@ namespace Ship_Game.AI
 
         float CreateNewRoads(float roadBudget, float nodeMaintenance, float underConstruction)
         {
-            foreach (SolarSystem destination in OwnerEmpire.GetOwnedSystems())
+            IReadOnlyList<SolarSystem> list = OwnerEmpire.GetOwnedSystems();
+            for (int i = 0; i < list.Count; i++)
             {
+                SolarSystem destination = list[i];
                 int destSystemDevLevel = GetSystemDevelopmentLevel(destination);
                 if (destSystemDevLevel == 0)
                     continue;
 
                 SolarSystem[] systemsByDistance = OwnerEmpire.GetOwnedSystems()
                     .Sorted(s => s.Position.Distance(destination.Position));
-                foreach (SolarSystem origin in systemsByDistance)
+                for (int si = 0; si < systemsByDistance.Length; si++)
                 {
+                    SolarSystem origin = systemsByDistance[si];
                     if (!SpaceRoadExists(origin, destination))
                     {
                         int roadDevLevel = destSystemDevLevel + GetSystemDevelopmentLevel(origin);
@@ -224,6 +259,7 @@ namespace Ship_Game.AI
                     }
                 }
             }
+
             return underConstruction;
         }
     }
