@@ -194,10 +194,10 @@ namespace Ship_Game
 
         void CalcMoneyPriorities()
         {
-            float tax     = PopulationBillion - Owner.data.TaxRate*4;
-            float credits = (PopulationBillion - Money.IncomePerColonist).ClampMin(2);
+            float tax     = PopulationBillion * Owner.data.TaxRate*4;
+            float credits = PopulationBillion.ClampMin(2);
             tax           = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
-            credits       = ApplyGovernorBonus(credits, 1f, 0.5f, 0.75f, 0.5f, 0.5f);
+            credits       = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
             Priorities[ColonyPriority.CreditsPerCol] = credits;
         }
@@ -231,7 +231,7 @@ namespace Ship_Game
             value = value.UpperBound(10);
             value = (value * multiplier).Clamped(0, 20);
 
-            return (float)Math.Round(value, 0);
+            return value;
         }
 
         bool SimpleBuild(float budget) // build a building with a positive value
@@ -300,7 +300,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForBuild(b, budget))
+                if (!SuitableForBuild(b, budget))
                     continue;
 
                 float constructionMultiplier = ConstructionMultiplier(b, totalProd);
@@ -333,7 +333,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForScrap(b, storageInUse, scrapZeroMaintenance))
+                if (!SuitableForScrap(b, storageInUse, scrapZeroMaintenance))
                     continue;
 
                 // construction multiplier is 1 since there is no need to build anything, we are checking for scrap
@@ -365,7 +365,7 @@ namespace Ship_Game
             for (int i = 0; i < buildings.Count; i++)
             {
                 Building b = buildings[i];
-                if (NotSuitableForScrap(b))
+                if (!SuitableForScrap(b))
                     continue;
 
                 if (b.ActualMaintenance(this) >  maintenance)
@@ -377,39 +377,41 @@ namespace Ship_Game
                                             $"with maintenance of {expensive.ActualMaintenance(this)} -- ");
         }
 
-        bool NotSuitableForBuild(Building b, float budget)
+        bool SuitableForBuild(Building b, float budget)
         {
             if (b.IsMilitary || b.IsTerraformer || b.IsBiospheres) 
-                return true; // Different logic for these
+                return false; // Different logic for these
 
-            if (b.ActualMaintenance(this) > budget && !b.IsMoneyBuilding)
-                return true; // Too expensive for us and its not getting more juice from the population
+            float maintenance = b.ActualMaintenance(this);
+            if (maintenance < budget || b.IsMoneyBuilding && b.MoneyBuildingAndProfitable(maintenance, PopulationBillion))
+                return true; 
 
-            return false;
+            return false; // Too expensive for us and its not getting profitable juice from the population
         }
 
-        bool NotSuitableForScrap(Building b)
+        bool SuitableForScrap(Building b)
         {
             if (b.IsBiospheres
                 || !b.Scrappable
                 || b.IsPlayerAdded && Owner.isPlayer
                 || b.IsTerraformer
-                || b.IsMilitary)
+                || b.IsMilitary
+                || b.MoneyBuildingAndProfitable(b.ActualMaintenance(this), PopulationBillion)
+                || b.IsSpacePort && Owner.GetPlanets().Count == 1) // Dont scrap our last spaceport
             {
-                return true;
+                return false;
             }
 
-            return false;
+            return true;
         }
 
-        bool NotSuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance)
+        bool SuitableForScrap(Building b, float storageInUse, bool scrapZeroMaintenance)
         {
-            if (NotSuitableForScrap(b) || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero())
-                return true;
+            if (!SuitableForScrap(b) || !scrapZeroMaintenance && b.ActualMaintenance(this).AlmostZero())
+                return false;
 
-            return IsStorageWasted(storageInUse, b.StorageAdded);
+            return !IsStorageWasted(storageInUse, b.StorageAdded);
         }
-
 
         bool IsStorageWasted(float storageInUse, float storageAdded) => Storage.Max - storageAdded < storageInUse;
 
@@ -428,7 +430,7 @@ namespace Ship_Game
             score += EvalTraits(Priorities[ColonyPriority.ResearchFlat], b.PlusFlatResearchAmount * 3);
             score += EvalTraits(Priorities[ColonyPriority.ResearchPerCol], b.PlusResearchPerColonist * 10);
             score += EvalTraits(Priorities[ColonyPriority.CreditsPerCol], b.CreditsPerColonist * 3);
-            score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 10);
+            score += EvalTraits(Priorities[ColonyPriority.TaxPercent], b.PlusTaxPercentage * 20);
             score += EvalTraits(Priorities[ColonyPriority.Fertility], b.MaxFertilityOnBuildFor(Owner, Category) * 2);
             score += EvalTraits(Priorities[ColonyPriority.SpacePort], b.IsSpacePort ? 5 : 0);
 
