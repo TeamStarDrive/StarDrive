@@ -6,7 +6,6 @@ namespace Ship_Game
     {
         public float Timer = 4f;
         public int Phase   = 1;
-        //public PlanetGridSquare AttackTile;
         public PlanetGridSquare DefenseTile;
         public Empire AttackerLoyalty;
         public Troop AttackingTroop;
