@@ -13,9 +13,9 @@ namespace Ship_Game
 {
     internal class DeveloperSandbox : GameScreen
     {
-        const int NumOpponents = 1;
+        const int NumOpponents = 0;
         const bool PlayerIsCybernetic = false;
-        string PlayerPreference = "Kulrathi";
+        string PlayerPreference = "United";
         DeveloperUniverse Universe;
         TaskResult<UniverseData> CreateTask;
 
@@ -85,19 +85,24 @@ namespace Ship_Game
                 Empire playerEmpire = SandBox.EmpireList.First;
                 Planet homePlanet   = playerEmpire.GetPlanets()[0];
 
-                // @note Auto-added to empire
                 Vector2 debugDir  = playerEmpire.GetOwnedSystems()[0].Position.DirectionToTarget(homePlanet.Center);
                 string platformId = "Kinetic Platform";
                 //string platformId = "Beam Platform L4";
+
+                // @note Auto-added to Universe
                 var debugPlatform = new PredictionDebugPlatform(platformId, EmpireManager.Remnants, homePlanet.Center + debugDir * 5000f);
-                SandBox.MasterShipList.Add(debugPlatform); // there is no universe yet, add manually
+
+                Log.Write(ConsoleColor.DarkMagenta, "DeveloperUniverse.LoadContent");
             }
         }
 
         bool PlayerFilter(IEmpireData d)
         {
             if (PlayerPreference.NotEmpty())
-                return d.ArchetypeName.Contains(PlayerPreference);
+            {
+                return d.ArchetypeName.Contains(PlayerPreference)
+                    || d.Name.Contains(PlayerPreference);
+            }
             return d.IsCybernetic == PlayerIsCybernetic;
         }
 
