@@ -524,14 +524,14 @@ namespace Ship_Game
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(Font12, $"{P.BasePopPerTile} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
+                            batch.DrawString(Font12, $"{P.BasePopPerTile.String(0)} {MultiLineFormat(1897)}", bCursor, Player.EmpireColor);
                             return;
                         case null when pgs.Habitable:
                             batch.DrawString(Font20, Localizer.Token(350), bCursor, color);
                             bCursor.Y += Font20.LineSpacing + 5;
                             batch.DrawString(Font12, MultiLineFormat(349), bCursor, color);
                             bCursor.Y += Font20.LineSpacing * 5;
-                            batch.DrawString(Font12, $"{popPerTile} {MultiLineFormat(1898)}", bCursor, Color.LightGreen);
+                            batch.DrawString(Font12, $"{popPerTile.String(0)} {MultiLineFormat(1898)}", bCursor, Color.LightGreen);
                             return;
                     }
 
@@ -551,7 +551,7 @@ namespace Ship_Game
                         }
 
                         bCursor.Y += Font20.LineSpacing * 5;
-                        batch.DrawString(Font12, $"{P.BasePopPerTile} {MultiLineFormat(1896)}", bCursor, Color.Gold);
+                        batch.DrawString(Font12, $"{P.BasePopPerTile.String(0)} {MultiLineFormat(1896)}", bCursor, Color.Gold);
                         return;
                     }
 
