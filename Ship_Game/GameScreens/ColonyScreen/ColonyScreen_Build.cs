@@ -146,7 +146,7 @@ namespace Ship_Game
                     // and add to Build list
                     BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
                     foreach (Ship ship in category.Ships)
-                        catHeader.AddSubItem(new BuildableListItem(this, ship));
+                        catHeader.AddSubItem(new BuildableListItem(this, ship, !ship.shipData.IsShipyard));
                 }
             }
         }
