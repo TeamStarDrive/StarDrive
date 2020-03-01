@@ -13,6 +13,8 @@ namespace Ship_Game
         readonly UIButton BtnDown;
         readonly UIButton BtnCancel;
 
+        public override string ToString() => $"ResearchQItem \"{Tech.UID}\" {ElementDescr}";
+
         public ResearchQItem(ResearchScreenNew screen, TreeNode node, Vector2 pos)
         {
             Screen = screen;
@@ -26,11 +28,11 @@ namespace Ship_Game
 
         public override void PerformLayout()
         {
-            var r = new Rectangle((int)X, (int)Y, 320, 110);
+            Size = new Vector2(320, 110);
             Node = new TreeNode(Pos + new Vector2(100f, 20f), Tech, Screen);
-            BtnUp.Rect     = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33, 30, 30);
-            BtnDown.Rect   = new Rectangle(r.X + 15, r.Y + r.Height / 2 - 33 + 36, 30, 30);
-            BtnCancel.Rect = new Rectangle(r.X + 15 + 30 + 12, r.Y + r.Height / 2 - 15, 30, 30);
+            BtnUp.Rect     = new RectF(X+15, CenterY - 33, 30, 30);
+            BtnDown.Rect   = new RectF(X+15, CenterY +  3, 30, 30);
+            BtnCancel.Rect = new RectF(X+57, CenterY - 15, 30, 30);
             base.PerformLayout();
         }
 

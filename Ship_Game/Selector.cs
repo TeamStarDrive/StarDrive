@@ -20,24 +20,15 @@ namespace Ship_Game
 
         public Selector(Rectangle theMenu)
         {
-            theMenu.X -= 15;
-            theMenu.Y -= 5;
-            theMenu.Width += 12;
-            Initialize(theMenu);
             EdgeColor = Color.White;
-        }
-
-        public Selector(Rectangle theMenu, bool useRealRect)
-        {
             Initialize(theMenu);
-            EdgeColor = Color.White;
         }
 
         public Selector(Rectangle theMenu, Color fillColor)
         {
             Fill = fillColor;
-            Initialize(theMenu);
             EdgeColor = Color.White;
+            Initialize(theMenu);
         }
 
         public Selector(Rectangle theMenu, Color fillColor, float textureAlpha)

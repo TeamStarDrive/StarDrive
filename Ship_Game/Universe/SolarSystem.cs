@@ -618,7 +618,9 @@ namespace Ship_Game
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
                     StationsList         = planet.OrbitalStations.Where(kv => kv.Value.Active)
                                                                  .Select(kv => kv.Key).ToArray(),
+
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                    BaseFertilityTerraformRatio = planet.BaseFertilityTerraformRatio
                 };
 
                 if (planet.Owner != null)
