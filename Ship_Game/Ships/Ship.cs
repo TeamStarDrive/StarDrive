@@ -276,7 +276,8 @@ namespace Ship_Game.Ships
                 return;
             if (beam.Owner == null || beam.Weapon == null)
                 return;
-            Velocity += ((Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage) / Mass;
+            Vector2 repulsion = (Center - beam.Owner.Center) * beam.Weapon.RepulsionDamage;
+            ApplyForce(repulsion);
         }
 
         public void CauseMassDamage(float massDamage)
@@ -1384,7 +1385,6 @@ namespace Ship_Game.Ships
             SensorRange                 = 1000f;
             WarpThrust                  = 0f;
             TurnThrust                  = 0f;
-            NormalWarpThrust            = 0f;
             InhibitionRadius            = 0f;
             OrdAddedPerSecond           = 0f;
             HealPerTurn                 = 0;
@@ -1445,7 +1445,6 @@ namespace Ship_Game.Ships
             shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
             NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
 
-            NormalWarpThrust = WarpThrust;
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
 
