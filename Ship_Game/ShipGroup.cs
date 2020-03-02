@@ -462,45 +462,72 @@ namespace Ship_Game
             }
         }
 
+        [Flags]
         public enum MoveStatus
         {
-            InCombat = 0,
-            Dispersed,
-            Assembled
+            None              = 0,
+            Dispersed         = 1,
+            Assembled         = 2,
+            DispersedInCombat = 4,
+            AssembledInCombat = 8,
+            MajorityAssembled = 16,
+            All               = ~(~0 << 5)
+            
         }
 
-        public MoveStatus IsFleetAssembled(float radius, Vector2 position = default)
+        public MoveStatus FleetMoveStatus(float radius, Vector2 ao = default)
         {
-            if (position == default)
-                position = FinalPosition;
+            if (ao == default)
+                ao = FinalPosition;
 
-            MoveStatus moveStatus = MoveStatus.Assembled;
+            MoveStatus moveStatus = MoveStatus.None;
+            float assembled       = 0;
+            int totalShipCount    = 0;
 
             for (int i = 0; i < Ships.Count; i++)
             {
+                if (moveStatus.HasFlag(MoveStatus.All)) break;
+
                 Ship ship = Ships[i];
                 if (ship.AI.State == AIState.HoldPosition || ship.AI.State == AIState.Bombard 
                                                           || ship.AI.State == AIState.AssaultPlanet)
+                {
                     continue;
-                
+                }
+
+                totalShipCount++;
                 if (!ship.IsSpoolingOrInWarp)
                 {
                     var combatRadius = radius;// Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
-                    if (ship.Center.OutsideRadius(position + ship.FleetOffset, combatRadius))
+                    if (ship.Center.OutsideRadius(ao + ship.FleetOffset, combatRadius))
                     {
                         if (ship.CanTakeFleetOrders)
-                            moveStatus = MoveStatus.Dispersed;
+                            moveStatus |= MoveStatus.Dispersed;
 
-                        if (ship.AI.BadGuysNear && ship.AI.Target?.BaseStrength > 0)
+                        bool cantAttackValidTarget = ship.AI.Target?.BaseStrength > 0 && ship.AI.HasPriorityOrder;
+
+                        if (cantAttackValidTarget && ship.AI.Target.Center.InRadius(ship.Center, ship.AI.FleetNode.OrdersRadius))
                         {
-                            moveStatus = MoveStatus.InCombat;
-                            break;
+                            moveStatus |= MoveStatus.DispersedInCombat;
+                        }
+                    }
+                    else //Ship is in AO
+                    {
+                        assembled++;
+
+                        moveStatus |= MoveStatus.Assembled;
+
+                        if (ship.AI.Target?.BaseStrength > 0)
+                        {
+                            moveStatus |= MoveStatus.AssembledInCombat;
                         }
                     }
                 }
                 else if (ship.CanTakeFleetOrders)
-                    moveStatus = MoveStatus.Dispersed;
+                    moveStatus |= MoveStatus.Dispersed;
             }
+            if (assembled / totalShipCount > 0.5f)
+                moveStatus |= MoveStatus.MajorityAssembled;
             return moveStatus;
         }
 
@@ -538,14 +565,15 @@ namespace Ship_Game
             return CombatStatus.ClearSpace;
         }
 
-        protected void ClearPriorityOrderIfSubLight(Ship ship)
+        protected bool ClearPriorityOrderIfSubLight(Ship ship)
         {
             if (!ship.IsSpoolingOrInWarp)
             {
                 ship.AI.ClearPriorityOrder();
                 ship.AI.ChangeAIState(AIState.AwaitingOrders);
+                return true;
             }
-            
+            return false;
         }
 
         public float GetSpeedLimitFor(Ship ship)
