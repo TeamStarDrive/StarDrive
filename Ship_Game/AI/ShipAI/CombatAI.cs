@@ -209,7 +209,7 @@ namespace Ship_Game.AI
             }
         }
 
-        public void ExecuteCombatTactic(float elapsedTime) => CombatTactic.Execute(elapsedTime, null);
+        public void ExecuteCombatTactic(float elapsedTime) => CombatTactic?.Execute(elapsedTime, null);
 
     }
 }

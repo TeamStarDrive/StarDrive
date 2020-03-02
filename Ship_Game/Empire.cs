@@ -2360,7 +2360,7 @@ namespace Ship_Game
         public void TryUnlockByScrap(Ship ship)
         {
             string hullName = ship.shipData.Hull;
-            if (IsHullUnlocked(hullName))
+            if (IsHullUnlocked(hullName) || ship.shipData.Role == ShipData.RoleName.prototype)
                 return; // It's ours or we got it elsewhere
 
 
