@@ -495,7 +495,7 @@ namespace Ship_Game
                 else
                 {
                     Troop troop = ResourceManager.CreateTroop("Wyvern", EmpireManager.Remnants);
-                    if (!troop.TryLandTroop(p, p.TilesList[0]))
+                    if (!troop.TryLandTroop(p))
                         return false; // eek-eek
                 }
             }

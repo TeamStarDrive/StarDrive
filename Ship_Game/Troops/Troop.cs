@@ -471,13 +471,13 @@ namespace Ship_Game
             if (freeTiles.Length == 0)
                 return false;
 
-            PlanetGridSquare randFreeTile = freeTiles.RandItem();
-            AssignTroopToTile(planet, randFreeTile, resetMove);
+            PlanetGridSquare tileToLand = PickTileToLand(planet, freeTiles);
+            AssignTroopToTile(planet, tileToLand, resetMove);
             // some buildings can injure landing troops
             if (Owner != planet.Owner)
                 DamageTroop(planet.TotalInvadeInjure);
 
-            randFreeTile.CheckAndTriggerEvent(planet, Loyalty);
+            tileToLand.CheckAndTriggerEvent(planet, Loyalty);
             return true;
         }
 
@@ -493,6 +493,47 @@ namespace Ship_Game
                 UpdateAttackActions(-1);
                 AttackTimer = 3f; // Land delay
             }
+        }
+
+        PlanetGridSquare PickTileToLand(Planet planet, PlanetGridSquare[] freeTiles)
+        {
+            if (!planet.RecentCombat && Loyalty == planet.Owner)
+                return freeTiles.RandItem();
+
+            PlanetGridSquare bestTile = null;
+            int bestScore = 0;
+            for (int i = 0; i < freeTiles.Length; ++i)
+            {
+                PlanetGridSquare tile = freeTiles[i];
+                int score = CombatLandingTileScore(tile, planet);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestTile  = tile;
+                }
+            }
+
+            return  bestTile ?? freeTiles.RandItem();
+        }
+
+        int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
+        {
+            int left   = (tile.x - 1).ClampMin(0);
+            int right  = (tile.x + 1).ClampMin(planet.TileMaxX);
+            int top    = (tile.y - 1).ClampMin(0);
+            int bottom = (tile.y + 1).ClampMin(planet.TileMaxY);
+            int width  = planet.TileMaxY - 1;
+            int score  = 0;
+            for (int x = left; x <= right; ++x)
+            {
+                for (int y = top; y <= bottom; ++y)
+                {
+                    PlanetGridSquare checkedTile = planet.TilesList[tile.x * width + tile.y];
+                    score += checkedTile.CalculateNearbyTileScore(this, planet.Owner);
+                }
+            }
+
+            return score;
         }
 
         void RemoveTroopFromHostShip()
