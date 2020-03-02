@@ -83,14 +83,6 @@ namespace Ship_Game.AI
             return RotateToDirection(wantedForward, elapsedTime, minDiff);
         }
 
-        void AccelerateToWarpPercent(float elapsedTime, float warpPercent = 1.0f)
-        {
-            float r = Owner.WarpThrust / Owner.NormalWarpThrust;
-            if      (r < warpPercent) Owner.WarpThrust += Owner.NormalWarpThrust * elapsedTime;
-            else if (r > warpPercent) Owner.WarpThrust -= Owner.NormalWarpThrust * elapsedTime;
-            Owner.WarpThrust = Owner.WarpThrust.Clamped(0f, Owner.NormalWarpThrust);
-        }
-
         // @note This will constantly accelerate by design and
         //       will only slow down a little while turning too much
         internal void SubLightContinuousMoveInDirection(Vector2 direction, float elapsedTime, float speedLimit = 0f)
@@ -415,15 +407,15 @@ namespace Ship_Game.AI
         {
             if (Owner.engineState != Ship.MoveState.Warp)
             {
-                if (Owner.WarpThrust < Owner.NormalWarpThrust)
-                    AccelerateToWarpPercent(elapsedTime, 1.0f); // back to normal
+                if (Owner.WarpPercent < 1f)
+                    Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
                 return false;
             }
 
-            if (angleDiff > 0.05f)
-                AccelerateToWarpPercent(elapsedTime, 0.05f); // SLOW DOWN to % warp speed
-            else if (Owner.WarpThrust < Owner.NormalWarpThrust)
-                AccelerateToWarpPercent(elapsedTime, 1.0f); // back to normal
+            if (angleDiff > 0.04f)
+                Owner.SetWarpPercent(elapsedTime, 0.05f); // SLOW DOWN to % warp speed
+            else if (Owner.WarpPercent < 1f)
+                Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
 
             float maxTurn = EstimateMaxTurn(distance);
             if (angleDiff > maxTurn) // we can't make the turn

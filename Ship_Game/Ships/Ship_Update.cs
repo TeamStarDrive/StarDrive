@@ -167,8 +167,11 @@ namespace Ship_Game.Ships
                 }
             }
 
-            UpdateShipStatus(elapsedTime);
-            UpdateEnginesAndVelocity(elapsedTime);
+            if (elapsedTime > 0f)
+            {
+                UpdateShipStatus(elapsedTime);
+                UpdateEnginesAndVelocity(elapsedTime);
+            }
 
             if (InFrustum)
             {
