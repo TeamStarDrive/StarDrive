@@ -486,8 +486,6 @@ namespace Ship_Game
 
             for (int i = 0; i < Ships.Count; i++)
             {
-                if (moveStatus.HasFlag(MoveStatus.All)) break;
-
                 Ship ship = Ships[i];
                 if (ship.AI.State == AIState.HoldPosition || ship.AI.State == AIState.Bombard 
                                                           || ship.AI.State == AIState.AssaultPlanet)
@@ -499,7 +497,7 @@ namespace Ship_Game
                 if (!ship.IsSpoolingOrInWarp)
                 {
                     var combatRadius = radius;// Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
-                    if (ship.Center.OutsideRadius(ao + ship.FleetOffset, combatRadius))
+                    if (ship.Center.OutsideRadius(ao , combatRadius))
                     {
                         if (ship.CanTakeFleetOrders)
                             moveStatus |= MoveStatus.Dispersed;
@@ -526,7 +524,7 @@ namespace Ship_Game
                 else if (ship.CanTakeFleetOrders)
                     moveStatus |= MoveStatus.Dispersed;
             }
-            if (assembled / totalShipCount > 0.5f)
+            if (assembled / totalShipCount > 0.75f)
                 moveStatus |= MoveStatus.MajorityAssembled;
             return moveStatus;
         }
