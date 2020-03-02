@@ -165,6 +165,28 @@ namespace Ship_Game
             return false;
         }
 
+        public int CalculateNearbyTileScore(Troop troop, Empire planetOwner)
+        {
+            int score = 0;
+            if (CombatBuildingOnTile)
+            {
+                if (troop.Loyalty != planetOwner) // hostile building
+                    score += building.CanAttack ? -1 : 1;
+                else // friendly building
+                    score += building.CanAttack ? 3 : 2;
+
+                return score;
+            }
+
+            if (LockOnOurTroop(troop.Loyalty, out Troop friendly))
+                score += friendly.CanAttack ? 3 : 2;
+
+            if (LockOnEnemyTroop(troop.Loyalty, out Troop enemy))
+                score += enemy.CanAttack ? -1 : 1;
+
+            return score;
+        }
+
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
         {
             return Math.Abs(x - tileToCheck.x) <= range && Math.Abs(y - tileToCheck.y) <= range;
