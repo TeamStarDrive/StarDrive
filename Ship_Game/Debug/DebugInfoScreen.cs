@@ -443,7 +443,9 @@ namespace Ship_Game.Debug
                 Ship ship = Screen.SelectedShip;
 
                 DrawString($"Ship {ship.ShipName}  x {(int)ship.Center.X} y {(int)ship.Center.Y}");
-                DrawString($"Ship velocity: {(int)ship.Velocity.Length()}  speedLimit: {(int)ship.SpeedLimit}  {ship.WarpState}");
+                DrawString($"VEL: {(int)ship.Velocity.Length()}  "
+                          +$"LIMIT: {(int)ship.SpeedLimit}  {ship.WarpState}"
+                          +$"  {ship.ThrustThisFrame}  {ship.DebugThrustStatus}");
                 VisualizeShipOrderQueue(ship);
                 DrawWeaponArcs(ship);
 
