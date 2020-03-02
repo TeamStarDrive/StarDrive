@@ -498,6 +498,8 @@ namespace Ship_Game.Fleets
             for (int i = 0; i < ships.Count; i++)
             {
                 Ship ship = ships[i];
+                if (ship.IsSpoolingOrInWarp) continue;
+
                 if (ship.AI.HasPriorityOrder && ship.AI.State != AIState.AssaultPlanet 
                                              && ship.AI.State != AIState.Bombard
                                              && ship.AI.Target != null
@@ -626,7 +628,7 @@ namespace Ship_Game.Fleets
                         }
                         break;
                     }
-
+                    RearShipsToCombat(combatOffset, false);
                     Vector2 resetPosition = task.AO.OffsetTowards(AveragePosition(), 500);
                     EngageCombatToPlanet(resetPosition, true);
                     TaskStep = 5;
@@ -1217,10 +1219,8 @@ namespace Ship_Game.Fleets
             InvadeTactics(ScreenShips, InvasionTactics.Screen, FinalPosition, combatMove);
             InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, combatMove);
 
-            var troops = RearShips.Filter(s => s.DesignRoleType == ShipData.RoleType.Troop);
-            var notTroops = RearShips.Filter(s => s.DesignRoleType != ShipData.RoleType.Troop);
-            InvadeTactics(troops, InvasionTactics.Wait, FinalPosition, combatMove);
-            InvadeTactics(notTroops, InvasionTactics.Rear, FinalPosition, combatMove);
+            InvadeTactics(RearShips, InvasionTactics.Wait, FinalPosition, combatMove);
+            
             InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
             InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
         }
@@ -1234,7 +1234,20 @@ namespace Ship_Game.Fleets
             InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, combatMove);
             InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
             InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
+        }
 
+        void RearShipsToCombat(Vector2 position, bool combatMove)
+        {
+            var notBombersOrTroops = new Array<Ship>();
+            foreach(var ship in RearShips)
+            {
+                if (ship.DesignRoleType == ShipData.RoleType.Troop) continue;
+                if (ship.DesignRole == ShipData.RoleName.bomber) continue;
+                notBombersOrTroops.Add(ship);
+
+            }
+
+            InvadeTactics(notBombersOrTroops, InvasionTactics.Screen, FinalPosition, combatMove);
         }
 
         bool StartBombing(MilitaryTask task)
