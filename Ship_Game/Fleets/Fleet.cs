@@ -4,6 +4,7 @@ using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.Fleets.FleetTactics;
 using Ship_Game.AI;
@@ -1044,41 +1045,34 @@ namespace Ship_Game.Fleets
                 ship.AI.FleetNode.OrdersRadius = ordersRadius;
             }
         }
-
-        bool FleetHasBombs => Ships.Any(s => s.HasBombs);
-
+        
         bool ReadyToInvade(MilitaryTask task)
         {
             float invasionSafeZone = (task.TargetPlanet.GravityWellRadius /2);
             return Ships.Any(ship => ship.Center.InRadius(task.TargetPlanet.Center, invasionSafeZone));
         }
 
+        /// <summary>
+        /// Status of planetary assault.
+        /// <para>NotApplicable if waiting for invasion to start</para>
+        /// Good if invasion inProgress.
+        /// <para></para>
+        /// Critical if invasion should fail
+        /// </summary>
         Status StatusOfPlanetAssault(MilitaryTask task)
         {
-            float theirGroundStrength = GetGroundStrOfPlanet(task.TargetPlanet);
-            float ourGroundStrength   = FleetTask.TargetPlanet.GetGroundStrength(Owner);
-            bool bombing              = BombPlanet(ourGroundStrength, task);
+            bool bombing              = BombPlanet(task);
             bool readyToInvade        = ReadyToInvade(task);
 
-            if (!readyToInvade)       return Status.NotApplicable;
-            bool invading             = IsInvading(theirGroundStrength
-                                                    , ourGroundStrength
-                                                    , task
-                                                    , bombing ? 0 : 20);
-            if (bombing || invading) return Status.Good;
-            return Status.Critical;
-        }
-
-        void SendFleetToResupply()
-        {
-            Planet rallyPoint = Owner.RallyShipYardNearestTo(AveragePosition());
-            if (rallyPoint == null) return;
-            for (int i = 0; i < Ships.Count; i++)
+            if (readyToInvade)
             {
-                Ship ship = Ships[i];
-                if (ship.AI.HasPriorityOrder) continue;
-                ship.AI.OrderResupply(rallyPoint, true);
+                bool invading = OrderShipsToInvade(RearShips, task, bombing);
+
+                if (bombing || invading) 
+                    return Status.Good;
+                return Status.Critical;
             }
+            return Status.NotApplicable;
         }
 
         void DebugInfo(MilitaryTask task, string text)
@@ -1111,7 +1105,7 @@ namespace Ship_Game.Fleets
             return stillMissionEffective;
         }
 
-        void InvadeTactics(Array<Ship> flankShips, InvasionTactics type, Vector2 moveTo, bool combatMove)
+        void InvadeTactics(IEnumerable<Ship> flankShips, InvasionTactics type, Vector2 moveTo, bool combatMove)
         {
             foreach (Ship ship in flankShips)
             {
@@ -1123,85 +1117,75 @@ namespace Ship_Game.Fleets
                 ai.CancelIntercept();
                 if (ai.State == AIState.HoldPosition || ai.State == AIState.FormationWarp)
                     ai.ClearOrders();
-                float size = GetRelativeSize().Length();
-                if (size > FleetTask.AORadius)
-                    size /= FleetTask.AORadius;
-                else size = 1;
+
+                float fleetSizeRatio = GetRelativeSize().Length();
+                if (fleetSizeRatio > FleetTask.AORadius)
+                    fleetSizeRatio /= FleetTask.AORadius;
+                else fleetSizeRatio = 1;
+
                 switch (type)
                 {
                     case InvasionTactics.Screen:
                         {
-                            SetOrdersRadius(flankShips, 5000f);
-                            ai.OrderMoveDirectlyTo(moveTo + Vector2.Divide(ship.FleetOffset, size)
-                                    , FinalDirection
-                                    , true
-                                    , ai.State
-                                    , 0
-                                    , combatMove);
-
+                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit);
                             break;
                         }
 
                     case InvasionTactics.Rear:
                         if (!ai.HasPriorityOrder)
                         {
-                            ai.OrderMoveDirectlyTo(moveTo + Vector2.Divide(ship.FleetOffset, size)
-                                , FinalDirection
-                                , true
-                                , ai.State
-                                , SpeedLimit * 0.75f
-                                , combatMove);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit * 0.5f);
                         }
                         break;
 
                     case InvasionTactics.MainBattleGroup:
                         {
-                            SetOrdersRadius(flankShips, 5000f);
-                            if (ai.State != AIState.Bombard && ship.DesignRole != ShipData.RoleName.bomber)
-                                ai.OrderMoveDirectlyTo(moveTo + Vector2.Divide(ship.FleetOffset, size)
-                                    , FinalDirection
-                                    , true
-                                    , ai.State
-                                    , SpeedLimit
-                                    , combatMove);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit * 0.75f);
                             break;
                         }
                     case InvasionTactics.FlankGuard:
                         {
-                            if (!ship.InCombat)
-                                ai.OrderMoveDirectlyTo(moveTo + Vector2.Divide(ship.FleetOffset, size)
-                                    , FinalDirection
-                                    , true
-                                    , ai.State
-                                    , SpeedLimit * 0.05f
-                                    , combatMove);
+                            TacticalMove(ship, moveTo, fleetSizeRatio, combatMove, SpeedLimit *.05f);
                             break;
                         }
                     case InvasionTactics.Wait:
-                        if (ship.DesignRoleType == ShipData.RoleType.Troop)
-                        {
-                            ai.HoldPosition();
-                        }
-                        else 
-                        {
-                            ai.OrderMoveDirectlyTo(moveTo + Vector2.Divide(ship.FleetOffset, size)
-                                , FinalDirection
-                                , true
-                                , ai.State
-                                , ship.MaxFTLSpeed * 0.5f
-                                , false);
-                        }
+                        ai.HoldPosition();
                         break;
                 }
             }
         }
 
+        void TacticalMove(Ship ship, Vector2 moveTo, float fleetSizeRatio, bool combatMove, float speedLimit)
+        {
+            var ai              = ship.AI;
+            Vector2 offset      = ship.FleetOffset / fleetSizeRatio;
+            Vector2 fleetMoveTo = moveTo + offset;
+            FinalDirection      = fleetMoveTo.DirectionToTarget(FleetTask.AO);
+
+            ai.OrderMoveDirectlyTo(fleetMoveTo, FinalDirection, true, ai.State, speedLimit, combatMove);
+        }
+
         private enum InvasionTactics
         {
+            /// <summary>
+            /// Screen ships should engage combat targets attempting to screen the fleet from targets between the fleet and its objective. 
+            /// </summary>
             Screen,
+            /// <summary>
+            /// The MBG should have the bigger damage dealing ships including carriers and captials. 
+            /// </summary>
             MainBattleGroup,
+            /// <summary>
+            /// Flank Guard should protect sides of the main battle group and provide fire support. 
+            /// </summary>
             FlankGuard,
+            /// <summary>
+            /// Rear ships should be reserve and protected ships. Troop Transports and other utility ships. 
+            /// </summary>
             Rear,
+            /// <summary>
+            /// Wait should tell the ships to hold position for further orders. 
+            /// </summary>
             Wait
         }
 
@@ -1212,7 +1196,11 @@ namespace Ship_Game.Fleets
 
             InvadeTactics(ScreenShips, InvasionTactics.Screen, FinalPosition, combatMove);
             InvadeTactics(CenterShips, InvasionTactics.MainBattleGroup, FinalPosition, combatMove);
-            InvadeTactics(RearShips, InvasionTactics.Wait, FinalPosition, combatMove);
+
+            var troops = RearShips.Filter(s => s.DesignRoleType == ShipData.RoleType.Troop);
+            var notTroops = RearShips.Filter(s => s.DesignRoleType != ShipData.RoleType.Troop);
+            InvadeTactics(troops, InvasionTactics.Wait, FinalPosition, combatMove);
+            InvadeTactics(notTroops, InvasionTactics.Rear, FinalPosition, combatMove);
             InvadeTactics(RightShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
             InvadeTactics(LeftShips, InvasionTactics.FlankGuard, FinalPosition, combatMove);
 
@@ -1259,46 +1247,70 @@ namespace Ship_Game.Fleets
             return anyShipsBombing;
         }
 
-        // @return TRUE if any ships are bombing planet
-        // Bombing is done if we have no ground strength or if
-        // there are more than provided free spaces (???)
-        bool BombPlanet(float ourGroundStrength, MilitaryTask task)
+        /// <summary>
+        /// @return TRUE if any ships are bombing planet
+        /// Bombing is done if possible.
+        /// </summary>
+        bool BombPlanet(MilitaryTask task)
         {
             return StartBombing(task);
         }
 
         /// <summary>
-        /// Starts invasion if possible.
+        /// Sends any capable ships to invade task planet. Returns true if succesful. 
+        /// <para></para>
+        /// Invasion start success depends on the number of landing spots on the planet and the strength comparison
+        /// between invasion forces and planet defenders. 
         /// </summary>
-        /// <param name="theirGroundStrength">Their ground strength.</param>
-        /// <param name="ourGroundStrength">Our ground strength.</param>
-        /// <param name="task">The task.</param>
-        /// <param name="landingSpotsNeeded">The landing spots needed.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified their ground strength is invading; otherwise, <c>false</c>.
-        /// </returns>
-        bool IsInvading(float theirGroundStrength, float ourGroundStrength, MilitaryTask task, int landingSpotsNeeded = 20)
+        bool OrderShipsToInvade(IEnumerable<Ship> ships, MilitaryTask task, bool targetBeingBombed)
         {
             float planetAssaultStrength = 0.0f;
-            foreach (Ship ship in RearShips)
-                planetAssaultStrength += ship.Carrier.PlanetAssaultStrength;
+            int shipsInvading           = 0;
+            float theirGroundStrength   = GetGroundStrOfPlanet(task.TargetPlanet);
+            float ourGroundStrength     = FleetTask.TargetPlanet.GetGroundStrength(Owner);
+            var invasionShips           = ships.ToArray();
+
+            // collect current invasion stats
+            for (int i = 0; i < Ships.Count; i++)
+            {
+                Ship ship              = Ships[i];
+                planetAssaultStrength += ship.Carrier.PlanetAssaultStrength; ;
+
+                if (ship.AI.State == AIState.AssaultPlanet) shipsInvading++;
+            }
 
             planetAssaultStrength += ourGroundStrength;
 
+            // we need at least 1 spot open. if we have bombers one should be there soon. 
+            // else figure the base number by our strength ratio. if we have twice the strength then 
+            // 2 landing spots might do the job. 
+            float landingSpotRatio = theirGroundStrength / planetAssaultStrength.ClampMin(1);
+            int landingSpotsNeeded = targetBeingBombed ? 0 : (int)(1 * landingSpotRatio).Clamped(1, 10);
+
+
             int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots();
 
-            if (landingSpotsNeeded > 0)
+            // If we arent bombing and no troops are fighting or on their way
+            // and we dont have enough strength to open a few tiles with brute force troops.
+            // give up. 
+            if (!targetBeingBombed && ourGroundStrength < 1 && shipsInvading < 1 && freeLandingSpots < landingSpotsNeeded)
+                return false;
+
+            int numberOfShipsToSend = freeLandingSpots - shipsInvading;
+
+            for (int x = 0; x < invasionShips.Length && numberOfShipsToSend > 0; x++)
             {
-                if (freeLandingSpots < 1)
-                    return false;
-                if (freeLandingSpots < landingSpotsNeeded)
-                    return false;
-                if (planetAssaultStrength < theirGroundStrength)
-                    return false;
+                Ship ship = invasionShips[x];
+                if (ship.DesignRoleType == ShipData.RoleType.Troop && ship.AI.State != AIState.AssaultPlanet)
+                {
+                    ship.AI.ClearOrders();
+                    ship.AI.OrderLandAllTroops(task.TargetPlanet);
+                    numberOfShipsToSend--;
+                    shipsInvading++;
+                }
             }
-            
-            OrderShipsToInvade(RearShips, task, freeLandingSpots + 3);
-            return true;
+
+            return shipsInvading > 0;
         }
 
         void OrderShipsToInvade(Array<Ship> ships, MilitaryTask task, int numberOfShipsToSend)
