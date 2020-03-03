@@ -53,12 +53,21 @@ namespace Ship_Game
                 Grid[pt.X + pt.Y * Width] = slot;
             }
         }
-
-
-        #region Grid Coordinate Utils
-
+        
         public int SlotsCount => Slots.Length;
         public IReadOnlyList<SlotStruct> SlotsList => Slots;
+
+        /// NOTE: This is an adapter to unify ship stat calculation
+        public ShipModule[] CopyModulesList()
+        {
+            var modules = new Array<ShipModule>();
+            foreach (SlotStruct slot in Slots)
+                if (slot.Module != null)
+                    modules.Add(slot.Module);
+            return modules.ToArray();
+        }
+
+        #region Grid Coordinate Utils
 
         public Point ToGridPos(Point modulePos) => new Point((modulePos.X - Offset.X) / 16,
                                                              (modulePos.Y - Offset.Y) / 16);
@@ -388,17 +397,6 @@ namespace Ship_Game
             if (ss.Module.Powered)
                 graphic = graphic + "_power";
             return ResourceManager.Texture(graphic);
-        }
-
-        public ShipModule[] Modules
-        {
-            get
-            {
-                var modules = new Array<ShipModule>();
-                foreach (SlotStruct slot in Slots)
-                    if (slot.Module != null) modules.Add(slot.Module);
-                return modules.ToArray();
-            }
         }
 
         #endregion
