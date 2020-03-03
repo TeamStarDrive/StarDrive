@@ -407,29 +407,20 @@ namespace Ship_Game
         void DrawShipInfoPanel()
         {
             float hitPoints                = 0f;
-            float mass                     = 0f;
             float powerCapacity            = 0f;
             float ordnanceCap              = 0f;
             float powerFlow                = 0f;
             float shieldPower              = 0f;
-            float thrust                   = 0f;
-            float afterThrust              = 0f;
             float cargoSpace               = 0f;
             int size                       = 0;
-            float cost                     = 0f;
-            float warpThrust               = 0f;
-            float turnThrust               = 0f;
             float warpableMass             = 0f;
             float warpDraw                 = 0f;
-            float ftlCount                 = 0f;
-            float ftlSpeed                 = 0f;
             float repairRate               = 0f;
             float sensorRange              = 0f;
             float sensorBonus              = 0f;
             float ordnanceUsed             = 0f;
             float ordnanceRecovered        = 0f;
             float weaponPowerNeeded        = 0f;
-            float warpSpoolTimer           = 0f;
             float empResist                = 0f;
             float offense                  = 0f;
             float defense                  = 0f;
@@ -454,10 +445,8 @@ namespace Ship_Game
             bool canTargetCapitals         = false;
             int pointDefenseValue          = 0;
 
-            HullBonus bonus              = ActiveHull.Bonuses;
-            Array<ShipModule> shields    = new Array<ShipModule>();
-            Array<ShipModule> amplifiers = new Array<ShipModule>();
             DesignIssues.Reset();
+            var modules = new ModuleCache(ModuleGrid.CopyModulesList());
 
             foreach (SlotStruct slot in ModuleGrid.SlotsList)
             {
@@ -471,12 +460,10 @@ namespace Ship_Game
 
                 numSlots      += module.Area;
                 hitPoints     += module.ActualMaxHealth;
-                mass          += module.ActualMass;
                 troopCount    += module.TroopCapacity;
                 powerCapacity += module.ActualPowerStoreMax;
                 ordnanceCap   += module.OrdinanceCapacity;
                 powerFlow     += module.ActualPowerFlowMax;
-                cost          += module.ActualCost;
                 cargoSpace    += module.Cargo_Capacity;
 
                 if (module.PowerDraw <= 0) // some modules might not need power to operate, we still need their offense
@@ -496,9 +483,6 @@ namespace Ship_Game
                 warpDraw           += module.PowerDrawAtWarp;
                 shieldPower        += module.shield_power_max;
                 totalShieldAmplify += module.AmplifyShields;
-                thrust             += module.thrust;
-                warpThrust         += module.WarpThrust;
-                turnThrust         += module.TurnThrust;
                 repairRate         += module.ActualBonusRepairRate;
                 ordnanceRecovered  += module.OrdnanceAddedPerSecond;
                 targets            += module.TargetTracking;
@@ -511,23 +495,8 @@ namespace Ship_Game
                 if (module.IsTroopBay)
                     numTroopBays += 1;
 
-                if (module.Is(ShipModuleType.Shield))
-                    shields.Add(module);
-
-                if (module.AmplifyShields > 0)
-                    amplifiers.Add(module);
-
                 if (module.IsCommandModule)
                     numCommandModules += 1;
-
-                if (module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier > warpSpoolTimer)
-                    warpSpoolTimer = module.FTLSpoolTime * EmpireManager.Player.data.SpoolTimeModifier;
-
-                if (module.FTLSpeed > 0f)
-                {
-                    ftlCount += 1f;
-                    ftlSpeed += module.FTLSpeed;
-                }
 
                 if (!wasOffenseDefenseAdded)
                 {
@@ -579,37 +548,30 @@ namespace Ship_Game
                 }
             }
 
-            float shieldAmplifyPerShield =  ShipUtils.GetShieldAmplification(amplifiers.ToArray(), shields.ToArray());
-            shieldPower                  = ShipUtils.UpdateShieldAmplification(amplifiers.ToArray(), shields.ToArray());
-            Power netPower = Power.Calculate(ModuleGrid.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
+            var stats = new ShipStats();
+            stats.Update(modules.Modules, ActiveHull, EmpireManager.Player, 0);
+
+            float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
+            shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
+            Power netPower = Power.Calculate(modules.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
 
             // Other modification to the ship and draw values
             empResist += size; // FB: so the player will know the true EMP Tolerance
             targets   += fixedTargets;
-
-            mass += (ActiveHull.ModuleSlots.Length).ClampMin(1);
-            mass *= EmpireManager.Player.data.MassModifier;
-            cost += (int)(cost * EmpireManager.Player.data.Traits.ShipCostMod);
-
             float powerRecharge = powerFlow - netPower.NetSubLightPowerDraw;
-            float speed         = thrust / mass;
-            float turn          = MathHelper.ToDegrees(turnThrust / mass / 700f);
-            float warpSpeed     = (warpThrust / mass) * EmpireManager.Player.data.FTLModifier * bonus.SpeedModifier;  // Added by McShooterz: hull bonus speed;
-            float modifiedSpeed = speed * EmpireManager.Player.data.SubLightModifier * bonus.SpeedModifier;
-            float afterSpeed    = (afterThrust / mass) * EmpireManager.Player.data.SubLightModifier;
-            var cursor          = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
-
-            DrawHullBonuses(ref cursor, ref cost, bonus);
-            DrawUpkeepSizeMass(ref cursor, cost, size, mass);
+            
+            var cursor = new Vector2(StatsSub.X + 10, ShipStats.Y + 18);
+            DrawHullBonuses(ref cursor, stats.Cost, ActiveHull.Bonuses);
+            DrawUpkeepSizeMass(ref cursor, stats.Cost, size, stats.Mass);
             WriteLine(ref cursor);
 
             DrawPowerConsumedAndRecharge(ref cursor, weaponPowerNeeded, powerRecharge, powerCapacity, out float powerConsumed);
-            DrawPowerDrawAtWarp(ref cursor, warpSpeed, powerFlow, netPower.NetWarpPowerDraw, out float fDrawAtWarp);
+            DrawPowerDrawAtWarp(ref cursor, stats.MaxFTLSpeed, powerFlow, netPower.NetWarpPowerDraw, out float fDrawAtWarp);
             DrawEnergyStats(ref cursor, bEnergyWeapons, powerConsumed, powerCapacity, out float energyDuration);
             DrawPeakPowerStats(ref cursor, beamLongestDuration, beamPeakPowerNeeded, weaponPowerNeededNoBeams, powerRecharge, 
                 powerCapacity, out float burstEnergyDuration);
 
-            DrawFtlTime(ref cursor, powerCapacity, fDrawAtWarp, warpSpeed, out float fWarpTime);
+            DrawFtlTime(ref cursor, powerCapacity, fDrawAtWarp, stats.MaxFTLSpeed, out float fWarpTime);
             WriteLine(ref cursor);
 
             DrawHitPointsAndRepair(ref cursor, hitPoints, repairRate);
@@ -617,14 +579,14 @@ namespace Ship_Game
             DrawEmpAndEcm(ref cursor, empResist, totalEcm);
             WriteLine(ref cursor);
 
-            DrawWarpPropulsion(ref cursor, warpSpeed, warpSpoolTimer);
-            DrawPropulsion(ref cursor, modifiedSpeed, turn, afterSpeed);
+            DrawWarpPropulsion(ref cursor, stats.MaxFTLSpeed, stats.FTLSpoolTime);
+            DrawPropulsion(ref cursor, stats.MaxSTLSpeed, stats.TurnRadsPerSec.ToDegrees(), afterburnerSpd:0f);
             WriteLine(ref cursor);
 
             DrawOrdnanceAndTroops(ref cursor, ordnanceCap, ordnanceUsed, ordnanceRecovered, troopCount, out float ammoTime);
             WriteLine(ref cursor);
 
-            DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, bonus);
+            DrawCargoTargetsAndSensors(ref cursor, cargoSpace, targets, sensorRange, sensorBonus, ActiveHull.Bonuses);
             DrawOffense(ref cursor, offense, defense, size, numWeaponSlots);
 
             var cursorReq = new Vector2(StatsSub.X - 180, ShipStats.Y + Fonts.Arial12Bold.LineSpacing + 5);
@@ -642,10 +604,10 @@ namespace Ship_Game
                 DesignIssues.CheckIssueUnpoweredModules(unpoweredModules);
                 DesignIssues.CheckIssueOrdnance(ordnanceUsed,  ordnanceRecovered, ammoTime, size);
                 DesignIssues.CheckIssuePowerRecharge(powerRecharge);
-                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, warpSpeed);
-                DesignIssues.CheckIssueNoWarp(modifiedSpeed, warpSpeed);
-                DesignIssues.CheckIssueSlowWarp(warpSpeed);
-                DesignIssues.CheckIssueNoSpeed(modifiedSpeed);
+                DesignIssues.CheckIssueLowWarpTime(fDrawAtWarp, fWarpTime, stats.MaxFTLSpeed);
+                DesignIssues.CheckIssueNoWarp(stats.MaxSTLSpeed, stats.MaxFTLSpeed);
+                DesignIssues.CheckIssueSlowWarp(stats.MaxFTLSpeed);
+                DesignIssues.CheckIssueNoSpeed(stats.MaxSTLSpeed);
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
@@ -759,12 +721,12 @@ namespace Ship_Game
                 DrawStatColor(ref cursor, TintedValue(6132, troopCount, 180, Color.IndianRed));
         }
 
-        void DrawPropulsion(ref Vector2 cursor, float modifiedSpeed, float turn, float afterSpeed)
+        void DrawPropulsion(ref Vector2 cursor, float modifiedSpeed, float turn, float afterburnerSpd)
         {
             DrawStatColor(ref cursor, TintedValue(116, modifiedSpeed, 105, Color.DarkSeaGreen));
             DrawStatColor(ref cursor, TintedValue(117, turn, 107, Color.DarkSeaGreen));
-            if (afterSpeed > 0) 
-                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterSpeed, 105, Color.DarkSeaGreen));
+            if (afterburnerSpd > 0) 
+                DrawStatColor(ref cursor, TintedValue("Afterburner Speed", afterburnerSpd, 105, Color.DarkSeaGreen));
         }
 
         void DrawWarpPropulsion(ref Vector2 cursor, float warpSpeed, float warpSpoolTimer)
@@ -861,7 +823,7 @@ namespace Ship_Game
             }
         }
 
-        void DrawHullBonuses(ref Vector2 cursor, ref float cost,  HullBonus bonus)
+        void DrawHullBonuses(ref Vector2 cursor, float cost, HullBonus bonus)
         {
             if (bonus.Hull.NotEmpty()) //Added by McShooterz: Draw Hull Bonuses
             {
@@ -892,8 +854,6 @@ namespace Ship_Game
                 HullBonus(ref cursor, bonus.RepairBonus, Localizer.HullRepairBonus);
                 HullBonus(ref cursor, bonus.CostBonus, Localizer.HullCostBonus);
             }
-            cost += bonus.StartingCost * CurrentGame.Pace; // apply flat discount or extra price
-            cost *= (1f - bonus.CostBonus); // now apply % discount
             DrawStatColor(ref cursor, TintedValue(109, cost, 99, Color.White));
         }
 
