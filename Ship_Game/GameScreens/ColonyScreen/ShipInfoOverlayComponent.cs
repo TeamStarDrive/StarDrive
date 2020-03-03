@@ -81,7 +81,7 @@ namespace Ship_Game
             DrawShipValueLine(batch, Font, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Warp:", ship.MaxFTLSpeed, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Speed:", ship.MaxSTLSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", ship.RotationRadiansPerSecond, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", ship.RotationRadiansPerSecond.ToDegrees(), Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.shield_max, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);

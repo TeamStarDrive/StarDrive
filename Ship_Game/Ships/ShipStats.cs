@@ -13,30 +13,30 @@ namespace Ship_Game.Ships
     /// </summary>
     public class ShipStats
     {
-        public float Cost { get; private set; }
-        public float Mass { get; private set; }
+        public float Cost;
+        public float Mass;
         
-        public float Thrust { get; private set; }
-        public float WarpThrust { get; private set; }
-        public float TurnThrust { get; private set; }
+        public float Thrust;
+        public float WarpThrust;
+        public float TurnThrust;
 
-        public float VelocityMax { get; private set; }
-        public float TurnRadsPerSec { get; private set; }
+        public float VelocityMax;
+        public float TurnRadsPerSec;
 
-        public float MaxFTLSpeed { get; private set; }
-        public float MaxSTLSpeed { get; private set; }
+        public float MaxFTLSpeed;
+        public float MaxSTLSpeed;
 
-        public float FTLSpoolTime { get; private set; }
+        public float FTLSpoolTime;
 
         public void Update(ShipModule[] modules, ShipData hull, Empire e, int level)
         {
             Cost = GetCost(GetBaseCost(modules), hull, e);
             Mass = GetMass(modules, e);
-            Thrust = GetThrust(modules, hull);
-            WarpThrust = GetWarpThrust(modules, hull);
-            TurnThrust = GetTurnThrust(modules);
+
+            (Thrust,WarpThrust,TurnThrust) = GetThrust(modules, hull);
             VelocityMax = GetVelocityMax(Thrust, Mass);
             TurnRadsPerSec = GetTurnRadsPerSec(TurnThrust, Mass, level);
+
             MaxFTLSpeed = GetFTLSpeed(WarpThrust, Mass, e);
             MaxSTLSpeed = GetSTLSpeed(Thrust, Mass, e);
             FTLSpoolTime = GetFTLSpoolTime(modules, e);
@@ -72,28 +72,25 @@ namespace Ship_Game.Ships
             return Math.Max(1, Math.Max(surfaceArea*0.5f, mass));
         }
 
-        public static float GetThrust(ShipModule[] modules, ShipData hull)
+        public static (float STL, float Warp, float Turn) GetThrust(ShipModule[] modules, ShipData hull)
         {
-            float thrust = 0f;
+            float stl = 0f;
+            float warp = 0f;
+            float turn = 0f;
             for (int i = 0; i < modules.Length; i++)
-                thrust += modules[i].thrust;
-            return thrust * hull.Bonuses.SpeedModifier;
-        }
+            {
+                ShipModule m = modules[i];
+                if (m.Active && (m.Powered || m.PowerDraw <= 0f))
+                {
+                    stl += m.thrust;
+                    warp += m.WarpThrust;
+                    turn += m.TurnThrust;
+                }
+            }
 
-        public static float GetWarpThrust(ShipModule[] modules, ShipData hull)
-        {
-            float warpThrust = 0f;
-            for (int i = 0; i < modules.Length; i++)
-                warpThrust += modules[i].WarpThrust;
-            return warpThrust * hull.Bonuses.SpeedModifier;
-        }
-
-        public static float GetTurnThrust(ShipModule[] modules)
-        {
-            float turnThrust = 0f;
-            for (int i = 0; i < modules.Length; i++)
-                turnThrust += modules[i].TurnThrust;
-            return turnThrust;
+            return (stl  * hull.Bonuses.SpeedModifier,
+                    warp * hull.Bonuses.SpeedModifier,
+                    turn * hull.Bonuses.SpeedModifier);
         }
 
         public static float GetTurnRadsPerSec(float turnThrust, float mass, int level)
