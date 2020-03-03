@@ -473,8 +473,10 @@ namespace Ship_Game
 
         public int GetEnemyAssets(Planet planet, Empire empire)
         {
-            return planet.TroopsHere.Count(t => t.Loyalty != empire)
-                   + planet.BuildingList.Count(b => b.CombatStrength > 0);
+            int numTroops          = planet.TroopsHere.Count(t => t.Loyalty != empire);
+            int numCombatBuildings = planet.Owner != empire ? planet.BuildingList.Count(b => b.IsAttackable) : 0;
+
+            return numTroops + numCombatBuildings;
         }
 
         public Array<Troop> EmpireTroops(Empire empire, int maxToTake)

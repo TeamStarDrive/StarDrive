@@ -497,38 +497,43 @@ namespace Ship_Game
 
         PlanetGridSquare PickTileToLand(Planet planet, PlanetGridSquare[] freeTiles)
         {
-            if (!planet.RecentCombat && Loyalty == planet.Owner)
-                return freeTiles.RandItem();
+            if (!planet.RecentCombat && planet.GetEnemyAssets(Loyalty) == 0)
+                return freeTiles.RandItem(); // Non Combat landing
 
-            PlanetGridSquare bestTile = null;
-            int bestScore = 0;
+            Array<PlanetGridSquare> bestTiles = new Array<PlanetGridSquare>();
+            int bestScore = int.MinValue;
             for (int i = 0; i < freeTiles.Length; ++i)
             {
                 PlanetGridSquare tile = freeTiles[i];
                 int score = CombatLandingTileScore(tile, planet);
-                if (score > bestScore)
+                if (score > bestScore) // this is the new best tile
                 {
+                    bestTiles.Clear();
                     bestScore = score;
-                    bestTile  = tile;
+                    bestTiles.Add(tile);
+                }
+                else if (score == bestScore)
+                {
+                    bestTiles.Add(tile); // add to possible list of tiles
                 }
             }
 
-            return  bestTile ?? freeTiles.RandItem();
+            return  bestTiles.RandItem() ?? freeTiles.RandItem();
         }
 
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
         {
             int left   = (tile.x - 1).ClampMin(0);
-            int right  = (tile.x + 1).ClampMin(planet.TileMaxX);
+            int right  = (tile.x + 1).UpperBound(planet.TileMaxX - 1);
             int top    = (tile.y - 1).ClampMin(0);
-            int bottom = (tile.y + 1).ClampMin(planet.TileMaxY);
-            int width  = planet.TileMaxY - 1;
+            int bottom = (tile.y + 1).UpperBound(planet.TileMaxY - 1);
+            int width  = planet.TileMaxY;
             int score  = 0;
             for (int x = left; x <= right; ++x)
             {
                 for (int y = top; y <= bottom; ++y)
                 {
-                    PlanetGridSquare checkedTile = planet.TilesList[tile.x * width + tile.y];
+                    PlanetGridSquare checkedTile = planet.TilesList[x * width + y];
                     score += checkedTile.CalculateNearbyTileScore(this, planet.Owner);
                 }
             }
