@@ -171,18 +171,34 @@ namespace Ship_Game
             if (CombatBuildingOnTile)
             {
                 if (troop.Loyalty != planetOwner) // hostile building
+                {
                     score += building.CanAttack ? -1 : 1;
+                    if (building.Strength > troop.Strength)
+                        score -= 1; // Stay away from stronger buildings
+                }
                 else // friendly building
+                {
                     score += building.CanAttack ? 3 : 2;
+                    if (building.Strength > troop.Strength)
+                        score += 1; // Defend friendly building
+                }
 
                 return score;
             }
 
             if (LockOnOurTroop(troop.Loyalty, out Troop friendly))
+            {
                 score += friendly.CanAttack ? 3 : 2;
+                if (friendly.Strength > troop.Strength)
+                    score += 1; // Aid friends in need
+            }
 
             if (LockOnEnemyTroop(troop.Loyalty, out Troop enemy))
+            {
                 score += enemy.CanAttack ? -1 : 1;
+                if (enemy.Strength > troop.Strength)
+                    score -= 1; // Stay away from stronger enemy
+            }
 
             return score;
         }
