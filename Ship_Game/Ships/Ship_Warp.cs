@@ -24,7 +24,7 @@ namespace Ship_Game.Ships
         public float WarpThrust { get; private set; }
 
          // [0.0 to 1.0], current Warp thrust percentage
-        public float WarpPercent { get; private set; }
+        public float WarpPercent { get; private set; } = 1f;
 
         public bool BaseCanWarp;
 
@@ -205,7 +205,7 @@ namespace Ship_Game.Ships
         {
             if      (WarpPercent < warpPercent) WarpPercent += elapsedTime;
             else if (WarpPercent > warpPercent) WarpPercent -= elapsedTime;
-            WarpPercent = WarpPercent.Clamped(0f, 1f);
+            WarpPercent = WarpPercent.Clamped(0.05f, 1f);
         }
     }
 }
