@@ -1428,10 +1428,8 @@ namespace Ship_Game.Ships
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
             SensorRange    *= shipData.Bonuses.SensorModifier;
 
-            Thrust     = ShipStats.GetThrust(ModuleSlotList, shipData);
-            WarpThrust = ShipStats.GetWarpThrust(ModuleSlotList, shipData);
-            TurnThrust = ShipStats.GetTurnThrust(ModuleSlotList);
-            Mass       = ShipStats.GetMass(ModuleSlotList, loyalty);
+            (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
