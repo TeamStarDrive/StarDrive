@@ -72,11 +72,6 @@ namespace Ship_Game
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
 
-            float mass = ship.Mass * EmpireManager.Player.data.MassModifier;
-            float subLightSpeed = ship.Thrust / mass;
-            float warpSpeed     = ship.WarpThrust / mass * EmpireManager.Player.data.FTLModifier;
-            float turnRate      = ship.TurnThrust.ToDegrees() / mass / 700;
-
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
             DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
@@ -84,9 +79,9 @@ namespace Ship_Game
             DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRate, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Warp:", ship.MaxFTLSpeed, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Speed:", ship.MaxSTLSpeed, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", ship.RotationRadiansPerSecond, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.shield_max, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);

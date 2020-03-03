@@ -55,20 +55,20 @@ namespace Ship_Game.ShipDesignIssues
 
                 foreach (string name in empire.ShipsWeCanBuild)
                 {
-                    var ship    = ResourceManager.GetShipTemplate(name);
-                    float speed = (ship.WarpThrust / (ship.Mass * empire.data.MassModifier)) * empire.data.FTLModifier;
-                    if (speed < 2000 || Scout(ship.shipData.Role))
+                    Ship ship = ResourceManager.GetShipTemplate(name);
+                    float warpSpeed = ShipStats.GetFTLSpeed(ship.WarpThrust, ship.Mass, empire);
+                    if (warpSpeed < 2000 || Scout(ship.shipData.Role))
                         continue;
 
                     if (Civilian(ship.shipData.Role))
                     {
                         totalWarpShipsCivilian += 1;
-                        totalWarpSpeedCivilian += speed;
+                        totalWarpSpeedCivilian += warpSpeed;
                     }
                     else
                     {
                         totalWarpShipsMilitary += 1;
-                        totalWarpSpeedMilitary += speed;
+                        totalWarpSpeedMilitary += warpSpeed;
                     }
                 }
 

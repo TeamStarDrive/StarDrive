@@ -314,17 +314,17 @@ namespace Ship_Game.Ships
         void DrawFTL(SpriteBatch batch, Vector2 mousePos, ref int numStatus)
         {
             SubTexture iconBoosted = ResourceManager.Texture("StatusIcons/icon_boosted");
-            if (Ship.FTLModifier < 1.0f && !Ship.Inhibited)
+            if (Ship.FTLModifier < 1f && !Ship.Inhibited)
             {
                 DrawIconWithTooltip(batch, iconBoosted,
-                    () => $"{Localizer.Token(6179)}{1f - Ship.FTLModifier:P0}\n\nEngine State: {Ship.WarpState}",
+                    () => $"{Localizer.Token(GameText.FtlSpeedReducedInThis)}{1f-Ship.FTLModifier:P0}\n\nEngine State: {Ship.WarpState}",
                     mousePos, Color.PaleVioletRed, numStatus);
             }
 
-            if (Ship.FTLModifier >= 1.0f && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
+            if (Ship.FTLModifier >= 1f && !Ship.Inhibited && Ship.engineState == Ship.MoveState.Warp)
             {
                 DrawIconWithTooltip(batch, iconBoosted,
-                    () => $"{Localizer.Token(6180)}{Ship.FTLModifier - 1f:P0}\n\nEngine State: FTL",
+                    () => $"{Localizer.Token(GameText.FtlSpeedIncreasedInThis)}{Ship.FTLModifier-1f:P0}\n\nEngine State: FTL",
                     mousePos, Color.LightGreen, numStatus);
             }
             numStatus++;
