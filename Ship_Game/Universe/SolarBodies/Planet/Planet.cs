@@ -382,8 +382,7 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            SpaceCombatNearPlanet = EnemyInRange();
-            if (SpaceCombatNearPlanet)
+            if (EnemyInRange())
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);
@@ -440,6 +439,7 @@ namespace Ship_Game
                         continue;
 
                     float currentD = Vector2.Distance(Center, ship.Center);
+                    SpaceCombatNearPlanet = currentD < 10000;
                     if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                     {
                         previousT = currentD;
