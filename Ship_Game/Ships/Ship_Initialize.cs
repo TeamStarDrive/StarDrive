@@ -370,6 +370,8 @@ namespace Ship_Game.Ships
                 AI.CombatState = shipData.CombatState;
             }
             // End: ship subclass initializations.
+            
+            RecalculatePower();
 
             // FB: this IF statement so that ships loaded from save wont initialize twice, causing internalslot issues. This is a Workaround
             // issue link: https://bitbucket.org/CrunchyGremlin/sd-blackbox/issues/1538/
@@ -380,7 +382,6 @@ namespace Ship_Game.Ships
             InitExternalSlots();
             Initialize();
 
-            RecalculatePower();
             ShipStatusChange();
             InitializeThrusters();
             DesignRole = GetDesignRole();
@@ -513,9 +514,9 @@ namespace Ship_Game.Ships
             Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
-                TroopCapacity         = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
+                TroopCapacity = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
 
-            (Thrust,WarpThrust,TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
+            (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
             Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
