@@ -110,12 +110,12 @@ namespace UnitTests.Planets
         public void ThenLandFriendly()
         {
             // Land enemy1 if this test is run individually
-            if (!P.TroopsHere.Contains(Enemy1))
-                LandFirstEnemy();
+            //if (!P.TroopsHere.Contains(Enemy1))
+                //LandFirstEnemy();
 
             // Land enemy2 if this test is run individually
-            if (!P.TroopsHere.Contains(Enemy2))
-                LandSecondEnemy();
+            //if (!P.TroopsHere.Contains(Enemy2))
+                //LandSecondEnemy();
 
             Assert.IsTrue(P.TroopsHere.Contains(Enemy1));
             Assert.IsTrue(P.TroopsHere.Contains(Enemy2));
