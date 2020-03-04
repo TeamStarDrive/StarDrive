@@ -356,7 +356,7 @@ namespace Ship_Game.AI
             Vector2 predictedPoint = PredictThrustPosition(pos);
             Owner.RotationNeededForTarget(predictedPoint, 0f, out float predictionDiff, out float rotationDir);
 
-            if (predictionDiff > 0.025f) // do we need to rotate ourselves before thrusting?
+            if (predictionDiff > 0.02f) // do we need to rotate ourselves before thrusting?
             {
                 Owner.RotateToFacing(deltaTime, predictionDiff, rotationDir);
                 return; // don't accelerate until we're faced correctly
