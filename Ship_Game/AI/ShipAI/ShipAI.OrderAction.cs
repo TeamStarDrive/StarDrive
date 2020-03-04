@@ -484,12 +484,20 @@ namespace Ship_Game.AI
             ClearWayPoints();
             ClearOrders();
 
-            // FB - this will give priority order for the movement. if offensiveMove is true,
+            // FB - this will give priority order for the movement. if offensiveMove is false,
             // it means the player ordered this specifically wanting combat ships to engage targets
             // of opportunity, even dropping our of warp to engage them.
             if (!offensiveMove || Owner.shipData.ShipCategory == ShipData.Category.Civilian)
-                OrderMoveTo(toOrbit.Center, Vectors.Up, false, toOrbit, AIState.MoveTo);
-
+            {
+                // only order to move if we are too far, no need to waste time here.
+                float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
+                if (Owner.Center.Distance(toOrbit.Center) > threshold)
+                {
+                    Vector2 finalPos = MathExt.RandomOffsetAndDistance(toOrbit.Center, threshold);
+                    Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Center);
+                    OrderMoveTo(finalPos, finalDir, false, toOrbit, AIState.MoveTo);
+                }
+            }
 
             AddOrbitPlanetGoal(toOrbit);
         }
