@@ -1156,15 +1156,10 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i].Update(1);
 
             if (ShouldRecalculatePower) // must be before ShipStatusChange
-            {
                 RecalculatePower();
-                ShouldRecalculatePower = false;
-            }
 
             if (shipStatusChanged)
-            {
                 ShipStatusChange();
-            }
 
             //Power draw based on warp
             if (!inborders && engineState == MoveState.Warp)
@@ -1357,7 +1352,8 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged           = false;
+            shipStatusChanged = false;
+
             float sensorBonus           = 0f;
             shield_max                  = 0f;
             ActiveInternalSlotCount     = 0;
