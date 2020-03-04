@@ -88,9 +88,8 @@ namespace Ship_Game.Ships
                 }
             }
 
-            return (stl  * hull.Bonuses.SpeedModifier,
-                    warp * hull.Bonuses.SpeedModifier,
-                    turn * hull.Bonuses.SpeedModifier);
+            float modifier = hull.Bonuses.SpeedModifier;
+            return (STL: stl * modifier, Warp: warp * modifier, Turn: turn * modifier);
         }
 
         public static float GetTurnRadsPerSec(float turnThrust, float mass, int level)
