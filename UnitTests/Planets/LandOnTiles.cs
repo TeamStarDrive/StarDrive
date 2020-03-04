@@ -74,54 +74,25 @@ namespace UnitTests.Planets
         }
 
         [TestMethod]
-        public void LandFirstEnemy()
+        public void LandEnemiesAndFriends()
         {
             Assert.IsTrue(Enemy1.TryLandTroop(P));
             Assert.IsTrue(P.TroopsHere.Contains(Enemy1));
             Assert.IsTrue(GetCapitalTile(out PlanetGridSquare capitalTile));
-            Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare troopTile));
+            Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare enemy1Tile));
 
             // Enemy should land out of capital's reach so it wont get hit on landing
-            Assert.IsFalse(capitalTile.InRangeOf(troopTile, 1));
-        }
+            Assert.IsFalse(capitalTile.InRangeOf(enemy1Tile, 1));
 
-        [TestMethod]
-        public void LandSecondEnemy()
-        {
-            // Land enemy1 if this test is run individually
-            if (!P.TroopsHere.Contains(Enemy1))
-                LandFirstEnemy();
-
+            // land a second enemy
             Assert.IsTrue(Enemy2.TryLandTroop(P));
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy1));
             Assert.IsTrue(P.TroopsHere.Contains(Enemy2));
-            Assert.IsTrue(GetCapitalTile(out PlanetGridSquare capitalTile));
-            Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare enemy1Tile));
             Assert.IsTrue(GetTroopTile(Enemy2, out PlanetGridSquare enemy2Tile));
 
             // Enemy should land out of capital's reach so it wont get hit on landing
             // and close to enemy1, as reinforcements
-            Assert.IsFalse(capitalTile.InRangeOf(enemy1Tile, 1));
             Assert.IsFalse(capitalTile.InRangeOf(enemy2Tile, 1));
             Assert.IsTrue(enemy1Tile.InRangeOf(enemy2Tile, 1));
-        }
-
-        [TestMethod]
-        public void ThenLandFriendly()
-        {
-            // Land enemy1 if this test is run individually
-            //if (!P.TroopsHere.Contains(Enemy1))
-                //LandFirstEnemy();
-
-            // Land enemy2 if this test is run individually
-            //if (!P.TroopsHere.Contains(Enemy2))
-                //LandSecondEnemy();
-
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy1));
-            Assert.IsTrue(P.TroopsHere.Contains(Enemy2));
-            Assert.IsTrue(GetCapitalTile(out PlanetGridSquare capitalTile));
-            Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare enemy1Tile));
-            Assert.IsTrue(GetTroopTile(Enemy2, out PlanetGridSquare enemy2Tile));
 
             Assert.IsTrue(Friendly.TryLandTroop(P));
             Assert.IsTrue(GetTroopTile(Friendly, out PlanetGridSquare friendlyTile));
