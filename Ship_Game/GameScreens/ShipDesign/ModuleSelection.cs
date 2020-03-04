@@ -414,11 +414,7 @@ namespace Ship_Game
         void DrawModuleStats(SpriteBatch batch, ShipModule mod, Vector2 modTitlePos, float starty)
         {
             DrawStat(ref modTitlePos, 128, mod.ActualCost, 84);
-            float mass = mod.Mass * EmpireManager.Player.data.MassModifier;
-            if (mod.ModuleType == ShipModuleType.Armor)
-                mass *= EmpireManager.Player.data.ArmourMassModifier;
-
-            DrawStat(ref modTitlePos, 123, mass, 79);
+            DrawStat(ref modTitlePos, 123, mod.GetActualMass(EmpireManager.Player), 79);
             DrawStat(ref modTitlePos, 124, mod.ActualMaxHealth, 80);
 
             float powerDraw = mod.Is(ShipModuleType.PowerPlant) ? mod.ActualPowerFlowMax : -mod.PowerDraw;
@@ -586,11 +582,10 @@ namespace Ship_Game
             float energyDamage    = rawDamage;
 
             float cost  = m.ActualCost;
-            float mass  = m.Mass * EmpireManager.Player.data.MassModifier;
             float power = m.ModuleType != ShipModuleType.PowerPlant ? -m.PowerDraw : m.PowerFlowMax;
 
             DrawStat(ref cursor, Localizer.Token(128), cost, 84);
-            DrawStat(ref cursor, Localizer.Token(123), mass, 79);
+            DrawStat(ref cursor, Localizer.Token(123), m.GetActualMass(EmpireManager.Player), 79);
             DrawStat(ref cursor, Localizer.Token(124), m.ActualMaxHealth, 80);
             DrawStat(ref cursor, Localizer.Token(125), power, 81);
             DrawStat(ref cursor, Localizer.Token(126), range, 82);
