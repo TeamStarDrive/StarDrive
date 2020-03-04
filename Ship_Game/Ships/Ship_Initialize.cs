@@ -402,8 +402,6 @@ namespace Ship_Game.Ships
 
         void InitializeStatus(bool fromSave)
         {
-            Thrust                   = 0f;
-            WarpThrust               = 0f;
             PowerStoreMax            = 0f;
             PowerFlowMax             = 0f;
             shield_max               = 0f;
@@ -415,10 +413,8 @@ namespace Ship_Game.Ships
             Health                   = 0f;
             TroopCapacity            = 0;
             ECMValue                 = 0f;
-            FTLSpoolTime             = 0f;
             SurfaceArea              = shipData.ModuleSlots.Length;
-            Mass                     = SurfaceArea;
-            BaseCost                 = GetBaseCost();
+            BaseCost                 = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank                  = GetMaxBank();
 
             Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
@@ -426,8 +422,6 @@ namespace Ship_Game.Ships
             ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             InitializeStatusFromModules(fromSave);
-            if (FTLSpoolTime <= 0f)
-                FTLSpoolTime = 3f;
             ActiveInternalSlotCount = InternalSlotCount;
 
             UpdateWeaponRanges();
@@ -449,8 +443,7 @@ namespace Ship_Game.Ships
         {
             RepairBeams.Clear();
 
-            float sensorBonus        = 0f;
-            float totalShieldAmplify = 0;
+            float sensorBonus = 0f;
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
                 ShipModule module = ModuleSlotList[i];
@@ -495,17 +488,8 @@ namespace Ship_Game.Ships
                     InternalSlotCount += module.XSIZE * module.YSIZE;
                 HasRepairModule |= module.IsRepairModule;
 
-                float massModifier = 1f;
-                if (module.Is(ShipModuleType.Armor) && loyalty != null)
-                    massModifier = loyalty.data.ArmourMassModifier;
-                Mass += module.Mass * massModifier;
-
-                Thrust     += module.thrust;
-                WarpThrust += module.WarpThrust;
-                TurnThrust += module.TurnThrust;
                 Health     += module.Health;
 
-                totalShieldAmplify += module.AmplifyShields;
                 // Added by McShooterz: fuel cell modifier apply to all modules with power store
                 PowerStoreMax += module.ActualPowerStoreMax;
                 PowerCurrent  += module.ActualPowerStoreMax;
@@ -515,8 +499,6 @@ namespace Ship_Game.Ships
 
                 CargoSpaceMax   += module.Cargo_Capacity;
                 OrdinanceMax    += module.OrdinanceCapacity;
-                if (module.FTLSpoolTime > FTLSpoolTime)
-                    FTLSpoolTime = module.FTLSpoolTime;
 
                 if (!fromSave)
                 {
@@ -525,13 +507,17 @@ namespace Ship_Game.Ships
             }
 
             if (!fromSave)
-                InitShieldsPower(totalShieldAmplify);
+                InitShieldsPower();
 
             NetPower = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
             Carrier.PrepShipHangars(loyalty);
 
             if (shipData.Role == ShipData.RoleName.troop)
                 TroopCapacity         = 1; // set troopship and assault shuttle not to have 0 TroopCapacity since they have no modules with TroopCapacity
+
+            (Thrust,WarpThrust,TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
+            FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             MechanicalBoardingDefense = MechanicalBoardingDefense.ClampMin(1);
             shipStatusChanged         = true;
@@ -544,7 +530,7 @@ namespace Ship_Game.Ships
             BaseCanWarp               = WarpThrust > 0;
         }
 
-        void InitShieldsPower(float totalShieldAmplify)
+        void InitShieldsPower()
         {
             float shieldAmplify = ShipUtils.GetShieldAmplification(Amplifiers, Shields);
             for (int i = 0; i < Shields.Length; i++)
@@ -552,11 +538,6 @@ namespace Ship_Game.Ships
                 ShipModule shield = Shields[i];
                 shield.InitShieldPower(shieldAmplify);
             }
-        }
-
-        float GetBaseCost()
-        {
-            return ModuleSlotList.Sum(module => module.Cost);
         }
 
         float GetMaxBank()
