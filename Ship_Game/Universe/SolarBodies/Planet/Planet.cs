@@ -78,6 +78,8 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
+        public bool Safe => !EnemyInRange(clearAndPresentDanger: true) || !MightBeAWarZone(Owner);
+
         public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
 
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
