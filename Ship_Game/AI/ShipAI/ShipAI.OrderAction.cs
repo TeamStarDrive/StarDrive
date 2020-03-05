@@ -214,8 +214,11 @@ namespace Ship_Game.AI
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
             AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
-            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
-            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal, State);
+            if (targetPlanet == null)
+            {
+                AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, null, speedLimit, goal, State);
+                AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, null, goal, State);
+            }
         }
 
         public void OrderOrbitNearest(bool clearOrders)
