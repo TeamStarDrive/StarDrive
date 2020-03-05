@@ -27,11 +27,11 @@ namespace Ship_Game.AI
 
             // gamestate attempts to increase the budget if there are wars or lack of some resources. 
             // its primarily geared at ship building. 
-            float gameState = GetRisk().Clamped(0, 1.25f);// * (1 - OwnerEmpire.data.TaxRate));
+            float gameState = GetRisk(2.25f);
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(gameState, treasuryGoal);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(0,treasuryGoal);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
 
             PlanetBudgetDebugInfo();
@@ -56,9 +56,9 @@ namespace Ship_Game.AI
         float DetermineBuildCapacity(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio               = strat.MilitaryRatio + strat.IndustryRatio + strat.ExpansionRatio;
-            buildRatio                    /= 3;
-            float buildBudget              = SetBudgetForeArea(0.01f, buildRatio + risk, money);
+            float buildRatio = MathExt.Max3(strat.MilitaryRatio + risk, strat.IndustryRatio , strat.ExpansionRatio);
+            
+            float buildBudget              = SetBudgetForeArea(0.011f, buildRatio, money);
             return buildBudget;
 
         }
@@ -66,8 +66,8 @@ namespace Ship_Game.AI
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            var budget                     = SetBudgetForeArea(0.011f, strat.IndustryRatio 
-                                                                      + strat.ExpansionRatio, money);
+            float buildRatio = strat.ExpansionRatio + strat.IndustryRatio + 0.2f;
+            var budget                     = SetBudgetForeArea(0.011f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
@@ -134,9 +134,9 @@ namespace Ship_Game.AI
             foreach (var kv in OwnerEmpire.AllRelations)
             {
                 var tRisk = kv.Value.Risk.Risk;
-                risk      = Math.Max(tRisk, risk);
+                risk += tRisk;//  Math.Max(tRisk, risk);
             }
-            return risk;
+            return Math.Min(risk, riskLimit) ;
         }
 
         public PlanetBudget PlanetBudget(Planet planet) => new PlanetBudget(planet);
