@@ -42,14 +42,15 @@ namespace Ship_Game.Ships
         {
             if (Ship != null)
             {
+                if (Ship.shipData.Role == ShipData.RoleName.prototype)
+                    return ShipData.RoleName.prototype;
+
                 if (Ship.IsConstructor)
                     return ShipData.RoleName.construction;
                 if (Ship.IsSubspaceProjector)
                     return ShipData.RoleName.ssp;
                 if (Ship.shipData.IsShipyard)
                     return ShipData.RoleName.shipyard;
-                if (Ship.shipData.Role == ShipData.RoleName.prototype)
-                    return Ship.shipData.HullRole;
 
                 if (Ship.isColonyShip || Modules.Any(ShipModuleType.Colony))
                     return ShipData.RoleName.colony;
