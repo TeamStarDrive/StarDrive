@@ -136,13 +136,12 @@ namespace Ship_Game.AI
             {
                 // clamp the radius here so that it wont flounder if the ship has very long range weapons.
                 float radius = Owner.DesiredCombatRange * 3f;
-                if (Owner.Center.OutsideRadius(target.Center, radius))
+                if (Owner.Center.OutsideRadius(target.Center, radius)) { 
                     ThrustOrWarpToPos(target.Center, elapsedTime);
-                else if (distanceToTarget < 15.0e3f)
-                    // simple heuristic, turn off intercept if closer than 15k. Enough for the 15k LRM in CA.
-                    // so it can revert to normal stance behaviour instead of trying to ram its target.
+                    return;
+                }
+                else if (distanceToTarget < Owner.DesiredCombatRange)
                     Intercepting = false;
-                return;
             }
 
             CombatAI.ExecuteCombatTactic(elapsedTime);
