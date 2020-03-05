@@ -738,7 +738,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 2;
                     break;
                 case 2:
-                    if (!ArrivedAtCombatRally(CoreFleetSubTask.AO, task.TargetPlanet.GravityWellRadius)) break;
+                    if (!ArrivedAtCombatRally(CoreFleetSubTask.AO)) break;
                     TaskStep = 3;
                     break;
                 case 3:
