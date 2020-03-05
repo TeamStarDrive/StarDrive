@@ -48,6 +48,8 @@ namespace Ship_Game.Ships
                     return ShipData.RoleName.ssp;
                 if (Ship.shipData.IsShipyard)
                     return ShipData.RoleName.shipyard;
+                if (Ship.shipData.Role == ShipData.RoleName.prototype)
+                    return Ship.shipData.HullRole;
 
                 if (Ship.isColonyShip || Modules.Any(ShipModuleType.Colony))
                     return ShipData.RoleName.colony;
@@ -62,6 +64,13 @@ namespace Ship_Game.Ships
 
                 if (Ship.IsSupplyShip && Ship.Weapons.Count == 0)
                     return ShipData.RoleName.supply;
+                
+                if (Ship.shipData.HullRole == ShipData.RoleName.freighter 
+                                && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f
+                                && Ship.shipData.ShipCategory == ShipData.Category.Civilian)
+                {
+                    return ShipData.RoleName.freighter;
+                }
             }
 
             // troops ship
