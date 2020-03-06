@@ -190,6 +190,7 @@ namespace Ship_Game.AI
             Target = null;
             if (clearWayPoints)
                 ClearWayPoints();
+
             // FB - if offensive move it true, ships will break and attack targets on the way to the destination
             ClearOrders(wantedState, priority: !offensiveMove);
 

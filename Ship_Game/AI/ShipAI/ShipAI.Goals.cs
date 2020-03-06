@@ -20,8 +20,11 @@ namespace Ship_Game.AI
 
         void DequeueCurrentOrderAndPriority()
         {
-            SetPriorityOrder(false);
             DequeueCurrentOrder();
+            ShipGoal goal = OrderQueue.PeekFirst;
+            // remove priority order only if there are no way points
+            if (goal == null || goal.Plan != Plan.MoveToWithin1000)
+                SetPriorityOrder(false);
         }
 
         void DequeueCurrentOrder()
