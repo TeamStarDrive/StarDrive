@@ -136,9 +136,12 @@ namespace Ship_Game.AI
             {
                 // clamp the radius here so that it wont flounder if the ship has very long range weapons.
                 float radius = Owner.DesiredCombatRange * 3f;
-                Owner.Center.OutsideRadius(target.Center, radius);
-                ThrustOrWarpToPos(target.Center, elapsedTime);
-                return;
+                if (Owner.Center.OutsideRadius(target.Center, radius)) { 
+                    ThrustOrWarpToPos(target.Center, elapsedTime);
+                    return;
+                }
+                else if (distanceToTarget < Owner.DesiredCombatRange)
+                    Intercepting = false;
             }
 
             CombatAI.ExecuteCombatTactic(elapsedTime);
