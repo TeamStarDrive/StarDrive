@@ -72,6 +72,11 @@ namespace Ship_Game.Ships
             return Math.Max(1, Math.Max(surfaceArea*0.5f, mass));
         }
 
+        public static float GetMass(float mass, Empire loyalty)
+        {
+            return mass *= loyalty.data.MassModifier; // apply overall mass modifier
+        }
+
         public static (float STL, float Warp, float Turn) GetThrust(ShipModule[] modules, ShipData hull)
         {
             float stl = 0f;
