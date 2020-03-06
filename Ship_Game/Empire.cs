@@ -2848,6 +2848,15 @@ namespace Ship_Game
             }
         }
 
+        public void RefundCreditsPostScrap(Ship ship)
+        {
+            if (ship.IsDefaultAssaultShuttle || ship.IsDefaultTroopShip)
+                return;
+
+            float creditsToRefund = ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier;
+            AddMoney(creditsToRefund * 0.5f);
+        }
+
         float ProductionCreditCost(float spentProduction)
         {
             // fixed costs for players, feedback tax loop for the AI
