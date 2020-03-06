@@ -18,6 +18,15 @@ namespace Ship_Game.AI
             DequeueCurrentOrder();
         }
 
+        void DequeueCurrentOrderAndPriority()
+        {
+            DequeueCurrentOrder();
+            ShipGoal goal = OrderQueue.PeekFirst;
+            // remove priority order only if there are no way points
+            if (goal == null || goal.Plan != Plan.MoveToWithin1000)
+                SetPriorityOrder(false);
+        }
+
         void DequeueCurrentOrder()
         {
             if (OrderQueue.TryDequeue(out ShipGoal goal))
@@ -191,32 +200,37 @@ namespace Ship_Game.AI
 
         public void OrderMoveAndColonize(Planet planet, Goal g)
         {
-            OrderMoveTo(planet.Center, Vectors.Up, true, planet, AIState.Colonize);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, planet, AIState.Colonize);
             AddShipGoal(Plan.Colonize, planet.Center, Vectors.Up, planet, g, AIState.Colonize);
         }
 
         public void OrderMoveAndRebase(Planet p)
         {
-            OrderMoveTo(p.Center, Vectors.Up, false, p, AIState.Rebase);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, false, p, AIState.Rebase);
             AddPlanetGoal(Plan.Rebase, p, AIState.Rebase, priority: true);
         }
 
         public void OrderMoveAndRefit(Planet planet, Goal g)
         {
-            OrderMoveTo(planet.Center, Vectors.Up, true, planet, AIState.Refit);
+            OrderMoveTo(GetPositionOnPlanet(planet), Vectors.Up, true, planet, AIState.Refit);
             AddShipGoal(Plan.Refit, planet, g, AIState.Refit);
         }
 
         public void OrderMoveAndScrap(Planet p)
         {
-            OrderMoveTo(p.Center, Vectors.Up, true, p, AIState.Scrap);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, p, AIState.Scrap);
             AddPlanetGoal(Plan.Scrap, p, AIState.Scrap);
         }
 
         public void OderMoveAndDefendSystem(Planet p)
         {
-            OrderMoveTo(p.Center, Vectors.Up, true, null, AIState.SystemDefender);
+            OrderMoveTo(GetPositionOnPlanet(p), Vectors.Up, true, null, AIState.SystemDefender);
             AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
+        }
+
+        Vector2 GetPositionOnPlanet(Planet p)
+        {
+            return MathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
         }
 
         public class ShipGoal : IDisposable
