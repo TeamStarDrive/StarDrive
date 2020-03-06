@@ -152,7 +152,8 @@ namespace Ship_Game
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange(true));
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+
 
         public readonly EmpireResearch Research;
 
@@ -309,7 +310,7 @@ namespace Ship_Game
             rallyPlanets = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort && !planet.EnemyInRange(true))
+                if (planet.HasSpacePort && planet.Safe)
                     rallyPlanets.Add(planet);
             }
 

@@ -71,7 +71,10 @@ namespace Ship_Game
             new Menu2(Rect).Draw(batch);
 
             ship.RenderOverlay(batch, shipOverlay, true, moduleHealthColor: false);
-
+            float mass          = ShipStats.GetMass(ship.Mass, EmpireManager.Player);
+            float warpSpeed     = ShipStats.GetFTLSpeed(ship.WarpThrust, mass, EmpireManager.Player);
+            float subLightSpeed = ShipStats.GetSTLSpeed(ship.Thrust, mass, EmpireManager.Player);
+            float turnRateDeg   = ShipStats.GetTurnRadsPerSec(ship.TurnThrust, mass, ship.Level).ToDegrees();
             var cursor = new Vector2(X + (Width*0.06f).RoundTo10(), Y + (int)(Height * 0.025f));
             DrawShipValueLine(batch, TitleFont, ref cursor, ship.Name, "", Color.White);
             DrawShipValueLine(batch, Font, ref cursor, ship.shipData.ShipCategory + ", " + ship.shipData.CombatState, "", Color.Gray);
@@ -79,9 +82,9 @@ namespace Ship_Game
             DrawShipValueLine(batch, Font, ref cursor, "Weapons:", ship.Weapons.Count, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Max W.Range:", ship.WeaponsMaxRange, Color.LightBlue);
             DrawShipValueLine(batch, Font, ref cursor, "Avr W.Range:", ship.WeaponsAvgRange, Color.LightBlue);
-            DrawShipValueLine(batch, Font, ref cursor, "Warp:", ship.MaxFTLSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Speed:", ship.MaxSTLSpeed, Color.LightGreen);
-            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", ship.RotationRadiansPerSecond.ToDegrees(), Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Warp:", warpSpeed, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Speed:", subLightSpeed, Color.LightGreen);
+            DrawShipValueLine(batch, Font, ref cursor, "Turn Rate:", turnRateDeg, Color.LightGreen);
             DrawShipValueLine(batch, Font, ref cursor, "Repair:", ship.RepairRate, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "Shields:", ship.shield_max, Color.Goldenrod);
             DrawShipValueLine(batch, Font, ref cursor, "EMP Def:", ship.EmpTolerance, Color.Goldenrod);
