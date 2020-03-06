@@ -87,23 +87,26 @@ namespace Ship_Game
             if (!TargetTile.TroopsAreOnTile)
                 return;
 
-            for (int i = 0; i < TargetTile.TroopsHere.Count; ++i)
+            using (TargetTile.TroopsHere.AcquireWriteLock())
             {
-                // Try to hit the troop, high level troops have better chance to evade
-                Troop troop = TargetTile.TroopsHere[i];
-                int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
-
-                // Reduce friendly fire chance (10%) if bombing a tile with multiple troops
-                if (troop.Loyalty == bombOwner)
-                    troopHitChance = (int)(troopHitChance * 0.1f);
-
-                if (RandomMath.RollDice(troopHitChance))
+                for (int i = 0; i < TargetTile.TroopsHere.Count; ++i)
                 {
-                    troop.DamageTroop(damage);
-                    if (troop.Strength <= 0)
+                    // Try to hit the troop, high level troops have better chance to evade
+                    Troop troop = TargetTile.TroopsHere[i];
+                    int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
+
+                    // Reduce friendly fire chance (10%) if bombing a tile with multiple troops
+                    if (troop.Loyalty == bombOwner)
+                        troopHitChance = (int)(troopHitChance * 0.1f);
+
+                    if (RandomMath.RollDice(troopHitChance))
                     {
-                        Surface.TroopsHere.Remove(troop);
-                        TargetTile.TroopsHere.Remove(troop);
+                        troop.DamageTroop(damage);
+                        if (troop.Strength <= 0)
+                        {
+                            Surface.TroopsHere.Remove(troop);
+                            TargetTile.TroopsHere.Remove(troop);
+                        }
                     }
                 }
             }

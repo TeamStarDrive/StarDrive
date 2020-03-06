@@ -71,28 +71,31 @@ namespace Ship_Game
 
                 if (pgs.TroopsAreOnTile)
                 {
-                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                    using (pgs.TroopsHere.AcquireWriteLock())
                     {
-                        Troop troop = pgs.TroopsHere[i];
-                        if (troop.ClickRect.HitTest(MousePos))
+                        for (int i = 0; i < pgs.TroopsHere.Count; ++i)
                         {
-                            DetailInfo = troop;
-                            if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
+                            Troop troop = pgs.TroopsHere[i];
+                            if (troop.ClickRect.HitTest(MousePos))
                             {
-                                Ship troopShip = troop.Launch(pgs);
-                                if (troopShip != null)
+                                DetailInfo = troop;
+                                if (input.RightMouseClick && troop.Loyalty == EmpireManager.Player)
                                 {
-                                    GameAudio.TroopTakeOff();
-                                    ClickedTroop = true;
-                                    DetailInfo = null;
+                                    Ship troopShip = troop.Launch(pgs);
+                                    if (troopShip != null)
+                                    {
+                                        GameAudio.TroopTakeOff();
+                                        ClickedTroop = true;
+                                        DetailInfo = null;
+                                    }
+                                    else
+                                    {
+                                        GameAudio.NegativeClick();
+                                    }
                                 }
-                                else
-                                {
-                                    GameAudio.NegativeClick();
-                                }
-                            }
 
-                            return true;
+                                return true;
+                            }
                         }
                     }
                 }

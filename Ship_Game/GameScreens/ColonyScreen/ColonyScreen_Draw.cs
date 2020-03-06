@@ -48,7 +48,7 @@ namespace Ship_Game
             ScreenManager.SpriteBatch.DrawString(font, troop.Level.ToString(), pos, Color.Gold);
         }
 
-        void DrawPGSIcons(SpriteBatch batch, PlanetGridSquare pgs)
+        void DrawTileIcons(SpriteBatch batch, PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
             {
@@ -58,13 +58,16 @@ namespace Ship_Game
 
             if (pgs.TroopsAreOnTile)
             {
-                for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                using (pgs.TroopsHere.AcquireReadLock())
                 {
-                    Troop troop = pgs.TroopsHere[i];
-                    troop.SetColonyScreenRect(pgs);
-                    troop.DrawIcon(batch, troop.ClickRect);
-                    if (troop.Level > 0)
-                        DrawTroopLevel(troop);
+                    for (int i = 0; i < pgs.TroopsHere.Count; ++i)
+                    {
+                        Troop troop = pgs.TroopsHere[i];
+                        troop.SetColonyScreenRect(pgs);
+                        troop.DrawIcon(batch, troop.ClickRect);
+                        if (troop.Level > 0)
+                            DrawTroopLevel(troop);
+                    }
                 }
             }
 
@@ -376,7 +379,7 @@ namespace Ship_Game
                     batch.FillRectangle(pgs.ClickRect, P.Owner.EmpireColor.Alpha(0.4f));
                 }
 
-                DrawPGSIcons(batch, pgs);
+                DrawTileIcons(batch, pgs);
             }
 
             foreach (PlanetGridSquare planetGridSquare in P.TilesList)
