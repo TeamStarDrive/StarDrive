@@ -76,7 +76,7 @@ namespace Ship_Game.Ships
             // troops ship
             if (HullRole >= ShipData.RoleName.freighter)
             {
-                if ( Modules.Any(ShipModuleType.Construction))
+                if (Modules.Any(ShipModuleType.Construction))
                     return ShipData.RoleName.construction;
 
                 if (SurfaceAreaPercentOf(m => m.IsTroopBay || m.TransporterTroopLanding > 0 || m.TroopCapacity > 0) > 0.1f)
@@ -93,7 +93,7 @@ namespace Ship_Game.Ships
                 // check freighter role. If ship is unclassified or is not a freighter hull and is classified civilian
                 // check for useability as freighter.
                 // small issue is that ships that are classified civilian will behave as civilian ships.
-                //currently the category can not be set here while in the shipyard.
+                // currently the category can not be set here while in the shipyard.
                 if (Ship == null || Category <= ShipData.Category.Civilian)
                 {
                     // non freighter hull must be set to civilian to be set as freighters.
