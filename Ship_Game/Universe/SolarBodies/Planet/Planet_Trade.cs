@@ -30,7 +30,7 @@ namespace Ship_Game
         public int FreeProdImportSlots     => FreeFreighterSlots(ProdImportSlots, IncomingProdFreighters);
         public int FreeColonistImportSlots => FreeFreighterSlots(ColonistsImportSlots, IncomingColonistsFreighters);
 
-        public bool TradeBlocked => EnemyInRange(clearAndPresentDanger: true) && MightBeAWarZone(Owner);
+        public bool TradeBlocked => !Safe;
 
         public int FoodExportSlots
         {

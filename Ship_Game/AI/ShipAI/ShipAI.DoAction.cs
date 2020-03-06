@@ -417,6 +417,7 @@ namespace Ship_Game.AI
             if (goal.Goal == null) // empire goal was removed or planet was compromised
                 ClearOrders();
 
+            // stick around until the empire goal picks the ship for refit
             ClearOrders(AIState.HoldPosition);
         }
 
