@@ -259,13 +259,13 @@ namespace Ship_Game
             bool play = false;
             foreach (PlanetGridSquare pgs in P.TilesList)
             {
-                if (!pgs.TroopsAreOnTile || pgs.SingleTroop.Loyalty != EmpireManager.Player || !pgs.SingleTroop.CanMove)
-                    continue;
-
-                play = true;
-                pgs.SingleTroop.Launch(pgs);
-                ClickedTroop = true;
-                DetailInfo = null;
+                if (pgs.TroopsAreOnTile && pgs.LockOnPlayerTroop(out Troop troop) && troop.CanMove)
+                {
+                    play = true;
+                    troop.Launch(pgs);
+                    ClickedTroop = true;
+                    DetailInfo = null;
+                }
             }
 
             if (play)

@@ -362,6 +362,13 @@ namespace Ship_Game
             if (weakest != null)
                 ScrapBuilding(weakest);
         }
+
+        public void AddTroop(Troop troop, PlanetGridSquare tile)
+        {
+            TroopsHere.Add(troop);
+            tile.AddTroop(troop);
+            troop.SetPlanet(this);
+        }
     }
 
     public struct WantedOrbitals

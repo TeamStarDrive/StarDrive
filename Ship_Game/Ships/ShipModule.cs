@@ -1088,18 +1088,22 @@ namespace Ship_Game.Ships
             }
         }
 
-        public float ActualMass
+        public float GetActualMass(Empire loyalty)
         {
-            get
-            {
-                float mass = Mass;
-                if (Is(ShipModuleType.Armor))
-                    mass *= EmpireManager.Player.data.ArmourMassModifier;
-                // only allow negative mass modules (mass reduction devices) if we're powered:
-                if (mass< 0f && Powered)
-                    return mass;
+            float mass = Mass;
+            if (Is(ShipModuleType.Armor))
+                mass *= loyalty.data.ArmourMassModifier;
+
+            // regular positive mass modules
+            if (mass >= 0f)
+                return mass;
+
+            // only allow negative mass modules (mass reduction devices)
+            // if we're powered, otherwise return their absolute mass
+            if (Powered)
+                return mass;
+            else
                 return Math.Abs(mass);
-            }
         }
 
         // @note This is called every frame for every module for every ship in the universe

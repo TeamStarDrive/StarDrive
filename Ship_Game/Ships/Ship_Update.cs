@@ -360,6 +360,8 @@ namespace Ship_Game.Ships
 
         public void RecalculatePower()
         {
+            ShouldRecalculatePower = false;
+
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule slot      = ModuleSlotList[i];

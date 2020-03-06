@@ -53,7 +53,7 @@ namespace Ship_Game
             float popKilled = TargetTile.Habitable ? bomb.PopKilled : bomb.PopKilled / 10;
 
             DamageTile(hardDamage);
-            DamageTroops(softDamage);
+            DamageTroops(softDamage, bomb.Owner);
             DamageBuildings(hardDamage);
 
             Surface.ApplyBombEnvEffects(popKilled, bomb.Owner); // Fertility and pop loss
@@ -82,22 +82,32 @@ namespace Ship_Game
             }
         }
 
-        private void DamageTroops(int damage)
+        private void DamageTroops(int damage, Empire bombOwner)
         {
             if (!TargetTile.TroopsAreOnTile)
                 return;
 
-            Troop troop        = TargetTile.SingleTroop;
-            int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
-
-            // Try to hit the troop, high level troops have better chance to evade
-            if (RandomMath.RollDice(troopHitChance))
+            using (TargetTile.TroopsHere.AcquireWriteLock())
             {
-                troop.DamageTroop(damage);
-                if (TargetTile.SingleTroop.Strength <= 0)
+                for (int i = 0; i < TargetTile.TroopsHere.Count; ++i)
                 {
-                    Surface.TroopsHere.Remove(TargetTile.SingleTroop);
-                    TargetTile.TroopsHere.Clear();
+                    // Try to hit the troop, high level troops have better chance to evade
+                    Troop troop = TargetTile.TroopsHere[i];
+                    int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
+
+                    // Reduce friendly fire chance (10%) if bombing a tile with multiple troops
+                    if (troop.Loyalty == bombOwner)
+                        troopHitChance = (int)(troopHitChance * 0.1f);
+
+                    if (RandomMath.RollDice(troopHitChance))
+                    {
+                        troop.DamageTroop(damage);
+                        if (troop.Strength <= 0)
+                        {
+                            Surface.TroopsHere.Remove(troop);
+                            TargetTile.TroopsHere.Remove(troop);
+                        }
+                    }
                 }
             }
         }
