@@ -434,6 +434,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     if (minTroopStrength > 0)
                         NeededTroopStrength = GetTargetPlanetGroundStrength(minTroopStrength);
+
                     if (minBombMinutes > 0)
                         TaskBombTimeNeeded = BombTimeNeeded().ClampMin(minBombMinutes);
                 }

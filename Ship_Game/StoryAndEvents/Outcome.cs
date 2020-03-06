@@ -172,7 +172,7 @@ namespace Ship_Game
             {
                 foreach (string troopName in TroopsToSpawn)
                 {
-                    if (p.FreeTiles == 0 && !p.BumpOutTroop(EmpireManager.Unknown))
+                    if (p.GetFreeTiles(EmpireManager.Unknown) == 0 && !p.BumpOutTroop(EmpireManager.Unknown))
                     {
                         Log.Warning($"Could not bump out any troop from {p.Name} after event");
                         return;

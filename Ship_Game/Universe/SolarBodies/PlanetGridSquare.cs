@@ -4,41 +4,96 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-    public sealed class PlanetGridSquare // Refactored by Fat Bastard, Feb 6, 2019
+    // Refactored by Fat Bastard, Feb 6, 2019
+    // Converted to 2 troops per tile support by Fat Bastard, Feb 28, 2020
+    public sealed class PlanetGridSquare 
     {
         public int x;
         public int y;
-        public bool CanAttack;
-        public bool CanMoveTo;
         public bool ShowAttackHover;
-        public int MaxAllowedTroops = 1; //FB - multiple troops per PGS is not supported yet
+        public int MaxAllowedTroops = 2; // FB allow 2 troops of different loyalties
         public BatchRemovalCollection<Troop> TroopsHere = new BatchRemovalCollection<Troop>();
         public bool Biosphere;
         public Building building;
-        public bool Habitable; // FB - this also affects max population (because of pop per habitalbe tile)
+        public bool Habitable; // FB - this also affects max population (because of pop per habitable tile)
         public QueueItem QItem;
-        public Rectangle ClickRect      = new Rectangle();
-        public Rectangle TroopClickRect = new Rectangle();
+        public Rectangle ClickRect       = new Rectangle();
         public bool Highlighted;
-
         public bool NoTroopsOnTile       => TroopsHere.IsEmpty;
         public bool TroopsAreOnTile      => TroopsHere.NotEmpty;
         public bool NoBuildingOnTile     => building == null;
         public bool BuildingOnTile       => building != null;
         public bool CombatBuildingOnTile => BuildingOnTile && building.IsAttackable;
         public bool NothingOnTile        => NoTroopsOnTile && NoBuildingOnTile;
-        public bool AllTroopsDead        => TroopsStrength <= 0;
         public bool BuildingDestroyed    => BuildingOnTile && building.Strength <= 0;
-        public bool AllDestroyed         => BuildingDestroyed && AllTroopsDead;
-        public Troop SingleTroop         => TroopsHere[0]; //FB - multiple troops per PGS is not supported yet
-        public bool FreeForMovement      => !TroopsAreOnTile && !CombatBuildingOnTile;
         public bool EventOnTile          => BuildingOnTile && building.EventHere;
-        public bool IsTileFree           => TroopsHere.Count < MaxAllowedTroops && !CombatBuildingOnTile;
 
-        // FB - all these are starting multiple troops per PGS support
-        public float TroopsStrength => TroopsHere.Sum(troop => troop.Strength);
-        public int TroopsHardAttack => TroopsHere.Sum(troop => troop.ActualHardAttack);
-        public int TroopsSoftAttack => TroopsHere.Sum(troop => troop.ActualSoftAttack);
+        public bool IsTileFree(Empire empire)
+        {
+            if (TroopsHere.Count >= MaxAllowedTroops || CombatBuildingOnTile)
+                return false;
+
+            using (TroopsHere.AcquireReadLock())
+            {
+                for (int i = 0; i < TroopsHere.Count; ++i)
+                {
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty == empire)
+                        return false;
+                }
+            }
+            return true;
+        } 
+
+        // Get a troop that is not ours
+        public bool LockOnEnemyTroop(Empire us, out Troop troop)
+        {
+            troop = null;
+            using (TroopsHere.AcquireReadLock())
+            {
+                for (int i = 0; i < TroopsHere.Count; ++i)
+                {
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty != us)
+                    {
+                        troop = t;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        // Get a troop that is ours
+        public bool LockOnOurTroop(Empire us, out Troop troop)
+        {
+            troop = null;
+            using (TroopsHere.AcquireReadLock())
+            {
+                for (int i = 0; i < TroopsHere.Count; ++i)
+                {
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty == us)
+                    {
+                        troop = t;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public bool LockOnPlayerTroop(out Troop playerTroop)
+        {
+            return LockOnOurTroop(EmpireManager.Player, out playerTroop);
+        }
+
+        public bool EnemyTroopsHere(Empire us)
+        {
+            return LockOnEnemyTroop(us, out _);
+        }
 
         public PlanetGridSquare()
         {
@@ -50,6 +105,11 @@ namespace Ship_Game
             this.y = y;
             Habitable = hab;
             building = b;
+        }
+
+        public void AddTroop(Troop troop)
+        {
+            TroopsHere.Add(troop);
         }
 
         public bool CanBuildHere(Building b)
@@ -100,8 +160,58 @@ namespace Ship_Game
 
         public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
         {
-            return (TroopsAreOnTile && SingleTroop.Loyalty != us) || EventOnTile || 
-                   (CombatBuildingOnTile && planetOwner != us);  // also event ID needed
+            if (CombatBuildingOnTile && planetOwner != us || EventOnTile)
+                return true;
+
+            using (TroopsHere.AcquireReadLock())
+            {
+                for (int i = 0; i < TroopsHere.Count; ++i)
+                {
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty != us)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public int CalculateNearbyTileScore(Troop troop, Empire planetOwner)
+        {
+            int score = 0;
+            if (CombatBuildingOnTile)
+            {
+                if (troop.Loyalty != planetOwner) // hostile building
+                {
+                    score += building.CanAttack ? -1 : 1;
+                    if (building.Strength > troop.Strength)
+                        score -= 1; // Stay away from stronger buildings
+                }
+                else // friendly building
+                {
+                    score += building.CanAttack ? 3 : 2;
+                    if (building.Strength > troop.Strength)
+                        score += 1; // Defend friendly building
+                }
+
+                return score;
+            }
+
+            if (LockOnOurTroop(troop.Loyalty, out Troop friendly))
+            {
+                score += friendly.CanAttack ? 3 : 2;
+                if (friendly.Strength > troop.Strength)
+                    score += 1; // Aid friends in need
+            }
+
+            if (LockOnEnemyTroop(troop.Loyalty, out Troop enemy))
+            {
+                score += enemy.CanAttack ? -1 : 1;
+                if (enemy.Strength > troop.Strength)
+                    score -= 1; // Stay away from stronger enemy
+            }
+
+            return score;
         }
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)
@@ -117,7 +227,7 @@ namespace Ship_Game
 
         public void CheckAndTriggerEvent(Planet planet, Empire empire)
         {
-            if (EventOnTile && TroopsAreOnTile && !SingleTroop.Loyalty.isFaction)
+            if (EventOnTile && LockOnOurTroop(empire, out _))
                 ResourceManager.Event(building.EventTriggerUID).TriggerPlanetEvent(planet, empire, this, Empire.Universe);
         }
 
