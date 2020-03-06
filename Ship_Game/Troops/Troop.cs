@@ -55,6 +55,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle ClickRect { get; private set; }
+        [XmlIgnore][JsonIgnore] public bool Hovered;
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);

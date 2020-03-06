@@ -33,13 +33,15 @@ namespace Ship_Game
             if (TroopsHere.Count >= MaxAllowedTroops || CombatBuildingOnTile)
                 return false;
 
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            using (TroopsHere.AcquireReadLock())
             {
-                Troop t = TroopsHere[i];
-                if (t.Loyalty == empire)
-                    return false;
+                for (int i = 0; i < TroopsHere.Count; ++i)
+                {
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty == empire)
+                        return false;
+                }
             }
-
             return true;
         } 
 
@@ -47,13 +49,16 @@ namespace Ship_Game
         public bool LockOnEnemyTroop(Empire us, out Troop troop)
         {
             troop = null;
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            using (TroopsHere.AcquireReadLock())
             {
-                Troop t = TroopsHere[i];
-                if (t.Loyalty != us)
+                for (int i = 0; i < TroopsHere.Count; ++i)
                 {
-                    troop = t;
-                    return true;
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty != us)
+                    {
+                        troop = t;
+                        return true;
+                    }
                 }
             }
 
@@ -64,13 +69,16 @@ namespace Ship_Game
         public bool LockOnOurTroop(Empire us, out Troop troop)
         {
             troop = null;
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            using (TroopsHere.AcquireReadLock())
             {
-                Troop t = TroopsHere[i];
-                if (t.Loyalty == us)
+                for (int i = 0; i < TroopsHere.Count; ++i)
                 {
-                    troop = t;
-                    return true;
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty == us)
+                    {
+                        troop = t;
+                        return true;
+                    }
                 }
             }
 
@@ -155,11 +163,14 @@ namespace Ship_Game
             if (CombatBuildingOnTile && planetOwner != us || EventOnTile)
                 return true;
 
-            for (int i = 0; i < TroopsHere.Count; ++i)
+            using (TroopsHere.AcquireReadLock())
             {
-                Troop t = TroopsHere[i];
-                if (t.Loyalty != us)
-                    return true;
+                for (int i = 0; i < TroopsHere.Count; ++i)
+                {
+                    Troop t = TroopsHere[i];
+                    if (t.Loyalty != us)
+                        return true;
+                }
             }
 
             return false;
