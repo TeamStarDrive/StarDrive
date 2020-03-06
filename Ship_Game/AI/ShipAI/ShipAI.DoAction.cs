@@ -409,13 +409,13 @@ namespace Ship_Game.AI
             }
         }
 
-        void DoRefit(ShipGoal goal, float elapsedTime)
+        void DoRefit(ShipGoal goal)
         {
             if (goal.Goal == null) // empire goal was removed or planet was compromised
                 ClearOrders();
 
             // stick around until the empire goal picks the ship for refit
-            ThrustOrWarpToPos(goal.TargetPlanet.Center, elapsedTime, 200);
+            ClearOrders(AIState.HoldPosition);
         }
 
         void DoRepairDroneLogic(Weapon w)
