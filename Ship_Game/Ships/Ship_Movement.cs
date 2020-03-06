@@ -80,10 +80,9 @@ namespace Ship_Game.Ships
 
         void UpdateMaxVelocity()
         {
-            VelocityMaximum = Thrust / Mass;
-            RotationRadiansPerSecond = TurnThrust / Mass / 700f;
-            RotationRadiansPerSecond += RotationRadiansPerSecond * Level * 0.05f;
+            VelocityMaximum = ShipStats.GetVelocityMax(Thrust, Mass);
             SpeedLimit = VelocityMaximum; // This is overwritten at the end of Update
+            RotationRadiansPerSecond = ShipStats.GetTurnRadsPerSec(TurnThrust, Mass, Level);
         }
 
         void SetMaxFTLSpeed()
@@ -103,16 +102,13 @@ namespace Ship_Game.Ships
             if (inborders && loyalty.data.Traits.InBordersSpeedBonus > 0)
                 FTLModifier += loyalty.data.Traits.InBordersSpeedBonus;
             FTLModifier *= projectorBonus;
-            FTLModifier *= loyalty.data.FTLModifier;
 
-            MaxFTLSpeed = (WarpThrust / Mass) * FTLModifier * WarpPercent;
+            MaxFTLSpeed = ShipStats.GetFTLSpeed(WarpThrust, Mass, loyalty) * FTLModifier * WarpPercent;
         }
 
         void SetMaxSTLSpeed()
         {
-            float thrustWeightRatio = Thrust / Mass;
-            float speed = thrustWeightRatio * loyalty.data.SubLightModifier;
-            MaxSTLSpeed = Math.Min(speed, LightSpeedConstant);
+            MaxSTLSpeed = ShipStats.GetSTLSpeed(Thrust, Mass, loyalty);
         }
 
         public void RotateToFacing(float elapsedTime, float angleDiff, float rotationDir)
