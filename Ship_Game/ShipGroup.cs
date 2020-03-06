@@ -475,10 +475,11 @@ namespace Ship_Game
             
         }
 
-        public MoveStatus FleetMoveStatus(float radius, Vector2 ao = default)
+        public MoveStatus FleetMoveStatus(float radius = 0, Vector2 ao = default)
         {
             if (ao == default)
                 ao = FinalPosition;
+            radius = radius.AlmostZero() ? GetRelativeSize().Length() / 1.75f : radius;
 
             MoveStatus moveStatus = MoveStatus.None;
             float assembled       = 0;
@@ -486,6 +487,8 @@ namespace Ship_Game
 
             for (int i = 0; i < Ships.Count; i++)
             {
+                if (moveStatus.HasFlag(MoveStatus.All)) break;
+
                 Ship ship = Ships[i];
                 if (ship.AI.State == AIState.HoldPosition || ship.AI.State == AIState.Bombard 
                                                           || ship.AI.State == AIState.AssaultPlanet)
@@ -496,7 +499,7 @@ namespace Ship_Game
                 totalShipCount++;
                 if (!ship.IsSpoolingOrInWarp)
                 {
-                    var combatRadius = radius;// Math.Min(radius, ship.AI.FleetNode.OrdersRadius);
+                    var combatRadius = radius;
                     if (ship.Center.OutsideRadius(ao , combatRadius))
                     {
                         if (ship.CanTakeFleetOrders)
@@ -524,7 +527,7 @@ namespace Ship_Game
                 else if (ship.CanTakeFleetOrders)
                     moveStatus |= MoveStatus.Dispersed;
             }
-            if (assembled / totalShipCount > 0.75f)
+            if (assembled / totalShipCount > 0.5f)
                 moveStatus |= MoveStatus.MajorityAssembled;
             return moveStatus;
         }

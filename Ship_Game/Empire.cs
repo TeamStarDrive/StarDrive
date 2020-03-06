@@ -152,7 +152,8 @@ namespace Ship_Game
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange(true));
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+
 
         public readonly EmpireResearch Research;
 
@@ -309,7 +310,7 @@ namespace Ship_Game
             rallyPlanets = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort && !planet.EnemyInRange(true))
+                if (planet.HasSpacePort && planet.Safe)
                     rallyPlanets.Add(planet);
             }
 
@@ -2226,7 +2227,7 @@ namespace Ship_Game
 
             Research.Update();
 
-            if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)
+            if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
 
             CalculateScore();
@@ -2272,7 +2273,7 @@ namespace Ship_Game
                             Universe.NotificationManager.AddRebellionNotification(planet,
                                 rebels);
 
-                        for (int index = 0; index < planet.PopulationBillion; ++index)
+                        for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
 

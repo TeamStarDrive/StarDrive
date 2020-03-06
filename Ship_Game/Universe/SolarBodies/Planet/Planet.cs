@@ -78,6 +78,8 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
+        public bool Safe => !EnemyInRange(clearAndPresentDanger: true) || !MightBeAWarZone(Owner);
+
         public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
 
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
@@ -376,8 +378,7 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            SpaceCombatNearPlanet = EnemyInRange();
-            if (SpaceCombatNearPlanet)
+            if (EnemyInRange())
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);
@@ -434,6 +435,7 @@ namespace Ship_Game
                         continue;
 
                     float currentD = Vector2.Distance(Center, ship.Center);
+                    SpaceCombatNearPlanet = currentD < 10000;
                     if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                     {
                         previousT = currentD;
