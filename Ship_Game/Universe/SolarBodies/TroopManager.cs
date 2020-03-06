@@ -27,13 +27,7 @@ namespace Ship_Game
         public bool ForeignTroopHere(Empire us)   => TroopList.Any(t => t.Loyalty != null && t.Loyalty != us);
         public bool MightBeAWarZone(Empire us)    => RecentCombat || Ground.SpaceCombatNearPlanet || ForeignTroopHere(us);
         public bool MightBeAWarZone()             => MightBeAWarZone(Ground.Owner);
-        public float OwnerTroopStrength => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
-
-        public Troop[] TroopsReadForLaunch(float strengthNeeded)
-        {
-            if (MightBeAWarZone()) return new Troop[0];
-            return TroopList.Filter(t => t.CanMove && t.Loyalty == Ground.Owner && strengthNeeded - t.Strength >=0);
-        }
+        public float OwnerTroopStrength           => TroopList.Sum(troop => troop.Loyalty == Owner ? troop.Strength : 0);
 
         private BatchRemovalCollection<Troop> TroopList      => Ground.TroopsHere;
         private BatchRemovalCollection<Combat> ActiveCombats => Ground.ActiveCombats;
@@ -56,7 +50,9 @@ namespace Ship_Game
 
         public void Update(float elapsedTime)
         {
-            if (Empire.Universe.Paused) return;
+            if (Empire.Universe.Paused) 
+                return;
+
             DecisionTimer -= elapsedTime;
             InCombatTimer -= elapsedTime;
             if (RecentCombat || TroopsAreOnPlanet)
@@ -79,12 +75,24 @@ namespace Ship_Game
 
             for (int i = 0; i < TilesList.Count; ++i)
             {
-                PlanetGridSquare pgs = TilesList[i];
-                if (pgs.TroopsAreOnTile)
-                    PerformGroundActions(pgs.SingleTroop, pgs);
+                PlanetGridSquare tile = TilesList[i];
+                if (tile.TroopsAreOnTile)
+                    PerformTroopsGroundActions(tile);
 
-                else if (pgs.BuildingPerformsAutoCombat(Ground))
-                    PerformGroundActions(pgs.building, pgs);
+                else if (tile.BuildingPerformsAutoCombat(Ground))
+                    PerformGroundActions(tile.building, tile);
+            }
+        }
+
+        private void PerformTroopsGroundActions(PlanetGridSquare tile)
+        {
+            using (tile.TroopsHere.AcquireWriteLock())
+            {
+                for (int i = 0; i < tile.TroopsHere.Count; ++i)
+                {
+                    Troop troop = tile.TroopsHere[i];
+                    PerformGroundActions(troop, tile);
+                }
             }
         }
 
@@ -102,9 +110,13 @@ namespace Ship_Game
             if (!nearestTargetTile.InRangeOf(ourTile, 1) || nearestTargetTile.EventOnTile) // right now all buildings have range 1
                 return;
 
-            // start combat
-            b.UpdateAttackActions(-1);
-            CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
+            // lock on enemy troop target
+            if (nearestTargetTile.LockOnEnemyTroop(Owner, out Troop enemy))
+            {
+                // start combat
+                b.UpdateAttackActions(-1);
+                CombatScreen.StartCombat(b, enemy, nearestTargetTile, Ground);
+            }
         }
 
         private void PerformGroundActions(Troop t, PlanetGridSquare ourTile)
@@ -118,13 +130,26 @@ namespace Ship_Game
                 return; // no targets on planet. no need to move or attack
 
             // find range
-            if (nearestTargetTile.InRangeOf(ourTile, t.ActualRange) && !nearestTargetTile.EventOnTile) 
+            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.ActualRange) 
+                            && !nearestTargetTile.EventOnTile) 
             {
                 // start combat
                 t.UpdateAttackActions(-1);
-                t.UpdateMoveActions(-1);
-                t.facingRight = nearestTargetTile.x >= ourTile.x;
-                CombatScreen.StartCombat(ourTile, nearestTargetTile, Ground);
+
+                t.FaceEnemy(nearestTargetTile, ourTile);
+                if (nearestTargetTile.BuildingOnTile)
+                {
+                    t.UpdateMoveActions(-1);
+                    CombatScreen.StartCombat(t, nearestTargetTile.building, nearestTargetTile, Ground);
+                }
+                else if (nearestTargetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
+                {
+                    CombatScreen.StartCombat(t, enemy, nearestTargetTile, Ground);
+                    if (t.ActualRange == 1)
+                        MoveTowardsTarget(t, ourTile, nearestTargetTile); // enter the same tile 
+                    else
+                        t.UpdateMoveActions(-1);
+                }
             }
             else // move to targets
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
@@ -144,59 +169,56 @@ namespace Ship_Game
             if (!t.CanMove || ourTile == targetTile)
                 return;
 
-            TileDirection direction   = ourTile.GetDirectionTo(targetTile);
-            PlanetGridSquare moveToTile = PickTileToMoveTo(direction, ourTile);
+            TileDirection direction     = ourTile.GetDirectionTo(targetTile);
+            PlanetGridSquare moveToTile = PickTileToMoveTo(direction, ourTile, t.Loyalty);
             if (moveToTile == null)
                 return; // no free tile
 
             // move to selected direction
-            using(ourTile.TroopsHere.AcquireWriteLock())
-            {
-                t.SetFromRect(ourTile.TroopClickRect);
-                t.MovingTimer = 0.75f;
-                t.UpdateMoveActions(-1);
-                t.ResetMoveTimer();
-                moveToTile.TroopsHere.Add(t);
-                ourTile.TroopsHere.Clear();
-            }
+            t.SetFromRect(t.ClickRect);
+            t.MovingTimer = 0.75f;
+            t.UpdateMoveActions(-1);
+            t.ResetMoveTimer();
+            moveToTile.AddTroop(t);
+            ourTile.TroopsHere.Remove(t);
         }
         
         // try 3 directions to move into, based on general direction to the target
-        private PlanetGridSquare PickTileToMoveTo(TileDirection direction, PlanetGridSquare ourTile)
+        private PlanetGridSquare PickTileToMoveTo(TileDirection direction, PlanetGridSquare ourTile, Empire us)
         {
-            PlanetGridSquare bestFreeTile = FreeTile(direction, ourTile);
+            PlanetGridSquare bestFreeTile = FreeTile(direction, ourTile, us);
             if (bestFreeTile != null)
                 return bestFreeTile;
 
             // try alternate tiles
             switch (direction)
             {
-                case TileDirection.North:     return FreeTile(TileDirection.NorthEast, ourTile) ?? 
-                                                     FreeTile(TileDirection.NorthWest, ourTile);
-                case TileDirection.South:     return FreeTile(TileDirection.SouthEast, ourTile) ??
-                                                     FreeTile(TileDirection.SouthWest, ourTile);
-                case TileDirection.East:      return FreeTile(TileDirection.NorthEast, ourTile) ??
-                                                     FreeTile(TileDirection.SouthEast, ourTile);
-                case TileDirection.West:      return FreeTile(TileDirection.NorthWest, ourTile) ??
-                                                     FreeTile(TileDirection.SouthWest, ourTile);
-                case TileDirection.NorthEast: return FreeTile(TileDirection.North, ourTile) ??
-                                                     FreeTile(TileDirection.East, ourTile);
-                case TileDirection.NorthWest: return FreeTile(TileDirection.North, ourTile) ??
-                                                     FreeTile(TileDirection.West, ourTile);
-                case TileDirection.SouthEast: return FreeTile(TileDirection.South, ourTile) ??
-                                                     FreeTile(TileDirection.East, ourTile);
-                case TileDirection.SouthWest: return FreeTile(TileDirection.South, ourTile) ??
-                                                     FreeTile(TileDirection.West, ourTile);
+                case TileDirection.North:     return FreeTile(TileDirection.NorthEast, ourTile, us) ?? 
+                                                     FreeTile(TileDirection.NorthWest, ourTile, us);
+                case TileDirection.South:     return FreeTile(TileDirection.SouthEast, ourTile, us) ??
+                                                     FreeTile(TileDirection.SouthWest, ourTile, us);
+                case TileDirection.East:      return FreeTile(TileDirection.NorthEast, ourTile, us) ??
+                                                     FreeTile(TileDirection.SouthEast, ourTile, us);
+                case TileDirection.West:      return FreeTile(TileDirection.NorthWest, ourTile, us) ??
+                                                     FreeTile(TileDirection.SouthWest, ourTile, us);
+                case TileDirection.NorthEast: return FreeTile(TileDirection.North, ourTile, us) ??
+                                                     FreeTile(TileDirection.East, ourTile, us);
+                case TileDirection.NorthWest: return FreeTile(TileDirection.North, ourTile, us) ??
+                                                     FreeTile(TileDirection.West, ourTile, us);
+                case TileDirection.SouthEast: return FreeTile(TileDirection.South, ourTile, us) ??
+                                                     FreeTile(TileDirection.East, ourTile, us);
+                case TileDirection.SouthWest: return FreeTile(TileDirection.South, ourTile, us) ??
+                                                     FreeTile(TileDirection.West, ourTile, us);
                 default: return null;
             }
         }
 
-        private PlanetGridSquare FreeTile(TileDirection direction, PlanetGridSquare ourTile)
+        private PlanetGridSquare FreeTile(TileDirection direction, PlanetGridSquare ourTile, Empire us)
         {
             Point newCords        = ourTile.ConvertDirectionToCoordinates(direction);
             PlanetGridSquare tile = Ground.GetTileByCoordinates(newCords.X, newCords.Y);
 
-            if (tile != null && tile.FreeForMovement && tile != ourTile)
+            if (tile != null && tile.IsTileFree(us) && tile != ourTile)
                 return tile;
             return null;
         }
@@ -209,6 +231,7 @@ namespace Ship_Game
                 if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
                     return scannedTile;
             }
+
             return null;
         }
 
@@ -216,10 +239,13 @@ namespace Ship_Game
         {
             get
             {
-                foreach (PlanetGridSquare pgs in TilesList)
-                    if ((pgs.TroopsAreOnTile && pgs.SingleTroop.Loyalty != Owner) ||
-                        (pgs.EventOnTile))
+                for (int i = 0; i < TilesList.Count; ++i)
+                {
+                    PlanetGridSquare tile = TilesList[i];
+                    if (tile.HostilesTargetsOnTile(Owner, Owner))
                         return true;
+
+                }
                 return false;
             }
         }
@@ -262,6 +288,7 @@ namespace Ship_Game
                     foreach (PlanetGridSquare planetGridSquare in TilesList)
                         planetGridSquare.TroopsHere.Remove(troop);
                 }
+
                 troop.UpdateLaunchTimer(-elapsedTime);
                 troop.UpdateMoveTimer(-elapsedTime);
                 troop.MovingTimer -= elapsedTime;
@@ -270,6 +297,7 @@ namespace Ship_Game
                     troop.UpdateMoveActions(troop.MaxStoredActions);
                     troop.ResetMoveTimer();
                 }
+
                 troop.UpdateAttackTimer(-elapsedTime);
                 if (troop.AttackTimer < 0.0)
                 {
@@ -277,73 +305,9 @@ namespace Ship_Game
                     troop.ResetAttackTimer();
                 }
             }
+
             foreach (Troop troop in list)
                 TroopList.Remove(troop);
-        }
-
-        private bool CombatDone(PlanetGridSquare attacker, PlanetGridSquare defender)
-        {
-            return attacker.NothingOnTile || defender.NothingOnTile ||
-                    attacker.AllDestroyed || defender.AllDestroyed;
-        }
-
-        private int RollDamage(PlanetGridSquare attacker, PlanetGridSquare defender)
-        {
-            TargetType attackType = defender.BuildingOnTile ? TargetType.Hard : defender.SingleTroop.TargetType;
-            var attackerStats     = new AttackerStats(attacker);
-            float attackValue     = attackType == TargetType.Soft ? attackerStats.SoftAttack : attackerStats.HardAttack;
-            int damage = 0;
-            for (int index = 0; index < attackerStats.Strength; ++index)
-            {
-                if (RandomMath.RandomBetween(0.0f, 100f) < attackValue)
-                    ++damage;
-            }
-            return damage;
-        }
-
-        private void DealDamage(Combat combat, int damage, bool isViewing = false)
-        {
-            PlanetGridSquare attacker = combat.AttackTile;
-            PlanetGridSquare defender = combat.DefenseTile;
-            if (damage == 0)
-            {
-                if (isViewing) GameAudio.PlaySfxAsync("sd_troop_attack_miss");
-                return;
-            }
-
-            if (isViewing)
-            {
-                GameAudio.PlaySfxAsync("sd_troop_attack_hit");
-                ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 1);
-            }
-
-            if (defender.TroopsAreOnTile)
-            {
-                defender.SingleTroop.DamageTroop(damage);
-                if (!defender.AllTroopsDead) // Troops are still alive
-                    return;
-
-                TroopList.Remove(defender.SingleTroop);
-                defender.TroopsHere.Clear();
-                ActiveCombats.QueuePendingRemoval(combat);
-                if (isViewing)
-                {
-                    GameAudio.PlaySfxAsync("Explo1");
-                    ((CombatScreen)Empire.Universe.workersPanel).AddExplosion(defender.TroopClickRect, 4);
-                }
-                if (attacker.TroopsAreOnTile)
-                    attacker.SingleTroop.LevelUp(); // FB - for now multi troops on same tile is not supported
-            }
-            else if (defender.CombatBuildingOnTile)
-            {
-                defender.building.Strength       -= damage;
-                defender.building.CombatStrength -= damage;
-                if (!defender.BuildingDestroyed)
-                    return; // Building still stands
-
-                BuildingList.Remove(defender.building);
-                defender.building = null; // make pgs building private in the future
-            }
         }
 
         private void ResolveTacticalCombats(float elapsedTime, bool isViewing = false)
@@ -351,20 +315,16 @@ namespace Ship_Game
             using (ActiveCombats.AcquireReadLock())
                 foreach (Combat combat in ActiveCombats)
                 {
-                    if (CombatDone(combat.AttackTile, combat.DefenseTile))
+                    if (combat.Done)
                     {
                         ActiveCombats.QueuePendingRemoval(combat);
                         break;
                     }
 
                     combat.Timer -= elapsedTime;
-                    if (combat.Timer < 3.0 && combat.phase == 1)
-                    {
-                        int damage = RollDamage(combat.AttackTile, combat.DefenseTile);
-                        DealDamage(combat, damage, isViewing);
-                        combat.phase = 2;
-                    }
-                    else if (combat.phase == 2)
+                    if (combat.Timer < 3.0 && combat.Phase == 1)
+                        combat.ResolveDamage(isViewing);
+                    else if (combat.Phase == 2)
                         ActiveCombats.QueuePendingRemoval(combat);
                 }
         }
@@ -506,12 +466,17 @@ namespace Ship_Game
             return enemies;
         }
 
-        public int NumGroundLandingSpots() // FB - this is good if we support more than 1 troop per tile, which currently we are not.
+        public int NumFreeTiles(Empire empire)
         {
-            var nonMilitaryTiles = TilesList.Filter(t => !t.CombatBuildingOnTile);
-            int spotCount        = nonMilitaryTiles.Sum(spots => spots.MaxAllowedTroops); 
-            int troops           = TroopList.Filter(t => t.Loyalty == Owner).Length;
-            return spotCount - troops;
+            return TilesList.Count(t => t.IsTileFree(empire));
+        }
+
+        public int GetEnemyAssets(Planet planet, Empire empire)
+        {
+            int numTroops          = planet.TroopsHere.Count(t => t.Loyalty != empire);
+            int numCombatBuildings = planet.Owner != empire ? planet.BuildingList.Count(b => b.IsAttackable) : 0;
+
+            return numTroops + numCombatBuildings;
         }
 
         public Array<Troop> EmpireTroops(Empire empire, int maxToTake)
@@ -540,29 +505,6 @@ namespace Ship_Game
                     troop.HealTroop(healAmount);
         }
 
-        public struct AttackerStats
-        {
-            public readonly float Strength;
-            public readonly int HardAttack;
-            public readonly int SoftAttack;
-
-            public AttackerStats(PlanetGridSquare attacker)
-            {
-                if (attacker.TroopsAreOnTile)
-                {
-                    Strength   = attacker.TroopsStrength;
-                    HardAttack = attacker.TroopsHardAttack;
-                    SoftAttack = attacker.TroopsSoftAttack;
-                }
-                else // building stats
-                {
-                    Strength   = attacker.building.Strength;
-                    HardAttack = attacker.building.HardAttack;
-                    SoftAttack = attacker.building.SoftAttack;
-                }
-            }
-        }
-
         public struct Forces
         {
             public readonly int DefendingForces;
@@ -578,6 +520,7 @@ namespace Ship_Game
                 {
                     PlanetGridSquare tile = tileList[i];
                     using (tile.TroopsHere.AcquireReadLock())
+                    {
                         for (int x = 0; x < tile.TroopsHere.Count; x++)
                         {
                             Troop troop = tile.TroopsHere[x];
@@ -589,6 +532,7 @@ namespace Ship_Game
                             else
                                 ++DefendingForces;
                         }
+                    }
 
                     if (tile.CombatBuildingOnTile)
                         ++DefendingForces;

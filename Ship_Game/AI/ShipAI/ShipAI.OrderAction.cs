@@ -163,19 +163,26 @@ namespace Ship_Game.AI
         public void OrderMoveDirectlyTo(Vector2 position, Vector2 finalDir, bool clearWayPoints,
                                         AIState wantedState, float speedLimit = 0f, bool offensiveMove = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, targetPlanet: null, wantedState, offensiveMove);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit, targetPlanet: null, wantedState, offensiveMove, true);
         }
 
         public void OrderMoveTo(Vector2 position, Vector2 finalDir, bool clearWayPoints,
                                 Planet targetPlanet, AIState wantedState, Goal goal = null, bool offensiveMove = false)
         {
-            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, targetPlanet, wantedState, offensiveMove, goal);
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit:0f, targetPlanet, wantedState, offensiveMove, true, goal);
+        }
+
+        public void OrderMoveToNoStop(Vector2 position, Vector2 finalDir, bool clearWayPoints,
+                                Planet targetPlanet, AIState wantedState, Goal goal = null, bool offensiveMove = false)
+        {
+            AddWayPoint(position, finalDir, clearWayPoints, speedLimit: 0f, targetPlanet, wantedState, offensiveMove, false, goal);
         }
 
         // Adds a WayPoint, optionally clears previous WayPoints
         // Then clears all existing ship orders and generates new move orders from WayPoints
         void AddWayPoint(Vector2 position, Vector2 finalDir, bool clearWayPoints,
-                         float speedLimit, Planet targetPlanet, AIState wantedState, bool offensiveMove, Goal goal = null)
+                         float speedLimit, Planet targetPlanet, AIState wantedState, 
+                         bool offensiveMove, bool stop, Goal goal = null)
         {
             if (!finalDir.IsUnitVector())
                 Log.Error($"GenerateOrdersFromWayPoints finalDirection {finalDir} must be a direction unit vector!");
@@ -183,6 +190,7 @@ namespace Ship_Game.AI
             Target = null;
             if (clearWayPoints)
                 ClearWayPoints();
+
             // FB - if offensive move it true, ships will break and attack targets on the way to the destination
             ClearOrders(wantedState, priority: !offensiveMove);
 
@@ -214,8 +222,15 @@ namespace Ship_Game.AI
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
             AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
-            AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
-            AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, targetPlanet, goal, State);
+
+            // FB - Do not make final approach and stop, since the ship has more orders which do not
+            // require stopping or rotating. 
+            // If stopping, it will go the the set pos and not to the dynamic target planet center.
+            if (stop)
+            {
+                AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, null, speedLimit, goal, State);
+                AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, null, goal, State);
+            }
         }
 
         public void OrderOrbitNearest(bool clearOrders)
@@ -333,7 +348,7 @@ namespace Ship_Game.AI
 
             ClearOrders();
 
-            if (p.FreeTilesWithRebaseOnTheWay == 0)
+            if (p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) == 0)
                 return;
 
             IgnoreCombat = true;
@@ -343,7 +358,7 @@ namespace Ship_Game.AI
         public void OrderRebaseToNearest()
         {
             ClearWayPoints();
-            Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay > 0)
+            Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) > 0)
                                                       .FindMin(p => Vector2.Distance(Owner.Center, p.Center));
 
             if (planet == null)
@@ -484,12 +499,19 @@ namespace Ship_Game.AI
             ClearWayPoints();
             ClearOrders();
 
-            // FB - this will give priority order for the movement. if offensiveMove is true,
+            // FB - this will give priority order for the movement. if offensiveMove is false,
             // it means the player ordered this specifically wanting combat ships to engage targets
             // of opportunity, even dropping our of warp to engage them.
             if (!offensiveMove || Owner.shipData.ShipCategory == ShipData.Category.Civilian)
-                OrderMoveTo(toOrbit.Center, Vectors.Up, false, toOrbit, AIState.MoveTo);
-
+            {
+                // only order to move if we are too far, no need to waste time here.
+                float threshold = toOrbit.ObjectRadius + 1000 * toOrbit.Scale;
+                if (Owner.Center.Distance(toOrbit.Center) > threshold)
+                {
+                    Vector2 finalDir = Owner.Position.DirectionToTarget(toOrbit.Center);
+                    OrderMoveToNoStop(toOrbit.Center, finalDir, false, toOrbit, AIState.MoveTo);
+                }
+            }
 
             AddOrbitPlanetGoal(toOrbit);
         }
