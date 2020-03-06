@@ -1303,8 +1303,7 @@ namespace Ship_Game.Fleets
             float landingSpotRatio = theirGroundStrength / planetAssaultStrength.ClampMin(1);
             int landingSpotsNeeded = targetBeingBombed ? 0 : (int)(1 * landingSpotRatio).Clamped(1, 10);
 
-
-            int freeLandingSpots = task.TargetPlanet.GetGroundLandingSpots();
+            int freeLandingSpots = task.TargetPlanet.GetFreeTiles(Owner);
 
             // If we arent bombing and no troops are fighting or on their way
             // and we dont have enough strength to open a few tiles with brute force troops.
