@@ -86,10 +86,13 @@ namespace Ship_Game
 
         private void PerformTroopsGroundActions(PlanetGridSquare tile)
         {
-            for (int i = 0; i < tile.TroopsHere.Count; ++i)
+            using (tile.TroopsHere.AcquireWriteLock())
             {
-                Troop troop = tile.TroopsHere[i];
-                PerformGroundActions(troop, tile);
+                for (int i = 0; i < tile.TroopsHere.Count; ++i)
+                {
+                    Troop troop = tile.TroopsHere[i];
+                    PerformGroundActions(troop, tile);
+                }
             }
         }
 
@@ -172,15 +175,12 @@ namespace Ship_Game
                 return; // no free tile
 
             // move to selected direction
-            using(ourTile.TroopsHere.AcquireWriteLock())
-            {
-                t.SetFromRect(t.ClickRect);
-                t.MovingTimer = 0.75f;
-                t.UpdateMoveActions(-1);
-                t.ResetMoveTimer();
-                moveToTile.AddTroop(t);
-                ourTile.TroopsHere.Remove(t);
-            }
+            t.SetFromRect(t.ClickRect);
+            t.MovingTimer = 0.75f;
+            t.UpdateMoveActions(-1);
+            t.ResetMoveTimer();
+            moveToTile.AddTroop(t);
+            ourTile.TroopsHere.Remove(t);
         }
         
         // try 3 directions to move into, based on general direction to the target
@@ -520,6 +520,7 @@ namespace Ship_Game
                 {
                     PlanetGridSquare tile = tileList[i];
                     using (tile.TroopsHere.AcquireReadLock())
+                    {
                         for (int x = 0; x < tile.TroopsHere.Count; x++)
                         {
                             Troop troop = tile.TroopsHere[x];
@@ -531,6 +532,7 @@ namespace Ship_Game
                             else
                                 ++DefendingForces;
                         }
+                    }
 
                     if (tile.CombatBuildingOnTile)
                         ++DefendingForces;

@@ -73,13 +73,10 @@ namespace Ship_Game
             float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 mousePos = new Vector2(x, state.Y);
-            string slantText = Tile.TroopsHere.Count > 0 ? Tile.TroopsHere[0].Name : Localizer.Token(Tile.building.NameTranslationIndex);
-            Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), slantText);
+            Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), "");
             Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
-            Color color = Color.White;
-
+            Color color      = Color.White;
             SpriteBatch batch = ScreenManager.SpriteBatch;
-            slant.Draw(ScreenManager);
             body.Draw(ScreenManager);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
@@ -88,18 +85,22 @@ namespace Ship_Game
 
             if (Tile.TroopsAreOnTile) // draw troop_stats
             {
-                Troop troop = Tile.TroopsHere[0];
-                if (troop.Strength < troop.ActualStrengthMax)
-                    DrawInfoData(batch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
-                else
-                    DrawInfoData(batch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
+                Troop troopToDraw = null;
+                using (Tile.TroopsHere.AcquireReadLock())
+                {
+                    for (int i = 0; i < Tile.TroopsHere.Count; ++i)
+                    {
+                        Troop troop = Tile.TroopsHere[i];
+                        if (Tile.TroopsHere.Count == 1)
+                            troopToDraw = troop;
+                        else if (troop.Loyalty != EmpireManager.Player && troop.Hovered)
+                            troopToDraw = troop;
+                        else if (troop.Loyalty == EmpireManager.Player)
+                            troopToDraw = troop;
+                    }
 
-                DrawInfoData(batch, SoftAttackRect, troop.ActualSoftAttack.ToString(), color, 5, 8);
-                DrawInfoData(batch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
-                DrawInfoData(batch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
-                ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                DrawLaunchButton(troop, slant);
-                DrawLevelStars(troop.Level, mousePos);
+                    DrawTroopStats(batch, troopToDraw, slant, mousePos, color);
+                }
             }
             else // draw building stats
             {
@@ -108,12 +109,34 @@ namespace Ship_Game
                 else
                     DrawInfoData(batch, DefenseRect, Tile.building.StrengthMax.String(1), color, 2, 11);
 
+                slant.text = Localizer.Token(Tile.building.NameTranslationIndex);
                 DrawInfoData(batch, SoftAttackRect, Tile.building.SoftAttack.ToString(), color, 5, 8);
                 DrawInfoData(batch, HardAttackRect, Tile.building.HardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
                 batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", Tile.building.Icon, "_64x64")), ItemDisplayRect, color);
             }
+
+            slant.Draw(ScreenManager);
             DescriptionSL.Draw(batch);
+        }
+
+        private void DrawTroopStats(SpriteBatch batch, Troop troop, Header slant, Vector2 mousePos, Color color)
+        {
+            if (troop == null)
+                return;
+
+            if (troop.Strength < troop.ActualStrengthMax)
+                DrawInfoData(batch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
+            else
+                DrawInfoData(batch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
+
+            DrawInfoData(batch, SoftAttackRect, troop.ActualSoftAttack.ToString(), color, 5, 8);
+            DrawInfoData(batch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
+            DrawInfoData(batch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
+            ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
+            DrawLaunchButton(troop, slant);
+            DrawLevelStars(troop.Level, mousePos);
+            slant.text = troop.Name;
         }
 
         private void DrawInfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
@@ -197,7 +220,15 @@ namespace Ship_Game
                     return true;
                 }
             }
-            
+
+            using (Tile.TroopsHere.AcquireReadLock())
+            {
+                for (int i = 0; i < Tile.TroopsHere.Count; ++i)
+                {
+                    Troop troop = Tile.TroopsHere[i];
+                    troop.Hovered = troop.ClickRect.HitTest(input.CursorPosition);
+                }
+            }
             return false;
         }
 
