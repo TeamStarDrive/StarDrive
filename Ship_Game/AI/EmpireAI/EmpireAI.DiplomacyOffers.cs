@@ -282,14 +282,16 @@ namespace Ship_Game.AI
                     {
                         continue;
                     }
+
+                    // remove our troops from this planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != OwnerEmpire)
+
+                        if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us, out Troop troop))
                         {
-                            continue;
+                            troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
+                            TroopShips.Add(troop.Launch(ignoreMovement: true));
                         }
-                        pgs.SingleTroop.SetPlanet(p);
-                        TroopShips.Add(pgs.SingleTroop.Launch());
                     }
                     toRemove.Add(p);
                     p.Owner = Them;
@@ -346,12 +348,15 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
+
+                    // remove troops which are not ours from the planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != Them)
-                            continue;
-                        pgs.SingleTroop.SetPlanet(p);
-                        TroopShips.Add(pgs.SingleTroop.Launch());
+                        if (pgs.TroopsAreOnTile && pgs.LockOnEnemyTroop(us, out Troop troop))
+                        {
+                            troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
+                            TroopShips.Add(troop.Launch(ignoreMovement: true));
+                        }
                     }
                     if (Empire.Universe.PlayerEmpire != Them)
                     {
@@ -628,13 +633,15 @@ namespace Ship_Game.AI
                     {
                         continue;
                     }
+
+                    // remove our troops from the planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != OwnerEmpire)
+                        if (pgs.TroopsAreOnTile && pgs.LockOnOurTroop(us, out Troop troop))
                         {
-                            continue;
+                            troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
+                            TroopShips.Add(troop.Launch(ignoreMovement: true));
                         }
-                        TroopShips.Add(pgs.SingleTroop.Launch());
                     }
                     toRemove.Add(p);
                     p.Owner = Them;
@@ -686,11 +693,15 @@ namespace Ship_Game.AI
                         }
                         p.ParentSystem.OwnerList.Add(pl.Owner);
                     }
+
+                    // remove troops which are not ours from the planet
                     foreach (PlanetGridSquare pgs in p.TilesList)
                     {
-                        if (pgs.TroopsHere.Count <= 0 || pgs.SingleTroop.Loyalty != Them)
-                            continue;
-                        TroopShips.Add(pgs.SingleTroop.Launch());
+                        if (pgs.TroopsAreOnTile && pgs.LockOnEnemyTroop(us, out Troop troop))
+                        {
+                            troop.SetPlanet(p); // FB - this is for making sure there is a host planet for the troops? strange
+                            TroopShips.Add(troop.Launch(ignoreMovement: true));
+                        }
                     }
                     if (Empire.Universe.PlayerEmpire == Them)
                     {

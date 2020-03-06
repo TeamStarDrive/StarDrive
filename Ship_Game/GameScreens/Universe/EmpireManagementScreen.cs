@@ -158,7 +158,7 @@ namespace Ship_Game
                     batch.Draw(pgs.building.IconTex, pgs.ClickRect.Center() - new Vector2(24), new Vector2(48), c);
                 }
 
-                DrawPGSIcons(pgs);
+                DrawTileIcons(pgs);
             }
 
             batch.Draw(ResourceManager.Texture("PlanetTiles/"+SelectedPlanet.PlanetTileId), buildingsRect, White);
@@ -243,18 +243,14 @@ namespace Ship_Game
             return new Rectangle(x + 15 - icon.Width / 2, y, icon.Width, icon.Height);
         }
 
-        void DrawPGSIcons(PlanetGridSquare pgs)
+        void DrawTileIcons(PlanetGridSquare pgs)
         {
             if (pgs.Biosphere)
             {
                 Rectangle biosphere = new Rectangle(pgs.ClickRect.X, pgs.ClickRect.Y, 20, 20);
                 ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Buildings/icon_biosphere_48x48"), biosphere, White);
             }
-            if (pgs.TroopsHere.Count > 0)
-            {
-                pgs.TroopClickRect = new Rectangle(pgs.ClickRect.X + pgs.ClickRect.Width - 36, pgs.ClickRect.Y, 35, 35);
-                ScreenManager.SpriteBatch.Draw(ResourceManager.Texture("Troops/"+pgs.SingleTroop.TexturePath), pgs.TroopClickRect, White);
-            }
+
             float numFood = 0f;
             float numProd = 0f;
             float numRes = 0f;
