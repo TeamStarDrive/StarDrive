@@ -2226,7 +2226,7 @@ namespace Ship_Game
 
             Research.Update();
 
-            if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)
+            if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
 
             CalculateScore();
@@ -2272,7 +2272,7 @@ namespace Ship_Game
                             Universe.NotificationManager.AddRebellionNotification(planet,
                                 rebels);
 
-                        for (int index = 0; index < planet.PopulationBillion; ++index)
+                        for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
 
