@@ -150,11 +150,11 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueWayPointAndOrder();
+                    DequeueCurrentOrderAndPriority();
             }
             else if (distance <= 1000f)
             {
-                DequeueWayPointAndOrder();
+                DequeueCurrentOrderAndPriority();
             }
         }
 
@@ -182,8 +182,7 @@ namespace Ship_Game.AI
                     if (Owner.loyalty == EmpireManager.Player)
                         HadPO = true;
 
-                    SetPriorityOrder(false);
-                    DequeueCurrentOrder();
+                    DequeueCurrentOrderAndPriority();
                 }
                 return;
             }
