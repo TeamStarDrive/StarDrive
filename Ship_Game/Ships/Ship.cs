@@ -571,18 +571,7 @@ namespace Ship_Game.Ships
 
         public float GetCost(Empire empire)
         {
-            if (shipData.HasFixedCost)
-                return shipData.FixedCost * CurrentGame.Pace;
-
-            float cost = BaseCost * CurrentGame.Pace;
-
-            if (empire == null)
-                return (int) cost;
-
-            cost += shipData.Bonuses.StartingCost;
-            cost += cost * empire.data.Traits.ShipCostMod;
-            cost *= 1f - shipData.Bonuses.CostBonus; // @todo Sort out (1f - CostBonus) weirdness
-            return (int)cost;
+            return ShipStats.GetCost(BaseCost, shipData, empire);
         }
 
         public ShipData BaseHull => shipData.BaseHull;
@@ -1121,8 +1110,6 @@ namespace Ship_Game.Ships
             if (InternalSlotsHealthPercent < ShipResupply.ShipDestroyThreshold)
                 Die(LastDamagedBy, false);
 
-            Mass = Math.Max(SurfaceArea * 0.5f, Mass);
-            Mass = Math.Max(Mass, 1);
             PowerCurrent -= PowerDraw * deltaTime;
             if (PowerCurrent < PowerStoreMax)
                 PowerCurrent += (PowerFlowMax + PowerFlowMax * (loyalty?.data.PowerFlowMod ?? 0)) * deltaTime;
@@ -1169,15 +1156,10 @@ namespace Ship_Game.Ships
                 ModuleSlotList[i].Update(1);
 
             if (ShouldRecalculatePower) // must be before ShipStatusChange
-            {
                 RecalculatePower();
-                ShouldRecalculatePower = false;
-            }
 
             if (shipStatusChanged)
-            {
                 ShipStatusChange();
-            }
 
             //Power draw based on warp
             if (!inborders && engineState == MoveState.Warp)
@@ -1370,10 +1352,9 @@ namespace Ship_Game.Ships
 
         public void ShipStatusChange()
         {
-            shipStatusChanged           = false;
+            shipStatusChanged = false;
+
             float sensorBonus           = 0f;
-            Thrust                      = 0f;
-            Mass                        = SurfaceArea;
             shield_max                  = 0f;
             ActiveInternalSlotCount     = 0;
             BonusEMP_Protection         = 0f;
@@ -1383,18 +1364,13 @@ namespace Ship_Game.Ships
             RepairRate                  = 0f;
             CargoSpaceMax               = 0f;
             SensorRange                 = 1000f;
-            WarpThrust                  = 0f;
-            TurnThrust                  = 0f;
             InhibitionRadius            = 0f;
             OrdAddedPerSecond           = 0f;
             HealPerTurn                 = 0;
             ECMValue                    = 0f;
-            FTLSpoolTime                = 0f;
             hasCommand                  = IsPlatform;
             TrackingPower               = 0;
             FixedTrackingPower          = 0;
-
-            bool hasLoyalty = loyalty != null; // reused a lot and is module independent -> moved outside loop.
 
             for (int i = 0; i < ModuleSlotList.Length; i++)
             {
@@ -1404,14 +1380,6 @@ namespace Ship_Game.Ships
                     ActiveInternalSlotCount += module.XSIZE * module.YSIZE;
 
                 RepairRate += module.Active ? module.ActualBonusRepairRate : module.ActualBonusRepairRate / 10; // FB - so destroyed modules with repair wont have full repair rate
-
-                // Mass addition
-                if (module.Is(ShipModuleType.Armor) && hasLoyalty) // handle armor mass reduction
-                    Mass += module.Mass * loyalty.data.ArmourMassModifier;
-                else if (module.Mass >= 0) // handle other positive mass modules
-                    Mass += module.Mass;
-                else if (module.Powered || module.PowerDraw <= 0f) // handle negative mass modules. Only benefit if requirements are met.
-                    Mass += module.Mass;
 
                 if (module.Active && (module.Powered || module.PowerDraw <= 0f))
                 {
@@ -1429,15 +1397,11 @@ namespace Ship_Game.Ships
                     BonusEMP_Protection += module.EMP_Protection;
                     SensorRange          = Math.Max(SensorRange, module.SensorRange);
                     sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
-                    Thrust              += module.thrust;
-                    WarpThrust          += module.WarpThrust;
-                    TurnThrust          += module.TurnThrust;
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
                     PowerStoreMax       += module.ActualPowerStoreMax;
                     PowerFlowMax        += module.ActualPowerFlowMax;
-                    FTLSpoolTime         = Math.Max(FTLSpoolTime, module.FTLSpoolTime);
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
@@ -1452,23 +1416,17 @@ namespace Ship_Game.Ships
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
-            if (hasLoyalty)
-            {
-                Mass *= loyalty.data.MassModifier;
-                RepairRate += (float)(RepairRate * Level * 0.05);
-                if (IsPlatform)
-                    SensorRange = SensorRange.ClampMin(10000);
-
-                SensorRange   *= loyalty.data.SensorModifier;
-            }
-
-            if (FTLSpoolTime <= 0)
-                FTLSpoolTime = 3f;
+            RepairRate += (float)(RepairRate * Level * 0.05);
+            if (IsPlatform)
+                SensorRange = SensorRange.ClampMin(10000);
+            SensorRange   *= loyalty.data.SensorModifier;
 
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
             SensorRange    *= shipData.Bonuses.SensorModifier;
-            WarpThrust     *= shipData.Bonuses.SpeedModifier;
-            Thrust         *= shipData.Bonuses.SpeedModifier;
+
+            (Thrust, WarpThrust, TurnThrust) = ShipStats.GetThrust(ModuleSlotList, shipData);
+            Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
+            FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
             CurrentStrength = CalculateShipStrength();
             UpdateWeaponRanges();
@@ -1820,7 +1778,6 @@ namespace Ship_Game.Ships
             bool fighters      = false;
             bool weapons       = false;
             int numWeaponSlots = 0;
-            float mass         = SurfaceArea;
             float turnThrust   = 0;
 
             foreach (ShipModule slot in ModuleSlotList)
@@ -1835,7 +1792,6 @@ namespace Ship_Game.Ships
 
                 offense    += slot.CalculateModuleOffense();
                 defense    += slot.CalculateModuleDefense(SurfaceArea);
-                mass       += slot.Mass;
                 turnThrust += slot.TurnThrust;
 
                 BaseCanWarp |= slot.WarpThrust > 0;
