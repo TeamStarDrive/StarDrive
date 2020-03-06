@@ -45,7 +45,7 @@ namespace Ship_Game.Ships
 
         public void ResetJumpTimer()
         {
-            JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
+            JumpTimer = FTLSpoolTime;
         }
 
         public static string GetStartWarpCue(IEmpireData data, int surfaceArea)

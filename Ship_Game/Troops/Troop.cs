@@ -54,6 +54,8 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] Empire Owner;
         [XmlIgnore][JsonIgnore] public Ship HostShip { get; private set; }
         [XmlIgnore][JsonIgnore] public Rectangle FromRect { get; private set; }
+        [XmlIgnore][JsonIgnore] public Rectangle ClickRect { get; private set; }
+        [XmlIgnore][JsonIgnore] public bool Hovered;
 
         [XmlIgnore][JsonIgnore] float UpdateTimer;
         [XmlIgnore][JsonIgnore] public string DisplayName    => DisplayNameEmpire(Owner);
@@ -63,7 +65,7 @@ namespace Ship_Game
         [XmlIgnore] [JsonIgnore] public int ActualHardAttack => (int)(HardAttack + 0.05f * Level * HardAttack);
         [XmlIgnore] [JsonIgnore] public int ActualSoftAttack => (int)(SoftAttack + 0.05f * Level * SoftAttack);
         [XmlIgnore] [JsonIgnore] public Empire Loyalty       => Owner ?? (Owner = EmpireManager.GetEmpireByName(OwnerString));
-        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 3   ? Range : Range + 1;  // veterans have bigger range
+        [XmlIgnore] [JsonIgnore] public int ActualRange      => Level < 5 ? Range : Range + 1;  // veterans have bigger range
 
         [XmlIgnore] [JsonIgnore] public SubTexture TextureDefault => ResourceManager.Texture("Troops/" + TexturePath);
 
@@ -146,6 +148,56 @@ namespace Ship_Game
         public void Draw(SpriteBatch batch, Vector2 pos, Vector2 size)
         {
             Draw(batch, new Rectangle((int)pos.X, (int)pos.Y, (int)size.X, (int)size.Y));
+        }
+
+        public void SetCombatScreenRect(PlanetGridSquare tile, int width)
+        {
+            Rectangle rect = tile.ClickRect;
+            if (tile.TroopsHere.Count < 2)
+            {
+                ClickRect = new Rectangle(rect.X + rect.Width / 2 - width / 2,
+                                       rect.Y + rect.Height / 2 - width / 2,
+                                       width, width);
+            }
+            else // 2 troops on tile
+            {
+                if (tile.TroopsHere[0] == this)
+                {
+                    ClickRect = new Rectangle(rect.X + rect.Width / 2 + width / 10,
+                                               rect.Y + (int)(rect.Height / 1.33) - width / 2,
+                                               (int)(width * 0.8), (int)(width * 0.8));
+                }
+                else
+                {
+                    ClickRect = new Rectangle(rect.X + rect.Width / 2 - (int)(width / 1.2f),
+                                              rect.Y + rect.Height / 3 - width / 2,
+                                               (int)(width * 0.8), (int)(width * 0.8));
+                }
+            }
+        }
+
+        public void SetColonyScreenRect(PlanetGridSquare tile)
+        {
+            Rectangle rect = tile.ClickRect;
+            if (tile.TroopsHere.Count < 2)
+            {
+                ClickRect = new Rectangle(rect.X + rect.Width - 48, rect.Y, 48, 48);
+            }
+            else // 2 troops on tile
+            {
+                if (tile.TroopsHere[0] == this)
+                    ClickRect = new Rectangle(rect.X + rect.Width - 48, rect.Y + 36, 48, 48);
+                else
+                    ClickRect = new Rectangle(rect.X, rect.Y, 48, 48);
+            }
+        }
+
+        public void FaceEnemy(PlanetGridSquare targetTile, PlanetGridSquare ourTile)
+        {
+            if (targetTile != ourTile)
+                facingRight = targetTile.x >= ourTile.x;
+            else // troops are on the same tile
+                facingRight = ClickRect.X < ourTile.ClickRect.X + ClickRect.Width / 2;
         }
 
         //@todo split this into methods of animated and non animated. or always draw animated and move the animation logic 
@@ -240,10 +292,6 @@ namespace Ship_Game
         public void SetPlanet(Planet newPlanet)
         {
             HostPlanet = newPlanet;
-            if (HostPlanet != null && !HostPlanet.TroopsHere.Contains(this))
-            {
-                HostPlanet.TroopsHere.Add(this);
-            }
         }
 
         public void SetShip(Ship s)
@@ -386,7 +434,7 @@ namespace Ship_Game
         public bool TryLandTroop(Planet planet, PlanetGridSquare tile = null)
         {
             planet = planet ?? HostPlanet;
-            if (planet.FreeTiles == 0)
+            if (planet.GetFreeTiles(Loyalty) == 0)
                 return false;
 
             return tile != null ? AssignTroopToNearestAvailableTile(tile, planet)
@@ -396,19 +444,19 @@ namespace Ship_Game
         // FB - For newly recruited troops (so they will be able to launch or move immediately)
         public bool PlaceNewTroop(Planet planet)
         {
-            return planet.FreeTiles > 0 && AssignTroopToRandomFreeTile(planet, resetMove: false);
+            return planet.GetFreeTiles(Loyalty) > 0 && AssignTroopToRandomFreeTile(planet, resetMove: false);
         }
 
         bool AssignTroopToNearestAvailableTile(PlanetGridSquare tile, Planet planet)
         {
-            if (tile.IsTileFree)
+            if (tile.IsTileFree(Loyalty))
             {
                 AssignTroopToTile(planet, tile);
                 return true;
             }
 
             PlanetGridSquare[] nearbyFreeTiles = planet.TilesList.Filter(
-                pgs => pgs.IsTileFree && tile.InRangeOf(pgs, 1));
+                pgs => pgs.IsTileFree(Loyalty) && tile.InRangeOf(pgs, 1));
 
             if (nearbyFreeTiles.Length == 0)
                 return AssignTroopToRandomFreeTile(planet); // Fallback to assign troop to any available tile if no close tile available
@@ -420,26 +468,24 @@ namespace Ship_Game
 
         bool AssignTroopToRandomFreeTile(Planet planet, bool resetMove = true)
         {
-            PlanetGridSquare[] freeTiles = planet.TilesList.Filter(t => t.IsTileFree);
+            PlanetGridSquare[] freeTiles = planet.TilesList.Filter(t => t.IsTileFree(Loyalty));
             if (freeTiles.Length == 0)
                 return false;
 
-            PlanetGridSquare randFreeTile = freeTiles.RandItem();
-            AssignTroopToTile(planet, randFreeTile, resetMove);
+            PlanetGridSquare tileToLand = PickTileToLand(planet, freeTiles);
+            AssignTroopToTile(planet, tileToLand, resetMove);
             // some buildings can injure landing troops
             if (Owner != planet.Owner)
                 DamageTroop(planet.TotalInvadeInjure);
 
-            randFreeTile.CheckAndTriggerEvent(planet, Loyalty);
+            tileToLand.CheckAndTriggerEvent(planet, Loyalty);
             return true;
         }
 
         void AssignTroopToTile(Planet planet, PlanetGridSquare tile, bool resetMove = true)
         {
-            tile.TroopsHere.Add(this);
-            planet.TroopsHere.Add(this);
+            planet.AddTroop(this, tile);
             RemoveTroopFromHostShip();
-            SetPlanet(planet);
             facingRight = tile.x < planet.TileMaxX / 2;
             if (resetMove)
             {
@@ -448,6 +494,52 @@ namespace Ship_Game
                 UpdateAttackActions(-1);
                 AttackTimer = 3f; // Land delay
             }
+        }
+
+        PlanetGridSquare PickTileToLand(Planet planet, PlanetGridSquare[] freeTiles)
+        {
+            if (!planet.RecentCombat && planet.GetEnemyAssets(Loyalty) == 0)
+                return freeTiles.RandItem(); // Non Combat landing
+
+            Array<PlanetGridSquare> bestTiles = new Array<PlanetGridSquare>();
+            int bestScore = int.MinValue;
+            for (int i = 0; i < freeTiles.Length; ++i)
+            {
+                PlanetGridSquare tile = freeTiles[i];
+                int score = CombatLandingTileScore(tile, planet);
+                if (score > bestScore) // this is the new best tile
+                {
+                    bestTiles.Clear();
+                    bestScore = score;
+                    bestTiles.Add(tile);
+                }
+                else if (score == bestScore)
+                {
+                    bestTiles.Add(tile); // add to possible list of tiles
+                }
+            }
+
+            return  bestTiles.RandItem() ?? freeTiles.RandItem();
+        }
+
+        int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
+        {
+            int left   = (tile.x - 1).ClampMin(0);
+            int right  = (tile.x + 1).UpperBound(planet.TileMaxX - 1);
+            int top    = (tile.y - 1).ClampMin(0);
+            int bottom = (tile.y + 1).UpperBound(planet.TileMaxY - 1);
+            int width  = planet.TileMaxY;
+            int score  = 0;
+            for (int x = left; x <= right; ++x)
+            {
+                for (int y = top; y <= bottom; ++y)
+                {
+                    PlanetGridSquare checkedTile = planet.TilesList[x * width + y];
+                    score += checkedTile.CalculateNearbyTileScore(this, planet.Owner);
+                }
+            }
+
+            return score;
         }
 
         void RemoveTroopFromHostShip()

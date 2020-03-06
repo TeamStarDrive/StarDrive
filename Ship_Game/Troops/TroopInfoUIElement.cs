@@ -18,7 +18,7 @@ namespace Ship_Game
         private DanButton LaunchTroop;
         private readonly Selector Sel;
         private ScrollList2<TextListItem> DescriptionSL;
-        public PlanetGridSquare pgs;
+        public PlanetGridSquare Tile;
         private readonly Array<TippedItem> ToolTipItems = new Array<TippedItem>();
 
         public TroopInfoUIElement(Rectangle r, ScreenManager sm, UniverseScreen screen)
@@ -64,10 +64,7 @@ namespace Ship_Game
 
         public override void Draw(GameTime gameTime) // refactored by  Fat Bastard Aug 6, 2018
         {
-            if (pgs == null)
-                return;
-
-            if (pgs.TroopsHere.Count == 0 && pgs.building == null)
+            if (Tile == null || Tile.NothingOnTile)
                 return;
 
             MathHelper.SmoothStep(0f, 1f, TransitionPosition);
@@ -76,47 +73,70 @@ namespace Ship_Game
             float x          = Mouse.GetState().X;
             MouseState state = Mouse.GetState();
             Vector2 mousePos = new Vector2(x, state.Y);
-            string slantText = pgs.TroopsHere.Count > 0 ? pgs.SingleTroop.Name : Localizer.Token(pgs.building.NameTranslationIndex);
-            Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), slantText);
+            Header slant     = new Header(new Rectangle(Sel.Rect.X, Sel.Rect.Y, Sel.Rect.Width, 41), "");
             Body body        = new Body(new Rectangle(slant.leftRect.X, Sel.Rect.Y + 44, Sel.Rect.Width, Sel.Rect.Height - 44));
-            Color color = Color.White;
-
+            Color color      = Color.White;
             SpriteBatch batch = ScreenManager.SpriteBatch;
-            slant.Draw(ScreenManager);
             body.Draw(ScreenManager);
             batch.Draw(ResourceManager.Texture("UI/icon_shield"), DefenseRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/Ground_Attack"), SoftAttackRect, color);
             batch.Draw(ResourceManager.Texture("Ground_UI/attack_hard"), HardAttackRect, color);
             batch.Draw(ResourceManager.Texture("UI/icon_offense"), RangeRect, color);
 
-            if (pgs.TroopsHere.Count > 0) // draw troop_stats
+            if (Tile.TroopsAreOnTile) // draw troop_stats
             {
-                Troop troop = pgs.SingleTroop;
-                if (troop.Strength < troop.ActualStrengthMax)
-                    DrawInfoData(batch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
-                else
-                    DrawInfoData(batch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
+                Troop troopToDraw = null;
+                using (Tile.TroopsHere.AcquireReadLock())
+                {
+                    for (int i = 0; i < Tile.TroopsHere.Count; ++i)
+                    {
+                        Troop troop = Tile.TroopsHere[i];
+                        if (Tile.TroopsHere.Count == 1)
+                            troopToDraw = troop;
+                        else if (troop.Loyalty != EmpireManager.Player && troop.Hovered)
+                            troopToDraw = troop;
+                        else if (troop.Loyalty == EmpireManager.Player)
+                            troopToDraw = troop;
+                    }
 
-                DrawInfoData(batch, SoftAttackRect, troop.ActualSoftAttack.ToString(), color, 5, 8);
-                DrawInfoData(batch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
-                DrawInfoData(batch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
-                ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                DrawLaunchButton(troop, slant);
-                DrawLevelStars(troop.Level, mousePos);
+                    DrawTroopStats(batch, troopToDraw, slant, mousePos, color);
+                }
             }
             else // draw building stats
             {
-                if (pgs.building.Strength < pgs.building.StrengthMax)
-                    DrawInfoData(batch, DefenseRect, pgs.building.Strength + "/" + pgs.building.StrengthMax.String(1), color, 2, 11);
+                if (Tile.building.Strength < Tile.building.StrengthMax)
+                    DrawInfoData(batch, DefenseRect, Tile.building.Strength + "/" + Tile.building.StrengthMax.String(1), color, 2, 11);
                 else
-                    DrawInfoData(batch, DefenseRect, pgs.building.StrengthMax.String(1), color, 2, 11);
+                    DrawInfoData(batch, DefenseRect, Tile.building.StrengthMax.String(1), color, 2, 11);
 
-                DrawInfoData(batch, SoftAttackRect, pgs.building.SoftAttack.ToString(), color, 5, 8);
-                DrawInfoData(batch, HardAttackRect, pgs.building.HardAttack.ToString(), color, 5, 8);
+                slant.text = Localizer.Token(Tile.building.NameTranslationIndex);
+                DrawInfoData(batch, SoftAttackRect, Tile.building.SoftAttack.ToString(), color, 5, 8);
+                DrawInfoData(batch, HardAttackRect, Tile.building.HardAttack.ToString(), color, 5, 8);
                 ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
-                batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", pgs.building.Icon, "_64x64")), ItemDisplayRect, color);
+                batch.Draw(ResourceManager.Texture(string.Concat("Buildings/icon_", Tile.building.Icon, "_64x64")), ItemDisplayRect, color);
             }
+
+            slant.Draw(ScreenManager);
             DescriptionSL.Draw(batch);
+        }
+
+        private void DrawTroopStats(SpriteBatch batch, Troop troop, Header slant, Vector2 mousePos, Color color)
+        {
+            if (troop == null)
+                return;
+
+            if (troop.Strength < troop.ActualStrengthMax)
+                DrawInfoData(batch, DefenseRect, troop.Strength.String(1) + "/" + troop.ActualStrengthMax.String(1), color, 2, 11);
+            else
+                DrawInfoData(batch, DefenseRect, troop.ActualStrengthMax.String(1), color, 2, 11);
+
+            DrawInfoData(batch, SoftAttackRect, troop.ActualSoftAttack.ToString(), color, 5, 8);
+            DrawInfoData(batch, HardAttackRect, troop.ActualHardAttack.ToString(), color, 5, 8);
+            DrawInfoData(batch, RangeRect, troop.ActualRange.ToString(), color, 5, 8);
+            ItemDisplayRect = new Rectangle(LeftRect.X + 85 + 16, LeftRect.Y + 5 + 16, 64, 64);
+            DrawLaunchButton(troop, slant);
+            DrawLevelStars(troop.Level, mousePos);
+            slant.text = troop.Name;
         }
 
         private void DrawInfoData(SpriteBatch batch, Rectangle rect, string data, Color color, int xOffSet, int yOffSet)
@@ -193,30 +213,36 @@ namespace Ship_Game
                 {
                     var combatScreen = (CombatScreen)screen.workersPanel;
                     if (combatScreen.TryLaunchTroopFromActiveTile())
-                    {
                         GameAudio.TroopTakeOff();
-                    }
                     else
-                    {
                         GameAudio.NegativeClick();
-                    }
+
                     return true;
                 }
-            }            
+            }
+
+            using (Tile.TroopsHere.AcquireReadLock())
+            {
+                for (int i = 0; i < Tile.TroopsHere.Count; ++i)
+                {
+                    Troop troop = Tile.TroopsHere[i];
+                    troop.Hovered = troop.ClickRect.HitTest(input.CursorPosition);
+                }
+            }
             return false;
         }
 
-        public void SetPGS(PlanetGridSquare pgs)
+        public void SetTile(PlanetGridSquare pgs, Troop troop = null)
         {
-            this.pgs = pgs;
-            if (this.pgs == null)
+            Tile = pgs;
+            if (Tile == null)
                 return;
 
-            if (pgs.TroopsHere.Count != 0)
+            if (troop != null)
             {
-                DescriptionSL.ResetWithParseText(Fonts.Arial12, pgs.SingleTroop.Description, LeftRect.Width - 15);
+                DescriptionSL.ResetWithParseText(Fonts.Arial12, troop.Description, LeftRect.Width - 15);
             }
-            else if (pgs.building != null)
+            else if (pgs.BuildingOnTile)
             {
                 DescriptionSL.ResetWithParseText(Fonts.Arial12, Localizer.Token(pgs.building.DescriptionIndex), LeftRect.Width - 15);
             }

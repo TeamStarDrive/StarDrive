@@ -160,15 +160,11 @@ namespace Ship_Game.AI.Tasks
         /// <returns></returns>
         private int BombTimeNeeded()
         {
-            //we cant easily say what the strength of the of the defensive systems yet. 
-            //this just counts how many there are and want 5 minutes per building.
-            int bombTime = TargetPlanet.BuildingGeodeticCount * 5;
-
             //ground landing spots. if we dont have a significant space to land troops. create them. 
-            bombTime    += TargetPlanet.GetGroundLandingSpots() < 25 ? 1 : 0;
+            int bombTime =  TargetPlanet.TotalDefensiveStrength / 20  ;
 
             //shields are a real pain. this may need a lot more code to deal with. 
-            bombTime    += TargetPlanet.ShieldStrengthMax > 0 ? 10 : 0;
+            bombTime    += (int)TargetPlanet.ShieldStrengthMax / 50;
             return bombTime;
         }
 
@@ -403,7 +399,7 @@ namespace Ship_Game.AI.Tasks
             //if we cant build bombers then convert bombtime to troops. 
             //This assume a standard troop strength of 10 
             if (fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
-                NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable) * 10;
+                NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).ClampMin(0) * 10;
 
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
@@ -438,6 +434,7 @@ namespace Ship_Game.AI.Tasks
                 {
                     if (minTroopStrength > 0)
                         NeededTroopStrength = GetTargetPlanetGroundStrength(minTroopStrength);
+
                     if (minBombMinutes > 0)
                         TaskBombTimeNeeded = BombTimeNeeded().ClampMin(minBombMinutes);
                 }

@@ -354,8 +354,7 @@ namespace Ship_Game
             if (Camera.Zoom < 0.3f)  Camera.Zoom = 0.3f;
             if (Camera.Zoom > 2.65f) Camera.Zoom = 2.65f;
 
-            var roleData = new RoleData(ActiveHull, ModuleGrid.Modules);
-            Role         = roleData.DesignRole;
+            Role = new RoleData(ActiveHull, ModuleGrid.CopyModulesList()).DesignRole;
             //roleData.CreateDesignRoleToolTip(DesignRoleRect); FB: This was killing tool tips in ship design, disabled and should check this
             
             CameraPosition.Z = OriginalZ / Camera.Zoom;
