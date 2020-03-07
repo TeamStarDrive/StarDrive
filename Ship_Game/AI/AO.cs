@@ -100,7 +100,7 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 str += ship.GetStrength();
 
-            return ThreatLevel + str.ClampMin(100) < CoreFleet.GetStrength();
+            return ThreatLevel + str.LowerBound(100) < CoreFleet.GetStrength();
         }
 
         private void CoreFleetAddShip(Ship ship)
@@ -337,9 +337,9 @@ namespace Ship_Game.AI
             if (CoreFleet != null)
                 Owner?.AddShipNextFrame(CoreFleet.Ships);
             if (OffensiveForcePool?.NotEmpty == true)
-                Owner.AddShipNextFrame(OffensiveForcePool);
+                Owner?.AddShipNextFrame(OffensiveForcePool);
             if (ShipsWaitingForCoreFleet?.NotEmpty == true)
-                Owner.AddShipNextFrame(ShipsWaitingForCoreFleet);
+                Owner?.AddShipNextFrame(ShipsWaitingForCoreFleet);
 
             OffensiveForcePool?.Clear();
             ShipsWaitingForCoreFleet?.Clear();
