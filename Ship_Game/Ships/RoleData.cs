@@ -42,6 +42,9 @@ namespace Ship_Game.Ships
         {
             if (Ship != null)
             {
+                if (Ship.shipData.Role == ShipData.RoleName.prototype)
+                    return ShipData.RoleName.prototype;
+
                 if (Ship.IsConstructor)
                     return ShipData.RoleName.construction;
                 if (Ship.IsSubspaceProjector)
@@ -62,6 +65,12 @@ namespace Ship_Game.Ships
 
                 if (Ship.IsSupplyShip && Ship.Weapons.Count == 0)
                     return ShipData.RoleName.supply;
+                
+                if (HullRole == ShipData.RoleName.freighter && Category == ShipData.Category.Civilian
+                                && SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
+                {
+                    return ShipData.RoleName.freighter;
+                }
             }
 
             // troops ship
@@ -84,8 +93,8 @@ namespace Ship_Game.Ships
                 // check freighter role. If ship is unclassified or is not a freighter hull and is classified civilian
                 // check for useability as freighter.
                 // small issue is that ships that are classified civilian will behave as civilian ships.
-                //currently the category can not be set here while in the shipyard.
-                if (Ship == null || Ship.shipData.ShipCategory <= ShipData.Category.Civilian)
+                // currently the category can not be set here while in the shipyard.
+                if (Ship == null || Category <= ShipData.Category.Civilian)
                 {
                     // non freighter hull must be set to civilian to be set as freighters.
                     if (HullRole > ShipData.RoleName.freighter)
@@ -103,9 +112,8 @@ namespace Ship_Game.Ships
                                 Ship.shipData.ShipCategory = ShipData.Category.Civilian;
                             return ShipData.RoleName.freighter;
                         }
-                        if (Ship?.shipData.ShipCategory == ShipData.Category.Civilian)
+                        if (Category == ShipData.Category.Civilian)
                         {
-
                             Ship.shipData.ShipCategory = ShipData.Category.Unclassified;
                             Log.Warning($"Freighter {Ship.Name} category was reverted to unclassified as it cant be used as civilian ship");
                         }
