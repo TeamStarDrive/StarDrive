@@ -487,10 +487,10 @@ namespace Ship_Game
                 ordnanceRecovered  += module.OrdnanceAddedPerSecond;
                 targets            += module.TargetTracking;
                 ordnanceUsed       += module.BayOrdnanceUsagePerSecond;
-                totalEcm            = module.ECM.ClampMin(totalEcm);
-                sensorRange         = module.SensorRange.ClampMin(sensorRange);
-                sensorBonus         = module.SensorBonus.ClampMin(sensorBonus);
-                fixedTargets        = module.FixedTracking.ClampMin(fixedTargets);
+                totalEcm            = module.ECM.LowerBound(totalEcm);
+                sensorRange         = module.SensorRange.LowerBound(sensorRange);
+                sensorBonus         = module.SensorBonus.LowerBound(sensorBonus);
+                fixedTargets        = module.FixedTracking.LowerBound(fixedTargets);
 
                 if (module.IsTroopBay)
                     numTroopBays += 1;

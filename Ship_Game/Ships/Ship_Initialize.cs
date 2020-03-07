@@ -520,7 +520,7 @@ namespace Ship_Game.Ships
             Mass         = ShipStats.GetMass(ModuleSlotList, loyalty);
             FTLSpoolTime = ShipStats.GetFTLSpoolTime(ModuleSlotList, loyalty);
 
-            MechanicalBoardingDefense = MechanicalBoardingDefense.ClampMin(1);
+            MechanicalBoardingDefense = MechanicalBoardingDefense.LowerBound(1);
             shipStatusChanged         = true;
             SensorRange              += sensorBonus;
             DesignRole                = GetDesignRole();

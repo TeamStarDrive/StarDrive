@@ -1412,13 +1412,13 @@ namespace Ship_Game.Ships
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
 
-            shield_percent = (100.0 * shield_power / shield_max).ClampMin(0);
+            shield_percent = (100.0 * shield_power / shield_max).LowerBound(0);
             SensorRange   += sensorBonus;
 
             // Apply modifiers to stats
             RepairRate += (float)(RepairRate * Level * 0.05);
             if (IsPlatform)
-                SensorRange = SensorRange.ClampMin(10000);
+                SensorRange = SensorRange.LowerBound(10000);
             SensorRange   *= loyalty.data.SensorModifier;
 
             CargoSpaceMax  *= shipData.Bonuses.CargoModifier;
