@@ -502,11 +502,25 @@ namespace Ship_Game.Gameplay
                 Empire.Universe.NotificationManager.AddPeaceTreatyExpiredNotification(them);
             }
         }
-
+        
         public void UpdateRelationship(Empire us, Empire them)
         {
             if (us.data.Defeated)
+            {
                 return;
+            }
+
+            if (them.data.Defeated)
+            {
+                if (AtWar)
+                {
+                    AtWar                 = false;
+                    PreparingForWar       = false;
+                    ActiveWar.EndStarDate = Empire.Universe.StarDate;
+                    WarHistory.Add(ActiveWar);
+                    ActiveWar             = null;
+                }
+            }
 
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
                 return;
