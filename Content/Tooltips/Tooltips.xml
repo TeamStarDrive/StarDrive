@@ -1335,5 +1335,10 @@
       <Title>Planet Panel</Title>
       <Data>1899</Data>
     </ToolTip>
+    <ToolTip>
+      <TIP_ID>266</TIP_ID>
+      <Title>Big Clusters</Title>
+      <Data>1891</Data>
+    </ToolTip>
   </ToolTipsList>
 </Tooltips>
