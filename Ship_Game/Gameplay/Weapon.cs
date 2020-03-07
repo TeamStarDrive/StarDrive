@@ -921,7 +921,7 @@ namespace Ship_Game.Gameplay
             off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
-            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;
+            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.ClampMin(2) : 1;
 
             // FB: offense calcs for damage radius
             off *= DamageRadius > 24 && !TruePD ? DamageRadius / 24f : 1f;

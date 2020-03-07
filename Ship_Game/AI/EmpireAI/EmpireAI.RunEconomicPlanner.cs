@@ -21,7 +21,7 @@ namespace Ship_Game.AI
 
         public void RunEconomicPlanner()
         {
-            float money                    = OwnerEmpire.Money.LowerBound(1.0f);
+            float money                    = OwnerEmpire.Money.ClampMin(1.0f);
             float treasuryGoal             = TreasuryGoal();
             AutoSetTaxes(treasuryGoal);
 
@@ -122,7 +122,7 @@ namespace Ship_Game.AI
             float reducer = treasury - (treasury * percentageOfTreasury);
             float ratio   = (money - reducer) / (treasury - reducer);
 
-            return ratio.LowerBound(0);
+            return ratio.ClampMin(0);
         }
 
         private void AutoSetTaxes(float treasuryGoal)

@@ -194,7 +194,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
             // If we left garrisoned troops on a captured ship
             // remove them now as they are replaced with regular ship crew
-            int troopsToTRemove = (ship.GetOurTroops().Count - ship.TroopCapacity).LowerBound(0);
+            int troopsToTRemove = (ship.GetOurTroops().Count - ship.TroopCapacity).ClampMin(0);
             if (troopsToTRemove > 0)
                 ship.DisengageExcessTroops(ship.GetOurTroops().Count - ship.TroopCapacity);
         }

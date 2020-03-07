@@ -77,7 +77,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return;
 
             //we are going to keep a list of wanted planets. 
-            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Count / 10).LowerBound(10);
+            int maxDesiredPlanets = (int)(Empire.Universe.PlanetsDict.Count / 10).ClampMin(10);
 
             if (maxDesiredPlanets < 1)
                 return;
