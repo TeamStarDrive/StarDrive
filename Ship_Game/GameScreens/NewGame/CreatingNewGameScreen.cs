@@ -233,30 +233,18 @@ namespace Ship_Game
             LoadEmpireStartingSystems(step.NextStep()); // 420ms
             GenerateRandomSystems(step.NextStep());    // 425ms
 
-            // This section added by Gretman
-            if (Mode != RaceDesignScreen.GameMode.Corners)            
-                SolarSystemSpacing(Data.SolarSystemsList); // 2ms    
-            else
+            switch (Mode)
             {
-                short whichCorner = StartingPositionCorners();
-
-                foreach (SolarSystem system in Data.SolarSystemsList)
-                {
-                    //This will distribute all the rest of the planets evenly
-                    if (system.isStartingSystem || system.DontStartNearPlayer)
-                        continue;
-                    system.Position = GenerateRandomCorners(whichCorner);
-                    whichCorner += 1;   //Only change which corner if a system is actually created
-                    if (whichCorner > 3) whichCorner = 0;
-                }
+                case RaceDesignScreen.GameMode.Corners:     GenerateCornersGameMode();                 break;
+                case RaceDesignScreen.GameMode.BigClusters: GenerateBigClusters();                     break;
+                default:                                    SolarSystemSpacing(Data.SolarSystemsList); break; // 2ms
             }
-            step.Finish();
 
+            step.Finish();
             Log.Info(ConsoleColor.Blue, $"    ## CreateOpponents           elapsed: {step[0].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## MarkShipDesignsUnlockable elapsed: {step[1].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## LoadEmpireStartingSystems elapsed: {step[2].ElapsedMillis}ms");
             Log.Info(ConsoleColor.Blue, $"    ## GenerateRandomSystems     elapsed: {step[3].ElapsedMillis}ms");
-
         }
 
         void CreateOpponents(ProgressCounter step)
@@ -393,6 +381,21 @@ namespace Ship_Game
             }
         }
 
+        void GenerateCornersGameMode()
+        {
+            short whichCorner = StartingPositionCorners();
+
+            foreach (SolarSystem system in Data.SolarSystemsList)
+            {
+                //This will distribute all the rest of the planets evenly
+                if (system.isStartingSystem || system.DontStartNearPlayer)
+                    continue;
+                system.Position = GenerateRandomCorners(whichCorner);
+                whichCorner += 1;   //Only change which corner if a system is actually created
+                if (whichCorner > 3) whichCorner = 0;
+            }
+        }
+
         short StartingPositionCorners()
         {
             short whichcorner = (short) RandomMath.RandomBetween(0, 4); //So the player doesnt always end up in the same corner;
@@ -475,7 +478,7 @@ namespace Ship_Game
             Log.Info(ConsoleColor.DarkRed, $"TOTAL GenerateSystems       elapsed: {Progress.ElapsedMillis}ms");
         }
 
-        public Vector2 GenerateRandomSysPos(float spacing)
+        Vector2 GenerateRandomSysPos(float spacing)
         {
             float safteyBreak = 1;
             Vector2 sysPos;
@@ -489,7 +492,126 @@ namespace Ship_Game
             return sysPos;
         }
 
-        public Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type
+        void GenerateBigClusters()
+        {
+            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
+            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors);
+            GenerateClustersStartingSystems(sectors);
+            GenerateClusterSystems(sectors);
+        }
+
+        (int NumHorizontalSectors, int NumVerticalSectors) GetNumSectors(int numEmpires)
+        {
+            int numHorizontalSectors = 2;
+            int numVerticalSectors   = 2;
+
+            if (numEmpires > 9) // 4x4 sectors - probably not applicable (limited empires to 8 by default)
+            {
+                numHorizontalSectors = 4;
+                numVerticalSectors   = 4;
+            }
+            else if (numEmpires > 6) // 3x3 sectors
+            {
+                numHorizontalSectors = 3;
+                numVerticalSectors   = 3;
+            }
+            else if (numEmpires > 4) // 3x2 sectors
+            {
+                numHorizontalSectors = 3;
+            }
+
+            return (NumHorizontalSectors: numHorizontalSectors, NumVerticalSectors: numVerticalSectors);
+        }
+
+        Array<Sector> GenerateSectors(int numHorizontalSectors, int numVerticalSectors)
+        {
+            Array<Sector> sectors = new Array<Sector>();
+            for (int h = 1; h <= numHorizontalSectors; ++h)
+            {
+                for (int v = 1; v <= numVerticalSectors; ++v)
+                {
+                    Sector sector = new Sector(Data.Size, numHorizontalSectors, numVerticalSectors, h, v);
+                    sectors.Add(sector);
+                }
+            }
+
+            return sectors;
+        }
+
+        void GenerateClustersStartingSystems(Array<Sector> sectors)
+        {
+            Array<Sector> startingSectors = new Array<Sector>();
+            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => s.isStartingSystem))
+            {
+                Sector startingSector = sectors.RandItem();
+                while (!startingSectors.Contains(startingSector))
+                    startingSector = sectors.RandItem();
+
+                startingSectors.Add(startingSector);
+                system.Position = GenerateSystemInCluster(startingSector, 100000f);
+            }
+        }
+
+        void GenerateClusterSystems(Array<Sector> sectors)
+        {
+            int i = 0;
+            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.isStartingSystem))
+            {
+                Sector currentSector = sectors[i];
+                system.Position = GenerateSystemInCluster(currentSector, 100000f);
+                i = i < sectors.Count - 1 ? i + 1 : 0;
+            }
+        }
+
+        Vector2 GenerateSystemInCluster(Sector sector, float spacing)
+        {
+            float safetyBreak = 1;
+            Vector2 sysPos;
+            do
+            {
+                spacing     *= safetyBreak;
+                sysPos       = sector.RandomPosInSector;
+                safetyBreak *= 0.97f;
+            } while (!SystemPosOK(sysPos, spacing));
+
+            ClaimedSpots.Add(sysPos);
+            return sysPos;
+        }
+
+        struct Sector
+        {
+            private readonly float LeftX;
+            private readonly float RightX;
+            private readonly float TopY;
+            private readonly float BotY;
+
+            public Sector(Vector2 universeSize, int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum)
+            {
+                float xSection = Math.Abs(-universeSize.X + universeSize.X / (horizontalSectors * 2));
+                float ySection = Math.Abs(-universeSize.Y + universeSize.Y / (verticalSectors * 2));
+                float offset   = universeSize.X * 0.1f;
+
+                Vector2 center = new Vector2(-universeSize.X + xSection * horizontalNum, 
+                                             -universeSize.Y + ySection * verticalNum);
+
+                LeftX  = (center.X - xSection).ClampMin(-universeSize.X) + offset;
+                RightX = (center.X + xSection).UpperBound(universeSize.X) - offset;
+                TopY   = (center.Y - ySection).ClampMin(-universeSize.Y) + offset;
+                BotY   = (center.Y + ySection).ClampMin(universeSize.Y) - offset;
+            }
+
+            public Vector2 RandomPosInSector
+            {
+                get
+                {
+                    float randomX = RandomMath.RandomBetween(LeftX, RightX);
+                    float randomY = RandomMath.RandomBetween(TopY, BotY);
+                    return new Vector2(randomX, randomY);
+                }
+            }
+        }
+
+        Vector2 GenerateRandomCorners(short corner) //Added by Gretman for Corners Game type
         {
             //Corner Values
             //0 = Top Left
