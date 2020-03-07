@@ -58,7 +58,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float buildRatio = MathExt.Max3(strat.MilitaryRatio + risk, strat.IndustryRatio , strat.ExpansionRatio);
             
-            float buildBudget              = SetBudgetForeArea(0.011f, buildRatio, money);
+            float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
             return buildBudget;
 
         }
@@ -74,7 +74,9 @@ namespace Ship_Game.AI
         float DetermineSpyBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            return SetBudgetForeArea(0.15f, Math.Max(risk, strat.MilitaryRatio), money);
+
+            risk = (OwnerEmpire.Money -  money / 2 ) / (money - money / 2).ClampMin(1);
+            return SetBudgetForeArea(0.2f, Math.Max(risk, strat.MilitaryRatio), money);
         }
 
         private void PlanetBudgetDebugInfo()
