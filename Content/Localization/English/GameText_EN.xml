@@ -4687,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1891</Index>
+      <Text>Each Empire starts in a cluster of solar systems</Text>
+    </Token>
+    <Token>
+      <Index>1892</Index>
+      <Text>Big Clusters</Text>
+    </Token>
+    <Token>
       <Index>1893</Index>
       <Text>Offensively</Text>
     </Token>

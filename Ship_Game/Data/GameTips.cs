@@ -538,6 +538,8 @@ namespace Ship_Game
         /// <summary>Planetary Shield Strength</summary>
         PlanetaryShieldStr = 264,
         /// <summary>planet Panel</summary>
-        PlanetPanel = 265
+        PlanetPanel = 265,
+        /// <summary>Big Clusters</summary>
+        BigClusters = 266
     }
 }
