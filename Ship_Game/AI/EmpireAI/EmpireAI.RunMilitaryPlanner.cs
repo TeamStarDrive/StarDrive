@@ -205,7 +205,6 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            int shipCountLimit = GlobalStats.ShipCountLimit;
             var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
             //
             while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget)
@@ -213,9 +212,6 @@ namespace Ship_Game.AI
                 string s = GetAShip(buildRatios);
                 if (string.IsNullOrEmpty(s))
                     break;
-
-                if (Recyclepool > 0)
-                    Recyclepool--;
 
                 Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
