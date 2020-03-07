@@ -365,7 +365,7 @@ namespace Ship_Game.AI
                     if (minimum.AlmostZero())
                         return;
                     CalculateBuildCapacity(buildCapacity, minimum, totalFleetMaintenance);
-                    DesiredCount = (int)(RoleBuildBudget.LowerBound(.001f) / PerUnitMaintenanceMax.LowerBound(0.001f)); // MinimumMaintenance));
+                    DesiredCount = (int)(RoleBuildBudget.ClampMin(.001f) / PerUnitMaintenanceMax.ClampMin(0.001f)); // MinimumMaintenance));
                     if (Role < CombatRole.Frigate)
                         DesiredCount = Math.Min(50, DesiredCount);
                 }
@@ -374,7 +374,7 @@ namespace Ship_Game.AI
                 {
                     if (wantedMin < .01f) return;
                     //float maintenanceRatio = FleetRatioMaintenance / totalFleetMaintenance;
-                    float buildCapFleetMultiplier = totalCapacity / totalFleetMaintenance.LowerBound(1);
+                    float buildCapFleetMultiplier = totalCapacity / totalFleetMaintenance.ClampMin(1);
                     RoleBuildBudget = PerUnitMaintenanceMax * buildCapFleetMultiplier;
                     RoleBuildBudget *= wantedMin;
                     //RoleBuildBudget = totalCapacity * maintenanceRatio;
@@ -418,7 +418,7 @@ namespace Ship_Game.AI
                 {
                     if (CurrentMaintenance + PerUnitMaintenanceMax > RoleBuildBudget)
                         return 0;
-                    return CurrentMaintenance.LowerBound(.00001f) / RoleBuildBudget;
+                    return CurrentMaintenance.ClampMin(.00001f) / RoleBuildBudget;
                 }
 
                 public void ScrapAsNeeded(Empire empire)

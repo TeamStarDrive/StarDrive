@@ -66,7 +66,7 @@ namespace Ship_Game.AI
                 if (weapon.UpdateAndFireAtTarget(Target, TrackProjectiles, PotentialTargets) &&
                     weapon.FireTarget.ParentIsThis(Target))
                     FireOnMainTargetTime = 
-                        (weapon.isBeam ? weapon.BeamDuration : weapon.SalvoDuration).LowerBound(FireOnMainTargetTime);
+                        (weapon.isBeam ? weapon.BeamDuration : weapon.SalvoDuration).ClampMin(FireOnMainTargetTime);
             }
         }
 

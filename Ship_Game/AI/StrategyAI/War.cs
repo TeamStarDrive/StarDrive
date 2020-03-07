@@ -40,7 +40,7 @@ namespace Ship_Game
         [JsonIgnore][XmlIgnore]
         public float LostColonyPercent => ColoniesLost / (OurStartingColonies + 0.01f + ColoniesWon);
         [JsonIgnore][XmlIgnore]
-        public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.LowerBound(0.01f);
+        public float TotalThreatAgainst => Them.CurrentMilitaryStrength / Us.CurrentMilitaryStrength.ClampMin(0.01f);
         [JsonIgnore][XmlIgnore]
         public float SpaceWarKd => StrengthKilled / (StrengthLost + 0.01f);
         
