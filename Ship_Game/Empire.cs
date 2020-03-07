@@ -2857,6 +2857,15 @@ namespace Ship_Game
             AddMoney(creditsToRefund * 0.5f);
         }
 
+        public void RefundCreditsPostScrap(Building b)
+        {
+            if (!b.IsMilitary)
+                return;
+
+            float creditsToRefund = b.ActualCost * DifficultyModifiers.CreditsMultiplier;
+            AddMoney(creditsToRefund * 0.5f);
+        }
+
         float ProductionCreditCost(float spentProduction)
         {
             // fixed costs for players, feedback tax loop for the AI
