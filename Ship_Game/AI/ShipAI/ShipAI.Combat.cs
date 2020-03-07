@@ -316,7 +316,7 @@ namespace Ship_Game.AI
                 if (!HasPriorityOrder)
                     EnterCombat();
                 else if ((Owner.IsPlatform || Owner.shipData.Role == ShipData.RoleName.station)
-                         && OrderQueue.PeekFirst.Plan != Plan.DoCombat)
+                         && OrderQueue.PeekFirst?.Plan != Plan.DoCombat)
                     EnterCombat();
                 else if (CombatState != CombatState.HoldPosition && !OrderQueue.NotEmpty)
                     EnterCombat();
