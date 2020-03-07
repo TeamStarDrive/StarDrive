@@ -1288,7 +1288,7 @@ namespace Ship_Game.Ships
             def += TroopCapacity * 50;
             def += BonusRepairRate / 2f;
             def += AmplifyShields / 20f;
-            def += Regenerate / (10 * RepairDifficulty).LowerBound(0.1f);
+            def += Regenerate / (10 * RepairDifficulty).ClampMin(0.1f);
 
             return def;
         }

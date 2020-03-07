@@ -103,12 +103,12 @@ namespace Ship_Game
             float flatFoodToFeedAll  = foodToFeedAll - Food.NetFlatBonus;
             float fertilityBonus     = Fertility > 0 ? 1 / Fertility : 0;
 
-            float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).LowerBound(0);
-            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).LowerBound(0);
+            float flat   = (flatFoodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus).ClampMin(0);
+            float perCol = (foodToFeedAll - EstimatedAverageFood - Food.NetFlatBonus*fertilityBonus).ClampMin(0);
             if (IsStarving)
             {
                 perCol += 2 * Fertility;
-                flat   += (2 - Fertility).LowerBound(0);
+                flat   += (2 - Fertility).ClampMin(0);
             }
 
             perCol += (1 - Storage.FoodRatio) * Fertility;
@@ -130,13 +130,13 @@ namespace Ship_Game
             float flatProdToFeedAll  = IsCybernetic ? ConsumptionPerColonist * PopulationBillion - Prod.NetFlatBonus : 0;
             float richnessBonus      = MineralRichness > 0 ? 1 / MineralRichness : 0;
 
-            float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0) 
-                                       : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).LowerBound(0);
+            float flat = NonCybernetic ? (10 - netProdPerColonist - Prod.NetFlatBonus).ClampMin(0) 
+                                       : (flatProdToFeedAll - netProdPerColonist - Prod.NetFlatBonus).ClampMin(0);
 
             float richnessMultiplier = NonCybernetic ? 5 : 10;
-            float perRichness = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus).LowerBound(0);
+            float perRichness = (MineralRichness * richnessMultiplier - Prod.NetFlatBonus).ClampMin(0);
             float perCol      = 10 - netProdPerColonist - flatProdToFeedAll*richnessBonus;
-            perCol            = (perCol * MineralRichness).LowerBound(0);
+            perCol            = (perCol * MineralRichness).ClampMin(0);
             if (IsCybernetic)
             {
                 if (colonyType == ColonyType.Industrial)
@@ -145,7 +145,7 @@ namespace Ship_Game
                 if (IsStarving)
                 {
                     perCol      += 2 * MineralRichness;
-                    flat        += (2 - MineralRichness).LowerBound(0);
+                    flat        += (2 - MineralRichness).ClampMin(0);
                     perRichness += 1.5f * MineralRichness;
                 }
             }
@@ -164,7 +164,7 @@ namespace Ship_Game
         void CalcPopulationPriorities()
         {
             float eatableRatio = IsCybernetic ? Storage.ProdRatio : Storage.FoodRatio;
-            float popGrowth = (10 - PopulationRatio*10).LowerBound(0);
+            float popGrowth = (10 - PopulationRatio*10).ClampMin(0);
             popGrowth      *= eatableRatio;
             float popCap    = FreeHabitableTiles > 0 ? (PopulationRatio*10).Clamped(0, 10) : 0;
             popGrowth       = ApplyGovernorBonus(popGrowth, 1f, 1f, 1f, 1f, 1f);
@@ -195,7 +195,7 @@ namespace Ship_Game
         void CalcMoneyPriorities()
         {
             float tax     = PopulationBillion * Owner.data.TaxRate*4;
-            float credits = PopulationBillion.LowerBound(2);
+            float credits = PopulationBillion.ClampMin(2);
             tax           = ApplyGovernorBonus(tax, 1f, 1f, 0.8f, 1f, 1f);
             credits       = ApplyGovernorBonus(credits, 1.5f, 1f, 1f, 1f, 1f);
             Priorities[ColonyPriority.TaxPercent]    = tax;
@@ -465,7 +465,7 @@ namespace Ship_Game
 
             float projectedMaxFertility = MaxFertility + b.MaxFertilityOnBuildFor(Owner, Category);
             if (projectedMaxFertility < 1)
-                return projectedMaxFertility.LowerBound(0); // multiplier will be smaller in direct relation to its effect
+                return projectedMaxFertility.ClampMin(0); // multiplier will be smaller in direct relation to its effect
 
             return 1;
         }

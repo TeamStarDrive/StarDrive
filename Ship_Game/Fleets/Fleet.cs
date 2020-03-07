@@ -1300,7 +1300,7 @@ namespace Ship_Game.Fleets
             // we need at least 1 spot open. if we have bombers one should be there soon. 
             // else figure the base number by our strength ratio. if we have twice the strength then 
             // 2 landing spots might do the job. 
-            float landingSpotRatio = theirGroundStrength / planetAssaultStrength.LowerBound(1);
+            float landingSpotRatio = theirGroundStrength / planetAssaultStrength.ClampMin(1);
             int landingSpotsNeeded = targetBeingBombed ? 0 : (int)(1 * landingSpotRatio).Clamped(1, 10);
 
             int freeLandingSpots = task.TargetPlanet.GetFreeTiles(Owner);

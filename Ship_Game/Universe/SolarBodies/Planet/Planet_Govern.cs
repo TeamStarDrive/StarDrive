@@ -14,8 +14,8 @@ namespace Ship_Game
     public partial class Planet
     {
 
-        float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
-        float EstimatedAverageFood       => (Food.NetMaxPotential / 3).LowerBound(0.1f);
+        float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).ClampMin(0.1f);
+        float EstimatedAverageFood       => (Food.NetMaxPotential / 3).ClampMin(0.1f);
 
         public void DoGoverning()
         {
@@ -92,7 +92,7 @@ namespace Ship_Game
                 if (MaxPopulationBillion < 2)
                     debtTolerance += 2f - MaxPopulationBillion;
 
-                return debtTolerance.LowerBound(0); // Note - dept tolerance is a positive number added to the budget for small colonies
+                return debtTolerance.ClampMin(0); // Note - dept tolerance is a positive number added to the budget for small colonies
             }
         }
 
