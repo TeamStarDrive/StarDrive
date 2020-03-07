@@ -559,6 +559,8 @@ namespace Ship_Game
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
+
+            Owner?.RefundCreditsPostScrap(b);
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)
