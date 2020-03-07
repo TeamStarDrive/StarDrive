@@ -524,9 +524,9 @@ namespace Ship_Game
 
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
         {
-            int left   = (tile.x - 1).ClampMin(0);
+            int left   = (tile.x - 1).LowerBound(0);
             int right  = (tile.x + 1).UpperBound(planet.TileMaxX - 1);
-            int top    = (tile.y - 1).ClampMin(0);
+            int top    = (tile.y - 1).LowerBound(0);
             int bottom = (tile.y + 1).UpperBound(planet.TileMaxY - 1);
             int width  = planet.TileMaxY;
             int score  = 0;

@@ -78,15 +78,15 @@ namespace Ship_Game
         /// <summary>
         /// Constrain lower end of value
         /// </summary>
-        public static float ClampMin(this float value, float min)
+        public static float LowerBound(this float value, float min)
         {
             return Max(min, value);
         }
-        public static int ClampMin(this int value, int min)
+        public static int LowerBound(this int value, int min)
         {
             return Max(min, value);
         }
-        public static double ClampMin(this double value, float min)
+        public static double LowerBound(this double value, float min)
         {
             return Max(min, value);
         }
