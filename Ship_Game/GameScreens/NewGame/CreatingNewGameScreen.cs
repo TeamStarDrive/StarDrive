@@ -495,6 +495,7 @@ namespace Ship_Game
 
         void GenerateBigClusters()
         {
+            // Divides the galaxy to several sectors and populates each sector with starts
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
             Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors);
             GenerateClustersStartingSystems(sectors);
@@ -503,8 +504,9 @@ namespace Ship_Game
 
         void GenerateSmallClusters()
         {
-            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumSystems, NumOpponents + 1);
-            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors);
+            // Divides the galaxy to many sectors and populates each sector with starts
+            int numSectorsPerAxis = GetNumSectors(NumSystems, NumOpponents + 1);
+            Array<Sector> sectors = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis);
             GenerateClustersStartingSystems(sectors);
             GenerateClusterSystems(sectors);
         }
@@ -532,13 +534,12 @@ namespace Ship_Game
             return (NumHorizontalSectors: numHorizontalSectors, NumVerticalSectors: numVerticalSectors);
         }
 
-        (int NumHorizontalSectors, int NumVerticalSectors) GetNumSectors(int numSystems, int numEmpires)
+        int GetNumSectors(int numSystems, int numEmpires)
         {
-            int numSectors = numSystems / numEmpires; // each sector will have stars as ~player num
-            int numHorizontalSectors = (int)Math.Sqrt(numSectors) + 1;
-            int numVerticalSectors   = (int)Math.Sqrt(numSectors) + 1;
+            int numSectors        = numSystems / numEmpires; // each sector will have stars as ~player num
+            int numSectorsPerAxis = (int)Math.Sqrt(numSectors) + 1;
 
-            return (NumHorizontalSectors: numHorizontalSectors, NumVerticalSectors: numVerticalSectors);
+            return numSectorsPerAxis.ClampMin(numEmpires / 2);
         }
 
         Array<Sector> GenerateSectors(int numHorizontalSectors, int numVerticalSectors)
@@ -576,7 +577,7 @@ namespace Ship_Game
             foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.isStartingSystem))
             {
                 Sector currentSector = sectors[i];
-                system.Position = GenerateSystemInCluster(currentSector, 300000);
+                system.Position = GenerateSystemInCluster(currentSector, 300000f);
                 i = i < sectors.Count - 1 ? i + 1 : 0;
             }
         }
@@ -612,13 +613,15 @@ namespace Ship_Game
                 Vector2 center = new Vector2(-universeSize.X + xSection * (-1 + horizontalNum*2), 
                                              -universeSize.Y + ySection * (-1 + verticalNum*2));
 
-                center += RandomMath.Vector2D(universeSize.X * 0.05f);
+                // Some deviation in the center of the cluster
+                center += RandomMath.Vector2D(universeSize.X * 0.075f);
 
                 LeftX  = (center.X - xSection).ClampMin(-universeSize.X);
                 RightX = (center.X + xSection).UpperBound(universeSize.X);
                 TopY   = (center.Y - ySection).ClampMin(-universeSize.Y) + offset;
                 BotY   = (center.Y + ySection).UpperBound(universeSize.Y) - offset;
 
+                // creating some gaps between clusters
                 GenerateOffset(universeSize.X, offset,ref LeftX, ref RightX);
                 GenerateOffset(universeSize.Y, offset, ref TopY, ref BotY);
             }
@@ -648,12 +651,6 @@ namespace Ship_Game
                 get
                 {
                     float randomX = RandomMath.RandomBetween(LeftX, RightX);
-                    /*
-                    float center = (LeftX + RightX) / 2;
-                    float distance = randomX - center;
-                    float halfX = RightX - center;
-                    float ratio = 1 - Math.Abs(distance / halfX);
-                    float randomY = RandomMath.RandomBetween(TopY * ratio, BotY * ratio);*/
                     float randomY = RandomMath.RandomBetween(TopY, BotY);
                     return new Vector2(randomX, randomY);
                 }
