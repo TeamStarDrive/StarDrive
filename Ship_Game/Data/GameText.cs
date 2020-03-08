@@ -4232,6 +4232,8 @@ namespace Ship_Game
         /// <summary>This is this ship's self-repair rate per tick - it</summary>
         ThisIsThisShipsSelfrepair = 7091,
         /// <summary>Big Clusters Game Mode</summary>
-        BigClustersGame = 1892
+        BigClustersGame = 1892,
+        /// <summary>Small Clusters Game Mode</summary>
+        SmallClustersGame = 1890
     }
 }
