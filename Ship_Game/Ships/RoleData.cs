@@ -112,7 +112,7 @@ namespace Ship_Game.Ships
                                 Ship.shipData.ShipCategory = ShipData.Category.Civilian;
                             return ShipData.RoleName.freighter;
                         }
-                        // This iis for updating the ship. 
+                        // This is for updating the ship and no use if there is no ship. 
                         if (Ship?.shipData.ShipCategory == ShipData.Category.Civilian)
                         {
                             Ship.shipData.ShipCategory = ShipData.Category.Unclassified;
