@@ -21,7 +21,7 @@ namespace Ship_Game
         public Empire Them;
 
         string TechOffer(int i) => Localizer.Token(ResourceManager.TechTree[TechnologiesOffered[i]].NameIndex);
-        string ArtifactOffer(int i) => Localizer.Token(ResourceManager.ArtifactsDict[TechnologiesOffered[i]].NameIndex);
+        string ArtifactOffer(int i) => Localizer.Token(ResourceManager.ArtifactsDict[ArtifactsOffered[i]].NameIndex);
         string ColonyOffer(int i) => ColoniesOffered[i];
 
         public string DoPleadingText(Attitude a, Offer TheirOffer)
