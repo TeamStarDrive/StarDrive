@@ -99,7 +99,7 @@ namespace Ship_Game.Ships
                     // non freighter hull must be set to civilian to be set as freighters.
                     if (HullRole > ShipData.RoleName.freighter)
                     {
-                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f)
+                        if (SurfaceAreaPercentOf(m => m.Cargo_Capacity > 0) >= 0.5f && Category == ShipData.Category.Civilian)
                             return ShipData.RoleName.freighter;
                     }
                     // freighter hull will be set to civilian if useable as freighter.
@@ -112,7 +112,8 @@ namespace Ship_Game.Ships
                                 Ship.shipData.ShipCategory = ShipData.Category.Civilian;
                             return ShipData.RoleName.freighter;
                         }
-                        if (Category == ShipData.Category.Civilian)
+                        // This iis for updating the ship. 
+                        if (Ship?.shipData.ShipCategory == ShipData.Category.Civilian)
                         {
                             Ship.shipData.ShipCategory = ShipData.Category.Unclassified;
                             Log.Warning($"Freighter {Ship.Name} category was reverted to unclassified as it cant be used as civilian ship");
