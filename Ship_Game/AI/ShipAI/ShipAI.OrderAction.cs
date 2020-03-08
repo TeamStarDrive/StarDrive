@@ -536,6 +536,11 @@ namespace Ship_Game.AI
                              Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
                 AwaitClosest = system.PlanetList.FindClosestTo(Owner);
             }
+            if (AwaitClosest == null)
+            {
+                AwaitClosest = Empire.Universe.PlanetsDict.FindMinValue(p=> 
+                    p.Center.SqDist(Owner.Center));
+            }
             return true;
 
         }

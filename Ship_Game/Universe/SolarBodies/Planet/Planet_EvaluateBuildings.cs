@@ -186,8 +186,17 @@ namespace Ship_Game
         {
             float flat   = 10 - Res.NetFlatBonus;
             float perCol = PopulationBillion - Res.NetYieldPerColonist;
-            flat         = ApplyGovernorBonus(flat, 0.75f, 0.2f, 1.25f, 0.2f, 0.25f);
-            perCol       = ApplyGovernorBonus(perCol, 0.8f, 0.1f, 1f, 0.1f, 0.1f);
+            if (Owner.Research.NoTopic) // no research is needed when not researching
+            {
+                flat   = 0;
+                perCol = 0;
+            }
+            else 
+            {
+                flat   = ApplyGovernorBonus(flat, 0.8f, 0.2f, 2f, 0.2f, 0.25f);
+                perCol = ApplyGovernorBonus(perCol, 1f, 0.1f, 2f, 0.1f, 0.1f);
+            }
+
             Priorities[ColonyPriority.ResearchFlat]   = flat;
             Priorities[ColonyPriority.ResearchPerCol] = perCol;
         }

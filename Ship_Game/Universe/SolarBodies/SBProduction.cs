@@ -301,7 +301,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Finish(QueueItem q)
         {
-            P.ConstructionQueue.RemoveRef(q);
+            P.ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: true);
         }
 

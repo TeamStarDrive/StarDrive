@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 
 namespace Ship_Game
@@ -20,6 +21,8 @@ namespace Ship_Game
         public Empire Them;
 
         string TechOffer(int i) => Localizer.Token(ResourceManager.TechTree[TechnologiesOffered[i]].NameIndex);
+        string ArtifactOffer(int i) => Localizer.Token(ResourceManager.ArtifactsDict[ArtifactsOffered[i]].NameIndex);
+        string ColonyOffer(int i) => ColoniesOffered[i];
 
         public string DoPleadingText(Attitude a, Offer TheirOffer)
         {
@@ -55,54 +58,13 @@ namespace Ship_Game
             if (ArtifactsOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3030));
-                if (ArtifactsOffered.Count == 1)
-                {
-                    text.Append(". ", ArtifactsOffered[0]);
-                }
-                else if (ArtifactsOffered.Count != 2)
-                {
-                    for (int i = 0; i < ArtifactsOffered.Count; i++)
-                    {
-                        if (i >= ArtifactsOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ArtifactsOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ArtifactsOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ArtifactsOffered[0], ". ", ArtifactsOffered[1]);
-                }
+                text.Append(ArtifactStringsToText());
             }
             if (TheirOffer.ArtifactsOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3031));
-                if (TheirOffer.ArtifactsOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ArtifactsOffered[0]);
-                }
-                else if (TheirOffer.ArtifactsOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ArtifactsOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ArtifactsOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ArtifactsOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ArtifactsOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3032), TheirOffer.ArtifactsOffered[0], ". ", TheirOffer.ArtifactsOffered[1]);
-                }
+                text.Append(TheirOffer.ArtifactStringsToText());
+                //text.Append(Localizer.Token(3032)
             }
             if (TradeTreaty)
             {
@@ -122,206 +84,38 @@ namespace Ship_Game
             if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count == 0)
             {
                 text.Append(Localizer.Token(3035));
-                if (TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TechStringsToText());
             }
             else if (TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3036));
-                if (TheirOffer.TechnologiesOffered.Count == 1)
-                {
-                    text.Append("? ", TechOffer(0));
-                }
-                else if (TheirOffer.TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), "? ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), "? ", TechOffer(1));
-                }
+                text.Append(TheirOffer.TechStringsToText());
             }
             else if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3037));
-                if (TheirOffer.TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TheirOffer.TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TheirOffer.TechStringsToText());
 
                 text.Append(Localizer.Token(3038));
-                if (TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TechStringsToText());
             }
             if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count == 0)
             {
                 text.Append(Localizer.Token(3039));
-                if (TheirOffer.ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ColoniesOffered[0]);
-                }
-                else if (TheirOffer.ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ColoniesOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ColoniesOffered[0], ". ", TheirOffer.ColoniesOffered[1]);
-                }
+                text.Append(TheirOffer.ColonyStringsToText());
             }
             else if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3040));
-                if (TheirOffer.ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ColoniesOffered[0]);
-                }
-                else if (TheirOffer.ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ColoniesOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ColoniesOffered[0], ". ", TheirOffer.ColoniesOffered[1]);
-                }
+                text.Append(TheirOffer.ColonyStringsToText());
 
                 text.Append(Localizer.Token(3041));
-                if (ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", ColoniesOffered[0]);
-                }
-                else if (ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < ColoniesOffered.Count; i++)
-                    {
-                        if (i >= ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ColoniesOffered[0], ". ", ColoniesOffered[1]);
-                }
+                text.Append(ColonyStringsToText());
             }
             else if (ColoniesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3042));
-                if (ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", ColoniesOffered[0]);
-                }
-                else if (ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < ColoniesOffered.Count; i++)
-                    {
-                        if (i >= ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ColoniesOffered[0], ". ", ColoniesOffered[1]);
-                }
+                text.Append(ColonyStringsToText());
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
@@ -460,258 +254,50 @@ namespace Ship_Game
             if (ArtifactsOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3010));
-                if (ArtifactsOffered.Count == 1)
-                {
-                    text.Append(". ", ArtifactsOffered[0]);
-                }
-                else if (ArtifactsOffered.Count != 2)
-                {
-                    for (int i = 0; i < ArtifactsOffered.Count; i++)
-                    {
-                        if (i >= ArtifactsOffered.Count - 1)
-                        {
-                            text.Append("and ", ". ", ArtifactsOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ArtifactsOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ArtifactsOffered[0], ". ", ArtifactsOffered[1]);
-                }
+                text.Append(ArtifactStringsToText());
             }
             if (TheirOffer.ArtifactsOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3012));
-                if (TheirOffer.ArtifactsOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ArtifactsOffered[0]);
-                }
-                else if (TheirOffer.ArtifactsOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ArtifactsOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ArtifactsOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ArtifactsOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ArtifactsOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ArtifactsOffered[0], ". ", TheirOffer.ArtifactsOffered[1]);
-                }
+                text.Append(TheirOffer.ArtifactStringsToText());
+               
             }
             if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count == 0)
             {
                 text.Append(Localizer.Token(3014));
-                if (TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TechStringsToText());
             }
             else if (TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3015));
-                if (TheirOffer.TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.TechOffer(0));
-                }
-                else if (TheirOffer.TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TheirOffer.TechStringsToText());
             }
             else if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3016));
-                if (TheirOffer.TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TheirOffer.TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TheirOffer.TechStringsToText());
 
                 text.Append(Localizer.Token(3017));
-                if (TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TechStringsToText());
+
             }
             if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count == 0)
             {
                 text.Append(Localizer.Token(3018));
-                if (TheirOffer.ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ColoniesOffered[0]);
-                }
-                else if (TheirOffer.ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ColoniesOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ColoniesOffered[0], ". ", TheirOffer.ColoniesOffered[1]);
-                }
+                text.Append(TheirOffer.ColonyStringsToText());
             }
             else if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3019));
-                if (TheirOffer.ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ColoniesOffered[0]);
-                }
-                else if (TheirOffer.ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ColoniesOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ColoniesOffered[0], ". ", TheirOffer.ColoniesOffered[1]);
-                }
+                text.Append(TheirOffer.ColonyStringsToText());
 
                 text.Append(Localizer.Token(3020));
-                if (ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", ColoniesOffered[0]);
-                }
-                else if (ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < ColoniesOffered.Count; i++)
-                    {
-                        if (i >= ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ColoniesOffered[0], ". ", ColoniesOffered[1]);
-                }
+                text.Append(ColonyStringsToText());
             }
             else if (ColoniesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3021));
-                if (ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", ColoniesOffered[0]);
-                }
-                else if (ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < ColoniesOffered.Count; i++)
-                    {
-                        if (i >= ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ColoniesOffered[0], ". ", ColoniesOffered[1]);
-                }
+                text.Append(ColonyStringsToText());
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
@@ -801,6 +387,38 @@ namespace Ship_Game
             return text.ToString();
         }
 
+        public StringBuilder TechStringsToText() => StringBuilderCommaDelimitedList(TechnologiesOffered, TechOffer);
+        public StringBuilder ArtifactStringsToText() => StringBuilderCommaDelimitedList(ArtifactsOffered, ArtifactOffer);
+        public StringBuilder ColonyStringsToText() => StringBuilderCommaDelimitedList(ColoniesOffered, ColonyOffer);
+
+        private StringBuilder StringBuilderCommaDelimitedList(Array<string> stringList, Func<int,string> localization)
+        {
+            StringBuilder text = new StringBuilder();
+            if (stringList.Count == 1)
+            {
+                text.Append(localization(0), ". ");
+            }
+            else if (stringList.Count > 2)
+            {
+                for (int i = 0; i < stringList.Count; i++)
+                {
+                    if (i >= stringList.Count - 1)
+                    {
+                        text.Append(Localizer.Token(3013), localization(i), ". ");
+                    }
+                    else
+                    {
+                        text.Append(localization(i), ", ");
+                    }
+                }
+            }
+            else if (stringList.Count == 2)
+            {
+                text.Append(localization(0), Localizer.Token(3011), localization(1), ". ");
+            }
+            return text;
+        }
+
         public string DoThreateningText(Attitude a, Offer TheirOffer)
         {
             var text = new StringBuilder();
@@ -850,260 +468,50 @@ namespace Ship_Game
             if (ArtifactsOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3053));
-                if (ArtifactsOffered.Count == 1)
-                {
-                    text.Append(". ", ArtifactsOffered[0]);
-                }
-                else if (ArtifactsOffered.Count != 2)
-                {
-                    for (int i = 0; i < ArtifactsOffered.Count; i++)
-                    {
-                        if (i >= ArtifactsOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ArtifactsOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ArtifactsOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ArtifactsOffered[0], ". ", ArtifactsOffered[1]);
-                }
+                text.Append(ArtifactStringsToText());
             }
             if (TheirOffer.ArtifactsOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3054));
-                if (TheirOffer.ArtifactsOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ArtifactsOffered[0]);
-                }
-                else if (TheirOffer.ArtifactsOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ArtifactsOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ArtifactsOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ArtifactsOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ArtifactsOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ArtifactsOffered[0], ". ", TheirOffer.ArtifactsOffered[1]);
-                }
+                text.Append(TheirOffer.ArtifactStringsToText());
             }
             if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count == 0)
             {
                 text.Append(Localizer.Token(3055));
-                if (TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
-
+                text.Append(TechStringsToText());
                 text.Append(Localizer.Token(3056));
             }
             else if (TechnologiesOffered.Count == 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3057));
-                if (TheirOffer.TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TheirOffer.TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TheirOffer.TechStringsToText());
             }
             else if (TechnologiesOffered.Count > 0 && TheirOffer.TechnologiesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3058));
-                if (TheirOffer.TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TheirOffer.TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TheirOffer.TechStringsToText());
 
                 text.Append(Localizer.Token(3059));
-                if (TechnologiesOffered.Count == 1)
-                {
-                    text.Append(". ", TechOffer(0));
-                }
-                else if (TechnologiesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TechnologiesOffered.Count; i++)
-                    {
-                        if (i >= TechnologiesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TechOffer(i));
-                        }
-                        else
-                        {
-                            text.Append(", ", TechOffer(i));
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TechOffer(0), ". ", TechOffer(1));
-                }
+                text.Append(TechStringsToText());
+
             }
             if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count == 0)
             {
                 text.Append(Localizer.Token(3060));
-                if (TheirOffer.ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ColoniesOffered[0]);
-                }
-                else if (TheirOffer.ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ColoniesOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ColoniesOffered[0], ". ", TheirOffer.ColoniesOffered[1]);
-                }
+                text.Append(TheirOffer.ColonyStringsToText());
             }
             else if (TheirOffer.ColoniesOffered.Count > 0 && ColoniesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3061));
-                if (TheirOffer.ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", TheirOffer.ColoniesOffered[0]);
-                }
-                else if (TheirOffer.ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < TheirOffer.ColoniesOffered.Count; i++)
-                    {
-                        if (i >= TheirOffer.ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", TheirOffer.ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", TheirOffer.ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), TheirOffer.ColoniesOffered[0], ". ", TheirOffer.ColoniesOffered[1]);
-                }
+                text.Append(TheirOffer.ColonyStringsToText());
 
                 text.Append(Localizer.Token(3062));
-                if (ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", ColoniesOffered[0]);
-                }
-                else if (ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < ColoniesOffered.Count; i++)
-                    {
-                        if (i >= ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ColoniesOffered[0], ". ", ColoniesOffered[1]);
-                }
+                text.Append(ColonyStringsToText());
             }
             else if (ColoniesOffered.Count > 0)
             {
                 text.Append(Localizer.Token(3063));
-                if (ColoniesOffered.Count == 1)
-                {
-                    text.Append(". ", ColoniesOffered[0]);
-                }
-                else if (ColoniesOffered.Count != 2)
-                {
-                    for (int i = 0; i < ColoniesOffered.Count; i++)
-                    {
-                        if (i >= ColoniesOffered.Count - 1)
-                        {
-                            text.Append(Localizer.Token(3013), ". ", ColoniesOffered[i]);
-                        }
-                        else
-                        {
-                            text.Append(", ", ColoniesOffered[i]);
-                        }
-                    }
-                }
-                else
-                {
-                    text.Append(Localizer.Token(3011), ColoniesOffered[0], ". ", ColoniesOffered[1]);
-                }
+                text.Append(ColonyStringsToText());
             }
             if (TheirOffer.EmpiresToWarOn.Count > 0)
             {
