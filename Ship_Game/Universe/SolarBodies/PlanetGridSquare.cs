@@ -160,7 +160,7 @@ namespace Ship_Game
 
         public bool HostilesTargetsOnTile(Empire us, Empire planetOwner)
         {
-            if (CombatBuildingOnTile && planetOwner != us || EventOnTile)
+            if (CombatBuildingOnTile && planetOwner != null && planetOwner != us || EventOnTile)
                 return true;
 
             using (TroopsHere.AcquireReadLock())
