@@ -42,7 +42,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
             float buildRatio                 = risk + territorialism / 100 + strat.MilitaryRatio;
-            float overSpend = OverSpendRatio(money, 0.5f);
+            float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
             buildRatio = Math.Max(buildRatio, overSpend);
 
             float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
@@ -60,7 +60,7 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float buildRatio               = MathExt.Max3(strat.MilitaryRatio + risk, strat.IndustryRatio , strat.ExpansionRatio);
-            float overSpend                = OverSpendRatio(money, 0.25f);
+            float overSpend                = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
             return buildBudget;
@@ -71,8 +71,8 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
 
-            float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio + 0.2f;
-            float overSpend = OverSpendRatio(money, 0.5f);
+            float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
+            float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             var budget                     = SetBudgetForeArea(0.011f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
@@ -81,7 +81,7 @@ namespace Ship_Game.AI
         float DetermineSpyBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float overSpend = OverSpendRatio(money, strat.MilitaryRatio);
+            float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
 
             return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money);
         }
@@ -112,17 +112,23 @@ namespace Ship_Game.AI
             return treasuryGoal;
         }
 
-        public float OverSpendRatio(float treasuryGoal, float percentageOfTreasury)
+        /// <summary>
+        /// creates a ratio starting from x percent of money.
+        ///  if treasury goal is 100 and percentage of treasury is 0.8 
+        ///  the result should be a ratio between  treasury and money starting at a money value of 80.
+        /// 80 is .1 and 100 is 1. <para></para>
+        /// maximum ratio creates an upper bound for the return value. 
+        /// </summary>
+        public float OverSpendRatio(float treasuryGoal, float percentageOfTreasury, float upperRatioRange)
         {
             float money    = OwnerEmpire.Money;
-            float treasury = treasuryGoal;
+            float treasury = treasuryGoal.ClampMin(1);
 
-            if (money < 1000 || treasury < 1000) return 0;
+            //if (money < 1000 || treasury < 1000) return 0;
 
-            float reducer = treasury - (treasury * percentageOfTreasury);
-            float ratio   = (money - reducer) / (treasury - reducer);
-
-            return ratio.ClampMin(0);
+            float reducer = (treasury * percentageOfTreasury);
+            float ratio   = (money - reducer) / (treasury - reducer).ClampMin(1);
+            return ratio.ClampMin(0) * upperRatioRange;
         }
 
         private void AutoSetTaxes(float treasuryGoal)
