@@ -540,6 +540,8 @@ namespace Ship_Game
         /// <summary>planet Panel</summary>
         PlanetPanel = 265,
         /// <summary>Big Clusters</summary>
-        BigClusters = 266
+        BigClusters = 266,
+        /// <summary>Small Clusters</summary>
+        SmallClusters = 267,
     }
 }

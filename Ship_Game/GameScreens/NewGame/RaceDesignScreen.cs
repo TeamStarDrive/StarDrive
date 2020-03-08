@@ -291,10 +291,11 @@ namespace Ship_Game
             switch (Mode)
             {
                 default:
-                case GameMode.Sandbox:     return GameText.Sandbox;
-                case GameMode.Elimination: return GameText.CapitalElimination;
-                case GameMode.Corners:     return GameText.Corners;
-                case GameMode.BigClusters: return GameText.BigClustersGame;
+                case GameMode.Sandbox:       return GameText.Sandbox;
+                case GameMode.Elimination:   return GameText.CapitalElimination;
+                case GameMode.Corners:       return GameText.Corners;
+                case GameMode.BigClusters:   return GameText.BigClustersGame;
+                case GameMode.SmallClusters: return GameText.SmallClustersGame;
             }
         }
 
@@ -303,10 +304,11 @@ namespace Ship_Game
             switch (Mode)
             {
                 default:
-                case GameMode.Sandbox:     return GameTips.Sandbox;
-                case GameMode.Elimination: return GameTips.EliminationGameMode;
-                case GameMode.Corners:     return GameTips.CornersGame;
-                case GameMode.BigClusters: return GameTips.BigClusters;
+                case GameMode.Sandbox:       return GameTips.Sandbox;
+                case GameMode.Elimination:   return GameTips.EliminationGameMode;
+                case GameMode.Corners:       return GameTips.CornersGame;
+                case GameMode.BigClusters:   return GameTips.BigClusters;
+                case GameMode.SmallClusters: return GameTips.SmallClusters;
             }
         }
 
@@ -549,7 +551,7 @@ namespace Ship_Game
 
         public enum GameMode
         {
-            Sandbox, Elimination, Corners, BigClusters
+            Sandbox, Elimination, Corners, BigClusters, SmallClusters
         }
 
         public enum StarNum
