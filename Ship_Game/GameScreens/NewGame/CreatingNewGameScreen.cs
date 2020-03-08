@@ -235,9 +235,10 @@ namespace Ship_Game
 
             switch (Mode)
             {
-                case RaceDesignScreen.GameMode.Corners:     GenerateCornersGameMode();                 break;
-                case RaceDesignScreen.GameMode.BigClusters: GenerateBigClusters();                     break;
-                default:                                    SolarSystemSpacing(Data.SolarSystemsList); break; // 2ms
+                case RaceDesignScreen.GameMode.Corners:       GenerateCornersGameMode();                 break;
+                case RaceDesignScreen.GameMode.BigClusters:   GenerateBigClusters();                     break;
+                case RaceDesignScreen.GameMode.SmallClusters: GenerateSmallClusters();                   break;
+                default:                                      SolarSystemSpacing(Data.SolarSystemsList); break; // 2ms
             }
 
             step.Finish();
@@ -500,6 +501,14 @@ namespace Ship_Game
             GenerateClusterSystems(sectors);
         }
 
+        void GenerateSmallClusters()
+        {
+            (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumSystems, NumOpponents + 1);
+            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors);
+            GenerateClustersStartingSystems(sectors);
+            GenerateClusterSystems(sectors);
+        }
+
         (int NumHorizontalSectors, int NumVerticalSectors) GetNumSectors(int numEmpires)
         {
             int numHorizontalSectors = 2;
@@ -519,6 +528,15 @@ namespace Ship_Game
             {
                 numHorizontalSectors = 3;
             }
+
+            return (NumHorizontalSectors: numHorizontalSectors, NumVerticalSectors: numVerticalSectors);
+        }
+
+        (int NumHorizontalSectors, int NumVerticalSectors) GetNumSectors(int numSystems, int numEmpires)
+        {
+            int numSectors = numSystems / numEmpires; // each sector will have stars as ~player num
+            int numHorizontalSectors = (int)Math.Sqrt(numSectors) + 1;
+            int numVerticalSectors   = (int)Math.Sqrt(numSectors) + 1;
 
             return (NumHorizontalSectors: numHorizontalSectors, NumVerticalSectors: numVerticalSectors);
         }
@@ -544,11 +562,11 @@ namespace Ship_Game
             foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => s.isStartingSystem))
             {
                 Sector startingSector = sectors.RandItem();
-                while (!startingSectors.Contains(startingSector))
+                while (startingSectors.Contains(startingSector))
                     startingSector = sectors.RandItem();
 
                 startingSectors.Add(startingSector);
-                system.Position = GenerateSystemInCluster(startingSector, 100000f);
+                system.Position = GenerateSystemInCluster(startingSector, 300000f);
             }
         }
 
@@ -558,7 +576,7 @@ namespace Ship_Game
             foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.isStartingSystem))
             {
                 Sector currentSector = sectors[i];
-                system.Position = GenerateSystemInCluster(currentSector, 100000f);
+                system.Position = GenerateSystemInCluster(currentSector, 300000);
                 i = i < sectors.Count - 1 ? i + 1 : 0;
             }
         }
@@ -571,7 +589,7 @@ namespace Ship_Game
             {
                 spacing     *= safetyBreak;
                 sysPos       = sector.RandomPosInSector;
-                safetyBreak *= 0.97f;
+                safetyBreak *= 0.99f;
             } while (!SystemPosOK(sysPos, spacing));
 
             ClaimedSpots.Add(sysPos);
@@ -587,17 +605,42 @@ namespace Ship_Game
 
             public Sector(Vector2 universeSize, int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum)
             {
-                float xSection = Math.Abs(-universeSize.X + universeSize.X / (horizontalSectors * 2));
-                float ySection = Math.Abs(-universeSize.Y + universeSize.Y / (verticalSectors * 2));
-                float offset   = universeSize.X * 0.1f;
+                float xSection = universeSize.X / horizontalSectors;
+                float ySection = universeSize.Y / verticalSectors;
+                float offset   = universeSize.X * 0.2f / horizontalSectors.UpperBound(4);
 
-                Vector2 center = new Vector2(-universeSize.X + xSection * horizontalNum, 
-                                             -universeSize.Y + ySection * verticalNum);
+                Vector2 center = new Vector2(-universeSize.X + xSection * (-1 + horizontalNum*2), 
+                                             -universeSize.Y + ySection * (-1 + verticalNum*2));
 
-                LeftX  = (center.X - xSection).ClampMin(-universeSize.X) + offset;
-                RightX = (center.X + xSection).UpperBound(universeSize.X) - offset;
+                center += RandomMath.Vector2D(universeSize.X * 0.05f);
+
+                LeftX  = (center.X - xSection).ClampMin(-universeSize.X);
+                RightX = (center.X + xSection).UpperBound(universeSize.X);
                 TopY   = (center.Y - ySection).ClampMin(-universeSize.Y) + offset;
-                BotY   = (center.Y + ySection).ClampMin(universeSize.Y) - offset;
+                BotY   = (center.Y + ySection).UpperBound(universeSize.Y) - offset;
+
+                GenerateOffset(universeSize.X, offset,ref LeftX, ref RightX);
+                GenerateOffset(universeSize.Y, offset, ref TopY, ref BotY);
+            }
+            
+            // Offset from borders. Less offset if near one or 2 edges
+            void GenerateOffset(float size, float offset, ref float leftOrTop, ref float rightOrBot)
+            {
+                if (leftOrTop.AlmostEqual(-size))
+                {
+                    leftOrTop  += offset * 0.1f;
+                    rightOrBot -= offset * 1.9f;
+                }
+                else if (rightOrBot.AlmostEqual(size))
+                {
+                    leftOrTop  += offset * 1.9f;
+                    rightOrBot -= offset * 0.1f;
+                }
+                else
+                {
+                    leftOrTop  += offset;
+                    rightOrBot -= offset;
+                }
             }
 
             public Vector2 RandomPosInSector
@@ -605,6 +648,12 @@ namespace Ship_Game
                 get
                 {
                     float randomX = RandomMath.RandomBetween(LeftX, RightX);
+                    /*
+                    float center = (LeftX + RightX) / 2;
+                    float distance = randomX - center;
+                    float halfX = RightX - center;
+                    float ratio = 1 - Math.Abs(distance / halfX);
+                    float randomY = RandomMath.RandomBetween(TopY * ratio, BotY * ratio);*/
                     float randomY = RandomMath.RandomBetween(TopY, BotY);
                     return new Vector2(randomX, randomY);
                 }
