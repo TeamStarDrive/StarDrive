@@ -339,15 +339,17 @@ namespace Ship_Game.AI
             WarState worstWar = WarState.NotApplicable;
             foreach(var kv in OwnerEmpire.AllRelations)
             {
+                if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                 var rel = kv.Value;
                 if (rel.ActiveWar == null) continue;
                 var currentWar = rel.ActiveWar.ConductWar();
                 worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
-            if (!GlobalStats.RestrictAIPlayerInteraction && worstWar > WarState.EvenlyMatched)
+            if (worstWar > WarState.EvenlyMatched)
             {
                 foreach (var kv in OwnerEmpire.AllRelations)
                 {
+                    if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                     var rel = kv.Value;
                     if (!rel.Treaty_Peace && rel.PreparingForWar)
                         ShouldStartWar(kv.Key, rel.PreparingForWarType);

@@ -41,8 +41,11 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float territorialism           = OwnerEmpire.data.DiplomaticPersonality?.Territorialism ?? 100;
-            float adjustor                 = risk + territorialism / 100 + strat.MilitaryRatio;
-            float budget                   = SetBudgetForeArea(0.01f, adjustor, money);
+            float buildRatio                 = risk + territorialism / 100 + strat.MilitaryRatio;
+            float overSpend = OverSpendRatio(money, 0.25f, 0.25f);
+            buildRatio = Math.Max(buildRatio, overSpend);
+
+            float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
             return budget;
         }
 
@@ -56,8 +59,9 @@ namespace Ship_Game.AI
         float DetermineBuildCapacity(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio = MathExt.Max3(strat.MilitaryRatio + risk, strat.IndustryRatio , strat.ExpansionRatio);
-            
+            float buildRatio               = MathExt.Max3(strat.MilitaryRatio + risk, strat.IndustryRatio , strat.ExpansionRatio);
+            float overSpend                = OverSpendRatio(money, 0.15f, 0.75f);
+            buildRatio                     = Math.Max(buildRatio, overSpend);
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
             return buildBudget;
 
@@ -66,7 +70,10 @@ namespace Ship_Game.AI
         float DetermineColonyBudget(float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
-            float buildRatio = strat.ExpansionRatio + strat.IndustryRatio + 0.2f;
+
+            float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
+            float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
+            buildRatio                     = Math.Max(buildRatio, overSpend);
             var budget                     = SetBudgetForeArea(0.011f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
@@ -74,9 +81,9 @@ namespace Ship_Game.AI
         float DetermineSpyBudget(float risk, float money)
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
+            float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
 
-            risk = (OwnerEmpire.Money -  money / 2 ) / (money - money / 2).ClampMin(1);
-            return SetBudgetForeArea(0.2f, Math.Max(risk, strat.MilitaryRatio), money);
+            return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money);
         }
 
         private void PlanetBudgetDebugInfo()
@@ -103,6 +110,25 @@ namespace Ship_Game.AI
             float minGoal = OwnerEmpire.isPlayer ? 100 : 1000;
             treasuryGoal  = Math.Max(minGoal, treasuryGoal);
             return treasuryGoal;
+        }
+
+        /// <summary>
+        /// creates a ratio starting from x percent of money.
+        ///  if treasury goal is 100 and percentage of treasury is 0.8 
+        ///  the result should be a ratio between  treasury and money starting at a money value of 80.
+        /// 80 is .1 and 100 is 1. <para></para>
+        /// maximum ratio creates an upper bound for the return value. 
+        /// </summary>
+        public float OverSpendRatio(float treasuryGoal, float percentageOfTreasury, float upperRatioRange)
+        {
+            float money    = OwnerEmpire.Money;
+            float treasury = treasuryGoal.ClampMin(1);
+
+            //if (money < 1000 || treasury < 1000) return 0;
+
+            float reducer = (treasury * percentageOfTreasury);
+            float ratio   = (money - reducer) / (treasury - reducer).ClampMin(1);
+            return ratio.ClampMin(0) * upperRatioRange;
         }
 
         private void AutoSetTaxes(float treasuryGoal)
@@ -135,8 +161,20 @@ namespace Ship_Game.AI
             float risk = 0;
             foreach (var kv in OwnerEmpire.AllRelations)
             {
-                var tRisk = kv.Value.Risk.Risk;
-                risk += tRisk;//  Math.Max(tRisk, risk);
+                var totalRisk = kv.Value.Risk.Risk;
+                var maxRisk = kv.Value.Risk.Risk;
+                if (kv.Value.AtWar)
+                {
+                    risk += totalRisk;
+                }
+                else if(kv.Value.PreparingForWar)
+                {
+                    risk = Math.Max(totalRisk, risk);
+                }
+                else
+                {
+                    risk = Math.Max(maxRisk, risk);
+                }
             }
             return Math.Min(risk, riskLimit) ;
         }
