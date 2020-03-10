@@ -497,7 +497,7 @@ namespace Ship_Game
         {
             // Divides the galaxy to several sectors and populates each sector with starts
             (int numHorizontalSectors, int numVerticalSectors) = GetNumSectors(NumOpponents + 1);
-            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors);
+            Array<Sector> sectors = GenerateSectors(numHorizontalSectors, numVerticalSectors, 0.025f);
             GenerateClustersStartingSystems(sectors);
             GenerateClusterSystems(sectors);
         }
@@ -505,8 +505,10 @@ namespace Ship_Game
         void GenerateSmallClusters()
         {
             // Divides the galaxy to many sectors and populates each sector with starts
-            int numSectorsPerAxis = GetNumSectors(NumSystems, NumOpponents + 1);
-            Array<Sector> sectors = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis);
+            int numSectorsPerAxis  = GetNumSectors(NumSystems, NumOpponents + 1);
+            float offsetMultiplier = 0.2f / numSectorsPerAxis.UpperBound(4);
+            float deviation        = 0.02f * numSectorsPerAxis.UpperBound(4);
+            Array<Sector> sectors  = GenerateSectors(numSectorsPerAxis, numSectorsPerAxis, deviation, offsetMultiplier);
             GenerateClustersStartingSystems(sectors);
             GenerateClusterSystems(sectors);
         }
@@ -536,20 +538,22 @@ namespace Ship_Game
 
         int GetNumSectors(int numSystems, int numEmpires)
         {
-            int numSectors        = numSystems / numEmpires; // each sector will have stars as ~player num
+            int numSectors        = numSystems / numEmpires.ClampMin(4); // each sector will have stars as ~player num, minimum of 4
             int numSectorsPerAxis = (int)Math.Sqrt(numSectors) + 1;
 
             return numSectorsPerAxis.ClampMin(numEmpires / 2);
         }
 
-        Array<Sector> GenerateSectors(int numHorizontalSectors, int numVerticalSectors)
+        Array<Sector> GenerateSectors(int numHorizontalSectors, int numVerticalSectors, float deviation, float offsetMultiplier = 0.1f)
         {
             Array<Sector> sectors = new Array<Sector>();
             for (int h = 1; h <= numHorizontalSectors; ++h)
             {
                 for (int v = 1; v <= numVerticalSectors; ++v)
                 {
-                    Sector sector = new Sector(Data.Size, numHorizontalSectors, numVerticalSectors, h, v);
+                    Sector sector = new Sector(Data.Size, numHorizontalSectors, numVerticalSectors, 
+                        h, v, deviation, offsetMultiplier);
+
                     sectors.Add(sector);
                 }
             }
@@ -574,9 +578,10 @@ namespace Ship_Game
         void GenerateClusterSystems(Array<Sector> sectors)
         {
             int i = 0;
-            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.isStartingSystem))
+            foreach (SolarSystem system in Data.SolarSystemsList.Filter(s => !s.isStartingSystem)
+                     .SortedDescending(s => s.AverageValueForEmpires(Data.EmpireList)))
             {
-                Sector currentSector = sectors[i];
+                Sector currentSector = sectors[i]; // distribute systems evenly per sector, based on value
                 system.Position = GenerateSystemInCluster(currentSector, 300000f);
                 i = i < sectors.Count - 1 ? i + 1 : 0;
             }
@@ -604,17 +609,18 @@ namespace Ship_Game
             private readonly float TopY;
             private readonly float BotY;
 
-            public Sector(Vector2 universeSize, int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum)
+            public Sector(Vector2 universeSize, int horizontalSectors, int verticalSectors, int horizontalNum, int verticalNum, 
+                          float deviation, float offsetMultiplier)
             {
                 float xSection = universeSize.X / horizontalSectors;
                 float ySection = universeSize.Y / verticalSectors;
-                float offset   = universeSize.X * 0.2f / horizontalSectors.UpperBound(4);
+                float offset   = universeSize.X * offsetMultiplier; 
 
                 Vector2 center = new Vector2(-universeSize.X + xSection * (-1 + horizontalNum*2), 
                                              -universeSize.Y + ySection * (-1 + verticalNum*2));
 
                 // Some deviation in the center of the cluster
-                center += RandomMath.Vector2D(universeSize.X * 0.075f);
+                center += RandomMath.Vector2D(universeSize.X * deviation);
 
                 LeftX  = (center.X - xSection).ClampMin(-universeSize.X);
                 RightX = (center.X + xSection).UpperBound(universeSize.X);
