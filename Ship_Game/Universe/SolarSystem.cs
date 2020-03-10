@@ -204,6 +204,27 @@ namespace Ship_Game
             return null;
         }
 
+        public float AverageValueForEmpires(Array<Empire> empireList)
+        {
+            float totalValue = 0;
+            float numOpponents = empireList.Count(e => !e.isFaction);
+            for (int i = 0; i < empireList.Count; i++)
+            {
+                Empire empire = empireList[i];
+                if (empire.isFaction)
+                    continue;
+
+                totalValue += RawValue(empire);
+            }
+
+            return totalValue / numOpponents;
+        }
+
+        float RawValue(Empire empire)
+        {
+            return PlanetList.Sum(p => p.ColonyRawValue(empire));
+        }
+
         readonly Map<Empire, EmpireSolarSystemStatus> Status = new Map<Empire, EmpireSolarSystemStatus>();
 
         EmpireSolarSystemStatus GetStatus(Empire empire)
