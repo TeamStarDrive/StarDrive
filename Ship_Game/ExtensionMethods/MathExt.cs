@@ -539,6 +539,12 @@ namespace Ship_Game
             return center.PointFromAngle(randomAngle, radius);
         }
 
+        public static Vector2 GenerateRandomPointInsideCircle(this Vector2 center, float radius)
+        {
+            float randomRadius = RandomMath.RandomBetween(0f, radius);
+            return center.GenerateRandomPointOnCircle(randomRadius);
+        }
+
         public static Vector2 PointOnCircle(float degrees, float circleRadius)
         {
             return degrees.AngleToDirection() * circleRadius;

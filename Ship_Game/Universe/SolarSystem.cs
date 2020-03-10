@@ -211,10 +211,8 @@ namespace Ship_Game
             for (int i = 0; i < empireList.Count; i++)
             {
                 Empire empire = empireList[i];
-                if (empire.isFaction)
-                    continue;
-
-                totalValue += RawValue(empire);
+                if (!empire.isFaction)
+                    totalValue += RawValue(empire);
             }
 
             return totalValue / numOpponents;
