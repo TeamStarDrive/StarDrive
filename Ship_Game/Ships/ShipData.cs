@@ -50,7 +50,6 @@ namespace Ship_Game.Ships
         public Category ShipCategory = Category.Unclassified;
 
         public HangarOptions HangarDesignation = HangarOptions.General;
-        public ShieldsWarpBehavior ShieldsBehavior = ShieldsWarpBehavior.FullPower;
 
         // The Doctor: intending to use this as a user-toggled flag which tells the AI not to build a design as a stand-alone vessel from a planet; only for use in a hangar
         public bool CarrierShip;
@@ -107,7 +106,7 @@ namespace Ship_Game.Ships
         [StructLayout(LayoutKind.Sequential, Pack = 4)]
         struct CModuleSlot
         {
-            public readonly float PosX, PosY, Health, ShieldPower, ShieldUpChance, ShieldPowerBeforeWarp, Facing;
+            public readonly float PosX, PosY, Health, ShieldPower, Facing;
             public readonly CStrView InstalledModuleUID;
             public readonly CStrView HangarshipGuid;
             public readonly CStrView State;
@@ -129,7 +128,6 @@ namespace Ship_Game.Ships
             public readonly CStrView CombatState;
             public readonly CStrView ShipCategory;
             public readonly CStrView HangarDesignation;
-            public readonly CStrView ShieldsBehavior;
             public readonly CStrView ModName;
 
             public readonly int TechScore;
@@ -213,7 +211,6 @@ namespace Ship_Game.Ships
                 Enum.TryParse(s->CombatState.AsString,       out ship.CombatState);
                 Enum.TryParse(s->ShipCategory.AsString,      out ship.ShipCategory);
                 Enum.TryParse(s->HangarDesignation.AsString, out ship.HangarDesignation);
-                Enum.TryParse(s->ShieldsBehavior.AsString,   out ship.ShieldsBehavior);
                 Enum.TryParse(s->DefaultAIState.AsString,    out ship.DefaultAIState);
 
                 // @todo Remove SDNative.ModuleSlot conversion
@@ -231,8 +228,6 @@ namespace Ship_Game.Ships
                     slot.InstalledModuleUID    = msd->InstalledModuleUID.AsInternedOrNull; // must be interned
                     slot.Health                = msd->Health;
                     slot.ShieldPower           = msd->ShieldPower;
-                    slot.ShieldUpChance        = msd->ShieldUpChance;
-                    slot.ShieldPowerBeforeWarp = msd->ShieldPowerBeforeWarp;
                     slot.Facing                = msd->Facing;
                     Enum.TryParse(msd->Restrictions.AsString, out slot.Restrictions);
                     slot.Orientation           = msd->State.AsInterned;
