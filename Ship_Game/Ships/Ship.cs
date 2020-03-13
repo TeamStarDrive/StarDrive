@@ -707,50 +707,6 @@ namespace Ship_Game.Ships
             return mod.UpkeepBaseline;
         }
 
-        public static float GetMaintenanceModifier(ShipData shipData, Empire empire)
-        {
-            ShipData.RoleName role = shipData.Role;
-            float maint = GetModMaintenanceModifier(role);
-
-            if (maint <= 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0f)
-            {
-                maint = GlobalStats.ActiveModInfo.UpkeepBaseline;
-            }
-
-            // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
-            if (empire != null && shipData.HasFixedUpkeep)
-            {
-                maint = shipData.FixedUpkeep;
-            }
-
-            // Doctor: Configurable civilian maintenance modifier.
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire?.isFaction == false)
-            {
-                maint *= empire.data.CivMaintMod;
-                maint *= empire.data.Privatization ? 0.5f : 1.0f;
-            }
-
-            if (GlobalStats.ShipMaintenanceMulti > 1)
-                maint *= GlobalStats.ShipMaintenanceMulti;
-
-            if (empire != null)
-            {
-                maint += maint * empire.data.Traits.MaintMod;
-            }
-            return maint;
-        }
-
-        public float GetMaintCostRealism() => GetMaintCostRealism(loyalty);
-
-        public float GetMaintCostRealism(Empire empire)
-        {
-            if (IsFreeUpkeepShip(shipData.Role, loyalty))
-                return 0f;
-
-            float shipCost = GetCost(empire);
-            return shipCost * GetMaintenanceModifier(shipData, empire);
-        }
-
         public float GetMaintCost() => GetMaintCost(loyalty);
 
         public float GetMaintCost(Empire empire)
