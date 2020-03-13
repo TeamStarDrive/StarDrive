@@ -351,7 +351,6 @@
     <Compile Include="Ship_Game\GameScreens\ShipDesign\FighterListItem.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HullLoadMenu.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\HangarDesignationDropDown.cs" />
-    <Compile Include="Ship_Game\GameScreens\ShipDesign\ShieldsBehaviorDropDown.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\DesignModuleGrid.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\FighterScrollList.cs" />
     <Compile Include="Ship_Game\GameScreens\ShipDesign\LoadDesigns.cs" />
