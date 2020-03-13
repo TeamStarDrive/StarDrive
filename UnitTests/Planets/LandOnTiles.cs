@@ -40,7 +40,8 @@ namespace UnitTests.Planets
             troopTile = null;
             foreach (PlanetGridSquare tile in P.TilesList)
             {
-                if (tile.LockOnOurTroop(troop.Loyalty, out _))
+                if (tile.LockOnOurTroop(troop.Loyalty, out Troop troopToCheck) 
+                    && troop == troopToCheck)
                 {
                     troopTile = tile;
                     break;
@@ -82,17 +83,18 @@ namespace UnitTests.Planets
             Assert.IsTrue(GetTroopTile(Enemy1, out PlanetGridSquare enemy1Tile));
 
             // Enemy should land out of capital's reach so it wont get hit on landing
-            Assert.IsFalse(capitalTile.InRangeOf(enemy1Tile, 1));
+            Assert.IsFalse(capitalTile.InRangeOf(enemy1Tile, 1), "Enemy1 Too Close to Capital");
 
             // land a second enemy
             Assert.IsTrue(Enemy2.TryLandTroop(P));
             Assert.IsTrue(P.TroopsHere.Contains(Enemy2));
             Assert.IsTrue(GetTroopTile(Enemy2, out PlanetGridSquare enemy2Tile));
+            Assert.IsTrue(enemy1Tile != enemy2Tile, "Enemies are on the same tile!");
 
             // Enemy should land out of capital's reach so it wont get hit on landing
             // and close to enemy1, as reinforcements
-            Assert.IsFalse(capitalTile.InRangeOf(enemy2Tile, 1));
-            Assert.IsTrue(enemy1Tile.InRangeOf(enemy2Tile, 1));
+            Assert.IsFalse(capitalTile.InRangeOf(enemy2Tile, 1), "Enemy2 Too Close to Capital");
+            Assert.IsTrue(enemy1Tile.InRangeOf(enemy2Tile, 1), "Enemy2 Too Far From Enemy1");
 
             Assert.IsTrue(Friendly.TryLandTroop(P));
             Assert.IsTrue(GetTroopTile(Friendly, out PlanetGridSquare friendlyTile));
@@ -103,9 +105,15 @@ namespace UnitTests.Planets
             Enemy2.UpdateAttackActions(Enemy2.MaxStoredActions);
             Assert.IsTrue(Enemy1.CanAttack);
             Assert.IsTrue(Enemy2.CanAttack);
-            Assert.IsTrue(friendlyTile.InRangeOf(capitalTile, 1));
-            Assert.IsFalse(friendlyTile.InRangeOf(enemy1Tile, 1));
-            Assert.IsFalse(friendlyTile.InRangeOf(enemy2Tile, 1));
+
+            string positions = $"Capital : {capitalTile.x},{capitalTile.y}\n" +
+                               $"Friendly: {friendlyTile.x},{ friendlyTile.y}\n" +
+                               $"Enemy1  : {enemy1Tile.x},{ enemy1Tile.y}\n" +
+                               $"Enemy2  : {enemy2Tile.x},{ enemy2Tile.y}\n"; 
+
+            Assert.IsTrue(friendlyTile.InRangeOf(capitalTile, 1), $"Friendly Too Far From Capital\n{positions}");
+            Assert.IsFalse(friendlyTile.InRangeOf(enemy1Tile, 1), $"Friendly Too Close to Enemy1\n{positions}");
+            Assert.IsFalse(friendlyTile.InRangeOf(enemy2Tile, 1), $"Friendly Too Close to Enemy2\n{positions}");
         }
     }
 }
