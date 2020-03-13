@@ -132,11 +132,6 @@ namespace Ship_Game
             ChangeHull(ActiveHull);
         }
 
-        static float GetMaintCostShipyardProportional(ShipData shipData, float fCost, Empire empire)
-        {
-            return fCost * Ship.GetMaintenanceModifier(shipData, empire);
-        }
-
         public ShipModule CreateDesignModule(ShipModule template)
         {
             ShipModule m = ShipModule.CreateNoParent(template, EmpireManager.Player, ActiveHull);
