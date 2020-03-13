@@ -749,7 +749,6 @@ namespace Ship_Game.Ships
             data.TechsNeeded               = shipData.TechsNeeded;
             data.TechScore                 = shipData.TechScore;
             data.ShipCategory              = shipData.ShipCategory;
-            data.ShieldsBehavior           = shipData.ShieldsBehavior;
             data.Name                      = Name;
             data.Level                     = (byte)Level;
             data.experience                = (byte)experience;
@@ -784,17 +783,13 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 var data = new ModuleSlotData
                 {
-                    Position              = module.XMLPosition,
-                    InstalledModuleUID    = module.UID,
-                    Health                = module.Health,
-                    ShieldPower           = module.ShieldPower,
-                    ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
-                    Facing                = module.FacingDegrees,
-                    Restrictions          = module.Restrictions
+                    Position           = module.XMLPosition,
+                    InstalledModuleUID = module.UID,
+                    Health             = module.Health,
+                    ShieldPower        = module.ShieldPower,
+                    Facing             = module.FacingDegrees,
+                    Restrictions       = module.Restrictions
                 };
-
-                if (module.Is(ShipModuleType.Shield))
-                    data.ShieldUpChance = module.ShieldUpChance;
 
                 if (module.GetHangarShip() != null)
                     data.HangarshipGuid = module.GetHangarShip().guid;
@@ -1127,8 +1122,7 @@ namespace Ship_Game.Ships
 
             if (InCombat
                 || shield_power < shield_max
-                || engineState == MoveState.Warp
-                || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
+                || engineState == MoveState.Warp)
             {
                 shield_power = 0.0f;
                 for (int x = 0; x < Shields.Length; x++)
@@ -1363,7 +1357,7 @@ namespace Ship_Game.Ships
             }
 
             shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            NetPower   = Power.Calculate(ModuleSlotList, loyalty);
 
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;
