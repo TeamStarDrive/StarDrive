@@ -53,7 +53,7 @@ namespace Ship_Game
             float popKilled = TargetTile.Habitable ? bomb.PopKilled : bomb.PopKilled / 10;
 
             DamageTile(hardDamage);
-            DamageTroops(softDamage);
+            DamageTroops(softDamage, bomb.Owner);
             DamageBuildings(hardDamage);
 
             Surface.ApplyBombEnvEffects(popKilled, bomb.Owner); // Fertility and pop loss
@@ -82,22 +82,32 @@ namespace Ship_Game
             }
         }
 
-        private void DamageTroops(int damage)
+        private void DamageTroops(int damage, Empire bombOwner)
         {
             if (!TargetTile.TroopsAreOnTile)
                 return;
 
-            Troop troop        = TargetTile.SingleTroop;
-            int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
-
-            // Try to hit the troop, high level troops have better chance to evade
-            if (RandomMath.RollDice(troopHitChance))
+            using (TargetTile.TroopsHere.AcquireWriteLock())
             {
-                troop.DamageTroop(damage);
-                if (TargetTile.SingleTroop.Strength <= 0)
+                for (int i = 0; i < TargetTile.TroopsHere.Count; ++i)
                 {
-                    Surface.TroopsHere.Remove(TargetTile.SingleTroop);
-                    TargetTile.TroopsHere.Clear();
+                    // Try to hit the troop, high level troops have better chance to evade
+                    Troop troop = TargetTile.TroopsHere[i];
+                    int troopHitChance = 100 - (troop.Level * 10).Clamped(20, 80);
+
+                    // Reduce friendly fire chance (10%) if bombing a tile with multiple troops
+                    if (troop.Loyalty == bombOwner)
+                        troopHitChance = (int)(troopHitChance * 0.1f);
+
+                    if (RandomMath.RollDice(troopHitChance))
+                    {
+                        troop.DamageTroop(damage);
+                        if (troop.Strength <= 0)
+                        {
+                            Surface.TroopsHere.Remove(troop);
+                            TargetTile.TroopsHere.Remove(troop);
+                        }
+                    }
                 }
             }
         }
@@ -145,7 +155,7 @@ namespace Ship_Game
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        public BatchRemovalCollection<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
+        public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
         public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
@@ -188,6 +198,7 @@ namespace Ship_Game
         private float PosUpdateTimer = 1f;
         private float ZrotateAmount  = 0.03f;
         public float TerraformPoints { get; protected set; } // FB - terraform process from 0 to 1. 
+        public float BaseFertilityTerraformRatio { get; protected set; } // A value to add to base fertility during Terraform. 
         public float TerraformToAdd { get; protected set; }  //  FB - a sum of all terraformer efforts
         public Planet.ColonyType colonyType;
         public int TileMaxX { get; private set; } = 7; // FB foundations to variable planet tiles

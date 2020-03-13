@@ -32,7 +32,7 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         public void Update(float elapsedTime)
         {
-            if (P.ParentSystem.HostileForcesPresent(Owner))
+            if (P.ParentSystem.DangerousForcesPresent(Owner))
                 SystemCombatTimer += elapsedTime;
             else
                 SystemCombatTimer = 0f;
@@ -69,8 +69,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
 
         private PlanetGridSquare SelectTargetTile(Bomb bomb)
         {
-            var priorityTargets = TilesList.Filter(t => t.CombatBuildingOnTile 
-                                                        || t.TroopsAreOnTile && t.SingleTroop.Loyalty != bomb.Owner);
+            // check for buildings as well, if bombing enemy planet
+            var priorityTargets = bomb.Owner == P.Owner ? TilesList.Filter(t => t.EnemyTroopsHere(bomb.Owner))
+                                                        : TilesList.Filter(t => t.CombatBuildingOnTile || t.EnemyTroopsHere(bomb.Owner)); 
 
             // If there are priority targets, choose one of them.
             return priorityTargets.Length > 0 ? priorityTargets.RandItem() 
@@ -174,9 +175,9 @@ namespace Ship_Game.Universe.SolarBodies // Fat Bastard - Refactored March 21, 2
                 if (troopCount >= ship.TroopCapacity || TroopsHere.Count <= garrisonSize)
                     break;
 
-                if (pgs.TroopsAreOnTile && pgs.SingleTroop.Loyalty == Owner)
+                if (pgs.LockOnOurTroop(ship.loyalty, out Troop troop))
                 {
-                    Ship troopShip = pgs.SingleTroop.Launch();
+                    Ship troopShip = troop.Launch();
                     if (troopShip != null)
                     {
                         garrisonSize--;

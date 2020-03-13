@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
 using Ship_Game.Ships;
 
@@ -18,7 +17,7 @@ namespace Ship_Game
         void OnBuildableTabChanged(int tabIndex)
         {
             PlayerDesignsToggle.Visible    = BuildableTabs.IsSelected(ShipsTabText);
-            BuildableList.EnableDragEvents = BuildableTabs.IsSelected(BuildingsTabText);
+            BuildableList.EnableDragOutEvents = BuildableTabs.IsSelected(BuildingsTabText);
             ResetBuildableList = true;
         }
 
@@ -75,12 +74,14 @@ namespace Ship_Game
                 }
             }
 
-            if (!ConstructionQueue.AllEntries.Select(item => item.Item).EqualElements(P.ConstructionQueue))
+            if (!ConstructionQueue.IsDragging)
             {
-                var newItems = P.ConstructionQueue.Select(qi => new ConstructionQueueScrollListItem(qi));
-                ConstructionQueue.SetItems(newItems);
+                if (!ConstructionQueue.AllEntries.Select(item => item.Item).EqualElements(P.ConstructionQueue))
+                {
+                    var newItems = P.ConstructionQueue.Select(qi => new ConstructionQueueScrollListItem(qi));
+                    ConstructionQueue.SetItems(newItems);
+                }
             }
-
             ResetBuildableList = false;
         }
 
@@ -145,7 +146,7 @@ namespace Ship_Game
                     // and add to Build list
                     BuildableListItem catHeader = BuildableList.AddItem(new BuildableListItem(this, category.Name));
                     foreach (Ship ship in category.Ships)
-                        catHeader.AddSubItem(new BuildableListItem(this, ship));
+                        catHeader.AddSubItem(new BuildableListItem(this, ship, !ship.shipData.IsShipyard));
                 }
             }
         }
@@ -153,6 +154,35 @@ namespace Ship_Game
         void OnBuildableItemDoubleClicked(BuildableListItem item)
         {
             item.BuildIt(1);
+        }
+
+        void OnBuildableHoverChange(BuildableListItem item)
+        {
+            ShipInfoOverlay.ShowToLeftOf(new Vector2(BuildableList.X, item?.Y ?? 0f), item?.Ship);
+        }
+
+        void OnBuildableListDrag(BuildableListItem item, DragEvent evt, bool outside)
+        {
+            if (evt != DragEvent.End)
+                return;
+
+            if (outside)
+            {
+                Building b = item.Building;
+                if (b != null)
+                {
+                    PlanetGridSquare tile = P.FindTileUnderMouse(Input.CursorPosition);
+                    if (tile != null && Build(b, tile))
+                        return;
+                }
+            }
+
+            GameAudio.NegativeClick();
+        }
+
+        void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int oldIndex, int newIndex)
+        {
+            P.ConstructionQueue.Reorder(oldIndex, newIndex);
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)

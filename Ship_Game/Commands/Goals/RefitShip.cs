@@ -48,7 +48,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
             if (PlanetBuildingAt == null)
             {
                 OldShip.AI.ClearOrders();
-                return GoalStep.GoalFailed;  // No planet to refit the ship was found
+                return GoalStep.GoalFailed;  // No planet to refit
             }
             
             if (Fleet != null)

@@ -624,8 +624,8 @@ namespace Ship_Game
                                     Troop t = ResourceManager.CreateTroop(troopType, daRebels);
                                     t.Name = Localizer.Token(daRebels.data.TroopNameIndex);
                                     t.Description = Localizer.Token(daRebels.data.TroopDescriptionIndex);
-                                    if (target.FreeTiles == 0 && !target.BumpOutTroop(EmpireManager.Corsairs)
-                                                              && !t.TryLandTroop(target)) // Let's say the rebels are pirates :)
+                                    if (target.GetFreeTiles(t.Loyalty) == 0 && !target.BumpOutTroop(EmpireManager.Corsairs)
+                                                                            && !t.TryLandTroop(target)) // Let's say the rebels are pirates :)
                                     {
                                         t.Launch(target); // launch the rebels
                                     }

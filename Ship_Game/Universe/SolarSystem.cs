@@ -204,6 +204,25 @@ namespace Ship_Game
             return null;
         }
 
+        public float AverageValueForEmpires(Array<Empire> empireList)
+        {
+            float totalValue = 0;
+            float numOpponents = empireList.Count(e => !e.isFaction);
+            for (int i = 0; i < empireList.Count; i++)
+            {
+                Empire empire = empireList[i];
+                if (!empire.isFaction)
+                    totalValue += RawValue(empire);
+            }
+
+            return totalValue / numOpponents;
+        }
+
+        float RawValue(Empire empire)
+        {
+            return PlanetList.Sum(p => p.ColonyRawValue(empire));
+        }
+
         readonly Map<Empire, EmpireSolarSystemStatus> Status = new Map<Empire, EmpireSolarSystemStatus>();
 
         EmpireSolarSystemStatus GetStatus(Empire empire)
@@ -217,7 +236,7 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Forces present are not an immediate threat but can be attacked. 
+        /// Forces present can not cause damage to ships but can be destroyed. 
         /// </summary>
         public bool HostileForcesPresent(Empire empire)
         {
@@ -227,13 +246,13 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// Forces present are an immediate threat to the system
+        /// Forces present can destroy friendly ships. 
         /// </summary>
         public bool DangerousForcesPresent(Empire empire)
         {
             if (empire == null)
                 return false;
-            return GetStatus(empire).HostileForcesPresent;
+            return GetStatus(empire).DangerousForcesPresent;
         }
 
         public bool IsFullyExploredBy(Empire empire) => FullyExplored.FlatMapIsSet(empire);
@@ -618,7 +637,9 @@ namespace Ship_Game
                     OutgoingFreighters   = planet.OutgoingFreighterIds,
                     StationsList         = planet.OrbitalStations.Where(kv => kv.Value.Active)
                                                                  .Select(kv => kv.Key).ToArray(),
+
                     ExploredBy           = planet.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                    BaseFertilityTerraformRatio = planet.BaseFertilityTerraformRatio
                 };
 
                 if (planet.Owner != null)

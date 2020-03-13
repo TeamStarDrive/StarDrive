@@ -114,6 +114,7 @@ namespace Ship_Game
             p.PlanetTilt            = RandomMath.RandomBetween(45f, 135f);
             p.ObjectRadius          = 1000f * (float)(1 + (Math.Log(p.Scale) / 1.5));
             p.UpdateTerraformPoints(psdata.TerraformPoints);
+            p.RestoreBaseFertilityTerraformRatio(psdata.BaseFertilityTerraformRatio);
             foreach (Guid guid in psdata.StationsList)
                 p.OrbitalStations[guid] = null; // reserve orbital stations (and platforms)
 
@@ -138,9 +139,7 @@ namespace Ship_Game
                     var fix = ResourceManager.GetTroopTemplate(t.Name);
                     t.first_frame = fix.first_frame;
                     t.WhichFrame = fix.first_frame;
-                    pgs.TroopsHere.Add(t);
-                    p.TroopsHere.Add(t);
-                    t.SetPlanet(p);
+                    p.AddTroop(t, pgs);
                 }
 
                 if (pgs.building == null)

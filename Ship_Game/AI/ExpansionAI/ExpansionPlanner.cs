@@ -15,20 +15,17 @@ namespace Ship_Game.AI.ExpansionAI
         public Planet[] DesiredPlanets => RankedPlanets.FilterSelect(r=> r.Planet?.Owner != OwnerEmpire,
                                                                      r => r.Planet) ?? Empty<Planet>.Array;
 
-        public Planet[] ColonizationTargets
+        public Planet[] GetColonizationTargets(Planet[] markedPlanets)
         {
-            get
-            {
-                return RankedPlanets.FilterSelect(ranker => !ranker.CantColonize &&
+            return RankedPlanets.FilterSelect(ranker => !ranker.CantColonize &&
                                                         ranker.EnemyStrength < 1 &&
-                                                        !GetColonizationGoals().Contains(ranker.Planet),
-                                                        p => p.Planet);
-            }
+                                                        !markedPlanets.Contains(ranker.Planet),
+                p => p.Planet);
         }
 
         private Array<Goal> Goals => OwnerEmpire.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
-        public Planet[] GetColonizationGoals()
+        public Planet[] GetColonizationGoalPlanets()
         {
             var list = new Array<Planet>();
             foreach (Goal g in Goals)
@@ -93,15 +90,19 @@ namespace Ship_Game.AI.ExpansionAI
             //Create a list of the top priority planets
             var planetsRanked         = new Array<PlanetRanker>();
             PlanetRanker backupPlanet = new PlanetRanker();
-            bool addBackupPlanet      = !AnyPlanetsMarkedForColonization();
+            bool addBackupPlanet      = OwnerEmpire.data.ColonyBudget * 0.75f > OwnerEmpire.TotalBuildingMaintenance 
+                                        && !AnyPlanetsMarkedForColonization();
 
             for (int i = 0; i < allPlanetsRanker.Count && maxDesiredPlanets > 0; i++)
             {
                 var ranker = allPlanetsRanker[i];
                 if (ranker.PoorPlanet)
                 {
-                    if (ranker.Value > backupPlanet.Value)
+                    if (ranker.Value > backupPlanet.Value && ranker.EnemyStrength <1 
+                                                          && ranker.Planet.Owner == null)
+                    {
                         backupPlanet = ranker;
+                    }
                     continue;
                 }
                 planetsRanked.Add(ranker);
@@ -109,7 +110,7 @@ namespace Ship_Game.AI.ExpansionAI
                 if (ranker.CantColonize) continue;
 
                 maxDesiredPlanets--;
-                addBackupPlanet = false;
+                addBackupPlanet = addBackupPlanet && ranker.EnemyStrength > 0 ;
             }
 
             if (addBackupPlanet && backupPlanet.Planet != null) 
@@ -127,14 +128,14 @@ namespace Ship_Game.AI.ExpansionAI
         /// </summary>
         void CreateColonyGoals()
         {
-            Planet[] markedPlanets = GetColonizationGoals();
+            Planet[] markedPlanets = GetColonizationGoalPlanets();
             int desired            = DesiredColonyGoals;
             desired               -= markedPlanets.Length;
 
             if (desired < 1) return;
 
             desired = Math.Min(desired, RankedPlanets.Length);
-            var colonizationTargets = ColonizationTargets;
+            var colonizationTargets = GetColonizationTargets(markedPlanets);
 
             for (int i = 0; i < colonizationTargets.Length && desired > 0; i++)
             {
@@ -158,7 +159,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
             int desiredClaims = (DesiredColonyGoals * 2) - claimTasks.Length;
-            var colonizing    = GetColonizationGoals();
+            var colonizing    = GetColonizationGoalPlanets();
             var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
 
             for (int i = 0; i < RankedPlanets.Length && desiredClaims > 0; i++)
@@ -274,10 +275,10 @@ namespace Ship_Game.AI.ExpansionAI
                 queryingShip.AI.ClearOrders();
                 return null;
             }
-            SolarSystem nearestToHome = sortedList.Find(s=> !s.HostileForcesPresent(OwnerEmpire));
+            SolarSystem nearestToHome = sortedList.Find(s=> !s.DangerousForcesPresent(OwnerEmpire));
             foreach (SolarSystem nearest in sortedList)
             {
-                if (nearest.HostileForcesPresent(OwnerEmpire))
+                if (nearest.DangerousForcesPresent(OwnerEmpire))
                     continue;
                 float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
                 float distanceToEarth = Vector2.Distance(empireCenter, nearest.Position);
