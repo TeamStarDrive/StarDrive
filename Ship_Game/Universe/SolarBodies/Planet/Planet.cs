@@ -78,6 +78,8 @@ namespace Ship_Game
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
         public int GetDefendingTroopCount()     => TroopManager.NumDefendingTroopCount;
 
+        public bool Safe => !EnemyInRange(clearAndPresentDanger: true) || !MightBeAWarZone(Owner);
+
         public float GetDefendingTroopStrength()  => TroopManager.OwnerTroopStrength;
 
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
@@ -86,9 +88,9 @@ namespace Ship_Game
             return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.ClampMin(1)) : 0;
 
         }
-        public bool AnyOfOurTroops(Empire us)   => TroopManager.WeHaveTroopsHere(us);
-        public int GetGroundLandingSpots()      => TroopManager.NumGroundLandingSpots();
-
+        public bool AnyOfOurTroops(Empire us)           => TroopManager.WeHaveTroopsHere(us);
+        public int GetFreeTiles(Empire us)              => TroopManager.NumFreeTiles(us);
+        public int GetEnemyAssets(Empire us)            => TroopManager.GetEnemyAssets(this, us);
         public float GetGroundStrength(Empire empire)   => TroopManager.GroundStrength(empire);
         public int GetPotentialGroundTroops()           => TroopManager.GetPotentialGroundTroops();
         public bool TroopsHereAreEnemies(Empire empire) => TroopManager.TroopsHereAreEnemies(empire);
@@ -104,8 +106,7 @@ namespace Ship_Game
             => TroopManager.GroundStrengthOther(allButThisEmpire);
         public Array<Troop> GetEmpireTroops(Empire empire, int maxToTake) 
             => TroopManager.EmpireTroops(empire, maxToTake);
-        public Troop[] GetOwnersLaunchReadyTroops(float strengthNeeded)   
-            => TroopManager.TroopsReadForLaunch(strengthNeeded);
+
         public GameplayObject[] GetNearByShips() => UniverseScreen.SpaceManager.FindNearby(
                                             Center, GravityWellRadius,
                                             GameObjectType.Ship, Owner);
@@ -120,9 +121,6 @@ namespace Ship_Game
         public bool IsCybernetic  => Owner != null && Owner.IsCybernetic;
         public bool NonCybernetic => Owner != null && Owner.NonCybernetic;
         public int TileArea       => TileMaxX * TileMaxY; // FB currently this limited by number of tiles, all planets are 7 x 5
-        // FB - free tiles always leaves 1 free spot for invasions
-        public int FreeTiles      => (TilesList.Count(t => t.TroopsHere.Count < t.MaxAllowedTroops && !t.CombatBuildingOnTile) - 1)
-                                     .Clamped(0, TileArea);
 
         public float MaxPopulationBillion                   => MaxPopulation / 1000;
         public float MaxPopulationBillionFor(Empire empire) => MaxPopulationFor(empire) / 1000;
@@ -168,13 +166,11 @@ namespace Ship_Game
             return Math.Max(minimumPop, MaxPopValFromTiles * empire.RacialEnvModifer(Category) + PopulationBonus);
         }
 
-        public int FreeTilesWithRebaseOnTheWay
+        public int FreeTilesWithRebaseOnTheWay(Empire empire)
         {
-            get {
                  int rebasingTroops = Owner.GetShips().Filter(s => s.IsDefaultTroopTransport)
                                           .Count(s => s.AI.OrderQueue.Any(goal => goal.TargetPlanet != null && goal.TargetPlanet == this));
-                return (FreeTiles - rebasingTroops).Clamped(0, TileArea);
-            }
+                return (GetFreeTiles(empire) - rebasingTroops).Clamped(0, TileArea);
         }
         void CreateManagers()
         {
@@ -382,8 +378,7 @@ namespace Ship_Game
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
 
-            SpaceCombatNearPlanet = EnemyInRange();
-            if (SpaceCombatNearPlanet)
+            if (EnemyInRange())
                 UpdateSpaceCombatBuildings(elapsedTime);
 
             UpdatePlanetaryProjectiles(elapsedTime);
@@ -440,6 +435,7 @@ namespace Ship_Game
                         continue;
 
                     float currentD = Vector2.Distance(Center, ship.Center);
+                    SpaceCombatNearPlanet = currentD < 10000;
                     if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
                     {
                         previousT = currentD;
@@ -578,7 +574,6 @@ namespace Ship_Game
         {
             ++TurnsSinceTurnover;
             CrippledTurns = Math.Max(0, CrippledTurns - 1);
-            ConstructionQueue.ApplyPendingRemovals();
             UpdateDevelopmentLevel();
             Description = DevelopmentStatus;
             GeodeticManager.AffectNearbyShips();
@@ -951,7 +946,7 @@ namespace Ship_Game
             }
         }
 
-        /// <param name="clearAndPresentDanger">indicates that threat is a clear and present danger</param>
+        /// <param name="clearAndPresentDanger">indicates threats can destroy friendly ships</param>
         public bool EnemyInRange(bool clearAndPresentDanger = false)
         {
             if (clearAndPresentDanger ? !ParentSystem.DangerousForcesPresent(Owner) 

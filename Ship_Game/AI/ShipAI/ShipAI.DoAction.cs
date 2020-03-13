@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System;
 using System.Linq;
 using System.Text;
+using static Ship_Game.AI.CombatStanceType;
 
 namespace Ship_Game.AI
 {
@@ -12,6 +13,8 @@ namespace Ship_Game.AI
     {
         public bool IsFiringAtMainTarget => FireOnMainTargetTime > 0;
         float FireOnMainTargetTime;
+        StanceType CombatRangeType => ToStanceType(CombatState);
+
         void DoBoardShip(float elapsedTime)
         {
             HasPriorityTarget = true;
@@ -113,7 +116,7 @@ namespace Ship_Game.AI
                         }
                     }
                 }
-                if (CombatState != CombatState.HoldPosition && CombatState != CombatState.Evade)
+                if (CombatRangeType == StanceType.RangedCombatMovement)
                 {
                     Vector2 prediction = target.Center;
                     Weapon fastestWeapon = Owner.FastestWeapon;
@@ -129,13 +132,16 @@ namespace Ship_Game.AI
             if (Owner.Carrier.IsInHangarLaunchRange(distanceToTarget)) 
                 Owner.Carrier.ScrambleFighters();
 
-            if (Intercepting && CombatState < CombatState.HoldPosition)
+            if (Intercepting && CombatRangeType == StanceType.RangedCombatMovement)
             {
                 // clamp the radius here so that it wont flounder if the ship has very long range weapons.
-                float radius = Math.Max(Owner.DesiredCombatRange * 3f, 15000f);
-                Owner.Center.OutsideRadius(target.Center, radius);
-                ThrustOrWarpToPos(target.Center, elapsedTime);
-                return;
+                float radius = Owner.DesiredCombatRange * 3f;
+                if (Owner.Center.OutsideRadius(target.Center, radius)) { 
+                    ThrustOrWarpToPos(target.Center, elapsedTime);
+                    return;
+                }
+                else if (distanceToTarget < Owner.DesiredCombatRange)
+                    Intercepting = false;
             }
 
             CombatAI.ExecuteCombatTactic(elapsedTime);
@@ -265,7 +271,7 @@ namespace Ship_Game.AI
                             message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
                     }
 
-                    if (system.HostileForcesPresent(Owner.loyalty))
+                    if (system.DangerousForcesPresent(Owner.loyalty))
                         message.Append("\nCombat in system!!!");
 
                     if (system.OwnerList.Count > 0 && !system.OwnerList.Contains(Owner.loyalty))
@@ -411,6 +417,7 @@ namespace Ship_Game.AI
             if (goal.Goal == null) // empire goal was removed or planet was compromised
                 ClearOrders();
 
+            // stick around until the empire goal picks the ship for refit
             ClearOrders(AIState.HoldPosition);
         }
 

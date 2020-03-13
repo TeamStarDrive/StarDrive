@@ -20,9 +20,13 @@ namespace Ship_Game.Ships
         public bool Inhibited { get; private set; }
         public bool InhibitedByEnemy { get; private set; }
         public MoveState engineState;
-        public float WarpThrust;
+
+        public float WarpThrust { get; private set; }
+
+         // [0.0 to 1.0], current Warp thrust percentage
+        public float WarpPercent { get; private set; } = 1f;
+
         public bool BaseCanWarp;
-        public float NormalWarpThrust;
 
         public bool IsSpoolingOrInWarp => IsSpooling || engineState == MoveState.Warp;
         public bool IsInWarp => engineState == MoveState.Warp;
@@ -41,7 +45,7 @@ namespace Ship_Game.Ships
 
         public void ResetJumpTimer()
         {
-            JumpTimer = FTLSpoolTime * loyalty.data.SpoolTimeModifier;
+            JumpTimer = FTLSpoolTime;
         }
 
         public static string GetStartWarpCue(IEmpireData data, int surfaceArea)
@@ -190,11 +194,18 @@ namespace Ship_Game.Ships
         public Status WarpDuration(float neededRange = 300000)
         {
             float powerDuration = NetPower.PowerDuration(this, MoveState.Warp);
-            if (powerDuration.AlmostEqual(float.MaxValue))
+            if (powerDuration == float.MaxValue)
                 return Status.Excellent;
             if (powerDuration * MaxFTLSpeed < neededRange)
                 return Status.Critical;
             return Status.Good;
+        }
+
+        public void SetWarpPercent(float elapsedTime, float warpPercent)
+        {
+            if      (WarpPercent < warpPercent) WarpPercent += elapsedTime;
+            else if (WarpPercent > warpPercent) WarpPercent -= elapsedTime;
+            WarpPercent = WarpPercent.Clamped(0.05f, 1f);
         }
     }
 }

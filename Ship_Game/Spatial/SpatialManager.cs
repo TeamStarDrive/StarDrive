@@ -223,10 +223,10 @@ namespace Ship_Game.Gameplay
 
                     // apply some impulse from the explosion
                     Vector2 impulse = 3f * (otherShip.Center - explosionCenter);
-                    if (impulse.Length() > 200.0)
+                    if (impulse.Length() > 200f)
                         impulse = impulse.Normalized() * 200f;
                     if (!float.IsNaN(impulse.X))
-                        otherObj.Velocity += impulse;
+                        otherShip.ApplyForce(impulse);
                 }
                 else
                 {

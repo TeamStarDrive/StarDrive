@@ -434,7 +434,7 @@ namespace Ship_Game.AI {
                                 }
                                 TechEntry TechToDemand = potentialDemands[Random];
                                 Offer DemandTech = new Offer();
-                                DemandTech.TechnologiesOffered.Add(TechToDemand.UID);
+                                DemandTech.TechnologiesOffered.AddUnique(TechToDemand.UID);
                                 Relationship.Value.XenoDemandedTech = true;
                                 Offer TheirDemand = new Offer
                                 {

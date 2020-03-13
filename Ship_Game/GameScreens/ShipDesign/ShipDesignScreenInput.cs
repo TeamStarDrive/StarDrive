@@ -72,6 +72,7 @@ namespace Ship_Game
             ModuleSelectComponent.SelectedIndex = -1;
 
             ZoomCameraToEncloseHull(ActiveHull);
+            DesignIssues = new ShipDesignIssues.ShipDesignIssues(ActiveHull);
         }
 
         void UpdateCarrierShip()
@@ -242,10 +243,19 @@ namespace Ship_Game
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134, "Tab");
 
+            if (DesignIssuesButton.R.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(2546);
+
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
-                ShowAllArcs = ArcsButton.ToggleOn;
+                ShowAllArcs         = ArcsButton.ToggleOn;
+                return true;
+            }
+
+            if (DesignIssuesButton.HandleInput(input))
+            {
+                ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, DesignIssues.CurrentDesignIssues));
                 return true;
             }
 
@@ -780,7 +790,6 @@ namespace Ship_Game
 
             Ship newTemplate = ResourceManager.AddShipTemplate(toSave, fromSave: false, playerDesign: true);
             EmpireManager.Player.UpdateShipsWeCanBuild();
-
             ActiveHull = newTemplate.shipData;
             ActiveHull.UpdateBaseHull();
             ChangeHull(ActiveHull);

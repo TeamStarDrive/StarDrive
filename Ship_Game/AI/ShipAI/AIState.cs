@@ -32,7 +32,6 @@ namespace Ship_Game.AI
         FormationWarp,
         AssaultPlanet,
         Exterminate,
-        BombardTroops,
         Scuttle,
         Scrap,
         ResupplyEscort,
