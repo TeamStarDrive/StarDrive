@@ -917,7 +917,7 @@ namespace Ship_Game.Gameplay
             off *= EffectVSShields < 1 ? 1f - (1f - EffectVSShields) / 2f : 1f;
 
             off *= TruePD ? 0.2f : 1f;
-            off *= Tag_Intercept && Tag_Missile ? 0.8f : 1f;
+            off *= Tag_Intercept && (Tag_Missile || Tag_Torpedo) ? 0.8f : 1f;
             off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
