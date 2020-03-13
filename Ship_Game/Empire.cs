@@ -152,7 +152,8 @@ namespace Ship_Game
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && !p.EnemyInRange(true));
+        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+
 
         public readonly EmpireResearch Research;
 
@@ -309,7 +310,7 @@ namespace Ship_Game
             rallyPlanets = new Array<Planet>();
             foreach (Planet planet in OwnedPlanets)
             {
-                if (planet.HasSpacePort && !planet.EnemyInRange(true))
+                if (planet.HasSpacePort && planet.Safe)
                     rallyPlanets.Add(planet);
             }
 
@@ -1369,6 +1370,9 @@ namespace Ship_Game
         {
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
+            UpdateContactsAndBorders(1f);
+            CalculateScore();
+            UpdateRelationships();
             UpdateShipMaintenance(); ;
             EmpireAI.RunEconomicPlanner();
         }
@@ -2224,7 +2228,7 @@ namespace Ship_Game
 
             Research.Update();
 
-            if (data.TurnsBelowZero > 0 && Money < 0.0 && !Universe.Debug)
+            if (data.TurnsBelowZero > 0 && Money < 0.0 && (!Universe.Debug || !isPlayer))
                 Bankruptcy();
 
             CalculateScore();
@@ -2270,11 +2274,11 @@ namespace Ship_Game
                             Universe.NotificationManager.AddRebellionNotification(planet,
                                 rebels);
 
-                        for (int index = 0; index < planet.PopulationBillion; ++index)
+                        for (int index = 0; index < planet.PopulationBillion * 2; ++index)
                         {
                             Troop troop = EmpireManager.CreateRebelTroop(rebels);
 
-                            var chance = (planet.TileArea - planet.FreeTiles) / planet.TileArea;
+                            var chance = (planet.TileArea - planet.GetFreeTiles(this)) / planet.TileArea;
 
                             if (planet.TroopsHere.NotEmpty && RandomMath.Roll3DiceAvg(chance * 50))
                             {
@@ -2342,7 +2346,7 @@ namespace Ship_Game
             return true;
         }
 
-        void UpdateRelationships()
+        public void UpdateRelationships()
         {
             if (isFaction) return;
             int atWarCount = 0;
@@ -2358,7 +2362,7 @@ namespace Ship_Game
         public void TryUnlockByScrap(Ship ship)
         {
             string hullName = ship.shipData.Hull;
-            if (IsHullUnlocked(hullName))
+            if (IsHullUnlocked(hullName) || ship.shipData.Role == ShipData.RoleName.prototype)
                 return; // It's ours or we got it elsewhere
 
 
@@ -2808,6 +2812,7 @@ namespace Ship_Game
         public bool UpdateContactsAndBorders(float elapsedTime)
         {
             bool bordersChanged = false;
+            updateContactsTimer -= elapsedTime;
             if (updateContactsTimer < 0f && !data.Defeated)
             {
                 int oldBorderNodesCount = BorderNodes.Count;
@@ -2817,7 +2822,6 @@ namespace Ship_Game
                 UpdateKnownShips();
                 updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
             }
-            updateContactsTimer -= elapsedTime;
             return bordersChanged;
         }
 

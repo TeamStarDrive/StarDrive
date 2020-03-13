@@ -167,8 +167,11 @@ namespace Ship_Game.Ships
                 }
             }
 
-            UpdateShipStatus(elapsedTime);
-            UpdateEnginesAndVelocity(elapsedTime);
+            if (elapsedTime > 0f)
+            {
+                UpdateShipStatus(elapsedTime);
+                UpdateEnginesAndVelocity(elapsedTime);
+            }
 
             if (InFrustum)
             {
@@ -357,6 +360,8 @@ namespace Ship_Game.Ships
 
         public void RecalculatePower()
         {
+            ShouldRecalculatePower = false;
+
             for (int i = 0; i < ModuleSlotList.Length; ++i)
             {
                 ShipModule slot      = ModuleSlotList[i];

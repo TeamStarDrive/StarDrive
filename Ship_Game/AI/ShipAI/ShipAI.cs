@@ -644,12 +644,10 @@ namespace Ship_Game.AI
             if (Owner.loyalty == EmpireManager.Player &&
                 (State == AIState.Bombard 
                 || State == AIState.AssaultPlanet 
-                || State == AIState.BombardTroops 
                 || State == AIState.Rebase 
                 || State == AIState.Scrap 
                 || State == AIState.Resupply 
-                || State == AIState.Refit 
-                || State == AIState.FormationWarp))
+                || State == AIState.Refit))
             {
                 SetPriorityOrder(true);
                 HadPO = false;

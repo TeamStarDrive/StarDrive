@@ -237,7 +237,9 @@ namespace Ship_Game
                     return; // projection is not valid YET, come back next update
 
                 Log.Info("MoveShipGroupToMouse (CurrentGroup)");
-                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, CurrentGroup.ProjectedDirection, queue);
+                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, 
+                    CurrentGroup.ProjectedDirection, queue, offensiveMove: Input.IsCtrlKeyDown);
+
                 return;
             }
 
@@ -252,14 +254,14 @@ namespace Ship_Game
                 Vector2 fleetCenter = ShipGroup.GetAveragePosition(SelectedShipList);
                 Vector2 direction = fleetCenter.DirectionToTarget(finalPos);
                 CurrentGroup = new ShipGroup(SelectedShipList, finalPos, finalPos, direction, player);
-                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, direction, queue);
+                CurrentGroup.FormationWarpTo(CurrentGroup.ProjectedPos, direction, queue, offensiveMove: Input.IsCtrlKeyDown);
             }
             else // move existing group
             {
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition());
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
-                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue);
+                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue, offensiveMove: Input.IsCtrlKeyDown);
             }
         }
     }

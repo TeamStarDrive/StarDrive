@@ -1163,14 +1163,13 @@ namespace Ship_Game
             {
                 foreach (Planet planet in player.GetPlanets())
                 {
-                    foreach (QueueItem queueItem in planet.ConstructionQueue)
+                    foreach (QueueItem qi in planet.ConstructionQueue)
                     {
-                        if (queueItem.Goal != SelectedItem.AssociatedGoal) continue;
-
-                        planet.ProdHere += queueItem.ProductionSpent;
-                        planet.ConstructionQueue.QueuePendingRemoval(queueItem);
+                        if (qi.Goal == SelectedItem.AssociatedGoal)
+                        {
+                            qi.IsCancelled = true; // cancel on next SBProduction update
+                        }
                     }
-                    planet.ConstructionQueue.ApplyPendingRemovals();
                 }
             }
             lock (GlobalStats.ClickableItemLocker)
