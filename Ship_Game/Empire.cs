@@ -1370,6 +1370,7 @@ namespace Ship_Game
             UpdateEmpirePlanets();
             UpdateNetPlanetIncomes();
             UpdateContactsAndBorders(1f);
+            CalculateScore();
             UpdateRelationships();
             UpdateShipMaintenance(); ;
             EmpireAI.RunEconomicPlanner();
