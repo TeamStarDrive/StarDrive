@@ -796,11 +796,7 @@ namespace Ship_Game
 
         void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass)
         {
-            float upkeep;
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working
-            else
-                upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
+            float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
             DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
             DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
