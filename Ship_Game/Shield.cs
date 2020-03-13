@@ -182,15 +182,5 @@ namespace Ship_Game
                 case "Yellow": return new Color(1f, 1f, 0f, alpha);
             }
         }
-
-        public static float GetReactivationDelayMultiplier(ShieldsWarpBehavior behavior)
-        {
-            switch (behavior)
-            {
-                default: return 2.5f;
-                case ShieldsWarpBehavior.Hibernate: return 2f;
-                case ShieldsWarpBehavior.ShutDown: return 1f;
-            }
-        }
     }
 }

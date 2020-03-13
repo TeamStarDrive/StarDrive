@@ -40,7 +40,6 @@ namespace Ship_Game
                 ThrusterList      = hull.ThrusterList,
                 ShipCategory      = hull.ShipCategory,
                 HangarDesignation = hull.HangarDesignation,
-                ShieldsBehavior   = hull.ShieldsBehavior,
                 CarrierShip       = hull.CarrierShip,
                 BaseHull          = hull.BaseHull
             };
@@ -114,12 +113,6 @@ namespace Ship_Game
 
             HangarOptionsList.PropertyBinding = () => ActiveHull.HangarDesignation;
             HangarOptionsList.SetActiveValue(ActiveHull.HangarDesignation);
-
-            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
-            {
-                ShieldsBehaviorList.PropertyBinding = () => ActiveHull.ShieldsBehavior;
-                ShieldsBehaviorList.SetActiveValue(ActiveHull.ShieldsBehavior);
-            }
         }
 
         bool CheckDesign()
@@ -206,9 +199,6 @@ namespace Ship_Game
                 return true;
 
             if (HangarOptionsList.HandleInput(input))
-                return true;
-
-            if (ShieldsBehaviorList.HandleInput(input))
                 return true;
 
             if (DesignRoleRect.HitTest(input.CursorPosition))

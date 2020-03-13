@@ -478,7 +478,7 @@ namespace Ship_Game
             //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
             ShipModule[] modlist = { mod };
-            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, Screen.ActiveHull.ShieldsBehavior, true);
+            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, true);
             DrawStat(ref modTitlePos, Localizer.Token(6011), -modNetWarpPowerDraw.NetWarpPowerDraw, 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)

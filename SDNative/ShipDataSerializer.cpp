@@ -115,7 +115,6 @@ namespace SDNative
                 elem.parse("DefaultAIState"    , DefaultAIState);
                 elem.parse("ShipCategory"      , ShipCategory);
                 elem.parse("HangarDesignation" , HangarDesignation);
-                elem.parse("ShieldsBehavior"   , ShieldsBehavior);
                 elem.parse("CarrierShip"       , CarrierShip);
                 elem.parse("BaseStrength"      , BaseStrength);
                 elem.parse("BaseCanWarp"       , BaseCanWarp);
@@ -131,8 +130,6 @@ namespace SDNative
                         slotData.parse("HangarshipGuid"        , sd.HangarshipGuid);
                         slotData.parse("Health"                , sd.Health);
                         slotData.parse("Shield_Power"          , sd.ShieldPower);
-                        slotData.parse("ShieldUpChance"        , sd.ShieldUpChance);
-                        slotData.parse("ShieldPowerBeforeWarp" , sd.ShieldPowerBeforeWarp);
                         slotData.parse("facing"                , sd.Facing);
                         slotData.parse("state"                 , sd.State);
                         slotData.parse("Restrictions"          , sd.Restrictions);
