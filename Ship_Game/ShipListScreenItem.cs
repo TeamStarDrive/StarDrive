@@ -120,16 +120,7 @@ namespace Ship_Game
             HelperFunctions.ClampVectorToInt(ref StatusPos);
             batch.DrawString(Fonts.Arial12, Status_Text, StatusPos, TextColor);
 
-            float maint;
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-            {
-                maint = ship.GetMaintCostRealism();
-            }
-            else
-            {
-                maint = ship.GetMaintCost();
-            }
-            maint += EmpireManager.Player.data.Traits.MaintMod * maint;
+            float maint = ship.GetMaintCost();
 
             var MainPos = new Vector2(MaintRect.X + MaintRect.Width / 2, MaintRect.Y + MaintRect.Height / 2 - Fonts.Arial12.LineSpacing / 2);
             MainPos.X -= Fonts.Arial12.MeasureString(maint.ToString("F2")).X / 2f + 6;

@@ -205,7 +205,6 @@ namespace Ship_Game.AI
 
         void BuildWarShips(int goalsInConstruction)
         {
-            int shipCountLimit = GlobalStats.ShipCountLimit;
             var buildRatios = new RoleBuildInfo(BuildCapacity, this, OwnerEmpire.data.TaxRate < 0.15f);
             //
             while (goalsInConstruction < NumberOfShipGoals && !buildRatios.OverBudget)
@@ -213,9 +212,6 @@ namespace Ship_Game.AI
                 string s = GetAShip(buildRatios);
                 if (string.IsNullOrEmpty(s))
                     break;
-
-                if (Recyclepool > 0)
-                    Recyclepool--;
 
                 Goals.Add(new BuildOffensiveShips(s, OwnerEmpire));
                 goalsInConstruction++;
@@ -330,6 +326,7 @@ namespace Ship_Game.AI
                 ShipCounts[combatRole].AddToCurrentShipCount(1);
                 Capacity -= ShipCounts[combatRole].PerUnitMaintenanceMax;
             }
+
             public class RoleCounts
             {
                 public float PerUnitMaintenanceMax { get; private set; }
@@ -340,13 +337,15 @@ namespace Ship_Game.AI
                 public float RoleBuildBudget { get; private set; }
                 public float MaintenanceInConstruction { get; private set; }
                 public bool CanBuildMore => CurrentMaintenance + PerUnitMaintenanceMax < RoleBuildBudget;
-                public CombatRole Role { get;}
+                public CombatRole Role { get; }
+                private Empire Empire { get; }
                 readonly Array<Ship> BuildableShips = new Array<Ship>();
                 readonly Array<Ship> CurrentShips   = new Array<Ship>();
 
                 public RoleCounts(CombatRole role, Empire empire)
                 {
-                    Role = role;
+                    Role   = role;
+                    Empire = empire;
                 }
 
                 public void CalculateBasicCounts(FleetRatios ratio)
@@ -356,9 +355,11 @@ namespace Ship_Game.AI
                         CurrentMaintenance = CurrentShips.Sum(ship => ship.GetMaintCost());
                         CurrentCount += CurrentShips.Count;
                     }
+
                     CurrentMaintenance += MaintenanceInConstruction;
                     if (BuildableShips.NotEmpty)
-                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost(ship.loyalty));
+                        PerUnitMaintenanceMax = BuildableShips.Max(ship => ship.GetMaintCost(Empire));
+
                     float minimum = CombatRoleToRatioMin(ratio);
                     FleetRatioMaintenance = PerUnitMaintenanceMax * minimum;
                 }

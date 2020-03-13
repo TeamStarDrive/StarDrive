@@ -98,7 +98,7 @@ namespace Ship_Game
 
         private void PerformGroundActions(Building b, PlanetGridSquare ourTile)
         {
-            if (!b.CanAttack)
+            if (!b.CanAttack || Ground.Owner == null)
                 return;
 
             // scan for enemies

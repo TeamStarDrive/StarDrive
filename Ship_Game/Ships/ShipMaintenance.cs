@@ -4,7 +4,8 @@ namespace Ship_Game.Ships
 {
     public static class ShipMaintenance // Created by Fat Bastard - to unify and provide a baseline for future maintenance features
     {
-        private const float BaseMaintModifier = 0.004f;
+        private const float MaintModifierRealism = 0.004f;
+        private const float MaintModifierBySize  = 0.01f;
 
         private static bool IsFreeUpkeepShip(ShipData.RoleName role, Empire empire, Ship ship)
         {
@@ -17,7 +18,7 @@ namespace Ship_Game.Ships
         public static float GetMaintenanceCost(ShipData ship, float cost, Empire empire)
         {
             ShipData.RoleName role = ship.HullRole;
-            float maint = GetBaseMainCost(role, ship.FixedCost > 0 ? ship.FixedCost : cost, empire);
+            float maint = GetBaseMainCost(role, ship.FixedCost > 0 ? ship.FixedCost : cost, ship.ModuleSlots.Length, empire);
             return (float)Math.Round(maint, 2);
         }
 
@@ -27,36 +28,34 @@ namespace Ship_Game.Ships
             if (IsFreeUpkeepShip(role, empire, ship))
                 return 0;
 
-            float maint = GetBaseMainCost(role, ship.GetCost(empire), empire);
+            float maint = GetBaseMainCost(role, ship.GetCost(empire), ship.SurfaceArea, empire);
 
             // Projectors do not get any more modifiers
             if (ship.IsSubspaceProjector)
                 return maint;
 
             //added by gremlin shipyard exploit fix
-            if (ship.IsTethered)
-            {
-                if (ship.shipData.IsShipyard)
-                {
-                    if (numShipYards > 3)
-                        maint *= numShipYards - 3;
-                }
-            }
+            if (ship.IsTethered && ship.shipData.IsShipyard && numShipYards > 3)
+                maint *= numShipYards - 3;
+
             return maint;
         }
 
-        private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, Empire empire)
+        private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, float surfaceArea, Empire empire)
         {
-            float maint = shipCost * BaseMaintModifier;
+            bool realism = GlobalStats.ActiveModInfo != null
+                           && GlobalStats.ActiveModInfo.useProportionalUpkeep;
+
+            float maint = realism ? shipCost * MaintModifierRealism : surfaceArea * MaintModifierBySize;
 
             switch (role)
             {
                 case ShipData.RoleName.station:
-                case ShipData.RoleName.platform: maint *= 0.4f;  break;
-                case ShipData.RoleName.corvette: maint *= 0.9f;  break;
-                case ShipData.RoleName.frigate:  maint *= 0.8f;  break;
-                case ShipData.RoleName.cruiser:  maint *= 0.7f;  break;
-                case ShipData.RoleName.capital:  maint *= 0.5f;  break;
+                case ShipData.RoleName.platform:              maint *= 0.4f; break;
+                case ShipData.RoleName.corvette when realism: maint *= 0.9f; break;
+                case ShipData.RoleName.frigate  when realism: maint *= 0.8f; break;
+                case ShipData.RoleName.cruiser  when realism: maint *= 0.7f; break;
+                case ShipData.RoleName.capital  when realism: maint *= 0.5f; break;
             }
 
             if (role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform)
@@ -65,7 +64,10 @@ namespace Ship_Game.Ships
                 if (empire.data.Privatization)
                     maint *= 0.5f;
             }
-            return maint;
+
+            maint += maint * empire.data.Traits.MaintMod;
+
+            return maint * GlobalStats.ShipMaintenanceMulti;
         }
     }
 }
