@@ -266,9 +266,6 @@ namespace Ship_Game
                                     "This will prevent asteroids from being generated in new games, "+
                                     "offering performance improvements in mid to late game. "+
                                     "This will not affect current games or existing saves.");
-            if (Debugger.IsAttached)
-                right.AddCheckbox(() => GlobalStats.WarpBehaviorsSetting, "Warp Behaviors (experimental)",
-                                    "Experimental and untested feature for complex Shield behaviors during Warp");
 
             CurrentLanguage = new DropOptions<Language>(105, 18);
             Add(right, "Language", CurrentLanguage);
