@@ -916,29 +916,29 @@ namespace Ship_Game.Gameplay
             off *= EffectVSShields > 1 ? 1f + (EffectVSShields - 1f) / 2f : 1f;
             off *= EffectVSShields < 1 ? 1f - (1f - EffectVSShields) / 2f : 1f;
 
-            off *= TruePD ? .2f : 1f;
-            off *= Tag_Intercept && Tag_Missile ? .8f : 1f;
+            off *= TruePD ? 0.2f : 1f;
+            off *= Tag_Intercept && Tag_Missile ? 0.8f : 1f;
             off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
             off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.ClampMin(2) : 1;
 
             // FB: offense calcs for damage radius
-            off *= DamageRadius > 24 && !TruePD ? DamageRadius / 24f : 1f;
+            off *= DamageRadius > 32 && !TruePD ? DamageRadius / 32 : 1f;
 
             // FB: Added shield pen chance
             off *= 1 + ShieldPenChance / 100;
 
-            int allRoles = 0;
-            int restrictedRoles = 0;
-            foreach (ShipData.RoleName role in Enum.GetValues(typeof(ShipData.RoleName)))
-            {
-                allRoles++;
-                if (!TargetValid(role))
-                    restrictedRoles++;
-            }
-            float restrictions = (float)(allRoles - restrictedRoles) / allRoles;
-            off *= restrictions;
+            // FB: Added correct exclusion offense calcs
+            float exclusionMultiplier = 1;
+            if (Excludes_Fighters)  exclusionMultiplier -= 0.25f;
+            if (Excludes_Corvettes) exclusionMultiplier -= 0.25f;
+            if (Excludes_Capitals)  exclusionMultiplier -= 0.25f;
+            if (Excludes_Stations)  exclusionMultiplier -= 0.25f;
+            off *= exclusionMultiplier;
+
+            // Imprecision gets worse when range gets higher
+            off *= !Tag_Missile && !Tag_Torpedo ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).ClampMin(0.1f) : 1f;
 
             if (m == null)
                 return off * OffPowerMod;

@@ -56,7 +56,6 @@ namespace Ship_Game
         public ShipModule ActiveModule;
         ModuleOrientation ActiveModState;
         CategoryDropDown CategoryList;
-        ShieldBehaviorDropDown ShieldsBehaviorList;
         HangarDesignationDropDown HangarOptionsList;
         
 
@@ -550,11 +549,6 @@ namespace Ship_Game
             foreach (ShipData.HangarOptions item in Enum.GetValues(typeof(ShipData.HangarOptions)).Cast<ShipData.HangarOptions>())
                 HangarOptionsList.AddOption(item.ToString(), item);
 
-            var behaviorRect    = new Rectangle((int)(ScreenWidth * 0.15f), (int)ClassifCursor.Y + 50, 150, 18);
-            ShieldsBehaviorList = new ShieldBehaviorDropDown(behaviorRect);
-            foreach (ShieldsWarpBehavior item in Enum.GetValues(typeof(ShieldsWarpBehavior)).Cast<ShieldsWarpBehavior>())
-                ShieldsBehaviorList.AddOption(item.ToString(), item);
-                
             var carrierOnlyPos  = new Vector2(dropdownRect.X - 200, dropdownRect.Y);
             CarrierOnlyCheckBox = Checkbox(carrierOnlyPos, () => ActiveHull.CarrierShip, "Carrier Only", 1978);
             
