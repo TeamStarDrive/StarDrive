@@ -43,13 +43,10 @@ namespace Ship_Game.Ships
 
         private static float GetBaseMainCost(ShipData.RoleName role, float shipCost, float surfaceArea, Empire empire)
         {
-            float maint;
             bool realism = GlobalStats.ActiveModInfo != null
                            && GlobalStats.ActiveModInfo.useProportionalUpkeep;
-            if (realism)
-                maint = shipCost * MaintModifierRealism;
-            else
-                maint = surfaceArea * MaintModifierBySize;
+
+            float maint = realism ? shipCost * MaintModifierRealism : surfaceArea * MaintModifierBySize;
 
             switch (role)
             {
