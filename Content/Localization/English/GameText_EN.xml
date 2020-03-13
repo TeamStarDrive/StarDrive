@@ -4695,6 +4695,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
     </Token>
     <Token>
+      <Index>1889</Index>
+      <Text>The Galaxy will be consisted of many small clusters, each empire will start in one of these clusters.</Text>
+    </Token>
+    <Token>
+      <Index>1890</Index>
+      <Text>Small Clusters</Text>
+    </Token>
+    <Token>
+      <Index>1891</Index>
+      <Text>Each Empire starts in a cluster of solar systems for it to expand to before encountering other empires.</Text>
+    </Token>
+    <Token>
+      <Index>1892</Index>
+      <Text>Big Clusters</Text>
+    </Token>
+    <Token>
       <Index>1893</Index>
       <Text>Offensively</Text>
     </Token>
