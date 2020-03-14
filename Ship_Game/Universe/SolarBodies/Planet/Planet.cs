@@ -476,17 +476,20 @@ namespace Ship_Game
             Vector2 launchVector       = MathExt.RandomOffsetAndDistance(Center, 1000);
             Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, launchVector, this);
             if (defenseShip == null)
+            {
                 Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
+            }
             else
             {
                 defenseShip.Level = 3;
                 defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.SpeedLimit;
-                empire.AddMoney(-defenseShip.GetCost(Owner) / 10);
+                empire.ChargeCreditsHomeDefense(defenseShip);
             }
         }
 
-        public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
+        public void LandDefenseShip(Ship ship)
         {
+            ShipData.RoleName roleName = ship.DesignRole;
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 Building building = BuildingList[i];
@@ -496,7 +499,8 @@ namespace Ship_Game
                     building.UpdateCurrentDefenseShips(1, Owner);
                 }
             }
-            Owner.AddMoney((shipCost * shipHealthPercent / 10));
+
+            Owner.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
@@ -560,7 +564,7 @@ namespace Ship_Game
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
 
-            Owner?.RefundCreditsPostScrap(b);
+            Owner?.RefundCreditsPostRemoval(b);
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)

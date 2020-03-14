@@ -131,7 +131,7 @@ namespace Ship_Game.AI
                 return;
             }
             ClearOrders(State);
-            Owner.loyalty.RefundCreditsPostScrap(Owner);
+            Owner.loyalty.RefundCreditsPostRemoval(Owner);
             goal.TargetPlanet.ProdHere += Owner.GetCost(Owner.loyalty) / 2f;
             Owner.loyalty.TryUnlockByScrap(Owner);
             Owner.QueueTotalRemoval();
