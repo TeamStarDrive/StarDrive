@@ -549,16 +549,16 @@ namespace Ship_Game.AI
                     return;
                 }
             }
+
             ThrustOrWarpToPos(Owner.HomePlanet.Center, elapsedTime);
             if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 150f))
             {
-                Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.GetCost(Owner.loyalty), Owner.HealthPercent);
+                Owner.HomePlanet.LandDefenseShip(Owner);
                 Owner.QueueTotalRemoval();
             }
+
             if (Owner.InCombat)
-            {
                 ClearOrders();
-            }
         }
 
         void DoRebaseToShip(float elapsedTime)
