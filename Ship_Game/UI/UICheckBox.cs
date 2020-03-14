@@ -18,6 +18,7 @@ namespace Ship_Game
         Vector2 CheckPos;
 
         public Action<UICheckBox> OnChange;
+        public Color TextColor = Color.White;
 
         public bool Checked => Binding.Value;
         public override string ToString() => $"{TypeName} {ElementDescr} Text={Text} Checked={Checked}";
@@ -68,7 +69,7 @@ namespace Ship_Game
             //batch.DrawRectangle(Rect, Color.Red); // DEBUG
 
             if (Text.NotEmpty)
-                batch.DrawString(Font, Text, TextPos, Color.White);
+                batch.DrawString(Font, Text, TextPos, TextColor);
 
             if (Binding.Value)
             {

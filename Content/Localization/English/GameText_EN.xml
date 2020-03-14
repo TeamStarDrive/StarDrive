@@ -4687,6 +4687,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <!-- Data added in Venus -->
     <Token>
+      <Index>1887</Index>
+      <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
+    </Token>
+    <Token>
+      <Index>1888</Index>
+      <Text>Quarantine Planet</Text>
+    </Token>
+    <Token>
       <Index>1889</Index>
       <Text>The Galaxy will be consisted of many small clusters, each empire will start in one of these clusters.</Text>
     </Token>
