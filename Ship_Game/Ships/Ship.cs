@@ -129,6 +129,7 @@ namespace Ship_Game.Ships
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasRepairBeam;
         public bool hasCommand;
+        public int SecondsAlive { get; private set; } // FB - for scrap loop warnings
 
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
@@ -1048,6 +1049,7 @@ namespace Ship_Game.Ships
             {
                 updateTimer = 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus();
+                SecondsAlive += 1;
             }
 
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
