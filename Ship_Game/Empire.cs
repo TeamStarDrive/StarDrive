@@ -2834,37 +2834,39 @@ namespace Ship_Game
             return bordersChanged;
         }
 
-        public int EstimateCreditCost(float itemCost)
-        {
-            return (int)Math.Round(ProductionCreditCost(itemCost), 0);
-        }
+        public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this));
 
         public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
         {
             if (q.IsMilitary || q.isShip)
-            {
-                float creditsToCharge = ProductionCreditCost(spentProduction);
-                MoneySpendOnProductionThisTurn += creditsToCharge;
-                AddMoney(-creditsToCharge);
-            }
+                ChargeCredits(spentProduction);
         }
 
-        public void RefundCreditsPostScrap(Ship ship)
+        public void RefundCreditsPostRemoval(Ship ship, float percentOfAmount = 0.5f)
         {
-            if (ship.IsDefaultAssaultShuttle || ship.IsDefaultTroopShip)
-                return;
-
-            float creditsToRefund = ship.GetCost(this) * DifficultyModifiers.CreditsMultiplier;
-            AddMoney(creditsToRefund * 0.5f);
+            if (!ship.IsDefaultAssaultShuttle && !ship.IsDefaultTroopShip)
+                RefundCredits(ship.GetCost(this) * ship.HealthPercent, percentOfAmount);
         }
 
-        public void RefundCreditsPostScrap(Building b)
+        public void RefundCreditsPostRemoval(Building b)
         {
-            if (!b.IsMilitary)
-                return;
+            if (b.IsMilitary)
+                RefundCredits(b.ActualCost, 0.5f);
+        }
 
-            float creditsToRefund = b.ActualCost * DifficultyModifiers.CreditsMultiplier;
-            AddMoney(creditsToRefund * 0.5f);
+        void ChargeCredits(float cost)
+        {
+            float creditsToCharge = ProductionCreditCost(cost);
+            MoneySpendOnProductionThisTurn += creditsToCharge;
+            AddMoney(-creditsToCharge);
+        }
+
+        void RefundCredits(float cost, float percentOfAmount)
+        {
+            float creditsToRefund = cost * DifficultyModifiers.CreditsMultiplier * percentOfAmount;
+            MoneySpendOnProductionThisTurn -= creditsToRefund;
+            AddMoney(creditsToRefund);
         }
 
         float ProductionCreditCost(float spentProduction)
