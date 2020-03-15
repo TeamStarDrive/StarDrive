@@ -7,15 +7,12 @@ namespace Ship_Game.Ships
         public float NetSubLightPowerDraw;
         public float NetWarpPowerDraw;
 
-        public static Power Calculate(ShipModule[] modules, Empire empire, ShieldsWarpBehavior behavior, bool designModule = false)
+        public static Power Calculate(ShipModule[] modules, Empire empire, bool designModule = false)
         {
-            // if warp behaviors are disabled, then force "Full" behavior
-            if (!GlobalStats.WarpBehaviorsEnabled)
-                behavior = ShieldsWarpBehavior.FullPower;
-
             float nonShieldPowerDraw = 0f;
-            float shieldPowerDraw = 0f;
+            float shieldPowerDraw    = 0f;
             float warpPowerDrawBonus = 0f;
+
             if (modules == null)
                 return new Power();
 
@@ -26,9 +23,8 @@ namespace Ship_Game.Ships
 
                 if (module.Is(ShipModuleType.Shield))
                 {
-                    shieldPowerDraw += module.PowerDraw;
-                    if (behavior == ShieldsWarpBehavior.FullPower)
-                        warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
+                    shieldPowerDraw    += module.PowerDraw;
+                    warpPowerDrawBonus += module.PowerDrawAtWarp; // FB: include bonuses to warp if shields are on at warp
                 }
                 else
                 {
@@ -36,32 +32,15 @@ namespace Ship_Game.Ships
                     warpPowerDrawBonus += module.PowerDrawAtWarp;
                 }
             }
-            float subLightPowerDraw = shieldPowerDraw + nonShieldPowerDraw;
+
+            float subLightPowerDraw      = shieldPowerDraw + nonShieldPowerDraw;
             float warpPowerDrainModifier = empire.data.FTLPowerDrainModifier;
-            float warpPowerDraw = 0f;
-            switch (behavior)
-            {
-                case ShieldsWarpBehavior.FullPower:
-                    {
-                        warpPowerDraw = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
-                        break;
-                    }
-                case ShieldsWarpBehavior.Hibernate:
-                    {
-                        warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier + shieldPowerDraw;
-                        break;
-                    }
-                case ShieldsWarpBehavior.ShutDown:
-                    {
-                        warpPowerDraw = nonShieldPowerDraw * warpPowerDrainModifier;
-                        break;
-                    }
-            }
+            float warpPowerDraw          = (shieldPowerDraw + nonShieldPowerDraw) * warpPowerDrainModifier + (warpPowerDrawBonus * warpPowerDrainModifier / 2);
 
             return new Power
             {
                 NetSubLightPowerDraw = subLightPowerDraw,
-                NetWarpPowerDraw = warpPowerDraw
+                NetWarpPowerDraw     = warpPowerDraw
             };
         }
         public float PowerDuration(Ship ship, Ship.MoveState moveState)
@@ -69,25 +48,16 @@ namespace Ship_Game.Ships
             float powerDraw = 0;
             switch (moveState)
             {
-                case Ship.MoveState.Sublight:
-                    powerDraw = NetSubLightPowerDraw;
-                    break;
-                case Ship.MoveState.Warp:
-                    powerDraw = NetWarpPowerDraw;
-                    break;
+                case Ship.MoveState.Sublight: powerDraw = NetSubLightPowerDraw; break;
+                case Ship.MoveState.Warp:     powerDraw = NetWarpPowerDraw;     break;
             }
+
             powerDraw = powerDraw.Clamped(1, float.MaxValue);
             float powerRatio = (ship.PowerFlowMax / powerDraw).Clamped(.01f, 1f);
             if (powerRatio < 1)
                 return ship.PowerStoreMax * powerRatio;
-            return float.MaxValue;
 
+            return float.MaxValue;
         }        
-    }
-    public enum ShieldsWarpBehavior
-    {
-        FullPower,
-        Hibernate,
-        ShutDown
     }
 }

@@ -95,6 +95,7 @@ namespace Ship_Game
             p.GovOrbitals        = psdata.GovOrbitals;
             p.GovMilitia         = psdata.GovMilitia;
             p.GarrisonSize       = psdata.GarrisonSize;
+            p.Quarantine         = psdata.Quarantine;
             p.DontScrapBuildings = psdata.DontScrapBuildings;
             p.NumShipyards       = psdata.NumShipyards;
             p.FS                 = psdata.FoodState;

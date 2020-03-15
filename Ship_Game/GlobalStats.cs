@@ -93,9 +93,6 @@ namespace Ship_Game
         public static bool AutoErrorReport = true; // automatic error reporting via Sentry.io
         public static bool UnlimitedSpeed = false;
 
-        public static bool WarpBehaviorsSetting;
-        public static bool WarpBehaviorsEnabled => WarpBehaviorsSetting
-                                                || ActiveModInfo?.UseShieldWarpBehavior == true;
         public static bool DisableAsteroids;
 
         public static int ShipCountLimit;
@@ -301,7 +298,6 @@ namespace Ship_Game
             GetSetting("AltArcControl",        ref AltArcControl);
             GetSetting("FreighterLimit",       ref FreighterLimit);
             GetSetting("LimitSpeed",           ref LimitSpeed);
-            GetSetting("EnableWarpBehaviors",  ref WarpBehaviorsSetting);
             GetSetting("DisableAsteroids",     ref DisableAsteroids);
         }
 
@@ -341,7 +337,6 @@ namespace Ship_Game
             WriteSetting(config, "AltArcControl",       AltArcControl);
             WriteSetting(config, "FreighterLimit",      FreighterLimit);
             WriteSetting(config, "LimitSpeed",          LimitSpeed);
-            WriteSetting(config, "EnableWarpBehaviors", WarpBehaviorsSetting);
             WriteSetting(config, "DisableAsteroids",    DisableAsteroids);
 
             WriteSetting(config, "MusicVolume",   (int)(MusicVolume * 100));

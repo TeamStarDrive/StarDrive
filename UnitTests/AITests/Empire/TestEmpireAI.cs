@@ -95,7 +95,7 @@ namespace UnitTests.AITests.Empire
         }
 
         [TestMethod]
-        public void TestShipBuilt()
+        public void FirstTestShipBuilt()
         {
             ClearEmpireShips();
             var build = new RoleBuildInfo(3, Player.GetEmpireAI(), true);
@@ -150,49 +150,54 @@ namespace UnitTests.AITests.Empire
         {
             ClearEmpireShips();
             var combatRole = RoleBuildInfo.RoleCounts.ShipRoleToCombatRole(ShipData.RoleName.fighter);
-            float buildCapacity = 1;
+            float buildCapacity = 0.75f;
             var build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), true);
-            float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
             string shipName = "";
             for (int x = 0; x < 50; x++)
             {
+                // This will peak the "Rocket Inquisitor" ships since it is stronger
                 shipName = Player.GetEmpireAI().GetAShip(build);
-                if (shipName.IsEmpty()) break;
-                var ship = SpawnShip(shipName, Player, Vector2.Zero);
+                if (shipName.IsEmpty()) 
+                    break;
+
+                SpawnShip(shipName, Player, Vector2.Zero);
             }
 
+            // The expected maintenance for the Flak Fang is 0.12, since Cordrazine
+            // Have -25% maintenance reduction
+            float roleUnitMaint = build.RoleUnitMaintenance(combatRole);
+            Assert.AreEqual(0.12f, roleUnitMaint, "Unexpected maintenance value");
+
             var ships = Player.GetShips();
+
             buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;
             build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
-            Assert.AreEqual(1, ships.Count(s => s.AI.State == AIState.Scrap));
+            Assert.AreEqual(0, ships.Count(s => s.AI.State == AIState.Scrap));
+
+            buildCapacity = build.RoleBudget(combatRole) - roleUnitMaint;
+            build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
+            Assert.AreEqual(2, ships.Count(s => s.AI.State == AIState.Scrap));
 
             build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
-            Assert.AreEqual(1, ships.Count(s => s.AI.State == AIState.Scrap));
+            Assert.AreEqual(2, ships.Count(s => s.AI.State == AIState.Scrap));
             shipName = Player.GetEmpireAI().GetAShip(build);
             Assert.IsNull(shipName, "Scrap Loop");
 
             buildCapacity -= roleUnitMaint;
             build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
-            Assert.AreEqual(1, ships.Count(s => s.AI.State == AIState.Scrap));
+            Assert.AreEqual(2, ships.Count(s => s.AI.State == AIState.Scrap));
 
             buildCapacity -= roleUnitMaint;
             build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
             Assert.AreEqual(3, ships.Count(s => s.AI.State == AIState.Scrap));
+            shipName = Player.GetEmpireAI().GetAShip(build);
+            Assert.IsNull(shipName, "Scrap Loop");
 
             build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
             Assert.AreEqual(3, ships.Count(s => s.AI.State == AIState.Scrap));
             shipName = Player.GetEmpireAI().GetAShip(build);
             Assert.IsNull(shipName, "Scrap Loop");
 
-            buildCapacity -= roleUnitMaint;
-            build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
-            Assert.AreEqual(3, ships.Count(s => s.AI.State == AIState.Scrap));
-
-            buildCapacity -= roleUnitMaint;
-            build = new RoleBuildInfo(buildCapacity, Player.GetEmpireAI(), false);
-            Assert.AreEqual(4, ships.Count(s => s.AI.State == AIState.Scrap));
-
-            buildCapacity -= roleUnitMaint;
             Assert.IsTrue(buildCapacity < 0, "There should be no build capacity left");
         }
     }
