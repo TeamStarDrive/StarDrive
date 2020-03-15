@@ -294,7 +294,7 @@ namespace Ship_Game
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Center + commandShip.FleetOffset;
+            if (commandShip != null) return commandShip.Center; 
 
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
@@ -309,7 +309,7 @@ namespace Ship_Game
                 {
                     float ratio            = ship.SurfaceArea / commandShipSize;
                     fleetCapableShipCount += 1 * ratio;
-                    Vector2 p              = ship.Center;
+                    Vector2 p              = ship.Center + ship.FleetOffset;
                     avg.X                 += p.X * ratio;
                     avg.Y                 += p.Y * ratio;
                 }
@@ -595,7 +595,7 @@ namespace Ship_Game
 
                 if (ship.CanTakeFleetMoveOrders() && !ship.InCombat)
                 {
-                    if (CommandShip == null || ship.Center.InRadius(AveragePos, 15000))
+                    if (CommandShip == null || ship.Center.InRadius(AveragePos + ship.FleetOffset, 15000))
                         slowestSpeed = Math.Min(ship.VelocityMaximum, slowestSpeed);
                 }
             }

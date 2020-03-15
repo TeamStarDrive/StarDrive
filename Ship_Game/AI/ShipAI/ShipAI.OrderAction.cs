@@ -537,7 +537,7 @@ namespace Ship_Game.AI
             {
                 var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
                              Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
-                AwaitClosest = system.PlanetList.FindClosestTo(Owner);
+                AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
             }
             if (AwaitClosest == null)
             {
