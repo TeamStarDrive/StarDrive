@@ -553,7 +553,7 @@ namespace Ship_Game
 
             float shieldAmplifyPerShield = ShipUtils.GetShieldAmplification(modules.Amplifiers, modules.Shields);
             shieldPower                  = ShipUtils.UpdateShieldAmplification(modules.Amplifiers, modules.Shields);
-            Power netPower = Power.Calculate(modules.Modules, EmpireManager.Player, ShieldsBehaviorList.ActiveValue);
+            Power netPower = Power.Calculate(modules.Modules, EmpireManager.Player);
 
             // Other modification to the ship and draw values
             empResist += size; // FB: so the player will know the true EMP Tolerance
@@ -796,11 +796,7 @@ namespace Ship_Game
 
         void DrawUpkeepSizeMass(ref Vector2 cursor, float cost, int size, float mass)
         {
-            float upkeep;
-            if (GlobalStats.HasMod && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                upkeep = GetMaintCostShipyardProportional(ActiveHull, cost, EmpireManager.Player); // FB: this is not working
-            else
-                upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
+            float upkeep = GetMaintenanceCost(ActiveHull, (int)cost, EmpireManager.Player);
 
             DrawStatColor(ref cursor, TintedValue("Upkeep Cost", upkeep, 175, Color.White));
             DrawStatColor(ref cursor, TintedValue("Total Module Slots", size, 230, Color.White));
@@ -922,15 +918,8 @@ namespace Ship_Game
             CategoryList.Draw(batch);
 
             DrawTitle(batch, ScreenWidth * 0.375f, "Repair Options");
-            DrawTitle(batch, ScreenWidth * 0.5f, "Behavior Presets");
             DrawTitle(batch, ScreenWidth * 0.65f, "Hangar Designation");
             HangarOptionsList.Draw(batch);
-
-            if (GlobalStats.WarpBehaviorsEnabled) // FB: enable shield warp state
-            {
-                DrawTitle(batch, ScreenWidth * 0.65f, "Shields State At Warp");
-                ShieldsBehaviorList.Draw(batch);
-            }
 
             float transitionOffset = (float) Math.Pow(TransitionPosition, 2);
 

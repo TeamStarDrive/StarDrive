@@ -416,6 +416,9 @@ namespace Ship_Game.AI
         {
             Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
 
+            if (Owner.SecondsAlive < 10)
+                Log.Warning($"Possible Scrap loop - {Owner} was ordered scrap while it was alive {Owner.SecondsAlive} seconds.");
+
             if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
             {
                 Owner.ScuttleTimer = 1;

@@ -129,6 +129,7 @@ namespace Ship_Game.Ships
         public Array<ShipModule> RepairBeams = new Array<ShipModule>();
         public bool hasRepairBeam;
         public bool hasCommand;
+        public int SecondsAlive { get; private set; } // FB - for scrap loop warnings
 
         public ReaderWriterLockSlim supplyLock = new ReaderWriterLockSlim();
         public int TrackingPower;
@@ -707,50 +708,6 @@ namespace Ship_Game.Ships
             return mod.UpkeepBaseline;
         }
 
-        public static float GetMaintenanceModifier(ShipData shipData, Empire empire)
-        {
-            ShipData.RoleName role = shipData.Role;
-            float maint = GetModMaintenanceModifier(role);
-
-            if (maint <= 0f && GlobalStats.ActiveModInfo.UpkeepBaseline > 0f)
-            {
-                maint = GlobalStats.ActiveModInfo.UpkeepBaseline;
-            }
-
-            // Direct override in ShipDesign XML, e.g. for Shipyards/pre-defined designs with specific functions.
-            if (empire != null && shipData.HasFixedUpkeep)
-            {
-                maint = shipData.FixedUpkeep;
-            }
-
-            // Doctor: Configurable civilian maintenance modifier.
-            if ((role == ShipData.RoleName.freighter || role == ShipData.RoleName.platform) && empire?.isFaction == false)
-            {
-                maint *= empire.data.CivMaintMod;
-                maint *= empire.data.Privatization ? 0.5f : 1.0f;
-            }
-
-            if (GlobalStats.ShipMaintenanceMulti > 1)
-                maint *= GlobalStats.ShipMaintenanceMulti;
-
-            if (empire != null)
-            {
-                maint += maint * empire.data.Traits.MaintMod;
-            }
-            return maint;
-        }
-
-        public float GetMaintCostRealism() => GetMaintCostRealism(loyalty);
-
-        public float GetMaintCostRealism(Empire empire)
-        {
-            if (IsFreeUpkeepShip(shipData.Role, loyalty))
-                return 0f;
-
-            float shipCost = GetCost(empire);
-            return shipCost * GetMaintenanceModifier(shipData, empire);
-        }
-
         public float GetMaintCost() => GetMaintCost(loyalty);
 
         public float GetMaintCost(Empire empire)
@@ -793,7 +750,6 @@ namespace Ship_Game.Ships
             data.TechsNeeded               = shipData.TechsNeeded;
             data.TechScore                 = shipData.TechScore;
             data.ShipCategory              = shipData.ShipCategory;
-            data.ShieldsBehavior           = shipData.ShieldsBehavior;
             data.Name                      = Name;
             data.Level                     = (byte)Level;
             data.experience                = (byte)experience;
@@ -828,17 +784,13 @@ namespace Ship_Game.Ships
                 ShipModule module = ModuleSlotList[i];
                 var data = new ModuleSlotData
                 {
-                    Position              = module.XMLPosition,
-                    InstalledModuleUID    = module.UID,
-                    Health                = module.Health,
-                    ShieldPower           = module.ShieldPower,
-                    ShieldPowerBeforeWarp = module.ShieldPowerBeforeWarp,
-                    Facing                = module.FacingDegrees,
-                    Restrictions          = module.Restrictions
+                    Position           = module.XMLPosition,
+                    InstalledModuleUID = module.UID,
+                    Health             = module.Health,
+                    ShieldPower        = module.ShieldPower,
+                    Facing             = module.FacingDegrees,
+                    Restrictions       = module.Restrictions
                 };
-
-                if (module.Is(ShipModuleType.Shield))
-                    data.ShieldUpChance = module.ShieldUpChance;
 
                 if (module.GetHangarShip() != null)
                     data.HangarshipGuid = module.GetHangarShip().guid;
@@ -1097,6 +1049,7 @@ namespace Ship_Game.Ships
             {
                 updateTimer = 1f; // update the ship modules and status only once per second
                 UpdateModulesAndStatus();
+                SecondsAlive += 1;
             }
 
             if (FightersLaunched) // for ships with hangars and with fighters out button on.
@@ -1171,8 +1124,7 @@ namespace Ship_Game.Ships
 
             if (InCombat
                 || shield_power < shield_max
-                || engineState == MoveState.Warp
-                || shipData.ShieldsBehavior != ShieldsWarpBehavior.FullPower)
+                || engineState == MoveState.Warp)
             {
                 shield_power = 0.0f;
                 for (int x = 0; x < Shields.Length; x++)
@@ -1407,7 +1359,7 @@ namespace Ship_Game.Ships
             }
 
             shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower   = Power.Calculate(ModuleSlotList, loyalty, shipData.ShieldsBehavior);
+            NetPower   = Power.Calculate(ModuleSlotList, loyalty);
 
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;

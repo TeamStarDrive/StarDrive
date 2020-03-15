@@ -149,8 +149,6 @@ namespace Ship_Game
 
         float GetShipUpkeep(Ship ship)
         {
-            if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.useProportionalUpkeep)
-                return ship.GetMaintCostRealism(Screen.P.Owner);
             return ship.GetMaintCost(Screen.P.Owner);
         }
 

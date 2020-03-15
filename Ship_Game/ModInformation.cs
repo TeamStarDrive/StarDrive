@@ -44,7 +44,6 @@ namespace Ship_Game
         public bool ColoniserMenu;
 
         //added by Fat Bastard
-        public bool UseShieldWarpBehavior; // Player can set shield to turn off at warp, but upon exit they will have activation chance
         public bool UseManualScriptedResearch; // Dont filter anyting, just use commands for manual research scripts.
 
         public float ShipyardBonus;
