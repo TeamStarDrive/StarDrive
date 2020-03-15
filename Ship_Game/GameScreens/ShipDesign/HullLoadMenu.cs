@@ -70,20 +70,19 @@ namespace Ship_Game.GameScreens.ShipDesign
 
             ActiveHull = new ShipData
             {
-                Animated = hull.Animated,
-                CombatState = hull.CombatState,
-                Hull = hull.Hull,
-                IconPath = hull.ActualIconPath,
-                ModelPath = hull.HullModel,
-                Name = hull.Name,
-                Role = hull.Role,
-                ShipStyle = hull.ShipStyle,
-                ThrusterList = hull.ThrusterList,
-                ShipCategory = hull.ShipCategory,
+                Animated          = hull.Animated,
+                CombatState       = hull.CombatState,
+                Hull              = hull.Hull,
+                IconPath          = hull.ActualIconPath,
+                ModelPath         = hull.HullModel,
+                Name              = hull.Name,
+                Role              = hull.Role,
+                ShipStyle         = hull.ShipStyle,
+                ThrusterList      = hull.ThrusterList,
+                ShipCategory      = hull.ShipCategory,
                 HangarDesignation = hull.HangarDesignation,
-                ShieldsBehavior = hull.ShieldsBehavior,
-                CarrierShip = hull.CarrierShip,
-                BaseHull = hull.BaseHull
+                CarrierShip       = hull.CarrierShip,
+                BaseHull          = hull.BaseHull
             };
 
             ActiveHull.UpdateBaseHull();

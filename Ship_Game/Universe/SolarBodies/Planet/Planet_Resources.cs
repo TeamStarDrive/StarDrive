@@ -97,15 +97,13 @@ namespace Ship_Game
         {
             get
             {
+                if (Quarantine && Owner.isPlayer)
+                    return GoodState.STORE;
+
                 bool needFood = ShortOnFood();
-                if (needFood && Population > 2000f)
-                    return GoodState.EXPORT;
-
-                if (!needFood && PopulationRatio < 0.8f)
-                    return GoodState.IMPORT;
-
-                if (MaxPopulation > 2000 && PopulationRatio > 0.9f)
-                    return GoodState.EXPORT;
+                if (needFood && Population > 500f)                  return GoodState.EXPORT;
+                if (!needFood && PopulationRatio < 0.8f)            return GoodState.IMPORT;
+                if (MaxPopulation > 2000 && PopulationRatio > 0.9f) return GoodState.EXPORT;
 
                 return GoodState.STORE;
             }
@@ -122,7 +120,9 @@ namespace Ship_Game
                     return true;
             }
             else if (Prod.NetIncome.Less(0.2f) && Storage.ProdRatio < 0.5f)
+            {
                 return true;
+            }
 
             return false;
         }

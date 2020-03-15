@@ -630,6 +630,7 @@ namespace Ship_Game
                     GovOrbitals          = planet.GovOrbitals,
                     GovMilitia           = planet.GovMilitia,
                     GarrisonSize         = planet.GarrisonSize,
+                    Quarantine           = planet.Quarantine,
                     DontScrapBuildings   = planet.DontScrapBuildings,
                     NumShipyards         = planet.NumShipyards,
                     SpecialDescription   = planet.SpecialDescription,
