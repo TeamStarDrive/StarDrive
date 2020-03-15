@@ -627,7 +627,7 @@ namespace Ship_Game.AI
             if (ScanForThreatTimer <= 0f)
             {
                 SetCombatStatus();
-                ScanForThreatTimer = 0.032f; //2f;
+                ScanForThreatTimer = 2f;
             }
         }
 
