@@ -294,7 +294,7 @@ namespace Ship_Game
             if (count == 0)
                 return Vector2.Zero;
 
-            if (commandShip != null) return commandShip.Center; // - commandShip.FleetOffset;
+            if (commandShip != null) return commandShip.Center; 
 
             float fleetCapableShipCount = 1;
             Ship[] items                = ships.GetInternalArrayItems();
