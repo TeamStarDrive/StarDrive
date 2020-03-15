@@ -15,7 +15,7 @@ namespace Ship_Game
         UIPanel Portrait;
         UILabel WorldType, WorldDescription;
         DropOptions<Planet.ColonyType> ColonyTypeList;
-        UICheckBox GovOrbitals, GovMilitia, GovNoScrap;
+        UICheckBox GovOrbitals, GovMilitia, GovNoScrap, Quarantine;
         private FloatSlider Garrison;
         readonly bool UseVideo;
 
@@ -49,6 +49,7 @@ namespace Ship_Game
             GovOrbitals = Add(new UICheckBox(() => Planet.GovOrbitals, Fonts.Arial12Bold, title:1960, tooltip:1961));
             GovMilitia  = Add(new UICheckBox(() => Planet.GovMilitia,  Fonts.Arial12Bold, title:1956, tooltip:1957));
             GovNoScrap  = Add(new UICheckBox(() => Planet.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
+            Quarantine =  Add(new UICheckBox(() => Planet.Quarantine, Fonts.Arial12Bold, title: 1888, tooltip: 1887));
 
             Garrison = Slider(200, 200, 200, 40, "Garrison Size", 0, 10,Planet.GarrisonSize);
             Garrison.Tip = 1903;
@@ -79,11 +80,11 @@ namespace Ship_Game
             WorldDescription.Pos  = new Vector2(WorldType.X, Portrait.Y + 40);
             WorldDescription.Text = GetParsedDescription();
 
-            GovOrbitals.Pos = new Vector2(Portrait.X, Bottom - 40);
+            Quarantine.Pos  = new Vector2(Portrait.X, Bottom - 40);
             GovMilitia.Pos  = new Vector2(Portrait.X, Bottom - 24);
-            GovNoScrap.Pos  = new Vector2(Portrait.X + 240, Bottom - 40);
+            GovOrbitals.Pos = new Vector2(Portrait.X + 240, Bottom - 40);
+            GovNoScrap.Pos  = new Vector2(Portrait.X + 240, Bottom - 24);
             Garrison.Pos    = new Vector2(Portrait.X + 300, Bottom - 188);
-
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }
 
@@ -105,10 +106,12 @@ namespace Ship_Game
             GovOrbitals.Visible = Planet.Owner.isPlayer && Planet.colonyType != Planet.ColonyType.Colony;
             GovMilitia.Visible  = GovOrbitals.Visible;
             Garrison.Visible    = Planet.Owner.isPlayer;
+            Quarantine.Visible  = Planet.Owner.isPlayer;
             Planet.GarrisonSize = (int)Garrison.AbsoluteValue;
 
             // not for trade hubs, which do not build structures anyway
-            GovNoScrap.Visible = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
+            GovNoScrap.Visible   = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
+            Quarantine.TextColor = Planet.Quarantine ? Color.Red : Color.White;
 
             base.Update(deltaTime);
         }

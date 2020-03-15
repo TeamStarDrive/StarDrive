@@ -487,7 +487,7 @@ namespace Ship_Game
                 Troop troop = TroopList[x];
                 if (troop.Loyalty != empire) continue;
 
-                if (maxToTake-- < 0)
+                if (maxToTake-- > 0)
                     troops.Add(troop);
             }
 

@@ -416,6 +416,9 @@ namespace Ship_Game.AI
         {
             Owner.loyalty.Pool.RemoveShipFromFleetAndPools(Owner);
 
+            if (Owner.SecondsAlive < 10)
+                Log.Warning($"Possible Scrap loop - {Owner} was ordered scrap while it was alive {Owner.SecondsAlive} seconds.");
+
             if (Owner.shipData.Role <= ShipData.RoleName.station && Owner.ScuttleTimer < 1)
             {
                 Owner.ScuttleTimer = 1;
@@ -534,7 +537,7 @@ namespace Ship_Game.AI
             {
                 var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
                              Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
-                AwaitClosest = system.PlanetList.FindClosestTo(Owner);
+                AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
             }
             if (AwaitClosest == null)
             {

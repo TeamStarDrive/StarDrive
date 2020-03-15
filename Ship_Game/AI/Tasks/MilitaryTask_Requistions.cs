@@ -378,7 +378,7 @@ namespace Ship_Game.AI.Tasks
         /// <returns>The return is either complete for success or the type of failure in fleet creation.</returns>
         RequisitionStatus CreateTaskFleet(string fleetName, float battleFleetSize, bool highTroopPriority = false)
         {
-            //this determines what core fleet to send if the enemy is strong. 
+            // this determines what core fleet to send if the enemy is strong. 
             // its also an easy out for an empire in a bad state. 
             AO closestAO = FindClosestAO(MinimumTaskForceStrength);
 
@@ -387,7 +387,7 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.NoEmpireAreasOfOperation;
             }
 
-            //where the fleet will gather after requisition before moving to target AO.
+            // where the fleet will gather after requisition before moving to target AO.
             Planet rallyPoint = Owner.FindNearestRallyPoint(AO);
             if (rallyPoint == null)
                 return RequisitionStatus.NoRallyPoint;
@@ -396,25 +396,38 @@ namespace Ship_Game.AI.Tasks
             FleetShips fleetShips = Owner.AllFleetReadyShipsNearestTarget(rallyPoint.Center);
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
 
-            //if we cant build bombers then convert bombtime to troops. 
-            //This assume a standard troop strength of 10 
+            // if we cant build bombers then convert bombtime to troops. 
+            // This assume a standard troop strength of 10 
             if (fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
                 NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).ClampMin(0) * 10;
 
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
-                //send a core fleet and wait.
+                // send a core fleet and wait.
                 SendSofteningFleet(EnemyStrength);
                 return  RequisitionStatus.NotEnoughShipStrength;
             }
 
-            //See if we need to gather troops from planets. Bail if not enough
+            // See if we need to gather troops from planets. Bail if not enough
             if (!AreThereEnoughTroopsToInvade(fleetShips, out Array<Troop> troopsOnPlanets, rallyPoint.Center))
                 return RequisitionStatus.NotEnoughTroopStrength;
 
-            //All's Good... Make a fleet
+            int wantedNumberOfFleets = 1;
+            if (TargetPlanet?.Owner != null)
+            {
+                wantedNumberOfFleets = TargetPlanet.ParentSystem.PlanetList.Sum(p =>
+                {
+                    if (p.Owner == TargetPlanet.Owner)
+                    {
+                        return TargetPlanet.Level;
+                    }
+                    return 0;
+                });
+            }
+
+            // All's Good... Make a fleet
             TaskForce = fleetShips.ExtractShipSet(MinimumTaskForceStrength, TaskBombTimeNeeded
-                , NeededTroopStrength, troopsOnPlanets);
+                , NeededTroopStrength, troopsOnPlanets, wantedNumberOfFleets);
             if (TaskForce.IsEmpty)
                 return RequisitionStatus.FailedToCreateAFleet;
 
