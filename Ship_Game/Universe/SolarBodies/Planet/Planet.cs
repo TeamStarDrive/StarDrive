@@ -31,10 +31,10 @@ namespace Ship_Game
         public TroopManager TroopManager;
         public SpaceStation Station = new SpaceStation(null);
 
-        public bool GovBuildings       = true;
         public bool GovOrbitals        = true;
         public bool GovMilitia         = false;
         public bool DontScrapBuildings = false;
+        public bool Quarantine         = false;
         public bool AllowInfantry;
         public int GarrisonSize;
 
