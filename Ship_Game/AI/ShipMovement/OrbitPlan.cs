@@ -57,6 +57,11 @@ namespace Ship_Game.AI.ShipMovement
         {
             if (Owner.VelocityMaximum < 1 || Owner.EnginesKnockedOut)
                 return;
+            if (orbitTarget == null)
+            {
+                AI.HoldPositionOffensive();
+                return;
+            }
           
             float radius = orbitTarget.ObjectRadius + Owner.Radius;
             float distance = orbitTarget.Center.Distance(Owner.Center);

@@ -52,10 +52,12 @@ namespace Ship_Game.Ships
                 return Status.NotApplicable;
 
             Status warpStatus = ReadyForWarp;
-
-            if (warpStatus == Status.Good)                return Status.Good;
-            if (warpStatus == Status.Poor)                return Status.Poor;
-            if (warpStatus == Status.Critical)            return Status.Good;
+            if (Owner.engineState == Ship.MoveState.Warp)
+            {
+                if (warpStatus == Status.Good) return Status.Good;
+                if (warpStatus == Status.Poor) return Status.Poor;
+                if (warpStatus == Status.Critical) return Status.Good;
+            }
 
             if (Owner.fleet.GetSpeedLimitFor(Owner) < 1) return Status.NotApplicable;
 
@@ -71,7 +73,8 @@ namespace Ship_Game.Ships
 
             float facingFleetDirection = Owner.AngleDifferenceToPosition(movePosition);
 
-            if (facingFleetDirection > 0.1f) return Status.Poor;
+            if (facingFleetDirection > 0.02) 
+                warpStatus = Status.Poor;
 
             return warpStatus;
         }

@@ -4695,6 +4695,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>Keep fixed credit cost of ships and military buildings for players regardless of difficulty level. This will make Hard and Brutal easier.</Text>
     </Token>
     <Token>
+      <Index>1887</Index>
+      <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
+    </Token>
+    <Token>
+      <Index>1888</Index>
+      <Text>Quarantine Planet</Text>
+    </Token>
+    <Token>
       <Index>1889</Index>
       <Text>The Galaxy will be consisted of many small clusters, each empire will start in one of these clusters.</Text>
     </Token>
