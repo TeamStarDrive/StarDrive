@@ -568,7 +568,7 @@ namespace Ship_Game.Fleets
                     TaskStep = 1;
                     break;
                 case 1:
-                    if (!HasArrivedAtRallySafely())
+                    if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                         break;
                     GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.5f);
                     TaskStep = 2;
@@ -1464,6 +1464,13 @@ namespace Ship_Game.Fleets
             float distFromFormationToFinal = desiredFormationPos.Distance(desiredFinalPos);
             float shipSpeed = SpeedLimit;
 
+
+            // Outside of fleet formation
+            if (distToFinalPos > distFromFormationToFinal + ship.CurrentVelocity + 75f)
+            {
+                shipSpeed = ship.VelocityMaximum;
+            }
+            else
             // FINAL APPROACH
             if (distToFinalPos < ship.FleetOffset.Length()
                 // NON FINAL: we are much further from the formation
@@ -1472,7 +1479,7 @@ namespace Ship_Game.Fleets
                 shipSpeed = SpeedLimit * 2;
             }
             // formation is behind us? We are going way too fast
-            else if (distFromFormationToFinal > distToFinalPos)
+            else if (distFromFormationToFinal > distToFinalPos + 75f)
             {
                 // SLOW DOWN MAN! but never slower than 50% of fleet speed
                 shipSpeed = Math.Max(SpeedLimit - distFromFormation, SpeedLimit * 0.5f);
@@ -1600,12 +1607,9 @@ namespace Ship_Game.Fleets
 
                 UpdateOurFleetShip(ship);
 
-                // get fleet assembled before going to warp. 
-                if (ship.AI.State == AIState.FormationWarp)
-                {
-                    if (readyForWarp)
-                        readyForWarp = ship.ShipEngines.ReadyForFormationWarp > Status.Poor;
-                }
+
+                if (readyForWarp)
+                    readyForWarp = ship.ShipEngines.ReadyForFormationWarp > Status.Poor;
 
                 // once in warp clear assembling flag. 
                 if (ship.engineState == Ship.MoveState.Warp) IsAssembling = false;

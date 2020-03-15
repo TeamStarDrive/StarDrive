@@ -72,7 +72,7 @@ namespace Ship_Game.AI
             return true;
         }
 
-        public int ExtractFleetShipsUpToStrength(float strength, float setCompletePercent,
+        public int ExtractFleetShipsUpToStrength(float strength, float setCompletePercent, int wantedFleetCount,
             out Array<Ship> ships)
         {
             float accumulatedStrength;
@@ -86,11 +86,12 @@ namespace Ship_Game.AI
                     break;
                 if (gatheredShips.Count >= Ratios.MinCombatFleet * setCompletePercent)
                     completeFleets++;
+                wantedFleetCount--;
                 accumulatedStrength = gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
                 utilityShips.AddRange(GetSupplementalFleet());
             }
-            while (accumulatedStrength < strength);
+            while (accumulatedStrength <= strength && wantedFleetCount >0);
             ships.AddRange(utilityShips);
             return completeFleets;
         }
@@ -125,46 +126,41 @@ namespace Ship_Game.AI
             return ships;
         }
 
-        public Array<Ship> ExtractSetsOfCombatShips(float strength, float setCompletePercentage)
+        public Array<Ship> ExtractSetsOfCombatShips(float strength, float setCompletePercentage, int wantedFleetCount , out int fleetCount)
         {
             Array<Ship> ships = new Array<Ship>();
-            int fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage,
+            fleetCount = ExtractFleetShipsUpToStrength(strength, setCompletePercentage, wantedFleetCount,
                 out Array<Ship> fleetShips);
             if (fleetCount > 0)
                 ships.AddRange(fleetShips);
-
-            //if (fleetCount < 1)
-            //{
-            //    ExtractFleetShipsUpToStrength(strength, setCompletePercentage,
-            //        out Array<Ship> extraFleetShips);
-            //    ships.AddRange(extraFleetShips);
-            //}
 
             return ships;
         }
 
         public Array<Ship> ExtractTroops(int planetAssaultTroopsWanted)
         {
-            var ships = ExtractShipsByFeatures(Ships, planetAssaultTroopsWanted, 1, s =>
-            {
-                if (s.DesignRoleType == ShipData.RoleType.Troop)
-                    return s.Carrier.PlanetAssaultCount;
-                return 0;
-            });
+            var ships = ExtractShipsByFeatures(Ships, planetAssaultTroopsWanted, 1, 1
+                                , s =>
+                                    {
+                                        if (s.DesignRoleType == ShipData.RoleType.Troop)
+                                            return s.Carrier.PlanetAssaultCount;
+                                        return 0;
+                                    });
             return ships;
         }
 
-        public Array<Ship> ExtractBombers(int bombSecsWanted)
+        public Array<Ship> ExtractBombers(int bombSecsWanted, int fleetCount)
         {
             var ships = new Array<Ship>();
             if (bombSecsWanted > 0 && Ratios.MinBombers > 0)
-                ships = ExtractShipsByFeatures(Ships, bombSecsWanted, 1,
-                s =>
-                {
-                    if (s.DesignRole == ShipData.RoleName.bomber)
-                        return s.BombsGoodFor60Secs;
-                    return 0;
-                });
+                ships = ExtractShipsByFeatures(Ships, bombSecsWanted, 1
+                                    , fleetCount * (int)Ratios.MinBombers
+                                    , s =>
+                                    {
+                                        if (s.DesignRole == ShipData.RoleName.bomber)
+                                            return s.BombsGoodFor60Secs;
+                                        return 0;
+                                    });
             return ships;
         }
 
@@ -201,14 +197,14 @@ namespace Ship_Game.AI
         /// like ship.BombsGoodFor60Secs</param>
         /// <returns></returns>
         private Array<Ship> ExtractShipsByFeatures(Array<Ship> ships, int totalFeatureWanted, 
-                                                   float minWantedFeature, Func<Ship, int> shipFeatureCount)
+                                                   float minWantedFeature, int shipCount, Func<Ship, int> shipFeatureCount)
         {
             var shipSet = new Array<Ship>();
             if (minWantedFeature < 1) return shipSet;
 
             for (int x = ships.Count - 1; x >= 0; x--)
             {
-                if (totalFeatureWanted <= 0)
+                if (totalFeatureWanted <= 0 && shipSet.Count >= shipCount)
                     break;
                 Ship ship = ships[x];
                 int countOfShipFeature = shipFeatureCount(ship);
@@ -230,17 +226,19 @@ namespace Ship_Game.AI
         /// <param name="bombingSecs">Time fleet should be able to bomb</param>
         /// <param name="wantedTroopStrength">Troop strength to invade with</param>
         /// <param name="planetTroops">Troops still on planets</param>
+        /// /// <param name="minimumFleetSize">Attempt to get this many fleets</param>
         /// <returns></returns>
         public Array<Ship> ExtractShipSet(float minStrength, int bombingSecs,
-            int wantedTroopStrength, Array<Troop> planetTroops)
+            int wantedTroopStrength, Array<Troop> planetTroops, int minimumFleetSize)
         {
-            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, WantedFleetCompletePercentage);
+            Array<Ship> ships = ExtractSetsOfCombatShips(minStrength, WantedFleetCompletePercentage
+                , minimumFleetSize, out int fleetCount);
             if (ships.IsEmpty)
                 return new Array<Ship>();
 
             LaunchTroopsAndAddToShipList(wantedTroopStrength, planetTroops);
             ships.AddRange(ExtractTroops(wantedTroopStrength));
-            ships.AddRange(ExtractBombers(bombingSecs));
+            ships.AddRange(ExtractBombers(bombingSecs, fleetCount));
 
             CheckForShipErrors(ships);
 

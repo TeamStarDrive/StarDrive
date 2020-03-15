@@ -496,7 +496,7 @@ namespace Ship_Game
                     building.UpdateCurrentDefenseShips(1, Owner);
                 }
             }
-            Owner.AddMoney((shipCost * shipHealthPercent / 10));
+            Owner?.AddMoney((shipCost * shipHealthPercent / 10));
         }
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
