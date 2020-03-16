@@ -148,8 +148,10 @@ namespace Ship_Game.AI
         {
             TotalValue = 0;
 
-            foreach (var kv in DefenseDict.ToArray())
+            KeyValuePair<SolarSystem, SystemCommander>[] kvs = DefenseDict.ToArray();
+            for (int i = 0; i < kvs.Length; i++)
             {
+                var kv = kvs[i];
                 if (kv.Key.OwnerList.Contains(Us))
                 {
                     kv.Value.UpdatePlanetTracker();

@@ -275,8 +275,7 @@ namespace Ship_Game
             if (NoTroopsOnPlanet)
                 return;
 
-            Array<Troop> list = new Array<Troop>();
-            for (int x = 0; x < TroopList.Count; x++)
+            for (int x = TroopList.Count - 1; x >= 0; x--)
             {
                 Troop troop = TroopList[x];
                 if (troop == null)
@@ -284,9 +283,12 @@ namespace Ship_Game
 
                 if (troop.Strength <= 0)
                 {
-                    list.Add(troop);
-                    foreach (PlanetGridSquare planetGridSquare in TilesList)
-                        planetGridSquare.TroopsHere.Remove(troop);
+                    for (int i = TilesList.Count - 1; i >= 0; i--)
+                    {
+                        TilesList[i].TroopsHere.RemoveRef(troop);
+                    }
+                    TroopList.RemoveAtSwapLast(x);
+                    continue;
                 }
 
                 troop.UpdateLaunchTimer(-elapsedTime);
@@ -305,16 +307,14 @@ namespace Ship_Game
                     troop.ResetAttackTimer();
                 }
             }
-
-            foreach (Troop troop in list)
-                TroopList.Remove(troop);
         }
 
         private void ResolveTacticalCombats(float elapsedTime, bool isViewing = false)
         {
             using (ActiveCombats.AcquireReadLock())
-                foreach (Combat combat in ActiveCombats)
+                for (int i = ActiveCombats.Count - 1; i >= 0; i--)
                 {
+                    Combat combat = ActiveCombats[i];
                     if (combat.Done)
                     {
                         ActiveCombats.QueuePendingRemoval(combat);
@@ -519,15 +519,18 @@ namespace Ship_Game
                 for (int i = 0; i < tileList.Count; i++)
                 {
                     PlanetGridSquare tile = tileList[i];
-                    using (tile.TroopsHere.AcquireReadLock())
+                    var troops = tile.TroopsHere.GetInternalArrayItems();
+                    for (int x = troops.Length - 1; x >= 0; x--)
                     {
-                        for (int x = 0; x < tile.TroopsHere.Count; x++)
+                        Troop troop = troops[x];
+                        if (troop != null)
                         {
-                            Troop troop = tile.TroopsHere[x];
                             if (troop.Loyalty != null && troop.Loyalty != defendingEmpire)
                             {
                                 ++InvadingForces;
-                                InvadingEmpire = troop.Loyalty;
+                                // This is broken. Multiple invading empire will switch this over and over
+                                // making this value unpredictable.
+                                InvadingEmpire = troop.Loyalty; 
                             }
                             else
                                 ++DefendingForces;

@@ -87,6 +87,10 @@ namespace Ship_Game.Ships
             Status engineStatus = GetEngineStatus();
 
             // less than average means the ship engines are not warp ready ATM;
+
+            if (Owner.engineState == Ship.MoveState.Warp)
+                return Status.Good;
+
             if (engineStatus < Status.Average)
                 return Status.Critical;
 
@@ -95,9 +99,6 @@ namespace Ship_Game.Ships
 
             if (!Owner.IsSpooling && Owner.WarpDuration() < Status.Good)
                 return Status.Poor;
-
-            if (Owner.engineState == Ship.MoveState.Warp)
-                return Status.Good;
 
             return engineStatus;
         }

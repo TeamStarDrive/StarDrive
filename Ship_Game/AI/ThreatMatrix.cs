@@ -129,18 +129,17 @@ namespace Ship_Game.AI
         Array<Ship> PingRadarShip(Vector2 position, float radius, Empire empire)
         {
             var results = new Array<Ship>();
-            using (PinsMutex.AcquireReadLock())
+            var pins = Pins.Values.ToArray();
+            for (int i = pins.Length - 1; i >= 0; i--)
             {
-                foreach (Pin pin in Pins.Values)
-                {                                
-                    Ship ship = pin.Ship;
-                    if (ship != null && empire.IsEmpireHostile(ship.loyalty) 
-                                     && position.InRadius(pin.Position, radius))
-                    {
-                        results.Add(pin.Ship);
-                    }
+                Pin pin = pins[i];
+                Ship ship = pin.Ship;
+                if (ship != null && position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(ship.loyalty))
+                {
+                    results.Add(pin.Ship);
                 }
             }
+
             return results;
         }
 

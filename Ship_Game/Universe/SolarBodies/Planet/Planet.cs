@@ -425,27 +425,30 @@ namespace Ship_Game
 
                 Ship target = null;
                 Ship troop = null;
-                for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
+                if (Owner == null || ParentSystem.HostileForcesPresent(Owner))
                 {
-                    Ship ship = ParentSystem.ShipList[j];
-                    if (ship.loyalty == Owner)
-                        continue;
-
-                    if (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
-                        continue;
-
-                    float currentD = Vector2.Distance(Center, ship.Center);
-                    SpaceCombatNearPlanet = currentD < 10000;
-                    if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                    for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
                     {
-                        previousT = currentD;
-                        troop     = ship;
-                        continue;
-                    }
-                    if (currentD < previousD && troop == null)
-                    {
-                        previousD = currentD;
-                        target    = ship;
+                        Ship ship = ParentSystem.ShipList[j];
+                        if (ship.loyalty == Owner)
+                            continue;
+
+                        if (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
+                            continue;
+
+                        float currentD = Vector2.Distance(Center, ship.Center);
+                        SpaceCombatNearPlanet = currentD < 10000;
+                        if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                        {
+                            previousT = currentD;
+                            troop = ship;
+                            continue;
+                        }
+                        if (currentD < previousD && troop == null)
+                        {
+                            previousD = currentD;
+                            target = ship;
+                        }
                     }
                 }
 

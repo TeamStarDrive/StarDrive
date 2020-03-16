@@ -170,12 +170,21 @@ namespace Ship_Game.Ships
 
         void SetFleetCapableStatus()
         {
-            if (!EMPdisabled && !InhibitedByEnemy &&
-                AI.State != AIState.Resupply && 
-                AI.State != AIState.Refit && 
-                AI.State != AIState.Scrap && 
-                AI.State != AIState.Scuttle)
-                FleetCapableStatus = Status.Good;
+            if (!EMPdisabled && !InhibitedByEnemy)
+            {
+                switch (AI.State)
+                {
+                    case AIState.Resupply:
+                    case AIState.Refit:
+                    case AIState.Scrap:
+                    case AIState.Scuttle:
+                        FleetCapableStatus = Status.Poor;
+                        break;
+                    default:
+                        FleetCapableStatus = Status.Good;
+                        break;
+                }
+            }
             else
                 FleetCapableStatus = Status.Poor;
         }
