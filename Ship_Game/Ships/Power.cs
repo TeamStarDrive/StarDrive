@@ -52,7 +52,7 @@ namespace Ship_Game.Ships
                 case Ship.MoveState.Warp:     powerDraw = NetWarpPowerDraw;     break;
             }
 
-            powerDraw = powerDraw.Clamped(1, float.MaxValue);
+            powerDraw = powerDraw.ClampMin(1);
             float powerRatio = (ship.PowerFlowMax / powerDraw).Clamped(.01f, 1f);
             if (powerRatio < 1)
                 return ship.PowerStoreMax * powerRatio;
