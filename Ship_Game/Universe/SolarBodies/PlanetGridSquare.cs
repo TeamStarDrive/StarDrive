@@ -191,7 +191,7 @@ namespace Ship_Game
                 else // friendly building
                 {
                     score += building.CanAttack ? 3 : 2;
-                    if (building.Strength > troop.Strength)
+                    if (building.Strength < troop.Strength)
                         score += 1; // Defend friendly building
                 }
 
@@ -201,7 +201,7 @@ namespace Ship_Game
             if (LockOnOurTroop(troop.Loyalty, out Troop friendly))
             {
                 score += friendly.CanAttack ? 3 : 2;
-                if (friendly.Strength > troop.Strength)
+                if (friendly.Strength < troop.Strength)
                     score += 1; // Aid friends in need
             }
 
