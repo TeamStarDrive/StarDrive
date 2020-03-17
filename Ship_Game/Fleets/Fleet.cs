@@ -1559,9 +1559,11 @@ namespace Ship_Game.Fleets
 
         public void Update(float elapsedTime)
         {
-            HasRepair = false;
+            InFormationWarp   = false;
+            HasRepair         = false;
             bool readyForWarp = true;
-            Ship commandShip = null;
+            Ship commandShip  = null;
+
             if (Ships.Count == 0) return;
             if (CommandShip != null && !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
