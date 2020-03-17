@@ -102,8 +102,8 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(0.1f);
-        [XmlIgnore] [JsonIgnore] private int RefreshDefenseShipsTimer = 0;
-
+        [XmlIgnore][JsonIgnore] private int RefreshDefenseShipsTimer = 0;
+        [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;

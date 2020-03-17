@@ -1082,32 +1082,17 @@ namespace Ship_Game
             KnownShips.Clear();
             InfluenceNode[] influenceNodes = SensorNodes.ToArray();
 
-            if (isPlayer && Universe.Debug) // if Debug overlay is enabled, make all ships visible
+            bool showAll = isPlayer && Universe.Debug;
+
+            for (int i = 0; i < Universe.MasterShipList.Count; ++i)
             {
-                for (int i = 0; i < Universe.MasterShipList.Count; ++i)
-                {
-                    Ship nearby = Universe.MasterShipList[i];
-                    if (nearby.Active)
-                    {
-                        nearby.inSensorRange = true;
-                        UpdateShipInfluence(nearby, influenceNodes);
-                        KnownShips.Add(nearby);
-                        EmpireAI.ThreatMatrix.UpdatePin(nearby);
-                    }
-                }
-            }
-            else
-            {
-                for (int i = 0; i < Universe.MasterShipList.Count; ++i)
-                {
-                    Ship nearby = Universe.MasterShipList[i];
-                    if (nearby.Active && UpdateShipInfluence(nearby, influenceNodes))
-                        KnownShips.Add(nearby);
-                }
+                Ship nearby = Universe.MasterShipList[i];
+                if (nearby.Active && UpdateShipInfluence(nearby, influenceNodes, showAll))
+                    KnownShips.Add(nearby);
             }
         }
 
-        bool UpdateShipInfluence(Ship nearby, InfluenceNode[] influenceNodes)
+        bool UpdateShipInfluence(Ship nearby, InfluenceNode[] influenceNodes, bool showAll)
         {
             if (nearby.loyalty != this) // update from another empire
             {
@@ -1117,7 +1102,8 @@ namespace Ship_Game
                 for (int i = 0; i < influenceNodes.Length; i++)
                 {
                     InfluenceNode node = influenceNodes[i];
-                    if (nearby.Center.InRadius(node.Position, node.Radius))
+                    // showAll only has an effect in debug. so it wont save cycles putting it first. 
+                    if (nearby.Center.InRadius(node.Position, node.Radius) || showAll)
                     {
                         if (TryGetRelations(nearby.loyalty, out Relationship loyalty) && !loyalty.Known)
                             DoFirstContact(nearby.loyalty);
@@ -2772,12 +2758,12 @@ namespace Ship_Game
                 return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;
-            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null)
+            
+            if (!TryGetRelations(targetEmpire, out Relationship rel) || rel == null || rel.Treaty_NAPact || rel.Treaty_Peace)
                 return false;
             if(!rel.Known || rel.AtWar)
                 return true;
-            if (rel.Treaty_NAPact || rel.Treaty_Peace)
-                return false;
+
             if (rel.TotalAnger > 50)
                 return true;
 
@@ -2792,7 +2778,7 @@ namespace Ship_Game
 
         public bool IsEmpireHostile(Empire targetEmpire)
         {
-            if (targetEmpire == this || targetEmpire == null || targetEmpire == this)
+            if (targetEmpire == this || targetEmpire == null)
                 return false;
             if (isFaction || targetEmpire.isFaction)
                 return true;
@@ -2820,7 +2806,7 @@ namespace Ship_Game
                 bordersChanged = (BorderNodes.Count != oldBorderNodesCount);
 
                 UpdateKnownShips();
-                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(2f, 3.5f);
+                updateContactsTimer = elapsedTime + RandomMath.RandomBetween(4f, 6.5f);
             }
             return bordersChanged;
         }

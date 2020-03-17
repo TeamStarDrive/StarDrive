@@ -254,6 +254,7 @@ namespace Ship_Game.AI
             if (PredictionTimer <= 0)
             {
                 PredictedStrength = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
+                PredictedStrength /= (int)(10f / RankImportance);
                 PredictionTimer = 2f;
             }
             else PredictionTimer--;
