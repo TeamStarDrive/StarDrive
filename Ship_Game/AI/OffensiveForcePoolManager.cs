@@ -19,9 +19,8 @@ namespace Ship_Game.AI
         }
         public void ManageAOs()
         {
-            bool checkThreatLevel = ThreatTimer <= 0;
-            if (ThreatTimer-- < 0) ThreatTimer = 2f;
-
+            bool checkThreatLevel = --ThreatTimer <= 0;
+            if (ThreatTimer < 0) ThreatTimer = 2f;
 
             float ownerStr = Owner.CurrentMilitaryStrength;
             for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
