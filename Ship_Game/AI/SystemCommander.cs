@@ -29,7 +29,9 @@ namespace Ship_Game.AI
         public ICollection<Ship> GetShipList => OurShips.Values;
         readonly Empire Us;
         public Map<Planet, PlanetTracker> PlanetValues = new Map<Planet, PlanetTracker>();
-        private readonly int GameDifficultyModifier;
+        readonly int GameDifficultyModifier;
+        float PredictionTimer = 0;
+        int PredictedStrength = 0;
 
         float PlanetToSystemDevelopmentRatio(Planet p) => p.Level / SystemDevelopmentlevel;
 
@@ -249,10 +251,17 @@ namespace Ship_Game.AI
 
         public void CalculateShipNeeds()
         {
-            int predicted = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
+            if (PredictionTimer <= 0)
+            {
+                PredictedStrength = (int)Us.GetEmpireAI().ThreatMatrix.PingRadarStrengthLargestCluster(System.Position, 30000, Us);
+                PredictedStrength /= (int)(10f / RankImportance);
+                PredictionTimer = 2f;
+            }
+            else PredictionTimer--;
+
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
             min /= 4;
-            IdealShipStrength = Math.Max(predicted, min);
+            IdealShipStrength = Math.Max(PredictedStrength, min);
         }
 
         public void UpdatePlanetTracker()

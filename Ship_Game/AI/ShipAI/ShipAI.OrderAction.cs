@@ -529,20 +529,25 @@ namespace Ship_Game.AI
         bool SetAwaitClosestForFaction()
         {
             if (!Owner.loyalty.isFaction) return false;
-            var solarSystem = Owner.loyalty.GetShips()
-                .FindMinFiltered(ship => ship.System != null,
-                                ship => Owner.Center.SqDist(ship.Center))?.System;
-            AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+            AwaitClosest = Owner.System?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+
             if (AwaitClosest == null)
             {
-                var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
-                             Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
-                AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
-            }
-            if (AwaitClosest == null)
-            {
-                AwaitClosest = Empire.Universe.PlanetsDict.FindMinValue(p=> 
-                    p.Center.SqDist(Owner.Center));
+                var solarSystem = Owner.loyalty.GetShips()
+                    .FindMinFiltered(ship => ship.System != null,
+                                    ship => Owner.Center.SqDist(ship.Center))?.System;
+                AwaitClosest = solarSystem?.PlanetList.FindMax(p => p.GetNearByShips().Length);
+                if (AwaitClosest == null)
+                {
+                    var system = Empire.Universe.SolarSystemDict.FindMinValue(ss =>
+                                 Owner.Center.SqDist(ss.Position) * (ss.OwnerList.Count + 1));
+                    AwaitClosest = system?.PlanetList.FindClosestTo(Owner);
+                }
+                if (AwaitClosest == null)
+                {
+                    AwaitClosest = Empire.Universe.PlanetsDict.FindMinValue(p =>
+                        p.Center.SqDist(Owner.Center));
+                }
             }
             return true;
 
