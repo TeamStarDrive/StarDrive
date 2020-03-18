@@ -931,6 +931,7 @@ namespace Ship_Game
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
             UpdateBestOrbitals();
+            UpdateDefenseShipBuildingOffense();
             Research.Update();
         }
 
@@ -1045,6 +1046,7 @@ namespace Ship_Game
             EmpireAI.TriggerRefit();
             TriggerFreightersRefit();
             UpdateBestOrbitals();
+            UpdateDefenseShipBuildingOffense();
         }
 
         public void AssimilateTech(Empire conqueredEmpire)
@@ -1398,6 +1400,15 @@ namespace Ship_Game
             // FB - this is done here for more performance. having set values here prevents calling shipbuilder by every planet every turn
             BestPlatformWeCanBuild = BestShipWeCanBuild(ShipData.RoleName.platform, this);
             BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
+        }
+
+        private void UpdateDefenseShipBuildingOffense()
+        {
+            for (int i = 0 ; i < OwnedPlanets.Count; i++)
+            {
+                Planet p = OwnedPlanets[i];
+                p.UpdateDefenseShipBuildingOffense();
+            }
         }
 
         public DebugTextBlock DebugEmpireTradeInfo()
