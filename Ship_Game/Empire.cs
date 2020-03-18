@@ -930,8 +930,6 @@ namespace Ship_Game
             InitDifficultyModifiers();
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
-            UpdateBestOrbitals();
-            UpdateDefenseShipBuildingOffense();
             Research.Update();
         }
 
@@ -1045,8 +1043,6 @@ namespace Ship_Game
             UpdateShipsWeCanBuild();
             EmpireAI.TriggerRefit();
             TriggerFreightersRefit();
-            UpdateBestOrbitals();
-            UpdateDefenseShipBuildingOffense();
         }
 
         public void AssimilateTech(Empire conqueredEmpire)
@@ -1649,6 +1645,9 @@ namespace Ship_Game
 
             PreferredAuxillaryShips[ShipData.RoleName.carrier]
                 = PickFromCandidates(ShipData.RoleName.carrier, this, targetModule: ShipModuleType.Hangar);
+
+            UpdateBestOrbitals();
+            UpdateDefenseShipBuildingOffense();
 
         }
 
