@@ -193,8 +193,8 @@ namespace Ship_Game.Ships
         
         public Status WarpDuration(float neededRange = 300000)
         {
-            float powerDuration = NetPower.PowerDuration(this, MoveState.Warp);
-            if (powerDuration == float.MaxValue)
+            float powerDuration = NetPower.PowerDuration(MoveState.Warp);
+            if (powerDuration >= float.MaxValue)
                 return Status.Excellent;
             if (powerDuration * MaxFTLSpeed < neededRange)
                 return Status.Critical;

@@ -1559,9 +1559,11 @@ namespace Ship_Game.Fleets
 
         public void Update(float elapsedTime)
         {
-            HasRepair = false;
+            InFormationWarp   = false;
+            HasRepair         = false;
             bool readyForWarp = true;
-            Ship commandShip = null;
+            Ship commandShip  = null;
+
             if (Ships.Count == 0) return;
             if (CommandShip != null && !CommandShip.CanTakeFleetMoveOrders())
                 SetCommandShip(null);
@@ -1590,11 +1592,8 @@ namespace Ship_Game.Fleets
                 Empire.Universe.DebugWin?.DrawCircle(DebugModes.PathFinder, FinalPosition, 7500, Color.Yellow);
 
                 // if combat in move position do not move in formation. 
-                if ( !IsAssembling && ship.AI.State == AIState.FormationWarp 
-                                                           && ship.AI.HasPriorityOrder
-                                                           && ship.engineState == Ship.MoveState.Sublight
-                                                           && ship.AI.State != AIState.Bombard
-                                                           && ship.AI.State != AIState.AssaultPlanet)
+                if ( !IsAssembling && ship.AI.HasPriorityOrder && ship.engineState == Ship.MoveState.Sublight
+                                   && ship.AI.State == AIState.FormationWarp)
                 {
                     if (CombatStatusOfShipInArea(ship, FinalPosition, 7500) != CombatStatus.ClearSpace)
                     {
