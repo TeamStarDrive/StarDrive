@@ -542,7 +542,7 @@ namespace Ship_Game.AI
             {
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
-                if (Owner.HomePlanet == null || Owner.HomePlanet.Owner != Owner.loyalty)
+                if (Owner.HomePlanet == null)
                 {
                     // Nowhere to land, bye bye.
                     Owner.ScuttleTimer = 1;
