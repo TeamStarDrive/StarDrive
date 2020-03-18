@@ -401,7 +401,7 @@ namespace Ship_Game
         void UpdateSpaceCombatBuildings(float elapsedTime)
         {
 
-            if (Owner != null && NoSpaceCombatTargetsFoundDelay.Less(2) || EnemyInRange())
+            if (Owner != null && (NoSpaceCombatTargetsFoundDelay.Less(2) || EnemyInRange()))
             {
                 bool targetFound = false;
                 NoSpaceCombatTargetsFoundDelay -= elapsedTime;
