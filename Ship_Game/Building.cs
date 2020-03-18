@@ -102,6 +102,9 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(0.1f);
+        [XmlIgnore][JsonIgnore] private int HACK_RefreshDefenseShipsTimer = 0;
+        [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
+        [XmlIgnore] [JsonIgnore] private float DefenseShipStrength = 0;
 
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
@@ -157,10 +160,19 @@ namespace Ship_Game
             UpdateOffense();
             if (DefenseShipsCapacity <= 0)
                 return;
+            // need a better update solution for this. This should not even show up on the performance profiler. 
+            // it can be called many times a turn. 
+            // this timer will help buts clumsy and not predictable because it can be called from many sources. 
+            bool updateDefenseShips = HACK_RefreshDefenseShipsTimer-- <= 0;
+            if (updateDefenseShips)
+            {
+                HACK_RefreshDefenseShipsTimer = 6;
+                string shipName = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
+                if (ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship))
+                    DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;
+            }
 
-            string shipName = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
-            if (ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship))
-                Offense += ship.CalculateShipStrength() * DefenseShipsCapacity;
+            Offense += DefenseShipStrength;
         }
 
         public void UpdateCurrentDefenseShips(int num, Empire empire)
