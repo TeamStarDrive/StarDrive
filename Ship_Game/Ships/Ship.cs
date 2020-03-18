@@ -170,12 +170,21 @@ namespace Ship_Game.Ships
 
         void SetFleetCapableStatus()
         {
-            if (!EMPdisabled && !InhibitedByEnemy &&
-                AI.State != AIState.Resupply && 
-                AI.State != AIState.Refit && 
-                AI.State != AIState.Scrap && 
-                AI.State != AIState.Scuttle)
-                FleetCapableStatus = Status.Good;
+            if (!EMPdisabled && !InhibitedByEnemy)
+            {
+                switch (AI.State)
+                {
+                    case AIState.Resupply:
+                    case AIState.Refit:
+                    case AIState.Scrap:
+                    case AIState.Scuttle:
+                        FleetCapableStatus = Status.Poor;
+                        break;
+                    default:
+                        FleetCapableStatus = Status.Good;
+                        break;
+                }
+            }
             else
                 FleetCapableStatus = Status.Poor;
         }
@@ -1165,7 +1174,8 @@ namespace Ship_Game.Ships
                     ApplyAllRepair(repair, Level);
                 }
 
-                PerformRegeneration();
+                if (!EMPdisabled)
+                    PerformRegeneration();
             }
 
             UpdateResupply();
@@ -1352,14 +1362,14 @@ namespace Ship_Game.Ships
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
-                    PowerStoreMax       += module.ActualPowerStoreMax;
-                    PowerFlowMax        += module.ActualPowerFlowMax;
                     module.AddModuleTypeToList(module.ModuleType, isTrue: module.InstalledWeapon?.isRepairBeam == true, addToList: RepairBeams);
                 }
             }
 
-            shield_max = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
-            NetPower   = Power.Calculate(ModuleSlotList, loyalty);
+            shield_max    = ShipUtils.UpdateShieldAmplification(Amplifiers, Shields);
+            NetPower      = Power.Calculate(ModuleSlotList, loyalty);
+            PowerStoreMax = NetPower.PowerStoreMax;
+            PowerFlowMax  = NetPower.PowerFlowMax;
 
             //Doctor: Add fixed tracking amount if using a mixed method in a mod or if only using the fixed method.
             TrackingPower += FixedTrackingPower;

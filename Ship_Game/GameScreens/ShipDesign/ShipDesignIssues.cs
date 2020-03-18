@@ -80,6 +80,7 @@ namespace Ship_Game.ShipDesignIssues
                                                                                           : AverageWarpSpeedMilitary;
         }
 
+        bool IsPlatform => Hull.HullRole == ShipData.RoleName.platform;
         bool Stationary => Hull.HullRole == ShipData.RoleName.station || Hull.HullRole == ShipData.RoleName.platform;
         bool LargeCraft => Hull.HullRole == ShipData.RoleName.freighter || Hull.HullRole == ShipData.RoleName.destroyer
                                                                         || Hull.HullRole == ShipData.RoleName.cruiser 
@@ -124,7 +125,7 @@ namespace Ship_Game.ShipDesignIssues
             {
                 AddDesignIssue(DesignIssueType.NoOrdnance, EmpireStats, WarningLevel.Critical);
             }
-            else
+            else if (!IsPlatform)
             {
                 int goodAmmoTime = LargeCraft ? 50 : 25;
                 if (ammoTime < goodAmmoTime)
@@ -140,7 +141,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckIssueLowWarpTime(float warpDraw, float ftlTime, float warpSpeed)
         {
-            if (warpSpeed.AlmostZero() || warpDraw.GreaterOrEqual(0) || ftlTime > 900)
+            if (Stationary || warpSpeed.AlmostZero() || warpDraw.GreaterOrEqual(0) || ftlTime > 900)
                 return;
 
             WarningLevel severity = ftlTime < 60 ? WarningLevel.Critical : WarningLevel.Major;
@@ -149,7 +150,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckIssueNoWarp(float speed, float warpSpeed)
         {
-            if (speed.AlmostZero())
+            if (Stationary || speed.AlmostZero())
                 return;
 
             if (warpSpeed.LessOrEqual(0))
@@ -161,7 +162,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckIssueSlowWarp(float warpSpeed)
         {
-            if (warpSpeed.AlmostZero() )
+            if (Stationary || warpSpeed.AlmostZero())
                 return;
 
             float averageWarpSpeed = EmpireStats.AverageEmpireWarpSpeed(Hull.Role);
@@ -244,7 +245,7 @@ namespace Ship_Game.ShipDesignIssues
 
         public void CheckOrdnanceVsEnergyWeapons(int numWeapons, int numOrdnanceWeapons)
         {
-            if (numWeapons == 0 || numOrdnanceWeapons == 0)
+            if (Stationary || numWeapons == 0 || numOrdnanceWeapons == 0)
                 return;
 
             if (numOrdnanceWeapons < numWeapons)
