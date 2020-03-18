@@ -400,19 +400,20 @@ namespace Ship_Game
 
         void UpdateSpaceCombatBuildings(float elapsedTime)
         {
-            if (Owner == null || NoSpaceCombatTargetsFoundDelay > 0 && !EnemyInRange())
-                return;
 
-            bool targetFound = false;
-            NoSpaceCombatTargetsFoundDelay -= elapsedTime;
-            for (int i = 0; i < BuildingList.Count; ++i)
+            if (Owner != null && NoSpaceCombatTargetsFoundDelay.Less(2) || EnemyInRange())
             {
-                Building building = BuildingList[i];
-                building.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
-            }
+                bool targetFound = false;
+                NoSpaceCombatTargetsFoundDelay -= elapsedTime;
+                for (int i = 0; i < BuildingList.Count; ++i)
+                {
+                    Building building = BuildingList[i];
+                    building.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
+                }
 
-            if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
-                NoSpaceCombatTargetsFoundDelay = 2f;
+                if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
+                    NoSpaceCombatTargetsFoundDelay = 2f;
+            }
         }
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
