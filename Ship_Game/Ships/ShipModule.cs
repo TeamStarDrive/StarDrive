@@ -1085,10 +1085,21 @@ namespace Ship_Game.Ships
 
         public void RegenerateSelf()
         {
-            if (Regenerate <= 0 || !Powered && PowerDraw > 0f)
-                return;
-
-            SetHealth(Health + Regenerate);
+            if (Regenerate > 0 && HealthPercent < 0.99f)
+            {
+                if (!Active)
+                {
+                    // Module is destroyed and might "jump start" its regeneration
+                    if (RandomMath.RollDice(TechLevel))
+                        SetHealth(Health + Regenerate);
+                }
+                else
+                {
+                    // If the module is not powered and needs power, the regeneration is 10%
+                    float regeneration = !Powered && PowerDraw > 0f ? Regenerate * 0.1f : Regenerate;
+                    SetHealth(Health + regeneration);
+                }
+            }
         }
 
         public void VisualizeRepair()
