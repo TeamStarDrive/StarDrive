@@ -379,9 +379,7 @@ namespace Ship_Game
 
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
-            // building weapon timers are in this method. 
-            if (Owner != null)
-                UpdateSpaceCombatBuildings(elapsedTime);
+            UpdateSpaceCombatBuildings(elapsedTime); // building weapon timers are in this method. 
             UpdatePlanetaryProjectiles(elapsedTime);
         }
 
@@ -400,62 +398,30 @@ namespace Ship_Game
             }
         }
 
-        void UpdateSpaceCombatBuildings(float elapsedTime) // @todo FB - need to work on this
+        void UpdateSpaceCombatBuildings(float elapsedTime)
         {
-            NoSpaceCombatTargetsFoundDelay -= elapsedTime;
+            if (Owner == null || NoSpaceCombatTargetsFoundDelay > 0 && !EnemyInRange())
+                return;
+
             bool targetFound = false;
+            NoSpaceCombatTargetsFoundDelay -= elapsedTime;
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                float weaponBaseRange;
-
                 Building building = BuildingList[i];
-                if (building.isWeapon)
-                {
-                    building.WeaponTimer -= elapsedTime;
-                    if (building.WeaponTimer.Greater(0))
-                        continue;
-
-                    weaponBaseRange = building.TheWeapon.BaseRange + 1000f;
-                }
-                else if (building.DefenseShipsCapacity > 0 && Owner.Money > 0)
-                {
-                    if (building.HasLaunchedAllDefenseShips)
-                        continue;
-                    weaponBaseRange = 10000f;
-                }
-                else
-                    continue;
-
-                if(NoSpaceCombatTargetsFoundDelay <= 0 && EnemyInRange())
-                {
-                    Ship target = ScanForSpaceCombatTargets(Math.Min(weaponBaseRange, SensorRange));
-
-                    if (target != null)
-                    {
-                        targetFound = true;
-
-                        if (building.isWeapon)
-                        {
-                            building.TheWeapon.FireFromPlanet(this, target);
-                            building.WeaponTimer = building.TheWeapon.fireDelay;
-                        }
-                        else if (building.CurrentNumDefenseShips > 0)
-                        {
-                            LaunchDefenseShips(building.DefenseShipsRole, Owner);
-                            building.UpdateCurrentDefenseShips(-1, Owner);
-                        }
-                    }
-                }
+                building.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
             }
-            if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0) NoSpaceCombatTargetsFoundDelay = 2f;
+
+            if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
+                NoSpaceCombatTargetsFoundDelay = 2f;
         }
 
-        Ship ScanForSpaceCombatTargets(float weaponRange)
+        public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
+            weaponRange     = weaponRange.UpperBound(SensorRange);
             float previousT = weaponRange;
             float previousD = weaponRange;
-            Ship troop      = null;
-            Ship target     = null;
+            Ship troop = null;
+            Ship target = null;
 
             for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
             {
@@ -490,37 +456,16 @@ namespace Ship_Game
             return target;
         }
 
-        void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)
-        {
-            string selectedShip        = GetDefenseShipName(roleName, empire);
-            if (selectedShip.IsEmpty()) // the empire does not have any ship of this role to launch
-                return;
-
-            Vector2 launchVector       = MathExt.RandomOffsetAndDistance(Center, 1000);
-            Ship defenseShip           = Ship.CreateDefenseShip(selectedShip, empire, launchVector, this);
-            if (defenseShip == null)
-                Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
-            else
-            {
-                defenseShip.Level = 3;
-                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.SpeedLimit;
-                empire.AddMoney(-defenseShip.GetCost(Owner) / 10);
-            }
-        }
-
-        public void LandDefenseShip(ShipData.RoleName roleName, float shipCost, float shipHealthPercent)
+        public void LandDefenseShip(Ship ship)
         {
             for (int i = 0; i < BuildingList.Count; ++i)
             {
                 Building building = BuildingList[i];
-                if (building.DefenseShipsRole == roleName
-                    && building.CurrentNumDefenseShips < building.DefenseShipsCapacity)
-                {
-                    building.UpdateCurrentDefenseShips(1, Owner);
-                }
+                if (building.TryLandOnBuilding(ship))
+                    break; // Ship has landed
             }
-            Owner?.AddMoney((shipCost * shipHealthPercent / 10));
         }
+
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
         {
@@ -921,6 +866,18 @@ namespace Ship_Game
                 return; // if there are still defense ships our there, don't update building's hangars
 
             b.UpdateCurrentDefenseShips(1, Owner);
+        }
+
+        public void UpdateDefenseShipBuildingOffense()
+        {
+            if (Owner == null)
+                return;
+
+            for (int i = 0; i < BuildingList.Count; i++)
+            {
+                Building b = BuildingList[i];
+                b.UpdateDefenseShipBuildingOffense(Owner);
+            }
         }
 
         private void ApplyResources()
