@@ -1174,7 +1174,8 @@ namespace Ship_Game.Ships
                     ApplyAllRepair(repair, Level);
                 }
 
-                PerformRegeneration();
+                if (!EMPdisabled)
+                    PerformRegeneration();
             }
 
             UpdateResupply();

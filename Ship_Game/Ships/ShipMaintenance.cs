@@ -51,7 +51,7 @@ namespace Ship_Game.Ships
             switch (role)
             {
                 case ShipData.RoleName.station:
-                case ShipData.RoleName.platform:              maint *= 0.4f; break;
+                case ShipData.RoleName.platform:              maint *= 0.7f; break;
                 case ShipData.RoleName.corvette when realism: maint *= 0.9f; break;
                 case ShipData.RoleName.frigate  when realism: maint *= 0.8f; break;
                 case ShipData.RoleName.cruiser  when realism: maint *= 0.7f; break;
