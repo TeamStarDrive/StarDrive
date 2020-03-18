@@ -538,11 +538,11 @@ namespace Ship_Game.AI
 
         void DoReturnHome(float elapsedTime)
         {
-            if (Owner.HomePlanet?.Owner != Owner.loyalty)
+            if (Owner.HomePlanet == null || Owner.HomePlanet.Owner != Owner.loyalty)
             {
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
-                if (Owner.HomePlanet?.Owner != Owner.loyalty)
+                if (Owner.HomePlanet == null || Owner.HomePlanet.Owner != Owner.loyalty)
                 {
                     // Nowhere to land, bye bye.
                     Owner.ScuttleTimer = 1;
