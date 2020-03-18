@@ -542,23 +542,23 @@ namespace Ship_Game.AI
             {
                 // find another friendly planet to land at
                 Owner.UpdateHomePlanet(Owner.loyalty.RallyShipYardNearestTo(Owner.Center));
-                if (Owner.HomePlanet?.Owner != Owner.loyalty)
+                if (Owner.HomePlanet == null)
                 {
                     // Nowhere to land, bye bye.
                     Owner.ScuttleTimer = 1;
                     return;
                 }
             }
+
             ThrustOrWarpToPos(Owner.HomePlanet.Center, elapsedTime);
             if (Owner.Center.InRadius(Owner.HomePlanet.Center, Owner.HomePlanet.ObjectRadius + 150f))
             {
-                Owner.HomePlanet.LandDefenseShip(Owner.DesignRole, Owner.GetCost(Owner.loyalty), Owner.HealthPercent);
+                Owner.HomePlanet.LandDefenseShip(Owner);
                 Owner.QueueTotalRemoval();
             }
+
             if (Owner.InCombat)
-            {
                 ClearOrders();
-            }
         }
 
         void DoRebaseToShip(float elapsedTime)
