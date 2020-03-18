@@ -330,7 +330,17 @@ namespace Ship_Game.AI.Tasks
                     }
                 case TaskType.AssaultPlanet:
                     {
-                        if (Step == 0) RequisitionAssaultForces();
+                        if (Step < 0)
+                        {
+                            Step++;
+                            break;
+                        }
+                        if (Step == 0)
+                        {
+                            RequisitionAssaultForces();
+
+                            if (Step == 0) Step = -1;
+                        }
                         else
                         {
                             if (Owner.GetFleetsDict().TryGetValue(WhichFleet, out Fleet fleet))

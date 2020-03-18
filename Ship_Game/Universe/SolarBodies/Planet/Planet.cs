@@ -66,6 +66,8 @@ namespace Ship_Game
 
         private const string ExtraInfoOnPlanet = "MerVille"; //This will generate log output from planet Governor Building decisions
 
+        float NoSpaceCombatTargetsFoundDelay = 0;
+
         public bool RecentCombat    => TroopManager.RecentCombat;
         public float MaxConsumption => MaxPopulationBillion + Owner.data.Traits.ConsumptionModifier * MaxPopulationBillion;
 
@@ -377,10 +379,9 @@ namespace Ship_Game
 
             TroopManager.Update(elapsedTime);
             GeodeticManager.Update(elapsedTime);
-
-            if (EnemyInRange())
+            // building weapon timers are in this method. 
+            if (Owner != null)
                 UpdateSpaceCombatBuildings(elapsedTime);
-
             UpdatePlanetaryProjectiles(elapsedTime);
         }
 
@@ -401,10 +402,12 @@ namespace Ship_Game
 
         void UpdateSpaceCombatBuildings(float elapsedTime) // @todo FB - need to work on this
         {
+            NoSpaceCombatTargetsFoundDelay -= elapsedTime;
+            bool targetFound = false;
             for (int i = 0; i < BuildingList.Count; ++i)
             {
-                float previousD;
-                float previousT;
+                float weaponBaseRange;
+
                 Building building = BuildingList[i];
                 if (building.isWeapon)
                 {
@@ -412,59 +415,79 @@ namespace Ship_Game
                     if (building.WeaponTimer.Greater(0))
                         continue;
 
-                    previousD = building.TheWeapon.BaseRange + 1000f;
-                    previousT = previousD;
+                    weaponBaseRange = building.TheWeapon.BaseRange + 1000f;
                 }
                 else if (building.DefenseShipsCapacity > 0 && Owner.Money > 0)
                 {
-                    previousD = 10000f;
-                    previousT = previousD;
+                    if (building.HasLaunchedAllDefenseShips)
+                        continue;
+                    weaponBaseRange = 10000f;
                 }
                 else
                     continue;
 
-                Ship target = null;
-                Ship troop = null;
-                for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
+                if(NoSpaceCombatTargetsFoundDelay <= 0 && EnemyInRange())
                 {
-                    Ship ship = ParentSystem.ShipList[j];
-                    if (ship.loyalty == Owner)
-                        continue;
+                    Ship target = ScanForSpaceCombatTargets(Math.Min(weaponBaseRange, SensorRange));
 
-                    if (!ship.loyalty.isFaction && Owner.GetRelations(ship.loyalty).Treaty_NAPact)
-                        continue;
-
-                    float currentD = Vector2.Distance(Center, ship.Center);
-                    SpaceCombatNearPlanet = currentD < 10000;
-                    if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                    if (target != null)
                     {
-                        previousT = currentD;
-                        troop     = ship;
-                        continue;
-                    }
-                    if (currentD < previousD && troop == null)
-                    {
-                        previousD = currentD;
-                        target    = ship;
-                    }
-                }
+                        targetFound = true;
 
-                if (troop != null)
-                    target = troop;
-                if (target == null)
-                    continue;
-
-                if (building.isWeapon)
-                {
-                    building.TheWeapon.FireFromPlanet(this, target);
-                    building.WeaponTimer = building.TheWeapon.fireDelay;
-                }
-                else if (building.CurrentNumDefenseShips > 0)
-                {
-                    LaunchDefenseShips(building.DefenseShipsRole, Owner);
-                    building.UpdateCurrentDefenseShips(-1, Owner);
+                        if (building.isWeapon)
+                        {
+                            building.TheWeapon.FireFromPlanet(this, target);
+                            building.WeaponTimer = building.TheWeapon.fireDelay;
+                        }
+                        else if (building.CurrentNumDefenseShips > 0)
+                        {
+                            LaunchDefenseShips(building.DefenseShipsRole, Owner);
+                            building.UpdateCurrentDefenseShips(-1, Owner);
+                        }
+                    }
                 }
             }
+            if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0) NoSpaceCombatTargetsFoundDelay = 2f;
+        }
+
+        Ship ScanForSpaceCombatTargets(float weaponRange)
+        {
+            float previousT = weaponRange;
+            float previousD = weaponRange;
+            Ship troop      = null;
+            Ship target     = null;
+
+            for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
+            {
+                Ship ship = ParentSystem.ShipList[j];
+                if (ship.loyalty == Owner || ship.engineState == Ship.MoveState.Warp)
+                    continue;
+
+                if (!Owner.IsEmpireAttackable(ship.loyalty))
+                    continue;
+
+                float currentD = Vector2.Distance(Center, ship.Center);
+
+                SpaceCombatNearPlanet = currentD < 10000;
+
+                if (ship.shipData.Role == ShipData.RoleName.troop && currentD < previousT)
+                {
+                    previousT = currentD;
+                    troop = ship;
+                    continue;
+                }
+
+                if (currentD < previousD && troop == null)
+                {
+                    previousD = currentD;
+                    target = ship;
+                }
+            }
+
+            if (troop != null)
+                target = troop;
+
+            return target;
         }
 
         void LaunchDefenseShips(ShipData.RoleName roleName, Empire empire)

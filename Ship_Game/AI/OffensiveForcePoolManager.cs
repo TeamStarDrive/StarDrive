@@ -6,11 +6,12 @@ namespace Ship_Game.AI
 {
     public class OffensiveForcePoolManager
     {
-        private readonly Empire Owner;
-        private EmpireAI EmpireAI => Owner.GetEmpireAI();
-        private ThreatMatrix ThreatMatrix => EmpireAI.ThreatMatrix;
-        private DefensiveCoordinator DefensiveCoordinator => EmpireAI.DefensiveCoordinator;
-        private Array<AO> AreasOfOperations => EmpireAI.AreasOfOperations;
+        readonly Empire Owner;
+        EmpireAI EmpireAI => Owner.GetEmpireAI();
+        ThreatMatrix ThreatMatrix => EmpireAI.ThreatMatrix;
+        DefensiveCoordinator DefensiveCoordinator => EmpireAI.DefensiveCoordinator;
+        Array<AO> AreasOfOperations => EmpireAI.AreasOfOperations;
+        float ThreatTimer = 0;
 
         public OffensiveForcePoolManager (Empire owner)
         {
@@ -18,6 +19,9 @@ namespace Ship_Game.AI
         }
         public void ManageAOs()
         {
+            bool checkThreatLevel = --ThreatTimer <= 0;
+            if (ThreatTimer < 0) ThreatTimer = 2f;
+
             float ownerStr = Owner.CurrentMilitaryStrength;
             for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
             {
@@ -29,7 +33,8 @@ namespace Ship_Game.AI
                     areasOfOperation.Dispose();
                     continue;
                 }
-                areasOfOperation.SetThreatLevel();
+
+                if (checkThreatLevel) areasOfOperation.SetThreatLevel();
             }
             
             Planet[] aoPlanets = GetAOPlanets(out HashSet<SolarSystem> aoSystems);
