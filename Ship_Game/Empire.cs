@@ -933,7 +933,6 @@ namespace Ship_Game
             InitDifficultyModifiers();
             CreateThrusterColors();
             UpdateShipsWeCanBuild();
-            UpdateBestOrbitals();
             Research.Update();
         }
 
@@ -1047,7 +1046,6 @@ namespace Ship_Game
             UpdateShipsWeCanBuild();
             EmpireAI.TriggerRefit();
             TriggerFreightersRefit();
-            UpdateBestOrbitals();
         }
 
         public void AssimilateTech(Empire conqueredEmpire)
@@ -1403,6 +1401,15 @@ namespace Ship_Game
             BestStationWeCanBuild  = BestShipWeCanBuild(ShipData.RoleName.station, this);
         }
 
+        private void UpdateDefenseShipBuildingOffense()
+        {
+            for (int i = 0 ; i < OwnedPlanets.Count; i++)
+            {
+                Planet p = OwnedPlanets[i];
+                p.UpdateDefenseShipBuildingOffense();
+            }
+        }
+
         public DebugTextBlock DebugEmpireTradeInfo()
         {
             int foodShips      = NumFreightersTrading(Goods.Food);
@@ -1647,6 +1654,9 @@ namespace Ship_Game
 
             PreferredAuxillaryShips[ShipData.RoleName.carrier]
                 = PickFromCandidates(ShipData.RoleName.carrier, this, targetModule: ShipModuleType.Hangar);
+
+            UpdateBestOrbitals();
+            UpdateDefenseShipBuildingOffense();
 
         }
 

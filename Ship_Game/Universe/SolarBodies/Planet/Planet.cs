@@ -399,30 +399,26 @@ namespace Ship_Game
 
         void UpdateSpaceCombatBuildings(float elapsedTime)
         {
-            if (Owner == null || NoSpaceCombatTargetsFoundDelay > 0 && !EnemyInRange())
-                return; 
 
-            NoSpaceCombatTargetsFoundDelay -= elapsedTime;
-            bool targetFound = false;
-            for (int i = 0; i < BuildingList.Count; ++i)
+            if (Owner != null && (NoSpaceCombatTargetsFoundDelay.Less(2) || EnemyInRange()))
             {
-                Building building = BuildingList[i];
-                building.UpdateSpaceWeaponTimer(elapsedTime);
-                if (building.ReadyToFireOnSpaceTargets || building.CanLaunchDefenseShips(Owner))
+                bool targetFound = false;
+                NoSpaceCombatTargetsFoundDelay -= elapsedTime;
+                for (int i = 0; i < BuildingList.Count; ++i)
                 {
-                    Ship target = ScanForSpaceCombatTargets(building.SpaceRange.UpperBound(SensorRange));
-                    targetFound = target != null;
-                    building.FireOnSpaceTarget(this, target);
-                    building.LaunchDefenseShips(this, target, Owner);
+                    Building building = BuildingList[i];
+                    building.UpdateSpaceCombatActions(elapsedTime, this, out targetFound);
                 }
-            }
 
-            if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0) 
-                NoSpaceCombatTargetsFoundDelay = 2f;
+                if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
+                    NoSpaceCombatTargetsFoundDelay = 2f;
+            }
         }
 
-        Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
+
+        public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
+            weaponRange     = weaponRange.UpperBound(SensorRange);
             float previousT = weaponRange;
             float previousD = weaponRange;
             Ship troop      = null;
@@ -472,6 +468,7 @@ namespace Ship_Game
 
             Owner.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
+
 
         void UpdatePlanetaryProjectiles(float elapsedTime)
         {
@@ -874,6 +871,18 @@ namespace Ship_Game
                 return; // if there are still defense ships our there, don't update building's hangars
 
             b.UpdateCurrentDefenseShips(1, Owner);
+        }
+
+        public void UpdateDefenseShipBuildingOffense()
+        {
+            if (Owner == null)
+                return;
+
+            for (int i = 0; i < BuildingList.Count; i++)
+            {
+                Building b = BuildingList[i];
+                b.UpdateDefenseShipBuildingOffense(Owner);
+            }
         }
 
         private void ApplyResources()
