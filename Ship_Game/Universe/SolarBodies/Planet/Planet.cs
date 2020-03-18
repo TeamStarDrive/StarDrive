@@ -421,8 +421,8 @@ namespace Ship_Game
             weaponRange     = weaponRange.UpperBound(SensorRange);
             float previousT = weaponRange;
             float previousD = weaponRange;
-            Ship troop = null;
-            Ship target = null;
+            Ship troop      = null;
+            Ship target     = null;
 
             for (int j = 0; j < ParentSystem.ShipList.Count; ++j)
             {
