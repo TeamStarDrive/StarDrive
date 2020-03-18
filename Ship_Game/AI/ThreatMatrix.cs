@@ -19,11 +19,36 @@ namespace Ship_Game.AI
             [Serialize(4)] public int EmpireId = 0;
             [XmlIgnore][JsonIgnore] public Ship Ship;
 
+            public Pin(Ship ship, bool inBorders)
+            {
+                Position   = ship.Center;
+                Strength   = ship.GetStrength();
+                EmpireName = ship.loyalty.data.Traits.Name;
+                InBorders  = inBorders;
+                Ship       = ship;
+            }
+
+            public Pin(){}
+
             public Empire GetEmpire()
             {
                 if (EmpireId > 0) return EmpireManager.GetEmpireById(EmpireId);
                 if (EmpireName.NotEmpty()) return EmpireManager.GetEmpireByName(EmpireName);
                 return Ship?.loyalty;
+            }
+
+            public void Refresh(Ship ship, bool inSensorRadius, bool shipInBorders)
+            {
+                if (inSensorRadius)
+                {
+                    Position   = ship.Center;
+                    Strength   = ship.GetStrength();
+                    EmpireName = ship.loyalty.data.Traits.Name;
+                    EmpireId   = ship.loyalty.Id;
+                }
+
+                InBorders = shipInBorders;
+                Ship      = ship;
             }
         }
 
@@ -129,18 +154,17 @@ namespace Ship_Game.AI
         Array<Ship> PingRadarShip(Vector2 position, float radius, Empire empire)
         {
             var results = new Array<Ship>();
-            using (PinsMutex.AcquireReadLock())
+            var pins = Pins.Values.ToArray();
+            for (int i = pins.Length - 1; i >= 0; i--)
             {
-                foreach (Pin pin in Pins.Values)
-                {                                
-                    Ship ship = pin.Ship;
-                    if (ship != null && empire.IsEmpireHostile(ship.loyalty) 
-                                     && position.InRadius(pin.Position, radius))
-                    {
-                        results.Add(pin.Ship);
-                    }
+                Pin pin = pins[i];
+                Ship ship = pin.Ship;
+                if (ship != null && position.InRadius(pin.Position, radius) && empire.IsEmpireHostile(ship.loyalty))
+                {
+                    results.Add(pin.Ship);
                 }
             }
+
             return results;
         }
 
@@ -238,15 +262,17 @@ namespace Ship_Game.AI
             {
                 Pin pin = pins[i];
                 Ship ship = pin.Ship;
-                if (ship != null && pin.Position.InRadius(position, radius))
+                if (pin.Position.InRadius(position, radius))
                 {
-                    bool inSensor = ship.Center.InRadius(position, radius);
-                    UpdatePin(ship, pin.InBorders, inSensor);
+                    if (ship != null)
+                    {
+                        bool inSensor = ship.Center.InRadius(position, radius);
+                        pin.Refresh(ship, pin.InBorders, inSensor);
+                    }
                 }
             }
         }
 
-        // NetStrength = OurStrength - HostileStrength
         public float PingNetRadarStr(Vector2 position, float radius, Empire us)
             => PingRadarStr(position, radius, us, netStrength:true);
 
@@ -281,63 +307,23 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public void UpdatePin(Ship ship)
-        {
-            using (PinsMutex.AcquireWriteLock())
-            {
-                if (ship.Active == false)
-                {
-                    Pins.Remove(ship.guid);
-                }
-                else if (Pins.TryGetValue(ship.guid, out Pin pin))
-                {
-                    pin.Position = ship.Center;
-                }
-                else
-                {
-                    Pins.Add(ship.guid, new Pin
-                    {
-                        Position   = ship.Center,
-                        Strength   = ship.GetStrength(),
-                        EmpireName = ship.loyalty.data.Traits.Name,
-                        EmpireId   = ship.loyalty.Id
-                    });
-                }
-            }
-        }
-
         public void UpdatePin(Ship ship, bool shipInBorders, bool inSensorRadius)
         {
-            using (PinsMutex.AcquireWriteLock())
+            if (!Pins.TryGetValue(ship.guid, out Pin pin))
             {
-                if (!Pins.TryGetValue(ship.guid, out Pin pin))
-                {
-                    if (!inSensorRadius)
-                        return; // don't add new pin if not in sensor radius
+                if (!inSensorRadius)
+                    return; // don't add new pin if not in sensor radius
 
-                    pin = new Pin();
-                    Pins.Add(ship.guid, pin);
-                }
-
-                if (inSensorRadius)
-                {
-                    pin.Position   = ship.Center;
-                    pin.Strength   = ship.GetStrength();
-                    pin.EmpireName = ship.loyalty.data.Traits.Name;
-                    pin.EmpireId   = ship.loyalty.Id;
-                }
-                pin.InBorders = shipInBorders;
-                pin.Ship      = ship; // NOTE: always setting because of save game data?
+                pin = new Pin(ship, shipInBorders);
+                Pins.Add(ship.guid, pin);
             }
+            else
+                pin.Refresh(ship, inSensorRadius, shipInBorders);
         }
 
-        public bool RemovePin(Ship ship)
-        {
-            using (PinsMutex.AcquireWriteLock())
-            {
-                return Pins.Remove(ship.guid);
-            }
-        }
+        public bool RemovePin(Ship ship) => RemovePin(ship.guid);
+
+        bool RemovePin(Guid shipGuid) => Pins.Remove(shipGuid);
 
         public void AddFromSave(SavedGame.GSAISAVE aiSave)
         {
