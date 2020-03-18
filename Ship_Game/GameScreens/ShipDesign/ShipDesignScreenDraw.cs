@@ -619,6 +619,8 @@ namespace Ship_Game
             }
         }
 
+        bool Stationary => ActiveHull.HullRole == ShipData.RoleName.station || ActiveHull.HullRole == ShipData.RoleName.platform;
+
         float PercentComplete(int numSlots, int size) => DesignComplete(numSlots, size) ? 1f : numSlots / (float)size;
         bool DesignComplete(int numSlots, int size)   => numSlots == size;
 
@@ -723,6 +725,9 @@ namespace Ship_Game
 
         void DrawPropulsion(ref Vector2 cursor, float modifiedSpeed, float turn, float afterburnerSpd)
         {
+            if (Stationary)
+                return;
+
             DrawStatColor(ref cursor, TintedValue(116, modifiedSpeed, 105, Color.DarkSeaGreen));
             DrawStatColor(ref cursor, TintedValue(117, turn, 107, Color.DarkSeaGreen));
             if (afterburnerSpd > 0) 
@@ -731,10 +736,11 @@ namespace Ship_Game
 
         void DrawWarpPropulsion(ref Vector2 cursor, float warpSpeed, float warpSpoolTimer)
         {
+            if (Stationary)
+                return;
+
             string warpString = warpSpeed.GetNumberString();
             DrawStatPropulsion(ref cursor, Localizer.Token(2170) + ":", warpString, 135);
-            if (warpSpeed > 0 && warpSpoolTimer > 0) 
-                DrawStatColor(ref cursor, TintedValue("FTL Spool", warpSpoolTimer, 177, Color.DarkSeaGreen));
         }
 
         void DrawEmpAndEcm(ref Vector2 cursor, float empResist, float totalEcm)
@@ -782,6 +788,9 @@ namespace Ship_Game
         void DrawPowerDrawAtWarp(ref Vector2 cursor, float warpSpeed, float powerFlow, float netWarpPowerDraw, out float fDrawAtWarp)
         {
             fDrawAtWarp = powerFlow - netWarpPowerDraw;
+            if (Stationary)
+                return;
+
             if (warpSpeed > 0)
                 DrawStatColor(ref cursor, TintedValue(112, fDrawAtWarp, 102, Color.LightSkyBlue));
         }

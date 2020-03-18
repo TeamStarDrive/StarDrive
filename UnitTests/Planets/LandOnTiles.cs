@@ -96,15 +96,16 @@ namespace UnitTests.Planets
             Assert.IsFalse(capitalTile.InRangeOf(enemy2Tile, 1), "Enemy2 Too Close to Capital");
             Assert.IsTrue(enemy1Tile.InRangeOf(enemy2Tile, 1), "Enemy2 Too Far From Enemy1");
 
-            Assert.IsTrue(Friendly.TryLandTroop(P));
-            Assert.IsTrue(GetTroopTile(Friendly, out PlanetGridSquare friendlyTile));
-
-            // Friendly troop should be in range 1 of the capital and not in range
-            // of enemy troops
             Enemy1.UpdateAttackActions(Enemy1.MaxStoredActions);
             Enemy2.UpdateAttackActions(Enemy2.MaxStoredActions);
             Assert.IsTrue(Enemy1.CanAttack);
             Assert.IsTrue(Enemy2.CanAttack);
+
+            // Friendly troop should be in range 1 of the capital and not in range
+            // of enemy troops
+
+            Assert.IsTrue(Friendly.TryLandTroop(P));
+            Assert.IsTrue(GetTroopTile(Friendly, out PlanetGridSquare friendlyTile));
 
             string positions = $"Capital : {capitalTile.x},{capitalTile.y}\n" +
                                $"Friendly: {friendlyTile.x},{ friendlyTile.y}\n" +
