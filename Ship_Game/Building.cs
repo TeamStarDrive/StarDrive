@@ -102,10 +102,9 @@ namespace Ship_Game
 
         [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
         [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(0.1f);
-        [XmlIgnore][JsonIgnore] private int HACK_RefreshDefenseShipsTimer = 0;
         [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
-        [XmlIgnore] [JsonIgnore] private float DefenseShipStrength = 0;
-
+        [XmlIgnore][JsonIgnore] private float DefenseShipStrength = 0;
+        [XmlIgnore][JsonIgnore] public float SpaceRange = 10000f;
         // these appear in Hardcore Ruleset
         public static int FissionablesId, MineFissionablesId, FuelRefineryId;
 
@@ -129,7 +128,8 @@ namespace Ship_Game
             if (!isWeapon)
                 return;
 
-            TheWeapon = ResourceManager.CreateWeapon(Weapon);
+            TheWeapon  = ResourceManager.CreateWeapon(Weapon);
+            SpaceRange = TheWeapon.BaseRange;
             UpdateOffense();
         }
 
@@ -148,29 +148,71 @@ namespace Ship_Game
             AttackTimer = 10;
         }
 
+        void ResetSpaceWeaponTimer()
+        {
+            WeaponTimer = TheWeapon.fireDelay;
+        }
+
+        void UpdateSpaceWeaponTimer(float elapsedTime)
+        {
+            if (isWeapon)
+                WeaponTimer -= elapsedTime;
+        }
+
+        void FireOnSpaceTarget(Planet planet, Ship target)
+        {
+            if (isWeapon && target != null)
+            {
+                TheWeapon.FireFromPlanet(planet, target);
+                ResetSpaceWeaponTimer();
+            }
+        }
+
+        bool ReadyToFireOnSpaceTargets            => WeaponTimer.Less(0);
+        bool CanLaunchDefenseShips(Empire empire) => !HasLaunchedAllDefenseShips && empire.Money > 0;
+
+        static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) 
+                                              => ShipBuilder.PickFromCandidates(roleName, empire);
+
+        void LaunchDefenseShips(Planet p, Ship target, Empire empire)
+        {
+            if (CurrentNumDefenseShips <= 0 || target == null)
+                return;
+
+            string selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
+            if (selectedShip.IsEmpty()) // the empire does not have any ship of this role to launch
+                return;
+
+            Vector2 launchVector = MathExt.RandomOffsetAndDistance(p.Center, 1000);
+            Ship defenseShip = Ship.CreateDefenseShip(selectedShip, empire, launchVector, p);
+            if (defenseShip == null)
+            {
+                Log.Warning($"Could not create defense ship, ship name = {selectedShip}");
+            }
+            else
+            {
+                defenseShip.Level = 3;
+                defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.SpeedLimit;
+                UpdateCurrentDefenseShips(-1, empire);
+            }
+        }
+
         private void UpdateOffense()
         {
             if (isWeapon)
                 Offense = TheWeapon.CalculateOffense() * 3; // 360 degree angle
         }
 
-        private void UpdateOffense(Empire empire)
+        public void UpdateDefenseShipBuildingOffense(Empire empire)
         {
-            Offense = 0;
-            UpdateOffense();
             if (DefenseShipsCapacity <= 0)
                 return;
-            // need a better update solution for this. This should not even show up on the performance profiler. 
-            // it can be called many times a turn. 
-            // this timer will help buts clumsy and not predictable because it can be called from many sources. 
-            bool updateDefenseShips = HACK_RefreshDefenseShipsTimer-- <= 0;
-            if (updateDefenseShips)
-            {
-                HACK_RefreshDefenseShipsTimer = 6;
-                string shipName = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
-                if (ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship))
-                    DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;
-            }
+
+            Offense = 0;
+            UpdateOffense();
+            string shipName = ShipBuilder.PickFromCandidates(DefenseShipsRole, empire);
+            if (ResourceManager.ShipsDict.TryGetValue(shipName, out Ship ship))
+                DefenseShipStrength = ship.CalculateShipStrength() * DefenseShipsCapacity;
 
             Offense += DefenseShipStrength;
         }
@@ -179,8 +221,31 @@ namespace Ship_Game
         {
             if (DefenseShipsCapacity > 0)
                 CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
+        }
 
-            UpdateOffense(empire);
+        public bool TryLandOnBuilding(Ship ship)
+        {
+            ShipData.RoleName roleName = ship.DesignRole;
+            if (DefenseShipsRole == roleName && CurrentNumDefenseShips < DefenseShipsCapacity)
+            {
+                UpdateCurrentDefenseShips(1, ship.loyalty);
+                return true;
+            }
+
+            return false;
+        }
+
+        public void UpdateSpaceCombatActions(float elapsedTime, Planet p, out bool targetFound)
+        {
+            targetFound = false;
+            UpdateSpaceWeaponTimer(elapsedTime);
+            if (ReadyToFireOnSpaceTargets || CanLaunchDefenseShips(p.Owner))
+            {
+                Ship target = p.ScanForSpaceCombatTargets(SpaceRange);
+                targetFound = target != null;
+                FireOnSpaceTarget(p, target);
+                LaunchDefenseShips(p, target, p.Owner);
+            }
         }
 
         public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) => empire?.RacialEnvModifer(category) * MaxFertilityOnBuild 
