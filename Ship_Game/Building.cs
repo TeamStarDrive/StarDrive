@@ -176,7 +176,7 @@ namespace Ship_Game
 
         void LaunchDefenseShips(Planet p, Ship target, Empire empire)
         {
-            if (CurrentNumDefenseShips <= 0 || target != null)
+            if (CurrentNumDefenseShips <= 0 || target == null)
                 return;
 
             string selectedShip = GetDefenseShipName(DefenseShipsRole, empire);
