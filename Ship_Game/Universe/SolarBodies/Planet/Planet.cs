@@ -58,7 +58,6 @@ namespace Ship_Game
         public float RepairPerTurn;
         public float SensorRange { get; private set; }
         public bool SpaceCombatNearPlanet { get; private set; }
-        public static string GetDefenseShipName(ShipData.RoleName roleName, Empire empire) => ShipBuilder.PickFromCandidates(roleName, empire);
         public float ColonyValue { get; private set; }
         public float ExcessGoodsIncome { get; private set; } // FB - excess goods tax for empire to collect
         public float OrbitalsMaintenance { get; private set; }
@@ -465,6 +464,8 @@ namespace Ship_Game
                 if (building.TryLandOnBuilding(ship))
                     break; // Ship has landed
             }
+
+            Owner.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
 
@@ -528,6 +529,8 @@ namespace Ship_Game
 
             if (b.IsTerraformer && !TerraformingHere)
                 UpdateTerraformPoints(0); // FB - no terraformers present, terraform effort halted
+
+            Owner?.RefundCreditsPostRemoval(b);
         }
 
         public void ClearBioSpheresFromList(PlanetGridSquare tile)

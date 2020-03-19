@@ -194,6 +194,7 @@ namespace Ship_Game
                 defenseShip.Level = 3;
                 defenseShip.Velocity = UniverseRandom.RandomDirection() * defenseShip.SpeedLimit;
                 UpdateCurrentDefenseShips(-1, empire);
+                empire.ChargeCreditsHomeDefense(defenseShip);
             }
         }
 
@@ -223,18 +224,6 @@ namespace Ship_Game
                 CurrentNumDefenseShips = (CurrentNumDefenseShips + num).Clamped(0, DefenseShipsCapacity);
         }
 
-        public bool TryLandOnBuilding(Ship ship)
-        {
-            ShipData.RoleName roleName = ship.DesignRole;
-            if (DefenseShipsRole == roleName && CurrentNumDefenseShips < DefenseShipsCapacity)
-            {
-                UpdateCurrentDefenseShips(1, ship.loyalty);
-                return true;
-            }
-
-            return false;
-        }
-
         public void UpdateSpaceCombatActions(float elapsedTime, Planet p, out bool targetFound)
         {
             targetFound = false;
@@ -246,6 +235,18 @@ namespace Ship_Game
                 FireOnSpaceTarget(p, target);
                 LaunchDefenseShips(p, target, p.Owner);
             }
+        }
+
+        public bool TryLandOnBuilding(Ship ship)
+        {
+            ShipData.RoleName roleName = ship.DesignRole;
+            if (DefenseShipsRole == roleName && CurrentNumDefenseShips < DefenseShipsCapacity)
+            {
+                UpdateCurrentDefenseShips(1, ship.loyalty);
+                return true;
+            }
+
+            return false;
         }
 
         public float MaxFertilityOnBuildFor(Empire empire, PlanetCategory category) => empire?.RacialEnvModifer(category) * MaxFertilityOnBuild 

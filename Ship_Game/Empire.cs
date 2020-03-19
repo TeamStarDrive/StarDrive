@@ -146,14 +146,17 @@ namespace Ship_Game
 
         // Income this turn before deducting ship maintenance
         public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
-        public float NetIncome                => GrossIncome - BuildingAndShipMaint;
+        public float NetIncome                => GrossIncome - AllSpending;
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
+        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
+
+        public float MoneySpendOnProductionThisTurn { get; private set; }
 
         public readonly EmpireResearch Research;
 
@@ -1490,9 +1493,15 @@ namespace Ship_Game
             ++TurnCount;
 
             UpdateTradeIncome();
+            ResetMoneySpentOnProduction();
             UpdateNetPlanetIncomes();
             UpdateShipMaintenance();
             Money += NetIncome;
+        }
+
+        void ResetMoneySpentOnProduction()
+        {
+            MoneySpendOnProductionThisTurn = 0; // reset for next turn
         }
 
         public void UpdateNetPlanetIncomes()
@@ -1573,7 +1582,7 @@ namespace Ship_Game
         public float EstimateNetIncomeAtTaxRate(float rate)
         {
             float plusNetIncome = (rate-data.TaxRate) * NetPlanetIncomes;
-            return GrossIncome + plusNetIncome - BuildingAndShipMaint;
+            return GrossIncome + plusNetIncome - AllSpending;
         }
 
         public float GetActualNetLastTurn() => Money - MoneyLastTurn;
@@ -2819,6 +2828,48 @@ namespace Ship_Game
                 updateContactsTimer = elapsedTime + RandomMath.RandomBetween(4f, 6.5f);
             }
             return bordersChanged;
+        }
+
+        public int EstimateCreditCost(float itemCost)   => (int)Math.Round(ProductionCreditCost(itemCost), 0);
+        public void ChargeCreditsHomeDefense(Ship ship) => ChargeCredits(ship.GetCost(this));
+
+        public void ChargeCreditsOnProduction(QueueItem q, float spentProduction)
+        {
+            if (q.IsMilitary || q.isShip)
+                ChargeCredits(spentProduction);
+        }
+
+        public void RefundCreditsPostRemoval(Ship ship, float percentOfAmount = 0.5f)
+        {
+            if (!ship.IsDefaultAssaultShuttle && !ship.IsDefaultTroopShip)
+                RefundCredits(ship.GetCost(this) * ship.HealthPercent, percentOfAmount);
+        }
+
+        public void RefundCreditsPostRemoval(Building b)
+        {
+            if (b.IsMilitary)
+                RefundCredits(b.ActualCost, 0.5f);
+        }
+
+        void ChargeCredits(float cost)
+        {
+            float creditsToCharge = ProductionCreditCost(cost);
+            MoneySpendOnProductionThisTurn += creditsToCharge;
+            AddMoney(-creditsToCharge);
+        }
+
+        void RefundCredits(float cost, float percentOfAmount)
+        {
+            float creditsToRefund = cost * DifficultyModifiers.CreditsMultiplier * percentOfAmount;
+            MoneySpendOnProductionThisTurn -= creditsToRefund;
+            AddMoney(creditsToRefund);
+        }
+
+        float ProductionCreditCost(float spentProduction)
+        {
+            // fixed costs for players, feedback tax loop for the AI
+            float taxModifer = isPlayer ? 1 : 1 - data.TaxRate;
+            return spentProduction * taxModifer * DifficultyModifiers.CreditsMultiplier;
         }
 
         public class InfluenceNode

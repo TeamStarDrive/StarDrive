@@ -15,6 +15,7 @@
         public readonly int ShipLevel;
         public readonly bool HideTacticalData;
         public readonly float MaxDesiredPlanets;
+        public readonly float CreditsMultiplier;
         public readonly float FleetCompletenessMin;
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
@@ -32,6 +33,7 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.25f;
                     FleetCompletenessMin = 0.25f;
+                    CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
@@ -43,6 +45,7 @@
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
                     FleetCompletenessMin = 0.25f;
+                    CreditsMultiplier    = 0.2f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -53,6 +56,7 @@
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
                     FleetCompletenessMin = 0.5f;
+                    CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -63,6 +67,7 @@
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
                     FleetCompletenessMin = 1f;
+                    CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     break;
             }
 
@@ -87,6 +92,8 @@
                 ShipBuildStrMax    = 1f;
                 ColonyRankModifier = 0;
                 TaskForceStrength  = 1f;
+                if (GlobalStats.FixedPlayerCreditCharge && difficulty > UniverseData.GameDifficulty.Easy)
+                    CreditsMultiplier = 0.2f;
             }
         }
     }

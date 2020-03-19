@@ -76,9 +76,10 @@ namespace Ship_Game
             var eftlRect = new Rectangle(x, leftRect.Y + 150, 270, 50);
             EnemyFTLPenaltySlider = SliderPercent(eftlRect, Localizer.Token(6139), 0f, 1f, GlobalStats.EnemyFTLInSystemModifier);
 
-            Checkbox(ftlRect.X, ftlRect.Y + 100, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
-            Checkbox(ftlRect.X + 420, ftlRect.Y, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
-            Checkbox(ftlRect.X + 420, eftlRect.Y,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
+            Checkbox(ftlRect.X + 420, ftlRect.Y, () => GlobalStats.PlanetaryGravityWells, title: 4008, tooltip: 2288);
+            Checkbox(ftlRect.X + 420, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
+            Checkbox(ftlRect.X + 420, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
+            Checkbox(ftlRect.X + 420, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: 1862);
 
             var gwRect = new Rectangle(x, leftRect.Y + 220, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 280, 270, 50);
