@@ -50,24 +50,16 @@ namespace Ship_Game
 
             Data = new UniverseData
             {
-                FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
+                FTLSpeedModifier      = GlobalStats.FTLInSystemModifier,
                 EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
-                GravityWells = GlobalStats.PlanetaryGravityWells,
-                FTLinNeutralSystem = GlobalStats.WarpInSystem,
-                difficulty = difficulty
+                GravityWells          = GlobalStats.PlanetaryGravityWells,
+                FTLinNeutralSystem    = GlobalStats.WarpInSystem,
+                difficulty            = difficulty
             };
 
             CurrentGame.StartNew(Data, pace);
             Player = player;
             player.isPlayer = true;
-            Data = new UniverseData
-            {
-                FTLSpeedModifier = GlobalStats.FTLInSystemModifier,
-                EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
-                GravityWells = GlobalStats.PlanetaryGravityWells,
-                FTLinNeutralSystem = GlobalStats.WarpInSystem,
-                difficulty = difficulty
-            };
 
             CurrentGame.StartNew(Data, pace);
             player.Initialize();

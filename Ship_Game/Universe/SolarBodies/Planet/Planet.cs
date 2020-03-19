@@ -415,7 +415,6 @@ namespace Ship_Game
             }
         }
 
-
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
         {
             weaponRange     = weaponRange.UpperBound(SensorRange);
