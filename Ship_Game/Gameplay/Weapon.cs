@@ -931,9 +931,9 @@ namespace Ship_Game.Gameplay
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
-            if (Excludes_Fighters)  exclusionMultiplier -= 0.25f;
-            if (Excludes_Corvettes) exclusionMultiplier -= 0.25f;
-            if (Excludes_Capitals)  exclusionMultiplier -= 0.25f;
+            if (Excludes_Fighters)  exclusionMultiplier -= 0.1f;
+            if (Excludes_Corvettes) exclusionMultiplier -= 0.15f;
+            if (Excludes_Capitals)  exclusionMultiplier -= 0.5f;
             if (Excludes_Stations)  exclusionMultiplier -= 0.25f;
             off *= exclusionMultiplier;
 
