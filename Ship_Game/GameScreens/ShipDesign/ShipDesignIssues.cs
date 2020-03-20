@@ -234,6 +234,43 @@ namespace Ship_Game.ShipDesignIssues
                 AddDesignIssue(DesignIssueType.LowWeaponPowerTime, EmpireStats, severity);
         }
 
+        public void CheckCombatEfficiency(float excessPowerConsumed, float weaponPowerTime, float powerRecharge, 
+                                          int numWeapons, int numOrdnanceWeapons)
+        {
+            if (numWeapons == 0 || numOrdnanceWeapons == numWeapons || excessPowerConsumed.AlmostZero())
+                return;
+
+            WarningLevel severity      = WarningLevel.None;
+            float energyWeaponsRatio   = (float)(numWeapons - numOrdnanceWeapons) / numWeapons;
+            float efficiencyReduction  = (1 - powerRecharge / excessPowerConsumed);
+            efficiencyReduction       *= energyWeaponsRatio;
+            float netEfficiency        = (1 - efficiencyReduction) * 100;
+
+            if      (netEfficiency < 25) severity = WarningLevel.Critical;
+            else if (netEfficiency < 50) severity = WarningLevel.Major;
+            else if (netEfficiency < 75) severity = WarningLevel.Minor;
+            else if (netEfficiency < 95) severity = WarningLevel.Informative;
+
+            // Modify level by weapon power time if there is an issue
+            if (severity > WarningLevel.None) 
+            {
+                if      (weaponPowerTime > 120) severity -= 3;
+                else if (weaponPowerTime > 60)  severity -= 2;
+                else if (weaponPowerTime > 30)  severity -= 1;
+
+                if (severity < WarningLevel.Informative)
+                    severity = WarningLevel.Informative;
+            }
+
+            if (severity > WarningLevel.None)
+            {
+                string efficiencyText = $" {new LocalizedText(2565).Text} {netEfficiency.String(0)}%.";
+                AddDesignIssue(DesignIssueType.NotIdealCombatEfficiency, EmpireStats, severity, efficiencyText);
+            }
+        }
+
+
+
         public void CheckBurstPowerTime(bool hasBeamWeapons, float burstEnergyPowerTime)
         {
             if (!hasBeamWeapons || burstEnergyPowerTime > 2)
@@ -321,7 +358,8 @@ namespace Ship_Game.ShipDesignIssues
         NoOrdnanceResupplyCombat,
         NoOrdnanceResupplyPlayerOrder,
         LowTroops,
-        LowTroopsForBays
+        LowTroopsForBays,
+        NotIdealCombatEfficiency
     }
 
     public enum WarningLevel
@@ -397,7 +435,7 @@ namespace Ship_Game.ShipDesignIssues
                 case DesignIssueType.SlowWarp:
                     Title                  = new LocalizedText(2525).Text;
                     Problem                = new LocalizedText(2526).Text;
-                    Remediation            = new LocalizedText(2527).Text + addToRemediationText; 
+                    Remediation            = new LocalizedText(2527).Text; 
                     Texture                = ResourceManager.Texture("NewUI/IssueSlowWarp");
                     break;
                 case DesignIssueType.NegativeRecharge:
@@ -463,16 +501,24 @@ namespace Ship_Game.ShipDesignIssues
                 case DesignIssueType.LowTroopsForBays:
                     Title       = new LocalizedText(2558).Text;
                     Problem     = new LocalizedText(2559).Text;
-                    Remediation = new LocalizedText(2560).Text + addToRemediationText;
+                    Remediation = new LocalizedText(2560).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTroopsForBays");
                     break;
                 case DesignIssueType.LowTroops:
                     Title       = new LocalizedText(2561).Text;
                     Problem     = new LocalizedText(2562).Text;
-                    Remediation = new LocalizedText(2563).Text + addToRemediationText;
+                    Remediation = new LocalizedText(2563).Text;
                     Texture     = ResourceManager.Texture("NewUI/IssueLowTroops");
                     break;
+                case DesignIssueType.NotIdealCombatEfficiency:
+                    Title       = new LocalizedText(2566).Text;
+                    Problem     = new LocalizedText(2567).Text;
+                    Remediation = new LocalizedText(2568).Text;
+                    Texture     = ResourceManager.Texture("NewUI/IssueLowWeaponPowerEfficiency");
+                    break;
             }
+
+            Remediation += addToRemediationText;
         }
     }
 }
