@@ -524,22 +524,58 @@ namespace Ship_Game
 
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
         {
-            int left   = (tile.x - 1).ClampMin(0);
-            int right  = (tile.x + 1).UpperBound(planet.TileMaxX - 1);
-            int top    = (tile.y - 1).ClampMin(0);
-            int bottom = (tile.y + 1).UpperBound(planet.TileMaxY - 1);
-            int width  = planet.TileMaxY;
             int score  = 0;
-            for (int x = left; x <= right; ++x)
+            Ping ping  = new Ping(tile, planet, 1);
+            for (int x = ping.Left; x <= ping.Right; ++x)
             {
-                for (int y = top; y <= bottom; ++y)
+                for (int y = ping.Top; y <= ping.Bottom; ++y)
                 {
-                    PlanetGridSquare checkedTile = planet.TilesList[x * width + y];
+                    PlanetGridSquare checkedTile = planet.TilesList[x * ping.Width + y];
                     score += checkedTile.CalculateNearbyTileScore(this, planet.Owner);
                 }
             }
 
             return score;
+        }
+
+        public bool AcquireTarget(PlanetGridSquare tile, Planet planet, out PlanetGridSquare targetTile)
+        {
+            int bestScore = 0;
+            targetTile    = null;
+            Ping ping     = new Ping(tile, planet, ActualRange);
+            for (int x = ping.Left; x <= ping.Right; ++x)
+            {
+                for (int y = ping.Top; y <= ping.Bottom; ++y)
+                {
+                    PlanetGridSquare checkedTile = planet.TilesList[x * ping.Width + y];
+                    int score = checkedTile.CalculateTargetValue(this, planet);
+                    if (score > bestScore)
+                    {
+                        bestScore  = score;
+                        targetTile = checkedTile;
+                    }
+                }
+            }
+
+            return bestScore > 0;
+        }
+
+        struct Ping
+        {
+            public readonly int Left;
+            public readonly int Right;
+            public readonly int Top;
+            public readonly int Bottom;
+            public readonly int Width;
+
+            public Ping(PlanetGridSquare tile, Planet planet, int pingSize)
+            {
+                Left   = (tile.x - pingSize).ClampMin(0);
+                Right  = (tile.x + pingSize).UpperBound(planet.TileMaxX - 1);
+                Top    = (tile.y - pingSize).ClampMin(0);
+                Bottom = (tile.y + pingSize).UpperBound(planet.TileMaxY - 1);
+                Width  = planet.TileMaxY;
+            }
         }
 
         void RemoveTroopFromHostShip()
