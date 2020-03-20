@@ -525,7 +525,7 @@ namespace Ship_Game
         int CombatLandingTileScore(PlanetGridSquare tile, Planet planet)
         {
             int score  = 0;
-            Ping ping = new Ping(tile, planet, 1);
+            Ping ping  = new Ping(tile, planet, 1);
             for (int x = ping.Left; x <= ping.Right; ++x)
             {
                 for (int y = ping.Top; y <= ping.Bottom; ++y)
@@ -541,8 +541,8 @@ namespace Ship_Game
         public bool AcquireTarget(PlanetGridSquare tile, Planet planet, out PlanetGridSquare targetTile)
         {
             int bestScore = 0;
-            targetTile = null;
-            Ping ping = new Ping(tile, planet, ActualRange);
+            targetTile    = null;
+            Ping ping     = new Ping(tile, planet, ActualRange);
             for (int x = ping.Left; x <= ping.Right; ++x)
             {
                 for (int y = ping.Top; y <= ping.Bottom; ++y)
@@ -550,7 +550,10 @@ namespace Ship_Game
                     PlanetGridSquare checkedTile = planet.TilesList[x * ping.Width + y];
                     int score = checkedTile.CalculateTargetValue(this, planet);
                     if (score > bestScore)
-                        bestScore = score;
+                    {
+                        bestScore  = score;
+                        targetTile = checkedTile;
+                    }
                 }
             }
 
