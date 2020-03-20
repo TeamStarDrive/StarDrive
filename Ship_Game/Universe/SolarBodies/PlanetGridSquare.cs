@@ -223,6 +223,8 @@ namespace Ship_Game
 
                 if (building.InvadeInjurePoints > 0)
                     return 2;
+
+                return 1;
             }
             else if (HostilesTargetsOnTile(t.Loyalty, planet.Owner))
             {

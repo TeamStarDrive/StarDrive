@@ -225,13 +225,20 @@ namespace Ship_Game
         bool SpotClosestHostile(PlanetGridSquare spotterTile, Empire spotterOwner, out PlanetGridSquare targetTile)
         {
             targetTile = null;
-            foreach (PlanetGridSquare scannedTile in TilesList.OrderBy(tile =>
-                Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
+            if (spotterTile.LockOnEnemyTroop(spotterOwner, out _))
             {
-                if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
+                targetTile = spotterTile; // We have enemy on our tile
+            }
+            else
+            {
+                foreach (PlanetGridSquare scannedTile in TilesList.OrderBy(tile =>
+                    Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
                 {
-                    targetTile = scannedTile;
-                    break;
+                    if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
+                    {
+                        targetTile = scannedTile;
+                        break;
+                    }
                 }
             }
 
