@@ -237,7 +237,7 @@ namespace Ship_Game.ShipDesignIssues
         public void CheckCombatEfficiency(float excessPowerConsumed, float weaponPowerTime, float powerRecharge, 
                                           int numWeapons, int numOrdnanceWeapons)
         {
-            if (numWeapons == 0 || numOrdnanceWeapons == numWeapons || excessPowerConsumed.AlmostZero())
+            if (numWeapons == 0 || numOrdnanceWeapons == numWeapons || excessPowerConsumed.Less(0))
                 return;
 
             WarningLevel severity      = WarningLevel.None;
