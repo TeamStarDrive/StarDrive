@@ -164,17 +164,7 @@ namespace Ship_Game
             if (CombatBuildingOnTile && planetOwner != null && planetOwner != us || EventOnTile)
                 return true;
 
-            using (TroopsHere.AcquireReadLock())
-            {
-                for (int i = 0; i < TroopsHere.Count; ++i)
-                {
-                    Troop t = TroopsHere[i];
-                    if (t.Loyalty != us)
-                        return true;
-                }
-            }
-
-            return false;
+            return LockOnEnemyTroop(us, out _);
         }
 
         public int CalculateNearbyTileScore(Troop troop, Empire planetOwner)
@@ -187,6 +177,12 @@ namespace Ship_Game
                     score += building.CanAttack ? -1 : 1;
                     if (building.Strength > troop.Strength)
                         score -= 1; // Stay away from stronger buildings
+
+                    if (building.PlanetaryShieldStrengthAdded > 0)
+                        score += 10; // Land near shields to destroy them
+
+                    if (building.InvadeInjurePoints > 0)
+                        score += 6; // Land near AA anti troop defense to destroy it
                 }
                 else // friendly building
                 {
@@ -213,6 +209,27 @@ namespace Ship_Game
             }
 
             return score;
+        }
+
+        public int CalculateTargetValue(Troop t, Planet planet)
+        {
+            if (EventOnTile)
+                return 0;
+
+            if (t.Loyalty != planet.Owner && CombatBuildingOnTile)
+            {
+                if (planet.ShieldStrengthCurrent > 0 && building.PlanetaryShieldStrengthAdded > 0)
+                    return 3;
+
+                if (building.InvadeInjurePoints > 0)
+                    return 2;
+            }
+            else if (HostilesTargetsOnTile(t.Loyalty, planet.Owner))
+            {
+                return 1;
+            }
+
+            return 0;
         }
 
         public bool InRangeOf(PlanetGridSquare tileToCheck, int range)

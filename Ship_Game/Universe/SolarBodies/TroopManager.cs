@@ -70,7 +70,7 @@ namespace Ship_Game
 
         private void MakeCombatDecisions()
         {
-            if (!HostileTargetsOnPlanet)
+            if (!ForeignTroopHere(Owner))
                 return;
 
             for (int i = 0; i < TilesList.Count; ++i)
@@ -102,8 +102,7 @@ namespace Ship_Game
                 return;
 
             // scan for enemies
-            PlanetGridSquare nearestTargetTile = SpotClosestHostile(ourTile, Owner); 
-            if (nearestTargetTile == null)
+            if (!SpotClosestHostile(ourTile, Owner, out PlanetGridSquare nearestTargetTile))
                 return; // no targets on planet
 
             // find range
@@ -124,38 +123,38 @@ namespace Ship_Game
             if (!t.CanMove && !t.CanAttack)
                 return;
 
-            // scan for enemies
-            PlanetGridSquare nearestTargetTile = SpotClosestHostile(ourTile, t.Loyalty);
-            if (nearestTargetTile == null)
-                return; // no targets on planet. no need to move or attack
-
-            // find range
-            if (t.CanAttack && nearestTargetTile.InRangeOf(ourTile, t.ActualRange) 
-                            && !nearestTargetTile.EventOnTile) 
+            // find target to attack
+            if (t.CanAttack && t.AcquireTarget(ourTile, Ground, out PlanetGridSquare targetTile))
             {
                 // start combat
                 t.UpdateAttackActions(-1);
 
-                t.FaceEnemy(nearestTargetTile, ourTile);
-                if (nearestTargetTile.BuildingOnTile)
+                t.FaceEnemy(targetTile, ourTile);
+                if (targetTile.BuildingOnTile)
                 {
                     t.UpdateMoveActions(-1);
-                    CombatScreen.StartCombat(t, nearestTargetTile.building, nearestTargetTile, Ground);
+                    CombatScreen.StartCombat(t, targetTile.building, targetTile, Ground);
                 }
-                else if (nearestTargetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
+                else if (targetTile.LockOnEnemyTroop(t.Loyalty, out Troop enemy))
                 {
-                    CombatScreen.StartCombat(t, enemy, nearestTargetTile, Ground);
+                    CombatScreen.StartCombat(t, enemy, targetTile, Ground);
                     if (t.ActualRange == 1)
-                        MoveTowardsTarget(t, ourTile, nearestTargetTile); // enter the same tile 
+                        MoveTowardsTarget(t, ourTile, targetTile); // enter the same tile 
                     else
                         t.UpdateMoveActions(-1);
                 }
             }
-            else // move to targets
+            else // Move to target
+            {
+                // scan for closest enemy
+                if (!SpotClosestHostile(ourTile, t.Loyalty, out PlanetGridSquare nearestTargetTile))
+                    return; // No targets on planet. No need to move
+
                 MoveTowardsTarget(t, ourTile, nearestTargetTile);
 
-            // resolve possible events 
-            ResolveEvents(ourTile, nearestTargetTile, t.Loyalty);
+                // resolve possible events 
+                ResolveEvents(ourTile, nearestTargetTile, t.Loyalty);
+            }
         }
 
         private void ResolveEvents(PlanetGridSquare troopTile, PlanetGridSquare possibleEventTile, Empire empire)
@@ -223,31 +222,20 @@ namespace Ship_Game
             return null;
         }
 
-        private PlanetGridSquare SpotClosestHostile(PlanetGridSquare spotterTile, Empire spotterOwner)
+        bool SpotClosestHostile(PlanetGridSquare spotterTile, Empire spotterOwner, out PlanetGridSquare targetTile)
         {
+            targetTile = null;
             foreach (PlanetGridSquare scannedTile in TilesList.OrderBy(tile =>
                 Math.Abs(tile.x - spotterTile.x) + Math.Abs(tile.y - spotterTile.y)))
             {
                 if (scannedTile.HostilesTargetsOnTile(spotterOwner, Owner))
-                    return scannedTile;
-            }
-
-            return null;
-        }
-
-        private bool HostileTargetsOnPlanet
-        {
-            get
-            {
-                for (int i = 0; i < TilesList.Count; ++i)
                 {
-                    PlanetGridSquare tile = TilesList[i];
-                    if (tile.HostilesTargetsOnTile(Owner, Owner))
-                        return true;
-
+                    targetTile = scannedTile;
+                    break;
                 }
-                return false;
             }
+
+            return targetTile != null;
         }
 
         private void DoBuildingTimers(float elapsedTime)
