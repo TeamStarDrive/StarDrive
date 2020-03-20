@@ -651,7 +651,7 @@ namespace Ship_Game
             }
         }
 
-        void UpdateFreighters() // This will update freighter in an internal to reduce threading issues
+        void UpdateFreighters() // This will update freighters in an interval to reduce threading issues
         {
             if (FreighterUpdateTimer <= 0)
             {
