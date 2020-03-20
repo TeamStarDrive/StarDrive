@@ -6569,7 +6569,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>2564</Index>
       <Text>more Troops needed.</Text>
     </Token>
-
+    <Token>
+      <Index>2565</Index>
+      <Text>Combat efficiency after power reserves are exhausted would be</Text>
+    </Token>
+    <Token>
+      <Index>2566</Index>
+      <Text>Partial Weapon Efficiency</Text>
+    </Token>
+    <Token>
+      <Index>2567</Index>
+      <Text>The ship consumes more energy than it's Reactors can output. This means the ship combat efficiency will be reduced after it's Power Reserves are exhausted.</Text>
+    </Token>
+    <Token>
+      <Index>2568</Index>
+      <Text>Add Reactors to offset the excess power consumption, or Energy Storage to increase Powered Weapon's time.</Text>
+    </Token>
     <!-- Formulate Offer Text for Diplomacy  3000 + -->
     <Token>
       <Index>3000</Index>

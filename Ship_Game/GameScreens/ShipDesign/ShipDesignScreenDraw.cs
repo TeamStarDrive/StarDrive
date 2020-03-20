@@ -611,6 +611,7 @@ namespace Ship_Game
                 DesignIssues.CheckTargetExclusions(numWeaponSlots > 0, canTargetFighters, canTargetCorvettes, canTargetCapitals);
                 DesignIssues.CheckTruePD(size, pointDefenseValue);
                 DesignIssues.CheckWeaponPowerTime(bEnergyWeapons, powerConsumed > 0, energyDuration);
+                DesignIssues.CheckCombatEfficiency(powerConsumed, energyDuration, powerRecharge, numWeapons, numOrdnanceWeapons);
                 DesignIssues.CheckBurstPowerTime(beamPeakPowerNeeded > 0, burstEnergyDuration);
                 DesignIssues.CheckOrdnanceVsEnergyWeapons(numWeapons, numOrdnanceWeapons);
                 DesignIssues.CheckTroopsVsBays(troopCount, numTroopBays);
@@ -773,7 +774,7 @@ namespace Ship_Game
         void DrawFtlTime(ref Vector2 cursor, float powerCapacity, float fDrawAtWarp, float warpSpeed, out float fWarpTime)
         {
             fWarpTime = -powerCapacity / fDrawAtWarp;
-            if (!(warpSpeed > 0))
+            if (!warpSpeed.AlmostZero() || Stationary)
                 return;
 
             if (fDrawAtWarp < 0)
