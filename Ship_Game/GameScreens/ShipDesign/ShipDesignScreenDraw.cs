@@ -774,7 +774,7 @@ namespace Ship_Game
         void DrawFtlTime(ref Vector2 cursor, float powerCapacity, float fDrawAtWarp, float warpSpeed, out float fWarpTime)
         {
             fWarpTime = -powerCapacity / fDrawAtWarp;
-            if (!warpSpeed.AlmostZero() || Stationary)
+            if (warpSpeed.AlmostZero() || Stationary)
                 return;
 
             if (fDrawAtWarp < 0)
