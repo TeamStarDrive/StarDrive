@@ -895,7 +895,7 @@ namespace Ship_Game
 
         void DrawStatOrdnance(ref Vector2 cursor, string words, string stat, int tooltipId)
         {
-            DrawStat(ref cursor, words, stat, tooltipId, Color.White, Color.LightGreen);
+            DrawStat(ref cursor, words, stat, tooltipId, Color.IndianRed, Color.LightGreen);
         }
 
         void DrawStatBad(ref Vector2 cursor, string words, string stat, int tooltipId)
