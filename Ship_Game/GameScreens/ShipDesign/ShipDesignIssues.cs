@@ -234,7 +234,7 @@ namespace Ship_Game.ShipDesignIssues
                 AddDesignIssue(DesignIssueType.LowWeaponPowerTime, EmpireStats, severity);
         }
 
-        public void CheckCombatEfficiency(float excessPowerConsumed, float weaponPowerTime, float powerRecharge, 
+        public void CheckCombatEfficiency(float excessPowerConsumed, float weaponPowerTime, float netPowerRecharge, 
                                           int numWeapons, int numOrdnanceWeapons)
         {
             if (numWeapons == 0 || numOrdnanceWeapons == numWeapons || excessPowerConsumed.Less(0))
@@ -242,7 +242,7 @@ namespace Ship_Game.ShipDesignIssues
 
             WarningLevel severity      = WarningLevel.None;
             float energyWeaponsRatio   = (float)(numWeapons - numOrdnanceWeapons) / numWeapons;
-            float efficiencyReduction  = (1 - powerRecharge / excessPowerConsumed);
+            float efficiencyReduction  = (1 - netPowerRecharge / (excessPowerConsumed + netPowerRecharge));
             efficiencyReduction       *= energyWeaponsRatio;
             float netEfficiency        = (1 - efficiencyReduction) * 100;
 
