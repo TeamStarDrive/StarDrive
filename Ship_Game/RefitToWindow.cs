@@ -60,7 +60,7 @@ namespace Ship_Game
                     batch.DrawString(Fonts.Arial12Bold, Ship.shipData.GetRole(), tCursor, Color.Orange);
                 }
 
-                var moneyRect = new Rectangle((int)X + 165, (int)Y, 21, 20);
+                var moneyRect = new Rectangle((int)X + 285, (int)Y, 21, 20);
                 var moneyText = new Vector2((moneyRect.X + 25), (moneyRect.Y - 2));
                 batch.Draw(ResourceManager.Texture("NewUI/icon_production"), moneyRect, Color.White);
                 int refitCost = Screen.ShipToRefit.RefitCost(Ship);
@@ -70,12 +70,13 @@ namespace Ship_Game
 
         public override void LoadContent()
         {
-            var shipDesignsRect = new Rectangle(ScreenWidth / 2 - 140, 100, 280, 500);
+            var shipDesignsRect = new Rectangle(ScreenWidth / 2 - 200, 200, 400, 500);
             sub_ships = new Submenu(shipDesignsRect);
             sub_ships.Background = new Selector(sub_ships.Rect.CutTop(25), new Color(0, 0, 0, 210)); // Black fill
             
             RefitShipList = Add(new ScrollList2<RefitShipListItem>(sub_ships, 40));
             sub_ships.AddTab("Refit to...");
+            RefitShipList.EnableItemHighlight = true;
             RefitShipList.OnClick = OnRefitShipItemClicked;
 
             foreach (string shipId in ShipToRefit.loyalty.ShipsWeCanBuild)
@@ -90,9 +91,9 @@ namespace Ship_Game
 
             ConfirmRefit = new DanButton(new Vector2(shipDesignsRect.X, (shipDesignsRect.Y + 505)), "Do Refit");
 
-            RefitOne = ButtonLow(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, text:2265, click: OnRefitOneClicked);
+            RefitOne = ButtonMedium(shipDesignsRect.X + 25, shipDesignsRect.Y + 505, text:2265, click: OnRefitOneClicked);
             RefitOne.Tooltip = Localizer.Token(2267);
-            RefitAll = ButtonLow(shipDesignsRect.X + 140, shipDesignsRect.Y + 505, text:2266, click: OnRefitAllClicked);
+            RefitAll = ButtonMedium(shipDesignsRect.X + 250, shipDesignsRect.Y + 505, text:2266, click: OnRefitAllClicked);
             RefitAll.Tooltip = Localizer.Token(2268);
 
             base.LoadContent();
