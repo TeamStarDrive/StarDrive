@@ -6,6 +6,17 @@ namespace Ship_Game
 {
     public partial class ColonyScreen
     {
+
+        int IncomingFreighters;
+        int IncomingFoodFreighters;
+        int IncomingProdFreighters;
+        int IncomingColoFreighters;
+        int OutgoingFreighters;
+        int OutgoingFoodFreighters;
+        int OutgoingProdFreighters;
+        int OutgoingColoFreighters;
+        int FreighterUpdateTimer;
+
         void DrawBuildingInfo(ref Vector2 cursor, SpriteBatch batch, float value, string texture,
             string toolTip, bool percent = false, bool signs = true)
         {
@@ -219,7 +230,8 @@ namespace Ship_Game
                 batch.DrawString(Font12, $"{terraformText} - {(P.TerraformPoints * 100).String(0)}%", terraformPos, terraformColor);
             }
 
-            if (P.NumIncomingFreighters > 0 && P.Owner?.isPlayer == true)
+            UpdateFreighters();
+            if (IncomingFreighters > 0 && P.Owner?.isPlayer == true)
             {
                 Vector2 incomingTitle = new Vector2(vector2_2.X + + 200, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
                 Vector2 incomingData =  new Vector2(vector2_2.X + 200 + num5, vector2_2.Y - (Font12.LineSpacing + 2) * 3);
@@ -228,18 +240,18 @@ namespace Ship_Game
                 incomingTitle.Y += lineDown;
                 incomingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(161)}:", incomingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{P.IncomingFoodFreighters}", incomingData, Color.White);
+                batch.DrawString(Font12, $"{IncomingFoodFreighters}", incomingData, Color.White);
                 incomingTitle.Y += lineDown;
                 incomingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(162)}:", incomingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{P.IncomingProdFreighters}", incomingData, Color.White);
+                batch.DrawString(Font12, $"{IncomingProdFreighters}", incomingData, Color.White);
                 incomingTitle.Y += lineDown;
                 incomingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(1962)}:", incomingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{P.IncomingColonistsFreighters}", incomingData, Color.White);
+                batch.DrawString(Font12, $"{IncomingColoFreighters}", incomingData, Color.White);
             }
 
-            if (P.NumOutgoingFreighters > 0 && P.Owner?.isPlayer == true)
+            if (OutgoingFreighters > 0 && P.Owner?.isPlayer == true)
             {
                 Vector2 outgoingTitle = new Vector2(vector2_2.X + +200, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
                 Vector2 outgoingData  = new Vector2(vector2_2.X + 200 + num5, vector2_2.Y + (Font12.LineSpacing + 2) * 2);
@@ -248,15 +260,15 @@ namespace Ship_Game
                 outgoingTitle.Y += lineDown;
                 outgoingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(161)}:", outgoingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{P.OutgoingFoodFreighters}", outgoingData, Color.White);
+                batch.DrawString(Font12, $"{OutgoingFoodFreighters}", outgoingData, Color.White);
                 outgoingTitle.Y += lineDown;
                 outgoingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(162)}:", outgoingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{P.OutgoingProdFreighters}", outgoingData, Color.White);
+                batch.DrawString(Font12, $"{OutgoingProdFreighters}", outgoingData, Color.White);
                 outgoingTitle.Y += lineDown;
                 outgoingData.Y  += lineDown;
                 batch.DrawString(Font12, $"{Localizer.Token(1962)}:", outgoingTitle, Color.Gray);
-                batch.DrawString(Font12, $"{P.OutGoingColonistsFreighters}", outgoingData, Color.White);
+                batch.DrawString(Font12, $"{OutgoingColoFreighters}", outgoingData, Color.White);
             }
 
             rect = new Rectangle((int)vector2_2.X, (int)vector2_2.Y, (int)Font12.MeasureString(Localizer.Token(386) + ":").X, Font12.LineSpacing);
@@ -636,6 +648,26 @@ namespace Ship_Game
                 bCursor.Y += Font12.LineSpacing;
                 batch.DrawString(Font12, terraformStats, bCursor, terraformColor);
                 bCursor.Y += Font12.LineSpacing * 4;
+            }
+        }
+
+        void UpdateFreighters() // This will update freighter in an internal to reduce threading issues
+        {
+            if (FreighterUpdateTimer <= 0)
+            {
+                IncomingFreighters     = P.NumIncomingFreighters;
+                IncomingFoodFreighters = P.IncomingFoodFreighters;
+                IncomingProdFreighters = P.IncomingProdFreighters;
+                IncomingColoFreighters = P.IncomingColonistsFreighters;
+                OutgoingFreighters     = P.NumOutgoingFreighters;
+                OutgoingFoodFreighters = P.OutgoingFoodFreighters;
+                OutgoingProdFreighters = P.OutgoingProdFreighters;
+                OutgoingColoFreighters = P.OutGoingColonistsFreighters;
+                FreighterUpdateTimer   = 60;
+            }
+            else if (!Empire.Universe.Paused)
+            {
+                FreighterUpdateTimer -= 1;
             }
         }
     }
