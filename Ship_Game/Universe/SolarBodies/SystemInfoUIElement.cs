@@ -235,6 +235,7 @@ namespace Ship_Game
                         {
                             int Spacing = DataFont.LineSpacing;
                             PlanetTypeCursor.Y += (Spacing + 4);
+                            p.UpdateMaxPopulation();
                             string popString = p.PopulationStringForPlayer;
                             PlanetTypeCursor.X = PlanetRect.X + PlanetRect.Width / 2 - DataFont.MeasureString(popString).X / 2f;
                             ScreenManager.SpriteBatch.DrawString(DataFont, popString, PlanetTypeCursor, tColor);
