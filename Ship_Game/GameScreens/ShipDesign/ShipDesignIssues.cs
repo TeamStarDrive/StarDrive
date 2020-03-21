@@ -225,7 +225,7 @@ namespace Ship_Game.ShipDesignIssues
                 return;
 
             WarningLevel severity = WarningLevel.None;
-            if (weaponPowerTime < 2)       severity = WarningLevel.Critical;
+            if      (weaponPowerTime < 2)  severity = WarningLevel.Critical;
             else if (weaponPowerTime < 5)  severity = WarningLevel.Major;
             else if (weaponPowerTime < 10) severity = WarningLevel.Minor;
             else if (weaponPowerTime < 20) severity = WarningLevel.Informative;
