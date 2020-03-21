@@ -261,7 +261,7 @@ namespace Ship_Game
                 Log.Info("MoveShipGroupToMouse (existing)");
                 Ship centerMost = CurrentGroup.GetClosestShipTo(CurrentGroup.AveragePosition());
                 Vector2 finalDir = GetDirectionToFinalPos(centerMost, finalPos);
-                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue, offensiveMove: Input.IsCtrlKeyDown);
+                CurrentGroup.FormationWarpTo(finalPos, finalDir, queue, offensiveMove: Input.IsCtrlKeyDown, true);
             }
         }
     }

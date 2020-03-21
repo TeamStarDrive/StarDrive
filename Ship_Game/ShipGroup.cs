@@ -70,6 +70,7 @@ namespace Ship_Game
         public ShipGroup(Array<Ship> shipList, Vector2 start, Vector2 end, Vector2 direction, Empire owner)
         {
             Owner = owner;
+            FinalDirection = direction;
             Vector2 fleetCenter = AssembleDefaultGroup(shipList, start, end);
             ProjectPos(fleetCenter, direction);
         }
@@ -240,14 +241,22 @@ namespace Ship_Game
                 if (!lastLine) // fill front lines:
                 {
                     for (int x = 0; x < w; ++x)
-                        Ships[i++].RelativeFleetOffset = new Vector2(x-cx, y) * shipSpacing;
+                    {
+                        var ship = Ships[i++]; 
+                        ship.RelativeFleetOffset = new Vector2(x-cx, y) * shipSpacing;
+                        AssignPositionTo(ship);
+                    }
                 }
                 else
                 {
                     int remaining = ships.Length - i;
                     float cx2 = remaining*0.5f - 0.5f; // last line center offset by remaining ships
                     for (int x = 0; x < remaining; ++x)
-                        Ships[i++].RelativeFleetOffset = new Vector2(x-cx2, y) * shipSpacing;
+                    {
+                        var ship = Ships[i++];
+                        ship.RelativeFleetOffset = new Vector2(x-cx2, y) * shipSpacing;
+                        AssignPositionTo(ship);
+                    }
                 }
             }
 
@@ -397,10 +406,10 @@ namespace Ship_Game
                 || !(currentAmmo <= maxAmmo * wantedSupplyRatio);
         }
 
-        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false)
+        public void FormationWarpTo(Vector2 finalPosition, Vector2 finalDirection, bool queueOrder, bool offensiveMove = false, bool forceAssembly = false)
         {
             GoalStack.Clear();
-            AssembleFleet(finalPosition, finalDirection, forceAssembly: offensiveMove);
+            AssembleFleet(finalPosition, finalDirection, forceAssembly: forceAssembly);
 
             for (int i = 0; i < Ships.Count; ++i)
             {
