@@ -891,7 +891,7 @@ namespace Ship_Game.Gameplay
             float off = 0f;
             if (isBeam)
             {
-                off += DamageAmount * 60 * BeamDuration * (2f / NetFireDelay);
+                off += DamageAmount * 60 * BeamDuration * (1f / NetFireDelay);
                 off += MassDamage * 30 * (1f / NetFireDelay);
                 off += PowerDamage * 45 * (1f / NetFireDelay);
                 off += RepulsionDamage * 45 * (1f / NetFireDelay);
@@ -931,9 +931,9 @@ namespace Ship_Game.Gameplay
 
             // FB: Added correct exclusion offense calcs
             float exclusionMultiplier = 1;
-            if (Excludes_Fighters)  exclusionMultiplier -= 0.1f;
+            if (Excludes_Fighters)  exclusionMultiplier -= 0.15f;
             if (Excludes_Corvettes) exclusionMultiplier -= 0.15f;
-            if (Excludes_Capitals)  exclusionMultiplier -= 0.5f;
+            if (Excludes_Capitals)  exclusionMultiplier -= 0.45f;
             if (Excludes_Stations)  exclusionMultiplier -= 0.25f;
             off *= exclusionMultiplier;
 
