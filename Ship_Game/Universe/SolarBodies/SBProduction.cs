@@ -326,7 +326,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
-            P.ConstructionQueue.RemoveRef(q);
+            P.ConstructionQueue.Remove(q);
             if (q.isBuilding)
                 P.RefreshBuildingsWeCanBuildHere();
 
