@@ -166,7 +166,7 @@ namespace Ship_Game.AI
                 TotalValue += (int)kv.Value.UpdateSystemValue();
 
             foreach (var kv in DefenseDict)
-                kv.Value.PercentageOfValue = kv.Value.TotalValueToUs / TotalValue.ClampMin(1);
+                kv.Value.PercentageOfValue = kv.Value.TotalValueToUs / TotalValue.LowerBound(1);
 
             int ranker = 0;
             int split = DefenseDict.Count / 10;

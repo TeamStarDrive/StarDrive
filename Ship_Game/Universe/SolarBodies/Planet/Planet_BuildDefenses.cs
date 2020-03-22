@@ -30,7 +30,7 @@ namespace Ship_Game
         public int GetColonyRank(PlanetBudget budget)
         {
             float maxSystemValue = ParentSystem.PlanetList.Max(v => v.ColonyValue);
-            float ratioValue     = ColonyValue / maxSystemValue.ClampMin(1);
+            float ratioValue     = ColonyValue / maxSystemValue.LowerBound(1);
 
             int rank = (int)(budget.SystemRank * ratioValue);
             return ApplyRankModifiers(rank);

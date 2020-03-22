@@ -100,7 +100,7 @@ namespace Ship_Game.AI
             foreach (Ship ship in ShipsWaitingForCoreFleet)
                 str += ship.GetStrength();
 
-            return ThreatLevel + str.ClampMin(100) < CoreFleet.GetStrength();
+            return ThreatLevel + str.LowerBound(100) < CoreFleet.GetStrength();
         }
 
         private void CoreFleetAddShip(Ship ship)
