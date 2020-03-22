@@ -344,7 +344,7 @@ namespace Ship_Game.AI
         public void CalculateRatioInSystem(float totalValue) => RatioInSystem = CalculateRatio(totalValue);
         private float CalculateRatio(float value)
         {
-            return Value / value.ClampMin(1);
+            return Value / value.LowerBound(1);
         }
 
     }
