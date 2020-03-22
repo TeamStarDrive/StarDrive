@@ -107,8 +107,8 @@ namespace Ship_Game
 
             lookingAt.X = (int)lookRightEdge.UpperBound(ActualMap.X + ActualMap.Width - lookingAt.Width);
             lookingAt.Y = (int)lookBottomEdge.UpperBound(ActualMap.Height + ActualMap.Y - lookingAt.Height);
-            lookingAt.X = (int)lookingAt.X.ClampMin(ActualMap.X);
-            lookingAt.Y = (int)lookingAt.Y.ClampMin(ActualMap.Y);
+            lookingAt.X = (int)lookingAt.X.LowerBound(ActualMap.X);
+            lookingAt.Y = (int)lookingAt.Y.LowerBound(ActualMap.Y);
 
             batch.FillRectangle(lookingAt, new Color(255, 255, 255, 30));
             batch.DrawRectangle(lookingAt, Color.White);

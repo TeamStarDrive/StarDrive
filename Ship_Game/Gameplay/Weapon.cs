@@ -921,7 +921,7 @@ namespace Ship_Game.Gameplay
             off *= ProjectileSpeed > 1 ? ProjectileSpeed / 4000 : 1f;
 
             // FB: Missiles which can be intercepted might get str modifiers
-            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.ClampMin(2) : 1;
+            off *= Tag_Intercept && RotationRadsPerSecond > 1 ? 1 + HitPoints / 50 / ProjectileRadius.LowerBound(2) : 1;
 
             // FB: offense calcs for damage radius
             off *= DamageRadius > 32 && !TruePD ? DamageRadius / 32 : 1f;
@@ -938,7 +938,7 @@ namespace Ship_Game.Gameplay
             off *= exclusionMultiplier;
 
             // Imprecision gets worse when range gets higher
-            off *= !Tag_Missile && !Tag_Torpedo ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).ClampMin(0.1f) : 1f;
+            off *= !Tag_Missile && !Tag_Torpedo ? (1 - FireImprecisionAngle*0.01f * (BaseRange/2000)).LowerBound(0.1f) : 1f;
 
             if (m == null)
                 return off * OffPowerMod;
