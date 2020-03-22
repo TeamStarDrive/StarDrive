@@ -21,7 +21,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool Empty => ConstructionQueue.IsEmpty;
         public int Count => ConstructionQueue.Count;
         public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
-        public  SafeQueue<QueueItem> UIRushedQueueItems = new SafeQueue<QueueItem>();
+        public SafeQueue<QueueItem> UIRushedQueueItems = new SafeQueue<QueueItem>();
 
         float ProductionHere
         {
@@ -232,6 +232,10 @@ namespace Ship_Game.Universe.SolarBodies
 
         void ProcessUIRushedQueueItems()
         {
+            // we can add a limit to the amount that can be rushed here
+            // my initial limit was going to be (shipyard + colony level + 1) * P.Prod.GrossMaxPotential;
+            // to make this work right the items in this queue need to be known to the player and the AI. 
+
             while (UIRushedQueueItems.NotEmpty)
             {
                 QueueItem q = UIRushedQueueItems.Dequeue();
