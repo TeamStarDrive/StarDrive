@@ -545,10 +545,10 @@ namespace Ship_Game
         // Then it will use square root to get the number of sector per axis
         int GetNumSectorsPerAxis(int numSystems, int numEmpires)
         {
-            int numSectors        = numSystems / numEmpires.ClampMin(4); // each sector will have stars as ~player num, minimum of 4
+            int numSectors        = numSystems / numEmpires.LowerBound(4); // each sector will have stars as ~player num, minimum of 4
             int numSectorsPerAxis = (int)Math.Sqrt(numSectors) + 1;
 
-            return numSectorsPerAxis.ClampMin(numEmpires / 2);
+            return numSectorsPerAxis.LowerBound(numEmpires / 2);
         }
 
         Array<Sector> GenerateSectors(int numHorizontalSectors, int numVerticalSectors, float deviation, float offsetMultiplier = 0.1f)
@@ -631,9 +631,9 @@ namespace Ship_Game
                 // Some deviation in the center of the cluster
                 rawCenter = rawCenter.GenerateRandomPointInsideCircle(universeSize.X * deviation);
 
-                LeftX  = (rawCenter.X - xSection).ClampMin(-universeSize.X);
+                LeftX  = (rawCenter.X - xSection).LowerBound(-universeSize.X);
                 RightX = (rawCenter.X + xSection).UpperBound(universeSize.X);
-                TopY   = (rawCenter.Y - ySection).ClampMin(-universeSize.Y) + offset;
+                TopY   = (rawCenter.Y - ySection).LowerBound(-universeSize.Y) + offset;
                 BotY   = (rawCenter.Y + ySection).UpperBound(universeSize.Y) - offset;
 
                 // creating some gaps between clusters
