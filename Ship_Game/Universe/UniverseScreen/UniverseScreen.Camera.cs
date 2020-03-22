@@ -63,7 +63,9 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void SnapViewColony()
+        public void SnapViewColony() => SnapViewColony(false);
+
+        public void SnapViewColony(bool combatMenu)
         {
             ShowShipNames = false;
             if (SelectedPlanet == null)
@@ -91,6 +93,8 @@ namespace Ship_Game
                     else
                         workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
                 }
+                else if (combatMenu && SelectedPlanet.Habitable && SelectedPlanet.IsExploredBy(player))
+                        OpenCombatMenu();
                 else
                     workersPanel = new UnownedPlanetScreen(this, SelectedPlanet);
 

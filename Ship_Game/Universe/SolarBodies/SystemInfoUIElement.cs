@@ -333,7 +333,7 @@ namespace Ship_Game
                     {
                         screen.SelectedPlanet = clickMe.p;
                         screen.pInfoUI.SetPlanet(clickMe.p);
-                        screen.SnapViewColony();
+                        screen.SnapViewColony(true);
                         return true;
                     }
 
