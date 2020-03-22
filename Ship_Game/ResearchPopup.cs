@@ -40,13 +40,20 @@ namespace Ship_Game
             {
                 Unlock = unlock;
             }
-            void DrawTitleAndDescr(SpriteBatch batch, string title, string descr)
+            void DrawTitleAndDescr(SpriteBatch batch, string title, string descr, string comment = "")
             {
                 string wrappedDescr = Fonts.Arial12.ParseText(descr, Width - 100);
                 float textHeight = Fonts.Arial14Bold.LineSpacing + 5 + Fonts.Arial12.MeasureString(wrappedDescr).Y;
                 var pos = new Vector2(X + 100, CenterY - (int)(textHeight / 2f));
 
                 batch.DrawDropShadowText(title, pos, Fonts.Arial14Bold, Color.Orange);
+                if (comment.NotEmpty())
+                {
+                    var commentPos = Fonts.Arial14Bold.MeasureString(title);
+                    commentPos.X  += pos.X;
+                    commentPos.Y   = pos.Y + 2;
+                    batch.DrawString(Fonts.Arial12, comment, commentPos, Color.Gray);
+                }
                 batch.DrawString(Fonts.Arial12, wrappedDescr, pos + new Vector2(0f, Fonts.Arial14Bold.LineSpacing + 2), Color.LightGray);
             }
             public override void Draw(SpriteBatch batch)
@@ -62,15 +69,20 @@ namespace Ship_Game
 
                         int modW = Unlock.module.XSIZE, modH = Unlock.module.YSIZE;
                         Rectangle r = DestinationRect(64, 64);
-                        if (modW != 1 || modH != 1)
+                        if (modH > modW)
                         {
-                            r = DestinationRect(modW * 16, modH * 16);
-                            while (r.Height < Height) r = DestinationRect(r.Width + modW, r.Height + modH);
-                            while (r.Height > Height) r = DestinationRect(r.Width - modW, r.Height - modH);                                    
+                            float ratio = (float)modW / modH * Height;
+                            r = DestinationRect((int)ratio, (int)Height);
                         }
-                        batch.Draw(ResourceManager.Texture(Unlock.module.IconTexturePath), r, Color.White);
+                        else if (modW > modH)
+                        {
+                            float ratio = (float)modH / modW * (Height-20);
+                            r = DestinationRect((int)(Height-20), (int)ratio);
+                        }
 
-                        DrawTitleAndDescr(batch, Unlock.privateName, Unlock.Description);
+                        batch.Draw(Unlock.module.ModuleTexture, r, Color.White);
+                        string size = $" ({modW}x{modH})";
+                        DrawTitleAndDescr(batch, Unlock.privateName, Unlock.Description, size);
                         break;
                     }
                     case UnlockType.TROOP:
