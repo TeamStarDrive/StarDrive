@@ -674,7 +674,7 @@ namespace Ship_Game
                 pInfoUI.SetPlanet(SelectedPlanet);
                 if (input.LeftMouseDoubleClick)
                 {
-                    SnapViewColony();
+                    SnapViewColony(combatMenu: true);
                     SelectionBox = new Rectangle();
                 }
                 else
@@ -955,7 +955,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        SnapViewColony();
+                        SnapViewColony(true);
                     }
                 }
             }

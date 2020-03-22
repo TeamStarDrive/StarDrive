@@ -612,16 +612,16 @@ namespace Ship_Game
 
         public void UpdateMaxPopulation()
         {
-            int numHabitableTiles = 0;
-            if (Type.Habitable)
-            {
-                numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-                PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
+            if (!Type.Habitable)
+                return;
+
+            int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
+            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
                                     + BuildingList.Count(b => b.IsBiospheres) * BasePopPerTile;
-            }
+
 
             MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
-            MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
+            MaxPopBillionVal = MaxPopValFromTiles / 1000f;
         }
 
         public int Level { get; private set; }
