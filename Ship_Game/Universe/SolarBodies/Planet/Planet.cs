@@ -86,7 +86,7 @@ namespace Ship_Game
         public int GetEstimatedTroopStrengthToInvade(int bestTroopStrength = 10)
         {
             float strength = TroopManager.GroundStrength(Owner); //.ClampMin(100);
-            return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.ClampMin(1)) : 0;
+            return strength > 0 ? (int)Math.Ceiling(strength / bestTroopStrength.LowerBound(1)) : 0;
 
         }
         public bool AnyOfOurTroops(Empire us)           => TroopManager.WeHaveTroopsHere(us);
@@ -152,7 +152,7 @@ namespace Ship_Game
         public float PotentialMaxFertilityFor(Empire empire)
         {
             float minimumMaxFertilityPotential = empire.IsBuildingUnlocked(Building.TerraformerId) ? 1 : 0;
-                return MaxFertilityFor(empire).ClampMin(minimumMaxFertilityPotential);
+                return MaxFertilityFor(empire).LowerBound(minimumMaxFertilityPotential);
         }
 
         public float MaxPopulationFor(Empire empire)
@@ -751,7 +751,7 @@ namespace Ship_Game
 
         public void AddMaxBaseFertility(float amount)
         {
-            BaseMaxFertility    = (BaseMaxFertility + amount).ClampMin(0);
+            BaseMaxFertility    = (BaseMaxFertility + amount).LowerBound(0);
         }
 
         public void AddBuildingsFertility(float amount)
@@ -762,7 +762,7 @@ namespace Ship_Game
         // FB: to enable bombs to temp change fertility immediately by specified amount
         public void AddBaseFertility(float amount)
         {
-            BaseFertility = (BaseFertility + amount).ClampMin(0);
+            BaseFertility = (BaseFertility + amount).LowerBound(0);
         }
 
         // FB: note that this can be called multiple times in a turn - especially when selecting the planet or in colony screen

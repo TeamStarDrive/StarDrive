@@ -60,7 +60,7 @@ namespace Ship_Game.Ships
         }
         public static float PowerDuration(float powerFlowMax, float powerDraw)
         {
-            powerDraw = powerDraw.ClampMin(1);
+            powerDraw = powerDraw.LowerBound(1);
             float powerRatio = (powerFlowMax / powerDraw).Clamped(.01f, 1f);
             if (powerRatio < 1)
                 return powerFlowMax * powerRatio;
