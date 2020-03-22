@@ -6495,7 +6495,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2546</Index>
-      <Text>States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates it's severity (Green for Informative up to Red for Critical). Click on the "Design Issues" Text to view them.</Text>
+      <Text>States any design issues the current ship has. It is displayed after you completed 75% of the design. The color of the issue indicates it's severity (Green for Informative up to Red for Critical). Click on the text to view them.</Text>
     </Token>
     <Token>
       <Index>2547</Index>
