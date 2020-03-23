@@ -10,9 +10,7 @@ namespace Ship_Game
 		private Menu2 TitleBar;
 		private Vector2 TitlePos;
 		private Menu1 PlanetMenu;
-
-		//private Rectangle titleRect;
-
+		private Vector2 NotePos;
 		private Submenu PlanetInfo;
 		private Rectangle PlanetIcon;
 
@@ -31,6 +29,7 @@ namespace Ship_Game
                 ScreenHeight - (titleRect.Y + titleRect.Height) - (int)(0.4f * ScreenHeight));
 			PlanetMenu = new Menu1(leftRect);
 			Rectangle psubRect = new Rectangle(leftRect.X + 20, leftRect.Y + 20, leftRect.Width - 40, leftRect.Height - 40);
+			NotePos = new Vector2(psubRect.X, psubRect.Y + 100);
 			PlanetInfo = new Submenu(psubRect);
 			PlanetInfo.AddTab("Planet Info");
 			PlanetIcon = new Rectangle(psubRect.X + psubRect.Width - 148, leftRect.Y + 45, 128, 128);
@@ -83,6 +82,11 @@ namespace Ship_Game
 			}
 			pNameCursor.Y += Fonts.Arial12Bold.LineSpacing * 2;
 			batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(p.Description, PlanetInfo.Width - 40), pNameCursor, Colors.Cream);
+			if (EmpireManager.Player.DifficultyModifiers.HideTacticalData)
+			{
+				pNameCursor.Y += NotePos.Y;
+				batch.DrawString(Fonts.Arial12Bold, Fonts.Arial12Bold.ParseText(Localizer.Token(1863), PlanetInfo.Width - 40), pNameCursor, Color.Gold);
+			}
 		}
 	}
 }

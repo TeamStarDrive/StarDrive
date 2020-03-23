@@ -505,7 +505,7 @@ namespace Ship_Game
                 }
                 if (Invade.HandleInput(input))
                 {
-                    Screen.SnapViewColony();
+                    Screen.SnapViewColony(combatView: true);
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))
