@@ -63,9 +63,9 @@ namespace Ship_Game
             ViewingShip = true;
         }
 
-        public void SnapViewColony() => SnapViewColony(false);
+        public void SnapViewColony() => SnapViewColony(true);
 
-        public void SnapViewColony(bool combatMenu)
+        public void SnapViewColony(bool combatView)
         {
             ShowShipNames = false;
             if (SelectedPlanet == null)
@@ -93,10 +93,19 @@ namespace Ship_Game
                     else
                         workersPanel = new UnexploredPlanetScreen(this, SelectedPlanet);
                 }
-                else if (combatMenu && SelectedPlanet.Habitable && SelectedPlanet.IsExploredBy(player))
-                        OpenCombatMenu();
+                else if (combatView && SelectedPlanet.Habitable
+                                    && SelectedPlanet.IsExploredBy(player)
+                                    && (SelectedPlanet.WeAreInvadingHere(player) || !player.DifficultyModifiers.HideTacticalData
+                                                                                 || SelectedPlanet.ParentSystem.OwnerList.Contains(player)
+                                                                                 || SelectedPlanet.OurShipsCanScanSurface(player)))
+
+                {
+                    OpenCombatMenu();
+                }
                 else
+                {
                     workersPanel = new UnownedPlanetScreen(this, SelectedPlanet);
+                }
 
                 LookingAtPlanet = true;
                 transitionStartPosition = CamPos;

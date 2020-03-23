@@ -946,6 +946,17 @@ namespace Ship_Game
             return false;
         }
 
+        public bool OurShipsCanScanSurface(Empire us)
+        {
+            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.loyalty == us && ship.Center.InRadius(Center, ship.SensorRange))
+                    return true;
+            }
+
+            return false;
+        }
         private void GrowPopulation()
         {
             if (Owner == null)
