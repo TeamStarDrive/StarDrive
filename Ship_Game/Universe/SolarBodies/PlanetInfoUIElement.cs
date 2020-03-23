@@ -501,11 +501,11 @@ namespace Ship_Game
             {
                 if (Inspect.HandleInput(input))
                 {
-                    Screen.SnapViewColony();
+                    Screen.SnapViewColony(combatView: false);
                 }
                 if (Invade.HandleInput(input))
                 {
-                    Screen.OpenCombatMenu();
+                    Screen.SnapViewColony(combatView: true);
                 }
             }
             if (!ElementRect.HitTest(input.CursorPosition))
