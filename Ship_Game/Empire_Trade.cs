@@ -17,7 +17,7 @@ namespace Ship_Game
         public float TradeMoneyAddedThisTurn      { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
 
-        [XmlIgnore][JsonIgnore] public int FreighterCap          => OwnedPlanets.Count * 2 + Research.Strategy.ExpansionPriority;
+        [XmlIgnore][JsonIgnore] public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
         [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
         [XmlIgnore][JsonIgnore] public int MaxFreightersInQueue  => 1 + Research.Strategy.IndustryPriority;
         [XmlIgnore][JsonIgnore] public int TotalFreighters       => OwnedShips.Count(s => s.IsFreighter);
