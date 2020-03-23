@@ -94,15 +94,15 @@ namespace Ship_Game.AI
             bool found = false;
 
             // check for specific system commander
-            if (sysToDefend != null && DefenseDict.TryGetValue(sysToDefend, out SystemCommander sysCom))
-            {
-                if (!sysCom.RemoveShip(ship))
-                {
-                    if (ship.Active)
-                        DebugInfoScreen.DefenseCoLogsNotInSystem();
-                }
-                else found = true;
-            }
+            //if (sysToDefend != null && DefenseDict.TryGetValue(sysToDefend, out SystemCommander sysCom))
+            //{
+            //    if (!sysCom.RemoveShip(ship))
+            //    {
+            //        if (ship.Active)
+            //            DebugInfoScreen.DefenseCoLogsNotInSystem();
+            //    }
+            //    else found = true;
+            //}
 
             // double check for ship in any other sys commanders
             foreach (SystemCommander com in DefenseDict.Values)
@@ -113,6 +113,14 @@ namespace Ship_Game.AI
                     DebugInfoScreen.DefenseCoLogsMultipleSystems(ship);
                     break;
                 }
+            }
+
+            if (found)
+            {
+                ship.AI.SystemToDefend = null;
+                ship.AI.SystemToDefendGuid = Guid.Empty;
+                ship.AI.ClearOrders();
+                Us.AddShip(ship);
             }
 
             DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
@@ -166,7 +174,7 @@ namespace Ship_Game.AI
                 TotalValue += (int)kv.Value.UpdateSystemValue();
 
             foreach (var kv in DefenseDict)
-                kv.Value.PercentageOfValue = kv.Value.TotalValueToUs / TotalValue.ClampMin(1);
+                kv.Value.PercentageOfValue = kv.Value.TotalValueToUs / TotalValue.LowerBound(1);
 
             int ranker = 0;
             int split = DefenseDict.Count / 10;

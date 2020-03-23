@@ -16,12 +16,12 @@ namespace Ship_Game.AI.Research
 
         public ResearchPriorities(Empire empire, float buildCapacity, string command, string command2)
         {
-            OwnerEmpire    = empire;
-            Wars           = 0;
+            OwnerEmpire          = empire;
+            Wars                 = 0;
             float shipBuildBonus = 0;
-            BuildCapacity = buildCapacity;
-            Command = command;
-            Command2 = command2;
+            BuildCapacity        = buildCapacity;
+            Command              = command;
+            Command2             = command2;
 
             //create a booster for some values when things are slack.
             //so the empire will keep building new ships and researching new science.
@@ -36,17 +36,17 @@ namespace Ship_Game.AI.Research
 
             ResearchDebt = 0;
             var availableTechs = OwnerEmpire.CurrentTechsResearchable();
-            float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential.ClampMin(1);
+            float workerEfficiency = empire.Research.NetResearch / empire.Research.MaxResearchPotential.LowerBound(1);
             if (availableTechs.NotEmpty)
             {
                 //calculate standard deviation of tech costs. remove extreme highs and lows in average
                 float avgTechCost = availableTechs.Average(cost => cost.TechCost);
-                avgTechCost = availableTechs.Sum(cost => (float)Math.Pow(cost.TechCost - avgTechCost, 2));
-                avgTechCost /= availableTechs.Count;
-                avgTechCost = (float)Math.Sqrt(avgTechCost);
+                avgTechCost       = availableTechs.Sum(cost => (float)Math.Pow(cost.TechCost - avgTechCost, 2));
+                avgTechCost      /= availableTechs.Count;
+                avgTechCost       = (float)Math.Sqrt(avgTechCost);
                 //use stddev of techcost to determine how behind we are in tech
 
-                float techCostRatio = avgTechCost / empire.Research.NetResearch.ClampMin(1);
+                float techCostRatio = avgTechCost / empire.Research.NetResearch.LowerBound(1);
                 ResearchDebt = techCostRatio / 50f; //divide by 50 turns.
 
                 ResearchDebt = ResearchDebt.Clamped(0, 1);
@@ -80,7 +80,7 @@ namespace Ship_Game.AI.Research
             Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
             EconomicResearchStrategy strat = empire.Research.Strategy;
 
-            var priority = new Map<string, float>
+            var priority = new Map<string, int>
             {
                 { "SHIPTECH",     Randomizer(strat.MilitaryRatio, Wars)        },
                 { "Research",     Randomizer(strat.ResearchRatio, ResearchDebt)},
@@ -117,9 +117,11 @@ namespace Ship_Game.AI.Research
                 }
             }
         }
-        private float Randomizer(float priority, float bonus)
+        private int Randomizer(float priority, float bonus)
         {
-            return RandomMath.AvgRandomBetween(0, priority + bonus);
+            int b = (int)(bonus * 100);
+            int p = (int)(priority * 100);
+            return RandomMath.AvgRandomBetween(b, p + b);
 
         }
         private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
