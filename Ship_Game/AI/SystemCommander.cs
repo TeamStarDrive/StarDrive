@@ -117,6 +117,7 @@ namespace Ship_Game.AI
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.SystemToDefend = null;
                 shipToRemove.AI.SystemToDefendGuid = Guid.Empty;
+                shipToRemove.AI.ClearOrders();
                 return true;
             }
             return false;
@@ -344,7 +345,7 @@ namespace Ship_Game.AI
         public void CalculateRatioInSystem(float totalValue) => RatioInSystem = CalculateRatio(totalValue);
         private float CalculateRatio(float value)
         {
-            return Value / value.ClampMin(1);
+            return Value / value.LowerBound(1);
         }
 
     }
