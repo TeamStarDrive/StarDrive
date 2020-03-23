@@ -539,7 +539,7 @@ namespace Ship_Game
         {
             GameAudio.SubBassWhoosh();
             Screen.SelectedPlanet = p;
-            Screen.OpenCombatMenu();
+            Screen.SnapViewColony(p.Owner != EmpireManager.Player);
         }
 
         public void SnapToPlanet(Planet p)

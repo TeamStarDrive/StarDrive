@@ -35,6 +35,7 @@ namespace Ship_Game
         Menu1 ShipStats;
         GenericButton ArcsButton;
         GenericButton DesignIssuesButton;
+        GenericButton InformationButton;
         float OriginalZ;
         Rectangle SearchBar;
         Rectangle BottomSep;
@@ -562,6 +563,12 @@ namespace Ship_Game
 
             DesignIssuesButton.HoveredColor   = Color.White;
             DesignIssuesButton.UnHoveredColor = Color.Green;
+
+            InformationButton = new GenericButton(new Vector2(HullSelectList.X + 40, HullSelectList.Y + HullSelectList.Height + 40)
+                , "Information", Fonts.Pirulen20, Fonts.Pirulen16);
+
+            InformationButton.HoveredColor   = Color.White;
+            InformationButton.UnHoveredColor = Color.Green;
 
             CloseButton(ScreenWidth - 27, 99);
             OriginalZ = CameraPosition.Z;
