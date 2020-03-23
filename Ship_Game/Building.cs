@@ -101,7 +101,7 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public bool IsTerraformer => BID == TerraformerId;
 
         [XmlIgnore][JsonIgnore] public SubTexture IconTex => ResourceManager.Texture($"Buildings/icon_{Icon}_48x48");
-        [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.ClampMin(0.1f);
+        [XmlIgnore][JsonIgnore] public float CostEffectiveness => MilitaryStrength / Cost.LowerBound(0.1f);
         [XmlIgnore][JsonIgnore] public bool HasLaunchedAllDefenseShips => CurrentNumDefenseShips <= 0;
         [XmlIgnore][JsonIgnore] private float DefenseShipStrength = 0;
         [XmlIgnore][JsonIgnore] public float SpaceRange = 10000f;

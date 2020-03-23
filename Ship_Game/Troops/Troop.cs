@@ -570,9 +570,9 @@ namespace Ship_Game
 
             public Ping(PlanetGridSquare tile, Planet planet, int pingSize)
             {
-                Left   = (tile.x - pingSize).ClampMin(0);
+                Left   = (tile.x - pingSize).LowerBound(0);
                 Right  = (tile.x + pingSize).UpperBound(planet.TileMaxX - 1);
-                Top    = (tile.y - pingSize).ClampMin(0);
+                Top    = (tile.y - pingSize).LowerBound(0);
                 Bottom = (tile.y + pingSize).UpperBound(planet.TileMaxY - 1);
                 Width  = planet.TileMaxY;
             }

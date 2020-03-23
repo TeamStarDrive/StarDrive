@@ -212,7 +212,7 @@ namespace Ship_Game.AI
             {
                 // make sure to not get at stupid slow speeds but try not to accelerate while slowing down.
                 const float minimumSpeed = 25f;
-                if (vel < Math.Max(distance, stoppingDistance).ClampMin(minimumSpeed))
+                if (vel < Math.Max(distance, stoppingDistance).LowerBound(minimumSpeed))
                 { 
                     float speedLimit = distance;
                     if (goal.SpeedLimit > 0f)

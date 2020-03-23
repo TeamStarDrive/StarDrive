@@ -21,7 +21,7 @@ namespace Ship_Game.AI.Tasks
 
         private int GetTargetPlanetGroundStrength(int minimumStrength)
         {
-            return (int)TargetPlanet.GetGroundStrengthOther(Owner).ClampMin(minimumStrength);
+            return (int)TargetPlanet.GetGroundStrengthOther(Owner).LowerBound(minimumStrength);
         }
 
         Array<Troop> GetTroopsOnPlanets(Vector2 rallyPoint, float strengthNeeded, out float totalStrength,
@@ -52,7 +52,7 @@ namespace Ship_Game.AI.Tasks
                     float planetDefendingTroopStrength = planet.GetDefendingTroopCount();
                     float maxCanTake                   = troopPriorityHigh 
                                     ? 5 
-                                    : (planetDefendingTroopStrength - (planetMinStr - 3)).ClampMin(0);
+                                    : (planetDefendingTroopStrength - (planetMinStr - 3)).LowerBound(0);
 
                     if (maxCanTake > 0)
                     {
@@ -305,7 +305,7 @@ namespace Ship_Game.AI.Tasks
             float minStrength = Owner.GetEmpireAI().ThreatMatrix.PingRadarStr(TargetPlanet.Center
                                 , TargetPlanet.ParentSystem.Radius
                                 , Owner
-                                , true).ClampMin(100);
+                                , true).LowerBound(100);
             InitFleetRequirements((int)minStrength, minTroopStrength: 40, minBombMinutes: 0);
 
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin * 0.5f;
@@ -399,7 +399,7 @@ namespace Ship_Game.AI.Tasks
             // if we cant build bombers then convert bombtime to troops. 
             // This assume a standard troop strength of 10 
             if (fleetShips.BombSecsAvailable < TaskBombTimeNeeded)
-                NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).ClampMin(0) * 10;
+                NeededTroopStrength += (TaskBombTimeNeeded - fleetShips.BombSecsAvailable).LowerBound(0) * 10;
 
             if (fleetShips.AccumulatedStrength < EnemyStrength)
             {
@@ -450,7 +450,7 @@ namespace Ship_Game.AI.Tasks
                                             * Owner.DifficultyModifiers.EnemyTroopStrength);
 
                     if (minBombMinutes > 0)
-                        TaskBombTimeNeeded = BombTimeNeeded().ClampMin(minBombMinutes);
+                        TaskBombTimeNeeded = BombTimeNeeded().LowerBound(minBombMinutes);
                 }
             }
 

@@ -22,7 +22,7 @@ namespace Ship_Game.AI.ExpansionAI
         public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, AO closestAO, float enemyStr)
         {
             Planet                = planet;
-            Distance              = planet.Center.Distance(closestAO.Center).ClampMin(1);
+            Distance              = planet.Center.Distance(closestAO.Center).LowerBound(1);
             OutOfRange            = planet.Center.OutsideRadius(closestAO.Center, closestAO.Radius);
             CantColonize          = false;
             int rangeReduction    = (int)Math.Ceiling(Distance / closestAO.Radius);
