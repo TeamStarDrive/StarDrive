@@ -22,6 +22,20 @@ namespace Ship_Game
             return rand;
         }
 
+        public static int AvgRandomBetween(int minimum, int maximum)
+        {
+            int rand = 0;
+            int x = 0;
+            for (; x < 3; x++)
+            {
+                rand += IntBetween(minimum, maximum);
+            }
+            rand /= x;
+            if (float.IsNaN(rand) || float.IsInfinity(rand))
+                rand = minimum;
+            return rand;
+        }
+
         /// Generate random, inclusive [minimum, maximum]
         public static float RandomBetween(float minimum, float maximum)
         {

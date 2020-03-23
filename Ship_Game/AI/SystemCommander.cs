@@ -117,6 +117,7 @@ namespace Ship_Game.AI
                 CurrentShipStr -= (int)shipToRemove.BaseStrength;
                 shipToRemove.AI.SystemToDefend = null;
                 shipToRemove.AI.SystemToDefendGuid = Guid.Empty;
+                shipToRemove.AI.ClearOrders();
                 return true;
             }
             return false;
