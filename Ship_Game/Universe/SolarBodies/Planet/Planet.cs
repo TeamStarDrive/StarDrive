@@ -411,8 +411,29 @@ namespace Ship_Game
                 }
 
                 if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
+                {
+                    SpaceCombatNearPlanet = ThreatsNearPlanet();
                     NoSpaceCombatTargetsFoundDelay = 2f;
+                }
             }
+        }
+
+        bool ThreatsNearPlanet()
+        {
+            if (!EnemyInRange(clearAndPresentDanger: true))
+                return false;
+
+            for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.Center.InRadius(Center, 10000)
+                    && Owner.IsEmpireAttackable(ship.loyalty))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
