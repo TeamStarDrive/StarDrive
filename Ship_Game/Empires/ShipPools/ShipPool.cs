@@ -54,6 +54,21 @@ namespace Ship_Game.Empires.ShipPools
                 ships.AddRange(ao.GetOffensiveForcePool());
             }
 
+            ships.AddRange(OwnerAI.DefensiveCoordinator.DefensiveForcePool);
+
+            var allShips = Owner.GetShips();
+            foreach(var ship in allShips)
+            {
+                if (ship.AI.State != AIState.SystemDefender) continue;
+                if (!OwnerAI.DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+                {
+                    ship.AI.SystemToDefend = null;
+                    ship.AI.SystemToDefendGuid = Guid.Empty;
+                    ship.AI.ClearOrders();
+
+                }
+            }
+
             if (!onlyAO)
                 ships.AddRange(ForcePool);
             return ships;
