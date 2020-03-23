@@ -77,6 +77,12 @@ namespace Ship_Game
             else
             {
                 bool flag = false;
+                if (SelectedPlanet.Owner == player && combatView)
+                {
+                    OpenCombatMenu();
+                    return;
+                }                    
+
                 foreach (Mole mole in player.data.MoleList)
                 {
                     if (mole.PlanetGuid == SelectedPlanet.guid)
