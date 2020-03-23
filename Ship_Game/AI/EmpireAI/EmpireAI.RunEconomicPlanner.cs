@@ -46,7 +46,18 @@ namespace Ship_Game.AI
             buildRatio = Math.Max(buildRatio, overSpend);
 
             float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
-            return budget;
+
+
+            return budget / BuildModifier();
+        }
+
+        float BuildModifier()
+        {
+            float buildModifier = 1;
+            buildModifier += OwnerEmpire.canBuildCorvettes ? 0 : 5;
+            buildModifier += OwnerEmpire.canBuildFrigates ? 0 : 5;
+            buildModifier += OwnerEmpire.canBuildCruisers ? 0 : 5;
+            return buildModifier;
         }
 
         float DetermineSSPBudget(float money)
@@ -63,7 +74,7 @@ namespace Ship_Game.AI
             float overSpend                = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
             float buildBudget              = SetBudgetForeArea(0.02f, buildRatio, money);
-            return buildBudget;
+            return buildBudget / BuildModifier();
 
         }
 
@@ -83,7 +94,7 @@ namespace Ship_Game.AI
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
 
-            return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money);
+            return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money) / BuildModifier();
         }
 
         private void PlanetBudgetDebugInfo()
