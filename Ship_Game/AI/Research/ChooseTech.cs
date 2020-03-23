@@ -238,11 +238,11 @@ namespace Ship_Game.AI.Research
                         string[] script = modifier.Split(':');
                         for (int i = 1; i < script.Length; i++)
                         {
-                            var techType = ConvertTechStringTechType(script[i]);
-                            hullWasChecked |= i == 1 && techType == TechnologyType.ShipHull;
-                            TechEntry researchTech = GetScriptedTech(command1, techType, availableTechs);
-                            bool isCheaper = command1 == "CHEAPEST";
+                            var techType             = ConvertTechStringTechType(script[i]);
+                            TechEntry researchTech   = GetScriptedTech(command1, techType, availableTechs);
+                            bool isCheaper           = command1 == "CHEAPEST";
                             string testResearchTopic = DoesCostCompare(ref previousCost, researchTech, techType, isCheaper);
+
                             if (testResearchTopic.NotEmpty())
                                 researchTopic = testResearchTopic;
 
@@ -273,12 +273,8 @@ namespace Ship_Game.AI.Research
         {
             string testResearchTopic = researchTech?.UID ?? string.Empty;
             if (testResearchTopic.IsEmpty()) return testResearchTopic;
-            int currentCost = 0;
-            
-            if (researchTech.IsTechnologyType(techType))
-                currentCost = NormalizeTechCost(researchTech.TechCost);
-            else if(!techType.ToString().Contains("Ship"))
-                currentCost = NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
+
+            int currentCost = CostToResearchTechType(researchTech, techType);
 
             if (researchTech.IsTechnologyType(TechnologyType.Industry)
                                               && researchTech.IsTechnologyType(TechnologyType.ShipHull))
@@ -304,6 +300,16 @@ namespace Ship_Game.AI.Research
                 }
             return string.Empty;
         }
+
+        public int CostToResearchTechType(TechEntry researchTech, TechnologyType techType)
+        {
+            if (researchTech.IsTechnologyType(techType))
+                return NormalizeTechCost(researchTech.TechCost);
+            if (!techType.ToString().Contains("Ship"))
+                return NormalizeTechCost(researchTech.CostOfNextTechWithType(techType));
+            return 0;
+        }
+
         private TechnologyType ConvertTechStringTechType(string typeName)
         {
             TechnologyType techType = TechnologyType.General;
@@ -328,21 +334,20 @@ namespace Ship_Game.AI.Research
             {
                 if (!wantsShipTech && tech.IsShipTech()) return false;
                 if (wantsShipTech && !tech.IsShipTech()) return false;
-                if (tech.IsTechnologyType(techType)) return true;
-                if (tech.CostOfNextTechWithType(techType) > 0) return true;
+                if (CostToResearchTechType(tech, techType) >0) return true;
                 return false;
             });
 
-            if (techsTypeFiltered.Length == 0 && !wantsShipTech)
-            {
-                //this get lookahead is tricky.
-                //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
-                //otherwise it would be a simple tech matches techType formula.
-                techsTypeFiltered = availableTechs.Filter(tech =>
-                    tech.CostOfNextTechWithType(techType) > 0);
+            //if (techsTypeFiltered.Length == 0 && !wantsShipTech)
+            //{
+            //    //this get lookahead is tricky.
+            //    //Its trying here to see if the current tech with the wrong techType has a future tech with the right one.
+            //    //otherwise it would be a simple tech matches techType formula.
+            //    techsTypeFiltered = availableTechs.Filter(tech =>
+            //        tech.CostOfNextTechWithType(techType) > 0);
 
-            }
-            LogPossibleTechs(techsTypeFiltered);
+            //}
+            LogPossibleTechs(techsTypeFiltered, techType);
             TechEntry researchTech = TechWithWantedCost(command1, techsTypeFiltered, techType);
 
             return researchTech;
@@ -352,22 +357,18 @@ namespace Ship_Game.AI.Research
         {
             TechEntry researchTech = null;
             if (command1 == "CHEAPEST")
-                researchTech = filteredTechs.FindMin(cost =>
-                {
-                    if (cost.IsTechnologyType(techType))
-                        return cost.TechCost;
-                    return cost.CostOfNextTechWithType(techType);
-                });
+                researchTech = filteredTechs.FindMin(cost => CostToResearchTechType(cost, techType));
             else if (command1 == "EXPENSIVE")
-                researchTech = filteredTechs.FindMax(cost => cost.TechCost);
+                researchTech = filteredTechs.FindMax(cost => CostToResearchTechType(cost, techType));
+
             DebugLog($"{command1} : {researchTech?.UID ?? "Nothing Found"}");
             return researchTech;
         }
 
-        private void LogPossibleTechs(TechEntry[] filteredTechs)
+        private void LogPossibleTechs(TechEntry[] filteredTechs, TechnologyType techType)
         {
             foreach (var tech in filteredTechs)
-                DebugLog($" {tech.UID} : {tech.TechCost} : ({NormalizeTechCost(tech.TechCost)})");
+                DebugLog($" {tech.UID} : {tech.TechCost} : ({CostToResearchTechType(tech, techType)})");
         }
     }
 }
