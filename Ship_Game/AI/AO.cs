@@ -248,17 +248,22 @@ namespace Ship_Game.AI
             for (int i = ShipsWaitingForCoreFleet.Count - 1; i >= 0; --i)
             {
                 Ship ship = ShipsWaitingForCoreFleet[i];
-                if (ship.fleet != null)
-                {
-                    ShipsWaitingForCoreFleet.RemoveAtSwapLast(i);
-                    Log.Error("ship {0} in fleet {1}", ship.Name, ship.fleet.Name);
-                }
 
-                if (OffensiveForcePool.ContainsRef(ship))
-                {
-                    Log.Error("warning. Ship in offensive and waiting {0} ", CoreWorld.Name);
-                    ShipsWaitingForCoreFleet.RemoveAtSwapLast(i); // remove it
-                }
+                ShipsWaitingForCoreFleet.RemoveAt(i);
+                OffensiveForcePool.AddUnique(ship);
+
+
+                //if (ship.fleet != null)
+                //{
+                //    ShipsWaitingForCoreFleet.RemoveAtSwapLast(i);
+                //    Log.Error("ship {0} in fleet {1}", ship.Name, ship.fleet.Name);
+                //}
+
+                //if (OffensiveForcePool.ContainsRef(ship))
+                //{
+                //    Log.Error("warning. Ship in offensive and waiting {0} ", CoreWorld.Name);
+                //    ShipsWaitingForCoreFleet.RemoveAtSwapLast(i); // remove it
+                //}
                 
             }
             for (int i = OffensiveForcePool.Count-1; i >= 0; --i)
@@ -272,63 +277,70 @@ namespace Ship_Game.AI
                 }
             }
 
-            if (CoreFleet.FleetTask == null && ShipsWaitingForCoreFleet.Count > 0)
+            for (int i = 0; i < CoreFleet.Ships.Count; i++)
             {
-                while (ShipsWaitingForCoreFleet.Count > 0)
-                {
-                    Ship waiting = ShipsWaitingForCoreFleet.PopLast();
-                    if (!waiting.Active)
-                        continue;
-
-                    if (IsCoreFleetFull())
-                    {
-                        OffensiveForcePool.AddUniqueRef(waiting);
-                    }
-                    else
-                    {
-                        if (waiting.fleet != null)
-                        {
-                            if (waiting.fleet == CoreFleet)
-                                Log.Warning("Ship already in CoreFleet (duplication bug)");
-                            else
-                                Log.Error("Ship already in another fleet");
-                            continue;
-                        }
-                        CoreFleetAddShip(waiting);
-                    }
-                }
-                if (CoreFleet.Ships.Count > 0)
-                {
-                    CoreFleet.FinalPosition = CoreWorld.Center;
-                    CoreFleet.AutoArrange();
-                    CoreFleet.MoveToNow(Center, Vectors.Up);
-                }
-                TurnsToRelax +=  1;
-            }
-            else
-            {
-                foreach(Ship ship in ShipsWaitingForCoreFleet)
-                {
-                    OffensiveForcePool.AddUniqueRef(ship);
-                }
-                ShipsWaitingForCoreFleet.Clear();
+                var ship = CoreFleet.Ships[i];
+                CoreFleet.Ships.RemoveAt(i);
+                OffensiveForcePool.AddUniqueRef(ship);
             }
 
-            if (ThreatLevel > 0 && ThreatLevel * (1 - (TurnsToRelax / 10)) < CoreFleet.GetStrength())
-            {
-                if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)
-                {
-                    var clearArea = new MilitaryTask(this);
-                    CoreFleet.FleetTask = clearArea;
-                    CoreFleet.TaskStep  = 1;
-                    if (CoreFleet.Owner == null)
-                    {
-                        CoreFleet.Owner = CoreWorld.Owner;
-                    }
-                    CoreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
-                }
-                TurnsToRelax = 1;
-            }
+            //if (CoreFleet.FleetTask == null && ShipsWaitingForCoreFleet.Count > 0)
+            //{
+            //    while (ShipsWaitingForCoreFleet.Count > 0)
+            //    {
+            //        Ship waiting = ShipsWaitingForCoreFleet.PopLast();
+            //        if (!waiting.Active)
+            //            continue;
+
+            //        if (IsCoreFleetFull())
+            //        {
+            //            OffensiveForcePool.AddUniqueRef(waiting);
+            //        }
+            //        else
+            //        {
+            //            if (waiting.fleet != null)
+            //            {
+            //                if (waiting.fleet == CoreFleet)
+            //                    Log.Warning("Ship already in CoreFleet (duplication bug)");
+            //                else
+            //                    Log.Error("Ship already in another fleet");
+            //                continue;
+            //            }
+            //            CoreFleetAddShip(waiting);
+            //        }
+            //    }
+            //    if (CoreFleet.Ships.Count > 0)
+            //    {
+            //        CoreFleet.FinalPosition = CoreWorld.Center;
+            //        CoreFleet.AutoArrange();
+            //        CoreFleet.MoveToNow(Center, Vectors.Up);
+            //    }
+            //    TurnsToRelax +=  1;
+            //}
+            //else
+            //{
+            //    foreach(Ship ship in ShipsWaitingForCoreFleet)
+            //    {
+            //        OffensiveForcePool.AddUniqueRef(ship);
+            //    }
+            //    ShipsWaitingForCoreFleet.Clear();
+            //}
+
+            //if (ThreatLevel > 0 && ThreatLevel * (1 - (TurnsToRelax / 10)) < CoreFleet.GetStrength())
+            //{
+            //    if (CoreFleet.FleetTask == null && !CoreWorld.Owner.isPlayer)
+            //    {
+            //        var clearArea = new MilitaryTask(this);
+            //        CoreFleet.FleetTask = clearArea;
+            //        CoreFleet.TaskStep  = 1;
+            //        if (CoreFleet.Owner == null)
+            //        {
+            //            CoreFleet.Owner = CoreWorld.Owner;
+            //        }
+            //        CoreFleet.Owner.GetEmpireAI().AddPendingTask(clearArea);
+            //    }
+            //    TurnsToRelax = 1;
+            //}
             AOFull = ThreatLevel < CoreFleet.GetStrength() && OffensiveForcePool.Count > 0;
         }
 
