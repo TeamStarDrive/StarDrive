@@ -230,22 +230,16 @@ namespace Ship_Game
             HandleInputZoom(input);
             HandleInputDebug(input);
 
+            if (HandleDesignIssuesButton(input))
+                return true;
+
             if (ArcsButton.R.HitTest(input.CursorPosition))
                 ToolTip.CreateTooltip(134, "Tab");
-
-            if (DesignIssuesButton.R.HitTest(input.CursorPosition))
-                ToolTip.CreateTooltip(2546);
 
             if (ArcsButton.HandleInput(input))
             {
                 ArcsButton.ToggleOn = !ArcsButton.ToggleOn;
                 ShowAllArcs         = ArcsButton.ToggleOn;
-                return true;
-            }
-
-            if (DesignIssuesButton.HandleInput(input))
-            {
-                ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, DesignIssues.CurrentDesignIssues));
                 return true;
             }
 
@@ -363,6 +357,37 @@ namespace Ship_Game
             slot.Module.FacingDegrees = arc;
             if (IsSymmetricDesignMode && GetMirrorModule(slot, out ShipModule mirrored))
                 mirrored.FacingDegrees = 360 - arc;
+        }
+
+        bool HandleDesignIssuesButton(InputState input)
+        {
+            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.None)
+                return false ;
+
+            if (DesignIssuesButton.R.HitTest(input.CursorPosition))
+                ToolTip.CreateTooltip(2546);
+
+
+            if (DesignIssues.CurrentWarningLevel > ShipDesignIssues.WarningLevel.Informative 
+                && DesignIssuesButton.HandleInput(input))
+            {
+                AddDesignIssuesScreen();
+                return true;
+            }
+
+            if (DesignIssues.CurrentWarningLevel == ShipDesignIssues.WarningLevel.Informative  
+                && InformationButton.HandleInput(input))
+            {
+                AddDesignIssuesScreen();
+                return true;
+            }
+
+            return false;
+        }
+
+        void AddDesignIssuesScreen()
+        {
+            ScreenManager.AddScreen(new ShipDesignIssuesScreen(this, EmpireManager.Player, DesignIssues.CurrentDesignIssues));
         }
 
         void HandleCameraMovement(InputState input)

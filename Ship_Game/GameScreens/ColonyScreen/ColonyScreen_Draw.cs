@@ -629,7 +629,7 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
             DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", Localizer.Token(6137));
             DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", Localizer.Token(364));
-            float maintenance = -(b.Maintenance + b.Maintenance * P.Owner.data.Traits.MaintMod);
+            float maintenance = -b.ActualMaintenance(P);
             DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(365));
             if (b.TheWeapon != null)
             {

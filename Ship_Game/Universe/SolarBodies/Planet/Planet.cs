@@ -411,8 +411,29 @@ namespace Ship_Game
                 }
 
                 if (!targetFound && NoSpaceCombatTargetsFoundDelay <= 0)
+                {
+                    SpaceCombatNearPlanet = ThreatsNearPlanet();
                     NoSpaceCombatTargetsFoundDelay = 2f;
+                }
             }
+        }
+
+        bool ThreatsNearPlanet()
+        {
+            if (!EnemyInRange(clearAndPresentDanger: true))
+                return false;
+
+            for (int i = 0; i < ParentSystem.ShipList.Count; ++i)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.Center.InRadius(Center, 10000)
+                    && Owner.IsEmpireAttackable(ship.loyalty))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public Ship ScanForSpaceCombatTargets(float weaponRange) // @todo FB - need to work on this
@@ -612,16 +633,16 @@ namespace Ship_Game
 
         public void UpdateMaxPopulation()
         {
-            int numHabitableTiles = 0;
-            if (Type.Habitable)
-            {
-                numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
-                PopulationBonus   = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
+            if (!Type.Habitable)
+                return;
+
+            int numHabitableTiles = TilesList.Count(t => t.Habitable && !t.Biosphere);
+            PopulationBonus       = BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease)
                                     + BuildingList.Count(b => b.IsBiospheres) * BasePopPerTile;
-            }
+
 
             MaxPopValFromTiles = Math.Max(BasePopPerTile, BasePopPerTile * numHabitableTiles);
-            MaxPopBillionVal   = MaxPopValFromTiles / 1000f;
+            MaxPopBillionVal = MaxPopValFromTiles / 1000f;
         }
 
         public int Level { get; private set; }
@@ -946,6 +967,17 @@ namespace Ship_Game
             return false;
         }
 
+        public bool OurShipsCanScanSurface(Empire us)
+        {
+            for (int i = 0; i < ParentSystem.ShipList.Count; i++)
+            {
+                Ship ship = ParentSystem.ShipList[i];
+                if (ship.loyalty == us && ship.Center.InRadius(Center, ship.SensorRange))
+                    return true;
+            }
+
+            return false;
+        }
         private void GrowPopulation()
         {
             if (Owner == null)
