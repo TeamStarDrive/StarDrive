@@ -23,16 +23,10 @@ namespace Ship_Game.AI.Research
             Command              = command;
             Command2             = command2;
 
-            //create a booster for some values when things are slack.
-            //so the empire will keep building new ships and researching new science.
-            if (empire.data.TechDelayTime % 3 == 0)
-                shipBuildBonus = 0.5f;
-
-            float enemyThreats = empire.GetEmpireAI().ThreatMatrix.StrengthOfAllEmpireThreats(empire);
-            Wars = enemyThreats / (empire.CurrentMilitaryStrength + 1);
-            Wars = Wars.Clamped(0, 1);
-            if (Wars < 0.5f)
-                Wars = shipBuildBonus;
+            float enemyThreats = empire.GetEmpireAI().ThreatMatrix.HighestStrengthOfAllEmpireThreats(empire);
+            enemyThreats      += empire.TotalRemnantStrTryingToClear();
+            Wars               = enemyThreats / empire.CurrentMilitaryStrength.LowerBound(1);
+            Wars               = Wars.Clamped(0, 1);
 
             ResearchDebt = 0;
             var availableTechs = OwnerEmpire.CurrentTechsResearchable();
@@ -60,14 +54,18 @@ namespace Ship_Game.AI.Research
             {
                 foreach (Planet planet in empire.GetPlanets())
                 {
-                    industry += CalcPlanetProdNeeds(planet);
-                    if (empire.NonCybernetic)
-                        foodNeeds += CalcPlanetFoodNeeds(planet);
+                    foodNeeds += CalcPlanetFoodNeeds(planet);
+                    industry  += CalcPlanetProdNeeds(planet);
                 }
 
-                industry /= planets;
-                if (empire.NonCybernetic)
-                    foodNeeds /= planets;
+                if (empire.IsCybernetic)
+                {
+                    industry  = ((industry + foodNeeds) / 2).Clamped(0, 1.5f);
+                    foodNeeds = 0;
+                }
+
+                industry  /= planets;
+                foodNeeds /= planets;
 
                 int totalFreighters     = empire.TotalFreighters.LowerBound(1);
                 int totalFoodFreighters = empire.GetPlanets().Sum(planet => planet.IncomingFoodFreighters);
@@ -109,17 +107,7 @@ namespace Ship_Game.AI.Research
                 TechCategoryPrioritized += ":";
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    string shipTechToAdd = "";
-                    int shipTechs = RandomMath.IntBetween(1, 4);
-                    switch (shipTechs)
-                    {
-                        case 1: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons:ShipGeneral"; break;
-                        case 2: shipTechToAdd = "ShipDefense:ShipWeapons:ShipHull:ShipGeneral"; break;
-                        case 3: shipTechToAdd = "ShipWeapons:ShipHull:ShipDefense:ShipGeneral"; break;
-                        case 4: shipTechToAdd = "ShipHull:ShipGeneral:ShipDefense:ShipWeapons"; break;
-                    }
-                    
-                    TechCategoryPrioritized += shipTechToAdd;
+                    TechCategoryPrioritized += GetShipTechString();
                     max += 3;
                 }
                 else
@@ -132,25 +120,36 @@ namespace Ship_Game.AI.Research
 
         float CalcPlanetFoodNeeds(Planet p)
         {
-            float needs = 1- p.Storage.FoodRatio;
+            float ratio = p.NonCybernetic ? p.Storage.FoodRatio : p.Storage.Prod;
+            float needs = 1 - ratio;
+            needs       = (needs * p.Level / 5).LowerBound(0);
             if (p.IsStarving)
                 needs += 0.5f;
 
-            return (needs * p.Level / 5).LowerBound(0);
+            return needs;
         }
 
         float CalcPlanetProdNeeds(Planet p)
         {
             float productionNeedToComplete = p.TurnsUntilQueueCompleted * p.Prod.NetIncome;
             float needs = 1 - p.EstimatedAverageProduction / (productionNeedToComplete.LowerBound(1));
-            if (p.IsCybernetic)
-            {
-                needs += 1- p.Storage.ProdRatio;
-                if (p.IsStarving)
-                    needs += 0.5f;
-            }
 
             return (needs * p.Level / 5).LowerBound(0);
+        }
+
+        string GetShipTechString()
+        {
+            string shipTechToAdd = "";
+            int shipTechs = RandomMath.IntBetween(1, 4);
+            switch (shipTechs)
+            {
+                case 1: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons:ShipGeneral"; break;
+                case 2: shipTechToAdd = "ShipDefense:ShipWeapons:ShipHull";             break;
+                case 3: shipTechToAdd = "ShipWeapons:ShipHull:ShipDefense";             break;
+                case 4: shipTechToAdd = "ShipHull:ShipGeneral:ShipDefense:ShipWeapons"; break;
+            }
+
+            return shipTechToAdd;
         }
 
         private int Randomizer(float priority, float bonus)
