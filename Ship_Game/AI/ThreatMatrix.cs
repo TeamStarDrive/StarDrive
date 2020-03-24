@@ -91,23 +91,18 @@ namespace Ship_Game.AI
         {
             float highestStr = 0;
             Map<Empire, float> empireStrTable = new Map<Empire, float>();
-            using (PinsMutex.AcquireReadLock())
+            foreach (Pin pin in Pins.Values)
             {
-                foreach (Pin pin in Pins.Values)
+                Empire pinEmpire = pin.GetEmpire();
+                if (pinEmpire != null && !pinEmpire.isFaction)
                 {
-                    Empire pinEmpire = pin.GetEmpire();
-                    if (pinEmpire != null && !pinEmpire.isFaction)
-                    {
-                        float str = empire.IsEmpireAttackable(pinEmpire) ? pin.Strength : pin.Strength / 2;
-                        if (!empireStrTable.ContainsKey(empire))
-                            empireStrTable.Add(empire, str);
-                        else
-                            empireStrTable[empire] += str;
-                    }
+                    float str = empire.IsEmpireAttackable(pinEmpire) ? pin.Strength : pin.Strength / 2;
+                    if (!empireStrTable.TryGetValue(pinEmpire, out _))
+                        empireStrTable.Add(pinEmpire, str);
+                    else
+                        empireStrTable[pinEmpire] += str;
                 }
             }
-            if (empireStrTable.Count > 1)
-                Log.Info("lala");
 
             if (empireStrTable.Count > 0)
                 highestStr = empireStrTable.FindMaxValue(v => v);
