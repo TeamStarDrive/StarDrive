@@ -42,7 +42,7 @@
                     ShipBuildStrMin      = 0.7f;
                     ShipBuildStrMax      = 1;
                     ColonyRankModifier   = 0;
-                    TaskForceStrength    = 1f;
+                    TaskForceStrength    = 1.2f;
                     ShipLevel            = 0;
                     HideTacticalData     = false;
                     MaxDesiredPlanets    = 0.5f;
@@ -54,7 +54,7 @@
                     ShipBuildStrMin      = 0.8f;
                     ShipBuildStrMax      = 1f;
                     ColonyRankModifier   = 1;
-                    TaskForceStrength    = 1.1f;
+                    TaskForceStrength    = 1.5f;
                     ShipLevel            = 2;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 0.75f;
@@ -66,7 +66,7 @@
                     ShipBuildStrMin      = 0.9f;
                     ShipBuildStrMax      = 1f;
                     ColonyRankModifier   = 2;
-                    TaskForceStrength    = 1.2f;
+                    TaskForceStrength    = 1.75f;
                     ShipLevel            = 3;
                     HideTacticalData     = true;
                     MaxDesiredPlanets    = 1f;
