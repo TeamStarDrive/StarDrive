@@ -14,7 +14,7 @@ namespace Ship_Game.AI.Research
         public string Command { get; private set; }
         public string Command2 { get; private set; }
 
-        public ResearchPriorities(Empire empire, float buildCapacity, string command, string command2)
+        public ResearchPriorities(Empire empire, float buildCapacity, string command, string command2) : this()
         {
             OwnerEmpire          = empire;
             Wars                 = 0;
@@ -54,27 +54,29 @@ namespace Ship_Game.AI.Research
 
             Economics = empire.data.TaxRate + workerEfficiency;
             float foodNeeds = 0;
-            float industry = 0;
-            int planets = 0;
-
-            foreach (Planet planet in empire.GetPlanets())
-            {
-                if (planet.Level < 2) continue;
-                industry += 1 - planet.Storage.ProdRatio;
-                if (!empire.IsCybernetic)
-                    foodNeeds += planet.Food.Percent;
-                else
-                    industry += planet.Prod.Percent;
-                planets++;
-            }
-
+            float industry  = 0;
+            int planets     = empire.GetPlanets().Count;
             if (planets > 0)
             {
-                if (!empire.IsCybernetic)
-                    foodNeeds /= planets;
-                industry /= planets;
-            }
+                foreach (Planet planet in empire.GetPlanets())
+                {
+                    industry += CalcPlanetProdNeeds(planet);
+                    if (empire.NonCybernetic)
+                        foodNeeds += CalcPlanetFoodNeeds(planet);
+                }
 
+                industry /= planets;
+                if (empire.NonCybernetic)
+                    foodNeeds /= planets;
+
+                int totalFreighters     = empire.TotalFreighters.LowerBound(1);
+                int totalFoodFreighters = empire.GetPlanets().Sum(planet => planet.IncomingFoodFreighters);
+                int totalProdFreighters = empire.GetPlanets().Sum(planet => planet.IncomingProdFreighters);
+
+                foodNeeds = (foodNeeds + totalFoodFreighters / totalFreighters) / 2;
+                industry  = (industry + totalProdFreighters / totalFreighters) / 2;
+
+            }
             TechCategoryPrioritized = "TECH";
 
             Wars += OwnerEmpire.GetEmpireAI().TechChooser.LineFocus.BestShipNeedsHull(availableTechs) ? 0.5f : 0;
@@ -99,7 +101,7 @@ namespace Ship_Game.AI.Research
             int max = 0;
             foreach (var pWeighted in priority.OrderByDescending(weight => weight.Value))
             {
-                if (max > 4)
+                if (max > 6)
                     break;
                 if (pWeighted.Value < 0)
                     continue;
@@ -107,7 +109,17 @@ namespace Ship_Game.AI.Research
                 TechCategoryPrioritized += ":";
                 if (pWeighted.Key == "SHIPTECH")
                 {
-                    TechCategoryPrioritized += "ShipHull:ShipWeapons:ShipDefense:ShipGeneral";
+                    string shipTechToAdd = "";
+                    int shipTechs = RandomMath.IntBetween(1, 4);
+                    switch (shipTechs)
+                    {
+                        case 1: shipTechToAdd = "ShipHull:ShipDefense:ShipWeapons:ShipGeneral"; break;
+                        case 2: shipTechToAdd = "ShipDefense:ShipWeapons:ShipHull:ShipGeneral"; break;
+                        case 3: shipTechToAdd = "ShipWeapons:ShipHull:ShipDefense:ShipGeneral"; break;
+                        case 4: shipTechToAdd = "ShipHull:ShipGeneral:ShipDefense:ShipWeapons"; break;
+                    }
+                    
+                    TechCategoryPrioritized += shipTechToAdd;
                     max += 3;
                 }
                 else
@@ -117,6 +129,30 @@ namespace Ship_Game.AI.Research
                 }
             }
         }
+
+        float CalcPlanetFoodNeeds(Planet p)
+        {
+            float needs = 1- p.Storage.FoodRatio;
+            if (p.IsStarving)
+                needs += 0.5f;
+
+            return (needs * p.Level / 5).LowerBound(0);
+        }
+
+        float CalcPlanetProdNeeds(Planet p)
+        {
+            float productionNeedToComplete = p.TurnsUntilQueueCompleted * p.Prod.NetIncome;
+            float needs = 1 - p.EstimatedAverageProduction / (productionNeedToComplete.LowerBound(1));
+            if (p.IsCybernetic)
+            {
+                needs += 1- p.Storage.ProdRatio;
+                if (p.IsStarving)
+                    needs += 0.5f;
+            }
+
+            return (needs * p.Level / 5).LowerBound(0);
+        }
+
         private int Randomizer(float priority, float bonus)
         {
             int b = (int)(bonus * 100);
@@ -124,8 +160,8 @@ namespace Ship_Game.AI.Research
             return RandomMath.AvgRandomBetween(b, p + b);
 
         }
-        private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
 
+        private void DebugLog(string text) => Empire.Universe?.DebugWin?.ResearchLog(text, OwnerEmpire);
     }
 
 }
