@@ -14,8 +14,8 @@ namespace Ship_Game
     public partial class Planet
     {
 
-        float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
-        float EstimatedAverageFood       => (Food.NetMaxPotential / 3).LowerBound(0.1f);
+        public float EstimatedAverageProduction => (Prod.NetMaxPotential / 3).LowerBound(0.1f);
+        float EstimatedAverageFood              => (Food.NetMaxPotential / 3).LowerBound(0.1f);
 
         public void DoGoverning()
         {
