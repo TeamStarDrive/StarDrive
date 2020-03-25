@@ -374,7 +374,7 @@ namespace Ship_Game.Ships
                 DrawIconWithTooltip(batch, iconGravwell, () => Localizer.Token(2287), mousePos,
                     Color.White, numStatus);
             else if (RandomEventManager.ActiveEvent == null || !RandomEventManager.ActiveEvent.InhibitWarp)
-                DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(117), mousePos,
+                DrawIconWithTooltip(batch, iconInhibited, () => Localizer.Token(2113), mousePos,
                     Color.White, numStatus);
             else
                 DrawIconWithTooltip(batch, iconFlux, () => Localizer.Token(2285), mousePos,
