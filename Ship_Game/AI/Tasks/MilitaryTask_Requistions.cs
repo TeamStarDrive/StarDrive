@@ -99,42 +99,6 @@ namespace Ship_Game.AI.Tasks
             newFleet.AutoArrange();
         }
 
-        //not deleting yet. need to investigate usability
-        private Array<Ship> GetShipsFromDefense(float tfstrength, float minimumEscortStrength)
-        {
-            Array<Ship> elTaskForce = new Array<Ship>();
-            if (!Owner.isFaction && Owner.data.DiplomaticPersonality.Territorialism < 50 &&
-                tfstrength < minimumEscortStrength)
-            {
-                if (!IsCoreFleetTask)
-                    foreach (var kv in Owner.GetEmpireAI().DefensiveCoordinator.DefenseDict
-                        .OrderByDescending(system => system.Key.DangerousForcesPresent(Owner)
-                            ? 1
-                            : 2 * system.Key.Position.SqDist(TargetPlanet.Center))
-                    )
-                    {
-                        Ship[] array = kv.Value.GetShipList.ToArray();
-                        for (int i = 0; i < array.Length; i++)
-                        {
-                            Ship ship = array[i];
-                            if (ship.AI.BadGuysNear || ship.fleet != null || tfstrength >= minimumEscortStrength ||
-                                ship.GetStrength() <= 0f
-                                || ship.shipData.Role == ShipData.RoleName.troop ||
-                                ship.Carrier.HasAssaultTransporters ||
-                                ship.Carrier.HasActiveTroopBays
-                                || ship.Mothership != null
-                            )
-                                continue;
-
-                            tfstrength = tfstrength + ship.GetStrength();
-                            elTaskForce.Add(ship);
-                            Owner.GetEmpireAI().DefensiveCoordinator.Remove(ship);
-                        }
-                    }
-            }
-            return elTaskForce;
-        }
-
         private bool AreThereEnoughTroopsToInvade(FleetShips fleetShips, out Array<Troop> troopsOnPlanetNeeded,
                                                   Vector2 rallyPoint, bool troopPriorityHigh = false)
         {

@@ -83,6 +83,7 @@ namespace Ship_Game.Ships
             InitializeShip(loadingFromSaveGame: false);
             owner.AddShip(this);
             Empire.Universe?.MasterShipList.Add(this);
+            owner.Pool.ForcePoolAdd(this);
         }
 
         protected Ship(string shipName, Empire owner, Vector2 position)

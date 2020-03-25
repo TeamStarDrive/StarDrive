@@ -116,16 +116,8 @@ namespace Ship_Game.AI
                 || ship.DesignRole == ShipData.RoleName.troopShip 
                 || ship.DesignRole == ShipData.RoleName.support)
                 return false;
-            
 
-            if (IsCoreFleetFull() || GetPoolStrength() < Owner.CurrentMilitaryStrength * .05f) 
-            {
-                OffensiveForcePool.AddUniqueRef(ship);
-            }
-            else
-            {
-                ShipsWaitingForCoreFleet.AddUniqueRef(ship);
-            }
+            OffensiveForcePool.AddUniqueRef(ship);
             return true;
         }
 

@@ -57,15 +57,32 @@ namespace Ship_Game.Empires.ShipPools
             ships.AddRange(OwnerAI.DefensiveCoordinator.DefensiveForcePool);
 
             var allShips = Owner.GetShips();
-            foreach(var ship in allShips)
+            // error check. there is a hole in the ship pools causing 
+            for (int i = 0; i < allShips.Count; i++)
             {
-                if (ship.AI.State != AIState.SystemDefender) continue;
-                if (!OwnerAI.DefensiveCoordinator.DefensiveForcePool.Contains(ship))
-                {
-                    ship.AI.SystemToDefend = null;
-                    ship.AI.SystemToDefendGuid = Guid.Empty;
-                    ship.AI.ClearOrders();
+                var ship = allShips[i];
+                if (ship.AI.State == AIState.Scrap) continue;
 
+                if (ship.AI.State == AIState.SystemDefender)
+                {
+                    if (!OwnerAI.DefensiveCoordinator.DefensiveForcePool.Contains(ship))
+                    {
+                        ship.AI.SystemToDefend = null;
+                        ship.AI.SystemToDefendGuid = Guid.Empty;
+                        ship.AI.ClearOrders();
+                        Log.Warning("ShipPool: Ship was in a system defense state but not in system defense pool");
+                    }
+                }
+                else if (ship.DesignRoleType == ShipData.RoleType.Warship && ship.fleet == null)
+                {
+                    bool notInForcePool = !ForcePool.ContainsRef(ship);
+                    bool notInAOs = !OwnerAI.AreasOfOperations.Any(ao => ao.OffensiveForcePoolContains(ship));
+                    if (notInAOs && notInForcePool)
+                    {
+                        Log.Warning("ShipPool: WarShip was not in any pools");
+                        if (!AssignShipsToOtherPools(ship))
+                            Log.Warning("ShipPool: Could not assign ship to pools");
+                    }
                 }
             }
 
