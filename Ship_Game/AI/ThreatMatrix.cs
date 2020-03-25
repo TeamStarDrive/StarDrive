@@ -87,19 +87,27 @@ namespace Ship_Game.AI
             return str;
         }
 
-        public float StrengthOfAllEmpireThreats(Empire empire)
+        public float HighestStrengthOfAllEmpireThreats(Empire empire)
         {
-            float str = 0f;
-            using (PinsMutex.AcquireReadLock())
+            Map<Empire, float> empireStrTable = new Map<Empire, float>();
+            for (int i = 0; i < EmpireManager.Empires.Count; ++i)
             {
-                foreach (Pin pin in Pins.Values)
+                empire = EmpireManager.Empires[i];
+                empireStrTable.Add(empire, 0);
+            }
+
+            foreach (Pin pin in Pins.Values)
+            {
+                Empire pinEmpire = pin.GetEmpire();
+                if (pinEmpire != null && !pinEmpire.isFaction)
                 {
-                    Empire pinEmpire = pin.GetEmpire();
-                    if (pinEmpire != null && !pinEmpire.isFaction && empire.IsEmpireAttackable(pinEmpire))
-                        str += pin.Strength;
+                    float str = empire.IsEmpireAttackable(pinEmpire) ? pin.Strength : pin.Strength / 2;
+                    empireStrTable[pinEmpire] += str;
                 }
             }
-            return str;
+
+            float highestStr = empireStrTable.FindMaxValue(v => v);
+            return highestStr;
         }
 
         public float StrengthOfEmpire(Empire empire)
