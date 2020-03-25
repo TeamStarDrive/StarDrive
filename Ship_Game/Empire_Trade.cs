@@ -24,20 +24,19 @@ namespace Ship_Game
         [XmlIgnore][JsonIgnore] public Ship[] IdleFreighters     => OwnedShips.Filter(s => s.IsIdleFreighter);
         [XmlIgnore][JsonIgnore] public int AverageTradeIncome    => AllTimeTradeIncome / TurnCount;
         [XmlIgnore][JsonIgnore] public bool ManualTrade          => isPlayer && !AutoFreighters;
-        [XmlIgnore][JsonIgnore] public bool AutoTrade            => !ManualTrade;
         [XmlIgnore][JsonIgnore] public float TotalAvgTradeIncome => TotalTradeTreatiesIncome() + AverageTradeIncome;
+        [XmlIgnore][JsonIgnore] public int NumTradeTreaties      => TradeTreaties.Count;
 
-        [XmlIgnore][JsonIgnore]
-        public Array<Empire> TradeTreaties
+        [XmlIgnore][JsonIgnore] Array<Empire> TradeTreaties = new Array<Empire>();
+
+        void UpdateTradeTreaties()
         {
-            get
-            {
                 var tradeTreaties = new Array<Empire>();
                 foreach (KeyValuePair<Empire, Relationship> kv in Relationships)
                     if (kv.Value.Treaty_Trade)
                         tradeTreaties.Add(kv.Key);
-                return tradeTreaties;
-            }
+
+                TradeTreaties = tradeTreaties;
         }
 
         public BatchRemovalCollection<Planet> TradingEmpiresPlanetList()
@@ -73,6 +72,8 @@ namespace Ship_Game
 
         void DispatchBuildAndScrapFreighters()
         {
+            UpdateTradeTreaties();
+
             // Cybernetic factions never touch Food trade. Filthy Opteris are disgusted by protein-bugs. Ironic.
             if (NonCybernetic)
                 DispatchOrBuildFreighters(Goods.Food, OwnedPlanets);
@@ -204,7 +205,7 @@ namespace Ship_Game
         private Ship[] FilterIdleFreightersList(Planet exportPlanet, Planet importPlanet)
         {
             bool interTrade      = importPlanet.Owner != exportPlanet.Owner;
-            Ship[] freighterList = interTrade ? IdleFreighters.Filter(s => s.AllowInterEmpireTrade) : IdleFreighters;
+            Ship[] freighterList = interTrade && isPlayer ? IdleFreighters.Filter(s => s.AllowInterEmpireTrade) : IdleFreighters;
 
             return freighterList.Filter(s => s.InTradingZones(importPlanet) && s.InTradingZones(exportPlanet));
         }

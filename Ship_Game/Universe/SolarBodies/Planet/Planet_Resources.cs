@@ -116,15 +116,21 @@ namespace Ship_Game
 
             if (Owner.NonCybernetic)
             {
-                if (Food.NetIncome <= -0.1 && Storage.FoodRatio < 0.5f)
+                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere) < 25)
                     return true;
             }
-            else if (Prod.NetIncome.Less(0.2f) && Storage.ProdRatio < 0.5f)
-            {
+            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere) < 25)
                 return true;
-            }
 
             return false;
+        }
+
+        float TurnsToEmptyStorage(float output, float storage)
+        {
+            if (output.GreaterOrEqual(0))
+                return 1000;
+
+            return storage / -output;
         }
 
         public GoodState GetGoodState(Goods good)
