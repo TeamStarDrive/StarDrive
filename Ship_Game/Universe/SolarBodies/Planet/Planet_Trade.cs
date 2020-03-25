@@ -40,7 +40,7 @@ namespace Ship_Game
                     return 0;
 
                 int min = Storage.FoodRatio > 0.75f ? 1 : 0;
-                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(min, 7);
+                return ((int)(Food.NetIncome / 2 + Storage.Food / 50)).Clamped(min, 5);
             }
         }
 
@@ -52,7 +52,7 @@ namespace Ship_Game
                     return 0;
 
                 int min = Storage.ProdRatio > 0.75f ? 1 : 0;
-                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, 7);
+                return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, 5);
             }
         }
 
@@ -87,7 +87,7 @@ namespace Ship_Game
 
                 int foodIncomeSlots  = (int)(1 - Food.NetIncome);
                 int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
-                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 6);
+                return (foodIncomeSlots + foodStorageRatio).Clamped(0, 5 + Owner.NumTradeTreaties);
             }
         }
 
@@ -103,10 +103,10 @@ namespace Ship_Game
                     if (ConstructionQueue.Count == 0 && Storage.ProdRatio.AlmostEqual(1))
                         return 0; // for non governor cases when all full and not constructing
 
-                    return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,6);
+                    return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,5 + Owner.NumTradeTreaties);
                 }
 
-                return ((int)(Storage.Max - Storage.Prod) / 10).Clamped(0, 8);
+                return ((int)(Storage.Max - Storage.Prod) / 10).Clamped(0, 7 + Owner.NumTradeTreaties);
             }
         }
 
