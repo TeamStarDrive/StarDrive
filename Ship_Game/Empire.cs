@@ -273,6 +273,21 @@ namespace Ship_Game
         public Fleet GetFleetOrNull(int key) => FleetsDict.TryGetValue(key, out Fleet fleet) ? fleet : null;
         public Fleet GetFleet(int key) => FleetsDict[key];
 
+        public float TotalRemnantStrTryingToClear()
+        {
+            Fleet[] fleets = FleetsDict.Values.ToArray();
+            float str = 0;
+            for (int i = 0; i < fleets.Length; ++i)
+            {
+                Fleet fleet = fleets[i];
+                if (fleet.FleetTask?.TargetPlanet.Guardians.Count > 0)
+                    str += fleet.FleetTask.EnemyStrength;
+            }
+
+            return str;
+        }
+
+
         public Fleet FirstFleet
         {
             get => FleetsDict[1];
