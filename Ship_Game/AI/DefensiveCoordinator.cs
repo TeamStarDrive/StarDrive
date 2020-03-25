@@ -233,15 +233,16 @@ namespace Ship_Game.AI
             for (int x = DefensiveForcePool.Count - 1; x >= 0; x--)
             {
                 Ship ship = DefensiveForcePool[x];
-                if (ship.Active
-                    && !(ship.AI.HasPriorityOrder || ship.AI.State == AIState.Resupply))
+                if (ship.Active)
                 {
                     if (ship.AI.SystemToDefend == null)
                         shipsAvailableForAssignment.Add(ship);
                     else
                         ship.AI.State = AIState.SystemDefender;
                 }
-                else Remove(ship);
+                else
+                if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Resupply)
+                    Remove(ship);
             }
 
             //Assign available force:
