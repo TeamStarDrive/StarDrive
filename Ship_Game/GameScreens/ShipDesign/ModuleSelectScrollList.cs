@@ -219,30 +219,32 @@ namespace Ship_Game
 
         static bool RestrictedModCheck(ShipData.RoleName role, ShipModule mod)
         {
-            if (mod.FighterModule   || mod.CorvetteModule || mod.FrigateModule || mod.StationModule ||
-                mod.DestroyerModule || mod.CruiserModule  || mod.CarrierModule || mod.CapitalModule ||
-                mod.FreighterModule || mod.PlatformModule || mod.DroneModule)
+            switch (role)
             {
-                if (role == ShipData.RoleName.drone     && mod.DroneModule     == false) return true;
-                if (role == ShipData.RoleName.scout     && mod.FighterModule   == false) return true;
-                if (role == ShipData.RoleName.fighter   && mod.FighterModule   == false) return true;
-                if (role == ShipData.RoleName.corvette  && mod.CorvetteModule  == false) return true;
-                if (role == ShipData.RoleName.gunboat   && mod.CorvetteModule  == false) return true;
-                if (role == ShipData.RoleName.frigate   && mod.FrigateModule   == false) return true;
-                if (role == ShipData.RoleName.destroyer && mod.DestroyerModule == false) return true;
-                if (role == ShipData.RoleName.cruiser   && mod.CruiserModule   == false) return true;
-                if (role == ShipData.RoleName.carrier   && mod.CarrierModule   == false) return true;
-                if (role == ShipData.RoleName.capital   && mod.CapitalModule   == false) return true;
-                if (role == ShipData.RoleName.freighter && mod.FreighterModule == false) return true;
-                if (role == ShipData.RoleName.platform  && mod.PlatformModule  == false) return true;
-                if (role == ShipData.RoleName.station   && mod.StationModule   == false) return true;
+                case ShipData.RoleName.drone     when mod.DroneModule     == false:
+                case ShipData.RoleName.scout     when mod.FighterModule   == false:
+                case ShipData.RoleName.fighter   when mod.FighterModule   == false:
+                case ShipData.RoleName.corvette  when mod.CorvetteModule  == false:
+                case ShipData.RoleName.gunboat   when mod.CorvetteModule  == false:
+                case ShipData.RoleName.frigate   when mod.FrigateModule   == false:
+                case ShipData.RoleName.destroyer when mod.DestroyerModule == false:
+                case ShipData.RoleName.cruiser   when mod.CruiserModule   == false:
+                case ShipData.RoleName.carrier   when mod.CarrierModule   == false:
+                case ShipData.RoleName.capital   when mod.CapitalModule   == false:
+                case ShipData.RoleName.freighter when mod.FreighterModule == false:
+                case ShipData.RoleName.platform  when mod.PlatformModule  == false:
+                case ShipData.RoleName.station   when mod.StationModule   == false: return true;
             }
-            else if (mod.FightersOnly)
+
+            if (mod.FightersOnly)
             {
-                if (role == ShipData.RoleName.fighter)  return true;
-                if (role == ShipData.RoleName.scout)    return true;
-                if (role == ShipData.RoleName.corvette) return true;
-                if (role == ShipData.RoleName.gunboat)  return true;
+                switch (role)
+                {
+                    case ShipData.RoleName.fighter:
+                    case ShipData.RoleName.scout:
+                    case ShipData.RoleName.corvette:
+                    case ShipData.RoleName.gunboat: return true;
+                }
             }
             return false;
         }

@@ -36,7 +36,7 @@ namespace Ship_Game.GameScreens.Espionage
             }
 
 
-            var ourRect = new Rectangle(ScreenWidth / 2 - 640, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1280, 660);
+            var ourRect = new Rectangle(ScreenWidth / 2 - 700, (ScreenHeight > 768f ? titleRect.Y + titleRect.Height + 5 : 44), 1400, 660);
             Add(new Menu2(ourRect));
 
             CloseButton(ourRect.Right - 40, ourRect.Y + 20);
