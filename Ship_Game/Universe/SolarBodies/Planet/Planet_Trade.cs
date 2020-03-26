@@ -9,6 +9,9 @@ namespace Ship_Game
         readonly Array<Ship> IncomingFreighters = new Array<Ship>();
         readonly Array<Ship> OutgoingFreighters = new Array<Ship>();
 
+        public float IncomingFood { get; protected set; }
+        public float IncomingProd { get; protected set; }
+
         public int NumIncomingFreighters   => IncomingFreighters.Count;
         public int NumOutgoingFreighters   => OutgoingFreighters.Count;
         public Guid[] IncomingFreighterIds => IncomingFreighters.Select(s => s.guid);
@@ -98,15 +101,19 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
-                if (NonCybernetic)
-                {
-                    if (ConstructionQueue.Count == 0 && Storage.ProdRatio.AlmostEqual(1))
-                        return 0; // for non governor cases when all full and not constructing
+                float totalProdNeeded = TotalProdNeededInQueue() - ProdHere - IncomingProd;
+                float totalProdSlots  = (totalProdNeeded / Owner.AverageFreighterCargoCap).LowerBound(0);
+                int prodIncomeSlots   = 0;
+                int prodStorageRatio  = 0;
 
-                    return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0,5 + Owner.NumTradeTreaties);
+                if (IsCybernetic)
+                { 
+                    prodIncomeSlots  = (int)(1 - Prod.NetIncome);
+                    prodStorageRatio = (int)((1 - Storage.ProdRatio) * 3);
                 }
 
-                return ((int)(Storage.Max - Storage.Prod) / 10).Clamped(0, 7 + Owner.NumTradeTreaties);
+                int maxSlots = (UniverseScreen.SolarSystemList.Count / 20).LowerBound(5);
+                return (int)(totalProdSlots + prodIncomeSlots + prodStorageRatio).Clamped(0, maxSlots);
             }
         }
 
@@ -204,6 +211,25 @@ namespace Ship_Game
             float prodLoadLimit = Owner?.GoodsLimits(Goods.Production) ?? 0;
             float maxProdLoad   = ProdHere.Clamped(0f, Storage.Max * prodLoadLimit);
             return maxProdLoad;
+        }
+
+        void CalcIncomingGoods()
+        {
+            IncomingFood = CalcIncomingGoods(Goods.Food);
+            IncomingProd = CalcIncomingGoods(Goods.Production);
+        }
+
+        float CalcIncomingGoods(Goods goods)
+        {
+            float numGoods = 0;
+            for (int i = 0; i < IncomingFreighters.Count; i++)
+            {
+                Ship freighter = IncomingFreighters[i];
+                if (freighter.Active && freighter.AI.HasTradeGoal(goods))
+                   numGoods += freighter.CheckExpectedGoods(goods);
+            }
+
+            return numGoods;
         }
     }
 }
