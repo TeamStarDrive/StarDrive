@@ -20,7 +20,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool NotEmpty => ConstructionQueue.NotEmpty;
         public bool Empty => ConstructionQueue.IsEmpty;
         public int Count => ConstructionQueue.Count;
-        public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
+        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         public SafeQueue<QueueItem> UIRushedQueueItems = new SafeQueue<QueueItem>();
 
         float ProductionHere
@@ -99,26 +99,27 @@ namespace Ship_Game.Universe.SolarBodies
                 SpendProduction(ConstructionQueue[itemIndex], maxAmount);
             }
 
-            for (int i = 0; i < ConstructionQueue.Count; )
-            {
-                QueueItem q = ConstructionQueue[i];
-                if (q.isTroop && !HasRoomForTroops()) // remove excess troops from queue
+            using (ConstructionQueue.AcquireWriteLock())
+                for (int i = 0; i < ConstructionQueue.Count;)
                 {
-                    Cancel(q);
-                    continue; // this item was removed, so skip ++i
+                    QueueItem q = ConstructionQueue[i];
+                    if (q.isTroop && !HasRoomForTroops()) // remove excess troops from queue
+                    {
+                        Cancel(q);
+                        continue; // this item was removed, so skip ++i
+                    }
+                    if (q.IsCancelled)
+                    {
+                        Cancel(q);
+                        continue; // this item was removed, so skip ++i
+                    }
+                    if (q.IsComplete)
+                    {
+                        ProcessCompleteQueueItem(q, playerRush);
+                        continue; // this item was removed, so skip ++i
+                    }
+                    ++i;
                 }
-                if (q.IsCancelled)
-                {
-                    Cancel(q);
-                    continue; // this item was removed, so skip ++i
-                }
-                if (q.IsComplete)
-                {
-                    ProcessCompleteQueueItem(q, playerRush);
-                    continue; // this item was removed, so skip ++i
-                }
-                ++i;
-            }
             return true;
         }
 
