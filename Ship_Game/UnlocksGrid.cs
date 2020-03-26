@@ -64,22 +64,33 @@ namespace Ship_Game
                 switch (unlock.Type)
                 {
                     case UnlockType.SHIPMODULE:
-                    {
                         var iconRect = new Rectangle(gi.rect.X, gi.rect.Y, 16 * unlock.module.XSIZE, 16 * unlock.module.YSIZE);
-                        iconRect.X = iconRect.X + 16 - iconRect.Width / 2;
+                        int modW = unlock.module.XSIZE;
+                        int modH = unlock.module.YSIZE;
+
+                        if (modH > modW)
+                        {
+                            float ratio     = (float)modW / modH * gi.rect.Height;
+                            iconRect.Width  = (int)ratio;
+                            iconRect.Height = gi.rect.Height;
+                        }
+                        else if (modW > modH)
+                        {
+                            float ratio     = (float)modH / modW * (gi.rect.Width-2);
+                            iconRect.Width  = gi.rect.Width-2;
+                            iconRect.Height = (int)ratio;
+                        }
+                        else
+                        {
+                            iconRect.Width  = gi.rect.Width;
+                            iconRect.Height = gi.rect.Height;
+                        }
+                        iconRect.X = gi.rect.X + 16 - iconRect.Width / 2;
                         iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
 
-                        while (iconRect.Height > gi.rect.Height)
-                        {
-                            iconRect.Height = iconRect.Height - unlock.module.YSIZE;
-                            iconRect.Width = iconRect.Width - unlock.module.XSIZE;
-                            iconRect.X = gi.rect.X + 16 - iconRect.Width / 2;
-                            iconRect.Y = gi.rect.Y + gi.rect.Height / 2 - iconRect.Height / 2;
-                        }
 
                         batch.Draw(unlock.module.ModuleTexture, iconRect, Color.White);
                         break;
-                    }
                     case UnlockType.TROOP:
                         unlock.troop.DrawIcon(batch, gi.rect);
                         break;

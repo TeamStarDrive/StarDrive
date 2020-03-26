@@ -32,6 +32,12 @@ namespace Ship_Game.AI
                 return;
             }
 
+            if (importPlanet.TradeBlocked) // We can't transport now to the importing planet
+            {
+                AI.CancelTradePlan(exportPlanet);
+                return;
+            }
+
             bool freighterTooSmall = false;
             float eta              = Owner.GetAstrograteTimeTo(importPlanet);
             switch (g.Trade.Goods)

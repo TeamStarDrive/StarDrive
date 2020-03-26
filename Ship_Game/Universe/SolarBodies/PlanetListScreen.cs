@@ -82,7 +82,10 @@ namespace Ship_Game
                 foreach (Planet p in system.PlanetList)
                 {
                     if (p.IsExploredBy(EmpireManager.Player))
+                    {
+                        p.UpdateMaxPopulation();
                         ExploredPlanets.Add(p);
+                    }
                 }
             }
 
