@@ -41,8 +41,12 @@ namespace Ship_Game
 
             DrawUi(batch);
             ArcsButton.DrawWithShadowCaps(batch);
-            if (DesignIssues.CurrentDesignIssues.Count > 0)
-                DesignIssuesButton.DrawWithShadowCaps(batch);
+            switch (DesignIssues.CurrentWarningLevel)
+            {
+                case ShipDesignIssues.WarningLevel.None:                                                      break;
+                case ShipDesignIssues.WarningLevel.Informative: InformationButton.DrawWithShadowCaps(batch);  break;
+                default:                                        DesignIssuesButton.DrawWithShadowCaps(batch); break;
+            }
 
             if (Debug)
                 DrawDebug();

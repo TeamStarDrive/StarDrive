@@ -955,7 +955,7 @@ namespace Ship_Game
                     {
                         GameAudio.SubBassWhoosh();
                         SelectedPlanet = clickablePlanets.planetToClick;
-                        SnapViewColony();
+                        SnapViewColony(SelectedPlanet.Owner != player);
                     }
                 }
             }

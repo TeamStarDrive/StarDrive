@@ -64,8 +64,9 @@ namespace Ship_Game
 
         public void BuildIt(int numItemsToBuild = 1)
         {
+            // Note: for ships, the queue item code knows how to handle production cost modifiers
             if (Building != null)   Screen.Build(Building);
-            else if (Ship != null)  Screen.Build(Ship, GetShipProdCost(Ship), numItemsToBuild);
+            else if (Ship != null)  Screen.Build(Ship, Ship.GetCost(Screen.P.Owner), numItemsToBuild);
             else if (Troop != null) Screen.Build(Troop, numItemsToBuild);
         }
 
@@ -177,7 +178,7 @@ namespace Ship_Game
             return Screen.P.Owner.EstimateCreditCost(cost);
         }
 
-        float GetMaintenance(Building b) => b.Maintenance + b.Maintenance * Screen.P.Owner.data.Traits.MaintMod;
+        float GetMaintenance(Building b) => b.ActualMaintenance(Screen.P);
 
         string BuildingShortDescription(Building b)
         {
