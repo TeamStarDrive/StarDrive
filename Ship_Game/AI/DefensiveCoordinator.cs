@@ -120,7 +120,8 @@ namespace Ship_Game.AI
                 ship.AI.SystemToDefend = null;
                 ship.AI.SystemToDefendGuid = Guid.Empty;
                 ship.AI.ClearOrders();
-                Us.AddShip(ship);
+                if (ship.Active && ship.AI.State != AIState.Scrap)
+                    Us.Pool.ForcePoolAdd(ship);
             }
 
             DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
