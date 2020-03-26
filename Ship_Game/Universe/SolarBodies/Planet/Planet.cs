@@ -572,6 +572,7 @@ namespace Ship_Game
             GeodeticManager.AffectNearbyShips();
             ApplyTerraforming();
             UpdateColonyValue();
+            CalcIncomingGoods();
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateBaseFertility();
