@@ -504,17 +504,9 @@ namespace Ship_Game.Fleets
                     TaskStep = 1;
                     break;
                 case 1:
-                    PostInvasionStayInAO();
-                    TaskStep = 2;
-                    break;
-                case 2:
-                    if (PostInvasionAnyShipsOutOfAO(task))
+                    if (!DoOrbitTaskArea(task))
                     {
-                        TaskStep = 1;
-                    }
-                    else if (!Ships.Any(ship => ship.InCombat))
-                    {
-                        AssembleFleet2(FinalPosition, new Vector2(1, 0));
+                        AttackEnemyStrengthClumpsInAO(task);
                     }
                     break;
             }
