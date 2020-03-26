@@ -16,6 +16,7 @@ namespace Ship_Game
         public float FastVsBigFreighterRatio      { get; private set; } = 0.5f;
         public float TradeMoneyAddedThisTurn      { get; private set; }
         public float TotalTradeMoneyAddedThisTurn { get; private set; }
+        public int   AverageFreighterCargoCap     { get; private set; }
 
         [XmlIgnore][JsonIgnore] public int FreighterCap          => OwnedPlanets.Count * 3 + Research.Strategy.ExpansionPriority;
         [XmlIgnore][JsonIgnore] public int FreightersBeingBuilt  => EmpireAI.Goals.Count(goal => goal is IncreaseFreighters);
@@ -303,11 +304,37 @@ namespace Ship_Game
             if (ManualTrade || !RandomMath.RollDice(percentage))
                 return;
 
-             if (betterFreighter == null)
+            if (betterFreighter == null)
                  betterFreighter = ShipBuilder.PickFreighter(this, FastVsBigFreighterRatio);
 
             if (betterFreighter != null && betterFreighter.Name != freighter.Name)
                 GetEmpireAI().Goals.Add(new RefitShip(freighter, betterFreighter.Name, this));
+        }
+
+        void CalcAverageFreighterCargoCap()
+        {
+            if (Universe.StarDate % 10 > 0)
+                return; // Do this once per year
+
+            int numFreighters = 0;
+            float cargoCap    = 0;
+
+            for (int i = 0; i < OwnedShips.Count; i++)
+            {
+                Ship ship = OwnedShips[i];
+                if (ship.IsFreighter)
+                {
+                    numFreighters += 1;
+                    cargoCap += ship.CargoSpaceMax; 
+                }
+            }
+
+            AverageFreighterCargoCap = (int)(cargoCap / numFreighters).LowerBound(10);
+        }
+
+        public void SetAverageFreighterCargoCap(int value)
+        {
+            AverageFreighterCargoCap = value.LowerBound(10);
         }
     }
 }
