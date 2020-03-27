@@ -54,7 +54,7 @@ namespace Ship_Game
                 if (TradeBlocked || !ExportProd)
                     return 0;
 
-                int min = Storage.ProdRatio > 0.75f ? 1 : 0;
+                int min = Storage.ProdRatio > 0.5f ? 1 : 0;
                 return ((int)(Prod.NetIncome / 2 + Storage.Prod / 50)).Clamped(min, 5);
             }
         }
@@ -114,7 +114,7 @@ namespace Ship_Game
                 if (IsCybernetic)
                     prodStorageRatio = (int)((1 - Storage.ProdRatio) * 3);
 
-                int maxSlots = (int)(CurrentGame.GalaxySize + 1) * 5;
+                int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5);
                 return (int)(totalProdSlots + prodStorageRatio).Clamped(0, maxSlots + Owner.NumTradeTreaties);
             }
         }
