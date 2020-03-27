@@ -280,7 +280,7 @@ namespace Ship_Game
             for (int i = 0; i < fleets.Length; ++i)
             {
                 Fleet fleet = fleets[i];
-                if (fleet.FleetTask?.TargetPlanet.Guardians.Count > 0)
+                if (fleet.FleetTask?.TargetPlanet?.Guardians.Count > 0)
                     str += fleet.FleetTask.EnemyStrength;
             }
 
