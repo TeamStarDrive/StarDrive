@@ -13,7 +13,7 @@ namespace Ship_Game
         public int Version;
         public UniverseData.GameDifficulty GameDifficulty;
         public RaceDesignScreen.StarNum StarEnum;
-        public RaceDesignScreen.GalSize Galaxysize;
+        public GalSize GalaxySize;
         public int Pacing;
         public ExtraRemnantPresence ExtraRemnant;
         public float FTLModifier;
@@ -21,10 +21,10 @@ namespace Ship_Game
         public float OptionIncreaseShipMaintenance;
         public float MinimumWarpRange;
         public int TurnTimer;
-        public bool preventFederations;
+        public bool PreventFederations;
         public float GravityWellRange;
-        public RaceDesignScreen.GameMode mode;
-        public int numOpponents;
+        public RaceDesignScreen.GameMode Mode;
+        public int NumOpponents;
         public int ExtraPlanets;
         public float StartingPlanetRichness;
         public bool PlanetaryGravityWells;
@@ -34,11 +34,9 @@ namespace Ship_Game
         {
         }
 
-        public SetupSave(UniverseData.GameDifficulty gameDifficulty, 
-            RaceDesignScreen.StarNum starNum, 
-            RaceDesignScreen.GalSize galaxysize, int pacing, 
-            ExtraRemnantPresence extraRemnant, 
-            int numOpponents, RaceDesignScreen.GameMode mode)
+        public SetupSave(UniverseData.GameDifficulty gameDifficulty, RaceDesignScreen.StarNum starNum, 
+                         GalSize galaxySize, int pacing, ExtraRemnantPresence extraRemnant, int numOpponents, 
+                         RaceDesignScreen.GameMode mode)
         {
             if (GlobalStats.HasMod)
             {
@@ -48,7 +46,7 @@ namespace Ship_Game
             Version = Convert.ToInt32(ConfigurationManager.AppSettings["SaveVersion"]);
             GameDifficulty                = gameDifficulty;
             StarEnum                      = starNum;
-            Galaxysize                    = galaxysize;
+            GalaxySize                    = galaxySize;
             Pacing                        = pacing;
             ExtraRemnant                  = extraRemnant;
             FTLModifier                   = GlobalStats.FTLInSystemModifier;
@@ -56,10 +54,10 @@ namespace Ship_Game
             OptionIncreaseShipMaintenance = GlobalStats.ShipMaintenanceMulti;
             MinimumWarpRange              = GlobalStats.MinimumWarpRange;
             TurnTimer                     = GlobalStats.TurnTimer;
-            preventFederations            = GlobalStats.PreventFederations;
+            PreventFederations            = GlobalStats.PreventFederations;
             GravityWellRange              = GlobalStats.GravityWellRange;
-            this.mode                          = mode;
-            this.numOpponents                  = numOpponents;
+            Mode                          = mode;
+            NumOpponents                  = numOpponents;
             ExtraPlanets                  = GlobalStats.ExtraPlanets;
             StartingPlanetRichness        = GlobalStats.StartingPlanetRichness;
             PlanetaryGravityWells         = GlobalStats.PlanetaryGravityWells;

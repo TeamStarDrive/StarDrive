@@ -30,7 +30,7 @@ namespace Ship_Game
         TaskResult BackgroundTask;
         UniverseScreen us;
 
-        public CreatingNewGameScreen(Empire player, string universeSize, 
+        public CreatingNewGameScreen(Empire player, GalSize universeSize, 
                 float starNumModifier, int numOpponents, RaceDesignScreen.GameMode mode, 
                 float pace, UniverseData.GameDifficulty difficulty, MainMenuScreen mainMenu) : base(null)
         {
@@ -54,7 +54,8 @@ namespace Ship_Game
                 EnemyFTLSpeedModifier = GlobalStats.EnemyFTLInSystemModifier,
                 GravityWells          = GlobalStats.PlanetaryGravityWells,
                 FTLinNeutralSystem    = GlobalStats.WarpInSystem,
-                difficulty            = difficulty
+                difficulty            = difficulty,
+                GalaxySize            = universeSize
             };
 
             CurrentGame.StartNew(Data, pace);
@@ -72,13 +73,14 @@ namespace Ship_Game
             int size;
             switch (universeSize)
             {
-                default: /*"Tiny"*/ size = 16;                 Data.Size = new Vector2(1750000); break;
-                case "Small":       size = corners ? 32 : 30;  Data.Size = new Vector2(3500000); break;
-                case "Medium":      size = corners ? 48 : 45;  Data.Size = new Vector2(5500000); break;
-                case "Large":       size = corners ? 64 : 70;  Data.Size = new Vector2(9000000); break;
-                case "Huge":        size = corners ? 80 : 92;  Data.Size = new Vector2(12500000); break;
-                case "Epic":        size = corners ? 112: 115; Data.Size = new Vector2(17500000); break;
-                case "TrulyEpic":   size = corners ? 144: 160; Data.Size = new Vector2(33554423); break;
+                default:
+                case GalSize.Tiny:   size = 16; Data.Size = new Vector2(1750000); break;
+                case GalSize.Small:  size = corners ? 32 : 30;  Data.Size = new Vector2(3500000); break;
+                case GalSize.Medium: size = corners ? 48 : 45;  Data.Size = new Vector2(5500000); break;
+                case GalSize.Large:  size = corners ? 64 : 70;  Data.Size = new Vector2(9000000); break;
+                case GalSize.Huge:   size = corners ? 80 : 92;  Data.Size = new Vector2(12500000); break;
+                case GalSize.Epic:   size = corners ? 112: 115; Data.Size = new Vector2(17500000); break;
+                // case GalSize.TrulyEpic:   size = corners ? 144: 160; Data.Size = new Vector2(33554423); break;
             }
 
             NumSystems = (int)(size * starNumModifier);           
