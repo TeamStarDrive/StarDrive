@@ -120,7 +120,8 @@ namespace Ship_Game.AI
                 ship.AI.SystemToDefend = null;
                 ship.AI.SystemToDefendGuid = Guid.Empty;
                 ship.AI.ClearOrders();
-                Us.AddShip(ship);
+                if (ship.Active && ship.AI.State != AIState.Scrap)
+                    Us.Pool.ForcePoolAdd(ship);
             }
 
             DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
@@ -233,15 +234,16 @@ namespace Ship_Game.AI
             for (int x = DefensiveForcePool.Count - 1; x >= 0; x--)
             {
                 Ship ship = DefensiveForcePool[x];
-                if (ship.Active
-                    && !(ship.AI.HasPriorityOrder || ship.AI.State == AIState.Resupply))
+                if (ship.Active)
                 {
                     if (ship.AI.SystemToDefend == null)
                         shipsAvailableForAssignment.Add(ship);
                     else
                         ship.AI.State = AIState.SystemDefender;
                 }
-                else Remove(ship);
+                else
+                if (!ship.AI.HasPriorityOrder && ship.AI.State != AIState.Resupply)
+                    Remove(ship);
             }
 
             //Assign available force:
