@@ -101,6 +101,16 @@ namespace Ship_Game
                 if (TradeBlocked || !ImportProd)
                     return 0;
 
+                if (NonCybernetic)
+                {
+                    switch (ConstructionQueue.Count)
+                    {
+                        case 0 when Storage.ProdRatio.AlmostEqual(1): return 0;
+                        case 0: return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0, 6);
+                    }
+                }
+
+                // We have items in construction
                 float totalProdNeeded = TotalProdNeededInQueue() - ProdHere - IncomingProd;
                 float totalProdSlots  = (totalProdNeeded / Owner.AverageFreighterCargoCap).LowerBound(0);
                 int prodIncomeSlots   = 0;
