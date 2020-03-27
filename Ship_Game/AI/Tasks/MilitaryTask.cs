@@ -272,32 +272,18 @@ namespace Ship_Game.AI.Tasks
 
             ClearHoldOnGoal();
 
-            AO closestAo = Owner.GetEmpireAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Center));
-            if (closestAo == null)
-            {
-                if (!IsCoreFleetTask && WhichFleet != -1 && Owner != EmpireManager.Player)
-                {
-                    Fleet.Reset();
-                }
-                return;
-            }
 
             if (WhichFleet != -1)
             {
                 if (IsCoreFleetTask)
                 {
+                    AO closestAo = Owner.GetEmpireAI().AreasOfOperations.FindMin(ao => AO.SqDist(ao.Center));
                     Fleet?.ClearFleetTask();
                     Fleet?.MoveToDirectly(closestAo.Center, Vectors.Up);
                 }
                 else
                 {
-                    foreach (Ship ship in Fleet.Ships)
-                    {
-                        Owner.Pool.RemoveShipFromFleetAndPools(ship);
-                        closestAo.AddShip(ship);
-                        closestAo.TurnsToRelax = 0;
-                    }
-
+                    Owner.Pool.ForcePoolAdd(Fleet.Ships);
                     TaskForce.Clear();
                     Owner.GetEmpireAI().UsedFleets.Remove(WhichFleet);
                     Fleet?.Reset();
