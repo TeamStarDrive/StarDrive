@@ -51,6 +51,8 @@ namespace Ship_Game
                 e.IncreaseFastVsBigFreighterRatio(sdata.FastVsBigFreighterRatio - e.FastVsBigFreighterRatio);
                 if (sdata.empireData.DefaultTroopShip.IsEmpty())
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
+
+                e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
             }
 
             foreach (TechEntry tech in sdata.TechTree)

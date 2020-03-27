@@ -18,12 +18,14 @@ namespace Ship_Game
         //       So we need to pull it out of UniverseScreen
         public static float Pace { get; private set; } = 1f;
         public static UniverseData.GameDifficulty Difficulty { get; private set; }
+        public static GalSize GalaxySize = GalSize.Medium;
 
         public static void StartNew(UniverseData data, float pace)
         {
             Difficulty = data.difficulty;
-            Pace = pace;
-            RandomEventManager.ActiveEvent = null;
+            GalaxySize = data.GalaxySize;
+            Pace       = pace;
+            RandomEventManager.ActiveEvent = null; // This is a bug that will reset ongoing event upon game load (like hyperspace flux)
         }
     }
 }
