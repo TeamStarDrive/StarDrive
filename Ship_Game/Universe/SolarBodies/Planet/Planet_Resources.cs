@@ -180,25 +180,25 @@ namespace Ship_Game
 
             if (Owner.NumPlanets == 1)
             {
-                FS = GoodState.STORE;       //Easy out for solo planets
+                FS = GoodState.STORE; // Easy out for solo planets
                 return;
             }
 
-            if (Food.FlatBonus > PopulationBillion)     //Account for possible overproduction from FlatFood
+            if (Food.FlatBonus > PopulationBillion) // Account for possible overproduction from FlatFood
             {
                 float offsetAmount = (Food.FlatBonus - PopulationBillion) * 0.05f;
-                offsetAmount = offsetAmount.Clamped(0.00f, 0.15f);
-                importThreshold = (importThreshold - offsetAmount).Clamped(0.10f, 1.00f);
-                exportThreshold = (exportThreshold - offsetAmount).Clamped(0.10f, 1.00f);
+                offsetAmount       = offsetAmount.Clamped(0.00f, 0.15f);
+                importThreshold    = (importThreshold - offsetAmount).Clamped(0.1f, 1f);
+                exportThreshold    = (exportThreshold - offsetAmount).Clamped(0.1f, 1f);
             }
 
             float ratio = Storage.FoodRatio;
 
-            //This will allow a buffer for import / export, so they dont constantly switch between them
+            // This will allow a buffer for import / export, so they dont constantly switch between them
             if      (ratio < importThreshold && ShortOnFood())               FS = GoodState.IMPORT; // If below importThreshold, its time to import.
             else if (FS == GoodState.IMPORT && ratio >= importThreshold * 2) FS = GoodState.STORE;  // Until you reach 2x importThreshold, then switch to Store
             else if (FS == GoodState.EXPORT && ratio <= exportThreshold / 2) FS = GoodState.STORE;  // If we were exporting, and drop below half exportThreshold, stop exporting
-            else if (ratio > exportThreshold) FS = GoodState.EXPORT;                                // Until we get back to the Threshold, then export
+            else if (ratio > exportThreshold)                                FS = GoodState.EXPORT; // Until we get back to the Threshold, then export
         }
 
         void DetermineProdState(float importThreshold, float exportThreshold)

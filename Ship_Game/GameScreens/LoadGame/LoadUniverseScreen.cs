@@ -159,8 +159,9 @@ namespace Ship_Game
             ScreenManager.RemoveAllObjects();
             var data = new UniverseData
             {
-                loadFogPath = saveData.FogMapName,
-                difficulty  = saveData.gameDifficulty,
+                loadFogPath           = saveData.FogMapName,
+                difficulty            = saveData.gameDifficulty,
+                GalaxySize            = saveData.GalaxySize,
                 Size                  = saveData.Size,
                 FTLSpeedModifier      = saveData.FTLModifier,
                 EnemyFTLSpeedModifier = saveData.EnemyFTLModifier,

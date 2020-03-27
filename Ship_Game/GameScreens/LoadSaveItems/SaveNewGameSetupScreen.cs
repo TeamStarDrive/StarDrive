@@ -12,7 +12,7 @@ namespace Ship_Game
         public SaveNewGameSetupScreen(RaceDesignScreen screen,
             UniverseData.GameDifficulty gameDifficulty,
             RaceDesignScreen.StarNum numStars,
-            RaceDesignScreen.GalSize galaxySize,
+            GalSize galaxySize,
             int gamePacing,
             ExtraRemnantPresence extraRemnant,
             int numOpponents,
