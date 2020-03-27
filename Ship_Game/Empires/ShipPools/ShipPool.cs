@@ -60,7 +60,7 @@ namespace Ship_Game.Empires.ShipPools
             return ships;
         }
 
-        private void ErrorCheckPools()
+        private void ErrorCheckPools() // TODO - this is so expensive, it goes all over the ships and throws tons of logs, i disabled the logs for now
         {
             var allShips = Owner.GetShips();
             // error check. there is a hole in the ship pools causing 
@@ -76,9 +76,9 @@ namespace Ship_Game.Empires.ShipPools
                         ship.AI.SystemToDefend = null;
                         ship.AI.SystemToDefendGuid = Guid.Empty;
                         ship.AI.ClearOrders();
-                        Log.Warning("ShipPool: Ship was in a system defense state but not in system defense pool");
-                        if (!AssignShipsToOtherPools(ship))
-                            Log.Warning("ShipPool: Could not assign ship to pools");
+                        // Log.Warning("ShipPool: Ship was in a system defense state but not in system defense pool");
+                        // if (!AssignShipsToOtherPools(ship))
+                        //    Log.Info("ShipPool: Could not assign ship to pools");
                     }
                 }
                 else if (ship.DesignRoleType == ShipData.RoleType.Warship)
@@ -91,9 +91,9 @@ namespace Ship_Game.Empires.ShipPools
                     }
                     if (notInAOs && notInForcePool && ship.BaseCanWarp)
                     {
-                        Log.Warning("ShipPool: WarShip was not in any pools");
-                        if (!AssignShipsToOtherPools(ship))
-                            Log.Warning("ShipPool: Could not assign ship to pools");
+                        // Log.Info("ShipPool: WarShip was not in any pools");
+                        // if (!AssignShipsToOtherPools(ship))
+                        //    Log.Info("ShipPool: Could not assign ship to pools");
                     }
                 }
             }
