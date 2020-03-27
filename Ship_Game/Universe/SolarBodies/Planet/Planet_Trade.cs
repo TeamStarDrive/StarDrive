@@ -101,6 +101,7 @@ namespace Ship_Game
                 {
                     switch (ConstructionQueue.Count)
                     {
+                        // No construction queue cases for non cybernetics
                         case 0 when Storage.ProdRatio.AlmostEqual(1): return 0;
                         case 0: return ((int)((Storage.Max - Storage.Prod) / 50) + 1).Clamped(0, 6);
                     }
@@ -109,13 +110,12 @@ namespace Ship_Game
                 // We have items in construction
                 float totalProdNeeded = TotalProdNeededInQueue() - ProdHere - IncomingProd;
                 float totalProdSlots  = (totalProdNeeded / Owner.AverageFreighterCargoCap).LowerBound(0);
-                int prodStorageRatio  = 0;
 
-                if (IsCybernetic)
-                    prodStorageRatio = (int)((1 - Storage.ProdRatio) * 3);
+                if (IsCybernetic) // They need prod as food
+                    totalProdSlots += (int)((1 - Storage.ProdRatio) * 3);
 
                 int maxSlots = ((int)(CurrentGame.GalaxySize) * 5).LowerBound(5);
-                return (int)(totalProdSlots + prodStorageRatio).Clamped(0, maxSlots + Owner.NumTradeTreaties);
+                return (int)(totalProdSlots).Clamped(0, maxSlots + Owner.NumTradeTreaties);
             }
         }
 
