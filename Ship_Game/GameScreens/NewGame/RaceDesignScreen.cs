@@ -468,7 +468,7 @@ namespace Ship_Game
             }
 
             float pace = Pacing / 100f;
-            var ng = new CreatingNewGameScreen(player, GalaxySize.ToString(), modifier, 
+            var ng = new CreatingNewGameScreen(player, GalaxySize, modifier, 
                                                NumOpponents, Mode, pace, SelectedDifficulty, MainMenu);
             ScreenManager.GoToScreen(ng, clear3DObjects:true);
         }
@@ -544,11 +544,6 @@ namespace Ship_Game
             }
         }
         
-        public enum GalSize
-        {
-            Tiny, Small, Medium, Large, Huge, Epic
-        }
-
         public enum GameMode
         {
             Sandbox, Elimination, Corners, BigClusters, SmallClusters
@@ -558,6 +553,11 @@ namespace Ship_Game
         {
             VeryRare, Rare, Uncommon, Normal, Abundant, Crowded, Packed, SuperPacked
         }
+    }
+
+    public enum GalSize
+    {
+        Tiny, Small, Medium, Large, Huge, Epic
     }
 
     public enum ExtraRemnantPresence

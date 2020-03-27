@@ -13,6 +13,7 @@ namespace Ship_Game
         public Vector2 Size = new Vector2(500000f);
 
         public GameDifficulty difficulty = GameDifficulty.Normal;
+        public GalSize GalaxySize        = GalSize.Medium;
 
         public float FTLSpeedModifier = 1f;
         public float EnemyFTLSpeedModifier = 1f;
