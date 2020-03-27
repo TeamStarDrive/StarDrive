@@ -83,10 +83,6 @@ namespace Ship_Game
                     if (Storage.FoodRatio > 0.9f)
                         return 0;  
                 }
-                else if (!ShortOnFood())
-                {
-                    return 0; // for governors, the planet also needs to be short on food
-                }
 
                 int foodIncomeSlots  = (int)(1 - Food.NetIncome);
                 int foodStorageRatio = (int)((1 - Storage.FoodRatio) * 3);
@@ -113,17 +109,13 @@ namespace Ship_Game
                 // We have items in construction
                 float totalProdNeeded = TotalProdNeededInQueue() - ProdHere - IncomingProd;
                 float totalProdSlots  = (totalProdNeeded / Owner.AverageFreighterCargoCap).LowerBound(0);
-                int prodIncomeSlots   = 0;
                 int prodStorageRatio  = 0;
 
                 if (IsCybernetic)
-                { 
-                    prodIncomeSlots  = (int)(1 - Prod.NetIncome);
                     prodStorageRatio = (int)((1 - Storage.ProdRatio) * 3);
-                }
 
-                int maxSlots = (UniverseScreen.SolarSystemList.Count / 20).LowerBound(5);
-                return (int)(totalProdSlots + prodIncomeSlots + prodStorageRatio).Clamped(0, maxSlots);
+                int maxSlots = (UniverseScreen.SolarSystemList.Count / 10).LowerBound(5);
+                return (int)(totalProdSlots + prodStorageRatio).Clamped(0, maxSlots + Owner.NumTradeTreaties);
             }
         }
 
