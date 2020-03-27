@@ -114,7 +114,7 @@ namespace Ship_Game
                 if (IsCybernetic)
                     prodStorageRatio = (int)((1 - Storage.ProdRatio) * 3);
 
-                int maxSlots = (UniverseScreen.SolarSystemList.Count / 10).LowerBound(5);
+                int maxSlots = (int)(CurrentGame.GalaxySize + 1) * 5;
                 return (int)(totalProdSlots + prodStorageRatio).Clamped(0, maxSlots + Owner.NumTradeTreaties);
             }
         }
