@@ -111,6 +111,11 @@ namespace Ship_Game
             return ConstructionQueue.Filter(qi => qi.isTroop).Sum(qi => qi.Cost);
         }
 
+        public float TotalProdNeededInQueue()
+        {
+            return ConstructionQueue.Sum(qi => qi.ProductionNeeded);
+        }
+
         public Array<Ship> GetAllShipsInQueue() => ShipRolesInQueue(null);
 
         public bool IsColonyShipInQueue() => FirstShipRoleInQueue(ShipData.RoleName.colony) != null;

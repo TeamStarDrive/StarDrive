@@ -303,8 +303,7 @@ namespace Ship_Game
 
 
             float highestScore = 1f; // So a building with a low value of 1 or less will not be built.
-            float incomingProd = IncomingFreighters.Sum(f => f.GetProduction());
-            float totalProd    = Storage.Prod + incomingProd;
+            float totalProd    = Storage.Prod + IncomingProd;
             
             for (int i = 0; i < buildings.Count; i++)
             {
@@ -520,13 +519,13 @@ namespace Ship_Game
 
                 int num = 0;
                 if (TilesList.Any(t => !t.Habitable))
-                    ++num;
+                    num += 1;
 
                 if (TilesList.Any(t => t.Biosphere))
-                    ++num;
+                    num += 1;
 
                 if (Category != Owner.data.PreferredEnv || NonCybernetic && BaseMaxFertility.Less(1 / Owner.RacialEnvModifer(Category)))
-                    ++num;
+                    num += 2;
 
                 num -= Math.Max(BuildingList.Count(b => b.IsTerraformer), 0);
                 return num;

@@ -2268,6 +2268,7 @@ namespace Ship_Game
 
             if (!isFaction)
             {
+                CalcAverageFreighterCargoCap();
                 DispatchBuildAndScrapFreighters();
                 AssignExplorationTasks();
             }
