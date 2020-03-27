@@ -117,10 +117,10 @@ namespace Ship_Game
             int threshold = (((int)(CurrentGame.GalaxySize) * 12).LowerBound(15));
             if (Owner.NonCybernetic)
             {
-                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere) < threshold)
+                if (TurnsToEmptyStorage(Food.NetIncome, FoodHere + IncomingFood) < threshold)
                     return true;
             }
-            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere) < threshold)
+            else if (TurnsToEmptyStorage(Prod.NetIncome, ProdHere + IncomingProd) < threshold)
                 return true;
 
             return false;
