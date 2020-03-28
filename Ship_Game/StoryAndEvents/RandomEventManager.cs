@@ -34,6 +34,7 @@ namespace Ship_Game
                 switch (potential)
                 {
                     case Potentials.Habitable when planet.Habitable: potentials.Add(planet); break;
+                    case Potentials.Volcano   when planet.Habitable: potentials.Add(planet); break;
                 }
             }
 
@@ -59,9 +60,20 @@ namespace Ship_Game
             }
         }
 
+        static void NotifyPlayerIfAffected(Planet planet, int token)
+        {
+            string fullText = $"{planet.Name} {Localizer.Token(token)}";
+            if (planet.IsExploredBy(EmpireManager.Player))
+            {
+                Empire.Universe.NotificationManager.AddRandomEventNotification(
+                    fullText, planet.Type.IconPath, "SnapToPlanet", planet);
+            }
+        }
+
         enum Potentials
         {
-            Habitable
+            Habitable,
+            Volcano
         }
 
         // ***********
@@ -87,12 +99,7 @@ namespace Ship_Game
             if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
             {
                 planet.AddMaxBaseFertility(0.5f);
-                if (planet.IsExploredBy(EmpireManager.Player))
-                {
-                    string txt = planet.Name + Localizer.Token(4011);
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        txt, planet.Type.IconPath, "SnapToPlanet", planet);
-                }
+                NotifyPlayerIfAffected(planet, 4011);
             }
 
             Log.Info($"Event Notification: Orbit Shift at {planet}");
@@ -104,12 +111,7 @@ namespace Ship_Game
             {
                 planet.SetBaseFertility(0f, planet.BaseMaxFertility);
                 planet.BasePopPerTile *= 0.65f;
-                if (planet.IsExploredBy(EmpireManager.Player))
-                {
-                    string txt = planet.Name + Localizer.Token(4012);
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        txt, planet.Type.IconPath, "SnapToPlanet", planet);
-                }
+                NotifyPlayerIfAffected(planet, 4012);
             }
 
             Log.Info($"Event Notification: Volcano at {planet}");
@@ -119,18 +121,11 @@ namespace Ship_Game
         {
             if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
             {
-                float sizeOfMeteor = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
-                planet.AddMaxBaseFertility(-sizeOfMeteor);
-                planet.Population *= (1 - sizeOfMeteor);
+                float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
+                planet.Population      *= (1 - sizeOfMeteor);
                 planet.MineralRichness += sizeOfMeteor;
-
-                if (planet.IsExploredBy(EmpireManager.Player))
-                {
-                    string eventText = planet.Name + Localizer.Token(4105);
-                    Empire.Universe.NotificationManager.AddRandomEventNotification(
-                        eventText, planet.Type.IconPath, "SnapToPlanet", planet);
-                }
-
+                planet.AddMaxBaseFertility(-sizeOfMeteor);
+                NotifyPlayerIfAffected(planet, 4015);
                 Log.Info($"Event Notification: Meteor Strike at {planet}");
             }
         }
