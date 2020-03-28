@@ -19,10 +19,11 @@ namespace Ship_Game
 
             int random = RandomMath.IntBetween(1, 1000);
 
-            if      (random == 1) HyperSpaceFlux(); 
-            else if (random <= 3) ShiftInOrbit(); 
+            if      (random == 1) HyperSpaceFlux();
+            else if (random <= 3) ShiftInOrbit();
             else if (random <= 5) Volcano();
-            else if (random <= 7) MeteorStrike();
+            else if (random <= 6) MeteorStrike();
+            else if (random <= 7) VolcanicToHabitable();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet)
@@ -33,8 +34,8 @@ namespace Ship_Game
             {
                 switch (potential)
                 {
-                    case Potentials.Habitable when planet.Habitable: potentials.Add(planet); break;
-                    case Potentials.Volcano   when planet.Habitable: potentials.Add(planet); break;
+                    case Potentials.Habitable when planet.Habitable:                           potentials.Add(planet); break;
+                    case Potentials.Improved  when planet.Category == PlanetCategory.Volcanic: potentials.Add(planet); break;
                 }
             }
 
@@ -73,7 +74,7 @@ namespace Ship_Game
         enum Potentials
         {
             Habitable,
-            Volcano
+            Improved
         }
 
         // ***********
@@ -122,11 +123,27 @@ namespace Ship_Game
             if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
             {
                 float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
+                int token               = planet.Population > 0 ? 4105 : 4113;
                 planet.Population      *= (1 - sizeOfMeteor);
                 planet.MineralRichness += sizeOfMeteor;
                 planet.AddMaxBaseFertility(-sizeOfMeteor);
-                NotifyPlayerIfAffected(planet, 4015);
+                NotifyPlayerIfAffected(planet, token);
                 Log.Info($"Event Notification: Meteor Strike at {planet}");
+            }
+        }
+
+        static void VolcanicToHabitable()
+        {
+            if (GetAffectedPlanet(Potentials.Improved, out Planet planet))
+            {
+                PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
+                                                                         : PlanetCategory.Desert;
+
+                PlanetType newType = ResourceManager.RandomPlanet(category);
+                planet.GenerateNewFromPlanetType(newType, planet.Scale);
+                planet.RecreateSceneObject();
+                NotifyPlayerIfAffected(planet, 4112);
+                Log.Info($"Event Notification: Volcanic to Habitable at {planet}");
             }
         }
     }
