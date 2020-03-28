@@ -233,7 +233,7 @@
     </Token>
     <Token>
       <Index>61</Index>
-      <Text>Cybernetic races have inorganic bodies and do not eat food, instead eating production. </Text>
+      <Text>Cybernetic races have inorganic bodies and do not eat food, instead eating production. Production is a limited resource which slowly decays upon consumption. Cybernetic races are more mindful of production managements and needs.</Text>
     </Token>
     <Token>
       <Index>62</Index>
@@ -4707,6 +4707,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>This is the maximum number of ship slot size this hanger can store.</Text>
     </Token>
     <Token>
+      <Index>1866</Index>
+      <Text> Mineral Richness has gone down below 1.</Text>
+    </Token>
+    <Token>
+      <Index>1867</Index>
+      <Text>- Raw minerals were discovered.\nMineral Richness increased by</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>
@@ -5194,7 +5202,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2018</Index>
-      <Text>Food is eaten by your colonists each turn. The number to the right of this slider indicates the net value of the food you are producting at this planet after the colonists have eaten. A negative value means that you are not producing enough food to cover your population's food needs. \n \n If your food production is negative and you do not have enough food in storage to cover your shortfall, then your population will begin to starve and die.</Text>
+      <Text>Food is eaten by your colonists each turn. The number to the right of this slider indicates the net value of the food you are producing at this planet after the colonists have eaten. A negative value means that you are not producing enough food to cover your population's food needs. \n \n If your food production is negative and you do not have enough food in storage to cover your shortfall, then your population will begin to starve and die.</Text>
     </Token>
     <Token>
       <Index>2019</Index>
@@ -5300,7 +5308,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2044</Index>
-      <Text>Your people are cybernetic and have no use for organic food</Text>
+      <Text>Your people are cybernetic and have no use for organic food.</Text>
     </Token>
     <Token>
       <Index>2045</Index>
@@ -7123,7 +7131,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>220</Index>
-      <Text>A planet's mineral richness directly affects the speed at which a colony creates Production.
+      <Text>A planet's Mineral Richness directly affects the speed at which a colony creates Production. Mineral Richness slowly decays. The decay rate is affected by production rate and planet's size (larger planets will decay slower than smaller ones. A planet cannot decay below 0.1 Richness. 
       </Text>
     </Token>
 
