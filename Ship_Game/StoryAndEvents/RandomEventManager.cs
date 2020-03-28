@@ -1,6 +1,8 @@
+using System;
+
 namespace Ship_Game
 {
-    public sealed class RandomEvent
+    public sealed class RandomEvent // Refactored by Fat Bastard - March 29, 2020
     {
         [Serialize(0)] public string Name;
         [Serialize(1)] public string NotificationString;
@@ -24,6 +26,7 @@ namespace Ship_Game
             else if (random <= 5) Volcano();
             else if (random <= 6) MeteorStrike();
             else if (random <= 7) VolcanicToHabitable();
+            else if (random <= 9) FoundMinerals();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet)
@@ -36,6 +39,7 @@ namespace Ship_Game
                 {
                     case Potentials.Habitable when planet.Habitable:                           potentials.Add(planet); break;
                     case Potentials.Improved  when planet.Category == PlanetCategory.Volcanic: potentials.Add(planet); break;
+                    case Potentials.HasOwner  when planet.Owner != null:                       potentials.Add(planet); break;
                 }
             }
 
@@ -61,12 +65,12 @@ namespace Ship_Game
             }
         }
 
-        static void NotifyPlayerIfAffected(Planet planet, int token)
+        static void NotifyPlayerIfAffected(Planet planet, int token, string postText = "")
         {
             if (!planet.IsExploredBy(EmpireManager.Player)) 
                 return;
 
-            string fullText = $"{planet.Name} {Localizer.Token(token)}";
+            string fullText = $"{planet.Name} {Localizer.Token(token)} {postText}";
             Empire.Universe.NotificationManager.AddRandomEventNotification(
                 fullText, planet.Type.IconPath, "SnapToPlanet", planet);
         }
@@ -74,7 +78,8 @@ namespace Ship_Game
         enum Potentials
         {
             Habitable,
-            Improved
+            Improved,
+            HasOwner
         }
 
         // ***********
@@ -132,7 +137,8 @@ namespace Ship_Game
 
         static void VolcanicToHabitable()
         {
-            if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) return;
+            if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) 
+                return;
 
             PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
                                                               : PlanetCategory.Desert;
@@ -142,6 +148,18 @@ namespace Ship_Game
             planet.RecreateSceneObject();
             NotifyPlayerIfAffected(planet, 4112);
             Log.Info($"Event Notification: Volcanic to Habitable at {planet}");
+        }
+
+        static void FoundMinerals() // Increase Mineral Richness
+        {
+            if (!GetAffectedPlanet(Potentials.HasOwner, out Planet planet)) 
+                return;
+
+            float size              = RandomMath.RandomBetween(-0.25f, 0.75f).LowerBound(0.2f);
+            planet.MineralRichness += (float)Math.Round(size, 2);
+            string postText         = $" {size.String(2)}";
+            NotifyPlayerIfAffected(planet, 1867, postText);
+            Log.Info($"Event Notification: Minerals Found at {planet}");
         }
     }
 }
