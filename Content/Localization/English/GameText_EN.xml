@@ -7577,9 +7577,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>4105</Index>
-      <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
-    </Token>
-
+      <Text>  has been struck by a meteor! \nThe environment was adversely affected and many people died,\nThe meteor was comprised mostly of useful minerals.</Text>
+  </Token>
     <Token>
       <Index>4106</Index>
       <Text>Support</Text>
@@ -7604,7 +7603,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4111</Index>
       <Text>Bomber</Text>
     </Token>
-  
+    <Token>
+      <Index>4112</Index>
+      <Text>  has transformed to a Habitable planet!\n We might want to colonize it.</Text>
+    </Token>
+    <Token>
+      <Index>4113</Index>
+      <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\n meteor was comprised mostly of useful minerals.</Text>
+    </Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>
