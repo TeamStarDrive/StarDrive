@@ -79,7 +79,7 @@ namespace Ship_Game
         public PlanetGridSquare FindTileUnderMouse(Vector2 mousePos)
             => TilesList.Find(pgs => pgs.ClickRect.HitTest(mousePos));
 
-        void GenerateNewFromPlanetType(PlanetType type, float scale, float preDefinedPop = 0)
+        public void GenerateNewFromPlanetType(PlanetType type, float scale, float preDefinedPop = 0)
         {
             TilesList.Clear();
             Type = type;
@@ -442,6 +442,11 @@ namespace Ship_Game
             if (BaseFertility*2 > 1.6)   ++quality;
             if (MineralRichness > 1.6) ++quality;
             return quality;
+        }
+
+        public void RecreateSceneObject()
+        {
+            CreatePlanetSceneObject(Empire.Universe);
         }
 
         public void GenerateRemnantPresence()

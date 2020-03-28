@@ -17,89 +17,32 @@ namespace Ship_Game
             if (ActiveEvent != null)
                 return;
 
-            float random = RandomMath.RandomBetween(0f, 1000f);
+            int random = RandomMath.IntBetween(1, 1000);
 
-            if (random < 1f)        //Hyperspace Flux
+            if      (random == 1) HyperSpaceFlux();
+            else if (random <= 3) ShiftInOrbit();
+            else if (random <= 5) Volcano();
+            else if (random <= 6) MeteorStrike();
+            else if (random <= 7) VolcanicToHabitable();
+        }
+
+        static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet)
+        {
+            affectedPlanet = null;
+            var potentials = new Array<Planet>();
+            foreach (Planet planet in Empire.Universe.PlanetsDict.Values.ToArray())
             {
-                ActiveEvent = new RandomEvent
+                switch (potential)
                 {
-                    TurnTimer = (int)RandomMath.RandomBetween(10f, 40f),
-                    Name = "Hyperspace Flux",
-                    NotificationString = Localizer.Token(4010),
-                    InhibitWarp = true
-                };
-                Empire.Universe.NotificationManager.AddRandomEventNotification(
-                    ActiveEvent.NotificationString, null, null, null);
-            }
-
-
-            if (random > 2f && random < 4f)         //Shifted in orbit (+ Fertility)
-            {
-                var potentials = new Array<Planet>();
-                foreach (var planet in Empire.Universe.PlanetsDict)
-                {
-                    if (planet.Value.Habitable)
-                        potentials.Add(planet.Value);
-                }
-                if (potentials.Count > 0)
-                {
-                    Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
-                    if (toImprove.IsExploredBy(EmpireManager.Player))
-                    {
-                        toImprove.AddMaxBaseFertility(0.5f);
-                        string txt = toImprove.Name + Localizer.Token(4011);
-                        Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);
-                    }
+                    case Potentials.Habitable when planet.Habitable:                           potentials.Add(planet); break;
+                    case Potentials.Improved  when planet.Category == PlanetCategory.Volcanic: potentials.Add(planet); break;
                 }
             }
 
-            if (random > 4f && random < 6f)     //Volcano (- Fertility)
-            {
-                var potentials = new Array<Planet>();
-                foreach (var planet in Empire.Universe.PlanetsDict)
-                {
-                    if (planet.Value.Habitable)
-                        potentials.Add(planet.Value);
-                }
-                if (potentials.Count > 0)
-                {
-                    Planet toImprove = potentials[RandomMath.InRange(potentials.Count)];
-                    if (toImprove.IsExploredBy(EmpireManager.Player))
-                    {
-                        toImprove.AddMaxBaseFertility(-0.5f);
-                        toImprove.BasePopPerTile *= 0.65f;
-                        string txt = toImprove.Name + Localizer.Token(4012);
-                        Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            txt, toImprove.Type.IconPath, "SnapToPlanet", toImprove);
-                    }
-                }
-            }
-            if (random > 6 && random < 8)   //Meteor Strike --  Added by Gretman
-            {
-                var potentials = new Array<Planet>();
-                foreach (var planet in Empire.Universe.PlanetsDict)
-                {
-                    if (planet.Value.Habitable)
-                        potentials.Add(planet.Value);
-                }
+            if (potentials.Count > 0)
+                affectedPlanet = potentials.RandItem();
 
-                if (potentials.Count > 0)
-                {
-                    Planet targetPlanet = potentials[RandomMath.InRange(potentials.Count)];
-                    if (targetPlanet.IsExploredBy(EmpireManager.Player))
-                    {
-                        float sizeOfMeteor = RandomMath.RandomBetween(1, 3) / 10;
-                        targetPlanet.AddMaxBaseFertility(-sizeOfMeteor);
-                        targetPlanet.MineralRichness += sizeOfMeteor * 2;
-
-                        string eventText = targetPlanet.Name + Localizer.Token(4105);
-                        Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            eventText, targetPlanet.Type.IconPath, "SnapToPlanet", targetPlanet);
-                    }
-                    else Log.Info($"Something horrible would have happened to '{targetPlanet.Name}' but it was on a planet the player hasn't discovered yet.");
-                }
-            }
+            return affectedPlanet != null;
         }
 
         public static void UpdateEvents()
@@ -116,6 +59,89 @@ namespace Ship_Game
                 ActiveEvent = null;
                 Empire.Universe.NotificationManager.AddRandomEventNotification(Localizer.Token(4009), null, null, null);
             }
+        }
+
+        static void NotifyPlayerIfAffected(Planet planet, int token)
+        {
+            if (!planet.IsExploredBy(EmpireManager.Player)) 
+                return;
+
+            string fullText = $"{planet.Name} {Localizer.Token(token)}";
+            Empire.Universe.NotificationManager.AddRandomEventNotification(
+                fullText, planet.Type.IconPath, "SnapToPlanet", planet);
+        }
+
+        enum Potentials
+        {
+            Habitable,
+            Improved
+        }
+
+        // ***********
+        // Event types
+        // ***********
+
+        static void HyperSpaceFlux()
+        {
+            ActiveEvent = new RandomEvent
+            {
+                TurnTimer          = (int)RandomMath.RandomBetween(10f, 40f),
+                Name               = "Hyperspace Flux",
+                NotificationString = Localizer.Token(4010),
+                InhibitWarp        = true
+            };
+
+            Empire.Universe.NotificationManager.AddRandomEventNotification(
+                ActiveEvent.NotificationString, null, null, null);
+        }
+
+        static void ShiftInOrbit() // Shifted in orbit (+ MaxFertility)
+        {
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+                return;
+
+            planet.AddMaxBaseFertility(0.5f);
+            NotifyPlayerIfAffected(planet, 4011);
+            Log.Info($"Event Notification: Orbit Shift at {planet}");
+        }
+
+        static void Volcano() // Volcano (- Fertility and pop per tile)
+        {
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+                return;
+
+            planet.SetBaseFertility(0f, planet.BaseMaxFertility);
+            planet.BasePopPerTile *= 0.65f;
+            NotifyPlayerIfAffected(planet, 4012);
+            Log.Info($"Event Notification: Volcano at {planet}");
+        }
+
+        static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
+        {
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+                return;
+
+            float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
+            int token               = planet.Population > 0 ? 4105 : 4113;
+            planet.Population      *= (1 - sizeOfMeteor);
+            planet.MineralRichness += sizeOfMeteor;
+            planet.AddMaxBaseFertility(-sizeOfMeteor);
+            NotifyPlayerIfAffected(planet, token);
+            Log.Info($"Event Notification: Meteor Strike at {planet}");
+        }
+
+        static void VolcanicToHabitable()
+        {
+            if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) return;
+
+            PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
+                                                              : PlanetCategory.Desert;
+
+            PlanetType newType = ResourceManager.RandomPlanet(category);
+            planet.GenerateNewFromPlanetType(newType, planet.Scale);
+            planet.RecreateSceneObject();
+            NotifyPlayerIfAffected(planet, 4112);
+            Log.Info($"Event Notification: Volcanic to Habitable at {planet}");
         }
     }
 }
