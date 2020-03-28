@@ -233,7 +233,7 @@
     </Token>
     <Token>
       <Index>61</Index>
-      <Text>Cybernetic races have inorganic bodies and do not eat food, instead eating production. </Text>
+      <Text>Cybernetic races have inorganic bodies and do not eat food, instead eating production. Production is a limited resource which slowly decays upon consumption. Cybernetic races are more mindful of production managements and needs.</Text>
     </Token>
     <Token>
       <Index>62</Index>
@@ -5202,7 +5202,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2018</Index>
-      <Text>Food is eaten by your colonists each turn. The number to the right of this slider indicates the net value of the food you are producting at this planet after the colonists have eaten. A negative value means that you are not producing enough food to cover your population's food needs. \n \n If your food production is negative and you do not have enough food in storage to cover your shortfall, then your population will begin to starve and die.</Text>
+      <Text>Food is eaten by your colonists each turn. The number to the right of this slider indicates the net value of the food you are producing at this planet after the colonists have eaten. A negative value means that you are not producing enough food to cover your population's food needs. \n \n If your food production is negative and you do not have enough food in storage to cover your shortfall, then your population will begin to starve and die.</Text>
     </Token>
     <Token>
       <Index>2019</Index>
@@ -5308,7 +5308,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2044</Index>
-      <Text>Your people are cybernetic and have no use for organic food</Text>
+      <Text>Your people are cybernetic and have no use for organic food.</Text>
     </Token>
     <Token>
       <Index>2045</Index>
