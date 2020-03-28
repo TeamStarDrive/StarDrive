@@ -63,12 +63,12 @@ namespace Ship_Game
 
         static void NotifyPlayerIfAffected(Planet planet, int token)
         {
+            if (!planet.IsExploredBy(EmpireManager.Player)) 
+                return;
+
             string fullText = $"{planet.Name} {Localizer.Token(token)}";
-            if (planet.IsExploredBy(EmpireManager.Player))
-            {
-                Empire.Universe.NotificationManager.AddRandomEventNotification(
-                    fullText, planet.Type.IconPath, "SnapToPlanet", planet);
-            }
+            Empire.Universe.NotificationManager.AddRandomEventNotification(
+                fullText, planet.Type.IconPath, "SnapToPlanet", planet);
         }
 
         enum Potentials
@@ -97,54 +97,51 @@ namespace Ship_Game
 
         static void ShiftInOrbit() // Shifted in orbit (+ MaxFertility)
         {
-            if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
-            {
-                planet.AddMaxBaseFertility(0.5f);
-                NotifyPlayerIfAffected(planet, 4011);
-            }
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+                return;
 
+            planet.AddMaxBaseFertility(0.5f);
+            NotifyPlayerIfAffected(planet, 4011);
             Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
         static void Volcano() // Volcano (- Fertility and pop per tile)
         {
-            if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
-            {
-                planet.SetBaseFertility(0f, planet.BaseMaxFertility);
-                planet.BasePopPerTile *= 0.65f;
-                NotifyPlayerIfAffected(planet, 4012);
-            }
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+                return;
 
+            planet.SetBaseFertility(0f, planet.BaseMaxFertility);
+            planet.BasePopPerTile *= 0.65f;
+            NotifyPlayerIfAffected(planet, 4012);
             Log.Info($"Event Notification: Volcano at {planet}");
         }
 
         static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
         {
-            if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
-            {
-                float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
-                int token               = planet.Population > 0 ? 4105 : 4113;
-                planet.Population      *= (1 - sizeOfMeteor);
-                planet.MineralRichness += sizeOfMeteor;
-                planet.AddMaxBaseFertility(-sizeOfMeteor);
-                NotifyPlayerIfAffected(planet, token);
-                Log.Info($"Event Notification: Meteor Strike at {planet}");
-            }
+            if (!GetAffectedPlanet(Potentials.Habitable, out Planet planet)) 
+                return;
+
+            float sizeOfMeteor      = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
+            int token               = planet.Population > 0 ? 4105 : 4113;
+            planet.Population      *= (1 - sizeOfMeteor);
+            planet.MineralRichness += sizeOfMeteor;
+            planet.AddMaxBaseFertility(-sizeOfMeteor);
+            NotifyPlayerIfAffected(planet, token);
+            Log.Info($"Event Notification: Meteor Strike at {planet}");
         }
 
         static void VolcanicToHabitable()
         {
-            if (GetAffectedPlanet(Potentials.Improved, out Planet planet))
-            {
-                PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
-                                                                         : PlanetCategory.Desert;
+            if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) return;
 
-                PlanetType newType = ResourceManager.RandomPlanet(category);
-                planet.GenerateNewFromPlanetType(newType, planet.Scale);
-                planet.RecreateSceneObject();
-                NotifyPlayerIfAffected(planet, 4112);
-                Log.Info($"Event Notification: Volcanic to Habitable at {planet}");
-            }
+            PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
+                                                                     : PlanetCategory.Desert;
+
+            PlanetType newType = ResourceManager.RandomPlanet(category);
+            planet.GenerateNewFromPlanetType(newType, planet.Scale);
+            planet.RecreateSceneObject();
+            NotifyPlayerIfAffected(planet, 4112);
+            Log.Info($"Event Notification: Volcanic to Habitable at {planet}");
         }
     }
 }
