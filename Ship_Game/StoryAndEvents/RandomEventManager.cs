@@ -135,7 +135,7 @@ namespace Ship_Game
             if (!GetAffectedPlanet(Potentials.Improved, out Planet planet)) return;
 
             PlanetCategory category = RandomMath.RollDice(75) ? PlanetCategory.Barren 
-                                                                     : PlanetCategory.Desert;
+                                                              : PlanetCategory.Desert;
 
             PlanetType newType = ResourceManager.RandomPlanet(category);
             planet.GenerateNewFromPlanetType(newType, planet.Scale);
