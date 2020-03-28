@@ -17,42 +17,12 @@ namespace Ship_Game
             if (ActiveEvent != null)
                 return;
 
-            float random = RandomMath.RandomBetween(0f, 1000f);
+            int random = RandomMath.IntBetween(1, 1000);
 
-            if (random < 1f) // Hyperspace Flux
-            {
-                ActiveEvent = new RandomEvent
-                {
-                    TurnTimer = (int)RandomMath.RandomBetween(10f, 40f),
-                    Name = "Hyperspace Flux",
-                    NotificationString = Localizer.Token(4010),
-                    InhibitWarp = true
-                };
-                Empire.Universe.NotificationManager.AddRandomEventNotification(
-                    ActiveEvent.NotificationString, null, null, null);
-            }
-
-
-            if (random > 2f && random < 4f) ShiftInOrbit();
-            if (random > 4f && random < 6f) Volcano();
-
-            if (random > 6 && random < 8)   //Meteor Strike --  Added by Gretman
-            {
-                if (GetAffectedPlanet(Potentials.Habitable, out Planet targetPlanet))
-                {
-                    if (targetPlanet.IsExploredBy(EmpireManager.Player))
-                    {
-                        float sizeOfMeteor = RandomMath.RandomBetween(1, 3) / 10;
-                        targetPlanet.AddMaxBaseFertility(-sizeOfMeteor);
-                        targetPlanet.MineralRichness += sizeOfMeteor * 2;
-
-                        string eventText = targetPlanet.Name + Localizer.Token(4105);
-                        Empire.Universe.NotificationManager.AddRandomEventNotification(
-                            eventText, targetPlanet.Type.IconPath, "SnapToPlanet", targetPlanet);
-                    }
-                    else Log.Info($"Something horrible would have happened to '{targetPlanet.Name}' but it was on a planet the player hasn't discovered yet.");
-                }
-            }
+            if      (random == 1) HyperSpaceFlux(); 
+            else if (random <= 3) ShiftInOrbit(); 
+            else if (random <= 5) Volcano();
+            else if (random <= 7) MeteorStrike();
         }
 
         static bool GetAffectedPlanet(Potentials potential, out Planet affectedPlanet)
@@ -98,6 +68,20 @@ namespace Ship_Game
         // Event types
         // ***********
 
+        static void HyperSpaceFlux()
+        {
+            ActiveEvent = new RandomEvent
+            {
+                TurnTimer          = (int)RandomMath.RandomBetween(10f, 40f),
+                Name               = "Hyperspace Flux",
+                NotificationString = Localizer.Token(4010),
+                InhibitWarp        = true
+            };
+
+            Empire.Universe.NotificationManager.AddRandomEventNotification(
+                ActiveEvent.NotificationString, null, null, null);
+        }
+
         static void ShiftInOrbit() // Shifted in orbit (+ MaxFertility)
         {
             if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
@@ -110,6 +94,8 @@ namespace Ship_Game
                         txt, planet.Type.IconPath, "SnapToPlanet", planet);
                 }
             }
+
+            Log.Info($"Event Notification: Orbit Shift at {planet}");
         }
 
         static void Volcano() // Volcano (- Fertility and pop per tile)
@@ -124,6 +110,28 @@ namespace Ship_Game
                     Empire.Universe.NotificationManager.AddRandomEventNotification(
                         txt, planet.Type.IconPath, "SnapToPlanet", planet);
                 }
+            }
+
+            Log.Info($"Event Notification: Volcano at {planet}");
+        }
+
+        static void MeteorStrike() // Meteor Strike (- MaxFertility and pop)  -- Added by Gretman
+        {
+            if (GetAffectedPlanet(Potentials.Habitable, out Planet planet))
+            {
+                float sizeOfMeteor = RandomMath.RandomBetween(-0.3f, 0.9f).LowerBound(0.1f);
+                planet.AddMaxBaseFertility(-sizeOfMeteor);
+                planet.Population *= (1 - sizeOfMeteor);
+                planet.MineralRichness += sizeOfMeteor;
+
+                if (planet.IsExploredBy(EmpireManager.Player))
+                {
+                    string eventText = planet.Name + Localizer.Token(4105);
+                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                        eventText, planet.Type.IconPath, "SnapToPlanet", planet);
+                }
+
+                Log.Info($"Event Notification: Meteor Strike at {planet}");
             }
         }
     }
