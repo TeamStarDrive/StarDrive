@@ -939,7 +939,7 @@ namespace Ship_Game
                 return;
 
             // If the planet outputs 50 production, the chance to decay is 1%
-            float decayChance = Prod.GrossIncome / 50;
+            float decayChance = Prod.NetIncome / 50;
 
             // Larger planets have less chance for reduction
             decayChance /= Scale.LowerBound(0.1f);
