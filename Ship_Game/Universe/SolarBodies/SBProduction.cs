@@ -51,7 +51,7 @@ namespace Ship_Game.Universe.SolarBodies
                 amount = SurplusThisTurn = 1000;
             }
 
-            return ApplyProductionToQueue(maxAmount: amount, itemIndex);
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex, playerRush);
         }
 
         // The Remnant get a "magic" production cheat
@@ -87,7 +87,7 @@ namespace Ship_Game.Universe.SolarBodies
         // @note `maxProduction` is a max limit, this method will attempt
         //       to consume no more than `maxAmount` from local production
         // @return true if at least some production was applied
-        bool ApplyProductionToQueue(float maxAmount, int itemIndex)
+        bool ApplyProductionToQueue(float maxAmount, int itemIndex, bool playerRush = false)
         {
             if (maxAmount <= 0.0f || ConstructionQueue.IsEmpty)
                 return false;
@@ -113,7 +113,7 @@ namespace Ship_Game.Universe.SolarBodies
                 }
                 if (q.IsComplete)
                 {
-                    ProcessCompleteQueueItem(q);
+                    ProcessCompleteQueueItem(q, playerRush);
                     continue; // this item was removed, so skip ++i
                 }
                 ++i;
@@ -121,13 +121,19 @@ namespace Ship_Game.Universe.SolarBodies
             return true;
         }
 
-        void ProcessCompleteQueueItem(QueueItem q)
+        void ProcessCompleteQueueItem(QueueItem q, bool playerRushed)
         {
             bool ok = false;
 
             if (q.isBuilding) ok = OnBuildingComplete(q);
             else if (q.isShip) ok = OnShipComplete(q);
             else if (q.isTroop) ok = TrySpawnTroop(q);
+
+            if (ok && playerRushed)
+            {
+                float credits = (q.Cost * 0.1f).Clamped(1f, 10f);
+                Owner.AddMoney(-credits);
+            }
 
             Finish(q, success: ok);
         }
