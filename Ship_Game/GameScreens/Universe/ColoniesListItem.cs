@@ -1,7 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -29,6 +31,7 @@ namespace Ship_Game
         DropDownMenu prodDropDown;
         Rectangle foodStorageIcon;
         Rectangle prodStorageIcon;
+        ActionQueue InputQueue => Screen.GameThreadActionQueue;
 
         bool ApplyProdHover;
 
@@ -44,6 +47,8 @@ namespace Ship_Game
             //}
             //columns.PerformLayout();
         }
+
+        void EnqueueAction(Action action) => InputQueue.Add(action);
 
         public override void PerformLayout()
         {
@@ -119,10 +124,13 @@ namespace Ship_Game
                 if (ApplyProdHover && p.IsConstructing)
                 {
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-                    if (p.Construction.RushProduction(0, maxAmount, playerRush: true))
-                        GameAudio.AcceptClick();
-                    else
-                        GameAudio.NegativeClick();
+                    EnqueueAction(() =>
+                    {
+                        if (p.Construction.RushProduction(0, maxAmount, playerRush: true))
+                            GameAudio.AcceptClick();
+                        else
+                            GameAudio.NegativeClick();
+                    });
 
                     return true;
                 }
