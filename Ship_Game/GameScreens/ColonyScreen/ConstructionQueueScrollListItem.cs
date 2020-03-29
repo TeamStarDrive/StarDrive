@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -10,41 +11,49 @@ namespace Ship_Game
     {
         readonly Planet Planet;
         public readonly QueueItem Item;
+        readonly ActionQueue InputQueue;
 
-        public ConstructionQueueScrollListItem(QueueItem item)
+        public ConstructionQueueScrollListItem(QueueItem item, ActionQueue gameThreadActionQueue)
         {
             Planet = item.Planet;
             Item = item;
+            InputQueue = gameThreadActionQueue;
             AddUp(new Vector2(-120, 0), /*Queue up*/63, OnUpClicked);
             AddDown(new Vector2(-90, 0), /*Queue down*/64, OnDownClicked);
             AddApply(new Vector2(-60, 0), /*Cancel production*/50, OnApplyClicked);
             AddCancel(new Vector2(-30, 0), /*Cancel production*/53, OnCancelClicked);
         }
 
+        void EnqueueInput(Action action) => InputQueue.Add(action);
+
         void OnUpClicked()
         {
             int index = Planet.ConstructionQueue.IndexOf(Item);
             InputState input = GameBase.ScreenManager.input;
-            if (input.IsCtrlKeyDown) MoveToConstructionQueuePosition(0, index); // move to top
-            else                     SwapConstructionQueueItems(index - 1, index); // move up by one
+            if (input.IsCtrlKeyDown) EnqueueInput(()=> MoveToConstructionQueuePosition(0, index)); // move to top
+            else                     EnqueueInput(()=> SwapConstructionQueueItems(index - 1, index)); // move up by one
         }
 
         void OnDownClicked()
         {
             int index = Planet.ConstructionQueue.IndexOf(Item);
             InputState input = GameBase.ScreenManager.input;
-            if (input.IsCtrlKeyDown) MoveToConstructionQueuePosition(Planet.ConstructionQueue.Count-1, index); // move to bottom
-            else                     SwapConstructionQueueItems(index + 1, index); // move down by one
+            if (input.IsCtrlKeyDown) EnqueueInput(() => MoveToConstructionQueuePosition(Planet.ConstructionQueue.Count-1, index)); // move to bottom
+            else                     EnqueueInput(() => SwapConstructionQueueItems(index + 1, index)); // move down by one
         }
 
         void OnApplyClicked()
         {
-            int index = Planet.ConstructionQueue.IndexOf(Item);
             InputState input = GameBase.ScreenManager.input;
-
             float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
+            EnqueueInput(() => RushProduction(Item, maxAmount));
+        }
 
-            if (Planet.Construction.RushProduction(index, maxAmount, playerRush: Empire.Universe.Paused))
+        void RushProduction(QueueItem item, float amount)
+        {
+            int index = Planet.ConstructionQueue.IndexOf(item);
+
+            if (Planet.Construction.RushProduction(index, amount, playerRush: true))
             {
                 GameAudio.AcceptClick();
             }
@@ -53,10 +62,9 @@ namespace Ship_Game
                 GameAudio.NegativeClick();
             }
         }
-
         void OnCancelClicked()
         {
-            Planet.Construction.Cancel(Item);
+            EnqueueInput(() => Planet.Construction.Cancel(Item));
             GameAudio.AcceptClick();
         }
 

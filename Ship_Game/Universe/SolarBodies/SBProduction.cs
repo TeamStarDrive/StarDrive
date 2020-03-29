@@ -20,8 +20,7 @@ namespace Ship_Game.Universe.SolarBodies
         public bool NotEmpty => ConstructionQueue.NotEmpty;
         public bool Empty => ConstructionQueue.IsEmpty;
         public int Count => ConstructionQueue.Count;
-        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
-        public SafeQueue<QueueItem> UIRushedQueueItems = new SafeQueue<QueueItem>();
+        public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
 
         float ProductionHere
         {
@@ -47,15 +46,12 @@ namespace Ship_Game.Universe.SolarBodies
             float amount = Math.Min(ProductionHere, maxAmount);
 
             // inject artificial surplus to instantly rush & finish production
-            if (Empire.Universe.Debug || System.Diagnostics.Debugger.IsAttached)
+            if (Empire.Universe.Debug)
             {
                 amount = SurplusThisTurn = 1000;
             }
 
-            if (!playerRush)
-                return ApplyProductionToQueue(maxAmount: amount, itemIndex);
-
-            return true;
+            return ApplyProductionToQueue(maxAmount: amount, itemIndex);
         }
 
         // The Remnant get a "magic" production cheat
