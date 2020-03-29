@@ -86,7 +86,7 @@ namespace Ship_Game.Ships
 
             owner.AddShip(this);
             Empire.Universe?.MasterShipList.Add(this);
-            if (owner.GetEmpireAI() != null)
+            if (owner.GetEmpireAI() != null && !owner.isPlayer)
                 owner.Pool.ForcePoolAdd(this);
         }
 
