@@ -947,6 +947,9 @@ namespace Ship_Game
             // Decreasing chance of decay if Richness below 1
             decayChance *= MineralRichness.UpperBound(1);
 
+            // Longer pace decreases decay chance
+            decayChance *= 1 / CurrentGame.Pace;
+
             if (RandomMath.RollDice(decayChance))
             {
                 bool notifyPlayer = MineralRichness.AlmostEqual(1);
