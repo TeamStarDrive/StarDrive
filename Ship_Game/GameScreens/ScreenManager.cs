@@ -477,6 +477,18 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Invokes the game thread actions. Must be run from Game Thread
+        /// </summary>
+        public void InvokeQueuedUIActions()
+        {
+            for (int i = 0; i < GameScreens.Count; i++)
+            {
+                var screen = GameScreens[i];
+                screen.GameThreadActionQueue.InvokeQueuedActions();
+            }
+        }
+
         public void Dispose()
         {
             Destroy();
