@@ -17,7 +17,6 @@ namespace Ship_Game
     {
         public InputState Input;
         bool OtherScreenHasFocus;
-        public ActionQueue GameThreadActionQueue;
 
         public bool IsActive => Enabled && !IsExiting && !OtherScreenHasFocus && 
             (ScreenState == ScreenState.TransitionOn || ScreenState == ScreenState.Active);
@@ -101,8 +100,6 @@ namespace Ship_Game
 
             LowRes = ScreenWidth <= 1366 || ScreenHeight <= 720;
             HiRes  = ScreenWidth > 1920 || ScreenHeight > 1400;
-
-            GameThreadActionQueue = new ActionQueue();
         }
 
         ~GameScreen() { Destroy(); }
@@ -160,7 +157,6 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
-            GameThreadActionQueue.Clear();
             ScreenManager.RemoveScreen(this);
         }
 

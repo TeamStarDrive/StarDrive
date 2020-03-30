@@ -74,8 +74,7 @@ namespace Ship_Game
         void ProcessNextTurn()
         {
             float deltaTime = FrameDeltaTime;
-            workersPanel?.GameThreadActionQueue.InvokeQueuedActions();
-            GameBase.ScreenManager.InvokeQueuedUIActions();
+            ScreenManager.RunPendingEmpireActions();
 
             if (Paused)
             {
