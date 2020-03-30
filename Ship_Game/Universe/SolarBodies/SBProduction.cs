@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Ship_Game.AI;
+﻿using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
-using Ship_Game.Debug;
 using Ship_Game.Ships;
 using Ship_Game.Utils;
+using System;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -20,6 +15,9 @@ namespace Ship_Game.Universe.SolarBodies
         public bool NotEmpty => ConstructionQueue.NotEmpty;
         public bool Empty => ConstructionQueue.IsEmpty;
         public int Count => ConstructionQueue.Count;
+
+        //Construction queue should be protected. 
+
         public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
         public SafeQueue<QueueItem> UIRushedQueueItems = new SafeQueue<QueueItem>();
 
