@@ -251,9 +251,11 @@ namespace Ship_Game
 
             UIList botRight = AddList(new Vector2(RightArea.X, RightArea.Y + 180), RightArea.Size());
             botRight.Padding = new Vector2(2f, 8f);
+            /* Hide these since they are not used
             FreighterLimiter = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, "Per AI Freighter Limit.", 25, 125, GlobalStats.FreighterLimit));
             ShipLimiter      = botRight.Add(new FloatSlider(SliderStyle.Decimal, 225, 50, $"All AI Ship Limit. AI Ships: {Empire.Universe?.globalshipCount ?? 0}", 
                                           500, 3500, GlobalStats.ShipCountLimit));
+            */
 
             UIList right = AddList(RightArea.PosVec(), RightArea.Size());
             right.Padding = new Vector2(2f, 4f);
@@ -416,8 +418,8 @@ namespace Ship_Game
             if (base.HandleInput(input))
             {
                 GlobalStats.IconSize       = (int)IconSize.AbsoluteValue;
-                GlobalStats.ShipCountLimit = (int)ShipLimiter.AbsoluteValue;
-                GlobalStats.FreighterLimit = (int)FreighterLimiter.AbsoluteValue;
+                //GlobalStats.ShipCountLimit = (int)ShipLimiter.AbsoluteValue;
+                //GlobalStats.FreighterLimit = (int)FreighterLimiter.AbsoluteValue;
                 GlobalStats.AutoSaveFreq   = (int)AutoSaveFreq.AbsoluteValue;
 
                 GlobalStats.MusicVolume   = MusicVolumeSlider.RelativeValue;
