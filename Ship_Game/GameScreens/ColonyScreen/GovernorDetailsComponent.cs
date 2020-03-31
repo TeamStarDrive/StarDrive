@@ -82,9 +82,9 @@ namespace Ship_Game
 
             Quarantine.Pos  = new Vector2(Portrait.X, Bottom - 40);
             GovMilitia.Pos  = new Vector2(Portrait.X, Bottom - 24);
-            GovOrbitals.Pos = new Vector2(Portrait.X + 240, Bottom - 40);
-            GovNoScrap.Pos  = new Vector2(Portrait.X + 240, Bottom - 24);
-            Garrison.Pos    = new Vector2(Portrait.X + 300, Bottom - 188);
+            GovOrbitals.Pos = new Vector2(TopRight.X - 250, Bottom - 40);
+            GovNoScrap.Pos  = new Vector2(TopRight.X - 250, Bottom - 24);
+            Garrison.Pos    = new Vector2(TopRight.X - 200, Portrait.Y);
             base.PerformLayout(); // update all the sub-elements, like checkbox rects
         }
 
