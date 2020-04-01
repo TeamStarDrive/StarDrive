@@ -17,7 +17,6 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {  
-               BoardFreighters,
                CorsairPlan
             };
         }
@@ -26,44 +25,7 @@ namespace Ship_Game.Commands.Goals
             empire = owner;
         }
 
-        GoalStep BoardFreighters()
-         {
-            Player = EmpireManager.Player;
-            if (!ScanFreighters(out Array<Ship> freighters))
-                return GoalStep.TryAgain;
-
-            Ship freighter = freighters.RandItem();
-            SpawnBoardingForce(freighter);
-            return GoalStep.GoToNextStep;
-        }
-
-        bool ScanFreighters(out Array<Ship> freighters)
-        {
-            freighters = new Array<Ship>();
-            var planets = Player.GetPlanets();
-            for (int i = 0; i < planets.Count; i++)
-            {
-                Planet planet      = planets[i];
-                SolarSystem system = planet.ParentSystem;
-                for (int j = 0; j < system.ShipList.Count; j++)
-                {
-                    Ship ship = system.ShipList[j];
-                    if (ship.IsFreighter 
-                        && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out ShipAI.ShipGoal goal)
-                        && ship.InRadius(goal.Trade.ImportTo.Center, 2000))
-                    {
-                        freighters.AddUnique(ship);
-                    }
-                }
-
-                if (freighters.Count > 0)
-                    return true;
-            }
-
-            return false;
-        }
-
-        GoalStep CorsairPlan()
+        GoalStep CorsairPlan() // This is for legacy load save, will be removed later.
         {
             bool alreadyRaiding = empire.GetEmpireAI().HasTaskOfType(MilitaryTask.TaskType.CorsairRaid);
             if (!alreadyRaiding)
@@ -87,12 +49,5 @@ namespace Ship_Game.Commands.Goals
             }
             return GoalStep.TryAgain;
         }
-
-        void SpawnBoardingForce(Ship freighter)
-        {
-            Ship.CreateShipAtPoint("Corsair-Slaver", empire, freighter.Center + RandomMath.Vector2D(1000));
-        }
-
-
     }
 }
