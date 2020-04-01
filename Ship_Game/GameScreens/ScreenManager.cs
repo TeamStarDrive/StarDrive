@@ -481,17 +481,27 @@ namespace Ship_Game
         }
 
         /// <summary>
-        /// RunsPending actions for empireThread.
+        /// Runs Pending actions for empireThread.
         /// </summary>
-        public void RunPendingEmpireActions()
+        public void ExecutePendingEmpireActions()
         {
-            for (int i = 0; i < PendingEmpireThreadActions.Count; i++) 
+            while(PendingEmpireThreadActions.NotEmpty) 
                 PendingEmpireThreadActions.Dequeue().Invoke();
         }
 
-        public void AddEmpireThreadAction(Action action)
+        /// <summary>
+        /// Queues action to run on empire thread. Please add logging to the action
+        /// </summary>
+        public void RunOnEmpireThread(Action action)
         {
-            PendingEmpireThreadActions.Enqueue(action);
+            if (action != null)
+            {
+                PendingEmpireThreadActions.Enqueue(action);
+            }
+            else
+            {
+                Log.WarningWithCallStack($"Null Action passed to RunOnEmpireThread method");
+            }
         }
 
         public void Dispose()

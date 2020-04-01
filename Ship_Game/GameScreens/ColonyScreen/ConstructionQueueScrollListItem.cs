@@ -27,32 +27,73 @@ namespace Ship_Game
         {
             InputState input = GameBase.ScreenManager.input;
             if (input.IsCtrlKeyDown)
+            {
                 RunOnEmpireThread(() =>
-                {
-                    MoveToConstructionQueuePosition(0, Planet.ConstructionQueue.IndexOf(Item));
-                }); // move to top
+                  {
+                      var index = Planet.ConstructionQueue.IndexOf(Item);
+                      if (index > 0)
+                      {
+                          MoveToConstructionQueuePosition(0, index);
+                      }
+                      else
+                      {
+                          Log.Warning($"Deferred Action: Move Queue to top: Failed {index}");
+                      }
+                  }); // move to top
+            }
             else
+            {
                 RunOnEmpireThread(() =>
                 {
                     int index = Planet.ConstructionQueue.IndexOf(Item);
-                    SwapConstructionQueueItems(index - 1, index);
+                    if (index > 0)
+                    {
+                        SwapConstructionQueueItems(index - 1, index);
+                    }
+                    else
+                    {
+                        Log.Warning($"Deferred Action: Move Queue UP: Failed {index}");
+                    }
                 }); // move up by one
+            }
         }
 
         void OnDownClicked()
         {
             InputState input = GameBase.ScreenManager.input;
             if (input.IsCtrlKeyDown)
+            {
                 RunOnEmpireThread(() =>
-                {
-                    MoveToConstructionQueuePosition(Planet.ConstructionQueue.Count - 1, Planet.ConstructionQueue.IndexOf(Item));
-                }); // move to bottom
+                  {
+                      var listBottom = Planet.ConstructionQueue.Count - 1;
+                      var index = Planet.ConstructionQueue.IndexOf(Item);
+                      if (index >=0 && index < listBottom)
+                      {
+                          MoveToConstructionQueuePosition(listBottom, index);
+                      }
+                      else
+                      {
+                          Log.Warning($"Deferred Action: Move Queue to bottom: Failed {index}");
+                      }
+
+                  }); // move to bottom
+            }
             else
+            {
                 RunOnEmpireThread(() =>
                 {
-                    int index = Planet.ConstructionQueue.IndexOf(Item);
-                    SwapConstructionQueueItems(index + 1, index);
+                    var listBottom = Planet.ConstructionQueue.Count - 1;
+                    var index = Planet.ConstructionQueue.IndexOf(Item);
+                    if (index < listBottom)
+                    {
+                        SwapConstructionQueueItems(index + 1, index);
+                    }
+                    else
+                    {
+                        Log.Warning($"Deferred Action: Move Queue down: Failed {index}");
+                    }
                 }); // move down by one
+            }
         }
 
         void OnApplyClicked()
@@ -66,18 +107,32 @@ namespace Ship_Game
         {
             int index = Planet.ConstructionQueue.IndexOf(item);
 
-            if (Planet.Construction.RushProduction(index, amount, playerRush: true))
+            if (index >=0 && !item.IsComplete && Planet.Construction.RushProduction(index, amount, playerRush: true))
             {
                 GameAudio.AcceptClick();
             }
             else
             {
                 GameAudio.NegativeClick();
+                Log.Warning($"Deferred Action: Rush Queue: Failed {index}");
             }
         }
         void OnCancelClicked()
         {
-            RunOnEmpireThread(() => Planet.Construction.Cancel(Item));
+            RunOnEmpireThread(() =>
+            {
+                int index = Planet.ConstructionQueue.IndexOf(Item);
+                if (index >= 0 && !Item.IsComplete)
+                {
+                    Planet.Construction.Cancel(Item);
+                    GameAudio.AcceptClick();
+                }
+                else
+                {
+                    GameAudio.NegativeClick();
+                    Log.Warning($"Deferred Action: Cancel Queue Item: Failed {index}");
+                }
+            });
             GameAudio.AcceptClick();
         }
 
