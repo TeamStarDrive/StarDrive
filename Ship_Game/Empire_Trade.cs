@@ -336,5 +336,11 @@ namespace Ship_Game
         {
             AverageFreighterCargoCap = value.LowerBound(10);
         }
+
+        public void SetPirateThreatLevel(int value, bool paid)
+        {
+            PirateThreatLevel = value;
+            PiratesPaid       = paid;
+        }
     }
 }

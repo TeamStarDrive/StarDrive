@@ -1633,5 +1633,20 @@ namespace Ship_Game
             Log.Error($"LoadVideo failed: {videoPath}");
             return content.Load<Video>("Video/Loading 2");
         }
+
+        public static bool GetEncounter(Empire empire, string name, out Encounter encounter)
+        {
+            encounter = null;
+            foreach (Encounter e in Encounters)
+            {
+                if (e.Faction == empire.data.Traits.Name && e.Name == name)
+                {
+                    encounter = e;
+                    break;
+                }
+            }
+
+            return encounter != null;
+        }
     }
 }

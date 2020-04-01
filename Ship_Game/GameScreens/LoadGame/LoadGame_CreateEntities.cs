@@ -53,6 +53,7 @@ namespace Ship_Game
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
 
                 e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
+                e.SetPirateThreatLevel(sdata.PirateThreatLevel, sdata.PiratesPaid);
             }
 
             foreach (TechEntry tech in sdata.TechTree)
