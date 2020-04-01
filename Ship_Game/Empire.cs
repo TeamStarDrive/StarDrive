@@ -155,7 +155,6 @@ namespace Ship_Game
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
         public int PirateThreatLevel { get; private set; }
-        public bool PiratesPaid { get; private set; }
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -2379,6 +2378,11 @@ namespace Ship_Game
                     if (kv.Value.AtWar && !kv.Key.isFaction) atWarCount++;
                 }
             AtWarCount = atWarCount;
+        }
+
+        public void SetPirateThreatLevel(int value)
+        {
+            PirateThreatLevel = value;
         }
 
         public void TryUnlockByScrap(Ship ship)

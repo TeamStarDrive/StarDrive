@@ -26,7 +26,9 @@ namespace Ship_Game.AI
         BuildOrbital,
         RemnantAI,
         CorsairAI,
-        CorsairMain
+        CorsairMain,
+        CorsairMissionDirector,
+        CorsairTransportRaid
     }
 
     public enum GoalStep
@@ -57,6 +59,7 @@ namespace Ship_Game.AI
         public Ship ShipToBuild;  // this is a template
         private Ship ShipBuilt; // this is the actual ship that was built
         public Ship OldShip;      // this is the ship which needs refit
+        public Ship TargetShip;      // Any this that is targeted by this goal (raids)
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -120,6 +123,8 @@ namespace Ship_Game.AI
                 case RemnantAI.ID:              return new RemnantAI();
                 case CorsairAI.ID:              return new CorsairAI();
                 case CorsairMain.ID:            return new CorsairMain();
+                case CorsairMissionDirector.ID: return new CorsairMissionDirector();
+                case CorsairTransportRaid.ID:   return new CorsairTransportRaid();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

@@ -53,7 +53,7 @@ namespace Ship_Game
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
 
                 e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
-                e.SetPirateThreatLevel(sdata.PirateThreatLevel, sdata.PiratesPaid);
+                e.SetPirateThreatLevel(sdata.PirateThreatLevel);
             }
 
             foreach (TechEntry tech in sdata.TechTree)
@@ -475,6 +475,7 @@ namespace Ship_Game
                     if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
                     else if (gsave.beingBuiltGUID == s.guid) g.ShipToBuild  = s;
                     else if (gsave.OldShipGuid    == s.guid) g.OldShip      = s;
+                    else if (gsave.TargetShipGuid == s.guid) g.TargetShip   = s;
                 }
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {

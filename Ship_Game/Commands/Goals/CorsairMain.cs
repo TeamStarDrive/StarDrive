@@ -13,7 +13,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID     = "CorsairMain";
         public override string UID => ID;
         public Empire Player;
-        public CorsairMain() : base(GoalType.CorsairAI)
+        public CorsairMain() : base(GoalType.CorsairMain)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -37,9 +37,19 @@ namespace Ship_Game.Commands.Goals
             return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
 
+        GoalStep StartPirateActivity()
+        {
+            Player = EmpireManager.Player;
+            if (Player.TryGetRelations(empire, out Relationship rel) && rel.AtWar)
+                empire.GetEmpireAI().Goals.Add(new CorsairMissionDirector(empire));
+
+            return GoalStep.RestartGoal;
+        }
+
         bool RequestPayment()
         {
-            if (Empire.Universe.StarDate % 10 > 0 || Player.PirateThreatLevel > 0)
+
+            if (Empire.Universe.StarDate % 10 > 0 && Player.PirateThreatLevel > 0)
                 return false;
 
             // Every 10 years, the pirates will demand new payment
@@ -47,18 +57,9 @@ namespace Ship_Game.Commands.Goals
                 EncounterPopup.Show(Empire.Universe, Player, empire, e);
 
             if (Player.PirateThreatLevel == 0)
-                Player.SetPirateThreatLevel(Player.PirateThreatLevel + 1, paid: false);
+                Player.SetPirateThreatLevel(Player.PirateThreatLevel + 1);
 
             return true;
-        }
-
-        GoalStep StartPirateActivity()
-        {
-            Player = EmpireManager.Player;
-            if (Player.TryGetRelations(empire, out Relationship rel) && rel.AtWar);
-            // start raiding
-
-            return GoalStep.RestartGoal;
         }
     }
 }
