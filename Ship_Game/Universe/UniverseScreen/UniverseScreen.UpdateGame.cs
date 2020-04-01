@@ -74,7 +74,7 @@ namespace Ship_Game
         void ProcessNextTurn()
         {
             float deltaTime = FrameDeltaTime;
-            ScreenManager.RunPendingEmpireActions();
+            ScreenManager.ExecutePendingEmpireActions();
 
             if (Paused)
             {

@@ -123,10 +123,17 @@ namespace Ship_Game
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
                     RunOnEmpireThread(() =>
                     {
-                        if (p.Construction.RushProduction(0, maxAmount, playerRush: true))
+                        bool hasValidConstruction = p.ConstructionQueue.NotEmpty && !p.ConstructionQueue[0].IsComplete;
+                        if (hasValidConstruction && p.Construction.RushProduction(0, maxAmount, playerRush: true))
+                        {
                             GameAudio.AcceptClick();
+                        }
                         else
+                        {
+                            if (!hasValidConstruction)
+                                Log.Warning($"Deferred Action: ColonyListItem: Rush failed");
                             GameAudio.NegativeClick();
+                        }
                     });
 
                     return true;
