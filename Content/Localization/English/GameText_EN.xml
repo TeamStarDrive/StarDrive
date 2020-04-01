@@ -233,7 +233,7 @@
     </Token>
     <Token>
       <Index>61</Index>
-      <Text>Cybernetic races have inorganic bodies and do not eat food, instead eating production. </Text>
+      <Text>Cybernetic races have inorganic bodies and do not eat food, instead eating production. Production is a limited resource which slowly decays upon consumption. Cybernetic races are more mindful of production managements and needs.</Text>
     </Token>
     <Token>
       <Index>62</Index>
@@ -4699,6 +4699,22 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>NOTE: In order to see more details regarding this planet, you need to have troops on it, a colony on another planet in this system which can observe the planet, or ships within scan range (Sensor range).</Text>
     </Token>
     <Token>
+      <Index>1864</Index>
+      <Text>Hangar Size</Text>
+    </Token>
+    <Token>
+      <Index>1865</Index>
+      <Text>This is the maximum number of ship slot size this hanger can store.</Text>
+    </Token>
+    <Token>
+      <Index>1866</Index>
+      <Text> Mineral Richness has gone down below 1.</Text>
+    </Token>
+    <Token>
+      <Index>1867</Index>
+      <Text>- Raw minerals were discovered.\nMineral Richness increased by</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>
@@ -5186,7 +5202,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2018</Index>
-      <Text>Food is eaten by your colonists each turn. The number to the right of this slider indicates the net value of the food you are producting at this planet after the colonists have eaten. A negative value means that you are not producing enough food to cover your population's food needs. \n \n If your food production is negative and you do not have enough food in storage to cover your shortfall, then your population will begin to starve and die.</Text>
+      <Text>Food is eaten by your colonists each turn. The number to the right of this slider indicates the net value of the food you are producing at this planet after the colonists have eaten. A negative value means that you are not producing enough food to cover your population's food needs. \n \n If your food production is negative and you do not have enough food in storage to cover your shortfall, then your population will begin to starve and die.</Text>
     </Token>
     <Token>
       <Index>2019</Index>
@@ -5292,7 +5308,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>2044</Index>
-      <Text>Your people are cybernetic and have no use for organic food</Text>
+      <Text>Your people are cybernetic and have no use for organic food.</Text>
     </Token>
     <Token>
       <Index>2045</Index>
@@ -7115,7 +7131,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>220</Index>
-      <Text>A planet's mineral richness directly affects the speed at which a colony creates Production.
+      <Text>A planet's Mineral Richness directly affects the speed at which a colony creates Production. Mineral Richness slowly decays. The decay rate is affected by production rate and planet's size (larger planets will decay slower than smaller ones. A planet cannot decay below 0.1 Richness. 
       </Text>
     </Token>
 
@@ -7569,9 +7585,8 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
   <Token>
       <Index>4105</Index>
-      <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\nmeteor was comprised mostly of useful minerals.</Text>
-    </Token>
-
+      <Text>  has been struck by a meteor! \nThe environment was adversely affected and many people died,\nThe meteor was comprised mostly of useful minerals.</Text>
+  </Token>
     <Token>
       <Index>4106</Index>
       <Text>Support</Text>
@@ -7596,7 +7611,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Index>4111</Index>
       <Text>Bomber</Text>
     </Token>
-  
+    <Token>
+      <Index>4112</Index>
+      <Text>  has transformed to a Habitable planet!\n We might want to colonize it.</Text>
+    </Token>
+    <Token>
+      <Index>4113</Index>
+      <Text>  has been struck by a meteor! \nThe environment was adversely affected, but the\n meteor was comprised mostly of useful minerals.</Text>
+    </Token>
     <Token>
       <Index>5000</Index>
       <Text>For a ship to be warp capable, it must have a Warp Core installed. Warp Cores provide a Warpable Mass Capacity. If a ship's mass is less than or equal to a ship's Warpable Mass, then it can achieve faster than light travel.</Text>

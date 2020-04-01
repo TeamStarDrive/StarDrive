@@ -94,15 +94,14 @@ namespace Ship_Game.AI
 
         void RunInfrastructurePlanner()
         {
-            if (OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
+            if (!OwnerEmpire.CanBuildPlatforms || OwnerEmpire.isPlayer && !OwnerEmpire.AutoBuild)
                 return;
 
-            float perNodeMaintenance = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(OwnerEmpire);
-            float roadMaintenance = GetCurrentProjectorCount() * perNodeMaintenance;
-            float underConstruction = GetTotalConstructionGoalsMaintenance();
-
+            float perNodeMaintenance  = ResourceManager.ShipsDict["Subspace Projector"].GetMaintCost(OwnerEmpire);
+            float roadMaintenance     = GetCurrentProjectorCount() * perNodeMaintenance;
+            float underConstruction   = GetTotalConstructionGoalsMaintenance();
             float availableRoadBudget = OwnerEmpire.data.SSPBudget -roadMaintenance - underConstruction;
-            float totalRoadBudget = OwnerEmpire.data.SSPBudget;
+            float totalRoadBudget     = OwnerEmpire.data.SSPBudget;
 
             if (availableRoadBudget > perNodeMaintenance * 2)
             {
