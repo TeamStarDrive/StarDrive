@@ -7,13 +7,13 @@ namespace Ship_Game.Empires.ShipPools
     public class ShipPool : IDisposable
     {
         readonly Empire Owner;
-        readonly Array<Ship> ForcePool        = new Array<Ship>();
-        EmpireAI OwnerAI                      => Owner.GetEmpireAI();
-        readonly Array<Ship> ShipsToAdd       = new Array<Ship>();
-        public void AddShipNextFame(Ship s)   => ShipsToAdd.Add(s);
+        readonly Array<Ship> ForcePool = new Array<Ship>();
+        EmpireAI OwnerAI => Owner.GetEmpireAI();
+        readonly Array<Ship> ShipsToAdd = new Array<Ship>();
+        public void AddShipNextFame(Ship s) => ShipsToAdd.Add(s);
         public bool ForcePoolContains(Ship s) => ForcePool.ContainsRef(s);
-        public void ClearForcePools()         => ForcePool.Clear();
-        public bool Remove(Ship ship)         => ForcePool.RemoveRef(ship);
+        public void ClearForcePools() => ForcePool.Clear();
+        public bool Remove(Ship ship) => ForcePool.RemoveRef(ship);
 
         public ShipPool(Empire empire)
         {
@@ -62,12 +62,14 @@ namespace Ship_Game.Empires.ShipPools
 
         private void ErrorCheckPools() // TODO - this is so expensive, it goes all over the ships and throws tons of logs, i disabled the logs for now
         {
+            if (Owner.isPlayer || Owner.isFaction) return;
+
             var allShips = Owner.GetShips();
             // error check. there is a hole in the ship pools causing 
             for (int i = 0; i < allShips.Count; i++)
             {
                 var ship = allShips[i];
-                if (ship.AI.State == AIState.Scrap || ship.fleet != null || !ship.Active) continue;
+                if (ship.AI.State == AIState.Scrap || ship.fleet != null || !ship.Active || ship.Mothership != null) continue;
 
                 if (ship.AI.State == AIState.SystemDefender)
                 {
@@ -89,11 +91,11 @@ namespace Ship_Game.Empires.ShipPools
                     {
                         Log.Warning($"WTF: {Owner} != {ship.loyalty}");
                     }
-                    if (notInAOs && notInForcePool && ship.BaseCanWarp)
+                    if (!ship.loyalty.isPlayer && notInAOs && notInForcePool && ship.BaseCanWarp)
                     {
-                        // Log.Info("ShipPool: WarShip was not in any pools");
-                        // if (!AssignShipsToOtherPools(ship))
-                        //    Log.Info("ShipPool: Could not assign ship to pools");
+                        Log.Info("ShipPool: WarShip was not in any pools");
+                        if (!ship.loyalty.isPlayer && !AssignShipsToOtherPools(ship))
+                            Log.Info("ShipPool: Could not assign ship to pools");
                     }
                 }
             }
