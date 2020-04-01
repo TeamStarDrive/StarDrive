@@ -298,6 +298,23 @@ namespace Ship_Game.AI
             AddOrbitPlanetGoal(p);
         }
 
+        public void PirateOrderFleeHome()
+        {
+            Ship[] bases = Owner.loyalty.GetShips().Filter(ship => ship.Name == "Corsair Asteroid Base");
+            if (bases.Length == 0)
+            {
+                ClearOrders();
+            }
+            else
+            {
+                Ship closestBase = bases.FindMin(s => s.Center.Distance(Owner.Center));
+                Planet planet    = closestBase.GetTether();
+                Owner.AI.SetPriorityOrder(true);
+                AddPlanetGoal(Plan.Orbit, planet, AIState.AwaitingOrders, true, true);
+            }
+        }
+
+
         public void OrderQueueSpecificTarget(Ship toAttack)
         {
             if (TargetQueue.Count == 0 && Target != null && Target.Active && Target != toAttack)

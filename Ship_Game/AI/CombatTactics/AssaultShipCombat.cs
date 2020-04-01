@@ -36,6 +36,12 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner.TroopsAreBoardingShip)
                 return;
 
+            if (Owner.loyalty == EmpireManager.Corsairs)
+            {
+                Owner.AI.PirateOrderFleeHome();
+                return;
+            }
+
             Planet invadeThis = Owner.System?.PlanetList.FindMinFiltered(
                                 owner => owner.Owner != null && owner.Owner != Owner.loyalty && Owner.loyalty.GetRelations(owner.Owner).AtWar,
                                 troops => troops.TroopsHere.Count);
