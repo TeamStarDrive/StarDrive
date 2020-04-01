@@ -154,7 +154,8 @@ namespace Ship_Game
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
-
+        public int PirateThreatLevel { get; private set; }
+        public bool PiratesPaid { get; private set; }
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -828,7 +829,7 @@ namespace Ship_Game
 
             InitDifficultyModifiers();
             CreateThrusterColors();
-            EmpireAI = new EmpireAI(this);
+            EmpireAI = new EmpireAI(this, fromSave: false);
 
             Research.Update();
         }
@@ -913,7 +914,7 @@ namespace Ship_Game
 
         public void InitializeFromSave()
         {
-            EmpireAI = new EmpireAI(this);
+            EmpireAI = new EmpireAI(this, fromSave: true);
             for (int key = 1; key < 1; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};

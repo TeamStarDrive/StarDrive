@@ -10,13 +10,13 @@ namespace Ship_Game.Commands.Goals
 {
     public class CorsairAI : Goal
     {
-        public const string ID     = "CorsairAI";
+        public const string ID = "CorsairAI";
         public override string UID => ID;
         public Empire Player;
         public CorsairAI() : base(GoalType.CorsairAI)
         {
             Steps = new Func<GoalStep>[]
-            {
+            {  
                BoardFreighters,
                CorsairPlan
             };
@@ -24,9 +24,7 @@ namespace Ship_Game.Commands.Goals
         public CorsairAI(Empire owner) : this()
         {
             empire = owner;
-            Player = EmpireManager.Player;
         }
-
 
         GoalStep BoardFreighters()
          {

@@ -216,6 +216,7 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\CorsairMain.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairAI.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
@@ -1808,6 +1809,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\ShipModules\CorsairAssaultBay.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\ShipModules\Pirate Inhibitor.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\StarterShips\TEST_ShipShield.xml">
