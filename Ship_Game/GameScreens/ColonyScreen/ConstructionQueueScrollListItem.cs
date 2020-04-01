@@ -84,7 +84,7 @@ namespace Ship_Game
                 {
                     var listBottom = Planet.ConstructionQueue.Count - 1;
                     var index = Planet.ConstructionQueue.IndexOf(Item);
-                    if (index < listBottom)
+                    if (index >=0 && index < listBottom)
                     {
                         SwapConstructionQueueItems(index + 1, index);
                     }
