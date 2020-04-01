@@ -572,6 +572,7 @@ namespace Ship_Game
             GeodeticManager.AffectNearbyShips();
             ApplyTerraforming();
             UpdateColonyValue();
+            CalcIncomingGoods();
             RemoveInvalidFreighters(IncomingFreighters);
             RemoveInvalidFreighters(OutgoingFreighters);
             UpdateBaseFertility();
@@ -929,6 +930,40 @@ namespace Ship_Game
             // production surplus is sent to auto-construction
             float prodSurplus = Math.Max(prodRemainder, 0f);
             Construction.AutoApplyProduction(prodSurplus);
+            DecayRichness();
+        }
+
+        void DecayRichness()
+        {
+            if (MineralRichness.LessOrEqual(0.1f)) // minimum decay limit
+                return;
+
+            // If the planet outputs 50 production on Brutal, the chance to decay is 1%
+            float decayChance = Prod.NetIncome / Owner.DifficultyModifiers.MineralDecayDivider;
+
+            // Larger planets have less chance for reduction
+            decayChance /= Scale.LowerBound(0.1f);
+
+            // Decreasing chance of decay if Richness below 1
+            decayChance *= MineralRichness.UpperBound(1);
+
+            // Longer pace decreases decay chance
+            decayChance *= 1 / CurrentGame.Pace;
+
+            if (RandomMath.RollDice(decayChance))
+            {
+                bool notifyPlayer = MineralRichness.AlmostEqual(1);
+                MineralRichness  -= 0.01f;
+                if (notifyPlayer)
+                {
+                    string fullText = $"{Name} {new LocalizedText(1866).Text}";
+                    Empire.Universe.NotificationManager.AddRandomEventNotification(
+                        fullText, Type.IconPath, "SnapToPlanet", this);
+                }
+
+                Log.Info($"Mineral Decay in {Name}, Owner: {Owner}, Current Richness: {MineralRichness}");
+            }
+
         }
 
         public void ResetGarrisonSize()

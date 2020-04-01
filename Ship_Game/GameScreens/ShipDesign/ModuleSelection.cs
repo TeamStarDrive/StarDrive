@@ -475,10 +475,10 @@ namespace Ship_Game
             DrawStat(ref modTitlePos, 336,  mod.TroopCapacity, 173);
             DrawStat(ref modTitlePos, 2235, mod.ActualPowerStoreMax, 145);
 
-            //added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
+            // added by McShooterz: Allow Power Draw at Warp variable to show up in design screen for any module
             // FB improved it to use the Power struct
-            ShipModule[] modlist = { mod };
-            Power modNetWarpPowerDraw = Power.Calculate(modlist, EmpireManager.Player, true);
+            ShipModule[] modList = { mod };
+            Power modNetWarpPowerDraw = Power.Calculate(modList, EmpireManager.Player, true);
             DrawStat(ref modTitlePos, Localizer.Token(6011), -modNetWarpPowerDraw.NetWarpPowerDraw, 178);
 
             if (GlobalStats.ActiveModInfo != null && GlobalStats.ActiveModInfo.enableECM)
@@ -489,6 +489,7 @@ namespace Ship_Game
             if (mod.ModuleType == ShipModuleType.Hangar)
             {
                 DrawStat(ref modTitlePos, Localizer.Token(136), mod.hangarTimerConstant, 98);
+                DrawStat(ref modTitlePos, Localizer.Token(1864), mod.MaximumHangarShipSize, 268);
             }
             if (mod.explodes)
             {
@@ -528,7 +529,7 @@ namespace Ship_Game
             if (hangarOption != DynamicHangarOptions.Static)
             {
                 modTitlePos.Y = Math.Max(modTitlePos.Y, maxDepth) + Fonts.Arial10.LineSpacing + 10;
-                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 152f, modTitlePos.Y);
+                Vector2 bestShipSelectionPos = new Vector2(modTitlePos.X - 145f, modTitlePos.Y);
                 string bestShip = Fonts.Arial12Bold.ParseText(GetDynamicHangarText(), ActiveModSubMenu.Width - 20);
                 Color color = ShipBuilder.GetHangarTextColor(mod.hangarShipUID);
                 DrawString(batch, ref bestShipSelectionPos, bestShip, color, Fonts.Arial12Bold);
@@ -554,10 +555,10 @@ namespace Ship_Game
                     case DynamicHangarOptions.DynamicLaunch:
                         return "Hangar will launch more advanced ships, as they become available in your empire";
                     case DynamicHangarOptions.DynamicInterceptor:
-                        return "Hangar will launch more advanced ships which their designated ship category is 'Fighter', " +
+                        return "Hangar will launch more advanced ships which their designated ship category is 'Interceptor', " +
                                "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
                     case DynamicHangarOptions.DynamicAntiShip:
-                        return "Hangar will launch more advanced ships which their designated ship category is 'Bomber', " +
+                        return "Hangar will launch more advanced ships which their designated ship category is 'Anti-Ship', " +
                                "as they become available in your empire. If no Fighters are available, the strongest ship will be launched";
                     default:
                         return "";

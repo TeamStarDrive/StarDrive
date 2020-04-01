@@ -82,6 +82,7 @@ namespace Ship_Game
             SaveData.RemnantActivation     = GlobalStats.RemnantActivation;
             SaveData.RemnantArmageddon     = GlobalStats.RemnantArmageddon;
             SaveData.gameDifficulty        = CurrentGame.Difficulty;
+            SaveData.GalaxySize            = CurrentGame.GalaxySize;
             SaveData.AutoColonize          = EmpireManager.Player.AutoColonize;
             SaveData.AutoExplore           = EmpireManager.Player.AutoExplore;
             SaveData.AutoFreighters        = EmpireManager.Player.AutoFreighters;
@@ -144,7 +145,8 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
-                empireToSave.FastVsBigFreighterRatio = e.FastVsBigFreighterRatio;
+                empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
+                empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
                 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
@@ -537,6 +539,7 @@ namespace Ship_Game
             [Serialize(16)] public string CurrentAutoScout;
             [Serialize(17)] public string CurrentConstructor;
             [Serialize(18)] public float FastVsBigFreighterRatio;
+            [Serialize(19)] public int AverageFreighterCargoCap;
         }
 
         public class FleetSave
@@ -820,6 +823,7 @@ namespace Ship_Game
             [Serialize(32)] public float GravityWellRange = GlobalStats.GravityWellRange;
             [Serialize(33)] public bool EliminationMode;
             [Serialize(34)] public bool AutoPickBestFreighter;
+            [Serialize(35)] public GalSize GalaxySize = GalSize.Medium;
         }
     }
 }
