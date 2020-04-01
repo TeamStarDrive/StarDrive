@@ -53,14 +53,14 @@ namespace Ship_Game
                     // Farm to 33% storage, then devote the rest to Work, then to research when that starts to fill up
                     AssignOtherWorldsWorkers(0.333f, 1);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.5f, 1);    // Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
+                    DetermineFoodState(0.4f, 1f);    // Start Importing if food drops below 50%, and stop importing once stores reach 100%. Will only export food due to excess FlatFood.
                     DetermineProdState(0.15f, 0.666f); // Start Importing if prod drops below 15%, stop importing at 30%. Start exporting at 66%, and dont stop unless below 33%.
                     break;
                 case ColonyType.Research:
                     //This governor will rely on imports, focusing on research as long as no one is starving
                     AssignOtherWorldsWorkers(0.15f, 0.15f);
                     BuildAndScrapBuildings(budget);
-                    DetermineFoodState(0.5f, 1); // Import if either drops below 50%, and stop importing once stores reach 100%.
+                    DetermineFoodState(0.4f, 1f); // Import if either drops below 50%, and stop importing once stores reach 100%.
                     DetermineProdState(0.2f, 0.6f); // This planet will export when stores reach 60%
                     break;
                 case ColonyType.Agricultural:

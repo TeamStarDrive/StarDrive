@@ -142,6 +142,13 @@ namespace Ship_Game
                 {
                     text = (!IsFleet || ShipList.Count <= 0 || ShipList.First.fleet == null ? "Multiple Ships" : ShipList.First.fleet.Name);
                     batch.DrawString(Fonts.Arial20Bold, text, namePos, tColor);
+                    if (ShipList.Count > 1)
+                    {
+                        namePos.X += Fonts.Arial20Bold.MeasureString(text).X + 5;
+                        namePos.Y += 3;
+                        batch.DrawString(Fonts.Arial14Bold, $" ({ShipList.Count})", namePos, Color.LightBlue);
+                    }
+
                     float fleetOrdnance = 0f;
                     float fleetOrdnanceMax = 0f;
                     foreach (Ship ship in ShipList)
