@@ -146,7 +146,6 @@ namespace Ship_Game
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
                 empireToSave.PirateThreatLevel    = e.PirateThreatLevel;
-                empireToSave.PiratesPaid          = e.PiratesPaid;
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
 
@@ -544,7 +543,6 @@ namespace Ship_Game
             [Serialize(18)] public float FastVsBigFreighterRatio;
             [Serialize(19)] public int AverageFreighterCargoCap;
             [Serialize(20)] public int PirateThreatLevel;
-            [Serialize(21)] public bool PiratesPaid;
         }
 
         public class FleetSave
@@ -588,6 +586,7 @@ namespace Ship_Game
             [Serialize(13)] public int ShipLevel;
             [Serialize(14)] public Guid TetherTarget;
             [Serialize(15)] public Vector2 TetherOffset;
+            [Serialize(16)] public Guid TargetShipGuid;
         }
 
         public class GSAISAVE

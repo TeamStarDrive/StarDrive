@@ -100,6 +100,7 @@ namespace Ship_Game.Gameplay
         [Serialize(57)] public float FearUsed;
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
+        [Serialize(60)] public int TurnsAtWar;
         [XmlIgnore] [JsonIgnore] public EmpireRiskAssessment Risk;
         
         /// <summary>
@@ -495,6 +496,11 @@ namespace Ship_Game.Gameplay
                 Treaty_Trade_TurnsExisted++;
             }
 
+            if (!AtWar)
+                TurnsAtWar = 0;
+            else
+                TurnsAtWar += 1;
+
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 Treaty_Peace = false;
@@ -566,7 +572,7 @@ namespace Ship_Game.Gameplay
                 AtWar = false;
 
             UpdateIntelligence(us, them);
-            if (AtWar && ActiveWar != null)
+            if (AtWar && ActiveWar != null) 
             {
                 ActiveWar.TurnsAtWar += 1f;
             }
@@ -588,13 +594,9 @@ namespace Ship_Game.Gameplay
             FearEntries.ApplyPendingRemovals();
 
             if (!Treaty_Alliance)
-            {
                 TurnsAllied = 0;
-            }
             else
-            {
                 TurnsAllied += 1;
-            }
 
             DTrait dt = us.data.DiplomaticPersonality;
             if (Posture == Posture.Friendly)
