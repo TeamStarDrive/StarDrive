@@ -166,6 +166,8 @@ namespace Ship_Game
                 ship.ReCalculateTroopsAfterBoard();
                 changeTo.AddBoardSuccessNotification(ship);
                 oldLoyalty.AddBoardedNotification(ship);
+                if (changeTo == EmpireManager.Corsairs)
+                    ship.AI.PirateOrderFleeHome();
             }
 
             // this resets the spatial management
