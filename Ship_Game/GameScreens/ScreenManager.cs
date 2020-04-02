@@ -43,6 +43,9 @@ namespace Ship_Game
         // Thread safe screen queue
         readonly SafeQueue<GameScreen> PendingScreens = new SafeQueue<GameScreen>();
 
+        // Thread safe input queue for running UI input on empire thread
+        readonly SafeQueue<Action> PendingEmpireThreadActions = new SafeQueue<Action>();
+
         public Rectangle TitleSafeArea { get; private set; }
         public int NumScreens => GameScreens.Count;
         public GameScreen Current => GameScreens[GameScreens.Count-1];
@@ -474,6 +477,30 @@ namespace Ship_Game
                     if (!screen.IsPopup)
                         coveredByOtherScreen = true;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Runs Pending actions for empireThread.
+        /// </summary>
+        public void ExecutePendingEmpireActions()
+        {
+            while(PendingEmpireThreadActions.NotEmpty) 
+                PendingEmpireThreadActions.Dequeue().Invoke();
+        }
+
+        /// <summary>
+        /// Queues action to run on empire thread. Please add logging to the action
+        /// </summary>
+        public void RunOnEmpireThread(Action action)
+        {
+            if (action != null)
+            {
+                PendingEmpireThreadActions.Enqueue(action);
+            }
+            else
+            {
+                Log.WarningWithCallStack($"Null Action passed to RunOnEmpireThread method");
             }
         }
 

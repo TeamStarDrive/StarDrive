@@ -383,7 +383,10 @@ namespace Ship_Game.AI.Tasks
                 {
                     if (p.Owner == TargetPlanet.Owner)
                     {
-                        return TargetPlanet.Level;
+                        var extraFleets = TargetPlanet.Level;
+                        extraFleets    += TargetPlanet.HasWinBuilding ? 5 : 0;
+                        extraFleets    += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 5 : 0;
+                        return extraFleets;
                     }
                     return 0;
                 });
