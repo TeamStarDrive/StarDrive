@@ -25,7 +25,7 @@
   <HealthMax>500</HealthMax>
   <RepairDifficulty>6</RepairDifficulty>
 
-  <InhibitionRadius>7500</InhibitionRadius>
+  <InhibitionRadius>15000</InhibitionRadius>
   <!-- Power Drawn -->
   <PowerDraw>100</PowerDraw>
 </ShipModule>

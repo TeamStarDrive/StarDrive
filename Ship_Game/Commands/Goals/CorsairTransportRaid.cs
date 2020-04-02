@@ -28,6 +28,9 @@ namespace Ship_Game.Commands.Goals
         GoalStep DetectAndSpawnRaidForce()
         {
             Player = EmpireManager.Player;
+            if (!empire.GetRelations(Player).AtWar)
+                return GoalStep.GoalFailed; // They paid
+
             int nearPlanetRaidChange = Player.PirateThreatLevel * 10;
             if (RandomMath.RollDice(nearPlanetRaidChange))
             {
@@ -41,7 +44,7 @@ namespace Ship_Game.Commands.Goals
             {
                 if (ScanFreightersAtWarp(out Ship freighter))
                 {
-                    Ship.CreateShipAtPoint("Corsair-Slaver", empire, freighter.Center);
+                    SpawnBoardingShip(freighter, freighter.Center + freighter.Velocity * 3);
                     return GoalStep.GoalComplete;
                 }
             }
@@ -57,7 +60,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < playerShips.Count; i++)
             {
                 Ship ship = playerShips[i];
-                if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) 
+                if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out ShipAI.ShipGoal goal) 
                                      &&  ship.IsInWarp)
                 {
                     freighter = ship;
@@ -95,10 +98,13 @@ namespace Ship_Game.Commands.Goals
             return false;
         }
 
-        void SpawnBoardingShip(Ship freighter)
+        void SpawnBoardingShip(Ship freighter, Vector2 where)
         {
+            if (where == Vector2.Zero)
+                where = freighter.Center + RandomMath.Vector2D(1000);
+
             TargetShip = freighter; // This is the main target, we want this to arrive to our base
-            Ship.CreateShipAtPoint("Corsair-Slaver", empire, freighter.Center + RandomMath.Vector2D(1000));
+            Ship.CreateShipAtPoint("Corsair-Slaver", empire, where);
         }
 
         void SpawnBoardingForce(Array<Ship> freighters)

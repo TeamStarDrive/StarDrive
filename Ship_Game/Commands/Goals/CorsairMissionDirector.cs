@@ -27,11 +27,12 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep PrepareMission()
         {
-            Player = EmpireManager.Player;
-            if (Player.TryGetRelations(empire, out Relationship rel) && !rel.AtWar)
+            Player           = EmpireManager.Player;
+            Relationship rel = empire.GetRelations(Player);
+            if (rel.AtWar)
                 return GoalStep.GoalFailed; // not at war anymore, maybe we got paid
 
-            int startChance = (int)rel.TurnsAtWar * 3;
+            int startChance = rel.TurnsAtWar * 3;
             if (NumMissions() < Player.PirateThreatLevel  
                 && RandomMath.RollDice(startChance))
             {

@@ -13,6 +13,7 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
+        public int MoneyRequested;
 
 
         Empire playerEmpire;
@@ -30,7 +31,8 @@ namespace Ship_Game
             }
             else
             {
-                bool ok = !(r.MoneyToThem > 0 && playerEmpire.Money < r.MoneyToThem);
+                int money = r.MoneyToThem.LowerBound(MoneyRequested);
+                bool ok = !(money > 0 && playerEmpire.Money < money);
                 if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                     ok = false;
                 if (r.FailIfNotAlluring && playerEmpire.data.Traits.DiplomacyMod < 0.2)
@@ -42,9 +44,9 @@ namespace Ship_Game
                 else
                 {
                     CurrentMessageId = r.SuccessIndex;
-                    if (r.MoneyToThem > 0 && playerEmpire.Money >= r.MoneyToThem)
+                    if (money > 0 && playerEmpire.Money >= money)
                     {
-                        playerEmpire.AddMoney(-r.MoneyToThem);
+                        playerEmpire.AddMoney(-money);
                     }
                 }
             }
@@ -108,6 +110,7 @@ namespace Ship_Game
                 case "ADJ2,": return playerEmpire.data.Traits.Adj2+",";
                 case "ADJ2?": return playerEmpire.data.Traits.Adj2+"?";
                 case "ADJ2!": return playerEmpire.data.Traits.Adj2+"!";
+                case "MONEY": return MoneyRequested.String();
             }
         }
 
