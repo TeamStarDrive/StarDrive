@@ -496,11 +496,6 @@ namespace Ship_Game.Gameplay
                 Treaty_Trade_TurnsExisted++;
             }
 
-            if (!AtWar)
-                TurnsAtWar = 0;
-            else
-                TurnsAtWar += 1;
-
             if (Treaty_Peace && --PeaceTurnsRemaining <= 0)
             {
                 Treaty_Peace = false;
@@ -532,6 +527,11 @@ namespace Ship_Game.Gameplay
                 return;
 
             Risk.UpdateRiskAssessment(us);
+
+            if (!AtWar)
+                TurnsAtWar = 0;
+            else
+                TurnsAtWar += 1;
 
             if (us.isPlayer)
             {

@@ -74,7 +74,7 @@ namespace Ship_Game.AI
             if (!HasPriorityOrder && !HasPriorityTarget && Owner.Weapons.Count == 0 && !Owner.Carrier.HasActiveHangars)
                 CombatState = CombatState.Evade;
 
-            if (Owner.System != null && Owner.Carrier.HasActiveTroopBays)
+            if (Owner.Carrier.HasActiveTroopBays)
                 CombatState = CombatState.AssaultShip;
 
             // in range:
