@@ -1190,8 +1190,14 @@ namespace Ship_Game
         public void AddRelation(Empire empire)
         {
             if (empire == this) return;
-            if (!TryGetRelations(empire, out Relationship relation))
+            if (!TryGetRelations(empire, out _))
                 Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
+        }
+
+        public void SetRelationsAsKnown(Empire empire)
+        {
+            AddRelation(empire);
+            Relationships[empire].Known = true;
         }
 
         public bool TryGetRelations(Empire empire, out Relationship relations) => Relationships.TryGetValue(empire, out relations);

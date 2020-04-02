@@ -31,7 +31,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep UpdatePaymentStatus()
         {
             Player = EmpireManager.Player;
-            if (Player.GetPlanets().Count < 3 && !RandomMath.RollDice(10))
+            if (Player.GetPlanets().Count < 3 || !RandomMath.RollDice(10))
                 return GoalStep.TryAgain; // Too small for now
 
             return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
@@ -52,9 +52,18 @@ namespace Ship_Game.Commands.Goals
             if (Empire.Universe.StarDate % 10 > 0 && Player.PirateThreatLevel > 0)
                 return false;
 
+            string encounterString = "First Contact";
             // Every 10 years, the pirates will demand new payment
+            if (!Player.GetRelations(empire).Known)
+                Player.SetRelationsAsKnown(empire);
+            else
+                encounterString = "Another Payment Request";
+
             if (ResourceManager.GetEncounter(empire, "First Contact", out Encounter e))
+            {
+                e.MoneyRequested = (Player.PirateThreatLevel.LowerBound(1) * 500); // TODO - difficulty modifiers
                 EncounterPopup.Show(Empire.Universe, Player, empire, e);
+            }
 
             if (Player.PirateThreatLevel == 0)
                 Player.SetPirateThreatLevel(Player.PirateThreatLevel + 1);
