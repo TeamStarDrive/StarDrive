@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Audio;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -14,44 +15,124 @@ namespace Ship_Game
         public ConstructionQueueScrollListItem(QueueItem item)
         {
             Planet = item.Planet;
-            Item = item;
+            Item   = item;
             AddUp(new Vector2(-120, 0), /*Queue up*/63, OnUpClicked);
             AddDown(new Vector2(-90, 0), /*Queue down*/64, OnDownClicked);
             AddApply(new Vector2(-60, 0), /*Cancel production*/50, OnApplyClicked);
             AddCancel(new Vector2(-30, 0), /*Cancel production*/53, OnCancelClicked);
         }
 
+
         void OnUpClicked()
         {
-            int index = Planet.ConstructionQueue.IndexOf(Item);
             InputState input = GameBase.ScreenManager.input;
-            if (input.IsCtrlKeyDown) MoveToConstructionQueuePosition(0, index); // move to top
-            else                     SwapConstructionQueueItems(index - 1, index); // move up by one
+            if (input.IsCtrlKeyDown)
+            {
+                RunOnEmpireThread(() =>
+                  {
+                      var index = Planet.ConstructionQueue.IndexOf(Item);
+                      if (index > 0)
+                      {
+                          MoveToConstructionQueuePosition(0, index);
+                      }
+                      else
+                      {
+                          Log.Warning($"Deferred Action: Move Queue to top: Failed {index}");
+                      }
+                  }); // move to top
+            }
+            else
+            {
+                RunOnEmpireThread(() =>
+                {
+                    int index = Planet.ConstructionQueue.IndexOf(Item);
+                    if (index > 0)
+                    {
+                        SwapConstructionQueueItems(index - 1, index);
+                    }
+                    else
+                    {
+                        Log.Warning($"Deferred Action: Move Queue UP: Failed {index}");
+                    }
+                }); // move up by one
+            }
         }
 
         void OnDownClicked()
         {
-            int index = Planet.ConstructionQueue.IndexOf(Item);
             InputState input = GameBase.ScreenManager.input;
-            if (input.IsCtrlKeyDown) MoveToConstructionQueuePosition(Planet.ConstructionQueue.Count-1, index); // move to bottom
-            else                     SwapConstructionQueueItems(index + 1, index); // move down by one
+            if (input.IsCtrlKeyDown)
+            {
+                RunOnEmpireThread(() =>
+                  {
+                      var listBottom = Planet.ConstructionQueue.Count - 1;
+                      var index = Planet.ConstructionQueue.IndexOf(Item);
+                      if (index >=0 && index < listBottom)
+                      {
+                          MoveToConstructionQueuePosition(listBottom, index);
+                      }
+                      else
+                      {
+                          Log.Warning($"Deferred Action: Move Queue to bottom: Failed {index}");
+                      }
+
+                  }); // move to bottom
+            }
+            else
+            {
+                RunOnEmpireThread(() =>
+                {
+                    var listBottom = Planet.ConstructionQueue.Count - 1;
+                    var index = Planet.ConstructionQueue.IndexOf(Item);
+                    if (index >=0 && index < listBottom)
+                    {
+                        SwapConstructionQueueItems(index + 1, index);
+                    }
+                    else
+                    {
+                        Log.Warning($"Deferred Action: Move Queue down: Failed {index}");
+                    }
+                }); // move down by one
+            }
         }
 
         void OnApplyClicked()
         {
-            int index = Planet.ConstructionQueue.IndexOf(Item);
             InputState input = GameBase.ScreenManager.input;
-
             float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-            if (Planet.Construction.RushProduction(index, maxAmount, playerRush: true))
-                GameAudio.AcceptClick();
-            else
-                GameAudio.NegativeClick();
+            RunOnEmpireThread(() => RushProduction(Item, maxAmount));
         }
 
+        void RushProduction(QueueItem item, float amount)
+        {
+            int index = Planet.ConstructionQueue.IndexOf(item);
+
+            if (index >=0 && !item.IsComplete && Planet.Construction.RushProduction(index, amount, playerRush: true))
+            {
+                GameAudio.AcceptClick();
+            }
+            else
+            {
+                GameAudio.NegativeClick();
+                Log.Warning($"Deferred Action: Rush Queue: Failed {index}");
+            }
+        }
         void OnCancelClicked()
         {
-            Planet.Construction.Cancel(Item);
+            RunOnEmpireThread(() =>
+            {
+                int index = Planet.ConstructionQueue.IndexOf(Item);
+                if (index >= 0 && !Item.IsComplete)
+                {
+                    Planet.Construction.Cancel(Item);
+                    GameAudio.AcceptClick();
+                }
+                else
+                {
+                    GameAudio.NegativeClick();
+                    Log.Warning($"Deferred Action: Cancel Queue Item: Failed {index}");
+                }
+            });
             GameAudio.AcceptClick();
         }
 
