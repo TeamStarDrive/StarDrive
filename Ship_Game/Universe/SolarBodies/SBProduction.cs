@@ -1,7 +1,6 @@
 ﻿using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
-using Ship_Game.Utils;
 using System;
 
 namespace Ship_Game.Universe.SolarBodies
@@ -16,10 +15,10 @@ namespace Ship_Game.Universe.SolarBodies
         public bool Empty => ConstructionQueue.IsEmpty;
         public int Count => ConstructionQueue.Count;
 
-        //Construction queue should be protected. 
-
-        public BatchRemovalCollection<QueueItem> ConstructionQueue = new BatchRemovalCollection<QueueItem>();
-        public SafeQueue<QueueItem> UIRushedQueueItems = new SafeQueue<QueueItem>();
+        /// <summary>
+        /// The Construction queue should be protected
+        /// </summary>
+        public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
 
         float ProductionHere
         {
@@ -45,7 +44,7 @@ namespace Ship_Game.Universe.SolarBodies
             float amount = Math.Min(ProductionHere, maxAmount);
 
             // inject artificial surplus to instantly rush & finish production
-            if (Empire.Universe.Debug || System.Diagnostics.Debugger.IsAttached)
+            if (Empire.Universe.Debug)
             {
                 amount = SurplusThisTurn = 1000;
             }
@@ -97,53 +96,44 @@ namespace Ship_Game.Universe.SolarBodies
                 SpendProduction(ConstructionQueue[itemIndex], maxAmount);
             }
 
-            using (ConstructionQueue.AcquireWriteLock())
-                for (int i = 0; i < ConstructionQueue.Count;)
+            for (int i = 0; i < ConstructionQueue.Count;)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isTroop && !HasRoomForTroops()) // remove excess troops from queue
                 {
-                    QueueItem q = ConstructionQueue[i];
-                    if (q.isTroop && !HasRoomForTroops()) // remove excess troops from queue
-                    {
-                        Cancel(q);
-                        continue; // this item was removed, so skip ++i
-                    }
-                    if (q.IsCancelled)
-                    {
-                        Cancel(q);
-                        continue; // this item was removed, so skip ++i
-                    }
-                    if (q.IsComplete)
-                    {
-                        ProcessCompleteQueueItem(q, playerRush);
-                        continue; // this item was removed, so skip ++i
-                    }
-                    ++i;
+                    Cancel(q);
+                    continue; // this item was removed, so skip ++i
                 }
+                if (q.IsCancelled)
+                {
+                    Cancel(q);
+                    continue; // this item was removed, so skip ++i
+                }
+                if (q.IsComplete)
+                {
+                    ProcessCompleteQueueItem(q, playerRush);
+                    continue; // this item was removed, so skip ++i
+                }
+                ++i;
+            }
             return true;
         }
 
-        void ProcessCompleteQueueItem(QueueItem q, bool addToUIRushQueue)
+        void ProcessCompleteQueueItem(QueueItem q, bool playerRushed)
         {
-            if (addToUIRushQueue)
-            {
-                UIRushedQueueItems.Enqueue(q);
-                ConstructionQueue.Remove(q);
-                if (!Empire.Universe.Debug && !System.Diagnostics.Debugger.IsAttached)
-                {
-                    // player rush will be charged 10% of item cost up to 10 credits if the item was complete
-                    float credits = (q.Cost * 0.1f).Clamped(1f, 10f);
-                    Owner.AddMoney(-credits);
-                }
-            }
-            else
-            {
-                bool ok = false;
+            bool ok = false;
 
-                if (q.isBuilding) ok   = OnBuildingComplete(q);
-                else if (q.isShip) ok  = OnShipComplete(q);
-                else if (q.isTroop) ok = TrySpawnTroop(q);
+            if (q.isBuilding) ok = OnBuildingComplete(q);
+            else if (q.isShip) ok = OnShipComplete(q);
+            else if (q.isTroop) ok = TrySpawnTroop(q);
 
-                Finish(q, success: ok);
+            if (ok && playerRushed)
+            {
+                float credits = (q.Cost * 0.1f).Clamped(1f, 10f);
+                Owner.AddMoney(-credits);
             }
+
+            Finish(q, success: ok);
         }
 
         bool HasRoomForTroops()
@@ -217,7 +207,6 @@ namespace Ship_Game.Universe.SolarBodies
         {
             // surplus will be reset every turn and consumed at first opportunity
             SurplusThisTurn = surplusFromPlanet;
-            ProcessUIRushedQueueItems();
             if (ConstructionQueue.IsEmpty)
                 return;
 
@@ -227,19 +216,6 @@ namespace Ship_Game.Universe.SolarBodies
 
             float limitSpentProd = P.LimitedProductionExpenditure();
             ApplyProductionToQueue(maxAmount: limitSpentProd * percentToApply, 0);
-        }
-
-        void ProcessUIRushedQueueItems()
-        {
-            // we can add a limit to the amount that can be rushed here
-            // my initial limit was going to be (shipyard + colony level + 1) * P.Prod.GrossMaxPotential;
-            // to make this work right the items in this queue need to be known to the player and the AI. 
-
-            while (UIRushedQueueItems.NotEmpty)
-            {
-                QueueItem q = UIRushedQueueItems.Dequeue();
-                ProcessCompleteQueueItem(q, false);
-            }
         }
 
         // @return TRUE if building was added to CQ,

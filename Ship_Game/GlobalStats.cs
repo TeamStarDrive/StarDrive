@@ -96,8 +96,8 @@ namespace Ship_Game
         public static bool DisableAsteroids;
         public static bool FixedPlayerCreditCharge;
 
-        public static int ShipCountLimit;
-        public static int FreighterLimit            = 50;
+        public static int ShipCountLimit; // FB - not used
+        public static int FreighterLimit = 50; // FB - not used
 
         public static int AutoSaveFreq = 300;   //Added by Gretman
         public static bool CornersGame = false;     //Also added by Gretman
