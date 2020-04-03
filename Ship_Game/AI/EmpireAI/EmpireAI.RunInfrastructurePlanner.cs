@@ -192,16 +192,9 @@ namespace Ship_Game.AI
                         Goals.QueuePendingRemoval(g);
                         IReadOnlyList<Planet> ps = OwnerEmpire.GetPlanets();
                         for (int pi = 0; pi < ps.Count; pi++)
-                        {
-                            Planet p = ps[pi];
-                            for (int gi = 0; gi < p.ConstructionQueue.Count; gi++)
-                            {
-                                QueueItem qi = p.ConstructionQueue[gi];
-                                if (qi.Goal == g)
-                                {
-                                    qi.IsCancelled = true; // cancel on next SBProduction update
-                                }
-                            }
+                        { 
+                            if(ps[pi].Construction.Cancel(g))
+                                break;
                         }
 
                         using (OwnerEmpire.GetShips().AcquireReadLock())

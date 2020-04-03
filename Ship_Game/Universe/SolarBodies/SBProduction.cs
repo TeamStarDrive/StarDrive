@@ -2,6 +2,7 @@
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -18,7 +19,7 @@ namespace Ship_Game.Universe.SolarBodies
         /// <summary>
         /// The Construction queue should be protected
         /// </summary>
-        public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
+        readonly Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
 
         float ProductionHere
         {
@@ -34,6 +35,11 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         bool IsCrippled => P.CrippledTurns > 0 || P.RecentCombat;
+
+        public IReadOnlyList<QueueItem> GetConstructionQueue()
+        {
+            return ConstructionQueue;
+        }
 
         public bool RushProduction(int itemIndex, float maxAmount, bool playerRush = false)
         {
@@ -300,6 +306,11 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
+        public void AddQueueItem(QueueItem item)
+        {
+            ConstructionQueue.Add(item);
+        }
+
         public void Finish(QueueItem q, bool success)
         {
             if (success) Finish(q);
@@ -308,8 +319,15 @@ namespace Ship_Game.Universe.SolarBodies
 
         public void Finish(QueueItem q)
         {
-            P.ConstructionQueue.Remove(q);
+            ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: true);
+        }
+
+        public bool Cancel(Goal g)
+        {
+            QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
+            item?.SetCanceled();
+            return item != null;
         }
 
         public void Cancel(QueueItem q)
@@ -331,11 +349,49 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
-            P.ConstructionQueue.Remove(q);
+            ConstructionQueue.Remove(q);
             if (q.isBuilding)
                 P.RefreshBuildingsWeCanBuildHere();
 
             q.OnComplete?.Invoke(success: false);
+        }
+
+        public void ConstructionItemReorder(int oldIndex, int newIndex)
+        {
+            ConstructionQueue.Reorder(oldIndex, newIndex);
+        }
+
+        public void SwapConstructionQueueItems(int swapTo, int currentIndex)
+        {
+            swapTo = swapTo.Clamped(0, ConstructionQueue.Count - 1);
+            currentIndex = currentIndex.Clamped(0, ConstructionQueue.Count - 1);
+
+            QueueItem item = ConstructionQueue[swapTo];
+            ConstructionQueue[swapTo] = ConstructionQueue[currentIndex];
+            ConstructionQueue[currentIndex] = item;
+        }
+
+        public void MoveToConstructionQueuePosition(int moveTo, int currentIndex)
+        {
+            QueueItem item = ConstructionQueue[currentIndex];
+            ConstructionQueue.RemoveAt(currentIndex);
+            ConstructionQueue.Insert(moveTo, item);
+        }
+
+        public void ClearConstructionQueue()
+        {
+            ConstructionQueue.Clear();
+        }
+
+        public void Remove(QueueItem item)
+        {
+            int index = ConstructionQueue.IndexOfRef(item);
+            Remove(index);
+        }
+
+        public void Remove(int index)
+        {
+            ConstructionQueue.RemoveAt(index);
         }
 
         // Returns maintenance as a positive number
@@ -346,5 +402,7 @@ namespace Ship_Game.Universe.SolarBodies
                 if (b.isBuilding) maintenance += b.Building.ActualMaintenance(P);
             return maintenance;
         }
+
+        // Queue Utils
     }
 }
