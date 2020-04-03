@@ -123,7 +123,7 @@ namespace Ship_Game
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
                     RunOnEmpireThread(() =>
                     {
-                        bool hasValidConstruction = p.ConstructionQueue.NotEmpty && !p.ConstructionQueue[0].IsComplete;
+                        bool hasValidConstruction = p.Construction.NotEmpty && !p.ConstructionQueue[0].IsComplete;
                         if (hasValidConstruction && p.Construction.RushProduction(0, maxAmount, playerRush: true))
                         {
                             GameAudio.AcceptClick();

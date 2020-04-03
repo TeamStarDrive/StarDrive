@@ -138,20 +138,13 @@ namespace Ship_Game
 
         void SwapConstructionQueueItems(int swapTo, int currentIndex)
         {
-            swapTo       = swapTo.Clamped(0, Planet.ConstructionQueue.Count-1);
-            currentIndex = currentIndex.Clamped(0, Planet.ConstructionQueue.Count-1);
-
-            QueueItem item = Planet.ConstructionQueue[swapTo];
-            Planet.ConstructionQueue[swapTo] = Planet.ConstructionQueue[currentIndex];
-            Planet.ConstructionQueue[currentIndex] = item;
+            Planet.Construction.SwapConstructionQueueItems(swapTo, currentIndex);
             GameAudio.AcceptClick();
         }
 
         void MoveToConstructionQueuePosition(int moveTo, int currentIndex)
         {
-            QueueItem item = Planet.ConstructionQueue[currentIndex];
-            Planet.ConstructionQueue.RemoveAt(currentIndex);
-            Planet.ConstructionQueue.Insert(moveTo, item);
+            Planet.Construction.MoveToConstructionQueuePosition(moveTo, currentIndex);
             GameAudio.AcceptClick();
         }
         
