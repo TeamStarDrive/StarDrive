@@ -72,7 +72,7 @@ namespace Ship_Game.Commands.Goals
 
         int MoneyRequested(int originalPayment)
         {
-            float payment = originalPayment * Pirates.PirateThreatLevel.LowerBound(1)
+            float payment = originalPayment * Pirates.PirateThreatLevel.LowerBound(1) // Pirates own level
                                             * TargetEmpire.DifficultyModifiers.PiratePayModifier
                                             * TargetEmpire.GetPlanets().Count / 3;
 
