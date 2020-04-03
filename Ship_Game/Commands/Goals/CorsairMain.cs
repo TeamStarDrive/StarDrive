@@ -50,7 +50,7 @@ namespace Ship_Game.Commands.Goals
         bool RequestPayment()
         {
             // Every 10 years, the pirates will demand new payment
-            if (Empire.Universe.StarDate % 10 > 0)
+            if (Empire.Universe.StarDate % 10 > 0 && TargetEmpire.PirateThreatLevel > 0)
                 return false;
 
             string encounterString = "Request Money";
@@ -66,7 +66,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // If they did not pay us, increase our wanted threat level
-            if (Pirates.GetRelations(TargetEmpire).AtWar)
+            if (Pirates.GetRelations(TargetEmpire).AtWar || TargetEmpire.PirateThreatLevel == 0)
                 TargetEmpire.SetPirateThreatLevel(TargetEmpire.PirateThreatLevel + 1);
 
             return true;
