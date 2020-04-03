@@ -91,7 +91,7 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, colonyShip, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.AddShip(colonyShip, this, notifyOnEmpty:empire.isPlayer);
+            planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer);
             return GoalStep.GoToNextStep;
         }
 

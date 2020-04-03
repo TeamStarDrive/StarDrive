@@ -1068,7 +1068,7 @@ namespace Ship_Game
             if (removeOwner)
                 ParentSystem.OwnerList.Remove(Owner);
 
-            Construction.ClearConstructionQueue();
+            Construction.ClearQueue();
             Owner = null;
         }
 
