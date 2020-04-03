@@ -1199,22 +1199,6 @@ namespace Ship_Game
             Relationships[empire].Known = true;
         }
 
-        bool GetCorsairOrbitals(out Array<Ship> bases, string baseName)
-        {
-            bases = new Array<Ship>();
-            for (int i = 0; i < OwnedShips.Count; i++)
-            {
-                Ship ship = OwnedShips[i];
-                if (ship.Name == baseName)
-                    bases.Add(ship);
-            }
-
-            return bases.Count > 0;
-        }
-
-        public bool GetCorsairBases(out Array<Ship> bases)    => GetCorsairOrbitals(out bases, "Corsair Asteroid Base");
-        public bool GetCorsairStations(out Array<Ship> bases) => GetCorsairOrbitals(out bases, "Corsair Station");
-
         public bool TryGetRelations(Empire empire, out Relationship relations) => Relationships.TryGetValue(empire, out relations);
 
         public void AddRelationships(Empire e, Relationship i) => Relationships.Add(e, i);
