@@ -25,7 +25,26 @@ namespace Ship_Game.Commands.Goals
             empire = owner;
         }
 
-        GoalStep CorsairPlan() // This is for legacy load save, will be removed later.
+        GoalStep CorsairPlan()
+        {
+            if (!empire.GetCorsairBases(out Array<Ship> bases))
+            {
+                Log.Warning("Could not find a Corsair base. Pirate AI is disabled!");
+                return GoalStep.GoalFailed;
+            }
+
+            Ship firstBase    = bases.First;
+            EmpireAI empireAi = empire.GetEmpireAI();
+
+            empireAi.Goals.Add(new CorsairAsteroidBase(empire, firstBase));
+
+            // FB - Pirate main goal can be set per AI empire as well, in the future
+            empireAi.Goals.Add(new CorsairMain(empire, EmpireManager.Player));
+            empire.SetPirateThreatLevel(1); // Initial Level of the pirates
+            return GoalStep.GoalComplete;
+        }
+
+        GoalStep CorsairPlanOld() // This is for legacy load save, will be removed later.
         {
             bool alreadyRaiding = empire.GetEmpireAI().HasTaskOfType(MilitaryTask.TaskType.CorsairRaid);
             if (!alreadyRaiding)

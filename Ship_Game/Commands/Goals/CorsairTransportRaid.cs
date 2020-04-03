@@ -12,32 +12,32 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairTransportRaid";
         public override string UID => ID;
-        public Empire Player;
         public CorsairTransportRaid() : base(GoalType.CorsairTransportRaid)
         {
             Steps = new Func<GoalStep>[]
             {
-               DetectAndSpawnRaidForce
+               DetectAndSpawnRaidForce,
+               CheckIfHijacked
             };
         }
-        public CorsairTransportRaid(Empire owner) : this()
+        public CorsairTransportRaid(Empire owner, Empire targetEmpire) : this()
         {
-            empire = owner;
+            empire       = owner;
+            TargetEmpire = targetEmpire;
         }
 
         GoalStep DetectAndSpawnRaidForce()
         {
-            Player = EmpireManager.Player;
-            if (!empire.GetRelations(Player).AtWar)
+            if (!empire.GetRelations(TargetEmpire).AtWar)
                 return GoalStep.GoalFailed; // They paid
 
-            int nearPlanetRaidChange = Player.PirateThreatLevel * 10;
+            int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 10;
             if (RandomMath.RollDice(nearPlanetRaidChange))
             {
                 if (ScanFreightersNearPlanets(out Array<Ship> freighters))
                 {
                     SpawnBoardingForce(freighters);
-                    return GoalStep.GoalComplete;
+                    return GoalStep.GoToNextStep;
                 }
             }
             else
@@ -45,21 +45,29 @@ namespace Ship_Game.Commands.Goals
                 if (ScanFreightersAtWarp(out Ship freighter))
                 {
                     SpawnBoardingShip(freighter, freighter.Center + freighter.Velocity * 3);
-                    return GoalStep.GoalComplete;
+                    return GoalStep.GoToNextStep;
                 }
             }
 
             return GoalStep.GoalFailed;
         }
 
+        GoalStep CheckIfHijacked()
+        {
+
+            if (!TargetShip.Active || TargetShip.loyalty != empire && !TargetShip.Inhibited)
+                return GoalStep.GoalFailed; // Target destroyed or escaped
+
+            return TargetShip.loyalty == empire ? GoalStep.GoalComplete :  GoalStep.TryAgain;
+        }
+
         bool ScanFreightersAtWarp(out Ship freighter)
         {
             freighter       = null;
-            Player          = EmpireManager.Player;
-            var playerShips = Player.GetShips();
-            for (int i = 0; i < playerShips.Count; i++)
+            var targetShips = TargetEmpire.GetShips();
+            for (int i = 0; i < targetShips.Count; i++)
             {
-                Ship ship = playerShips[i];
+                Ship ship = targetShips[i];
                 if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out ShipAI.ShipGoal goal) 
                                      &&  ship.IsInWarp)
                 {
@@ -73,12 +81,11 @@ namespace Ship_Game.Commands.Goals
 
         bool ScanFreightersNearPlanets(out Array<Ship> freighters)
         {
-            Player      = EmpireManager.Player;
             freighters  = new Array<Ship>();
-            var planets = Player.GetPlanets();
+            var planets = TargetEmpire.GetPlanets();
             for (int i = 0; i < planets.Count; i++)
             {
-                Planet planet = planets[i];
+                Planet planet      = planets[i];
                 SolarSystem system = planet.ParentSystem;
                 for (int j = 0; j < system.ShipList.Count; j++)
                 {
@@ -103,18 +110,21 @@ namespace Ship_Game.Commands.Goals
             if (where == Vector2.Zero)
                 where = freighter.Center + RandomMath.Vector2D(1000);
 
-            TargetShip = freighter; // This is the main target, we want this to arrive to our base
-            Ship.CreateShipAtPoint("Corsair-Slaver", empire, where);
+            TargetShip        = freighter; // This is the main target, we want this to arrive to our base
+            Ship boardingShip = Ship.CreateShipAtPoint("Corsair-Slaver", empire, where);
+            boardingShip?.AI.OrderAttackSpecificTarget(freighter);
         }
 
         void SpawnBoardingForce(Array<Ship> freighters)
         {
-            for (int i = 0; i < freighters.Count; i++)
+            // Launch a board ship per freighter, but the maximum  is the threat level
+            for (int i = 0; i < freighters.Count.UpperBound(TargetEmpire.PirateThreatLevel); i++)
             {
                 Ship freighter = freighters[i];
                 Ship.CreateShipAtPoint("Corsair-Slaver", empire, freighter.Center + RandomMath.Vector2D(1000));
-                // also spawn escort ships by planet defense str / number of freighters
             }
+
+            // also spawn escort ships by planet defense str / number of freighters
         }
     }
 }

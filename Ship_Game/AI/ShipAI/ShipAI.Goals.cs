@@ -417,7 +417,8 @@ namespace Ship_Game.AI
             RebaseToShip,
             ReturnHome,
             DeployOrbital,
-            HoldPositionOffensive
+            HoldPositionOffensive,
+            PirateScrap
         }
     }
 }
