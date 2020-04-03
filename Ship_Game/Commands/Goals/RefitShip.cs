@@ -108,7 +108,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 AllowInterEmpireTrade  = OldShip.AllowInterEmpireTrade
             };
 
-            PlanetBuildingAt.Construction.AddQueueItem(qi);
+            PlanetBuildingAt.Construction.Enqueue(qi);
             OldShip.QueueTotalRemoval();
             return GoalStep.GoToNextStep;
         }

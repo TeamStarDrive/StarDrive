@@ -226,7 +226,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         // @return TRUE if building was added to CQ,
         //         FALSE if `where` is occupied or if there is no free random tiles
-        public bool AddBuilding(Building b, PlanetGridSquare where = null, bool playerAdded = false)
+        public bool Enqueue(Building b, PlanetGridSquare where = null, bool playerAdded = false)
         {
             if (b.Unique || b.BuildOnlyOnce)
             {
@@ -259,7 +259,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)
+        public void Enqueue(Ship platform, Ship constructor, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -276,7 +276,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void AddShip(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
+        public void Enqueue(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
         {
             var qi = new QueueItem(P)
             {
@@ -292,7 +292,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void AddTroop(Troop template, Goal goal = null)
+        public void Enqueue(Troop template, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -306,18 +306,18 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void AddQueueItem(QueueItem item)
+        public void Enqueue(QueueItem item)
         {
             ConstructionQueue.Add(item);
         }
 
-        public void Finish(QueueItem q, bool success)
+        void Finish(QueueItem q, bool success)
         {
             if (success) Finish(q);
             else         Cancel(q);
         }
 
-        public void Finish(QueueItem q)
+        void Finish(QueueItem q)
         {
             ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: true);
@@ -356,12 +356,12 @@ namespace Ship_Game.Universe.SolarBodies
             q.OnComplete?.Invoke(success: false);
         }
 
-        public void ConstructionItemReorder(int oldIndex, int newIndex)
+        public void Reorder(int oldIndex, int newIndex)
         {
             ConstructionQueue.Reorder(oldIndex, newIndex);
         }
 
-        public void SwapConstructionQueueItems(int swapTo, int currentIndex)
+        public void Swap(int swapTo, int currentIndex)
         {
             swapTo = swapTo.Clamped(0, ConstructionQueue.Count - 1);
             currentIndex = currentIndex.Clamped(0, ConstructionQueue.Count - 1);
@@ -371,38 +371,16 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue[currentIndex] = item;
         }
 
-        public void MoveToConstructionQueuePosition(int moveTo, int currentIndex)
+        public void MoveTo(int moveTo, int currentIndex)
         {
             QueueItem item = ConstructionQueue[currentIndex];
             ConstructionQueue.RemoveAt(currentIndex);
             ConstructionQueue.Insert(moveTo, item);
         }
 
-        public void ClearConstructionQueue()
+        public void ClearQueue()
         {
             ConstructionQueue.Clear();
         }
-
-        public void Remove(QueueItem item)
-        {
-            int index = ConstructionQueue.IndexOfRef(item);
-            Remove(index);
-        }
-
-        public void Remove(int index)
-        {
-            ConstructionQueue.RemoveAt(index);
-        }
-
-        // Returns maintenance as a positive number
-        public float TotalQueuedBuildingMaintenance()
-        {
-            float maintenance = 0;
-            foreach (QueueItem b in ConstructionQueue)
-                if (b.isBuilding) maintenance += b.Building.ActualMaintenance(P);
-            return maintenance;
-        }
-
-        // Queue Utils
     }
 }

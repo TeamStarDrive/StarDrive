@@ -316,7 +316,7 @@ namespace Ship_Game
                 }
 
                 qi.ProductionSpent = qisave.ProgressTowards;
-                p.Construction.AddQueueItem(qi);
+                p.Construction.Enqueue(qi);
             }
         }
 
