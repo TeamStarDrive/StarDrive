@@ -1,7 +1,9 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Ship_Game.Audio;
+using Ship_Game.Utils;
 
 namespace Ship_Game
 {
@@ -119,10 +121,20 @@ namespace Ship_Game
                 if (ApplyProdHover && p.IsConstructing)
                 {
                     float maxAmount = input.IsCtrlKeyDown ? 10000f : 10f;
-                    if (p.Construction.RushProduction(0, maxAmount, playerRush: true))
-                        GameAudio.AcceptClick();
-                    else
-                        GameAudio.NegativeClick();
+                    RunOnEmpireThread(() =>
+                    {
+                        bool hasValidConstruction = p.ConstructionQueue.NotEmpty && !p.ConstructionQueue[0].IsComplete;
+                        if (hasValidConstruction && p.Construction.RushProduction(0, maxAmount, playerRush: true))
+                        {
+                            GameAudio.AcceptClick();
+                        }
+                        else
+                        {
+                            if (!hasValidConstruction)
+                                Log.Warning($"Deferred Action: ColonyListItem: Rush failed");
+                            GameAudio.NegativeClick();
+                        }
+                    });
 
                     return true;
                 }
@@ -131,10 +143,12 @@ namespace Ship_Game
                 {
                     GameAudio.AcceptClick();
                     foodDropDown.Toggle();
-                    p.FS = (Planet.GoodState) ((int) p.FS + (int) Planet.GoodState.IMPORT);
-                    if (p.FS > Planet.GoodState.EXPORT)
-                        p.FS = Planet.GoodState.STORE;
-
+                    RunOnEmpireThread(() =>
+                    {
+                        p.FS = (Planet.GoodState)((int)p.FS + (int)Planet.GoodState.IMPORT);
+                        if (p.FS > Planet.GoodState.EXPORT)
+                            p.FS = Planet.GoodState.STORE;
+                    });
                     return true;
                 }
 
@@ -142,10 +156,12 @@ namespace Ship_Game
                 {
                     GameAudio.AcceptClick();
                     prodDropDown.Toggle();
-                    p.PS = (Planet.GoodState) ((int) p.PS + (int) Planet.GoodState.IMPORT);
-                    if (p.PS > Planet.GoodState.EXPORT)
-                        p.PS = Planet.GoodState.STORE;
-
+                    RunOnEmpireThread(() =>
+                    {
+                        p.PS = (Planet.GoodState)((int)p.PS + (int)Planet.GoodState.IMPORT);
+                        if (p.PS > Planet.GoodState.EXPORT)
+                            p.PS = Planet.GoodState.STORE;
+                    });
                     return true;
                 }
             }
@@ -154,6 +170,8 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            ProdStorage.Progress = p.ProdHere;
+            FoodStorage.Progress = p.FoodHere;
             var TextColor2 = new Color(118, 102, 67, 50);
             var smallHighlight = new Color(118, 102, 67, 25);
             if (ItemIndex % 2 == 0)
