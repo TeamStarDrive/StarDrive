@@ -581,8 +581,7 @@ namespace Ship_Game
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.IsOutpost)
                 {
-                    ConstructionQueue.RemoveAt(i);
-                    ConstructionQueue.Insert(0, q);
+                    Construction.MoveToConstructionQueuePosition(0, i);
                     Construction.RushProduction(0, ProdHere);
                     break;
                 }
