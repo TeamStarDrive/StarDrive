@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
 {
     public class CorsairMain : Goal
     {
-        public const string ID  = "CorsairMain";
+        public const string ID = "CorsairMain";
         public override string UID => ID;
         private readonly Empire Pirates;  // For better code readability, we are the pirates
         public CorsairMain() : base(GoalType.CorsairMain)
@@ -27,6 +27,8 @@ namespace Ship_Game.Commands.Goals
             empire       = owner;
             TargetEmpire = targetEmpire;
             Pirates      = empire;
+
+            Log.Info(ConsoleColor.Green, $"---- New Corsair Main vs. {targetEmpire.Name} ----");
         }
 
         GoalStep UpdatePaymentStatus()
