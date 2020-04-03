@@ -12,11 +12,14 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairAsteroidBase";
         public override string UID => ID;
-        public Empire Pirates;
+        private readonly Empire Pirates;
+        private readonly Ship PirateBase;
+
         public CorsairAsteroidBase() : base(GoalType.CorsairAsteroidBase)
         {
-            Pirates = empire;
-            Steps   = new Func<GoalStep>[]
+            Pirates    = empire;
+            PirateBase = TargetShip;
+            Steps = new Func<GoalStep>[]
             {
                SalvageShips
             };
@@ -26,18 +29,21 @@ namespace Ship_Game.Commands.Goals
             empire     = owner;
             TargetShip = ship; // This is the Pirate Base
             Pirates    = empire;
+            PirateBase = TargetShip;
+
+            Log.Info(ConsoleColor.Green, $"---- New Pirate Asteroid Base in {PirateBase.SystemName} ----");
         }
 
         GoalStep SalvageShips()
         {
-            if (TargetShip == null || !TargetShip.Active)
+            if (PirateBase == null || !PirateBase.Active)
                 return GoalStep.GoalFailed; // Base is destroyed
 
-            SolarSystem system = TargetShip.System;
+            SolarSystem system = PirateBase.System;
             for (int i = 0; i < system.ShipList.Count; i++)
             {
                 Ship ship = system.ShipList[i];
-                if (ship.InRadius(TargetShip.Center, 1200))
+                if (ship.InRadius(PirateBase.Center, 1200))
                 {
                     switch (ship.Name)
                     {
@@ -70,7 +76,6 @@ namespace Ship_Game.Commands.Goals
                 }
                 else  // Find a base which orbits a planet and go there
                 {
-
                     if (Pirates.GetClosestCorsairBasePlanet(ship.Center, out Planet planet))
                         ship.AI.OrderToOrbit(planet);
                 }

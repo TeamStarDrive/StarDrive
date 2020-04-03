@@ -216,6 +216,7 @@
     </Compile>
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\CorsairAsteroidBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairMain.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairAI.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairMissionDirector.cs" />
@@ -230,6 +231,7 @@
     <Compile Include="Ship_Game\EmpireDifficultyModifers.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\WarSupportShips.cs" />
     <Compile Include="Ship_Game\Empires\ShipPools\ShipPool.cs" />
+    <Compile Include="Ship_Game\Empire_Pirates.cs" />
     <Compile Include="Ship_Game\Empire_Trade.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildConstructionShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildDefensiveShips.cs" />
@@ -1817,7 +1819,23 @@
     <Content Include="Content\Exploration Events\Default.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Hulls\Misc\HeavyFrigate.xml" />
     <Content Include="Content\Localization\Spanish\GameText.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Races\Corsairs.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Corsair-Mk2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Corsair-Mk3.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Corsair-Slaver-Mk2.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\SavedDesigns\Corsair-Slaver-Mk3.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\Corsair-Slaver.xml">
