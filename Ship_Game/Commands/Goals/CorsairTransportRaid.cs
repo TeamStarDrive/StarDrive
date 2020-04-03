@@ -24,6 +24,8 @@ namespace Ship_Game.Commands.Goals
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
+
+            Log.Info(ConsoleColor.Green, $"---- New Pirate Transport Raid vs. {targetEmpire.Name} ----");
         }
 
         GoalStep DetectAndSpawnRaidForce()
@@ -49,7 +51,8 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
-            return GoalStep.GoalFailed;
+            // Try locating viable freighters for maximum of 1 year (10 turns), else just give up
+            return Empire.Universe.StarDate % 1 > 0 ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
 
         GoalStep CheckIfHijacked()

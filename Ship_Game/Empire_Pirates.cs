@@ -25,7 +25,7 @@ namespace Ship_Game
             return bases.Count > 0;
         }
 
-        public bool GetCorsairBases(out Array<Ship> bases) => GetCorsairOrbitals(out bases, "Corsair Asteroid Base");
+        public bool GetCorsairBases(out Array<Ship> bases)    => GetCorsairOrbitals(out bases, "Corsair Asteroid Base");
         public bool GetCorsairStations(out Array<Ship> bases) => GetCorsairOrbitals(out bases, "Corsair Station");
 
         bool GetCorsairOrbitalsOrbitingPlanets(out Array<Ship> planetBases)
