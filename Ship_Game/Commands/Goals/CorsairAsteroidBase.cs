@@ -76,8 +76,11 @@ namespace Ship_Game.Commands.Goals
                 }
                 else  // Find a base which orbits a planet and go there
                 {
-                    if (Pirates.GetClosestCorsairBasePlanet(ship.Center, out Planet planet))
-                        ship.AI.OrderToOrbit(planet);
+                    if (ship.AI.State != AIState.Orbit)
+                    {
+                        if (Pirates.GetClosestCorsairBasePlanet(ship.Center, out Planet planet))
+                            ship.AI.OrderToOrbit(planet);
+                    }
                 }
             }
         }

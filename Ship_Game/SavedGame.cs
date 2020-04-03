@@ -225,7 +225,8 @@ namespace Ship_Game
                         ShipLevel     = g.ShipLevel,
                         VanityName    = g.VanityName,
                         TetherTarget  = g.TetherTarget,
-                        TetherOffset  = g.TetherOffset
+                        TetherOffset  = g.TetherOffset,
+                        TargetEmpire  = g.TargetEmpire
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
@@ -233,6 +234,7 @@ namespace Ship_Game
                     if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
                     if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
                     if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
+                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
 
                     return gdata;
                 });
