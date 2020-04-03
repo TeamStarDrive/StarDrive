@@ -28,6 +28,7 @@ namespace Ship_Game.AI
         CorsairAI,
         CorsairMain,
         CorsairMissionDirector,
+        CorsairAsteroidBase,
         CorsairTransportRaid
     }
 
@@ -60,6 +61,7 @@ namespace Ship_Game.AI
         private Ship ShipBuilt; // this is the actual ship that was built
         public Ship OldShip;      // this is the ship which needs refit
         public Ship TargetShip;      // Any this that is targeted by this goal (raids)
+        public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -125,6 +127,7 @@ namespace Ship_Game.AI
                 case CorsairMain.ID:            return new CorsairMain();
                 case CorsairMissionDirector.ID: return new CorsairMissionDirector();
                 case CorsairTransportRaid.ID:   return new CorsairTransportRaid();
+                case CorsairAsteroidBase.ID:    return new CorsairAsteroidBase();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

@@ -300,20 +300,17 @@ namespace Ship_Game.AI
 
         public void PirateOrderFleeHome()
         {
-            Ship[] bases = Owner.loyalty.GetShips().Filter(ship => ship.Name == "Corsair Asteroid Base");
-            if (bases.Length == 0)
+            if (Owner.loyalty.GetCorsairBases(out Array<Planet> pirateBases))
             {
-                ClearOrders();
+                Planet planet = pirateBases.FindMin(s => s.Center.Distance(Owner.Center));
+                Owner.AI.SetPriorityOrder(true);
+                OrderToOrbit(planet);
             }
             else
             {
-                Ship closestBase = bases.FindMin(s => s.Center.Distance(Owner.Center));
-                Planet planet    = closestBase.GetTether();
-                Owner.AI.SetPriorityOrder(true);
-                AddPlanetGoal(Plan.Orbit, planet, AIState.AwaitingOrders, true, true);
+                ClearOrders();
             }
         }
-
 
         public void OrderQueueSpecificTarget(Ship toAttack)
         {
