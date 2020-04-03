@@ -443,7 +443,7 @@ namespace Ship_Game
         {
             var thisPlanet = (Planet)this;
 
-            thisPlanet.Construction.ClearConstructionQueue();
+            thisPlanet.Construction.ClearQueue();
             thisPlanet.UpdateTerraformPoints(0);
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
@@ -469,7 +469,7 @@ namespace Ship_Game
                             ParentSystem.OwnerList.Remove(Owner);
                         Owner = null;
                     }
-                    Construction.ClearConstructionQueue();
+                    Construction.ClearQueue();
                     return;
                 }
             }
@@ -512,7 +512,7 @@ namespace Ship_Game
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             TurnsSinceTurnover = 0;
-            Construction.ClearConstructionQueue();
+            Construction.ClearQueue();
             ParentSystem.OwnerList.Clear();
 
             foreach (Planet planet in ParentSystem.PlanetList)

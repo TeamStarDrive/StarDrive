@@ -182,12 +182,12 @@ namespace Ship_Game
 
         void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int oldIndex, int newIndex)
         {
-            P.Construction.ConstructionItemReorder(oldIndex, newIndex);
+            P.Construction.Reorder(oldIndex, newIndex);
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)
         {
-            if (P.Construction.AddBuilding(b, where, true))
+            if (P.Construction.Enqueue(b, where, true))
             {
                 GameAudio.AcceptClick();
                 return true;
@@ -212,7 +212,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    P.Construction.AddShip(ship);
+                    P.Construction.Enqueue(ship);
                 }
             }
             GameAudio.AcceptClick();
@@ -222,7 +222,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < repeat; i++)
             {
-                P.Construction.AddTroop(troop);
+                P.Construction.Enqueue(troop);
             }
             GameAudio.AcceptClick();
         }
