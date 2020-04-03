@@ -12,10 +12,11 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairAsteroidBase";
         public override string UID => ID;
-        public Empire Player;
+        public Empire Pirates;
         public CorsairAsteroidBase() : base(GoalType.CorsairAsteroidBase)
         {
-            Steps = new Func<GoalStep>[]
+            Pirates = empire;
+            Steps   = new Func<GoalStep>[]
             {
                SalvageShips
             };
@@ -24,6 +25,7 @@ namespace Ship_Game.Commands.Goals
         {
             empire     = owner;
             TargetShip = ship; // This is the Pirate Base
+            Pirates    = empire;
         }
 
         GoalStep SalvageShips()
@@ -35,25 +37,61 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < system.ShipList.Count; i++)
             {
                 Ship ship = system.ShipList[i];
-                switch (ship.Name)
+                if (ship.InRadius(TargetShip.Center, 1200))
                 {
-                    case "Corsair-Slaver": break;
-                    default:
-                        ship.ScuttleTimer = 1f;
-                        if (ship.IsFreighter)
-                        {
-                            // increase pirate threat level
-                        }
-                        else if (ship.isColonyShip)
-                        {
-                            // colonize world?
-                        }
-
-                        break;
+                    switch (ship.Name)
+                    {
+                        case "Corsair-Slaver": ship.QueueTotalRemoval(); break;
+                        default:                SalvageShip(ship);       break;
+                    }
                 }
             }
 
             return GoalStep.TryAgain;
+        }
+
+        void SalvageShip(Ship ship)
+        {
+            if (ship.IsFreighter)
+            {
+                ship.QueueTotalRemoval();
+                Pirates.CorsairsTryLevelUp();
+            }
+            else if (ship.isColonyShip) // colonize world?
+            {
+                ship.QueueTotalRemoval();
+            }
+            else
+            {
+                if (ShouldSalvageCombatShip())  // Do we need to level up?
+                {
+                    ship.QueueTotalRemoval();
+                    Pirates.CorsairsTryLevelUp();
+                }
+                else  // Find a base which orbits a planet and go there
+                {
+
+                    if (Pirates.GetClosestCorsairBasePlanet(ship.Center, out Planet planet))
+                        ship.AI.OrderToOrbit(planet);
+                }
+            }
+        }
+
+        bool ShouldSalvageCombatShip()
+        {
+            var empires         = EmpireManager.Empires.Filter(e => !e.isFaction);
+            bool needMoreLevels = false;
+            for (int i = 0; i < empires.Length; i++)
+            {
+                Empire victim = empires[i];
+                if (Pirates.PirateThreatLevel < victim.PirateThreatLevel)
+                {
+                    needMoreLevels = true;
+                    break;
+                }
+            }
+
+            return needMoreLevels; 
         }
     }
 }
