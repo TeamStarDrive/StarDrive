@@ -6,6 +6,7 @@ using Ship_Game.Audio;
 using Ship_Game.Data;
 using Ship_Game.GameScreens;
 using Ship_Game.UI;
+using Ship_Game.Utils;
 using SynapseGaming.LightingSystem.Lights;
 using SynapseGaming.LightingSystem.Rendering;
 
@@ -156,7 +157,6 @@ namespace Ship_Game
                 IsExiting = true;
                 return;
             }
-            
             ScreenManager.RemoveScreen(this);
         }
 
