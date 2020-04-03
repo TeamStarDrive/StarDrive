@@ -10,28 +10,28 @@ namespace Ship_Game.Commands.Goals
 {
     public class CorsairMain : Goal
     {
-        public const string ID     = "CorsairMain";
+        public const string ID  = "CorsairMain";
         public override string UID => ID;
-        public Empire Player;
+        private readonly Empire Pirates;  // For better code readability, we are the pirates
         public CorsairMain() : base(GoalType.CorsairMain)
         {
+            Pirates = empire;
             Steps = new Func<GoalStep>[]
             {
                UpdatePaymentStatus,
                StartPirateActivity,
             };
         }
-        public CorsairMain(Empire owner) : this()
+        public CorsairMain(Empire owner, Empire targetEmpire) : this()
         {
-            empire = owner;
-            Player = EmpireManager.Player;
+            empire       = owner;
+            TargetEmpire = targetEmpire;
+            Pirates      = empire;
         }
-
 
         GoalStep UpdatePaymentStatus()
         {
-            Player = EmpireManager.Player;
-            if (Player.GetPlanets().Count < 3 || !RandomMath.RollDice(10))
+            if (TargetEmpire.GetPlanets().Count < 3 || !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
                 return GoalStep.TryAgain; // Too small for now
 
             return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
@@ -39,36 +39,44 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep StartPirateActivity()
         {
-            Player = EmpireManager.Player;
-            if (Player.TryGetRelations(empire, out Relationship rel) && rel.AtWar)
-                empire.GetEmpireAI().Goals.Add(new CorsairMissionDirector(empire));
+            if (Pirates.GetRelations(TargetEmpire).AtWar)
+                Pirates.GetEmpireAI().Goals.Add(new CorsairMissionDirector(Pirates, TargetEmpire));
 
             return GoalStep.RestartGoal;
         }
 
         bool RequestPayment()
         {
-
-            if (Empire.Universe.StarDate % 10 > 0 && Player.PirateThreatLevel > 0)
+            // Every 10 years, the pirates will demand new payment
+            if (Empire.Universe.StarDate % 10 > 0)
                 return false;
 
-            string encounterString = "First Contact";
-            // Every 10 years, the pirates will demand new payment
-            if (!Player.GetRelations(empire).Known)
-                Player.SetRelationsAsKnown(empire);
+            string encounterString = "Request Money";
+            if (!TargetEmpire.GetRelations(Pirates).Known)
+                TargetEmpire.SetRelationsAsKnown(Pirates);
             else
-                encounterString = "Another Payment Request";
+                encounterString = "Request More Money";
 
-            if (ResourceManager.GetEncounter(empire, "First Contact", out Encounter e))
+            if (ResourceManager.GetEncounter(Pirates, encounterString, out Encounter e))
             {
-                e.MoneyRequested = (Player.PirateThreatLevel.LowerBound(1) * 500); // TODO - difficulty modifiers
-                EncounterPopup.Show(Empire.Universe, Player, empire, e);
+                e.MoneyRequested = MoneyRequested(e.MoneyRequested);
+                EncounterPopup.Show(Empire.Universe, TargetEmpire, Pirates, e);
             }
 
-            if (Player.PirateThreatLevel == 0)
-                Player.SetPirateThreatLevel(Player.PirateThreatLevel + 1);
+            // If they did not pay us, increase our wanted threat level
+            if (Pirates.GetRelations(TargetEmpire).AtWar)
+                TargetEmpire.SetPirateThreatLevel(TargetEmpire.PirateThreatLevel + 1);
 
             return true;
+        }
+
+        int MoneyRequested(int originalPayment)
+        {
+            float payment = originalPayment * Pirates.PirateThreatLevel.LowerBound(1)
+                                            * TargetEmpire.DifficultyModifiers.PiratePayModifier
+                                            * TargetEmpire.GetPlanets().Count / 3;
+
+            return payment.RoundTo10();
         }
     }
 }

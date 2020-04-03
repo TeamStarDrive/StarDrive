@@ -52,7 +52,7 @@ namespace Ship_Game.AI
                 switch (name)
                 {
                     case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
-                    case "Corsairs": Goals.Add(new CorsairMain(OwnerEmpire)); break;
+                    case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
                 }
             }
         }

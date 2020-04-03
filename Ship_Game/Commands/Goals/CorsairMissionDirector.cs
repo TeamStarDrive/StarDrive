@@ -12,7 +12,6 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairMissionDirector";
         public override string UID => ID;
-        public Empire Player;
         public CorsairMissionDirector() : base(GoalType.CorsairMissionDirector)
         {
             Steps = new Func<GoalStep>[]
@@ -20,24 +19,24 @@ namespace Ship_Game.Commands.Goals
                PrepareMission
             };
         }
-        public CorsairMissionDirector(Empire owner) : this()
+        public CorsairMissionDirector(Empire owner, Empire targetEmpire) : this()
         {
-            empire = owner;
+            empire       = owner;
+            TargetEmpire = targetEmpire;
         }
 
         GoalStep PrepareMission()
         {
-            Player           = EmpireManager.Player;
-            Relationship rel = empire.GetRelations(Player);
+            Relationship rel = empire.GetRelations(TargetEmpire);
             if (rel.AtWar)
                 return GoalStep.GoalFailed; // not at war anymore, maybe we got paid
 
             int startChance = rel.TurnsAtWar * 3;
-            if (NumMissions() < Player.PirateThreatLevel  
+            if (NumMissions() < TargetEmpire.PirateThreatLevel  
                 && RandomMath.RollDice(startChance))
             {
                 startChance = 0;
-                empire.GetEmpireAI().Goals.Add(new CorsairTransportRaid(empire));
+                empire.GetEmpireAI().Goals.Add(new CorsairTransportRaid(empire, TargetEmpire));
             }
 
             return GoalStep.TryAgain;

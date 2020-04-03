@@ -587,6 +587,7 @@ namespace Ship_Game
             [Serialize(14)] public Guid TetherTarget;
             [Serialize(15)] public Vector2 TetherOffset;
             [Serialize(16)] public Guid TargetShipGuid;
+            [Serialize(17)] public Empire TargetEmpire;
         }
 
         public class GSAISAVE

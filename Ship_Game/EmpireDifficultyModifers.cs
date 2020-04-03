@@ -19,6 +19,7 @@
         public readonly float FleetCompletenessMin;
         public readonly float EnemyTroopStrength;
         public readonly int MineralDecayDivider;
+        public readonly float PiratePayModifier;
 
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
@@ -38,6 +39,7 @@
                     CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 200;
+                    PiratePayModifier    = 0.5f;
                     break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
@@ -52,6 +54,7 @@
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 100;
+                    PiratePayModifier    = 1f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -65,6 +68,7 @@
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 75;
+                    PiratePayModifier    = 2f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -78,6 +82,7 @@
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 50;
+                    PiratePayModifier    = 4f;
                     break;
             }
 
