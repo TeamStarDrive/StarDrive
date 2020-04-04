@@ -74,6 +74,8 @@ namespace Ship_Game
         public float FoodConsumptionPerColonist => NonCybernetic ? ConsumptionPerColonist : 0;
         public float ProdConsumptionPerColonist => IsCybernetic ? ConsumptionPerColonist : 0;
 
+        public IReadOnlyList<QueueItem> ConstructionQueue => Construction.GetConstructionQueue();
+
         public bool WeCanLandTroopsViaSpacePort(Empire us) => HasSpacePort && Owner == us && !SpaceCombatNearPlanet;
 
         public int CountEmpireTroops(Empire us) => TroopManager.NumEmpireTroops(us);
@@ -1066,7 +1068,7 @@ namespace Ship_Game
             if (removeOwner)
                 ParentSystem.OwnerList.Remove(Owner);
 
-            ConstructionQueue.Clear();
+            Construction.ClearQueue();
             Owner = null;
         }
 

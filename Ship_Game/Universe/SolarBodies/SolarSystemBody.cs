@@ -155,7 +155,7 @@ namespace Ship_Game
         public bool IsConstructing => Construction.NotEmpty;
         public bool NotConstructing => Construction.Empty;
         public int NumConstructing => Construction.Count;
-        public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
+        //public Array<QueueItem> ConstructionQueue => Construction.ConstructionQueue;
         public Array<string> Guardians = new Array<string>();
         public Array<string> PlanetFleets = new Array<string>();
         public Map<Guid, Ship> OrbitalStations = new Map<Guid, Ship>();
@@ -443,7 +443,7 @@ namespace Ship_Game
         {
             var thisPlanet = (Planet)this;
 
-            ConstructionQueue.Clear();
+            thisPlanet.Construction.ClearQueue();
             thisPlanet.UpdateTerraformPoints(0);
             foreach (PlanetGridSquare planetGridSquare in TilesList)
                 planetGridSquare.QItem = null;
@@ -469,7 +469,7 @@ namespace Ship_Game
                             ParentSystem.OwnerList.Remove(Owner);
                         Owner = null;
                     }
-                    ConstructionQueue.Clear();
+                    Construction.ClearQueue();
                     return;
                 }
             }
@@ -512,7 +512,7 @@ namespace Ship_Game
             Owner = newOwner;
             thisPlanet.ResetGarrisonSize();
             TurnsSinceTurnover = 0;
-            ConstructionQueue.Clear();
+            Construction.ClearQueue();
             ParentSystem.OwnerList.Clear();
 
             foreach (Planet planet in ParentSystem.PlanetList)

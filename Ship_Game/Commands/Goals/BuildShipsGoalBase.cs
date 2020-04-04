@@ -68,7 +68,7 @@ namespace Ship_Game.Commands.Goals
             if (!FindPlanetToBuildShipAt(portType, template, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.AddShip(template, this);
+            planet.Construction.Enqueue(template, this);
             return GoalStep.GoToNextStep;
         }
     }

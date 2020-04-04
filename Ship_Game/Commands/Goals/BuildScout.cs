@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals
             if (!empire.FindPlanetToBuildAt(empire.SafeSpacePorts, scout, out Planet planet))
                 return GoalStep.TryAgain;
 
-            planet.Construction.AddShip(scout, this, notifyOnEmpty: false);
+            planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
        

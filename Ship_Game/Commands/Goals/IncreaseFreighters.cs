@@ -33,7 +33,7 @@ namespace Ship_Game.Commands.Goals
             if (!FindPlanetToBuildShipAt(SpacePortType.Safe, freighter, out Planet planet))
                 return GoalStep.GoalFailed;
 
-            planet.Construction.AddShip(freighter, this, notifyOnEmpty: false);
+            planet.Construction.Enqueue(freighter, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 

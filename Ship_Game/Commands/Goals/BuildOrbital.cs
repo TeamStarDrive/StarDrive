@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals  // Created by Fat Bastard
                 }
             }
 
-            PlanetBuildingAt.Construction.AddPlatform(orbital, ShipToBuild, this);
+            PlanetBuildingAt.Construction.Enqueue(orbital, ShipToBuild, this);
             return GoalStep.GoToNextStep;
         }
 
