@@ -327,7 +327,7 @@ namespace Ship_Game
                 return;  // Build one militia at a time
 
             Troop cheapestTroop = ResourceManager.GetTroopTemplatesFor(Owner).First();
-            Construction.AddTroop(cheapestTroop);
+            Construction.Enqueue(cheapestTroop);
         }
 
         void BuildAndScrapMilitaryBuildings(float budget)
@@ -350,7 +350,7 @@ namespace Ship_Game
                                  , b => b.CostEffectiveness);
 
             if (building != null)
-                Construction.AddBuilding(building);
+                Construction.Enqueue(building);
         }
         
         void TryScrapMilitaryBuilding()

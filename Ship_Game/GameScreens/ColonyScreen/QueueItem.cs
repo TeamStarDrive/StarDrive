@@ -55,6 +55,8 @@ namespace Ship_Game
             Planet = planet;
         }
 
+        public void SetCanceled(bool state = true) => IsCancelled = state;
+
         public void DrawAt(SpriteBatch batch, Vector2 at)
         {
             var r = new Rectangle((int)at.X, (int)at.Y, 29, 30);
