@@ -60,7 +60,7 @@ namespace Ship_Game.AI
         public Ship ShipToBuild;  // this is a template
         private Ship ShipBuilt; // this is the actual ship that was built
         public Ship OldShip;      // this is the ship which needs refit
-        public Ship TargetShip;      // Any this that is targeted by this goal (raids)
+        public Ship TargetShip;      // this is targeted by this goal (raids)
         public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
