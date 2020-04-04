@@ -12,6 +12,8 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairTransportRaid";
         public override string UID => ID;
+        private Empire Pirates;
+
         public CorsairTransportRaid() : base(GoalType.CorsairTransportRaid)
         {
             Steps = new Func<GoalStep>[]
@@ -20,17 +22,24 @@ namespace Ship_Game.Commands.Goals
                CheckIfHijacked
             };
         }
+
         public CorsairTransportRaid(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
 
+            PostInit();
             Log.Info(ConsoleColor.Green, $"---- New Pirate Transport Raid vs. {targetEmpire.Name} ----");
+        }
+
+        public sealed override void PostInit()
+        {
+            Pirates = empire;
         }
 
         GoalStep DetectAndSpawnRaidForce()
         {
-            if (!empire.GetRelations(TargetEmpire).AtWar)
+            if (!Pirates.GetRelations(TargetEmpire).AtWar)
                 return GoalStep.GoalFailed; // They paid
 
             int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 10;
@@ -58,10 +67,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep CheckIfHijacked()
         {
 
-            if (!TargetShip.Active || TargetShip.loyalty != empire && !TargetShip.Inhibited)
+            if (!TargetShip.Active || TargetShip.loyalty != Pirates && !TargetShip.Inhibited)
                 return GoalStep.GoalFailed; // Target destroyed or escaped
 
-            return TargetShip.loyalty == empire ? GoalStep.GoalComplete :  GoalStep.TryAgain;
+            return TargetShip.loyalty == Pirates ? GoalStep.GoalComplete :  GoalStep.TryAgain;
         }
 
         bool ScanFreightersAtWarp(out Ship freighter)
@@ -113,8 +122,9 @@ namespace Ship_Game.Commands.Goals
             if (where == Vector2.Zero)
                 where = freighter.Center + RandomMath.Vector2D(1000);
 
-            TargetShip        = freighter; // This is the main target, we want this to arrive to our base
-            Ship boardingShip = Ship.CreateShipAtPoint("Corsair-Slaver", empire, where);
+            Empire.PirateForces forces = new Empire.PirateForces(Pirates);
+            TargetShip                 = freighter; // This is the main target, we want this to arrive to our base
+            Ship boardingShip          = Ship.CreateShipAtPoint(forces.BoardingShip, Pirates, where);
             boardingShip?.AI.OrderAttackSpecificTarget(freighter);
         }
 
@@ -124,7 +134,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < freighters.Count.UpperBound(TargetEmpire.PirateThreatLevel); i++)
             {
                 Ship freighter = freighters[i];
-                Ship.CreateShipAtPoint("Corsair-Slaver", empire, freighter.Center + RandomMath.Vector2D(1000));
+                Ship.CreateShipAtPoint("Corsair-Slaver", Pirates, freighter.Center + RandomMath.Vector2D(1000));
             }
 
             // also spawn escort ships by planet defense str / number of freighters

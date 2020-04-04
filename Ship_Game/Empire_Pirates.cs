@@ -117,5 +117,46 @@ namespace Ship_Game
                 // do increased level stuff - like deploy  a new asteroid base
             }
         }
+
+        public struct PirateForces
+        {
+            public readonly string Fighter;
+            public readonly string Frigate;
+            public readonly string BoardingShip;
+            public readonly string Base;
+            public readonly string Station;
+
+            public PirateForces(Empire pirates)
+            {
+                switch (pirates.PirateThreatLevel)
+                {
+                    case 1:
+                    case 2:
+                    case 3: 
+                        Fighter      = pirates.data.PirateFighterBasic;
+                        Frigate      = pirates.data.PirateFrigateBasic;
+                        BoardingShip = pirates.data.PirateSlaverBasic;
+                        Base         = pirates.data.PirateBaseBasic;
+                        Station      = pirates.data.PirateStationBasic;
+                        break;
+                    case 4:
+                    case 5:
+                    case 6:
+                        Fighter      = pirates.data.PirateFighterImproved;
+                        Frigate      = pirates.data.PirateFrigateImproved;
+                        BoardingShip = pirates.data.PirateSlaverImproved;
+                        Base         = pirates.data.PirateBaseImproved;
+                        Station      = pirates.data.PirateStationImproved;
+                        break;
+                    default:
+                        Fighter      = pirates.data.PirateFighterAdvanced;
+                        Frigate      = pirates.data.PirateFrigateAdvanced;
+                        BoardingShip = pirates.data.PirateSlaverAdvanced;
+                        Base         = pirates.data.PirateBaseAdvanced;
+                        Station      = pirates.data.PirateStationAdvanced;
+                        break;
+                }
+            }
+        }
     }
 }
