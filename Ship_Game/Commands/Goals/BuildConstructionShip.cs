@@ -50,7 +50,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             // toBuild is only used for cost calculation
-            planet.Construction.AddPlatform(toBuild, ShipToBuild, this);
+            planet.Construction.Enqueue(toBuild, ShipToBuild, this);
             return GoalStep.GoToNextStep;
         }
 

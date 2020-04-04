@@ -182,12 +182,12 @@ namespace Ship_Game
 
         void OnConstructionItemReorder(ConstructionQueueScrollListItem item, int oldIndex, int newIndex)
         {
-            P.ConstructionQueue.Reorder(oldIndex, newIndex);
+            P.Construction.Reorder(oldIndex, newIndex);
         }
 
         public bool Build(Building b, PlanetGridSquare where = null)
         {
-            if (P.Construction.AddBuilding(b, where, true))
+            if (P.Construction.Enqueue(b, where, true))
             {
                 GameAudio.AcceptClick();
                 return true;
@@ -212,14 +212,7 @@ namespace Ship_Game
                 }
                 else
                 {
-                    P.ConstructionQueue.Add(new QueueItem(P)
-                    {
-                        isShip = true,
-                        isOrbital = ship.IsPlatformOrStation,
-                        sData = ship.shipData,
-                        Cost = cost,
-                        ProductionSpent = 0f
-                    });
+                    P.Construction.Enqueue(ship);
                 }
             }
             GameAudio.AcceptClick();
@@ -229,13 +222,7 @@ namespace Ship_Game
         {
             for (int i = 0; i < repeat; i++)
             {
-                P.ConstructionQueue.Add(new QueueItem(P)
-                {
-                    isTroop         = true,
-                    TroopType       = troop.Name,
-                    Cost            = troop.ActualCost,
-                    ProductionSpent = 0f
-                });
+                P.Construction.Enqueue(troop);
             }
             GameAudio.AcceptClick();
         }

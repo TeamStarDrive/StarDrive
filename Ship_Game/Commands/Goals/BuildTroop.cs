@@ -33,7 +33,7 @@ namespace Ship_Game.Commands.Goals
             if (empire.FindPlanetToBuildAt(empire.MilitaryOutposts, troopTemplate, out Planet planet))
             {
                 // submit troop into queue
-                planet.Construction.AddTroop(troopTemplate, this);
+                planet.Construction.Enqueue(troopTemplate, this);
                 PlanetBuildingAt = planet;
                 return GoalStep.GoToNextStep;
             }
