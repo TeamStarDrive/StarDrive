@@ -2,6 +2,7 @@
 using Ship_Game.Commands.Goals;
 using Ship_Game.Ships;
 using System;
+using System.Collections.Generic;
 
 namespace Ship_Game.Universe.SolarBodies
 {
@@ -18,7 +19,7 @@ namespace Ship_Game.Universe.SolarBodies
         /// <summary>
         /// The Construction queue should be protected
         /// </summary>
-        public Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
+        readonly Array<QueueItem> ConstructionQueue = new Array<QueueItem>();
 
         float ProductionHere
         {
@@ -34,6 +35,11 @@ namespace Ship_Game.Universe.SolarBodies
         }
 
         bool IsCrippled => P.CrippledTurns > 0 || P.RecentCombat;
+
+        public IReadOnlyList<QueueItem> GetConstructionQueue()
+        {
+            return ConstructionQueue;
+        }
 
         public bool RushProduction(int itemIndex, float maxAmount, bool playerRush = false)
         {
@@ -220,7 +226,7 @@ namespace Ship_Game.Universe.SolarBodies
 
         // @return TRUE if building was added to CQ,
         //         FALSE if `where` is occupied or if there is no free random tiles
-        public bool AddBuilding(Building b, PlanetGridSquare where = null, bool playerAdded = false)
+        public bool Enqueue(Building b, PlanetGridSquare where = null, bool playerAdded = false)
         {
             if (b.Unique || b.BuildOnlyOnce)
             {
@@ -253,7 +259,7 @@ namespace Ship_Game.Universe.SolarBodies
             return false;
         }
 
-        public void AddPlatform(Ship platform, Ship constructor, Goal goal = null)
+        public void Enqueue(Ship platform, Ship constructor, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -270,7 +276,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void AddShip(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
+        public void Enqueue(Ship ship, Goal goal = null, bool notifyOnEmpty = true)
         {
             var qi = new QueueItem(P)
             {
@@ -286,7 +292,7 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void AddTroop(Troop template, Goal goal = null)
+        public void Enqueue(Troop template, Goal goal = null)
         {
             var qi = new QueueItem(P)
             {
@@ -300,16 +306,28 @@ namespace Ship_Game.Universe.SolarBodies
             ConstructionQueue.Add(qi);
         }
 
-        public void Finish(QueueItem q, bool success)
+        public void Enqueue(QueueItem item)
+        {
+            ConstructionQueue.Add(item);
+        }
+
+        void Finish(QueueItem q, bool success)
         {
             if (success) Finish(q);
             else         Cancel(q);
         }
 
-        public void Finish(QueueItem q)
+        void Finish(QueueItem q)
         {
-            P.ConstructionQueue.Remove(q);
+            ConstructionQueue.Remove(q);
             q.OnComplete?.Invoke(success: true);
+        }
+
+        public bool Cancel(Goal g)
+        {
+            QueueItem item = ConstructionQueue.Find(q => q.Goal == g);
+            item?.SetCanceled();
+            return item != null;
         }
 
         public void Cancel(QueueItem q)
@@ -331,20 +349,38 @@ namespace Ship_Game.Universe.SolarBodies
                 }
             }
 
-            P.ConstructionQueue.Remove(q);
+            ConstructionQueue.Remove(q);
             if (q.isBuilding)
                 P.RefreshBuildingsWeCanBuildHere();
 
             q.OnComplete?.Invoke(success: false);
         }
 
-        // Returns maintenance as a positive number
-        public float TotalQueuedBuildingMaintenance()
+        public void Reorder(int oldIndex, int newIndex)
         {
-            float maintenance = 0;
-            foreach (QueueItem b in ConstructionQueue)
-                if (b.isBuilding) maintenance += b.Building.ActualMaintenance(P);
-            return maintenance;
+            ConstructionQueue.Reorder(oldIndex, newIndex);
+        }
+
+        public void Swap(int swapTo, int currentIndex)
+        {
+            swapTo = swapTo.Clamped(0, ConstructionQueue.Count - 1);
+            currentIndex = currentIndex.Clamped(0, ConstructionQueue.Count - 1);
+
+            QueueItem item = ConstructionQueue[swapTo];
+            ConstructionQueue[swapTo] = ConstructionQueue[currentIndex];
+            ConstructionQueue[currentIndex] = item;
+        }
+
+        public void MoveTo(int moveTo, int currentIndex)
+        {
+            QueueItem item = ConstructionQueue[currentIndex];
+            ConstructionQueue.RemoveAt(currentIndex);
+            ConstructionQueue.Insert(moveTo, item);
+        }
+
+        public void ClearQueue()
+        {
+            ConstructionQueue.Clear();
         }
     }
 }

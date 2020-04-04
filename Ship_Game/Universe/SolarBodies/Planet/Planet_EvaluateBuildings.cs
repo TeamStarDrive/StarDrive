@@ -249,7 +249,7 @@ namespace Ship_Game
                 return false;
 
             ChooseBestBuilding(BuildingsCanBuild, budget, out Building bestBuilding);
-            return bestBuilding != null && Construction.AddBuilding(bestBuilding);
+            return bestBuilding != null && Construction.Enqueue(bestBuilding);
         }
 
         bool TryScrapBuilding(bool scrapZeroMaintenance = false)
@@ -285,7 +285,7 @@ namespace Ship_Game
             if (bestBuildingScore > worstBuildingScore + 10)
             {
                 ScrapBuilding(worstBuilding);
-                Construction.AddBuilding(bestBuilding);
+                Construction.Enqueue(bestBuilding);
 
                 Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} Replaced {worstBuilding.Name} " +
                                              $"with {bestBuilding.Name} on planet {Name}");
@@ -500,14 +500,14 @@ namespace Ship_Game
             if (unHabitableTiles.Length > 0) // try to build a terraformer on an unhabitable tile first
             {
                 PlanetGridSquare tile = TilesList.First(t => !t.Habitable && !t.BuildingOnTile);
-                Construction.AddBuilding(terraformer, tile);
+                Construction.Enqueue(terraformer, tile);
             }
-            else if (!Construction.AddBuilding(terraformer)) 
+            else if (!Construction.Enqueue(terraformer)) 
             {
                 // If could not add a terraformer anywhere due to planet being full
                 // try to scrap a building and then retry construction
                 if (TryScrapBuilding(scrapZeroMaintenance: true))
-                    Construction.AddBuilding(terraformer);
+                    Construction.Enqueue(terraformer);
             }}
         
         int NumWantedTerraformers
@@ -550,7 +550,7 @@ namespace Ship_Game
                 if (IsPlanetExtraDebugTarget())
                     Log.Info(ConsoleColor.Green, $"{Owner.PortraitName} BUILT {bio.Name} on planet {Name}");
 
-                return Construction.AddBuilding(bio);
+                return Construction.Enqueue(bio);
             }
 
             return false;
@@ -573,7 +573,7 @@ namespace Ship_Game
                 return;
 
             // Build it!
-            Construction.AddBuilding(ResourceManager.CreateBuilding(Building.OutpostId));
+            Construction.Enqueue(ResourceManager.CreateBuilding(Building.OutpostId));
 
             // Move Outpost to the top of the list, and rush production
             for (int i = 0; i < ConstructionQueue.Count; ++i)
@@ -581,8 +581,7 @@ namespace Ship_Game
                 QueueItem q = ConstructionQueue[i];
                 if (q.isBuilding && q.Building.IsOutpost)
                 {
-                    ConstructionQueue.RemoveAt(i);
-                    ConstructionQueue.Insert(0, q);
+                    Construction.MoveTo(0, i);
                     Construction.RushProduction(0, ProdHere);
                     break;
                 }

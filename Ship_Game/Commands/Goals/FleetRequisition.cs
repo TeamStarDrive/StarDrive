@@ -49,7 +49,7 @@ namespace Ship_Game.Commands.Goals
             if (PlanetBuildingAt == null)
                 return GoalStep.TryAgain;
             
-            PlanetBuildingAt.Construction.AddShip(ShipToBuild, this, notifyOnEmpty: false);
+            PlanetBuildingAt.Construction.Enqueue(ShipToBuild, this, notifyOnEmpty: false);
             return GoalStep.GoToNextStep;
         }
 
