@@ -111,41 +111,103 @@ namespace Ship_Game
 
         public void IncreasePirateThreatLevel()
         {
-            SetPirateThreatLevel((PirateThreatLevel + 1).UpperBound(20));
-            if (this == EmpireManager.Corsairs)
-            {
-                PirateNewLevelOps(PirateThreatLevel);
-            }
+            int newLevel = PirateThreatLevel + 1;
+            if (this != EmpireManager.Corsairs || PirateNewLevelOps(newLevel))
+                SetPirateThreatLevel((PirateThreatLevel + 1).UpperBound(20));
         }
 
-        void PirateNewLevelOps(int level)
+        bool PirateNewLevelOps(int level)
         {
+            if (this != EmpireManager.Corsairs)
+                return false;
+
+            // ToDo add FTL and power bonus
+            // ToDo add station build if level / 3
             NewPirateBaseSpot spotType = (NewPirateBaseSpot)RandomMath.IntBetween(0, 3);
             switch (spotType)
             {
                 case NewPirateBaseSpot.GasGiant:
-                case NewPirateBaseSpot.Habitable:    BuildPirateBaseOrbitingPlanet(spotType); break;
-                case NewPirateBaseSpot.AsteroidBelt: BuildPirateBaseInAsteroids();            break;
+                case NewPirateBaseSpot.Habitable:    return BuildPirateBaseOrbitingPlanet(spotType);
+                case NewPirateBaseSpot.AsteroidBelt: return BuildPirateBaseInAsteroids();
+                case NewPirateBaseSpot.DeepSpace:    return BuildPirateBaseInDeepSpace();
+                default:                             return false;
+            }
+        }
+
+        bool BuildPirateBaseInDeepSpace()
+        {
+            if (!GetPirateBaseSpotDeepSpace(out Vector2 pos))
+                return false; ; 
+
+            return SpawnPirateShip(PirateShipType.Base, pos, out _);
+        }
+
+        bool BuildPirateBaseInAsteroids()
+        {
+            if (GetPirateBaseAsteroidsSpot(out Vector2 pos))
+                return SpawnPirateShip(PirateShipType.Base, pos, out _);
+
+            return BuildPirateBaseInDeepSpace();
+        }
+
+        bool BuildPirateBaseOrbitingPlanet(NewPirateBaseSpot spot)
+        {
+            if (GetPirateBasePlanet(spot, out Planet planet))
+            {
+                Vector2 pos = planet.Center.GenerateRandomPointInsideCircle(2000);
+                if (SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
+                {
+                    pirateBase.TetherToPlanet(planet);
+                    return true;
+                }
+            }
+            else
+            {
+                return BuildPirateBaseInDeepSpace();
             }
 
+            return false;
         }
 
-        void BuildPirateBaseInAsteroids()
+        bool  GetPirateBaseSpotDeepSpace(out Vector2 position)
         {
-            if (!GetPirateBaseAsteroidsSpot(out Vector2 pos))
-                return;  // build in deep space
+            position = Vector2.Zero;
 
-            SpawnPirateShip(PirateShipType.Base, pos, out _);
+            Empire[] empires = EmpireManager.Empires.Filter(e => !e.isFaction)
+                .SortedDescending(e => e.PirateThreatLevel);
+
+            // search for a hidden place near an empire from 400K to 300K
+            for (int i = 0; i <= 50; i++)
+            {
+                int spaceReduction = i * 2000;
+                foreach (Empire victim in empires)
+                {
+                    SolarSystem system = victim.GetOwnedSystems().RandItem();
+                    var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
+                    foreach (Empire empire in empires)
+                    {
+                        if (empire.SensorNodes.Any(n => n.Position.InRadius(pos, n.Radius)))
+                            break;
+                    }
+
+                    position = pos; // We found a position not in sensor range of any empire
+                    return true;
+                }
+
+
+            }
+            return false; // We did not find a hidden position
         }
 
-        void BuildPirateBaseOrbitingPlanet(NewPirateBaseSpot spot)
+        Vector2 PickAPositionNearSystem(SolarSystem system, float radius)
         {
-            if (!GetPirateBasePlanet(spot, out Planet planet))
-                return; // build in deep space
+            Vector2 pos;
+            do
+            {
+                pos = system.Position.GenerateRandomPointOnCircle(radius);
+            } while (!HelperFunctions.IsInUniverseBounds(Universe.UniverseSize, pos));
 
-            Vector2 pos        = planet.Center.GenerateRandomPointInsideCircle(2000);
-            if (SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
-                pirateBase.TetherToPlanet(planet);
+            return pos;
         }
 
 
