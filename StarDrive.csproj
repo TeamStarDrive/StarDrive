@@ -1812,8 +1812,7 @@
     <Content Include="Content\Encounter Dialogs\Encounter_Corsair_RequestMoney_0.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\Encounter_Corsair_RequestMoney_1.xml" />
-    <Content Include="Content\Encounter Dialogs\Encounter_Revoran_0.xml">
+    <Content Include="Content\Encounter Dialogs\Encounter_Corsair_RequestMoney_1.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Exploration Events\Default.xml">
