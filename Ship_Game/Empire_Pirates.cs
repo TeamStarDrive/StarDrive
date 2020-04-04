@@ -168,6 +168,7 @@ namespace Ship_Game
             }
 
             data.BaseShipLevel = level / 4;
+            EmpireShipBonuses.RefreshBonuses(this);
         }
 
         bool BuildPirateBaseInDeepSpace()
