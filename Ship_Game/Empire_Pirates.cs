@@ -154,7 +154,10 @@ namespace Ship_Game
                 Vector2 pos       = planet?.Center ?? selectedBase.Center;
                 pos.GenerateRandomPointInsideCircle(2000);
                 if (SpawnPirateShip(PirateShipType.Station, pos, out Ship station) && planet != null)
+                {
                     station.TetherToPlanet(planet);
+                    //EmpireAI.Goals.Add(new CorsairStation(this, station));
+                }
             }
         }
 
@@ -174,15 +177,23 @@ namespace Ship_Game
         bool BuildPirateBaseInDeepSpace()
         {
             if (!GetPirateBaseSpotDeepSpace(out Vector2 pos))
-                return false; ; 
+                return false; ;
 
-            return SpawnPirateShip(PirateShipType.Base, pos, out _);
+            if (!SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase)) 
+                return false;
+
+            EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase));
+            return true;
         }
 
         bool BuildPirateBaseInAsteroids()
         {
-            if (GetPirateBaseAsteroidsSpot(out Vector2 pos))
-                return SpawnPirateShip(PirateShipType.Base, pos, out _);
+            if (GetPirateBaseAsteroidsSpot(out Vector2 pos)
+                && SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
+            {
+                EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase));
+                return true;
+            }
 
             return BuildPirateBaseInDeepSpace();
         }
@@ -195,6 +206,7 @@ namespace Ship_Game
                 if (SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
                 {
                     pirateBase.TetherToPlanet(planet);
+                    EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase));
                     return true;
                 }
             }
@@ -230,9 +242,8 @@ namespace Ship_Game
                     position = pos; // We found a position not in sensor range of any empire
                     return true;
                 }
-
-
             }
+
             return false; // We did not find a hidden position
         }
 
