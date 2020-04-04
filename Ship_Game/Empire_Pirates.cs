@@ -121,17 +121,53 @@ namespace Ship_Game
             if (this != EmpireManager.Corsairs)
                 return false;
 
-            // ToDo add FTL and power bonus
-            // ToDo add station build if level / 3
+            bool success;
             NewPirateBaseSpot spotType = (NewPirateBaseSpot)RandomMath.IntBetween(0, 3);
             switch (spotType)
             {
                 case NewPirateBaseSpot.GasGiant:
-                case NewPirateBaseSpot.Habitable:    return BuildPirateBaseOrbitingPlanet(spotType);
-                case NewPirateBaseSpot.AsteroidBelt: return BuildPirateBaseInAsteroids();
-                case NewPirateBaseSpot.DeepSpace:    return BuildPirateBaseInDeepSpace();
-                default:                             return false;
+                case NewPirateBaseSpot.Habitable:    success = BuildPirateBaseOrbitingPlanet(spotType); break;
+                case NewPirateBaseSpot.AsteroidBelt: success = BuildPirateBaseInAsteroids();            break;
+                case NewPirateBaseSpot.DeepSpace:    success = BuildPirateBaseInDeepSpace();            break;
+                default:                             success = false;                                   break;
             }
+
+            if (success)
+            {
+                PirateAdvanceInTech(level);
+                PirateBuildStation(level);
+            }
+
+            return success;
+        }
+
+        void PirateBuildStation(int level)
+        {
+            GetCorsairStations(out Array<Ship> stations);
+            if (stations.Count >= level / 2)
+                return; // too many stations
+
+            if (GetCorsairBases(out Array<Ship> bases))
+            {
+                Ship selectedBase = bases.RandItem();
+                Planet planet     = selectedBase.GetTether();
+                Vector2 pos       = planet?.Center ?? selectedBase.Center;
+                pos.GenerateRandomPointInsideCircle(2000);
+                if (SpawnPirateShip(PirateShipType.Station, pos, out Ship station) && planet != null)
+                    station.TetherToPlanet(planet);
+            }
+        }
+
+        void PirateAdvanceInTech(int level)
+        {
+            switch (level)
+            {
+                case 2: data.FuelCellModifier      = 1.2f.LowerBound(data.FuelCellModifier); break;
+                case 3: data.FuelCellModifier      = 1.4f.LowerBound(data.FuelCellModifier); break;
+                case 4: data.FTLPowerDrainModifier = 0.8f;                                   break;
+            }
+
+            data.BaseShipLevel = level / 4;
         }
 
         bool BuildPirateBaseInDeepSpace()
