@@ -226,7 +226,6 @@ namespace Ship_Game
                         VanityName    = g.VanityName,
                         TetherTarget  = g.TetherTarget,
                         TetherOffset  = g.TetherOffset,
-                        TargetEmpire  = g.TargetEmpire
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
@@ -235,6 +234,7 @@ namespace Ship_Game
                     if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
                     if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
                     if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
+                    if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
 
                     return gdata;
                 });
@@ -589,7 +589,7 @@ namespace Ship_Game
             [Serialize(14)] public Guid TetherTarget;
             [Serialize(15)] public Vector2 TetherOffset;
             [Serialize(16)] public Guid TargetShipGuid;
-            [Serialize(17)] public Empire TargetEmpire;
+            [Serialize(17)] public int TargetEmpireId;
         }
 
         public class GSAISAVE
