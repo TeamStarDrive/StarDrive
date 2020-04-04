@@ -75,7 +75,7 @@ namespace Ship_Game.Commands.Goals
             {
                 ship.QueueTotalRemoval();
             }
-            else
+            else // This is a combat ship
             {
                 if (ShouldSalvageCombatShip())  // Do we need to level up?
                 {
@@ -90,6 +90,10 @@ namespace Ship_Game.Commands.Goals
                             ship.AI.OrderToOrbit(planet);
                     }
                 }
+
+                // We can use this ship in future endeavors, ha ha ha!
+                if (!Pirates.ShipsWeCanBuild.Contains(ship.Name))
+                    Pirates.ShipsWeCanBuild.Add(ship.Name);
             }
         }
 

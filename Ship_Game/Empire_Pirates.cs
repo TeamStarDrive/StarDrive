@@ -120,32 +120,80 @@ namespace Ship_Game
 
         void PirateNewLevelOps(int level)
         {
+            NewPirateBaseSpot spotType = (NewPirateBaseSpot)RandomMath.IntBetween(0, 3);
+            switch (spotType)
+            {
+                case NewPirateBaseSpot.GasGiant:
+                case NewPirateBaseSpot.Habitable:    BuildPirateBaseOrbitingPlanet(spotType); break;
+                case NewPirateBaseSpot.AsteroidBelt: BuildPirateBaseInAsteroids();            break;
+            }
 
         }
-        /*
-        bool GetPirateBaseSpot(NewPirateBaseSpot spot, out SolarSystem.Ring selectedRing)
+
+        void BuildPirateBaseInAsteroids()
         {
+            if (!GetPirateBaseAsteroidsSpot(out Vector2 pos))
+                return;  // build in deep space
+
+            SpawnPirateShip(PirateShipType.Base, pos, out _);
+        }
+
+        void BuildPirateBaseOrbitingPlanet(NewPirateBaseSpot spot)
+        {
+            if (!GetPirateBasePlanet(spot, out Planet planet))
+                return; // build in deep space
+
+            Vector2 pos        = planet.Center.GenerateRandomPointInsideCircle(2000);
+            if (SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
+                pirateBase.TetherToPlanet(planet);
+        }
+
+
+        bool GetPirateBaseAsteroidsSpot(out Vector2 position)
+        {
+            position = Vector2.Zero;
             if (!GetUnownedSystems(out SolarSystem[] systems))
                 return false;
 
-            if (selectedRing.is)
-            systems.Filter()
-            Array<SolarSystem.Ring> rings = new Array<SolarSystem.Ring>();
+            var systemsWithAsteroids = systems.Filter(s => s.RingList.Any(r => r.Asteroids));
+            if (systemsWithAsteroids.Length == 0)
+                return false;
+
+            SolarSystem selectedSystem = systemsWithAsteroids.RandItem();
+            var asteroidRings          = selectedSystem.RingList.Filter(r => r.Asteroids);
+
+            SolarSystem.Ring selectedRing = asteroidRings.RandItem();
+            position = selectedSystem.Position.GenerateRandomPointOnCircle(selectedRing.OrbitalDistance);
+
+            return position != Vector2.Zero;
+        }
+        
+        bool GetPirateBasePlanet(NewPirateBaseSpot spot, out Planet selectedPlanet)
+        {
+            selectedPlanet = null;
+            if (!GetUnownedSystems(out SolarSystem[] systems))
+                return false;
+
+            Array<Planet> planets = new Array<Planet>();
             for (int i = 0; i < systems.Length; i++)
             {
                 SolarSystem system = systems[i];
-                for (int j = 0; j < system.RingList.Count; j++)
+                switch (spot)
                 {
-                    SolarSystem.Ring ring = system.RingList[j];
-                    switch (spot)
-                    {
-                        case NewPirateBaseSpot.AsteroidBelt when ring.Asteroids:
-                        case NewPirateBaseSpot.Habitable    when ring.planet?.Habitable == true: 
-                        case NewPirateBaseSpot.GasGiant     when ring.planet?.Category == PlanetCategory.GasGiant: rings.Add(ring); break;
-                    }
+                    case NewPirateBaseSpot.Habitable: 
+                        planets.AddRange(system.PlanetList.Filter(p => p.Habitable)); 
+                        break;
+                    case NewPirateBaseSpot.GasGiant: 
+                        planets.AddRange(system.PlanetList.Filter(p => p.Category == PlanetCategory.GasGiant)); 
+                        break;
                 }
             }
-        }*/
+            if (planets.Count == 0)
+                return false;
+
+            selectedPlanet = planets.RandItem();
+            return selectedPlanet != null;
+        }
 
         bool GetUnownedSystems(out SolarSystem[] systems)
         {
@@ -194,6 +242,23 @@ namespace Ship_Game
             }
         }
 
+        public bool SpawnPirateShip(PirateShipType shipType, Vector2 where, out Ship pirateShip)
+        {
+            PirateForces forces = new PirateForces(this);
+            string shipName = "";
+            switch (shipType)
+            {
+                case PirateShipType.Fighter:  shipName = forces.Fighter;      break;
+                case PirateShipType.Frigate:  shipName = forces.Frigate;      break;
+                case PirateShipType.Boarding: shipName = forces.BoardingShip; break;
+                case PirateShipType.Base:     shipName = forces.Base;         break;
+                case PirateShipType.Station:  shipName = forces.Station;      break;
+            }
+
+            pirateShip = Ship.CreateShipAtPoint(forces.BoardingShip, this, where);
+            return shipName.NotEmpty() && pirateShip != null;
+        }
+
         enum NewPirateBaseSpot
         {
             AsteroidBelt,
@@ -201,5 +266,14 @@ namespace Ship_Game
             Habitable,
             DeepSpace
         }
+    }
+
+    public enum PirateShipType
+    {
+        Fighter,
+        Frigate,
+        Boarding,
+        Base,
+        Station
     }
 }
