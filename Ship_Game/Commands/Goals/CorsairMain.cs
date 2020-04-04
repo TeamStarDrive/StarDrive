@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                UpdatePaymentStatus,
-               StartPirateActivity,
+               UpdatePirateActivity,
             };
         }
         public CorsairMain(Empire owner, Empire targetEmpire) : this()
@@ -38,18 +38,32 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep UpdatePaymentStatus()
         {
-            if (TargetEmpire.GetPlanets().Count < 3 || !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
+            if (TargetEmpire.GetPlanets().Count < 3
+                || TargetEmpire.GetPlanets().Count == 3 && !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
+            {
                 return GoalStep.TryAgain; // Too small for now
+            }
 
             return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
 
-        GoalStep StartPirateActivity()
+        GoalStep UpdatePirateActivity()
         {
             if (Pirates.GetRelations(TargetEmpire).AtWar)
             {
-                TargetEmpire.SetPirateThreatLevel(TargetEmpire.PirateThreatLevel + 1);
-                Pirates.GetEmpireAI().Goals.Add(new CorsairMissionDirector(Pirates, TargetEmpire));
+                // They did not pay! We will raid them
+                TargetEmpire.IncreasePirateThreatLevel();
+                var goals = Pirates.GetEmpireAI().Goals;
+                using (goals.AcquireWriteLock())
+                {
+                    if (!goals.Any(g => g.type == GoalType.CorsairMissionDirector && g.TargetEmpire == TargetEmpire))
+                        Pirates.GetEmpireAI().Goals.Add(new CorsairMissionDirector(Pirates, TargetEmpire));
+                }
+            }
+            else
+            {
+                // Ah, so they paid us,  we can use this money to expand our business 
+                Pirates.CorsairsTryLevelUp();
             }
 
             return GoalStep.RestartGoal;
@@ -60,6 +74,11 @@ namespace Ship_Game.Commands.Goals
             // Every 10 years, the pirates will demand new payment or immediately if the threat level is -1 (initial)
             if (Empire.Universe.StarDate % 10 > 0 && TargetEmpire.PirateThreatLevel > -1)
                 return false;
+
+            // If they did not pay, don't ask for another payment, let the crawl to
+            // us when they are ready to pay
+            if (Pirates.GetRelations(TargetEmpire).AtWar)
+                return true;
 
             string encounterString = "Request Money";
             if (!TargetEmpire.GetRelations(Pirates).Known)
