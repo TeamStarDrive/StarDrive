@@ -24,9 +24,8 @@ namespace Ship_Game.Commands.Goals
         }
         public CorsairAsteroidBase(Empire owner, Ship ship) : this()
         {
-            Pirates    = empire;
-            PirateBase = TargetShip;
-
+            empire     = owner;
+            TargetShip = ship;
             PostInit();
             Log.Info(ConsoleColor.Green, $"---- New Pirate Asteroid Base in {PirateBase.SystemName} ----");
         }
@@ -40,19 +39,25 @@ namespace Ship_Game.Commands.Goals
         GoalStep SalvageShips()
         {
             if (PirateBase == null || !PirateBase.Active)
+            {
+                Pirates.ReduceOverallPirateThreatLevel();
                 return GoalStep.GoalFailed; // Base is destroyed
+            }
 
             SolarSystem system = PirateBase.System;
             for (int i = 0; i < system.ShipList.Count; i++)
             {
                 Ship ship = system.ShipList[i];
-                if (ship.InRadius(PirateBase.Center, 1200))
+                if (ship.loyalty == Pirates
+                    && ship.shipData.ShipStyle == Pirates.data.Singular // when spawning ships change their style to corsair
+                    && ship.InRadius(PirateBase.Center, 1200))
                 {
-                    switch (ship.Name)
-                    {
-                        case "Corsair-Slaver": ship.QueueTotalRemoval(); break;
-                        default:                SalvageShip(ship);       break;
-                    }
+                    // Default Corsair Raiders are removed with no reward
+                    ship.QueueTotalRemoval();
+                }
+                else
+                {
+                    SalvageShip(ship);
                 }
             }
 

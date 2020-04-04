@@ -12,21 +12,47 @@ namespace Ship_Game
 {
     public partial class Empire
     {
-        bool GetCorsairOrbitals(out Array<Ship> bases, string baseName)
+        bool GetCorsairOrbitals(out Array<Ship> orbitals, Array<string> orbitalNames)
         {
-            bases = new Array<Ship>();
+            orbitals = new Array<Ship>();
             for (int i = 0; i < OwnedShips.Count; i++)
             {
                 Ship ship = OwnedShips[i];
-                if (ship.Name == baseName)
-                    bases.Add(ship);
+                if (orbitalNames.Contains(ship.Name))
+                    orbitals.Add(ship);
             }
 
-            return bases.Count > 0;
+            return orbitals.Count > 0;
         }
 
-        public bool GetCorsairBases(out Array<Ship> bases)    => GetCorsairOrbitals(out bases, "Corsair Asteroid Base");
-        public bool GetCorsairStations(out Array<Ship> bases) => GetCorsairOrbitals(out bases, "Corsair Station");
+        public bool GetCorsairBases(out Array<Ship> bases)    => GetCorsairOrbitals(out bases, CorsairBases());
+        public bool GetCorsairStations(out Array<Ship> bases) => GetCorsairOrbitals(out bases, CorsairStations());
+
+        Array<string> CorsairBases()
+        {
+            Array<string> bases = new Array<string>();
+            if (this != EmpireManager.Corsairs)
+                return bases; // Only for pirates
+
+            bases.Add(data.PirateBaseBasic);
+            bases.Add(data.PirateBaseImproved);
+            bases.Add(data.PirateBaseAdvanced);
+
+            return bases;
+        }
+
+        Array<string> CorsairStations()
+        {
+            Array<string> stations = new Array<string>();
+            if (this != EmpireManager.Corsairs)
+                return stations; // Only for pirates
+
+            stations.Add(data.PirateStationBasic);
+            stations.Add(data.PirateStationImproved);
+            stations.Add(data.PirateStationAdvanced);
+
+            return stations;
+        }
 
         bool GetCorsairOrbitalsOrbitingPlanets(out Array<Ship> planetBases)
         {
@@ -63,7 +89,33 @@ namespace Ship_Game
                 return; // Only for pirates
 
             if (RandomMath.RollDie(20) > PirateThreatLevel)
-                PirateThreatLevel = (PirateThreatLevel + 1).Clamped(0, 20);
+                IncreasePirateThreatLevel();
+        }
+
+        public void ReduceOverallPirateThreatLevel()
+        {
+            var empires = EmpireManager.Empires.Filter(e => !e.isFaction);
+            for (int i = 0; i < empires.Length; i++)
+            {
+                Empire empire = empires[i];
+                empire.SetPirateThreatLevel((empire.PirateThreatLevel - 1).LowerBound(1));
+            }
+
+            SetPirateThreatLevel(PirateThreatLevel - 1);
+            if (PirateThreatLevel < 1)
+            {
+                EmpireAI.Goals.Clear();
+                SetAsDefeated();
+            }
+        }
+
+        public void IncreasePirateThreatLevel()
+        {
+            SetPirateThreatLevel((PirateThreatLevel + 1).UpperBound(20));
+            if (this == EmpireManager.Corsairs)
+            {
+                // do increased level stuff - like deploy  a new asteroid base
+            }
         }
     }
 }
