@@ -114,8 +114,43 @@ namespace Ship_Game
             SetPirateThreatLevel((PirateThreatLevel + 1).UpperBound(20));
             if (this == EmpireManager.Corsairs)
             {
-                // do increased level stuff - like deploy  a new asteroid base
+                PirateNewLevelOps(PirateThreatLevel);
             }
+        }
+
+        void PirateNewLevelOps(int level)
+        {
+
+        }
+        /*
+        bool GetPirateBaseSpot(NewPirateBaseSpot spot, out SolarSystem.Ring selectedRing)
+        {
+            if (!GetUnownedSystems(out SolarSystem[] systems))
+                return false;
+
+            if (selectedRing.is)
+            systems.Filter()
+            Array<SolarSystem.Ring> rings = new Array<SolarSystem.Ring>();
+            for (int i = 0; i < systems.Length; i++)
+            {
+                SolarSystem system = systems[i];
+                for (int j = 0; j < system.RingList.Count; j++)
+                {
+                    SolarSystem.Ring ring = system.RingList[j];
+                    switch (spot)
+                    {
+                        case NewPirateBaseSpot.AsteroidBelt when ring.Asteroids:
+                        case NewPirateBaseSpot.Habitable    when ring.planet?.Habitable == true: 
+                        case NewPirateBaseSpot.GasGiant     when ring.planet?.Category == PlanetCategory.GasGiant: rings.Add(ring); break;
+                    }
+                }
+            }
+        }*/
+
+        bool GetUnownedSystems(out SolarSystem[] systems)
+        {
+            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 && s.RingList.Count > 0);
+            return systems.Length > 0;
         }
 
         public struct PirateForces
@@ -157,6 +192,14 @@ namespace Ship_Game
                         break;
                 }
             }
+        }
+
+        enum NewPirateBaseSpot
+        {
+            AsteroidBelt,
+            GasGiant,
+            Habitable,
+            DeepSpace
         }
     }
 }

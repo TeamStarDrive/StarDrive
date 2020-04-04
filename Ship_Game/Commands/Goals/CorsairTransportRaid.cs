@@ -120,7 +120,7 @@ namespace Ship_Game.Commands.Goals
         void SpawnBoardingShip(Ship freighter, Vector2 where)
         {
             if (where == Vector2.Zero)
-                where = freighter.Center + RandomMath.Vector2D(1000);
+                where = freighter.Center.GenerateRandomPointOnCircle(1000);
 
             Empire.PirateForces forces = new Empire.PirateForces(Pirates);
             TargetShip                 = freighter; // This is the main target, we want this to arrive to our base
@@ -134,7 +134,7 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < freighters.Count.UpperBound(TargetEmpire.PirateThreatLevel); i++)
             {
                 Ship freighter = freighters[i];
-                Ship.CreateShipAtPoint("Corsair-Slaver", Pirates, freighter.Center + RandomMath.Vector2D(1000));
+                SpawnBoardingShip(freighter, freighter.Center);
             }
 
             // also spawn escort ships by planet defense str / number of freighters
