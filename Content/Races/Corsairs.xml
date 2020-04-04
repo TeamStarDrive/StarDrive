@@ -3,6 +3,7 @@
   <Faction>1</Faction>
   <PortraitName>Imperium</PortraitName>
   <DiplomacyDialogPath>Human</DiplomacyDialogPath>
+  
   <PirateSlaverBasic>Corsair-Slaver</PirateSlaverBasic>
   <PirateSlaverImproved>Corsair-Slaver-Mk2</PirateSlaverImproved>
   <PirateSlaverAdvanced>Corsair-Slaver-Mk3</PirateSlaverAdvanced>

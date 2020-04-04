@@ -149,7 +149,13 @@ namespace Ship_Game.AI
                 Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
                 g.Step = g.Steps.Length-1;
             }
+
+            g.PostInit();
             return g;
+        }
+
+        public virtual void PostInit()
+        {
         }
 
         protected Goal(GoalType type)
