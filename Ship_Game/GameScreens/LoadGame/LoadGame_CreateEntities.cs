@@ -477,6 +477,7 @@ namespace Ship_Game
                     else if (gsave.OldShipGuid    == s.guid) g.OldShip      = s;
                     else if (gsave.TargetShipGuid == s.guid) g.TargetShip   = s;
                 }
+
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
                     Ship shipToBuild = ResourceManager.GetShipTemplate(gsave.ToBuildUID, false);
@@ -485,6 +486,10 @@ namespace Ship_Game
                     else
                         Log.Error($"Could not find ship name {gsave.ToBuildUID} in dictionary when trying to load Refit goal!");
                 }
+
+                if (gsave.TargetEmpireId > 0)
+                    g.TargetEmpire = EmpireManager.GetEmpireById(gsave.TargetEmpireId);
+
                 e.GetEmpireAI().Goals.Add(g);
             }
         }

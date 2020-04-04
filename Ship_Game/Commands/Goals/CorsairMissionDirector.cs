@@ -12,12 +12,10 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairMissionDirector";
         public override string UID => ID;
-        private readonly Empire Pirates;
+        private Empire Pirates;
 
         public CorsairMissionDirector() : base(GoalType.CorsairMissionDirector)
         {
-            Pirates = empire;
-
             Steps = new Func<GoalStep>[]
             {
                PrepareMission
@@ -27,19 +25,32 @@ namespace Ship_Game.Commands.Goals
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
-            Pirates      = empire;
 
+            PostInit();
             Log.Info(ConsoleColor.Green, $"---- New Pirate Mission Director vs. {TargetEmpire.Name} ----");
+        }
+
+        public sealed override void PostInit()
+        {
+            Pirates = empire;
         }
 
         GoalStep PrepareMission()
         {
             Relationship rel = Pirates.GetRelations(TargetEmpire);
             if (rel.AtWar)
-                return GoalStep.GoalFailed; // not at war anymore, maybe we got paid
+                return GoalStep.GoalFailed; // Not at war anymore, maybe we got paid
+
 
             if (RandomMath.RollDice(MissionStartChance(rel.TurnsAtWar)))
-                Pirates.GetEmpireAI().Goals.Add(new CorsairTransportRaid(Pirates, TargetEmpire));
+            {
+                GoalType mission  = GetMission();
+                EmpireAI pirateAI = Pirates.GetEmpireAI();
+                switch (mission)
+                {
+                    case GoalType.CorsairTransportRaid: pirateAI.Goals.Add(new CorsairTransportRaid(Pirates, TargetEmpire)); break;
+                }
+            }
 
             return GoalStep.TryAgain;
         }

@@ -12,10 +12,9 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairMain";
         public override string UID => ID;
-        private readonly Empire Pirates;  // For better code readability, we are the pirates
+        private Empire Pirates;  // For better code readability, we are the pirates
         public CorsairMain() : base(GoalType.CorsairMain)
         {
-            Pirates = empire;
             Steps = new Func<GoalStep>[]
             {
                UpdatePaymentStatus,
@@ -26,9 +25,15 @@ namespace Ship_Game.Commands.Goals
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
-            Pirates      = empire;
 
-            Log.Info(ConsoleColor.Green, $"---- New Corsair Main vs. {targetEmpire.Name} ----");
+            TargetEmpire.SetPirateThreatLevel(-1); // at start, the pirates threat level vs. victim is not active
+            PostInit();
+            Log.Info(ConsoleColor.Green, $"---- New Corsair Main vs. {TargetEmpire.Name} ----");
+        }
+
+        public sealed override void PostInit()
+        {
+            Pirates = empire;
         }
 
         GoalStep UpdatePaymentStatus()
@@ -42,15 +47,18 @@ namespace Ship_Game.Commands.Goals
         GoalStep StartPirateActivity()
         {
             if (Pirates.GetRelations(TargetEmpire).AtWar)
+            {
+                TargetEmpire.SetPirateThreatLevel(TargetEmpire.PirateThreatLevel + 1);
                 Pirates.GetEmpireAI().Goals.Add(new CorsairMissionDirector(Pirates, TargetEmpire));
+            }
 
             return GoalStep.RestartGoal;
         }
 
         bool RequestPayment()
         {
-            // Every 10 years, the pirates will demand new payment
-            if (Empire.Universe.StarDate % 10 > 0 && TargetEmpire.PirateThreatLevel > 0)
+            // Every 10 years, the pirates will demand new payment or immediately if the threat level is -1 (initial)
+            if (Empire.Universe.StarDate % 10 > 0 && TargetEmpire.PirateThreatLevel > -1)
                 return false;
 
             string encounterString = "Request Money";
@@ -65,9 +73,8 @@ namespace Ship_Game.Commands.Goals
                 EncounterPopup.Show(Empire.Universe, TargetEmpire, Pirates, e);
             }
 
-            // If they did not pay us, increase our wanted threat level
-            if (Pirates.GetRelations(TargetEmpire).AtWar || TargetEmpire.PirateThreatLevel == 0)
-                TargetEmpire.SetPirateThreatLevel(TargetEmpire.PirateThreatLevel + 1);
+            // Now that we demanded money, let the game begin
+            TargetEmpire.SetPirateThreatLevel(0);
 
             return true;
         }

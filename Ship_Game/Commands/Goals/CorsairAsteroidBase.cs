@@ -12,13 +12,11 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairAsteroidBase";
         public override string UID => ID;
-        private readonly Empire Pirates;
-        private readonly Ship PirateBase;
+        private Empire Pirates;
+        private Ship PirateBase;
 
         public CorsairAsteroidBase() : base(GoalType.CorsairAsteroidBase)
         {
-            Pirates    = empire;
-            PirateBase = TargetShip;
             Steps = new Func<GoalStep>[]
             {
                SalvageShips
@@ -26,12 +24,17 @@ namespace Ship_Game.Commands.Goals
         }
         public CorsairAsteroidBase(Empire owner, Ship ship) : this()
         {
-            empire     = owner;
-            TargetShip = ship; // This is the Pirate Base
             Pirates    = empire;
             PirateBase = TargetShip;
 
+            PostInit();
             Log.Info(ConsoleColor.Green, $"---- New Pirate Asteroid Base in {PirateBase.SystemName} ----");
+        }
+
+        public sealed override void PostInit()
+        {
+            Pirates    = empire;
+            PirateBase = TargetShip;
         }
 
         GoalStep SalvageShips()
