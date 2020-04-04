@@ -37,6 +37,7 @@ namespace Ship_Game.Commands.Goals
             EmpireAI empireAi = empire.GetEmpireAI();
 
             empireAi.Goals.Add(new CorsairAsteroidBase(empire, firstBase));
+            PopulatePirateFightersForCarriers();
 
             // FB - Pirate main goal can be set per AI empire as well, in the future
             empireAi.Goals.Add(new CorsairMain(empire, EmpireManager.Player));
@@ -69,11 +70,12 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.TryAgain;
         }
 
-        void PopulateShipsWeCanBuild()
+        void PopulatePirateFightersForCarriers()
         {
             empire.ShipsWeCanBuild.Add(empire.data.PirateFighterBasic);
             empire.ShipsWeCanBuild.Add(empire.data.PirateFighterImproved);
             empire.ShipsWeCanBuild.Add(empire.data.PirateFighterAdvanced);
+            /*
             empire.ShipsWeCanBuild.Add(empire.data.PirateFrigateBasic);
             empire.ShipsWeCanBuild.Add(empire.data.PirateFrigateImproved);
             empire.ShipsWeCanBuild.Add(empire.data.PirateFrigateAdvanced);
@@ -86,6 +88,7 @@ namespace Ship_Game.Commands.Goals
             empire.ShipsWeCanBuild.Add(empire.data.PirateStationBasic);
             empire.ShipsWeCanBuild.Add(empire.data.PirateStationImproved);
             empire.ShipsWeCanBuild.Add(empire.data.PirateStationAdvanced);
+            */
         }
     }
 }
