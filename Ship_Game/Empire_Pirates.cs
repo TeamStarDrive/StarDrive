@@ -276,8 +276,10 @@ namespace Ship_Game
             var asteroidRings             = selectedSystem.RingList.Filter(r => r.Asteroids);
             SolarSystem.Ring selectedRing = asteroidRings.RandItem();
 
-            position   = selectedSystem.Position.GenerateRandomPointOnCircle(selectedRing.OrbitalDistance);
-            systemName = selectedSystem.Name;
+            float ringRadius = selectedRing.OrbitalDistance + RandomMath.IntBetween(-500, 500);
+            position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
+            systemName       = selectedSystem.Name;
+
             return position != Vector2.Zero;
         }
         
