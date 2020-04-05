@@ -177,7 +177,11 @@ namespace Ship_Game
             {
                 if (ring.Asteroids)
                 {
-                    system.RingList.Add(new SolarSystem.Ring { Asteroids = true });
+                    system.RingList.Add(new SolarSystem.Ring
+                    {
+                        Asteroids = true,
+                        OrbitalDistance = ring.OrbitalDistance
+                    });
                 }
                 else
                 {
