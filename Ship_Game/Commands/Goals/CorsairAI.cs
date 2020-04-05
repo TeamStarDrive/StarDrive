@@ -36,7 +36,7 @@ namespace Ship_Game.Commands.Goals
             Ship firstBase    = bases.First;
             EmpireAI empireAi = empire.GetEmpireAI();
 
-            empireAi.Goals.Add(new CorsairAsteroidBase(empire, firstBase));
+            empireAi.Goals.Add(new CorsairAsteroidBase(empire, firstBase, firstBase.SystemName));
             PopulatePirateFightersForCarriers();
 
             // FB - Pirate main goal can be set per AI empire as well, in the future

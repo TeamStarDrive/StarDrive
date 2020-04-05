@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.GetRelations(TargetEmpire).AtWar)
                 return GoalStep.GoalFailed; // They paid
 
-            int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 10;
+            int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 5;
             if (RandomMath.RollDice(nearPlanetRaidChange))
             {
                 if (ScanFreightersNearPlanets(out Ship freighter))
@@ -59,7 +59,8 @@ namespace Ship_Game.Commands.Goals
             {
                 if (ScanFreightersAtWarp(out Ship freighter))
                 {
-                    Vector2 where = freighter.Center + freighter.Velocity * 3;
+                    Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
+                    freighter.HyperspaceReturn();
                     if (SpawnBoardingShip(freighter, where, out _))
                         return GoalStep.GoToNextStep;
                 }
@@ -119,7 +120,7 @@ namespace Ship_Game.Commands.Goals
                 }
             }
 
-            if (freighters.Count > 0)
+            if (freighters.Count == 0)
                 return false;
 
             freighter = freighters.RandItem();
