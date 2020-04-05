@@ -8,12 +8,12 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairMain : Goal
+    public class CorsairPaymentDirector : Goal
     {
-        public const string ID = "CorsairMain";
+        public const string ID = "CorsairPaymentDirector";
         public override string UID => ID;
         private Empire Pirates;  // For better code readability, we are the pirates
-        public CorsairMain() : base(GoalType.CorsairMain)
+        public CorsairPaymentDirector() : base(GoalType.CorsairPaymentDirector)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -21,14 +21,14 @@ namespace Ship_Game.Commands.Goals
                UpdatePirateActivity,
             };
         }
-        public CorsairMain(Empire owner, Empire targetEmpire) : this()
+        public CorsairPaymentDirector(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
 
             TargetEmpire.SetPirateThreatLevel(-1); // at start, the pirates threat level vs. victim is not active
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Corsair Main vs. {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- New Corsair Payment Director for {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()

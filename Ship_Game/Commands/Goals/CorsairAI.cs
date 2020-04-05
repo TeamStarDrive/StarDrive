@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
             PopulatePirateFightersForCarriers();
 
             // FB - Pirate main goal can be set per AI empire as well, in the future
-            empireAi.Goals.Add(new CorsairMain(empire, EmpireManager.Player));
+            empireAi.Goals.Add(new CorsairPaymentDirector(empire, EmpireManager.Player));
             empire.SetPirateThreatLevel(1); // Initial Level of the pirates
             return GoalStep.GoalComplete;
         }
