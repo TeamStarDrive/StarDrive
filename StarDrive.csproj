@@ -219,7 +219,7 @@
     <Compile Include="Ship_Game\Commands\Goals\CorsairAsteroidBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairMain.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairAI.cs" />
-    <Compile Include="Ship_Game\Commands\Goals\CorsairMissionDirector.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\CorsairRaidDirector.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairTransportRaid.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
