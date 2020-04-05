@@ -22,12 +22,12 @@ namespace Ship_Game.Commands.Goals
                SalvageShips
             };
         }
-        public CorsairAsteroidBase(Empire owner, Ship ship) : this()
+        public CorsairAsteroidBase(Empire owner, Ship ship, string systemName) : this()
         {
             empire     = owner;
             TargetShip = ship;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Pirate Asteroid Base in {PirateBase.SystemName} ----");
+            Log.Info(ConsoleColor.Green, $"---- New Pirate Asteroid Base in {systemName} ----");
         }
 
         public sealed override void PostInit()
@@ -44,23 +44,23 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // Base is destroyed, behead the Director
             }
 
-            SolarSystem system = PirateBase.System;
-            for (int i = 0; i < system.ShipList.Count; i++)
+            var friendlies = PirateBase.AI.FriendliesNearby;
+            using (friendlies.AcquireReadLock())
             {
-                Ship ship = system.ShipList[i];
-                if (ship.IsPlatformOrStation)
-                    continue; // Do not mess with our own structures
+                for (int i = 0; i < friendlies.Count; i++)
+                {
+                    Ship ship = friendlies[i];
+                    if (ship.IsPlatformOrStation)
+                        continue; // Do not mess with our own structures
 
-                if (ship.loyalty == Pirates
-                    && ship.shipData.ShipStyle == Pirates.data.Singular // when spawning ships change their style to corsair
-                    && ship.InRadius(PirateBase.Center, 1200))
-                {
-                    // Default Corsair Raiders are removed with no reward
-                    ship.QueueTotalRemoval();
-                }
-                else
-                {
-                    SalvageShip(ship);
+                    if (ship.InRadius(PirateBase.Center, 1200))
+                    {
+                        // Default Corsair Raiders are removed with no reward
+                        if (ship.shipData.ShipStyle == Pirates.data.Singular) // when spawning ships change their style to corsair
+                            ship.QueueTotalRemoval();
+                        else
+                            SalvageShip(ship);
+                    }
                 }
             }
 

@@ -42,6 +42,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // Not at war anymore, maybe we got paid
 
             float startChance = MissionStartChance();
+            //startChance = 100;
             if (RandomMath.RollDice(startChance))
             {
                 GoalType mission  = GetMission();
