@@ -123,6 +123,7 @@ namespace Ship_Game
 
             bool success;
             NewPirateBaseSpot spotType = (NewPirateBaseSpot)RandomMath.IntBetween(0, 3);
+            spotType = NewPirateBaseSpot.AsteroidBelt;
             switch (spotType)
             {
                 case NewPirateBaseSpot.GasGiant:
@@ -143,6 +144,9 @@ namespace Ship_Game
 
         void PirateBuildStation(int level)
         {
+            if (level % 3 != 0)
+                return; // Build a station every 3 levels
+
             GetCorsairStations(out Array<Ship> stations);
             if (stations.Count >= level / 2)
                 return; // too many stations
@@ -180,16 +184,16 @@ namespace Ship_Game
             if (!SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase)) 
                 return false;
 
-            EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase));
+            EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase, pirateBase.SystemName));
             return true;
         }
 
         bool BuildPirateBaseInAsteroids()
         {
-            if (GetPirateBaseAsteroidsSpot(out Vector2 pos)
+            if (GetPirateBaseAsteroidsSpot(out Vector2 pos, out string systemName)
                 && SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
             {
-                EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase));
+                EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase, systemName));
                 return true;
             }
 
@@ -204,7 +208,7 @@ namespace Ship_Game
                 if (SpawnPirateShip(PirateShipType.Base, pos, out Ship pirateBase))
                 {
                     pirateBase.TetherToPlanet(planet);
-                    EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase));
+                    EmpireAI.Goals.Add(new CorsairAsteroidBase(this, pirateBase, planet.ParentSystem.Name));
                     return true;
                 }
             }
@@ -257,9 +261,10 @@ namespace Ship_Game
         }
 
 
-        bool GetPirateBaseAsteroidsSpot(out Vector2 position)
+        bool GetPirateBaseAsteroidsSpot(out Vector2 position, out string systemName)
         {
-            position = Vector2.Zero;
+            position   = Vector2.Zero;
+            systemName = "";
             if (!GetUnownedSystems(out SolarSystem[] systems))
                 return false;
 
@@ -267,12 +272,12 @@ namespace Ship_Game
             if (systemsWithAsteroids.Length == 0)
                 return false;
 
-            SolarSystem selectedSystem = systemsWithAsteroids.RandItem();
-            var asteroidRings          = selectedSystem.RingList.Filter(r => r.Asteroids);
-
+            SolarSystem selectedSystem    = systemsWithAsteroids.RandItem();
+            var asteroidRings             = selectedSystem.RingList.Filter(r => r.Asteroids);
             SolarSystem.Ring selectedRing = asteroidRings.RandItem();
-            position = selectedSystem.Position.GenerateRandomPointOnCircle(selectedRing.OrbitalDistance);
 
+            position   = selectedSystem.Position.GenerateRandomPointOnCircle(selectedRing.OrbitalDistance);
+            systemName = selectedSystem.Name;
             return position != Vector2.Zero;
         }
         
@@ -374,7 +379,7 @@ namespace Ship_Game
                 case PirateShipType.Station:  shipName = forces.Station;      break;
             }
 
-            pirateShip = Ship.CreateShipAtPoint(forces.BoardingShip, this, where);
+            pirateShip = Ship.CreateShipAtPoint(shipName, this, where);
             return shipName.NotEmpty() && pirateShip != null;
         }
 
