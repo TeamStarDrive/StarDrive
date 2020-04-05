@@ -41,13 +41,16 @@ namespace Ship_Game.Commands.Goals
             if (PirateBase == null || !PirateBase.Active)
             {
                 Pirates.ReduceOverallPirateThreatLevel();
-                return GoalStep.GoalFailed; // Base is destroyed
+                return GoalStep.GoalFailed; // Base is destroyed, behead the Director
             }
 
             SolarSystem system = PirateBase.System;
             for (int i = 0; i < system.ShipList.Count; i++)
             {
                 Ship ship = system.ShipList[i];
+                if (ship.IsPlatformOrStation)
+                    continue; // Do not mess with our own structures
+
                 if (ship.loyalty == Pirates
                     && ship.shipData.ShipStyle == Pirates.data.Singular // when spawning ships change their style to corsair
                     && ship.InRadius(PirateBase.Center, 1200))

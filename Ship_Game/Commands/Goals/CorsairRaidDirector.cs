@@ -8,26 +8,26 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairMissionDirector : Goal
+    public class CorsairRaidDirector : Goal
     {
-        public const string ID = "CorsairMissionDirector";
+        public const string ID = "CorsairRaidDirector";
         public override string UID => ID;
         private Empire Pirates;
 
-        public CorsairMissionDirector() : base(GoalType.CorsairMissionDirector)
+        public CorsairRaidDirector() : base(GoalType.CorsairRaidDirector)
         {
             Steps = new Func<GoalStep>[]
             {
                PrepareMission
             };
         }
-        public CorsairMissionDirector(Empire owner, Empire targetEmpire) : this()
+        public CorsairRaidDirector(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Pirate Mission Director vs. {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- New Pirate Raid Director vs. {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
@@ -38,11 +38,11 @@ namespace Ship_Game.Commands.Goals
         GoalStep PrepareMission()
         {
             Relationship rel = Pirates.GetRelations(TargetEmpire);
-            if (rel.AtWar)
+            if (!rel.AtWar)
                 return GoalStep.GoalFailed; // Not at war anymore, maybe we got paid
 
-
-            if (RandomMath.RollDice(MissionStartChance(rel.TurnsAtWar)))
+            float startChance = MissionStartChance();
+            if (RandomMath.RollDice(startChance))
             {
                 GoalType mission  = GetMission();
                 EmpireAI pirateAI = Pirates.GetEmpireAI();
@@ -74,25 +74,25 @@ namespace Ship_Game.Commands.Goals
             return numGoals;
         }
 
-        int MissionStartChance(int turnsAtWar)
+        int MissionStartChance()
         {
             int numCurrentMissions = NumMissions();
             if (numCurrentMissions >= TargetEmpire.PirateThreatLevel)
                 return 0; // Limit maximum of missions to threat vs this empire
 
-            int startChance = turnsAtWar / 3;
+            int startChance = TargetEmpire.PirateThreatLevel.LowerBound((int)CurrentGame.Difficulty * 2);
             startChance    /= numCurrentMissions.LowerBound(1);
             float taxRate   = TargetEmpire.data.TaxRate;
 
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
-                startChance += (int)(startChance * taxRate);
+                startChance *= (int)(1 + taxRate);
 
             return startChance;
         }
 
         GoalType GetMission()
         {
-            int mission = RandomMath.RollDie(TargetEmpire.PirateThreatLevel);
+            int mission = RandomMath.RollDie(Pirates.PirateThreatLevel.UpperBound(TargetEmpire.PirateThreatLevel));
 
             switch (mission)
             {

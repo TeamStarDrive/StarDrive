@@ -152,12 +152,10 @@ namespace Ship_Game
                 Ship selectedBase = bases.RandItem();
                 Planet planet     = selectedBase.GetTether();
                 Vector2 pos       = planet?.Center ?? selectedBase.Center;
+
                 pos.GenerateRandomPointInsideCircle(2000);
                 if (SpawnPirateShip(PirateShipType.Station, pos, out Ship station) && planet != null)
-                {
                     station.TetherToPlanet(planet);
-                    //EmpireAI.Goals.Add(new CorsairStation(this, station));
-                }
             }
         }
 
@@ -298,11 +296,22 @@ namespace Ship_Game
                         break;
                 }
             }
+
             if (planets.Count == 0)
                 return false;
 
             selectedPlanet = planets.RandItem();
             return selectedPlanet != null;
+        }
+
+        public bool RaidingThisShip(Ship ship)
+        {
+            var goals = EmpireAI.Goals;
+
+            using (goals.AcquireReadLock())
+            {
+                return goals.Any(g => g.TargetShip == ship);
+            }
         }
 
         bool GetUnownedSystems(out SolarSystem[] systems)
