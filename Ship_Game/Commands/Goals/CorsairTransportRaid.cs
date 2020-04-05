@@ -45,18 +45,23 @@ namespace Ship_Game.Commands.Goals
             int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 10;
             if (RandomMath.RollDice(nearPlanetRaidChange))
             {
-                if (ScanFreightersNearPlanets(out Array<Ship> freighters))
+                if (ScanFreightersNearPlanets(out Ship freighter))
                 {
-                    SpawnBoardingForce(freighters);
-                    return GoalStep.GoToNextStep;
+                    Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
+                    if (SpawnBoardingShip(freighter, where, out Ship boardingShip));
+                    {
+                        SpawnBoardingForce(freighter, boardingShip);
+                        return GoalStep.GoToNextStep;
+                    }
                 }
             }
             else
             {
                 if (ScanFreightersAtWarp(out Ship freighter))
                 {
-                    SpawnBoardingShip(freighter, freighter.Center + freighter.Velocity * 3);
-                    return GoalStep.GoToNextStep;
+                    Vector2 where = freighter.Center + freighter.Velocity * 3;
+                    if (SpawnBoardingShip(freighter, where, out _))
+                        return GoalStep.GoToNextStep;
                 }
             }
 
@@ -80,8 +85,9 @@ namespace Ship_Game.Commands.Goals
             for (int i = 0; i < targetShips.Count; i++)
             {
                 Ship ship = targetShips[i];
-                if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out ShipAI.ShipGoal goal) 
-                                     &&  ship.IsInWarp)
+                if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) 
+                                     &&  ship.IsInWarp
+                                     && !Pirates.RaidingThisShip(ship))
                 {
                     freighter = ship;
                     break;
@@ -91,50 +97,47 @@ namespace Ship_Game.Commands.Goals
             return freighter != null;
         }
 
-        bool ScanFreightersNearPlanets(out Array<Ship> freighters)
+        bool ScanFreightersNearPlanets(out Ship freighter)
         {
-            freighters  = new Array<Ship>();
-            var planets = TargetEmpire.GetPlanets();
-            for (int i = 0; i < planets.Count; i++)
+            freighter       = null;
+            var freighters  = new Array<Ship>();
+            var systems     = TargetEmpire.GetOwnedSystems();
+
+            for (int i = 0; i < systems.Count; i++)
             {
-                Planet planet      = planets[i];
-                SolarSystem system = planet.ParentSystem;
+                SolarSystem system = systems[i];
                 for (int j = 0; j < system.ShipList.Count; j++)
                 {
                     Ship ship = system.ShipList[j];
                     if (ship.IsFreighter
+                        && !ship.IsInWarp
                         && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)
-                        && ship.InRadius(planet.Center, planet.ObjectRadius + 2000))
+                        && !Pirates.RaidingThisShip(ship))
                     {
-                        freighters.AddUnique(ship);
+                        freighters.Add(ship);
                     }
                 }
-
-                if (freighters.Count > 0)
-                    return true;
             }
 
-            return false;
+            if (freighters.Count > 0)
+                return false;
+
+            freighter = freighters.RandItem();
+            return freighter != null;
         }
 
-        void SpawnBoardingShip(Ship freighter, Vector2 where)
+        bool SpawnBoardingShip(Ship freighter, Vector2 where, out Ship boardingShip)
         {
-
             TargetShip = freighter; // This is the main target, we want this to arrive to our base
-            if (Pirates.SpawnPirateShip(PirateShipType.Boarding, where, out Ship boardingShip));
+            if (Pirates.SpawnPirateShip(PirateShipType.Boarding, where, out boardingShip));
                 boardingShip.AI.OrderAttackSpecificTarget(freighter);
+
+            return boardingShip != null;
         }
 
-        void SpawnBoardingForce(Array<Ship> freighters)
+        void SpawnBoardingForce(Ship freighter, Ship boardingShip)
         {
-            // Launch a board ship per freighter, but the maximum  is the threat level
-            for (int i = 0; i < freighters.Count.UpperBound(TargetEmpire.PirateThreatLevel); i++)
-            {
-                Ship freighter = freighters[i];
-                SpawnBoardingShip(freighter, freighter.Center.GenerateRandomPointOnCircle(1000));
-            }
-
-            // also spawn escort ships by planet defense str / number of freighters
+            // Todo check for the target ally forces nearby and spawn escort ships 
         }
     }
 }

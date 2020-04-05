@@ -49,46 +49,63 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep UpdatePirateActivity()
         {
-            if (Pirates.GetRelations(TargetEmpire).AtWar)
-            {
-                // They did not pay! We will raid them
-                TargetEmpire.IncreasePirateThreatLevel();
-                var goals = Pirates.GetEmpireAI().Goals;
-                using (goals.AcquireWriteLock())
-                {
-                    if (!goals.Any(g => g.type == GoalType.CorsairMissionDirector && g.TargetEmpire == TargetEmpire))
-                        Pirates.GetEmpireAI().Goals.Add(new CorsairMissionDirector(Pirates, TargetEmpire));
-                }
-            }
-            else
+            if (Paid)
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
                 Pirates.CorsairsTryLevelUp();
             }
+            else
+            {
+                // They did not pay! We will raid them
+                TargetEmpire.IncreasePirateThreatLevel();
+                Pirates.GetEmpireAI().Goals.Add(new CorsairRaidDirector(Pirates, TargetEmpire));
+            }
+
+            /*
+            if (Paid)
+            {
+                // Ah, so they paid us,  we can use this money to expand our business 
+                Pirates.CorsairsTryLevelUp();
+            }
+            else
+            {
+                // They did not pay! We will raid them
+                TargetEmpire.IncreasePirateThreatLevel();
+
+                var goals = Pirates.GetEmpireAI().Goals;
+                using (goals.AcquireWriteLock())
+                {
+                    if (!goals.Any(g => g.type == GoalType.CorsairRaidDirector && g.TargetEmpire == TargetEmpire))
+                        Pirates.GetEmpireAI().Goals.Add(new CorsairRaidDirector(Pirates, TargetEmpire));
+                }
+            }
+            */
 
             return GoalStep.RestartGoal;
         }
 
         bool RequestPayment()
         {
+            // If they did not pay, don't ask for another payment, let them crawl to
+            // us when they are ready to pay
+            if (!Paid)
+                return false;
+
             // Every 10 years, the pirates will demand new payment or immediately if the threat level is -1 (initial)
             if (Empire.Universe.StarDate % 10 > 0 && TargetEmpire.PirateThreatLevel > -1)
                 return false;
 
-            // If they did not pay, don't ask for another payment, let the crawl to
-            // us when they are ready to pay
-            if (Pirates.GetRelations(TargetEmpire).AtWar)
-                return true;
+            Log.Info($"Pirate Payment Director for {TargetEmpire.Name} - Requesting payment");
 
             string encounterString = "Request Money";
-            if (!TargetEmpire.GetRelations(Pirates).Known)
-                TargetEmpire.SetRelationsAsKnown(Pirates);
+            if (!Pirates.GetRelations(TargetEmpire).Known)
+                Pirates.SetRelationsAsKnown(TargetEmpire);
             else
                 encounterString = "Request More Money";
 
             if (ResourceManager.GetEncounter(Pirates, encounterString, out Encounter e))
             {
-                e.MoneyRequested = MoneyRequested(e.MoneyRequested);
+                e.MoneyRequested = ModifyMoneyRequested(e.MoneyRequested);
                 EncounterPopup.Show(Empire.Universe, TargetEmpire, Pirates, e);
             }
 
@@ -98,7 +115,7 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        int MoneyRequested(int originalPayment)
+        int ModifyMoneyRequested(int originalPayment)
         {
             float payment = originalPayment * Pirates.PirateThreatLevel.LowerBound(1) // Pirates own level
                                             * TargetEmpire.DifficultyModifiers.PiratePayModifier
@@ -106,5 +123,7 @@ namespace Ship_Game.Commands.Goals
 
             return payment.RoundTo10();
         }
+
+        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }

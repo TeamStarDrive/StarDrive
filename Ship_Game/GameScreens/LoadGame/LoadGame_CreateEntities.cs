@@ -490,6 +490,7 @@ namespace Ship_Game
                 if (gsave.TargetEmpireId > 0)
                     g.TargetEmpire = EmpireManager.GetEmpireById(gsave.TargetEmpireId);
 
+                g.PostInit();
                 e.GetEmpireAI().Goals.Add(g);
             }
         }

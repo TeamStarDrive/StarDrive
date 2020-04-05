@@ -27,7 +27,7 @@ namespace Ship_Game.AI
         RemnantAI,
         CorsairAI,
         CorsairMain,
-        CorsairMissionDirector,
+        CorsairRaidDirector,
         CorsairAsteroidBase,
         CorsairTransportRaid
     }
@@ -125,7 +125,7 @@ namespace Ship_Game.AI
                 case RemnantAI.ID:              return new RemnantAI();
                 case CorsairAI.ID:              return new CorsairAI();
                 case CorsairMain.ID:            return new CorsairMain();
-                case CorsairMissionDirector.ID: return new CorsairMissionDirector();
+                case CorsairRaidDirector.ID: return new CorsairRaidDirector();
                 case CorsairTransportRaid.ID:   return new CorsairTransportRaid();
                 case CorsairAsteroidBase.ID:    return new CorsairAsteroidBase();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
@@ -150,7 +150,6 @@ namespace Ship_Game.AI
                 g.Step = g.Steps.Length-1;
             }
 
-            g.PostInit();
             return g;
         }
 

@@ -526,18 +526,19 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
                 return;
 
+            TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Risk.UpdateRiskAssessment(us);
 
-            if (!AtWar)
-                TurnsAtWar = 0;
-            else
-                TurnsAtWar += 1;
+            if (us.isFaction)
+                return;
 
             if (us.isPlayer)
             {
                 UpdatePlayerRelations(us, them);
                 return;
             }
+
+
 
             if (FedQuest != null)
             {
@@ -593,10 +594,7 @@ namespace Ship_Game.Gameplay
             }
             FearEntries.ApplyPendingRemovals();
 
-            if (!Treaty_Alliance)
-                TurnsAllied = 0;
-            else
-                TurnsAllied += 1;
+            TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
 
             DTrait dt = us.data.DiplomaticPersonality;
             if (Posture == Posture.Friendly)
