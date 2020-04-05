@@ -8,13 +8,13 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairTransportRaid : Goal
+    public class CorsairRaidTransport : Goal
     {
-        public const string ID = "CorsairTransportRaid";
+        public const string ID = "CorsairRaidTransport";
         public override string UID => ID;
         private Empire Pirates;
 
-        public CorsairTransportRaid() : base(GoalType.CorsairTransportRaid)
+        public CorsairRaidTransport() : base(GoalType.CorsairRaidTransport)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -23,7 +23,7 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public CorsairTransportRaid(Empire owner, Empire targetEmpire) : this()
+        public CorsairRaidTransport(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
