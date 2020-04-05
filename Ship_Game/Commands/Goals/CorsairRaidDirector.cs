@@ -18,7 +18,7 @@ namespace Ship_Game.Commands.Goals
         {
             Steps = new Func<GoalStep>[]
             {
-               PrepareMission
+               PrepareRaid
             };
         }
         public CorsairRaidDirector(Empire owner, Empire targetEmpire) : this()
@@ -35,28 +35,27 @@ namespace Ship_Game.Commands.Goals
             Pirates = empire;
         }
 
-        GoalStep PrepareMission()
+        GoalStep PrepareRaid()
         {
-            Relationship rel = Pirates.GetRelations(TargetEmpire);
-            if (!rel.AtWar)
-                return GoalStep.GoalFailed; // Not at war anymore, maybe we got paid
+            if (Paid)
+                return GoalStep.GoalFailed; // We got paid, Raid Director can go on vacation
 
-            float startChance = MissionStartChance();
+            float startChance = RaidStartChance();
             //startChance = 100;
             if (RandomMath.RollDice(startChance))
             {
-                GoalType mission  = GetMission();
+                GoalType raid  = GetRaid();
                 EmpireAI pirateAI = Pirates.GetEmpireAI();
-                switch (mission)
+                switch (raid)
                 {
-                    case GoalType.CorsairTransportRaid: pirateAI.Goals.Add(new CorsairTransportRaid(Pirates, TargetEmpire)); break;
+                    case GoalType.CorsairRaidTransport: pirateAI.Goals.Add(new CorsairRaidTransport(Pirates, TargetEmpire)); break;
                 }
             }
 
             return GoalStep.TryAgain;
         }
 
-        public int NumMissions()
+        public int NumRaids()
         {
             int numGoals = 0;
             var goals = Pirates.GetEmpireAI().Goals;
@@ -67,7 +66,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     switch (goal.type)
                     {
-                        case GoalType.CorsairTransportRaid: numGoals += 1; break;
+                        case GoalType.CorsairRaidTransport: numGoals += 1; break;
                     }
                 }
             }
@@ -75,14 +74,14 @@ namespace Ship_Game.Commands.Goals
             return numGoals;
         }
 
-        int MissionStartChance()
+        int RaidStartChance()
         {
-            int numCurrentMissions = NumMissions();
-            if (numCurrentMissions >= TargetEmpire.PirateThreatLevel)
-                return 0; // Limit maximum of missions to threat vs this empire
+            int numCurrentRaids = NumRaids();
+            if (numCurrentRaids >= TargetEmpire.PirateThreatLevel)
+                return 0; // Limit maximum of raids to threat vs this empire
 
             int startChance = TargetEmpire.PirateThreatLevel.LowerBound((int)CurrentGame.Difficulty * 2);
-            startChance    /= numCurrentMissions.LowerBound(1);
+            startChance    /= numCurrentRaids.LowerBound(1);
             float taxRate   = TargetEmpire.data.TaxRate;
 
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
@@ -91,21 +90,26 @@ namespace Ship_Game.Commands.Goals
             return startChance;
         }
 
-        GoalType GetMission()
+        GoalType GetRaid()
         {
-            int mission = RandomMath.RollDie(Pirates.PirateThreatLevel.UpperBound(TargetEmpire.PirateThreatLevel));
+            int raid = RandomMath.RollDie(Pirates.PirateThreatLevel.UpperBound(TargetEmpire.PirateThreatLevel));
 
-            switch (mission)
+            switch (raid)
             {
                 default:
                 case 1:
-                case 2: return GoalType.CorsairTransportRaid;
+                case 2: return GoalType.CorsairRaidTransport;
                 // capture and destroy ssp
                 // hijack colonyship
                 // hijack combat ship in warp
                 // capture and destroy shipyard
                 // defeat planet orbitals
+                // .
+                // .
+                // case 20: 
             }
         }
+
+        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }
