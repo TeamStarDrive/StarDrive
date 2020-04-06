@@ -382,6 +382,9 @@ namespace Ship_Game
             }
 
             pirateShip = Ship.CreateShipAtPoint(shipName, this, where);
+            if (pirateShip != null) 
+                pirateShip.shipData.ShipStyle = data.Singular; // For some reason shipstyle is nul
+
             return shipName.NotEmpty() && pirateShip != null;
         }
 
