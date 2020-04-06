@@ -12,7 +12,8 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairAI";
         public override string UID => ID;
-        public Empire Player;
+        private Pirates Corsairs;
+
         public CorsairAI() : base(GoalType.CorsairAI)
         {
             Steps = new Func<GoalStep>[]
@@ -27,21 +28,22 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CorsairPlan()
         {
-            if (!empire.GetCorsairBases(out Array<Ship> bases))
+            Corsairs = empire.Pirates;
+            Corsairs.SetLevel(1); // Initial Level of the pirates
+
+            if (!Corsairs.GetBases(out Array<Ship> bases))
             {
                 Log.Warning("Could not find a Corsair base. Pirate AI is disabled!");
                 return GoalStep.GoalFailed;
             }
 
-            Ship firstBase    = bases.First;
-            EmpireAI empireAi = empire.GetEmpireAI();
-
-            empireAi.Goals.Add(new CorsairAsteroidBase(empire, firstBase, firstBase.SystemName));
+            Ship firstBase = bases.First;
+            Corsairs.AddGoalCorsairBase(firstBase, firstBase.SystemName);
             PopulatePirateFightersForCarriers();
 
             // FB - Pirate main goal can be set per AI empire as well, in the future
-            empireAi.Goals.Add(new CorsairPaymentDirector(empire, EmpireManager.Player));
-            empire.SetPirateThreatLevel(1); // Initial Level of the pirates
+            // Also - We might want to create several pirate factions (set by the player in rule options)
+            Corsairs.AddGoalCorsairPaymentDirector(EmpireManager.Player);
             return GoalStep.GoalComplete;
         }
 
@@ -72,23 +74,9 @@ namespace Ship_Game.Commands.Goals
 
         void PopulatePirateFightersForCarriers()
         {
-            empire.ShipsWeCanBuild.Add(empire.data.PirateFighterBasic);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateFighterImproved);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateFighterAdvanced);
-            /*
-            empire.ShipsWeCanBuild.Add(empire.data.PirateFrigateBasic);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateFrigateImproved);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateFrigateAdvanced);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateSlaverBasic);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateSlaverImproved);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateSlaverAdvanced);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateBaseBasic);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateBaseImproved);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateBaseAdvanced);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateStationBasic);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateStationImproved);
-            empire.ShipsWeCanBuild.Add(empire.data.PirateStationAdvanced);
-            */
+            Corsairs.ShipsWeCanBuild.Add(empire.data.PirateFighterBasic);
+            Corsairs.ShipsWeCanBuild.Add(empire.data.PirateFighterImproved);
+            Corsairs.ShipsWeCanBuild.Add(empire.data.PirateFighterAdvanced);
         }
     }
 }
