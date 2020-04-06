@@ -300,7 +300,8 @@ namespace Ship_Game.AI
 
         public void PirateOrderFleeHome()
         {
-            if (Owner.loyalty.GetCorsairBases(out Array<Ship> pirateBases))
+
+            if (Owner.loyalty.WeArePirates && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
                 Ship ship = pirateBases.FindMin(s => s.Center.Distance(Owner.Center));
                 Owner.AI.SetPriorityOrder(true);

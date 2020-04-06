@@ -47,14 +47,12 @@ namespace Ship_Game.AI
                 NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
             string name = OwnerEmpire.data.Traits.Name;
-            if (!fromSave)
-            {
-                switch (name)
-                {
-                    case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
-                    case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
-                }
-            }
+
+            if (name == "Corsairs")
+                OwnerEmpire.SetAsPirates(fromSave, Goals);
+
+            if (name == "The Remnant" && !fromSave)
+                Goals.Add(new RemnantAI(OwnerEmpire));
         }
 
         void RunManagers()
