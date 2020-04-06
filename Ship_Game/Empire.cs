@@ -77,6 +77,9 @@ namespace Ship_Game
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
 
+        // For Pirate Factions. This will allow the Empire to be pirates
+        public Pirates Pirates { get; private set; }
+
         public Color EmpireColor;
         public static UniverseScreen Universe;
         private EmpireAI EmpireAI;
@@ -150,11 +153,12 @@ namespace Ship_Game
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
         public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
+        public bool WeArePirates              => Pirates != null;
 
         public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
-        public int PirateThreatLevel { get; private set; }
+        public int PirateThreatLevel { get; private set; } = -1; // Initial Value is negative
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -194,6 +198,11 @@ namespace Ship_Game
             Research = new EmpireResearch(this);
             TechnologyDict = parentEmpire.TechnologyDict;
             Pool = new ShipPool(this);
+        }
+
+        public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
+        {
+            Pirates = new Pirates(this, fromSave, goals);
         }
 
 

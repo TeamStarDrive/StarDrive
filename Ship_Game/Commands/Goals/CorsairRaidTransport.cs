@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
@@ -12,7 +9,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairRaidTransport";
         public override string UID => ID;
-        private Empire Pirates;
+        private Pirates Corsairs;
 
         public CorsairRaidTransport() : base(GoalType.CorsairRaidTransport)
         {
@@ -29,17 +26,17 @@ namespace Ship_Game.Commands.Goals
             TargetEmpire = targetEmpire;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Pirate Transport Raid vs. {targetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- New Corsair Transport Raid vs. {targetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates = empire;
+            Corsairs = empire.Pirates;
         }
 
         GoalStep DetectAndSpawnRaidForce()
         {
-            if (!Pirates.GetRelations(TargetEmpire).AtWar)
+            if (!Corsairs.GetRelations(TargetEmpire).AtWar)
                 return GoalStep.GoalFailed; // They paid
 
             int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 5;
@@ -73,10 +70,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep CheckIfHijacked()
         {
 
-            if (!TargetShip.Active || TargetShip.loyalty != Pirates && !TargetShip.Inhibited)
+            if (!TargetShip.Active || TargetShip.loyalty != Corsairs.Owner && !TargetShip.Inhibited)
                 return GoalStep.GoalFailed; // Target destroyed or escaped
 
-            return TargetShip.loyalty == Pirates ? GoalStep.GoalComplete :  GoalStep.TryAgain;
+            return TargetShip.loyalty == Corsairs.Owner ? GoalStep.GoalComplete :  GoalStep.TryAgain;
         }
 
         bool ScanFreightersAtWarp(out Ship freighter)
@@ -88,7 +85,7 @@ namespace Ship_Game.Commands.Goals
                 Ship ship = targetShips[i];
                 if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) 
                                      &&  ship.IsInWarp
-                                     && !Pirates.RaidingThisShip(ship))
+                                     && !Corsairs.RaidingThisShip(ship))
                 {
                     freighter = ship;
                     break;
@@ -113,7 +110,7 @@ namespace Ship_Game.Commands.Goals
                     if (ship.IsFreighter
                         && !ship.IsInWarp
                         && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)
-                        && !Pirates.RaidingThisShip(ship))
+                        && !Corsairs.RaidingThisShip(ship))
                     {
                         freighters.Add(ship);
                     }
@@ -130,7 +127,7 @@ namespace Ship_Game.Commands.Goals
         bool SpawnBoardingShip(Ship freighter, Vector2 where, out Ship boardingShip)
         {
             TargetShip = freighter; // This is the main target, we want this to arrive to our base
-            if (Pirates.SpawnPirateShip(PirateShipType.Boarding, where, out boardingShip));
+            if (Corsairs.SpawnShip(PirateShipType.Boarding, where, out boardingShip))
                 boardingShip.AI.OrderAttackSpecificTarget(freighter);
 
             return boardingShip != null;

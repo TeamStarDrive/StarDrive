@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI;
-using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
-using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -12,7 +7,7 @@ namespace Ship_Game.Commands.Goals
     {
         public const string ID = "CorsairRaidDirector";
         public override string UID => ID;
-        private Empire Pirates;
+        private Pirates Corsairs;
 
         public CorsairRaidDirector() : base(GoalType.CorsairRaidDirector)
         {
@@ -27,12 +22,12 @@ namespace Ship_Game.Commands.Goals
             TargetEmpire = targetEmpire;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Pirate Raid Director vs. {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- New Corsair Raid Director vs. {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Pirates = empire;
+            Corsairs = empire.Pirates;
         }
 
         GoalStep PrepareRaid()
@@ -45,10 +40,9 @@ namespace Ship_Game.Commands.Goals
             if (RandomMath.RollDice(startChance))
             {
                 GoalType raid  = GetRaid();
-                EmpireAI pirateAI = Pirates.GetEmpireAI();
                 switch (raid)
                 {
-                    case GoalType.CorsairRaidTransport: pirateAI.Goals.Add(new CorsairRaidTransport(Pirates, TargetEmpire)); break;
+                    case GoalType.CorsairRaidTransport: Corsairs.AddGoalCorsairRaidTransport(TargetEmpire); break;
                 }
             }
 
@@ -58,7 +52,7 @@ namespace Ship_Game.Commands.Goals
         public int NumRaids()
         {
             int numGoals = 0;
-            var goals = Pirates.GetEmpireAI().Goals;
+            var goals = Corsairs.Goals;
             for (int i = 0; i < goals.Count; i++)
             {
                 Goal goal = goals[i];
@@ -92,7 +86,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalType GetRaid()
         {
-            int raid = RandomMath.RollDie(Pirates.PirateThreatLevel.UpperBound(TargetEmpire.PirateThreatLevel));
+            int raid = RandomMath.RollDie(Corsairs.Level.UpperBound(TargetEmpire.PirateThreatLevel));
 
             switch (raid)
             {
@@ -110,6 +104,6 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
-        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
+        bool Paid => !Corsairs.GetRelations(TargetEmpire).AtWar;
     }
 }
