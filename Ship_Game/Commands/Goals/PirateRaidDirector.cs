@@ -3,37 +3,37 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairRaidDirector : Goal
+    public class PirateRaidDirector : Goal
     {
-        public const string ID = "CorsairRaidDirector";
+        public const string ID = "PirateRaidDirector";
         public override string UID => ID;
-        private Pirates Corsairs;
+        private Pirates Pirates;
 
-        public CorsairRaidDirector() : base(GoalType.CorsairRaidDirector)
+        public PirateRaidDirector() : base(GoalType.PirateRaidDirector)
         {
             Steps = new Func<GoalStep>[]
             {
                PrepareRaid
             };
         }
-        public CorsairRaidDirector(Empire owner, Empire targetEmpire) : this()
+        public PirateRaidDirector(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Corsair Raid Director vs. {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Raid Director vs. {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Corsairs = empire.Pirates;
+            Pirates = empire.Pirates;
         }
 
         GoalStep PrepareRaid()
         {
-            if (Paid)
-                return GoalStep.GoalFailed; // We got paid, Raid Director can go on vacation
+            if (Paid || Pirates.VictimIsDefeated(TargetEmpire))
+                return GoalStep.GoalFailed; // We got paid or they are gone, Raid Director can go on vacation
 
             float startChance = RaidStartChance();
             //startChance = 100;
@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
                 GoalType raid  = GetRaid();
                 switch (raid)
                 {
-                    case GoalType.CorsairRaidTransport: Corsairs.AddGoalCorsairRaidTransport(TargetEmpire); break;
+                    case GoalType.PirateRaidTransport: Pirates.AddGoalRaidTransport(TargetEmpire); break;
                 }
             }
 
@@ -52,7 +52,7 @@ namespace Ship_Game.Commands.Goals
         public int NumRaids()
         {
             int numGoals = 0;
-            var goals = Corsairs.Goals;
+            var goals = Pirates.Goals;
             for (int i = 0; i < goals.Count; i++)
             {
                 Goal goal = goals[i];
@@ -60,7 +60,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     switch (goal.type)
                     {
-                        case GoalType.CorsairRaidTransport: numGoals += 1; break;
+                        case GoalType.PirateRaidTransport: numGoals += 1; break;
                     }
                 }
             }
@@ -86,13 +86,13 @@ namespace Ship_Game.Commands.Goals
 
         GoalType GetRaid()
         {
-            int raid = RandomMath.RollDie(Corsairs.Level.UpperBound(TargetEmpire.PirateThreatLevel));
+            int raid = RandomMath.RollDie(Pirates.Level.UpperBound(TargetEmpire.PirateThreatLevel));
 
             switch (raid)
             {
                 default:
                 case 1:
-                case 2: return GoalType.CorsairRaidTransport;
+                case 2: return GoalType.PirateRaidTransport;
                 // capture and destroy ssp
                 // hijack colonyship
                 // hijack combat ship in warp
@@ -104,6 +104,6 @@ namespace Ship_Game.Commands.Goals
             }
         }
 
-        bool Paid => !Corsairs.GetRelations(TargetEmpire).AtWar;
+        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }

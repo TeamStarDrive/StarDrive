@@ -166,7 +166,7 @@ namespace Ship_Game
                 ship.ReCalculateTroopsAfterBoard();
                 changeTo.AddBoardSuccessNotification(ship);
                 oldLoyalty.AddBoardedNotification(ship);
-                if (changeTo == EmpireManager.Corsairs)
+                if (changeTo.IsPirateFaction)
                     ship.AI.PirateOrderFleeHome();
             }
 

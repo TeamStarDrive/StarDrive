@@ -20,7 +20,7 @@ namespace Ship_Game
             Goals        = goals;
 
             if (!fromSave)
-                goals.Add(new CorsairAI(Owner));
+                goals.Add(new PirateAI(Owner));
         }
 
         public int Level                                => Owner.PirateThreatLevel;
@@ -28,27 +28,27 @@ namespace Ship_Game
         public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
         public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
 
-        public void AddGoalCorsairPaymentDirector(Empire victim) => 
-            AddGoal(victim, GoalType.CorsairPaymentDirector, null, "");
+        public void AddGoalPaymentDirector(Empire victim) => 
+            AddGoal(victim, GoalType.PiratePaymentDirector, null, "");
 
-        public void AddGoalCorsairRaidDirector(Empire victim) => 
-            AddGoal(victim, GoalType.CorsairRaidDirector, null, "");
+        public void AddGoalRaidDirector(Empire victim) => 
+            AddGoal(victim, GoalType.PirateRaidDirector, null, "");
 
-        public void AddGoalCorsairBase(Ship ship, string sysName) => 
-            AddGoal(null, GoalType.CorsairAsteroidBase, ship, sysName);
+        public void AddGoalBase(Ship ship, string sysName) => 
+            AddGoal(null, GoalType.PirateBase, ship, sysName);
 
-        public void AddGoalCorsairRaidTransport(Empire victim) => 
-            AddGoal(victim, GoalType.CorsairRaidTransport, null, "");
+        public void AddGoalRaidTransport(Empire victim) => 
+            AddGoal(victim, GoalType.PirateRaidTransport, null, "");
 
         void AddGoal(Empire victim, GoalType type, Ship ship, string systemName)
         {
             switch (type)
             {
-                case GoalType.CorsairPaymentDirector: Goals.Add(new CorsairPaymentDirector(Owner, victim)); break;
-                case GoalType.CorsairRaidDirector:    Goals.Add(new CorsairRaidDirector(Owner, victim));    break;
-                case GoalType.CorsairAsteroidBase:    Goals.Add(new CorsairAsteroidBase(Owner, ship, systemName));     break;
-                case GoalType.CorsairRaidTransport:   Goals.Add(new CorsairRaidTransport(Owner, victim));   break;
-                default:                              Log.Warning($"Goal type {type.ToString()} invalid for Pirates"); break;
+                case GoalType.PiratePaymentDirector: Goals.Add(new PiratePaymentDirector(Owner, victim));  break;
+                case GoalType.PirateRaidDirector:    Goals.Add(new PirateRaidDirector(Owner, victim));     break;
+                case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
+                case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
+                default:                             Log.Warning($"Goal type {type.ToString()} invalid for Pirates"); break;
             }
         }
 
@@ -129,9 +129,14 @@ namespace Ship_Game
             return planet != null;
         }
 
+        public bool VictimIsDefeated(Empire victim)
+        {
+            return victim.data.Defeated;
+        }
+
         public void LevelDown()
         {
-            var empires = EmpireManager.Empires.Filter(e => !e.isFaction);
+            var empires = EmpireManager.MajorEmpires;
             for (int i = 0; i < empires.Length; i++)
             {
                 Empire empire = empires[i];
@@ -139,6 +144,7 @@ namespace Ship_Game
             }
 
             DecreaseLevel();
+            RemovePiratePresenceFromSystem();
             if (Level < 1)
             {
                 Owner.GetEmpireAI().Goals.Clear();
@@ -146,9 +152,9 @@ namespace Ship_Game
             }
         }
 
-        public void TryLevelUp()
+        public void TryLevelUp(bool alwaysLevelUp = false)
         {
-            if (RandomMath.RollDie(20) > Level)
+            if (alwaysLevelUp || RandomMath.RollDie(20) > Level)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
@@ -164,10 +170,11 @@ namespace Ship_Game
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
-                case NewBaseSpot.Habitable:    success = BuildBaseOrbitingPlanet(spotType); break;
-                case NewBaseSpot.AsteroidBelt: success = BuildBaseInAsteroids();            break;
-                case NewBaseSpot.DeepSpace:    success = BuildBaseInDeepSpace();            break;
-                default:                       success = false;                             break;
+                case NewBaseSpot.Habitable:    success = BuildBaseOrbitingPlanet(spotType, level); break;
+                case NewBaseSpot.AsteroidBelt: success = BuildBaseInAsteroids(level);              break;
+                case NewBaseSpot.DeepSpace:    success = BuildBaseInDeepSpace(level);              break;
+                case NewBaseSpot.LoneSystem:   success = BuildBaseInLoneSystem(level);             break;
+                default:                       success = false;                                    break;
             }
 
             if (success)
@@ -195,7 +202,7 @@ namespace Ship_Game
                 Vector2 pos       = planet?.Center ?? selectedBase.Center;
 
                 pos.GenerateRandomPointInsideCircle(2000);
-                if (SpawnShip(PirateShipType.Station, pos, out Ship station) && planet != null)
+                if (SpawnShip(PirateShipType.Station, pos, out Ship station, level) && planet != null)
                     station.TetherToPlanet(planet);
             }
         }
@@ -213,48 +220,59 @@ namespace Ship_Game
             EmpireShipBonuses.RefreshBonuses(Owner);
         }
 
-        bool BuildBaseInDeepSpace()
+        bool BuildBaseInDeepSpace(int level)
         {
             if (!GetBaseSpotDeepSpace(out Vector2 pos))
                 return false; ;
 
-            if (!SpawnShip(PirateShipType.Base, pos, out Ship pirateBase)) 
+            if (!SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level)) 
                 return false;
 
-            Owner.GetEmpireAI().Goals.Add(new CorsairAsteroidBase(Owner, pirateBase, pirateBase.SystemName));
+            AddGoalBase(pirateBase, pirateBase.SystemName);
             return true;
         }
 
-        bool BuildBaseInAsteroids()
+        bool BuildBaseInAsteroids(int level)
         {
             if (GetBaseAsteroidsSpot(out Vector2 pos, out string systemName)
-                && SpawnShip(PirateShipType.Base, pos, out Ship pirateBase))
+                && SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
             {
-                Owner.GetEmpireAI().Goals.Add(new CorsairAsteroidBase(Owner, pirateBase, systemName));
+                AddGoalBase(pirateBase, systemName);
                 return true;
             }
 
-            return BuildBaseInDeepSpace();
+            return BuildBaseInDeepSpace(level);
         }
 
-        bool BuildBaseOrbitingPlanet(NewBaseSpot spot)
+        bool BuildBaseInLoneSystem(int level)
+        {
+            if (GetLoneSystem(out SolarSystem system))
+            {
+                Vector2 pos = system.Position.GenerateRandomPointOnCircle((system.Radius * 0.75f).LowerBound(10000));
+                if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
+                {
+                    AddGoalBase(pirateBase, system.Name);
+                    return true;
+                }
+            }
+
+            return BuildBaseInDeepSpace(level);
+        }
+
+        bool BuildBaseOrbitingPlanet(NewBaseSpot spot, int level)
         {
             if (GetBasePlanet(spot, out Planet planet))
             {
                 Vector2 pos = planet.Center.GenerateRandomPointInsideCircle(2000);
-                if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase))
+                if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     pirateBase.TetherToPlanet(planet);
-                    Owner.GetEmpireAI().Goals.Add(new CorsairAsteroidBase(Owner, pirateBase, planet.ParentSystem.Name));
+                    AddGoalBase(pirateBase, planet.ParentSystem.Name);
                     return true;
                 }
             }
-            else
-            {
-                return BuildBaseInDeepSpace();
-            }
 
-            return false;
+            return BuildBaseInDeepSpace(level);
         }
 
         bool GetBaseSpotDeepSpace(out Vector2 position)
@@ -296,7 +314,6 @@ namespace Ship_Game
 
             return pos;
         }
-
 
         bool GetBaseAsteroidsSpot(out Vector2 position, out string systemName)
         {
@@ -360,8 +377,29 @@ namespace Ship_Game
 
         bool GetUnownedSystems(out SolarSystem[] systems)
         {
-            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 && s.RingList.Count > 0);
+            systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
+                                                                 && s.RingList.Count > 0 
+                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0));
             return systems.Length > 0;
+        }
+
+        bool GetLoneSystem(out SolarSystem system)
+        {
+            system = null;
+            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0);
+            if (systems.Length > 0)
+                system = systems.RandItem();
+
+            return system != null;
+        }
+
+        void RemovePiratePresenceFromSystem()
+        {
+            foreach (SolarSystem system in UniverseScreen.SolarSystemList)
+            {
+                if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.loyalty.IsPirateFaction))
+                    system.SetPiratePresence(false);
+            }
         }
 
         public struct PirateForces
@@ -372,10 +410,11 @@ namespace Ship_Game
             public readonly string Base;
             public readonly string Station;
 
-            public PirateForces(Empire pirates)
+            public PirateForces(Empire pirates, int effectiveLevel)
             {
-                switch (pirates.PirateThreatLevel)
+                switch (effectiveLevel)
                 {
+                    case 0:
                     case 1:
                     case 2:
                     case 3: 
@@ -405,9 +444,9 @@ namespace Ship_Game
             }
         }
 
-        public bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip)
+        public bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
         {
-            PirateForces forces = new PirateForces(Owner);
+            PirateForces forces = new PirateForces(Owner, level);
             string shipName = "";
             switch (shipType)
             {
@@ -489,7 +528,8 @@ namespace Ship_Game
             AsteroidBelt,
             GasGiant,
             Habitable,
-            DeepSpace
+            DeepSpace,
+            LoneSystem
         }
     }
 

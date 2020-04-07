@@ -4,43 +4,43 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairAsteroidBase : Goal
+    public class PirateBase : Goal
     {
-        public const string ID = "CorsairAsteroidBase";
+        public const string ID = "PirateBase";
         public override string UID => ID;
-        private Pirates Corsairs;
-        private Ship PirateBase;
+        private Pirates Pirates;
+        private Ship Base;
 
-        public CorsairAsteroidBase() : base(GoalType.CorsairAsteroidBase)
+        public PirateBase() : base(GoalType.PirateBase)
         {
             Steps = new Func<GoalStep>[]
             {
                SalvageShips
             };
         }
-        public CorsairAsteroidBase(Empire owner, Ship ship, string systemName) : this()
+        public PirateBase(Empire owner, Ship ship, string systemName) : this()
         {
             empire     = owner;
             TargetShip = ship;
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Corsair Asteroid Base in {systemName} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Base in {systemName} ----");
         }
 
         public sealed override void PostInit()
         {
-            Corsairs   = empire.Pirates;
-            PirateBase = TargetShip;
+            Pirates    = empire.Pirates;
+            Base       = TargetShip;
         }
 
         GoalStep SalvageShips()
         {
-            if (PirateBase == null || !PirateBase.Active)
+            if (Base == null || !Base.Active)
             {
-                Corsairs.LevelDown();
+                Pirates.LevelDown();
                 return GoalStep.GoalFailed; // Base is destroyed, behead the Director
             }
 
-            var friendlies = PirateBase.AI.FriendliesNearby;
+            var friendlies = Base.AI.FriendliesNearby;
             using (friendlies.AcquireReadLock())
             {
                 for (int i = 0; i < friendlies.Count; i++)
@@ -49,13 +49,13 @@ namespace Ship_Game.Commands.Goals
                     if (ship.IsPlatformOrStation)
                         continue; // Do not mess with our own structures
 
-                    if (ship.InRadius(PirateBase.Center, 1200))
+                    if (ship.InRadius(Base.Center, 1200))
                     {
                         // Default Corsair Raiders are removed with no reward
-                        if (ship.shipData.ShipStyle == Corsairs.ShipStyle) 
+                        if (ship.shipData.ShipStyle == Pirates.ShipStyle) 
                             ship.QueueTotalRemoval();
                         else
-                            Corsairs.SalvageShip(ship);
+                            Pirates.SalvageShip(ship);
                     }
                 }
             }

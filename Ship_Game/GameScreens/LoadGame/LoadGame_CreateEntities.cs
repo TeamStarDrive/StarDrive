@@ -169,6 +169,7 @@ namespace Ship_Game
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
             };
 
+            system.SetPiratePresence(ssd.PiratePresence);
             system.AsteroidsList.AddRange(ssd.AsteroidsList);
             system.MoonList.AddRange(ssd.Moons);
             system.SetExploredBy(ssd.ExploredBy);
