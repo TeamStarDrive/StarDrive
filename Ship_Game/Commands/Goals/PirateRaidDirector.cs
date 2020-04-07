@@ -71,10 +71,10 @@ namespace Ship_Game.Commands.Goals
         int RaidStartChance()
         {
             int numCurrentRaids = NumRaids();
-            if (numCurrentRaids >= TargetEmpire.PirateThreatLevel)
+            if (numCurrentRaids >= Pirates.ThreatLevelFor(TargetEmpire))
                 return 0; // Limit maximum of raids to threat vs this empire
 
-            int startChance = TargetEmpire.PirateThreatLevel.LowerBound((int)CurrentGame.Difficulty * 2);
+            int startChance = Pirates.ThreatLevelFor(TargetEmpire).LowerBound((int)CurrentGame.Difficulty * 2);
             startChance    /= numCurrentRaids.LowerBound(1);
             float taxRate   = TargetEmpire.data.TaxRate;
 
@@ -86,7 +86,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalType GetRaid()
         {
-            int raid = RandomMath.RollDie(Pirates.Level.UpperBound(TargetEmpire.PirateThreatLevel));
+            int raid = RandomMath.RollDie(Pirates.Level.UpperBound(Pirates.ThreatLevelFor(TargetEmpire)));
 
             switch (raid)
             {

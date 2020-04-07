@@ -146,9 +146,14 @@ namespace Ship_Game
                 empireToSave.CurrentConstructor   = e.data.CurrentConstructor;
                 empireToSave.OwnedShips           = new Array<ShipSaveData>();
                 empireToSave.TechTree             = new Array<TechEntry>();
-                empireToSave.PirateThreatLevel    = e.PirateThreatLevel;
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
+
+                if (e.IsPirateFaction)
+                {
+                    empireToSave.PirateLevel        = e.Pirates.Level;
+                    empireToSave.PirateThreatLevels = e.Pirates.ThreatLevels;
+                }
 
 
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
@@ -545,7 +550,8 @@ namespace Ship_Game
             [Serialize(17)] public string CurrentConstructor;
             [Serialize(18)] public float FastVsBigFreighterRatio;
             [Serialize(19)] public int AverageFreighterCargoCap;
-            [Serialize(20)] public int PirateThreatLevel;
+            [Serialize(20)] public int PirateLevel;
+            [Serialize(21)] public Map<int, int> PirateThreatLevels;
         }
 
         public class FleetSave
