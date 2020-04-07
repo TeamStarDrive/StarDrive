@@ -12,6 +12,8 @@ namespace Ship_Game
         public readonly Empire Owner;
         public readonly string ShipStyle;
         public readonly BatchRemovalCollection<Goal> Goals;
+        public Map<int, int> ThreatLevels { get; private set; }
+        public int Level { get; private set; }
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
@@ -20,10 +22,11 @@ namespace Ship_Game
             Goals        = goals;
 
             if (!fromSave)
+            {
                 goals.Add(new PirateAI(Owner));
+            }
         }
 
-        public int Level                                => Owner.PirateThreatLevel;
         public HashSet<string> ShipsWeCanBuild          => Owner.ShipsWeCanBuild;
         public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
         public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
@@ -52,15 +55,29 @@ namespace Ship_Game
             }
         }
 
-        public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, victim.PirateThreatLevel + 1);
-        public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, victim.PirateThreatLevel - 1);
-        void SetThreatLevelFor(Empire victim, int value)  => victim.SetPirateThreatLevel(value.Clamped(0, 20));
+        public void InitThreatLevels()
+        {
+            ThreatLevels = new Map<int, int>();
+            foreach (Empire empire in EmpireManager.MajorEmpires)
+                ThreatLevels.Add(empire.Id, -1);
+        }
+
+        public void RestoreThreatLevels(Map<int, int> threatLevels)
+        {
+            ThreatLevels = threatLevels;
+        }
+
+        public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
+        public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);
+        void SetThreatLevelFor(Empire victim, int value)  => ThreatLevels[victim.Id] = value;
 
         // For the Pirates themselves
-        public void SetLevel(int value) => Owner.SetPirateThreatLevel(value.Clamped(0, 20));
-        public void IncreaseLevel()     => SetLevel(Owner.PirateThreatLevel + 1);
-        void DecreaseLevel()            => SetLevel(Owner.PirateThreatLevel - 1);
-        
+        public void SetLevel(int value)   => Level = value;
+        public void IncreaseLevel()       => SetLevel(Level + 1);
+        void DecreaseLevel()              => SetLevel(Level - 1);
+
+        public int ThreatLevelFor(Empire victim) => ThreatLevels[victim.Id];
+
         bool GetOrbitals(out Array<Ship> orbitals, Array<string> orbitalNames)
         {
             orbitals = new Array<Ship>();
@@ -277,10 +294,12 @@ namespace Ship_Game
 
         bool GetBaseSpotDeepSpace(out Vector2 position)
         {
-            position = Vector2.Zero;
+            position               = Vector2.Zero;
+            var sortedThreatLevels = ThreatLevels.SortedDescending(l => l.Value);
+            var empires            = new Array<Empire>();
 
-            Empire[] empires = EmpireManager.Empires.Filter(e => !e.isFaction)
-                .SortedDescending(e => e.PirateThreatLevel);
+            foreach (KeyValuePair<int, int> threatLevel in sortedThreatLevels)
+                empires.Add(EmpireManager.GetEmpireById(threatLevel.Key));
 
             // search for a hidden place near an empire from 400K to 300K
             for (int i = 0; i <= 50; i++)
@@ -507,12 +526,10 @@ namespace Ship_Game
 
         bool ShouldSalvageCombatShip()
         {
-            var empires = EmpireManager.Empires.Filter(e => !e.isFaction);
             bool needMoreLevels = false;
-            for (int i = 0; i < empires.Length; i++)
+            for (int i = 0; i < ThreatLevels.Count; i++)
             {
-                Empire victim = empires[i];
-                if (Level < victim.PirateThreatLevel)
+                if (Level < ThreatLevels[i])
                 {
                     needMoreLevels = true;
                     break;
@@ -521,7 +538,6 @@ namespace Ship_Game
 
             return needMoreLevels;
         }
-
 
         enum NewBaseSpot
         {

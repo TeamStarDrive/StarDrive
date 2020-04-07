@@ -53,7 +53,6 @@ namespace Ship_Game
                     e.data.DefaultTroopShip = e.data.PortraitName + " " + "Troop";
 
                 e.SetAverageFreighterCargoCap(sdata.AverageFreighterCargoCap);
-                e.SetPirateThreatLevel(sdata.PirateThreatLevel);
             }
 
             foreach (TechEntry tech in sdata.TechTree)
@@ -70,6 +69,13 @@ namespace Ship_Game
             e.Money = sdata.Money;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;
             e.RestoreUnserializableDataFromSave();
+
+            if (e.IsPirateFaction)
+            {
+                e.Pirates.SetLevel(sdata.PirateLevel);
+                e.Pirates.RestoreThreatLevels(sdata.PirateThreatLevels);
+            }
+
             return e;
         }
 
