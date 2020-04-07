@@ -308,9 +308,9 @@ namespace Ship_Game
             return false;
         }
 
-        public void BuildMilitia() // Relevant only for players with the Militia Checkbox checked.
+        public void BuildTroops() // Relevant only for players with the Militia Checkbox checked.
         {
-            if (!Owner.isPlayer || !GovMilitia || colonyType == ColonyType.Colony)
+            if (!Owner.isPlayer || !AutoBuildTroops)
                 return;
 
             if (CanBuildInfantry)
