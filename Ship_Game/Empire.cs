@@ -144,6 +144,7 @@ namespace Ship_Game
         public Ship SupplyShuttle            => ResourceManager.ShipsDict["Supply_Shuttle"];
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
+        public bool IsPirateFaction          => isFaction && data.IsPirateFaction;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 

@@ -3,12 +3,12 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairPaymentDirector : Goal
+    public class PiratePaymentDirector : Goal
     {
-        public const string ID = "CorsairPaymentDirector";
+        public const string ID = "PiratePaymentDirector";
         public override string UID => ID;
-       private Pirates Corsairs;
-        public CorsairPaymentDirector() : base(GoalType.CorsairPaymentDirector)
+        private Pirates Pirates;
+        public PiratePaymentDirector() : base(GoalType.PiratePaymentDirector)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -16,22 +16,25 @@ namespace Ship_Game.Commands.Goals
                UpdatePirateActivity,
             };
         }
-        public CorsairPaymentDirector(Empire owner, Empire targetEmpire) : this()
+        public PiratePaymentDirector(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Corsair Payment Director for {TargetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Payment Director for {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Corsairs = empire.Pirates;
+            Pirates = empire.Pirates;
         }
 
         GoalStep UpdatePaymentStatus()
         {
+            if (Pirates.VictimIsDefeated(TargetEmpire))
+                return GoalStep.GoalFailed;
+
             if (TargetEmpire.GetPlanets().Count < 3
                 || TargetEmpire.GetPlanets().Count == 3 && !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
             {
@@ -46,13 +49,13 @@ namespace Ship_Game.Commands.Goals
             if (Paid)
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
-                Corsairs.TryLevelUp();
+                Pirates.TryLevelUp();
             }
             else
             {
                 // They did not pay! We will raid them
-                Corsairs.IncreaseThreatLevelFor(TargetEmpire);
-                Corsairs.AddGoalCorsairRaidDirector(TargetEmpire);
+                Pirates.IncreaseThreatLevelFor(TargetEmpire);
+                Pirates.AddGoalRaidDirector(TargetEmpire);
             }
 
             return GoalStep.RestartGoal;
@@ -68,7 +71,7 @@ namespace Ship_Game.Commands.Goals
             // us when they are ready to pay and increase out threat level to them
             if (!Paid)
             {
-                Corsairs.IncreaseThreatLevelFor(TargetEmpire);
+                Pirates.IncreaseThreatLevelFor(TargetEmpire);
                 return false;
             }
 
@@ -76,33 +79,33 @@ namespace Ship_Game.Commands.Goals
             Log.Info($"Pirate Payment Director for {TargetEmpire.Name} - Requesting payment");
 
             string encounterString = "Request Money";
-            if (!Corsairs.GetRelations(TargetEmpire).Known)
-                Corsairs.SetAsKnown(TargetEmpire);
+            if (!Pirates.GetRelations(TargetEmpire).Known)
+                Pirates.SetAsKnown(TargetEmpire);
             else
                 encounterString = "Request More Money";
 
-            if (ResourceManager.GetEncounter(Corsairs.Owner, encounterString, out Encounter e))
+            if (ResourceManager.GetEncounter(Pirates.Owner, encounterString, out Encounter e))
             {
                 e.MoneyRequested = ModifyMoneyRequested(e.MoneyRequested);
-                EncounterPopup.Show(Empire.Universe, TargetEmpire, Corsairs.Owner, e);
+                EncounterPopup.Show(Empire.Universe, TargetEmpire, Pirates.Owner, e);
             }
 
             // We demanded payment for the first time, let the game begin
             if (TargetEmpire.PirateThreatLevel == -1)
-                Corsairs.IncreaseThreatLevelFor(TargetEmpire);
+                Pirates.IncreaseThreatLevelFor(TargetEmpire);
 
             return true;
         }
 
         int ModifyMoneyRequested(int originalPayment)
         {
-            float payment = originalPayment * Corsairs.Level.LowerBound(1) // Pirates own level
+            float payment = originalPayment * Pirates.Level.LowerBound(1) // Pirates own level
                                             * TargetEmpire.DifficultyModifiers.PiratePayModifier
                                             * TargetEmpire.GetPlanets().Count / 3;
 
             return payment.RoundTo10();
         }
 
-        bool Paid => !Corsairs.GetRelations(TargetEmpire).AtWar;
+        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }

@@ -267,6 +267,7 @@ namespace Ship_Game
         [Serialize(122)] public string PirateStationBasic;
         [Serialize(123)] public string PirateStationImproved;
         [Serialize(124)] public string PirateStationAdvanced;
+        [Serialize(125)] public bool IsPirateFaction;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

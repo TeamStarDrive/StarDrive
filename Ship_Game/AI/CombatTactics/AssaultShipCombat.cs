@@ -32,11 +32,11 @@ namespace Ship_Game.AI.CombatTactics
             if (Owner.Carrier.AssaultTargetShip(Target))
                 return;
 
-            //This is the auto invade feature. FB: this should be expanded to check for building stength and compare troops in ship vs planet
+            //This is the auto invade feature. FB: this should be expanded to check for building strength and compare troops in ship vs planet
             if (Owner.TroopsAreBoardingShip)
                 return;
 
-            if (Owner.loyalty == EmpireManager.Corsairs)
+            if (Owner.loyalty.IsPirateFaction)
             {
                 Owner.AI.PirateOrderFleeHome();
                 return;
