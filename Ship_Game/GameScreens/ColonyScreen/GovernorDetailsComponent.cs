@@ -15,7 +15,7 @@ namespace Ship_Game
         UIPanel Portrait;
         UILabel WorldType, WorldDescription;
         DropOptions<Planet.ColonyType> ColonyTypeList;
-        UICheckBox GovOrbitals, GovMilitia, GovNoScrap, Quarantine;
+        UICheckBox GovOrbitals, AutoTroops, GovNoScrap, Quarantine;
         private FloatSlider Garrison;
         readonly bool UseVideo;
 
@@ -47,7 +47,7 @@ namespace Ship_Game
             WorldDescription = Add(new UILabel(Fonts.Arial12Bold));
             
             GovOrbitals = Add(new UICheckBox(() => Planet.GovOrbitals, Fonts.Arial12Bold, title:1960, tooltip:1961));
-            GovMilitia  = Add(new UICheckBox(() => Planet.GovMilitia,  Fonts.Arial12Bold, title:1956, tooltip:1957));
+            AutoTroops  = Add(new UICheckBox(() => Planet.AutoBuildTroops, Fonts.Arial12Bold, title:1956, tooltip:1957));
             GovNoScrap  = Add(new UICheckBox(() => Planet.DontScrapBuildings, Fonts.Arial12Bold, title:1941, tooltip:1942));
             Quarantine =  Add(new UICheckBox(() => Planet.Quarantine, Fonts.Arial12Bold, title: 1888, tooltip: 1887));
 
@@ -81,7 +81,7 @@ namespace Ship_Game
             WorldDescription.Text = GetParsedDescription();
 
             Quarantine.Pos  = new Vector2(Portrait.X, Bottom - 40);
-            GovMilitia.Pos  = new Vector2(Portrait.X, Bottom - 24);
+            AutoTroops.Pos  = new Vector2(Portrait.X, Bottom - 24);
             GovOrbitals.Pos = new Vector2(TopRight.X - 250, Bottom - 40);
             GovNoScrap.Pos  = new Vector2(TopRight.X - 250, Bottom - 24);
             Garrison.Pos    = new Vector2(TopRight.X - 200, Portrait.Y);
@@ -104,7 +104,6 @@ namespace Ship_Game
         public override void Update(float deltaTime)
         {
             GovOrbitals.Visible = Planet.Owner.isPlayer && Planet.colonyType != Planet.ColonyType.Colony;
-            GovMilitia.Visible  = GovOrbitals.Visible;
             Garrison.Visible    = Planet.Owner.isPlayer;
             Quarantine.Visible  = Planet.Owner.isPlayer;
             Planet.GarrisonSize = (int)Garrison.AbsoluteValue;

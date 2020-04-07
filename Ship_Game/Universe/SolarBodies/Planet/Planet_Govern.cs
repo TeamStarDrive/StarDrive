@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ship_Game.AI;
-using Ship_Game.AI.Budget;
-using Ship_Game.Commands.Goals;
-using Ship_Game.Ships;
-using Ship_Game.Universe.SolarBodies;
+﻿using Ship_Game.AI.Budget;
 
 namespace Ship_Game
 {
@@ -20,9 +11,13 @@ namespace Ship_Game
         public void DoGoverning()
         {
             RefreshBuildingsWeCanBuildHere();
+            if (RecentCombat)
+                return; // Cant Build stuff when there is combat on the planet
 
-            if (colonyType == ColonyType.Colony || RecentCombat)
-                return; // No Governor or combat on planet? Nevermind!
+            BuildTroops();
+
+            if (colonyType == ColonyType.Colony)
+                return; // No Governor? Never mind!
 
             BuildOutpostIfAble();   //If there is no Outpost or Capital, build it
             bool noResearch = Owner.Research.NoTopic;
@@ -78,7 +73,6 @@ namespace Ship_Game
             } // End Gov type Switch
 
             BuildPlatformsAndStations(budget);
-            BuildMilitia();
         }
 
         public PlanetBudget AllocateColonyBudget() => Owner.GetEmpireAI().PlanetBudget(this);

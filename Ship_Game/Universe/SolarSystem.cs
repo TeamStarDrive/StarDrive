@@ -628,7 +628,7 @@ namespace Ship_Game
                     prodHere             = planet.ProdHere,
                     ColonyType           = planet.colonyType,
                     GovOrbitals          = planet.GovOrbitals,
-                    GovMilitia           = planet.GovMilitia,
+                    GovMilitia           = planet.AutoBuildTroops,
                     GarrisonSize         = planet.GarrisonSize,
                     Quarantine           = planet.Quarantine,
                     DontScrapBuildings   = planet.DontScrapBuildings,
