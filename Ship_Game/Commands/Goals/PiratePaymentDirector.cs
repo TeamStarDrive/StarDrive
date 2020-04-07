@@ -64,7 +64,7 @@ namespace Ship_Game.Commands.Goals
         bool RequestPayment()
         {
             // Every 10 years, the pirates will demand new payment or immediately if the threat level is -1 (initial)
-            if (Empire.Universe.StarDate % 10 > 0 && TargetEmpire.PirateThreatLevel > -1)
+            if (Empire.Universe.StarDate % 10 > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
                 return false;
 
             // If they did not pay, don't ask for another payment, let them crawl to
@@ -91,7 +91,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             // We demanded payment for the first time, let the game begin
-            if (TargetEmpire.PirateThreatLevel == -1)
+            if (Pirates.ThreatLevelFor(TargetEmpire) == -1)
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
 
             return true;

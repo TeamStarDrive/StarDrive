@@ -39,8 +39,8 @@ namespace Ship_Game.Commands.Goals
             if (Paid || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
-            int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 5;
-            if (RandomMath.RollDice(nearPlanetRaidChange))
+            int nearPlanetRaidChacge = Pirates.ThreatLevelFor(TargetEmpire) * 5;
+            if (RandomMath.RollDice(nearPlanetRaidChacge))
             {
                 if (ScanFreightersNearPlanets(out Ship freighter))
                 {
