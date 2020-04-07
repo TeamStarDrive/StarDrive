@@ -5,13 +5,13 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairRaidTransport : Goal
+    public class PirateRaidTransport : Goal
     {
-        public const string ID = "CorsairRaidTransport";
+        public const string ID = "PirateRaidTransport";
         public override string UID => ID;
-        private Pirates Corsairs;
+        private Pirates Pirates;
 
-        public CorsairRaidTransport() : base(GoalType.CorsairRaidTransport)
+        public PirateRaidTransport() : base(GoalType.PirateRaidTransport)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -20,24 +20,24 @@ namespace Ship_Game.Commands.Goals
             };
         }
 
-        public CorsairRaidTransport(Empire owner, Empire targetEmpire) : this()
+        public PirateRaidTransport(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
 
             PostInit();
-            Log.Info(ConsoleColor.Green, $"---- New Corsair Transport Raid vs. {targetEmpire.Name} ----");
+            Log.Info(ConsoleColor.Green, $"---- Pirates: New {empire.Name} Transport Raid vs. {targetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
         {
-            Corsairs = empire.Pirates;
+            Pirates = empire.Pirates;
         }
 
         GoalStep DetectAndSpawnRaidForce()
         {
-            if (!Corsairs.GetRelations(TargetEmpire).AtWar)
-                return GoalStep.GoalFailed; // They paid
+            if (Paid || Pirates.VictimIsDefeated(TargetEmpire))
+                return GoalStep.GoalFailed; // They paid or dead
 
             int nearPlanetRaidChange = TargetEmpire.PirateThreatLevel * 5;
             if (RandomMath.RollDice(nearPlanetRaidChange))
@@ -70,10 +70,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep CheckIfHijacked()
         {
 
-            if (!TargetShip.Active || TargetShip.loyalty != Corsairs.Owner && !TargetShip.Inhibited)
+            if (!TargetShip.Active || TargetShip.loyalty != Pirates.Owner && !TargetShip.Inhibited)
                 return GoalStep.GoalFailed; // Target destroyed or escaped
 
-            return TargetShip.loyalty == Corsairs.Owner ? GoalStep.GoalComplete :  GoalStep.TryAgain;
+            return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoalComplete :  GoalStep.TryAgain;
         }
 
         bool ScanFreightersAtWarp(out Ship freighter)
@@ -85,7 +85,7 @@ namespace Ship_Game.Commands.Goals
                 Ship ship = targetShips[i];
                 if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) 
                                      &&  ship.IsInWarp
-                                     && !Corsairs.RaidingThisShip(ship))
+                                     && !Pirates.RaidingThisShip(ship))
                 {
                     freighter = ship;
                     break;
@@ -110,7 +110,7 @@ namespace Ship_Game.Commands.Goals
                     if (ship.IsFreighter
                         && !ship.IsInWarp
                         && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)
-                        && !Corsairs.RaidingThisShip(ship))
+                        && !Pirates.RaidingThisShip(ship))
                     {
                         freighters.Add(ship);
                     }
@@ -127,7 +127,7 @@ namespace Ship_Game.Commands.Goals
         bool SpawnBoardingShip(Ship freighter, Vector2 where, out Ship boardingShip)
         {
             TargetShip = freighter; // This is the main target, we want this to arrive to our base
-            if (Corsairs.SpawnShip(PirateShipType.Boarding, where, out boardingShip))
+            if (Pirates.SpawnShip(PirateShipType.Boarding, where, out boardingShip))
                 boardingShip.AI.OrderAttackSpecificTarget(freighter);
 
             return boardingShip != null;
@@ -137,5 +137,7 @@ namespace Ship_Game.Commands.Goals
         {
             // Todo check for the target ally forces nearby and spawn escort ships 
         }
+
+        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }

@@ -112,14 +112,15 @@ namespace Ship_Game
             {
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {
-                    Name     = system.Name,
-                    guid     = system.guid,
-                    Position = system.Position,
-                    SunPath  = system.Sun.Id,
-                    AsteroidsList = system.AsteroidsList.Clone(),
-                    Moons         = system.MoonList.Clone(),
-                    ExploredBy = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
-                    RingList   = system.RingList.Select(ring => ring.Serialize()),
+                    Name           = system.Name,
+                    guid           = system.guid,
+                    Position       = system.Position,
+                    SunPath        = system.Sun.Id,
+                    AsteroidsList  = system.AsteroidsList.Clone(),
+                    Moons          = system.MoonList.Clone(),
+                    ExploredBy     = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                    RingList       = system.RingList.Select(ring => ring.Serialize()),
+                    PiratePresence = system.PiratePresence
                 });
             }
 
@@ -783,7 +784,8 @@ namespace Ship_Game
             [Serialize(4)] public RingSave[] RingList;
             [Serialize(5)] public Array<Asteroid> AsteroidsList;
             [Serialize(6)] public Array<Moon> Moons;
-            [Serialize(7)] public string[] ExploredBy;            
+            [Serialize(7)] public string[] ExploredBy;
+            [Serialize(8)] public bool PiratePresence;
         }
 
         public struct SpaceRoadSave

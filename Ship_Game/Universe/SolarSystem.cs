@@ -25,6 +25,7 @@ namespace Ship_Game
         public Array<Ship> ShipList = new Array<Ship>();
         public bool isVisible;
         public Vector2 Position;
+        public bool PiratePresence { get; private set; }
 
         // this is the minimum solar system radius
         // needs to be big enough to properly trigger system-radius related events
@@ -131,6 +132,10 @@ namespace Ship_Game
             }
         }
 
+        public void SetPiratePresence(bool value)
+        {
+            PiratePresence = value;
+        }
 
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
@@ -280,7 +285,8 @@ namespace Ship_Game
             return null;
         }
 
-        public void GenerateCorsairSystem(string systemName)
+        /*
+        public void GeneratePirateSystem(string systemName)
         {
             Sun = SunType.RandomHabitableSun(s => s.Id == "star_red"
                                       || s.Id == "star_yellow"
@@ -305,7 +311,8 @@ namespace Ship_Game
                         OrbitalAngle = randomAngle,
                         ParentSystem = this
                     };
-                    PlanetType type          = ResourceManager.RandomPlanet(PlanetCategory.Terran);
+                    PlanetCategory category  = ResourceManager.RandomPlanetCategoryFor(SunZone.Habital);
+                    PlanetType type          = ResourceManager.RandomPlanet(category);
                     newOrbital.InitNewMinorPlanet(type, scale);
                     newOrbital.Center        = planetCenter;
                     newOrbital.ObjectRadius  = planetRadius;
@@ -316,7 +323,7 @@ namespace Ship_Game
                         newOrbital.HasRings = true;
                         newOrbital.RingTilt = RandomBetween(-80f, -45f);
                     }
-                    newOrbital.CorsairPresence = true;
+                    newOrbital.PiratePresence = true;
                     PlanetList.Add(newOrbital);
                     var ring = new Ring
                     {
@@ -330,6 +337,7 @@ namespace Ship_Game
 
             UpdateSystemRadius();
         }
+        */
 
         public void GenerateRandomSystem(string name, float systemScale, Empire owner = null)
         {

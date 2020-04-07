@@ -25,11 +25,11 @@ namespace Ship_Game.AI
         Refit,
         BuildOrbital,
         RemnantAI,
-        CorsairAI,
-        CorsairPaymentDirector,
-        CorsairRaidDirector,
-        CorsairAsteroidBase,
-        CorsairRaidTransport
+        PirateAI,
+        PiratePaymentDirector,
+        PirateRaidDirector,
+        PirateBase,
+        PirateRaidTransport
     }
 
     public enum GoalStep
@@ -123,11 +123,11 @@ namespace Ship_Game.AI
                 case RefitShip.ID:              return new RefitShip();
                 case BuildOrbital.ID:           return new BuildOrbital();
                 case RemnantAI.ID:              return new RemnantAI();
-                case CorsairAI.ID:              return new CorsairAI();
-                case CorsairPaymentDirector.ID: return new CorsairPaymentDirector();
-                case CorsairRaidDirector.ID:    return new CorsairRaidDirector();
-                case CorsairRaidTransport.ID:   return new CorsairRaidTransport();
-                case CorsairAsteroidBase.ID:    return new CorsairAsteroidBase();
+                case PirateAI.ID:               return new PirateAI();
+                case PiratePaymentDirector.ID:  return new PiratePaymentDirector();
+                case PirateRaidDirector.ID:     return new PirateRaidDirector();
+                case PirateRaidTransport.ID:    return new PirateRaidTransport();
+                case PirateBase.ID:             return new PirateBase();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }

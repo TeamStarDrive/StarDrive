@@ -8,42 +8,41 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairAI : Goal
+    public class PirateAI : Goal
     {
         public const string ID = "CorsairAI";
         public override string UID => ID;
-        private Pirates Corsairs;
+        private Pirates Pirates;
 
-        public CorsairAI() : base(GoalType.CorsairAI)
+        public PirateAI() : base(GoalType.PirateAI)
         {
             Steps = new Func<GoalStep>[]
             {  
-               CorsairPlan
+               PiratePlan
             };
         }
-        public CorsairAI(Empire owner) : this()
+        public PirateAI(Empire owner) : this()
         {
             empire = owner;
         }
 
-        GoalStep CorsairPlan()
+        GoalStep PiratePlan()
         {
-            Corsairs = empire.Pirates;
-            Corsairs.SetLevel(1); // Initial Level of the pirates
+            Pirates = empire.Pirates;
+            Pirates.SetLevel(0); // Initial Level of the pirates
+            Pirates.TryLevelUp(alwaysLevelUp: true); // build initial base
 
-            if (!Corsairs.GetBases(out Array<Ship> bases))
+            if (!Pirates.GetBases(out Array<Ship> bases))
             {
-                Log.Warning("Could not find a Corsair base. Pirate AI is disabled!");
+                Log.Warning($"Could not find a Pirate base for {empire.Name}. Pirate AI is disabled for them!");
                 return GoalStep.GoalFailed;
             }
 
-            Ship firstBase = bases.First;
-            Corsairs.AddGoalCorsairBase(firstBase, firstBase.SystemName);
             PopulatePirateFightersForCarriers();
 
             // FB - Pirate main goal can be set per AI empire as well, in the future
             // Also - We might want to create several pirate factions (set by the player in rule options)
-            Corsairs.AddGoalCorsairPaymentDirector(EmpireManager.Player);
+            Pirates.AddGoalPaymentDirector(EmpireManager.Player);
             return GoalStep.GoalComplete;
         }
 
@@ -74,9 +73,9 @@ namespace Ship_Game.Commands.Goals
 
         void PopulatePirateFightersForCarriers()
         {
-            Corsairs.ShipsWeCanBuild.Add(empire.data.PirateFighterBasic);
-            Corsairs.ShipsWeCanBuild.Add(empire.data.PirateFighterImproved);
-            Corsairs.ShipsWeCanBuild.Add(empire.data.PirateFighterAdvanced);
+            Pirates.ShipsWeCanBuild.Add(empire.data.PirateFighterBasic);
+            Pirates.ShipsWeCanBuild.Add(empire.data.PirateFighterImproved);
+            Pirates.ShipsWeCanBuild.Add(empire.data.PirateFighterAdvanced);
         }
     }
 }

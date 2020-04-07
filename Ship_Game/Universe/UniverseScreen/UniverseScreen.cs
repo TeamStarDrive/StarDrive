@@ -470,7 +470,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        // Remnants or Corsairs may be null if Mods disable default Races
+                        // Remnants may be null if Mods disable default Races
                         if (EmpireManager.Remnants != null)
                         {
                             foreach (string key in p.Guardians)
@@ -479,13 +479,14 @@ namespace Ship_Game
                                 guardian.IsGuardian = true;
                             }
                         }
-                        if (p.CorsairPresence && EmpireManager.Corsairs != null)
+                        /*
+                        if (p.PiratePresence && EmpireManager.Corsairs != null)
                         {
                             Ship.CreateShipAt("Corsair Asteroid Base", EmpireManager.Corsairs, p, true).TetherToPlanet(p);
                             Ship.CreateShipAt("Corsair", EmpireManager.Corsairs, p, true);
                             Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
                             Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
-                        }
+                        }*/
                     }
                 }
                 foreach (Anomaly anomaly in solarSystem.AnomaliesList)
