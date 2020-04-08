@@ -35,8 +35,10 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed;
 
-            if (TargetEmpire.GetPlanets().Count < 3
-                || TargetEmpire.GetPlanets().Count == 3 && !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
+            int victimPlanets = TargetEmpire.GetPlanets().Count;
+
+            if (victimPlanets < Pirates.MinimumColoniesForPayment
+                || victimPlanets == 3 && !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
             {
                 return GoalStep.TryAgain; // Too small for now
             }
@@ -64,7 +66,7 @@ namespace Ship_Game.Commands.Goals
         bool RequestPayment()
         {
             // Every 10 years, the pirates will demand new payment or immediately if the threat level is -1 (initial)
-            if (Empire.Universe.StarDate % 10 > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
+            if (Empire.Universe.StarDate % Pirates.PaymentPeriodYears > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
                 return false;
 
             // If they did not pay, don't ask for another payment, let them crawl to

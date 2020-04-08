@@ -30,6 +30,8 @@ namespace Ship_Game
         public HashSet<string> ShipsWeCanBuild          => Owner.ShipsWeCanBuild;
         public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
         public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
+        public int MinimumColoniesForPayment            => Owner.data.MinimumColoniesForStartPayment;
+        public int PaymentPeriodYears                   => Owner.data.PiratePaymentPeriodYears;
 
         public void AddGoalPaymentDirector(Empire victim) => 
             AddGoal(victim, GoalType.PiratePaymentDirector, null, "");
