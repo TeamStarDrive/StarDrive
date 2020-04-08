@@ -118,6 +118,9 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, text, cursor, Color.White);
             }
             batch.End();
+
+            RefitOne.Visible = RefitTo != null;
+            RefitAll.Visible = RefitTo != null;
         }
 
         public override void ExitScreen()
