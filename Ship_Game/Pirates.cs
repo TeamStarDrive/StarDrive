@@ -12,7 +12,8 @@ namespace Ship_Game
         public readonly Empire Owner;
         public readonly string ShipStyle;
         public readonly BatchRemovalCollection<Goal> Goals;
-        public Map<int, int> ThreatLevels { get; private set; }
+        public Map<int, int> ThreatLevels { get; private set; }  // Empire IDs are used here
+        public Map<int, int> PaymentTimers { get; private set; }  // Empire IDs are used here
         public int Level { get; private set; }
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
@@ -31,7 +32,7 @@ namespace Ship_Game
         public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
         public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
         public int MinimumColoniesForPayment            => Owner.data.MinimumColoniesForStartPayment;
-        public int PaymentPeriodYears                   => Owner.data.PiratePaymentPeriodYears;
+        public int PaymentPeriodTurns                   => Owner.data.PiratePaymentPeriodTurns;
 
         public void AddGoalPaymentDirector(Empire victim) => 
             AddGoal(victim, GoalType.PiratePaymentDirector, null, "");
@@ -57,17 +58,26 @@ namespace Ship_Game
             }
         }
 
-        public void InitThreatLevels()
+        public void InitThreatLevels() // New Game
         {
-            ThreatLevels = new Map<int, int>();
+            ThreatLevels  = new Map<int, int>(); 
+            PaymentTimers = new Map<int, int>();
             foreach (Empire empire in EmpireManager.MajorEmpires)
+            {
                 ThreatLevels.Add(empire.Id, -1);
+                PaymentTimers.Add(empire.Id, Owner.data.PiratePaymentPeriodTurns);
+            }
         }
 
-        public void RestoreThreatLevels(Map<int, int> threatLevels)
+        public void RestoreThreatLevelsAndTimers(Map<int, int> threatLevels, Map<int, int> paymentTimers) // From Save
         {
-            ThreatLevels = threatLevels;
+            ThreatLevels  = threatLevels;
+            PaymentTimers = paymentTimers;
         }
+
+        public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
+        public void DecreasePaymentTimerFor(Empire victim) => PaymentTimers[victim.Id] -= 1;
+        public void ResetPaymentTimerFor(Empire victim)    => PaymentTimers[victim.Id] = Owner.data.PiratePaymentPeriodTurns;
 
         public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
         public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);

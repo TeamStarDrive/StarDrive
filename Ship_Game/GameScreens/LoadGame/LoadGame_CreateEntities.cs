@@ -73,7 +73,7 @@ namespace Ship_Game
             if (e.IsPirateFaction)
             {
                 e.Pirates.SetLevel(sdata.PirateLevel);
-                e.Pirates.RestoreThreatLevels(sdata.PirateThreatLevels);
+                e.Pirates.RestoreThreatLevelsAndTimers(sdata.PirateThreatLevels, sdata.PiratePaymentTimers);
             }
 
             return e;
