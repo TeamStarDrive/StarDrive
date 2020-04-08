@@ -1206,6 +1206,7 @@ namespace Ship_Game
         {
             AddRelation(empire);
             Relationships[empire].Known = true;
+            empire.SetRelationsAsKnown(this);
         }
 
         public bool TryGetRelations(Empire empire, out Relationship relations) => Relationships.TryGetValue(empire, out relations);
