@@ -319,21 +319,11 @@ namespace Ship_Game
         {
             if (SelectedShip == null)
                 return;
+
             if (SelectedShip.loyalty.isFaction)
-            {
-                foreach (Encounter e in ResourceManager.Encounters)
-                {
-                    if (SelectedShip.loyalty.data.Traits.Name == e.Faction && player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
-                    {
-                        EncounterPopup.Show(this, player, SelectedShip.loyalty, e);
-                        break;
-                    }
-                }
-            }
+                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.loyalty, this);
             else
-            {
                 DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
-            }
         }
 
         void CreateProjectionMatrix()
