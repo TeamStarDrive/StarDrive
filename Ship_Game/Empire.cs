@@ -2484,7 +2484,7 @@ namespace Ship_Game
                 return;
 
             string message = new LocalizedText(GameText.ShipCapturedByYou).Text;
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, null);
         }
 
         public void AddBoardedNotification(Ship ship)
@@ -2492,8 +2492,8 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = new LocalizedText(GameText.YourShipWasCaptured).Text;
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
+            string message = $"{new LocalizedText(GameText.YourShipWasCaptured).Text} {ship.loyalty}!";
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
         }
 
         private void CalculateScore()
