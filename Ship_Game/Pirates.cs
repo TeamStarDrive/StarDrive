@@ -23,16 +23,14 @@ namespace Ship_Game
             Goals        = goals;
 
             if (!fromSave)
-            {
                 goals.Add(new PirateAI(Owner));
-            }
         }
 
         public HashSet<string> ShipsWeCanBuild          => Owner.ShipsWeCanBuild;
         public Relationship GetRelations(Empire victim) => Owner.GetRelations(victim);
         public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
         public int MinimumColoniesForPayment            => Owner.data.MinimumColoniesForStartPayment;
-        public int PaymentPeriodTurns                   => Owner.data.PiratePaymentPeriodTurns;
+        int PaymentPeriodTurns                          => Owner.data.PiratePaymentPeriodTurns;
 
         public void AddGoalPaymentDirector(Empire victim) => 
             AddGoal(victim, GoalType.PiratePaymentDirector, null, "");
@@ -65,7 +63,7 @@ namespace Ship_Game
             foreach (Empire empire in EmpireManager.MajorEmpires)
             {
                 ThreatLevels.Add(empire.Id, -1);
-                PaymentTimers.Add(empire.Id, Owner.data.PiratePaymentPeriodTurns);
+                PaymentTimers.Add(empire.Id, PaymentPeriodTurns);
             }
         }
 
@@ -77,7 +75,7 @@ namespace Ship_Game
 
         public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
         public void DecreasePaymentTimerFor(Empire victim) => PaymentTimers[victim.Id] -= 1;
-        public void ResetPaymentTimerFor(Empire victim)    => PaymentTimers[victim.Id] = Owner.data.PiratePaymentPeriodTurns;
+        public void ResetPaymentTimerFor(Empire victim)    => PaymentTimers[victim.Id] = PaymentPeriodTurns;
 
         public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
         public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);
@@ -257,16 +255,17 @@ namespace Ship_Game
             if (!SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level)) 
                 return false;
 
-            AddGoalBase(pirateBase, pirateBase.SystemName);
+            AddGoalBase(pirateBase, pirateBase.SystemName); // SystemName is "Deep Space"
             return true;
         }
 
         bool BuildBaseInAsteroids(int level)
         {
-            if (GetBaseAsteroidsSpot(out Vector2 pos, out string systemName)
+            if (GetBaseAsteroidsSpot(out Vector2 pos, out SolarSystem system)
                 && SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
             {
-                AddGoalBase(pirateBase, systemName);
+                AddGoalBase(pirateBase, system.Name);
+                system.SetPiratePresence(true);
                 return true;
             }
 
@@ -281,6 +280,7 @@ namespace Ship_Game
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     AddGoalBase(pirateBase, system.Name);
+                    system.SetPiratePresence(true);
                     return true;
                 }
             }
@@ -297,6 +297,7 @@ namespace Ship_Game
                 {
                     pirateBase.TetherToPlanet(planet);
                     AddGoalBase(pirateBase, planet.ParentSystem.Name);
+                    planet.ParentSystem.SetPiratePresence(true);
                     return true;
                 }
             }
@@ -346,10 +347,11 @@ namespace Ship_Game
             return pos;
         }
 
-        bool GetBaseAsteroidsSpot(out Vector2 position, out string systemName)
+        bool GetBaseAsteroidsSpot(out Vector2 position, out SolarSystem system)
         {
             position   = Vector2.Zero;
-            systemName = "";
+            system     = null;
+
             if (!GetUnownedSystems(out SolarSystem[] systems))
                 return false;
 
@@ -363,7 +365,7 @@ namespace Ship_Game
 
             float ringRadius = selectedRing.OrbitalDistance + RandomMath.IntBetween(-250, 250);
             position         = selectedSystem.Position.GenerateRandomPointOnCircle(ringRadius);
-            systemName       = selectedSystem.Name;
+            system           = selectedSystem;
 
             return position != Vector2.Zero;
         }
