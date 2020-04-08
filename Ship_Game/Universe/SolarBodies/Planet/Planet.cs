@@ -31,8 +31,8 @@ namespace Ship_Game
         public TroopManager TroopManager;
         public SpaceStation Station = new SpaceStation(null);
 
-        public bool GovOrbitals        = true;
-        public bool GovMilitia         = false;
+        public bool GovOrbitals        = false;
+        public bool AutoBuildTroops    = false;
         public bool DontScrapBuildings = false;
         public bool Quarantine         = false;
         public bool AllowInfantry;
@@ -982,7 +982,7 @@ namespace Ship_Game
 
                 int threshold = 0;
                 if (Owner.isPlayer)
-                    threshold = GovMilitia ? 0 : GarrisonSize;
+                    threshold = AutoBuildTroops ? 0 : GarrisonSize;
 
                 return TroopsHere.Count - threshold;
             }
