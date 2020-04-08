@@ -4880,7 +4880,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1935</Index>
-      <Text>One of your ships was boarded!</Text>
+      <Text>One of your ships was boarded by</Text>
     </Token>
     <Token>
       <Index>1939</Index>
