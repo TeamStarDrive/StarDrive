@@ -268,7 +268,7 @@ namespace Ship_Game
         [Serialize(123)] public string PirateStationImproved;
         [Serialize(124)] public string PirateStationAdvanced;
         [Serialize(125)] public bool IsPirateFaction;
-        [Serialize(126)] public int PiratePaymentPeriodYears = 10; 
+        [Serialize(126)] public int PiratePaymentPeriodTurns = 100; 
         [Serialize(127)] public int MinimumColoniesForStartPayment = 3;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;

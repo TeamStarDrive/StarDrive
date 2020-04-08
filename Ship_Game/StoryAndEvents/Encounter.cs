@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Ship_Game.Gameplay;
+using Ship_Game.Ships;
 
 namespace Ship_Game
 {
@@ -8,6 +10,8 @@ namespace Ship_Game
     {
         // TODO: What is serialized here??
         public int Step;
+        public bool FactionInitiated;
+        public bool PlayerInitiated;
         public string Name;
         public string Faction;
         public string DescriptionText;
@@ -61,14 +65,19 @@ namespace Ship_Game
                 empToDiscuss.GetEmpireAI().EndWarFromEvent(playerEmpire);
             }
 
-            playerEmpire.GetRelations(empToDiscuss).EncounterStep =
-                MessageList[CurrentMessageId].SetEncounterStep;
+            Relationship rel = playerEmpire.GetRelations(empToDiscuss);
+            Message message = MessageList[CurrentMessageId];
+            if (message.SetPlayerContactStep > 0)
+                rel.PlayerContactStep = message.SetPlayerContactStep;
+
+            if (message.SetFactionContactStep > 0)
+                rel.FactionContactStep = message.SetFactionContactStep;
         }
 
         public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
         {
             Message current = Current;
-            string[] wordArray = current.text.Split(' ');
+            string[] wordArray = current.Text.Split(' ');
             for (int i = 0; i < wordArray.Length; ++i)
                 wordArray[i] = ParseEncounterKeyword(wordArray[i]);
 
@@ -81,35 +90,35 @@ namespace Ship_Game
             {
                 default: return keyword;
                 case "SING": return playerEmpire.data.Traits.Singular;
-                case "SING.": return playerEmpire.data.Traits.Singular+".";
-                case "SING,": return playerEmpire.data.Traits.Singular+",";
-                case "SING?": return playerEmpire.data.Traits.Singular+"?";
-                case "SING!": return playerEmpire.data.Traits.Singular+"!";
+                case "SING.": return playerEmpire.data.Traits.Singular + ".";
+                case "SING,": return playerEmpire.data.Traits.Singular + ",";
+                case "SING?": return playerEmpire.data.Traits.Singular + "?";
+                case "SING!": return playerEmpire.data.Traits.Singular + "!";
                 case "PLURAL": return playerEmpire.data.Traits.Plural;
-                case "PLURAL.": return playerEmpire.data.Traits.Plural+".";
-                case "PLURAL,": return playerEmpire.data.Traits.Plural+",";
-                case "PLURAL?": return playerEmpire.data.Traits.Plural+"?";
-                case "PLURAL!": return playerEmpire.data.Traits.Plural+"!";
+                case "PLURAL.": return playerEmpire.data.Traits.Plural + ".";
+                case "PLURAL,": return playerEmpire.data.Traits.Plural + ",";
+                case "PLURAL?": return playerEmpire.data.Traits.Plural + "?";
+                case "PLURAL!": return playerEmpire.data.Traits.Plural + "!";
                 case "TARSYS": return sysToDiscuss.Name;
-                case "TARSYS.": return sysToDiscuss.Name+".";
-                case "TARSYS,": return sysToDiscuss.Name+",";
-                case "TARSYS?": return sysToDiscuss.Name+"?";
-                case "TARSYS!": return sysToDiscuss.Name+"!";
+                case "TARSYS.": return sysToDiscuss.Name + ".";
+                case "TARSYS,": return sysToDiscuss.Name + ",";
+                case "TARSYS?": return sysToDiscuss.Name + "?";
+                case "TARSYS!": return sysToDiscuss.Name + "!";
                 case "TAREMP": return empToDiscuss.data.Traits.Name;
-                case "TAREMP.": return empToDiscuss.data.Traits.Name+".";
-                case "TAREMP,": return empToDiscuss.data.Traits.Name+",";
-                case "TAREMP?": return empToDiscuss.data.Traits.Name+"?";
-                case "TAREMP!": return empToDiscuss.data.Traits.Name+"!";
+                case "TAREMP.": return empToDiscuss.data.Traits.Name + ".";
+                case "TAREMP,": return empToDiscuss.data.Traits.Name + ",";
+                case "TAREMP?": return empToDiscuss.data.Traits.Name + "?";
+                case "TAREMP!": return empToDiscuss.data.Traits.Name + "!";
                 case "ADJ1": return playerEmpire.data.Traits.Adj1;
-                case "ADJ1.": return playerEmpire.data.Traits.Adj1+".";
-                case "ADJ1,": return playerEmpire.data.Traits.Adj1+",";
-                case "ADJ1?": return playerEmpire.data.Traits.Adj1+"?";
-                case "ADJ1!": return playerEmpire.data.Traits.Adj1+"!";
+                case "ADJ1.": return playerEmpire.data.Traits.Adj1 + ".";
+                case "ADJ1,": return playerEmpire.data.Traits.Adj1 + ",";
+                case "ADJ1?": return playerEmpire.data.Traits.Adj1 + "?";
+                case "ADJ1!": return playerEmpire.data.Traits.Adj1 + "!";
                 case "ADJ2": return playerEmpire.data.Traits.Adj2;
-                case "ADJ2.": return playerEmpire.data.Traits.Adj2+".";
-                case "ADJ2,": return playerEmpire.data.Traits.Adj2+",";
-                case "ADJ2?": return playerEmpire.data.Traits.Adj2+"?";
-                case "ADJ2!": return playerEmpire.data.Traits.Adj2+"!";
+                case "ADJ2.": return playerEmpire.data.Traits.Adj2 + ".";
+                case "ADJ2,": return playerEmpire.data.Traits.Adj2 + ",";
+                case "ADJ2?": return playerEmpire.data.Traits.Adj2 + "?";
+                case "ADJ2!": return playerEmpire.data.Traits.Adj2 + "!";
                 case "MONEY": return MoneyRequested.String();
             }
         }
@@ -127,6 +136,37 @@ namespace Ship_Game
         public void SetTarEmp(Empire e)
         {
             empToDiscuss = e;
+        }
+
+        public static void ShowEncounterPopUpPlayerInitiated(Empire faction, UniverseScreen screen, float moneyMod = 1) =>
+            ShowEncounterPopUp(faction, screen, playerInitiated: true, moneyMod);
+
+        public static void ShowEncounterPopUpFactionInitiated(Empire faction, UniverseScreen screen, float moneyMod = 1) =>
+            ShowEncounterPopUp(faction, screen, playerInitiated: false, moneyMod);
+
+        static void ShowEncounterPopUp(Empire faction, UniverseScreen screen, bool playerInitiated, float moneyModifier)
+        {
+            if (faction == null)
+                return;
+
+            Empire player    = EmpireManager.Player;
+            Relationship rel = player.GetRelations(faction);
+            int requiredStep = playerInitiated ? rel.PlayerContactStep : rel.FactionContactStep;
+
+
+            Encounter[] encounters = playerInitiated ? ResourceManager.Encounters.Filter(e => e.PlayerInitiated) 
+                                                     : ResourceManager.Encounters.Filter(e => e.FactionInitiated);
+            
+            foreach (Encounter e in encounters)
+            {
+                string empireName = faction.data.Traits.Name;
+                if (empireName == e.Faction && requiredStep == e.Step)
+                {
+                    e.MoneyRequested = (e.MoneyRequested * moneyModifier).RoundTo10();
+                    EncounterPopup.Show(screen, player, faction, e);
+                    break;
+                }
+            }
         }
     }
 }

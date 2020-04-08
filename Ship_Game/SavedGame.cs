@@ -151,8 +151,9 @@ namespace Ship_Game
 
                 if (e.IsPirateFaction)
                 {
-                    empireToSave.PirateLevel        = e.Pirates.Level;
-                    empireToSave.PirateThreatLevels = e.Pirates.ThreatLevels;
+                    empireToSave.PirateLevel         = e.Pirates.Level;
+                    empireToSave.PirateThreatLevels  = e.Pirates.ThreatLevels;
+                    empireToSave.PiratePaymentTimers = e.Pirates.PaymentTimers;
                 }
 
 
@@ -552,6 +553,7 @@ namespace Ship_Game
             [Serialize(19)] public int AverageFreighterCargoCap;
             [Serialize(20)] public int PirateLevel;
             [Serialize(21)] public Map<int, int> PirateThreatLevels;
+            [Serialize(22)] public Map<int, int> PiratePaymentTimers;
         }
 
         public class FleetSave

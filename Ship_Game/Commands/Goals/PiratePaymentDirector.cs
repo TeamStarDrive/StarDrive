@@ -37,13 +37,15 @@ namespace Ship_Game.Commands.Goals
 
             int victimPlanets = TargetEmpire.GetPlanets().Count;
 
-            if (victimPlanets < Pirates.MinimumColoniesForPayment
-                || victimPlanets == 3 && !RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
+            if (victimPlanets > Pirates.MinimumColoniesForPayment
+                || victimPlanets == Pirates.MinimumColoniesForPayment 
+                 && RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
             {
-                return GoalStep.TryAgain; // Too small for now
+                return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
+
             }
 
-            return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
+            return GoalStep.TryAgain; // Too small for now
         }
 
         GoalStep UpdatePirateActivity()
@@ -52,6 +54,8 @@ namespace Ship_Game.Commands.Goals
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
                 Pirates.TryLevelUp();
+                Pirates.ResetPaymentTimerFor(TargetEmpire);
+                // TODO Set NA pact - for multiple pirate factions
             }
             else
             {
@@ -65,9 +69,12 @@ namespace Ship_Game.Commands.Goals
 
         bool RequestPayment()
         {
-            // Every 10 years, the pirates will demand new payment or immediately if the threat level is -1 (initial)
-            if (Empire.Universe.StarDate % Pirates.PaymentPeriodYears > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
+            // If the timer is done, the pirates will demand new payment or immediately if the threat level is -1 (initial)
+            if (Pirates.PaymentTimerFor(TargetEmpire) > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
+            {
+                Pirates.DecreasePaymentTimerFor(TargetEmpire);
                 return false;
+            }
 
             // If they did not pay, don't ask for another payment, let them crawl to
             // us when they are ready to pay and increase out threat level to them
@@ -80,17 +87,10 @@ namespace Ship_Game.Commands.Goals
             // They Paid at least once  (or it's our first demand), so we can continue milking money fom them
             Log.Info($"Pirate Payment Director for {TargetEmpire.Name} - Requesting payment");
 
-            string encounterString = "Request Money";
             if (!Pirates.GetRelations(TargetEmpire).Known)
                 Pirates.SetAsKnown(TargetEmpire);
-            else
-                encounterString = "Request More Money";
 
-            if (ResourceManager.GetEncounter(Pirates.Owner, encounterString, out Encounter e))
-            {
-                e.MoneyRequested = ModifyMoneyRequested(e.MoneyRequested);
-                EncounterPopup.Show(Empire.Universe, TargetEmpire, Pirates.Owner, e);
-            }
+            Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetModifyMoneyRequestedModifier());
 
             // We demanded payment for the first time, let the game begin
             if (Pirates.ThreatLevelFor(TargetEmpire) == -1)
@@ -99,13 +99,13 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        int ModifyMoneyRequested(int originalPayment)
+        float GetModifyMoneyRequestedModifier()
         {
-            float payment = originalPayment * Pirates.Level.LowerBound(1) // Pirates own level
-                                            * TargetEmpire.DifficultyModifiers.PiratePayModifier
-                                            * TargetEmpire.GetPlanets().Count / 3;
+            float modifier = Pirates.Level.LowerBound(1) // Pirates own level
+                             * TargetEmpire.DifficultyModifiers.PiratePayModifier
+                             * TargetEmpire.GetPlanets().Count / 3;
 
-            return payment.RoundTo10();
+            return modifier;
         }
 
         bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
