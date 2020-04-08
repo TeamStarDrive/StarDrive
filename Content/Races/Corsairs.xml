@@ -17,11 +17,11 @@
   <PirateFrigateImproved>Corsair-Mk2</PirateFrigateImproved>
   <PirateFrigateAdvanced>Corsair-Mk3</PirateFrigateAdvanced>
   <PirateBaseBasic>Corsair Asteroid Base</PirateBaseBasic>
-  <PirateBaseImproved>Corsair Asteroid Base Mk2</PirateBaseImproved>
-  <PirateBaseAdvanced>Corsair Asteroid Base Mk3</PirateBaseAdvanced>
+  <PirateBaseImproved>Corsair Asteroid Base-Mk2</PirateBaseImproved>
+  <PirateBaseAdvanced>Corsair Asteroid Base-Mk3</PirateBaseAdvanced>
   <PirateStationBasic>Corsair Station</PirateStationBasic>
-  <PirateStationImproved>Corsair Station Mk2</PirateStationImproved>
-  <PirateStationAdvanced>Corsair Station Mk3</PirateStationAdvanced>
+  <PirateStationImproved>Corsair Station-Mk2</PirateStationImproved>
+  <PirateStationAdvanced>Corsair Station-Mk3</PirateStationAdvanced>
 
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>
