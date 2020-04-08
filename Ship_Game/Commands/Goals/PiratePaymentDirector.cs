@@ -42,7 +42,6 @@ namespace Ship_Game.Commands.Goals
                  && RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
-
             }
 
             return GoalStep.TryAgain; // Too small for now
