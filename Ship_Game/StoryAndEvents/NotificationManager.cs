@@ -298,15 +298,16 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddBoardNotification(string message, string iconPath, string action, Ship s)
+        public void AddBoardNotification(string message, string iconPath, string action, Ship s, Empire boarder)
         {
             AddNotification(new Notification
             {
+                RelevantEmpire = boarder,
                 Message         = message,
                 Action          = action,
                 ReferencedItem1 = s,
                 IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
-            }, "sd_ui_notification_encounter"); 
+            }, "sd_ui_notification_encounter");; 
         }
 
         public void AddScrapProgressNotification(string message, string iconPath, string action, string techName)
