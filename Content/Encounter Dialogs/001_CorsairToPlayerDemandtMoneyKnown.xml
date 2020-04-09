@@ -22,8 +22,8 @@ Regards,
       <Response>
         <Text>Agree to pay this upstanding gentleman.</Text>
         <MoneyToThem>250</MoneyToThem>
-        <FailIndex>3</FailIndex>
         <SuccessIndex>1</SuccessIndex>
+        <FailIndex>3</FailIndex>
       </Response>
       <Response>
         <Text>Refuse to pay this scoundrel!</Text>
