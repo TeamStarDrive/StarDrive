@@ -31,6 +31,7 @@ namespace Ship_Game
         public void SetAsKnown(Empire victim)           => Owner.SetRelationsAsKnown(victim);
         public int MinimumColoniesForPayment            => Owner.data.MinimumColoniesForStartPayment;
         int PaymentPeriodTurns                          => Owner.data.PiratePaymentPeriodTurns;
+        public bool PaidBy(Empire victim)               => !GetRelations(victim).AtWar;
 
         public void AddGoalPaymentDirector(Empire victim) => 
             AddGoal(victim, GoalType.PiratePaymentDirector, null, "");
@@ -44,6 +45,12 @@ namespace Ship_Game
         public void AddGoalRaidTransport(Empire victim) => 
             AddGoal(victim, GoalType.PirateRaidTransport, null, "");
 
+        public void AddGoalRaidOrbital(Empire victim) =>
+            AddGoal(victim, GoalType.PirateRaidOrbital, null, "");
+
+        public void AddGoalRaidRaidColonyShip(Empire victim) =>
+            AddGoal(victim, GoalType.PirateRaidColonyShip, null, "");
+
         void AddGoal(Empire victim, GoalType type, Ship ship, string systemName)
         {
             switch (type)
@@ -52,6 +59,8 @@ namespace Ship_Game
                 case GoalType.PirateRaidDirector:    Goals.Add(new PirateRaidDirector(Owner, victim));     break;
                 case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
+                case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));    break;
+                case GoalType.PirateRaidColonyShip:  Goals.Add(new PirateRaidColonyShip(Owner, victim));   break;
                 default:                             Log.Warning($"Goal type {type.ToString()} invalid for Pirates"); break;
             }
         }
@@ -477,6 +486,42 @@ namespace Ship_Game
             }
         }
 
+        public bool GetTarget(Empire victim, TargetType type, out Ship target)
+        {
+            target          = null;
+            var targets     = new Array<Ship>(); 
+            var victimShips = type == TargetType.Projector ? victim.GetProjectors() : victim.GetShips();
+            
+            for (int i = 0; i < victimShips.Count; i++)
+            {
+                Ship ship = victimShips[i];
+                if (RaidingThisShip(ship))
+                    continue;
+
+                switch (type)
+                {
+                    case TargetType.ColonyShip      when ship.isColonyShip: targets.Add(ship);                               break;
+                    case TargetType.Shipyard        when ship.shipData.IsShipyard: targets.Add(ship);                        break;
+                    case TargetType.FreighterAtWarp when ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) && ship.IsInWarp: break;
+                    case TargetType.Projector:      targets.Add(ship);                                                       break;
+                }
+            }
+
+            if (targets.Count == 0)
+                return false;
+
+            targets.RandItem();
+            return target != null;
+        }
+
+        public bool SpawnBoardingShip(Ship targetShip, Vector2 where, out Ship boardingShip)
+        {
+            if (SpawnShip(PirateShipType.Boarding, where, out boardingShip))
+                boardingShip.AI.OrderAttackSpecificTarget(targetShip);
+
+            return boardingShip != null;
+        }
+
         public bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
         {
             PirateForces forces = new PirateForces(Owner, level);
@@ -560,6 +605,15 @@ namespace Ship_Game
             Habitable,
             DeepSpace,
             LoneSystem
+        }
+
+        public enum TargetType
+        {
+            FreighterAtWarp,
+            ColonyShip,
+            Projector,
+            Shipyard,
+            Station
         }
     }
 
