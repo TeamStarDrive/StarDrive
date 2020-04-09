@@ -32,7 +32,7 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep PrepareRaid()
         {
-            if (Paid || Pirates.VictimIsDefeated(TargetEmpire))
+            if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
             {
                 Log.Info(ConsoleColor.Green, $"---- Pirates: {empire.Name} Raid Director vs. {TargetEmpire.Name}, They paid, terminating ----");
                 return GoalStep.GoalFailed; // We got paid or they are gone, Raid Director can go on vacation
@@ -45,7 +45,9 @@ namespace Ship_Game.Commands.Goals
                 GoalType raid  = GetRaid();
                 switch (raid)
                 {
-                    case GoalType.PirateRaidTransport: Pirates.AddGoalRaidTransport(TargetEmpire); break;
+                    case GoalType.PirateRaidTransport:  Pirates.AddGoalRaidTransport(TargetEmpire);      break;
+                    case GoalType.PirateRaidOrbital:    Pirates.AddGoalRaidOrbital(TargetEmpire);        break;
+                    case GoalType.PirateRaidColonyShip: Pirates.AddGoalRaidRaidColonyShip(TargetEmpire); break;
                 }
             }
 
@@ -96,17 +98,19 @@ namespace Ship_Game.Commands.Goals
                 default:
                 case 1:
                 case 2: return GoalType.PirateRaidTransport;
-                // capture and destroy ssp
-                // hijack colonyship
-                // hijack combat ship in warp
-                // capture and destroy shipyard
-                // defeat planet orbitals
-                // .
-                // .
-                // case 20: 
+                case 3: return GoalType.PirateRaidOrbital;
+                case 4: return GoalType.PirateRaidTransport;
+                case 5: return GoalType.PirateRaidColonyShip;
+                case 6: return GoalType.PirateRaidTransport;
+                case 7: return GoalType.PirateRaidOrbital;
+                case 8: return GoalType.PirateRaidColonyShip;
+                    // hijack combat ship in warp
+                    // capture and destroy shipyard
+                    // defeat planet orbitals
+                    // .
+                    // .
+                    // case 20: 
             }
         }
-
-        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }
