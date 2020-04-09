@@ -36,30 +36,31 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep DetectAndSpawnRaidForce()
         {
-            if (Paid || Pirates.VictimIsDefeated(TargetEmpire))
+            if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
-            int nearPlanetRaidChacge = Pirates.ThreatLevelFor(TargetEmpire) * 5;
-            if (RandomMath.RollDice(nearPlanetRaidChacge))
+            int nearPlanetRaidChance = Pirates.ThreatLevelFor(TargetEmpire) * 5;
+            if (RandomMath.RollDice(nearPlanetRaidChance))
             {
                 if (ScanFreightersNearPlanets(out Ship freighter))
                 {
                     Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
-                    if (SpawnBoardingShip(freighter, where, out Ship boardingShip));
+                    if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip));
                     {
+                        TargetShip = freighter;
                         SpawnBoardingForce(freighter, boardingShip);
                         return GoalStep.GoToNextStep;
                     }
                 }
             }
-            else
+            else if (Pirates.GetTarget(TargetEmpire, Pirates.TargetType.FreighterAtWarp, out Ship freighter))
             {
-                if (ScanFreightersAtWarp(out Ship freighter))
+                Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
+                freighter.HyperspaceReturn();
+                if (Pirates.SpawnBoardingShip(freighter, where, out _))
                 {
-                    Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
-                    freighter.HyperspaceReturn();
-                    if (SpawnBoardingShip(freighter, where, out _))
-                        return GoalStep.GoToNextStep;
+                    TargetShip = freighter;
+                    return GoalStep.GoToNextStep;
                 }
             }
 
@@ -70,29 +71,16 @@ namespace Ship_Game.Commands.Goals
         GoalStep CheckIfHijacked()
         {
 
-            if (!TargetShip.Active || TargetShip.loyalty != Pirates.Owner && !TargetShip.Inhibited)
+            if (!TargetShip.Active || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
                 return GoalStep.GoalFailed; // Target destroyed or escaped
 
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoalComplete :  GoalStep.TryAgain;
-        }
-
-        bool ScanFreightersAtWarp(out Ship freighter)
-        {
-            freighter       = null;
-            var targetShips = TargetEmpire.GetShips();
-            for (int i = 0; i < targetShips.Count; i++)
+            if (TargetShip.loyalty == Pirates.Owner)
             {
-                Ship ship = targetShips[i];
-                if (ship.IsFreighter && ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) 
-                                     &&  ship.IsInWarp
-                                     && !Pirates.RaidingThisShip(ship))
-                {
-                    freighter = ship;
-                    break;
-                }
+                TargetShip.AI.PirateOrderFleeHome();
+                return GoalStep.GoalComplete;
             }
 
-            return freighter != null;
+            return GoalStep.TryAgain;
         }
 
         bool ScanFreightersNearPlanets(out Ship freighter)
@@ -124,20 +112,9 @@ namespace Ship_Game.Commands.Goals
             return freighter != null;
         }
 
-        bool SpawnBoardingShip(Ship freighter, Vector2 where, out Ship boardingShip)
-        {
-            TargetShip = freighter; // This is the main target, we want this to arrive to our base
-            if (Pirates.SpawnShip(PirateShipType.Boarding, where, out boardingShip))
-                boardingShip.AI.OrderAttackSpecificTarget(freighter);
-
-            return boardingShip != null;
-        }
-
         void SpawnBoardingForce(Ship freighter, Ship boardingShip)
         {
             // Todo check for the target ally forces nearby and spawn escort ships 
         }
-
-        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }

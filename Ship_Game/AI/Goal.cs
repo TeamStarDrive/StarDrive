@@ -29,7 +29,9 @@ namespace Ship_Game.AI
         PiratePaymentDirector,
         PirateRaidDirector,
         PirateBase,
-        PirateRaidTransport
+        PirateRaidTransport,
+        PirateRaidOrbital,
+        PirateRaidColonyShip
     }
 
     public enum GoalStep
@@ -127,6 +129,8 @@ namespace Ship_Game.AI
                 case PiratePaymentDirector.ID:  return new PiratePaymentDirector();
                 case PirateRaidDirector.ID:     return new PirateRaidDirector();
                 case PirateRaidTransport.ID:    return new PirateRaidTransport();
+                case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
+                case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip();
                 case PirateBase.ID:             return new PirateBase();
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }

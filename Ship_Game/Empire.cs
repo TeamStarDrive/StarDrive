@@ -2494,7 +2494,7 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = $"{new LocalizedText(GameText.YourShipWasCaptured).Text} {ship.loyalty}!";
+            string message = $"{new LocalizedText(GameText.YourShipWasCaptured).Text} {ship.loyalty.Name}!";
             Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
         }
 
