@@ -10,8 +10,6 @@
       <ResponseOptions>
         <Response>
           <Text>Tell them you want the Protection Contract off and you are going to kill them.</Text>
-          <FailIndex>1</FailIndex>
-          <SuccessIndex>1</SuccessIndex>
           <DefaultIndex>1</DefaultIndex>
         </Response>
         <Response>
@@ -25,6 +23,13 @@
       <Index>1</Index>
       <SetWar>true</SetWar>
       <Text>OK then. If you insist losing your freighters. We'll see you around, soon.</Text>
+      <EndTransmission>true</EndTransmission>
+      <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
+    </Message>
+    <Message>
+      <Index>2</Index>
+      <SetWar>true</SetWar>
+      <Text>Thank you, we will contact you later.</Text>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
     </Message>

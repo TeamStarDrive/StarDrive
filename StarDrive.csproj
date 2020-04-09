@@ -1803,13 +1803,21 @@
     <Content Include="Content\Buildings\Tracking Station.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\001_CorsairToPlayerDemandtMoneyKnown.xml" />
+    <Content Include="Content\Encounter Dialogs\001_CorsairToPlayerDemandtMoneyKnown.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Encounter Dialogs\001_PlayerToCorsairContactAgain.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\002_CorsairToPlayerRenewDemand.xml" />
-    <Content Include="Content\Encounter Dialogs\002_PlayerToCorsairContactProtected.xml" />
-    <Content Include="Content\Encounter Dialogs\003_PlayerToCorsairContactWar.xml" />
+    <Content Include="Content\Encounter Dialogs\002_CorsairToPlayerRenewDemand.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Encounter Dialogs\002_PlayerToCorsairContactProtected.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Encounter Dialogs\003_PlayerToCorsairContactWar.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\Encounter Dialogs\999_CorsairFirstContact.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -8,18 +8,15 @@
   <MessageList>
     <Message>
       <Text>
-        Hello SING scum,
-
-        So you are here to pay your protection money like a good boy? It will Cost you MONEY credits this time, "friend".
-
-        Captain Martok
+Hello SING
+So you are here to pay your protection money like a good boy? It will Cost you MONEY credits this time,
+Captain Martok
       </Text>
       <ResponseOptions>
         <Response>
           <Text>Pay them what they want.</Text>
-          <FailIndex>3</FailIndex>
           <SuccessIndex>1</SuccessIndex>
-          <DefaultIndex>3</DefaultIndex>
+          <FailIndex>3</FailIndex>
         </Response>
         <Response>
           <Text>Change your mind and tell them to bug off.</Text>

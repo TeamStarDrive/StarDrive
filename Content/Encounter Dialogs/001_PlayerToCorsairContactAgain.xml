@@ -10,9 +10,7 @@
       <ResponseOptions>
         <Response>
           <Text>End Transmission.</Text>
-          <FailIndex>1</FailIndex>
-          <SuccessIndex>1</SuccessIndex>
-          <DefaultIndex>1</DefaultIndex>
+         <DefaultIndex>1</DefaultIndex>
         </Response>
       </ResponseOptions>
     </Message>

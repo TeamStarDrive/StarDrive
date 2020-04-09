@@ -33,7 +33,10 @@ namespace Ship_Game.Commands.Goals
         GoalStep PrepareRaid()
         {
             if (Paid || Pirates.VictimIsDefeated(TargetEmpire))
+            {
+                Log.Info(ConsoleColor.Green, $"---- Pirates: {empire.Name} Raid Director vs. {TargetEmpire.Name}, They paid, terminating ----");
                 return GoalStep.GoalFailed; // We got paid or they are gone, Raid Director can go on vacation
+            }
 
             float startChance = RaidStartChance();
             //startChance = 100;
