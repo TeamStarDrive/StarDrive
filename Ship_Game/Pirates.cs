@@ -193,7 +193,7 @@ namespace Ship_Game
         {
             bool success;
             NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 3);
-            spotType = NewBaseSpot.AsteroidBelt; // TODO - for testing
+            spotType = NewBaseSpot.LoneSystem; // TODO - for testing
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
