@@ -357,7 +357,7 @@ namespace Ship_Game.AI.Tasks
                 return RequisitionStatus.NoRallyPoint;
 
 
-            FleetShips fleetShips = Owner.AllFleetReadyShipsNearestTarget(rallyPoint.Center);
+            FleetShips fleetShips = Owner.AllFleetsReady(rallyPoint.Center);
             fleetShips.WantedFleetCompletePercentage = battleFleetSize;
 
             // if we cant build bombers then convert bombtime to troops. 
