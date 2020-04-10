@@ -154,6 +154,8 @@ namespace Ship_Game
                     empireToSave.PirateLevel         = e.Pirates.Level;
                     empireToSave.PirateThreatLevels  = e.Pirates.ThreatLevels;
                     empireToSave.PiratePaymentTimers = e.Pirates.PaymentTimers;
+                    empireToSave.SpawnedShips        = e.Pirates.SpawnedShips;
+                    empireToSave.ShipsWeCanSpawn     = e.Pirates.ShipsWeCanSpawn;
                 }
 
 
@@ -555,6 +557,7 @@ namespace Ship_Game
             [Serialize(21)] public Map<int, int> PirateThreatLevels;
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;
             [Serialize(23)] public Array<Guid> SpawnedShips;
+            [Serialize(24)] public Array<string> ShipsWeCanSpawn;
         }
 
         public class FleetSave

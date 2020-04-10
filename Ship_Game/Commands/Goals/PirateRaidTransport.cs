@@ -44,11 +44,11 @@ namespace Ship_Game.Commands.Goals
             {
                 if (ScanFreightersNearPlanets(out Ship freighter))
                 {
-                    Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1000);
+                    Vector2 where = freighter.Center.GenerateRandomPointOnCircle(1500);
                     if (Pirates.SpawnBoardingShip(freighter, where, out Ship boardingShip));
                     {
                         TargetShip = freighter;
-                        SpawnBoardingForce(freighter, boardingShip);
+                        Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force);
                         return GoalStep.GoToNextStep;
                     }
                 }
@@ -76,7 +76,7 @@ namespace Ship_Game.Commands.Goals
 
             if (TargetShip.loyalty == Pirates.Owner)
             {
-                TargetShip.AI.PirateOrderFleeHome();
+                TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
                 return GoalStep.GoalComplete;
             }
 
@@ -110,11 +110,6 @@ namespace Ship_Game.Commands.Goals
 
             freighter = freighters.RandItem();
             return freighter != null;
-        }
-
-        void SpawnBoardingForce(Ship freighter, Ship boardingShip)
-        {
-            // Todo check for the target ally forces nearby and spawn escort ships 
         }
     }
 }

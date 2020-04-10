@@ -43,10 +43,10 @@ namespace Ship_Game.Commands.Goals
             {
                 Vector2 where = colonyShip.Center.GenerateRandomPointOnCircle(1000);
                 colonyShip.HyperspaceReturn();
-                if (Pirates.SpawnBoardingShip(colonyShip, where, out _))
+                if (Pirates.SpawnBoardingShip(colonyShip, where, out Ship boardingShip))
                 {
                     TargetShip = colonyShip;
-                    // TODO also boarding escort force
+                    Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force);
                     return GoalStep.GoToNextStep;
                 }
             }
@@ -63,16 +63,11 @@ namespace Ship_Game.Commands.Goals
 
             if (TargetShip.loyalty == Pirates.Owner)
             {
-                TargetShip.AI.PirateOrderFleeHome();
+                TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
                 return GoalStep.GoalComplete;
             }
 
             return GoalStep.TryAgain;
-        }
-
-        void SpawnBoardingForce(Ship freighter, Ship boardingShip)
-        {
-            // Todo check for the target ally forces nearby and spawn escort ships 
         }
     }
 }

@@ -45,12 +45,14 @@ namespace Ship_Game.Commands.Goals
             orbitalType = Pirates.TargetType.Projector; // TODO for testing
             if (Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
             {
-                Vector2 where = orbital.Center.GenerateRandomPointOnCircle(1000);
+                Vector2 where = orbital.Center.GenerateRandomPointOnCircle(1500);
                 if (Pirates.SpawnBoardingShip(orbital, where, out Ship boardingShip))
                 {
                     TargetShip = orbital; // This is the main target, we want this to be boarded
                     if (orbitalType != Pirates.TargetType.Projector)
-                        SpawnBoardingForce(orbital, boardingShip);
+                        Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force);
+
+
 
                     return GoalStep.GoToNextStep;
                 }
@@ -77,6 +79,7 @@ namespace Ship_Game.Commands.Goals
             if (TargetShip == null || !TargetShip.Active || TargetShip.loyalty != Pirates.Owner)
                 return GoalStep.GoalFailed; // Target destroyed or they took it from us
 
+            TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount); // She's gonna blow!
             TargetShip.ScuttleTimer = 10f;
             return GoalStep.GoToNextStep;
@@ -109,11 +112,6 @@ namespace Ship_Game.Commands.Goals
                 case 14: return Pirates.TargetType.Station;
                 case 15: return Pirates.TargetType.Shipyard;
             }
-        }
-
-        void SpawnBoardingForce(Ship orbital, Ship boardingShip)
-        {
-            // Todo check for the target ally forces nearby and spawn escort ships 
         }
     }
 }
