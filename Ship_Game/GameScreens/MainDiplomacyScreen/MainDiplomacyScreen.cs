@@ -327,7 +327,6 @@ namespace Ship_Game
                 Vector2 ArtifactsCursor = new Vector2(ArtifactsRect.X, ArtifactsRect.Y - 8);
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                ArtifactsSL.Draw(batch);
             }
             else if (SelectedEmpire.data.Defeated)
             {
@@ -385,7 +384,6 @@ namespace Ship_Game
                 Vector2 ArtifactsCursor = new Vector2(ArtifactsRect.X, ArtifactsRect.Y - 8);
                 batch.DrawString(Fonts.Arial12Bold, Localizer.Token(1607), ArtifactsCursor, Color.White);
                 ArtifactsCursor.Y += Fonts.Arial12Bold.LineSpacing;
-                ArtifactsSL.Draw(batch);
 
                 Array<Empire> Sortlist = new Array<Empire>();
                 foreach (Empire e in EmpireManager.Empires)
@@ -844,9 +842,6 @@ namespace Ship_Game
                 }
             }
 
-            if (ArtifactsSL.HandleInput(input))
-                return true;
-
             return base.HandleInput(input);
         }
 
@@ -863,8 +858,9 @@ namespace Ship_Game
             SelectedInfoRect = new Rectangle(leftRect.X + 60, leftRect.Y + 250, 368, 376);
             IntelligenceRect = new Rectangle(SelectedInfoRect.X + SelectedInfoRect.Width + 30, SelectedInfoRect.Y, 368, 376);
             OperationsRect = new Rectangle(IntelligenceRect.X + IntelligenceRect.Width + 30, SelectedInfoRect.Y, 368, 376);
-            ArtifactsRect = new Rectangle(SelectedInfoRect.X + 20, SelectedInfoRect.Y + 180, SelectedInfoRect.Width - 40, 130);
+            ArtifactsRect = new Rectangle(SelectedInfoRect.X , SelectedInfoRect.Y + 190, SelectedInfoRect.Width - 40, 130);
             ArtifactsSL = new ScrollList2<ArtifactItemListItem>(ArtifactsRect);
+            Add(ArtifactsSL);
             Contact = new DanButton(new Vector2(SelectedInfoRect.X + SelectedInfoRect.Width / 2 - 91, SelectedInfoRect.Y + SelectedInfoRect.Height - 45), Localizer.Token(1644))
             {
                 Toggled = true
