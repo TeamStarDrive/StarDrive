@@ -298,10 +298,12 @@ namespace Ship_Game.AI
             AddOrbitPlanetGoal(p);
         }
 
-        public void PirateOrderFleeHome()
+        public void OrderPirateFleeHome(bool signalRetreat = false)
         {
 
-            if (Owner.loyalty.WeArePirates && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
+            if (Owner.loyalty.WeArePirates 
+                && !Owner.IsPlatformOrStation 
+                && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
                 Ship ship = pirateBases.FindMin(s => s.Center.Distance(Owner.Center));
                 Owner.AI.SetPriorityOrder(true);
@@ -311,6 +313,13 @@ namespace Ship_Game.AI
             {
                 ClearOrders();
             }
+
+            if (signalRetreat)
+                using (FriendliesNearby.AcquireReadLock())
+                {
+                    for (int i = 0; i < FriendliesNearby.Count; i++)
+                        FriendliesNearby[i].AI.OrderPirateFleeHome();
+                }
         }
 
         void OrderMoveToPirateBase(Ship pirateBase)
@@ -382,7 +391,7 @@ namespace Ship_Game.AI
 
             if (Owner.loyalty.WeArePirates)
             {
-                PirateOrderFleeHome();
+                OrderPirateFleeHome();
                 return;
             }
 

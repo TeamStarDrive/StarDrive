@@ -14,9 +14,10 @@ namespace Ship_Game
         public readonly Empire Owner;
         public readonly string ShipStyle;
         public readonly BatchRemovalCollection<Goal> Goals;
-        public Map<int, int> ThreatLevels { get; private set; }  // Empire IDs are used here
-        public Map<int, int> PaymentTimers { get; private set; }  // Empire IDs are used here
-        public Array<Guid> SpawnedShips { get; private set; }
+        public Map<int, int> ThreatLevels { get; private set; } = new Map<int, int>();  // Empire IDs are used here
+        public Map<int, int> PaymentTimers { get; private set; } = new Map<int, int>(); // Empire IDs are used here
+        public Array<Guid> SpawnedShips { get; private set; } = new Array<Guid>();
+        public Array<string> ShipsWeCanSpawn { get; private set; } = new Array<string>();
         public int Level { get; private set; }
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
@@ -70,9 +71,12 @@ namespace Ship_Game
 
         public void Init() // New Game
         {
-            ThreatLevels  = new Map<int, int>(); 
-            PaymentTimers = new Map<int, int>();
-            SpawnedShips  = new Array<Guid>();
+            /*
+            ThreatLevels    = new Map<int, int>(); 
+            PaymentTimers   = new Map<int, int>();
+            SpawnedShips    = new Array<Guid>();
+            ShipsWeCanSpawn = new Array<string>();
+            */
             foreach (Empire empire in EmpireManager.MajorEmpires)
             {
                 ThreatLevels.Add(empire.Id, -1);
@@ -80,11 +84,13 @@ namespace Ship_Game
             }
         }
 
-        public void RestoreFromSave(Map<int, int> threatLevels, Map<int, int> paymentTimers, Array<Guid> spawnedShips)
+        public void RestoreFromSave(Map<int, int> threatLevels, Map<int, int> paymentTimers, 
+            Array<Guid> spawnedShips, Array<string> shipsWeCanSpawn)
         {
-            ThreatLevels  = threatLevels;
-            PaymentTimers = paymentTimers;
-            SpawnedShips  = spawnedShips;
+            ThreatLevels    = threatLevels;
+            PaymentTimers   = paymentTimers;
+            SpawnedShips    = spawnedShips;
+            ShipsWeCanSpawn = shipsWeCanSpawn;
         }
 
         public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
@@ -486,8 +492,9 @@ namespace Ship_Game
             public readonly string BoardingShip;
             public readonly string Base;
             public readonly string Station;
+            public readonly string Random;
 
-            public PirateForces(Empire pirates, int effectiveLevel)
+            public PirateForces(Empire pirates, int effectiveLevel) : this()
             {
                 switch (effectiveLevel)
                 {
@@ -518,7 +525,22 @@ namespace Ship_Game
                         Station      = pirates.data.PirateStationAdvanced;
                         break;
                 }
+
+                Random = GetRandomShipFromSpawnList(pirates, out string shipName) ? shipName : GetRandomDefaultShip();
             }
+
+            bool GetRandomShipFromSpawnList(Empire empire, out string shipName)
+            {
+                shipName = "";
+                if (empire.Pirates.ShipsWeCanSpawn?.Count > 0 && RandomMath.RollDie(MaxLevel) < empire.Pirates.Level)
+                {
+                    shipName = empire.Pirates.ShipsWeCanSpawn.RandItem();
+                }
+
+                return shipName.NotEmpty();
+            }
+
+            string GetRandomDefaultShip() => RandomMath.RollDice(80) ? Fighter : Frigate;
         }
 
         public bool GetTarget(Empire victim, TargetType type, out Ship target)
@@ -557,6 +579,41 @@ namespace Ship_Game
             return boardingShip != null;
         }
 
+        float GaugeNeededStrForForce(Ship targetShip)
+        {
+            if (targetShip == null)
+                return 0;
+
+            float strInRange;
+            using (targetShip.AI.FriendliesNearby.AcquireReadLock())
+                strInRange = targetShip.AI.FriendliesNearby.Sum(s => s.BaseStrength);
+
+            float maxStr       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
+            float availableStr = MaxLevel / 100 * Level;
+
+            return strInRange * availableStr * maxStr;
+        }
+
+        public bool SpawnForce(Ship targetShip, Vector2 pos, float radius, out Array<Ship> force)
+        {
+            float currentStr = GaugeNeededStrForForce(targetShip);
+            force = new Array<Ship>();
+            while (currentStr.Greater(0)) 
+            {
+                Vector2 finalPos = pos.GenerateRandomPointOnCircle(radius);
+                if (SpawnShip(PirateShipType.Random, finalPos, out Ship ship))
+                {
+                    force.Add(ship);
+                    currentStr -= ship.BaseStrength;
+                    continue;
+                }
+
+                currentStr -= 1000; // Safety exit
+            }
+
+            return force.Count > 0;
+        }
+
         public bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
         {
             PirateForces forces = new PirateForces(Owner, level);
@@ -568,6 +625,7 @@ namespace Ship_Game
                 case PirateShipType.Boarding: shipName = forces.BoardingShip; break;
                 case PirateShipType.Base:     shipName = forces.Base;         break;
                 case PirateShipType.Station:  shipName = forces.Station;      break;
+                case PirateShipType.Random:   shipName = forces.Random;   break;
             }
 
             pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
@@ -621,8 +679,7 @@ namespace Ship_Game
         bool ShouldSalvageCombatShip(Ship ship)
         {
             // we can salvage and use small ships. we keep the large ones though.
-            return ship.shipData.HullRole != ShipData.RoleName.cruiser 
-                   && ship.shipData.HullRole != ShipData.RoleName.capital;
+            return ship.shipData.HullRole != ShipData.RoleName.capital;
         }
 
         enum NewBaseSpot
@@ -650,6 +707,7 @@ namespace Ship_Game
         Frigate,
         Boarding,
         Base,
-        Station
+        Station,
+        Random
     }
 }
