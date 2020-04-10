@@ -62,8 +62,12 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckIfHijacked()
         {
-            if (TargetShip == null || !TargetShip.Active || !TargetShip.InCombat)
+            if (TargetShip == null
+                || !TargetShip.Active
+                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+            {
                 return GoalStep.GoalFailed; // Target or our forces were destroyed 
+            }
 
             return TargetShip.loyalty == Pirates.Owner ? GoalStep.GoToNextStep : GoalStep.TryAgain;
         }
@@ -95,8 +99,7 @@ namespace Ship_Game.Commands.Goals
             int roll = RandomMath.RollDie(10 + Pirates.Level/4);
             switch (roll)
             {
-                default:
-                case 6:  return Pirates.TargetType.Projector;
+                default: return Pirates.TargetType.Projector;
                 case 7:  return Pirates.TargetType.Shipyard;
                 case 8:  return Pirates.TargetType.Projector;
                 case 9:  return Pirates.TargetType.Shipyard;
