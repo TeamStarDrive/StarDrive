@@ -190,7 +190,7 @@ namespace Ship_Game
 
         public void TryLevelUp(bool alwaysLevelUp = false)
         {
-            if (alwaysLevelUp || RandomMath.RollDie(20) > Level)
+            if (alwaysLevelUp || RandomMath.RollDie(Level) == 1)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
@@ -201,8 +201,8 @@ namespace Ship_Game
         bool NewLevelOperations(int level)
         {
             bool success;
-            NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 3);
-            spotType = NewBaseSpot.LoneSystem; // TODO - for testing
+            NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
+            // spotType = NewBaseSpot.LoneSystem; // TODO - for testing
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
@@ -510,7 +510,7 @@ namespace Ship_Game
             if (targets.Count == 0)
                 return false;
 
-            targets.RandItem();
+            target = targets.RandItem();
             return target != null;
         }
 

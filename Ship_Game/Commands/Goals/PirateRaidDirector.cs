@@ -43,12 +43,15 @@ namespace Ship_Game.Commands.Goals
             if (RandomMath.RollDice(startChance))
             {
                 GoalType raid  = GetRaid();
+                Pirates.AddGoalRaidOrbital(TargetEmpire);
+                /*
                 switch (raid)
                 {
                     case GoalType.PirateRaidTransport:  Pirates.AddGoalRaidTransport(TargetEmpire);      break;
                     case GoalType.PirateRaidOrbital:    Pirates.AddGoalRaidOrbital(TargetEmpire);        break;
                     case GoalType.PirateRaidColonyShip: Pirates.AddGoalRaidRaidColonyShip(TargetEmpire); break;
                 }
+                */
             }
 
             return GoalStep.TryAgain;
@@ -65,7 +68,9 @@ namespace Ship_Game.Commands.Goals
                 {
                     switch (goal.type)
                     {
-                        case GoalType.PirateRaidTransport: numGoals += 1; break;
+                        case GoalType.PirateRaidTransport:
+                        case GoalType.PirateRaidOrbital: 
+                        case GoalType.PirateRaidColonyShip: numGoals += 1; break;
                     }
                 }
             }
@@ -105,8 +110,6 @@ namespace Ship_Game.Commands.Goals
                 case 7: return GoalType.PirateRaidOrbital;
                 case 8: return GoalType.PirateRaidColonyShip;
                     // hijack combat ship in warp
-                    // capture and destroy shipyard
-                    // defeat planet orbitals
                     // .
                     // .
                     // case 20: 
