@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // They paid or dead
 
             var orbitalType = GetOrbital();
-
+            orbitalType = Pirates.TargetType.Projector; // TODO for testing
             if (Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
             {
                 Vector2 where = orbital.Center.GenerateRandomPointOnCircle(1000);
@@ -79,7 +79,6 @@ namespace Ship_Game.Commands.Goals
 
             TargetShip.DisengageExcessTroops(TargetShip.TroopCount); // She's gonna blow!
             TargetShip.ScuttleTimer = 10f;
-            Pirates.TryLevelUp();
             return GoalStep.GoToNextStep;
         }
 

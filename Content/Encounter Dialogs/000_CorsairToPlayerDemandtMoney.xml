@@ -34,7 +34,8 @@ Regards,
     <Message>
       <Index>1</Index>
       <EndWar>true</EndWar>
-      <Text>Wonderful news! We'll let you know when we're done drinking our way through your money. Until then, sleep safe!
+      <Text>
+Wonderful news! We'll let you know when we're done drinking our way through your money. Until then, sleep safe!
 
     Regards,
     CM
@@ -46,7 +47,11 @@ Regards,
     <Message>
       <Index>2</Index>
       <SetWar>true</SetWar>
-      <Text>Now that is disappointing, isn't it? And here I was thinking that we were going to be fast friends. It will be fun to rip open your freighters.</Text>
+      <Text>
+Now that is disappointing, isn't it? And here I was thinking that we were going to be fast friends. It will be fun to rip open your freighters.
+
+(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)
+      </Text>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
@@ -54,9 +59,13 @@ Regards,
     <Message>
       <Index>3</Index>
       <SetWar>true</SetWar>
-      <Text>What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!</Text>
+      <Text>
+What, is this some sort of SING humor? You don't have the credits! Unfortunately for you, this is not my problem. We're gonna collect our money through your freighters!
+
+(Comm Officer's Note - If we ever want to pay them, we can select their ship and press Q to contact them.)
+      </Text>
       <EndTransmission>true</EndTransmission>
-      <SetPlayerContactStep>3</SetPlayerContactStep> !--pay twice to end the war-->
+      <SetPlayerContactStep>3</SetPlayerContactStep> <!--pay twice to end the war-->
       <SetFactionContactStep>2</SetFactionContactStep> <!-- Money demand after end of contract period -->
     </Message>
 

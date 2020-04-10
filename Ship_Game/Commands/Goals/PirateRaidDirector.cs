@@ -39,11 +39,10 @@ namespace Ship_Game.Commands.Goals
             }
 
             float startChance = RaidStartChance();
-            //startChance = 100;
             if (RandomMath.RollDice(startChance))
             {
                 GoalType raid  = GetRaid();
-                Pirates.AddGoalRaidOrbital(TargetEmpire);
+                Pirates.AddGoalRaidOrbital(TargetEmpire); // TODO for testing
                 /*
                 switch (raid)
                 {
@@ -91,6 +90,7 @@ namespace Ship_Game.Commands.Goals
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
                 startChance *= (int)(1 + taxRate);
 
+            startChance = 100; // TODO for testing
             return startChance;
         }
 

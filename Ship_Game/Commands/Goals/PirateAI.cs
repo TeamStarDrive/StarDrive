@@ -29,7 +29,7 @@ namespace Ship_Game.Commands.Goals
         GoalStep PiratePlan()
         {
             Pirates = empire.Pirates;
-            Pirates.InitThreatLevels();
+            Pirates.Init();
             Pirates.TryLevelUp(alwaysLevelUp: true); // build initial base
 
             if (!Pirates.GetBases(out Array<Ship> bases))
