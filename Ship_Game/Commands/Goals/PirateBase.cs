@@ -50,13 +50,7 @@ namespace Ship_Game.Commands.Goals
                         continue; // Do not mess with our own structures
 
                     if (ship.InRadius(Base.Center, 1200))
-                    {
-                        // Default Corsair Raiders are removed with no reward
-                        if (ship.shipData.ShipStyle == Pirates.ShipStyle) 
-                            ship.QueueTotalRemoval();
-                        else
-                            Pirates.SalvageShip(ship);
-                    }
+                        Pirates.ProcessShip(ship);
                 }
             }
 
