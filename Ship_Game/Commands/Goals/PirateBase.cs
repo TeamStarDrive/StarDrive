@@ -40,6 +40,9 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // Base is destroyed, behead the Director
             }
 
+            if (Base.InCombat)
+                return GoalStep.TryAgain;
+
             var friendlies = Base.AI.FriendliesNearby;
             using (friendlies.AcquireReadLock())
             {
