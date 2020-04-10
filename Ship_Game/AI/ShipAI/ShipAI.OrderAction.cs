@@ -316,7 +316,7 @@ namespace Ship_Game.AI
         void OrderMoveToPirateBase(Ship pirateBase)
         {
             OrderMoveTo(pirateBase.Center.GenerateRandomPointOnCircle(1000), Owner.Direction,
-                true, null, AIState.AwaitingOffenseOrders);
+                true, null, AIState.MoveTo);
         }
 
         public void OrderQueueSpecificTarget(Ship toAttack)
@@ -379,6 +379,13 @@ namespace Ship_Game.AI
         public void OrderRebaseToNearest()
         {
             ClearWayPoints();
+
+            if (Owner.loyalty.WeArePirates)
+            {
+                PirateOrderFleeHome();
+                return;
+            }
+
             Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) > 0)
                                                       .FindMin(p => Vector2.Distance(Owner.Center, p.Center));
 

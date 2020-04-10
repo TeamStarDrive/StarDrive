@@ -75,21 +75,26 @@ namespace Ship_Game.Commands.Goals
                 return false;
             }
 
-            // If they did not pay, don't ask for another payment, let them crawl to
+            // If the player did not pay, don't ask for another payment, let them crawl to
             // us when they are ready to pay and increase out threat level to them
-            if (!Paid)
+            if (!Paid && TargetEmpire.isPlayer)
             {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
                 return false;
             }
 
             // They Paid at least once  (or it's our first demand), so we can continue milking money fom them
-            Log.Info(ConsoleColor.Green,$"Pirates: Payment Director - Demanding payment from {TargetEmpire.Name}");
+            Log.Info(ConsoleColor.Green,$"Pirates: {empire.Name} Payment Director - Demanding payment from {TargetEmpire.Name}");
 
             if (!Pirates.GetRelations(TargetEmpire).Known)
                 Pirates.SetAsKnown(TargetEmpire);
 
-            Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetModifyMoneyRequestedModifier());
+            if (TargetEmpire.isPlayer)
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetModifyMoneyRequestedModifier());
+            else
+            {
+                // TODO AI reply to payment demand will be here
+            }
 
             // We demanded payment for the first time, let the game begin
             if (Pirates.ThreatLevelFor(TargetEmpire) == -1)

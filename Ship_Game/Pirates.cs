@@ -1,4 +1,5 @@
-﻿using Ship_Game.AI;
+﻿using System;
+using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -9,11 +10,13 @@ namespace Ship_Game
 {
     public class Pirates 
     {
+        public const int MaxLevel = 20;
         public readonly Empire Owner;
         public readonly string ShipStyle;
         public readonly BatchRemovalCollection<Goal> Goals;
         public Map<int, int> ThreatLevels { get; private set; }  // Empire IDs are used here
         public Map<int, int> PaymentTimers { get; private set; }  // Empire IDs are used here
+        public Array<Guid> SpawnedShips { get; private set; }
         public int Level { get; private set; }
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
@@ -65,10 +68,11 @@ namespace Ship_Game
             }
         }
 
-        public void InitThreatLevels() // New Game
+        public void Init() // New Game
         {
             ThreatLevels  = new Map<int, int>(); 
             PaymentTimers = new Map<int, int>();
+            SpawnedShips  = new Array<Guid>();
             foreach (Empire empire in EmpireManager.MajorEmpires)
             {
                 ThreatLevels.Add(empire.Id, -1);
@@ -76,10 +80,11 @@ namespace Ship_Game
             }
         }
 
-        public void RestoreThreatLevelsAndTimers(Map<int, int> threatLevels, Map<int, int> paymentTimers) // From Save
+        public void RestoreFromSave(Map<int, int> threatLevels, Map<int, int> paymentTimers, Array<Guid> spawnedShips)
         {
             ThreatLevels  = threatLevels;
             PaymentTimers = paymentTimers;
+            SpawnedShips  = spawnedShips;
         }
 
         public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
@@ -190,6 +195,9 @@ namespace Ship_Game
 
         public void TryLevelUp(bool alwaysLevelUp = false)
         {
+            if (Level == MaxLevel)
+                return;
+
             if (alwaysLevelUp || RandomMath.RollDie(Level) == 1)
             {
                 int newLevel = Level + 1;
@@ -444,6 +452,33 @@ namespace Ship_Game
             }
         }
 
+        public void ProcessShip(Ship ship)
+        {
+            if (SpawnedShips.Contains(ship.guid))
+            {
+                // We cannot salvage ships that we spawned
+                SpawnedShips.RemoveSwapLast(ship.guid);
+                ship.QueueTotalRemoval();
+                CleanUpSpawnedShips();
+            }
+            else
+            {
+                SalvageShip(ship);
+            }
+        }
+
+        void CleanUpSpawnedShips()
+        {
+            for (int i = SpawnedShips.Count; i >= 0;  i--)
+            {
+                Guid shipGuid = SpawnedShips[i];
+                {
+                    if (!Owner.GetShips().Any(s => s.guid == shipGuid))
+                        SpawnedShips.RemoveAt(i);
+                }
+            }
+        }
+
         public struct PirateForces
         {
             public readonly string Fighter;
@@ -536,8 +571,8 @@ namespace Ship_Game
             }
 
             pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
-            if (pirateShip != null) 
-                pirateShip.shipData.ShipStyle = ShipStyle; // For some reason ShipStyle is null
+            if (pirateShip != null)
+                SpawnedShips.Add(pirateShip.guid);
 
             return shipName.NotEmpty() && pirateShip != null;
         }
@@ -564,10 +599,10 @@ namespace Ship_Game
 
         void SalvageCombatShip(Ship ship)
         {
-            if (ShouldSalvageCombatShip())  // Do we need to level up?
+            if (ShouldSalvageCombatShip(ship)) 
             {
                 ship.QueueTotalRemoval();
-                TryLevelUp();
+
                 // We can use this ship in future endeavors, ha ha ha!
                 if (!ShipsWeCanBuild.Contains(ship.Name))
                     ShipsWeCanBuild.Add(ship.Name);
@@ -583,19 +618,11 @@ namespace Ship_Game
             }
         }
 
-        bool ShouldSalvageCombatShip()
+        bool ShouldSalvageCombatShip(Ship ship)
         {
-            bool needMoreLevels = false;
-            for (int i = 0; i < ThreatLevels.Count; i++)
-            {
-                if (Level < ThreatLevels[i])
-                {
-                    needMoreLevels = true;
-                    break;
-                }
-            }
-
-            return needMoreLevels;
+            // we can salvage and use small ships. we keep the large ones though.
+            return ship.shipData.HullRole != ShipData.RoleName.cruiser 
+                   && ship.shipData.HullRole != ShipData.RoleName.capital;
         }
 
         enum NewBaseSpot

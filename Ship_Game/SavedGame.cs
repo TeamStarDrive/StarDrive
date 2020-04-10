@@ -554,6 +554,7 @@ namespace Ship_Game
             [Serialize(20)] public int PirateLevel;
             [Serialize(21)] public Map<int, int> PirateThreatLevels;
             [Serialize(22)] public Map<int, int> PiratePaymentTimers;
+            [Serialize(23)] public Array<Guid> SpawnedShips;
         }
 
         public class FleetSave
