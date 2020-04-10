@@ -1805,28 +1805,28 @@
     <Content Include="Content\Buildings\Tracking Station.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\001_CorsairToPlayerDemandtMoneyKnown.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs001_ToPlayerDemandtMoneyKnown.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\001_PlayerToCorsairContactAgain.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs001_FromPlayerContactAgain.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\002_CorsairToPlayerRenewDemand.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs002_ToPlayerRenewDemand.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\002_PlayerToCorsairContactProtected.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs002_FromPlayerContactProtected.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\003_PlayerToCorsairContactWar.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs003_FromPlayerContactWar.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\999_CorsairFirstContact.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs999_FirstContact.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Encounter Dialogs\Encounter_Corsair_1.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Content\Encounter Dialogs\000_CorsairToPlayerDemandtMoney.xml">
+    <Content Include="Content\Encounter Dialogs\Corsairs000_ToPlayerDemandtMoney.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Encounter Dialogs\Encounter_Corsair_RequestMoney_1.xml">
@@ -1841,6 +1841,9 @@
     </Content>
     <Content Include="Content\Races\Corsairs.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Races\Draugar.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\SavedDesigns\Corsair Asteroid Base-Mk3.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
