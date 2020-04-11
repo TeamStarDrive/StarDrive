@@ -51,6 +51,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            Close.Visible = CanEscapeFromScreen;
             batch.Begin();
 
             // 4 corners
