@@ -37,11 +37,11 @@ namespace Ship_Game
         int PaymentPeriodTurns                          => Owner.data.PiratePaymentPeriodTurns;
         public bool PaidBy(Empire victim)               => !GetRelations(victim).AtWar;
 
-        public void AddGoalPaymentDirector(Empire victim) => 
-            AddGoal(victim, GoalType.PiratePaymentDirector, null, "");
+        public void AddGoalDirectorPayment(Empire victim) => 
+            AddGoal(victim, GoalType.PirateDirectorPayment, null, "");
 
-        public void AddGoalRaidDirector(Empire victim) => 
-            AddGoal(victim, GoalType.PirateRaidDirector, null, "");
+        public void AddGoalDirectorRaid(Empire victim) => 
+            AddGoal(victim, GoalType.PirateDirectorRaid, null, "");
 
         public void AddGoalBase(Ship ship, string sysName) => 
             AddGoal(null, GoalType.PirateBase, ship, sysName);
@@ -59,8 +59,8 @@ namespace Ship_Game
         {
             switch (type)
             {
-                case GoalType.PiratePaymentDirector: Goals.Add(new PiratePaymentDirector(Owner, victim));  break;
-                case GoalType.PirateRaidDirector:    Goals.Add(new PirateRaidDirector(Owner, victim));     break;
+                case GoalType.PirateDirectorPayment: Goals.Add(new PirateDirectorPayment(Owner, victim));  break;
+                case GoalType.PirateDirectorRaid:    Goals.Add(new PirateDirectorRaid(Owner, victim));     break;
                 case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
                 case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));    break;
@@ -71,17 +71,13 @@ namespace Ship_Game
 
         public void Init() // New Game
         {
-            /*
-            ThreatLevels    = new Map<int, int>(); 
-            PaymentTimers   = new Map<int, int>();
-            SpawnedShips    = new Array<Guid>();
-            ShipsWeCanSpawn = new Array<string>();
-            */
             foreach (Empire empire in EmpireManager.MajorEmpires)
             {
                 ThreatLevels.Add(empire.Id, -1);
                 PaymentTimers.Add(empire.Id, PaymentPeriodTurns);
             }
+
+            PopulatePirateFightersForCarriers();
         }
 
         public void RestoreFromSave(Map<int, int> threatLevels, Map<int, int> paymentTimers, 
@@ -91,6 +87,8 @@ namespace Ship_Game
             PaymentTimers   = paymentTimers;
             SpawnedShips    = spawnedShips;
             ShipsWeCanSpawn = shipsWeCanSpawn;
+
+            PopulatePirateFightersForCarriers();
         }
 
         public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
@@ -709,6 +707,13 @@ namespace Ship_Game
         {
             // we can salvage and use small ships. we keep the large ones though.
             return ship.shipData.HullRole != ShipData.RoleName.capital;
+        }
+
+        void PopulatePirateFightersForCarriers()
+        {
+            ShipsWeCanBuild.Add(Owner.data.PirateFighterBasic);
+            ShipsWeCanBuild.Add(Owner.data.PirateFighterImproved);
+            ShipsWeCanBuild.Add(Owner.data.PirateFighterAdvanced);
         }
 
         enum NewBaseSpot

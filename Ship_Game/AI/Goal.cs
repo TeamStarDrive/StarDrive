@@ -26,8 +26,8 @@ namespace Ship_Game.AI
         BuildOrbital,
         RemnantAI,
         PirateAI,
-        PiratePaymentDirector,
-        PirateRaidDirector,
+        PirateDirectorPayment,
+        PirateDirectorRaid,
         PirateBase,
         PirateRaidTransport,
         PirateRaidOrbital,
@@ -126,8 +126,8 @@ namespace Ship_Game.AI
                 case BuildOrbital.ID:           return new BuildOrbital();
                 case RemnantAI.ID:              return new RemnantAI();
                 case PirateAI.ID:               return new PirateAI();
-                case PiratePaymentDirector.ID:  return new PiratePaymentDirector();
-                case PirateRaidDirector.ID:     return new PirateRaidDirector();
+                case PirateDirectorPayment.ID:  return new PirateDirectorPayment();
+                case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
                 case PirateRaidTransport.ID:    return new PirateRaidTransport();
                 case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
                 case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip();

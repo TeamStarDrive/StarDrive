@@ -38,11 +38,9 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            PopulatePirateFightersForCarriers();
-
             // FB - Pirate main goal can be set per AI empire as well, in the future
             // Also - We might want to create several pirate factions (set by the player in rule options)
-            Pirates.AddGoalPaymentDirector(EmpireManager.Player);
+            Pirates.AddGoalDirectorPayment(EmpireManager.Player);
             return GoalStep.GoalComplete;
         }
 
@@ -69,13 +67,6 @@ namespace Ship_Game.Commands.Goals
                 }
             }
             return GoalStep.TryAgain;
-        }
-
-        void PopulatePirateFightersForCarriers()
-        {
-            Pirates.ShipsWeCanBuild.Add(empire.data.PirateFighterBasic);
-            Pirates.ShipsWeCanBuild.Add(empire.data.PirateFighterImproved);
-            Pirates.ShipsWeCanBuild.Add(empire.data.PirateFighterAdvanced);
         }
     }
 }
