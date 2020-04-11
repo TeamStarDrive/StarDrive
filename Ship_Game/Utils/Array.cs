@@ -825,6 +825,18 @@ namespace Ship_Game
             return false;
         }
 
+        public static bool AddUniqueRef<T>(this Array<T> list, Array<T> items) where T : class
+        {
+            bool allAdded = true;
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                if (!list.AddUniqueRef(item) && allAdded)
+                    allAdded = false;
+            }
+            return allAdded;
+        }
+
         public static void RemoveInActiveObjects<T>(this Array<T> list) where T : GameplayObject
         {
             int size = 0;

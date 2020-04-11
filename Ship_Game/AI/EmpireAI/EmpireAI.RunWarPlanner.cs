@@ -331,7 +331,6 @@ namespace Ship_Game.AI
             }
         }
 
-
         private void RunWarPlanner()
         {
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
@@ -350,12 +349,14 @@ namespace Ship_Game.AI
             // start a new war by military strength
             if (worstWar > WarState.EvenlyMatched)
             {
-                float warStrengthNeeded    = GetStrengthNeededByTasks(MilitaryTask.TaskCategory.War);
-                float nonWarStrengthNeeded = GetStrengthNeededByTasks(MilitaryTask.TaskCategory.Expansion 
-                                                                                  | MilitaryTask.TaskCategory.FleetNeeded);
+                float currentTaskStrength    = GetStrengthNeededByTasks( f=>
+                {
+                    return f.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded);
+                });
+
                 var fleets                 = OwnerEmpire.AllFleetsReady();
 
-                if (fleets.AccumulatedStrength > warStrengthNeeded + nonWarStrengthNeeded)
+                if (fleets.AccumulatedStrength > currentTaskStrength)
                 {
                     foreach (var kv in OwnerEmpire.AllRelations)
                     {
@@ -366,7 +367,7 @@ namespace Ship_Game.AI
 
                         float enemyStrength = kv.Key.AllFleetsReady().AccumulatedStrength;
 
-                        if (enemyStrength * 2 > fleets.AccumulatedStrength) continue;
+                        if (enemyStrength > fleets.AccumulatedStrength * 2) continue;
 
                         // all out war
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)

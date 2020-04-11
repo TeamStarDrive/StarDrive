@@ -113,17 +113,12 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded));
         }
 
-        public float GetStrengthNeededByTasks(MilitaryTask.TaskCategory taskCategory)
+        public float GetStrengthNeededByTasks(Predicate<MilitaryTask> filter)
         {
-            var strength = TaskList.Sum(task =>
-            {
-            var tc = task.GetTaskCategory();
-            bool correct = tc.HasFlag(taskCategory);
-
-            return correct ? task.MinimumTaskForceStrength : 0;
-            });
-            return strength;
+            return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
+
+        public MilitaryTask[] GetTasks(Predicate<MilitaryTask> filter) => TaskList.Filter(filter);
 
         public MilitaryTask[] GetClaimTasks()
         {
