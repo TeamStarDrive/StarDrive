@@ -3,12 +3,12 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class PiratePaymentDirector : Goal
+    public class PirateDirectorPayment : Goal
     {
-        public const string ID = "PiratePaymentDirector";
+        public const string ID = "PirateDirectorPayment";
         public override string UID => ID;
         private Pirates Pirates;
-        public PiratePaymentDirector() : base(GoalType.PiratePaymentDirector)
+        public PirateDirectorPayment() : base(GoalType.PirateDirectorPayment)
         {
             Steps = new Func<GoalStep>[]
             {
@@ -16,7 +16,7 @@ namespace Ship_Game.Commands.Goals
                UpdatePirateActivity,
             };
         }
-        public PiratePaymentDirector(Empire owner, Empire targetEmpire) : this()
+        public PirateDirectorPayment(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
@@ -60,7 +60,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                Pirates.AddGoalRaidDirector(TargetEmpire);
+                Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
             return GoalStep.RestartGoal;
