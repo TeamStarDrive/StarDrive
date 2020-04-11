@@ -24,7 +24,7 @@
   <XSIZE>2</XSIZE>
   <YSIZE>3</YSIZE>
   <CanRotate>true</CanRotate>
-  <UID>CorsairAssaultBay</UID>
+  <UID>PirateAssaultBay</UID>
   <Restrictions>O</Restrictions>
   <Name>Assault Shuttle Bay</Name>
   <IconTexturePath>Modules/AssaultShuttleBay</IconTexturePath>
