@@ -85,6 +85,7 @@ namespace Ship_Game
 
         public override bool HandleInput(InputState input)
         {
+            CanEscapeFromScreen = encounter.Current.EndTransmission;
             if (encounter.Current.EndTransmission && (input.Escaped || input.RightMouseClick))
             {
                 ExitScreen();
