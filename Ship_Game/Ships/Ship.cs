@@ -1209,8 +1209,7 @@ namespace Ship_Game.Ships
                 return;
             }
 
-            if (!loyalty.isFaction)
-                AI.ProcessResupply(resupplyReason);
+            AI.ProcessResupply(resupplyReason);
 
         }
 
