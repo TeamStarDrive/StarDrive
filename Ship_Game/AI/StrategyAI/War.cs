@@ -211,7 +211,7 @@ namespace Ship_Game
             tasks.AddRange(AttackContestedSystems());
             if (tasks.IsEmpty)
             {
-                tasks.AddRange(StandardAssault(TheirBorderSystems));
+                tasks.AddUniqueRef(StandardAssault(TheirBorderSystems));
             }
             return tasks;
         }
@@ -219,7 +219,7 @@ namespace Ship_Game
         Array<MilitaryTask> ConductSkirmishWar()
         {
             var tasks = StandardAssault(TheirBorderSystems);
-            tasks.AddRange(StandardAssault(TheirNearSystems));
+            tasks.AddUniqueRef(StandardAssault(TheirNearSystems));
             return tasks;
         }
 
@@ -230,11 +230,8 @@ namespace Ship_Game
 
             var systems = Them.GetOwnedSystems().Filter(s => s.IsExploredBy(Us));
             systems     = systems.SortedDescending(s => s.PlanetList.Sum(p => p.ColonyBaseValue(Us)));
+            tasks.AddUniqueRef(StandardAssault(systems));
 
-            foreach (var task in StandardAssault(systems))
-            {
-                tasks.AddUniqueRef(task);
-            }
             return tasks;
         }
 
@@ -246,7 +243,7 @@ namespace Ship_Game
             {
                 foreach(var planet in system.PlanetList.SortedDescending(p=> p.ColonyBaseValue(Us)))
                 {
-                    if (planet.Owner == Them)
+                    if (planet.Owner == Them && !tasks.Any(t=> t.TargetPlanet == planet))
                     {
                         if (!IsAlreadyAssaultingPlanet(planet))
                         {
