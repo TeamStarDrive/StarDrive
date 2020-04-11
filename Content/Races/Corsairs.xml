@@ -22,7 +22,7 @@
   <PirateStationBasic>Corsair Station</PirateStationBasic>
   <PirateStationImproved>Corsair Station-Mk2</PirateStationImproved>
   <PirateStationAdvanced>Corsair Station-Mk3</PirateStationAdvanced>
-
+  <PirateFlagShip>Corsair Flagship</PirateFlagShip>
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>
   <EnvOceanic>1</EnvOceanic>
