@@ -231,9 +231,37 @@ namespace Ship_Game
             {
                 AdvanceInTech(level);
                 BuildStation(level);
+                SpawnFlagShip(level);
             }
 
             return success;
+        }
+
+        void SpawnFlagShip(int level)
+        {
+            if (level != MaxLevel / 2)
+                return;
+
+            var shipList = Owner.GetShips();
+            using (shipList.AcquireReadLock())
+            {
+                if (shipList.Any(s => s.Name == Owner.data.PirateFlagship))
+                    return;
+            }
+
+            if (GetOrbitalsOrbitingPlanets(out Array<Ship> planetBases))
+            {
+                Ship pirateBase = planetBases.RandItem();
+                Planet planet   = pirateBase.GetTether();
+                if (SpawnShip(PirateShipType.FlagShip, planet.Center, out Ship flagShip))
+                    flagShip.AI.OrderToOrbit(planet);
+            }
+            else if (GetBases(out Array<Ship> bases))
+            {
+                Ship pirateBase = bases.RandItem();
+                Vector2 pos     = pirateBase.Center.GenerateRandomPointOnCircle(2000);
+                SpawnShip(PirateShipType.FlagShip, pos, out _);
+            }
         }
 
         void BuildStation(int level)
@@ -463,6 +491,7 @@ namespace Ship_Game
             if (SpawnedShips.Contains(ship.guid))
             {
                 // We cannot salvage ships that we spawned
+                // remove it with no benefits
                 SpawnedShips.RemoveSwapLast(ship.guid);
                 ship.QueueTotalRemoval();
                 CleanUpSpawnedShips();
@@ -492,10 +521,12 @@ namespace Ship_Game
             public readonly string BoardingShip;
             public readonly string Base;
             public readonly string Station;
+            public readonly string FlagShip;
             public readonly string Random;
 
             public PirateForces(Empire pirates, int effectiveLevel) : this()
             {
+                FlagShip = pirates.data.PirateFlagship;
                 switch (effectiveLevel)
                 {
                     case 0:
@@ -533,9 +564,7 @@ namespace Ship_Game
             {
                 shipName = "";
                 if (empire.Pirates.ShipsWeCanSpawn?.Count > 0 && RandomMath.RollDie(MaxLevel) < empire.Pirates.Level)
-                {
                     shipName = empire.Pirates.ShipsWeCanSpawn.RandItem();
-                }
 
                 return shipName.NotEmpty();
             }
@@ -708,6 +737,7 @@ namespace Ship_Game
         Boarding,
         Base,
         Station,
+        FlagShip,
         Random
     }
 }

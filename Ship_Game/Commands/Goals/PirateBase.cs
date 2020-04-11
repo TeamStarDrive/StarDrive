@@ -40,7 +40,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // Base is destroyed, behead the Director
             }
 
-            if (Base.InCombat)
+            if (Base.InCombat) // No base operations while in combat
                 return GoalStep.TryAgain;
 
             var friendlies = Base.AI.FriendliesNearby;
@@ -53,7 +53,10 @@ namespace Ship_Game.Commands.Goals
                         continue; // Do not mess with our own structures
 
                     if (ship.InRadius(Base.Center, 1200))
+                    {
+                        ship.ChangeOrdnance(5);
                         Pirates.ProcessShip(ship);
+                    }
                 }
             }
 

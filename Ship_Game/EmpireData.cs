@@ -267,9 +267,10 @@ namespace Ship_Game
         [Serialize(122)] public string PirateStationBasic;
         [Serialize(123)] public string PirateStationImproved;
         [Serialize(124)] public string PirateStationAdvanced;
-        [Serialize(125)] public bool IsPirateFaction;
-        [Serialize(126)] public int PiratePaymentPeriodTurns = 100; 
-        [Serialize(127)] public int MinimumColoniesForStartPayment = 3;
+        [Serialize(125)] public string PirateFlagship;
+        [Serialize(126)] public bool IsPirateFaction;
+        [Serialize(127)] public int PiratePaymentPeriodTurns = 100; 
+        [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
 
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;

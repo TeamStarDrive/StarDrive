@@ -22,7 +22,7 @@
   <PirateStationBasic>Draug Station</PirateStationBasic>
   <PirateStationImproved>Draug Station-Mk2</PirateStationImproved>
   <PirateStationAdvanced>Draug Station-Mk3</PirateStationAdvanced>
-
+  <PirateFlagShip>Draug Flagship</PirateFlagShip>
   <!-- Fertility multipliers for environments. The default is 1 in the code, but the tags are included here for reference -->
   <EnvTerran>1</EnvTerran>
   <EnvOceanic>1</EnvOceanic>
