@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <ShipStyle>Corsair</ShipStyle>
+  <ShipStyle>Corsairs</ShipStyle>
   <experience>0</experience>
   <Level>0</Level>
   <SelectionGraphic />
@@ -172,7 +172,7 @@
         <X>200</X>
         <Y>248</Y>
       </Position>
-      <InstalledModuleUID>CorsairAssaultBay</InstalledModuleUID>
+      <InstalledModuleUID>PirateAssaultBay</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -259,7 +259,7 @@
         <X>216</X>
         <Y>88</Y>
       </Position>
-      <InstalledModuleUID>CorsairAssaultBay</InstalledModuleUID>
+      <InstalledModuleUID>PirateAssaultBay</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -1254,7 +1254,7 @@
         <X>280</X>
         <Y>88</Y>
       </Position>
-      <InstalledModuleUID>CorsairAssaultBay</InstalledModuleUID>
+      <InstalledModuleUID>PirateAssaultBay</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>
@@ -1619,7 +1619,7 @@
         <X>296</X>
         <Y>248</Y>
       </Position>
-      <InstalledModuleUID>CorsairAssaultBay</InstalledModuleUID>
+      <InstalledModuleUID>PirateAssaultBay</InstalledModuleUID>
       <HangarshipGuid>00000000-0000-0000-0000-000000000000</HangarshipGuid>
       <Health>0</Health>
       <Shield_Power>0</Shield_Power>

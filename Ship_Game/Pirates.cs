@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 
 namespace Ship_Game
 {
-    public class Pirates 
+    public class Pirates // Created by Fat Bastard April 2020
     {
         public const int MaxLevel = 20;
         public readonly Empire Owner;

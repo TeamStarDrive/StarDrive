@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <ShipStyle>Corsair</ShipStyle>
+  <ShipStyle>Corsairs</ShipStyle>
   <Name>Corsair Asteroid Base-Mk2</Name>
   <IconPath>ShipIcons/terran_platform</IconPath>
   <Hull>Corsair/Corsair Asteroid Base</Hull>
