@@ -652,14 +652,19 @@ namespace Ship_Game
                 case PirateShipType.Boarding: shipName = forces.BoardingShip; break;
                 case PirateShipType.Base:     shipName = forces.Base;         break;
                 case PirateShipType.Station:  shipName = forces.Station;      break;
-                case PirateShipType.Random:   shipName = forces.Random;   break;
+                case PirateShipType.Random:   shipName = forces.Random;       break;
             }
 
             pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
             if (pirateShip != null)
                 SpawnedShips.Add(pirateShip.guid);
 
-            return shipName.NotEmpty() && pirateShip != null;
+            bool error = shipName.IsEmpty() || pirateShip == null;
+
+            if (error)
+                Log.Warning($"Could not spawn required pirate ship for {Owner.Name}, check race xml");
+
+            return !error;
         }
 
         public void SalvageShip(Ship ship)
@@ -711,9 +716,25 @@ namespace Ship_Game
 
         void PopulatePirateFightersForCarriers()
         {
-            ShipsWeCanBuild.Add(Owner.data.PirateFighterBasic);
-            ShipsWeCanBuild.Add(Owner.data.PirateFighterImproved);
-            ShipsWeCanBuild.Add(Owner.data.PirateFighterAdvanced);
+            ShipsWeCanBuild.Clear();
+            bool error = false;
+            if (Owner.data.PirateFighterBasic.NotEmpty())
+                ShipsWeCanBuild.Add(Owner.data.PirateFighterBasic);
+            else
+                error = true;
+
+            if (Owner.data.PirateFighterImproved.NotEmpty())
+                ShipsWeCanBuild.Add(Owner.data.PirateFighterImproved);
+            else
+                error = true;
+
+            if (Owner.data.PirateFighterAdvanced.NotEmpty())
+                ShipsWeCanBuild.Add(Owner.data.PirateFighterAdvanced);
+            else
+                error = true;
+
+            if (error)
+                Log.Warning($"Could not find a default pirate ship in {Owner.Name} race xml");
         }
 
         enum NewBaseSpot
