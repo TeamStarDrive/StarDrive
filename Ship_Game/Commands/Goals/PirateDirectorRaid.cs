@@ -3,20 +3,20 @@ using Ship_Game.AI;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class PirateRaidDirector : Goal
+    public class PirateDirectorRaid : Goal
     {
-        public const string ID = "PirateRaidDirector";
+        public const string ID = "PirateDirectorRaid";
         public override string UID => ID;
         private Pirates Pirates;
 
-        public PirateRaidDirector() : base(GoalType.PirateRaidDirector)
+        public PirateDirectorRaid() : base(GoalType.PirateDirectorRaid)
         {
             Steps = new Func<GoalStep>[]
             {
                PrepareRaid
             };
         }
-        public PirateRaidDirector(Empire owner, Empire targetEmpire) : this()
+        public PirateDirectorRaid(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
             TargetEmpire = targetEmpire;
