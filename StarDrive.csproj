@@ -1127,7 +1127,7 @@
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Ship_Game\AI\StrategyAI\War.cs">
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\War.cs">
       <AutoGen>false</AutoGen>
       <DesignTimeSharedInput>false</DesignTimeSharedInput>
     </Compile>
