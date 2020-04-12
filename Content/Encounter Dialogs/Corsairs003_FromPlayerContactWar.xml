@@ -3,7 +3,7 @@
   <Step>3</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <Name>Contact Corsairs</Name>
-  <MoneyRequested>500</MoneyRequested>
+  <BaseMoneyDemanded>500</BaseMoneyDemanded>
   <DescriptionText>You hail the corsair captain. After a few short moments a crackling voice comes over the subspace communicator:</DescriptionText>
   <MessageList>
     <Message>

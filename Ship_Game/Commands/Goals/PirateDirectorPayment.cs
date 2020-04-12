@@ -94,9 +94,7 @@ namespace Ship_Game.Commands.Goals
             if (TargetEmpire.isPlayer)
                 Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetModifyMoneyRequestedModifier());
             else
-            {
-                // TODO AI reply to payment demand will be here
-            }
+                DemandMoneyFromAI(TargetEmpire);
 
             // We demanded payment for the first time, let the game begin
             if (Pirates.ThreatLevelFor(TargetEmpire) == -1)
@@ -112,6 +110,33 @@ namespace Ship_Game.Commands.Goals
                              * TargetEmpire.GetPlanets().Count / 3;
 
             return modifier;
+        }
+
+        void DemandMoneyFromAI(Empire victim)
+        {
+            bool error = true; ;
+            if (Encounter.GetEncounterForAI(Pirates.Owner, 0, out Encounter e))
+            {
+                if (e.BaseMoneyDemanded > 0)
+                {
+                    error = false;
+                    int moneyDemand = (e.BaseMoneyDemanded * GetModifyMoneyRequestedModifier()).RoundTo10();
+                    if (moneyDemand < TargetEmpire.Money / 4)
+                    {
+                        TargetEmpire.AddMoney(-e.BaseMoneyDemanded);
+                        TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
+                    }
+                    else
+                    {
+                        TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
+                    }
+                }
+            }
+
+            if (error)
+                Log.Warning($"Could not find BaseMoneyRequest in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
+                            $"Make sure there is a step 0 encounter for {Pirates.Owner.Name} in encounter dialogs and " +
+                            $"with <BaseMoneyRequested> xml tag");
         }
     }
 }

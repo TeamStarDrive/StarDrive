@@ -17,7 +17,7 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
-        public int BaseMoneyRequested;
+        public int BaseMoneyDemanded;
 
 
         Empire playerEmpire;
@@ -35,7 +35,7 @@ namespace Ship_Game
             }
             else
             {
-                int money = r.MoneyToThem.LowerBound(BaseMoneyRequested);
+                int money = r.MoneyToThem.LowerBound(BaseMoneyDemanded);
                 bool ok = !(money > 0 && playerEmpire.Money < money);
                 if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                     ok = false;
@@ -119,7 +119,7 @@ namespace Ship_Game
                 case "ADJ2,": return playerEmpire.data.Traits.Adj2 + ",";
                 case "ADJ2?": return playerEmpire.data.Traits.Adj2 + "?";
                 case "ADJ2!": return playerEmpire.data.Traits.Adj2 + "!";
-                case "MONEY": return BaseMoneyRequested.String();
+                case "MONEY": return BaseMoneyDemanded.String();
             }
         }
 
@@ -153,20 +153,45 @@ namespace Ship_Game
             Relationship rel = player.GetRelations(faction);
             int requiredStep = playerInitiated ? rel.PlayerContactStep : rel.FactionContactStep;
 
-
             Encounter[] encounters = playerInitiated ? ResourceManager.Encounters.Filter(e => e.PlayerInitiated) 
                                                      : ResourceManager.Encounters.Filter(e => e.FactionInitiated);
             
+            if (GetEncounter(encounters, faction, requiredStep, out Encounter encounter))
+            {
+                encounter.BaseMoneyDemanded = (encounter.BaseMoneyDemanded * moneyModifier).RoundTo10();
+                EncounterPopup.Show(screen, player, faction, encounter);
+            }
+            else
+            {
+                string initiation = playerInitiated ? "Player Initiated" : "Faction Initiated";
+                Log.Warning($"Encounter not found for {faction.Name}, {initiation}, Step: {requiredStep}");
+            }
+        }
+
+        public static bool GetEncounterForAI(Empire faction, int requireStep, out Encounter encounter)
+        {
+            encounter = null;
+
+            Encounter[] encounters = ResourceManager.Encounters.Filter(e => e.FactionInitiated);
+            GetEncounter(encounters, faction, requireStep, out encounter);
+
+            return encounter != null;
+        }
+
+        static bool GetEncounter(Encounter[] encounters, Empire faction, int requiredStep, out Encounter encounter)
+        {
+            encounter = null;
             foreach (Encounter e in encounters)
             {
                 string empireName = faction.data.Traits.Name;
-                if (empireName == e.Faction && requiredStep == e.Step)
+                if (empireName == e.Faction &&  requiredStep == e.Step)
                 {
-                    e.BaseMoneyRequested = (e.BaseMoneyRequested * moneyModifier).RoundTo10();
-                    EncounterPopup.Show(screen, player, faction, e);
+                    encounter = e;
                     break;
                 }
             }
+
+            return encounter != null;
         }
     }
 }
