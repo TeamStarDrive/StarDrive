@@ -10,7 +10,7 @@ namespace Ship_Game
 {
     public class Pirates // Created by Fat Bastard April 2020
     {
-        // Pirates Class is created for factions which are defined as empires in their XML
+        // Pirates Class is created for factions which are defined as pirates in their XML
         // An init goal will be created for the pirates (PirateAI.cs) That goal will launch
         // A Payment director for each major empire, which will be responsible for collecting
         // Money by set period (defined in the race XML). 
@@ -23,8 +23,8 @@ namespace Ship_Game
         // Lone systems and even in deep space not located in sensor ranges.
         // Pirates have threat level per empire and this sets how aggressive and how many
         // Raids they can have vs. that empire in any given time. 
-        // When their bases are destroyed, they level down nd their threat level goes down
-        // Across the board as well.
+        // When their bases are destroyed, they level down and their threat level goes down
+        // across the board as well.
 
         // Note that multiple pirate factions is supported. Modders can add their own.
         // Pirates which got paid might even protect targets from other pirates factions.
