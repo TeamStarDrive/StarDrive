@@ -154,7 +154,6 @@ namespace Ship_Game
                 oldLoyalty.TheyKilledOurShip(changeTo, ship);
                 changeTo.WeKilledTheirShip(oldLoyalty, ship);
                 ship.ClearFleet();
-                oldLoyalty.GetShips().QueuePendingRemoval(ship);
                 oldLoyalty.RemoveShip(ship);
 
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);

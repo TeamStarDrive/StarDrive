@@ -103,6 +103,38 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.TargetPlanet?.Owner == empire);
         }
 
+        public MilitaryTask[] GetWarTasks()
+        {
+            return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War));
+        }
+
+        public MilitaryTask[] GetWarTasks(Empire targetEmpire)
+        {
+            return TaskList.Filter(task =>
+            {
+                if (task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War))
+                {
+                    if (task.TargetPlanet?.Owner == targetEmpire)
+                        return true;
+                }
+                return false;
+            });
+        }
+
+
+
+        public MilitaryTask[] GetTasksNeedingAFleet()
+        {
+            return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded));
+        }
+
+        public float GetStrengthNeededByTasks(Predicate<MilitaryTask> filter)
+        {
+            return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
+        }
+
+        public IReadOnlyList<MilitaryTask> GetTasks() => TaskList;
+
         public MilitaryTask[] GetClaimTasks()
         {
             return TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
