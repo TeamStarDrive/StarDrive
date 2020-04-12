@@ -559,8 +559,6 @@ namespace Ship_Game.Gameplay
                 return;
             }
 
-
-
             if (FedQuest != null)
             {
                 Empire enemyEmpire = EmpireManager.GetEmpireByName(FedQuest.EnemyName);

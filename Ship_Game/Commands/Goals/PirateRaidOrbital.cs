@@ -42,7 +42,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed; // They paid or dead
 
             var orbitalType = GetOrbital();
-            orbitalType = Pirates.TargetType.Projector; // TODO for testing
+            // orbitalType = Pirates.TargetType.Projector; // TODO for testing
             if (Pirates.GetTarget(TargetEmpire, orbitalType, out Ship orbital))
             {
                 Vector2 where = orbital.Center.GenerateRandomPointOnCircle(1500);
@@ -51,8 +51,6 @@ namespace Ship_Game.Commands.Goals
                     TargetShip = orbital; // This is the main target, we want this to be boarded
                     if (orbitalType != Pirates.TargetType.Projector)
                         Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force);
-
-
 
                     return GoalStep.GoToNextStep;
                 }
