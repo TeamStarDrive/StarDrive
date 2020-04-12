@@ -331,42 +331,80 @@ namespace Ship_Game.AI
             }
         }
 
-
         private void RunWarPlanner()
         {
             if (OwnerEmpire.isPlayer || OwnerEmpire.data.Defeated)
                 return;
             WarState worstWar = WarState.NotApplicable;
+
             foreach(var kv in OwnerEmpire.AllRelations)
             {
                 if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
-                var rel = kv.Value;
+                Relationship rel = kv.Value;
                 if (rel.ActiveWar == null) continue;
                 var currentWar = rel.ActiveWar.ConductWar();
                 worstWar = worstWar > currentWar ? currentWar : worstWar;
             }
+
+            // start a new war by military strength
             if (worstWar > WarState.EvenlyMatched)
             {
-                foreach (var kv in OwnerEmpire.AllRelations)
+                float currentTaskStrength    = GetStrengthNeededByTasks( f=>
                 {
-                    if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
-                    var rel = kv.Value;
-                    if (!rel.Treaty_Peace && rel.PreparingForWar)
-                        ShouldStartWar(kv.Key, rel.PreparingForWarType);
+                    return f.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded);
+                });
+
+                var fleets                 = OwnerEmpire.AllFleetsReady();
+
+                if (fleets.AccumulatedStrength > currentTaskStrength)
+                {
+                    foreach (var kv in OwnerEmpire.AllRelations)
+                    {
+                        if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
+                        Relationship rel = kv.Value;
+                        Empire them = kv.Key;
+                        if (rel.Treaty_Peace || !rel.PreparingForWar) continue;
+
+                        float distanceMod = OwnerEmpire.GetWeightedCenter().Distance(them.GetWeightedCenter());
+                        distanceMod /= 1800000f; // current solar system width * 3. 
+
+                        float enemyStrength = kv.Key.CurrentMilitaryStrength;
+
+                        if (enemyStrength * ( 1 + distanceMod) > fleets.AccumulatedStrength - currentTaskStrength ) continue;
+
+                        // all out war
+                        if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)
+                        {
+                            DeclareWarOn(them, rel.PreparingForWarType);
+                        }
+                        // We share a solar system
+                        else if (OwnerEmpire.GetOwnedSystems().Any(s => s.OwnerList.Contains(them)))
+                        {
+                            DeclareWarOn(them, rel.PreparingForWarType);
+                        }
+                        // they have planets in our AO
+                        else if (rel.PreparingForWarType == WarType.BorderConflict)
+                        {
+                            bool theirBorderSystems = them.GetBorderSystems(OwnerEmpire, true)
+                                .Any(s => IsInOurAOs(s.Position));
+                            if (theirBorderSystems)
+                                DeclareWarOn(them, rel.PreparingForWarType);
+                        }
+                        // we have planets in their AO. Skirmish War.
+                        else if (rel.PreparingForWarType != WarType.DefensiveWar)
+                        {
+                            bool ourBorderSystem = OwnerEmpire.GetBorderSystems(them, false)
+                                .Any(s => them.GetEmpireAI().IsInOurAOs(s.Position));
+                            if (ourBorderSystem)
+                            {
+                                DeclareWarOn(them, rel.PreparingForWarType);
+                            }
+                        }
+
+                        break;
+                    }
                 }
             }
-        }
-        bool ShouldStartWar(Empire them, WarType warType)
-        {
-            float enemyStrength = them.CurrentMilitaryStrength;
-
-            var fleets = OwnerEmpire.AllFleetReadyShipsNearestTarget(them.GetWeightedCenter());
-            if (enemyStrength < fleets.AccumulatedStrength)
-            {
-                OwnerEmpire.GetEmpireAI().DeclareWarOn(them, warType);
-                return true;
-            }
-            return false;
         }
     }
 }

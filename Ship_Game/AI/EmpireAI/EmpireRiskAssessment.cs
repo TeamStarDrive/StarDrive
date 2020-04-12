@@ -59,7 +59,7 @@ namespace Ship_Game.AI
                 return 0;
 
             float strength = 0;
-            foreach (SolarSystem ss in us.GetBorderSystems(Them))
+            foreach (SolarSystem ss in us.GetBorderSystems(Them, true))
             {
                 strength += us.GetEmpireAI().ThreatMatrix.StrengthOfEmpireInSystem(Them, ss);
             }

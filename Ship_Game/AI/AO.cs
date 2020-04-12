@@ -339,11 +339,11 @@ namespace Ship_Game.AI
         public void ClearOut()
         {
             if (CoreFleet != null)
-                Owner?.AddShipNextFrame(CoreFleet.Ships);
+                ReassignShips(CoreFleet.Ships);
             if (OffensiveForcePool?.NotEmpty == true)
-                Owner?.AddShipNextFrame(OffensiveForcePool);
+                ReassignShips(OffensiveForcePool);
             if (ShipsWaitingForCoreFleet?.NotEmpty == true)
-                Owner?.AddShipNextFrame(ShipsWaitingForCoreFleet);
+                ReassignShips(ShipsWaitingForCoreFleet);
 
             OffensiveForcePool?.Clear();
             ShipsWaitingForCoreFleet?.Clear();
@@ -351,6 +351,14 @@ namespace Ship_Game.AI
             CoreWorld      = null;
             PlanetsInAo    = null;
             OurPlanetsInAo = null;
+        }
+
+        void ReassignShips(Array<Ship> ships)
+        {
+            foreach(var ship in ships)
+            {
+                ship.loyalty.Pool.AddShipNextFame(ship);
+            }
         }
 
         public void Dispose()

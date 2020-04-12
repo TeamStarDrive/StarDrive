@@ -640,5 +640,35 @@ namespace Ship_Game.AI.Tasks
             DefendPostInvasion,
             GlassPlanet
         }
+
+        [Flags]
+        public enum TaskCategory 
+        {
+            None = 0,
+            FleetNeeded = 1 << 0,
+            War         = 1 << 1,
+            Domestic    = 1 << 2,
+            Expansion   = 1 << 3
+        }
+
+        public TaskCategory GetTaskCategory()
+        {
+            TaskCategory taskCat = MinimumTaskForceStrength > 0 ? TaskCategory.FleetNeeded : TaskCategory.None;
+
+            switch (type)
+            {
+                case TaskType.AssaultPlanet:
+                case TaskType.DefendPostInvasion:
+                case TaskType.GlassPlanet:
+                case TaskType.ClearAreaOfEnemies:
+                case TaskType.CorsairRaid:        taskCat |= TaskCategory.War; break;
+                case TaskType.DefendSystem:
+                case TaskType.CohesiveClearAreaOfEnemies:
+                case TaskType.Resupply:           taskCat |= TaskCategory.Domestic; break;
+                case TaskType.DefendClaim:
+                case TaskType.Exploration:        taskCat |= TaskCategory.Expansion; break;
+            }
+            return taskCat;
+        }
     }
 }
