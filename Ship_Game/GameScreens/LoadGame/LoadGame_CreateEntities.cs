@@ -71,11 +71,7 @@ namespace Ship_Game
             e.RestoreUnserializableDataFromSave();
 
             if (e.IsPirateFaction)
-            {
-                e.Pirates.SetLevel(sdata.PirateLevel);
-                e.Pirates.RestoreFromSave(sdata.PirateThreatLevels, sdata.PiratePaymentTimers, 
-                    sdata.SpawnedShips, sdata.ShipsWeCanSpawn);
-            }
+                e.Pirates.RestoreFromSave(sdata);
 
             return e;
         }

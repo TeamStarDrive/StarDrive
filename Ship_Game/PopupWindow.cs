@@ -134,7 +134,7 @@ namespace Ship_Game
             BottomBigFill = new Rectangle(MidContainer.X, MidContainer.Y + MidContainer.Height, 
                 MidContainer.Width, BottomFill.Y - (MidContainer.Y + MidContainer.Height));
 
-            EmpireFlagRect = new Rectangle(TitleRight.X-75, TitleRight.Y-25, 50, 50);
+            EmpireFlagRect = new Rectangle(TitleRight.X-75, TitleRight.Y-22, 45, 45);
 
             Close = CloseButton(Rect.X + Rect.Width - 38, Rect.Y + 15);
 

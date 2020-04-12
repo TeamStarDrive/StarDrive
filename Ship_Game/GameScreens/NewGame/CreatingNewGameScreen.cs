@@ -363,16 +363,6 @@ namespace Ship_Game
             }
 
             var nameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
-            /*
-            for (int i = 0; i < EmpireManager.PirateFactions.Length; i++)
-            {
-                var system = new SolarSystem();
-                system.GeneratePirateSystem(nameGenerator.NextName);
-                system.DontStartNearPlayer = true;
-                Data.SolarSystemsList.Add(system);
-            }
-            */
-
             for (; systemCount < NumSystems; ++systemCount)
             {
                 var solarSystem2 = new SolarSystem();

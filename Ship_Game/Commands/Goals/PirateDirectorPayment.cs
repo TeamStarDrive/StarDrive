@@ -8,6 +8,7 @@ namespace Ship_Game.Commands.Goals
         public const string ID = "PirateDirectorPayment";
         public override string UID => ID;
         private Pirates Pirates;
+
         public PirateDirectorPayment() : base(GoalType.PirateDirectorPayment)
         {
             Steps = new Func<GoalStep>[]
@@ -16,6 +17,7 @@ namespace Ship_Game.Commands.Goals
                UpdatePirateActivity,
             };
         }
+
         public PirateDirectorPayment(Empire owner, Empire targetEmpire) : this()
         {
             empire       = owner;
@@ -39,7 +41,7 @@ namespace Ship_Game.Commands.Goals
 
             if (victimPlanets > Pirates.MinimumColoniesForPayment
                 || victimPlanets == Pirates.MinimumColoniesForPayment 
-                 && RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
+                 && RandomMath.RollDice(10)) //  TODO need to be 10, 100 is for testing
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
             }
@@ -79,7 +81,7 @@ namespace Ship_Game.Commands.Goals
 
             // If the player did not pay, don't ask for another payment, let them crawl to
             // us when they are ready to pay and increase out threat level to them
-            if (Pirates.PaidBy(TargetEmpire) && TargetEmpire.isPlayer)
+            if (!Pirates.PaidBy(TargetEmpire) && TargetEmpire.isPlayer)
             {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
                 return false;
@@ -121,10 +123,12 @@ namespace Ship_Game.Commands.Goals
                 {
                     error = false;
                     int moneyDemand = (e.BaseMoneyDemanded * GetModifyMoneyRequestedModifier()).RoundTo10();
-                    if (moneyDemand < TargetEmpire.Money / 4)
+                    if (moneyDemand < TargetEmpire.Money / 4) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-e.BaseMoneyDemanded);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
+                        Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
+                                                     $"- got payment from {TargetEmpire.Name}");
                     }
                     else
                     {

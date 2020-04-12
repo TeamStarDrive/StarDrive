@@ -17,7 +17,7 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
-        public int BaseMoneyDemanded;
+        public int BaseMoneyDemanded; // Overrides any MoneyToThem in message response and adds a possible modifier
 
 
         Empire playerEmpire;
@@ -90,35 +90,35 @@ namespace Ship_Game
             {
                 default: return keyword;
                 case "SING": return playerEmpire.data.Traits.Singular;
-                case "SING.": return playerEmpire.data.Traits.Singular + ".";
-                case "SING,": return playerEmpire.data.Traits.Singular + ",";
-                case "SING?": return playerEmpire.data.Traits.Singular + "?";
-                case "SING!": return playerEmpire.data.Traits.Singular + "!";
+                case "SING.": return playerEmpire.data.Traits.Singular+".";
+                case "SING,": return playerEmpire.data.Traits.Singular+",";
+                case "SING?": return playerEmpire.data.Traits.Singular+"?";
+                case "SING!": return playerEmpire.data.Traits.Singular+"!";
                 case "PLURAL": return playerEmpire.data.Traits.Plural;
-                case "PLURAL.": return playerEmpire.data.Traits.Plural + ".";
-                case "PLURAL,": return playerEmpire.data.Traits.Plural + ",";
-                case "PLURAL?": return playerEmpire.data.Traits.Plural + "?";
-                case "PLURAL!": return playerEmpire.data.Traits.Plural + "!";
+                case "PLURAL.": return playerEmpire.data.Traits.Plural+".";
+                case "PLURAL,": return playerEmpire.data.Traits.Plural+",";
+                case "PLURAL?": return playerEmpire.data.Traits.Plural+"?";
+                case "PLURAL!": return playerEmpire.data.Traits.Plural+"!";
                 case "TARSYS": return sysToDiscuss.Name;
-                case "TARSYS.": return sysToDiscuss.Name + ".";
-                case "TARSYS,": return sysToDiscuss.Name + ",";
-                case "TARSYS?": return sysToDiscuss.Name + "?";
-                case "TARSYS!": return sysToDiscuss.Name + "!";
+                case "TARSYS.": return sysToDiscuss.Name+".";
+                case "TARSYS,": return sysToDiscuss.Name+",";
+                case "TARSYS?": return sysToDiscuss.Name+"?";
+                case "TARSYS!": return sysToDiscuss.Name+"!";
                 case "TAREMP": return empToDiscuss.data.Traits.Name;
-                case "TAREMP.": return empToDiscuss.data.Traits.Name + ".";
-                case "TAREMP,": return empToDiscuss.data.Traits.Name + ",";
-                case "TAREMP?": return empToDiscuss.data.Traits.Name + "?";
-                case "TAREMP!": return empToDiscuss.data.Traits.Name + "!";
+                case "TAREMP.": return empToDiscuss.data.Traits.Name+".";
+                case "TAREMP,": return empToDiscuss.data.Traits.Name+",";
+                case "TAREMP?": return empToDiscuss.data.Traits.Name+"?";
+                case "TAREMP!": return empToDiscuss.data.Traits.Name+"!";
                 case "ADJ1": return playerEmpire.data.Traits.Adj1;
-                case "ADJ1.": return playerEmpire.data.Traits.Adj1 + ".";
-                case "ADJ1,": return playerEmpire.data.Traits.Adj1 + ",";
-                case "ADJ1?": return playerEmpire.data.Traits.Adj1 + "?";
-                case "ADJ1!": return playerEmpire.data.Traits.Adj1 + "!";
+                case "ADJ1.": return playerEmpire.data.Traits.Adj1+".";
+                case "ADJ1,": return playerEmpire.data.Traits.Adj1+",";
+                case "ADJ1?": return playerEmpire.data.Traits.Adj1+"?";
+                case "ADJ1!": return playerEmpire.data.Traits.Adj1+"!";
                 case "ADJ2": return playerEmpire.data.Traits.Adj2;
-                case "ADJ2.": return playerEmpire.data.Traits.Adj2 + ".";
-                case "ADJ2,": return playerEmpire.data.Traits.Adj2 + ",";
-                case "ADJ2?": return playerEmpire.data.Traits.Adj2 + "?";
-                case "ADJ2!": return playerEmpire.data.Traits.Adj2 + "!";
+                case "ADJ2.": return playerEmpire.data.Traits.Adj2+".";
+                case "ADJ2,": return playerEmpire.data.Traits.Adj2+",";
+                case "ADJ2?": return playerEmpire.data.Traits.Adj2+"?";
+                case "ADJ2!": return playerEmpire.data.Traits.Adj2+"!";
                 case "MONEY": return BaseMoneyDemanded.String();
             }
         }

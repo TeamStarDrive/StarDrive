@@ -10,20 +10,37 @@ namespace Ship_Game
 {
     public class Pirates // Created by Fat Bastard April 2020
     {
+        // Pirates Class is created for factions which are defined as empires in their XML
+        // An init goal will be created for the pirates (PirateAI.cs) That goal will launch
+        // A Payment director for each major empire, which will be responsible for collecting
+        // Money by set period (defined in the race XML). 
+        // If the player or the AI refuse to pay, the payment Director will create a Raid
+        // Director goal for the relevant empire, and that raid director will decide which
+        // raids to launch vs the target empire. 
+        // Pirates go up in levels when successfully completing raids, but its harder for
+        // them to level when they are get more powerful. 
+        // When Pirates level up, they create more bases in the galaxy - in asteroid belts,
+        // Lone systems and even in deep space not located in sensor ranges.
+        // Pirates have threat level per empire and this sets how aggressive and how many
+        // Raids they can have vs. that empire in any given time. 
+        // When their bases are destroyed, they level down nd their threat level goes down
+        // Across the board as well.
+
+        // Note that multiple pirate factions is supported. Modders can add their own.
+        // Pirates which got paid might even protect targets from other pirates factions.
+
         public const int MaxLevel = 20;
         public readonly Empire Owner;
-        public readonly string ShipStyle;
         public readonly BatchRemovalCollection<Goal> Goals;
-        public Map<int, int> ThreatLevels { get; private set; } = new Map<int, int>();  // Empire IDs are used here
-        public Map<int, int> PaymentTimers { get; private set; } = new Map<int, int>(); // Empire IDs are used here
-        public Array<Guid> SpawnedShips { get; private set; } = new Array<Guid>();
+        public Map<int, int> ThreatLevels { get; private set; }    = new Map<int, int>();  // Empire IDs are used here
+        public Map<int, int> PaymentTimers { get; private set; }   = new Map<int, int>(); // Empire IDs are used here
+        public Array<Guid> SpawnedShips { get; private set; }      = new Array<Guid>();
         public Array<string> ShipsWeCanSpawn { get; private set; } = new Array<string>();
         public int Level { get; private set; }
 
         public Pirates(Empire owner, bool fromSave, BatchRemovalCollection<Goal> goals)
         {
             Owner        = owner;
-            ShipStyle    = Owner.data.Singular;
             Goals        = goals;
 
             if (!fromSave)
@@ -80,14 +97,15 @@ namespace Ship_Game
             PopulatePirateFightersForCarriers();
         }
 
-        public void RestoreFromSave(Map<int, int> threatLevels, Map<int, int> paymentTimers, 
-            Array<Guid> spawnedShips, Array<string> shipsWeCanSpawn)
-        {
-            ThreatLevels    = threatLevels;
-            PaymentTimers   = paymentTimers;
-            SpawnedShips    = spawnedShips;
-            ShipsWeCanSpawn = shipsWeCanSpawn;
+        public void RestoreFromSave(SavedGame.EmpireSaveData sData)
 
+        {
+            ThreatLevels    = sData.PirateThreatLevels;
+            PaymentTimers   = sData.PiratePaymentTimers;
+            SpawnedShips    = sData.SpawnedShips;
+            ShipsWeCanSpawn = sData.ShipsWeCanSpawn;
+
+            SetLevel(sData.PirateLevel);
             PopulatePirateFightersForCarriers();
         }
 
@@ -653,6 +671,7 @@ namespace Ship_Game
                 case PirateShipType.Boarding: shipName = forces.BoardingShip; break;
                 case PirateShipType.Base:     shipName = forces.Base;         break;
                 case PirateShipType.Station:  shipName = forces.Station;      break;
+                case PirateShipType.FlagShip: shipName = forces.FlagShip;     break;
                 case PirateShipType.Random:   shipName = forces.Random;       break;
             }
 
@@ -695,8 +714,7 @@ namespace Ship_Game
                 ship.QueueTotalRemoval();
 
                 // We can use this ship in future endeavors, ha ha ha!
-                if (!ShipsWeCanBuild.Contains(ship.Name))
-                    ShipsWeCanBuild.Add(ship.Name);
+                ShipsWeCanSpawn.AddUnique(ship.Name);
             }
             else  // Find a base which orbits a planet and go there
             {
@@ -712,7 +730,8 @@ namespace Ship_Game
         bool ShouldSalvageCombatShip(Ship ship)
         {
             // we can salvage and use small ships. we keep the large ones though.
-            return ship.shipData.HullRole != ShipData.RoleName.capital;
+            return ship.shipData.HullRole != ShipData.RoleName.capital 
+                   || ship.shipData.HullRole != ShipData.RoleName.cruiser;
         }
 
         void PopulatePirateFightersForCarriers()
