@@ -362,12 +362,15 @@ namespace Ship_Game.AI
                     {
                         if (GlobalStats.RestrictAIPlayerInteraction && kv.Key.isPlayer) continue;
                         Relationship rel = kv.Value;
-                        Empire them      = kv.Key;
+                        Empire them = kv.Key;
                         if (rel.Treaty_Peace || !rel.PreparingForWar) continue;
 
-                        float enemyStrength = kv.Key.AllFleetsReady().AccumulatedStrength;
+                        float distanceMod = OwnerEmpire.GetWeightedCenter().Distance(them.GetWeightedCenter());
+                        distanceMod /= 1800000f; // current solar system width * 3. 
 
-                        if (enemyStrength > fleets.AccumulatedStrength * 2) continue;
+                        float enemyStrength = kv.Key.CurrentMilitaryStrength;
+
+                        if (enemyStrength * ( 1 + distanceMod) > fleets.AccumulatedStrength - currentTaskStrength ) continue;
 
                         // all out war
                         if (rel.PreparingForWarType == WarType.ImperialistWar || rel.PreparingForWarType == WarType.GenocidalWar)

@@ -77,6 +77,8 @@ namespace Ship_Game.Fleets
                 Log.Error($"Ship Was Null for {Name}");
                 return;
             }
+            if (newShip.loyalty != Owner)
+                Log.Warning("ship loyalty incorrect");
             // This is finding a logic bug: Ship is already in a fleet or this fleet already contains the ship.
             // This should likely be two different checks. There is also the possibilty that the ship is in another
             // Fleet ship list.
