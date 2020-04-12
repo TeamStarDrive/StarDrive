@@ -255,7 +255,8 @@ namespace Ship_Game.AI
                         throw new Exception("Fleet should be null here.");
 
                     int n = ships.CountRef(ship);
-                    if (n > 1) throw new Exception($"Fleet ships contain duplicates({n}): {ship}.");
+                    //if (n > 1) 
+                    //    throw new Exception($"Fleet ships contain duplicates({n}): {ship}.");
                 }
             }
         }
