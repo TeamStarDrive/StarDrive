@@ -3,7 +3,7 @@
   <Step>1</Step>
   <Name>Renewing our not so Yummy Contract</Name>
   <FactionInitiated>true</FactionInitiated>
-  <MoneyRequested>600</MoneyRequested>
+  <BaseMoneyRequested>300</BaseMoneyRequested> <!-- this money request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>Your sub-space transmitter hums with a new Draugar message:</DescriptionText>
   <MessageList>
     <Message>
