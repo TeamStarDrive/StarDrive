@@ -17,7 +17,7 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
-        public int MoneyRequested;
+        public int BaseMoneyRequested;
 
 
         Empire playerEmpire;
@@ -35,7 +35,7 @@ namespace Ship_Game
             }
             else
             {
-                int money = r.MoneyToThem.LowerBound(MoneyRequested);
+                int money = r.MoneyToThem.LowerBound(BaseMoneyRequested);
                 bool ok = !(money > 0 && playerEmpire.Money < money);
                 if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                     ok = false;
@@ -119,7 +119,7 @@ namespace Ship_Game
                 case "ADJ2,": return playerEmpire.data.Traits.Adj2 + ",";
                 case "ADJ2?": return playerEmpire.data.Traits.Adj2 + "?";
                 case "ADJ2!": return playerEmpire.data.Traits.Adj2 + "!";
-                case "MONEY": return MoneyRequested.String();
+                case "MONEY": return BaseMoneyRequested.String();
             }
         }
 
@@ -162,7 +162,7 @@ namespace Ship_Game
                 string empireName = faction.data.Traits.Name;
                 if (empireName == e.Faction && requiredStep == e.Step)
                 {
-                    e.MoneyRequested = (e.MoneyRequested * moneyModifier).RoundTo10();
+                    e.BaseMoneyRequested = (e.BaseMoneyRequested * moneyModifier).RoundTo10();
                     EncounterPopup.Show(screen, player, faction, e);
                     break;
                 }

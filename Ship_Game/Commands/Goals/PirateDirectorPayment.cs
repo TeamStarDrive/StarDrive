@@ -49,12 +49,14 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep UpdatePirateActivity()
         {
-            if (Paid)
+            if (Pirates.PaidBy(TargetEmpire))
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
                 Pirates.TryLevelUp();
                 Pirates.ResetPaymentTimerFor(TargetEmpire);
-                // TODO Set NA pact - for multiple pirate factions
+                Pirates.DecreaseThreatLevelFor(TargetEmpire);
+                Pirates.GetRelations(TargetEmpire).Treaty_NAPact       = true;
+                TargetEmpire.GetRelations(Pirates.Owner).Treaty_NAPact = true;
             }
             else
             {
@@ -77,7 +79,7 @@ namespace Ship_Game.Commands.Goals
 
             // If the player did not pay, don't ask for another payment, let them crawl to
             // us when they are ready to pay and increase out threat level to them
-            if (!Paid && TargetEmpire.isPlayer)
+            if (Pirates.PaidBy(TargetEmpire) && TargetEmpire.isPlayer)
             {
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
                 return false;
@@ -111,7 +113,5 @@ namespace Ship_Game.Commands.Goals
 
             return modifier;
         }
-
-        bool Paid => !Pirates.GetRelations(TargetEmpire).AtWar;
     }
 }
