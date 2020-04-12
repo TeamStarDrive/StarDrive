@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ShipData xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Name>Draugar Asteroid Base</Name>
-  <Role>platform</Role>
   <Hull>Draugar Asteroid Base</Hull>
+  <Role>platform</Role>
   <IconPath>ShipIcons/terran_platform</IconPath>
   <ModelPath>Model/Asteroids/asteroid3</ModelPath>
   <DefaultAIState>AwaitingOrders</DefaultAIState>
