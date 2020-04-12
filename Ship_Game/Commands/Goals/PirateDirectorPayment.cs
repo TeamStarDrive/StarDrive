@@ -105,9 +105,9 @@ namespace Ship_Game.Commands.Goals
 
         float GetModifyMoneyRequestedModifier()
         {
-            float modifier = Pirates.Level.LowerBound(1) // Pirates own level
+            float modifier = Pirates.Level.LowerBound(1) 
                              * TargetEmpire.DifficultyModifiers.PiratePayModifier
-                             * TargetEmpire.GetPlanets().Count / 3;
+                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment;
 
             return modifier;
         }
