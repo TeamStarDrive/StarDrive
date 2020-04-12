@@ -3,7 +3,7 @@
   <Step>0</Step>
   <Name>Protection Money</Name>
   <FactionInitiated>true</FactionInitiated>
-  <BaseMoneyRequested>300</BaseMoneyRequested> <!-- this money request will be modified and overwrite any MoneyToThem below -->
+  <BaseMoneyDemanded>300</BaseMoneyDemanded> <!-- this money request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>While you are busy managing your empire's new found colonies, you receive a message from an organization which is called "The Draugar":</DescriptionText>
   <MessageList>
     <Message>

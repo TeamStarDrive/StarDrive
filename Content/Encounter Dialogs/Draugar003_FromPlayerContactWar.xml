@@ -3,7 +3,7 @@
   <Step>3</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <Name>Contact The Draugar</Name>
-  <MoneyRequested>600</MoneyRequested>
+  <BaseMoneyDemanded>600</BaseMoneyDemanded>
   <DescriptionText>You hail the Draugar captain. After a few short moments a crackling voice comes over the subspace communicator:</DescriptionText>
   <MessageList>
     <Message>
