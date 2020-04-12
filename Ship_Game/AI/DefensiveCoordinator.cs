@@ -77,7 +77,7 @@ namespace Ship_Game.AI
             return DefenseDict.First().Value.AssignIdleDuties(ship);
         }
 
-        public void Remove(Ship ship)
+        public void Remove(Ship ship, bool addToEmpirePool = true)
         {
             SolarSystem sysToDefend = ship.AI.SystemToDefend;
             if (DefensiveForcePool.RemoveSwapLast(ship))
@@ -92,17 +92,6 @@ namespace Ship_Game.AI
             }
 
             bool found = false;
-
-            // check for specific system commander
-            //if (sysToDefend != null && DefenseDict.TryGetValue(sysToDefend, out SystemCommander sysCom))
-            //{
-            //    if (!sysCom.RemoveShip(ship))
-            //    {
-            //        if (ship.Active)
-            //            DebugInfoScreen.DefenseCoLogsNotInSystem();
-            //    }
-            //    else found = true;
-            //}
 
             // double check for ship in any other sys commanders
             foreach (SystemCommander com in DefenseDict.Values)
@@ -120,11 +109,16 @@ namespace Ship_Game.AI
                 ship.AI.SystemToDefend = null;
                 ship.AI.SystemToDefendGuid = Guid.Empty;
                 ship.AI.ClearOrders();
-                if (ship.Active && ship.AI.State != AIState.Scrap)
+                if (addToEmpirePool && !ship.loyalty.isPlayer && ship.Active && ship.AI.State != AIState.Scrap && ship.loyalty == Us)
                     Us.Pool.ForcePoolAdd(ship);
             }
 
             DebugInfoScreen.DefenseCoLogsNull(found, ship, sysToDefend);
+        }
+
+        public bool Contains(Ship ship)
+        {
+            return DefensiveForcePool.ContainsRef(ship);
         }
 
         public void RemoveShipList(Array<Ship> ships)

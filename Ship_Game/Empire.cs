@@ -677,17 +677,18 @@ namespace Ship_Game
         public IReadOnlyList<Planet> GetPlanets()           => OwnedPlanets;
         public int NumPlanets                               => OwnedPlanets.Count;
 
-        public Array<SolarSystem> GetBorderSystems(Empire them)
+        public Array<SolarSystem> GetBorderSystems(Empire them, bool hideUnexplored)
         {
             var solarSystems = new Array<SolarSystem>();
-
+            Vector2 theirCenter = them.GetWeightedCenter();
+            float maxDistance = theirCenter.Distance(GetWeightedCenter());
+            
             foreach (var solarSystem in GetOwnedSystems())
             {
-                SolarSystem ss = them.GetOwnedSystems().FindMin(s => s.Position.SqDist(solarSystem.Position));
-                if (ss == null)
-                    break;
-                if (!ss.IsExploredBy(this)) continue;
-                solarSystems.AddUniqueRef(ss);
+                if (hideUnexplored && !solarSystem.IsExploredBy(them)) continue;
+
+                if (maxDistance < solarSystem.Position.Distance(theirCenter))
+                    solarSystems.AddUniqueRef(solarSystem);
             }
             return solarSystems;
         }
@@ -757,10 +758,17 @@ namespace Ship_Game
             return readyShips.ToArray();
         }
 
-        public FleetShips AllFleetReadyShipsNearestTarget(Vector2 targetPosition)
+        public FleetShips AllFleetsReady(Vector2 targetPosition)
         {
             var ships = AllFleetReadyShips();
             ships.Sort(s => s.Center.SqDist(targetPosition));
+            //return a fleet creator. 
+            return new FleetShips(this, ships);
+        }
+
+        public FleetShips AllFleetsReady()
+        {
+            var ships = AllFleetReadyShips();
             //return a fleet creator. 
             return new FleetShips(this, ships);
         }
@@ -770,9 +778,9 @@ namespace Ship_Game
         public void AddShip(Ship s)
         {
             if (s.IsSubspaceProjector)
-                OwnedProjectors.Add(s);
+                OwnedProjectors.AddUniqueRef(s);
             else
-                OwnedShips.Add(s);
+                OwnedShips.AddUniqueRef(s);
         }
 
         void InitDifficultyModifiers()
@@ -2565,20 +2573,20 @@ namespace Ship_Game
                 }
             }
             target.ClearAllPlanets();
-            foreach (Ship ship in target.GetShips())
+            var ships = target.GetShips();
+            for (int i = ships.Count - 1; i >= 0; i--)
             {
-                OwnedShips.Add(ship);
-                ship.loyalty = this;
-                ship.ClearFleet();
-                ship.AI.ClearOrders();
+                Ship ship = ships[i];
+                ship.ChangeLoyalty(this);
             }
-            foreach (Ship ship in target.GetProjectors())
+
+            var projectors = target.GetProjectors();
+            for (int i = projectors.Count - 1; i >= 0; i--)
             {
-                OwnedProjectors.Add(ship);
-                ship.loyalty = this;
-                ship.ClearFleet();
-                ship.AI.ClearOrders();
+                Ship ship = projectors[i];
+                ship.ChangeLoyalty(this);
             }
+
             target.GetShips().Clear();
             target.GetProjectors().Clear();
             AssimilateTech(target);
