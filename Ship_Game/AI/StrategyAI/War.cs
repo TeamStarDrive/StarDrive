@@ -45,8 +45,12 @@ namespace Ship_Game
         [JsonIgnore][XmlIgnore]
         public float SpaceWarKd => StrengthKilled / (StrengthLost + 0.01f);
         
-        [JsonIgnore][XmlIgnore]
         int ContestedSystemCount => ContestedSystems.Count(s => s.OwnerList.Contains(Them));
+
+        readonly Array<SolarSystem> HistoricLostSystems = new Array<SolarSystem>();
+        readonly Relationship OurRelationToThem;
+        Array<MilitaryTask> Tasks = new Array<MilitaryTask>();
+
 
         public War()
         {
@@ -68,6 +72,17 @@ namespace Ship_Game
             ContestedSystems            = Us.GetOwnedSystems().Filter(s => s.OwnerList.Contains(Them));
             ContestedSystemsGUIDs       = FindContestedSystemGUIDs();
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
+            OurRelationToThem           = us.GetRelations(them);
+            PopulateHistoricLostSystems();
+        }
+
+        void PopulateHistoricLostSystems()
+        {
+            foreach (var lostSystem in OurRelationToThem.GetPlanetsLostFromWars())
+            {
+                if (lostSystem.OwnerList.Contains(Them))
+                    HistoricLostSystems.AddUniqueRef(lostSystem);
+            }
         }
 
         SolarSystem[] TheirBorderSystems => Them.GetBorderSystems(Us, true)
@@ -180,6 +195,9 @@ namespace Ship_Game
                 SolarSystem solarSystem = Empire.Universe.SolarSystemDict[guid];
                 ContestedSystems[i] = solarSystem;
             }
+            Us = EmpireManager.GetEmpireByName(UsName);
+            Them = EmpireManager.GetEmpireByName(ThemName);
+            Tasks = new Array<MilitaryTask>(Us.GetEmpireAI().GetWarTasks(Them));
         }
 
         public WarState ConductWar()
@@ -226,11 +244,12 @@ namespace Ship_Game
         Array<MilitaryTask> ConductImperialisticWar()
         {
             var tasks = AttackContestedSystems();
+            tasks.AddRange(StandardAssault(HistoricLostSystems));
             tasks.AddRange(StandardAssault(TheirNearSystems));
 
             var systems = Them.GetOwnedSystems().Filter(s => s.IsExploredBy(Us));
             systems     = systems.SortedDescending(s => s.PlanetList.Sum(p => p.ColonyBaseValue(Us)));
-            tasks.AddUniqueRef(StandardAssault(systems));
+            tasks.AddRange(StandardAssault(systems));
 
             return tasks;
         }
@@ -333,6 +352,5 @@ namespace Ship_Game
                 debug.AddLine($"{pad2} Fleet MinStr: {(int)task.MinimumTaskForceStrength}");
             }
         }
-
     }
 }

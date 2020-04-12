@@ -769,9 +769,9 @@ namespace Ship_Game
         public void AddShip(Ship s)
         {
             if (s.IsSubspaceProjector)
-                OwnedProjectors.Add(s);
+                OwnedProjectors.AddUniqueRef(s);
             else
-                OwnedShips.Add(s);
+                OwnedShips.AddUniqueRef(s);
         }
 
         void InitDifficultyModifiers()
@@ -2555,20 +2555,20 @@ namespace Ship_Game
                 }
             }
             target.ClearAllPlanets();
-            foreach (Ship ship in target.GetShips())
+            var ships = target.GetShips();
+            for (int i = ships.Count - 1; i >= 0; i--)
             {
-                OwnedShips.Add(ship);
-                ship.loyalty = this;
-                ship.ClearFleet();
-                ship.AI.ClearOrders();
+                Ship ship = ships[i];
+                ship.ChangeLoyalty(this);
             }
-            foreach (Ship ship in target.GetProjectors())
+
+            var projectors = target.GetProjectors();
+            for (int i = projectors.Count - 1; i >= 0; i--)
             {
-                OwnedProjectors.Add(ship);
-                ship.loyalty = this;
-                ship.ClearFleet();
-                ship.AI.ClearOrders();
+                Ship ship = projectors[i];
+                ship.ChangeLoyalty(this);
             }
+
             target.GetShips().Clear();
             target.GetProjectors().Clear();
             AssimilateTech(target);

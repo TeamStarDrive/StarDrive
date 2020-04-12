@@ -108,6 +108,21 @@ namespace Ship_Game.AI
             return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War));
         }
 
+        public MilitaryTask[] GetWarTasks(Empire targetEmpire)
+        {
+            return TaskList.Filter(task =>
+            {
+                if (task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.War))
+                {
+                    if (task.TargetPlanet?.Owner == targetEmpire)
+                        return true;
+                }
+                return false;
+            });
+        }
+
+
+
         public MilitaryTask[] GetTasksNeedingAFleet()
         {
             return TaskList.Filter(task => task.GetTaskCategory().HasFlag(MilitaryTask.TaskCategory.FleetNeeded));
@@ -118,7 +133,7 @@ namespace Ship_Game.AI
             return TaskList.Sum(task => filter(task) ? task.MinimumTaskForceStrength : 0);
         }
 
-        public MilitaryTask[] GetTasks(Predicate<MilitaryTask> filter) => TaskList.Filter(filter);
+        public IReadOnlyList<MilitaryTask> GetTasks() => TaskList;
 
         public MilitaryTask[] GetClaimTasks()
         {
