@@ -101,7 +101,9 @@ namespace Ship_Game.Gameplay
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
         [XmlIgnore] [JsonIgnore] public EmpireRiskAssessment Risk;
-        
+        [XmlIgnore][JsonIgnore]
+        public Empire Them => EmpireManager.GetEmpireByName(Name);
+
         /// <summary>
         /// Tech transfer restriction.
         /// currently this is disabling tech content trade via diplomacy.
@@ -150,6 +152,24 @@ namespace Ship_Game.Gameplay
         }
 
         public float TradeIncome() => (0.25f * Treaty_Trade_TurnsExisted - 3f).Clamped(-3f, 3f);
+
+        public SolarSystem[] GetPlanetsLostFromWars()
+        {
+            var lostSystems = new Array<SolarSystem>();
+            for (int i = 0; i < WarHistory.Count; i++)
+            {
+                var war = WarHistory[i];
+                if (war.ColoniesLost < 1) continue;
+                for (int x = 0; x < war.ContestedSystems.Length; x++)
+                {
+                    SolarSystem system = war.ContestedSystems[x];
+                    if (system.PlanetList.Any(p => p.Owner == Them))
+                        lostSystems.AddUniqueRef(system);
+                }
+            }
+
+            return lostSystems.ToArray();
+        }
 
         public bool WarnedSystemListContains(Planet claimedPlanet) => WarnedSystemsList.Any(guid => guid == claimedPlanet.ParentSystem.guid);
 

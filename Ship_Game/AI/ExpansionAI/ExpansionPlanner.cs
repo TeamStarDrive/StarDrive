@@ -166,14 +166,14 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 var rank = RankedPlanets[i];
 
-                if (rank.CantColonize || rank.EnemyStrength < 1  || !colonizing.Contains(rank.Planet)
+                if (rank.CantColonize || rank.EnemyStrength < 1  || colonizing.Contains(rank.Planet)
                     || rank.Planet.ParentSystem.OwnerList.Contains(OwnerEmpire))
                 {
                     continue;
                 }
                 if (taskTargets.Contains(rank.Planet))
                     continue;
-                var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength);
+                var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
                 OwnerEmpire.GetEmpireAI().AddPendingTask(task);
                 desiredClaims--;
             }
