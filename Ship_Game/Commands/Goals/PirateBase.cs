@@ -18,6 +18,7 @@ namespace Ship_Game.Commands.Goals
                SalvageShips
             };
         }
+
         public PirateBase(Empire owner, Ship ship, string systemName) : this()
         {
             empire     = owner;

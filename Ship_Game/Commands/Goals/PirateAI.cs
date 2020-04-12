@@ -38,9 +38,11 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            // FB - Pirate main goal can be set per AI empire as well, in the future
-            // Also - We might want to create several pirate factions (set by the player in rule options)
-            Pirates.AddGoalDirectorPayment(EmpireManager.Player);
+            foreach (Empire victim in EmpireManager.MajorEmpires)
+            {
+                Pirates.AddGoalDirectorPayment(victim);
+            }
+
             return GoalStep.GoalComplete;
         }
 

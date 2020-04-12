@@ -53,7 +53,6 @@ namespace Ship_Game
         public float Consumption { get; private set; } // Food (NonCybernetic) or Production (IsCybernetic)
         private float Unfed;
         public bool IsStarving => Unfed < 0f;
-        // public bool PiratePresence;
         public bool QueueEmptySent = true;
         public float RepairPerTurn;
         public float SensorRange { get; private set; }

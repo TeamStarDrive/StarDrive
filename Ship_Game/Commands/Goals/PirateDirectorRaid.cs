@@ -42,15 +42,13 @@ namespace Ship_Game.Commands.Goals
             if (RandomMath.RollDice(startChance))
             {
                 GoalType raid  = GetRaid();
-                Pirates.AddGoalRaidOrbital(TargetEmpire); // TODO for testing
-                /*
+                // Pirates.AddGoalRaidOrbital(TargetEmpire); // TODO for testing
                 switch (raid)
                 {
                     case GoalType.PirateRaidTransport:  Pirates.AddGoalRaidTransport(TargetEmpire);      break;
                     case GoalType.PirateRaidOrbital:    Pirates.AddGoalRaidOrbital(TargetEmpire);        break;
                     case GoalType.PirateRaidColonyShip: Pirates.AddGoalRaidRaidColonyShip(TargetEmpire); break;
                 }
-                */
             }
 
             return GoalStep.TryAgain;
@@ -90,7 +88,7 @@ namespace Ship_Game.Commands.Goals
             if (taxRate > 0.25f) // High Tax rate encourages more pirate tippers
                 startChance *= (int)(1 + taxRate);
 
-            startChance = 100; // TODO for testing
+            // startChance = 100; // TODO for testing
             return startChance;
         }
 

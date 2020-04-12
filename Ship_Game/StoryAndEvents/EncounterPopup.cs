@@ -80,7 +80,10 @@ namespace Ship_Game
             }
 
             if (EmpireTex != null)
+            {
+                batch.FillRectangle(EmpireFlagRect, Color.Black);
                 batch.Draw(EmpireTex, EmpireFlagRect, EmpireColor);
+            }
         }
 
         public override bool HandleInput(InputState input)

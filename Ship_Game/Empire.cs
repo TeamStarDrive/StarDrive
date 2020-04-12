@@ -2393,9 +2393,6 @@ namespace Ship_Game
 
         public void UpdateRelationships()
         {
-            /*if (isFaction) 
-                return;*/
-
             int atWarCount = 0;
             foreach (var kv in Relationships)
                 if (kv.Value.Known || isPlayer)
