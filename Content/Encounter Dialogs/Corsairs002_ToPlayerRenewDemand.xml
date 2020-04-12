@@ -3,7 +3,7 @@
   <Step>1</Step>
   <Name>Renewing our "Contract"</Name>
   <FactionInitiated>true</FactionInitiated>
-  <MoneyRequested>250</MoneyRequested>
+  <BaseMoneyRequested>250</BaseMoneyRequested> <!-- this money request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>Your sub-space transmitter hums with a new Corsairs message:</DescriptionText>
   <MessageList>
     <Message>

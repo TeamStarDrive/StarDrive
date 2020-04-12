@@ -97,7 +97,7 @@ namespace Ship_Game
 
         public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
         public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);
-        void SetThreatLevelFor(Empire victim, int value)  => ThreatLevels[victim.Id] = value;
+        void SetThreatLevelFor(Empire victim, int value)  => ThreatLevels[victim.Id] = value.Clamped(1, MaxLevel);
 
         // For the Pirates themselves
         public void SetLevel(int value)   => Level = value;
@@ -194,6 +194,7 @@ namespace Ship_Game
             {
                 Owner.GetEmpireAI().Goals.Clear();
                 Owner.SetAsDefeated();
+                Empire.Universe.NotificationManager.AddEmpireDiedNotification(Owner);
             }
         }
 
