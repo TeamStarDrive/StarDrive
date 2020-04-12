@@ -285,60 +285,6 @@ namespace Ship_Game
             return null;
         }
 
-        /*
-        public void GeneratePirateSystem(string systemName)
-        {
-            Sun = SunType.RandomHabitableSun(s => s.Id == "star_red"
-                                      || s.Id == "star_yellow"
-                                      || s.Id == "star_green");
-            Name           = systemName;
-            NumberOfRings  = 2;
-            int starRadius = IntBetween(250, 500);
-            for (int i = 1; i < NumberOfRings + 1; i++)
-            {
-                float ringRadius = i * (starRadius + RandomBetween(10500f, 12000f));
-                if (i != 1)
-                    GenerateAsteroidRing(ringRadius, spread:3500f);
-                else
-                {
-                    float scale          = RandomBetween(1f, 2f);
-                    float planetRadius   = 1000f * scale;
-                    float randomAngle    = RandomBetween(0f, 360f);
-                    Vector2 planetCenter = Vector2.Zero.PointFromAngle(randomAngle, ringRadius);
-                    var newOrbital       = new Planet
-                    {
-                        Name         = systemName + " " + RomanNumerals.ToRoman(i),
-                        OrbitalAngle = randomAngle,
-                        ParentSystem = this
-                    };
-                    PlanetCategory category  = ResourceManager.RandomPlanetCategoryFor(SunZone.Habital);
-                    PlanetType type          = ResourceManager.RandomPlanet(category);
-                    newOrbital.InitNewMinorPlanet(type, scale);
-                    newOrbital.Center        = planetCenter;
-                    newOrbital.ObjectRadius  = planetRadius;
-                    newOrbital.OrbitalRadius = ringRadius;
-                    newOrbital.PlanetTilt    = RandomBetween(45f, 135f);
-                    if (RollDice(15))
-                    {
-                        newOrbital.HasRings = true;
-                        newOrbital.RingTilt = RandomBetween(-80f, -45f);
-                    }
-                    newOrbital.PiratePresence = true;
-                    PlanetList.Add(newOrbital);
-                    var ring = new Ring
-                    {
-                        OrbitalDistance  = ringRadius,
-                        Asteroids = false,
-                        planet    = newOrbital
-                    };
-                    RingList.Add(ring);
-                }
-            }
-
-            UpdateSystemRadius();
-        }
-        */
-
         public void GenerateRandomSystem(string name, float systemScale, Empire owner = null)
         {
             // Changed by RedFox: 2% chance to get a tri-sun "star_binary"
