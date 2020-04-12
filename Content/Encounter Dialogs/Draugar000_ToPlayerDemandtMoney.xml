@@ -19,7 +19,7 @@ Regards,
     <ResponseOptions>
       <Response>
         <Text>Agree to pay this freak and keep him away from your assets.</Text>
-        <MoneyToThem>600</MoneyToThem>
+        <MoneyToThem>300</MoneyToThem>
         <SuccessIndex>1</SuccessIndex>
         <FailIndex>3</FailIndex>
       </Response>

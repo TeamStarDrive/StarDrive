@@ -18,7 +18,7 @@ Regards,
     <ResponseOptions>
       <Response>
         <Text>Agree to renew the contract</Text>
-        <MoneyToThem>600</MoneyToThem>
+        <MoneyToThem>300</MoneyToThem>
         <SuccessIndex>1</SuccessIndex>
         <FailIndex>3</FailIndex>
       </Response>

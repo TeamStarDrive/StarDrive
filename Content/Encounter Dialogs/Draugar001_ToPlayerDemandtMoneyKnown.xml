@@ -3,7 +3,7 @@
   <Step>1</Step>
   <Name>Protection Money</Name>
   <FactionInitiated>true</FactionInitiated>
-  <BaseMoneyRequested>250</BaseMoneyRequested> <!-- this money request will be modified and overwrite any MoneyToThem below -->
+  <BaseMoneyRequested>300</BaseMoneyRequested> <!-- this money request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>While you are busy managing your empire's new found colonies, you receive a message from The Draugar you have met before:</DescriptionText>
   <MessageList>
     <Message>
@@ -19,7 +19,7 @@ Regards,
     <ResponseOptions>
       <Response>
         <Text>Agree to pay this upstanding gentleman.</Text>
-        <MoneyToThem>250</MoneyToThem>
+        <MoneyToThem>300</MoneyToThem>
         <SuccessIndex>1</SuccessIndex>
         <FailIndex>3</FailIndex>
       </Response>

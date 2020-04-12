@@ -3,7 +3,7 @@
   <Step>3</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <Name>Contact The Draugar</Name>
-  <MoneyRequested>1200</MoneyRequested>
+  <MoneyRequested>600</MoneyRequested>
   <DescriptionText>You hail the Draugar captain. After a few short moments a crackling voice comes over the subspace communicator:</DescriptionText>
   <MessageList>
     <Message>
@@ -29,7 +29,7 @@ Ularmr
       <Index>1</Index>
       <EndWar>true</EndWar>
       <Text>Thank you, now i must buy lunch. Later!</Text>
-      <MoneyToThem>1200</MoneyToThem>
+      <MoneyToThem>600</MoneyToThem>
       <EndTransmission>true</EndTransmission>
       <SetPlayerContactStep>2</SetPlayerContactStep> <!--Friendly, option to terminate agreement-->
     </Message>
