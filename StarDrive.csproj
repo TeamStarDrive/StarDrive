@@ -1916,6 +1916,9 @@
     <Content Include="Content\SavedDesigns\Draug Asteroid Base-Mk3.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\SavedDesigns\Draug Asteroid Base.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\SavedDesigns\Draug Flagship.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
