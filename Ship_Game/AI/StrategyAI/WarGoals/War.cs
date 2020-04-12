@@ -1,15 +1,13 @@
-using Ship_Game.Gameplay;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
-using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Debug;
+using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 
-namespace Ship_Game
+namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public class War
     {
@@ -49,20 +47,22 @@ namespace Ship_Game
 
         readonly Array<SolarSystem> HistoricLostSystems = new Array<SolarSystem>();
         readonly Relationship OurRelationToThem;
-        Array<MilitaryTask> Tasks = new Array<MilitaryTask>();
+
+        WarTasks Tasks;
 
 
         public War()
         {
         }
 
-        public War(Empire us, Empire them, float starDate)
+        public War(Empire us, Empire them, float starDate, WarType warType)
         {
             StartDate = starDate;
             Us        = us;
             Them      = them;
             UsName    = us.data.Traits.Name;
             ThemName  = them.data.Traits.Name;
+            WarType   = WarType;
 
             OurStartingStrength         = us.CurrentMilitaryStrength;
             OurStartingGroundStrength   = us.CurrentTroopStrength;
@@ -74,6 +74,20 @@ namespace Ship_Game
             StartingNumContestedSystems = ContestedSystemsGUIDs.Count;
             OurRelationToThem           = us.GetRelations(them);
             PopulateHistoricLostSystems();
+        }
+
+        public static War CreateInstance(Empire owner, Empire target, WarType warType)
+        {
+            switch (warType)
+            {
+                case WarType.BorderConflict:
+                case WarType.ImperialistWar:
+                case WarType.GenocidalWar:
+                case WarType.DefensiveWar:
+                case WarType.SkirmishWar:
+                    return new War(owner, target, Empire.Universe.StarDate, warType);
+            }
+            return new War();
         }
 
         void PopulateHistoricLostSystems()
@@ -197,11 +211,11 @@ namespace Ship_Game
             }
             Us = EmpireManager.GetEmpireByName(UsName);
             Them = EmpireManager.GetEmpireByName(ThemName);
-            Tasks = new Array<MilitaryTask>(Us.GetEmpireAI().GetWarTasks(Them));
         }
 
         public WarState ConductWar()
         {
+            Tasks = new WarTasks(Us, Them);
             switch (WarType)
             {
                 case WarType.DefensiveWar:
@@ -350,6 +364,44 @@ namespace Ship_Game
                 debug.AddLine($"{pad2} System: {task.TargetPlanet.ParentSystem.Name}");
                 debug.AddLine($"{pad2} Has Fleet: {task.WhichFleet}");
                 debug.AddLine($"{pad2} Fleet MinStr: {(int)task.MinimumTaskForceStrength}");
+            }
+        }
+
+        public class WarTasks
+        {
+            readonly Array<MilitaryTask> Tasks;
+            readonly Empire Owner;
+            readonly Empire Target;
+
+            public WarTasks(Empire owner, Empire target)
+            {
+                Owner = owner;
+                Target = target;
+                Tasks = new Array<MilitaryTask>();
+            }
+
+            public void StandardAssault(IEnumerable<SolarSystem> systemsToAttack)
+            {
+                foreach (var system in systemsToAttack)
+                {
+                    foreach (var planet in system.PlanetList.SortedDescending(p => p.ColonyBaseValue(Owner)))
+                    {
+                        if (planet.Owner == Target && !Tasks.Any(t => t.TargetPlanet == planet))
+                        {
+                            if (!IsAlreadyAssaultingPlanet(planet))
+                            {
+                                Tasks.Add(new MilitaryTask(planet, Owner));
+                            }
+                        }
+                    }
+                }
+            }
+            bool IsAlreadyAssaultingPlanet(Planet planetToAssault)
+            {
+                bool isAssaulting = false;
+                isAssaulting = Tasks.Any(t => t.TargetPlanet == planetToAssault);
+                isAssaulting |= Owner.GetEmpireAI().IsAssaultingPlanet(planetToAssault);
+                return isAssaulting;
             }
         }
     }
