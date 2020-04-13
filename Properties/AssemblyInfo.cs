@@ -26,4 +26,4 @@ using System.Runtime.InteropServices;
 [assembly: Guid("b38aad3b-18b8-41a8-b758-0e5614dafc49")]
 [assembly: RuntimeCompatibility(WrapNonExceptionThrows=true)]
 
-[assembly: AssemblyInformationalVersion("feature/MoneyPerProduction_7666 415f5275")]
+[assembly: AssemblyInformationalVersion("feature/AdvancedPirateLogic_8470 37d40b871")]

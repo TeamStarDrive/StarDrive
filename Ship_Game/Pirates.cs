@@ -521,12 +521,12 @@ namespace Ship_Game
 
         void CleanUpSpawnedShips()
         {
-            for (int i = SpawnedShips.Count; i >= 0;  i--)
+            for (int i = SpawnedShips.Count - 1; i >= 0;  i--)
             {
                 Guid shipGuid = SpawnedShips[i];
                 {
                     if (!Owner.GetShips().Any(s => s.guid == shipGuid))
-                        SpawnedShips.RemoveAt(i);
+                        SpawnedShips.RemoveAtSwapLast(i);
                 }
             }
         }
