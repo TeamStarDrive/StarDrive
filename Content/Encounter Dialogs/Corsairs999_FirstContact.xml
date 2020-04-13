@@ -3,6 +3,7 @@
   <Step>999</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <FactionInitiated>true</FactionInitiated>
+  <FirstContact>true</FirstContact>
   <Name>First Contact</Name>
   <DescriptionText>While patrolling the edges of space, your forces have stumbled upon a wretched hive of scum and villainy: a Corsair base! The Corsairs have sent you this message:</DescriptionText>
   <MessageList>

@@ -3,6 +3,7 @@
   <Step>999</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <FactionInitiated>true</FactionInitiated>
+  <FirstContact>true</FirstContact>
   <Name>First Contact</Name>
   <DescriptionText>Your Forces encountered a mysterious Organization called "The Draugar". They have sent you this message:</DescriptionText>
   <MessageList>
