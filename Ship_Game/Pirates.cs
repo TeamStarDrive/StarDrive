@@ -233,7 +233,7 @@ namespace Ship_Game
         {
             bool success;
             NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
-            // spotType = NewBaseSpot.LoneSystem; // TODO - for testing
+            spotType = NewBaseSpot.GasGiant; // TODO - for testing
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
@@ -360,7 +360,7 @@ namespace Ship_Game
         {
             if (GetBasePlanet(spot, out Planet planet))
             {
-                Vector2 pos = planet.Center.GenerateRandomPointInsideCircle(planet.ObjectRadius + 2000);
+                Vector2 pos = planet.Center.GenerateRandomPointOnCircle(planet.ObjectRadius + 2000);
                 if (SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level))
                 {
                     pirateBase.TetherToPlanet(planet);
