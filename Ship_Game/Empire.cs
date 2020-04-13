@@ -1261,12 +1261,18 @@ namespace Ship_Game
             }
             else if (Universe.PlayerEmpire == this && e.isFaction)
             {
-                foreach (Encounter e1 in ResourceManager.Encounters)
+                var firstContacts = ResourceManager.Encounters.Filter(enc => enc.FirstContact 
+                                                                             && enc.Faction == e.data.Traits.Name);
+
+                if (firstContacts.Length > 0)
                 {
-                    if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                    {
-                        EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
-                    }
+                    Encounter encounter = firstContacts.First();
+                    EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, encounter);
+                }
+                else
+                {
+                    Log.Warning($"Could not find First Contact Encounter for {e.Name}, " +
+                                $"make sure this faction has <FirstContact>true</FirstContact> in one of it's encounter dialog XMLs");
                 }
             }
         }

@@ -12,6 +12,7 @@ namespace Ship_Game
         public int Step;
         public bool FactionInitiated;
         public bool PlayerInitiated;
+        public bool FirstContact;
         public string Name;
         public string Faction;
         public string DescriptionText;
