@@ -487,7 +487,7 @@ namespace Ship_Game
                     break; // Ship has landed
             }
 
-            Owner.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
+            Owner?.RefundCreditsPostRemoval(ship, percentOfAmount: 1f);
         }
 
 
