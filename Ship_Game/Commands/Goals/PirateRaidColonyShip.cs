@@ -46,7 +46,9 @@ namespace Ship_Game.Commands.Goals
                 if (Pirates.SpawnBoardingShip(colonyShip, where, out Ship boardingShip))
                 {
                     TargetShip = colonyShip;
-                    Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force);
+                    if (Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
+                        Pirates.OrderEscortShip(boardingShip, force);
+
                     return GoalStep.GoToNextStep;
                 }
             }

@@ -80,9 +80,9 @@ namespace Ship_Game
                 case GoalType.PirateDirectorRaid:    Goals.Add(new PirateDirectorRaid(Owner, victim));     break;
                 case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
-                case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));    break;
+                case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));      break;
                 case GoalType.PirateRaidColonyShip:  Goals.Add(new PirateRaidColonyShip(Owner, victim));   break;
-                default:                             Log.Warning($"Goal type {type.ToString()} invalid for Pirates"); break;
+                default:                             Log.Warning($"Goal type {type} invalid for Pirates");            break;
             }
         }
 
@@ -94,7 +94,7 @@ namespace Ship_Game
                 PaymentTimers.Add(empire.Id, PaymentPeriodTurns);
             }
 
-            PopulatePirateFightersForCarriers();
+            PopulateDefaultBasicShips(fromSave: false);
         }
 
         public void RestoreFromSave(SavedGame.EmpireSaveData sData)
@@ -106,7 +106,7 @@ namespace Ship_Game
             ShipsWeCanSpawn = sData.ShipsWeCanSpawn;
 
             SetLevel(sData.PirateLevel);
-            PopulatePirateFightersForCarriers();
+            PopulateDefaultBasicShips(fromSave: true);
         }
 
         public int PaymentTimerFor(Empire victim)          => PaymentTimers[victim.Id];
@@ -233,7 +233,7 @@ namespace Ship_Game
         {
             bool success;
             NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
-            spotType = NewBaseSpot.GasGiant; // TODO - for testing
+            //spotType = NewBaseSpot.GasGiant; // TODO - for testing
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
@@ -247,6 +247,7 @@ namespace Ship_Game
             if (success)
             {
                 AdvanceInTech(level);
+                AdvanceInShips(level);
                 BuildStation(level);
                 SpawnFlagShip(level);
             }
@@ -531,6 +532,41 @@ namespace Ship_Game
             }
         }
 
+        public void AdvanceInShips(int level)
+        {
+            string shipToAdd;
+            switch (level)
+            {
+                case 3:  shipToAdd = Owner.data.PirateFighterImproved; break;
+                case 4:  shipToAdd = Owner.data.PirateSlaverImproved;  break;
+                case 5:  shipToAdd = Owner.data.PirateFrigateImproved; break;
+                case 6:  shipToAdd = Owner.data.PirateBaseImproved;    break;
+                case 7:  shipToAdd = Owner.data.PirateStationImproved; break;
+                case 8:  shipToAdd = Owner.data.PirateFighterAdvanced; break;
+                case 9:  shipToAdd = Owner.data.PirateSlaverAdvanced;  break;
+                case 10: shipToAdd = Owner.data.PirateFrigateAdvanced; break;
+                case 11: shipToAdd = Owner.data.PirateBaseAdvanced;    break;
+                case 12: shipToAdd = Owner.data.PirateStationAdvanced; break;
+                default:                                               return;
+            }
+
+            if (shipToAdd.NotEmpty())
+            {
+                ShipsWeCanSpawn.AddUnique(shipToAdd);
+                Ship fighter = ResourceManager.GetShipTemplate(shipToAdd);
+                if (fighter != null && fighter.shipData.HullRole == ShipData.RoleName.fighter
+                                    && !ShipsWeCanBuild.Contains(shipToAdd))
+                {
+                    ShipsWeCanBuild.Add(shipToAdd); // For carriers to spawn the default fighters
+                }
+            }
+            else
+            {
+                Log.Warning($"Could not find a default ship to add for {Owner.Name}, " +
+                            $"check their default ships in the race XML");
+            }
+        }
+
         public struct PirateForces
         {
             public readonly string Fighter;
@@ -549,16 +585,19 @@ namespace Ship_Game
                     case 0:
                     case 1:
                     case 2:
-                    case 3: 
+                    case 3:
+                    case 4:
                         Fighter      = pirates.data.PirateFighterBasic;
                         Frigate      = pirates.data.PirateFrigateBasic;
                         BoardingShip = pirates.data.PirateSlaverBasic;
                         Base         = pirates.data.PirateBaseBasic;
                         Station      = pirates.data.PirateStationBasic;
                         break;
-                    case 4:
                     case 5:
                     case 6:
+                    case 7:
+                    case 8:
+                    case 9:
                         Fighter      = pirates.data.PirateFighterImproved;
                         Frigate      = pirates.data.PirateFrigateImproved;
                         BoardingShip = pirates.data.PirateSlaverImproved;
@@ -580,7 +619,7 @@ namespace Ship_Game
             bool GetRandomShipFromSpawnList(Empire empire, out string shipName)
             {
                 shipName = "";
-                if (empire.Pirates.ShipsWeCanSpawn?.Count > 0 && RandomMath.RollDie(MaxLevel) < empire.Pirates.Level)
+                if (empire.Pirates.ShipsWeCanSpawn?.Count > 0)
                     shipName = empire.Pirates.ShipsWeCanSpawn.RandItem();
 
                 return shipName.NotEmpty();
@@ -615,6 +654,18 @@ namespace Ship_Game
 
             target = targets.RandItem();
             return target != null;
+        }
+
+        public void OrderEscortShip(Ship shipToEscort, Array<Ship> force)
+        {
+            if (force.Count == 0 || shipToEscort == null)
+                return;
+
+            for (int i = 0; i < force.Count; i++)
+            {
+                Ship ship = force[i];
+                ship.AI.EscortTarget = shipToEscort;
+            }
         }
 
         public bool SpawnBoardingShip(Ship targetShip, Vector2 where, out Ship boardingShip)
@@ -734,27 +785,35 @@ namespace Ship_Game
                    || ship.shipData.HullRole != ShipData.RoleName.cruiser;
         }
 
-        void PopulatePirateFightersForCarriers()
+        void PopulateDefaultBasicShips(bool fromSave)
         {
             ShipsWeCanBuild.Clear();
-            bool error = false;
-            if (Owner.data.PirateFighterBasic.NotEmpty())
-                ShipsWeCanBuild.Add(Owner.data.PirateFighterBasic);
-            else
-                error = true;
+            if (Owner.data.PirateFighterBasic.NotEmpty()
+                && !ShipsWeCanBuild.Contains(Owner.data.PirateFighterBasic))
+            {
+                ShipsWeCanBuild.Add(Owner.data.PirateFighterBasic); // For carriers
+            }
 
-            if (Owner.data.PirateFighterImproved.NotEmpty())
-                ShipsWeCanBuild.Add(Owner.data.PirateFighterImproved);
+            if (!fromSave)
+            {
+                AddToShipWeCanSpawn(Owner.data.PirateFighterBasic, "Basic Fighter");
+                AddToShipWeCanSpawn(Owner.data.PirateFrigateBasic, "Basic Frigate");
+                AddToShipWeCanSpawn(Owner.data.PirateSlaverBasic, "Basic Slaver");
+                AddToShipWeCanSpawn(Owner.data.PirateBaseBasic, "Basic Base");
+                AddToShipWeCanSpawn(Owner.data.PirateStationBasic, "Basic Station");
+            }
             else
-                error = true;
+            {
+                // TODO - restore fighters to ship we can build
+            }
 
-            if (Owner.data.PirateFighterAdvanced.NotEmpty())
-                ShipsWeCanBuild.Add(Owner.data.PirateFighterAdvanced);
-            else
-                error = true;
-
-            if (error)
-                Log.Warning($"Could not find a default pirate ship in {Owner.Name} race xml");
+            void AddToShipWeCanSpawn(string shipName, string whichType)
+            {
+                if (shipName.NotEmpty())
+                    ShipsWeCanSpawn.AddUnique(shipName);
+                else
+                    Log.Warning($"Could not find a {whichType} in {Owner.Name} race xml");
+            }
         }
 
         enum NewBaseSpot
