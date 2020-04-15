@@ -49,6 +49,7 @@ namespace Ship_Game.Commands.Goals
                     if (Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
                         Pirates.OrderEscortShip(boardingShip, force);
 
+                    Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     return GoalStep.GoToNextStep;
                 }
             }

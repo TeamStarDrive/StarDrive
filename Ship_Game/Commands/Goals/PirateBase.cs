@@ -72,7 +72,8 @@ namespace Ship_Game.Commands.Goals
         {
             if (Pirates.Owner.GetEmpireAI().Goals.Any(g => g.type == GoalType.PirateDefendBase && g.TargetShip == Base))
                 return; // Help is coming
-            
+
+            Pirates.AddGoalDefendBase(Pirates.Owner, Base);
             // TODO add goal
         }
     }
