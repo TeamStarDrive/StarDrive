@@ -217,11 +217,14 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateBase.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\PirateDefendBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateDirectorPayment.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateAI.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidColonyShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateDirectorRaid.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\PirateRaidCombatShip.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidOrbital.cs" />
+    <Compile Include="Ship_Game\Commands\Goals\PirateProtection.cs" />
     <Compile Include="Ship_Game\Commands\Goals\PirateRaidTransport.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />

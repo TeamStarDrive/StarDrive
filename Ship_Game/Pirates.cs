@@ -55,30 +55,33 @@ namespace Ship_Game
         public bool PaidBy(Empire victim)               => !GetRelations(victim).AtWar;
 
         public void AddGoalDirectorPayment(Empire victim) => 
-            AddGoal(victim, GoalType.PirateDirectorPayment, null, "");
+            AddGoal(victim, GoalType.PirateDirectorPayment, null);
 
         public void AddGoalDirectorRaid(Empire victim) => 
-            AddGoal(victim, GoalType.PirateDirectorRaid, null, "");
+            AddGoal(victim, GoalType.PirateDirectorRaid, null);
 
         public void AddGoalBase(Ship ship, string sysName) => 
             AddGoal(null, GoalType.PirateBase, ship, sysName);
 
         public void AddGoalRaidTransport(Empire victim) => 
-            AddGoal(victim, GoalType.PirateRaidTransport, null, "");
+            AddGoal(victim, GoalType.PirateRaidTransport, null);
 
         public void AddGoalRaidOrbital(Empire victim) =>
-            AddGoal(victim, GoalType.PirateRaidOrbital, null, "");
+            AddGoal(victim, GoalType.PirateRaidOrbital, null);
 
         public void AddGoalRaidColonyShip(Empire victim) =>
-            AddGoal(victim, GoalType.PirateRaidColonyShip, null, "");
+            AddGoal(victim, GoalType.PirateRaidColonyShip, null);
 
         public void AddGoalRaidCombatShip(Empire victim) =>
-            AddGoal(victim, GoalType.PirateRaidCombatShip, null, "");
+            AddGoal(victim, GoalType.PirateRaidCombatShip, null);
 
         public void AddGoalDefendBase(Empire victim, Ship baseToDefend) =>
-            AddGoal(victim, GoalType.PirateDefendBase, baseToDefend, "");
+            AddGoal(victim, GoalType.PirateDefendBase, baseToDefend);
 
-        void AddGoal(Empire victim, GoalType type, Ship ship, string systemName)
+        public void AddGoalProtection(Empire victim, Ship shipToDefend) =>
+            AddGoal(victim, GoalType.PirateDefendBase, shipToDefend);
+
+        void AddGoal(Empire victim, GoalType type, Ship ship, string systemName = "")
         {
             switch (type)
             {
@@ -90,6 +93,7 @@ namespace Ship_Game
                 case GoalType.PirateRaidColonyShip:  Goals.Add(new PirateRaidColonyShip(Owner, victim));   break;
                 case GoalType.PirateRaidCombatShip:  Goals.Add(new PirateRaidCombatShip(Owner, victim));   break;
                 case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));                    break;
+                case GoalType.PirateProtection:      Goals.Add(new PirateProtection(Owner, victim, ship)); break;
                 default:                             Log.Warning($"Goal type {type} invalid for Pirates");            break;
             }
         }
@@ -693,14 +697,15 @@ namespace Ship_Game
             if (targetShip == null)
                 return 0;
 
-            float strInRange;
-            using (targetShip.AI.FriendliesNearby.AcquireReadLock())
-                strInRange = targetShip.AI.FriendliesNearby.Sum(s => s.BaseStrength);
+            float enemyStr;
+            var shipList = targetShip.AI.FriendliesNearby;
+            using (shipList.AcquireReadLock())
+                enemyStr = shipList.Sum(s => s.BaseStrength);
 
             float maxStr       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
-            float availableStr = MaxLevel / 100 * Level;
+            float availableStr = (float)Level / MaxLevel;
 
-            return strInRange * availableStr * maxStr;
+            return maxStr*availableStr * enemyStr;
         }
 
         public bool SpawnForce(Ship targetShip, Vector2 pos, float radius, out Array<Ship> force)
@@ -833,6 +838,22 @@ namespace Ship_Game
                     ShipsWeCanSpawn.AddUnique(shipName);
                 else
                     Log.Warning($"Could not find a {whichType} in {Owner.Name} race xml");
+            }
+        }
+
+        public void ExecuteProtectionContracts(Empire victim, Ship shipToDefend)
+        {
+            foreach (Empire faction in EmpireManager.PirateFactions.Filter(f => f != Owner))
+            {
+                if (victim.GetRelations(faction).Treaty_NAPact)
+                {
+                    int executeChance = faction.Pirates.Level * 2;
+                    if (RandomMath.RollDice(executeChance))
+                    {
+                        AddGoalProtection(victim, shipToDefend);
+                        return;
+                    }
+                }
             }
         }
 
