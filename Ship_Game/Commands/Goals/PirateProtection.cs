@@ -19,8 +19,7 @@ namespace Ship_Game.Commands.Goals
             {
                SpawnProtectionForce
 ,              CheckIfHijacked,
-               ReturnTargetToOriginalOwner,
-               WaitForDestruction
+               ReturnTargetToOriginalOwner
             };
         }
 
@@ -84,17 +83,6 @@ namespace Ship_Game.Commands.Goals
                 Empire.Universe.NotificationManager.AddWeProtectedYou(Pirates.Owner);
 
             return GoalStep.GoalComplete;
-        }
-
-        GoalStep WaitForDestruction()
-        {
-            if (TargetShip == null || !TargetShip.Active)
-            {
-                Pirates.TryLevelUp();
-                return GoalStep.GoalComplete;
-            }
-
-            return TargetShip.loyalty == Pirates.Owner ? GoalStep.TryAgain : GoalStep.GoalFailed;
         }
     }
 }
