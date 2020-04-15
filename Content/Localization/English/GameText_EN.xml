@@ -4715,6 +4715,14 @@ An empire's counter-espionage budget reduces your intelligence penetration
       <Text>- Raw minerals were discovered.\nMineral Richness increased by</Text>
     </Token>
     <Token>
+      <Index>1868</Index>
+      <Text>Disable Pirates</Text>
+    </Token>
+    <Token>
+      <Index>1869</Index>
+      <Text>Disables all pirate factions for this game.</Text>
+    </Token>
+    <Token>
       <Index>1887</Index>
       <Text>Prevent Colonists transportation in and out of this planet. Useful for colonies in enemy territories with no safe passage.</Text>
     </Token>

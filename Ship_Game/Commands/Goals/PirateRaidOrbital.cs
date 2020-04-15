@@ -24,7 +24,7 @@ namespace Ship_Game.Commands.Goals
 
         public PirateRaidOrbital(Empire owner, Empire targetEmpire) : this()
         {
-            empire        = owner;
+            empire       = owner;
             TargetEmpire = targetEmpire;
 
             PostInit();
@@ -99,7 +99,8 @@ namespace Ship_Game.Commands.Goals
 
         Pirates.TargetType GetOrbital()
         {
-            int roll = RandomMath.RollDie(10 + Pirates.Level/4);
+            int divider = (Pirates.MaxLevel / 5).LowerBound(1); // so the bonus will be 1 to 5
+            int roll = RandomMath.RollDie(10 + Pirates.Level/divider);
             switch (roll)
             {
                 default: return Pirates.TargetType.Projector;

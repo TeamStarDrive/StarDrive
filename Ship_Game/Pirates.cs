@@ -69,8 +69,14 @@ namespace Ship_Game
         public void AddGoalRaidOrbital(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidOrbital, null, "");
 
-        public void AddGoalRaidRaidColonyShip(Empire victim) =>
+        public void AddGoalRaidColonyShip(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidColonyShip, null, "");
+
+        public void AddGoalRaidCombatShip(Empire victim) =>
+            AddGoal(victim, GoalType.PirateRaidCombatShip, null, "");
+
+        public void AddGoalDefendBase(Empire victim, Ship baseToDefend) =>
+            AddGoal(victim, GoalType.PirateDefendBase, baseToDefend, "");
 
         void AddGoal(Empire victim, GoalType type, Ship ship, string systemName)
         {
@@ -82,6 +88,8 @@ namespace Ship_Game
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
                 case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));      break;
                 case GoalType.PirateRaidColonyShip:  Goals.Add(new PirateRaidColonyShip(Owner, victim));   break;
+                case GoalType.PirateRaidCombatShip:  Goals.Add(new PirateRaidCombatShip(Owner, victim));   break;
+                case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));                    break;
                 default:                             Log.Warning($"Goal type {type} invalid for Pirates");            break;
             }
         }
@@ -225,7 +233,10 @@ namespace Ship_Game
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
+                {
                     IncreaseLevel();
+                    Log.Info($"{Owner.Name} are now level {Level}");
+                }
             }
         }
 
@@ -504,7 +515,7 @@ namespace Ship_Game
             }
         }
 
-        public void ProcessShip(Ship ship)
+        public void ProcessShip(Ship ship, Ship pirateBase)
         {
             if (SpawnedShips.Contains(ship.guid))
             {
@@ -516,7 +527,7 @@ namespace Ship_Game
             }
             else
             {
-                SalvageShip(ship);
+                SalvageShip(ship, pirateBase);
             }
         }
 
@@ -642,10 +653,11 @@ namespace Ship_Game
 
                 switch (type)
                 {
-                    case TargetType.ColonyShip      when ship.isColonyShip: targets.Add(ship);                               break;
-                    case TargetType.Shipyard        when ship.shipData.IsShipyard: targets.Add(ship);                        break;
-                    case TargetType.FreighterAtWarp when ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) && ship.IsInWarp: break;
-                    case TargetType.Projector:      targets.Add(ship);                                                       break;
+                    case TargetType.ColonyShip       when ship.isColonyShip:
+                    case TargetType.Shipyard         when ship.shipData.IsShipyard:
+                    case TargetType.FreighterAtWarp  when ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) && ship.IsInWarp:
+                    case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
+                    case TargetType.Projector:       targets.Add(ship);                                                        break;
                 }
             }
 
@@ -664,7 +676,7 @@ namespace Ship_Game
             for (int i = 0; i < force.Count; i++)
             {
                 Ship ship = force[i];
-                ship.AI.EscortTarget = shipToEscort;
+                ship.DoEscort(shipToEscort);
             }
         }
 
@@ -738,11 +750,11 @@ namespace Ship_Game
             return !error;
         }
 
-        public void SalvageShip(Ship ship)
+        public void SalvageShip(Ship ship, Ship pirateBase)
         {
             if      (ship.IsFreighter)  SalvageFreighter(ship);
             else if (ship.isColonyShip) SalvageColonyShip(ship);
-            else                        SalvageCombatShip(ship);
+            else                        SalvageCombatShip(ship, pirateBase);
         }
 
         void SalvageFreighter(Ship freighter)
@@ -758,22 +770,27 @@ namespace Ship_Game
             TryLevelUp();
         }
 
-        void SalvageCombatShip(Ship ship)
+        void SalvageCombatShip(Ship ship, Ship pirateBase)
         {
             if (ShouldSalvageCombatShip(ship)) 
             {
-                ship.QueueTotalRemoval();
-
                 // We can use this ship in future endeavors, ha ha ha!
+                ship.QueueTotalRemoval();
                 ShipsWeCanSpawn.AddUnique(ship.Name);
             }
             else  // Find a base which orbits a planet and go there
             {
                 // We might use this ship for defense or future attacks
-                if (ship.AI.State != AIState.Orbit)
+                if (ship.AI.State != AIState.Orbit 
+                    || ship.AI.State != AIState.Escort 
+                    || ship.AI.State != AIState.Resupply)
                 {
                     if (GetClosestBasePlanet(ship.Center, out Planet planet))
                         ship.AI.OrderToOrbit(planet);
+                    else
+                        ship.AI.EscortTarget = pirateBase; // no planets found, so escort this base
+
+                    TryLevelUp();
                 }
             }
         }
@@ -781,6 +798,9 @@ namespace Ship_Game
         bool ShouldSalvageCombatShip(Ship ship)
         {
             // we can salvage and use small ships. we keep the large ones though.
+            if (ShipsWeCanSpawn.Contains(ship.Name))
+                return false;
+
             return ship.shipData.HullRole != ShipData.RoleName.capital 
                    || ship.shipData.HullRole != ShipData.RoleName.cruiser;
         }
@@ -828,6 +848,7 @@ namespace Ship_Game
         public enum TargetType
         {
             FreighterAtWarp,
+            CombatShipAtWarp,
             ColonyShip,
             Projector,
             Shipyard,
