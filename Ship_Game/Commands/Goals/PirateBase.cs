@@ -74,7 +74,6 @@ namespace Ship_Game.Commands.Goals
                 return; // Help is coming
 
             Pirates.AddGoalDefendBase(Pirates.Owner, Base);
-            // TODO add goal
         }
     }
 }
