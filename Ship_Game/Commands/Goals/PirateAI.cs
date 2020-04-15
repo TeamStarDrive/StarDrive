@@ -38,10 +38,12 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
+            Pirates.AddGoalDirectorPayment(EmpireManager.Player); // TODO for testing
+
+            /*
             foreach (Empire victim in EmpireManager.MajorEmpires)
-            {
                 Pirates.AddGoalDirectorPayment(victim);
-            }
+            */
 
             return GoalStep.GoalComplete;
         }

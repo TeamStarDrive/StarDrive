@@ -42,8 +42,12 @@ namespace Ship_Game.Commands.Goals
             }
 
             if (Base.InCombat) // No base operations while in combat
+            {
+                CallForHelp();
                 return GoalStep.TryAgain;
+            }
 
+            Base.ChangeOrdnance(1); // Slowly replenish the base's ordnance stores
             var friendlies = Base.AI.FriendliesNearby;
             using (friendlies.AcquireReadLock())
             {
@@ -55,13 +59,21 @@ namespace Ship_Game.Commands.Goals
 
                     if (ship.InRadius(Base.Center, 1200))
                     {
-                        ship.ChangeOrdnance(5);
-                        Pirates.ProcessShip(ship);
+                        ship.ChangeOrdnance(1);
+                        Pirates.ProcessShip(ship, Base);
                     }
                 }
             }
 
             return GoalStep.TryAgain;
+        }
+
+        void CallForHelp()
+        {
+            if (Pirates.Owner.GetEmpireAI().Goals.Any(g => g.type == GoalType.PirateDefendBase && g.TargetShip == Base))
+                return; // Help is coming
+            
+            // TODO add goal
         }
     }
 }

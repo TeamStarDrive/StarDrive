@@ -47,7 +47,8 @@ namespace Ship_Game.Commands.Goals
                 {
                     case GoalType.PirateRaidTransport:  Pirates.AddGoalRaidTransport(TargetEmpire);      break;
                     case GoalType.PirateRaidOrbital:    Pirates.AddGoalRaidOrbital(TargetEmpire);        break;
-                    case GoalType.PirateRaidColonyShip: Pirates.AddGoalRaidRaidColonyShip(TargetEmpire); break;
+                    case GoalType.PirateRaidColonyShip: Pirates.AddGoalRaidColonyShip(TargetEmpire);     break;
+                    case GoalType.PirateRaidCombatShip: Pirates.AddGoalRaidCombatShip(TargetEmpire);     break;
                 }
             }
 
@@ -66,7 +67,8 @@ namespace Ship_Game.Commands.Goals
                     switch (goal.type)
                     {
                         case GoalType.PirateRaidTransport:
-                        case GoalType.PirateRaidOrbital: 
+                        case GoalType.PirateRaidOrbital:
+                        case GoalType.PirateRaidCombatShip:
                         case GoalType.PirateRaidColonyShip: numGoals += 1; break;
                     }
                 }
@@ -100,17 +102,24 @@ namespace Ship_Game.Commands.Goals
             {
                 default:
                 case 1:
-                case 2: return GoalType.PirateRaidTransport;
-                case 3: return GoalType.PirateRaidOrbital;
-                case 4: return GoalType.PirateRaidTransport;
-                case 5: return GoalType.PirateRaidColonyShip;
-                case 6: return GoalType.PirateRaidTransport;
-                case 7: return GoalType.PirateRaidOrbital;
-                case 8: return GoalType.PirateRaidColonyShip;
-                    // hijack combat ship in warp
-                    // .
-                    // .
-                    // case 20: 
+                case 2:  return GoalType.PirateRaidTransport;
+                case 3:  return GoalType.PirateRaidOrbital;
+                case 4:  return GoalType.PirateRaidTransport;
+                case 5:  return GoalType.PirateRaidCombatShip;
+                case 6:  return GoalType.PirateRaidColonyShip;
+                case 7:  return GoalType.PirateRaidTransport;
+                case 8:  return GoalType.PirateRaidCombatShip;
+                case 9:  return GoalType.PirateRaidOrbital;
+                case 10: return GoalType.PirateRaidColonyShip;
+                case 11: return GoalType.PirateRaidTransport;
+                case 12: return GoalType.PirateRaidOrbital;
+                case 13: return GoalType.PirateRaidCombatShip;
+                case 14: return GoalType.PirateRaidTransport;
+                case 15: return GoalType.PirateRaidOrbital;
+                case 16: return GoalType.PirateRaidCombatShip;
+                case 17: return GoalType.PirateRaidTransport;
+                case 18: return GoalType.PirateRaidOrbital;
+                case 19: return GoalType.PirateRaidCombatShip;
             }
         }
     }
