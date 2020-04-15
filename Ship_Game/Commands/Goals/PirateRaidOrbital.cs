@@ -49,12 +49,13 @@ namespace Ship_Game.Commands.Goals
                 if (Pirates.SpawnBoardingShip(orbital, where, out Ship boardingShip))
                 {
                     TargetShip = orbital; // This is the main target, we want this to be boarded
-                    if (orbitalType != Pirates.TargetType.Projector &&
+                   if (orbitalType != Pirates.TargetType.Projector &&
                         Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
                     {
                         Pirates.OrderEscortShip(boardingShip, force);
                     }
 
+                    Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
                     return GoalStep.GoToNextStep;
                 }
             }

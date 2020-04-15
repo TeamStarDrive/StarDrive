@@ -122,6 +122,19 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddWeProtectedYou(Empire pirates)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message   = $"We returned the ship which was raided by rival pirates\n " +
+                            "due to your protection contract with us, you're welcome.",
+                Action    = "SnapToShip",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
         public void AddEnemyTroopsLandedNotification(Planet where, Empire invader, Empire player)
         {
             AddNotification(new Notification
