@@ -1255,25 +1255,31 @@ namespace Ship_Game
             if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
 
-            if (Universe.PlayerEmpire == this && !e.isFaction)
+            if (Universe.PlayerEmpire == this)
             {
-                DiplomacyScreen.Show(e, "First Contact");
-            }
-            else if (Universe.PlayerEmpire == this && e.isFaction)
-            {
-                var firstContacts = ResourceManager.Encounters.Filter(enc => enc.FirstContact 
-                                                                             && enc.Faction == e.data.Traits.Name);
-
-                if (firstContacts.Length > 0)
-                {
-                    Encounter encounter = firstContacts.First();
-                    EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, encounter);
-                }
+                if (e.isFaction)
+                    DoFactionFirstContact(e);
                 else
-                {
-                    Log.Warning($"Could not find First Contact Encounter for {e.Name}, " +
-                                $"make sure this faction has <FirstContact>true</FirstContact> in one of it's encounter dialog XMLs");
-                }
+                    DiplomacyScreen.Show(e, "First Contact");
+            }
+        }
+
+        void DoFactionFirstContact(Empire e)
+        {
+            var factionContacts = ResourceManager.Encounters.Filter(enc => enc.Faction == e.data.Traits.Name);
+            if (factionContacts.Length == 0)
+                return; // no dialogs for this faction, no use to look for first contact
+
+            var firstContacts = factionContacts.Filter(enc => enc.FirstContact);
+            if (firstContacts.Length > 0)
+            {
+                Encounter encounter = firstContacts.First();
+                EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, encounter);
+            }
+            else
+            {
+                Log.Warning($"Could not find First Contact Encounter for {e.Name}, " +
+                            "make sure this faction has <FirstContact>true</FirstContact> in one of it's encounter dialog XMLs");
             }
         }
 

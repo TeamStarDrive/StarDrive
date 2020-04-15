@@ -39,7 +39,7 @@ namespace Ship_Game.Commands.Goals
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
                 return GoalStep.GoalFailed; // They paid or dead
 
-            int nearPlanetRaidChance = Pirates.ThreatLevelFor(TargetEmpire) * 5;
+            int nearPlanetRaidChance = Pirates.ThreatLevelFor(TargetEmpire);
             if (RandomMath.RollDice(nearPlanetRaidChance))
             {
                 if (ScanFreightersNearPlanets(out Ship freighter))
@@ -72,7 +72,6 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckIfHijacked()
         {
-
             if (!TargetShip.Active || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
                 return GoalStep.GoalFailed; // Target destroyed or escaped
 

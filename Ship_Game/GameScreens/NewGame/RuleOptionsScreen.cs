@@ -80,6 +80,7 @@ namespace Ship_Game
             Checkbox(ftlRect.X + 420, ftlRect.Y + 25, () => GlobalStats.PreventFederations,    title: 6022, tooltip: 7011);
             Checkbox(ftlRect.X + 420, ftlRect.Y + 50,() => GlobalStats.WarpInSystem,          title: 6178, tooltip: 6178);
             Checkbox(ftlRect.X + 420, ftlRect.Y + 75, () => GlobalStats.FixedPlayerCreditCharge, title: 1861, tooltip: 1862);
+            Checkbox(ftlRect.X + 420, ftlRect.Y + 100, () => GlobalStats.DisablePirates, title: 1868, tooltip: 1869);
 
             var gwRect = new Rectangle(x, leftRect.Y + 220, 270, 50);
             var epRect = new Rectangle(x, leftRect.Y + 280, 270, 50);
