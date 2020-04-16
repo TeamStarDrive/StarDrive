@@ -672,7 +672,7 @@ namespace Ship_Game.Debug
                         DrawString(15f, "Has ship");
                 }
 
-                MilitaryTask[] tasks = e.GetEmpireAI().TasksSortedByPriority();
+                MilitaryTask[] tasks = e.GetEmpireAI().GetTasks().Sorted(t=> t.Priority);
                 for (int j = 0; j < tasks.Length; j++)
                 {
                     MilitaryTask task = tasks[j];

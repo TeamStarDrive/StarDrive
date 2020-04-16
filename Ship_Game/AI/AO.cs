@@ -35,10 +35,13 @@ namespace Ship_Game.AI
         [Serialize(7)] public float Radius;
         [Serialize(8)] public int TurnsToRelax;
         public Fleet GetCoreFleet()                        => CoreFleet;
-        public Planet GetPlanet()                          => CoreWorld;
+        public Planet GetPlanet() => CoreWorld;
+
         public Planet[] GetPlanets()                       => OurPlanetsInAo;
         public IReadOnlyList<Ship> GetOffensiveForcePool() => OffensiveForcePool;
         [XmlIgnore][JsonIgnore] public bool AOFull { get; private set; }           = true;
+
+        [XmlIgnore][JsonIgnore]
         public float OffensiveForcePoolStrength
         {
             get
@@ -55,7 +58,8 @@ namespace Ship_Game.AI
             ThreatLevel = (int)Owner.GetEmpireAI().ThreatMatrix.
                 PingRadarStrengthLargestCluster(Center, Radius, Owner, 50000);
         }
-        public int NumOffensiveForcePoolShips => OffensiveForcePool.Count;
+
+        public int GetNumOffensiveForcePoolShips() => OffensiveForcePool.Count;
         public bool OffensiveForcePoolContains(Ship s) => OffensiveForcePool.ContainsRef(s);
         public bool WaitingShipsContains(Ship s)       => ShipsWaitingForCoreFleet.ContainsRef(s);
 
@@ -339,7 +343,20 @@ namespace Ship_Game.AI
         public void ClearOut()
         {
             if (CoreFleet != null)
+            {
+                if (CoreFleet?.Owner != null)
+                {
+                    foreach (var kv in CoreFleet.Owner.GetFleetsDict())
+                    {
+                        if (kv.Value != CoreFleet)
+                            continue;
+                        CoreFleet.Owner.GetFleetsDict().Remove(kv.Key);
+                        break;
+                    }
+                    CoreFleet.Reset();
+                }
                 ReassignShips(CoreFleet.Ships);
+            }
             if (OffensiveForcePool?.NotEmpty == true)
                 ReassignShips(OffensiveForcePool);
             if (ShipsWaitingForCoreFleet?.NotEmpty == true)
@@ -372,16 +389,6 @@ namespace Ship_Game.AI
         private void Dispose(bool disposing)
         {
             OffensiveForcePool = null;
-            if (CoreFleet?.Owner != null)
-            {
-                foreach (var kv in CoreFleet.Owner.GetFleetsDict())
-                {
-                    if (kv.Value != CoreFleet)
-                        continue;
-                    CoreFleet.Owner.GetFleetsDict().Remove(kv.Key);
-                    break;
-                }
-            }
         }
        
     }

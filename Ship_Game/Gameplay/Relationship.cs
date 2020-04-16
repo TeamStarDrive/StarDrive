@@ -3,6 +3,7 @@ using Ship_Game.AI;
 using Ship_Game.Ships;
 using System;
 using System.Xml.Serialization;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Debug;
 using Ship_Game.GameScreens.DiplomacyScreen;
 
@@ -767,9 +768,9 @@ namespace Ship_Game.Gameplay
 
         public void RestoreWarsFromSave()
         {
-            ActiveWar?.RestoreFromSave();
+            ActiveWar?.RestoreFromSave(true);
             foreach (var war in WarHistory)
-                war.RestoreFromSave();
+                war.RestoreFromSave(false);
         }
 
         public void ResetRelation()

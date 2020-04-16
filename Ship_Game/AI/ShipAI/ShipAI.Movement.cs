@@ -420,11 +420,11 @@ namespace Ship_Game.AI
             if (angleDiff > maxTurn) // we can't make the turn
             {
                 // ok, just cut the corner to next WayPoint maybe?
-                if (WayPoints.Count >= 2 && distance > Owner.loyalty.ProjectorRadius * 0.5f)
+                if (WayPoints.Count >= 2 && distance > Owner.loyalty.GetProjectorRadius() * 0.5f)
                 {
                     WayPoint next = WayPoints.ElementAt(1);
                     float nextDistance = Owner.Center.Distance(next.Position);
-                    if (nextDistance < Owner.loyalty.ProjectorRadius * 5f) // within cut range
+                    if (nextDistance < Owner.loyalty.GetProjectorRadius() * 5f) // within cut range
                     {
                         float nextDiff = Owner.AngleDifferenceToPosition(next.Position);
                         float nextMaxTurn = EstimateMaxTurn(nextDistance);
