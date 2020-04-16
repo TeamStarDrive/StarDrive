@@ -54,9 +54,10 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                 if (!HaveConqueredTarget(system))
                 {
                     float defense = Owner.GetEmpireAI().ThreatMatrix.PingHostileStr(system.Position, Owner.GetProjectorRadius(), Owner);
-                    strength -= defense;
+                    strength -= defense *2;
+
                     float distanceToCenter = system.Position.SqDist(nearestSystem.Position);
-                    tasks.StandardAssault(system, OwnerWar.Priority() + priorityMod);
+                    tasks.StandardAssault(system, OwnerWar.Priority() + priorityMod, 2);
                 }
                 if (strength < 0) break;
                 priorityMod++;
