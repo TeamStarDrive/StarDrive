@@ -32,8 +32,8 @@ namespace Ship_Game.AI
             // this where the global AI attack stuff happens.
             Toughnuts = 0;
             var olderWar = OwnerEmpire.GetOldestWar();
-
-            foreach (MilitaryTask task in TasksSortedByPriority())
+            TaskList.Sort(t => t.Priority);
+            foreach (MilitaryTask task in TaskList)
             {
                 if (!task.QueuedForRemoval)
                 {
@@ -160,50 +160,19 @@ namespace Ship_Game.AI
 
         public bool IsAssaultingPlanet(Planet planet)
                     => AnyTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet);
+        public int CountAssaultsOnPlanet(Planet planet)
+            => CountTaskTargeting(MilitaryTask.TaskType.AssaultPlanet, planet);
+
+        public int CountTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
+            => TaskList.Count(t => t.type == taskType && t.TargetPlanet == planet);
 
         public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem)
                     => TaskList.Any(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem);
+        public int CountTaskTargeting(MilitaryTask.TaskType taskType, SolarSystem solarSystem)
+                    => TaskList.Count(t => t.type == taskType && t.TargetPlanet.ParentSystem == solarSystem);
 
         public bool AnyTaskTargeting(MilitaryTask.TaskType taskType, Planet planet)
                     => TaskList.Any(t => t.type == taskType && t.TargetPlanet == planet);
-
-        public MilitaryTask[] TasksSortedByPriority() => TaskList.Sorted(true, TaskPriority);
-        int TaskPriority(MilitaryTask task)
-        {
-            // sort by tasktype.
-            // sort by enemy strength
-            // and the date the war started.
-            // the task priority number may be very high
-
-            int initialPriority;
-
-            switch (task.type)
-            {
-                case MilitaryTask.TaskType.AssaultPlanet             : initialPriority = 1; break;
-                case MilitaryTask.TaskType.GlassPlanet               : initialPriority = 2; break;
-                case MilitaryTask.TaskType.Resupply                  : initialPriority = 5; break;
-                case MilitaryTask.TaskType.CorsairRaid               : initialPriority = 6; break;
-                case MilitaryTask.TaskType.Exploration               : initialPriority = int.MinValue; break;
-                case MilitaryTask.TaskType.DefendSystem              : initialPriority = 8; break;
-                case MilitaryTask.TaskType.DefendClaim               : initialPriority = 7; break;
-                case MilitaryTask.TaskType.DefendPostInvasion        : initialPriority = 10; break;
-                default                                              : initialPriority = 20;
-                    if (task.IsCoreFleetTask) initialPriority = int.MaxValue;
-                    break;
-            }
-
-            int strengthMod          = (int)(Math.Max(task.MinimumTaskForceStrength, task.EnemyStrength));
-            int targetEmpirePriority = 1;
-
-            if ((task.type == MilitaryTask.TaskType.AssaultPlanet 
-                 || task.type == MilitaryTask.TaskType.GlassPlanet)
-                 && task.TargetPlanet.Owner != null)
-            {
-                var targetRelation   = OwnerEmpire.GetRelations(task.TargetPlanet.Owner);
-                targetEmpirePriority = initialPriority * -(int)(targetRelation?.ActiveWar?.StartDate ?? 1);
-            }
-            return initialPriority + (strengthMod * targetEmpirePriority);
-        }
 
         public void WriteToSave(SavedGame.GSAISAVE aiSave)
         {

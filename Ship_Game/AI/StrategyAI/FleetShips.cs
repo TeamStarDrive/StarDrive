@@ -84,14 +84,19 @@ namespace Ship_Game.AI
                 var gatheredShips = GetCoreFleet();
                 if (gatheredShips.IsEmpty)
                     break;
-                if (gatheredShips.Count >= Ratios.MinCombatFleet * setCompletePercent)
+                if (ships.Count >= Ratios.MinCombatFleet * setCompletePercent)
+                {
                     completeFleets++;
-                wantedFleetCount--;
+                    wantedFleetCount--;
+                }
                 accumulatedStrength = gatheredShips.Sum(s => s.GetStrength());
                 ships.AddRange(gatheredShips);
                 utilityShips.AddRange(GetSupplementalFleet());
             }
-            while (accumulatedStrength <= strength && wantedFleetCount >0);
+            while (accumulatedStrength <= strength || wantedFleetCount >0);
+
+            if (ships.Sum(s => s.GetStrength()) >= strength && wantedFleetCount == 0)
+                wantedFleetCount = 1;
             ships.AddRange(utilityShips);
             return completeFleets;
         }

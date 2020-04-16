@@ -28,7 +28,7 @@ namespace Ship_Game.Gameplay
 			Origin = origin;
 			Destination = destination;
 
-            float projectorRadius = empire.ProjectorRadius * 1.75f;
+            float projectorRadius = empire.GetProjectorRadius() * 1.75f;
             float distance = origin.Position.Distance(destination.Position);
             NumberOfProjectors = (int)(Math.Ceiling(distance / projectorRadius));
 

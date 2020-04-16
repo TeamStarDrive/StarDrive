@@ -141,5 +141,55 @@ namespace Ship_Game
             }
             return found;
         }
+
+        public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, SolarSystem toPlanet)
+        {
+            return FindClosestTo(systems.GetInternalArrayItems(), systems.Count, toPlanet.Position);
+        }
+
+        public static SolarSystem FindClosestTo(this SolarSystem[] systems, SolarSystem toPlanet)
+        {
+            return FindClosestTo(systems, systems.Length, toPlanet.Position);
+        }
+
+        public static SolarSystem FindClosestTo(this SolarSystem[] systems, int count, SolarSystem toPlanet)
+        {
+            return FindClosestTo(systems, count, toPlanet.Position);
+        }
+
+        public static SolarSystem FindClosestTo(this SolarSystem[] systems, Ship toShip)
+        {
+            return FindClosestTo(systems, systems.Length, toShip.Center);
+        }
+
+        public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Ship toShip)
+        {
+            return FindClosestTo(systems.ToArray(), systems.Count, toShip.Center);
+        }
+
+        public static SolarSystem FindClosestTo(this Array<SolarSystem> systems, Vector2 position)
+        {
+            return FindClosestTo(systems.ToArray(), systems.Count, position);
+        }
+
+        public static SolarSystem FindClosestTo(this SolarSystem[] systems, int count, Vector2 to)
+        {
+            if (count <= 0)
+                return null;
+
+            SolarSystem found = systems[0];
+            float min = to.SqDist(found.Position);
+            for (int i = 1; i < count; ++i)
+            {
+                SolarSystem target = systems[i];
+                float distance = to.SqDist(target.Position);
+                if (distance < min)
+                {
+                    min = distance;
+                    found = target;
+                }
+            }
+            return found;
+        }
     }
 }
