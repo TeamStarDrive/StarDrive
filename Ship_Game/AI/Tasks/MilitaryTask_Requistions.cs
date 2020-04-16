@@ -237,7 +237,7 @@ namespace Ship_Game.AI.Tasks
                 throw new Exception();
 
             AO closestAO = FindClosestAO();
-            if (closestAO == null || closestAO.NumOffensiveForcePoolShips < 1)
+            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
             {
                 return;
             }

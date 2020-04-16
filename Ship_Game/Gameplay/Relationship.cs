@@ -769,9 +769,9 @@ namespace Ship_Game.Gameplay
 
         public void RestoreWarsFromSave()
         {
-            ActiveWar?.RestoreFromSave();
+            ActiveWar?.RestoreFromSave(true);
             foreach (var war in WarHistory)
-                war.RestoreFromSave();
+                war.RestoreFromSave(false);
         }
 
         public void ResetRelation()
