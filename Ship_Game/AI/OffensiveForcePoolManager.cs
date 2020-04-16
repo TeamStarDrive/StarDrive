@@ -26,7 +26,8 @@ namespace Ship_Game.AI
             for (int index = AreasOfOperations.Count - 1; index >= 0; index--)
             {
                 AO areasOfOperation = AreasOfOperations[index];
-                if (areasOfOperation.GetPlanet().Owner != Owner)
+                Planet aoCoreWorld = areasOfOperation.CoreWorld;
+                if (aoCoreWorld?.Owner != Owner)
                 {
                     AreasOfOperations.RemoveAt(index);
                     areasOfOperation.ClearOut();

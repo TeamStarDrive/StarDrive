@@ -33,9 +33,12 @@ namespace Ship_Game
             throw new InvalidOperationException(
                 $"BUG! Empire must not be serialized! Add [XmlIgnore][JsonIgnore] to `public Empire XXX;` PROPERTIES/FIELDS. {this}");
 
-        public float ProjectorRadius => Universe.SubSpaceProjectors.Radius;
-        //private Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
-        private readonly Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
+        public float GetProjectorRadius() => Universe.SubSpaceProjectors.Radius * data.SensorModifier;
+        public float GetProjectorRadius(Planet planet) => GetProjectorRadius() + 10000f * planet.PopulationBillion;
+
+        readonly Map<int, Fleet> FleetsDict = new Map<int, Fleet>();
+
+
         public readonly Map<string, bool> UnlockedHullsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedTroopDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
         private readonly Map<string, bool> UnlockedBuildingsDict = new Map<string, bool>(StringComparer.InvariantCultureIgnoreCase);
@@ -133,28 +136,28 @@ namespace Ship_Game
         public int GetEmpireTechLevel() => (int)Math.Floor(ShipTechs.Count / 3f);
 
         public int AtWarCount;
-        public Array<string> BomberTech      = new Array<string>();
-        public Array<string> TroopShipTech   = new Array<string>();
-        public Array<string> CarrierTech     = new Array<string>();
+        public Array<string> BomberTech = new Array<string>();
+        public Array<string> TroopShipTech = new Array<string>();
+        public Array<string> CarrierTech = new Array<string>();
         public Array<string> SupportShipTech = new Array<string>();
-        public Planet[] RallyPoints          = Empty<Planet>.Array;
-        public Ship BoardingShuttle          => ResourceManager.ShipsDict["Assault Shuttle"];
-        public Ship SupplyShuttle            => ResourceManager.ShipsDict["Supply_Shuttle"];
-        public bool IsCybernetic             => data.Traits.Cybernetic != 0;
-        public bool NonCybernetic            => data.Traits.Cybernetic == 0;
+        public Planet[] RallyPoints = Empty<Planet>.Array;
+        public Ship BoardingShuttle => ResourceManager.ShipsDict["Assault Shuttle"];
+        public Ship SupplyShuttle => ResourceManager.ShipsDict["Supply_Shuttle"];
+        public bool IsCybernetic => data.Traits.Cybernetic != 0;
+        public bool NonCybernetic => data.Traits.Cybernetic == 0;
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
         // Income this turn before deducting ship maintenance
-        public float GrossIncome              => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
-        public float NetIncome                => GrossIncome - AllSpending;
+        public float GrossIncome => GrossPlanetIncome + TotalTradeMoneyAddedThisTurn + ExcessGoodsMoneyAddedThisTurn + data.FlatMoneyBonus;
+        public float NetIncome => GrossIncome - AllSpending;
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
-        public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
-        public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
+        public float BuildingAndShipMaint => TotalBuildingMaintenance + TotalShipMaintenance;
+        public float AllSpending => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
 
-        public Planet[] SpacePorts       => OwnedPlanets.Filter(p => p.HasSpacePort);
+        public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
-        public Planet[] SafeSpacePorts   => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
+        public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
 
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
@@ -181,9 +184,9 @@ namespace Ship_Game
 
         public Empire()
         {
-            UI         = new EmpireUI(this);
-            Research   = new EmpireResearch(this);
-            Pool       = new ShipPool(this);
+            UI = new EmpireUI(this);
+            Research = new EmpireResearch(this);
+            Pool = new ShipPool(this);
 
             // @note @todo This is very flaky and weird!
             UpdateTimer = RandomMath.RandomBetween(.02f, .3f);
@@ -211,8 +214,14 @@ namespace Ship_Game
 
         public Planet FindNearestRallyPoint(Vector2 location)
         {
-            return RallyPoints.FindMin( p => p.Center.SqDist(location))
+            return RallyPoints.FindMin(p => p.Center.SqDist(location))
                 ?? OwnedPlanets.FindMin(p => p.Center.SqDist(location));
+        }
+
+        public Planet FindNearestSafeRallyPoint(Vector2 location)
+        {
+            return RallyPoints.FindMinFiltered(p => !IsEmpireAttackable(p.Owner), p => p.Center.SqDist(location))
+                ?? OwnedPlanets.FindMinFiltered(p=> !IsEmpireAttackable(p.Owner), p => p.Center.SqDist(location));
         }
 
         public Planet RallyShipYardNearestTo(Vector2 position)
@@ -350,7 +359,7 @@ namespace Ship_Game
         public Planet[] GetSafeAOCoreWorlds()
         {
             var nearAO = EmpireAI.AreasOfOperations
-                .FilterSelect(ao => ao.CoreWorld.ParentSystem.OwnerList.Count ==1,
+                .FilterSelect(ao => ao.CoreWorld?.ParentSystem.OwnerList.Count ==1,
                               ao => ao.CoreWorld);
             return nearAO;
         }
@@ -673,7 +682,7 @@ namespace Ship_Game
         {
             var solarSystems = new Array<SolarSystem>();
             Vector2 theirCenter = them.GetWeightedCenter();
-            float maxDistance = theirCenter.Distance(GetWeightedCenter());
+            float maxDistance = theirCenter.Distance(GetWeightedCenter()) - 300000;
             
             foreach (var solarSystem in GetOwnedSystems())
             {
@@ -740,10 +749,10 @@ namespace Ship_Game
                     && ship.AI.State == AIState.Scrap
                     && ship.AI.State == AIState.Scuttle)
                     continue;
-                if (ship.InCombat)
-                    continue;
-                if (ship.IsInHostileProjectorRange && !ship.IsInFriendlyProjectorRange)
-                    continue;
+                //if (ship.InCombat)
+                //    continue;
+                //if (ship.IsInHostileProjectorRange && !ship.IsInFriendlyProjectorRange)
+                //    continue;
                 readyShips.Add(ship);
             }
 
@@ -1951,7 +1960,7 @@ namespace Ship_Game
                 SensorNodes.Add(new InfluenceNode
                 {
                     Position = Universe.GetPlanet(mole.PlanetGuid).Center,
-                    Radius   = ProjectorRadius * data.SensorModifier,
+                    Radius   = GetProjectorRadius(),
                     Known    = true
                 });
 
@@ -1979,11 +1988,11 @@ namespace Ship_Game
                 InfluenceNode influenceNodeB = BorderNodes.RecycleObject() ?? new InfluenceNode();
 
                 influenceNodeS.Position     = ship.Center;
-                influenceNodeS.Radius       = ProjectorRadius; //projectors used as sensors again
+                influenceNodeS.Radius       = GetProjectorRadius(); //projectors used as sensors again
                 influenceNodeS.SourceObject = ship;
 
                 influenceNodeB.Position     = ship.Center;
-                influenceNodeB.Radius       = ProjectorRadius; //projectors used as sensors again
+                influenceNodeB.Radius       = GetProjectorRadius(); //projectors used as sensors again
                 influenceNodeB.SourceObject = ship;
                 bool seen                   = known || EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(ship.guid);
                 influenceNodeB.Known        = seen;
@@ -2038,7 +2047,7 @@ namespace Ship_Game
                     }
                 }
                 else
-                    influenceNode1.Radius = isFaction ? 20000f : ProjectorRadius + 10000f * planet.PopulationBillion;
+                    influenceNode1.Radius = isFaction ? 20000f : GetProjectorRadius(planet);
 
                 influenceNode1.Known = known;
                 BorderNodes.Add(influenceNode1);
@@ -2075,8 +2084,8 @@ namespace Ship_Game
                     influenceNode2.Radius        = isFaction
                         ? 1f
                         : this                   == Universe.PlayerEmpire
-                            ? ProjectorRadius / 5f * empire.data.SensorModifier
-                            : ProjectorRadius / 3f * empire.data.SensorModifier;
+                            ? GetProjectorRadius() / 5f * empire.data.SensorModifier
+                            : GetProjectorRadius() / 3f * empire.data.SensorModifier;
                     foreach (Building building in planet.BuildingList)
                         influenceNode2.Radius    =
                             Math.Max(influenceNode2.Radius, building.SensorRange * data.SensorModifier);
@@ -2105,7 +2114,7 @@ namespace Ship_Game
                     //loop over all ALLIED projectors
                     InfluenceNode influenceNode = SensorNodes.RecycleObject() ?? new InfluenceNode();
                     influenceNode.Position      = ship.Center;
-                    influenceNode.Radius        = ProjectorRadius; //projectors currently use their projection radius as sensors
+                    influenceNode.Radius        = GetProjectorRadius(); //projectors currently use their projection radius as sensors
                     SensorNodes.Add(influenceNode);
                     influenceNode.SourceObject  = ship;
                     influenceNode.Known         = wellKnown;
@@ -2837,6 +2846,29 @@ namespace Ship_Game
                 if (p.guid == planetGuid)
                     return p;
             return null;
+        }
+
+        public SolarSystem FindNearestOwnedSystemTo(Vector2 position)
+        {
+            return OwnedSolarSystems.FindClosestTo(position);
+        }
+
+        public SolarSystem FindNearestOwnedSystemTo(Array<SolarSystem> systems)
+        {
+            SolarSystem nearestSystem = null;
+            float distance = float.MaxValue;
+            Vector2 center = GetWeightedCenter();
+            foreach(var system in systems)
+            {
+                var nearest = OwnedSolarSystems.FindClosestTo(system);
+                float approxDistance = center.SqDist(nearest.Position);
+                if (center.SqDist(nearest.Position) < distance)
+                {
+                    distance = approxDistance;
+                    nearestSystem = nearest;
+                }
+            }
+            return nearestSystem;
         }
 
         public bool UpdateContactsAndBorders(float elapsedTime)

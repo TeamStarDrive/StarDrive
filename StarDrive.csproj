@@ -201,6 +201,12 @@
     <Compile Include="Ship_Game\AI\ShipAI\ShipAIPlan.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\ShipAIMovement.cs" />
     <Compile Include="Ship_Game\AI\ShipMovement\OrbitPlan.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Campaign.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Defense.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureAllPlanets.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\Capture.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\CaptureBorderPlanets.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\WarTasks.cs" />
     <Compile Include="Ship_Game\AI\Tasks\MilitaryTask_Requistions.cs" />
     <Compile Include="Ship_Game\AI\OffensiveForcePoolManager.cs" />
     <Compile Include="Ship_Game\AI\ShipAI\ShipAI.Combat.cs" />
@@ -217,6 +223,7 @@
     <Compile Include="Ship_Game\Commands\Goals\BuildShipsGoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\BuildOrbital.cs" />
     <Compile Include="Ship_Game\Commands\Goals\CorsairAI.cs" />
+    <Compile Include="Ship_Game\AI\StrategyAI\WarGoals\GoalBase.cs" />
     <Compile Include="Ship_Game\Commands\Goals\RemnantAI.cs" />
     <Compile Include="Ship_Game\Data\GameText.cs" />
     <Compile Include="Ship_Game\Data\GameTips.cs" />
