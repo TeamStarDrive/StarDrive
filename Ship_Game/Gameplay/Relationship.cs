@@ -160,11 +160,13 @@ namespace Ship_Game.Gameplay
             for (int i = 0; i < WarHistory.Count; i++)
             {
                 var war = WarHistory[i];
-                if (war.ColoniesLost < 1) continue;
-                for (int x = 0; x < war.ContestedSystems.Length; x++)
+                var owner = EmpireManager.GetEmpireByName(war.UsName);
+                if (war.ContestedSystemsGUIDs.IsEmpty) continue;
+                var systems = SolarSystem.GetSolarSystemsFromGuids(war.ContestedSystemsGUIDs);
+                for (int x = 0; x < systems.Count; x++)
                 {
-                    SolarSystem system = war.ContestedSystems[x];
-                    if (system.PlanetList.Any(p => p.Owner == Them))
+                    SolarSystem system = systems[x];
+                    if (!system.OwnerList.Contains(owner))
                         lostSystems.AddUniqueRef(system);
                 }
             }

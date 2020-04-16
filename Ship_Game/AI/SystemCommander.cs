@@ -262,7 +262,7 @@ namespace Ship_Game.AI
 
             int min = (int)(10f / RankImportance) * (Us.data.DiplomaticPersonality?.Territorialism ?? 50);
             min /= 4;
-            IdealShipStrength = Math.Max(PredictedStrength, min);
+            IdealShipStrength = min; // Math.Max(PredictedStrength, min);
         }
 
         public void UpdatePlanetTracker()
