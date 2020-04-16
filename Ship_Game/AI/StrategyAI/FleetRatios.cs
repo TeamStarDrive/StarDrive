@@ -43,19 +43,19 @@ namespace Ship_Game.AI
         {
             //fighters, corvettes, frigate, cruisers, capitals, troopShip,bombers,carriers,support
             if (OwnerEmpire.canBuildCapitals)
-                SetCounts(new[] { 6, 3, 2, 2, 1, 1, 2, 3, 1 });
+                SetCounts(new[] { 1, 12, 8, 8, 4, 1, 1, 2, 1 });
 
             else if (OwnerEmpire.canBuildCruisers)
-                SetCounts(new[] { 6, 3, 2, 1, 0, 1, 2, 3, 1 });
+                SetCounts(new[] { 3, 9, 6, 3, 0, 1, 1, 3, 1 });
 
             else if (OwnerEmpire.canBuildFrigates)
-                SetCounts(new[] { 6, 3, 2, 0, 0, 1, 2, 3, 1 });
+                SetCounts(new[] { 6, 6, 4, 0, 0, 1, 1, 1, 1 });
 
             else if (OwnerEmpire.canBuildCorvettes)
-                SetCounts(new[] { 6, 3, 0, 0, 0, 1, 2, 1, 1 });
+                SetCounts(new[] { 12, 6, 0, 0, 0, 1, 1, 1, 1 });
 
             else
-                SetCounts(new[] { 6, 0, 0, 0, 0, 1, 2, 1, 1 });
+                SetCounts(new[] { 24, 0, 0, 0, 0, 1, 2, 1, 1 });
         }
 
         private void SetCounts(int[] counts)
