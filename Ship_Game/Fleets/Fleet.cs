@@ -564,7 +564,7 @@ namespace Ship_Game.Fleets
                 case 1:
                     if (!HasArrivedAtRallySafely(GetRelativeSize().Length()))
                         break;
-                    GatherAtAO(task, distanceFromAO: Owner.ProjectorRadius * 1.5f);
+                    GatherAtAO(task, distanceFromAO: Owner.GetProjectorRadius() * 1.5f);
                     TaskStep = 2;
                     SetOrdersRadius(Ships, 2000f);
                     break;
@@ -1435,7 +1435,10 @@ namespace Ship_Game.Fleets
             ship.fleet = null;
             RemoveFromAllSquads(ship);
             if (Ships.RemoveRef(ship) || !ship.Active)
+            {
+                ship.loyalty.AddShipNextFrame(ship);
                 return true;
+            }
 
             Empire.Universe.DebugWin?.DebugLogText("Fleet RemoveShip: Ship is not in this fleet", DebugModes.Normal);
             return false;

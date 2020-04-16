@@ -5,6 +5,7 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.GameScreens.DiplomacyScreen;
 using Ship_Game.Fleets;
 
@@ -62,10 +63,8 @@ namespace Ship_Game.AI
             Relationship ourRelationToThem = OwnerEmpire.GetRelations(them);
             ourRelationToThem.AtWar     = true;
             ourRelationToThem.Posture   = Posture.Hostile;
-            ourRelationToThem.ActiveWar = new War(OwnerEmpire, them, Empire.Universe.StarDate)
-            {
-                WarType = wt
-            };
+            ourRelationToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
+
             if (ourRelationToThem.Trust > 0f)
             {
                 ourRelationToThem.Trust = 0f;
@@ -122,7 +121,7 @@ namespace Ship_Game.AI
 
             ourRelations.AtWar   = true;
             ourRelations.Posture = Posture.Hostile;
-            ourRelations.ActiveWar = new War(OwnerEmpire, them, Empire.Universe.StarDate) {WarType = wt};
+            ourRelations.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
             if (ourRelations.Trust > 0f)
                 ourRelations.Trust = 0.0f;
             ourRelations.Treaty_OpenBorders = false;
@@ -229,10 +228,7 @@ namespace Ship_Game.AI
             }
             ourRelationToThem.AtWar     = true;
             ourRelationToThem.Posture   = Posture.Hostile;
-            ourRelationToThem.ActiveWar = new War(OwnerEmpire, them, Empire.Universe.StarDate)
-            {
-                WarType = wt
-            };
+            ourRelationToThem.ActiveWar = War.CreateInstance(OwnerEmpire, them, wt);
             if (ourRelationToThem.Trust > 0f)
             {
                 ourRelationToThem.Trust = 0f;
@@ -286,10 +282,8 @@ namespace Ship_Game.AI
             relations.AtWar     = true;
             relations.FedQuest  = null;
             relations.Posture   = Posture.Hostile;
-            relations.ActiveWar = new War(OwnerEmpire, warDeclarant, Empire.Universe.StarDate)
-            {
-                WarType = wt
-            };
+            relations.ActiveWar = War.CreateInstance(OwnerEmpire, warDeclarant, wt);
+
             if (Empire.Universe.PlayerEmpire != OwnerEmpire)
             {
                 if (OwnerEmpire.data.DiplomaticPersonality.Name == "Pacifist")

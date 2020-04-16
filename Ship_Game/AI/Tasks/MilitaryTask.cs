@@ -113,6 +113,8 @@ namespace Ship_Game.AI.Tasks
             Owner = owner;
         }
 
+        public override string ToString() => $"{type} {TargetPlanet} Priority {Priority}";
+
         void DeclareWar()
         {
             Relationship r = Owner.GetRelations(TargetPlanet.Owner);
@@ -211,9 +213,7 @@ namespace Ship_Game.AI.Tasks
 
         private void DisbandFleet(Fleet fleet)
         {
-            Ship[] fleetShips = fleet.Ships.ToArray();
             Fleet.Reset();
-            Owner.Pool.ForcePoolAdd(fleetShips);
             TaskForce.Clear();
         }
 
