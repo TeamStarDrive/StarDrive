@@ -104,7 +104,11 @@ namespace Ship_Game.Empires.ShipPools
                         ship.AI.ClearOrders();
                         Log.Warning("ShipPool: Ship was in a system defense state but not in system defense pool");
                         if (!AssignShipsToOtherPools(ship))
+                        {
+                            if (ship.DesignRole < ShipData.RoleName.fighter)
+                                ForcePoolAdd(ship);
                             Log.Info($"ShipPool: Could not assign ship to pools {ship}");
+                        }
                     }
                 }
                 else if (ship.DesignRoleType == ShipData.RoleType.Warship)
@@ -123,6 +127,8 @@ namespace Ship_Game.Empires.ShipPools
                         Log.Info("ShipPool: WarShip was not in any pools");
                         if (!AssignShipsToOtherPools(ship))
                         {
+                            if (ship.DesignRole < ShipData.RoleName.fighter)
+                                ForcePoolAdd(ship);
                             Log.Info($"ShipPool: Could not assign ship to pools {ship}");
                         }
                     }
@@ -144,7 +150,7 @@ namespace Ship_Game.Empires.ShipPools
 
         public void ForcePoolAdd(Ship ship)
         {
-            if (Owner.isFaction) return;
+            if (Owner.isFaction || ship.Mothership != null || ship.HomePlanet != null) return;
             Owner.Pool.RemoveShipFromFleetAndPools(ship);
             if (ship.loyalty != Owner)
             {
@@ -212,7 +218,8 @@ namespace Ship_Game.Empires.ShipPools
             {
                 Ship s = ShipsToAdd[i];
                 Owner.AddShip(s);
-                if (!Owner.isPlayer && !Owner.isFaction) ForcePoolAdd(s);
+                if (!Owner.isPlayer && !Owner.isFaction && s.Active && s.Mothership == null && s.HomePlanet == null) 
+                    ForcePoolAdd(s);
             }
 
             ShipsToAdd.Clear();
