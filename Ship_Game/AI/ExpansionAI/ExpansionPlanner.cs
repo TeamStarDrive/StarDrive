@@ -158,22 +158,22 @@ namespace Ship_Game.AI.ExpansionAI
         void CreateClaimFleets()
         {
             var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
-            int desiredClaims = (DesiredColonyGoals * 2) - claimTasks.Length;
+            int desiredClaims = DesiredColonyGoals - claimTasks.Length;
             var colonizing    = GetColonizationGoalPlanets();
             var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
-
+            desiredClaims -= taskTargets.Length;
             for (int i = 0; i < RankedPlanets.Length && desiredClaims > 0; i++)
             {
                 var rank = RankedPlanets[i];
 
-                if (rank.CantColonize || rank.EnemyStrength < 1  || colonizing.Contains(rank.Planet)
-                    || rank.Planet.ParentSystem.OwnerList.Contains(OwnerEmpire))
+                if (rank.CantColonize || rank.EnemyStrength < 1 || rank.Planet.ParentSystem.OwnerList.Contains(OwnerEmpire))
                 {
                     continue;
                 }
                 if (taskTargets.Contains(rank.Planet))
                     continue;
                 var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
+                task.Priority = 10;
                 OwnerEmpire.GetEmpireAI().AddPendingTask(task);
                 desiredClaims--;
             }

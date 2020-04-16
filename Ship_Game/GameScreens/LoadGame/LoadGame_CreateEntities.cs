@@ -360,7 +360,9 @@ namespace Ship_Game
                     {
                         Guid = fleetsave.FleetGuid,
                         IsCoreFleet = fleetsave.IsCoreFleet,
-                        FinalDirection = fleetsave.facing.RadiansToDirection() // @note savegame compatibility uses facing in radians
+                        // @note savegame compatibility uses facing in radians
+                        FinalDirection = fleetsave.facing.RadiansToDirection(),
+                        Owner = e
                     };
                     foreach (SavedGame.FleetShipSave ssave in fleetsave.ShipsInFleet)
                     {
