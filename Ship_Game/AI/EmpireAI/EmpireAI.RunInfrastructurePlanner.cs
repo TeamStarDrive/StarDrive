@@ -62,7 +62,7 @@ namespace Ship_Game.AI
                 for (int i = 0; i < empire.BorderNodes.Count; i++)
                 {
                     Empire.InfluenceNode border = empire.BorderNodes[i];
-                    float nodeRadius = Math.Max(empire.ProjectorRadius, border.Radius);
+                    float nodeRadius = Math.Max(empire.GetProjectorRadius(), border.Radius);
                     if (pos.InRadius(border.Position, nodeRadius * 0.75f))
                         return true;
                 }
@@ -75,7 +75,7 @@ namespace Ship_Game.AI
             for (int gi = 0; gi < Goals.Count; gi++)
             {
                 Goal g = Goals[gi];
-                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, OwnerEmpire.ProjectorRadius))
+                if (g is BuildConstructionShip && g.BuildPosition.InRadius(pos, OwnerEmpire.GetProjectorRadius()))
                     return true;
             }
 
@@ -85,7 +85,7 @@ namespace Ship_Game.AI
             {
                 Ship ship = ships[si];
                 if (ship.AI.FindGoal(ShipAI.Plan.DeployStructure, out ShipAI.ShipGoal goal)
-                    && goal.MovePosition.InRadius(pos, OwnerEmpire.ProjectorRadius))
+                    && goal.MovePosition.InRadius(pos, OwnerEmpire.GetProjectorRadius()))
                     return true;
             }
 
