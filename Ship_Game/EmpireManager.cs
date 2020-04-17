@@ -36,7 +36,7 @@ namespace Ship_Game
 
         public static Empire[] MajorEmpires   => Empires.Filter(empire => !empire.isFaction);
         public static Empire[] Factions       => Empires.Filter(empire => empire.isFaction);
-        public static Empire[] PirateFactions => Empires.Filter(empire => empire.IsPirateFaction);
+        public static Empire[] PirateFactions => Empires.Filter(empire => empire.WeArePirates);
 
         public static Empire FindDuplicateEmpire(Empire empire)
         {

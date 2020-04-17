@@ -54,10 +54,10 @@ namespace Ship_Game.Commands.Goals
                 for (int i = 0; i < friendlies.Count; i++)
                 {
                     Ship ship = friendlies[i];
-                    if (ship.IsPlatformOrStation)
+                    if (ship.IsPlatformOrStation || ship.Mothership != null)
                         continue; // Do not mess with our own structures
 
-                    if (ship.InRadius(Base.Center, 1200))
+                    if (ship.InRadius(Base.Center, 2000))
                     {
                         ship.ChangeOrdnance(1);
                         Pirates.ProcessShip(ship, Base);

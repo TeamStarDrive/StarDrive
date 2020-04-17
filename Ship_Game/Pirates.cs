@@ -248,7 +248,6 @@ namespace Ship_Game
         {
             bool success;
             NewBaseSpot spotType = (NewBaseSpot)RandomMath.IntBetween(0, 4);
-            //spotType = NewBaseSpot.GasGiant; // TODO - for testing
             switch (spotType)
             {
                 case NewBaseSpot.GasGiant:
@@ -293,7 +292,8 @@ namespace Ship_Game
             {
                 Ship pirateBase = bases.RandItem();
                 Vector2 pos     = pirateBase.Center.GenerateRandomPointOnCircle(2000);
-                SpawnShip(PirateShipType.FlagShip, pos, out _);
+                if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
+                    flagShip.AI.AddEscortGoal(pirateBase);
             }
         }
 
@@ -514,7 +514,7 @@ namespace Ship_Game
         {
             foreach (SolarSystem system in UniverseScreen.SolarSystemList)
             {
-                if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.loyalty.IsPirateFaction))
+                if (!system.ShipList.Any(s => s.IsPlatformOrStation && s.loyalty.WeArePirates))
                     system.SetPiratePresence(false);
             }
         }
@@ -780,21 +780,19 @@ namespace Ship_Game
             if (ShouldSalvageCombatShip(ship)) 
             {
                 // We can use this ship in future endeavors, ha ha ha!
+                if (ship.BaseStrength.Greater(0))
+                    ShipsWeCanSpawn.AddUnique(ship.Name);
+
                 ship.QueueTotalRemoval();
-                ShipsWeCanSpawn.AddUnique(ship.Name);
             }
-            else  // Find a base which orbits a planet and go there
+            else
             {
                 // We might use this ship for defense or future attacks
                 if (ship.AI.State != AIState.Orbit 
                     || ship.AI.State != AIState.Escort 
                     || ship.AI.State != AIState.Resupply)
                 {
-                    if (GetClosestBasePlanet(ship.Center, out Planet planet))
-                        ship.AI.OrderToOrbit(planet);
-                    else
-                        ship.AI.EscortTarget = pirateBase; // no planets found, so escort this base
-
+                    ship.AI.AddEscortGoal(pirateBase);
                     TryLevelUp();
                 }
             }
@@ -802,7 +800,11 @@ namespace Ship_Game
 
         bool ShouldSalvageCombatShip(Ship ship)
         {
-            // we can salvage and use small ships. we keep the large ones though.
+            if (ship.BaseStrength.AlmostZero())
+                return true;
+
+            // we can salvage ships which are not in our spawn list.
+            // But we always keep the big ships. Pirates cannot spawn bigger ships
             if (ShipsWeCanSpawn.Contains(ship.Name))
                 return false;
 
