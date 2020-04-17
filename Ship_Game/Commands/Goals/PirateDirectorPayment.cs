@@ -41,7 +41,7 @@ namespace Ship_Game.Commands.Goals
 
             if (victimPlanets > Pirates.MinimumColoniesForPayment
                 || victimPlanets == Pirates.MinimumColoniesForPayment 
-                && RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
+                && RandomMath.RollDice(10)) //  TODO need to be 10, 100 is for testing
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
             }
