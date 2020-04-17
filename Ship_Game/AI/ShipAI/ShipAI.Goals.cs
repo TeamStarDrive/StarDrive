@@ -41,7 +41,9 @@ namespace Ship_Game.AI
         {
             foreach (ShipGoal g in OrderQueue)
                 g.Dispose();
+
             ChangeAIState(newState);
+            EscortTarget = null;
             OrderQueue.Clear();
             SetPriorityOrder(priority);
         }
@@ -119,34 +121,36 @@ namespace Ship_Game.AI
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f, wantedState));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, 0f, "", 0f, wantedState, null));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Goal theGoal,
                          string variableString, float variableNumber, AIState wantedState, bool pushToFront = false)
         {
-            ShipGoal goal = new ShipGoal(plan, pos, dir, null, theGoal, 0f, variableString, variableNumber, wantedState);
+            ShipGoal goal = new ShipGoal(plan, pos, dir, null, theGoal, 0f, variableString, variableNumber, wantedState, null);
             EnqueueOrPush(goal, pushToFront);
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, Goal empireGoal, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f, wantedState));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, empireGoal, speedLimit, "", 0f, wantedState, null));
         }
 
-        void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, float speedLimit, AIState wantedState)
+        void AddShipGoal(Plan plan, Ship targetShip, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, null, speedLimit, "", 0f, wantedState));
+            EscortTarget = targetShip;
+            EnqueueOrPush(new ShipGoal(plan, targetShip.Position, Vectors.Up, null, null
+                , 0f, "", 0f, wantedState, targetShip));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, float speedLimit, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f, wantedState));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, null, null, speedLimit, "", 0f, wantedState, null));
         }
 
         void AddShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal, AIState wantedState)
         {
-            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f, wantedState));
+            EnqueueOrPush(new ShipGoal(plan, pos, dir, targetPlanet, theGoal, 0f, "", 0f, wantedState, null));
         }
 
         internal void SetTradePlan(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goodsType, float blockadeTimer = 120f)
@@ -163,7 +167,7 @@ namespace Ship_Game.AI
                 return false;
             }
 
-            ShipGoal goal = new ShipGoal(plan, target.Center, Vectors.Up, target, theGoal, 0f, "", 0f, wantedState);
+            ShipGoal goal = new ShipGoal(plan, target.Center, Vectors.Up, target, theGoal, 0f, "", 0f, wantedState, null);
             EnqueueOrPush(goal, pushToFront);
             return true;
         }
@@ -228,6 +232,12 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
         }
 
+        public void AddEscortGoal(Ship targetShip)
+        {
+            ClearOrders();
+            AddShipGoal(Plan.Escort, targetShip, AIState.Escort);
+        }
+
         Vector2 GetPositionOnPlanet(Planet p)
         {
             return MathExt.RandomOffsetAndDistance(p.Center, p.ObjectRadius);
@@ -251,6 +261,7 @@ namespace Ship_Game.AI
             }
             public readonly Vector2 Direction; // direction param for this goal, can have multiple meanings
             public readonly Planet TargetPlanet;
+            public readonly Ship TargetShip;
             public readonly Goal Goal; // Empire AI Goal
             public readonly Fleet Fleet;
             public readonly float SpeedLimit;
@@ -270,7 +281,7 @@ namespace Ship_Game.AI
             }
 
             public ShipGoal(Plan plan, Vector2 pos, Vector2 dir, Planet targetPlanet, Goal theGoal,
-                            float speedLimit, string variableString, float variableNumber, AIState wantedState)
+                            float speedLimit, string variableString, float variableNumber, AIState wantedState, Ship targetShip)
             {
                 Plan           = plan;
                 MovePosition   = pos;
@@ -281,6 +292,7 @@ namespace Ship_Game.AI
                 VariableString = variableString;
                 VariableNumber = variableNumber;
                 WantedState    = wantedState;
+                TargetShip     = targetShip;
             }
 
             public ShipGoal(Plan plan, Planet exportPlanet, Planet importPlanet, Goods goods, Ship freighter, float blockadeTimer, AIState wantedState)
@@ -298,10 +310,10 @@ namespace Ship_Game.AI
                 WantedState  = sg.WantedState;
 
                 TargetPlanet = data.FindPlanetOrNull(sg.TargetPlanetGuid);
+                TargetShip   = data.FindShipOrNull(sg.TargetShipGuid);
 
                 VariableString = sg.VariableString;
-                SpeedLimit = sg.SpeedLimit;
-
+                SpeedLimit     = sg.SpeedLimit;
                 Empire loyalty = ship.loyalty;
 
                 if (sg.fleetGuid != Guid.Empty)
@@ -328,10 +340,9 @@ namespace Ship_Game.AI
 
                 if (sg.Trade != null)
                     Trade = new TradePlan(sg.Trade, data, ship);
+
                 if (Plan == Plan.SupplyShip)
-                {
                     ship.AI.EscortTarget?.Supply.ChangeIncomingSupply(SupplyType.Rearm, ship.Ordinance);
-                }
             }
 
             ~ShipGoal() { Destroy(); } // finalizer
@@ -417,7 +428,8 @@ namespace Ship_Game.AI
             RebaseToShip,
             ReturnHome,
             DeployOrbital,
-            HoldPositionOffensive
+            HoldPositionOffensive,
+            Escort
         }
     }
 }
