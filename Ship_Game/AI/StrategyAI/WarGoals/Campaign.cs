@@ -62,7 +62,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
             OwnerWar = war;
             Owner    = EmpireManager.GetEmpireByName(war.UsName);
             Them     = EmpireManager.GetEmpireByName(war.ThemName);
-            UID = campaignType.ToString();
+            UID      = campaignType.ToString();
         }
 
         /// <summary>
@@ -123,7 +123,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// Adds a target system to the list and also adds the guid for save and save restore. 
         /// </summary>
-        /// <param name="system"></param>
         public void AddTargetSystem(SolarSystem system)
         {
             SystemGuids.AddUnique(system.guid);
@@ -133,7 +132,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// Adds a list of systems to the attack targets."
         /// </summary>
-        /// <param name="systems"></param>
         public void AddTargetSystems(IList<SolarSystem> systems)
         {
             for (int i = 0; i < systems.Count; i++)
@@ -146,7 +144,6 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         /// <summary>
         /// Specific parts that need to be restored. 
         /// </summary>
-        /// <param name="war"></param>
         void RestoreFromSave(War war)
         {
             TargetSystems = SolarSystem.GetSolarSystemsFromGuids(SystemGuids);
@@ -188,20 +185,22 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
                     aoDistanceToTargets    = Owner.GetEmpireAI().DistanceToClosestAO(system.Position);
                 }
             }
-            if (rallySystem == null || rallyPlanet.Owner != Owner) return GoalStep.TryAgain;
-
-            float arbitraryMinDistance = Owner.GetProjectorRadius(rallyPlanet);
-
-            if (RallyAO?.CoreWorld != rallyPlanet)
+            if (rallySystem != null && rallyPlanet.Owner == Owner)
             {
-                if (aoDistanceToTargets - rallyDistanceToTargets > arbitraryMinDistance * 5)
+                float arbitraryMinDistance = Owner.GetProjectorRadius(rallyPlanet);
+
+                if (RallyAO?.CoreWorld != rallyPlanet)
                 {
-                    AO newAO = new AO(rallyPlanet, Owner.GetProjectorRadius(rallyPlanet));
-                    Owner.GetEmpireAI().AreasOfOperations.Add(newAO);
-                    RallyAO = newAO;
+                    if (aoDistanceToTargets - rallyDistanceToTargets > arbitraryMinDistance * 5)
+                    {
+                        AO newAO = new AO(rallyPlanet, Owner.GetProjectorRadius(rallyPlanet));
+                        Owner.GetEmpireAI().AreasOfOperations.Add(newAO);
+                        RallyAO = newAO;
+                    }
                 }
+                return GoalStep.GoToNextStep;
             }
-            return GoalStep.GoToNextStep;
+            return GoalStep.TryAgain;
         }
     }
 }
