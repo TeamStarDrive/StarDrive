@@ -239,7 +239,7 @@ namespace Ship_Game
                 if (NewLevelOperations(newLevel))
                 {
                     IncreaseLevel();
-                    Log.Info($"{Owner.Name} are now level {Level}");
+                    Log.Info(ConsoleColor.Green, $"{Owner.Name} are now level {Level}");
                 }
             }
         }
@@ -278,7 +278,7 @@ namespace Ship_Game
             var shipList = Owner.GetShips();
             using (shipList.AcquireReadLock())
             {
-                if (shipList.Any(s => s.Name == Owner.data.PirateFlagship))
+                if (shipList.Any(s => s.Name == Owner.data.PirateFlagShip))
                     return;
             }
 
@@ -594,7 +594,7 @@ namespace Ship_Game
 
             public PirateForces(Empire pirates, int effectiveLevel) : this()
             {
-                FlagShip = pirates.data.PirateFlagship;
+                FlagShip = pirates.data.PirateFlagShip;
                 switch (effectiveLevel)
                 {
                     case 0:
@@ -731,7 +731,9 @@ namespace Ship_Game
         public bool SpawnShip(PirateShipType shipType, Vector2 where, out Ship pirateShip, int level = 0)
         {
             PirateForces forces = new PirateForces(Owner, level);
-            string shipName = "";
+            string shipName     = "";
+            pirateShip          = null;
+
             switch (shipType)
             {
                 case PirateShipType.Fighter:  shipName = forces.Fighter;      break;
@@ -743,16 +745,18 @@ namespace Ship_Game
                 case PirateShipType.Random:   shipName = forces.Random;       break;
             }
 
-            pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
-            if (pirateShip != null)
-                SpawnedShips.Add(pirateShip.guid);
+            if (shipName.NotEmpty())
+            {
+                pirateShip = Ship.CreateShipAtPoint(shipName, Owner, where);
+                if (pirateShip != null)
+                    SpawnedShips.Add(pirateShip.guid);
+                else
+                    Log.Warning($"Could not spawn required pirate ship named {shipName} for {Owner.Name}, check race xml");
+            }
+            else
+                Log.Warning($"Pirate ship name was empty for {Owner.Name}, check race xml for typos");
 
-            bool error = shipName.IsEmpty() || pirateShip == null;
-
-            if (error)
-                Log.Warning($"Could not spawn required pirate ship for {Owner.Name}, check race xml");
-
-            return !error;
+            return shipName.NotEmpty() && pirateShip != null;
         }
 
         public void SalvageShip(Ship ship, Ship pirateBase)
@@ -855,6 +859,12 @@ namespace Ship_Game
                     }
                 }
             }
+        }
+
+        public bool CanDoAnotherRaid(out int numRaids)
+        {
+            numRaids = Goals.Count(g => g.IsRaid);
+            return numRaids < Level;
         }
 
         enum NewBaseSpot
