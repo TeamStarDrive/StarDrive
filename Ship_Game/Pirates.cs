@@ -552,16 +552,12 @@ namespace Ship_Game
             string shipToAdd;
             switch (level)
             {
-                case 3:  shipToAdd = Owner.data.PirateFighterImproved; break;
-                case 4:  shipToAdd = Owner.data.PirateSlaverImproved;  break;
-                case 5:  shipToAdd = Owner.data.PirateFrigateImproved; break;
-                case 6:  shipToAdd = Owner.data.PirateBaseImproved;    break;
-                case 7:  shipToAdd = Owner.data.PirateStationImproved; break;
+                case 5:  shipToAdd = Owner.data.PirateFighterImproved; break;
+                case 6:  shipToAdd = Owner.data.PirateSlaverImproved;  break;
+                case 7:  shipToAdd = Owner.data.PirateFrigateImproved; break;
                 case 8:  shipToAdd = Owner.data.PirateFighterAdvanced; break;
                 case 9:  shipToAdd = Owner.data.PirateSlaverAdvanced;  break;
                 case 10: shipToAdd = Owner.data.PirateFrigateAdvanced; break;
-                case 11: shipToAdd = Owner.data.PirateBaseAdvanced;    break;
-                case 12: shipToAdd = Owner.data.PirateStationAdvanced; break;
                 default:                                               return;
             }
 
@@ -680,7 +676,7 @@ namespace Ship_Game
             for (int i = 0; i < force.Count; i++)
             {
                 Ship ship = force[i];
-                ship.DoEscort(shipToEscort);
+                ship.AI.AddEscortGoal(shipToEscort);
             }
         }
 
@@ -702,10 +698,10 @@ namespace Ship_Game
             using (shipList.AcquireReadLock())
                 enemyStr = shipList.Sum(s => s.BaseStrength);
 
-            float maxStr       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
-            float availableStr = (float)Level / MaxLevel;
+            float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.1f; // easy will be 10%
+            float availableStrModifier = (float)Level / MaxLevel;
 
-            return maxStr*availableStr * enemyStr;
+            return enemyStr * maxStrModifier * availableStrModifier;
         }
 
         public bool SpawnForce(Ship targetShip, Vector2 pos, float radius, out Array<Ship> force)
