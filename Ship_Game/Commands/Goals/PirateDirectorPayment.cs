@@ -41,7 +41,7 @@ namespace Ship_Game.Commands.Goals
 
             if (victimPlanets > Pirates.MinimumColoniesForPayment
                 || victimPlanets == Pirates.MinimumColoniesForPayment 
-                 && RandomMath.RollDice(10)) //  TODO need to be 10, 100 is for testing
+                && RandomMath.RollDice(100)) //  TODO need to be 10, 100 is for testing
             {
                 return RequestPayment() ? GoalStep.GoToNextStep : GoalStep.TryAgain;
             }
@@ -94,7 +94,7 @@ namespace Ship_Game.Commands.Goals
                 Pirates.SetAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetModifyMoneyRequestedModifier());
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetMoneyRequestedModifier());
             else
                 DemandMoneyFromAI();
 
@@ -105,12 +105,11 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        float GetModifyMoneyRequestedModifier()
+        float GetMoneyRequestedModifier()
         {
-            float modifier = Pirates.ThreatLevelFor(TargetEmpire).Clamped(1, Pirates.Level)
+            float modifier = (Pirates.ThreatLevelFor(TargetEmpire) + 1).Clamped(1, Pirates.Level)
                              * TargetEmpire.DifficultyModifiers.PiratePayModifier
-                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment
-                             * (1f / EmpireManager.PirateFactions.Length.LowerBound(1));
+                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment;
 
             return modifier;
         }
@@ -122,9 +121,12 @@ namespace Ship_Game.Commands.Goals
             {
                 if (e.BaseMoneyDemanded > 0)
                 {
-                    error = false;
-                    int moneyDemand = (e.BaseMoneyDemanded * GetModifyMoneyRequestedModifier()).RoundTo10();
-                    if (moneyDemand < TargetEmpire.Money / 4) // We can expand that with AI personality
+                    error             = false;
+                    int moneyDemand   = (e.BaseMoneyDemanded * GetMoneyRequestedModifier()).RoundTo10();
+                    float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
+                    chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
+                        
+                    if (RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-e.BaseMoneyDemanded);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
@@ -134,6 +136,8 @@ namespace Ship_Game.Commands.Goals
                     else
                     {
                         TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
+                        Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
+                                                     $"- {TargetEmpire.Name} refused to pay!");
                     }
                 }
             }

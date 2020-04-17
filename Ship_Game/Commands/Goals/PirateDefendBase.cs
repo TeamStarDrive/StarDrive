@@ -54,12 +54,14 @@ namespace Ship_Game.Commands.Goals
         {
             var potentialShips = Pirates.Owner.GetShips().Filter(s => !s.IsFreighter
                                                                       && s.BaseStrength > 0
-                                                                      && !s.InCombat);
+                                                                      && !s.InCombat
+                                                                      && s.AI.EscortTarget != BaseToDefend);
 
             if (potentialShips.Length > 0)
             {
                 Ship ship = potentialShips.RandItem();
-                ship.DoEscort(BaseToDefend);
+                ship.AI.ClearOrders();
+                ship.AI.AddEscortGoal(BaseToDefend);
             }
         }
     }

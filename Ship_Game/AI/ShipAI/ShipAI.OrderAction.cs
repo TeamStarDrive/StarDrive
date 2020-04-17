@@ -324,6 +324,7 @@ namespace Ship_Game.AI
 
         void OrderMoveToPirateBase(Ship pirateBase)
         {
+            AddEscortGoal(pirateBase);
             OrderMoveTo(pirateBase.Center.GenerateRandomPointOnCircle(1000), Owner.Direction,
                 true, null, AIState.MoveTo);
         }

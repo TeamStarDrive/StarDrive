@@ -48,7 +48,7 @@ namespace Ship_Game.AI
 
             string name = OwnerEmpire.data.Traits.Name;
 
-            if (OwnerEmpire.IsPirateFaction && !GlobalStats.DisablePirates)
+            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction && !GlobalStats.DisablePirates)
                 OwnerEmpire.SetAsPirates(fromSave, Goals);
 
             if (name == "The Remnant" && !fromSave)
