@@ -50,7 +50,7 @@ namespace Ship_Game.Debug.Page
             foreach (var kv in EmpireAtWar.AllRelations)
             {
                 var relation = kv.Value;
-                if (relation.Known && !kv.Key.isFaction && kv.Key != EmpireAtWar)
+                if (relation.Known && !kv.Key.isFaction && kv.Key != EmpireAtWar && !kv.Key.data.Defeated)
                 {
                     text.Add(relation.DebugWar());
                 }

@@ -488,7 +488,7 @@ namespace Ship_Game
         {
             if (ao == default)
                 ao = FinalPosition;
-            radius = radius.AlmostZero() ? GetRelativeSize().Length() / 1.75f : radius;
+            radius = radius.AlmostZero() ? GetRelativeSize().Length() : radius;
 
             MoveStatus moveStatus = MoveStatus.None;
             float assembled       = 0;
