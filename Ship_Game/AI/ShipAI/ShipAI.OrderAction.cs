@@ -412,9 +412,9 @@ namespace Ship_Game.AI
 
         public void OrderRebaseToShip(Ship ship)
         {
+            ClearOrders();
             EscortTarget = ship;
             IgnoreCombat = true;
-            ClearOrders();
             AddShipGoal(Plan.RebaseToShip, AIState.RebaseToShip);
         }
 
@@ -482,8 +482,8 @@ namespace Ship_Game.AI
 
         public void AddSupplyShipGoal(Ship supplyTarget)
         {
-            IgnoreCombat = true;
             ClearOrders();
+            IgnoreCombat = true;
             //Clearorders wipes stored ordnance data if state is ferrying.
             EscortTarget = supplyTarget;
             AddShipGoal(Plan.SupplyShip, AIState.Ferrying);
