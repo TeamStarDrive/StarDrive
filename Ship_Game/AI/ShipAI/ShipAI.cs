@@ -224,9 +224,9 @@ namespace Ship_Game.AI
 
         void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
         {
-            EscortTarget = supplyShip;
             IgnoreCombat = true;
             ClearOrders(AIState.ResupplyEscort);
+            EscortTarget = supplyShip;
 
             float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
             AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection()
@@ -619,15 +619,15 @@ namespace Ship_Game.AI
 
         public void OrderTroopToBoardShip(Ship s)
         {
-            EscortTarget = s;
             ClearOrders(priority: true);
+            EscortTarget = s;
             AddShipGoal(Plan.BoardShip, State);
         }
 
         public void OrderTroopToShip(Ship s)
         {
-            EscortTarget = s;
             ClearOrders();
+            EscortTarget = s;
             AddShipGoal(Plan.TroopToShip, State);
         }
 
