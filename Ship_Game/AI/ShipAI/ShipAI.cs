@@ -694,6 +694,9 @@ namespace Ship_Game.AI
                 }
 
                 State = AIState.AwaitingOrders; //fbedard
+                if (Owner.loyalty.WeArePirates)
+                    OrderPirateFleeHome();
+
                 return;
             }
             if (Owner.GetStrength() <=0 
