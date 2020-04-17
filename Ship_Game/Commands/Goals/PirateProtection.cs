@@ -54,7 +54,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoToNextStep;
             }
 
-            // Could not spawn require stuff for this goal
+            // Could not spawn required stuff for this goal
             return GoalStep.GoalFailed;
         }
 

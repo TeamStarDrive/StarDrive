@@ -70,7 +70,7 @@ namespace Ship_Game
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;
             e.RestoreUnserializableDataFromSave();
 
-            if (e.IsPirateFaction)
+            if (e.WeArePirates)
                 e.Pirates.RestoreFromSave(sdata);
 
             return e;

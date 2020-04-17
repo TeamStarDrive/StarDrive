@@ -148,7 +148,7 @@ namespace Ship_Game
         public Ship SupplyShuttle            => ResourceManager.ShipsDict["Supply_Shuttle"];
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
-        public bool IsPirateFaction          => isFaction && data.IsPirateFaction;
+        public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
@@ -158,7 +158,6 @@ namespace Ship_Game
         public float TotalBuildingMaintenance => GrossPlanetIncome - NetPlanetIncomes;
         public float BuildingAndShipMaint     => TotalBuildingMaintenance + TotalShipMaintenance;
         public float AllSpending              => BuildingAndShipMaint + MoneySpendOnProductionThisTurn;
-        public bool WeArePirates              => Pirates != null;
 
         public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well

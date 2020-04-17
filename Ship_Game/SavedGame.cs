@@ -149,7 +149,7 @@ namespace Ship_Game
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
 
-                if (e.IsPirateFaction)
+                if (e.WeArePirates)
                 {
                     empireToSave.PirateLevel         = e.Pirates.Level;
                     empireToSave.PirateThreatLevels  = e.Pirates.ThreatLevels;
