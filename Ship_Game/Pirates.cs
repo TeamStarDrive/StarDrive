@@ -239,7 +239,7 @@ namespace Ship_Game
                 if (NewLevelOperations(newLevel))
                 {
                     IncreaseLevel();
-                    Log.Info(ConsoleColor.Green, $"{Owner.Name} are now level {Level}");
+                    Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} are now level {Level} ----");
                 }
             }
         }

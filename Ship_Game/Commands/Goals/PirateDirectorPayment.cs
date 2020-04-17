@@ -96,7 +96,7 @@ namespace Ship_Game.Commands.Goals
             if (TargetEmpire.isPlayer)
                 Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetModifyMoneyRequestedModifier());
             else
-                DemandMoneyFromAI(TargetEmpire);
+                DemandMoneyFromAI();
 
             // We demanded payment for the first time, let the game begin
             if (Pirates.ThreatLevelFor(TargetEmpire) == -1)
@@ -107,14 +107,15 @@ namespace Ship_Game.Commands.Goals
 
         float GetModifyMoneyRequestedModifier()
         {
-            float modifier = Pirates.Level.LowerBound(1) 
+            float modifier = Pirates.ThreatLevelFor(TargetEmpire).Clamped(1, Pirates.Level)
                              * TargetEmpire.DifficultyModifiers.PiratePayModifier
-                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment;
+                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment
+                             * (1f / EmpireManager.PirateFactions.Length.LowerBound(1));
 
             return modifier;
         }
 
-        void DemandMoneyFromAI(Empire victim)
+        void DemandMoneyFromAI()
         {
             bool error = true; ;
             if (Encounter.GetEncounterForAI(Pirates.Owner, 0, out Encounter e))
