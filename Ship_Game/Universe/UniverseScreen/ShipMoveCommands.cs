@@ -30,10 +30,10 @@ namespace Ship_Game.Universe
                     if (targetShip.TroopCount < targetShip.TroopCapacity)
                         selectedShip.AI.OrderTroopToShip(targetShip);
                     else
-                        selectedShip.DoEscort(targetShip);
+                        selectedShip.AI.AddEscortGoal(targetShip);
                 }
                 else
-                    selectedShip.DoEscort(targetShip);
+                    selectedShip.AI.AddEscortGoal(targetShip);
             }
             else if (selectedShip.DesignRole == ShipData.RoleName.troop)
                 selectedShip.AI.OrderTroopToBoardShip(targetShip);
@@ -164,10 +164,10 @@ namespace Ship_Game.Universe
                     if (ship.TroopCount < ship.TroopCapacity)
                         ship.AI.OrderTroopToShip(target);
                     else
-                        ship.DoEscort(target);
+                        ship.AI.AddEscortGoal(target);
                 }
                 else
-                    ship.DoEscort(target);
+                    ship.AI.AddEscortGoal(target);
                 return true;
             }
 
