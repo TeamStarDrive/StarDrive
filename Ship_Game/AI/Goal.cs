@@ -167,6 +167,8 @@ namespace Ship_Game.AI
         {
         }
 
+        public virtual bool IsRaid => false;
+
         protected Goal(GoalType type)
         {
             this.type = type;

@@ -55,33 +55,10 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.TryAgain;
         }
 
-        public int NumRaids()
-        {
-            int numGoals = 0;
-            var goals = Pirates.Goals;
-            for (int i = 0; i < goals.Count; i++)
-            {
-                Goal goal = goals[i];
-                if (goal.TargetEmpire == TargetEmpire)
-                {
-                    switch (goal.type)
-                    {
-                        case GoalType.PirateRaidTransport:
-                        case GoalType.PirateRaidOrbital:
-                        case GoalType.PirateRaidCombatShip:
-                        case GoalType.PirateRaidColonyShip: numGoals += 1; break;
-                    }
-                }
-            }
-
-            return numGoals;
-        }
-
         int RaidStartChance()
         {
-            int numCurrentRaids = NumRaids();
-            if (numCurrentRaids >= Pirates.ThreatLevelFor(TargetEmpire))
-                return 0; // Limit maximum of raids to threat vs this empire
+            if (Pirates.CanDoAnotherRaid(out int numCurrentRaids))
+                return 0; // Limit maximum of concurrent raids
 
             int startChance = Pirates.ThreatLevelFor(TargetEmpire).LowerBound((int)CurrentGame.Difficulty * 2);
             startChance    /= numCurrentRaids.LowerBound(1);
