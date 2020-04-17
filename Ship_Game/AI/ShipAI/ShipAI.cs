@@ -403,6 +403,7 @@ namespace Ship_Game.AI
                 case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
                 case Plan.HoldPosition:             HoldPosition();                              break;
                 case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
+                case Plan.Escort:                   AIStateEscort(elapsedTime);                  break;
             }
 
             return false;
@@ -691,14 +692,15 @@ namespace Ship_Game.AI
                     OrderReturnToHangar();
                     return;
                 }
+
                 State = AIState.AwaitingOrders; //fbedard
                 return;
             }
-            if (Owner.GetStrength() <=0 ||
-                Owner.Mothership == null &&
-                EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) ||
-                Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
-                EscortTarget != Owner.Mothership)
+            if (Owner.GetStrength() <=0 
+                || Owner.Mothership == null && EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
+                || Owner.Mothership == null 
+                || !Owner.Mothership.AI.BadGuysNear 
+                || EscortTarget != Owner.Mothership)
             {
                 Orbit.Orbit(EscortTarget, elapsedTime);
                 return;
