@@ -34,6 +34,8 @@ namespace Ship_Game.Commands.Goals
             Pirates = empire.Pirates;
         }
 
+        public override bool IsRaid => true;
+
         GoalStep DetectAndSpawnRaidForce()
         {
             if (Pirates.PaidBy(TargetEmpire) || Pirates.VictimIsDefeated(TargetEmpire))
