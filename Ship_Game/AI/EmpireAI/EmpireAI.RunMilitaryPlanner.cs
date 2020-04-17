@@ -31,8 +31,9 @@ namespace Ship_Game.AI
 
             // this where the global AI attack stuff happens.
             Toughnuts = 0;
+            float maxStr = TaskList.Sum(t => t.MinimumTaskForceStrength);
             var olderWar = OwnerEmpire.GetOldestWar();
-            TaskList.Sort(t => t.Priority);
+            TaskList.Sort(t => t.Priority + (t.MinimumTaskForceStrength / maxStr) + (t.ToString().Length / 1000f));
             foreach (MilitaryTask task in TaskList)
             {
                 if (!task.QueuedForRemoval)
