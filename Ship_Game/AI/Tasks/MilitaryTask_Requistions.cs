@@ -114,7 +114,7 @@ namespace Ship_Game.AI.Tasks
                 if (fleetShips.InvasionTroopStrength + planetsTroopStrength >= NeededTroopStrength)
                     return true;
             }
-            return false;
+            return true;
         }
 
         /// <summary>
@@ -379,13 +379,13 @@ namespace Ship_Game.AI.Tasks
             int wantedNumberOfFleets = 1;
             if (TargetPlanet?.Owner != null)
             {
-                wantedNumberOfFleets = TargetPlanet.ParentSystem.PlanetList.Sum(p =>
+                wantedNumberOfFleets = TargetPlanet.ParentSystem.PlanetList.Max(p =>
                 {
                     if (p.Owner == TargetPlanet.Owner)
                     {
                         var extraFleets = TargetPlanet.Level;
-                        extraFleets    += TargetPlanet.HasWinBuilding ? 5 : 0;
-                        extraFleets    += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 5 : 0;
+                        extraFleets    += TargetPlanet.HasWinBuilding ? 2 : 0;
+                        extraFleets    += TargetPlanet.BuildingList.Any(b => b.IsCapital) ? 1 : 0;
                         return extraFleets;
                     }
                     return 0;
