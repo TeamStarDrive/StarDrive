@@ -317,15 +317,17 @@ namespace Ship_Game
                     {
                         var s = new ShipGoalSave
                         {
-                            Plan           = sg.Plan,
-                            Direction      = sg.Direction,
-                            VariableString = sg.VariableString,
-                            SpeedLimit     = sg.SpeedLimit,
-                            MovePosition   = sg.MovePosition,
-                            fleetGuid      = sg.Fleet?.Guid ?? Guid.Empty,
-                            goalGuid       = sg.Goal?.guid ?? Guid.Empty,
+                            Plan             = sg.Plan,
+                            Direction        = sg.Direction,
+                            VariableString   = sg.VariableString,
+                            SpeedLimit       = sg.SpeedLimit,
+                            MovePosition     = sg.MovePosition,
+                            fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
+                            goalGuid         = sg.Goal?.guid ?? Guid.Empty,
                             TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
+                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty
                         };
+
                         if (sg.Trade != null)
                         {
                             s.Trade = new TradePlanSave
@@ -741,6 +743,7 @@ namespace Ship_Game
             [Serialize(7)] public Guid TargetPlanetGuid;
             [Serialize(8)] public TradePlanSave Trade;
             [Serialize(9)] public AIState WantedState;
+            [Serialize(10)] public Guid TargetShipGuid;
         }
 
         public class TradePlanSave
