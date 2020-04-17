@@ -235,6 +235,14 @@ namespace Ship_Game.AI
             public float RoleCurrentMaintenance(RoleCounts.CombatRole role) => ShipCounts[role].CurrentMaintenance;
             public float RoleUnitMaintenance(RoleCounts.CombatRole role) => ShipCounts[role].PerUnitMaintenanceMax;
             public float RoleCount(RoleCounts.CombatRole role) => ShipCounts[role].CurrentCount;
+            public float RoleCountDesired(RoleCounts.CombatRole role) => ShipCounts[role].DesiredCount;
+            public bool ShouldScrap(RoleCounts.CombatRole role)
+            {
+                var roleCounts = ShipCounts[role];
+                return (roleCounts.CurrentCount <= roleCounts.DesiredCount + 1
+                       || roleCounts.CurrentMaintenance <= roleCounts.RoleBuildBudget + roleCounts.PerUnitMaintenanceMax);
+
+            }
             public bool OverBudget => Capacity < TotalMaintenance;
 
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
