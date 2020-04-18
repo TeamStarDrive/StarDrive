@@ -76,8 +76,12 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckIfHijacked()
         {
-            if (!TargetShip.Active || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+            if (TargetShip == null
+                || !TargetShip.Active
+                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+            {
                 return GoalStep.GoalFailed; // Target destroyed or escaped
+            }
 
             if (TargetShip.loyalty == Pirates.Owner)
             {
