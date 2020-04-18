@@ -826,8 +826,6 @@ namespace Ship_Game
                 AddToShipWeCanSpawn(Owner.data.PirateFighterBasic, "Basic Fighter");
                 AddToShipWeCanSpawn(Owner.data.PirateFrigateBasic, "Basic Frigate");
                 AddToShipWeCanSpawn(Owner.data.PirateSlaverBasic, "Basic Slaver");
-                AddToShipWeCanSpawn(Owner.data.PirateBaseBasic, "Basic Base");
-                AddToShipWeCanSpawn(Owner.data.PirateStationBasic, "Basic Station");
             }
             else
             {
