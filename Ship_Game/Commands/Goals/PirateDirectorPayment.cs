@@ -55,7 +55,6 @@ namespace Ship_Game.Commands.Goals
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
                 Pirates.TryLevelUp();
-                Pirates.ResetPaymentTimerFor(TargetEmpire);
                 Pirates.DecreaseThreatLevelFor(TargetEmpire);
                 Pirates.GetRelations(TargetEmpire).Treaty_NAPact       = true;
                 TargetEmpire.GetRelations(Pirates.Owner).Treaty_NAPact = true;
