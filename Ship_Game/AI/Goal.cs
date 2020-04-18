@@ -138,6 +138,7 @@ namespace Ship_Game.AI
                 case PirateBase.ID:             return new PirateBase();
                 case PirateDefendBase.ID:       return new PirateDefendBase();
                 case PirateProtection.ID:       return new PirateProtection();
+                case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
