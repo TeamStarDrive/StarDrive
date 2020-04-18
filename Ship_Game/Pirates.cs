@@ -5,6 +5,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using Ship_Game.GameScreens.Espionage;
 
 namespace Ship_Game
 {
@@ -226,6 +227,10 @@ namespace Ship_Game
                 Owner.SetAsDefeated();
                 Empire.Universe.NotificationManager.AddEmpireDiedNotification(Owner);
             }
+            else
+            {
+                AlertPlayerAboutPirateOps(PirateOpsWarning.LevelDown);
+            }
         }
 
         public void TryLevelUp(bool alwaysLevelUp = false)
@@ -239,8 +244,26 @@ namespace Ship_Game
                 if (NewLevelOperations(newLevel))
                 {
                     IncreaseLevel();
+                    AlertPlayerAboutPirateOps(PirateOpsWarning.LevelUp);
                     Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} are now level {Level} ----");
                 }
+            }
+        }
+
+        void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
+        {
+            if (!GetRelations(EmpireManager.Player).Known)
+                return;
+
+            float espionageStr = EspionageScreen.GetEspionageDefense(EmpireManager.Player);
+            if (espionageStr <= Level)
+                return; // not enough espionage strength to learn about pirate activities
+
+            switch (warningType)
+            {
+                case PirateOpsWarning.LevelUp:   Empire.Universe.NotificationManager.AddPiratesAreGettingStronger(Owner, Level); break;
+                case PirateOpsWarning.LevelDown: Empire.Universe.NotificationManager.AddPiratesAreGettingWeaker(Owner, Level);   break;
+                case PirateOpsWarning.Flagship:  Empire.Universe.NotificationManager.AddPiratesFlagshipSighted(Owner);           break;
             }
         }
 
@@ -286,14 +309,20 @@ namespace Ship_Game
                 Ship pirateBase = planetBases.RandItem();
                 Planet planet   = pirateBase.GetTether();
                 if (SpawnShip(PirateShipType.FlagShip, planet.Center, out Ship flagShip))
+                {
                     flagShip.AI.OrderToOrbit(planet);
+                    AlertPlayerAboutPirateOps(PirateOpsWarning.Flagship);
+                }
             }
             else if (GetBases(out Array<Ship> bases))
             {
                 Ship pirateBase = bases.RandItem();
                 Vector2 pos     = pirateBase.Center.GenerateRandomPointOnCircle(2000);
                 if (SpawnShip(PirateShipType.FlagShip, pos, out Ship flagShip))
+                {
                     flagShip.AI.AddEscortGoal(pirateBase);
+                    AlertPlayerAboutPirateOps(PirateOpsWarning.Flagship);
+                }
             }
         }
 
@@ -698,7 +727,7 @@ namespace Ship_Game
             using (shipList.AcquireReadLock())
                 enemyStr = shipList.Sum(s => s.BaseStrength);
 
-            float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.1f; // easy will be 10%
+            float maxStrModifier       = ((int)CurrentGame.Difficulty + 1) * 0.15f; // easy will be 15%
             float availableStrModifier = (float)Level / MaxLevel;
 
             return enemyStr * maxStrModifier * availableStrModifier;
@@ -870,6 +899,13 @@ namespace Ship_Game
             Habitable,
             DeepSpace,
             LoneSystem
+        }
+
+        enum PirateOpsWarning
+        {
+            LevelUp,
+            LevelDown,
+            Flagship
         }
 
         public enum TargetType

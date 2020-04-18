@@ -135,6 +135,42 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddPiratesAreGettingStronger(Empire pirates, int numBases)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message = $"Your Spies report that {pirates.Name} are getting stronger.\n" +
+                          $"They have around {numBases} bases.",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
+        public void AddPiratesAreGettingWeaker(Empire pirates, int numBases)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message = $"Your Spies report that {pirates.Name} number of bases " +
+                          $"was reduced\nto around {numBases}.",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
+        public void AddPiratesFlagshipSighted(Empire pirates)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message = $"Your Spies report that {pirates.Name} have a flagship\n" +
+                          "lurking somewhere in the galaxy.",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
         public void AddEnemyTroopsLandedNotification(Planet where, Empire invader, Empire player)
         {
             AddNotification(new Notification
