@@ -306,7 +306,6 @@ namespace Ship_Game.AI
                 && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
             {
                 Ship ship = pirateBases.FindMin(s => s.Center.Distance(Owner.Center));
-                Owner.AI.SetPriorityOrder(true);
                 OrderMoveToPirateBase(ship);
             }
             else
@@ -324,9 +323,11 @@ namespace Ship_Game.AI
 
         void OrderMoveToPirateBase(Ship pirateBase)
         {
-            AddEscortGoal(pirateBase);
-            OrderMoveTo(pirateBase.Center.GenerateRandomPointOnCircle(1000), Owner.Direction,
+            OrderMoveToNoStop(pirateBase.Center.GenerateRandomPointOnCircle(5000), Owner.Direction,
                 true, null, AIState.MoveTo);
+
+            AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
+            Owner.AI.SetPriorityOrder(true);
         }
 
         public void OrderQueueSpecificTarget(Ship toAttack)
