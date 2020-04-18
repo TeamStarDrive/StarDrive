@@ -154,6 +154,7 @@ namespace Ship_Game
                 oldLoyalty.TheyKilledOurShip(changeTo, ship);
                 changeTo.WeKilledTheirShip(oldLoyalty, ship);
                 ship.ClearFleet();
+                ship.AI.ClearOrders();
                 oldLoyalty.RemoveShip(ship);
 
                 oldLoyalty.GetEmpireAI().ThreatMatrix.RemovePin(ship);
@@ -166,6 +167,9 @@ namespace Ship_Game
                 changeTo.AddBoardSuccessNotification(ship);
                 ship.ScuttleTimer = -1f; // Cancel any active self destruct 
                 oldLoyalty.AddBoardedNotification(ship);
+                if (ship.loyalty.WeArePirates)
+                    ship.AI.OrderPirateFleeHome();
+
             }
 
             // this resets the spatial management
