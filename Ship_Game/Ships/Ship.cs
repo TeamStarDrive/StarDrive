@@ -1391,6 +1391,7 @@ namespace Ship_Game.Ships
 
             CurrentStrength = CalculateShipStrength();
             UpdateWeaponRanges();
+            UpdateMaxVelocity();
             SetMaxFTLSpeed();
             SetMaxSTLSpeed();
         }
