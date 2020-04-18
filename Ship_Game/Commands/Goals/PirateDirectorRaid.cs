@@ -42,7 +42,6 @@ namespace Ship_Game.Commands.Goals
             if (RandomMath.RollDice(startChance))
             {
                 GoalType raid  = GetRaid();
-                // Pirates.AddGoalRaidOrbital(TargetEmpire); // TODO for testing
                 switch (raid)
                 {
                     case GoalType.PirateRaidTransport:  Pirates.AddGoalRaidTransport(TargetEmpire);      break;
@@ -75,6 +74,7 @@ namespace Ship_Game.Commands.Goals
         {
             int raid = RandomMath.RollDie(Pirates.Level.UpperBound(Pirates.ThreatLevelFor(TargetEmpire)));
 
+            //return GoalType.PirateRaidColonyShip; // TODO for testing
             switch (raid)
             {
                 default:
