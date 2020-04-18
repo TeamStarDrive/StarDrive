@@ -10,7 +10,7 @@ namespace Ship_Game.Commands.Goals
 {
     public class PirateAI : Goal
     {
-        public const string ID = "CorsairAI";
+        public const string ID = "PirateAI";
         public override string UID => ID;
         private Pirates Pirates;
 
@@ -28,6 +28,9 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep PiratePlan()
         {
+            if (!empire.WeArePirates)
+                return GoalStep.GoalFailed; // This is mainly for save compatibility
+
             Pirates = empire.Pirates;
             Pirates.Init();
             Pirates.TryLevelUp(alwaysLevelUp: true); // build initial base
