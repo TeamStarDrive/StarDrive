@@ -1,6 +1,7 @@
 ﻿using System;
 using Ship_Game.Ships;
 using Microsoft.Xna.Framework;
+using Ship_Game.AI.ShipMovement.CombatManeuvers;
 
 namespace Ship_Game.AI.CombatTactics
 {
@@ -9,27 +10,33 @@ namespace Ship_Game.AI.CombatTactics
      *      If out of reach, approach. 
      *      When in reach, maneuver to keep a range that is close to the limit, while facing towards enemy.
      */
-    internal sealed class Artillery : ShipAIPlan
+    internal sealed class Artillery : CombatMovement
     {
         public Artillery(ShipAI ai) : base(ai)
         {
         }
 
-        // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
-        public override void Execute(float elapsedTime, ShipAI.ShipGoal g)
+        protected override void OverrideCombatValues(float elapsedTime)
         {
+            DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center) + 0.5f * OwnerTarget.Radius;
+        }
+
+        // @note We don't cache min/max distance, because combat state and target can change most of the dynamics
+        protected override CombatMoveState ExecuteAttack(float elapsedTime)
+        {
+            Ship target = AI.Target;
+            
             float maxDistance = Owner.DesiredCombatRange - ((int)Owner.Radius).RoundUpToMultipleOf(10);
             float minDistance = Math.Max(Owner.DesiredCombatRange - 500f, Owner.DesiredCombatRange * 0.9f);
-
             // in general, arty stance is what you use for long range ships.
             // This is fail safe distance logic for large ships with super short range going up against other large ships.
-            Ship target = AI.Target;
+           
             float collisionRange = Owner.Radius + target.Radius;
             if (minDistance <= collisionRange)       minDistance = collisionRange;
             if (maxDistance < collisionRange + 150f) maxDistance = collisionRange + 150f;
 
-            float distanceToTarget = Owner.Center.Distance(target.Center) + 0.5f * target.Radius;
-            if (distanceToTarget > maxDistance)
+            
+            if (DistanceToTarget > maxDistance)
             {
                 // if more than <interceptBuffer> out of reach, move on a intercept course. Does not have to be 1500.
                 // something like closingSpeed * 2..3 seconds would be fine, so the there is time for optimal align.
@@ -37,7 +44,7 @@ namespace Ship_Game.AI.CombatTactics
                 // maybe (Owner.Velocity - Target.Velocity).Length * 2.0f; to make it adaptable to ship speeds.
                 const float interceptBuffer = 1500f;
 
-                if (distanceToTarget > maxDistance + interceptBuffer) 
+                if (DistanceToTarget > maxDistance + interceptBuffer) 
                 {
                     // This move will keep the ship aligned with the intercept point (for fastest closing of distance).
                     // You won't notice when charging head to head / chasing directly behind, but there are cases 
@@ -49,24 +56,27 @@ namespace Ship_Game.AI.CombatTactics
                     // spend the last bit of the firing gap on a shot impact course, for optimal alignment.
                     AI.SubLightMoveTowardsPosition(Owner.PredictImpact(target), elapsedTime);
                 }
+                return CombatMoveState.Approach;
             }
-            else
-            {
-                // adjust to keep facing in intended firing direction.
-                AI.RotateTowardsPosition(Owner.PredictImpact(target), elapsedTime, 0.05f);
 
-                if (distanceToTarget > minDistance)
-                {
-                    // stop, we are close enough.
-                    AI.ReverseThrustUntilStopped(elapsedTime);
-                }
-                else if (distanceToTarget < (maxDistance - 150f))
-                {
-                    // we are too close, back away.
-                    float distanceToBackPedal = (maxDistance - 150f) - distanceToTarget;
-                    Owner.SubLightAccelerate(speedLimit: distanceToBackPedal, Thrust.Reverse);
-                }
+            // adjust to keep facing in intended firing direction.
+            AI.RotateTowardsPosition(Owner.PredictImpact(target), elapsedTime, 0.05f);
+
+            if (DistanceToTarget > minDistance)
+            {
+                // stop, we are close enough.
+                AI.ReverseThrustUntilStopped(elapsedTime);
+                return CombatMoveState.Hold;
             }
+
+            if (DistanceToTarget < (maxDistance - 150f))
+            {
+                // we are too close, back away.
+                float distanceToBackPedal = (maxDistance - 150f) - DistanceToTarget;
+                Owner.SubLightAccelerate(speedLimit: distanceToBackPedal, Thrust.Reverse);
+                return CombatMoveState.Retrograde;
+            }
+            return CombatMoveState.Error;
         }
     }
 }

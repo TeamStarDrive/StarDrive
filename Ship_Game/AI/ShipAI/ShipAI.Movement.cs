@@ -334,7 +334,7 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 // if chasing something, and within weapons range
-                if (HasPriorityTarget && distance < Owner.DesiredCombatRange * 0.85f)
+                if (HasPriorityTarget && distance < Owner.DesiredCombatRange * 0.25f)
                 {
                     Owner.HyperspaceReturn();
                 }
