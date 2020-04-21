@@ -8,7 +8,7 @@
   <DescriptionText>Your Forces encountered a mysterious Organization called "The Draugar". They have sent you this message:</DescriptionText>
   <MessageList>
     <Message>
-      <Text>Ahh, we can smell your flash even from here. Don't worry, tasty SING , we will contact you soon enough. But for now, we must leave.</Text>
+      <Text>Ahh, we can smell your flesh even from here. Don't worry, tasty SING , we will contact you soon enough. But for now, we must leave.</Text>
       <SetEncounterStep>0</SetEncounterStep>
       <ResponseOptions>
         <Response>
