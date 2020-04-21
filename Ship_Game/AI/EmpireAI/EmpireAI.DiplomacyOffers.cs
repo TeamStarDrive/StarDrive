@@ -100,7 +100,7 @@ namespace Ship_Game.AI
                     string name = us.data.DiplomaticPersonality.Name;
                     string str = name;
 
-                    if (name != null)
+                    if (name != null) // Todo: This screams Enum!
                     {
                         if (str == "Pacifist")
                         {

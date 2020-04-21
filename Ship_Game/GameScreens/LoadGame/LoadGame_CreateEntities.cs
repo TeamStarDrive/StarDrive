@@ -69,6 +69,10 @@ namespace Ship_Game
             e.Money = sdata.Money;
             e.GetEmpireAI().AreasOfOperations = sdata.AOs;
             e.RestoreUnserializableDataFromSave();
+
+            if (e.WeArePirates)
+                e.Pirates.RestoreFromSave(sdata);
+
             return e;
         }
 
@@ -168,6 +172,7 @@ namespace Ship_Game
                 Sun           = SunType.FindSun(ssd.SunPath), // old SunPath is actually the ID @todo RENAME
             };
 
+            system.SetPiratePresence(ssd.PiratePresence);
             system.AsteroidsList.AddRange(ssd.AsteroidsList);
             system.MoonList.AddRange(ssd.Moons);
             system.SetExploredBy(ssd.ExploredBy);
@@ -176,7 +181,11 @@ namespace Ship_Game
             {
                 if (ring.Asteroids)
                 {
-                    system.RingList.Add(new SolarSystem.Ring { Asteroids = true });
+                    system.RingList.Add(new SolarSystem.Ring
+                    {
+                        Asteroids = true,
+                        OrbitalDistance = ring.OrbitalDistance
+                    });
                 }
                 else
                 {
@@ -476,7 +485,9 @@ namespace Ship_Game
                     if      (gsave.colonyShipGuid == s.guid) g.FinishedShip = s;
                     else if (gsave.beingBuiltGUID == s.guid) g.ShipToBuild  = s;
                     else if (gsave.OldShipGuid    == s.guid) g.OldShip      = s;
+                    else if (gsave.TargetShipGuid == s.guid) g.TargetShip   = s;
                 }
+
                 if (g.type == GoalType.Refit && gsave.ToBuildUID != null)
                 {
                     Ship shipToBuild = ResourceManager.GetShipTemplate(gsave.ToBuildUID, false);
@@ -485,6 +496,11 @@ namespace Ship_Game
                     else
                         Log.Error($"Could not find ship name {gsave.ToBuildUID} in dictionary when trying to load Refit goal!");
                 }
+
+                if (gsave.TargetEmpireId > 0)
+                    g.TargetEmpire = EmpireManager.GetEmpireById(gsave.TargetEmpireId);
+
+                g.PostInit();
                 e.GetEmpireAI().Goals.Add(g);
             }
         }

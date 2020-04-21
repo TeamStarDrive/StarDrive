@@ -11,6 +11,8 @@ namespace Ship_Game
         public bool FromGame;
         public string UID;
         public Encounter encounter;
+        private readonly SubTexture EmpireTex;
+        private readonly Color EmpireColor;
 
         Rectangle ResponseRect;
         Rectangle BlackRect;
@@ -29,6 +31,11 @@ namespace Ship_Game
             FromGame = true;
             TransitionOnTime = 0.25f;
             TransitionOffTime = 0f;
+            if (targetEmp != null)
+            {
+                EmpireTex = ResourceManager.Flag(targetEmp.data.Traits.FlagIndex);
+                EmpireColor = targetEmp.EmpireColor;
+            }
         }
 
         public static void Show(UniverseScreen s, Empire player, Empire them, Encounter e)
@@ -71,10 +78,17 @@ namespace Ship_Game
                 batch.DrawString(Fonts.Arial12Bold, "Your Response:", drawCurs, Color.White);
                 ResponseSL.Draw(batch);
             }
+
+            if (EmpireTex != null)
+            {
+                batch.FillRectangle(EmpireFlagRect, Color.Black);
+                batch.Draw(EmpireTex, EmpireFlagRect, EmpireColor);
+            }
         }
 
         public override bool HandleInput(InputState input)
         {
+            CanEscapeFromScreen = encounter.Current.EndTransmission;
             if (encounter.Current.EndTransmission && (input.Escaped || input.RightMouseClick))
             {
                 ExitScreen();

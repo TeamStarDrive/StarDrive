@@ -319,21 +319,11 @@ namespace Ship_Game
         {
             if (SelectedShip == null)
                 return;
+
             if (SelectedShip.loyalty.isFaction)
-            {
-                foreach (Encounter e in ResourceManager.Encounters)
-                {
-                    if (SelectedShip.loyalty.data.Traits.Name == e.Faction && player.GetRelations(SelectedShip.loyalty).EncounterStep == e.Step)
-                    {
-                        EncounterPopup.Show(this, player, SelectedShip.loyalty, e);
-                        break;
-                    }
-                }
-            }
+                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.loyalty, this);
             else
-            {
                 DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
-            }
         }
 
         void CreateProjectionMatrix()
@@ -470,7 +460,7 @@ namespace Ship_Game
                     }
                     else
                     {
-                        // Remnants or Corsairs may be null if Mods disable default Races
+                        // Remnants may be null if Mods disable default Races
                         if (EmpireManager.Remnants != null)
                         {
                             foreach (string key in p.Guardians)
@@ -478,13 +468,6 @@ namespace Ship_Game
                                 Ship guardian = Ship.CreateShipAt(key, EmpireManager.Remnants, p, RandomMath.Vector2D(p.ObjectRadius * 2), true);
                                 guardian.IsGuardian = true;
                             }
-                        }
-                        if (p.CorsairPresence && EmpireManager.Corsairs != null)
-                        {
-                            Ship.CreateShipAt("Corsair Asteroid Base", EmpireManager.Corsairs, p, true).TetherToPlanet(p);
-                            Ship.CreateShipAt("Corsair", EmpireManager.Corsairs, p, true);
-                            Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
-                            Ship.CreateShipAt("Captured Gunship", EmpireManager.Corsairs, p, true);
                         }
                     }
                 }

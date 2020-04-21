@@ -232,9 +232,11 @@ namespace Ship_Game.AI
             AddShipGoal(Plan.DefendSystem, AIState.SystemDefender);
         }
 
-        public void AddEscortGoal(Ship targetShip)
+        public void AddEscortGoal(Ship targetShip, bool clearOrders = true)
         {
-            ClearOrders();
+            if (clearOrders)
+                ClearOrders();
+
             AddShipGoal(Plan.Escort, targetShip, AIState.Escort);
         }
 

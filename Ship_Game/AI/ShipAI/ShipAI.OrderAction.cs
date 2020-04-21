@@ -298,6 +298,38 @@ namespace Ship_Game.AI
             AddOrbitPlanetGoal(p);
         }
 
+        public void OrderPirateFleeHome(bool signalRetreat = false)
+        {
+
+            if (Owner.loyalty.WeArePirates 
+                && !Owner.IsPlatformOrStation 
+                && Owner.loyalty.Pirates.GetBases(out Array<Ship> pirateBases))
+            {
+                Ship ship = pirateBases.FindMin(s => s.Center.Distance(Owner.Center));
+                OrderMoveToPirateBase(ship);
+            }
+            else
+            {
+                ClearOrders();
+            }
+
+            if (signalRetreat)
+                using (FriendliesNearby.AcquireReadLock())
+                {
+                    for (int i = 0; i < FriendliesNearby.Count; i++)
+                        FriendliesNearby[i].AI.OrderPirateFleeHome();
+                }
+        }
+
+        void OrderMoveToPirateBase(Ship pirateBase)
+        {
+            OrderMoveToNoStop(pirateBase.Center.GenerateRandomPointOnCircle(5000), Owner.Direction,
+                true, null, AIState.MoveTo);
+
+            AddEscortGoal(pirateBase, clearOrders: false); // Orders are cleared in OrderMoveTo
+            Owner.AI.SetPriorityOrder(true);
+        }
+
         public void OrderQueueSpecificTarget(Ship toAttack)
         {
             if (TargetQueue.Count == 0 && Target != null && Target.Active && Target != toAttack)
@@ -358,6 +390,13 @@ namespace Ship_Game.AI
         public void OrderRebaseToNearest()
         {
             ClearWayPoints();
+
+            if (Owner.loyalty.WeArePirates)
+            {
+                OrderPirateFleeHome();
+                return;
+            }
+
             Planet planet = Owner.loyalty.GetPlanets().Filter(p => p.FreeTilesWithRebaseOnTheWay(Owner.loyalty) > 0)
                                                       .FindMin(p => Vector2.Distance(Owner.Center, p.Center));
 

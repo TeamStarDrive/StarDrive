@@ -414,7 +414,8 @@ namespace Ship_Game.Ships
             if (Owner == null)
                 return false;
 
-            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() == null);
+            ShipModule hangar = AllTroopBays.Find(hangarSpot => hangarSpot.GetHangarShip() == null
+                                                          || hangarSpot.GetHangarShip().TroopCount == 0);
             if (hangar == null)
                 return false;
 
@@ -526,7 +527,10 @@ namespace Ship_Game.Ships
         /// <returns></returns>
         public bool AssaultTargetShip(Ship targetShip)
         {
-            if (Owner.Carrier.AnyAssaultOpsAvailable && targetShip != null)
+            if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
+                return false;
+
+            if (Owner.Carrier.AnyAssaultOpsAvailable)
             {
                 float totalTroopStrengthToCommit = MaxTroopStrengthInShipToCommit + MaxTroopStrengthInSpaceToCommit;
                 float enemyStrength = targetShip.BoardingDefenseTotal * 1.5f; // FB: assume the worst, ensure boarding success!
@@ -539,7 +543,8 @@ namespace Ship_Game.Ships
                     for (int i = 0; i < AllTroopBays.Length; i++)
                     {
                         ShipModule hangar = AllTroopBays[i];
-                        if (hangar.GetHangarShip() != null)
+                        Ship hangarShip = hangar.GetHangarShip();
+                        if (hangarShip != null && hangarShip.AI.State != AIState.Boarding)
                             hangar.GetHangarShip().AI.OrderTroopToBoardShip(targetShip);
                     }
                     return true;
