@@ -25,7 +25,16 @@ namespace Ship_Game.AI
         Refit,
         BuildOrbital,
         RemnantAI,
-        CorsairAI
+        PirateAI,
+        PirateDirectorPayment,
+        PirateDirectorRaid,
+        PirateBase,
+        PirateRaidTransport,
+        PirateRaidOrbital,
+        PirateRaidColonyShip,
+        PirateRaidCombatShip,
+        PirateDefendBase,
+        PirateProtection
     }
 
     public enum GoalStep
@@ -56,6 +65,8 @@ namespace Ship_Game.AI
         public Ship ShipToBuild;  // this is a template
         private Ship ShipBuilt; // this is the actual ship that was built
         public Ship OldShip;      // this is the ship which needs refit
+        public Ship TargetShip;      // this is targeted by this goal (raids)
+        public Empire TargetEmpire; // Empire target of this goal (for instance, pirate goals)
         public string StepName => Steps[Step].Method.Name;
         protected bool MainGoalCompleted;
         protected Func<GoalStep>[] Steps = Empty<Func<GoalStep>>.Array;
@@ -117,7 +128,17 @@ namespace Ship_Game.AI
                 case RefitShip.ID:              return new RefitShip();
                 case BuildOrbital.ID:           return new BuildOrbital();
                 case RemnantAI.ID:              return new RemnantAI();
-                case CorsairAI.ID:              return new CorsairAI();
+                case PirateAI.ID:               return new PirateAI();
+                case PirateDirectorPayment.ID:  return new PirateDirectorPayment();
+                case PirateDirectorRaid.ID:     return new PirateDirectorRaid();
+                case PirateRaidTransport.ID:    return new PirateRaidTransport();
+                case PirateRaidOrbital.ID:      return new PirateRaidOrbital();
+                case PirateRaidColonyShip.ID:   return new PirateRaidColonyShip();
+                case PirateRaidCombatShip.ID:   return new PirateRaidCombatShip();
+                case PirateBase.ID:             return new PirateBase();
+                case PirateDefendBase.ID:       return new PirateDefendBase();
+                case PirateProtection.ID:       return new PirateProtection();
+                case "CorsairAI":               return new PirateAI(); // Save compatibility remove in 2021 :)
                 default: throw new ArgumentException($"Unrecognized Goal UID: {uid}");
             }
         }
@@ -139,8 +160,15 @@ namespace Ship_Game.AI
                 Log.Error($"Deserialize {g.type} invalid Goal.Step: {g.Step}, Steps.Length: {g.Steps.Length}");
                 g.Step = g.Steps.Length-1;
             }
+
             return g;
         }
+
+        public virtual void PostInit()
+        {
+        }
+
+        public virtual bool IsRaid => false;
 
         protected Goal(GoalType type)
         {

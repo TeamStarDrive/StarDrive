@@ -112,14 +112,15 @@ namespace Ship_Game
             {
                 SaveData.SolarSystemDataList.Add(new SolarSystemSaveData
                 {
-                    Name     = system.Name,
-                    guid     = system.guid,
-                    Position = system.Position,
-                    SunPath  = system.Sun.Id,
-                    AsteroidsList = system.AsteroidsList.Clone(),
-                    Moons         = system.MoonList.Clone(),
-                    ExploredBy = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
-                    RingList   = system.RingList.Select(ring => ring.Serialize()),
+                    Name           = system.Name,
+                    guid           = system.guid,
+                    Position       = system.Position,
+                    SunPath        = system.Sun.Id,
+                    AsteroidsList  = system.AsteroidsList.Clone(),
+                    Moons          = system.MoonList.Clone(),
+                    ExploredBy     = system.ExploredByEmpires.Select(e => e.data.Traits.Name),
+                    RingList       = system.RingList.Select(ring => ring.Serialize()),
+                    PiratePresence = system.PiratePresence
                 });
             }
 
@@ -147,7 +148,17 @@ namespace Ship_Game
                 empireToSave.TechTree             = new Array<TechEntry>();
                 empireToSave.FastVsBigFreighterRatio  = e.FastVsBigFreighterRatio;
                 empireToSave.AverageFreighterCargoCap = e.AverageFreighterCargoCap;
-                
+
+                if (e.WeArePirates)
+                {
+                    empireToSave.PirateLevel         = e.Pirates.Level;
+                    empireToSave.PirateThreatLevels  = e.Pirates.ThreatLevels;
+                    empireToSave.PiratePaymentTimers = e.Pirates.PaymentTimers;
+                    empireToSave.SpawnedShips        = e.Pirates.SpawnedShips;
+                    empireToSave.ShipsWeCanSpawn     = e.Pirates.ShipsWeCanSpawn;
+                }
+
+
                 foreach (AO area in e.GetEmpireAI().AreasOfOperations)
                 {
                     area.PrepareForSave();
@@ -223,7 +234,7 @@ namespace Ship_Game
                         ShipLevel     = g.ShipLevel,
                         VanityName    = g.VanityName,
                         TetherTarget  = g.TetherTarget,
-                        TetherOffset  = g.TetherOffset
+                        TetherOffset  = g.TetherOffset,
                     };
                     if (g.FinishedShip != null)       gdata.colonyShipGuid            = g.FinishedShip.guid;
                     if (g.ColonizationTarget != null) gdata.markedPlanetGuid          = g.ColonizationTarget.guid;
@@ -231,6 +242,8 @@ namespace Ship_Game
                     if (g.Fleet != null)              gdata.fleetGuid                 = g.Fleet.Guid;
                     if (g.ShipToBuild != null)        gdata.beingBuiltGUID            = g.ShipToBuild.guid;
                     if (g.OldShip != null)            gdata.OldShipGuid               = g.OldShip.guid;
+                    if (g.TargetShip != null)         gdata.TargetShipGuid            = g.TargetShip.guid;
+                    if (g.TargetEmpire != null)       gdata.TargetEmpireId            = g.TargetEmpire.Id;
 
                     return gdata;
                 });
@@ -304,15 +317,17 @@ namespace Ship_Game
                     {
                         var s = new ShipGoalSave
                         {
-                            Plan           = sg.Plan,
-                            Direction      = sg.Direction,
-                            VariableString = sg.VariableString,
-                            SpeedLimit     = sg.SpeedLimit,
-                            MovePosition   = sg.MovePosition,
-                            fleetGuid      = sg.Fleet?.Guid ?? Guid.Empty,
-                            goalGuid       = sg.Goal?.guid ?? Guid.Empty,
+                            Plan             = sg.Plan,
+                            Direction        = sg.Direction,
+                            VariableString   = sg.VariableString,
+                            SpeedLimit       = sg.SpeedLimit,
+                            MovePosition     = sg.MovePosition,
+                            fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
+                            goalGuid         = sg.Goal?.guid ?? Guid.Empty,
                             TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
+                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty
                         };
+
                         if (sg.Trade != null)
                         {
                             s.Trade = new TradePlanSave
@@ -540,6 +555,11 @@ namespace Ship_Game
             [Serialize(17)] public string CurrentConstructor;
             [Serialize(18)] public float FastVsBigFreighterRatio;
             [Serialize(19)] public int AverageFreighterCargoCap;
+            [Serialize(20)] public int PirateLevel;
+            [Serialize(21)] public Map<int, int> PirateThreatLevels;
+            [Serialize(22)] public Map<int, int> PiratePaymentTimers;
+            [Serialize(23)] public Array<Guid> SpawnedShips;
+            [Serialize(24)] public Array<string> ShipsWeCanSpawn;
         }
 
         public class FleetSave
@@ -583,6 +603,8 @@ namespace Ship_Game
             [Serialize(13)] public int ShipLevel;
             [Serialize(14)] public Guid TetherTarget;
             [Serialize(15)] public Vector2 TetherOffset;
+            [Serialize(16)] public Guid TargetShipGuid;
+            [Serialize(17)] public int TargetEmpireId;
         }
 
         public class GSAISAVE
@@ -721,6 +743,7 @@ namespace Ship_Game
             [Serialize(7)] public Guid TargetPlanetGuid;
             [Serialize(8)] public TradePlanSave Trade;
             [Serialize(9)] public AIState WantedState;
+            [Serialize(10)] public Guid TargetShipGuid;
         }
 
         public class TradePlanSave
@@ -776,7 +799,8 @@ namespace Ship_Game
             [Serialize(4)] public RingSave[] RingList;
             [Serialize(5)] public Array<Asteroid> AsteroidsList;
             [Serialize(6)] public Array<Moon> Moons;
-            [Serialize(7)] public string[] ExploredBy;            
+            [Serialize(7)] public string[] ExploredBy;
+            [Serialize(8)] public bool PiratePresence;
         }
 
         public struct SpaceRoadSave
