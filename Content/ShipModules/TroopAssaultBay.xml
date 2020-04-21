@@ -48,6 +48,7 @@
   <hangarTimerConstant>30</hangarTimerConstant>
   <IsTroopBay>true</IsTroopBay>
   <TroopCapacity>1</TroopCapacity>
+  <TroopsSupplied>1</TroopsSupplied>
   <OrdinanceCapacity>50</OrdinanceCapacity>
 
   <!-- for shield items -->
