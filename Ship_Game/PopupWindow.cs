@@ -24,6 +24,7 @@ namespace Ship_Game
         public Rectangle TitleRect;
         public Rectangle TitleLeft;
         public Rectangle TitleRight;
+        public Rectangle EmpireFlagRect;
         public Rectangle MidContainer;
         private Rectangle MidSepTop;
         private Rectangle MidSepBot;
@@ -50,6 +51,7 @@ namespace Ship_Game
 
         public override void Draw(SpriteBatch batch)
         {
+            Close.Visible = CanEscapeFromScreen;
             batch.Begin();
 
             // 4 corners
@@ -131,6 +133,8 @@ namespace Ship_Game
             MidSepBot    = new Rectangle(MidContainer.X, MidContainer.Y + MidContainer.Height - 2, MidContainer.Width, 2);
             BottomBigFill = new Rectangle(MidContainer.X, MidContainer.Y + MidContainer.Height, 
                 MidContainer.Width, BottomFill.Y - (MidContainer.Y + MidContainer.Height));
+
+            EmpireFlagRect = new Rectangle(TitleRight.X-75, TitleRight.Y-22, 45, 45);
 
             Close = CloseButton(Rect.X + Rect.Width - 38, Rect.Y + 15);
 
