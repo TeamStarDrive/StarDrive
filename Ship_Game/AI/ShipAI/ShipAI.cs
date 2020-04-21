@@ -224,9 +224,9 @@ namespace Ship_Game.AI
 
         void SetUpSupplyEscort(Ship supplyShip, string supplyType = "All")
         {
-            EscortTarget = supplyShip;
             IgnoreCombat = true;
             ClearOrders(AIState.ResupplyEscort);
+            EscortTarget = supplyShip;
 
             float strafeOffset = Owner.Radius + supplyShip.Radius + UniverseRandom.RandomBetween(200, 1000);
             AddShipGoal(Plan.ResupplyEscort, Vector2.Zero, UniverseRandom.RandomDirection()
@@ -242,6 +242,8 @@ namespace Ship_Game.AI
                 nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
                 if (nearestRallyPoint != null)
                     OrderResupply(nearestRallyPoint, cancelOrders);
+                else if (Owner.loyalty.WeArePirates)
+                    OrderPirateFleeHome();
                 else
                     OrderFlee(true);
             }
@@ -401,6 +403,7 @@ namespace Ship_Game.AI
                 case Plan.RebaseToShip:             DoRebaseToShip(elapsedTime);                 break;
                 case Plan.HoldPosition:             HoldPosition();                              break;
                 case Plan.HoldPositionOffensive:    HoldPositionOffensive();                     break;
+                case Plan.Escort:                   AIStateEscort(elapsedTime);                  break;
             }
 
             return false;
@@ -618,15 +621,15 @@ namespace Ship_Game.AI
 
         public void OrderTroopToBoardShip(Ship s)
         {
-            EscortTarget = s;
             ClearOrders(priority: true);
+            EscortTarget = s;
             AddShipGoal(Plan.BoardShip, State);
         }
 
         public void OrderTroopToShip(Ship s)
         {
-            EscortTarget = s;
             ClearOrders();
+            EscortTarget = s;
             AddShipGoal(Plan.TroopToShip, State);
         }
 
@@ -689,14 +692,18 @@ namespace Ship_Game.AI
                     OrderReturnToHangar();
                     return;
                 }
+
                 State = AIState.AwaitingOrders; //fbedard
+                if (Owner.loyalty.WeArePirates)
+                    OrderPirateFleeHome();
+
                 return;
             }
-            if (Owner.GetStrength() <=0 ||
-                Owner.Mothership == null &&
-                EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) ||
-                Owner.Mothership == null || !Owner.Mothership.AI.BadGuysNear ||
-                EscortTarget != Owner.Mothership)
+            if (Owner.GetStrength() <=0 
+                || Owner.Mothership == null && EscortTarget.Center.InRadius(Owner.Center, Owner.SensorRange) 
+                || Owner.Mothership == null 
+                || !Owner.Mothership.AI.BadGuysNear 
+                || EscortTarget != Owner.Mothership)
             {
                 Orbit.Orbit(EscortTarget, elapsedTime);
                 return;

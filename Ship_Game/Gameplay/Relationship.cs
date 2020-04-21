@@ -42,7 +42,7 @@ namespace Ship_Game.Gameplay
         [Serialize(6)] public int turnsSinceLastContact;
         [Serialize(7)] public bool WarnedAboutShips;
         [Serialize(8)] public bool WarnedAboutColonizing;
-        [Serialize(9)] public int EncounterStep;
+        [Serialize(9)] public int PlayerContactStep; //  Encounter Step to use when the player contacts this faction
 
         [Serialize(10)] public float Anger_FromShipsInOurBorders;
         [Serialize(11)] public float Anger_TerritorialConflict;
@@ -101,6 +101,8 @@ namespace Ship_Game.Gameplay
         [Serialize(57)] public float FearUsed;
         [Serialize(58)] public float TheyOweUs;
         [Serialize(59)] public float WeOweThem;
+        [Serialize(60)] public int TurnsAtWar;
+        [Serialize(61)] public int FactionContactStep;  // Encounter Step to use when the faction contacts the player;
         [XmlIgnore] [JsonIgnore] public EmpireRiskAssessment Risk;
         [XmlIgnore][JsonIgnore]
         public Empire Them => EmpireManager.GetEmpireByName(Name);
@@ -548,7 +550,11 @@ namespace Ship_Game.Gameplay
             if (GlobalStats.RestrictAIPlayerInteraction && Empire.Universe.PlayerEmpire == them)
                 return;
 
+            TurnsAtWar = AtWar ? TurnsAtWar + 1 : 0;
             Risk.UpdateRiskAssessment(us);
+
+            if (us.isFaction)
+                return;
 
             if (us.isPlayer)
             {
@@ -589,7 +595,7 @@ namespace Ship_Game.Gameplay
                 AtWar = false;
 
             UpdateIntelligence(us, them);
-            if (AtWar && ActiveWar != null)
+            if (AtWar && ActiveWar != null) 
             {
                 ActiveWar.TurnsAtWar += 1f;
             }
@@ -610,14 +616,7 @@ namespace Ship_Game.Gameplay
             }
             FearEntries.ApplyPendingRemovals();
 
-            if (!Treaty_Alliance)
-            {
-                TurnsAllied = 0;
-            }
-            else
-            {
-                TurnsAllied += 1;
-            }
+            TurnsAllied = Treaty_Alliance ? TurnsAllied + 1 : 0;
 
             DTrait dt = us.data.DiplomaticPersonality;
             if (Posture == Posture.Friendly)

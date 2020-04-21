@@ -251,6 +251,27 @@ namespace Ship_Game
         // FB - Minimum Troop Level
         [Serialize(109)] public int MinimumTroopLevel;
 
+        // FB - For Pirates
+        [Serialize(110)] public string PirateSlaverBasic;
+        [Serialize(111)] public string PirateSlaverImproved;
+        [Serialize(112)] public string PirateSlaverAdvanced;
+        [Serialize(113)] public string PirateFighterBasic;
+        [Serialize(114)] public string PirateFighterImproved;
+        [Serialize(115)] public string PirateFighterAdvanced;
+        [Serialize(116)] public string PirateFrigateBasic;
+        [Serialize(117)] public string PirateFrigateImproved;
+        [Serialize(118)] public string PirateFrigateAdvanced;
+        [Serialize(119)] public string PirateBaseBasic;
+        [Serialize(120)] public string PirateBaseImproved;
+        [Serialize(121)] public string PirateBaseAdvanced;
+        [Serialize(122)] public string PirateStationBasic;
+        [Serialize(123)] public string PirateStationImproved;
+        [Serialize(124)] public string PirateStationAdvanced;
+        [Serialize(125)] public string PirateFlagShip;
+        [Serialize(126)] public bool IsPirateFaction;
+        [Serialize(127)] public int PiratePaymentPeriodTurns = 100; 
+        [Serialize(128)] public int MinimumColoniesForStartPayment = 3;
+
         [XmlIgnore][JsonIgnore] public string Name => Traits.Name;
         [XmlIgnore][JsonIgnore] public string ArchetypeName => PortraitName;
 

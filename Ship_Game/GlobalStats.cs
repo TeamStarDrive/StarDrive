@@ -80,6 +80,7 @@ namespace Ship_Game
         public static bool ExtraNotifications;
         public static bool PauseOnNotification;
         public static int ExtraPlanets;
+        public static bool DisablePirates;
         public static float ShipMaintenanceMulti = 1;
         public static float MinimumWarpRange;
 

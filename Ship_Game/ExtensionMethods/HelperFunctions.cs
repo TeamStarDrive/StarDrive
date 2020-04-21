@@ -93,6 +93,15 @@ namespace Ship_Game
                 owner.FirstFleet = fleet;
         }
 
+        public static bool IsInUniverseBounds(float universeSize, Vector2 pos)
+        {
+            float x = universeSize;
+            float y = universeSize;
+
+            return -x < pos.X && pos.X < x
+                && -y < pos.Y && pos.Y < y;
+        }
+
         public static void Compress(FileInfo fi)
         {
             if (fi.Extension == ".gz" || (fi.Attributes & FileAttributes.Hidden) > 0)
