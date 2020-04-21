@@ -122,6 +122,55 @@ namespace Ship_Game
             }, "sd_troop_march_01");
         }
 
+        public void AddWeProtectedYou(Empire pirates)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message   = $"We returned the ship which was raided by rival pirates\n " +
+                            "due to your protection contract with us, you're welcome.",
+                Action    = "SnapToShip",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
+        public void AddPiratesAreGettingStronger(Empire pirates, int numBases)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message = $"Your Spies report that {pirates.Name} are getting stronger.\n" +
+                          $"They have around {numBases} bases.",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
+        public void AddPiratesAreGettingWeaker(Empire pirates, int numBases)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message = $"Your Spies report that {pirates.Name} number of bases " +
+                          $"was reduced\nto around {numBases}.",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
+        public void AddPiratesFlagshipSighted(Empire pirates)
+        {
+            AddNotification(new Notification
+            {
+                RelevantEmpire = pirates,
+                Message = $"Your Spies report that {pirates.Name} have a flagship\n" +
+                          "lurking somewhere in the galaxy.",
+                ClickRect = DefaultClickRect,
+                DestinationRect = DefaultNotificationRect
+            }, "sd_troop_march_01");
+        }
+
         public void AddEnemyTroopsLandedNotification(Planet where, Empire invader, Empire player)
         {
             AddNotification(new Notification
@@ -298,15 +347,16 @@ namespace Ship_Game
             }, "sd_ui_notification_encounter");
         }
 
-        public void AddBoardNotification(string message, string iconPath, string action, Ship s)
+        public void AddBoardNotification(string message, string iconPath, string action, Ship s, Empire boarder)
         {
             AddNotification(new Notification
             {
+                RelevantEmpire = boarder,
                 Message         = message,
                 Action          = action,
                 ReferencedItem1 = s,
                 IconPath        = iconPath ?? "ResearchMenu/icon_event_science_bad"
-            }, "sd_ui_notification_encounter"); 
+            }, "sd_ui_notification_encounter");; 
         }
 
         public void AddScrapProgressNotification(string message, string iconPath, string action, string techName)

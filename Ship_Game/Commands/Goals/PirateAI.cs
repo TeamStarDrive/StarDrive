@@ -8,23 +8,47 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.Commands.Goals
 {
-    public class CorsairAI : Goal
+    public class PirateAI : Goal
     {
-        public const string ID = "CorsairAI";
+        public const string ID = "PirateAI";
         public override string UID => ID;
-        public CorsairAI() : base(GoalType.CorsairAI)
+        private Pirates Pirates;
+
+        public PirateAI() : base(GoalType.PirateAI)
         {
             Steps = new Func<GoalStep>[]
-            {
-               CorsairPlan
+            {  
+               PiratePlan
             };
         }
-        public CorsairAI(Empire owner) : this()
+        public PirateAI(Empire owner) : this()
         {
             empire = owner;
         }
 
-        GoalStep CorsairPlan()
+        GoalStep PiratePlan()
+        {
+            if (!empire.WeArePirates)
+                return GoalStep.GoalFailed; // This is mainly for save compatibility
+
+            Pirates = empire.Pirates;
+            Pirates.Init();
+            Pirates.TryLevelUp(alwaysLevelUp: true); // build initial base
+
+            if (!Pirates.GetBases(out Array<Ship> bases))
+            {
+                Log.Warning($"Could not find a Pirate base for {empire.Name}. Pirate AI is disabled for them!");
+                return GoalStep.GoalFailed;
+            }
+
+            //Pirates.AddGoalDirectorPayment(EmpireManager.Player); // TODO for testing
+            foreach (Empire victim in EmpireManager.MajorEmpires)
+                Pirates.AddGoalDirectorPayment(victim);
+
+            return GoalStep.GoalComplete;
+        }
+
+        GoalStep CorsairPlanOld() // This is for legacy load save, will be removed later.
         {
             bool alreadyRaiding = empire.GetEmpireAI().HasTaskOfType(MilitaryTask.TaskType.CorsairRaid);
             if (!alreadyRaiding)
