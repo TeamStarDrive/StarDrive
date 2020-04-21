@@ -242,6 +242,8 @@ namespace Ship_Game.AI
                 nearestRallyPoint = Owner.loyalty.FindNearestRallyPoint(Owner.Center);
                 if (nearestRallyPoint != null)
                     OrderResupply(nearestRallyPoint, cancelOrders);
+                else if (Owner.loyalty.WeArePirates)
+                    OrderPirateFleeHome();
                 else
                     OrderFlee(true);
             }
@@ -692,6 +694,9 @@ namespace Ship_Game.AI
                 }
 
                 State = AIState.AwaitingOrders; //fbedard
+                if (Owner.loyalty.WeArePirates)
+                    OrderPirateFleeHome();
+
                 return;
             }
             if (Owner.GetStrength() <=0 
