@@ -75,6 +75,12 @@ namespace Ship_Game.AI
             ourRelationToThem.Treaty_Alliance    = false;
             ourRelationToThem.Treaty_Peace       = false;
             them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
+
+            if (OwnerEmpire.WeArePirates)
+                OwnerEmpire.Pirates.ResetPaymentTimerFor(them);
+            else if (them.WeArePirates)
+                them.Pirates.ResetPaymentTimerFor(OwnerEmpire);
+            
         }
 
         public void DeclareWarOn(Empire them, WarType wt)
@@ -245,6 +251,10 @@ namespace Ship_Game.AI
         {
             OwnerEmpire.GetRelations(them).AtWar = false;
             them.GetRelations(OwnerEmpire).AtWar = false;
+            if (OwnerEmpire.WeArePirates)
+                OwnerEmpire.Pirates.ResetPaymentTimerFor(them);
+            else if (them.WeArePirates)
+                them.Pirates.ResetPaymentTimerFor(OwnerEmpire);
 
             foreach (MilitaryTask task in TaskList.ToArray())
             {

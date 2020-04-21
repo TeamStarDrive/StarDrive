@@ -16,7 +16,7 @@ namespace Ship_Game.Commands.Goals
             {
                 CreateAColony,
                 UtilizeColony,
-                FinalSolution
+                Exterminate
             };
         }
         public RemnantAI(Empire owner) : this()
@@ -115,7 +115,7 @@ namespace Ship_Game.Commands.Goals
             return GoalStep.GoToNextStep;
         }
 
-        GoalStep FinalSolution()
+        GoalStep Exterminate()
         {
             foreach(var ship in empire.GetShips().Filter(s=> s.Active
                                                              && s.DesignRole != ShipData.RoleName.colony

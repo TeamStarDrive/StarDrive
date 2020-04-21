@@ -81,6 +81,9 @@ namespace Ship_Game
         // it gets special instructions, usually event based, for example Corsairs
         public bool isFaction;
 
+        // For Pirate Factions. This will allow the Empire to be pirates
+        public Pirates Pirates { get; private set; }
+
         public Color EmpireColor;
         public static UniverseScreen Universe;
         private EmpireAI EmpireAI;
@@ -145,6 +148,7 @@ namespace Ship_Game
         public Ship SupplyShuttle            => ResourceManager.ShipsDict["Supply_Shuttle"];
         public bool IsCybernetic             => data.Traits.Cybernetic != 0;
         public bool NonCybernetic            => data.Traits.Cybernetic == 0;
+        public bool WeArePirates             => Pirates != null; // Use this to figure out if this empire is pirate faction
 
         public Dictionary<ShipData.RoleName, string> PreferredAuxillaryShips = new Dictionary<ShipData.RoleName, string>();
 
@@ -158,7 +162,6 @@ namespace Ship_Game
         public Planet[] SpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort);
         public Planet[] MilitaryOutposts => OwnedPlanets.Filter(p => p.AllowInfantry); // Capitals allow Infantry as well
         public Planet[] SafeSpacePorts => OwnedPlanets.Filter(p => p.HasSpacePort && p.Safe);
-
 
         public float MoneySpendOnProductionThisTurn { get; private set; }
 
@@ -198,6 +201,11 @@ namespace Ship_Game
             Research       = new EmpireResearch(this);
             TechnologyDict = parentEmpire.TechnologyDict;
             Pool           = new ShipPool(this);
+        }
+
+        public void SetAsPirates(bool fromSave, BatchRemovalCollection<Goal> goals)
+        {
+            Pirates = new Pirates(this, fromSave, goals);
         }
 
 
@@ -842,8 +850,7 @@ namespace Ship_Game
 
             InitDifficultyModifiers();
             CreateThrusterColors();
-            EmpireAI = new EmpireAI(this);
-
+            EmpireAI = new EmpireAI(this, fromSave: false);
             Research.Update();
         }
 
@@ -927,7 +934,7 @@ namespace Ship_Game
 
         public void InitializeFromSave()
         {
-            EmpireAI = new EmpireAI(this);
+            EmpireAI = new EmpireAI(this, fromSave: true);
             for (int key = 1; key < 1; ++key)
             {
                 Fleet fleet = new Fleet {Owner = this};
@@ -1204,8 +1211,16 @@ namespace Ship_Game
         public void AddRelation(Empire empire)
         {
             if (empire == this) return;
-            if (!TryGetRelations(empire, out Relationship relation))
+            if (!TryGetRelations(empire, out _))
                 Relationships.Add(empire, new Relationship(empire.data.Traits.Name));
+        }
+
+        public void SetRelationsAsKnown(Empire empire)
+        {
+            AddRelation(empire);
+            Relationships[empire].Known = true;
+            if (!empire.GetRelations(this).Known)
+                empire.SetRelationsAsKnown(this);
         }
 
         public bool TryGetRelations(Empire empire, out Relationship relations) => Relationships.TryGetValue(empire, out relations);
@@ -1242,22 +1257,37 @@ namespace Ship_Game
             if (!e.GetRelations(this).Known)
                 e.DoFirstContact(this);
 
+            if (Universe.Debug)
+                return;
+
             if (GlobalStats.RestrictAIPlayerInteraction && Universe.player == this)
                 return;
 
-            if (Universe.PlayerEmpire == this && !e.isFaction)
+            if (Universe.PlayerEmpire == this)
             {
-                DiplomacyScreen.Show(e, "First Contact");
+                if (e.isFaction)
+                    DoFactionFirstContact(e);
+                else
+                    DiplomacyScreen.Show(e, "First Contact");
             }
-            else if (Universe.PlayerEmpire == this && e.isFaction)
+        }
+
+        void DoFactionFirstContact(Empire e)
+        {
+            var factionContacts = ResourceManager.Encounters.Filter(enc => enc.Faction == e.data.Traits.Name);
+            if (factionContacts.Length == 0)
+                return; // no dialogs for this faction, no use to look for first contact
+
+            var firstContacts = factionContacts.Filter(enc => enc.FirstContact);
+            if (firstContacts.Length > 0)
             {
-                foreach (Encounter e1 in ResourceManager.Encounters)
-                {
-                    if (e1.Faction == e.data.Traits.Name && e1.Name == "First Contact")
-                    {
-                        EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, e1);
-                    }
-                }
+                Encounter encounter = firstContacts.First();
+                EncounterPopup.Show(Universe, Universe.PlayerEmpire, e, encounter);
+            }
+            else
+            {
+                Log.Warning($"Could not find First Contact Encounter for {e.Name}, " +
+                            "make sure this faction has <FirstContact>true</FirstContact> in one of it's encounter dialog XMLs");
             }
         }
 
@@ -2383,7 +2413,6 @@ namespace Ship_Game
 
         public void UpdateRelationships()
         {
-            if (isFaction) return;
             int atWarCount = 0;
             foreach (var kv in Relationships)
                 if (kv.Value.Known || isPlayer)
@@ -2482,7 +2511,7 @@ namespace Ship_Game
                 return;
 
             string message = new LocalizedText(GameText.ShipCapturedByYou).Text;
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, null);
         }
 
         public void AddBoardedNotification(Ship ship)
@@ -2490,8 +2519,8 @@ namespace Ship_Game
             if (!isPlayer) 
                 return;
 
-            string message = new LocalizedText(GameText.YourShipWasCaptured).Text;
-            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship);
+            string message = $"{new LocalizedText(GameText.YourShipWasCaptured).Text} {ship.loyalty.Name}!";
+            Universe.NotificationManager.AddBoardNotification(message, ship.BaseHull.ActualIconPath, "SnapToShip", ship, ship.loyalty);
         }
 
         private void CalculateScore()

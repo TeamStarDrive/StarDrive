@@ -34,7 +34,7 @@ namespace Ship_Game.AI
         public float DefStr;
         public ExpansionAI.ExpansionPlanner ExpansionAI;
 
-        public EmpireAI(Empire e)
+        public EmpireAI(Empire e, bool fromSave)
         {
             EmpireName                = e.data.Traits.Name;
             OwnerEmpire               = e;
@@ -47,11 +47,12 @@ namespace Ship_Game.AI
                 NumberOfShipGoals = NumberOfShipGoals + OwnerEmpire.data.EconomicPersonality.ShipGoalsPlus;
 
             string name = OwnerEmpire.data.Traits.Name;
-            switch (name)
-            {
-                case "The Remnant": Goals.Add(new RemnantAI(OwnerEmpire)); break;
-                case "Corsairs":    Goals.Add(new CorsairAI(OwnerEmpire)); break;
-            }
+
+            if (OwnerEmpire.isFaction && OwnerEmpire.data.IsPirateFaction && !GlobalStats.DisablePirates)
+                OwnerEmpire.SetAsPirates(fromSave, Goals);
+
+            if (name == "The Remnant" && !fromSave)
+                Goals.Add(new RemnantAI(OwnerEmpire));
         }
 
         void RunManagers()

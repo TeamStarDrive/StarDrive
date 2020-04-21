@@ -363,10 +363,6 @@ namespace Ship_Game
             }
 
             var nameGenerator = new MarkovNameGenerator(File.ReadAllText("Content/NameGenerators/names.txt"), 3, 5);
-            var system = new SolarSystem();
-            system.GenerateCorsairSystem(nameGenerator.NextName);
-            system.DontStartNearPlayer = true;
-            Data.SolarSystemsList.Add(system);
             for (; systemCount < NumSystems; ++systemCount)
             {
                 var solarSystem2 = new SolarSystem();
