@@ -58,7 +58,7 @@ namespace Ship_Game.AI.Tasks
                     {
                         potentialTroops.AddRange(planet.GetEmpireTroops(Owner, (int)maxCanTake));
 
-                        totalStrength += potentialTroops.Sum(t => t.Strength);
+                        totalStrength += potentialTroops.Sum(t => t.ActualStrengthMax);
 
                         if (strengthNeeded <= totalStrength)
                         {

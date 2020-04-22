@@ -385,9 +385,13 @@ namespace Ship_Game.AI
         {
             using (PinsMutex.AcquireReadLock())
             {
-                foreach (Pin pin in Pins.Values)
+                Pin[] pins = Pins.Values.ToArray();
+                for (int i = 0; i < pins.Length; i++)
+                {
+                    Pin pin = pins[i];
                     if (pin.Ship != null && pin.Ship.loyalty == empire)
                         techs.UnionWith(pin.Ship.shipData.TechsNeeded);
+                }
             }
         }
     }
