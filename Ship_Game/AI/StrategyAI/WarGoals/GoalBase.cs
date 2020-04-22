@@ -4,7 +4,7 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
 {
     public abstract class GoalBase
     {
-        public Guid ID = new Guid();
+        public Guid ID = Guid.NewGuid();
         public string OwnerName;
         protected Empire Owner;
         public int Step;
