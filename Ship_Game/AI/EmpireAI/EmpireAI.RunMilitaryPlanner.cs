@@ -235,19 +235,13 @@ namespace Ship_Game.AI
             public float RoleCurrentMaintenance(RoleCounts.CombatRole role) => ShipCounts[role].CurrentMaintenance;
             public float RoleUnitMaintenance(RoleCounts.CombatRole role) => ShipCounts[role].PerUnitMaintenanceMax;
             public float RoleCount(RoleCounts.CombatRole role) => ShipCounts[role].CurrentCount;
-            public float RoleCountDesired(RoleCounts.CombatRole role) => ShipCounts[role].DesiredCount;
-            public bool ShouldScrap(RoleCounts.CombatRole role)
-            {
-                var roleCounts = ShipCounts[role];
-                return (roleCounts.CurrentCount <= roleCounts.DesiredCount + 1
-                       || roleCounts.CurrentMaintenance <= roleCounts.RoleBuildBudget + roleCounts.PerUnitMaintenanceMax);
-
-            }
+            public int  RoleCountDesired(RoleCounts.CombatRole role) => ShipCounts[role].DesiredCount;
+            public bool RoleIsScrapping(RoleCounts.CombatRole role) => ShipCounts[role].WeAreScrapping;
             public bool OverBudget => Capacity < TotalMaintenance;
 
             public RoleBuildInfo(float capacity, EmpireAI eAI, bool ignoreDebt)
             {
-                Capacity = capacity;
+                Capacity = capacity.LowerBound(0);
                 EmpireAI = eAI;
                 foreach (RoleCounts.CombatRole role in Enum.GetValues(typeof(RoleCounts.CombatRole)))
                 {
@@ -351,6 +345,7 @@ namespace Ship_Game.AI
                 private Empire Empire { get; }
                 readonly Array<Ship> BuildableShips = new Array<Ship>();
                 readonly Array<Ship> CurrentShips   = new Array<Ship>();
+                public bool WeAreScrapping = false;
 
                 public RoleCounts(CombatRole role, Empire empire)
                 {
@@ -431,7 +426,7 @@ namespace Ship_Game.AI
 
                 public float BuildPriority()
                 {
-                    if (CurrentMaintenance + PerUnitMaintenanceMax > RoleBuildBudget)
+                    if (WeAreScrapping || CurrentMaintenance + PerUnitMaintenanceMax > RoleBuildBudget)
                         return 0;
                     return CurrentMaintenance.LowerBound(.00001f) / RoleBuildBudget;
                 }
@@ -447,19 +442,25 @@ namespace Ship_Game.AI
                     {
                         if(!ship.InCombat &&
                                         (ship.fleet == null)
-                                        && ship.AI.State != AIState.Scrap
                                         && ship.AI.State != AIState.Scuttle
                                         && ship.AI.State != AIState.Resupply
                                         && ship.Mothership == null && ship.Active
                                         && ship.GetMaintCost(empire) > 0)
-                        { 
-
-                            if (CurrentCount <= DesiredCount + 1
-                                && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
-                                break;
-                            CurrentCount--;
-                            CurrentMaintenance -= ship.GetMaintCost();
-                            ship.AI.OrderScrapShip();
+                        {
+                            if (ship.AI.State != AIState.Scrap)
+                            {
+                                if (CurrentCount <= DesiredCount + 1
+                                    && CurrentMaintenance <= RoleBuildBudget + PerUnitMaintenanceMax)
+                                    break;
+                                CurrentCount--;
+                                CurrentMaintenance -= ship.GetMaintCost();
+                                ship.AI.OrderScrapShip();
+                                WeAreScrapping = true;
+                            }
+                            else
+                            {
+                                WeAreScrapping = true;
+                            }
                         }
                     }
                 }
