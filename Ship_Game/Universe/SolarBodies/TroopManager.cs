@@ -414,7 +414,7 @@ namespace Ship_Game
         public float GroundStrengthOther(Empire allButThisEmpire)
         {
             float enemyTroopStrength = TroopList.Where(t => 
-                t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.Strength);
+                t.OwnerString != allButThisEmpire.data.Traits.Name).Sum(t => t.ActualStrengthMax);
 
             for (int i = 0; i < BuildingList.Count; i++)
             {
@@ -435,7 +435,7 @@ namespace Ship_Game
         float BuildingCombatStrength(Building b)
         {
             float strength = 0;
-            if (b?.CombatStrength > 0)
+            if (b?.IsMilitary == true)
             {
                 strength += b.CombatStrength;
                 strength += b.InvadeInjurePoints * 5;
