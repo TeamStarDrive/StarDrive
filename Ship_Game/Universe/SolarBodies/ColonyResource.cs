@@ -156,7 +156,9 @@ namespace Ship_Game.Universe.SolarBodies
 
 
             YieldPerColonist = Planet.Fertility * (1 + plusPerColonist);
-            Tax = 0f;
+            Tax = Planet.Owner.data.TaxRate * 0.5f;
+
+            //Tax = 0f;
             // If we use tax effects with Food resource,
             // we need a base yield offset for balance
             //YieldPerColonist += 0.25f;
