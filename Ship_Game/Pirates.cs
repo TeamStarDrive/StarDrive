@@ -341,8 +341,8 @@ namespace Ship_Game
                 Planet planet     = selectedBase.GetTether();
                 Vector2 pos       = planet?.Center ?? selectedBase.Center;
 
-                pos.GenerateRandomPointInsideCircle(2000);
-                if (SpawnShip(PirateShipType.Station, pos, out Ship station, level) && planet != null)
+                Vector2 stationPos = pos.GenerateRandomPointOnCircle(2000);
+                if (SpawnShip(PirateShipType.Station, stationPos, out Ship station, level) && planet != null)
                     station.TetherToPlanet(planet);
             }
         }
