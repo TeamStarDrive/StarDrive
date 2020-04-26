@@ -38,7 +38,7 @@
                     FleetCompletenessMin = 0.25f;
                     CreditsMultiplier    = empire.isPlayer ? 0.1f : 0.25f;
                     EnemyTroopStrength   = 1f;
-                    MineralDecayDivider  = 200;
+                    MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
                     break;
                 default:
@@ -53,7 +53,7 @@
                     FleetCompletenessMin = 0.25f;
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
-                    MineralDecayDivider  = 100;
+                    MineralDecayDivider  = 75;
                     PiratePayModifier    = 1f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
@@ -67,7 +67,7 @@
                     FleetCompletenessMin = 0.5f;
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
-                    MineralDecayDivider  = 75;
+                    MineralDecayDivider  = 50;
                     PiratePayModifier    = 1.5f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
@@ -81,7 +81,7 @@
                     FleetCompletenessMin = 1f;
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
-                    MineralDecayDivider  = 50;
+                    MineralDecayDivider  = 35;
                     PiratePayModifier    = 2f;
                     break;
             }
