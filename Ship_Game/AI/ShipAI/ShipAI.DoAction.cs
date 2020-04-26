@@ -84,7 +84,7 @@ namespace Ship_Game.AI
                 if (Owner.engineState == Ship.MoveState.Warp)
                     Owner.HyperspaceReturn();
             }
-            else
+            else if (HasPriorityOrder)
             {
                 // TODO: need to move this into fleet.
                 if (FleetNode != null && Owner.fleet != null)
