@@ -31,9 +31,9 @@ namespace Ship_Game.AI.CombatTactics
         // @note We are guaranteed to be within 2~3x maxWeaponsRange by DoCombat
         protected override void OverrideCombatValues(float elapsedTime)
         {
-            float adjustedWeaponRange = Owner.WeaponsMaxRange * 0.8f; // maybe change to desiredCombatRange.
-            if (SpacerDistance > adjustedWeaponRange)
-                SpacerDistance = adjustedWeaponRange;
+            DesiredCombatRange = Owner.WeaponsMaxRange * 0.8f; // maybe change to desiredCombatRange.
+            if (SpacerDistance > DesiredCombatRange)
+                SpacerDistance = DesiredCombatRange;
         }
 
         protected override CombatMoveState ExecuteAttack(float elapsedTime)
@@ -51,12 +51,12 @@ namespace Ship_Game.AI.CombatTactics
             // we are really close to attackPos?
             if (ShouldDisengage(DistanceToTarget, SpacerDistance))
             {
-                float distance = (DesiredCombatRange * 0.75f) + 50.0f;
-                PrepareToDisengage(distance);
+                float engageDistance = (DesiredCombatRange * 0.25f) + SpacerDistance;
+                PrepareToDisengage(engageDistance);
                 return CombatMoveState.Disengage;
             }
 
-            if (DistanceToTarget < 500f)
+            if (DistanceToTarget < 500f) 
             {
                 // stop applying thrust when we get really close, and focus on aiming at Target.Center:
                 AI.RotateTowardsPosition(AI.Target.Center, elapsedTime, 0.05f);
@@ -136,16 +136,35 @@ namespace Ship_Game.AI.CombatTactics
         bool ShouldDisengage(float distanceToAttack, float spacerDistance)
         {
             if (OwnerTarget == null) return false;
+
+            if (AI.IsFiringAtMainTarget) return false;
             if (distanceToAttack <= spacerDistance)
                 return true;
 
-            if (AI.IsFiringAtMainTarget) return false;
+            if (ChaseStates.HasFlag(ChaseState.WeAreChasing))
+                return false;
+
+            float distanceToDesiredCombatRangeRatio = distanceToAttack / Owner.DesiredCombatRange;
+
+            if (distanceToDesiredCombatRangeRatio < 0.25f) 
+                return true;
+
 
             float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Average(w => w.CooldownTimer);
             if (cooldownTime <= 0f) return false;
 
-            float averageSpeed = Owner.Weapons.Average(w => w.ProjectileSpeed);
-            return (distanceToAttack - Owner.DesiredCombatRange) <= (averageSpeed * cooldownTime);
+
+            float averageWeaponSpeed = Owner.Weapons.Average(w => w.ProjectileSpeed);
+            float distanceBeforeFire = (averageWeaponSpeed) * cooldownTime;
+
+            if (distanceBeforeFire > distanceToAttack) return true;
+
+
+
+            return false;
+
+
+            //return (distanceToAttack - Owner.DesiredCombatRange) <= (averageWeaponSpeed * cooldownTime);
         }
 
         void PrepareToDisengage(float disengageDistance)
@@ -158,20 +177,28 @@ namespace Ship_Game.AI.CombatTactics
                 ? (RandomMath.RollDice(50) ? RadMath.RadiansLeft : RadMath.RadiansRight)
                 : RandomMath.RandomBetween(-1.57f, 1.57f); // from -90 to +90 degrees
 
+            float cooldownTime = Owner.Weapons.IsEmpty ? 0 : Owner.Weapons.Max(w => w.CooldownTimer);
+
+            //disengageDistance = disengageDistance.UpperBound(cooldownTime * disengageDistance);
+
             DisengageStart = AI.Target.Center;
 
             Vector2 direction = (Owner.Rotation + rotation).RadiansToDirection();
-            DisengagePos1 = DisengageStart + direction * disengageDistance;
+            DisengagePos1 = DisengageStart + direction * (disengageDistance + SpacerDistance);
 
             Vector2 leftOrRight = RandomMath.RollDice(50) ? direction.LeftVector() : direction.RightVector();
-            DisengagePos2 = DisengagePos1 + disengageDistance * (direction + leftOrRight);
+            DisengagePos2 = DisengagePos1 + (Owner.MaxSTLSpeed * cooldownTime + SpacerDistance) * (direction + leftOrRight);
         }
 
         public void ExecuteDisengage(float elapsedTime)
         {
+            float timeBeforeFire = Owner.Weapons.Average(w => w.CooldownTimer);
+            float distanceTraveledBeforeReady = (Owner.CurrentVelocity * timeBeforeFire);
+
+
             Vector2 disengagePos = (State == RunState.Disengage1) ? DisengagePos1 : DisengagePos2;
-            float disengageLimit = DisengageStart.Distance(disengagePos) + 20f;
-            float distance = DisengageStart.Distance(Owner.Center).LowerBound(OwnerTarget.Radius * 2);
+            float disengageLimit = DesiredCombatRange * 0.25f + SpacerDistance;
+            float distance = DisengageStart.Distance(Owner.Center).LowerBound(SpacerDistance);
 
             float disengageSpeed = (Owner.VelocityMaximum * 0.8f).Clamped(200f, 1000f);
             if (State == RunState.Disengage1)
@@ -195,7 +222,8 @@ namespace Ship_Game.AI.CombatTactics
             }
             else if (State == RunState.Disengage2)
             {
-                if (distance > disengageLimit || DistanceToTarget > Owner.DesiredCombatRange && RadiansDifferenceToTargetFacingAndDirection > 0.7f) // Disengage2 success
+                //Owner.MaxSTLSpeed* cooldownTime +SpacerDistanc
+                if (DistanceToTarget > Owner.DesiredCombatRange || RadiansDifferenceToTargetFacingAndDirection > 0.7f) // Disengage2 success
                 {
                     State = RunState.Strafing;
                 }

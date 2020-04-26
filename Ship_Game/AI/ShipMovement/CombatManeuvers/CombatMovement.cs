@@ -12,10 +12,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         [Flags]
         public enum ChaseState
         {
-            None,
-            WeAreChasing,
-            TheyAreChasing,
-            CantCatch
+            None = 0,
+            WeAreChasing = 1,
+            TheyAreChasing = 2,
+            CantCatch = 4,
+            CashingCantCatch = WeAreChasing | CantCatch
         }
 
         public enum CombatMoveState
@@ -51,8 +52,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected Ship OwnerTarget           => AI.Target;
 
 
-        protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.WeAreChasing & ChaseState.CantCatch) 
-                                                       && ChaseStates.HasFlag(ChaseState.CantCatch) ;
+        protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.CashingCantCatch) && !WeAreRetrograding;
         protected bool WeAreRetrograding => RadiansDifferenceToOurFacingAndVelocity > 0;
 
         protected  ChaseState ChaseStates;
