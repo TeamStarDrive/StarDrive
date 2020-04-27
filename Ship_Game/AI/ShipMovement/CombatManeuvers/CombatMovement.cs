@@ -16,7 +16,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             WeAreChasing = 1,
             TheyAreChasing = 2,
             CantCatch = 4,
-            CashingCantCatch = WeAreChasing | CantCatch
+            ChasingCantCatch = WeAreChasing | CantCatch
         }
 
         public enum CombatMoveState
@@ -52,7 +52,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected bool WeAreFacingThem => RadiansDifferenceToTargetFacingAndDirection > 0.7f;
         protected Ship OwnerTarget           => AI.Target;
 
-        protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.CashingCantCatch) && !WeAreRetrograding;
+        protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.ChasingCantCatch) && !WeAreRetrograding;
         protected bool WeAreRetrograding => RadiansDifferenceToOurFacingAndVelocity < 0;
 
         protected  ChaseState ChaseStates;
