@@ -87,11 +87,13 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 MoveState = ExecuteAttack(elapsedTime);
             }
 
-            DrawDebugText($"Chase: {ChaseStates}");
-            DrawDebugText($"MoveState: { MoveState }");
-            DrawDebugText($"Velocity Radians To Target: R {(int)(RadiansToTargetByOurVelocity * 100)}");
-            DrawDebugText($"Facing Radians To Target: R {(int)(RadiansDifferenceToTargetFacingAndDirection * 100)}");
-            
+            if (Empire.Universe.Debug && Empire.Universe.SelectedShip != null)
+            {
+                DrawDebugText($"Chase: {ChaseStates}");
+                DrawDebugText($"MoveState: { MoveState }");
+                DrawDebugText($"Velocity Radians To Target: R {(int)(RadiansToTargetByOurVelocity * 100)}");
+                DrawDebugText($"Facing Radians To Target: R {(int)(RadiansDifferenceToTargetFacingAndDirection * 100)}");
+            }
         }
 
         protected virtual bool CantGetInRange()
@@ -194,11 +196,6 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             return chase;
         }
 
-        //CombatMoveState StandardApproach(Vector2 pos)
-        //{
-
-        //}
-
         public void ErraticMovement(float distanceToTarget)
         {
             if (AI.IsFiringAtMainTarget)
@@ -259,28 +256,5 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                     Owner.Center + new Vector2(Owner.Radius, Owner.Radius + 50 * DebugTextIndex), text, Color.Red, 0f);
             }
         }
-
-        //public class AttackPosition
-        //{
-        //    Ship Target;
-        //    readonly Ship Owner;
-        //    Vector2 TargetOffset;
-        //    Vector2 MovePosition;
-        //    public Vector2 Center => Target.Center;
-        //    public Vector2 Velocity => Target.Velocity;
-        //    public float CurrentVelocity => Target.CurrentVelocity;
-        //    public float VelocityMaximum => Target.VelocityMaximum;
-        //    public Vector2 VelocityDirection => Target.VelocityDirection;
-        //    public Vector2 DirectionToTarget(Vector2 target) => Target.Center.DirectionToTarget(target);
-        //    public Vector2 Direction => Target.Direction;
-        //    public bool IsValid => Target != null && Target != Owner;
-
-        //    public AttackPosition(Ship owner, Ship target) { Target = target; Owner = owner; }
-        //    public void SetPosition(Vector2 pos) => MovePosition = pos;
-
-        //    public void SetTargetOffSet(Vector2 offset) => TargetOffset = offset;
-
-        //    public void SetTarget(Ship ship) => Target = ship;
-        //}
     }
 }
