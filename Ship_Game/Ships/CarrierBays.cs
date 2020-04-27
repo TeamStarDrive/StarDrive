@@ -526,8 +526,6 @@ namespace Ship_Game.Ships
         /// <summary>
         /// Assaults the target ship.
         /// </summary>
-        /// <param name="targetShip">The target ship.</param>
-        /// <returns></returns>
         public bool AssaultTargetShip(Ship targetShip)
         {
             if (Owner == null || targetShip == null || targetShip.loyalty == Owner.loyalty)
@@ -553,7 +551,7 @@ namespace Ship_Game.Ships
                     Ship hangarShip = hangar.GetHangarShip();
                     if (hangarShip != null && hangarShip.AI.State != AIState.Boarding)
                     {
-                        hangar.GetHangarShip().AI.OrderTroopToBoardShip(targetShip);
+                        hangarShip.AI.OrderTroopToBoardShip(targetShip);
                         sendingTroops = true;
                     }
                 }

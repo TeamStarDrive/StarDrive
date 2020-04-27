@@ -44,10 +44,6 @@ namespace Ship_Game.AI.CombatTactics
                 return CombatMoveState.Disengage;
             }
 
-            Vector2 attackPos = AI.Target.Position;
-            Vector2 localQuadrant = AI.Target.Direction.RotateDirection(TargetQuadrant);
-            attackPos += localQuadrant * OwnerTarget.Radius;
-
             // we are really close to attackPos?
             if (ShouldDisengage(DistanceToTarget, SpacerDistance))
             {
@@ -64,7 +60,9 @@ namespace Ship_Game.AI.CombatTactics
                 return CombatMoveState.Face;
             }
 
-
+            Vector2 attackPos = AI.Target.Position;
+            Vector2 localQuadrant = AI.Target.Direction.RotateDirection(TargetQuadrant);
+            attackPos += localQuadrant * OwnerTarget.Radius;
 
             StrafeTowardsTarget(elapsedTime, DistanceToTarget, attackPos);
             return CombatMoveState.Approach;

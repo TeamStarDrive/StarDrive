@@ -47,7 +47,7 @@ namespace Ship_Game.AI
 
         Ship UpdateCombatTarget()
         {
-            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight
+            if (Target?.Active != true || Target.engineState != Ship.MoveState.Sublight || Owner.loyalty == Target.loyalty
                                        || !Owner.loyalty.IsEmpireAttackable(Target.GetLoyalty(), Target))
             {
                 Target = PotentialTargets.FirstOrDefault(t => t.Active && t.engineState != Ship.MoveState.Warp &&
