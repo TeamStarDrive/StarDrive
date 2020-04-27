@@ -140,7 +140,7 @@ namespace Ship_Game.AI
 
         public void Update(float elapsedTime)
         {
-            if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate)
+            if (State == AIState.AwaitingOrders && DefaultAIState == AIState.Exterminate )
                 State = AIState.Exterminate;
 
             CheckTargetQueue();
