@@ -47,18 +47,19 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         protected float RadiansDifferenceToOurFacingAndVelocity;
         protected float DesiredCombatRange;
         Vector2 DisengageDirection;
+        //AttackPosition OwnerTarget;
         
         protected bool WeAreFacingThem => RadiansDifferenceToTargetFacingAndDirection > 0.7f;
         protected Ship OwnerTarget           => AI.Target;
 
-
         protected bool WeAreChasingAndCantCatchThem => ChaseStates.HasFlag(ChaseState.CashingCantCatch) && !WeAreRetrograding;
-        protected bool WeAreRetrograding => RadiansDifferenceToOurFacingAndVelocity > 0;
+        protected bool WeAreRetrograding => RadiansDifferenceToOurFacingAndVelocity < 0;
 
         protected  ChaseState ChaseStates;
         protected CombatMovement(ShipAI ai) : base(ai)
         {
             DesiredCombatRange = ai.Owner.DesiredCombatRange;
+           // OwnerTarget = new AttackPosition(target: ai.Target, owner: ai.Owner);
         }
 
         protected abstract CombatMoveState ExecuteAttack(float elapsedTime);
@@ -73,11 +74,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             Initialize(DesiredCombatRange);
             OverrideCombatValues(elapsedTime);
 
-            if (CantGetInRange()) 
+            if (MoveState == CombatMoveState.Approach && OwnerTarget.AI.Target == Owner && CantGetInRange()) 
             {
                 DisengageDirection = RandomFlankTo(Owner.Center.DirectionToTarget(OwnerTarget.Center));
             }
-            else if (MoveState == CombatMoveState.Disengage)
+            else if (DisengageDirection != Vector2.Zero)
             {
                 ExecuteAntiChaseDisengage(elapsedTime);
             }
@@ -112,11 +113,28 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         {
             if (DistanceToTarget > desiredWeaponsRange)
             {
-                MoveState = CombatMoveState.Approach;
+                if (DistanceToTarget < OwnerTarget.DesiredCombatRange)
+                {
+                    if (DisengageDirection == Vector2.Zero || OwnerTarget.AI.Target != Owner || OwnerTarget.CombatDisabled)
+                    {
+                        MoveState = CombatMoveState.Approach;
+                    }
+                    // if disengage direction was set the ship is disengaging and so we need to set that. 
+                    else
+                    {
+                        MoveState = CombatMoveState.Disengage;
+                    }
+                }
+                else
+                {
+                    DisengageDirection = Vector2.Zero;
+                    MoveState = CombatMoveState.Approach;
+                }
             }
             else
             {
                 MoveState = CombatMoveState.None;
+                DisengageDirection = Vector2.Zero;
             }
 
             DistanceToTarget = Owner.Center.Distance(OwnerTarget.Center);
@@ -175,6 +193,11 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
             return chase;
         }
+
+        //CombatMoveState StandardApproach(Vector2 pos)
+        //{
+
+        //}
 
         public void ErraticMovement(float distanceToTarget)
         {
@@ -236,5 +259,28 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                     Owner.Center + new Vector2(Owner.Radius, Owner.Radius + 50 * DebugTextIndex), text, Color.Red, 0f);
             }
         }
+
+        //public class AttackPosition
+        //{
+        //    Ship Target;
+        //    readonly Ship Owner;
+        //    Vector2 TargetOffset;
+        //    Vector2 MovePosition;
+        //    public Vector2 Center => Target.Center;
+        //    public Vector2 Velocity => Target.Velocity;
+        //    public float CurrentVelocity => Target.CurrentVelocity;
+        //    public float VelocityMaximum => Target.VelocityMaximum;
+        //    public Vector2 VelocityDirection => Target.VelocityDirection;
+        //    public Vector2 DirectionToTarget(Vector2 target) => Target.Center.DirectionToTarget(target);
+        //    public Vector2 Direction => Target.Direction;
+        //    public bool IsValid => Target != null && Target != Owner;
+
+        //    public AttackPosition(Ship owner, Ship target) { Target = target; Owner = owner; }
+        //    public void SetPosition(Vector2 pos) => MovePosition = pos;
+
+        //    public void SetTargetOffSet(Vector2 offset) => TargetOffset = offset;
+
+        //    public void SetTarget(Ship ship) => Target = ship;
+        //}
     }
 }

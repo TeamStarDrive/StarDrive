@@ -69,7 +69,7 @@ namespace Ship_Game.AI.CombatTactics
                 return CombatMoveState.Hold;
             }
 
-            if (DistanceToTarget < (maxDistance - 150f))
+            if (DistanceToTarget < (maxDistance))
             {
                 // we are too close, back away.
                 float distanceToBackPedal = (maxDistance - 150f) - DistanceToTarget;
