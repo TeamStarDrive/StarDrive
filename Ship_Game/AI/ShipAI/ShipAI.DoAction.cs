@@ -145,7 +145,7 @@ namespace Ship_Game.AI
             }
 
             CombatAI.ExecuteCombatTactic(elapsedTime);
-
+            
             // Target was modified by one of the CombatStates (?)
             Owner.InCombat = Target != null;
         }
