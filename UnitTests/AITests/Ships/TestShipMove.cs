@@ -38,6 +38,8 @@ namespace UnitTests.AITests.Ships
             var enemySpawnLocation = new Vector2(30000, 0);
             Ship enemy             = CreateEnemyTestShip(enemySpawnLocation);
             var movePosition       = new Vector2(60000, 0);
+            enemy.AI.OrderHoldPosition(enemySpawnLocation, new Vector2(0,1));
+            
 
             Player.GetEmpireAI().DeclareWarOn(Enemy, WarType.BorderConflict);
             ship.AI.OrderMoveDirectlyTo(movePosition, new Vector2(1,0),true
@@ -59,7 +61,7 @@ namespace UnitTests.AITests.Ships
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
-            Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
+            //Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
             Assert.IsTrue(ship.Center.InRadius(movePosition, 6000), "final move failed");
 
             // fly back with a combat move. 

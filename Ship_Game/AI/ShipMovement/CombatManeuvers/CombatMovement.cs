@@ -68,7 +68,8 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         public override void Execute(float elapsedTime, ShipAI.ShipGoal goal)
         {
             // Bail on invalid combat situations. 
-            if (Owner.IsPlatformOrStation || OwnerTarget == null || (Owner.AI.HasPriorityOrder && !Owner.AI.HasPriorityTarget)) 
+            if (Owner.IsPlatformOrStation || OwnerTarget == null || (Owner.AI.HasPriorityOrder && !Owner.AI.HasPriorityTarget) 
+                || Owner.engineState == Ship.MoveState.Warp) 
                 return;
 
             Initialize(DesiredCombatRange);
