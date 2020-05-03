@@ -156,10 +156,18 @@ namespace Ship_Game.AI
             {
                 DequeueOrder(goal.HasCombatMove());
             }
-            else if (HasPriorityOrder && Target != null && Target.Center.InRadius(Owner.Center, Owner.DesiredCombatRange) || Owner.LastDamagedBy == Target)
+            else if (goal.HasCombatMove())             
             {
-                if (goal.HasCombatMove())
+                if (Owner.fleet != null && FleetNode != null && Target != null)
+                {
+                    float targetDistance = Owner.Center.Distance(Target.Center);
+                    if (distance <= FleetNode.OrdersRadius)
+                        SetPriorityOrder(false);
+                }
+                else
+                {
                     SetPriorityOrder(false);
+                }
             }
         }
 
