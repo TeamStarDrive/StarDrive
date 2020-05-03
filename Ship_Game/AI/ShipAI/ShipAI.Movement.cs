@@ -432,7 +432,7 @@ namespace Ship_Game.AI
         {
             if (Owner.engineState != Ship.MoveState.Warp)
             {
-                //if (Owner.WarpPercent < 1f)
+                if (Owner.WarpPercent < 1f)
                     Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
                 return false;
             }
