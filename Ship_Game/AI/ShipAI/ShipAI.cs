@@ -272,7 +272,7 @@ namespace Ship_Game.AI
         {
             TriggerDelay -= elapsedTime;
             FireOnMainTargetTime -= elapsedTime;
-            if (BadGuysNear && !IgnoreCombat)
+            if (BadGuysNear && !IgnoreCombat && !HasPriorityOrder)
             {
                 if (Owner.Weapons.Count > 0 || Owner.Carrier.HasActiveHangars || Owner.Carrier.HasTransporters)
                 {
@@ -457,7 +457,7 @@ namespace Ship_Game.AI
         {
             // separated for clarity as this section can be very confusing.
             // we might need a toggle for the player action here.
-            if (State == AIState.FormationWarp)
+            if (State == AIState.FormationWarp && HasPriorityOrder || HadPO)
                 return true;
             if (HasPriorityOrder || HadPO)
                 return false;

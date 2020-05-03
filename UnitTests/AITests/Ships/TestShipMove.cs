@@ -61,7 +61,7 @@ namespace UnitTests.AITests.Ships
                 sawEnemyShip |= ship.AI.BadGuysNear;
             }
             Assert.IsTrue(sawEnemyShip, "Did not see an enemy while at warp");
-            //Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
+            Assert.IsTrue(ship.AI.BadGuysNear, "Bad guys near was not set");
             Assert.IsTrue(ship.Center.InRadius(movePosition, 6000), "final move failed");
 
             // fly back with a combat move. 

@@ -206,14 +206,16 @@ namespace Ship_Game.AI
             WayPoint[] wayPoints = WayPoints.ToArray();
             WayPoint wp = wayPoints[0];
 
-            AddShipGoal(Plan.RotateToFaceMovePosition, wp.Position, wp.Direction, State);
+            AddMoveOrder(Plan.RotateToFaceMovePosition, wp, State,0, MoveTypes.FirstWayPoint);
+
+            MoveTypes combatMove = offensiveMove ? MoveTypes.Combat : MoveTypes.None;
 
             // set moveto1000 for each waypoint except for the last one. 
             // if only one waypoint skip this. 
+
             for (int i = 0; i < wayPoints.Length - 1; ++i)
             {
-                wp = wayPoints[i];
-                AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, speedLimit, State);
+                AddMoveOrder(Plan.MoveToWithin1000, wayPoints[i], State, speedLimit, MoveTypes.WayPoint | combatMove);
             }
             // set final move position.
             // move to within 1000 of the position.
@@ -221,15 +223,16 @@ namespace Ship_Game.AI
             // rotate to desired facing <= this needs to be fixed.
             // the position is always wrong unless it was forced in a ui move. 
             wp = wayPoints[wayPoints.Length - 1];
-            AddShipGoal(Plan.MoveToWithin1000, wp.Position, wp.Direction, targetPlanet, speedLimit, goal, State);
+            AddMoveOrder(Plan.MoveToWithin1000, wp, State, speedLimit, MoveTypes.LastWayPoint | combatMove);
 
             // FB - Do not make final approach and stop, since the ship has more orders which do not
             // require stopping or rotating. 
             // If stopping, it will go the the set pos and not to the dynamic target planet center.
             if (stop)
             {
-                AddShipGoal(Plan.MakeFinalApproach, wp.Position, wp.Direction, null, speedLimit, goal, State);
-                AddShipGoal(Plan.RotateToDesiredFacing, wp.Position, wp.Direction, null, goal, State);
+                combatMove = (goal?.IsPriorityMovement() ?? false) ? MoveTypes.None : MoveTypes.Combat;
+                AddMoveOrder(Plan.MakeFinalApproach, wp, State, 0, MoveTypes.SubLightApproach | combatMove, goal);
+                AddMoveOrder(Plan.RotateToDesiredFacing, wp, State,0, MoveTypes.SubLightApproach | combatMove, goal);
             }
         }
 
