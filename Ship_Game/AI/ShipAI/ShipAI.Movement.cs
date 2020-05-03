@@ -150,17 +150,43 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueCurrentOrderAndPriority();
+                    DequeueOrder(goal.HasCombatMove());
             }
             else if (distance <= 1000f)
             {
+                DequeueOrder(goal.HasCombatMove());
+            }
+            else if (HasPriorityOrder && Target != null && Target.Center.InRadius(Owner.Center, Owner.DesiredCombatRange) || Owner.LastDamagedBy == Target)
+            {
+                if (goal.HasCombatMove())
+                    SetPriorityOrder(false);
+            }
+        }
+
+        void DequeueOrder(bool combat)
+        {
+            if (combat)
+            {
                 DequeueCurrentOrderAndPriority();
+            }
+            else
+            {
+                DequeueCurrentOrder();
             }
         }
 
         void MakeFinalApproach(float elapsedTime, ShipGoal goal)
         {
             Owner.HyperspaceReturn();
+
+            if (goal.HasCombatMove())
+            {
+
+                if (HasPriorityOrder)
+                    HadPO = true;
+                ClearPriorityOrder();
+            }
+
             Vector2 targetPos = goal.MovePosition;
             if (goal.Fleet != null && targetPos.AlmostZero()) 
                 targetPos = goal.Fleet.FinalPosition + Owner.FleetOffset;
@@ -179,10 +205,7 @@ namespace Ship_Game.AI
                 if (debug) Empire.Universe.DebugWin.DrawText(DebugDrawPosition, "STOP", Color.Red);
                 if (ReverseThrustUntilStopped(elapsedTime))
                 {
-                    if (Owner.loyalty == EmpireManager.Player)
-                        HadPO = true;
-
-                    DequeueCurrentOrderAndPriority();
+                    DequeueCurrentOrder();
                 }
                 return;
             }
@@ -329,7 +352,10 @@ namespace Ship_Game.AI
             float actualDiff = Owner.AngleDifferenceToPosition(pos);
             float distance = pos.Distance(Owner.Center);
             if (UpdateWarpThrust(deltaTime, actualDiff, distance))
+            {
+                //SubLightMoveTowardsPosition(pos, deltaTime, 0);
                 return; // WayPoint short-cut
+}
 
             if (Owner.engineState == Ship.MoveState.Warp)
             {
@@ -368,7 +394,7 @@ namespace Ship_Game.AI
                 if (actualDiff < 0.05f && Owner.MaxFTLSpeed > 0)
                 {
                     // NOTE: PriorityOrder must ignore the combat flag
-                    if      (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
+                    if (distance > 7500f && (HasPriorityOrder || !Owner.InCombat))
                         Owner.EngageStarDrive();
                     else if (distance > 15000f && Owner.InCombat)
                         Owner.EngageStarDrive();
@@ -406,7 +432,7 @@ namespace Ship_Game.AI
         {
             if (Owner.engineState != Ship.MoveState.Warp)
             {
-                if (Owner.WarpPercent < 1f)
+                //if (Owner.WarpPercent < 1f)
                     Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
                 return false;
             }

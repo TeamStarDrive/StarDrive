@@ -315,7 +315,7 @@ namespace Ship_Game.AI
             if (State == AIState.Resupply || DoNotEnterCombat)
                 return;
 
-            if (Owner.fleet != null && State == AIState.FormationWarp)
+            if (Owner.fleet != null && State == AIState.FormationWarp && HasPriorityOrder && !HasPriorityTarget)
             {
                 bool doreturn = !(Owner.fleet != null && State == AIState.FormationWarp &&
                                   Owner.Center.InRadius(Owner.fleet.FinalPosition + Owner.FleetOffset, 15000f));

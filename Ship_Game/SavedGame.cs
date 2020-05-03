@@ -325,7 +325,8 @@ namespace Ship_Game
                             fleetGuid        = sg.Fleet?.Guid ?? Guid.Empty,
                             goalGuid         = sg.Goal?.guid ?? Guid.Empty,
                             TargetPlanetGuid = sg.TargetPlanet?.guid ?? Guid.Empty,
-                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty
+                            TargetShipGuid   = sg.TargetShip?.guid ?? Guid.Empty,
+                            MoveType         = sg.MoveType
                         };
 
                         if (sg.Trade != null)
@@ -744,6 +745,7 @@ namespace Ship_Game
             [Serialize(8)] public TradePlanSave Trade;
             [Serialize(9)] public AIState WantedState;
             [Serialize(10)] public Guid TargetShipGuid;
+            [Serialize(11)] public ShipAI.MoveTypes MoveType;
         }
 
         public class TradePlanSave
