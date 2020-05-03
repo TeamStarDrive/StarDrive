@@ -7,8 +7,16 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI.ShipMovement.CombatManeuvers
 {
+    /// <summary>
+    /// This is a movement layer that lays under the specific combat stances.
+    /// This allows common movement routines and behaviors between all stances.
+    /// The execute method is called and this calls the stances combatexecute.
+    /// </summary>
     internal abstract class CombatMovement : ShipAIPlan
     {
+        /// <summary>
+        /// describes the state of how ships are moving in relation to their targets. 
+        /// </summary>
         [Flags]
         public enum ChaseState
         {
@@ -62,9 +70,20 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
            // OwnerTarget = new AttackPosition(target: ai.Target, owner: ai.Owner);
         }
 
+        /// <summary>
+        /// Executes the attack from combat stance
+        /// </summary>
         protected abstract CombatMoveState ExecuteAttack(float elapsedTime);
+
+        /// <summary>
+        /// Allows the stance to change the default combat parameters in the Initialize method. 
+        /// </summary>
         protected abstract void OverrideCombatValues(float elapsedTime);
 
+        /// <summary>
+        /// Executes combat movement.
+        /// calls initialize/override, chase behavior, and combat stance movement. 
+        /// </summary>
         public override void Execute(float elapsedTime, ShipAI.ShipGoal goal)
         {
             // Bail on invalid combat situations. 
@@ -97,6 +116,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             }
         }
 
+        /// <summary>
+        /// Returns true if too slow to get into combat range.
+        /// can be overriden. 
+        /// </summary>
         protected virtual bool CantGetInRange()
         {
             if (WeAreChasingAndCantCatchThem && MoveState != CombatMoveState.Disengage && !Owner.AI.HasPriorityTarget)
@@ -107,11 +130,18 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             return false;
         }
 
+        /// <summary>
+        /// Executes the anti chase disengage. Standard behavior is to move to disengage position.
+        /// </summary>
         protected virtual void ExecuteAntiChaseDisengage(float elapsedTime)
         {
             Owner.AI.SubLightContinuousMoveInDirection(DisengageDirection, elapsedTime);
         }
 
+        /// <summary>
+        /// Initializes basic combat movement parameters. Chase status. distance to target.
+        /// ship target orientation.
+        /// </summary>
         void Initialize(float desiredWeaponsRange)
         {
             if (DistanceToTarget > desiredWeaponsRange)
@@ -197,6 +227,9 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
             return chase;
         }
 
+        /// <summary>
+        /// TO BE EXPANDED. be a harder target on approach. 
+        /// </summary>
         public void ErraticMovement(float distanceToTarget)
         {
             if (AI.IsFiringAtMainTarget)
