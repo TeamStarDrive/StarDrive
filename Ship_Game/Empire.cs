@@ -2886,6 +2886,7 @@ namespace Ship_Game
             foreach(var system in systems)
             {
                 var nearest = OwnedSolarSystems.FindClosestTo(system);
+                if (nearest == null) continue;
                 float approxDistance = center.SqDist(nearest.Position);
                 if (center.SqDist(nearest.Position) < distance)
                 {
