@@ -42,12 +42,14 @@ namespace Ship_Game.AI.StrategyAI.WarGoals
         GoalStep AttackSystems()
         {
             if (HaveConqueredTargets()) return GoalStep.GoalComplete;
-
+            if (TargetSystems.IsEmpty) return GoalStep.TryAgain;
             var fleets        = Owner.AllFleetsReady();
             var nearestSystem = Owner.FindNearestOwnedSystemTo(TargetSystems);
             int priorityMod   = 0;
             float strength    = fleets.AccumulatedStrength;
             
+            if (nearestSystem == null) return GoalStep.TryAgain;
+
             var tasks = new WarTasks(Owner, Them);
             foreach(var system in TargetSystems.Sorted(s=> s.Position.SqDist(nearestSystem.Position)))
             {
