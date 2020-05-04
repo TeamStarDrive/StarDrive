@@ -207,10 +207,10 @@ namespace Ship_Game.AI
             WayPoint wp = wayPoints[0];
 
             AddMoveOrder(Plan.RotateToFaceMovePosition, wp, State,0, MoveTypes.FirstWayPoint);
-
-            MoveTypes combatEndMove = (goal?.IsPriorityMovement() ?? false) ? MoveTypes.None : MoveTypes.Combat;
-
+            
             MoveTypes combatMidMove = offensiveMove ? MoveTypes.Combat : MoveTypes.None;
+
+            MoveTypes combatEndMove = (goal?.IsPriorityMovement() ?? !offensiveMove) ? MoveTypes.None : MoveTypes.Combat;
 
             // set moveto1000 for each waypoint except for the last one. 
             // if only one waypoint skip this. 
