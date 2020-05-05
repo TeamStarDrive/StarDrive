@@ -20,10 +20,10 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
         [Flags]
         public enum ChaseState
         {
-            None = 0,
-            WeAreChasing = 1,
-            TheyAreChasing = 2,
-            CantCatch = 4,
+            None             = 0,
+            WeAreChasing     = 1 << 0,
+            TheyAreChasing   = 1 << 1,
+            CantCatch        = 1 << 2,
             ChasingCantCatch = WeAreChasing | CantCatch
         }
 
@@ -267,6 +267,7 @@ namespace Ship_Game.AI.ShipMovement.CombatManeuvers
                 }
             }
         }
+
 
         public void DrawDebugTarget(Vector2 pip, float radius)
         {
