@@ -79,7 +79,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
