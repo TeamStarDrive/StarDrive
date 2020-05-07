@@ -238,7 +238,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            if (alwaysLevelUp || RandomMath.RollDie(Level) == 1)
+            if (alwaysLevelUp || RandomMath.RollDie(Level*2) == 1)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
@@ -525,6 +525,7 @@ namespace Ship_Game
         {
             systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
                                                                  && s.RingList.Count > 0 
+                                                                 && !s.PiratePresence
                                                                  && !s.PlanetList.Any(p => p.Guardians.Count > 0));
             return systems.Length > 0;
         }
@@ -532,7 +533,7 @@ namespace Ship_Game
         bool GetLoneSystem(out SolarSystem system)
         {
             system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0);
+            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 && !s.PiratePresence);
             if (systems.Length > 0)
                 system = systems.RandItem();
 
