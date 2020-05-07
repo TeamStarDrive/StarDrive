@@ -56,9 +56,10 @@ namespace Ship_Game.Commands.Goals
                                                                       && !Pirates.SpawnedShips.Contains(s.guid)
                                                                       && s.BaseStrength > 0
                                                                       && !s.InCombat
+                                                                      && !s.IsPlatformOrStation
                                                                       && s.AI.State != AIState.Resupply
                                                                       && s.AI.EscortTarget != BaseToDefend);
-
+                
             if (potentialShips.Length > 0)
             {
                 Ship ship = potentialShips.RandItem();

@@ -54,7 +54,7 @@
                     CreditsMultiplier    = 0.2f;
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 75;
-                    PiratePayModifier    = 1f;
+                    PiratePayModifier    = 0.75f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -68,7 +68,7 @@
                     CreditsMultiplier    = empire.isPlayer ? 0.3f : 0.1f;
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 50;
-                    PiratePayModifier    = 1.5f;
+                    PiratePayModifier    = 1f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -82,7 +82,7 @@
                     CreditsMultiplier    = empire.isPlayer ? 0.5f : 0.05f;
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 35;
-                    PiratePayModifier    = 2f;
+                    PiratePayModifier    = 1.5f;
                     break;
             }
 
