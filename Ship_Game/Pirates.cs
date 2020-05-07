@@ -128,6 +128,7 @@ namespace Ship_Game
 
         public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
         public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);
+        public void ResetThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, 1);
         void SetThreatLevelFor(Empire victim, int value)  => ThreatLevels[victim.Id] = value.Clamped(1, MaxLevel);
 
         // For the Pirates themselves
