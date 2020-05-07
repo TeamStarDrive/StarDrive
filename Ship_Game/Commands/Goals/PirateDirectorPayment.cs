@@ -55,7 +55,7 @@ namespace Ship_Game.Commands.Goals
             {
                 // Ah, so they paid us,  we can use this money to expand our business 
                 Pirates.TryLevelUp();
-                Pirates.DecreaseThreatLevelFor(TargetEmpire);
+                Pirates.ResetThreatLevelFor(TargetEmpire);
                 Pirates.GetRelations(TargetEmpire).Treaty_NAPact       = true;
                 TargetEmpire.GetRelations(Pirates.Owner).Treaty_NAPact = true;
             }
@@ -63,7 +63,8 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                Pirates.AddGoalDirectorRaid(TargetEmpire);
+                if (!Pirates.Goals.Any(g => g.type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                     Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
             return GoalStep.RestartGoal;
