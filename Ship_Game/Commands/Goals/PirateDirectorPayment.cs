@@ -63,7 +63,8 @@ namespace Ship_Game.Commands.Goals
             {
                 // They did not pay! We will raid them
                 Pirates.IncreaseThreatLevelFor(TargetEmpire);
-                Pirates.AddGoalDirectorRaid(TargetEmpire);
+                if (!Pirates.Goals.Any(g => g.type == GoalType.PirateDirectorRaid && g.TargetEmpire == TargetEmpire))
+                     Pirates.AddGoalDirectorRaid(TargetEmpire);
             }
 
             return GoalStep.RestartGoal;
