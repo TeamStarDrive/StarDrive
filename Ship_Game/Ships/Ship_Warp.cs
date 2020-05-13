@@ -94,28 +94,24 @@ namespace Ship_Game.Ships
 
         public void HyperspaceReturn()
         {
-            if (!IsSpoolingOrInWarp)
+            if (IsSpoolingOrInWarp)
             {
-                return;
+                // stop the SFX and always reset the replay timeout
+                JumpSfx.Stop();
+
+                if (engineState == MoveState.Warp && InFrustum &&
+                    Empire.Universe != null &&
+                    Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
+                {
+                    GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
+                    FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
+                }
+                engineState     = MoveState.Sublight;
+                IsSpooling      = false;
+                VelocityMaximum = MaxSTLSpeed;
+                SpeedLimit      = VelocityMaximum;
             }
 
-            // stop the SFX and always reset the replay timeout
-            JumpSfx.Stop();
-
-            if (engineState == MoveState.Warp && InFrustum &&
-                Empire.Universe != null &&
-                Empire.Universe.viewState <= UniverseScreen.UnivScreenState.SystemView)
-            {
-                GameAudio.PlaySfxAsync(GetEndWarpCue(), SoundEmitter);
-                FTLManager.ExitFTL(GetWarpEffectPosition, Direction3D, Radius);
-            }
-
-            engineState = MoveState.Sublight;
-            IsSpooling = false;
-            VelocityMaximum = MaxSTLSpeed;
-            // feature: exit from hyperspace at ridiculous speeds
-            Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
-            SpeedLimit = VelocityMaximum;
         }
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();

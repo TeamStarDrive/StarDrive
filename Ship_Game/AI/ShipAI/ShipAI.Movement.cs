@@ -5,6 +5,7 @@ using Ship_Game.Ships.AI;
 using System;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Ship_Game.Fleets;
 
 namespace Ship_Game.AI
 {
@@ -150,16 +151,37 @@ namespace Ship_Game.AI
             if (Owner.engineState == Ship.MoveState.Warp)
             {
                 if (distance <= Owner.WarpOutDistance)
-                    DequeueOrder(goal.HasCombatMove());
+                    DequeueOrder(goal.HasCombatMove(distance));
             }
             else if (distance <= 1000f)
             {
-                DequeueOrder(goal.HasCombatMove());
+                DequeueOrder(goal.HasCombatMove(distance));
             }
-            else if (HasPriorityOrder && Target != null && Target.Center.InRadius(Owner.Center, Owner.DesiredCombatRange) || Owner.LastDamagedBy == Target)
+            else if (goal.HasCombatMove(distance))
             {
-                if (goal.HasCombatMove())
-                    SetPriorityOrder(false);
+                    if (Owner.fleet != null && FleetNode != null && Target != null)
+                    {
+                        float targetDistance = (Owner.fleet.AveragePosition() + FleetNode.FleetOffset).Distance(Target.Center);
+
+                        switch(Owner.fleet.Fcs)
+                        {
+                            case Fleet.FleetCombatStatus.Maintain:
+                                if (targetDistance <= FleetNode.OrdersRadius)
+                                    SetPriorityOrder(false);
+                                break;
+                            case Fleet.FleetCombatStatus.Loose:
+                                if (targetDistance <= Owner.SensorRange)
+                                    SetPriorityOrder(false);
+                                break;
+                            case Fleet.FleetCombatStatus.Free:
+                                SetPriorityOrder(false);
+                            break;
+                        }
+                    }
+                    else 
+                    {
+                        SetPriorityOrder(false);
+                    }
             }
         }
 
@@ -179,7 +201,7 @@ namespace Ship_Game.AI
         {
             Owner.HyperspaceReturn();
 
-            if (goal.HasCombatMove())
+            if (goal.HasCombatMove(0))
             {
 
                 if (HasPriorityOrder)
@@ -432,7 +454,7 @@ namespace Ship_Game.AI
         {
             if (Owner.engineState != Ship.MoveState.Warp)
             {
-                //if (Owner.WarpPercent < 1f)
+                if (Owner.WarpPercent < 1f)
                     Owner.SetWarpPercent(elapsedTime, 1f); // back to normal
                 return false;
             }
