@@ -198,6 +198,29 @@ namespace Ship_Game.Ships
         // for every ship.
         // Each bit in the bitfield marks whether an empire is influencing us or not
 
+        public bool InsideAreaOfOperation(Planet planet)
+        {
+            if (AreaOfOperation.IsEmpty)
+                return true;
+
+            foreach (Rectangle ao in AreaOfOperation)
+                if (ao.HitTest(planet.Center))
+                    return true;
+
+            return false;
+        }
+
+        public void PiratePostChangeLoyalty()
+        {
+            if (loyalty.WeArePirates)
+            {
+                if (IsSubspaceProjector)
+                    ScuttleTimer = 10;
+                else
+                    AI.OrderPirateFleeHome();
+            }
+        }
+
         public void UpdateHomePlanet(Planet planet)
         {
             HomePlanet = planet;
@@ -212,18 +235,6 @@ namespace Ship_Game.Ships
             percent = percent.Clamped(0f, 1f);
             foreach (ShipModule module in ModuleSlotList)
                 module.DebugDamage(percent);
-        }
-
-        public bool InsideAreaOfOperation(Planet planet)
-        {
-            if (AreaOfOperation.IsEmpty)
-                return true;
-
-            foreach (Rectangle ao in AreaOfOperation)
-                if (ao.HitTest(planet.Center))
-                    return true;
-
-            return false;
         }
 
         public ShipData.RoleName DesignRole { get; private set; }
