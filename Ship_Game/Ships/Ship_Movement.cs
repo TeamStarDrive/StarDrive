@@ -415,6 +415,12 @@ namespace Ship_Game.Ships
         // called from Ship.Update
         void UpdateEnginesAndVelocity(float elapsedTime)
         {
+            if (engineState == MoveState.Sublight && CurrentVelocity > MaxSTLSpeed)
+            {
+                // feature: exit from hyperspace at ridiculous speeds
+                Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
+            }
+
             UpdateHyperspaceInhibited(elapsedTime);
             SetMaxFTLSpeed();
 
