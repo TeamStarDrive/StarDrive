@@ -128,6 +128,7 @@ namespace Ship_Game
 
         public void IncreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, ThreatLevels[victim.Id] + 1);
         public void DecreaseThreatLevelFor(Empire victim) => SetThreatLevelFor(victim,  ThreatLevels[victim.Id] - 1);
+        public void ResetThreatLevelFor(Empire victim) => SetThreatLevelFor(victim, 1);
         void SetThreatLevelFor(Empire victim, int value)  => ThreatLevels[victim.Id] = value.Clamped(1, MaxLevel);
 
         // For the Pirates themselves
@@ -238,7 +239,7 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            if (alwaysLevelUp || RandomMath.RollDie(Level) == 1)
+            if (alwaysLevelUp || RandomMath.RollDie(Level*2) == 1)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
@@ -525,6 +526,7 @@ namespace Ship_Game
         {
             systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
                                                                  && s.RingList.Count > 0 
+                                                                 && !s.PiratePresence
                                                                  && !s.PlanetList.Any(p => p.Guardians.Count > 0));
             return systems.Length > 0;
         }
@@ -532,7 +534,7 @@ namespace Ship_Game
         bool GetLoneSystem(out SolarSystem system)
         {
             system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0);
+            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 && !s.PiratePresence);
             if (systems.Length > 0)
                 system = systems.RandItem();
 

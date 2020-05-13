@@ -103,14 +103,17 @@ namespace Ship_Game
 
         public override void Update(float deltaTime)
         {
-            GovOrbitals.Visible = Planet.Owner.isPlayer && Planet.colonyType != Planet.ColonyType.Colony;
-            Garrison.Visible    = Planet.Owner.isPlayer;
-            Quarantine.Visible  = Planet.Owner.isPlayer;
-            Planet.GarrisonSize = (int)Garrison.AbsoluteValue;
+            if (Planet.Owner != null)
+            {
+                GovOrbitals.Visible  = Planet.Owner.isPlayer && Planet.colonyType != Planet.ColonyType.Colony;
+                Garrison.Visible     = Planet.Owner.isPlayer;
+                Quarantine.Visible   = Planet.Owner.isPlayer;
+                Planet.GarrisonSize  = (int)Garrison.AbsoluteValue;
+                Quarantine.TextColor = Planet.Quarantine ? Color.Red : Color.White;
 
-            // not for trade hubs, which do not build structures anyway
-            GovNoScrap.Visible   = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
-            Quarantine.TextColor = Planet.Quarantine ? Color.Red : Color.White;
+                // not for trade hubs, which do not build structures anyway
+                GovNoScrap.Visible    = GovOrbitals.Visible && Planet.colonyType != Planet.ColonyType.TradeHub;
+            }
 
             base.Update(deltaTime);
         }

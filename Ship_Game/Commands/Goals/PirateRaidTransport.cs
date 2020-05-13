@@ -16,7 +16,8 @@ namespace Ship_Game.Commands.Goals
             Steps = new Func<GoalStep>[]
             {
                DetectAndSpawnRaidForce,
-               CheckIfHijacked
+               CheckIfHijacked,
+               WaitForReturnHome
             };
         }
 
@@ -78,7 +79,7 @@ namespace Ship_Game.Commands.Goals
         {
             if (TargetShip == null
                 || !TargetShip.Active
-                || TargetShip.loyalty != Pirates.Owner && !TargetShip.InCombat)
+                || TargetShip.loyalty != Pirates.Owner && !TargetShip.AI.BadGuysNear)
             {
                 return GoalStep.GoalFailed; // Target destroyed or escaped
             }
@@ -86,8 +87,16 @@ namespace Ship_Game.Commands.Goals
             if (TargetShip.loyalty == Pirates.Owner)
             {
                 TargetShip.AI.OrderPirateFleeHome(signalRetreat: true);
-                return GoalStep.GoalComplete;
+                return GoalStep.GoToNextStep;
             }
+
+            return GoalStep.TryAgain;
+        }
+
+        GoalStep WaitForReturnHome()
+        {
+            if (TargetShip == null || !TargetShip.Active)
+                return GoalStep.GoalComplete;
 
             return GoalStep.TryAgain;
         }
