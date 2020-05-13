@@ -118,8 +118,8 @@ namespace Ship_Game
             if (QItem != null)
                 return false;
 
-            if (b.IsBiospheres && Habitable)
-                return false; // don't allow biospheres on habitable tiles (including tiles with biospheres)
+            if (b.IsBiospheres)
+                return !Habitable; // don't allow biospheres on habitable tiles (including tiles with biospheres)
 
             return !Habitable && b.CanBuildAnywhere && !BuildingOnTile
                  || Habitable && NoBuildingOnTile;
@@ -137,7 +137,6 @@ namespace Ship_Game
 
                 Habitable = true;
                 Biosphere = true;
-                building = null;
             }
             else
                 building = b;
