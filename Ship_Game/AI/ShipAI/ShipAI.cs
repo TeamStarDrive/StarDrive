@@ -192,6 +192,7 @@ namespace Ship_Game.AI
                         SetUpSupplyEscort(supplyShip, supplyType: "Rearm");
                         return;
                     }
+
                     nearestRallyPoint = Owner.loyalty.RallyShipYardNearestTo(Owner.Center);
                     break;
                 case ResupplyReason.NoCommand:
@@ -210,14 +211,17 @@ namespace Ship_Game.AI
                             if (Owner.loyalty.GetTroopShipForRebase(out Ship troopShip, Owner))
                                 troopShip.AI.OrderRebaseToShip(Owner);
                         }
+
                         return;
                     }
+
                     nearestRallyPoint = Owner.loyalty.RallyPoints.FindMax(p => p.TroopsHere.Count);
                     break;
                 case ResupplyReason.NotNeeded:
                     TerminateResupplyIfDone();
                     return;
             }
+
             SetPriorityOrder(true);
             DecideWhereToResupply(nearestRallyPoint);
         }
