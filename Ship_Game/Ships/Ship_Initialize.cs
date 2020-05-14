@@ -423,8 +423,8 @@ namespace Ship_Game.Ships
             BaseCost                 = ShipStats.GetBaseCost(ModuleSlotList);
             MaxBank                  = GetMaxBank();
 
-            Carrier = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
-            Supply  = new ShipResupply(this);
+            Carrier     = Carrier ?? CarrierBays.Create(this, ModuleSlotList);
+            Supply      = new ShipResupply(this);
             ShipEngines = new ShipEngines(this, ModuleSlotList);
 
             InitializeStatusFromModules(fromSave);
