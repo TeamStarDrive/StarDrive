@@ -58,7 +58,10 @@ namespace Ship_Game.Ships
             if (slots.Any(m => m.ModuleType == ShipModuleType.Hangar
                             || m.ModuleType == ShipModuleType.Transporter)
                             || role == ShipData.RoleName.troop)
+            {
                 return new CarrierBays(owner, slots);
+            }
+
             return None;
         }
 

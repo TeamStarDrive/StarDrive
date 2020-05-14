@@ -59,8 +59,8 @@ namespace Ship_Game.Ships
             {
                 using (loyalty.GetShips().AcquireReadLock())
                 {
-                    return loyalty.GetShips().Count(s => s.AI.State == AIState.RebaseToShip &&
-                                                    s.AI.EscortTarget == this);
+                    return loyalty.GetShips().Count(s => s.AI.State == AIState.RebaseToShip
+                                                    && s.AI.EscortTarget == this);
                 }
             }
         }
