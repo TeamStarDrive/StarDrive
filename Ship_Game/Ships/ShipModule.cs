@@ -81,7 +81,6 @@ namespace Ship_Game.Ships
         public bool IsRepairModule               => Flyweight.IsRepairModule;
         public string[] PermittedHangarRoles     => Flyweight.PermittedHangarRoles;
         public short MaximumHangarShipSize       => Flyweight.MaximumHangarShipSize;
-        public bool FightersOnly                 => Flyweight.FightersOnly;
         public bool DroneModule                  => Flyweight.DroneModule;
         public bool FighterModule                => Flyweight.FighterModule;
         public bool CorvetteModule               => Flyweight.CorvetteModule;
