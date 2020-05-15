@@ -58,7 +58,4 @@
     <!-- amount of thrust used to calculate the engine's turn speed bonus or penalty. Set to same as thrust for default -->
   <TurnThrust>25000</TurnThrust>
   
-  <!-- Deprecated tag in Turbo -->
-  <FightersOnly>true</FightersOnly>
-
 </ShipModule>
