@@ -124,191 +124,67 @@ namespace Ship_Game
                     modTitlePos, Color.White);
                 modTitlePos.Y += (Fonts.Arial14Bold.LineSpacing + 4);
             }
+
             string rest = "";
             switch (moduleTemplate.Restrictions)
             {
                 case Restrictions.IO:  rest = "Any Slot except E"; break;
-                case Restrictions.I:   rest = "I, IO, IE or IOE"; break;
+                case Restrictions.I:   rest = "I, IO, IE or IOE";  break;
                 case Restrictions.O:   rest = "O, IO, OE, or IOE"; break;
                 case Restrictions.E:   rest = "E, IE, OE, or IOE"; break;
-                case Restrictions.IOE: rest = "Any Slot"; break;
+                case Restrictions.IOE: rest = "Any Slot";          break;
                 case Restrictions.IE:  rest = "Any Slot except O"; break;
                 case Restrictions.OE:  rest = "Any Slot except I"; break;
-                case Restrictions.xI:  rest = "Only I"; break;
-                case Restrictions.xIO: rest = "Only IO"; break;
-                case Restrictions.xO:  rest = "Only O"; break;
+                case Restrictions.xI:  rest = "Only I";            break;
+                case Restrictions.xIO: rest = "Only IO";           break;
+                case Restrictions.xO:  rest = "Only O";            break;
             }
 
             // Concat ship class restrictions
-            string shipRest = "";
+            string shipRest    = "";
             bool specialString = false;
-
-            bool modDrones = GlobalStats.ActiveModInfo?.useDrones == true;
+            bool modDrones     = GlobalStats.ActiveModInfo?.useDrones == true;
             bool modDestroyers = GlobalStats.ActiveModInfo?.useDestroyers == true;
+
             if (modDrones && modDestroyers)
             {
-                if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule &&
-                    mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule &&
-                    mod.CarrierModule && mod.CarrierModule && mod.PlatformModule && mod.StationModule &&
-                    mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
-                else if (!mod.FightersOnly && !mod.DroneModule && mod.FighterModule && mod.CorvetteModule &&
-                         mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule &&
-                         mod.CarrierModule && mod.CapitalModule && mod.PlatformModule && mod.StationModule &&
-                         mod.FreighterModule)
-                {
-                    shipRest = "All Crewed";
-                    specialString = true;
-                }
-                else if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule &&
-                         !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule &&
-                         !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "Fighters Only";
-                    specialString = true;
-                }
-                else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule &&
-                         !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule &&
-                         !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "Drones Only";
-                    specialString = true;
-                }
-                else if (mod.FightersOnly && !specialString)
-                {
-                    shipRest = "Fighters/Corvettes Only";
-                    specialString = true;
-                }
-                else if (!mod.FightersOnly && !mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule &&
-                         !mod.FrigateModule && !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule &&
-                         !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule &&
-                         !mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
-
-                /////
-
-                if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule &&
-                    mod.DestroyerModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule &&
-                    mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
-                else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.DestroyerModule &&
-                         !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule &&
-                         !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "Fighters Only";
-                    specialString = true;
-                }
-                else if (mod.FightersOnly && !specialString)
-                {
-                    shipRest = "Fighters/Corvettes Only";
-                    specialString = true;
-                }
-                else if (!mod.FightersOnly && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule &&
-                         !mod.DestroyerModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule &&
-                         !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
-
-                /////
-
-                if (!mod.FightersOnly && mod.DroneModule && mod.FighterModule && mod.CorvetteModule &&
-                    mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule &&
-                    mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                    specialString = true;
-                }
-                else if (!mod.FightersOnly && !mod.DroneModule && mod.FighterModule && mod.CorvetteModule &&
-                         mod.FrigateModule && mod.CruiserModule && mod.CruiserModule && mod.CarrierModule &&
-                         mod.CapitalModule && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
-                {
-                    shipRest = "All Crewed";
-                    specialString = true;
-                }
-                else if (mod.FighterModule && !mod.DroneModule && !mod.CorvetteModule && !mod.FrigateModule &&
-                         !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule &&
-                         !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "Fighters Only";
-                    specialString = true;
-                }
-                else if (mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule &&
-                         !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule &&
-                         !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "Drones Only";
-                    specialString = true;
-                }
-                else if (mod.FightersOnly && !specialString)
-                {
-                    shipRest = "Fighters/Corvettes Only";
-                    specialString = true;
-                }
-                else if (!mod.FightersOnly && !mod.DroneModule && !mod.FighterModule && !mod.CorvetteModule &&
-                         !mod.FrigateModule && !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule &&
-                         !mod.CapitalModule && !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
+                if (mod.DroneModule && mod.FighterModule && mod.CorvetteModule 
+                    && mod.FrigateModule && mod.DestroyerModule && mod.CruiserModule 
+                    && mod.CarrierModule && mod.CarrierModule && mod.PlatformModule 
+                    && mod.StationModule && mod.FreighterModule)
                 {
                     shipRest = "All Hulls";
                     specialString = true;
                 }
             }
-
 
             if (GlobalStats.ActiveModInfo == null || (!modDrones && !modDestroyers))
             {
-                if (!mod.FightersOnly && mod.FighterModule && mod.CorvetteModule && mod.FrigateModule &&
-                    mod.CruiserModule && mod.CruiserModule && mod.CarrierModule && mod.CapitalModule &&
-                    mod.PlatformModule && mod.StationModule && mod.FreighterModule)
+                if (mod.FighterModule && mod.CorvetteModule && mod.FrigateModule 
+                    && mod.CruiserModule && mod.CruiserModule && mod.CapitalModule 
+                    && mod.PlatformModule && mod.StationModule && mod.FreighterModule)
                 {
                     shipRest = "All Hulls";
                 }
-                else if (mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule && !mod.CruiserModule &&
-                         !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule && !mod.PlatformModule &&
-                         !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "Fighters Only";
-                }
-                else if (mod.FightersOnly && !specialString)
-                {
-                    shipRest = "Fighters/Corvettes Only";
-                }
-                else if (!mod.FightersOnly && !mod.FighterModule && !mod.CorvetteModule && !mod.FrigateModule &&
-                         !mod.CruiserModule && !mod.CruiserModule && !mod.CarrierModule && !mod.CapitalModule &&
-                         !mod.PlatformModule && !mod.StationModule && !mod.FreighterModule)
-                {
-                    shipRest = "All Hulls";
-                }
-            }
-            else if (!specialString &&
-                     (!mod.DroneModule && modDrones) || (!mod.DestroyerModule && modDestroyers) ||
-                     !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule || !mod.CruiserModule  ||
-                     !mod.CruiserModule || !mod.CarrierModule  || !mod.CapitalModule || !mod.PlatformModule ||
-                     !mod.StationModule || !mod.FreighterModule)
-            {
-                if (mod.DroneModule && modDrones) shipRest += "Dr ";
-                if (mod.FighterModule)  shipRest += "F ";
-                if (mod.CorvetteModule) shipRest += "CO ";
-                if (mod.FrigateModule)  shipRest += "FF ";
-                if (mod.DestroyerModule && modDestroyers) shipRest += "DD ";
-                if (mod.CruiserModule) shipRest += "CC ";
-                if (mod.CarrierModule) shipRest += "CV ";
-                if (mod.CapitalModule) shipRest += "CA ";
-                if (mod.FreighterModule) shipRest += "Frt ";
-                if (mod.PlatformModule || mod.StationModule) shipRest += "Stat ";
             }
 
-            //DrawString(ref modTitlePos, string.Concat(Localizer.Token(122), ": ", rest));
+            if (!specialString && (!mod.DroneModule && modDrones) || (!mod.DestroyerModule && modDestroyers) 
+                     || !mod.FighterModule || !mod.CorvetteModule || !mod.FrigateModule 
+                     || !mod.CruiserModule || !mod.CarrierModule  || !mod.CapitalModule 
+                     || !mod.PlatformModule || !mod.StationModule || !mod.FreighterModule)
+            {
+                 if (mod.DroneModule && modDrones)            shipRest += "Dr ";
+                 if (mod.FighterModule)                       shipRest += "Fi ";
+                 if (mod.CorvetteModule)                      shipRest += "Co ";
+                 if (mod.FrigateModule)                       shipRest += "Fr ";
+                 if (mod.DestroyerModule && modDestroyers)    shipRest += "Dy ";
+                 if (mod.CruiserModule)                       shipRest += "Cr ";
+                 if (mod.CarrierModule)                       shipRest += "Bs ";
+                 if (mod.CapitalModule)                       shipRest += "Ca ";
+                 if (mod.FreighterModule)                     shipRest += "Frt ";
+                 if (mod.PlatformModule || mod.StationModule) shipRest += "Orb ";
+            }
+
             batch.DrawString(Fonts.Arial8Bold, Localizer.Token(122)+": "+rest, modTitlePos, Color.Orange);
             modTitlePos.Y += Fonts.Arial8Bold.LineSpacing;
             batch.DrawString(Fonts.Arial8Bold, "Hulls: "+shipRest, modTitlePos, Color.LightSteelBlue);
@@ -345,6 +221,7 @@ namespace Ship_Game
                 if (weaponTemplate.Tag_SpaceBomb) sb.Append("SPACEBOMB ");
                 if (weaponTemplate.Tag_Drone)     sb.Append("DRONE ");
                 if (weaponTemplate.Tag_Cannon)    sb.Append("CANNON ");
+
                 DrawString(batch, ref modTitlePos, sb.ToString(), Fonts.Arial8Bold);
 
                 modTitlePos.Y += (Fonts.Arial8Bold.LineSpacing + 5);
