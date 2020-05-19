@@ -1446,7 +1446,10 @@ namespace Ship_Game.Fleets
 
             ship.fleet = null;
             RemoveFromAllSquads(ship);
-            if (Ships.RemoveRef(ship) || !ship.Active)
+
+            // Todo - this if block is strange. It removes the ship before and then checks if its active.
+            // If it is active , it adds the ship again. It does not seem right.
+            if (Ships.RemoveRef(ship) && ship.Active)
             {
                 ship.loyalty.AddShipNextFrame(ship);
                 return true;
