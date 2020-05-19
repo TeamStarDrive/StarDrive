@@ -2027,6 +2027,7 @@ namespace Ship_Game
                 BorderNodes.Add(influenceNodeB);
             }
 
+            SetPirateBorders();
             BorderNodes.ClearPendingRemovals();
             SensorNodes.ClearPendingRemovals();
             using (BorderNodes.AcquireReadLock())
@@ -2041,6 +2042,23 @@ namespace Ship_Game
                 }
 
             BorderNodes.ApplyPendingRemovals();
+        }
+
+        private void SetPirateBorders()
+        {
+            if (!WeArePirates || !Pirates.GetBases(out Array<Ship> bases))
+                return;
+
+            for (int i = 0; i < bases.Count; i++)
+            {
+                Ship pirateBase             = bases[i];
+                InfluenceNode influenceNode = BorderNodes.RecycleObject() ?? new InfluenceNode();
+                influenceNode.Position      = pirateBase.Center;
+                influenceNode.Radius        = 60000;
+                influenceNode.SourceObject  = pirateBase;
+                influenceNode.Known         = EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(pirateBase.guid);
+                BorderNodes.Add(influenceNode);
+            }
         }
 
         private void SetBordersByPlanet(bool empireKnown)
