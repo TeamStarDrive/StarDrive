@@ -2056,7 +2056,7 @@ namespace Ship_Game
                 influenceNode.Position      = pirateBase.Center;
                 influenceNode.Radius        = 60000;
                 influenceNode.SourceObject  = pirateBase;
-                influenceNode.Known         =  EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(pirateBase.guid);
+                influenceNode.Known         = EmpireManager.Player.GetEmpireAI().ThreatMatrix.ContainsGuid(pirateBase.guid);
                 BorderNodes.Add(influenceNode);
             }
         }
