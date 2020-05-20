@@ -414,7 +414,7 @@ namespace Ship_Game.Ships
                 return false;
             }
             if (Owner.SpeedLimit * 2 > slowestFighterSpeed)
-                Owner.SpeedLimit = slowestFighterSpeed * 0.25f;
+                Owner.SetSpeedLimit(slowestFighterSpeed * 0.25f);
 
             return true;
         }
