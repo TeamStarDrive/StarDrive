@@ -186,7 +186,7 @@ namespace Ship_Game.Debug
             if (Screen.SelectedShip != null)
             {
                 Ship ship = Screen.SelectedShip;
-                ship.SpeedLimit = speedLimiter * ship.VelocityMaximum;
+                ship.SetSpeedLimit(speedLimiter * ship.VelocityMaximum);
             }
 
             foreach (PredictionDebugPlatform platform in GetPredictionDebugPlatforms())
