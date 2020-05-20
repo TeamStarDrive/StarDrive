@@ -25,7 +25,7 @@ namespace Ship_Game.AI
                 ClearOrders(State);
                 if (Owner.Mothership != null)
                 {
-                    if (Owner.Mothership.TroopsOut)
+                    if (Owner.Mothership.Carrier.TroopsOut)
                         Owner.DoEscort(Owner.Mothership);
                     else
                         OrderReturnToHangar();

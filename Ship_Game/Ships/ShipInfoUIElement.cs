@@ -672,8 +672,8 @@ namespace Ship_Game.Ships
 
                 var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.TroopToggle, 225)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.TroopsOut, x => {
-                        Ship.TroopsOut = !Ship.TroopsOut;
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.TroopsOut, x => {
+                        Ship.Carrier.TroopsOut = !Ship.Carrier.TroopsOut;
                     })
                 };
                 Orders.Add(ob2);
@@ -683,9 +683,9 @@ namespace Ship_Game.Ships
             {
                 var ob = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterToggle, 19)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.FightersOut, x =>
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.FightersOut, x =>
                     {
-                        Ship.FightersOut = !Ship.FightersOut;
+                        Ship.Carrier.FightersOut = !Ship.Carrier.FightersOut;
                     })
                 };
                 Orders.Add(ob);
@@ -695,9 +695,9 @@ namespace Ship_Game.Ships
             {
                 var ob2 = new OrdersButton(Ship, Vector2.Zero, OrderType.FighterRecall, 146)
                 {
-                    ValueToModify = new Ref<bool>(() => Ship.RecallFightersBeforeFTL, x =>
+                    ValueToModify = new Ref<bool>(() => Ship.Carrier.RecallFightersBeforeFTL, x =>
                         {
-                            Ship.RecallFightersBeforeFTL = x;
+                            Ship.Carrier.SetRecallFightersBeforeFTL(x);
                             Ship.ManualHangarOverride = !x;
                         }
                     )

@@ -329,7 +329,7 @@ namespace Ship_Game.AI
                         if (hangarShip != null && hangarShip.AI.State != AIState.ReturnToHangar &&
                             !hangarShip.AI.HasPriorityTarget && !hangarShip.AI.HasPriorityOrder)
                         {
-                            if (Owner.FightersLaunched)
+                            if (Owner.Carrier.FightersLaunched)
                                 hangarShip.DoEscort(Owner);
                             else
                                 hangarShip.AI.OrderReturnToHangar();
