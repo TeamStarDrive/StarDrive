@@ -115,7 +115,7 @@ namespace Ship_Game.Ships
             VelocityMaximum = MaxSTLSpeed;
             // feature: exit from hyperspace at ridiculous speeds
             Velocity = Velocity.Normalized() * Math.Min(MaxSTLSpeed, MaxSubLightSpeed);
-            SpeedLimit = VelocityMaximum;
+            SetSpeedLimit(VelocityMaximum);
         }
 
         Vector3 GetWarpEffectPosition() => Center.ToVec3();
