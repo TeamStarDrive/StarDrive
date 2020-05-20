@@ -280,9 +280,12 @@ namespace Ship_Game
                     sdata.ProdCount        = ship.GetProduction();
                     sdata.PopCount         = ship.GetColonists();
                     sdata.TroopList        = ship.GetFriendlyAndHostileTroops();
-                    sdata.FightersLaunched = ship.FightersLaunched;
-                    sdata.TroopsLaunched   = ship.TroopsLaunched;
+                    sdata.FightersLaunched = ship.Carrier.FightersLaunched;
+                    sdata.TroopsLaunched   = ship.Carrier.TroopsLaunched;
+                    sdata.SendTroopsToShip = ship.Carrier.SendTroopsToShip;
                     sdata.AreaOfOperation  = ship.AreaOfOperation.Select(r => new RectangleData(r));
+
+                    sdata.RecallFightersBeforeFTL = ship.Carrier.RecallFightersBeforeFTL;
 
                     if (ship.HomePlanet != null)
                         sdata.HomePlanetGuid = ship.HomePlanet.guid;
@@ -788,6 +791,8 @@ namespace Ship_Game
             [Serialize(29)] public bool TransportingColonists;
             [Serialize(30)] public bool AllowInterEmpireTrade;
             [Serialize(31)] public Array<Guid> TradeRoutes;
+            [Serialize(32)] public bool SendTroopsToShip;
+            [Serialize(33)] public bool RecallFightersBeforeFTL;
         }
 
         public class SolarSystemSaveData
