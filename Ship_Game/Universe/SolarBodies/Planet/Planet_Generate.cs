@@ -262,11 +262,15 @@ namespace Ship_Game
             if (Category == Owner.data.PreferredEnv && BaseMaxFertility.GreaterOrEqual(TerraformedMaxFertility))
                 return false;
 
-            if (TerraformPoints.AlmostZero()) // Starting to terraform
+            if (TerraformPoints.AlmostZero()) // Starting terraform
                 SetBaseFertilityTerraform();
 
             TerraformPoints += TerraformToAdd;
-            AddMaxBaseFertility(BaseFertilityTerraformRatio * TerraformToAdd);
+
+            // Increase MaxBaseFertility if the target MaxBaseFertility is higher than current 
+            if (TerraformedMaxFertility.Greater(BaseMaxFertility))
+                AddMaxBaseFertility(BaseFertilityTerraformRatio * TerraformToAdd);
+
             if (TerraformPoints.GreaterOrEqual(1))
             {
                 CompletePlanetTerraform();
@@ -307,19 +311,23 @@ namespace Ship_Game
         {
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
-            AddMaxBaseFertility(-BaseMaxFertility + TerraformedMaxFertility);
 
-            string messageText = Localizer.Token(1920);
-            if (!BioSpheresToTerraform) 
+
+            if (TerraformedMaxFertility.Greater(BaseMaxFertility))
             {
-                RemoveTerraformers();
-                messageText = Localizer.Token(1971);
+                // BaseMaxFertility was lower, so the planet was improved. This is just to stabilize
+                // BaseMaxFertility after the gradual increase during terraform
+                AddMaxBaseFertility(-BaseMaxFertility + TerraformedMaxFertility);
+            }
+            else 
+            {
+                // BaseMaxFertility was higher than target max fertility anyway, so keep it the same,
+                // considering racial envs and align Current fertility to MaxFertility
+                float alignedFertility = BaseMaxFertility * TerraformedMaxFertility;
+                SetBaseFertilityMinMax(alignedFertility);
             }
 
-            if (Owner.isPlayer) // Notify player that the planet was terraformed
-                Empire.Universe.NotificationManager.AddRandomEventNotification(
-                    Name + " " + messageText, Type.IconPath, "SnapToPlanet", this);
-            else // re-assess colony type after terraform, this might change for the AI
+            if (!Owner.isPlayer) // Re-assess colony type after terraform, this might change for the AI
                 colonyType = Owner.AssessColonyNeeds(this);
         }
 
@@ -360,27 +368,18 @@ namespace Ship_Game
         }
 
         // Refactored by Fat Bastard && RedFox
-        private void Terraform(PlanetCategory newCategory, bool improve = true)
+        private void Terraform(PlanetCategory newCategory)
         {
             if (Category == newCategory)
                 return; // A planet with the same category was Terraformed (probably to increase fertility)
 
-            Type                  = ResourceManager.RandomPlanet(newCategory);
-            float newBasePopMax   = Type.PopPerTile.Generate();
-
-            // Dont let the BasePopMax be lower if improving or higher if degrading
-            BasePopPerTile = improve ? Math.Max(BasePopPerTile, newBasePopMax) 
-                                 : Math.Min(BasePopPerTile, newBasePopMax);
-
-            if (!improve)
-                ReCalculateHabitableChances();
-
+            Type = ResourceManager.RandomPlanet(newCategory);
             CreatePlanetSceneObject(Empire.Universe);
             UpdateDescription();
             UpdateMaxPopulation();
         }
 
-        private void ReCalculateHabitableChances()
+        private void ReCalculateHabitableChances() // FB - We might need it for planet degrade
         {
             float habitableChance = Type.HabitableTileChance.Generate();
             foreach (PlanetGridSquare pgs in TilesList)
@@ -400,6 +399,7 @@ namespace Ship_Game
                     case PlanetCategory.Terran:
                         if (!RollDice(habitableChance))
                             DestroyTile(pgs);
+
                         continue;
                     default:
                         continue;
@@ -410,7 +410,7 @@ namespace Ship_Game
         private void SetBaseFertilityTerraform()
         {
             float ratio;
-            if (BaseMaxFertility.AlmostZero())             ratio = TerraformedMaxFertility;
+            if      (BaseMaxFertility.AlmostZero())        ratio = TerraformedMaxFertility;
             else if (TerraformedMaxFertility.AlmostZero()) ratio = 0;
             else                                           ratio = BaseMaxFertility / TerraformedMaxFertility;
 
