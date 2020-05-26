@@ -197,21 +197,18 @@ namespace Ship_Game
             ShipInfoOverlay = Add(new ShipInfoOverlayComponent(this));
         }
 
-        public float PositiveTerraformTargetFertility()
+        public float TerraformTargetFertility()
         {
-            var buildingList = P.BuildingList.Filter(b => b.MaxFertilityOnBuild > 0);
-            float positiveFertilityOnBuild = buildingList.Sum(b => b.MaxFertilityOnBuild);
-
-            return 1 + positiveFertilityOnBuild * Player.RacialEnvModifer(Player.data.PreferredEnv);
+            float fertilityOnBuild = P.BuildingList.Sum(b => b.MaxFertilityOnBuild);
+            return (1 + fertilityOnBuild*Player.RacialEnvModifer(Player.data.PreferredEnv)).LowerBound(0);
         }
 
         string TerraformPotential(out Color color)
         {
             color                       = Color.LightGreen;
-            float targetFertility       = PositiveTerraformTargetFertility();
+            float targetFertility       = TerraformTargetFertility();
             int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
             int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
-            int numNegativeEnvBuildings = P.BuildingList.Count(b => b.MaxFertilityOnBuild < 0);
             float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
                                           + P.BuildingList.Sum(b => b.MaxPopIncrease);
 
@@ -227,11 +224,22 @@ namespace Ship_Game
             if (numBiospheres > 0)
                 text += $"  * Remove {numBiospheres} Biospheres.\n";
 
-            if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
+            if (targetFertility.AlmostZero())
+            {
+                text += "  * Max Fertility will be 0 due to negative effecting environment buildings.\n";
+                color = Color.Red;
+            }
+            else if (targetFertility.Less(1))
+            {
+                text += $"  * Max Fertility will only be changed to {targetFertility} due to negative effecting environment buildings.\n";
+            }
+            else if (targetFertility.Greater(P.MaxFertilityFor(Player))) // better new fertility max
+            {
                 text += $"  * Max Fertility will be changed to {targetFertility}.\n";
+            }
 
             if (minEstimatedMaxPop > P.MaxPopulationFor(Player))
-                text += $"  * Expected Max Population will be at least {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
+                text += $"  * Expected Max Population will be {(minEstimatedMaxPop / 1000).String(2)} Billion colonists.\n";
 
             if (text == initialText)
             {
