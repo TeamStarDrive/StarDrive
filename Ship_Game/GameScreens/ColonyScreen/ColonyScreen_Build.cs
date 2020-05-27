@@ -9,6 +9,7 @@ namespace Ship_Game
     public partial class ColonyScreen
     {
         bool ResetBuildableList;
+        string FilterItemsText;
 
         readonly string BuildingsTabText = Localizer.Token(334); // BUILDINGS
         readonly string ShipsTabText = Localizer.Token(335); // SHIPS
@@ -48,12 +49,21 @@ namespace Ship_Game
                 ResetBuildableTabs();
             }
 
-            if (BuildableTabs.IsSelected(BuildingsTabText))
+            if (BuildableTabs.IsSelected(BuildingsTabText))  
             {
-                ResetBuildableList |= BuildableList.NumEntries != P.GetBuildingsCanBuild().Count;
-                if (ResetBuildableList)
+                var buildingsCanBuild = P.GetBuildingsCanBuild();
+                if (FilterBuildableItems.Text.NotEmpty())
+                    buildingsCanBuild= buildingsCanBuild.Filter(b => b.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
+
+                ResetBuildableList |= BuildableList.NumEntries != buildingsCanBuild.Count;
+
+                if (ResetBuildableList || FilterItemsText != FilterBuildableItems.Text) 
                 {
+                    FilterItemsText = FilterBuildableItems.Text;
                     Building[] buildings = P.GetBuildingsCanBuild().Sorted(b => b.Name);
+                    if (FilterBuildableItems.Text.NotEmpty())
+                        buildings = buildings.Filter(b => b.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
+
                     BuildableList.SetItems(buildings.Select(b => new BuildableListItem(this, b)));
                 }
             }
@@ -110,6 +120,18 @@ namespace Ship_Game
                 .Select(shipName => ResourceManager.GetShipTemplate(shipName))
                 .Where(ship => ship.IsBuildableByPlayer).ToArray();
 
+            if (FilterBuildableItems.Text.NotEmpty())
+            {
+                if (ResetBuildableList || FilterItemsText != FilterBuildableItems.Text)
+                {
+                    FilterItemsText = FilterBuildableItems.Text;
+                    var shipList = buildableShips.Filter(s => s.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
+                    shipList = shipList.SortedDescending(s => s.BaseStrength);
+                    BuildableList.SetItems(shipList.Select(s => new BuildableListItem(this, s)));
+                    return;
+                }
+            }
+
             var categoryMap = new Map<string, ShipCategory>();
 
             foreach (Ship ship in buildableShips)
@@ -133,6 +155,12 @@ namespace Ship_Game
                     if (diff.NotEqual(0)) return (int)diff;
                     return string.CompareOrdinal(b.Name, a.Name);
                 });
+            }
+
+            if (FilterItemsText.NotEmpty() && FilterBuildableItems.Text.IsEmpty())
+            {
+                FilterItemsText     = "";
+                 ResetBuildableList = true; // filter is empty so we need a refresh
             }
 
             if (ResetBuildableList || BuildableShipsChanged(categories))
@@ -250,6 +278,13 @@ namespace Ship_Game
                 GameAudio.AffirmativeClick();
             else
                 GameAudio.NegativeClick();
+        }
+
+        void OnClearFilterClick(UIButton b)
+        {
+            FilterBuildableItems.Text = "";
+            FilterItemsText           = "";
+            ResetBuildableList        = true;
         }
 
         void OnBuildShipyardClick(UIButton b)
