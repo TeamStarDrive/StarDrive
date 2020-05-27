@@ -161,8 +161,8 @@ namespace Ship_Game
             DrawPlanetSurfaceGrid(batch);
             pFacilities.Draw(batch);
             DrawDetailInfo(batch, new Vector2(pFacilities.Rect.X + 15, pFacilities.Rect.Y + 35));
-
             batch.Draw(P.PlanetTexture, PlanetIcon, Color.White);
+
             float num5 = 80f;
             if (GlobalStats.IsGermanOrPolish)
                 num5 += 20f;
@@ -174,6 +174,7 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit"), EditNameButton, Color.White);
             else
                 batch.Draw(ResourceManager.Texture("NewUI/icon_build_edit_hover2"), EditNameButton, Color.White);
+
             if (ScreenHeight > 768)
                 vector2_2.Y += Font20.LineSpacing * 2;
             else

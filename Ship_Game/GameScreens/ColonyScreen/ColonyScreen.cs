@@ -32,8 +32,12 @@ namespace Ship_Game
         UIButton BuildStation;
         UIButton BuildShipyard;
         UIButton CallTroops;  //fbedard
+        UITextEntry FilterBuildableItems;
         Rectangle GridPos;
         Submenu subColonyGrid;
+        Submenu FilterFrame;
+        UIButton ClearFilter;
+
 
         ScrollList2<BuildableListItem> BuildableList;
         ScrollList2<ConstructionQueueScrollListItem> ConstructionQueue;
@@ -149,8 +153,21 @@ namespace Ship_Game
             UpdateGovOrbitalStats();
             UpdateButtons();
 
-            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 20, 
-                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height - 60));
+            FilterBuildableItems = Add(new UITextEntry(new Vector2(RightMenu.X + 80, RightMenu.Y + 17), ""));
+            FilterBuildableItems.Font = Font12;
+            FilterFrame = Add(new Submenu(RightMenu.X + 70, RightMenu.Y-10, RightMenu.Width - 400, 42));
+            Label(FilterFrame.Pos + new Vector2(-45,25), "Filter:", Font12, Color.White);
+            var customStyle = new UIButton.StyleTextures("NewUI/icon_clear_filter", "NewUI/icon_clear_filter_hover");
+            ClearFilter = Add(new UIButton(customStyle, new Vector2(17, 17), "")
+            {
+                Font    = Font12,
+                Tooltip = GameText.ClearBuildableItemsFilter,
+                OnClick = OnClearFilterClick,
+                Pos     = new Vector2(FilterFrame.Pos.X + FilterFrame.Width + 10, FilterFrame.Pos.Y + 25)
+            });
+
+            BuildableTabs = new Submenu(RightMenu.X + 20, RightMenu.Y + 40, 
+                                        RightMenu.Width - 40, 0.5f*(RightMenu.Height-40));
             BuildableTabs.OnTabChange = OnBuildableTabChanged;
 
             BuildableList = Add(new ScrollList2<BuildableListItem>(BuildableTabs));
@@ -167,7 +184,7 @@ namespace Ship_Game
 
             ResetBuildableTabs();
 
-            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 20 + 20 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 63);
+            var queue = new Submenu(RightMenu.X + 20, RightMenu.Y + 60 + BuildableTabs.Height, RightMenu.Width - 40, RightMenu.Height - BuildableTabs.Height - 75);
             queue.AddTab(Localizer.Token(337));
 
             ConstructionQueue = Add(new ScrollList2<ConstructionQueueScrollListItem>(queue));
