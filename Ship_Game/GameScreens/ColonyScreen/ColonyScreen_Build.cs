@@ -125,8 +125,8 @@ namespace Ship_Game
                 if (ResetBuildableList || FilterItemsText != FilterBuildableItems.Text)
                 {
                     FilterItemsText = FilterBuildableItems.Text;
-                    var shipList = buildableShips.Filter(s => s.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
-                    shipList = shipList.SortedDescending(s => s.BaseStrength);
+                    var shipList    = buildableShips.Filter(s => s.Name.ToLower().Contains(FilterBuildableItems.Text.ToLower()));
+                    shipList        = shipList.SortedDescending(s => s.BaseStrength);
                     BuildableList.SetItems(shipList.Select(s => new BuildableListItem(this, s)));
                     return;
                 }
