@@ -210,7 +210,7 @@ namespace Ship_Game
             int numUninhabitableTiles   = P.TilesList.Count(t => !t.Habitable);
             int numBiospheres           = P.TilesList.Count(t => t.Biosphere);
             float minEstimatedMaxPop    = P.TileArea * P.BasePopPerTile * Player.RacialEnvModifer(Player.data.PreferredEnv) 
-                                          + P.BuildingList.Sum(b => b.MaxPopIncrease);
+                                          + P.BuildingList.Filter(b => !b.IsBiospheres).Sum(b => b.MaxPopIncrease);
 
             string text = "Terraformer Process Stages:\n";
             string initialText = text;
