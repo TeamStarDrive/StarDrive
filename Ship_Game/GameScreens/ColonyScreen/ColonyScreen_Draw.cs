@@ -201,7 +201,7 @@ namespace Ship_Game
             else
             {
                 Color fertColor = P.FertilityFor(Player) < P.MaxFertilityFor(Player) ? Color.LightGreen : Color.Pink;
-                fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).String(2)}";
+                fertility = $"{P.FertilityFor(Player).String(2)} / {P.MaxFertilityFor(Player).LowerBound(0).String(2)}";
                 batch.DrawString(Font12, fertility, position3, fertColor);
             }
             float fertEnvMultiplier = EmpireManager.Player.RacialEnvModifer(P.Category);
@@ -594,6 +594,9 @@ namespace Ship_Game
                     string selectionText = MultiLineFormat(selectedBuilding.DescriptionIndex);
                     batch.DrawString(Font12, selectionText, bCursor, color);
                     bCursor.Y += Font12.MeasureString(selectionText).Y + Font20.LineSpacing;
+                    if (selectedBuilding.isWeapon)
+                        selectedBuilding.CalcMilitaryStrength(); // So the building will have TheWeapon for stats
+
                     DrawSelectedBuildingInfo(ref bCursor, batch, selectedBuilding);
                     break;
             }
@@ -629,26 +632,53 @@ namespace Ship_Game
             DrawBuildingInfo(ref bCursor, batch, b.PlusProdPerRichness, "NewUI/icon_production", Localizer.Token(363));
             DrawBuildingInfo(ref bCursor, batch, b.ShipRepair * 10, "NewUI/icon_queue_rushconstruction", Localizer.Token(6137));
             DrawBuildingInfo(ref bCursor, batch, b.CombatStrength, "Ground_UI/Ground_Attack", Localizer.Token(364));
+            DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
+
             float maintenance = -b.ActualMaintenance(P);
             DrawBuildingInfo(ref bCursor, batch, maintenance, "NewUI/icon_money", Localizer.Token(365));
-            if (b.TheWeapon != null)
-            {
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
-                DrawBuildingInfo(ref bCursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);
-            }
 
-            if (b.DefenseShipsCapacity > 0)
-                DrawBuildingInfo(ref bCursor, batch, b.DefenseShipsCapacity, "UI/icon_hangar", b.DefenseShipsRole + " Defense Ships", signs: false);
+            DrawBuildingWeaponStats(ref bCursor, batch, b);
+            DrawTerraformerStats(ref bCursor, batch, b);
+            DrawFertilityOnBuildWarning(ref bCursor, batch, b);
+        }
 
-            if (b.PlusTerraformPoints > 0)
+        void DrawFertilityOnBuildWarning(ref Vector2 cursor, SpriteBatch batch, Building b)
+        {
+            if (b.MaxFertilityOnBuild.LessOrEqual(0))
+                return;
+
+            if (P.MaxFertility + b.MaxFertilityOnBuildFor(Player, P.Category) < 0)
             {
-                string terraformStats = TerraformPotential(out Color terraformColor);
-                bCursor.Y += Font12.LineSpacing;
-                batch.DrawString(Font12, terraformStats, bCursor, terraformColor);
-                bCursor.Y += Font12.LineSpacing * 4;
+                string warning = MultiLineFormat("WARNING - This building won't raise Max Fertility " +
+                                                  "above 0 due to currently present negative environment " +
+                                                  $"buildings on this planet (effective Max Fertility is {P.MaxFertility}).");
+
+                cursor.Y += Font12.LineSpacing;
+                batch.DrawString(Font12, warning, cursor, Color.Red);
+                cursor.Y += Font12.LineSpacing * 4;
             }
+        }
+
+        void DrawTerraformerStats(ref Vector2 cursor, SpriteBatch batch, Building b)
+        {
+            if (b.PlusTerraformPoints.LessOrEqual(0))
+                return;
+
+            string terraformStats = TerraformPotential(out Color terraformColor);
+            cursor.Y += Font12.LineSpacing;
+            batch.DrawString(Font12, terraformStats, cursor, terraformColor);
+            cursor.Y += Font12.LineSpacing * 4;
+        }
+
+        void DrawBuildingWeaponStats(ref Vector2 cursor, SpriteBatch batch, Building b)
+        {
+            if (b.TheWeapon == null)
+                return;
+
+            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.BaseRange, "UI/icon_offense", "Range", signs: false);
+            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.DamageAmount, "UI/icon_offense", "Damage", signs: false);
+            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.EMPDamage, "UI/icon_offense", "EMP Damage", signs: false);
+            DrawBuildingInfo(ref cursor, batch, b.TheWeapon.NetFireDelay, "UI/icon_offense", "Fire Delay", signs: false);
         }
 
         void UpdateFreighters() // This will update freighters in an interval to reduce threading issues
