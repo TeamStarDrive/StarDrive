@@ -272,10 +272,7 @@ namespace Ship_Game
                 AddMaxBaseFertility(BaseFertilityTerraformRatio * TerraformToAdd);
 
             if (TerraformPoints.GreaterOrEqual(1))
-            {
                 CompletePlanetTerraform();
-                return false;
-            }
 
             return true;
         }
@@ -311,8 +308,6 @@ namespace Ship_Game
         {
             Terraform(Owner.data.PreferredEnv);
             UpdateTerraformPoints(0);
-
-
             if (TerraformedMaxFertility.Greater(BaseMaxFertility))
             {
                 // BaseMaxFertility was lower, so the planet was improved. This is just to stabilize
@@ -323,8 +318,10 @@ namespace Ship_Game
             {
                 // BaseMaxFertility was higher than target max fertility anyway, so keep it the same,
                 // considering racial envs and align Current fertility to MaxFertility
-                float alignedFertility = BaseMaxFertility * TerraformedMaxFertility;
-                SetBaseFertilityMinMax(alignedFertility);
+                // The LowerBound is for planets which has high original base fertility before terraforming
+                float alignedMaxFertility = TerraformedMaxFertility.LowerBound(BaseMaxFertility*TerraformedMaxFertility);
+                float alignedFertility    = BaseFertility * TerraformedMaxFertility;
+                SetBaseFertility(alignedFertility, alignedMaxFertility);
             }
 
             if (!Owner.isPlayer) // Re-assess colony type after terraform, this might change for the AI
@@ -399,7 +396,6 @@ namespace Ship_Game
                     case PlanetCategory.Terran:
                         if (!RollDice(habitableChance))
                             DestroyTile(pgs);
-
                         continue;
                     default:
                         continue;
@@ -412,8 +408,9 @@ namespace Ship_Game
             float ratio;
             if      (BaseMaxFertility.AlmostZero())        ratio = TerraformedMaxFertility;
             else if (TerraformedMaxFertility.AlmostZero()) ratio = 0;
-            else                                           ratio = BaseMaxFertility / TerraformedMaxFertility;
+            else                                           ratio = MaxFertility / TerraformedMaxFertility;
 
+            // The ratio is need to gradually increase BaseMaxFertility as the planet is being terraformed
             BaseFertilityTerraformRatio = ratio;
         }
 

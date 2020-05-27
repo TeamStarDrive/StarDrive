@@ -774,7 +774,7 @@ namespace Ship_Game
 
         public void AddMaxBaseFertility(float amount)
         {
-            BaseMaxFertility    = (BaseMaxFertility + amount).LowerBound(0);
+            BaseMaxFertility = (BaseMaxFertility + amount).LowerBound(0);
         }
 
         public void AddBuildingsFertility(float amount)
