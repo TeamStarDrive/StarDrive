@@ -2775,7 +2775,7 @@ namespace Ship_Game
             if (EmpireAI.HasGoal(GoalType.BuildScout))
                 return;
 
-            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.5f;
+            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * 0.75f;
             foreach (Ship ship in OwnedShips)
             {
                 if (ship.DesignRole != ShipData.RoleName.scout || ship.fleet != null)
