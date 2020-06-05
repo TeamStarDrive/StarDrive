@@ -46,6 +46,19 @@ namespace Ship_Game.Commands.Goals
             return scout != null;
         }
 
+        void PrioritizeScout(Ship scout, Planet planet)
+        {
+            for (int i = 0; i < planet.ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = planet.ConstructionQueue[i];
+                if (q.isShip && q.sData == scout.shipData)
+                {
+                    planet.Construction.MoveTo(0, i);
+                    break;
+                }
+            }
+        }
+
         GoalStep FindPlanetToBuildAt()
         {
             if (!ChooseScoutShipToBuild(out Ship scout))
@@ -55,6 +68,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(scout, this, notifyOnEmpty: false);
+            PrioritizeScout(scout, planet);
             return GoalStep.GoToNextStep;
         }
        
