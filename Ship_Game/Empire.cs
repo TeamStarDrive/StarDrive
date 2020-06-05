@@ -2751,8 +2751,11 @@ namespace Ship_Game
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem solarSystem = UniverseScreen.SolarSystemList[i];
-                if (solarSystem.IsExploredBy(this)) continue;
-                if (++unexplored > 20) break;
+                if (solarSystem.IsExploredBy(this)) 
+                    continue;
+
+                if (++unexplored > 20) 
+                    break;
             }
 
             haveUnexploredSystems = unexplored != 0;
@@ -2772,7 +2775,7 @@ namespace Ship_Game
             if (EmpireAI.HasGoal(GoalType.BuildScout))
                 return;
 
-            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio * .5f;
+            var desiredScouts = unexplored * Research.Strategy.ExpansionRatio;
             foreach (Ship ship in OwnedShips)
             {
                 if (ship.DesignRole != ShipData.RoleName.scout || ship.fleet != null)
