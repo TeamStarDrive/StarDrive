@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Microsoft.Xna.Framework;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
@@ -249,49 +248,31 @@ namespace Ship_Game.AI.ExpansionAI
             thiefRelationship.WarnClaimThiefPlayer(claimedPlanet, OwnerEmpire);
         }
 
-        public SolarSystem AssignExplorationTarget(Ship queryingShip)
+        public bool AssignExplorationTargetSystem(Ship ship, out SolarSystem targetSystem)
         {
+            targetSystem   = null;
             var potentials = new Array<SolarSystem>();
             for (int i = 0; i < UniverseScreen.SolarSystemList.Count; i++)
             {
                 SolarSystem s = UniverseScreen.SolarSystemList[i];
-                if (!s.IsExploredBy(OwnerEmpire))
+                if (!s.IsExploredBy(OwnerEmpire) && !MarkedForExploration.Contains(s))
                     potentials.Add(s);
-                else
-                    MarkedForExploration.Remove(s);
             }
 
-            for (int i = 0; i < MarkedForExploration.Count; i++)
-            {
-                SolarSystem s = MarkedForExploration[i];
-                potentials.Remove(s);
-            }
+            if (potentials.Count == 0)
+                return false; // All systems were explored or are marked by someone else
 
-            var empireCenter = OwnerEmpire.GetWeightedCenter();
-            var sortedList = potentials.Sorted(s => empireCenter.SqDist(s.Position));
+            // Sort by distance from explorer center
+            var sortedList    = potentials.Sorted(s => ship.Center.SqDist(s.Position));
+            targetSystem      = sortedList.First();
 
-            if (sortedList.Length == 0)
-            {
-                queryingShip.AI.ClearOrders();
-                return null;
-            }
-            SolarSystem nearestToHome = sortedList.Find(s=> !s.DangerousForcesPresent(OwnerEmpire));
-            foreach (SolarSystem nearest in sortedList)
-            {
-                if (nearest.DangerousForcesPresent(OwnerEmpire))
-                    continue;
-                float distanceToScout = Vector2.Distance(queryingShip.Center, nearest.Position);
-                float distanceToEarth = Vector2.Distance(empireCenter, nearest.Position);
+            MarkedForExploration.Add(targetSystem);
+            return true;
+        }
 
-                if (distanceToScout > distanceToEarth + 50000f)
-                    continue;
-
-                nearestToHome = nearest;
-                break;
-
-            }
-            MarkedForExploration.Add(nearestToHome);
-            return nearestToHome;
+        public void RemoveExplorationTargetFromList(SolarSystem system)
+        {
+            MarkedForExploration.Remove(system);
         }
     }
 }
