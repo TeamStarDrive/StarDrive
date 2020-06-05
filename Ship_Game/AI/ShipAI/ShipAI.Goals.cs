@@ -44,6 +44,12 @@ namespace Ship_Game.AI
 
             ChangeAIState(newState);
             EscortTarget = null;
+            if (ExplorationTarget != null)
+            {
+                Owner.loyalty.GetEmpireAI().ExpansionAI.RemoveExplorationTargetFromList(ExplorationTarget);
+                ExplorationTarget = null;
+            }
+
             OrderQueue.Clear();
             SetPriorityOrder(priority);
         }

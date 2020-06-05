@@ -103,18 +103,15 @@ namespace Ship_Game.AI
             Owner.QueueTotalRemoval();
         }
 
-        bool ExploreEmptySystem(float elapsedTime, SolarSystem system)
+        bool TrySetupPatrolRoutes()
         {
-            if (system.IsExploredBy(Owner.loyalty))
+            if (PatrolRoute.Count > 0)
                 return true;
-            MovePosition = system.Position;
-            if (Owner.Center.InRadius(MovePosition, 75000f))
-            {
-                system.SetExploredBy(Owner.loyalty);
-                return true;
-            }
-            ThrustOrWarpToPos(MovePosition, elapsedTime);
-            return false;
+
+            foreach (Planet p in ExplorationTarget.PlanetList)
+                PatrolRoute.Add(p);
+
+            return PatrolRoute.Count > 0;
         }
 
         void ScrapShip(float elapsedTime, ShipGoal goal)
