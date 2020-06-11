@@ -478,7 +478,7 @@ namespace Ship_Game
         {
             if (quality > 15f)
             {
-                if (d100 >= 20) AddMinorRemnantShips();
+                if (d100 >= 25) AddMinorRemnantShips();
                 if (d100 >= 60) AddMajorRemnantShips();
                 if (d100 >= 80) AddSupportRemnantShips();
                 if (d100 == 95) AddTorpedoRemnantShips();
