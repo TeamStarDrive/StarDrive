@@ -436,8 +436,12 @@ namespace Ship_Game
         {
             float quality = BaseFertility*2 + MineralRichness + MaxPopulationBillionFor(EmpireManager.Remnants);
             //Boost the quality score for planets that are very rich, or very fertile
-            if (BaseFertility*2 > 1.6)   ++quality;
-            if (MineralRichness > 1.6) ++quality;
+            if (BaseFertility*2 > 1.6)   
+                ++quality;
+
+            if (MineralRichness > 1.6) 
+                ++quality;
+
             return quality;
         }
 
@@ -448,6 +452,9 @@ namespace Ship_Game
 
         public void GenerateRemnantPresence()
         {
+            if (Owner != null)
+                return;
+
             float quality = QualityForRemnants();
             int d100      = RollDie(100);
 
@@ -463,7 +470,7 @@ namespace Ship_Game
 
         void RareRemnantPresence(float quality, int d100)
         {
-            if (quality > 8f && d100 >= 70)
+            if (quality > 12f && d100 >= 70)
                 AddMajorRemnantShips(); // RedFox, changed the rare remnant to Major
         }
 
@@ -471,22 +478,22 @@ namespace Ship_Game
         {
             if (quality > 15f)
             {
-                if (d100 >= 10) AddMinorRemnantShips();
-                if (d100 >= 40) AddMajorRemnantShips();
-                if (d100 >= 60) AddSupportRemnantShips();
-                if (d100 >= 95) AddTorpedoRemnantShips();
+                if (d100 >= 20) AddMinorRemnantShips();
+                if (d100 >= 60) AddMajorRemnantShips();
+                if (d100 >= 80) AddSupportRemnantShips();
+                if (d100 == 95) AddTorpedoRemnantShips();
             }
             else if (quality > 12f)
             {
-                if (d100 >= 20) AddMinorRemnantShips();
-                if (d100 >= 40) AddMiniRemnantShips();
+                if (d100 >= 45) AddMinorRemnantShips();
+                if (d100 >= 65) AddMiniRemnantShips();
                 if (d100 >= 85) AddMajorRemnantShips();
                 if (d100 >= 95) AddSupportRemnantShips();
             }
             else if (quality > 6f)
             {
-                if (d100 >= 40) AddMiniRemnantShips();
-                if (d100 >= 70) AddMinorRemnantShips();
+                if (d100 >= 65) AddMiniRemnantShips();
+                if (d100 >= 75) AddMinorRemnantShips();
                 if (d100 >= 85) AddMinorRemnantShips();
                 if (d100 >= 95) AddSupportRemnantShips();
             }
@@ -497,14 +504,14 @@ namespace Ship_Game
             NormalRemnantPresence(quality, d100);
             if (quality >= 12f)
             {
-                if (d100 >= 15) AddMinorRemnantShips();
-                if (d100 >= 30) AddMajorRemnantShips();
-                if (d100 >= 45) AddSupportRemnantShips();
+                if (d100 >= 25) AddMinorRemnantShips();
+                if (d100 >= 45) AddMajorRemnantShips();
+                if (d100 >= 65) AddSupportRemnantShips();
                 if (d100 >= 85) AddCarrierRemnantShips();
             }
             else if (quality >= 10f)
             {
-                if (d100 >= 35) AddMinorRemnantShips();
+                if (d100 >= 45) AddMinorRemnantShips();
                 if (d100 >= 65) AddMajorRemnantShips();
                 if (d100 >= 85) AddSupportRemnantShips();
             }
