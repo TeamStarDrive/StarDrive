@@ -344,8 +344,7 @@ namespace Ship_Game
                     string planetName = markovNameGenerator?.NextName ?? Name + " " + RomanNumerals.ToRoman(i);
                     var newOrbital    = new Planet(this, randomAngle, ringRadius, planetName, ringMax, owner);
 
-                    if (owner == null)
-                        newOrbital.GenerateRemnantPresence();
+                    newOrbital.GenerateRemnantPresence();
 
                     PlanetList.Add(newOrbital);
                     ringRadius += newOrbital.ObjectRadius;
@@ -442,8 +441,7 @@ namespace Ship_Game
                 }
 
                 // Add Remnant Presence
-                if (owner == null)
-                    newOrbital.GenerateRemnantPresence();
+                newOrbital.GenerateRemnantPresence();
 
                 // Add buildings to planet
                 foreach (string building in ringData.BuildingList)
