@@ -452,8 +452,8 @@ namespace Ship_Game
 
         public void GenerateRemnantPresence()
         {
-            if (Owner != null)
-                return;
+            if (ParentSystem.OwnerList.Count > 0)
+                return; // Don't create Remnants on starting systems
 
             float quality = QualityForRemnants();
             int d100      = RollDie(100);
@@ -470,27 +470,27 @@ namespace Ship_Game
 
         void RareRemnantPresence(float quality, int d100)
         {
-            if (quality > 12f && d100 >= 70)
+            if (quality > 18f && d100 >= 70)
                 AddMajorRemnantShips(); // RedFox, changed the rare remnant to Major
         }
 
         void NormalRemnantPresence(float quality, int d100)
         {
-            if (quality > 15f)
+            if (quality > 18f)
             {
                 if (d100 >= 25) AddMinorRemnantShips();
                 if (d100 >= 60) AddMajorRemnantShips();
                 if (d100 >= 80) AddSupportRemnantShips();
-                if (d100 == 95) AddTorpedoRemnantShips();
+                if (d100 >= 95) AddTorpedoRemnantShips();
             }
-            else if (quality > 12f)
+            else if (quality > 15f)
             {
                 if (d100 >= 45) AddMinorRemnantShips();
                 if (d100 >= 65) AddMiniRemnantShips();
                 if (d100 >= 85) AddMajorRemnantShips();
                 if (d100 >= 95) AddSupportRemnantShips();
             }
-            else if (quality > 6f)
+            else if (quality > 8f)
             {
                 if (d100 >= 65) AddMiniRemnantShips();
                 if (d100 >= 75) AddMinorRemnantShips();
@@ -515,7 +515,7 @@ namespace Ship_Game
                 if (d100 >= 65) AddMajorRemnantShips();
                 if (d100 >= 85) AddSupportRemnantShips();
             }
-            else if (quality >= 8f && d100 >= 50)
+            else if (quality >= 6f && d100 >= 50)
                 AddMinorRemnantShips();
         }
 
@@ -596,9 +596,12 @@ namespace Ship_Game
         void AddMajorRemnantShips()
         {
             AddMinorRemnantShips();
-            AddRemnantGuardians(2, "Xeno Fighter");
-            AddRemnantGuardians(1, "Heavy Drone");
-            AddRemnantGuardians(1, "Ancient Assimilator");
+            AddMinorRemnantShips();
+            if (RollDice(50))
+                AddMinorRemnantShips();
+
+            if (RollDice(50)) 
+                AddRemnantGuardians(1, "Ancient Assimilator");
         }
 
         void AddMinorRemnantShips()
