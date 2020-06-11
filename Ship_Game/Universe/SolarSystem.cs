@@ -6,6 +6,7 @@ using SynapseGaming.LightingSystem.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 using Microsoft.Xna.Framework.Graphics;
 using Ship_Game.Universe;
@@ -495,6 +496,51 @@ namespace Ship_Game
                 int enclosingRadius = ((int)RingList.Last.OrbitalDistance + 10000).RoundUpToMultipleOf(10000);
                 Radius = Math.Max(MinRadius, enclosingRadius);
             }
+        }
+
+        public void AddSystemExploreSuccessMessage(Empire empire)
+        {
+            if (!empire.isPlayer)
+                return; // Message only the player
+
+            //added by gremlin  add shamatts notification here
+            var message = new StringBuilder(Name); //@todo create global string builder
+            message.Append(" system explored.");
+
+            if (Sun.RadiationDamage > 0)
+                message.Append("\nThis Star emits radiation which will damage your ship's\nexternal modules or shields if they get close to it.");
+
+            var planetsTypesNumber = new Map<string, int>();
+            if (PlanetList.Count > 0)
+            {
+                foreach (Planet planet in PlanetList)
+                    planetsTypesNumber.AddToValue(planet.CategoryName, 1);
+
+                foreach (var pair in planetsTypesNumber)
+                    message.Append('\n').Append(pair.Value).Append(' ').Append(pair.Key);
+            }
+
+            foreach (Planet planet in PlanetList)
+            {
+                Building tile = planet.BuildingList.Find(t => t.IsCommodity);
+                if (tile != null)
+                    message.Append('\n').Append(tile.Name).Append(" on ").Append(planet.Name);
+            }
+
+            if (DangerousForcesPresent(empire))
+                message.Append("\nCombat in system!!!");
+
+            if (OwnerList.Count > 0 && !OwnerList.Contains(empire))
+                message.Append("\nContested system!!!");
+
+            Empire.Universe.NotificationManager.AddNotification(new Notification
+            {
+                Pause           = false,
+                Message         = message.ToString(),
+                ReferencedItem1 = this,
+                Icon            = Sun.Icon,
+                Action          = "SnapToExpandSystem"
+            }, "sd_ui_notification_warning");
         }
 
         public float GetActualStrengthPresent(Empire e)
