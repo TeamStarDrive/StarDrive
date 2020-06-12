@@ -460,12 +460,19 @@ namespace Ship_Game
 
             switch (GlobalStats.ExtraRemnantGS) // Added by Gretman, Refactored by FB (including all remnant methods)
             {
+                case ExtraRemnantPresence.VeryRare:   VeryRareRemnantPresence(quality, d100);   break;
                 case ExtraRemnantPresence.Rare:       RareRemnantPresence(quality, d100);       break;
                 case ExtraRemnantPresence.Normal:     NormalRemnantPresence(quality, d100);     break;
                 case ExtraRemnantPresence.More:       MoreRemnantPresence(quality, d100);       break;
                 case ExtraRemnantPresence.MuchMore:   MuchMoreRemnantPresence(quality, d100);   break;
                 case ExtraRemnantPresence.Everywhere: EverywhereRemnantPresence(quality, d100); break;
             }
+        }
+
+        void VeryRareRemnantPresence(float quality, int d100)
+        {
+            if (quality > 18f && d100 >= 70)
+                AddMinorRemnantShips();
         }
 
         void RareRemnantPresence(float quality, int d100)
@@ -506,14 +513,14 @@ namespace Ship_Game
             {
                 if (d100 >= 25) AddMinorRemnantShips();
                 if (d100 >= 45) AddMajorRemnantShips();
-                if (d100 >= 65) AddSupportRemnantShips();
-                if (d100 >= 85) AddCarrierRemnantShips();
+                if (d100 >= 65) AddCarrierRemnantShips();
+                if (d100 >= 85) AddSupportRemnantShips();
             }
             else if (quality >= 10f)
             {
                 if (d100 >= 45) AddMinorRemnantShips();
-                if (d100 >= 65) AddMajorRemnantShips();
-                if (d100 >= 85) AddSupportRemnantShips();
+                if (d100 >= 65) AddSupportRemnantShips();
+                if (d100 >= 95) AddMajorRemnantShips();
             }
             else if (quality >= 6f && d100 >= 50)
                 AddMinorRemnantShips();
