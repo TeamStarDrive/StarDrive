@@ -281,8 +281,8 @@ namespace Ship_Game.AI
                         foreach (Ship ship in fleet.Ships)
                             ship.AI.ClearOrders();
                     }
+                    task.EndTaskWithMove();
                 }
-                task.EndTaskWithMove();
             }
         }
 
