@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Xna.Framework;
+using System;
 using System.Linq;
 
 namespace Ship_Game.AI.ExpansionAI
@@ -13,6 +14,7 @@ namespace Ship_Game.AI.ExpansionAI
         public bool CantColonize;
         public float EnemyStrength;
         public bool PoorPlanet;
+        private Empire Empire;
 
         public override string ToString()
         {
@@ -22,6 +24,7 @@ namespace Ship_Game.AI.ExpansionAI
         public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, AO closestAO, float enemyStr)
         {
             Planet                = planet;
+            Empire                = empire;
             Distance              = planet.Center.Distance(closestAO.Center).LowerBound(1);
             OutOfRange            = planet.Center.OutsideRadius(closestAO.Center, closestAO.Radius);
             CantColonize          = false;
@@ -29,7 +32,7 @@ namespace Ship_Game.AI.ExpansionAI
             RawValue              = planet.ColonyPotentialValue(empire);
             Value                 = RawValue / rangeReduction;
             EnemyStrength         = enemyStr;
-            PoorPlanet = false;
+            PoorPlanet            = false;
 
             if (enemyStr > 0)
                 Value *= (closestAO.OffensiveForcePoolStrength / enemyStr).Clamped(0.1f, 1f);
@@ -39,6 +42,9 @@ namespace Ship_Game.AI.ExpansionAI
         }
 
         public void EvaluatePoorness(float avgValue) => PoorPlanet = Value < avgValue;
+
+        public bool CanColonize    => !CantColonize;
+        public bool NeedClaimFleet => EnemyStrength.Greater(0) || Planet.GetGroundStrengthOther(Empire).Greater(0);
 
         static bool IsBadWorld(Planet planet, bool canColonizeBarren)
             => planet.IsBarrenType && !canColonizeBarren && planet.SpecialCommodities == 0;
