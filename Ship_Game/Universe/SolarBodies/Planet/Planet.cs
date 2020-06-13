@@ -564,6 +564,11 @@ namespace Ship_Game
                 BuildingList.Remove(biospheresList.First());
         }
 
+        public bool InSafeDistanceFromRadiation()
+        {
+            return ParentSystem.InSafeDistanceFromRadiation(Center);
+        }
+
         public void UpdateOwnedPlanet()
         {
             ++TurnsSinceTurnover;
