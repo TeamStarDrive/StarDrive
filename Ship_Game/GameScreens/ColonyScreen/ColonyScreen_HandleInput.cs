@@ -25,6 +25,8 @@ namespace Ship_Game
         public override bool HandleInput(InputState input)
         {
             pFacilities.HandleInput(input);
+            if (FilterBuildableItems.HandlingInput)
+                return base.HandleInput(input);
 
             if (HandleCycleColoniesLeftRight(input))
                 return true;
