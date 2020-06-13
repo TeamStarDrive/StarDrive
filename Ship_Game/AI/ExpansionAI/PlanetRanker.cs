@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Linq;
 
 namespace Ship_Game.AI.ExpansionAI
