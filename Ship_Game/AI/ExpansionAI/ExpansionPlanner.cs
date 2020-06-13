@@ -171,7 +171,7 @@ namespace Ship_Game.AI.ExpansionAI
 
                 if (rank.CanColonize && rank.NeedClaimFleet && !taskTargets.Contains(rank.Planet))
                 {
-                   var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
+                    var task      = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
                     task.Priority = 10;
                     OwnerEmpire.GetEmpireAI().AddPendingTask(task);
                     desiredClaims--;
@@ -201,7 +201,7 @@ namespace Ship_Game.AI.ExpansionAI
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {
                     Planet p = sys.PlanetList[y];
-                    if (p.Habitable)
+                    if (p.Habitable && p.Owner != OwnerEmpire)
                     {
                         //The planet ranker does the ranking
                         var r2 = new PlanetRanker(OwnerEmpire, p, canColonizeBarren, ao, systemEnemyStrength);
