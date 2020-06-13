@@ -157,22 +157,26 @@ namespace Ship_Game
 
         Array<string> Bases()
         {
-            Array<string> bases = new Array<string>();
+            Array<string> bases = new Array<string>
+            {
+                Owner.data.PirateBaseBasic, 
+                Owner.data.PirateBaseImproved, 
+                Owner.data.PirateBaseAdvanced
+            };
 
-            bases.Add(Owner.data.PirateBaseBasic);
-            bases.Add(Owner.data.PirateBaseImproved);
-            bases.Add(Owner.data.PirateBaseAdvanced);
 
             return bases;
         }
 
         Array<string> Stations()
         {
-            Array<string> stations = new Array<string>();
+            Array<string> stations = new Array<string>
+            {
+                Owner.data.PirateStationBasic, 
+                Owner.data.PirateStationImproved, 
+                Owner.data.PirateStationAdvanced
+            };
 
-            stations.Add(Owner.data.PirateStationBasic);
-            stations.Add(Owner.data.PirateStationImproved);
-            stations.Add(Owner.data.PirateStationAdvanced);
 
             return stations;
         }
@@ -364,7 +368,7 @@ namespace Ship_Game
         bool BuildBaseInDeepSpace(int level)
         {
             if (!GetBaseSpotDeepSpace(out Vector2 pos))
-                return false; ;
+                return false;
 
             if (!SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level)) 
                 return false;
@@ -469,7 +473,9 @@ namespace Ship_Game
             if (!GetUnownedSystems(out SolarSystem[] systems))
                 return false;
 
-            var systemsWithAsteroids = systems.Filter(s => s.RingList.Any(r => r.Asteroids));
+            var systemsWithAsteroids = systems.Filter(s => s.RingList
+                                       .Any(r => r.Asteroids && s.InSafeDistanceFromRadiation(r.OrbitalDistance)));
+
             if (systemsWithAsteroids.Length == 0)
                 return false;
 
@@ -497,10 +503,14 @@ namespace Ship_Game
                 switch (spot)
                 {
                     case NewBaseSpot.Habitable: 
-                        planets.AddRange(system.PlanetList.Filter(p => p.Habitable)); 
+                        planets.AddRange(system.PlanetList.Filter(p => p.Habitable 
+                                         && p.InSafeDistanceFromRadiation())); 
+
                         break;
                     case NewBaseSpot.GasGiant: 
-                        planets.AddRange(system.PlanetList.Filter(p => p.Category == PlanetCategory.GasGiant)); 
+                        planets.AddRange(system.PlanetList.Filter(p => p.Category == PlanetCategory.GasGiant
+                                         && p.InSafeDistanceFromRadiation())); 
+
                         break;
                 }
             }
@@ -527,14 +537,19 @@ namespace Ship_Game
             systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
                                                                  && s.RingList.Count > 0 
                                                                  && !s.PiratePresence
-                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0));
+                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0)
+                                                                 && s.Sun.RadiationDamage.AlmostZero());
+
             return systems.Length > 0;
         }
 
         bool GetLoneSystem(out SolarSystem system)
         {
             system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 && !s.PiratePresence);
+            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 
+                                                                     && !s.PiratePresence
+                                                                     && s.Sun.RadiationDamage.AlmostZero());
+
             if (systems.Length > 0)
                 system = systems.RandItem();
 
@@ -605,7 +620,7 @@ namespace Ship_Game
             else
             {
                 Log.Warning($"Could not find a default ship to add for {Owner.Name}, " +
-                            $"check their default ships in the race XML");
+                            "check their default ships in the race XML");
             }
         }
 
