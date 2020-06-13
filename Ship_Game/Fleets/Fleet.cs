@@ -722,6 +722,7 @@ namespace Ship_Game.Fleets
                     if (!DoOrbitTaskArea(task))
                     {
                         AttackEnemyStrengthClumpsInAO(task);
+                        OrderShipsToInvade(Ships, task, false);
                     }
                     break;
             }
