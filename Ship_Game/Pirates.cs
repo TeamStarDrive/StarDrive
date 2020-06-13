@@ -537,8 +537,7 @@ namespace Ship_Game
             systems = UniverseScreen.SolarSystemList.Filter(s => s.OwnerList.Count == 0 
                                                                  && s.RingList.Count > 0 
                                                                  && !s.PiratePresence
-                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0)
-                                                                 && s.Sun.RadiationDamage.AlmostZero());
+                                                                 && !s.PlanetList.Any(p => p.Guardians.Count > 0));
 
             return systems.Length > 0;
         }
@@ -547,8 +546,7 @@ namespace Ship_Game
         {
             system = null;
             var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 
-                                                                     && !s.PiratePresence
-                                                                     && s.Sun.RadiationDamage.AlmostZero());
+                                                                     && !s.PiratePresence);
 
             if (systems.Length > 0)
                 system = systems.RandItem();
