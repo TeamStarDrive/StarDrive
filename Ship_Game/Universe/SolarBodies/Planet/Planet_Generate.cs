@@ -452,7 +452,7 @@ namespace Ship_Game
 
         public void GenerateRemnantPresence()
         {
-            if (ParentSystem.OwnerList.Count > 0)
+            if (ParentSystem.isStartingSystem)
                 return; // Don't create Remnants on starting systems
 
             float quality = QualityForRemnants();
