@@ -382,13 +382,15 @@ namespace Ship_Game
         {
             int numberOfRings = data.RingList.Count;
             int fixedSpacing  = IntBetween(50, 500);
+            int nextDistance  = 10000 + GetRingWidth(0);
 
             int GetRingWidth(int orbitalWidth)
             {
                 return orbitalWidth > 0 ? orbitalWidth : fixedSpacing + IntBetween(10500, 12000);
             }
 
-            int nextDistance = 10000 + GetRingWidth(0);
+            if (owner != null)
+                isStartingSystem = true;
 
             for (int i = 0; i < numberOfRings; i++)
             {
