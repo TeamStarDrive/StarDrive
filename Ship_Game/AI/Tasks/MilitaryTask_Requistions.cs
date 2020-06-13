@@ -244,10 +244,10 @@ namespace Ship_Game.AI.Tasks
             if (TargetPlanet != null)
             {
                 AO = TargetPlanet.Center;
-                requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner);
+                requiredTroopStrength = (int)TargetPlanet.GetGroundStrengthOther(Owner) - (int)TargetPlanet.GetGroundStrength(Owner);
             }
-
-            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength, minBombMinutes: 0);
+            
+            InitFleetRequirements(minFleetStrength: 100, minTroopStrength: requiredTroopStrength.LowerBound(40), minBombMinutes: 0);
             float battleFleetSize = Owner.DifficultyModifiers.FleetCompletenessMin;
 
             if (CreateTaskFleet("Scout Fleet", battleFleetSize) == RequisitionStatus.Complete)
