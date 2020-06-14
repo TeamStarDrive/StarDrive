@@ -720,10 +720,17 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
+                    OrderShipsToInvade(Ships, task, false);
+                    TaskStep = 4;
+                    break;
+                case 4:
                     if (!DoOrbitTaskArea(task))
-                    {
                         AttackEnemyStrengthClumpsInAO(task);
-                    }
+
+                    TaskStep = 5;
+                    break;
+                case 5:
+                    FleetTask.EndTask();
                     break;
             }
         }

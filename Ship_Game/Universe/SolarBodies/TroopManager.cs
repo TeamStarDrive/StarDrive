@@ -361,12 +361,12 @@ namespace Ship_Game
             else
             {
                 ResolveTacticalCombats(elapsedTime);
-                ActiveCombats.ApplyPendingRemovals();
             }
 
             if (ActiveCombats.Count > 0)
                 InCombatTimer = 10f;
 
+            ActiveCombats.ApplyPendingRemovals();
             if (NoTroopsOnPlanet || Owner == null)
                 return;
 
