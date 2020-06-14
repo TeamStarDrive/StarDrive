@@ -4,6 +4,7 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.Espionage;
 
@@ -243,7 +244,8 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            if (alwaysLevelUp || RandomMath.RollDie(Level*2) == 1)
+            int dieRoll = Level * DifficultyMultiplier();
+            if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
@@ -253,6 +255,12 @@ namespace Ship_Game
                     Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} are now level {Level} ----");
                 }
             }
+        }
+
+        int DifficultyMultiplier()
+        {
+            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
+            return max - (int)CurrentGame.Difficulty;
         }
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
@@ -904,9 +912,9 @@ namespace Ship_Game
         public void ExecuteVictimRetaliation(Empire victim)
         {
             if (victim.isPlayer)
-                return;
+                return; // Players should attack pirate bases themselves
 
-            if (!RandomMath.RollDice(Level) || victim.GetEmpireAI().HasGoal(GoalType.AssaultPirateBase))
+            if (!RandomMath.RollDice(Level*3)  || victim.GetEmpireAI().HasGoal(GoalType.AssaultPirateBase))
                 return; // No retaliation
 
             Goal goal = new AssaultPirateBase(victim, Owner);
