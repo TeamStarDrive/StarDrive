@@ -914,11 +914,14 @@ namespace Ship_Game
             if (victim.isPlayer)
                 return; // Players should attack pirate bases themselves
 
-            if (!RandomMath.RollDice(Level*3)  || victim.GetEmpireAI().HasGoal(GoalType.AssaultPirateBase))
-                return; // No retaliation
-
-            Goal goal = new AssaultPirateBase(victim, Owner);
-            victim.GetEmpireAI().AddGoal(goal);
+            EmpireAI ai             = victim.GetEmpireAI();
+            int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
+            int maxAssaultGoals     = ((int)(CurrentGame.Difficulty + 1)).UpperBound(3);
+            if (currentAssaultGoals < maxAssaultGoals && RandomMath.RollDice(Level * 3))
+            {
+                Goal goal = new AssaultPirateBase(victim, Owner);
+                victim.GetEmpireAI().AddGoal(goal);
+            }
         }
 
         public bool CanDoAnotherRaid(out int numRaids)

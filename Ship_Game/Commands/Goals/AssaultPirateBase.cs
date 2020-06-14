@@ -46,17 +46,17 @@ namespace Ship_Game.Commands.Goals
             if (!Pirates.GetBases(out Array<Ship> bases))
                 return GoalStep.GoalFailed;
 
+            EmpireAI ai          = empire.GetEmpireAI();
+            var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTasks(s));
             Vector2 empireCenter = empire.GetWeightedCenter();
-            bases.Sort(s => s.Center.SqDist(empireCenter));
-            TargetShip = bases.First();
+
+            filteredBases.Sort(s => s.Center.SqDist(empireCenter));
+            TargetShip = filteredBases.First();
             return GoalStep.GoToNextStep;
         }
 
         GoalStep CreateTask()
         {
-            if (empire.GetEmpireAI().HasAssaultPirateBaseTasks(TargetShip))
-                return GoalStep.GoalFailed;
-
             var task      = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip);
             task.Priority = -5;
             empire.GetEmpireAI().AddPendingTask(task);
