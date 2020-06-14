@@ -91,7 +91,7 @@ namespace Ship_Game.AI
                 return;
             }
 
-            if (targetPlanet.Owner != null || !targetPlanet.Habitable)
+            if (targetPlanet.Owner != null || !targetPlanet.Habitable || targetPlanet.RecentCombat)
             {
                 shipGoal.Goal?.NotifyMainGoalCompleted();
                 ClearOrders();
