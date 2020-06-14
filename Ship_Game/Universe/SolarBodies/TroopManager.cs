@@ -326,7 +326,7 @@ namespace Ship_Game
 
         private void ResolveDiplomacy(int invadingForces, Empire invadingEmpire)
         {
-            if (invadingForces <= NumInvadersLast || NumInvadersLast != 0)
+            if (invadingForces <= NumInvadersLast || NumInvadersLast != 0 || InCombatTimer.LessOrEqual(0))
                 return; // FB - nothing to change if no new troops invade
 
             if (Empire.Universe.PlayerEmpire == Owner) // notify player of invasion
@@ -361,12 +361,12 @@ namespace Ship_Game
             else
             {
                 ResolveTacticalCombats(elapsedTime);
-                ActiveCombats.ApplyPendingRemovals();
             }
 
             if (ActiveCombats.Count > 0)
                 InCombatTimer = 10f;
 
+            ActiveCombats.ApplyPendingRemovals();
             if (NoTroopsOnPlanet || Owner == null)
                 return;
 
