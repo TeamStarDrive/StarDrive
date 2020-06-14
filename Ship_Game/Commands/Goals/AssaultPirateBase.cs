@@ -33,6 +33,7 @@ namespace Ship_Game.Commands.Goals
             TargetEmpire = pirateEmpire;
 
             PostInit();
+            Log.Info(ConsoleColor.Green, $"---- Retaliation vs. Pirates: New {empire.Name} Assault Base vs. {TargetEmpire.Name} ----");
         }
 
         public sealed override void PostInit()
@@ -57,14 +58,14 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             var task      = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip);
-            task.Priority = 10;
+            task.Priority = -5;
             empire.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
 
         GoalStep CheckBaseDestroyed()
         {
-            if (empire.GetEmpireAI().HasAssaultPirateBaseTasks(TargetShip) || TargetShip != null && TargetShip.Active)
+            if (empire.GetEmpireAI().HasAssaultPirateBaseTasks(TargetShip) && TargetShip != null && TargetShip.Active)
                 return GoalStep.TryAgain;
 
             return GoalStep.GoalComplete;

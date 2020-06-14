@@ -254,6 +254,25 @@ namespace Ship_Game.AI.Tasks
                 Step = 1;
         }
 
+        void RequisitionAssaultPirateBase()
+        {
+            if (AO.AlmostZero())
+                Log.Error($"no area of operation set for task: {type}");
+
+            if (TargetShip == null || !TargetShip.Active)
+                return;
+
+            AO closestAO  = FindClosestAO();
+            if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
+                return;
+
+
+            InitFleetRequirements(minFleetStrength: (int)EnemyStrength, minTroopStrength: 0, minBombMinutes: 0);
+            EnemyStrength = GetEnemyShipStrengthInAO().LowerBound(TargetShip.BaseStrength);
+            if (CreateTaskFleet("Assault Fleet", 1) == RequisitionStatus.Complete)
+                Step = 1;
+        }
+
         void RequisitionExplorationForce()
         {
             if (AO.AlmostZero())

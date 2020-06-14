@@ -324,14 +324,15 @@ namespace Ship_Game.AI.Tasks
             switch (type)
             {
                 case TaskType.AssaultPirateBase:
+                    if (TargetShip?.loyalty.Pirates.PaidBy(Owner) ?? true)
+                        EndTask(); // We paid the Pirates, we can stop the attack
+
                     switch (Step)
                     {
                         case 0:
-                            RequisitionClaimForce(); // TODO - change to assaultForce
+                            RequisitionAssaultPirateBase();
                             break;
                         case 1:
-                            if (TargetShip?.loyalty.Pirates.PaidBy(Owner) ?? true)
-                                EndTask(); // We paid the Pirates, we can stop the attack
                             break;
                     }
 
