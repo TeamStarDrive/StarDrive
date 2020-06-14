@@ -1021,7 +1021,7 @@ namespace Ship_Game
 
             if (PopulationRatio.Greater(1)) // Over population - the planet cannot support this amount of population
             {
-                float popToRemove = ((1 - PopulationRatio) * 10).Clamped(20,1000);
+                float popToRemove = ((PopulationRatio - 1) * 1000).Clamped(100, 10000);
                 Population        = Math.Max(Population - popToRemove, MaxPopulation);
             }
             else if (IsStarving)
