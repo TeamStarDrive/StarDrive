@@ -423,6 +423,9 @@ namespace Ship_Game
                 if (data.FindPlanet(task.TargetPlanetGuid, out Planet p))
                     task.SetTargetPlanet(p);
 
+                if (data.FindShip(task.TargetShipGuid, out Ship ship))
+                    task.SetTargetShip(ship);
+
                 foreach (Guid guid in task.HeldGoals)
                 {
                     foreach (Goal g in e.GetEmpireAI().Goals)
