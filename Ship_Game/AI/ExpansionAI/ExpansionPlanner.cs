@@ -97,16 +97,19 @@ namespace Ship_Game.AI.ExpansionAI
                 var ranker = allPlanetsRanker[i];
                 if (ranker.PoorPlanet)
                 {
-                    if (ranker.Value > backupPlanet.Value && ranker.EnemyStrength <1 
+                    if (ranker.Value > backupPlanet.Value && ranker.EnemyStrength < 1 
                                                           && ranker.Planet.Owner == null)
                     {
                         backupPlanet = ranker;
                     }
+
                     continue;
                 }
+
                 planetsRanked.Add(ranker);
 
-                if (ranker.CantColonize) continue;
+                if (ranker.CantColonize) 
+                    continue;
 
                 maxDesiredPlanets--;
                 addBackupPlanet = addBackupPlanet && ranker.EnemyStrength > 0 ;
@@ -160,21 +163,19 @@ namespace Ship_Game.AI.ExpansionAI
             int desiredClaims = DesiredColonyGoals - claimTasks.Length;
             var colonizing    = GetColonizationGoalPlanets();
             var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
-            desiredClaims -= taskTargets.Length;
+            desiredClaims    -= taskTargets.Length;
+
             for (int i = 0; i < RankedPlanets.Length && desiredClaims > 0; i++)
             {
                 var rank = RankedPlanets[i];
 
-                if (rank.CantColonize || rank.EnemyStrength < 1 || rank.Planet.ParentSystem.OwnerList.Contains(OwnerEmpire))
+                if (rank.CanColonize && rank.NeedClaimFleet && !taskTargets.Contains(rank.Planet))
                 {
-                    continue;
+                    var task      = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
+                    task.Priority = 10;
+                    OwnerEmpire.GetEmpireAI().AddPendingTask(task);
+                    desiredClaims--;
                 }
-                if (taskTargets.Contains(rank.Planet))
-                    continue;
-                var task = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
-                task.Priority = 10;
-                OwnerEmpire.GetEmpireAI().AddPendingTask(task);
-                desiredClaims--;
             }
         }
 
@@ -200,7 +201,7 @@ namespace Ship_Game.AI.ExpansionAI
                 for (int y = 0; y < sys.PlanetList.Count; y++)
                 {
                     Planet p = sys.PlanetList[y];
-                    if (p.Habitable)
+                    if (p.Habitable && p.Owner != OwnerEmpire)
                     {
                         //The planet ranker does the ranking
                         var r2 = new PlanetRanker(OwnerEmpire, p, canColonizeBarren, ao, systemEnemyStrength);
