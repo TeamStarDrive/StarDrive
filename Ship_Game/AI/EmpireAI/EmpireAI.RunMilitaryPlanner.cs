@@ -142,6 +142,14 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public bool HasAssaultPirateBaseTasks(Ship targetBase)
+        {
+            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase
+                                        && task.TargetShip == targetBase);
+
+            return filteredTasks.Length > 0;
+        }
+
         public bool HasTaskOfType(MilitaryTask.TaskType type)
         {
             for (int i = TaskList.Count - 1; i >= 0; --i)

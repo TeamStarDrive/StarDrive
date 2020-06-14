@@ -901,6 +901,18 @@ namespace Ship_Game
             }
         }
 
+        public void ExecuteVictimRetaliation(Empire victim)
+        {
+            if (victim.isPlayer)
+                return;
+
+            if (!RandomMath.RollDice(Level) || victim.GetEmpireAI().HasGoal(GoalType.AssaultPirateBase))
+                return; // No retaliation
+
+            Goal goal = new AssaultPirateBase(victim, Owner);
+            victim.GetEmpireAI().AddGoal(goal);
+        }
+
         public bool CanDoAnotherRaid(out int numRaids)
         {
             numRaids = Goals.Count(g => g.IsRaid);
