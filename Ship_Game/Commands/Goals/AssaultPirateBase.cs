@@ -47,7 +47,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
 
             EmpireAI ai          = empire.GetEmpireAI();
-            var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTasks(s));
+            var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
             Vector2 empireCenter = empire.GetWeightedCenter();
 
             filteredBases.Sort(s => s.Center.SqDist(empireCenter));
@@ -65,8 +65,18 @@ namespace Ship_Game.Commands.Goals
 
         GoalStep CheckBaseDestroyed()
         {
-            if (empire.GetEmpireAI().HasAssaultPirateBaseTasks(TargetShip) && TargetShip != null && TargetShip.Active)
-                return GoalStep.TryAgain;
+            EmpireAI ai = empire.GetEmpireAI();
+            if (ai.HasAssaultPirateBaseTask(TargetShip, out MilitaryTask task))
+            {
+                if (Pirates.PaidBy(empire))
+                {
+                    task.EndTask();
+                    return GoalStep.GoalComplete;
+                }
+
+                if (TargetShip != null && TargetShip.Active)
+                    return GoalStep.TryAgain;
+            }
 
             return GoalStep.GoalComplete;
         }
