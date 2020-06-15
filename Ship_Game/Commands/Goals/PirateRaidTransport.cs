@@ -55,6 +55,7 @@ namespace Ship_Game.Commands.Goals
                             Pirates.OrderEscortShip(boardingShip, force);
 
                         Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
+                        Pirates.ExecuteVictimRetaliation(TargetEmpire);
                         return GoalStep.GoToNextStep;
                     }
                 }
@@ -67,6 +68,7 @@ namespace Ship_Game.Commands.Goals
                 {
                     TargetShip = freighter;
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
+                    Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
                 }
             }

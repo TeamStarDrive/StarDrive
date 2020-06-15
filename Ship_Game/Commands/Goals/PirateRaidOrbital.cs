@@ -58,6 +58,7 @@ namespace Ship_Game.Commands.Goals
                     }
 
                     Pirates.ExecuteProtectionContracts(TargetEmpire, TargetShip);
+                    Pirates.ExecuteVictimRetaliation(TargetEmpire);
                     return GoalStep.GoToNextStep;
                 }
             }

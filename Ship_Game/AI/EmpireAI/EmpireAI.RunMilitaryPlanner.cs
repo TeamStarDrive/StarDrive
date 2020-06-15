@@ -142,6 +142,24 @@ namespace Ship_Game.AI
                                         && task.TargetPlanet != null);
         }
 
+        public bool HasAssaultPirateBaseTask(Ship targetBase, out MilitaryTask militaryTask)
+        {
+            militaryTask = null;
+            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.AssaultPirateBase
+                                                     && task.TargetShip == targetBase);
+
+            if (filteredTasks.Length > 0f)
+            {
+                militaryTask = filteredTasks.First();
+                if (filteredTasks.Length > 1)
+                {
+                    Log.Warning($"{OwnerEmpire.Name} Assault Pirate Base Tasks: Found more than one task for {militaryTask.TargetShip}. Using the first one.");
+                }
+            }
+
+            return militaryTask != null;
+        }
+
         public bool HasTaskOfType(MilitaryTask.TaskType type)
         {
             for (int i = TaskList.Count - 1; i >= 0; --i)
