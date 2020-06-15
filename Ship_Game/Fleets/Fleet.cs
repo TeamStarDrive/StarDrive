@@ -739,7 +739,7 @@ namespace Ship_Game.Fleets
         {
             if (task.TargetShip == null)
             {
-                FleetTask.EndTask();
+                FleetTask?.EndTask();
                 return;
             }
 
@@ -773,7 +773,7 @@ namespace Ship_Game.Fleets
                     break;
                 case 4:
                     ClearOrders();
-                    FleetTask.EndTask();
+                    FleetTask?.EndTask();
                     break;
             }
         }
