@@ -30,10 +30,12 @@ namespace Ship_Game.AI.Tasks
         [Serialize(15)] public int NeededTroopStrength;
         [Serialize(16)] public int Priority;
         [Serialize(17)] public int TaskBombTimeNeeded;
+        [Serialize(18)] public Guid TargetShipGuid = Guid.Empty;
 
         [XmlIgnore] [JsonIgnore] public bool QueuedForRemoval;
 
         [XmlIgnore] [JsonIgnore] public Planet TargetPlanet { get; private set; }
+        [XmlIgnore] [JsonIgnore] public Ship TargetShip { get; private set; }
         [XmlIgnore] [JsonIgnore] Empire Owner;
         [XmlIgnore] [JsonIgnore] Array<Ship> TaskForce = new Array<Ship>();
         [XmlIgnore] [JsonIgnore] public Fleet Fleet => Owner.GetFleetOrNull(WhichFleet);
@@ -51,6 +53,20 @@ namespace Ship_Game.AI.Tasks
                 type                     = TaskType.DefendClaim,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
                 MinimumTaskForceStrength = minStrength
+            };
+            return militaryTask;
+        }
+
+        public static MilitaryTask CreateAssaultPirateBaseTask(Ship targetShip)
+        {
+            var militaryTask = new MilitaryTask
+            {
+                TargetShip               = targetShip,
+                AO                       = targetShip.Center,
+                type                     = TaskType.AssaultPirateBase,
+                AORadius                 = 10000,
+                MinimumTaskForceStrength = targetShip.BaseStrength,
+                TargetShipGuid           = targetShip.guid
             };
             return militaryTask;
         }
@@ -308,6 +324,15 @@ namespace Ship_Game.AI.Tasks
             }
             switch (type)
             {
+                case TaskType.AssaultPirateBase:
+                    switch (Step)
+                    {
+                        case 0:
+                            RequisitionAssaultPirateBase();
+                            break;
+                    }
+
+                    break;
                 case TaskType.ClearAreaOfEnemies:
                     {
                         if      (Step == 0) RequisitionCoreFleet();
@@ -616,6 +641,12 @@ namespace Ship_Game.AI.Tasks
             TargetPlanetGuid = p.guid;
         }
 
+        public void SetTargetShip(Ship ship)
+        {
+            TargetShip     = ship;
+            TargetShipGuid = ship.guid;
+        }
+
         //need to examine this fleet key thing. i believe there is a leak.
         int FindUnusedFleetNumber()
         {
@@ -638,7 +669,8 @@ namespace Ship_Game.AI.Tasks
             DefendSystem,
             DefendClaim,
             DefendPostInvasion,
-            GlassPlanet
+            GlassPlanet,
+            AssaultPirateBase
         }
 
         [Flags]

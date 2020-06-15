@@ -206,6 +206,16 @@ namespace Ship_Game
             distance = ship.Center.Distance(Position);
             return distance < Sun.RadiationRadius;
         }
+        
+        public bool InSafeDistanceFromRadiation(Vector2 center)
+        {
+            return Sun.RadiationDamage.AlmostZero() || center.Distance(Position) > Sun.RadiationRadius + 10000;
+        }
+
+        public bool InSafeDistanceFromRadiation(float distance)
+        {
+            return Sun.RadiationDamage.AlmostZero() || distance > Sun.RadiationRadius + 10000;
+        }
 
         // overload for ship info UI or AI maybe
         public bool ShipWithinRadiationRadius(Ship ship)

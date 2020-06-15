@@ -4,8 +4,10 @@ using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.Espionage;
+using Microsoft.Xna.Framework.GamerServices;
 
 namespace Ship_Game
 {
@@ -157,22 +159,26 @@ namespace Ship_Game
 
         Array<string> Bases()
         {
-            Array<string> bases = new Array<string>();
+            Array<string> bases = new Array<string>
+            {
+                Owner.data.PirateBaseBasic, 
+                Owner.data.PirateBaseImproved, 
+                Owner.data.PirateBaseAdvanced
+            };
 
-            bases.Add(Owner.data.PirateBaseBasic);
-            bases.Add(Owner.data.PirateBaseImproved);
-            bases.Add(Owner.data.PirateBaseAdvanced);
 
             return bases;
         }
 
         Array<string> Stations()
         {
-            Array<string> stations = new Array<string>();
+            Array<string> stations = new Array<string>
+            {
+                Owner.data.PirateStationBasic, 
+                Owner.data.PirateStationImproved, 
+                Owner.data.PirateStationAdvanced
+            };
 
-            stations.Add(Owner.data.PirateStationBasic);
-            stations.Add(Owner.data.PirateStationImproved);
-            stations.Add(Owner.data.PirateStationAdvanced);
 
             return stations;
         }
@@ -192,18 +198,6 @@ namespace Ship_Game
             }
 
             return planetBases.Count > 0;
-        }
-
-        public bool GetClosestBasePlanet(Vector2 fromPos, out Planet planet)
-        {
-            planet = null;
-            if (!GetOrbitalsOrbitingPlanets(out Array<Ship> bases))
-                return false;
-
-            Ship pirateBase = bases.FindMin(b => b.Center.Distance(fromPos));
-            planet          = pirateBase.GetTether();
-
-            return planet != null;
         }
 
         public bool VictimIsDefeated(Empire victim)
@@ -239,7 +233,8 @@ namespace Ship_Game
             if (Level == MaxLevel)
                 return;
 
-            if (alwaysLevelUp || RandomMath.RollDie(Level*2) == 1)
+            int dieRoll = Level * DifficultyMultiplier();
+            if (alwaysLevelUp || RandomMath.RollDie(dieRoll) == 1)
             {
                 int newLevel = Level + 1;
                 if (NewLevelOperations(newLevel))
@@ -249,6 +244,12 @@ namespace Ship_Game
                     Log.Info(ConsoleColor.Green, $"---- Pirates: {Owner.Name} are now level {Level} ----");
                 }
             }
+        }
+
+        int DifficultyMultiplier()
+        {
+            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
+            return max - (int)CurrentGame.Difficulty;
         }
 
         void AlertPlayerAboutPirateOps(PirateOpsWarning warningType)
@@ -364,7 +365,7 @@ namespace Ship_Game
         bool BuildBaseInDeepSpace(int level)
         {
             if (!GetBaseSpotDeepSpace(out Vector2 pos))
-                return false; ;
+                return false;
 
             if (!SpawnShip(PirateShipType.Base, pos, out Ship pirateBase, level)) 
                 return false;
@@ -469,7 +470,9 @@ namespace Ship_Game
             if (!GetUnownedSystems(out SolarSystem[] systems))
                 return false;
 
-            var systemsWithAsteroids = systems.Filter(s => s.RingList.Any(r => r.Asteroids));
+            var systemsWithAsteroids = systems.Filter(s => s.RingList
+                                       .Any(r => r.Asteroids && s.InSafeDistanceFromRadiation(r.OrbitalDistance)));
+
             if (systemsWithAsteroids.Length == 0)
                 return false;
 
@@ -497,10 +500,14 @@ namespace Ship_Game
                 switch (spot)
                 {
                     case NewBaseSpot.Habitable: 
-                        planets.AddRange(system.PlanetList.Filter(p => p.Habitable)); 
+                        planets.AddRange(system.PlanetList.Filter(p => p.Habitable 
+                                         && p.InSafeDistanceFromRadiation())); 
+
                         break;
                     case NewBaseSpot.GasGiant: 
-                        planets.AddRange(system.PlanetList.Filter(p => p.Category == PlanetCategory.GasGiant)); 
+                        planets.AddRange(system.PlanetList.Filter(p => p.Category == PlanetCategory.GasGiant
+                                         && p.InSafeDistanceFromRadiation())); 
+
                         break;
                 }
             }
@@ -528,13 +535,16 @@ namespace Ship_Game
                                                                  && s.RingList.Count > 0 
                                                                  && !s.PiratePresence
                                                                  && !s.PlanetList.Any(p => p.Guardians.Count > 0));
+
             return systems.Length > 0;
         }
 
         bool GetLoneSystem(out SolarSystem system)
         {
             system = null;
-            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 && !s.PiratePresence);
+            var systems = UniverseScreen.SolarSystemList.Filter(s => s.RingList.Count == 0 
+                                                                     && !s.PiratePresence);
+
             if (systems.Length > 0)
                 system = systems.RandItem();
 
@@ -605,7 +615,7 @@ namespace Ship_Game
             else
             {
                 Log.Warning($"Could not find a default ship to add for {Owner.Name}, " +
-                            $"check their default ships in the race XML");
+                            "check their default ships in the race XML");
             }
         }
 
@@ -621,8 +631,16 @@ namespace Ship_Game
 
             public PirateForces(Empire pirates, int effectiveLevel) : this()
             {
-                FlagShip = pirates.data.PirateFlagShip;
-                switch (effectiveLevel)
+                FlagShip         = pirates.data.PirateFlagShip;
+                int levelDivider = 1; 
+
+                switch (CurrentGame.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
+                {
+                    case UniverseData.GameDifficulty.Easy:   levelDivider = 3; break;
+                    case UniverseData.GameDifficulty.Normal: levelDivider = 2; break;
+                }
+
+                switch (effectiveLevel / levelDivider)
                 {
                     case 0:
                     case 1:
@@ -885,6 +903,21 @@ namespace Ship_Game
                         return;
                     }
                 }
+            }
+        }
+
+        public void ExecuteVictimRetaliation(Empire victim)
+        {
+            if (victim.isPlayer)
+                return; // Players should attack pirate bases themselves
+
+            EmpireAI ai             = victim.GetEmpireAI();
+            int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
+            int maxAssaultGoals     = ((int)(CurrentGame.Difficulty + 1)).UpperBound(3);
+            if (currentAssaultGoals < maxAssaultGoals && RandomMath.RollDice(Level * 3))
+            {
+                Goal goal = new AssaultPirateBase(victim, Owner);
+                victim.GetEmpireAI().AddGoal(goal);
             }
         }
 
