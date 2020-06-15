@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Ship_Game.GameScreens.Espionage;
+using Microsoft.Xna.Framework.GamerServices;
 
 namespace Ship_Game
 {
@@ -197,18 +198,6 @@ namespace Ship_Game
             }
 
             return planetBases.Count > 0;
-        }
-
-        public bool GetClosestBasePlanet(Vector2 fromPos, out Planet planet)
-        {
-            planet = null;
-            if (!GetOrbitalsOrbitingPlanets(out Array<Ship> bases))
-                return false;
-
-            Ship pirateBase = bases.FindMin(b => b.Center.Distance(fromPos));
-            planet          = pirateBase.GetTether();
-
-            return planet != null;
         }
 
         public bool VictimIsDefeated(Empire victim)
@@ -642,8 +631,16 @@ namespace Ship_Game
 
             public PirateForces(Empire pirates, int effectiveLevel) : this()
             {
-                FlagShip = pirates.data.PirateFlagShip;
-                switch (effectiveLevel)
+                FlagShip         = pirates.data.PirateFlagShip;
+                int levelDivider = 1; 
+
+                switch (CurrentGame.Difficulty) // Don't let pirates spawn advanced tech too early at lower difficulty
+                {
+                    case UniverseData.GameDifficulty.Easy:   levelDivider = 3; break;
+                    case UniverseData.GameDifficulty.Normal: levelDivider = 2; break;
+                }
+
+                switch (effectiveLevel / levelDivider)
                 {
                     case 0:
                     case 1:
