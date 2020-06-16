@@ -196,12 +196,19 @@ namespace Ship_Game.Universe.SolarBodies
                 shipAt.AI.SetPriorityOrder(true);
             }
 
-            shipAt.DownloadTradeRoutes(q.TradeRoutes);
-            shipAt.AreaOfOperation        = q.AreaOfOperation;
-            shipAt.TransportingColonists  = q.TransportingColonists;
-            shipAt.TransportingFood       = q.TransportingFood;
-            shipAt.TransportingProduction = q.TransportingProduction;
-            shipAt.AllowInterEmpireTrade  = q.AllowInterEmpireTrade;
+            if (shipAt.IsFreighter)
+            {
+                shipAt.DownloadTradeRoutes(q.TradeRoutes);
+                shipAt.TransportingFood        = true;
+                shipAt.TransportingProduction  = true;
+                shipAt.TransportingColonists   = true;
+                shipAt.AllowInterEmpireTrade   = true; 
+                shipAt.AreaOfOperation         = q.AreaOfOperation;
+                shipAt.TransportingColonists  &= q.TransportingColonists;
+                shipAt.TransportingFood       &= q.TransportingFood;
+                shipAt.TransportingProduction &= q.TransportingProduction;
+                shipAt.AllowInterEmpireTrade  &= q.AllowInterEmpireTrade;
+            }
 
             if (!Owner.isPlayer)
                 Owner.Pool.ForcePoolAdd(shipAt);
