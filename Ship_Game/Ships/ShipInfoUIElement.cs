@@ -246,10 +246,10 @@ namespace Ship_Game.Ships
                     button.Draw(ScreenManager);
                     if (button.Hover) Ship.DrawWeaponRangeCircles(Screen, button.CombatState);
                 }
-
-                //fbedard: Display race icon
-                batch.Draw(ResourceManager.Flag(Ship.loyalty), FlagRect, Ship.loyalty.EmpireColor);
             }
+
+            //fbedard: Display race icon
+            batch.Draw(ResourceManager.Flag(Ship.loyalty), FlagRect, Ship.loyalty.EmpireColor);
 
             Vector2 mousePos = Mouse.GetState().Pos();
 
