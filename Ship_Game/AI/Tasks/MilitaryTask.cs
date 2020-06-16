@@ -64,7 +64,7 @@ namespace Ship_Game.AI.Tasks
                 TargetShip               = targetShip,
                 AO                       = targetShip.Center,
                 type                     = TaskType.AssaultPirateBase,
-                AORadius                 = 50000,
+                AORadius                 = 20000,
                 MinimumTaskForceStrength = targetShip.BaseStrength,
                 TargetShipGuid           = targetShip.guid
             };
