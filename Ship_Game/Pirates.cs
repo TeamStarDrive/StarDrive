@@ -248,7 +248,7 @@ namespace Ship_Game
 
         int DifficultyMultiplier()
         {
-            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 1;
+            int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 2;
             return max - (int)CurrentGame.Difficulty;
         }
 
@@ -914,7 +914,7 @@ namespace Ship_Game
             EmpireAI ai             = victim.GetEmpireAI();
             int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
             int maxAssaultGoals     = ((int)(CurrentGame.Difficulty + 1)).UpperBound(3);
-            if (currentAssaultGoals < maxAssaultGoals && RandomMath.RollDice(Level * 3))
+            if (currentAssaultGoals < maxAssaultGoals && RandomMath.RollDice(Level * 4))
             {
                 Goal goal = new AssaultPirateBase(victim, Owner);
                 victim.GetEmpireAI().AddGoal(goal);
