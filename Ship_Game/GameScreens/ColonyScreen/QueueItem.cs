@@ -33,10 +33,10 @@ namespace Ship_Game
         public Goal Goal;
         public bool NotifyOnEmpty = true;
         public bool IsPlayerAdded = false;
-        public bool TransportingColonists;
-        public bool TransportingFood;
-        public bool TransportingProduction;
-        public bool AllowInterEmpireTrade;
+        public bool TransportingColonists  = true;
+        public bool TransportingFood       = true;
+        public bool TransportingProduction = true;
+        public bool AllowInterEmpireTrade  = true;
 
         // Event action for when this QueueItem is finished
         public QueueItemCompleted OnComplete;
