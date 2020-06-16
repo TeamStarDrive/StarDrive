@@ -275,10 +275,14 @@ namespace Ship_Game
 
         public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost)
         {
-            if (ports.Count != 0)
+            // focus on the best producing planets (number depends on the empire size)
+            if (ports.Count > 0)
             {
-                return ports.FindMin(p => p.TurnsUntilQueueComplete(cost));
+                int numPlanetsToFocus    = (OwnedPlanets.Count / 5).Clamped(1, ports.Count+1);
+                var portsFocused         = ports.SortedDescending(p => p.Prod.NetMaxPotential).Take(numPlanetsToFocus);
+                return portsFocused.Sorted(p => p.TurnsUntilQueueComplete(cost)).First();
             }
+
             return null;
         }
         public float KnownEnemyStrengthIn(SolarSystem system)
