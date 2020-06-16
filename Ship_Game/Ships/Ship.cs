@@ -1319,13 +1319,13 @@ namespace Ship_Game.Ships
                     if (module.FixedTracking > 0 && module.FixedTracking > FixedTrackingPower)
                         FixedTrackingPower = module.FixedTracking;
 
-                    TrackingPower       += Math.Max(0, module.TargetTracking);
+                    TrackingPower       += module.TargetTracking.LowerBound(TrackingPower);
                     OrdinanceMax        += module.OrdinanceCapacity;
                     CargoSpaceMax       += module.Cargo_Capacity;
-                    InhibitionRadius    += module.InhibitionRadius;
+                    InhibitionRadius     = module.InhibitionRadius.LowerBound(InhibitionRadius);
                     BonusEMP_Protection += module.EMP_Protection;
-                    SensorRange          = Math.Max(SensorRange, module.SensorRange);
-                    sensorBonus          = Math.Max(sensorBonus, module.SensorBonus);
+                    SensorRange          = module.SensorRange.LowerBound(SensorRange);
+                    sensorBonus          = module.SensorBonus.LowerBound(sensorBonus);
                     OrdAddedPerSecond   += module.OrdnanceAddedPerSecond;
                     HealPerTurn         += module.HealPerTurn;
                     ECMValue             = 1f.Clamped(0f, Math.Max(ECMValue, module.ECM)); // 0-1 using greatest value.
