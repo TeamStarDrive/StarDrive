@@ -737,8 +737,9 @@ namespace Ship_Game.Fleets
 
         void DoAssaultPirateBase(MilitaryTask task)
         {
-            if (task.TargetShip == null)
+            if (task.TargetShip == null || !task.TargetShip.Active)
             {
+                ClearOrders();
                 FleetTask?.EndTask();
                 return;
             }
@@ -764,11 +765,7 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    TaskCombatStatus = FleetInAreaInCombat(task.AO, task.AORadius);
-
-                    if (TaskCombatStatus == CombatStatus.ClearSpace)
-                        AttackEnemyStrengthClumpsInAO(task);
-                    else
+                    if (!AttackEnemyStrengthClumpsInAO(task))
                         TaskStep = 4;
                     break;
                 case 4:

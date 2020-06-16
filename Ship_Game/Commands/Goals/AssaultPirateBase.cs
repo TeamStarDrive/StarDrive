@@ -48,12 +48,32 @@ namespace Ship_Game.Commands.Goals
 
             EmpireAI ai          = empire.GetEmpireAI();
             var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
-            Vector2 empireCenter = empire.GetWeightedCenter();
 
-            filteredBases.Sort(s => s.Center.SqDist(empireCenter));
-            TargetShip = filteredBases.First();
+            if (!GetClosestBaseToBorders(filteredBases, out TargetShip))
+                return GoalStep.GoalFailed;
+
             return GoalStep.GoToNextStep;
         }
+
+        bool GetClosestBaseToBorders(Ship[] basesList, out Ship closestPirateBase)
+        {
+            closestPirateBase          = null;
+            var empirePlanets          = empire.GetPlanets();
+            float bestShortestDistance = float.MaxValue;
+            for (int i = 0; i < basesList.Length; i++)
+            {
+                Ship pirateBase        = basesList[i];
+                float shortestDistance = empirePlanets.Min(p => p.Center.Distance(pirateBase.Center));
+                if (shortestDistance < bestShortestDistance)
+                {
+                    bestShortestDistance = shortestDistance;
+                    closestPirateBase    = pirateBase;
+                }
+            }
+
+            return closestPirateBase != null;
+        }
+
 
         GoalStep CreateTask()
         {
