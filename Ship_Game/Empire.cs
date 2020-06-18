@@ -276,15 +276,35 @@ namespace Ship_Game
         public Planet FindPlanetToBuildAt(IReadOnlyList<Planet> ports, float cost)
         {
             // focus on the best producing planets (number depends on the empire size)
-            if (ports.Count > 0)
-            {
-                int numPlanetsToFocus    = (OwnedPlanets.Count / 5).Clamped(1, ports.Count+1);
-                var portsFocused         = ports.SortedDescending(p => p.Prod.NetMaxPotential).Take(numPlanetsToFocus);
-                return portsFocused.Sorted(p => p.TurnsUntilQueueComplete(cost)).First();
-            }
+            if (GetBestPorts(ports, out Planet[] bestPorts))
+                return bestPorts.Sorted(p => p.TurnsUntilQueueComplete(cost)).First();
 
             return null;
         }
+
+        bool GetBestPorts(IReadOnlyList<Planet> ports, out Planet[] bestPorts)
+        {
+            bestPorts = null;
+            if (ports.Count > 0)
+            {
+                int numPlanetsToFocus = (OwnedPlanets.Count / 5).Clamped(1, ports.Count + 1);
+                bestPorts = ports.SortedDescending(p => p.Prod.NetMaxPotential);
+                bestPorts = bestPorts.Take(numPlanetsToFocus).ToArray();
+            }
+
+            return bestPorts != null;
+        }
+
+        public Planet GetOrbitPlanetAfterBuild(Planet builtAt)
+        {
+            if (GetBestPorts(SafeSpacePorts, out Planet[] bestPorts) && !bestPorts.Contains(builtAt))
+            {
+                return bestPorts.Sorted(p => p.Center.Distance(builtAt.Center)).First();
+            }
+
+            return builtAt;
+        }
+
         public float KnownEnemyStrengthIn(SolarSystem system)
                      => EmpireAI.ThreatMatrix.PingHostileStr(system.Position, system.Radius, this);
         public float KnownEnemyStrengthIn(AO ao)

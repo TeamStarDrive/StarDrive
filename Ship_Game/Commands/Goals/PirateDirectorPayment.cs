@@ -72,6 +72,9 @@ namespace Ship_Game.Commands.Goals
 
         bool RequestPayment()
         {
+            if (GlobalStats.RestrictAIPlayerInteraction && TargetEmpire.isPlayer)
+                return false;
+
             // If the timer is done, the pirates will demand new payment or immediately if the threat level is -1 (initial)
             if (Pirates.PaymentTimerFor(TargetEmpire) > 0 && Pirates.ThreatLevelFor(TargetEmpire) > -1)
             {
