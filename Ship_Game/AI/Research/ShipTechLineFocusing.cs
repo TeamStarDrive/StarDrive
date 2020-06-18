@@ -102,7 +102,7 @@ namespace Ship_Game.AI.Research
             foreach (string techName in ship.shipData.TechsNeeded)
             {
                 var tech = OwnerEmpire.GetTechEntry(techName);
-                if (!tech.Unlocked && tech.IsShipTech())
+                if (!tech.Unlocked && tech.ContainsShipTech())
                     return true;
             }
             return false;
@@ -327,53 +327,24 @@ namespace Ship_Game.AI.Research
 
             foreach (TechEntry techEntry in availableTechs)
             {
-                var isShipTech = techEntry.IsShipTech();
+                if (techEntry.ContainsShipTech())
+                    shipTechs.Add(techEntry.UID);
 
-                if (needShipTech)
-                {
-                    if (isShipTech)
-                    {
-                        // try to focus tech on just the important items. 
-                        // non ship tech will have ship tech that doesnt unlock ship components. 
-                        // currently the idea is make it so that when not researching ship tech no
-                        // non ship tech will be in the mix. 
-                        // but we also want bonus type type be unlockable when researching a ship.
-                        if (techEntry.Tech.ModulesUnlocked.NotEmpty || techEntry.Tech.HullsUnlocked.NotEmpty)
-                        {
-                            shipTechs.Add(techEntry.UID);
-                        }
-                        else
-                        {
-                            nonShipTechs.Add(techEntry.UID);
-                        }
-                    }
-                    else
-                    {
-                        nonShipTechs.Add(techEntry.UID);
-                    }
-                }
-                // when not researching a ship we want no ship tech getting into the mix and diluting
-                // the cost analysis when choosing a tech. 
-                else
-                {
-                    if (!isShipTech)
-                        nonShipTechs.Add(techEntry.UID);
-                }
+                if (techEntry.ContainsNonShipTechOrBonus())
+                    nonShipTechs.Add(techEntry.UID);
             }
-            //if not researching shiptechs then dont research any shiptechs.
+
+            // If not researching ship techs then dont research any ship tech.
             if (!needShipTech)
                 return nonShipTechs;
 
-            // if we have a best ship already then use that and return.
+            // If we have a best ship already then use that and return.
             // But only if not using a script
             if (BestCombatShip != null && command == "RANDOM")
-            {
                 return UseBestShipTechs(shipTechs, nonShipTechs);
-            }
 
-            //doesn't have a best ship so find one.
-
-            //filter out ships we cant use
+            // Doesn't have a best ship so find one
+            // Filter out ships we cant use
             Array<Ship> racialShips        = FilterRacialShips();
             Array<Ship> researchableShips = GetResearchableShips(racialShips);
 
@@ -382,21 +353,20 @@ namespace Ship_Game.AI.Research
             if (command != "RANDOM")
                 return UseResearchableShipTechs(researchableShips, shipTechs, nonShipTechs);
 
-            //now find a new ship to research that uses most of the tech we already have.
+            // Now find a new ship to research that uses most of the tech we already have.
             GetLineFocusedShip(researchableShips, shipTechs);
-            if (BestCombatShip != null)
-                return UseBestShipTechs(shipTechs, nonShipTechs);
-            return shipTechs;
+            return BestCombatShip != null ? UseBestShipTechs(shipTechs, nonShipTechs) : shipTechs;
         }
 
         private HashSet<string> UseBestShipTechs(HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
-            //Match researchable techs to techs ship needs.
+            // Match researchable techs to techs ship needs.
             string[] bestShipTechs = shipTechs.Intersect(BestCombatShip.shipData.TechsNeeded).ToArray();
             if (bestShipTechs.Length == 0)
                 BestCombatShip = null;
             return UseOnlyWantedShipTechs(bestShipTechs, nonShipTechs);
         }
+
         private HashSet<string> UseResearchableShipTechs(Array<Ship> researchableShips, HashSet<string> shipTechs, HashSet<string> nonShipTechs)
         {
             //filter out all current shiptechs that arent in researchableShips.
