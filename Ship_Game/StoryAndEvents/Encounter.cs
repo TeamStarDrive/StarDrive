@@ -73,7 +73,7 @@ namespace Ship_Game
             ResetMoneyModifier();
         }
 
-        int NetMoneyDemand => BaseMoneyDemanded * MoneyModifier.RoundTo10();
+        int NetMoneyDemand => (BaseMoneyDemanded * MoneyModifier).RoundTo10();
 
         void ResetMoneyModifier()
         {
