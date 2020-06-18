@@ -85,6 +85,9 @@ namespace Ship_Game
             return font.ParseText(wordArray, maxLineWidth);
         }
 
+        // FB - this is so lame, it separate the works by spaces, so if you have a comma, for instance
+        // Like "Dear SING," it won't catch it since there is not space after the comma. wtf?
+        // TODO - Refactor this, Jesus.
         string ParseEncounterKeyword(string keyword)
         {
             switch (keyword)
