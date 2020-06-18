@@ -97,7 +97,7 @@ namespace Ship_Game.Commands.Goals
                 Pirates.SetAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, GetMoneyRequestedModifier());
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, Pirates.GetMoneyRequestedModifier(TargetEmpire));
             else
                 DemandMoneyFromAI();
 
@@ -108,15 +108,6 @@ namespace Ship_Game.Commands.Goals
             return true;
         }
 
-        float GetMoneyRequestedModifier()
-        {
-            float modifier = (Pirates.ThreatLevelFor(TargetEmpire) + 1).Clamped(1, Pirates.Level)
-                             * TargetEmpire.DifficultyModifiers.PiratePayModifier
-                             * TargetEmpire.GetPlanets().Count / Pirates.Owner.data.MinimumColoniesForStartPayment;
-
-            return modifier;
-        }
-
         void DemandMoneyFromAI()
         {
             bool error = true; ;
@@ -125,13 +116,13 @@ namespace Ship_Game.Commands.Goals
                 if (e.BaseMoneyDemanded > 0)
                 {
                     error             = false;
-                    int moneyDemand   = (e.BaseMoneyDemanded * GetMoneyRequestedModifier()).RoundTo10();
+                    int moneyDemand   = e.BaseMoneyDemanded * Pirates.GetMoneyRequestedModifier(TargetEmpire).RoundTo10();
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
                         
                     if (RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
-                        TargetEmpire.AddMoney(-e.BaseMoneyDemanded);
+                        TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
                         Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
                                                      $"- got payment from {TargetEmpire.Name}");

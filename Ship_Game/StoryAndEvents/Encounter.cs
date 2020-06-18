@@ -18,8 +18,8 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
+        public float MoneyModifier = 1;
         public int BaseMoneyDemanded; // Overrides any MoneyToThem in message response and adds a possible modifier
-
 
         Empire playerEmpire;
         SolarSystem sysToDiscuss;
@@ -36,7 +36,7 @@ namespace Ship_Game
             }
             else
             {
-                int money = r.MoneyToThem.LowerBound(BaseMoneyDemanded);
+                int money = r.MoneyToThem.LowerBound(NetMoneyDemand);
                 bool ok = !(money > 0 && playerEmpire.Money < money);
                 if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                     ok = false;
@@ -57,14 +57,10 @@ namespace Ship_Game
             }
 
             if (MessageList[CurrentMessageId].SetWar)
-            {
                 empToDiscuss.GetEmpireAI().DeclareWarFromEvent(playerEmpire, WarType.SkirmishWar);
-            }
 
             if (MessageList[CurrentMessageId].EndWar)
-            {
                 empToDiscuss.GetEmpireAI().EndWarFromEvent(playerEmpire);
-            }
 
             Relationship rel = playerEmpire.GetRelations(empToDiscuss);
             Message message = MessageList[CurrentMessageId];
@@ -73,6 +69,15 @@ namespace Ship_Game
 
             if (message.SetFactionContactStep > 0)
                 rel.FactionContactStep = message.SetFactionContactStep;
+
+            ResetMoneyModifier();
+        }
+
+        int NetMoneyDemand => BaseMoneyDemanded * MoneyModifier.RoundTo10();
+
+        void ResetMoneyModifier()
+        {
+            MoneyModifier = 1;
         }
 
         public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
@@ -123,7 +128,7 @@ namespace Ship_Game
                 case "ADJ2,": return playerEmpire.data.Traits.Adj2+",";
                 case "ADJ2?": return playerEmpire.data.Traits.Adj2+"?";
                 case "ADJ2!": return playerEmpire.data.Traits.Adj2+"!";
-                case "MONEY": return BaseMoneyDemanded.String();
+                case "MONEY": return NetMoneyDemand.String();
             }
         }
 
@@ -162,7 +167,7 @@ namespace Ship_Game
             
             if (GetEncounter(encounters, faction, requiredStep, out Encounter encounter))
             {
-                encounter.BaseMoneyDemanded = (encounter.BaseMoneyDemanded * moneyModifier).RoundTo10();
+                encounter.MoneyModifier = moneyModifier;
                 EncounterPopup.Show(screen, player, faction, encounter);
             }
             else
