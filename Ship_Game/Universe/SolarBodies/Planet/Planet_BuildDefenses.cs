@@ -384,18 +384,18 @@ namespace Ship_Game
                 case 1: Platforms  = 0; Stations = 0; Shipyards = 0; break;
                 case 2: Platforms  = 0; Stations = 0; Shipyards = 0; break;
                 case 3: Platforms  = 3; Stations = 0; Shipyards = 0; break;
-                case 4: Platforms  = 4; Stations = 1; Shipyards = 0; break;
-                case 5: Platforms  = 5; Stations = 1; Shipyards = 1; break;
-                case 6: Platforms  = 6; Stations = 2; Shipyards = 1; break;
-                case 7: Platforms  = 3; Stations = 2; Shipyards = 1; break;
-                case 8: Platforms  = 5; Stations = 2; Shipyards = 1; break;
-                case 9: Platforms  = 2; Stations = 3; Shipyards = 1; break;
-                case 10: Platforms = 3; Stations = 3; Shipyards = 2; break;
-                case 11: Platforms = 5; Stations = 3; Shipyards = 2; break;
-                case 12: Platforms = 7; Stations = 3; Shipyards = 2; break;
-                case 13: Platforms = 5; Stations = 4; Shipyards = 2; break;
-                case 14: Platforms = 7; Stations = 4; Shipyards = 2; break;
-                case 15: Platforms = 9; Stations = 5; Shipyards = 2; break;
+                case 4: Platforms  = 4; Stations = 0; Shipyards = 0; break;
+                case 5: Platforms  = 7; Stations = 0; Shipyards = 1; break;
+                case 6: Platforms  = 0; Stations = 1; Shipyards = 1; break;
+                case 7: Platforms  = 3; Stations = 1; Shipyards = 1; break;
+                case 8: Platforms  = 3; Stations = 2; Shipyards = 1; break;
+                case 9: Platforms  = 6; Stations = 2; Shipyards = 1; break;
+                case 10: Platforms = 0; Stations = 3; Shipyards = 2; break;
+                case 11: Platforms = 3; Stations = 3; Shipyards = 2; break;
+                case 12: Platforms = 0; Stations = 4; Shipyards = 2; break;
+                case 13: Platforms = 0; Stations = 4; Shipyards = 2; break;
+                case 14: Platforms = 0; Stations = 4; Shipyards = 2; break;
+                case 15: Platforms = 0; Stations = 5; Shipyards = 2; break;
                 default: Platforms = 0; Stations = 0; Shipyards = 0; break;
             }
         }
