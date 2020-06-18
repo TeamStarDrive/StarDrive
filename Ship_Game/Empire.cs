@@ -675,7 +675,10 @@ namespace Ship_Game
 
             foreach (TechEntry tech in TechEntries)
             {
-                if (!tech.Unlocked && tech.Discovered && tech.shipDesignsCanuseThis && HavePreReq(tech.UID))
+                if (!tech.Unlocked 
+                    && tech.Discovered 
+                    && (tech.shipDesignsCanuseThis || tech.Tech.BonusUnlocked.NotEmpty)
+                    && HavePreReq(tech.UID))
                 {
                     availableTechs.Add(tech);
                     tech.SetLookAhead(this);
