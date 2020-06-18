@@ -179,7 +179,6 @@ namespace Ship_Game
                 Owner.data.PirateStationAdvanced
             };
 
-
             return stations;
         }
 
@@ -198,6 +197,16 @@ namespace Ship_Game
             }
 
             return planetBases.Count > 0;
+        }
+
+        public float GetMoneyRequestedModifier(Empire victim)
+        {
+            float popMod = victim.GetTotalPop() / 14;
+            float modifier = (ThreatLevelFor(victim) + 1).Clamped(1, Level)
+                             * victim.DifficultyModifiers.PiratePayModifier
+                             * popMod;
+
+            return modifier;
         }
 
         public bool VictimIsDefeated(Empire victim)
