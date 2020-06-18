@@ -46,9 +46,9 @@ namespace Ship_Game.AI
             buildRatio = Math.Max(buildRatio, overSpend);
 
             float budget                   = SetBudgetForeArea(0.01f, buildRatio, money);
+            float buildMod = BuildModifier() / 5;
 
-
-            return budget / (BuildModifier() / (1 + risk));
+            return budget / (buildMod / (1 + risk));
         }
 
         float BuildModifier()

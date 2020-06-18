@@ -6989,7 +6989,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>1085</Index>
-      <Text>The DialCorp Inhibitor 2.0 prevents enemy ships from engaging their FTL drives in a moderate radius. It requires incredible amounts of power to operate. Multiple inhibitors stack. </Text>
+      <Text>The DialCorp Inhibitor 2.0 prevents enemy ships from engaging their FTL drives in a moderate radius. It requires incredible amounts of power to operate. Multiple inhibitors do not stack. </Text>
     </Token>
     <Token>
       <Index>1009</Index>

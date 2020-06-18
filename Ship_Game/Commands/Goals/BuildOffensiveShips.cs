@@ -56,7 +56,9 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            FinishedShip.AI.State = AIState.AwaitingOrders;
+            Planet planetToOrbit = empire.GetOrbitPlanetAfterBuild(PlanetBuildingAt);
+            FinishedShip.AI.OrderToOrbit(planetToOrbit);
+
             return GoalStep.GoalComplete;
         }
 
