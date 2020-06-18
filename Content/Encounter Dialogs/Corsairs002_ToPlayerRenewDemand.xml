@@ -1,6 +1,6 @@
 ﻿<Encounter>
   <Faction>Corsairs</Faction>
-  <Step>1</Step>
+  <Step>2</Step>
   <Name>Renewing our "Contract"</Name>
   <FactionInitiated>true</FactionInitiated>
   <BaseMoneyDemanded>250</BaseMoneyDemanded> <!-- this money request will be modified and overwrite any MoneyToThem below -->
