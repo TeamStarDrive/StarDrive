@@ -339,9 +339,15 @@ namespace Ship_Game.AI.Research
 
             TechEntry[] techsTypeFiltered = availableTechs.Filter(tech =>
             {
-                if (!wantsShipTech && tech.IsShipTech()) return false;
-                if (wantsShipTech && !tech.IsShipTech()) return false;
-                if (CostToResearchTechType(tech, techType) >0) return true;
+                if (!wantsShipTech && tech.ContainsShipTech()) 
+                    return false;
+
+                if (wantsShipTech && !tech.ContainsShipTech()) 
+                    return false;
+
+                if (CostToResearchTechType(tech, techType) >0) 
+                    return true;
+
                 return false;
             });
 
