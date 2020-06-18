@@ -116,7 +116,7 @@ namespace Ship_Game.Commands.Goals
                 if (e.BaseMoneyDemanded > 0)
                 {
                     error             = false;
-                    int moneyDemand   = e.BaseMoneyDemanded * Pirates.GetMoneyRequestedModifier(TargetEmpire).RoundTo10();
+                    int moneyDemand   = (e.BaseMoneyDemanded * Pirates.GetMoneyRequestedModifier(TargetEmpire)).RoundTo10();
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
                         
@@ -125,13 +125,13 @@ namespace Ship_Game.Commands.Goals
                         TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
                         Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
-                                                     $"- got payment from {TargetEmpire.Name}");
+                                                     $"- {moneyDemand} credits from {TargetEmpire.Name}");
                     }
                     else
                     {
                         TargetEmpire.GetEmpireAI().DeclareWarFromEvent(Pirates.Owner, WarType.SkirmishWar);
                         Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
-                                                     $"- {TargetEmpire.Name} refused to pay!");
+                                                     $"- {TargetEmpire.Name} refused to pay {moneyDemand} credits!");
                     }
                 }
             }
