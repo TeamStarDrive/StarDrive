@@ -76,6 +76,7 @@ namespace Ship_Game.AI
             ourRelationToThem.Treaty_Peace       = false;
             them.GetEmpireAI().GetWarDeclaredOnUs(OwnerEmpire, wt);
 
+            // FB - we are Resetting Pirate timers here since status change can be done via communication by the player
             if (OwnerEmpire.WeArePirates)
                 OwnerEmpire.Pirates.ResetPaymentTimerFor(them);
             else if (them.WeArePirates)
@@ -251,6 +252,8 @@ namespace Ship_Game.AI
         {
             OwnerEmpire.GetRelations(them).AtWar = false;
             them.GetRelations(OwnerEmpire).AtWar = false;
+
+            // FB - we are Resetting Pirate timers here since status change can be done via communication by the player
             if (OwnerEmpire.WeArePirates)
                 OwnerEmpire.Pirates.ResetPaymentTimerFor(them);
             else if (them.WeArePirates)
