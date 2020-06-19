@@ -905,7 +905,7 @@ namespace Ship_Game
             {
                 if (victim.GetRelations(faction).Treaty_NAPact)
                 {
-                    int executeChance = faction.Pirates.Level * 2;
+                    int executeChance = faction.Pirates.Level * 3;
                     if (RandomMath.RollDice(executeChance))
                     {
                         AddGoalProtection(victim, shipToDefend);
