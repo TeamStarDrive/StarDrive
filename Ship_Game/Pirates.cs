@@ -72,9 +72,6 @@ namespace Ship_Game
         public void AddGoalRaidOrbital(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidOrbital, null);
 
-        public void AddGoalRaidColonyShip(Empire victim) =>
-            AddGoal(victim, GoalType.PirateRaidColonyShip, null);
-
         public void AddGoalRaidCombatShip(Empire victim) =>
             AddGoal(victim, GoalType.PirateRaidCombatShip, null);
 
@@ -93,7 +90,6 @@ namespace Ship_Game
                 case GoalType.PirateBase:            Goals.Add(new PirateBase(Owner, ship, systemName));              break;
                 case GoalType.PirateRaidTransport:   Goals.Add(new PirateRaidTransport(Owner, victim));    break;
                 case GoalType.PirateRaidOrbital:     Goals.Add(new PirateRaidOrbital(Owner, victim));      break;
-                case GoalType.PirateRaidColonyShip:  Goals.Add(new PirateRaidColonyShip(Owner, victim));   break;
                 case GoalType.PirateRaidCombatShip:  Goals.Add(new PirateRaidCombatShip(Owner, victim));   break;
                 case GoalType.PirateDefendBase:      Goals.Add(new PirateDefendBase(Owner, ship));                    break;
                 case GoalType.PirateProtection:      Goals.Add(new PirateProtection(Owner, victim, ship)); break;
@@ -711,9 +707,8 @@ namespace Ship_Game
 
                 switch (type)
                 {
-                    case TargetType.ColonyShip       when ship.isColonyShip:
                     case TargetType.Shipyard         when ship.shipData.IsShipyard:
-                    case TargetType.FreighterAtWarp  when ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _) && ship.IsInWarp:
+                    case TargetType.FreighterAtWarp  when (ship.isColonyShip || ship.AI.FindGoal(ShipAI.Plan.DropOffGoods, out _)) && ship.IsInWarp:
                     case TargetType.CombatShipAtWarp when !ship.IsPlatformOrStation && ship.BaseStrength > 0 && ship.IsInWarp:
                     case TargetType.Projector:       targets.Add(ship);                                                        break;
                 }
@@ -815,22 +810,16 @@ namespace Ship_Game
 
         public void SalvageShip(Ship ship, Ship pirateBase)
         {
-            if      (ship.IsFreighter)  SalvageFreighter(ship);
-            else if (ship.isColonyShip) SalvageColonyShip(ship);
-            else                        SalvageCombatShip(ship, pirateBase);
+            if (ship.IsFreighter || ship.isColonyShip)
+                SalvageFreighter(ship);
+            else 
+                SalvageCombatShip(ship, pirateBase);
         }
 
         void SalvageFreighter(Ship freighter)
         {
+            TryLevelUp(freighter.isColonyShip);
             freighter.QueueTotalRemoval();
-            TryLevelUp();
-        }
-
-        void SalvageColonyShip(Ship colonyShip)
-        {
-            // Maybe colonize a planet?
-            colonyShip.QueueTotalRemoval();
-            TryLevelUp();
         }
 
         void SalvageCombatShip(Ship ship, Ship pirateBase)
@@ -956,7 +945,6 @@ namespace Ship_Game
         {
             FreighterAtWarp,
             CombatShipAtWarp,
-            ColonyShip,
             Projector,
             Shipyard,
             Station
