@@ -125,7 +125,7 @@ namespace Ship_Game.Commands.Goals
                         TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
                         Log.Info(ConsoleColor.Green, $"Pirates: {empire.Name} Payment Director " +
-                                                     $"- {moneyDemand} credits from {TargetEmpire.Name}");
+                                                     $"Got - {moneyDemand} credits from {TargetEmpire.Name}");
                     }
                     else
                     {
