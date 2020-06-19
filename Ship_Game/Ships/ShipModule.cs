@@ -679,7 +679,11 @@ namespace Ship_Game.Ships
 
                 if (proj != null)
                 {
-                    if (beam != null) CauseSiphonDamage(beam);
+                    if (beam != null)
+                    {
+                        CauseSiphonDamage(beam);
+                        BeamMassDamage(beam, hittingShields: true);
+                    }
 
                     if (Parent.InFrustum && Empire.Universe?.viewState <= UniverseScreen.UnivScreenState.ShipView)
                         Shield.HitShield(this, proj);
@@ -691,9 +695,7 @@ namespace Ship_Game.Ships
             else
             {
                 if (beam != null)
-                {
                     CauseSpecialBeamDamage(beam);
-                }
                 
                 SetHealth(Health - modifiedDamage);
                 DebugPerseveranceNoDamage();
@@ -705,6 +707,7 @@ namespace Ship_Game.Ships
                 if (beam != null) beam.CreateHitParticles(Center3D.Z);
                 else if (proj?.Explodes == false) proj.CreateHitParticles(modifiedDamage, Center3D);
             }
+
             return true;
         }
 
@@ -713,6 +716,7 @@ namespace Ship_Game.Ships
             if (GlobalStats.ActiveModInfo?.useHullBonuses == true &&
                 ResourceManager.HullBonuses.TryGetValue(Parent.shipData.Hull, out HullBonus mod))
                 return (1f - mod.ArmoredBonus);
+
             return 1f;
         }
 
@@ -720,14 +724,15 @@ namespace Ship_Game.Ships
         {
             if (proj.Weapon.EMPDamage <= 0f)
                 return;
+
             Parent.CauseEmpDamage(proj.Weapon.EMPDamage);
         }
 
-        void CauseSpecialBeamDamage(Beam beam)
+        void CauseSpecialBeamDamage(Beam beam, bool hittingShields = false)
         {
             BeamPowerDamage(beam);
             BeamTroopDamage(beam);
-            BeamMassDamage(beam);
+            BeamMassDamage(beam, hittingShields);
             BeamRepulsionDamage(beam);
         }
 
@@ -735,6 +740,7 @@ namespace Ship_Game.Ships
         {
             if (beam.Weapon.PowerDamage <= 0)
                 return;
+
             Parent.CausePowerDamage(beam.Weapon.PowerDamage);
         }
 
@@ -742,20 +748,23 @@ namespace Ship_Game.Ships
         {
             if (beam.Weapon.TroopDamageChance <= 0f)
                 return;
+
             Parent.CauseTroopDamage(beam.Weapon.TroopDamageChance);
         }
 
-        void BeamMassDamage(Beam beam)
+        void BeamMassDamage(Beam beam, bool hittingShields)
         {
             if (beam.Weapon.MassDamage <= 0f)
                 return;
-            Parent.CauseMassDamage(beam.Weapon.MassDamage);
+
+            Parent.CauseMassDamage(beam.Weapon.MassDamage, hittingShields);
         }
 
         void BeamRepulsionDamage(Beam beam)
         {
             if (beam.Weapon.RepulsionDamage < 1)
                 return;
+
             Parent.CauseRepulsionDamage(beam);
         }
 
