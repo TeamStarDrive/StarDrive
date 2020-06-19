@@ -48,6 +48,7 @@ namespace Ship_Game.Commands.Goals
             Vector2 where = ShipToProtect.Center.GenerateRandomPointOnCircle(1000);
             if (Pirates.SpawnBoardingShip(ShipToProtect, where, out Ship boardingShip))
             {
+                ShipToProtect.HyperspaceReturn();
                 if (Pirates.SpawnForce(TargetShip, boardingShip.Center, 5000, out Array<Ship> force))
                    Pirates.OrderEscortShip(boardingShip, force);
 
