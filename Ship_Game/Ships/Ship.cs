@@ -297,12 +297,12 @@ namespace Ship_Game.Ships
             ApplyForce(repulsion);
         }
 
-        public void CauseMassDamage(float massDamage)
+        public void CauseMassDamage(float massDamage, bool hittingShields)
         {
             if (IsTethered || EnginesKnockedOut)
                 return;
 
-            Mass += massDamage;
+            Mass += hittingShields ? massDamage/2 : massDamage;
             UpdateMaxVelocity();
             shipStatusChanged = true;
         }
