@@ -212,7 +212,7 @@ namespace Ship_Game.Ships
             batch.DrawString(Fonts.Visitor10, longName, shipSuperName, Color.Orange);
 
             string text;
-            Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 68);
+            Vector2 shipStatus              = new Vector2(Sel.Rect.X + Sel.Rect.Width - 168, Housing.Y + 64);
             text                            = Fonts.TahomaBold9.ParseText(ShipListScreenItem.GetStatusText(Ship), 120);
             HelperFunctions.ClampVectorToInt(ref shipStatus);
             batch.DrawString(Fonts.TahomaBold9, text, shipStatus, tColor);
