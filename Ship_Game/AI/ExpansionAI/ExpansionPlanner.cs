@@ -92,11 +92,13 @@ namespace Ship_Game.AI.ExpansionAI
             int maxCheckedSystems = (Empire.Universe.SolarSystemDict.Count / maxCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = OwnerEmpire.GetWeightedCenter();
 
-            potentialSystems.Sort(s => empireCenter.Distance(s.Position));
-            potentialSystems = (SolarSystem[]) potentialSystems.Take(maxCheckedSystems);
-
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(OwnedSystems);
-            potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
+            if (potentialSystems.Length > 0)
+            {
+                potentialSystems.Sort(s => empireCenter.Distance(s.Position));
+                potentialSystems = (SolarSystem[])potentialSystems.Take(maxCheckedSystems);
+                potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
+            }
 
             // Rank all known planets near the empire
             if (!GatherAllPlanetRanks(potentialPlanets, out Array <PlanetRanker> allPlanetsRanker, empireCenter))
