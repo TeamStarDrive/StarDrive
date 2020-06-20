@@ -9,23 +9,21 @@ namespace Ship_Game.AI.ExpansionAI
         public Planet Planet;
         public float Value;
         public bool CantColonize;
-        public float EnemyStrength;
         public bool PoorPlanet;
         private readonly float DistanceMod;
         private readonly Empire Empire;
 
         public override string ToString()
         {
-            return $"{Planet.Name} Value={Value} DistanceMod={DistanceMod} EnemyStr={EnemyStrength}";
+            return $"{Planet.Name} Value={Value} DistanceMod={DistanceMod}"; // EnemyStr={EnemyStrength}";
         }
 
-        public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, float enemyStr, float longestDistance, Vector2 empireCenter)
+        public PlanetRanker(Empire empire, Planet planet, bool canColonizeBarren, float longestDistance, Vector2 empireCenter)
         {
             Planet                = planet;
             Empire                = empire;
             DistanceMod           = planet.Center.Distance(empireCenter).LowerBound(1);
             CantColonize          = false;
-            EnemyStrength         = enemyStr;
             PoorPlanet            = false;
             float rawValue        = planet.ColonyPotentialValue(empire);
 
@@ -40,7 +38,7 @@ namespace Ship_Game.AI.ExpansionAI
         public void EvaluatePoorness(float avgValue) => PoorPlanet = Value < avgValue;
 
         public bool CanColonize    => !CantColonize;
-        public bool NeedClaimFleet => EnemyStrength.Greater(0) || Planet.GetGroundStrengthOther(Empire).Greater(0);
+        //public bool NeedClaimFleet => EnemyStrength.Greater(0) || Planet.GetGroundStrengthOther(Empire).Greater(0);
 
         static bool IsBadWorld(Planet planet, bool canColonizeBarren)
             => planet.IsBarrenType && !canColonizeBarren && planet.SpecialCommodities == 0;
