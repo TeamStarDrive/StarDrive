@@ -22,7 +22,7 @@ namespace Ship_Game.AI.ExpansionAI
         {
             Planet                = planet;
             Empire                = empire;
-            DistanceMod           = planet.Center.Distance(empireCenter).LowerBound(1);
+            DistanceMod           = 1;
             CantColonize          = false;
             PoorPlanet            = false;
             float rawValue        = planet.ColonyPotentialValue(empire);
