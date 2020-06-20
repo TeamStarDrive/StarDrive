@@ -29,8 +29,12 @@ namespace Ship_Game.Commands.Goals
         }
         public MarkForColonization(Planet toColonize, Empire e) : this()
         {
-            empire = e;
+            empire             = e;
             ColonizationTarget = toColonize;
+            if (PositiveEnemyPresence(out _)) 
+                return;
+
+            // Fast track to colonize if planet is safe and we have a ready Colony Ship
             FinishedShip = FindIdleColonyShip();
             if (FinishedShip != null)
             {
@@ -99,9 +103,12 @@ namespace Ship_Game.Commands.Goals
 
             // Check if there is enemy presence without a claim task
             if (PositiveEnemyPresence(out _))
+            {
+                ReleaseShipFromGoal();
                 return GoalStep.GoalFailed;
+            }
 
-            return GoalStep.TryAgain;
+            return GoalStep.GoToNextStep;
         }
 
         GoalStep OrderShipForColonization()
@@ -111,10 +118,7 @@ namespace Ship_Game.Commands.Goals
 
             FinishedShip = FindIdleColonyShip();
             if (FinishedShip != null)
-            {
-                ChangeToStep(OrderShipToColonize);
-                Evaluate();
-            }
+                return GoalStep.GoToNextStep;
 
             if (!ShipBuilder.PickColonyShip(empire, out Ship colonyShip))
                 return GoalStep.GoalFailed;
@@ -123,13 +127,19 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer);
+            // TODO push to front
             return GoalStep.GoToNextStep;
         }
 
         GoalStep EnsureBuildingColonyShip()
         {
             if (TargetPlanetStatus() == GoalStep.GoalFailed)
+            {
+                if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
+                    task.EndTask();
+
                 return GoalStep.GoalFailed;
+            }
 
             if (FinishedShip != null) // we already have a ship
                 return GoalStep.GoToNextStep;

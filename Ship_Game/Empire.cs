@@ -206,7 +206,6 @@ namespace Ship_Game
             Pirates = new Pirates(this, fromSave, goals);
         }
 
-
         public void AddMoney(float moneyDiff)
         {
             Money += moneyDiff;
@@ -1872,12 +1871,29 @@ namespace Ship_Game
             }
         }
 
+        /// <summary>
+        /// Gets the total population in billions
+        /// </summary>
         public float GetTotalPop()
         {
             float num = 0.0f;
             using (OwnedPlanets.AcquireReadLock())
-                foreach (Planet p in OwnedPlanets)
-                    num += p.PopulationBillion;
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                    num += OwnedPlanets[i].PopulationBillion;
+
+            return num;
+        }
+
+        /// <summary>
+        /// Gets the total potential population in billions
+        /// </summary>
+        public float GetTotalPopPotential()
+        {
+            float num = 0.0f;
+            using (OwnedPlanets.AcquireReadLock())
+                for (int i = 0; i < OwnedPlanets.Count; i++)
+                    num += OwnedPlanets[i].PotentialMaxPopBillionsFor(this);
+
             return num;
         }
 
