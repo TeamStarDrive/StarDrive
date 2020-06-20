@@ -159,7 +159,7 @@ namespace Ship_Game.AI.Research
         {
             float ratio = p.NonCybernetic ? p.Storage.FoodRatio : p.Storage.Prod;
             float needs = 1 - ratio;
-            needs       = (needs * p.Level / 5).LowerBound(0);
+            needs       = (needs * p.Level / 2).LowerBound(0);
             if (p.IsStarving)
                 needs += 0.5f;
 

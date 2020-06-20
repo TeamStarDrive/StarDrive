@@ -105,7 +105,7 @@
                 BaseColonyGoals                   = (float)difficulty * 2.5f * strategy.ExpansionRatio;
             }
 
-            SysComModifier      = (int)(((int)difficulty + 1) * 0.75f + 0.5f);
+            SysComModifier      = (int)(((int)difficulty + 1) * 0.75f).LowerBound(1);
             DiploWeightVsPlayer = (int)difficulty + 1;
             Anger               = 1 + ((int)difficulty + 1) * 0.2f;
             RemnantStory        = (int)difficulty * 3;
