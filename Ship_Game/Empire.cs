@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Newtonsoft.Json;
 using Ship_Game.AI;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Debug;
@@ -9,7 +8,6 @@ using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Serialization;
 using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.Empires;
 using Ship_Game.Empires.ShipPools;
@@ -238,6 +236,16 @@ namespace Ship_Game
                                                p => position.SqDist(p.Center))
                 ?? SpacePorts.FindMin(p => position.SqDist(p.Center))
                 ?? FindNearestRallyPoint(position);
+        }
+
+        public bool GetCurrentCapital(out Planet capital)
+        {
+            capital      = null;
+            var capitals = OwnedPlanets.Filter(p => p.BuildingList.Any(b => b.IsCapital));
+            if (capitals.Length > 0)
+                capital = capitals.First();
+
+            return capitals.Length > 0;
         }
 
         public bool FindClosestSpacePort(Vector2 position, out Planet closest)
@@ -2926,22 +2934,25 @@ namespace Ship_Game
             return OwnedSolarSystems.FindClosestTo(position);
         }
 
-        public SolarSystem FindNearestOwnedSystemTo(Array<SolarSystem> systems)
+        public bool FindNearestOwnedSystemTo(Array<SolarSystem> systems, out SolarSystem nearestSystem)
         {
-            SolarSystem nearestSystem = null;
+            nearestSystem  = null;
+            if (OwnedSolarSystems.Count == 0)
+                return false; // We do not have any system owned, maybe we are defeated
+
             float distance = float.MaxValue;
             Vector2 center = GetWeightedCenter();
-            foreach(var system in systems)
+            foreach(SolarSystem system in systems)
             {
-                var nearest = OwnedSolarSystems.FindClosestTo(system);
+                SolarSystem nearest  = OwnedSolarSystems.FindClosestTo(system);
                 float approxDistance = center.SqDist(nearest.Position);
                 if (center.SqDist(nearest.Position) < distance)
                 {
-                    distance = approxDistance;
+                    distance      = approxDistance;
                     nearestSystem = nearest;
                 }
             }
-            return nearestSystem;
+            return nearestSystem != null;
         }
 
         public bool UpdateContactsAndBorders(float elapsedTime)
