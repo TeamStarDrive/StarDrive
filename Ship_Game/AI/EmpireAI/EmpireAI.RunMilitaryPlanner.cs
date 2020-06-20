@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ship_Game.AI.Tasks;
+using Microsoft.Xna.Framework;
 
 // ReSharper disable once CheckNamespace
 namespace Ship_Game.AI
@@ -155,6 +156,22 @@ namespace Ship_Game.AI
                 {
                     Log.Warning($"{OwnerEmpire.Name} Assault Pirate Base Tasks: Found more than one task for {militaryTask.TargetShip}. Using the first one.");
                 }
+            }
+
+            return militaryTask != null;
+        }
+
+        public bool GetDefendClaimTaskFor(Planet planet, out MilitaryTask militaryTask)
+        {
+            militaryTask = null;
+            var filteredTasks = TaskList.Filter(task => task.type == MilitaryTask.TaskType.DefendClaim
+                                                     && task.TargetPlanet == planet);
+
+            if (filteredTasks.Length > 0f)
+            {
+                militaryTask = filteredTasks.First();
+                if (filteredTasks.Length > 1)
+                    Log.Warning($"{OwnerEmpire.Name} Defend Claim Tasks: Found more than one task for {planet.Name}. Using the first one.");
             }
 
             return militaryTask != null;
