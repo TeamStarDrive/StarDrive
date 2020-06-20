@@ -216,8 +216,9 @@ namespace Ship_Game
                 batch.Draw(ResourceManager.Texture("UI/icon_experience_shipUI"), star, Color.White);
                 batch.DrawString(Fonts.Arial12Bold, HoveredShip.Level.ToString(), levelPos, Color.White);
             }
+            if (ShipList.Count > 0)
+                batch.Draw(ResourceManager.Flag(ShipList.First().loyalty), FlagRect, ShipList.First().loyalty.EmpireColor);
 
-            batch.Draw(ResourceManager.Flag(ShipList.First().loyalty), FlagRect, ShipList.First().loyalty.EmpireColor);
             foreach (ToggleButton button in CombatStatusButtons)
             {
                 button.Draw(ScreenManager);
