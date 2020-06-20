@@ -60,16 +60,6 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.GoalFailed;
             }
 
-            if (!empire.isPlayer || empire.AutoColonize)
-            {
-                if (empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem) > 50)
-                {
-                    Log.Info($"Target system {ColonizationTarget.ParentSystem.Name} has too many enemies");
-                    ReleaseShipFromGoal();
-                    return GoalStep.GoalFailed;
-                }
-            }
-
             return GoalStep.GoToNextStep;
         }
 
@@ -95,7 +85,7 @@ namespace Ship_Game.Commands.Goals
 
             if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
             {
-                if (task.Step == 5) // 5 means it is safe
+                if (!PositiveEnemyPresence(out _))
                     return GoalStep.GoToNextStep;
 
                 return GoalStep.TryAgain; // Claim task still in progress

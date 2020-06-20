@@ -510,7 +510,8 @@ namespace Ship_Game.Debug
                 foreach (Ship ship in ships)
                     VisualizeShipGoal(ship, false);
 
-                DrawString($"SelectedShips ({ships.Count}) ");
+                DrawString($"SelectedShips: {ships.Count} ");
+                DrawString($"Total Str: {ships.Sum(s => s.BaseStrength).String(1)} ");
             }
             VisualizePredictionDebugger();
         }
@@ -655,7 +656,7 @@ namespace Ship_Game.Debug
                 }
 
                 NewLine(3);
-                DrawString("Total Pop: "+ e.GetTotalPop().String());
+                DrawString("Total Pop: "+ e.GetTotalPop().String(1) + "/" + e.GetTotalPopPotential().String(1));
                 DrawString("Gross Food: "+ e.GetGrossFoodPerTurn().String());
                 DrawString("Military Str: "+ e.MilitaryScore);
                 for (int x = 0; x < e.GetEmpireAI().Goals.Count; x++)

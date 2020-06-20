@@ -50,7 +50,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         float PopulationRatio    => Owner.GetTotalPop() / Owner.GetTotalPopPotential().LowerBound(1);
         bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
-        float ExpansionThreshold => (IsExpansionists ? 0.6f : 0.8f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (IsExpansionists ? 0.35f : 0.5f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
@@ -74,6 +74,7 @@ namespace Ship_Game.AI.ExpansionAI
             if (PopulationRatio < ExpansionThreshold)
                 return; // We have not reached our pop capacity threshold yet
 
+            Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
             OwnedSystems         = Owner.GetOwnedSystems();
             float ownerStrength  = Owner.CurrentMilitaryStrength;
             var potentialSystems = Empire.Universe.SolarSystemDict.FilterValues(s => s.IsExploredBy(Owner)
@@ -161,7 +162,7 @@ namespace Ship_Game.AI.ExpansionAI
             {
                 Planet planet = RankedPlanets[i].Planet;
                 Log.Info(ConsoleColor.Magenta,
-                    $"Colonize {markedPlanets.Length + 1}/{desired} | {planet} | {Owner}");
+                    $"Colonize {markedPlanets.Length + 1}/{DesiredColonyGoals} | {planet} | {Owner}");
 
                 Goals.Add(new MarkForColonization(planet, Owner));
                 desired--;
