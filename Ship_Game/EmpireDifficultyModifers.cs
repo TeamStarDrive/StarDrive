@@ -21,6 +21,11 @@
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
 
+        /// <summary>
+        /// Higher number will decrease colonization pace
+        /// </summary>
+        public readonly float ExpansionModifier; 
+
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
             DataVisibleToPlayer = false;
@@ -40,6 +45,7 @@
                     EnemyTroopStrength   = 1f;
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
+                    ExpansionModifier    = 0.2f;
                     break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
@@ -55,6 +61,7 @@
                     EnemyTroopStrength   = 1.1f;
                     MineralDecayDivider  = 75;
                     PiratePayModifier    = 0.75f;
+                    ExpansionModifier    = 0.1f;
                     break;
                 case UniverseData.GameDifficulty.Hard:
                     ShipBuildStrMin      = 0.8f;
@@ -69,6 +76,7 @@
                     EnemyTroopStrength   = 1.25f;
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 1f;
+                    ExpansionModifier    = 0.05f;
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -83,6 +91,7 @@
                     EnemyTroopStrength   = 1.5f;
                     MineralDecayDivider  = 35;
                     PiratePayModifier    = 1.5f;
+                    ExpansionModifier    = 0f;
                     break;
             }
 
