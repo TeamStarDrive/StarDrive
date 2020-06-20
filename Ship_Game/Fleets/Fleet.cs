@@ -730,7 +730,8 @@ namespace Ship_Game.Fleets
                     TaskStep = 5;
                     break;
                 case 5:
-                    FleetTask.EndTask();
+                    if (task.TargetPlanet.Owner != null)
+                        FleetTask.EndTask();
                     break;
             }
         }

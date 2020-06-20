@@ -22,10 +22,8 @@ namespace Ship_Game.AI.ExpansionAI
 
         public Planet[] GetColonizationTargets(Planet[] markedPlanets)
         {
-            return RankedPlanets.FilterSelect(ranker => !ranker.CantColonize &&
-                                                        ranker.EnemyStrength < 1 &&
-                                                        !markedPlanets.Contains(ranker.Planet),
-                p => p.Planet);
+            return RankedPlanets.FilterSelect(ranker => !markedPlanets.Contains(ranker.Planet),
+                                              p => p.Planet);
         }
 
         public Planet[] GetColonizationGoalPlanets()
@@ -87,19 +85,18 @@ namespace Ship_Game.AI.ExpansionAI
                                                                                      && s.PlanetList.Any(p => p.Habitable)
                                                                                      && OwnerEmpire.KnownEnemyStrengthIn(s) < ownerStrength);
 
-            Vector2 empireCenter = OwnerEmpire.GetWeightedCenter();
+            // We are going to keep a list of wanted planets. 
+            // We are limiting the number of foreign systems to check based on galaxy size and race traits
+            bool isExpansionists  = OwnerEmpire.data.EconomicPersonality.Name == "Expansionists";
+            int maxCheckedDiv     = isExpansionists ? 3 : 5;
+            int maxCheckedSystems = (Empire.Universe.SolarSystemDict.Count / maxCheckedDiv).LowerBound(3);
+            Vector2 empireCenter  = OwnerEmpire.GetWeightedCenter();
+
             potentialSystems.Sort(s => empireCenter.Distance(s.Position));
+            potentialSystems = (SolarSystem[]) potentialSystems.Take(maxCheckedSystems);
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(OwnedSystems);
             potentialPlanets.AddRange(GetPotentialPlanetsNonLocal(potentialSystems));
-
-            /*
-            // We are going to keep a list of wanted planets. 
-            int maxDesiredPlanets = (Empire.Universe.PlanetsDict.Count / 10).LowerBound(10);
-            if (maxDesiredPlanets < 1)
-                return;
-
-            */
 
             // Rank all known planets near the empire
             if (!GatherAllPlanetRanks(potentialPlanets, out Array <PlanetRanker> allPlanetsRanker, empireCenter))
@@ -109,7 +106,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             //take action on the found planets
             CreateColonyGoals();
-            CreateClaimFleets();
+            //CreateClaimFleets();
 
             return;
             /*
@@ -149,7 +146,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             //take action on the found planets*/
             CreateColonyGoals();
-            CreateClaimFleets();
+         //   CreateClaimFleets();
         }
 
         /// <summary>
@@ -158,25 +155,25 @@ namespace Ship_Game.AI.ExpansionAI
         void CreateColonyGoals()
         {
             Planet[] markedPlanets = GetColonizationGoalPlanets();
-            int desired            = DesiredColonyGoals;
-            desired               -= markedPlanets.Length;
+            int desired            = DesiredColonyGoals - markedPlanets.Length;
+            desired                = desired.UpperBound(RankedPlanets.Length);
 
-            if (desired < 1) return;
+            if (desired < 1) 
+                return;
 
-            desired = Math.Min(desired, RankedPlanets.Length);
             var colonizationTargets = GetColonizationTargets(markedPlanets);
-
             for (int i = 0; i < colonizationTargets.Length && desired > 0; i++)
             {
                 var planet = colonizationTargets[i];
-
                 Log.Info(ConsoleColor.Magenta,
                     $"Colonize {markedPlanets.Length + 1}/{desired} | {planet} | {OwnerEmpire}");
+
                 Goals.Add(new MarkForColonization(planet, OwnerEmpire));
                 desired--;
             }
         }
 
+        /*
         /// <summary>
         /// Send a claim fleet on either of these conditions.
         /// * we are sending a colony ship
@@ -204,7 +201,7 @@ namespace Ship_Game.AI.ExpansionAI
                     desiredClaims--;
                 }
             }
-        }
+        }*/
 
         Array<Planet> GetPotentialPlanetsNonLocal(SolarSystem[] systems)
         {
@@ -268,7 +265,7 @@ namespace Ship_Game.AI.ExpansionAI
                 }
 
                 // The planet ranker does the ranking
-                var pr = new PlanetRanker(OwnerEmpire, p, canColonizeBarren, systemEnemyStrength, longestDistance, empireCenter );
+                var pr = new PlanetRanker(OwnerEmpire, p, canColonizeBarren, longestDistance, empireCenter );
                 if (pr.CanColonize)
                     planetRanker.Add(pr);
 
@@ -276,6 +273,7 @@ namespace Ship_Game.AI.ExpansionAI
                 //bestPlanetCount++;
             }
 
+            
             /*
             // sort and purge the list. 
             // we are taking an average of all planets ranked and saying we only want
