@@ -613,7 +613,7 @@ namespace Ship_Game
             pInfoUI            = new PlanetInfoUIElement(SelectedStuffRect, ScreenManager, this);
             shipListInfoUI     = new ShipListInfoUIElement(SelectedStuffRect, ScreenManager, this);
             vuiElement         = new VariableUIElement(SelectedStuffRect, ScreenManager, this);
-            EmpireUI           = new EmpireUIOverlay(player, device);
+            EmpireUI           = new EmpireUIOverlay(player, device, this);
 
             if (GlobalStats.RenderBloom)
             {
