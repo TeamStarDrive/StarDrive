@@ -3,7 +3,7 @@
   <Step>3</Step>
   <PlayerInitiated>true</PlayerInitiated>
   <Name>Contact The Draugar</Name>
-  <BaseMoneyDemanded>600</BaseMoneyDemanded>
+  <PercentMoneyDemanded>24</PercentMoneyDemanded> <!-- this percentage of total treasury request will be modified and overwrite any MoneyToThem below -->
   <DescriptionText>You hail the Draugar captain. After a few short moments a crackling voice comes over the subspace communicator:</DescriptionText>
   <MessageList>
     <Message>
