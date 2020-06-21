@@ -104,47 +104,6 @@ namespace Ship_Game.AI.ExpansionAI
 
             // Take action on the found planets
             CreateColonyGoals(currentColonizationGoals);
-            //CreateClaimFleets();
-
-
-            /*
-            //Create a list of the top priority planets
-            var planetsRanked         = new Array<PlanetRanker>();
-            PlanetRanker backupPlanet = new PlanetRanker();
-            bool addBackupPlanet      = OwnerEmpire.data.ColonyBudget * 0.75f > OwnerEmpire.TotalBuildingMaintenance 
-                                        && !AnyPlanetsMarkedForColonization();
-
-            for (int i = 0; i < allPlanetsRanker.Count && maxDesiredPlanets > 0; i++)
-            {
-                var ranker = allPlanetsRanker[i];
-                if (ranker.PoorPlanet)
-                {
-                    if (ranker.Value > backupPlanet.Value && ranker.EnemyStrength < 1 
-                                                          && ranker.Planet.Owner == null)
-                    {
-                        backupPlanet = ranker;
-                    }
-
-                    continue;
-                }
-
-                planetsRanked.Add(ranker);
-
-                if (ranker.CantColonize) 
-                    continue;
-
-                maxDesiredPlanets--;
-                addBackupPlanet = addBackupPlanet && ranker.EnemyStrength > 0 ;
-            }
-
-            if (addBackupPlanet && backupPlanet.Planet != null) 
-                planetsRanked.Add(backupPlanet);
-
-            RankedPlanets = planetsRanked.ToArray();
-
-            //take action on the found planets*/
-            //CreateColonyGoals();
-         //   CreateClaimFleets();
         }
 
         /// <summary>
@@ -168,37 +127,7 @@ namespace Ship_Game.AI.ExpansionAI
                 desired--;
             }
         }
-
-        /*
-        /// <summary>
-        /// Send a claim fleet on either of these conditions.
-        /// * we are sending a colony ship
-        /// * the colony target has a faction force;
-        /// limit the number of claim forces to the number of colony goals.
-        /// i want to change this but im not sure how yet. 
-        /// </summary>
-        void CreateClaimFleets()
-        {
-            var claimTasks    = OwnerEmpire.GetEmpireAI().GetClaimTasks();
-            int desiredClaims = DesiredColonyGoals - claimTasks.Length;
-            var colonizing    = GetColonizationGoalPlanets();
-            var taskTargets   = claimTasks.Select(t => t.TargetPlanet);
-            desiredClaims    -= taskTargets.Length;
-
-            for (int i = 0; i < RankedPlanets.Length && desiredClaims > 0; i++)
-            {
-                var rank = RankedPlanets[i];
-
-                if (rank.CanColonize && rank.NeedClaimFleet && !taskTargets.Contains(rank.Planet))
-                {
-                    var task      = MilitaryTask.CreateClaimTask(rank.Planet, rank.EnemyStrength * 2);
-                    task.Priority = 10;
-                    OwnerEmpire.GetEmpireAI().AddPendingTask(task);
-                    desiredClaims--;
-                }
-            }
-        }*/
-
+        
         Array<Planet> GetPotentialPlanetsNonLocal(SolarSystem[] systems)
         {
             Array<Planet> potentialPlanets = new Array<Planet>();
@@ -242,9 +171,6 @@ namespace Ship_Game.AI.ExpansionAI
 
             bool canColonizeBarren = Owner.IsBuildingUnlocked(Building.BiospheresId);
             float longestDistance  = planetList.Last().Center.Distance(empireCenter);
-            //float totalValue       = 0;
-            //int bestPlanetCount    = 0;
-
 
             SolarSystem currentSystem = planetList.First().ParentSystem;
             //AO ao = OwnerEmpire.GetEmpireAI().FindClosestAOTo(currentSystem.Position);
@@ -261,45 +187,18 @@ namespace Ship_Game.AI.ExpansionAI
                     systemEnemyStrength = OwnerEmpire.KnownEnemyStrengthIn(currentSystem);
                 }
                 */
-                // The planet ranker does the ranking
 
+                // The planet ranker does the ranking
                 if (!markedPlanets.Contains(p)) // Don't include planets we are already trying to colonize
                 {
                     var pr = new PlanetRanker(Owner, p, canColonizeBarren, longestDistance, empireCenter);
                     if (pr.CanColonize)
                         planetRanker.Add(pr);
                 }
-
-                //totalValue += r2.Value;
-                //bestPlanetCount++;
             }
 
-            
-            /*
-            // sort and purge the list. 
-            // we are taking an average of all planets ranked and saying we only want
-            // above average planets only. 
-            var finalPlanetsRanker = new Array<PlanetRanker>();
-            if (allPlanetsRanker.Count > 0)
-            {
-                allPlanetsRanker.Sort(p => -p.Value);
-                float avgValue = totalValue / bestPlanetCount;
-
-                foreach (PlanetRanker rankedP in allPlanetsRanker)
-                {
-                    rankedP.EvaluatePoorness(avgValue);
-                    finalPlanetsRanker.Add(rankedP);
-                }
-            }*/
             return planetRanker.Count > 0;
         }
-
-
-
-
-
-
-
 
         public void CheckClaim(Empire thievingEmpire, Relationship thiefRelationship, Planet claimedPlanet)
         {
