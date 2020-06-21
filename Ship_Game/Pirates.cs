@@ -195,14 +195,10 @@ namespace Ship_Game
             return planetBases.Count > 0;
         }
 
-        public float GetMoneyRequestedModifier(Empire victim)
+        public int GetMoneyModifier(Empire victim, float basePercentage)
         {
-            float popMod = victim.GetTotalPop() / 14;
-            float modifier = (ThreatLevelFor(victim) + 1).Clamped(1, Level)
-                             * victim.DifficultyModifiers.PiratePayModifier
-                             * popMod;
-
-            return modifier;
+            float minimumPayment = Level * 100 * victim.DifficultyModifiers.PiratePayModifier;
+            return (victim.Money * basePercentage/100).LowerBound(minimumPayment).RoundTo10();
         }
 
         public bool VictimIsDefeated(Empire victim)
