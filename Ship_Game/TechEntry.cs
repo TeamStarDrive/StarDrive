@@ -141,6 +141,16 @@ namespace Ship_Game
             return false;
         }
 
+        public bool IsOnlyShipTech()
+        {
+            return !ContainsNonShipTechOrBonus();
+        }
+
+        public bool IsOnlyNonShipTech()
+        {
+            return !ContainsShipTech();
+        }
+
         public bool ContainsShipTech()
         {
             return IsTechnologyType(TechnologyType.ShipDefense)
