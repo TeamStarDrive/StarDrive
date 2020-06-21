@@ -97,7 +97,7 @@
 
             if (empire.isPlayer)
             {
-                BaseColonyGoals = 10;
+                BaseColonyGoals = 3;
             }
             else
             {

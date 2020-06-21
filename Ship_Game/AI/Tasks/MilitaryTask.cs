@@ -5,7 +5,6 @@ using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Ship_Game.AI.Tasks
