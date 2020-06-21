@@ -322,14 +322,9 @@ namespace Ship_Game
 
             Empire leaderLoyalty = SelectedShip.loyalty;
             if (leaderLoyalty.isFaction)
-            {
-                float moneyMod = leaderLoyalty.WeArePirates ? leaderLoyalty.Pirates.GetMoneyRequestedModifier(player) : 1;
-                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.loyalty, this, moneyMod);
-            }
+                Encounter.ShowEncounterPopUpPlayerInitiated(SelectedShip.loyalty, this);
             else
-            {
                 DiplomacyScreen.Show(SelectedShip.loyalty, player, "Greeting");
-            }
         }
 
         void CreateProjectionMatrix()
