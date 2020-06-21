@@ -46,7 +46,7 @@ namespace Ship_Game.AI.ExpansionAI
             }
         }
 
-        float PopulationRatio    => Owner.GetTotalPop() / Owner.GetTotalPopPotential().LowerBound(1);
+        float PopulationRatio    => Owner.GetTotalPop(out float maxPop) / maxPop.LowerBound(1);
         bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
         float ExpansionThreshold => (IsExpansionists ? 0.4f : 0.55f) + Owner.DifficultyModifiers.ExpansionModifier;
 
