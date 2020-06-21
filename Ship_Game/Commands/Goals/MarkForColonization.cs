@@ -1,12 +1,7 @@
 ﻿using Ship_Game.AI;
 using Ship_Game.AI.Tasks;
-using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
 
 namespace Ship_Game.Commands.Goals
 {
@@ -199,7 +194,6 @@ namespace Ship_Game.Commands.Goals
 
         bool PositiveEnemyPresence(out float spaceStrength)
         {
-
             spaceStrength = empire.KnownEnemyStrengthIn(ColonizationTarget.ParentSystem);
             return spaceStrength > 10 || ColonizationTarget.GetGroundStrengthOther(empire).Greater(0);
         }
