@@ -86,7 +86,7 @@ namespace Ship_Game.AI
             float buildRatio               = strat.ExpansionRatio + strat.IndustryRatio;
             float overSpend = OverSpendRatio(money, 0.15f, 0.75f);
             buildRatio                     = Math.Max(buildRatio, overSpend);
-            var budget                     = SetBudgetForeArea(0.011f,buildRatio, money);
+            var budget                     = SetBudgetForeArea(0.012f,buildRatio, money);
             return budget - OwnerEmpire.TotalCivShipMaintenance;
         }
 
