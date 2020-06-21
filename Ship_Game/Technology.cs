@@ -169,17 +169,15 @@ namespace Ship_Game
         public void UpdateTechnologyTypesFromUnlocks()
         {
             ISet<TechnologyType> types = TechnologyTypes;
-            if (ModulesUnlocked.Count > 0) GetModuleTechTypes(types);
-            if (HullsUnlocked.Count > 0)   GetHullTechTypes(types);
-            if (BonusUnlocked.Count > 0)   GetBonusTechTypes(types);
-            if (BuildingsUnlocked.Count > 0) types.Add(GetBuildingTechnologyType());
+            if (ModulesUnlocked.Count > 0)   GetModuleTechTypes(types);
+            if (HullsUnlocked.Count > 0)     GetHullTechTypes(types);
+            if (BonusUnlocked.Count > 0)     GetBonusTechTypes(types);
+            if (BuildingsUnlocked.Count > 0) GetBuildingTechnologyType(types);
             if (TroopsUnlocked.Count > 0)    types.Add(TechnologyType.GroundCombat);
-
-            if (types.Count == 0)
-                types.Add(TechnologyType.General);
+            if (types.Count == 0)            types.Add(TechnologyType.General);
         }
 
-        TechnologyType GetBuildingTechnologyType()
+        void GetBuildingTechnologyType(ISet<TechnologyType> types)
         {
             foreach (UnlockedBuilding buildingU in BuildingsUnlocked)
             {
@@ -189,27 +187,38 @@ namespace Ship_Game
                     continue;
                 }
 
+                if (building.Name == "Xeno Farm")
+                    Log.Info("lala");
+
                 if (building.AllowInfantry || building.isWeapon || building.IsSensor ||
                     building.PlanetaryShieldStrengthAdded > 0 || building.CombatStrength > 0 || building.CanAttack)
-                    return TechnologyType.GroundCombat;
+                {
+                    types.Add(TechnologyType.GroundCombat);
+                }
 
                 if (building.AllowShipBuilding || building.PlusFlatProductionAmount > 0 ||
                     building.PlusProdPerRichness > 0 || building.StorageAdded > 0 || building.PlusFlatProductionAmount > 0)
-                    return TechnologyType.Industry;
+                {
+                    types.Add(TechnologyType.Industry);
+                }
 
                 if (building.PlusTaxPercentage > 0 || building.CreditsPerColonist > 0)
-                    return TechnologyType.Economic;
+                {
+                    types.Add(TechnologyType.Economic);
+                }
 
                 if (building.PlusFlatResearchAmount > 0 || building.PlusResearchPerColonist > 0)
-                    return TechnologyType.Research;
+                {
+                    types.Add(TechnologyType.Research);
+                }
 
                 if (building.PlusFoodPerColonist > 0 || building.PlusFlatFoodAmount > 0 ||
                     building.PlusFoodPerColonist > 0 || building.MaxPopIncrease > 0 ||
                     building.PlusFlatPopulation > 0 || building.PlusTerraformPoints > 0 || building.IsBiospheres)
-                    return TechnologyType.Colonization;
+                {
+                    types.Add(TechnologyType.Colonization);
+                }
             }
-
-            return TechnologyType.General;
         }
 
         void GetBonusTechTypes(ISet<TechnologyType> types)
@@ -266,10 +275,11 @@ namespace Ship_Game
                     case "Population Growth Bonus":
                     case "Set Population Growth Min":
                     case "Set Population Growth Max":
+                        /*
                     case "Spy Offense":
                     case "Spy Offense Roll Bonus":
                     case "Spy Defense":
-                    case "Spy Defense Roll Bonus":
+                    case "Spy Defense Roll Bonus":*/
                     case "Xenolinguistic Nuance":
                     case "Diplomacy Bonus":
                     case "Passenger Modifier":
