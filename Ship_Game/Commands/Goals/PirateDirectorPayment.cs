@@ -97,7 +97,7 @@ namespace Ship_Game.Commands.Goals
                 Pirates.SetAsKnown(TargetEmpire);
 
             if (TargetEmpire.isPlayer)
-                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe, Pirates.GetMoneyRequestedModifier(TargetEmpire));
+                Encounter.ShowEncounterPopUpFactionInitiated(Pirates.Owner, Empire.Universe);
             else
                 DemandMoneyFromAI();
 
@@ -113,10 +113,10 @@ namespace Ship_Game.Commands.Goals
             bool error = true; ;
             if (Encounter.GetEncounterForAI(Pirates.Owner, 0, out Encounter e))
             {
-                if (e.BaseMoneyDemanded > 0)
+                if (e.PercentMoneyDemanded > 0)
                 {
                     error             = false;
-                    int moneyDemand   = (e.BaseMoneyDemanded * Pirates.GetMoneyRequestedModifier(TargetEmpire)).RoundTo10();
+                    int moneyDemand   = Pirates.GetMoneyModifier(TargetEmpire, e.PercentMoneyDemanded);
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
                         
