@@ -197,7 +197,7 @@ namespace Ship_Game
 
         public float GetMoneyRequestedModifier(Empire victim)
         {
-            float popMod = victim.GetTotalPop() / 14;
+            float popMod = victim.GetTotalPop(out _) / 14;
             float modifier = (ThreatLevelFor(victim) + 1).Clamped(1, Level)
                              * victim.DifficultyModifiers.PiratePayModifier
                              * popMod;
@@ -438,7 +438,7 @@ namespace Ship_Game
             for (int i = 0; i <= 50; i++)
             {
                 int spaceReduction = i * 2000;
-                foreach (Empire victim in empires)
+                foreach (Empire victim in empires.Filter(e => !e.data.Defeated))
                 {
                     SolarSystem system = victim.GetOwnedSystems().RandItem();
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
