@@ -725,7 +725,10 @@ namespace Ship_Game.Fleets
                     break;
                 case 4:
                     if (!DoOrbitTaskArea(task))
+                    {
                         AttackEnemyStrengthClumpsInAO(task);
+                        OrderShipsToInvade(Ships, task, false);
+                    }
 
                     TaskStep = 5;
                     break;
@@ -1062,7 +1065,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     Ship ship = availableShips[i];
-                    if (ship.AI.HasPriorityOrder || ship.InCombat)
+                    if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
                     {
                         availableShips.RemoveAtSwapLast(i);
                         continue;
