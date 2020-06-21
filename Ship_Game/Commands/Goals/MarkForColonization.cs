@@ -71,7 +71,7 @@ namespace Ship_Game.Commands.Goals
                 if (empire.isPlayer)
                     return GoalStep.GoalFailed;
 
-                var task = MilitaryTask.CreateClaimTask(ColonizationTarget, spaceStrength * 2);
+                var task = MilitaryTask.CreateClaimTask(empire, ColonizationTarget, spaceStrength * 2);
                 task.Priority = 10;
                 empire.GetEmpireAI().AddPendingTask(task);
             }
@@ -86,7 +86,7 @@ namespace Ship_Game.Commands.Goals
 
             if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
             {
-                if (!PositiveEnemyPresence(out _) || task.Fleet != null && task.Fleet.TaskStep == 4)
+                if (!PositiveEnemyPresence(out _) || task.Fleet?.TaskStep == 4)
                     return GoalStep.GoToNextStep;
 
                 return GoalStep.TryAgain; // Claim task still in progress
