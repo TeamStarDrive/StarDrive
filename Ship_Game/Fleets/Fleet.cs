@@ -767,6 +767,8 @@ namespace Ship_Game.Fleets
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))
                         TaskStep = 4;
+                    else if (!CanTakeThisFight(task.EnemyStrength))
+                        FleetTask?.EndTask();
                     break;
                 case 4:
                     ClearOrders();
