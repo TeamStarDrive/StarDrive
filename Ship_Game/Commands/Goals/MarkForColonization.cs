@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 
@@ -85,7 +86,7 @@ namespace Ship_Game.Commands.Goals
 
             if (empire.GetEmpireAI().GetDefendClaimTaskFor(ColonizationTarget, out MilitaryTask task))
             {
-                if (!PositiveEnemyPresence(out _))
+                if (!PositiveEnemyPresence(out _) || task.Fleet != null && task.Fleet.TaskStep == 4)
                     return GoalStep.GoToNextStep;
 
                 return GoalStep.TryAgain; // Claim task still in progress
