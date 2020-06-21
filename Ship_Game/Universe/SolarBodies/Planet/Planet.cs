@@ -950,8 +950,8 @@ namespace Ship_Game
             decayChance /= Scale.LowerBound(0.1f);
 
             // Decreasing chance of decay if Richness below 1
-            // Increasing Chance o decay if richness is above one (limit to max of *1.5)
-            decayChance *= MineralRichness.UpperBound(1.5f);
+            // Increasing Chance of decay if richness is above one (limit to max of *2)
+            decayChance *= MineralRichness.UpperBound(2f);
 
             // Longer pace decreases decay chance
             decayChance *= 1 / CurrentGame.Pace;
