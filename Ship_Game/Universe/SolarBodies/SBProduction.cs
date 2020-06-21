@@ -363,6 +363,19 @@ namespace Ship_Game.Universe.SolarBodies
             q.OnComplete?.Invoke(success: false);
         }
 
+        public void PrioritizeShip(Ship ship)
+        {
+            for (int i = 0; i < ConstructionQueue.Count; ++i)
+            {
+                QueueItem q = ConstructionQueue[i];
+                if (q.isShip && q.sData == ship.shipData)
+                {
+                    MoveTo(0, i);
+                    break;
+                }
+            }
+        }
+
         public void Reorder(int oldIndex, int newIndex)
         {
             ConstructionQueue.Reorder(oldIndex, newIndex);

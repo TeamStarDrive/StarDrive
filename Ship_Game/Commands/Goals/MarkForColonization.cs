@@ -117,7 +117,7 @@ namespace Ship_Game.Commands.Goals
                 return GoalStep.TryAgain;
 
             planet.Construction.Enqueue(colonyShip, this, notifyOnEmpty:empire.isPlayer);
-            // TODO push to front
+            planet.Construction.PrioritizeShip(colonyShip);
             return GoalStep.GoToNextStep;
         }
 
