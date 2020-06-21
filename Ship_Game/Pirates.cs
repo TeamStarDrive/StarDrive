@@ -254,6 +254,9 @@ namespace Ship_Game
         int DifficultyMultiplier()
         {
             int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 2;
+            if (Level >= 10)
+                max++;
+
             return max - (int)CurrentGame.Difficulty;
         }
 
