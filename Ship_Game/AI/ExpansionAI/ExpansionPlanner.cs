@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Commands.Goals;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
@@ -17,7 +16,6 @@ namespace Ship_Game.AI.ExpansionAI
         private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
 
-        // todo - check this
         public Planet[] DesiredPlanets => RankedPlanets.FilterSelect(r=> r.Planet?.Owner != Owner,
                                                                      r => r.Planet) ?? Empty<Planet>.Array;
 
@@ -50,7 +48,7 @@ namespace Ship_Game.AI.ExpansionAI
 
         float PopulationRatio    => Owner.GetTotalPop() / Owner.GetTotalPopPotential().LowerBound(1);
         bool  IsExpansionists    => Owner.data.EconomicPersonality.Name == "Expansionists";
-        float ExpansionThreshold => (IsExpansionists ? 0.35f : 0.5f) + Owner.DifficultyModifiers.ExpansionModifier;
+        float ExpansionThreshold => (IsExpansionists ? 0.4f : 0.55f) + Owner.DifficultyModifiers.ExpansionModifier;
 
         public ExpansionPlanner(Empire empire)
         {
@@ -77,15 +75,15 @@ namespace Ship_Game.AI.ExpansionAI
             Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
             OwnedSystems         = Owner.GetOwnedSystems();
             float ownerStrength  = Owner.CurrentMilitaryStrength;
-            var potentialSystems = Empire.Universe.SolarSystemDict.FilterValues(s => s.IsExploredBy(Owner)
-                                                                                     && !s.IsOwnedBy(Owner)
-                                                                                     && s.PlanetList.Any(p => p.Habitable)
-                                                                                     && Owner.KnownEnemyStrengthIn(s) < ownerStrength);
+            var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
+                                                                         && !s.IsOwnedBy(Owner)
+                                                                         && s.PlanetList.Any(p => p.Habitable)
+                                                                         && Owner.KnownEnemyStrengthIn(s).LessOrEqual(ownerStrength));
 
             // We are going to keep a list of wanted planets. 
             // We are limiting the number of foreign systems to check based on galaxy size and race traits
             int maxCheckedDiv     = IsExpansionists ? 4 : 6;
-            int maxCheckedSystems = (Empire.Universe.SolarSystemDict.Count / maxCheckedDiv).LowerBound(3);
+            int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / maxCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = Owner.GetWeightedCenter();
 
             Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(OwnedSystems);
@@ -173,21 +171,10 @@ namespace Ship_Game.AI.ExpansionAI
             float longestDistance  = planetList.Last().Center.Distance(empireCenter);
 
             SolarSystem currentSystem = planetList.First().ParentSystem;
-            //AO ao = OwnerEmpire.GetEmpireAI().FindClosestAOTo(currentSystem.Position);
-            //float systemEnemyStrength = OwnerEmpire.KnownEnemyStrengthIn(currentSystem);
-            
+           
             for (int i = 0; i < planetList.Count; i++)
             {
                 Planet p = planetList[i];
-                /*
-                if (p.ParentSystem != currentSystem)
-                {
-                    currentSystem       = p.ParentSystem;
-                    ao                  = OwnerEmpire.GetEmpireAI().FindClosestAOTo(currentSystem.Position);
-                    systemEnemyStrength = OwnerEmpire.KnownEnemyStrengthIn(currentSystem);
-                }
-                */
-
                 // The planet ranker does the ranking
                 if (!markedPlanets.Contains(p)) // Don't include planets we are already trying to colonize
                 {
