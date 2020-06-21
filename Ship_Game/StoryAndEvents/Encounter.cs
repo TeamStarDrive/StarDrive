@@ -18,8 +18,7 @@ namespace Ship_Game
         public string DescriptionText;
         public Array<Message> MessageList;
         public int CurrentMessageId;
-        public float MoneyModifier = 1;
-        public int BaseMoneyDemanded; // Overrides any MoneyToThem in message response and adds a possible modifier
+        public float PercentMoneyDemanded; // Custom Percent of victim income
 
         Empire playerEmpire;
         SolarSystem sysToDiscuss;
@@ -36,7 +35,7 @@ namespace Ship_Game
             }
             else
             {
-                int money = r.MoneyToThem.LowerBound(NetMoneyDemand);
+                int money = NetMoneyDemand(r.MoneyToThem);
                 bool ok = !(money > 0 && playerEmpire.Money < money);
                 if (r.RequiredTech != null && !playerEmpire.HasUnlocked(r.RequiredTech))
                     ok = false;
@@ -70,15 +69,17 @@ namespace Ship_Game
             if (message.SetFactionContactStep > 0)
                 rel.FactionContactStep = message.SetFactionContactStep;
 
-            ResetMoneyModifier();
         }
 
-        int NetMoneyDemand => (BaseMoneyDemanded * MoneyModifier).RoundTo10();
-
-        void ResetMoneyModifier()
+        int NetMoneyDemand(int demandFromMessage)
         {
-            MoneyModifier = 1;
+            if (PercentMoneyDemanded > 0 && empToDiscuss.WeArePirates)
+                return empToDiscuss.Pirates.GetMoneyModifier(playerEmpire, PercentMoneyDemanded);
+
+            return demandFromMessage;
         }
+
+        int CustomMoneyDemand => NetMoneyDemand(0); // For the parser only
 
         public string ParseCurrentEncounterText(float maxLineWidth, SpriteFont font)
         {
@@ -128,7 +129,7 @@ namespace Ship_Game
                 case "ADJ2,": return playerEmpire.data.Traits.Adj2+",";
                 case "ADJ2?": return playerEmpire.data.Traits.Adj2+"?";
                 case "ADJ2!": return playerEmpire.data.Traits.Adj2+"!";
-                case "MONEY": return NetMoneyDemand.String();
+                case "MONEY": return CustomMoneyDemand.String();
             }
         }
 
@@ -147,13 +148,13 @@ namespace Ship_Game
             empToDiscuss = e;
         }
 
-        public static void ShowEncounterPopUpPlayerInitiated(Empire faction, UniverseScreen screen, float moneyMod = 1) =>
-            ShowEncounterPopUp(faction, screen, playerInitiated: true, moneyMod);
+        public static void ShowEncounterPopUpPlayerInitiated(Empire faction, UniverseScreen screen) =>
+            ShowEncounterPopUp(faction, screen, playerInitiated: true);
 
-        public static void ShowEncounterPopUpFactionInitiated(Empire faction, UniverseScreen screen, float moneyMod = 1) =>
-            ShowEncounterPopUp(faction, screen, playerInitiated: false, moneyMod);
+        public static void ShowEncounterPopUpFactionInitiated(Empire faction, UniverseScreen screen) =>
+            ShowEncounterPopUp(faction, screen, playerInitiated: false);
 
-        static void ShowEncounterPopUp(Empire faction, UniverseScreen screen, bool playerInitiated, float moneyModifier)
+        static void ShowEncounterPopUp(Empire faction, UniverseScreen screen, bool playerInitiated)
         {
             if (faction == null)
                 return;
@@ -167,7 +168,6 @@ namespace Ship_Game
             
             if (GetEncounter(encounters, faction, requiredStep, out Encounter encounter))
             {
-                encounter.MoneyModifier = moneyModifier;
                 EncounterPopup.Show(screen, player, faction, encounter);
             }
             else
