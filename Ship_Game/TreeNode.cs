@@ -37,6 +37,8 @@ namespace Ship_Game
         float TitleWidth = 73f;
 
         Vector2 CostPos;
+        readonly Technology TechTemplate;
+        Rectangle PlusRect;
 
         public TreeNode(Vector2 position, TechEntry theEntry, ResearchScreenNew screen)
         {
@@ -45,26 +47,27 @@ namespace Ship_Game
                 TitleFont = Fonts.Arial10;
             }
 
-            Screen = screen;
-            Entry = theEntry;
+            Screen   = screen;
+            Entry    = theEntry;
             TechName = Localizer.Token(ResourceManager.TechTree[theEntry.UID].NameIndex)+(ResourceManager.TechTree[theEntry.UID].MaxLevel > 1
                            ? " " + RomanNumerals.ToRoman(theEntry.Level) + "/"
                              + RomanNumerals.ToRoman(ResourceManager.TechTree[theEntry.UID].MaxLevel) : "");
-            BaseRect.X = (int)position.X;
-            BaseRect.Y = (int)position.Y;
-            progressRect = new Rectangle(BaseRect.X + 14, BaseRect.Y + 21, 1, 34);
-            int numUnlocks = 0;
-            Technology techTemplate = ResourceManager.TechTree[Entry.UID];
 
-            for (int i = 0; i < techTemplate.ModulesUnlocked.Count; i++)
+            BaseRect.X     = (int)position.X;
+            BaseRect.Y     = (int)position.Y;
+            progressRect   = new Rectangle(BaseRect.X + 14, BaseRect.Y + 21, 1, 34);
+            int numUnlocks = 0;
+            TechTemplate   = ResourceManager.TechTree[Entry.UID];
+
+            for (int i = 0; i < TechTemplate.ModulesUnlocked.Count; i++)
             {
                 if (numUnlocks > 3) break;
-                if (techTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
-                    techTemplate.ModulesUnlocked[i].Type == null ||
-                    EmpireManager.Player.AcquiredFrom(Entry).Contains(techTemplate.ModulesUnlocked[i].Type))
+                if (TechTemplate.ModulesUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
+                    TechTemplate.ModulesUnlocked[i].Type == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).Contains(TechTemplate.ModulesUnlocked[i].Type))
                 {
                     UnlockItem unlock  = new UnlockItem();
-                    unlock.module      = ResourceManager.GetModuleTemplate(techTemplate.ModulesUnlocked[i].ModuleUID);
+                    unlock.module      = ResourceManager.GetModuleTemplate(TechTemplate.ModulesUnlocked[i].ModuleUID);
                     unlock.privateName = Localizer.Token(unlock.module.NameIndex);
                     unlock.Description = Localizer.Token(unlock.module.DescriptionIndex);
                     unlock.Type        = UnlockType.SHIPMODULE;
@@ -72,32 +75,32 @@ namespace Ship_Game
                     numUnlocks++;
                 }
             }
-            for (int i = 0; i < techTemplate.BonusUnlocked.Count; i++)
+            for (int i = 0; i < TechTemplate.BonusUnlocked.Count; i++)
             {
                 if (numUnlocks > 3) break;
-                if (techTemplate.BonusUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
-                    techTemplate.BonusUnlocked[i].Type == null ||
-                    EmpireManager.Player.AcquiredFrom(Entry).Contains(techTemplate.BonusUnlocked[i].Type))
+                if (TechTemplate.BonusUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
+                    TechTemplate.BonusUnlocked[i].Type == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).Contains(TechTemplate.BonusUnlocked[i].Type))
                 {
                     UnlockItem unlock = new UnlockItem
                     {
-                        privateName = techTemplate.BonusUnlocked[i].Name,
-                        Description = Localizer.Token(techTemplate.BonusUnlocked[i].BonusIndex),
+                        privateName = TechTemplate.BonusUnlocked[i].Name,
+                        Description = Localizer.Token(TechTemplate.BonusUnlocked[i].BonusIndex),
                         Type = UnlockType.ADVANCE
                     };
                     numUnlocks++;
                     Unlocks.Add(unlock);
                 }
             }
-            for (int i = 0; i < techTemplate.BuildingsUnlocked.Count; i++)
+            for (int i = 0; i < TechTemplate.BuildingsUnlocked.Count; i++)
             {
                 if (numUnlocks > 3) break;
-                if (techTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
-                    techTemplate.BuildingsUnlocked[i].Type == null ||
-                    EmpireManager.Player.AcquiredFrom(Entry).Contains(techTemplate.BuildingsUnlocked[i].Type))
+                if (TechTemplate.BuildingsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
+                    TechTemplate.BuildingsUnlocked[i].Type == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).Contains(TechTemplate.BuildingsUnlocked[i].Type))
                 {
                     UnlockItem unlock = new UnlockItem();
-                    unlock.building = ResourceManager.BuildingsDict[techTemplate.BuildingsUnlocked[i].Name];
+                    unlock.building = ResourceManager.BuildingsDict[TechTemplate.BuildingsUnlocked[i].Name];
                     unlock.privateName = Localizer.Token(unlock.building.NameTranslationIndex);
                     unlock.Description = Localizer.Token(unlock.building.DescriptionIndex);
                     unlock.Type = UnlockType.BUILDING;
@@ -105,17 +108,17 @@ namespace Ship_Game
                     Unlocks.Add(unlock);
                 }
             }
-            for (int i = 0; i < techTemplate.HullsUnlocked.Count; i++)
+            for (int i = 0; i < TechTemplate.HullsUnlocked.Count; i++)
             {
                 if (numUnlocks > 3) break;
-                if (techTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.data.Traits.ShipType ||
-                    techTemplate.HullsUnlocked[i].ShipType == null ||
-                    EmpireManager.Player.AcquiredFrom(Entry).Contains(techTemplate.HullsUnlocked[i].ShipType))
+                if (TechTemplate.HullsUnlocked[i].ShipType == EmpireManager.Player.data.Traits.ShipType ||
+                    TechTemplate.HullsUnlocked[i].ShipType == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).Contains(TechTemplate.HullsUnlocked[i].ShipType))
                 {
                     UnlockItem unlock = new UnlockItem
                     {
-                        HullUnlocked = techTemplate.HullsUnlocked[i].Name,
-                        privateName = techTemplate.HullsUnlocked[i].Name,
+                        HullUnlocked = TechTemplate.HullsUnlocked[i].Name,
+                        privateName = TechTemplate.HullsUnlocked[i].Name,
                         Description = "",
                         Type = UnlockType.HULL
                     };
@@ -123,17 +126,17 @@ namespace Ship_Game
                     Unlocks.Add(unlock);
                 }
             }
-            for (int i = 0; i < techTemplate.TroopsUnlocked.Count; i++)
+            for (int i = 0; i < TechTemplate.TroopsUnlocked.Count; i++)
             {
                 if (numUnlocks > 3) break;
-                if (techTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
-                    techTemplate.TroopsUnlocked[i].Type == "ALL" ||
-                    techTemplate.TroopsUnlocked[i].Type == null ||
-                    EmpireManager.Player.AcquiredFrom(Entry).Contains(techTemplate.TroopsUnlocked[i].Type))
+                if (TechTemplate.TroopsUnlocked[i].Type == EmpireManager.Player.data.Traits.ShipType ||
+                    TechTemplate.TroopsUnlocked[i].Type == "ALL" ||
+                    TechTemplate.TroopsUnlocked[i].Type == null ||
+                    EmpireManager.Player.AcquiredFrom(Entry).Contains(TechTemplate.TroopsUnlocked[i].Type))
                 {
                     UnlockItem unlock = new UnlockItem();
-                    unlock.troop       = ResourceManager.GetTroopTemplate(techTemplate.TroopsUnlocked[i].Name);
-                    unlock.privateName = techTemplate.TroopsUnlocked[i].Name;
+                    unlock.troop       = ResourceManager.GetTroopTemplate(TechTemplate.TroopsUnlocked[i].Name);
+                    unlock.privateName = TechTemplate.TroopsUnlocked[i].Name;
                     unlock.Description = unlock.troop.Description;
                     unlock.Type        = UnlockType.TROOP;
                     numUnlocks++;
@@ -165,7 +168,7 @@ namespace Ship_Game
             UnlocksRect.Width = UnlocksRect.Width + 4;
             UnlocksRect.Y = UnlocksRect.Y - 2;
             UnlocksRect.Height = UnlocksRect.Height + 4;
-            TitleRect = new Rectangle(BaseRect.X + 8, BaseRect.Y - 15, 82, 29);
+            TitleRect = new Rectangle(BaseRect.X, BaseRect.Y - 15, 90, 29);
             if (GlobalStats.IsGermanOrPolish)
             {
                 TitleRect.X = TitleRect.X - 5;
@@ -213,7 +216,7 @@ namespace Ship_Game
                     //Added by McShooterz: Allows non root techs to use IconPath
                     batch.Draw(TechIcon, IconRect, Color.White);
                     batch.Draw(active ? ResourceManager.Texture("ResearchMenu/tech_base_title_complete")
-                                            : ResourceManager.Texture("ResearchMenu/tech_base_title"), TitleRect, Color.White);
+                                      : ResourceManager.Texture("ResearchMenu/tech_base_title"), TitleRect, Color.White);
                     string str1 = TitleFont.ParseText(TechName, TitleWidth);
                     string[] strArray1 = Regex.Split(str1, "\n");
                     Vector2 vector2_1 = new Vector2(TitleRect.X + TitleRect.Width / 2 - TitleFont.MeasureString(str1).X / 2f, TitleRect.Y + 14 - TitleFont.MeasureString(str1).Y / 2f);
@@ -284,6 +287,11 @@ namespace Ship_Game
             var techCost = Entry.TechCost;
             if (!Entry.Unlocked) techCost -= Entry.Progress;
             batch.DrawString(TitleFont, ((float)(int)techCost).String(1), CostPos, Color.White);
+            if (TechTemplate.NumStuffUnlocked > 4)
+            { 
+                PlusRect = new Rectangle(UnlocksRect.X + 60, UnlocksRect.Y + UnlocksRect.Height, 20, 20);
+                batch.DrawString(Fonts.Arial20Bold, "+", new Vector2(PlusRect.X, PlusRect.Y), Color.Orange);
+            }
         }
 
         public void DrawGlow(SpriteBatch batch)
@@ -305,6 +313,7 @@ namespace Ship_Game
             Rectangle moddedRect2 = new Rectangle((int)RectPos2.X, (int)RectPos2.Y, UnlocksRect.Width, UnlocksRect.Height);
             Vector2 RectPos3 = camera.GetScreenSpaceFromWorldSpace(new Vector2(IconRect.X, IconRect.Y));
             Rectangle moddedRect3 = new Rectangle((int)RectPos3.X, (int)RectPos3.Y, IconRect.Width, IconRect.Height);
+
             if (moddedRect.HitTest(input.CursorPosition) || moddedRect2.HitTest(input.CursorPosition))
             {
                 if (State != NodeState.Hover)
@@ -327,6 +336,14 @@ namespace Ship_Game
             else
             {
                 State = NodeState.Normal;
+            }
+
+            Vector2 plusPos = camera.GetScreenSpaceFromWorldSpace(new Vector2(PlusRect.X, PlusRect.Y));
+            Rectangle moddedPlusRect = new Rectangle((int)plusPos.X, (int)plusPos.Y, PlusRect.Width, PlusRect.Height);
+            if (moddedPlusRect.HitTest(input.CursorPosition))
+            {
+                ToolTip.CreateTooltip("This Technology unlocks more than 4 items. Right Click on the title to Expand");
+                return false;
             }
 
             if (!moddedRect3.HitTest(input.CursorPosition))
