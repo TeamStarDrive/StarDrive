@@ -8,10 +8,9 @@ using Ship_Game.Ships;
 
 namespace Ship_Game.AI.ExpansionAI
 {
-    public class ExpansionPlanner
+    public class ExpansionPlanner // Refactored by Crunchy Gremlin and Fat Bastard - Jun 22, 2020
     {
         readonly Empire Owner;
-        private IReadOnlyList<SolarSystem> OwnedSystems;
         private readonly Array<SolarSystem> MarkedForExploration = new Array<SolarSystem>();
         private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
@@ -73,7 +72,7 @@ namespace Ship_Game.AI.ExpansionAI
                 return; // We have not reached our pop capacity threshold yet
 
             Log.Info(ConsoleColor.Magenta,$"Running Expansion for {Owner.Name}, PopRatio: {PopulationRatio.String(2)}");
-            OwnedSystems         = Owner.GetOwnedSystems();
+            var ownedSystems     = Owner.GetOwnedSystems();
             float ownerStrength  = Owner.CurrentMilitaryStrength;
             var potentialSystems = UniverseScreen.SolarSystemList.Filter(s => s.IsExploredBy(Owner)
                                                                          && !s.IsOwnedBy(Owner)
@@ -86,7 +85,7 @@ namespace Ship_Game.AI.ExpansionAI
             int maxCheckedSystems = (UniverseScreen.SolarSystemList.Count / maxCheckedDiv).LowerBound(3);
             Vector2 empireCenter  = Owner.GetWeightedCenter();
 
-            Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(OwnedSystems);
+            Array<Planet> potentialPlanets = GetPotentialPlanetsLocal(ownedSystems);
             if (potentialSystems.Length > 0)
             {
                 potentialSystems.Sort(s => empireCenter.Distance(s.Position));
