@@ -47,9 +47,7 @@ namespace Ship_Game.Commands.Goals
                     return GoalStep.GoalComplete;
 
                 foreach (var relationship in empire.AllRelations)
-                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key,
-                                                                relationship.Value,
-                                                                ColonizationTarget);
+                    empire.GetEmpireAI().ExpansionAI.CheckClaim(relationship.Key, relationship.Value, ColonizationTarget);
 
                 ReleaseShipFromGoal();
                 Log.Info($"Colonize: {ColonizationTarget.Owner.Name} got there first");
