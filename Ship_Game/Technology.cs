@@ -26,6 +26,9 @@ namespace Ship_Game
         public bool Unlockable;
 
         [XmlIgnore] public SortedSet<TechnologyType> TechnologyTypes = new SortedSet<TechnologyType>();
+        [XmlIgnore] public int NumStuffUnlocked => ModulesUnlocked.Count + BuildingsUnlocked.Count 
+                                                   + BonusUnlocked.Count + TroopsUnlocked.Count 
+                                                   + HullsUnlocked.Filter(h => h.ShipType == EmpireManager.Player.data.Traits.ShipType).Length;
 
         public int NameIndex;
         public int DescriptionIndex;
