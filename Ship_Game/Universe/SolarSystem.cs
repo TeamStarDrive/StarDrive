@@ -157,6 +157,11 @@ namespace Ship_Game
             PiratePresence = value;
         }
 
+        public bool IsOwnedBy(Empire empire)
+        {
+            return OwnerList.Contains(empire);
+        }
+
         float RadiationTimer;
         const float RadiationInterval = 0.5f;
 
