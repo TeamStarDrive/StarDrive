@@ -198,6 +198,13 @@ namespace Ship_Game
         public int GetMoneyModifier(Empire victim, float basePercentage)
         {
             float minimumPayment = Level * 100 * victim.DifficultyModifiers.PiratePayModifier;
+            if (victim.isPlayer)  // for debug tracking - temp
+            {
+                Log.Warning($"{Owner.Name} - demanding money from player: Level{Level}" +
+                            $" Modifier: {victim.DifficultyModifiers.PiratePayModifier} " +
+                            $"Minimum: {minimumPayment} " + $"Percentage: {basePercentage} " +
+                            $"Final: {(victim.Money * basePercentage / 100).LowerBound(minimumPayment).RoundTo10()}");
+            }
             return (victim.Money * basePercentage/100).LowerBound(minimumPayment).RoundTo10();
         }
 

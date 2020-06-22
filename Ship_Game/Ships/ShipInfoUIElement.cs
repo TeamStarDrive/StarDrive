@@ -624,6 +624,9 @@ namespace Ship_Game.Ships
                 Orders.Add(resupply);
             }
 
+            if (!Ship.CanBeScrapped)
+                return;
+
             if (Ship.IsFreighter)
             {
                 var ao = new OrdersButton(Ship, Vector2.Zero, OrderType.DefineAO, 15)
@@ -719,7 +722,7 @@ namespace Ship_Game.Ships
                 Orders.Add(systemDefense);
                 */
             }
-            if (Ship.Mothership == null)
+            if (Ship.CanBeScrapped)
             {
                 var rf = new OrdersButton(Ship, Vector2.Zero, OrderType.Refit, 158)
                 {
