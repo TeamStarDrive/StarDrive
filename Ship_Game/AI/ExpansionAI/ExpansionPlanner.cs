@@ -169,9 +169,7 @@ namespace Ship_Game.AI.ExpansionAI
 
             bool canColonizeBarren = Owner.IsBuildingUnlocked(Building.BiospheresId);
             float longestDistance  = planetList.Last().Center.Distance(empireCenter);
-
-            SolarSystem currentSystem = planetList.First().ParentSystem;
-           
+        
             for (int i = 0; i < planetList.Count; i++)
             {
                 Planet p = planetList[i];
