@@ -720,17 +720,17 @@ namespace Ship_Game.Fleets
                     CancelFleetMoveInArea(task.AO, task.AORadius * 2);
                     break;
                 case 3:
-                    OrderShipsToInvade(Ships, task, false);
+                    if (!DoOrbitTaskArea(task))
+                    {
+                        AttackEnemyStrengthClumpsInAO(task);
+                        OrderShipsToInvade(Ships, task, false);
+                    }
+
                     TaskStep = 4;
                     break;
                 case 4:
-                    if (!DoOrbitTaskArea(task))
-                        AttackEnemyStrengthClumpsInAO(task);
-
-                    TaskStep = 5;
-                    break;
-                case 5:
-                    FleetTask.EndTask();
+                    if (task.TargetPlanet.Owner != null)
+                        FleetTask.EndTask();
                     break;
             }
         }
@@ -767,6 +767,8 @@ namespace Ship_Game.Fleets
                 case 3:
                     if (!AttackEnemyStrengthClumpsInAO(task))
                         TaskStep = 4;
+                    else if (!CanTakeThisFight(task.EnemyStrength))
+                        FleetTask?.EndTask();
                     break;
                 case 4:
                     ClearOrders();
@@ -1061,7 +1063,7 @@ namespace Ship_Game.Fleets
                         break;
 
                     Ship ship = availableShips[i];
-                    if (ship.AI.HasPriorityOrder || ship.InCombat)
+                    if (ship.AI.HasPriorityOrder || ship.InCombat || ship.AI.State == AIState.AssaultPlanet)
                     {
                         availableShips.RemoveAtSwapLast(i);
                         continue;

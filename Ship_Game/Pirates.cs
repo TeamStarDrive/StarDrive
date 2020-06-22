@@ -250,6 +250,9 @@ namespace Ship_Game
         int DifficultyMultiplier()
         {
             int max = (int)Enum.GetValues(typeof(UniverseData.GameDifficulty)).Cast<UniverseData.GameDifficulty>().Max() + 2;
+            if (Level >= 10)
+                max++;
+
             return max - (int)CurrentGame.Difficulty;
         }
 
@@ -434,7 +437,7 @@ namespace Ship_Game
             for (int i = 0; i <= 50; i++)
             {
                 int spaceReduction = i * 2000;
-                foreach (Empire victim in empires)
+                foreach (Empire victim in empires.Filter(e => !e.data.Defeated))
                 {
                     SolarSystem system = victim.GetOwnedSystems().RandItem();
                     var pos = PickAPositionNearSystem(system, 400000 - spaceReduction);
@@ -908,11 +911,31 @@ namespace Ship_Game
             EmpireAI ai             = victim.GetEmpireAI();
             int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
             int maxAssaultGoals     = ((int)(CurrentGame.Difficulty + 1)).UpperBound(3);
-            if (currentAssaultGoals < maxAssaultGoals && RandomMath.RollDice(Level * 4))
+            if (currentAssaultGoals < maxAssaultGoals)
             {
-                Goal goal = new AssaultPirateBase(victim, Owner);
-                victim.GetEmpireAI().AddGoal(goal);
+                if (FoundPirateBaseInSystemOf(victim, out _) || RandomMath.RollDice(Level * 4))
+                {
+                    Goal goal = new AssaultPirateBase(victim, Owner);
+                    victim.GetEmpireAI().AddGoal(goal);
+                }
             }
+        }
+
+        bool FoundPirateBaseInSystemOf(Empire victim, out Ship pirateBase)
+        {
+            pirateBase = null;
+            var victimSystems = victim.GetOwnedSystems();
+            if (!GetBases(out Array<Ship> bases))
+                return false;
+
+            for (int i = 0; i < bases.Count; i++)
+            {
+                pirateBase = bases[i];
+                if (victimSystems.Contains(pirateBase.System))
+                    break;
+            }
+
+            return pirateBase != null;
         }
 
         public bool CanDoAnotherRaid(out int numRaids)
