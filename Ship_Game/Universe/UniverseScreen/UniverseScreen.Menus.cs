@@ -57,6 +57,9 @@ namespace Ship_Game
         void LoadShipMenuNodes(int which)
         {
             shipMenu.Children?.Clear();
+            if (SelectedShip != null && !SelectedShip.CanBeScrapped)
+                return;
+
             if (which == 1)
             {
                 var newChild1 = new PieMenuNode(Localizer.Token(1413), ResourceManager.Texture("UI/OrdersIcon"), null);
@@ -65,7 +68,7 @@ namespace Ship_Game
                 newChild1.Add(new PieMenuNode("Empire Defense", ResourceManager.Texture("UI/PatrolIcon"), DoDefense));
                 var newChild6 = new PieMenuNode(Localizer.Token(1417), ResourceManager.Texture("UI/FollowIcon"), null);
                 shipMenu.Add(newChild6);
-                if (SelectedShip != null && !SelectedShip.IsPlatformOrStation)
+                if (SelectedShip != null && !SelectedShip.IsPlatformOrStation && SelectedShip.CanBeScrapped)
                 {
                     newChild6.Add(new PieMenuNode(Localizer.Token(1418), ResourceManager.Texture("UI/FollowIcon"), RefitTo));
                 }

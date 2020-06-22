@@ -392,6 +392,7 @@ namespace Ship_Game.Ships
             return jitter;
         }
 
+        public bool CanBeScrapped  => Mothership == null && HomePlanet == null;
         public bool CombatDisabled => EMPdisabled || dying || !Active || !hasCommand;
 
         public bool SupplyShipCanSupply => Carrier.HasSupplyBays && OrdnanceStatus > Status.Critical
