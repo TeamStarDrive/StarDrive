@@ -377,7 +377,7 @@ namespace Ship_Game
             if (forces.InvadingForces <= 0 || forces.DefendingForces != 0)
                 return; // Planet is still fighting or all invading forces are destroyed
 
-            Ground.ChangeOwnerByInvasion(forces.InvadingEmpire);
+            Ground.ChangeOwnerByInvasion(forces.InvadingEmpire, Ground.Level);
         }
 
         public float GroundStrength(Empire empire)

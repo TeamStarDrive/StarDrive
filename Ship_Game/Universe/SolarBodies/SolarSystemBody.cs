@@ -436,10 +436,10 @@ namespace Ship_Game
             }
         }
 
-        static void TraitLess(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Max(invaderValue, ownerValue);
-        static void TraitMore(ref float invaderValue, ref float ownerValue) => invaderValue = Math.Min(invaderValue, ownerValue);
+        static float GetTraitMax(float invader, float owner) => invader.LowerBound(owner);
+        static float GetTraitMin(float invader, float owner) => invader.UpperBound(owner);
 
-        public void ChangeOwnerByInvasion(Empire newOwner)
+        public void ChangeOwnerByInvasion(Empire newOwner, int planetLevel)
         {
             var thisPlanet = (Planet)this;
 
@@ -474,28 +474,40 @@ namespace Ship_Game
                 }
             }
 
-            if (newOwner.data.Traits.Assimilators)
+            if (newOwner.data.Traits.Assimilators && planetLevel >= 3)
             {
-                TraitLess(ref newOwner.data.Traits.DiplomacyMod, ref Owner.data.Traits.DiplomacyMod);
-                TraitLess(ref newOwner.data.Traits.DodgeMod, ref Owner.data.Traits.DodgeMod);
-                TraitLess(ref newOwner.data.Traits.EnergyDamageMod, ref Owner.data.Traits.EnergyDamageMod);
-                TraitMore(ref newOwner.data.Traits.ConsumptionModifier, ref Owner.data.Traits.ConsumptionModifier);
-                TraitLess(ref newOwner.data.Traits.GroundCombatModifier, ref Owner.data.Traits.GroundCombatModifier);
-                TraitLess(ref newOwner.data.Traits.Mercantile, ref Owner.data.Traits.Mercantile);
-                TraitLess(ref newOwner.data.Traits.PassengerModifier, ref Owner.data.Traits.PassengerModifier);
-                TraitLess(ref newOwner.data.Traits.ProductionMod, ref Owner.data.Traits.ProductionMod);
-                TraitLess(ref newOwner.data.Traits.RepairMod, ref Owner.data.Traits.RepairMod);
-                TraitLess(ref newOwner.data.Traits.ResearchMod, ref Owner.data.Traits.ResearchMod);
-                TraitLess(ref newOwner.data.Traits.ShipCostMod, ref Owner.data.Traits.ShipCostMod);
-                TraitLess(ref newOwner.data.Traits.PopGrowthMin, ref Owner.data.Traits.PopGrowthMin);
-                TraitMore(ref newOwner.data.Traits.PopGrowthMax, ref Owner.data.Traits.PopGrowthMax);
-                TraitLess(ref newOwner.data.Traits.ModHpModifier, ref Owner.data.Traits.ModHpModifier);
-                TraitLess(ref newOwner.data.Traits.TaxMod, ref Owner.data.Traits.TaxMod);
-                TraitMore(ref newOwner.data.Traits.MaintMod, ref Owner.data.Traits.MaintMod);
-                TraitLess(ref newOwner.data.SpyModifier, ref Owner.data.SpyModifier);
-                TraitLess(ref newOwner.data.Traits.Spiritual, ref Owner.data.Traits.Spiritual);
+                RacialTrait ownerTraits = Owner.data.Traits;
+                newOwner.data.Traits.ConsumptionModifier = GetTraitMin(newOwner.data.Traits.ConsumptionModifier, ownerTraits.ConsumptionModifier);
+                newOwner.data.Traits.PopGrowthMax        = GetTraitMin(newOwner.data.Traits.PopGrowthMax, ownerTraits.PopGrowthMax);
+                newOwner.data.Traits.MaintMod            = GetTraitMin(newOwner.data.Traits.MaintMod, ownerTraits.MaintMod);
 
+                newOwner.data.Traits.DiplomacyMod         = GetTraitMax(newOwner.data.Traits.DiplomacyMod, ownerTraits.DiplomacyMod);
+                newOwner.data.Traits.DodgeMod             = GetTraitMax(newOwner.data.Traits.DodgeMod, ownerTraits.DodgeMod);
+                newOwner.data.Traits.EnergyDamageMod      = GetTraitMax(newOwner.data.Traits.EnergyDamageMod, ownerTraits.EnergyDamageMod);
+                newOwner.data.Traits.GroundCombatModifier = GetTraitMax(newOwner.data.Traits.GroundCombatModifier, ownerTraits.GroundCombatModifier);
+                newOwner.data.Traits.Mercantile           = GetTraitMax(newOwner.data.Traits.Mercantile, ownerTraits.Mercantile);
+                newOwner.data.Traits.PassengerModifier    = GetTraitMax(newOwner.data.Traits.PassengerModifier, ownerTraits.PassengerModifier);
+                newOwner.data.Traits.RepairMod            = GetTraitMax(newOwner.data.Traits.RepairMod, ownerTraits.RepairMod);
+                newOwner.data.Traits.PopGrowthMin         = GetTraitMax(newOwner.data.Traits.PopGrowthMin, ownerTraits.PopGrowthMin);
+                newOwner.data.Traits.SpyModifier          = GetTraitMax(newOwner.data.Traits.SpyModifier, ownerTraits.SpyModifier);
+                newOwner.data.Traits.Spiritual            = GetTraitMax(newOwner.data.Traits.Spiritual, ownerTraits.Spiritual);
+
+                // Do not add AI difficulty modifiers for the below
+                float realProductionMod = ownerTraits.ProductionMod - Owner.DifficultyModifiers.ProductionMod;
+                float realResearchMod   = ownerTraits.ResearchMod - Owner.DifficultyModifiers.ResearchMod;
+                float realShipCostMod   = ownerTraits.ShipCostMod + Owner.DifficultyModifiers.ShipCostMod;  // "+"
+                float realModHpModifer  = ownerTraits.ModHpModifier - Owner.DifficultyModifiers.ModHpModifier;
+                float realTaxMod        = ownerTraits.TaxMod - Owner.DifficultyModifiers.TaxMod;
+
+                newOwner.data.Traits.ShipCostMod   = GetTraitMin(newOwner.data.Traits.ShipCostMod, realShipCostMod);
+
+                newOwner.data.Traits.ProductionMod = GetTraitMax(newOwner.data.Traits.ProductionMod, realProductionMod);
+                newOwner.data.Traits.ResearchMod   = GetTraitMax(newOwner.data.Traits.ResearchMod, realResearchMod);
+                newOwner.data.Traits.ModHpModifier = GetTraitMax(newOwner.data.Traits.ModHpModifier, realModHpModifer);
+                newOwner.data.Traits.TaxMod        = GetTraitMax(newOwner.data.Traits.TaxMod, realTaxMod);
             }
+
+
             if (newOwner.isFaction)
                 return;
 
