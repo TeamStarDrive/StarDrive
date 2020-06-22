@@ -262,7 +262,7 @@ namespace Ship_Game.AI.Tasks
             if (TargetShip == null || !TargetShip.Active)
                 return;
 
-            AO closestAO  = FindClosestAO();
+            AO closestAO  = FindClosestAO(EnemyStrength);
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
                 return;
 

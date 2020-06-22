@@ -5,7 +5,6 @@ using Ship_Game.Fleets;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace Ship_Game.AI.Tasks
@@ -44,7 +43,7 @@ namespace Ship_Game.AI.Tasks
         {
         }
 
-        public static MilitaryTask CreateClaimTask(Planet targetPlanet, float minStrength)
+        public static MilitaryTask CreateClaimTask(Empire owner, Planet targetPlanet, float minStrength)
         {
             var militaryTask = new MilitaryTask
             {
@@ -52,8 +51,9 @@ namespace Ship_Game.AI.Tasks
                 AO                       = targetPlanet.Center,
                 type                     = TaskType.DefendClaim,
                 AORadius                 = targetPlanet.ParentSystem.Radius,
-                MinimumTaskForceStrength = minStrength
-            };
+                MinimumTaskForceStrength = minStrength,
+                Owner                    = owner
+        };
             return militaryTask;
         }
 
