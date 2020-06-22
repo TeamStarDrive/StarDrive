@@ -313,10 +313,11 @@ namespace Ship_Game
             if (!Owner.isPlayer || !AutoBuildTroops)
                 return;
 
-            if (CanBuildInfantry)
+            int numTroopsInTheWorks = NumTroopsInTheWorks;
+            if (numTroopsInTheWorks == 0 && CanBuildInfantry)
             {
-                int troopsWeHave = TroopsHere.Count + NumTroopsInTheWorks;
-                if (troopsWeHave < GarrisonSize)
+                int troopsWeHave = TroopsHere.Count;
+                if (troopsWeHave < GarrisonSize && GetFreeTiles(Owner) > 0)
                     BuildSingleMilitiaTroop();
             }
         }
