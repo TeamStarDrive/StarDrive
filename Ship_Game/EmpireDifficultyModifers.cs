@@ -21,6 +21,15 @@
         public readonly int MineralDecayDivider;
         public readonly float PiratePayModifier;
 
+        // AI Buffs/Nerfs
+        public readonly float FlatMoneyBonus;
+        public readonly float ProductionMod;
+        public readonly float ResearchMod;
+        public readonly float TaxMod;
+        public readonly float ShipCostMod;
+        public readonly float ResearchTaxMultiplier;
+        public readonly float ModHpModifier;
+
         /// <summary>
         /// Higher number will decrease colonization pace
         /// </summary>
@@ -29,6 +38,13 @@
         public DifficultyModifiers(Empire empire, UniverseData.GameDifficulty difficulty)
         {
             DataVisibleToPlayer = false;
+            FlatMoneyBonus        = 0;
+            ProductionMod         = 0;
+            ResearchMod           = 0;
+            TaxMod                = 0;
+            ShipCostMod           = 0;
+            ResearchTaxMultiplier = 0;
+            ModHpModifier         = 0;
             switch (difficulty)
             {
                 case UniverseData.GameDifficulty.Easy:
@@ -46,6 +62,15 @@
                     MineralDecayDivider  = 100;
                     PiratePayModifier    = 0.5f;
                     ExpansionModifier    = 0.2f;
+
+                    if (!empire.isPlayer)
+                    {
+                        ProductionMod = -0.25f;
+                        ResearchMod   = -0.25f; ;
+                        TaxMod        = -0.25f;
+                        ModHpModifier = -0.25f;
+                    }
+
                     break;
                 default:
                 case UniverseData.GameDifficulty.Normal:
@@ -77,6 +102,17 @@
                     MineralDecayDivider  = 50;
                     PiratePayModifier    = 1f;
                     ExpansionModifier    = 0.05f;
+
+                    if (!empire.isPlayer)
+                    {
+                        FlatMoneyBonus        = 10;
+                        ProductionMod         = 0.5f;
+                        ResearchMod           = 0.75f;
+                        TaxMod                = 0.5f;
+                        ShipCostMod           = -0.2f;
+                        ResearchTaxMultiplier = 0.7f;
+                    }
+
                     break;
                 case UniverseData.GameDifficulty.Brutal:
                     ShipBuildStrMin      = 0.9f;
@@ -92,6 +128,17 @@
                     MineralDecayDivider  = 35;
                     PiratePayModifier    = 1.5f;
                     ExpansionModifier    = 0f;
+
+                    if (!empire.isPlayer)
+                    {
+                        FlatMoneyBonus        = 20;
+                        ProductionMod         = 1f;
+                        ResearchMod           = 1.33f;
+                        TaxMod                = 1f;
+                        ShipCostMod           = -0.5f;
+                        ResearchTaxMultiplier = 0.3f;
+                    }
+
                     break;
             }
 
