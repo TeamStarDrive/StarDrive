@@ -197,15 +197,18 @@ namespace Ship_Game
 
         public int GetMoneyModifier(Empire victim, float basePercentage)
         {
-            float minimumPayment = Level * 100 * victim.DifficultyModifiers.PiratePayModifier;
+            float multiplier         = victim.DifficultyModifiers.PiratePayModifier;
+            float minimumPayment     = Level * 100 * multiplier;
+            float victimNetPotential = (victim.PotentialIncome - victim.AllSpending).LowerBound(0) * multiplier;
+            float payment            = (victim.Money + victimNetPotential*PaymentPeriodTurns) * basePercentage/100;
             if (victim.isPlayer)  // for debug tracking - temp
             {
                 Log.Warning($"{Owner.Name} - demanding money from player: Level{Level}" +
                             $" Modifier: {victim.DifficultyModifiers.PiratePayModifier} " +
                             $"Minimum: {minimumPayment} " + $"Percentage: {basePercentage} " +
-                            $"Final: {(victim.Money * basePercentage / 100).LowerBound(minimumPayment).RoundTo10()}");
+                            $"Final: {(payment * multiplier).RoundTo10()}");
             }
-            return (victim.Money * basePercentage/100).LowerBound(minimumPayment).RoundTo10();
+            return (payment * multiplier).LowerBound(minimumPayment).RoundTo10();
         }
 
         public bool VictimIsDefeated(Empire victim)
