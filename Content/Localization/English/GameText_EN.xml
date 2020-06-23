@@ -1066,7 +1066,7 @@ An empire's counter-espionage budget reduces your intelligence penetration
     </Token>
     <Token>
       <Index>264</Index>
-      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. The reduction of Food output is half of the Tax rate. Production output reduction for Cybernetics is also half of the tax rate.</Text>
+      <Text>Taxes are collected from your planets as a portion of their populations income. The negative side of taxes is that they reduce moral and productivity. For instance, a tax rate of 25% means that research and industrial output will be reduced by 25% across all planets. Production output reduction for Cybernetics is half of the tax rate. Food is not Taxed.</Text>
     </Token>
     <Token>
       <Index>265</Index>
