@@ -15,8 +15,8 @@ namespace Ship_Game.AI.ExpansionAI
         private Array<Goal> Goals => Owner.GetEmpireAI().Goals;
         public PlanetRanker[] RankedPlanets { get; private set; }
 
-        public Planet[] DesiredPlanets => RankedPlanets.FilterSelect(r=> r.Planet?.Owner != Owner,
-                                                                     r => r.Planet) ?? Empty<Planet>.Array;
+        public Planet[] DesiredPlanets => RankedPlanets?.FilterSelect(r=> r.Planet?.Owner != Owner,
+                                                                      r => r.Planet) ?? Empty<Planet>.Array;
 
         public Planet[] GetColonizationGoalPlanets()
         {
