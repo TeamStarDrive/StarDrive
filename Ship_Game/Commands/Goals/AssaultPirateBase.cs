@@ -49,36 +49,16 @@ namespace Ship_Game.Commands.Goals
             EmpireAI ai          = empire.GetEmpireAI();
             var filteredBases    = bases.Filter(s => !ai.HasAssaultPirateBaseTask(s, out _));
 
-            if (!GetClosestBaseToBorders(filteredBases, out TargetShip))
+            if (!GetClosestBaseToCenter(filteredBases, out TargetShip)) // TargetShip is the pirate base
                 return GoalStep.GoalFailed;
 
             return GoalStep.GoToNextStep;
         }
 
-        bool GetClosestBaseToBorders(Ship[] basesList, out Ship closestPirateBase)
-        {
-            closestPirateBase          = null;
-            var empirePlanets          = empire.GetPlanets();
-            float bestShortestDistance = float.MaxValue;
-            for (int i = 0; i < basesList.Length; i++)
-            {
-                Ship pirateBase        = basesList[i];
-                float shortestDistance = empirePlanets.Min(p => p.Center.Distance(pirateBase.Center));
-                if (shortestDistance < bestShortestDistance)
-                {
-                    bestShortestDistance = shortestDistance;
-                    closestPirateBase    = pirateBase;
-                }
-            }
-
-            return closestPirateBase != null;
-        }
-
-
         GoalStep CreateTask()
         {
             var task      = MilitaryTask.CreateAssaultPirateBaseTask(TargetShip);
-            task.Priority = -5;
+            task.Priority = 5;
             empire.GetEmpireAI().AddPendingTask(task);
             return GoalStep.GoToNextStep;
         }
@@ -99,6 +79,14 @@ namespace Ship_Game.Commands.Goals
             }
 
             return GoalStep.GoalComplete;
+        }
+
+        bool GetClosestBaseToCenter(Ship[] basesList, out Ship closestPirateBase)
+        {
+            closestPirateBase    = null;
+            Vector2 empireCenter = empire.GetWeightedCenter();
+            closestPirateBase    = basesList.FindMin(b => b.Center.Distance(empireCenter));
+            return closestPirateBase != null;
         }
     }
 }
