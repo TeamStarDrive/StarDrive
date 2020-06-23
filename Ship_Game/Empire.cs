@@ -1886,9 +1886,9 @@ namespace Ship_Game
                 }
 
             using (OwnedShips.AcquireReadLock())
-                for (int i =0; i < OwnedShips.Count; i++)
+                for (int i = 0; i < OwnedShips.Count; i++)
                 {
-                    num += OwnedShips[i].GetCargo(Goods.Colonists)/1000;
+                    num += OwnedShips[i].GetCargo(Goods.Colonists) / 1000;
                 }
 
             return num;
