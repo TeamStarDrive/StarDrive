@@ -120,7 +120,7 @@ namespace Ship_Game.Commands.Goals
                     float chanceToPay = 1 - moneyDemand/TargetEmpire.Money.LowerBound(1);
                     chanceToPay       = chanceToPay.LowerBound(0) * 100 / ((int)CurrentGame.Difficulty+1);
                         
-                    if (RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
+                    if (TargetEmpire.data.TaxRate < 0.5f && RandomMath.RollDice(chanceToPay)) // We can expand that with AI personality
                     {
                         TargetEmpire.AddMoney(-moneyDemand);
                         TargetEmpire.GetEmpireAI().EndWarFromEvent(Pirates.Owner);
@@ -137,7 +137,7 @@ namespace Ship_Game.Commands.Goals
             }
 
             if (error)
-                Log.Warning($"Could not find BaseMoneyRequest in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
+                Log.Warning($"Could not find PercentMoneyDemanded in {Pirates.Owner.Name} encounters for {TargetEmpire.Name}. " +
                             $"Make sure there is a step 0 encounter for {Pirates.Owner.Name} in encounter dialogs and " +
                             $"with <BaseMoneyRequested> xml tag");
         }
