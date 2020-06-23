@@ -260,7 +260,10 @@ namespace Ship_Game.AI.Tasks
                 Log.Error($"no area of operation set for task: {type}");
 
             if (TargetShip == null || !TargetShip.Active)
+            {
+                EndTask();
                 return;
+            }
 
             AO closestAO  = FindClosestAO(EnemyStrength);
             if (closestAO == null || closestAO.GetNumOffensiveForcePoolShips() < 1)
