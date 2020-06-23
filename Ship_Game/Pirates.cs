@@ -921,13 +921,14 @@ namespace Ship_Game
             EmpireAI ai             = victim.GetEmpireAI();
             int currentAssaultGoals = ai.SearchForGoals(GoalType.AssaultPirateBase).Count;
             int maxAssaultGoals     = ((int)(CurrentGame.Difficulty + 1)).UpperBound(3);
-            if (currentAssaultGoals < maxAssaultGoals)
+            if (currentAssaultGoals >= maxAssaultGoals || victim.data.TaxRate > 0.8f) 
+                return;
+
+            int chanceMultiplier = FoundPirateBaseInSystemOf(victim, out _) ? 8 : 4;
+            if (RandomMath.RollDice(Level * chanceMultiplier))
             {
-                if (FoundPirateBaseInSystemOf(victim, out _) || RandomMath.RollDice(Level * 4))
-                {
-                    Goal goal = new AssaultPirateBase(victim, Owner);
-                    victim.GetEmpireAI().AddGoal(goal);
-                }
+                Goal goal = new AssaultPirateBase(victim, Owner);
+                victim.GetEmpireAI().AddGoal(goal);
             }
         }
 
