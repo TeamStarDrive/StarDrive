@@ -11,26 +11,19 @@ namespace Ship_Game.AI
         {
             if (ToUs.PeaceTreaty)
             {
-                Relationship relation = OwnerEmpire.GetRelations(Them);
-                relation.AtWar = false;
-                relation.PreparingForWar = false;
+                Relationship relation          = OwnerEmpire.GetRelations(Them);
+                relation.AtWar                 = false;
+                relation.PreparingForWar       = false;
                 relation.ActiveWar.EndStarDate = Empire.Universe.StarDate;
                 relation.WarHistory.Add(relation.ActiveWar);
-                if (OwnerEmpire.data.DiplomaticPersonality != null)
+                DTrait ourPersonality = OwnerEmpire.data.DiplomaticPersonality;
+                if (ourPersonality != null)
                 {
                     relation.Posture = Posture.Neutral;
-                    if (relation.Anger_FromShipsInOurBorders >
-                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3)
-                    {
-                        relation.Anger_FromShipsInOurBorders =
-                            OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3;
-                    }
-                    if (relation.Anger_TerritorialConflict >
-                        OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3)
-                    {
-                        relation.Anger_TerritorialConflict =
-                            OwnerEmpire.data.DiplomaticPersonality.Territorialism / 3;
-                    }
+                    if (relation.Anger_FromShipsInOurBorders > ourPersonality.Territorialism / 3)
+                        relation.Anger_FromShipsInOurBorders = ourPersonality.Territorialism / 3;
+                    if (relation.Anger_TerritorialConflict > ourPersonality.Territorialism / 3)
+                        relation.Anger_TerritorialConflict = ourPersonality.Territorialism / 3;
                 }
                 relation.Anger_MilitaryConflict = 0f;
                 relation.WarnedAboutShips = false;
@@ -40,9 +33,7 @@ namespace Ship_Game.AI
                 relation.HaveRejected_TRADE = false;
                 relation.HasDefenseFleet = false;
                 if (relation.DefenseFleet != -1)
-                {
                     OwnerEmpire.GetFleetsDict()[relation.DefenseFleet].FleetTask.EndTask();
-                }
 
                 RemoveMilitaryTasksTargeting(Them);
 
@@ -102,29 +93,14 @@ namespace Ship_Game.AI
 
                     if (name != null) // Todo: This screams Enum!
                     {
-                        if (str == "Pacifist")
+                        switch (str)
                         {
-                            te.TrustCost = 0f;
-                        }
-                        else if (str == "Cunning")
-                        {
-                            te.TrustCost = 0f;
-                        }
-                        else if (str == "Xenophobic")
-                        {
-                            te.TrustCost = 15f;
-                        }
-                        else if (str == "Aggressive")
-                        {
-                            te.TrustCost = 35f;
-                        }
-                        else if (str == "Honorable")
-                        {
-                            te.TrustCost = 5f;
-                        }
-                        else if (str == "Ruthless")
-                        {
-                            te.TrustCost = 50f;
+                            case "Pacifist":
+                            case "Cunning":    te.TrustCost = 0f;  break;
+                            case "Xenophobic": te.TrustCost = 15f; break;
+                            case "Aggressive": te.TrustCost = 35f; break;
+                            case "Honorable":  te.TrustCost = 5f;  break;
+                            case "Ruthless":   te.TrustCost = 50f; break;
                         }
                     }
                 }
@@ -141,31 +117,17 @@ namespace Ship_Game.AI
                     string str1 = name1;
                     if (name1 != null)
                     {
-                        if (str1 == "Pacifist")
+                        switch (str1)
                         {
-                            te.TrustCost = 0f;
-                        }
-                        else if (str1 == "Cunning")
-                        {
-                            te.TrustCost = 0f;
-                        }
-                        else if (str1 == "Xenophobic")
-                        {
-                            te.TrustCost = 15f;
-                        }
-                        else if (str1 == "Aggressive")
-                        {
-                            te.TrustCost = 35f;
-                        }
-                        else if (str1 == "Honorable")
-                        {
-                            te.TrustCost = 5f;
-                        }
-                        else if (str1 == "Ruthless")
-                        {
-                            te.TrustCost = 50f;
+                            case "Pacifist":
+                            case "Cunning":    te.TrustCost = 0f;  break;
+                            case "Xenophobic": te.TrustCost = 15f; break;
+                            case "Aggressive": te.TrustCost = 35f; break;
+                            case "Honorable":  te.TrustCost = 5f;  break;
+                            case "Ruthless":   te.TrustCost = 50f; break;
                         }
                     }
+
                     te.Type = TrustEntryType.Treaty;
                     Them.GetRelations(us).TrustEntries.Add(te);
                 }
@@ -464,29 +426,14 @@ namespace Ship_Game.AI
                     string str = name;
                     if (name != null)
                     {
-                        if (str == "Pacifist")
+                        switch (str)
                         {
-                            te.FearCost = 0f;
-                        }
-                        else if (str == "Cunning")
-                        {
-                            te.FearCost = 0f;
-                        }
-                        else if (str == "Xenophobic")
-                        {
-                            te.FearCost = 15f;
-                        }
-                        else if (str == "Aggressive")
-                        {
-                            te.FearCost = 35f;
-                        }
-                        else if (str == "Honorable")
-                        {
-                            te.FearCost = 5f;
-                        }
-                        else if (str == "Ruthless")
-                        {
-                            te.FearCost = 50f;
+                            case "Pacifist":
+                            case "Cunning":    te.FearCost = 0f;  break;
+                            case "Xenophobic": te.FearCost = 15f; break;
+                            case "Aggressive": te.FearCost = 35f; break;
+                            case "Honorable":  te.FearCost = 5f;  break;
+                            case "Ruthless":   te.FearCost = 50f; break;
                         }
                     }
                 }
@@ -502,29 +449,14 @@ namespace Ship_Game.AI
                     string str1 = name1;
                     if (name1 != null)
                     {
-                        if (str1 == "Pacifist")
+                        switch (str1)
                         {
-                            te.FearCost = 0f;
-                        }
-                        else if (str1 == "Cunning")
-                        {
-                            te.FearCost = 0f;
-                        }
-                        else if (str1 == "Xenophobic")
-                        {
-                            te.FearCost = 15f;
-                        }
-                        else if (str1 == "Aggressive")
-                        {
-                            te.FearCost = 35f;
-                        }
-                        else if (str1 == "Honorable")
-                        {
-                            te.FearCost = 5f;
-                        }
-                        else if (str1 == "Ruthless")
-                        {
-                            te.FearCost = 50f;
+                            case "Pacifist":
+                            case "Cunning":    te.FearCost = 0f;  break;
+                            case "Xenophobic": te.FearCost = 15f; break;
+                            case "Aggressive": te.FearCost = 35f; break;
+                            case "Honorable":  te.FearCost = 5f;  break;
+                            case "Ruthless":   te.FearCost = 50f; break;
                         }
                     }
                     Them.GetRelations(us).FearEntries.Add(te);
@@ -796,30 +728,30 @@ namespace Ship_Game.AI
             float ValueToUs = 0f;
             if (FromUs.OpenBorders)
             {
-                ValueFromUs = ValueFromUs + 5f;
+                ValueFromUs += 5f;
             }
             if (ToUs.OpenBorders)
             {
-                ValueToUs = ValueToUs + 0.01f;
+                ValueToUs += 0.01f;
             }
             if (FromUs.NAPact)
             {
-                ValueFromUs = ValueFromUs + 5f;
+                ValueFromUs += 5f;
             }
             if (ToUs.NAPact)
             {
-                ValueToUs = ValueToUs + 5f;
+                ValueToUs += 5f;
             }
             if (FromUs.TradeTreaty)
             {
-                ValueFromUs = ValueFromUs + 5f;
+                ValueFromUs += 5f;
             }
             if (ToUs.TradeTreaty)
             {
-                ValueToUs = ValueToUs + 5f;
+                ValueToUs += 5f;
                 if ((double) OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 1)
                 {
-                    ValueToUs = ValueToUs + 20f;
+                    ValueToUs += 20f;
                 }
             }
             foreach (string tech in FromUs.TechnologiesOffered)
