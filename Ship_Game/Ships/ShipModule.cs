@@ -667,7 +667,7 @@ namespace Ship_Game.Ships
                 if (proj?.Weapon.EMPDamage >= damageThreshold/10 && !damagingShields)
                     CauseEmpDamage(proj); // EMP damage can be applied if not hitting shields
 
-                if (modifiedDamage < damageThreshold)
+                if (proj?.WeaponEffectType != "Plasma" && modifiedDamage < damageThreshold)
                     return false; // no damage could be done, the projectile was deflected.
             }
 
