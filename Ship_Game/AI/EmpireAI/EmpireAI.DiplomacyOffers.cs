@@ -1,7 +1,9 @@
+using Ship_Game.AI.StrategyAI.WarGoals;
 using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ship_Game.AI
 {
@@ -677,16 +679,16 @@ namespace Ship_Game.AI
             if (ToUs.PeaceTreaty)
             {
                 PeaceAnswer answer = AnalyzePeaceOffer(ToUs, FromUs, them, attitude);
-                if (!answer.peace)
+                if (!answer.Peace)
                 {
-                    return answer.answer;
+                    return answer.Answer;
                 }
                 AcceptOffer(ToUs, FromUs, OwnerEmpire, them);
                 OwnerEmpire.GetRelations(them).Treaty_Peace = true;
                 OwnerEmpire.GetRelations(them).PeaceTurnsRemaining = 100;
                 them.GetRelations(OwnerEmpire).Treaty_Peace = true;
                 them.GetRelations(OwnerEmpire).PeaceTurnsRemaining = 100;
-                return answer.answer;
+                return answer.Answer;
             }
             Empire us = OwnerEmpire;
             float TotalTrustRequiredFromUS = 0f;
@@ -1565,354 +1567,110 @@ namespace Ship_Game.AI
 
             valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
             OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem);
-            PeaceAnswer response      = new PeaceAnswer
-            {
-                peace  = false,
-                answer = "REJECT_OFFER_PEACE_POOROFFER"
-            };
-
+            PeaceAnswer response      = ProcessPeace("REJECT_OFFER_PEACE_POOROFFER"); // Default response is reject
             switch (us.GetRelations(them).ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
-                {
                     state = us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs);
-                    if (state == WarState.WinningSlightly)
+                    switch (state)
                     {
-                        if (offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        if ((offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good) &&
-                            us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
-                            return response;
-                        }
-
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.Dominating)
-                    {
-                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.ColdWar)
-                    {
-                        if (offerQuality != OfferQuality.Great)
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
-                            return response;
-                        }
-
-                        response.answer = "ACCEPT_PEACE_COLDWAR";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    if (state != WarState.EvenlyMatched)
-                    {
-                        if (state != WarState.LosingSlightly)
-                        {
-                            if (state != WarState.LosingBadly)
+                        case WarState.EvenlyMatched:
+                        case WarState.WinningSlightly:
+                        case WarState.LosingSlightly:
+                            switch (offerQuality)
                             {
-                                return response;
-                            }
-                            if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                            {
-                                response.answer = "ACCEPT_OFFER_PEACE";
-                                response.peace = true;
-                                return response;
+                                case OfferQuality.Fair when us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0:
+                                case OfferQuality.Good when us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0:
+                                    response = ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
+                                    break;
+                                case OfferQuality.Fair:
+                                case OfferQuality.Good:
+                                case OfferQuality.Great:
+                                    response = ProcessPeace("ACCEPT_OFFER_PEACE", true);
+                                    break;
                             }
 
-                            if (offerQuality != OfferQuality.Poor)
-                            {
-                                response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                                return response;
-                            }
-
-                            response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
+                            break;
+                        case WarState.Dominating when offerQuality >= OfferQuality.Good:
+                                response = ProcessPeace("ACCEPT_OFFER_PEACE", true);
+                            break;
+                        case WarState.ColdWar when offerQuality < OfferQuality.Great:
+                            response = ProcessPeace("REJECT_OFFER_PEACE_UNWILLING_BC");
+                            break;
+                        case WarState.ColdWar: // Great offer for Cold war
+                            response = ProcessPeace("ACCEPT_PEACE_COLDWAR", true);
+                            break;
+                        case WarState.LosingBadly: response = ProcessLosingBadly(offerQuality); 
+                            break;
                     }
 
-                    if (offerQuality == OfferQuality.Great)
-                    {
-                        response.answer = "ACCEPT_OFFER_PEACE";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    if ((offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good) &&
-                        us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
-                    {
-                        response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
-                        return response;
-                    }
-
-                    if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good)
-                    {
-                        response.answer = "ACCEPT_OFFER_PEACE";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                    return response;
-                }
-                case WarType.ImperialistWar:
-                {
-                    state = us.GetRelations(them).ActiveWar.GetWarScoreState();
-                    if (state == WarState.WinningSlightly)
-                    {
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.Dominating)
-                    {
-                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.EvenlyMatched)
-                    {
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.ColdWar)
-                    {
-                        string name1 = OwnerEmpire.data.DiplomaticPersonality.Name;
-                        str1 = name1;
-                        if (name1 != null && str1 == "Pacifist")
-                        {
-                            if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                            {
-                                response.answer = "ACCEPT_OFFER_PEACE";
-                                response.peace = true;
-                                return response;
-                            }
-
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
-
-                        if (offerQuality != OfferQuality.Great)
-                        {
-                            response.answer = "REJECT_PEACE_RUTHLESS";
-                            return response;
-                        }
-
-                        response.answer = "ACCEPT_PEACE_COLDWAR";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    if (state != WarState.LosingSlightly)
-                    {
-                        if (state != WarState.LosingBadly)
-                        {
-                            return response;
-                        }
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        if (offerQuality != OfferQuality.Poor)
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
-
-                        response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                    {
-                        response.answer = "ACCEPT_OFFER_PEACE";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                    return response;
-                }
-                case WarType.GenocidalWar:
-                {
-                    return response;
-                }
+                    break;
                 case WarType.DefensiveWar:
-                {
+                case WarType.ImperialistWar:
                     state = us.GetRelations(them).ActiveWar.GetWarScoreState();
-                    if (state == WarState.WinningSlightly)
+                    switch (state)
                     {
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
+                        case WarState.EvenlyMatched:
+                        case WarState.LosingSlightly:
+                        case WarState.WinningSlightly:
+                            if (offerQuality >= OfferQuality.Fair)
+                                response = ProcessPeace("ACCEPT_OFFER_PEACE", true);
 
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
+                            break;
+                        case WarState.Dominating when offerQuality >= OfferQuality.Good:
+                            response = ProcessPeace("ACCEPT_OFFER_PEACE", true);
+                            break;
+                        case WarState.ColdWar: response = ProcessColdWar(offerQuality); 
+                            break;
+                        case WarState.LosingBadly: response = ProcessLosingBadly(offerQuality); 
+                            break;
                     }
 
-                    if (state == WarState.Dominating)
-                    {
-                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.EvenlyMatched)
-                    {
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                        return response;
-                    }
-
-                    if (state == WarState.ColdWar)
-                    {
-                        string name2 = OwnerEmpire.data.DiplomaticPersonality.Name;
-                        str1 = name2;
-                        if (name2 != null && str1 == "Pacifist")
-                        {
-                            if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                            {
-                                response.answer = "ACCEPT_OFFER_PEACE";
-                                response.peace = true;
-                                return response;
-                            }
-
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
-
-                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_PEACE_COLDWAR";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        response.answer = "REJECT_PEACE_RUTHLESS";
-                        return response;
-                    }
-
-                    if (state != WarState.LosingSlightly)
-                    {
-                        if (state != WarState.LosingBadly)
-                        {
-                            return response;
-                        }
-                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                        {
-                            response.answer = "ACCEPT_OFFER_PEACE";
-                            response.peace = true;
-                            return response;
-                        }
-
-                        if (offerQuality != OfferQuality.Poor)
-                        {
-                            response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                            return response;
-                        }
-
-                        response.answer = "ACCEPT_OFFER_PEACE_RELUCTANT";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
-                    {
-                        response.answer = "ACCEPT_OFFER_PEACE";
-                        response.peace = true;
-                        return response;
-                    }
-
-                    response.answer = "REJECT_OFFER_PEACE_POOROFFER";
-                    return response;
-                }
-                default:
-                {
-                    return response;
-                }
+                    break;
             }
+
+            return response; // Genocidal , Skirmish and NotApplicable  are refused by default
+        }
+
+        PeaceAnswer ProcessColdWar(OfferQuality offerQuality)
+        {
+            string personality = OwnerEmpire.data.DiplomaticPersonality.Name;
+
+            if (personality.NotEmpty() && personality == "Pacifist" && offerQuality >= OfferQuality.Fair)
+                return ProcessPeace("ACCEPT_OFFER_PEACE", true);
+
+            if (offerQuality == OfferQuality.Great)
+                return ProcessPeace("ACCEPT_PEACE_COLDWAR", true);
+            return ProcessPeace("REJECT_PEACE_RUTHLESS");
+        }
+
+        PeaceAnswer ProcessLosingBadly(OfferQuality offerQuality)
+        {
+            switch (offerQuality)
+            {
+                case OfferQuality.Fair:
+                case OfferQuality.Good:
+                case OfferQuality.Great: return ProcessPeace("ACCEPT_OFFER_PEACE", true);
+                case OfferQuality.Poor:  return ProcessPeace("ACCEPT_OFFER_PEACE_RELUCTANT", true);
+                default:                 return ProcessPeace("REJECT_OFFER_PEACE_POOROFFER"); // Insulting
+            }
+        }
+
+        PeaceAnswer ProcessPeace(string answer, bool isPeace = false)
+        {
+            PeaceAnswer response = new PeaceAnswer
+            {
+                Peace  = isPeace,
+                Answer = answer
+            };
+
+            return response;
         }
 
         public struct PeaceAnswer
         {
-            public string answer;
-            public bool peace;
+            public string Answer;
+            public bool Peace;
         }
 
         public void SetAlliance(bool ally, Empire them)
