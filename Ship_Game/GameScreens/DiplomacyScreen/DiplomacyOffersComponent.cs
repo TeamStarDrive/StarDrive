@@ -102,12 +102,11 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
             foreach (TechEntry entry in tradeAbleTechs)
             {
                 Technology tech = entry.Tech;
+                // FB - Do not trade ship tech that the AI cannot use due to lack of pre-made designs
+                if (!Them.isPlayer && entry.IsOnlyShipTech() && !Them.WeCanUseThis(tech, theirDesigns))
+                    continue;
 
-                // FB - check if they can use this tech on their ship design (secret tech possibly with no AI design to use it)
-                int actualCost  = !Them.isPlayer && entry.IsOnlyShipTech() && !Them.WeCanUseThis(tech, theirDesigns) ? 0 : (int)tech.ActualCost;
-                string costText = actualCost == 0 ? "0 (can't use)" : actualCost.String();
-                var text        = LocalizedText.Parse($"{{{tech.NameIndex}}}: {costText}");
-
+                var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost}");
                 techs.AddSubItem(new ItemToOffer(text, "Tech") { SpecialInquiry = entry.UID });
             }
 
