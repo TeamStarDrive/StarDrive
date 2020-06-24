@@ -138,11 +138,25 @@ namespace Ship_Game
         public float DiplomaticValueTo(Empire them, float valuePerTechCost = 0.01f)
         {
             float value = ActualCost * valuePerTechCost;
-
+            if (!them.isPlayer
+                && IsOnlyShipTechForDiplomacyOffer()
+                && !them.WeCanUseThis(this, them.GetOurFactionShips()))
+            {
+                value = 0; // We can't use this tech on our AI ship design
+            }
             // Technologists appreciate tech scores +25% higher:
             if (them.data.EconomicPersonality.Name == "Technologists")
                 value *= 1.25f;
             return value;
+        }
+
+        bool IsOnlyShipTechForDiplomacyOffer()
+        {
+            return ModulesUnlocked.Count > 0 
+                   && BuildingsUnlocked.Count == 0 
+                   && BonusUnlocked.Count == 0 
+                   && HullsUnlocked.Count == 0 
+                   && TroopsUnlocked.Count == 0;
         }
 
 

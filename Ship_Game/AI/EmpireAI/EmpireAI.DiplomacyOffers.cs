@@ -727,51 +727,51 @@ namespace Ship_Game.AI
             {
                 TotalTrustRequiredFromUS += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
             }
-            float ValueFromUs = 0f;
-            float ValueToUs = 0f;
+            float valueToThem = 0f;
+            float valueToUs = 0f;
             if (FromUs.OpenBorders)
             {
-                ValueFromUs += 5f;
+                valueToThem += 5f;
             }
             if (ToUs.OpenBorders)
             {
-                ValueToUs += 0.01f;
+                valueToUs += 0.01f;
             }
             if (FromUs.NAPact)
             {
-                ValueFromUs += 5f;
+                valueToThem += 5f;
             }
             if (ToUs.NAPact)
             {
-                ValueToUs += 5f;
+                valueToUs += 5f;
             }
             if (FromUs.TradeTreaty)
             {
-                ValueFromUs += 5f;
+                valueToThem += 5f;
             }
             if (ToUs.TradeTreaty)
             {
-                ValueToUs += 5f;
+                valueToUs += 5f;
                 if ((double) OwnerEmpire.EstimateNetIncomeAtTaxRate(0.5f) < 1)
                 {
-                    ValueToUs += 20f;
+                    valueToUs += 20f;
                 }
             }
             foreach (string tech in FromUs.TechnologiesOffered)
             {
-                ValueFromUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
+                valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
             }
             foreach (string artifactsOffered in FromUs.ArtifactsOffered)
             {
-                ValueFromUs = ValueFromUs + 15f;
+                valueToThem = valueToThem + 15f;
             }
             foreach (string str in ToUs.ArtifactsOffered)
             {
-                ValueToUs = ValueToUs + 15f;
+                valueToUs = valueToUs + 15f;
             }
             foreach (string tech in ToUs.TechnologiesOffered)
             {
-                ValueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
+                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us, 0.02f);
             }
             if (us.GetPlanets().Count - FromUs.ColoniesOffered.Count + ToUs.ColoniesOffered.Count < 1)
             {
@@ -791,7 +791,7 @@ namespace Ship_Game.AI
                             worth += 200f;
                     float multiplier = 1.25f * p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
-                    ValueFromUs += worth;
+                    valueToThem += worth;
                 }
             }
             foreach (string planetName in ToUs.ColoniesOffered)
@@ -805,200 +805,130 @@ namespace Ship_Game.AI
                     float worth = p.ColonyWorthTo(us);
                     int multiplier = 1 + p.ParentSystem.PlanetList.Count(other => other.Owner == p.Owner);
                     worth *= multiplier;
-                    ValueToUs += worth;
+                    valueToUs += worth;
                 }
             }
-            ValueToUs = ValueToUs + them.data.Traits.DiplomacyMod * ValueToUs;
-            if (ValueFromUs == 0f && ValueToUs > 0f)
+            valueToUs = valueToUs + them.data.Traits.DiplomacyMod * valueToUs;
+            if (valueToThem == 0f && valueToUs > 0f)
             {
-                us.GetRelations(them).ImproveRelations(ValueToUs, ValueToUs);
+                us.GetRelations(them).ImproveRelations(valueToUs, valueToUs);
                 AcceptOffer(ToUs, FromUs, us, them);
                 return "OfferResponse_Accept_Gift";
             }
-            ValueToUs = ValueToUs - ValueToUs * us.GetRelations(them).TotalAnger / 100f;
-            float offerdifferential = ValueToUs / (ValueFromUs + 0.01f);
-            string OfferQuality = "";
-            if (offerdifferential < 0.6f)
-            {
-                OfferQuality = "Insulting";
-            }
-            else if (offerdifferential < 0.9f && offerdifferential >= 0.6f)
-            {
-                OfferQuality = "Poor";
-            }
-            else if (offerdifferential >= 0.9f && offerdifferential < 1.1f)
-            {
-                OfferQuality = "Fair";
-            }
-            else if (offerdifferential >= 1.1 && offerdifferential < 1.45)
-            {
-                OfferQuality = "Good";
-            }
-            else if (offerdifferential >= 1.45f)
-            {
-                OfferQuality = "Great";
-            }
-            if (ValueToUs == ValueFromUs)
-            {
-                OfferQuality = "Fair";
-            }
+            valueToUs -= valueToUs * us.GetRelations(them).TotalAnger / 100f;
+            float offerDifferential   = valueToUs / (valueToThem + 0.01f);
+            OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem);
             switch (attitude)
             {
                 case Offer.Attitude.Pleading:
-                {
                     if (TotalTrustRequiredFromUS > us.GetRelations(them).Trust)
                     {
-                        if (OfferQuality != "Great")
-                        {
+                        if (offerQuality != OfferQuality.Great)
                             return "OfferResponse_InsufficientTrust";
-                        }
-                        us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
+
+                        us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
                         AcceptOffer(ToUs, FromUs, us, them);
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
-                    }
-                    if (offerdifferential < 0.6f)
-                    {
-                        OfferQuality = "Insulting";
-                    }
-                    else if (offerdifferential < 0.8f && offerdifferential > 0.65f)
-                    {
-                        OfferQuality = "Poor";
-                    }
-                    else if (offerdifferential >= 0.8f && offerdifferential < 1.1f)
-                    {
-                        OfferQuality = "Fair";
-                    }
-                    else if (offerdifferential >= 1.1 && offerdifferential < 1.45)
-                    {
-                        OfferQuality = "Good";
-                    }
-                    else if (offerdifferential >= 1.45f)
-                    {
-                        OfferQuality = "Great";
-                    }
-                    if (OfferQuality == "Poor")
-                    {
-                        return "OfferResponse_Reject_PoorOffer_EnoughTrust";
-                    }
-                    if (OfferQuality == "Insulting")
-                    {
-                        us.GetRelations(them).DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
-                        return "OfferResponse_Reject_Insulting";
-                    }
-                    if (OfferQuality == "Fair")
-                    {
-                        us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        AcceptOffer(ToUs, FromUs, us, them);
-                        return "OfferResponse_Accept_Fair_Pleading";
-                    }
-                    if (OfferQuality == "Good")
-                    {
-                        us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        AcceptOffer(ToUs, FromUs, us, them);
-                        return "OfferResponse_Accept_Good";
-                    }
-                    if (OfferQuality != "Great")
-                    {
-                        break;
-                    }
-                    us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                    AcceptOffer(ToUs, FromUs, us, them);
-                    return "OfferResponse_Accept_Great";
-                }
-                case Offer.Attitude.Respectful:
-                {
-                    if (TotalTrustRequiredFromUS + us.GetRelations(them).TrustUsed <= us.GetRelations(them).Trust)
-                    {
-                        if (OfferQuality == "Poor")
-                        {
-                            return "OfferResponse_Reject_PoorOffer_EnoughTrust";
-                        }
-                        if (OfferQuality == "Insulting")
-                        {
-                            us.GetRelations(them)
-                                .DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
-                            return "OfferResponse_Reject_Insulting";
-                        }
-                        if (OfferQuality == "Fair")
-                        {
-                            us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                            AcceptOffer(ToUs, FromUs, us, them);
-                            return "OfferResponse_Accept_Fair";
-                        }
-                        if (OfferQuality == "Good")
-                        {
-                            us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                            AcceptOffer(ToUs, FromUs, us, them);
-                            return "OfferResponse_Accept_Good";
-                        }
-                        if (OfferQuality != "Great")
-                        {
-                            break;
-                        }
-                        us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs - ValueFromUs);
-                        AcceptOffer(ToUs, FromUs, us, them);
-                        return "OfferResponse_Accept_Great";
                     }
 
-                    if (OfferQuality == "Great")
+                    switch (offerQuality)
                     {
-                        us.GetRelations(them).ImproveRelations(ValueToUs - ValueFromUs, ValueToUs);
-                        AcceptOffer(ToUs, FromUs, us, them);
-                        return "OfferResponse_AcceptGreatOffer_LowTrust";
+                        case OfferQuality.Insulting:
+                            us.GetRelations(them).DamageRelationship(us, them, "Insulted", valueToThem - valueToUs, null);
+                            return "OfferResponse_Reject_Insulting";
+                        case OfferQuality.Poor:
+                            return "OfferResponse_Reject_PoorOffer_EnoughTrust";
+                        case OfferQuality.Fair:
+                            us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                            AcceptOffer(ToUs, FromUs, us, them);
+                            return "OfferResponse_Accept_Fair_Pleading";
+                        case OfferQuality.Good:
+                            us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                            AcceptOffer(ToUs, FromUs, us, them);
+                            return "OfferResponse_Accept_Good";
+                        case OfferQuality.Great:
+                            us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                            AcceptOffer(ToUs, FromUs, us, them);
+                            return "OfferResponse_Accept_Great";
                     }
-                    if (OfferQuality == "Poor")
+
+                    break;
+                case Offer.Attitude.Respectful:
+                    if (TotalTrustRequiredFromUS + us.GetRelations(them).TrustUsed <= us.GetRelations(them).Trust)
                     {
-                        return "OfferResponse_Reject_PoorOffer_LowTrust";
+                        switch (offerQuality)
+                        {
+                            case OfferQuality.Insulting:
+                                us.GetRelations(them).DamageRelationship(us, them, "Insulted", valueToThem - valueToUs, null);
+                                return "OfferResponse_Reject_Insulting";
+                            case OfferQuality.Poor:
+                                return "OfferResponse_Reject_PoorOffer_EnoughTrust";
+                            case OfferQuality.Fair:
+                                us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                                AcceptOffer(ToUs, FromUs, us, them);
+                                return "OfferResponse_Accept_Fair";
+                            case OfferQuality.Good:
+                                us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                                AcceptOffer(ToUs, FromUs, us, them);
+                                return "OfferResponse_Accept_Good";
+                            case OfferQuality.Great:
+                                us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs - valueToThem);
+                                AcceptOffer(ToUs, FromUs, us, them);
+                                return "OfferResponse_Accept_Great";
+                        }
                     }
-                    if (OfferQuality == "Fair" || OfferQuality == "Good")
+
+                    switch (offerQuality)
                     {
-                        return "OfferResponse_InsufficientTrust";
+                        case OfferQuality.Insulting:
+                            us.GetRelations(them).DamageRelationship(us, them, "Insulted", valueToThem - valueToUs, null);
+                            return "OfferResponse_Reject_Insulting";
+                        case OfferQuality.Poor:
+                            return "OfferResponse_Reject_PoorOffer_LowTrust";
+                        case OfferQuality.Fair:
+                        case OfferQuality.Good:
+                            return "OfferResponse_InsufficientTrust";
+                        case OfferQuality.Great:
+                            us.GetRelations(them).ImproveRelations(valueToUs - valueToThem, valueToUs);
+                            AcceptOffer(ToUs, FromUs, us, them);
+                            return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
-                    if (OfferQuality != "Insulting")
-                    {
-                        break;
-                    }
-                    us.GetRelations(them).DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
-                    return "OfferResponse_Reject_Insulting";
-                }
+
+                    break;
                 case Offer.Attitude.Threaten:
-                {
                     if (dt.Name == "Ruthless")
-                    {
                         return "OfferResponse_InsufficientFear";
-                    }
-                    us.GetRelations(them).DamageRelationship(us, them, "Insulted", ValueFromUs - ValueToUs, null);
-                    if (OfferQuality == "Great")
+
+                    us.GetRelations(them).DamageRelationship(us, them, "Insulted", valueToThem - valueToUs, null);
+
+                    if (offerQuality == OfferQuality.Great)
                     {
                         AcceptThreat(ToUs, FromUs, us, them);
                         return "OfferResponse_AcceptGreatOffer_LowTrust";
                     }
-                    if (offerdifferential < 0.95f)
-                    {
-                        OfferQuality = "Poor";
-                    }
-                    else if (offerdifferential >= 0.95f)
-                    {
-                        OfferQuality = "Fair";
-                    }
-                    if (us.GetRelations(them).Threat <= ValueFromUs || us.GetRelations(them).FearUsed + ValueFromUs >=
+
+                    // Lower quality because of threatening attitude
+                    offerQuality = offerDifferential < 0.95f ? OfferQuality.Poor : OfferQuality.Fair;
+
+                    if (us.GetRelations(them).Threat <= valueToThem || us.GetRelations(them).FearUsed + valueToThem >=
                         us.GetRelations(them).Threat)
                     {
                         return "OfferResponse_InsufficientFear";
                     }
-                    if (OfferQuality == "Poor")
+
+                    switch (offerQuality)
                     {
-                        AcceptThreat(ToUs, FromUs, us, them);
-                        return "OfferResponse_Accept_Bad_Threatening";
+                        case OfferQuality.Poor:
+                            AcceptThreat(ToUs, FromUs, us, them);
+                            return "OfferResponse_Accept_Bad_Threatening";
+                        case OfferQuality.Fair:
+                            AcceptThreat(ToUs, FromUs, us, them);
+                            return "OfferResponse_Accept_Fair_Threatening";
                     }
-                    if (OfferQuality != "Fair")
-                    {
-                        break;
-                    }
-                    AcceptThreat(ToUs, FromUs, us, them);
-                    return "OfferResponse_Accept_Fair_Threatening";
-                }
+
+                    break;
             }
+
             return "";
         }
 
