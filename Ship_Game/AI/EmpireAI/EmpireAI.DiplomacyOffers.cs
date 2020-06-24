@@ -1005,19 +1005,19 @@ namespace Ship_Game.AI
             Empire us = OwnerEmpire;
             DTrait dt = us.data.DiplomaticPersonality;
 
-            float ValueToUs = ToUs.ArtifactsOffered.Count * 15f;
-            float ValueFromUs = FromUs.ArtifactsOffered.Count * 15f;
+            float valueToUs   = ToUs.ArtifactsOffered.Count * 15f;
+            float valueToThem = FromUs.ArtifactsOffered.Count * 15f;
             foreach (string tech in FromUs.TechnologiesOffered)
-                ValueFromUs += ResourceManager.Tech(tech).DiplomaticValueTo(us);
+                valueToThem += ResourceManager.Tech(tech).DiplomaticValueTo(us);
             foreach (string tech in ToUs.TechnologiesOffered)
-                ValueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us);
+                valueToUs += ResourceManager.Tech(tech).DiplomaticValueTo(us);
 
             foreach (string planetName in FromUs.ColoniesOffered)
             {
                 foreach (Planet p in us.GetPlanets())
                 {
                     if (p.Name == planetName)
-                        ValueFromUs += p.ColonyWorthTo(us);
+                        valueToThem += p.ColonyWorthTo(us);
                 }
             }
             Array<Planet> PlanetsToUs = new Array<Planet>();
@@ -1032,7 +1032,7 @@ namespace Ship_Game.AI
                     foreach (Building b in p.BuildingList)
                         if (b.IsCapital)
                             worth += 100000f; // basically, don't let AI give away their capital too easily
-                    ValueToUs += worth;
+                    valueToUs += worth;
                 }
             }
             string name = dt.Name;
@@ -1049,22 +1049,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1076,22 +1076,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1103,22 +1103,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1136,22 +1136,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 15f;
+                                    valueToUs = valueToUs + 15f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 8f;
+                                    valueToUs = valueToUs + 8f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 8f;
+                                    valueToThem = valueToThem + 8f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 15f;
+                                    valueToThem = valueToThem + 15f;
                                     break;
                                 }
                             }
@@ -1163,22 +1163,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 15f;
+                                    valueToUs = valueToUs + 15f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 8f;
+                                    valueToUs = valueToUs + 8f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 8f;
+                                    valueToThem = valueToThem + 8f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 15f;
+                                    valueToThem = valueToThem + 15f;
                                     break;
                                 }
                             }
@@ -1190,22 +1190,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1223,22 +1223,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1250,22 +1250,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1277,22 +1277,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1310,22 +1310,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 15f;
+                                    valueToUs = valueToUs + 15f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 8f;
+                                    valueToUs = valueToUs + 8f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 8f;
+                                    valueToThem = valueToThem + 8f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 15f;
+                                    valueToThem = valueToThem + 15f;
                                     break;
                                 }
                             }
@@ -1337,22 +1337,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 15f;
+                                    valueToUs = valueToUs + 15f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 8f;
+                                    valueToUs = valueToUs + 8f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 8f;
+                                    valueToThem = valueToThem + 8f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 15f;
+                                    valueToThem = valueToThem + 15f;
                                     break;
                                 }
                             }
@@ -1364,22 +1364,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 5f;
+                                    valueToThem = valueToThem + 5f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 10f;
+                                    valueToThem = valueToThem + 10f;
                                     break;
                                 }
                             }
@@ -1397,22 +1397,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 75f;
+                                    valueToThem = valueToThem + 75f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 200f;
+                                    valueToThem = valueToThem + 200f;
                                     break;
                                 }
                             }
@@ -1424,22 +1424,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 75f;
+                                    valueToThem = valueToThem + 75f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 200f;
+                                    valueToThem = valueToThem + 200f;
                                     break;
                                 }
                             }
@@ -1451,22 +1451,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 10f;
+                                    valueToUs = valueToUs + 10f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 75f;
+                                    valueToThem = valueToThem + 75f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 200f;
+                                    valueToThem = valueToThem + 200f;
                                     break;
                                 }
                             }
@@ -1484,22 +1484,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 1f;
+                                    valueToUs = valueToUs + 1f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 120f;
+                                    valueToThem = valueToThem + 120f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 300f;
+                                    valueToThem = valueToThem + 300f;
                                     break;
                                 }
                             }
@@ -1511,22 +1511,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 1f;
+                                    valueToUs = valueToUs + 1f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 120f;
+                                    valueToThem = valueToThem + 120f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 300f;
+                                    valueToThem = valueToThem + 300f;
                                     break;
                                 }
                             }
@@ -1538,22 +1538,22 @@ namespace Ship_Game.AI
                             {
                                 case WarState.LosingBadly:
                                 {
-                                    ValueToUs = ValueToUs + 5f;
+                                    valueToUs = valueToUs + 5f;
                                     break;
                                 }
                                 case WarState.LosingSlightly:
                                 {
-                                    ValueToUs = ValueToUs + 1f;
+                                    valueToUs = valueToUs + 1f;
                                     break;
                                 }
                                 case WarState.WinningSlightly:
                                 {
-                                    ValueFromUs = ValueFromUs + 120f;
+                                    valueToThem = valueToThem + 120f;
                                     break;
                                 }
                                 case WarState.Dominating:
                                 {
-                                    ValueFromUs = ValueFromUs + 300f;
+                                    valueToThem = valueToThem + 300f;
                                     break;
                                 }
                             }
@@ -1562,38 +1562,15 @@ namespace Ship_Game.AI
                     }
                 }
             }
-            ValueToUs = ValueToUs + them.data.Traits.DiplomacyMod * ValueToUs;
-            float offerdifferential = ValueToUs / (ValueFromUs + 0.0001f);
-            string OfferQuality = "";
-            if (offerdifferential < 0.6f)
+
+            valueToUs += valueToUs * them.data.Traits.DiplomacyMod; // TODO FB - need to be smarter here
+            OfferQuality offerQuality = ProcessQuality(valueToUs, valueToThem);
+            PeaceAnswer response      = new PeaceAnswer
             {
-                OfferQuality = "Insulting";
-            }
-            else if (offerdifferential < 0.9f && offerdifferential > 0.65f)
-            {
-                OfferQuality = "Poor";
-            }
-            else if (offerdifferential >= 0.9f && offerdifferential < 1.1f)
-            {
-                OfferQuality = "Fair";
-            }
-            else if (offerdifferential >= 1.1 && offerdifferential < 1.45)
-            {
-                OfferQuality = "Good";
-            }
-            else if (offerdifferential >= 1.45f)
-            {
-                OfferQuality = "Great";
-            }
-            if (ValueToUs == ValueFromUs && ValueToUs > 0f)
-            {
-                OfferQuality = "Fair";
-            }
-            PeaceAnswer response = new PeaceAnswer
-            {
-                peace = false,
+                peace  = false,
                 answer = "REJECT_OFFER_PEACE_POOROFFER"
             };
+
             switch (us.GetRelations(them).ActiveWar.WarType)
             {
                 case WarType.BorderConflict:
@@ -1601,21 +1578,21 @@ namespace Ship_Game.AI
                     state = us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs);
                     if (state == WarState.WinningSlightly)
                     {
-                        if (OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
                             return response;
                         }
 
-                        if ((OfferQuality == "Fair" || OfferQuality == "Good") &&
+                        if ((offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good) &&
                             us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
                         {
                             response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
                             return response;
                         }
 
-                        if (OfferQuality == "Fair" || OfferQuality == "Good")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1628,7 +1605,7 @@ namespace Ship_Game.AI
 
                     if (state == WarState.Dominating)
                     {
-                        if (OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1641,7 +1618,7 @@ namespace Ship_Game.AI
 
                     if (state == WarState.ColdWar)
                     {
-                        if (OfferQuality != "Great")
+                        if (offerQuality != OfferQuality.Great)
                         {
                             response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
                             return response;
@@ -1660,14 +1637,14 @@ namespace Ship_Game.AI
                             {
                                 return response;
                             }
-                            if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                            if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                             {
                                 response.answer = "ACCEPT_OFFER_PEACE";
                                 response.peace = true;
                                 return response;
                             }
 
-                            if (OfferQuality != "Poor")
+                            if (offerQuality != OfferQuality.Poor)
                             {
                                 response.answer = "REJECT_OFFER_PEACE_POOROFFER";
                                 return response;
@@ -1678,7 +1655,7 @@ namespace Ship_Game.AI
                             return response;
                         }
 
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1689,21 +1666,21 @@ namespace Ship_Game.AI
                         return response;
                     }
 
-                    if (OfferQuality == "Great")
+                    if (offerQuality == OfferQuality.Great)
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
                         return response;
                     }
 
-                    if ((OfferQuality == "Fair" || OfferQuality == "Good") &&
+                    if ((offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good) &&
                         us.GetRelations(them).ActiveWar.StartingNumContestedSystems > 0)
                     {
                         response.answer = "REJECT_OFFER_PEACE_UNWILLING_BC";
                         return response;
                     }
 
-                    if (OfferQuality == "Fair" || OfferQuality == "Good")
+                    if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good)
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
@@ -1718,7 +1695,7 @@ namespace Ship_Game.AI
                     state = us.GetRelations(them).ActiveWar.GetWarScoreState();
                     if (state == WarState.WinningSlightly)
                     {
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1731,7 +1708,7 @@ namespace Ship_Game.AI
 
                     if (state == WarState.Dominating)
                     {
-                        if (OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1744,7 +1721,7 @@ namespace Ship_Game.AI
 
                     if (state == WarState.EvenlyMatched)
                     {
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1761,7 +1738,7 @@ namespace Ship_Game.AI
                         str1 = name1;
                         if (name1 != null && str1 == "Pacifist")
                         {
-                            if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                            if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                             {
                                 response.answer = "ACCEPT_OFFER_PEACE";
                                 response.peace = true;
@@ -1772,7 +1749,7 @@ namespace Ship_Game.AI
                             return response;
                         }
 
-                        if (OfferQuality != "Great")
+                        if (offerQuality != OfferQuality.Great)
                         {
                             response.answer = "REJECT_PEACE_RUTHLESS";
                             return response;
@@ -1789,14 +1766,14 @@ namespace Ship_Game.AI
                         {
                             return response;
                         }
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
                             return response;
                         }
 
-                        if (OfferQuality != "Poor")
+                        if (offerQuality != OfferQuality.Poor)
                         {
                             response.answer = "REJECT_OFFER_PEACE_POOROFFER";
                             return response;
@@ -1807,7 +1784,7 @@ namespace Ship_Game.AI
                         return response;
                     }
 
-                    if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                    if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
@@ -1826,7 +1803,7 @@ namespace Ship_Game.AI
                     state = us.GetRelations(them).ActiveWar.GetWarScoreState();
                     if (state == WarState.WinningSlightly)
                     {
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1839,7 +1816,7 @@ namespace Ship_Game.AI
 
                     if (state == WarState.Dominating)
                     {
-                        if (OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1852,7 +1829,7 @@ namespace Ship_Game.AI
 
                     if (state == WarState.EvenlyMatched)
                     {
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
@@ -1869,7 +1846,7 @@ namespace Ship_Game.AI
                         str1 = name2;
                         if (name2 != null && str1 == "Pacifist")
                         {
-                            if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                            if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                             {
                                 response.answer = "ACCEPT_OFFER_PEACE";
                                 response.peace = true;
@@ -1880,7 +1857,7 @@ namespace Ship_Game.AI
                             return response;
                         }
 
-                        if (OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_PEACE_COLDWAR";
                             response.peace = true;
@@ -1897,14 +1874,14 @@ namespace Ship_Game.AI
                         {
                             return response;
                         }
-                        if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                        if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                         {
                             response.answer = "ACCEPT_OFFER_PEACE";
                             response.peace = true;
                             return response;
                         }
 
-                        if (OfferQuality != "Poor")
+                        if (offerQuality != OfferQuality.Poor)
                         {
                             response.answer = "REJECT_OFFER_PEACE_POOROFFER";
                             return response;
@@ -1915,7 +1892,7 @@ namespace Ship_Game.AI
                         return response;
                     }
 
-                    if (OfferQuality == "Fair" || OfferQuality == "Good" || OfferQuality == "Great")
+                    if (offerQuality == OfferQuality.Fair || offerQuality == OfferQuality.Good || offerQuality == OfferQuality.Great)
                     {
                         response.answer = "ACCEPT_OFFER_PEACE";
                         response.peace = true;
@@ -1968,6 +1945,30 @@ namespace Ship_Game.AI
             OwnerEmpire.GetRelations(Empire.Universe.PlayerEmpire).Treaty_OpenBorders = false;
             Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_Alliance = false;
             Empire.Universe.PlayerEmpire.GetRelations(OwnerEmpire).Treaty_OpenBorders = false;
+        }
+
+        OfferQuality ProcessQuality(float valueToUs, float valueToThem)
+        {
+            float offerDifferential = valueToUs / valueToThem.LowerBound(0.0001f);
+
+            if (offerDifferential.AlmostEqual(1) && valueToUs > 0)
+                return OfferQuality.Fair;
+
+            if (offerDifferential > 1.45f) return OfferQuality.Great;
+            if (offerDifferential > 1.1f)  return OfferQuality.Good;
+            if (offerDifferential > 0.9f)  return OfferQuality.Fair;
+            if (offerDifferential > 0.65f) return OfferQuality.Poor;
+
+            return OfferQuality.Insulting;
+        }
+
+        enum OfferQuality
+        {
+            Insulting,
+            Poor,
+            Fair,
+            Good,
+            Great
         }
     }
 }
