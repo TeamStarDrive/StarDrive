@@ -4,6 +4,7 @@ using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Ship_Game.AI
 {
@@ -1005,7 +1006,7 @@ namespace Ship_Game.AI
         {
             WarState state;
             Empire us = OwnerEmpire;
-            DTrait dt = us.data.DiplomaticPersonality;
+            DTrait personality = us.data.DiplomaticPersonality;
 
             float valueToUs   = ToUs.ArtifactsOffered.Count * 15f;
             float valueToThem = FromUs.ArtifactsOffered.Count * 15f;
@@ -1037,531 +1038,35 @@ namespace Ship_Game.AI
                     valueToUs += worth;
                 }
             }
-            string name = dt.Name;
-            string str1 = name;
-            if (name != null)
+
+            if (personality.Name.NotEmpty())
             {
-                if (str1 == "Pacifist")
+                WarType warType = us.GetRelations(them).ActiveWar.WarType;
+                WarState warState = WarState.NotApplicable;
+                switch (warType)
                 {
-                    switch (us.GetRelations(them).ActiveWar.WarType)
-                    {
-                        case WarType.BorderConflict:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs))
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.ImperialistWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.DefensiveWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
+                    case WarType.BorderConflict: warState = us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs); break;
+                    case WarType.ImperialistWar: warState = us.GetRelations(them).ActiveWar.GetWarScoreState();                  break;
+                    case WarType.DefensiveWar:   warState = us.GetRelations(them).ActiveWar.GetWarScoreState();                  break;
                 }
-                else if (str1 == "Honorable")
+
+                switch (personality.Name)
                 {
-                    switch (us.GetRelations(them).ActiveWar.WarType)
-                    {
-                        case WarType.BorderConflict:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs))
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 15f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 8f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 8f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 15f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.ImperialistWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 15f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 8f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 8f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 15f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.DefensiveWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                else if (str1 == "Cunning")
-                {
-                    switch (us.GetRelations(them).ActiveWar.WarType)
-                    {
-                        case WarType.BorderConflict:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs))
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.ImperialistWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.DefensiveWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                else if (str1 == "Xenophobic")
-                {
-                    switch (us.GetRelations(them).ActiveWar.WarType)
-                    {
-                        case WarType.BorderConflict:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs))
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 15f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 8f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 8f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 15f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.ImperialistWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 15f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 8f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 8f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 15f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.DefensiveWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 5f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 10f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                else if (str1 == "Aggressive")
-                {
-                    switch (us.GetRelations(them).ActiveWar.WarType)
-                    {
-                        case WarType.BorderConflict:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs))
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 75f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 200f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.ImperialistWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 75f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 200f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.DefensiveWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 10f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 75f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 200f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                else if (str1 == "Ruthless")
-                {
-                    switch (us.GetRelations(them).ActiveWar.WarType)
-                    {
-                        case WarType.BorderConflict:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetBorderConflictState(PlanetsToUs))
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 1f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 120f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 300f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.ImperialistWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 1f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 120f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 300f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                        case WarType.DefensiveWar:
-                        {
-                            switch (us.GetRelations(them).ActiveWar.GetWarScoreState())
-                            {
-                                case WarState.LosingBadly:
-                                {
-                                    valueToUs = valueToUs + 5f;
-                                    break;
-                                }
-                                case WarState.LosingSlightly:
-                                {
-                                    valueToUs = valueToUs + 1f;
-                                    break;
-                                }
-                                case WarState.WinningSlightly:
-                                {
-                                    valueToThem = valueToThem + 120f;
-                                    break;
-                                }
-                                case WarState.Dominating:
-                                {
-                                    valueToThem = valueToThem + 300f;
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
+                    case "Pacifist":
+                    case "Honorable" when warType == WarType.DefensiveWar:
+                        AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
+                    case "Honorable":
+                        AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
+                    case "Xenophobic" when warType == WarType.DefensiveWar:
+                        AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
+                    case "Xenophobic":
+                        AddToValue(warState, 15, 8, 8, 15, ref valueToUs, ref valueToThem); break;
+                    case "Aggressive":
+                        AddToValue(warState, 10, 5, 75, 200, ref valueToUs, ref valueToThem); break;
+                    case "Ruthless":
+                        AddToValue(warState, 5, 1, 120, 300, ref valueToUs, ref valueToThem); break;
+                    case "Cunning":
+                        AddToValue(warState, 10, 5, 5, 10, ref valueToUs, ref valueToThem); break;
                 }
             }
 
@@ -1629,7 +1134,7 @@ namespace Ship_Game.AI
                     break;
             }
 
-            return response; // Genocidal , Skirmish and NotApplicable  are refused by default
+            return response; // Genocidal , Skirmish and NotApplicable are refused by default
         }
 
         PeaceAnswer ProcessColdWar(OfferQuality offerQuality)
@@ -1718,6 +1223,18 @@ namespace Ship_Game.AI
             if (offerDifferential > 0.65f) return OfferQuality.Poor;
 
             return OfferQuality.Insulting;
+        }
+
+        void AddToValue(WarState warState, float losingBadly, float losingSlightly, float winningSlightly, float dominating, 
+            ref float valueToUs, ref float valueToThem)
+        {
+            switch (warState)
+            {
+                case WarState.LosingBadly:     valueToUs   += losingBadly;       break;
+                case WarState.LosingSlightly:  valueToUs   += losingSlightly;    break;
+                case WarState.WinningSlightly: valueToThem += winningSlightly;   break;
+                case WarState.Dominating:      valueToThem += dominating;        break;
+            }
         }
 
         enum OfferQuality
