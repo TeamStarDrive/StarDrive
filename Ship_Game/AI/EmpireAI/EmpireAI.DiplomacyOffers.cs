@@ -1,10 +1,6 @@
-using Ship_Game.AI.StrategyAI.WarGoals;
-using Ship_Game.AI.Tasks;
 using Ship_Game.Gameplay;
 using Ship_Game.Ships;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace Ship_Game.AI
 {
