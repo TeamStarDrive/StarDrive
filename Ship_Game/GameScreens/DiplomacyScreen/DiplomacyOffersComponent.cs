@@ -105,7 +105,7 @@ namespace Ship_Game.GameScreens.DiplomacyScreen
                 // FB - Do not trade ship tech that the AI cannot use due to lack of pre-made designs
                 if (!Them.isPlayer && entry.IsOnlyShipTech() && !Them.WeCanUseThis(tech, theirDesigns))
                     continue;
-
+                
                 var text = LocalizedText.Parse($"{{{tech.NameIndex}}}: {(int)tech.ActualCost}");
                 techs.AddSubItem(new ItemToOffer(text, "Tech") { SpecialInquiry = entry.UID });
             }
