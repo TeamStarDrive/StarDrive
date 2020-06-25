@@ -2255,18 +2255,10 @@ namespace Ship_Game
             }
             foreach (Planet planet in list1)
                 OwnedPlanets.Remove(planet);
+
             for (int index = 0; index < data.AgentList.Count; ++index)
-            {
-                if (data.AgentList[index].Mission != AgentMission.Defending && data.AgentList[index].TurnsRemaining > 0)
-                {
-                    --data.AgentList[index].TurnsRemaining;
-                    if (data.AgentList[index].TurnsRemaining == 0)
-                        data.AgentList[index].DoMission(this);
-                }
-                //Age agents
-                data.AgentList[index].Age += 0.1f;
-                data.AgentList[index].ServiceYears += 0.1f;
-            }
+                data.AgentList[index].Update(this);
+
             data.AgentList.ApplyPendingRemovals();
 
             if (Money < 0.0 && !isFaction)
