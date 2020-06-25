@@ -1871,6 +1871,22 @@ namespace Ship_Game
             }
         }
 
+        public int GetSpyDefense()
+        {
+            float defense = 0;
+            for (int i = 0; i < data.AgentList.Count; i++)
+            {
+                if (data.AgentList[i].Mission == AgentMission.Defending)
+                    defense += data.AgentList[i].Level;
+            }
+
+            defense /= (OwnedPlanets.Count / 3).LowerBound(1);
+            defense += data.SpyModifier;
+            defense += data.DefensiveSpyBonus;
+
+            return (int)defense;
+        }
+
         /// <summary>
         /// Gets the total population in billions
         /// </summary>
