@@ -31,7 +31,7 @@ namespace Ship_Game.AI
             OwnerEmpire.data.DefenseBudget = DetermineDefenseBudget(0, treasuryGoal);
             OwnerEmpire.data.SSPBudget     = DetermineSSPBudget(treasuryGoal);
             BuildCapacity                  = DetermineBuildCapacity(gameState, treasuryGoal);
-            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(0,treasuryGoal);
+            OwnerEmpire.data.SpyBudget     = DetermineSpyBudget(gameState, money);
             OwnerEmpire.data.ColonyBudget  = DetermineColonyBudget(treasuryGoal);
 
             PlanetBudgetDebugInfo();
@@ -94,8 +94,9 @@ namespace Ship_Game.AI
         {
             EconomicResearchStrategy strat = OwnerEmpire.Research.Strategy;
             float overSpend = OverSpendRatio(money,  1 - strat.MilitaryRatio, 1f);
-
-            return SetBudgetForeArea(0.2f, Math.Max(risk, overSpend), money) / BuildModifier();
+            risk            = risk.LowerBound(overSpend); // * threat multiplier
+            int numPlanets  = OwnerEmpire.GetPlanets().Count;
+            return (money / 4 / numPlanets) * risk; 
         }
 
         private void PlanetBudgetDebugInfo()
