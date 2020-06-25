@@ -72,7 +72,7 @@ namespace Ship_Game.GameScreens.Espionage
             foreach (Agent agent in e.data.AgentList)
             {
                 if (agent.Mission == AgentMission.Defending)
-                    espionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenceLevelBonus;
+                    espionageDefense += agent.Level * ResourceManager.AgentMissionData.DefenseLevelBonus;
             }
             espionageDefense /= e.NumPlanets / 3 + 1;
             espionageDefense += e.data.SpyModifier + e.data.DefensiveSpyBonus;
